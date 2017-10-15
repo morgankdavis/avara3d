@@ -1,0 +1,135 @@
+//
+//  Material.cpp
+//	avara-engine
+//
+//  Created by Morgan Davis on 10/21/16.
+//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//
+
+#include "Material.h"
+
+#include "MaterialProperty.h"
+
+
+using namespace ae;
+using namespace std;
+
+
+/***************************************************************************************
+     MARK:   Lifecycle
+ **************************************************************************************/
+
+Material::Material(const string name):
+	m_name(name),
+	m_ambient(nullptr),
+	m_diffuse(nullptr),
+	m_specular(nullptr),
+	m_specularExponent(1.0),
+	m_litPerPixel(true),
+	m_lockAmbientWithDiffuse(false),
+	m_doubleSided(false),
+	m_readFromDepthBuffer(true),
+	m_fillMode(MaterialFillModeFill) {
+	
+}
+
+Material::Material(const string name,
+				   shared_ptr<MaterialProperty> ambient,
+				   shared_ptr<MaterialProperty> diffuse,
+				   shared_ptr<MaterialProperty> specular):
+	m_name(name),
+	m_ambient(ambient),
+	m_diffuse(diffuse),
+	m_specular(specular),
+	m_specularExponent(1.0),
+	m_litPerPixel(true),
+	m_lockAmbientWithDiffuse(false),
+	m_doubleSided(false),
+	m_readFromDepthBuffer(true),
+	m_fillMode(MaterialFillModeFill) {
+	
+}
+
+/***************************************************************************************
+     MARK:   Public
+ **************************************************************************************/
+
+string Material::name() const {
+	return m_name;
+}
+
+void Material::name(const string name) {
+	m_name = name;
+}
+
+shared_ptr<MaterialProperty> Material::ambient() const {
+	return m_ambient;
+}
+
+void Material::ambient(const shared_ptr<MaterialProperty> property) {
+	m_ambient = property;
+}
+
+shared_ptr<MaterialProperty> Material::diffuse() const {
+	return m_diffuse;
+}
+
+void Material::diffuse(const shared_ptr<MaterialProperty> property) {
+	m_diffuse = property;
+}
+
+shared_ptr<MaterialProperty> Material::specular() const {
+	return m_specular;
+}
+
+void Material::specular(const shared_ptr<MaterialProperty> property) {
+	m_specular = property;
+}
+
+float Material::specularExponent() const {
+	return m_specularExponent;
+}
+
+void Material::specularExponent(const float exponent) {
+	m_specularExponent = exponent;
+}
+
+bool Material::litPerPixel() const {
+	return m_litPerPixel;
+}
+
+void Material::litPerPixel(const bool flag) {
+	m_litPerPixel = flag;
+}
+
+bool Material::lockAmbientWithDiffuse() const {
+	return m_lockAmbientWithDiffuse;
+}
+
+void Material::lockAmbientWithDiffuse(const bool flag) {
+	m_lockAmbientWithDiffuse = flag;
+}
+
+bool Material::doubleSided() const {
+	return m_doubleSided;
+}
+
+void Material::doubleSided(const bool flag) {
+	m_doubleSided = flag;
+}
+
+bool Material::readFromDepthBuffer() const {
+	return m_readFromDepthBuffer;
+}
+
+void Material::readFromDepthBuffer(const bool flag) {
+	m_readFromDepthBuffer = flag;
+}
+
+MaterialFillMode Material::fillMode() const {
+	return m_fillMode;
+}
+
+void Material::fillMode(const MaterialFillMode mode) {
+	m_fillMode = mode;
+}

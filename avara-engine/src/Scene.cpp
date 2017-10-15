@@ -1,0 +1,340 @@
+//
+//  Scene.cpp
+//	avara-engine
+//
+//  Created by Morgan Davis on 10/21/16.
+//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//
+
+#include "Scene.h"
+
+#include <iostream>
+
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+
+#include "Camera.h"
+#include "Color.h"
+#include "Geometry.h"
+#include "GeometryElement.h"
+#include "Image.h"
+#include "Light.h"
+#include "Material.h"
+#include "MaterialProperty.h"
+#include "Node.h"
+#include "Utilities.h"
+
+
+using namespace ae;
+using namespace ae::utils;
+using namespace std;
+using namespace glm;
+using namespace Assimp;
+
+
+/***************************************************************************************
+     MARK:   Lifecycle
+ **************************************************************************************/
+
+Scene::Scene():
+	m_rootNode(make_shared<Node>("Root node")),
+	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
+	m_materials(vector<shared_ptr<Material>>()) {
+
+}
+
+Scene::Scene(const std::string& path, const SceneLoadingOption options):
+	m_rootNode(make_shared<Node>("Root node")),
+	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
+	m_materials(vector<shared_ptr<Material>>()) {
+
+	loadFile(path, options);
+}
+
+
+/***************************************************************************************
+     MARK:   Public
+ **************************************************************************************/
+
+shared_ptr<Node> Scene::rootNode() const {
+	return m_rootNode;
+}
+
+//void Scene::rootNode(const std::shared_ptr<Node> node) {
+//	m_rootNode = node;
+//}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
+vector<shared_ptr<GeometryElement>>& Scene::geometryElements() {
+	return m_geometryElements;
+}
+
+vector<shared_ptr<Material>>& Scene::materials() {
+	return m_materials;
+}
+
+shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
+
+	float maxFloat = numeric_limits<float>::max();
+	float minFloat = numeric_limits<float>::min();
+
+	auto boundingPoints = make_shared<map<string, vec3>>();
+	(*boundingPoints)["xMin"] = vec3(maxFloat, 0, 0);
+	(*boundingPoints)["xMax"] = vec3(minFloat, 0, 0);
+	(*boundingPoints)["xMin"] = vec3(0, maxFloat, 0);
+	(*boundingPoints)["yMax"] = vec3(0, minFloat, 0);
+	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
+	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
+
+	vector<shared_ptr<Geometry>> geometries;
+	for (auto node : rootNode()->allChildNodes()) {
+		if (node->geometry()) {
+			geometries.push_back(node->geometry());
+		}
+	}
+
+	for (auto geometry : geometries) {
+		auto points = geometry->boundingPoints();
+
+		if ((*points)["xMin"].x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = (*points)["xMin"];
+		if ((*points)["xMax"].x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = (*points)["xMax"];
+
+		if ((*points)["yMin"].y < (*boundingPoints)["yMin"].y) (*boundingPoints)["yMin"] = (*points)["yMin"];
+		if ((*points)["yMax"].y > (*boundingPoints)["yMax"].y) (*boundingPoints)["yMax"] = (*points)["yMax"];
+
+		if ((*points)["zMin"].z < (*boundingPoints)["zMin"].z) (*boundingPoints)["zMin"] = (*points)["zMin"];
+		if ((*points)["zMax"].z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = (*points)["zMax"];
+	}
+
+	cout << "SCENE boundingPoints: " << endl;
+	for (auto const& x : (*boundingPoints)) {
+		cout << x.first << ": " << x.second << endl;
+	}
+
+	return boundingPoints;
+}
+
+/***************************************************************************************
+     MARK:   Private
+ **************************************************************************************/
+
+void Scene::loadFile(const string& path, const SceneLoadingOption options) {
+	
+	cout << "Loading scene: " << path << endl;
+
+	unsigned int assimpFlags = aiProcess_Triangulate | aiProcess_SortByPType | aiProcess_GenSmoothNormals;
+	if (options & SceneLoadingOptionValidateStructure) assimpFlags |= aiProcess_ValidateDataStructure;
+	if (options & SceneLoadingOptionPreTransform) assimpFlags |= aiProcess_PreTransformVertices;
+	if (options & SceneLoadingOptionImproveCacheLocality) assimpFlags |= aiProcess_ImproveCacheLocality;
+
+	const aiScene* scene = aiImportFile(path.c_str(), assimpFlags);
+	
+	if (scene) {
+		
+		// ********** meshes (ae::GeometryElement) **********
+		
+		int numMeshes = scene->mNumMeshes;
+		for (int m=0; m<numMeshes; ++m) {
+			aiMesh *mesh = scene->mMeshes[m];
+			
+			aiString name = mesh->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				cout << "mName: " << name.C_Str() << endl;
+			}
+			
+			auto verts = vector<Vertex>();
+			unsigned int numUVChannels = mesh->GetNumUVChannels();
+			cout << "numUVChannels: " << numUVChannels << endl;
+			bool hasNormals = mesh->HasNormals();
+			bool hasTextureCoordinates = mesh->HasTextureCoords(0);
+			
+			unsigned int numVerts = mesh->mNumVertices;
+			for (unsigned int v=0; v<numVerts; ++v) {
+				aiVector3D position = mesh->mVertices[v];
+				aiVector3D normal = aiVector3D(0, 0, 0);
+				aiVector3D texCoord = aiVector3D(0, 0, 0);
+				
+				if (hasNormals) {
+					normal = mesh->mNormals[v];
+				}
+				
+				if (hasTextureCoordinates) {
+					texCoord = mesh->mTextureCoords[0][v];
+				}
+				
+				Vertex vert = {aiVector3DToGLMVec3(position),
+							   aiVector3DToGLMVec3(normal),
+							   vec2(texCoord.x, texCoord.y)};
+				verts.push_back(vert);
+			}
+
+			auto faces = vector<Face>();
+			unsigned int numFaces = mesh->mNumFaces;
+			for (unsigned int f=0; f<numFaces; ++f) {
+				aiFace face = mesh->mFaces[f];
+				faces.push_back({face.mIndices[0], face.mIndices[1], face.mIndices[2]});
+			}
+			
+			auto element = make_shared<GeometryElement>(verts, faces);
+			geometryElements().push_back(element);
+		}
+		
+
+		// ********** materials **********
+		
+		for (unsigned int m=0; m<scene->mNumMaterials; --m) {
+			printf("material[%d]\n", m);
+			aiMaterial* aiMaterial = scene->mMaterials[m];
+
+			const int MAX_TEXTURES = 16;
+			for (int s=0; s<MAX_TEXTURES; ++s) {
+				for (int i = 0; i < MAX_TEXTURES; ++i) {
+					aiString filename;
+					aiReturn ret = aiMaterial->Get(AI_MATKEY_TEXTURE(s, i), filename);
+
+					if (ret == AI_SUCCESS) {
+						cout << "Texture " << i << " filename: " << filename.C_Str() << endl;
+
+						char fullPath[1024];
+						realpath(path.c_str(), fullPath);
+						set<char> delims{'/'};
+						vector<string> pathComponents = utils::pathComponents(fullPath, delims);
+						pathComponents.pop_back();
+						
+						string textureName = filename.C_Str();
+						if (textureName.substr(0,2) == "./") {
+							textureName = textureName.substr(2, textureName.length()-2);
+						}
+						pathComponents.push_back(textureName);
+						string texturePath = pathFromComponents(pathComponents, '/');
+						
+						auto ambientDiffuseMaterialProperty = make_shared<MaterialProperty>(texturePath);
+						auto specularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>());
+						auto material = make_shared<Material>("",
+															  ambientDiffuseMaterialProperty,
+															  ambientDiffuseMaterialProperty,
+															  specularMaterialProperty);
+						
+						materials().push_back(material);
+					}
+					else {
+						break; // all out of materials
+					}
+				}
+			}
+		}
+		
+		// ********** nodes (ae::Geometry) **********
+		
+		// in AI terminology, a "node" is what we call a "geometry"
+		// also in AI terminology, a "mesh" is what we call a "geometry element"
+		
+		addAIGeometryNodes(scene, rootNode());
+		
+		// ********** lights **********
+
+		for (unsigned int l=0; l<scene->mNumLights; --l) {
+			break; // disable light importing, we'll do it ourselves!
+
+			auto light = make_shared<Light>();
+			auto lightNode = make_shared<Node>("Light");
+			lightNode->light(light);
+			rootNode()->addChildNode(lightNode);
+			cout << "Adding light: " << light << endl;
+		}
+
+		// ********** cameras **********
+		
+		for (unsigned int c=0; c<scene->mNumCameras; --c) {
+			break; // disable camera importing, we'll do it ourselves!
+
+			aiCamera* aiCamera = scene->mCameras[c];
+
+			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
+											  aiCamera->mClipPlaneFar,
+											  aiCamera->mHorizontalFOV);
+			auto cameraNode = make_shared<Node>("Camera");
+			cameraNode->camera(camera);
+
+			aiNode* aiCamNode = scene->mRootNode->FindNode(aiCamera->mName);
+
+			auto viewMat = aiMaxtrix4x4ToGLMMat4(aiCamNode->mTransformation);
+
+			cameraNode->transform(viewMat);
+
+			rootNode()->addChildNode(cameraNode);
+			cout << "Adding camera: " << camera << endl;
+		}
+	}
+	else {
+		cout << "Error importing mesh: " << aiGetErrorString() << endl;
+	}
+	
+	aiReleaseImport(scene);
+}
+
+void Scene::addAIGeometryNodes(const aiScene* aiScene, shared_ptr<Node> aeRootNode) {
+	aiNode* aiRootGeometryNode = aiScene->mRootNode;
+	unsigned int nChildren = aiRootGeometryNode->mNumChildren;
+	for (unsigned int i=0; i<nChildren; ++i) {
+		aiNode* child = (aiRootGeometryNode->mChildren)[i];
+		addAIGeometryNodeRec(aiScene, child, aeRootNode);
+	}
+}
+
+void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
+								 const aiNode* aiGeometryNode,
+								 shared_ptr<Node> aeParentNode) {
+	
+	aiMetadata* md = aiGeometryNode->mMetaData;
+	if (md) {
+		// not sure what this is for yet
+		cout << md->mKeys << endl;
+	}
+
+	string name = aiGeometryNode->mName.C_Str();
+	mat4 transform = aiMaxtrix4x4ToGLMMat4(aiGeometryNode->mTransformation);
+	cout << "Adding '" << name << "' with transform: " << endl;
+	cout << transform << endl;
+	
+	auto elements = vector<shared_ptr<GeometryElement>>();
+	auto materials = vector<shared_ptr<Material>>();
+	int numMeshes = aiGeometryNode->mNumMeshes;
+	for (int m=0; m<numMeshes; ++m) {
+		unsigned int meshIndex = aiGeometryNode->mMeshes[m];
+		auto element = this->geometryElements()[meshIndex];
+		elements.push_back(element);
+		
+		unsigned int materialIndex = aiScene->mMeshes[m]->mMaterialIndex;
+		if (this->materials().size() && (this->materials().size()-1 >= materialIndex)) {
+			auto material = this->materials()[materialIndex];
+			materials.push_back(material);
+		}
+	}
+
+	// *** some nodes only have cameras and lights, which we are throwing out.
+	// so don't add a node with nothing in it. ***
+
+	shared_ptr<Node> newNode = nullptr;
+
+	if (numMeshes > 0) {
+		auto geometry = make_shared<Geometry>(elements, materials);
+		geometry->name(name);
+
+		newNode = make_shared<Node>(name, transform, geometry);
+		aeParentNode->addChildNode(newNode);
+	}
+	else {
+		newNode = make_shared<Node>(name, transform);
+		aeParentNode->addChildNode(newNode);
+	}
+
+	unsigned int nChildren = aiGeometryNode->mNumChildren;
+	for (unsigned int i = 0; i < nChildren; ++i) {
+		aiNode *child = (aiGeometryNode->mChildren)[i];
+		addAIGeometryNodeRec(aiScene, child, newNode);
+	}
+}
