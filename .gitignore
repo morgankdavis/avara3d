@@ -7,7 +7,7 @@
 
 # CLion
 .idea
-cmake*
+cmake-build-*
 
 # Icon must end with two \r
 Icon
@@ -154,6 +154,3 @@ fastlane/screenshots
 #*.so.*
 #*.dylib
 
-
-# CLion
-cmake-build-*
