@@ -112,15 +112,14 @@ string ae::utils::TestDataDirectoryPath() {
 }
 
 std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shared_ptr scoped?
-	return TestSceneNamed(name, "dae", (SceneLoadingOption)0);
+	return TestSceneNamed(name, "dae");
 }
 
 std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
-												 const string& type,
-												 const SceneLoadingOption options) {
+												 const string& type) {
 
 	string fullPath = TestDataDirectoryPath() + "scenes/" + name + "." + type;
-	return make_shared<Scene>(fullPath, options);
+	return make_shared<Scene>(fullPath);
 }
 
 

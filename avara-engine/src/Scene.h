@@ -38,7 +38,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Scene(); // no want but Window is complaining about wanting a "default contructor" for us
-		Scene(const std::string& path, const SceneLoadingOption options);
+		Scene(const std::string& path);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -74,7 +74,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void loadFile(const std::string& path, const SceneLoadingOption options);
+		void loadFile(const std::string& path);
 		void addAIGeometryNodes(const aiScene* aiScene,
 								std::shared_ptr<Node> aeRootNode);
 		void addAIGeometryNodeRec(const aiScene* aiScene,

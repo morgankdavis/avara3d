@@ -36,16 +36,16 @@ Program::Program(const ProgramType type):
 		string shaderName = "";
 	
 	switch (type) {
-		case ProgramTypeDefault:
+		case ProgramType_Default:
 			shaderName = "default";
 			break;
-		case ProgramTypePhongPlain:
+		case ProgramType_PhongPlain:
 			shaderName = "phone_plain";
 			break;
-		case ProgramTypePhongTexture:
+		case ProgramType_PhongTexture:
 			shaderName = "phong_texture"; // temporary
 			break;
-		case ProgramTypeFancy:
+		case ProgramType_Fancy:
 			shaderName = "fancy"; // temporary
 			break;
 		default:

@@ -28,7 +28,7 @@ GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 	m_glVAO(-1),
 	m_glIBO(-1) {
 	// TODO: **** TEMPORARY ***
-	m_program = make_shared<Program>(ProgramTypeDefault);
+	m_program = make_shared<Program>(ProgramType_Default);
 	if (!m_program->compile()) {
 		cerr << "*** ERROR COMPILING SHADER ***" << endl;
 	}

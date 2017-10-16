@@ -50,8 +50,7 @@ namespace ae {
 		std::string TestDataDirectoryPath();
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
-											  const std::string& type,
-											  const SceneLoadingOption options);
+											  const std::string& type);
 		
 		
 		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);

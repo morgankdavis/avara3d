@@ -43,12 +43,12 @@ Scene::Scene():
 
 }
 
-Scene::Scene(const std::string& path, const SceneLoadingOption options):
+Scene::Scene(const std::string& path):
 	m_rootNode(make_shared<Node>("Root node")),
 	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()) {
 
-	loadFile(path, options);
+	loadFile(path);
 }
 
 
@@ -121,14 +121,15 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
      MARK:   Private
  **************************************************************************************/
 
-void Scene::loadFile(const string& path, const SceneLoadingOption options) {
+void Scene::loadFile(const string& path) {
 	
 	cout << "Loading scene: " << path << endl;
 
-	unsigned int assimpFlags = aiProcess_Triangulate | aiProcess_SortByPType | aiProcess_GenSmoothNormals;
-	if (options & SceneLoadingOptionValidateStructure) assimpFlags |= aiProcess_ValidateDataStructure;
-	if (options & SceneLoadingOptionPreTransform) assimpFlags |= aiProcess_PreTransformVertices;
-	if (options & SceneLoadingOptionImproveCacheLocality) assimpFlags |= aiProcess_ImproveCacheLocality;
+	unsigned int assimpFlags = aiProcess_Triangulate
+		| aiProcess_SortByPType
+		| aiProcess_GenSmoothNormals
+		| aiProcess_ImproveCacheLocality
+		| aiProcess_ValidateDataStructure;
 
 	const aiScene* scene = aiImportFile(path.c_str(), assimpFlags);
 	

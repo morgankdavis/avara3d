@@ -19,6 +19,7 @@
 #include "Color.h"
 #include "Geometry.h"
 #include "Globals.h"
+#include "InputManager.h"
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
@@ -75,8 +76,10 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 	m_framebufferScale(framebufferScale),
 	m_framebufferWidth(m_width * m_framebufferScale),
 	m_framebufferHeight(m_height * m_framebufferScale),
-	m_antialiasingMode(AntialiasingModeNone),
-	//m_backgroundColor(black()),
+	m_antialiasingMode(AntialiasingMode_None),
+	m_backgroundColor(nullptr),
+	m_pointOfView(nullptr),
+	m_inputManager(nullptr),
 	m_willUpdateCallback(nullptr),
 	m_didUpdateCallback(nullptr) {
 
@@ -97,6 +100,9 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 
 Window::~Window() {
 	
+	if (m_inputManager != nullptr) {
+		m_inputManager->unregisterCallbacks();
+	}
 	glfwTerminate();
 }
 
@@ -209,6 +215,13 @@ shared_ptr<Camera> Window::pointOfView() const {
 
 void Window::pointOfView(const shared_ptr<Camera> camera) {
 	m_pointOfView = camera;
+}
+
+shared_ptr<InputManager> Window::inputManager() {
+	if (m_inputManager == nullptr) {
+		m_inputManager = make_shared<InputManager>(this);
+	}
+	return m_inputManager;
 }
 
 void Window::addDefaultCamera() {
@@ -356,6 +369,10 @@ void Window::mainLoop(const float totalSeconds, const float deltaSeconds) {
 	glfwPollEvents();
 
 	if (glfwGetKey(g_glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		if (m_inputManager != nullptr) {
+			m_inputManager->unregisterCallbacks();
+		}
+		
 		glfwSetWindowShouldClose(g_glfwWindow, 1);
 	}
 

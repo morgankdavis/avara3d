@@ -22,6 +22,7 @@ namespace ae {
 	class Scene;
 	class Camera;
 	class Color;
+	class InputManager;
 
 #if defined(EXPERIMENTAL)
 	class Screen;
@@ -81,6 +82,8 @@ namespace ae {
 
 		std::shared_ptr<Camera> pointOfView() const;
 		void pointOfView(const std::shared_ptr<Camera> camera);
+		
+		std::shared_ptr<InputManager> inputManager();
 
 		void addDefaultCamera();
 		
@@ -99,18 +102,19 @@ namespace ae {
 		void updateFrametime(unsigned int numPolygons);
 		void mainLoop(const float totalSeconds, const float deltaSeconds);
 		
-		std::shared_ptr<Scene>		m_scene;
-		unsigned					m_width;
-		unsigned					m_height;
-		float						m_framebufferScale;
-		unsigned					m_framebufferWidth;
-		unsigned					m_framebufferHeight;
-		AntialiasingMode			m_antialiasingMode;
-		std::shared_ptr<Color>		m_backgroundColor;
-		std::shared_ptr<Camera>		m_pointOfView;
+		std::shared_ptr<Scene>			m_scene;
+		unsigned						m_width;
+		unsigned						m_height;
+		float							m_framebufferScale;
+		unsigned						m_framebufferWidth;
+		unsigned						m_framebufferHeight;
+		AntialiasingMode				m_antialiasingMode;
+		std::shared_ptr<Color>			m_backgroundColor;
+		std::shared_ptr<Camera>			m_pointOfView;
+		std::shared_ptr<InputManager> 	m_inputManager;
 		
-		windowWillUpdateFuction 	m_willUpdateCallback;
-		windowDidUpdateFuction 		m_didUpdateCallback;
+		windowWillUpdateFuction 		m_willUpdateCallback;
+		windowDidUpdateFuction 			m_didUpdateCallback;
 
 
 //#if defined(EXPERIMENTAL)

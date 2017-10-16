@@ -4,11 +4,18 @@ TODO:
 
 Keyboard & mouse API
 
-src/stb
-src/manymouse
+
+
+BUILD:
+	Add MacOS framework - https://cmake.org/cmake/help/v3.10/prop_tgt/FRAMEWORK.html
+	Compile libraries from SOURCE (cmake — no system library dependencies)
+
+
 
 Move camera realtime
 GOLD MINE https://github.com/karimnaaji/hdreffects
+
+Fix key callback crash on exit (escape)
 
 Propter scene graph unwind (child nodes, worldTransform, nodeNamed)
 

@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "ae.h"
+#include "InputManager.h"
 #include "Utilities.h"
 
 
@@ -48,7 +49,7 @@ int Test::run(const vector<string>& args) {
 	window->scene(scene);
 	window->enableCursor(false);
 	
-	//InputManager inputManager = InputManager(window);
+	m_inputManager = window->inputManager();
 	
 	window->display();
 	
@@ -57,10 +58,21 @@ int Test::run(const vector<string>& args) {
 
 void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
+	cout << "-------" << endl;
+	
 	static float totalSeconds = 0;
 	totalSeconds += deltaSeconds;
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	
+	for (auto k : m_inputManager->keysDown()) {
+		cout << "key: " << k << endl;
+	}
+	
+	for (auto mb : m_inputManager->mouseButtonsDown()) {
+		cout << "mouse button: " << mb << endl;
+	}
+	
 
 //	if (m_someNode) {
 //		m_someNode->transform(rotate(m_someNode->transform(), radians(rotationDeg), vec3(0.0f, 1.0f, 0.0f)));

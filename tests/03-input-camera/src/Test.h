@@ -10,6 +10,7 @@
 #define Test_h
 
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,8 +18,10 @@
 namespace ae {
 
 
+	class InputManager;
 	class Scene;
 
+	
 	class Test {
 		
 	public:
@@ -29,6 +32,8 @@ namespace ae {
 		void windowDidUpdateCallback(Scene& scene, float deltaSeconds);
 		
 	private:
+		
+		std::shared_ptr<InputManager>		m_inputManager;
 
 	};
 }

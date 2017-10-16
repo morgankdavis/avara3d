@@ -27,11 +27,11 @@ using namespace std;
 MaterialProperty::MaterialProperty(const std::string imagePath):
 		m_image(make_shared<Image>(imagePath)),
 		m_color(nullptr),
-		m_wrapS(WrapModeClamp),
-		m_wrapT(WrapModeClamp),
-		m_minificationFilter(WrapModeLinear),
-		m_magnificationFilter(WrapModeLinear),
-		m_mipFilter(WrapModeLinear),
+		m_wrapS(WrapMode_Clamp),
+		m_wrapT(WrapMode_Clamp),
+		m_minificationFilter(WrapMode_Linear),
+		m_magnificationFilter(WrapMode_Linear),
+		m_mipFilter(WrapMode_Linear),
 		m_maxAnisotropy(0),
 		m_glTex(-1) {
 
@@ -43,11 +43,11 @@ MaterialProperty::MaterialProperty(const std::string imagePath):
 MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 	m_image(image),
 	m_color(nullptr),
-	m_wrapS(WrapModeClamp),
-	m_wrapT(WrapModeClamp),
-	m_minificationFilter(WrapModeLinear),
-	m_magnificationFilter(WrapModeLinear),
-	m_mipFilter(WrapModeLinear),
+	m_wrapS(WrapMode_Clamp),
+	m_wrapT(WrapMode_Clamp),
+	m_minificationFilter(WrapMode_Linear),
+	m_magnificationFilter(WrapMode_Linear),
+	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
 	m_glTex(-1) {
 
@@ -58,11 +58,11 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
-	m_wrapS(WrapModeClamp),
-	m_wrapT(WrapModeClamp),
-	m_minificationFilter(WrapModeLinear),
-	m_magnificationFilter(WrapModeLinear),
-	m_mipFilter(WrapModeLinear),
+	m_wrapS(WrapMode_Clamp),
+	m_wrapT(WrapMode_Clamp),
+	m_minificationFilter(WrapMode_Linear),
+	m_magnificationFilter(WrapMode_Linear),
+	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
 	m_glTex(-1) {
 	
