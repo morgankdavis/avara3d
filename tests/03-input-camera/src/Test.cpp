@@ -106,10 +106,10 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (m_cameraNode) {
 		m_cameraNode->transform( rotate(m_cameraNode->transform(),
 										deltaSeconds * mouseSensitivity * mousePositionDelta.x,
-										vec3(1.0f, 0.0f, 0.0f)) );
+										vec3(0.0f, -1.0f, 0.0f)) );
 		m_cameraNode->transform( rotate(m_cameraNode->transform(),
 										deltaSeconds * mouseSensitivity * mousePositionDelta.y,
-										vec3(0.0f, 1.0f, 0.0f)) );
+										vec3(1.0f, 0.0f, 0.0f)) );
 
 		const static float MOVE_SPEED = 1.0f; // units/sec
 
