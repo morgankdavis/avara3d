@@ -108,7 +108,7 @@ string ae::utils::TestDataDirectoryPath() {
 #ifdef XCODE
 	return "../../../../tests/testdata/";
 #else
-	return "../../test_data/";
+	return "../../../tests/testdata/";
 #endif
 }
 
@@ -129,7 +129,7 @@ std::string ae::utils::ShaderSourceDirectoryPath() {
 #ifdef XCODE
 	return "../../../../avara-engine/shaders/";
 #else
-	return "../../test_data/";
+	return "../../../avara-engine/shaders/";
 #endif
 }
 

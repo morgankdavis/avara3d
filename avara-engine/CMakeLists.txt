@@ -41,6 +41,6 @@ target_link_libraries(ae stb manymouse)
 if(MACOS)
 	target_link_libraries(ae z glfw GLEW assimp freetype boost_container ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae z GL X11 Xxf86vm Xrandr pthread Xi glfw GLEW assimp nanogui nanovg)
+	target_link_libraries(ae z GL X11 Xxf86vm Xrandr pthread Xi dl glfw GLEW assimp)
 endif()
 

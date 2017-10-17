@@ -148,6 +148,8 @@ vec3 Node::position() const {
 //						  qy / sqrt(1-qw*qw),
 //						  qz / sqrt(1-qw*qw),
 //						  2 * acos(qw));
+
+	return translation;
 }
 
 void Node::position(const vec3 position) {
@@ -179,11 +181,11 @@ void Node::orientation(const quat orientation) {
 }
 
 vec3 Node::scale() const {
-	
+	return vec3(0.0f);
 }
 
 void Node::scale(const glm::vec3 scale) {
-	return vec3(0.0f);
+
 }
 
 mat4 Node::transform() const {
