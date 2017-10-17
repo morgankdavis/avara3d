@@ -43,40 +43,46 @@ int Test::run(const vector<string>& args) {
 	//	auto scene = TestSceneNamed("dragon", "obj", (SceneLoadingOption)0);
 	
 	
-	auto window = make_shared<Window>(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-	window->willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window->didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window->scene(scene);
-	window->enableCursor(false);
+	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.scene(scene);
+	window.enableCursor(false);
 	
-	m_inputManager = window->inputManager();
+	m_inputManager = window.inputManager();
 	
-	window->display();
+	window.display();
 	
 	return 0;
 }
 
 void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
-	cout << "-------" << endl;
-	
 	static float totalSeconds = 0;
 	totalSeconds += deltaSeconds;
 
-	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	auto keysDown = m_inputManager->keysDown();
+	for (auto k : keysDown) {
+		cout << "Key: " << k << endl;
+	}
 	
-	for (auto k : m_inputManager->keysDown()) {
-		cout << "key: " << k << endl;
+	if (keysDown.count(Key_Escape)) {
+		exit(0);
 	}
 	
 	for (auto mb : m_inputManager->mouseButtonsDown()) {
-		cout << "mouse button: " << mb << endl;
+		cout << "Mouse button: " << mb << endl;
 	}
 	
-
-//	if (m_someNode) {
-//		m_someNode->transform(rotate(m_someNode->transform(), radians(rotationDeg), vec3(0.0f, 1.0f, 0.0f)));
+//	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+//	if (mousePositionDelta.x || mousePositionDelta.y) {
+//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
 //	}
+	
+	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
+		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
+	}
 }
 
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {

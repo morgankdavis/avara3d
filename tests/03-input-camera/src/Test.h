@@ -20,6 +20,7 @@ namespace ae {
 
 	class InputManager;
 	class Scene;
+	class Window;
 
 	
 	class Test {
@@ -33,6 +34,7 @@ namespace ae {
 		
 	private:
 		
+		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 
 	};

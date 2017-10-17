@@ -99,10 +99,6 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 }
 
 Window::~Window() {
-	
-	if (m_inputManager != nullptr) {
-		m_inputManager->unregisterCallbacks();
-	}
 	glfwTerminate();
 }
 
@@ -128,7 +124,9 @@ void Window::display() {
 		
 		mainLoop(totalSeconds, deltaSeconds);
 		
-		if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
+		if (!glfwWindowShouldClose(g_glfwWindow)) {
+			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
+		}
 	}
 }
 
@@ -335,7 +333,7 @@ void Window::mainLoop(const float totalSeconds, const float deltaSeconds) {
 	
 	unsigned int numPolygons = 0;
 	
-	glClearColor(110.0f/256.0f, 107.0f/256.0f, 147.0f/256.0f, 1.0f);
+	glClearColor(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, framebufferWidth(), framebufferHeight());
 
@@ -366,16 +364,17 @@ void Window::mainLoop(const float totalSeconds, const float deltaSeconds) {
 		}
 	}
 	
+	if (m_inputManager != nullptr) {
+		m_inputManager->pumpManyMouse();
+	}
 	glfwPollEvents();
 
-	if (glfwGetKey(g_glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		if (m_inputManager != nullptr) {
-			m_inputManager->unregisterCallbacks();
-		}
-		
-		glfwSetWindowShouldClose(g_glfwWindow, 1);
-	}
-
-	glfwSwapBuffers(g_glfwWindow);
-	updateFrametime(numPolygons);
+	// TODO: Move to client side
+//	if (glfwGetKey(g_glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+//		glfwSetWindowShouldClose(g_glfwWindow, 1);
+//	}
+//	else {
+		glfwSwapBuffers(g_glfwWindow);
+		updateFrametime(numPolygons);
+//	}
 }

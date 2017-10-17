@@ -35,27 +35,28 @@ namespace ae {
 		 **************************************************************************************/
 
 		InputManager(Window* window);
+		~InputManager();
 
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 
-		std::set<KeyCode> keysDown(); // keys down since last query
-		std::set<MouseButtonCode> mouseButtonsDown(); // mouse buttons down since last query
-		glm::vec2 mouseMoveDelta(); // mouse move delta since last query
+		std::set<Key> keysDown(); // keys down since last query
+		std::set<MouseButton> mouseButtonsDown(); // mouse buttons down since last query
+		glm::vec2 mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 
-		void unregisterCallbacks();
 		
+		void pumpManyMouse();
 		Window* window() const;
 		
-		std::set<KeyCode> 			m_keysDown;
-		std::set<MouseButtonCode> 	m_mouseButtonsDown;
-		glm::vec2  					m_mouseMoveDelta;
+		std::set<Key> 			m_keysDown;
+		std::set<MouseButton> 	m_mouseButtonsDown;
+		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
 
 	private:
@@ -64,9 +65,14 @@ namespace ae {
      		MARK:   Private
 		 **************************************************************************************/
 
+		void initManyMouse();
+		void quitManyMouse();
+		void registerGLFWCallbacks();
+		void unregisterGLFWCallbacks();
+		
 		void clearKeysDown(); // called after keysDown()
 		void clearMouseDown(); // called after mouseButtonsDown()
-		void clearMouseMoveDelta(); // called after mouseMoveDelta()
+		void clearMousePositionDelta(); // called after mouseMoveDelta()
 		void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
 
 		Window*						m_window;

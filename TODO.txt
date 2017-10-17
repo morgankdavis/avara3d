@@ -16,6 +16,7 @@ Move camera realtime
 GOLD MINE https://github.com/karimnaaji/hdreffects
 
 Fix key callback crash on exit (escape)
+Init per Window. Test multiple windows. Fix global framebuffer size.
 
 Propter scene graph unwind (child nodes, worldTransform, nodeNamed)
 
@@ -25,8 +26,6 @@ Default light (may need to wait for shader)
 
 Draw bounding boxes, modal origin, world origin, axis plane grid?
 Mouseover == raycast & print x,y,z of anything hit
-
-Compile to library + separate out test apps
 
 SHADER CLASS EXAMPLE
 RELOAD SHADERS REALTIME

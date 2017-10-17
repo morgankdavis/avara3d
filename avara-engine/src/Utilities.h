@@ -52,7 +52,6 @@ namespace ae {
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
 											  const std::string& type);
 		
-		
 		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);
 		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);
 	}

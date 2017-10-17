@@ -102,8 +102,8 @@ namespace ae {
 
 //		glm::vec3 convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
 //		glm::vec3 convertPositionToNode(const glm::vec3& position, const Node& toNode);
-//		glm::vec3 convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
-//		glm::vec3 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
+//		glm::mat4 convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
+//		glm::mat4 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
 
 		/***************************************************************************************
      		MARK:   Internal
