@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <assimp/cimport.h>
+#include <glm/gtc/quaternion.hpp>
 
 #include "Scene.h"
 
@@ -33,7 +34,7 @@ ostream& ae::utils::operator<<(ostream& os, const glm::vec4& v) {
 }
 
 ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
-	//os << "(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
+	os << "(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
 	return os;
 }
 

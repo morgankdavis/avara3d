@@ -42,12 +42,26 @@ int Test::run(const vector<string>& args) {
 	auto scene = TestSceneNamed("importTest");
 	//	auto scene = TestSceneNamed("dragon", "obj", (SceneLoadingOption)0);
 	
+//	auto node = scene->rootNode()->immediateChildNodes()[4];
+//	node->position();
+
 	
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
+	
+	
+	
+	for (auto n : scene->rootNode()->immediateChildNodes()) {
+		if (n->camera()) {
+			m_cameraNode = n;
+			break;
+		}
+	}
+	
+	
 	
 	m_inputManager = window.inputManager();
 	
@@ -74,7 +88,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		cout << "Mouse button: " << mb << endl;
 	}
 	
-//	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 //	if (mousePositionDelta.x || mousePositionDelta.y) {
 //		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
 //	}
@@ -82,6 +96,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
+	}
+	
+	// TODO: Use trig
+	const float mouseSensitivity = 0.1f;
+	
+	auto someNode = scene.rootNode()->immediateChildNodes()[4];
+	if (m_cameraNode) {
+		m_cameraNode->transform( rotate(m_cameraNode->transform(),
+										mouseSensitivity*mousePositionDelta.x,
+										vec3(1.0f, 0.0f, 0.0f)) );
+		m_cameraNode->transform( rotate(m_cameraNode->transform(),
+										mouseSensitivity*mousePositionDelta.y,
+										vec3(0.0f, 1.0f, 0.0f)) );
 	}
 }
 

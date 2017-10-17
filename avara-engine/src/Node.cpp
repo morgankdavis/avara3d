@@ -9,15 +9,19 @@
 #include "Node.h"
 
 #include <algorithm>
+#include <iostream>
 
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 #include "Camera.h"
 #include "Geometry.h"
 #include "Light.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 using namespace glm;
 
@@ -111,20 +115,76 @@ void Node::hidden(const bool hidden) {
 	m_hidden = hidden;
 }
 
-//glm::vec3 position() const;
-//void position(const glm::vec3& position);
-//
-//glm::vec4 rotation() const;
-//void rotation(const glm::vec4& rotation);
-//
-//glm::vec3 eulerAngles() const;
-//void eulerAngles(const glm::vec3& eulerAngles);
-//
-//glm::quat orientation() const;
-//void orientation(const glm::quat& orientation);
-//
-//glm::vec3 scale() const;
-//void scale(const glm::vec3& scale);
+vec3 Node::position() const {
+	//return vec3(0.0f);
+	
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+	
+	decompose(transform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+	
+	cout << "scale: " << scale << endl;
+	cout << "orientation: " << orientation << endl;
+	cout << "translation: " << translation << endl;
+	
+	
+	
+//	http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+//	angle = 2 * acos(qw)
+//	x = qx / sqrt(1-qw*qw)
+//	y = qy / sqrt(1-qw*qw)
+//	z = qz / sqrt(1-qw*qw)
+	
+	
+//	vec4 angleAxis = vec4(qx / sqrt(1-qw*qw),
+//						  qy / sqrt(1-qw*qw),
+//						  qz / sqrt(1-qw*qw),
+//						  2 * acos(qw));
+}
+
+void Node::position(const vec3 position) {
+	
+}
+
+vec4 Node::rotation() const {
+	return vec4(0.0f);
+}
+
+void Node::rotation(const vec4 rotation) {
+	
+}
+
+vec3 Node::eulerAngles() const {
+	return vec3(0.0f);
+}
+
+void Node::eulerAngles(const vec3 eulerAngles) {
+	
+}
+
+quat Node::orientation() const {
+	return quat();
+}
+
+void Node::orientation(const quat orientation) {
+	
+}
+
+vec3 Node::scale() const {
+	
+}
+
+void Node::scale(const glm::vec3 scale) {
+	return vec3(0.0f);
+}
 
 mat4 Node::transform() const {
 	return m_transform;
@@ -132,6 +192,7 @@ mat4 Node::transform() const {
 
 void Node::transform(const mat4 transform) {
 	m_transform = transform;
+	// TODO: set dirty bit for decompose
 }
 
 mat4 Node::worldTransform() {

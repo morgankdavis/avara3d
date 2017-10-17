@@ -10,6 +10,7 @@ BUILD:
 	Add MacOS framework - https://cmake.org/cmake/help/v3.10/prop_tgt/FRAMEWORK.html
 	Compile libraries from SOURCE (cmake — no system library dependencies)
 
+Compile with -O0
 
 
 Move camera realtime

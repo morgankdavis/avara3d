@@ -53,6 +53,26 @@ void Camera::name(const string name) {
 	m_name = name;
 }
 
+vec3 Camera::forward() const {
+	return vec3(0.0f);
+}
+
+vec3 Camera::up() const {
+	return vec3(0.0f);
+}
+
+vec3 Camera::right() const {
+	return vec3(0.0f);
+}
+
+void Camera::translate(const vec3 translation) {
+	
+}
+
+void Camera::rotate(const vec3 rotation) {
+	
+}
+
 float Camera::fov() {
 	return m_fov;
 	// recompute projection
