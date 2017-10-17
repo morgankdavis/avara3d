@@ -39,6 +39,9 @@ void glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int
 	if (action == GLFW_PRESS) {
 		inputManager->m_mouseButtonsDown.insert((MouseButton)button);
 	}
+	else if (action == GLFW_RELEASE) {
+		inputManager->m_mouseButtonsDown.erase((MouseButton)button);
+	}
 }
 
 void glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
@@ -56,6 +59,9 @@ void glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, 
 
 	if (action == GLFW_PRESS) {
 		inputManager->m_keysDown.insert((Key)key);
+	}
+	else if (action == GLFW_RELEASE) {
+		inputManager->m_keysDown.erase((Key)key);
 	}
 }
 
@@ -216,11 +222,11 @@ Window* InputManager::window() const {
  **************************************************************************************/
 
 void InputManager::clearKeysDown() {
-	m_keysDown.clear();
+	//m_keysDown.clear();
 }
 
 void InputManager::clearMouseDown() {
-	m_mouseButtonsDown.clear();
+	//m_mouseButtonsDown.clear();
 }
 
 void InputManager::clearMousePositionDelta() {

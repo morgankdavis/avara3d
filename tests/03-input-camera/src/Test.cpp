@@ -78,8 +78,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << k << endl;
+		//printf("key name: %c\n", k);
 	}
-	
+
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
 	}
@@ -99,16 +100,35 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 	
 	// TODO: Use trig
-	const float mouseSensitivity = 0.1f;
+	const static float mouseSensitivity = 5.0f;
 	
 	auto someNode = scene.rootNode()->immediateChildNodes()[4];
 	if (m_cameraNode) {
 		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-										mouseSensitivity*mousePositionDelta.x,
+										deltaSeconds * mouseSensitivity * mousePositionDelta.x,
 										vec3(1.0f, 0.0f, 0.0f)) );
 		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-										mouseSensitivity*mousePositionDelta.y,
+										deltaSeconds * mouseSensitivity * mousePositionDelta.y,
 										vec3(0.0f, 1.0f, 0.0f)) );
+
+		const static float MOVE_SPEED = 1.0f; // units/sec
+
+		if (keysDown.count(Key_W)) {
+			m_cameraNode->transform( translate(m_cameraNode->transform(),
+											   vec3(0.0f, 0.0f, deltaSeconds * MOVE_SPEED) ));
+		}
+		if (keysDown.count(Key_S)) {
+			m_cameraNode->transform( translate(m_cameraNode->transform(),
+											   vec3(0.0f, 0.0f, deltaSeconds * -MOVE_SPEED) ));
+		}
+		if (keysDown.count(Key_A)) {
+			m_cameraNode->transform( translate(m_cameraNode->transform(),
+											   vec3(deltaSeconds * MOVE_SPEED, 0.0f, 0.0f) ));
+		}
+		if (keysDown.count(Key_D)) {
+			m_cameraNode->transform( translate(m_cameraNode->transform(),
+											   vec3(deltaSeconds * -MOVE_SPEED, 0.0f, 0.0f) ));
+		}
 	}
 }
 
