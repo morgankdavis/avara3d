@@ -1,5 +1,4 @@
 
-#add_subdirectory(include)
 add_subdirectory(src)
 
 
@@ -7,24 +6,43 @@ file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-include_directories("/usr/include" "/usr/local/include")
+include_directories("/usr/include" "/usr/local/include" "include")
 
 
-if(MACOS)
-	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-	FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
-	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+if(MACOS) #----- MACOS ------
+	
+	# system frameworks
+	
+	#rename these
+	FIND_LIBRARY(FRAMEWORK_COCOA Cocoa)
+	FIND_LIBRARY(FRAMEWORK_OPENGL OpenGL)
+	FIND_LIBRARY(FRAMEWORK_IOKIT IOKit)
 
-	SET(FRAMEWORKS ${COCOA_LIBRARY} ${OPENGL_LIBRARY} ${IOKIT_LIBRARY})
+	SET(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
+	
+	# local libraries
+	
+	FIND_LIBRARY(LIB_GAINPUT NAME gainput PATHS "lib/macos")
+	
 
-	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
+	#link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
+	# compiler flags
+	
 	#-pedantic
 	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ \
 		-Wall -mmacosx-version-min=10.8 -arch x86_64 \
 		-fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
-elseif(LINUX)
+	
+elseif(LINUX) #----- LINUX ------
+	
+	# local libraries
+	
+	FIND_LIBRARY(LIB_GAINPUT NAME gainput PATHS "lib/linux")
+	
+	# compiler flags
+	
 	#-pedantic
 	#-Wno-c++11-long-long
 	set(CMAKE_CXX_FLAGS "-std=c++14 \
@@ -35,7 +53,7 @@ endif()
 
 add_library(ae ${HEADERS} ${SOURCES})
 
-target_link_libraries(ae stb manymouse)
+target_link_libraries(ae stb manymouse ${LIB_GAINPUT})
 
 
 if(MACOS)

@@ -23,6 +23,12 @@ using namespace std;
 using namespace glm;
 
 
+
+
+#include <gainput/gainput.h>
+//manager = new gainput::InputManager;
+
+
 /***************************************************************************************
      MARK:   Globals
  **************************************************************************************/
@@ -80,6 +86,23 @@ InputManager::InputManager(Window* window):
 		
 		registerGLFWCallbacks();
 		initManyMouse();
+		
+		
+		
+		// setup gainput
+		gainput::InputManager* manager = new gainput::InputManager;
+		cout << "gainput time: " << manager->GetTime() << endl;
+		//		manager->SetDisplaySize(width, height);
+		//		mouseId = manager->CreateDevice<gainput::InputDeviceMouse>();
+		//		keyboardId = manager->CreateDevice<gainput::InputDeviceKeyboard>();
+		//		padId = manager->CreateDevice<gainput::InputDevicePad>();
+		//
+		//		map = new gainput::InputMap(*manager);
+		//		map->MapBool(ButtonMenu, keyboardId, gainput::KeyEscape);
+		//		map->MapBool(ButtonConfirm, mouseId, gainput::MouseButtonLeft);
+		//		map->MapFloat(MouseX, mouseId, gainput::MouseAxisX);
+		//		map->MapFloat(MouseY, mouseId, gainput::MouseAxisY);
+		//		map->MapBool(ButtonConfirm, padId, gainput::PadButtonA);
 }
 
 InputManager::~InputManager() {

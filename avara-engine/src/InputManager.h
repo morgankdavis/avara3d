@@ -54,8 +54,8 @@ namespace ae {
 		void pumpManyMouse();
 		Window* window() const;
 		
-		std::set<Key> 			m_keysDown;
-		std::set<MouseButton> 	m_mouseButtonsDown;
+		std::set<Key> 				m_keysDown;
+		std::set<MouseButton> 		m_mouseButtonsDown;
 		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
 

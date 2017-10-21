@@ -57,6 +57,8 @@ int Test::run(const vector<string>& args) {
 	for (auto n : scene->rootNode()->immediateChildNodes()) {
 		if (n->camera()) {
 			m_cameraNode = n;
+			m_camRotation = vec3(0.0f, 0.0f, 0.0f);
+			cout << "camera transform: " << n->transform() << endl;
 			break;
 		}
 	}
@@ -70,11 +72,22 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
+
+
+
+
+
+
 void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 	static float totalSeconds = 0;
 	totalSeconds += deltaSeconds;
 
+	
+	
+	
+	// get input
+	
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << k << endl;
@@ -99,36 +112,106 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
 	}
 	
-	// TODO: Use trig
-	const static float mouseSensitivity = 5.0f;
 	
-	auto someNode = scene.rootNode()->immediateChildNodes()[4];
+	
+	// move camera
+	
+	// TODO: Use trig
+	const static float mouseSensitivity = 0.25f;
+	
 	if (m_cameraNode) {
-		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-										deltaSeconds * mouseSensitivity * mousePositionDelta.x,
-										vec3(0.0f, -1.0f, 0.0f)) );
-		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-										deltaSeconds * mouseSensitivity * mousePositionDelta.y,
-										vec3(1.0f, 0.0f, 0.0f)) );
+		
+		// look
+		
+//		m_cameraNode->transform( rotate(m_cameraNode->transform(),
+//										deltaSeconds * mouseSensitivity * mousePositionDelta.x,
+//										vec3(0.0f, -1.0f, 0.0f)) );
+//		m_cameraNode->transform( rotate(m_cameraNode->transform(),
+//										deltaSeconds * mouseSensitivity * mousePositionDelta.y,
+//										vec3(1.0f, 0.0f, 0.0f)) );
+		
+		
+//		vec3 camPosition = m_cameraNode->position();
+//		mat4 newTranslation = translate(mat4(1.0f), camPosition);
+		
+		
+		vec3 camPosition = m_cameraNode->position();
+		vec3 camForward = m_cameraNode->worldFormard();
+		vec3 camRight = m_cameraNode->worldRight();
+		mat4 camTransform = m_cameraNode->transform();
+		
+		
+		
+		m_camRotation.x += deltaSeconds * mouseSensitivity * mousePositionDelta.x;
+		m_camRotation.y += deltaSeconds * mouseSensitivity * mousePositionDelta.y;
+		
+		mat4 rotX = rotate(mat4(1.0f),
+						   m_camRotation.x,
+						   vec3(0.0f, 1.0f, 0.0f));
+		mat4 rotY = rotate(mat4(1.0f),
+						   m_camRotation.y,
+						   vec3(-1.0f, 0.0f, 0.0f));
+		
+		mat4 rot = rotX * rotY;
+		
+		vec3 pos = vec3(0.0f, 0.0f, -1.45f);
+		mat4 trans = translate(mat4(1.0f), pos);
+		
+		mat4 transform = rot * trans;
+		m_cameraNode->transform(transform);
+		//m_cameraNode->transform(transform * newTranslation);
+		
+		
+		//cout << "rotation: " << m_cameraNode->rotation() << endl;
+		
+		
+		
+		// move
 
 		const static float MOVE_SPEED = 1.0f; // units/sec
 
-		if (keysDown.count(Key_W)) {
-			m_cameraNode->transform( translate(m_cameraNode->transform(),
-											   vec3(0.0f, 0.0f, deltaSeconds * MOVE_SPEED) ));
+//		if (keysDown.count(Key_W)) {
+//			m_cameraNode->transform( translate(m_cameraNode->transform(),
+//											   vec3(0.0f, 0.0f, deltaSeconds * MOVE_SPEED) ));
+//		}
+//		if (keysDown.count(Key_S)) {
+//			m_cameraNode->transform( translate(m_cameraNode->transform(),
+//											   vec3(0.0f, 0.0f, deltaSeconds * -MOVE_SPEED) ));
+//		}
+//		if (keysDown.count(Key_A)) {
+//			m_cameraNode->transform( translate(m_cameraNode->transform(),
+//											   vec3(deltaSeconds * MOVE_SPEED, 0.0f, 0.0f) ));
+//		}
+//		if (keysDown.count(Key_D)) {
+//			m_cameraNode->transform( translate(m_cameraNode->transform(),
+//											   vec3(deltaSeconds * -MOVE_SPEED, 0.0f, 0.0f) ));
+//		}
+		
+		
+		
+		
+		if(keysDown.count(Key_W)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+			mat4 deltaTranslation = translate(mat4(1.0f), positionDelta);
+			m_cameraNode->transform(camTransform * deltaTranslation);
 		}
-		if (keysDown.count(Key_S)) {
-			m_cameraNode->transform( translate(m_cameraNode->transform(),
-											   vec3(0.0f, 0.0f, deltaSeconds * -MOVE_SPEED) ));
+		else if(keysDown.count(Key_S)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+			mat4 deltaTranslation = translate(mat4(1.0f), positionDelta);
+			m_cameraNode->transform(camTransform * deltaTranslation);
 		}
-		if (keysDown.count(Key_A)) {
-			m_cameraNode->transform( translate(m_cameraNode->transform(),
-											   vec3(deltaSeconds * MOVE_SPEED, 0.0f, 0.0f) ));
+
+		if(keysDown.count(Key_A)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+			mat4 deltaTranslation = translate(mat4(1.0f), positionDelta);
+			m_cameraNode->transform(camTransform * deltaTranslation);
 		}
-		if (keysDown.count(Key_D)) {
-			m_cameraNode->transform( translate(m_cameraNode->transform(),
-											   vec3(deltaSeconds * -MOVE_SPEED, 0.0f, 0.0f) ));
+		else if(keysDown.count(Key_D)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+			mat4 deltaTranslation = translate(mat4(1.0f), positionDelta);
+			m_cameraNode->transform(camTransform * deltaTranslation);
 		}
+		
 	}
 }
 

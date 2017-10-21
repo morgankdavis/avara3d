@@ -85,7 +85,13 @@ namespace ae {
 		glm::mat4 transform() const;
 		void transform(const glm::mat4 transform);
 		
+		
 		glm::mat4 worldTransform();
+		
+		glm::vec3 worldFormard();
+		glm::vec3 worldUp();
+		glm::vec3 worldRight();
+		
 		
 		//std::weak_ptr<Node>					m_parent;
 		

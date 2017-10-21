@@ -116,8 +116,7 @@ void Node::hidden(const bool hidden) {
 }
 
 vec3 Node::position() const {
-	//return vec3(0.0f);
-	
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -131,9 +130,9 @@ vec3 Node::position() const {
 			  skew,
 			  perspective);
 	
-	cout << "scale: " << scale << endl;
-	cout << "orientation: " << orientation << endl;
-	cout << "translation: " << translation << endl;
+//	cout << "scale: " << scale << endl;
+//	cout << "orientation: " << orientation << endl;
+//	cout << "translation: " << translation << endl;
 	
 	
 	
@@ -157,7 +156,33 @@ void Node::position(const vec3 position) {
 }
 
 vec4 Node::rotation() const {
-	return vec4(0.0f);
+	
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+	
+	decompose(transform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+	
+//	cout << "scale: " << scale << endl;
+//	cout << "orientation: " << orientation << endl;
+//	cout << "translation: " << translation << endl;
+	
+	
+	vec4 angleAxis = vec4(orientation.x / sqrt(1-orientation.w*orientation.w),
+						  orientation.y / sqrt(1-orientation.w*orientation.w),
+						  orientation.z / sqrt(1-orientation.w*orientation.w),
+						  2 * acos(orientation.w));
+
+	
+	return angleAxis;
+	//return vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Node::rotation(const vec4 rotation) {
@@ -189,6 +214,8 @@ void Node::scale(const glm::vec3 scale) {
 }
 
 mat4 Node::transform() const {
+	// t = p * s * r ?
+	
 	return m_transform;
 }
 
@@ -213,6 +240,88 @@ mat4 Node::worldTransform() {
 	
 	return t;
 }
+
+
+vec3 Node::worldFormard() {
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+
+	decompose(worldTransform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+
+//	cout << "scale: " << scale << endl;
+//	cout << "orientation: " << orientation << endl;
+//	cout << "translation: " << translation << endl;
+
+
+
+	mat4 rotationMat = mat4_cast(orientation);
+
+	vec4 forward = inverse(rotationMat) * vec4(0, 0, -1, 1);
+	return vec3(forward);
+}
+
+vec3 Node::worldUp() {
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+
+	decompose(worldTransform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+
+//	cout << "scale: " << scale << endl;
+//	cout << "orientation: " << orientation << endl;
+//	cout << "translation: " << translation << endl;
+
+
+
+	mat4 rotationMat = mat4_cast(orientation);
+
+	vec4 up = inverse(rotationMat) * vec4(0, 1, 0, 1);
+	return vec3(up);
+}
+
+vec3 Node::worldRight() {
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+
+	decompose(worldTransform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+
+//	cout << "scale: " << scale << endl;
+//	cout << "orientation: " << orientation << endl;
+//	cout << "translation: " << translation << endl;
+
+
+
+	mat4 rotationMat = mat4_cast(orientation);
+
+	vec4 right = inverse(rotationMat) * vec4(1, 0, 0, 1);
+	return vec3(right);
+}
+
+
+
 
 void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {

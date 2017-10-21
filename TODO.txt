@@ -2,8 +2,27 @@ TODO:
 
 ——————————————————————————————————
 
-Keyboard & mouse API
+Switch to gainput
+WINDOWS??
 
+
+SCENE GRAPH INFO
+	https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
+	http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
+	https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
+	EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
+	http://libcinder.org
+
+Move camera realtime
+GOLD MINE https://github.com/karimnaaji/hdreffects
+
+
+QUESTIONS:
+	Why does mouse input speed change between vzync and non-vsync?
+	Why does non-async stutter?
+	Can we implement our own frame-limiting?
+	Why are the camera signs for Z opposite for AE and SK in test03?
+	Gainput?? ttps://github.com/jkuhlmann/gainput
 
 
 BUILD:
@@ -13,13 +32,12 @@ BUILD:
 Compile with -O0
 
 
-Move camera realtime
-GOLD MINE https://github.com/karimnaaji/hdreffects
+
 
 Fix key callback crash on exit (escape)
 Init per Window. Test multiple windows. Fix global framebuffer size.
 
-Propter scene graph unwind (child nodes, worldTransform, nodeNamed)
+Propter scene graph unwind (child nodes, worldTransform, nodeNamed, CACHING)
 
 Color -> struct? or build a struct?
 
@@ -59,12 +77,14 @@ Print on-screen:
 Add error handling/exceptions
     http://www.drdobbs.com/custom-exception-types/184401913
 
-Wrap GLM
+Wrap GLM - https://github.com/cinder/Cinder/tree/master/include/cinder
 
 
 Laundry list:
 	
-	SCREENSHOTS & VIDEO - ppm - http://netpbm.sourceforge.net/doc/ppm.html
+	SCREENSHOTS & VIDEO
+		ppm: http://netpbm.sourceforge.net/doc/ppm.html
+		png/jpeg: https://github.com/nothings/stb/blob/master/stb_image_write.h
 
 	Gamma correction
 

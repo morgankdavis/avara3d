@@ -96,6 +96,7 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 //
 //	m_screen = make_shared<Screen>();
 //	m_screen->initialize(window, true);
+
 }
 
 Window::~Window() {

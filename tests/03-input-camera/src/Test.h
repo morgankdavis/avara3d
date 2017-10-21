@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 
 namespace ae {
 
@@ -38,6 +40,7 @@ namespace ae {
 		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
+		glm::vec3							m_camRotation;
 	};
 }
 
