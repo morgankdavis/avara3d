@@ -123,7 +123,7 @@ void Window::display() {
 		
 		if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
 		
-		mainLoop(totalSeconds, deltaSeconds);
+		mainLoop(deltaSeconds);
 		
 		if (!glfwWindowShouldClose(g_glfwWindow)) {
 			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
@@ -312,7 +312,7 @@ void Window::didUpdateCallback(windowDidUpdateFuction function) {
  **************************************************************************************/
 
 void Window::updateFrametime(unsigned int numPolygons) {
-	const float GOAL_TIME = 16.6666666f;
+	const float GOAL_TIME = 16.6666667f;
 	static unsigned elapsedFrames = 0; ++elapsedFrames;
 	static float previousSeconds = glfwGetTime();
 	float currentSeconds = glfwGetTime();
@@ -329,7 +329,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 	}
 }
 
-void Window::mainLoop(const float totalSeconds, const float deltaSeconds) {
+void Window::mainLoop(const float deltaSeconds) {
 	//cout << "-------------------------------------------------------------------------------" << endl;
 	
 	unsigned int numPolygons = 0;
@@ -366,7 +366,7 @@ void Window::mainLoop(const float totalSeconds, const float deltaSeconds) {
 	}
 	
 	if (m_inputManager != nullptr) {
-		m_inputManager->pumpManyMouse();
+		m_inputManager->update(deltaSeconds);
 	}
 	glfwPollEvents();
 

@@ -9,20 +9,19 @@ file(GLOB SOURCES src/*.c*)
 include_directories("/usr/include" "/usr/local/include" "include")
 
 
-if(MACOS) #----- MACOS ------
+if(MACOS) #---------- MACOS -----------
 	
 	# system frameworks
 	
-	#rename these
-	FIND_LIBRARY(FRAMEWORK_COCOA Cocoa)
-	FIND_LIBRARY(FRAMEWORK_OPENGL OpenGL)
-	FIND_LIBRARY(FRAMEWORK_IOKIT IOKit)
+	find_library(FRAMEWORK_COCOA Cocoa)
+	find_library(FRAMEWORK_OPENGL OpenGL)
+	find_library(FRAMEWORK_IOKIT IOKit)
 
-	SET(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
+	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
 	
 	# local libraries
 	
-	FIND_LIBRARY(LIB_GAINPUT NAME gainput PATHS "lib/macos")
+	#find_library(LIB_GAINPUT NAME gainput PATHS "lib/macos")
 	
 
 	#link_directories("/usr/local/lib/" "/System/Library/Frameworks")
@@ -35,11 +34,14 @@ if(MACOS) #----- MACOS ------
 		-fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
 	
-elseif(LINUX) #----- LINUX ------
+	# silence "MACOSX_RPATH is not specified for the following targets:"
+	set(CMAKE_MACOSX_RPATH 1)
+	
+elseif(LINUX) #---------- LINUX -----------
 	
 	# local libraries
 	
-	FIND_LIBRARY(LIB_GAINPUT NAME gainput PATHS "lib/linux")
+	#find_library(LIB_GAINPUT NAME gainput PATHS "lib/linux")
 	
 	# compiler flags
 	
@@ -49,16 +51,40 @@ elseif(LINUX) #----- LINUX ------
 		-Wall -fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-reorder -Wfloat-equal")
 endif()
+	
+	
+# assimp
 
+#add_subdirectory(extern/assimp-4.0.1)
+	
+	
+# GLEW
+
+add_subdirectory(extern/glew-2.1.0/build/cmake)
+	
+	
+# GLFW
+	
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(extern/glfw-3.2.1)
+
+
+# ZLIB
+
+add_subdirectory(extern/zlib-1.2.11)
+
+
+# ae
 
 add_library(ae ${HEADERS} ${SOURCES})
 
-target_link_libraries(ae stb manymouse ${LIB_GAINPUT})
-
+target_link_libraries(ae GLEW stb manymouse glfw assimp z)# ${LIB_GAINPUT})
 
 if(MACOS)
-	target_link_libraries(ae z glfw GLEW assimp freetype boost_container ${FRAMEWORKS})
+	target_link_libraries(ae freetype boost_container ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae z GL X11 Xxf86vm Xrandr pthread Xi dl glfw GLEW assimp)
+	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 endif()
 

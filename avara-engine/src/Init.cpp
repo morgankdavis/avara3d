@@ -44,8 +44,8 @@ using namespace std;
 GLFWwindow				*g_glfwWindow;
 
 
-#define DEFAULT_WIDTH		640
-#define DEFAULT_HEIGHT		480
+#define DEFAULT_WIDTH		800
+#define DEFAULT_HEIGHT		600
 
 #define FULL_SCREEN			false
 #define ENABLE_VSYNC		false

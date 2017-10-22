@@ -100,7 +100,7 @@ namespace ae {
 		 **************************************************************************************/
 
 		void updateFrametime(unsigned int numPolygons);
-		void mainLoop(const float totalSeconds, const float deltaSeconds);
+		void mainLoop(const float deltaSeconds);
 		
 		std::shared_ptr<Scene>			m_scene;
 		unsigned						m_width;

@@ -25,8 +25,8 @@ using namespace glm;
 
 
 #define FRAMEBUFFER_SCALE       1.0f
-#define WINDOW_WIDTH			640
-#define WINDOW_HEIGHT			480
+#define DEFAULT_WIDTH			800
+#define DEFAULT_HEIGHT			600
 
 
 /***************************************************************************************
@@ -34,7 +34,7 @@ using namespace glm;
  **************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-	cout << "Test2::run()\n" << endl;
+	cout << "Test::run()\n" << endl;
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 

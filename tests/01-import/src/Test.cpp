@@ -26,8 +26,8 @@ using namespace glm;
 
 
 #define FRAMEBUFFER_SCALE       1.0f
-#define WINDOW_WIDTH			640
-#define WINDOW_HEIGHT			480
+#define DEFAULT_WIDTH			800
+#define DEFAULT_HEIGHT			600
 
 
 /***************************************************************************************

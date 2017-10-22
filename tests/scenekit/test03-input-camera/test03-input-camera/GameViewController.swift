@@ -52,7 +52,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 	
 	private func gameLoop(_ dT: Double) {
-		NSLog("gameLoop");
+		//NSLog("gameLoop");
 		
 		
 		
@@ -75,7 +75,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		//cameraNode.transform = (SCNMatrix4Mult(cameraNode.transform, transform))
 		
 		let rotateion = cameraNode.rotation
-		NSLog("rotateion: \(rotateion.x), \(rotateion.y), \(rotateion.z), \(rotateion.w)")
+		//NSLog("rotateion: \(rotateion.x), \(rotateion.y), \(rotateion.z), \(rotateion.w)")
 		
 //		// look
 //

@@ -35,9 +35,9 @@ namespace ae {
 		std::string name();
 		void name(const std::string name);
 		
-		glm::vec3 forward() const;
-		glm::vec3 up() const;
-		glm::vec3 right() const;
+//		glm::vec3 forward() const;
+//		glm::vec3 up() const;
+//		glm::vec3 right() const;
 		
 		void translate(const glm::vec3 translation);
 		void rotate(const glm::vec3 rotation);

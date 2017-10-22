@@ -32,6 +32,7 @@ BUILD:
 Compile with -O0
 
 
+Separate Window and Renderer
 
 
 Fix key callback crash on exit (escape)

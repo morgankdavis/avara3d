@@ -15,6 +15,8 @@
 #include <memory>
 #include <set>
 
+#define GLFW_DLL
+#include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
 #include "Types.h"
@@ -29,7 +31,7 @@ namespace ae {
 	class InputManager {
 
 	public:
-
+		
 		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
@@ -50,14 +52,22 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 
-		
-		void pumpManyMouse();
+		void update(float deltaSeconds);
 		Window* window() const;
 		
 		std::set<Key> 				m_keysDown;
 		std::set<MouseButton> 		m_mouseButtonsDown;
 		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
+		
+		/***************************************************************************************
+		     MARK:   GLFW Callbacks
+		 **************************************************************************************/
+		
+		static void glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
+		static void glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
+		static void glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
+		static void glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods);
 
 	private:
 
@@ -67,6 +77,7 @@ namespace ae {
 
 		void initManyMouse();
 		void quitManyMouse();
+//		void initGainput();
 		void registerGLFWCallbacks();
 		void unregisterGLFWCallbacks();
 		
@@ -75,8 +86,9 @@ namespace ae {
 		void clearMousePositionDelta(); // called after mouseMoveDelta()
 		void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
 
-		Window*						m_window;
-		//GLFWwindow*					m_glfwWindow;
+		Window*									m_window;
+		//GLFWwindow*							m_glfwWindow;
+		//std::shared_ptr<gainput::InputManager>	m_gainputInputManager;
 	};
 }
 
