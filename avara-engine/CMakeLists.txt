@@ -42,6 +42,7 @@ elseif(LINUX) #---------- LINUX -----------
 	# local libraries
 	
 	#find_library(LIB_GAINPUT NAME gainput PATHS "lib/linux")
+	#find_library(LIB_GLEW NAME GLEW PATHS "lib/linux64")
 	
 	# compiler flags
 	
@@ -60,7 +61,7 @@ endif()
 	
 # GLEW
 
-add_subdirectory(extern/glew-2.1.0/build/cmake)
+#add_subdirectory(extern/glew-2.1.0/build/cmake)
 	
 	
 # GLFW
@@ -80,7 +81,7 @@ add_subdirectory(extern/zlib-1.2.11)
 
 add_library(ae ${HEADERS} ${SOURCES})
 
-target_link_libraries(ae GLEW stb manymouse glfw assimp z)# ${LIB_GAINPUT})
+target_link_libraries(ae stb manymouse glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
 
 if(MACOS)
 	target_link_libraries(ae freetype boost_container ${FRAMEWORKS})
