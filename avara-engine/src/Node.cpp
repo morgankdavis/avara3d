@@ -128,7 +128,6 @@ void Node::hidden(const bool hidden) {
 }
 
 vec3 Node::position() const {
-
 	return m_position;
 }
 
@@ -147,8 +146,6 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec4 rotation) {
-	// TODO: do it
-
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
 
 	float qx = rotation.x * sin(rotation.w/2.0f);
@@ -160,8 +157,6 @@ void Node::rotation(const vec4 rotation) {
 }
 
 vec3 Node::eulerAngles() const {
-	// TODO: do it
-	
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	
 	float heading = atan2(2.0f*m_orientation.y*m_orientation.w - 2.0f*m_orientation.x*m_orientation.z,
@@ -174,8 +169,7 @@ vec3 Node::eulerAngles() const {
 }
 
 void Node::eulerAngles(const vec3 eulerAngles) {
-	// TODO: do it
-	
+
 	float heading = eulerAngles.x;
 	float attitude = eulerAngles.y;
 	float bank = eulerAngles.z;
@@ -223,14 +217,10 @@ mat4 Node::transform() const {
 	mat4 s = glm::scale(mat4(1.0), m_scale);
 	
 	return t * r * s;
-	//return m_transform;
 }
 
 void Node::transform(const mat4 transform) {
-	//m_transform = transform;
-	// TODO: set dirty bit for decompose
-	
-	
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -249,7 +239,6 @@ void Node::transform(const mat4 transform) {
 	m_orientation = orientation;
 }
 
-// this works but seems to be reversed...
 mat4 Node::worldTransform() {
 
 	auto t = mat4(1.0f);
@@ -267,25 +256,6 @@ mat4 Node::worldTransform() {
 	return t;
 }
 
-// ??
-//mat4 Node::worldTransform() {
-//
-//	auto t = mat4(1.0f);
-//	auto path = pathToRoot();
-//
-//	auto iter = path.end();
-//	while (iter != path.begin()) {
-//		--iter;
-//		Node* node = *iter;
-//		t = node->transform() * t;
-//	}
-//
-//	t = transform() * t;
-//
-//	return t;
-//}
-
-
 vec3 Node::worldFormard() {
 	vec3 scale;
 	quat orientation;
@@ -299,12 +269,6 @@ vec3 Node::worldFormard() {
 			  translation,
 			  skew,
 			  perspective);
-
-//	cout << "scale: " << scale << endl;
-//	cout << "orientation: " << orientation << endl;
-//	cout << "translation: " << translation << endl;
-
-
 
 	mat4 rotationMat = mat4_cast(orientation);
 
@@ -326,12 +290,6 @@ vec3 Node::worldUp() {
 			  skew,
 			  perspective);
 
-//	cout << "scale: " << scale << endl;
-//	cout << "orientation: " << orientation << endl;
-//	cout << "translation: " << translation << endl;
-
-
-
 	mat4 rotationMat = mat4_cast(orientation);
 
 	vec4 up = inverse(rotationMat) * vec4(0, 1, 0, 1);
@@ -351,12 +309,6 @@ vec3 Node::worldRight() {
 			  translation,
 			  skew,
 			  perspective);
-
-//	cout << "scale: " << scale << endl;
-//	cout << "orientation: " << orientation << endl;
-//	cout << "translation: " << translation << endl;
-
-
 
 	mat4 rotationMat = mat4_cast(orientation);
 
