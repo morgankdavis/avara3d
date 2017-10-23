@@ -123,27 +123,12 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (m_cameraNode) {
 		
 		// look
-		
-//		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-//										deltaSeconds * mouseSensitivity * mousePositionDelta.x,
-//										vec3(0.0f, -1.0f, 0.0f)) );
-//		m_cameraNode->transform( rotate(m_cameraNode->transform(),
-//										deltaSeconds * mouseSensitivity * mousePositionDelta.y,
-//										vec3(1.0f, 0.0f, 0.0f)) );
-		
-		
-//		vec3 camPosition = m_cameraNode->position();
-//		mat4 newTranslation = translate(mat4(1.0f), camPosition);
-		
-		
-		//vec3 camPosition = m_cameraNode->position();
+
 		vec3 camForward = m_cameraNode->worldFormard();
 		vec3 camRight = m_cameraNode->worldRight();
 		vec3 camUp = m_cameraNode->worldUp();
-//		mat4 camTransform = m_cameraNode->transform();
-//
-//
-//
+
+		
 		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
 		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
 		
@@ -151,27 +136,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		cout << "angles: " << angles << endl;
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotX, angles.y + deltaRotY, angles.z));
 		//m_cameraNode->eulerAngles(vec3(angles.x, angles.y, angles.z));
-//
-//		mat4 rotX = rotate(mat4(1.0f),
-//						   m_camRotation.x,
-//						   vec3(0.0f, 1.0f, 0.0f));
-//		mat4 rotY = rotate(mat4(1.0f),
-//						   m_camRotation.y,
-//						   vec3(-1.0f, 0.0f, 0.0f));
-//
-//		mat4 rot = rotX * rotY;
-//
-//		vec3 pos = vec3(0.0f, 0.0f, -1.45f);
-//		mat4 trans = translate(mat4(1.0f), pos);
-//
-//		mat4 transform = rot * trans;
-//		m_cameraNode->transform(transform);
-		//m_cameraNode->transform(transform * newTranslation);
-		
-		
-		//cout << "rotation: " << m_cameraNode->rotation() << endl;
-		
-		
+
 		
 		// move
 
