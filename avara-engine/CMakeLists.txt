@@ -39,12 +39,12 @@ if(MACOS) #---------- MACOS -----------
 	set(CMAKE_MACOSX_RPATH 1)
 	
 	
-	# GLFW
-	
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(extern/glfw-3.2.1)
+	## GLFW
+	#
+	#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	#add_subdirectory(extern/glfw-3.2.1)
 	
 elseif(LINUX) #---------- LINUX -----------
 	
@@ -66,10 +66,10 @@ elseif(LINUX) #---------- LINUX -----------
 		
 	# GLFW
 	
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(extern/glfw-3.2.1)
+	#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	#add_subdirectory(extern/glfw-3.2.1)
 
 elseif(WINDOWS) #---------- WINDOWS-----------
 

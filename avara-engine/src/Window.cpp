@@ -281,11 +281,16 @@ void Window::addDefaultCamera() {
 	cout << "eye: " << eye << endl;
 	cout << "center: " << center << endl;
 
-	mat4 viewMat = lookAt(eye,	// eye - location
-						  center,	// center - look at
-						  vec3(0, 1, 0));	// up
+//	mat4 viewMat = lookAt(eye,	// eye - location
+//						  center,	// center - look at
+//						  vec3(0, 1, 0));	// up
+	
+	// TODO: WHY does look at appear to invert its output?? see also Geometry::draw()
+	mat4 viewMat = translate(mat4(1.0f), eye);
 
 	cameraNode->transform(viewMat);
+	
+	cout << "default viewMat: " << viewMat << endl;
 
 	scene()->rootNode()->addChildNode(cameraNode);
 	pointOfView(cameraNode->camera());

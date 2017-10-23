@@ -11,7 +11,9 @@
 #include <algorithm>
 #include <iostream>
 
+//#include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 #include "Camera.h"
@@ -31,30 +33,38 @@ using namespace glm;
  **************************************************************************************/
 
 Node::Node():
-m_parent(nullptr), m_transform(mat4(1.0f)) {
+	m_parent(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
 	
 }
 
 Node::Node(const string& name):
-		m_name(name),
-		m_hidden(false),
-		m_parent(nullptr),
-		m_transform(mat4(1.0f)) {
+	m_name(name),
+	m_hidden(false),
+	m_parent(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
 }
 
 Node::Node(const shared_ptr<Geometry> geometry):
-		m_hidden(false),
-		m_geometry(geometry),
-		m_transform(mat4(1.0f)) {
+	m_hidden(false),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
 
 	m_geometry->node(this);
 }
 
 Node::Node(const string& name, const mat4 transform):
-		m_name(name),
-		m_hidden(false),
-		m_parent(nullptr),
-		m_transform(transform) {
+	m_name(name),
+	m_hidden(false),
+	m_parent(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
 
 }
 
@@ -62,7 +72,9 @@ Node::Node(const string& name, const mat4 transform, const shared_ptr<Geometry> 
 		m_name(name),
 		m_hidden(false),
 		m_parent(nullptr),
-		m_transform(transform),
+		m_position(vec3(0.0f, 0.0f, 0.0f)),
+		m_orientation(quat()),
+		m_scale(vec3(1.0f, 1.0f, 1.0f)),
 		m_geometry(geometry) {
 
 	m_geometry->node(this);
@@ -117,45 +129,98 @@ void Node::hidden(const bool hidden) {
 
 vec3 Node::position() const {
 
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(transform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-//	cout << "scale: " << scale << endl;
-//	cout << "orientation: " << orientation << endl;
-//	cout << "translation: " << translation << endl;
-	
-	
-	
-//	http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
-//	angle = 2 * acos(qw)
-//	x = qx / sqrt(1-qw*qw)
-//	y = qy / sqrt(1-qw*qw)
-//	z = qz / sqrt(1-qw*qw)
-	
-	
-//	vec4 angleAxis = vec4(qx / sqrt(1-qw*qw),
-//						  qy / sqrt(1-qw*qw),
-//						  qz / sqrt(1-qw*qw),
-//						  2 * acos(qw));
-
-	return translation;
+	return m_position;
 }
 
 void Node::position(const vec3 position) {
-	
+	m_position = position;
 }
 
 vec4 Node::rotation() const {
+
+	vec4 angleAxis = vec4(m_orientation.x / sqrt(1-m_orientation.w*m_orientation.w),
+						  m_orientation.y / sqrt(1-m_orientation.w*m_orientation.w),
+						  m_orientation.z / sqrt(1-m_orientation.w*m_orientation.w),
+						  2 * acos(m_orientation.w));
+
+	return angleAxis;
+}
+
+void Node::rotation(const vec4 rotation) {
+	// TODO: do it
+}
+
+vec3 Node::eulerAngles() const {
+	// TODO: do it
+	
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+	
+	float heading = atan2(2.0f*m_orientation.y*m_orientation.w - 2.0f*m_orientation.x*m_orientation.z,
+						  1.0f - 2.0f*m_orientation.y*m_orientation.y - 2.0f*m_orientation.z*m_orientation.z);
+	float attitude = asin(2*m_orientation.x*m_orientation.y + 2.0f*m_orientation.z*m_orientation.w);
+	float bank = atan2(2.0f*m_orientation.x*m_orientation.w - 2.0f*m_orientation.y*m_orientation.z,
+					   1.0f - 2.0f*m_orientation.x*m_orientation.x - 2.0f*m_orientation.z*m_orientation.z);
+	
+	return vec3(heading, attitude, bank);
+}
+
+void Node::eulerAngles(const vec3 eulerAngles) {
+	// TODO: do it
+	
+	float heading = eulerAngles.x;
+	float attitude = eulerAngles.y;
+	float bank = eulerAngles.z;
+	
+	float c1 = cos(heading / 2.0f);
+	float c2 = cos(attitude / 2.0f);
+	float c3 = cos(bank / 2.0f);
+	float s1 = sin(heading / 2.0f);
+	float s2 = sin(attitude / 2.0f);
+	float s3 = sin(bank / 2.0f);
+	
+	float w = c1*c2*c3 - s1*s2*s3;
+	float x = s1*s2*c3 + c1*c2*s3;
+	float y = s1*c2*c3 + c1*s2*s3;
+	float z = c1*s2*c3 - s1*c2*s3;
+	
+	m_orientation = quat(w, x, y, z);
+}
+
+quat Node::orientation() const {
+	return m_orientation;
+}
+
+void Node::orientation(const quat orientation) {
+	m_orientation = orientation;
+}
+
+vec3 Node::scale() const {
+	return m_scale;
+}
+
+void Node::scale(const glm::vec3 scale) {
+	m_scale = scale;
+}
+
+mat4 Node::transform() const {
+	// t = p * r * s ?
+	
+	// TranslationMatrix * RotationMatrix * ScaleMatrix
+	// http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
+	
+	
+	mat4 t = translate(mat4(1.0), m_position);
+	mat4 r = mat4_cast(m_orientation);
+	mat4 s = glm::scale(mat4(1.0), m_scale);
+	
+	return t * r * s;
+	//return m_transform;
+}
+
+void Node::transform(const mat4 transform) {
+	//m_transform = transform;
+	// TODO: set dirty bit for decompose
+	
 	
 	vec3 scale;
 	quat orientation;
@@ -163,83 +228,53 @@ vec4 Node::rotation() const {
 	vec3 skew;
 	vec4 perspective;
 	
-	decompose(transform(),
+	decompose(transform,
 			  scale,
 			  orientation,
 			  translation,
 			  skew,
 			  perspective);
 	
-//	cout << "scale: " << scale << endl;
-//	cout << "orientation: " << orientation << endl;
-//	cout << "translation: " << translation << endl;
-	
-	
-	vec4 angleAxis = vec4(orientation.x / sqrt(1-orientation.w*orientation.w),
-						  orientation.y / sqrt(1-orientation.w*orientation.w),
-						  orientation.z / sqrt(1-orientation.w*orientation.w),
-						  2 * acos(orientation.w));
-
-	
-	return angleAxis;
-	//return vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	m_position = translation;
+	m_scale = scale;
+	m_orientation = orientation;
 }
 
-void Node::rotation(const vec4 rotation) {
-	
-}
-
-vec3 Node::eulerAngles() const {
-	return vec3(0.0f);
-}
-
-void Node::eulerAngles(const vec3 eulerAngles) {
-	
-}
-
-quat Node::orientation() const {
-	return quat();
-}
-
-void Node::orientation(const quat orientation) {
-	
-}
-
-vec3 Node::scale() const {
-	return vec3(0.0f);
-}
-
-void Node::scale(const glm::vec3 scale) {
-
-}
-
-mat4 Node::transform() const {
-	// t = p * s * r ?
-	
-	return m_transform;
-}
-
-void Node::transform(const mat4 transform) {
-	m_transform = transform;
-	// TODO: set dirty bit for decompose
-}
-
+// this works but seems to be reversed...
 mat4 Node::worldTransform() {
-	
+
 	auto t = mat4(1.0f);
 	auto path = pathToRoot();
-	
+
 	auto iter = path.end();
 	while (iter != path.begin()) {
 		--iter;
 		Node* node = *iter;
 		 t = t * node->transform();
 	}
-	
+
 	t = t * transform();
-	
+
 	return t;
 }
+
+// ??
+//mat4 Node::worldTransform() {
+//
+//	auto t = mat4(1.0f);
+//	auto path = pathToRoot();
+//
+//	auto iter = path.end();
+//	while (iter != path.begin()) {
+//		--iter;
+//		Node* node = *iter;
+//		t = node->transform() * t;
+//	}
+//
+//	t = transform() * t;
+//
+//	return t;
+//}
 
 
 vec3 Node::worldFormard() {
@@ -265,7 +300,7 @@ vec3 Node::worldFormard() {
 	mat4 rotationMat = mat4_cast(orientation);
 
 	vec4 forward = inverse(rotationMat) * vec4(0, 0, -1, 1);
-	return vec3(forward);
+	return normalize(vec3(forward));
 }
 
 vec3 Node::worldUp() {
@@ -291,7 +326,7 @@ vec3 Node::worldUp() {
 	mat4 rotationMat = mat4_cast(orientation);
 
 	vec4 up = inverse(rotationMat) * vec4(0, 1, 0, 1);
-	return vec3(up);
+	return normalize(vec3(up));
 }
 
 vec3 Node::worldRight() {
@@ -317,7 +352,7 @@ vec3 Node::worldRight() {
 	mat4 rotationMat = mat4_cast(orientation);
 
 	vec4 right = inverse(rotationMat) * vec4(1, 0, 0, 1);
-	return vec3(right);
+	return normalize(vec3(right));
 }
 
 

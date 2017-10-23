@@ -55,52 +55,52 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		//NSLog("gameLoop");
 		
 		
-		
-		let mouseSensitivity: Float = 0.005
-		
-		cameraRotation.x += CGFloat(mouseSensitivity * Float(accumMouseDelta.x))
-		cameraRotation.y += CGFloat(mouseSensitivity * Float(accumMouseDelta.y))
-		
-		let rotX = SCNMatrix4MakeRotation(cameraRotation.x, 0.0, -1.0, 0.0)
-		let rotY = SCNMatrix4MakeRotation(cameraRotation.y, 1.0, 0.0, 0.0)
-		
-		let rot = SCNMatrix4Mult(rotX, rotY)
-//		let transform = SCNMatrix4Mult(cameraNode.transform, rot);
+//
+//		let mouseSensitivity: Float = 0.005
+//
+//		cameraRotation.x += CGFloat(mouseSensitivity * Float(accumMouseDelta.x))
+//		cameraRotation.y += CGFloat(mouseSensitivity * Float(accumMouseDelta.y))
+//
+//		let rotX = SCNMatrix4MakeRotation(cameraRotation.x, 0.0, -1.0, 0.0)
+//		let rotY = SCNMatrix4MakeRotation(cameraRotation.y, 1.0, 0.0, 0.0)
+//
+//		let rot = SCNMatrix4Mult(rotX, rotY)
+////		let transform = SCNMatrix4Mult(cameraNode.transform, rot);
+////		cameraNode.transform = transform
+//
+//
+//		let posMat = SCNMatrix4MakeTranslation(0, 0, 1.45)
+//		let transform = SCNMatrix4Mult(rot, posMat);
 //		cameraNode.transform = transform
-
-		
-		let posMat = SCNMatrix4MakeTranslation(0, 0, 1.45)
-		let transform = SCNMatrix4Mult(rot, posMat);
-		cameraNode.transform = transform
-		//cameraNode.transform = (SCNMatrix4Mult(cameraNode.transform, transform))
-		
-		let rotateion = cameraNode.rotation
-		//NSLog("rotateion: \(rotateion.x), \(rotateion.y), \(rotateion.z), \(rotateion.w)")
-		
-//		// look
+//		//cameraNode.transform = (SCNMatrix4Mult(cameraNode.transform, transform))
 //
-//		#if os(OSX)
-//			let viewDistanceFactor = 1.0/(MOUSELOOK_SENSITIVITY*MOUSELOOK_SENSITIVITY_MULTIPLIER)
-//		#else
-//			let viewDistanceFactor = 1.0/(THUMBLOOK_SENSITIVITY*THUMBLOOK_SENSITIVITY_MULTIPLIER)
-//		#endif
+//		let rotateion = cameraNode.rotation
+//		//NSLog("rotateion: \(rotateion.x), \(rotateion.y), \(rotateion.z), \(rotateion.w)")
 //
-//		let dP = acos(CGFloat(lookDelta.x) / viewDistanceFactor) - CGFloat(M_PI_2)
-//		let dY = acos(CGFloat(lookDelta.y) / viewDistanceFactor) - CGFloat(M_PI_2)
+////		// look
+////
+////		#if os(OSX)
+////			let viewDistanceFactor = 1.0/(MOUSELOOK_SENSITIVITY*MOUSELOOK_SENSITIVITY_MULTIPLIER)
+////		#else
+////			let viewDistanceFactor = 1.0/(THUMBLOOK_SENSITIVITY*THUMBLOOK_SENSITIVITY_MULTIPLIER)
+////		#endif
+////
+////		let dP = acos(CGFloat(lookDelta.x) / viewDistanceFactor) - CGFloat(M_PI_2)
+////		let dY = acos(CGFloat(lookDelta.y) / viewDistanceFactor) - CGFloat(M_PI_2)
+////
+////		var nAngles = SCNVector3(
+////			x: node.eulerAngles.x + MKDFloat(dY),
+////			y: node.eulerAngles.y - MKDFloat(dP),
+////			z: node.eulerAngles.z)
+////
+////		nAngles.x = max(-MKDFloat(VERT_CLAMP), min(MKDFloat(VERT_CLAMP), nAngles.x)) // clamp vertical angle
+////
+////		node.eulerAngles = nAngles
 //
-//		var nAngles = SCNVector3(
-//			x: node.eulerAngles.x + MKDFloat(dY),
-//			y: node.eulerAngles.y - MKDFloat(dP),
-//			z: node.eulerAngles.z)
 //
-//		nAngles.x = max(-MKDFloat(VERT_CLAMP), min(MKDFloat(VERT_CLAMP), nAngles.x)) // clamp vertical angle
 //
-//		node.eulerAngles = nAngles
-
-		
-		
-		accumMouseDelta.x = 0
-		accumMouseDelta.y = 0
+//		accumMouseDelta.x = 0
+//		accumMouseDelta.y = 0
 	}
 	
 	
@@ -113,16 +113,19 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
         
         // create a new scene
-        let scene = SCNScene(named: "art.scnassets/importTest.dae")!
+        let scene = SCNScene(named: "art.scnassets/dragon.obj")!
         
 
 		//let cameraNode = SCNNode()
 		cameraNode.camera = SCNCamera()
+		cameraNode.camera?.zNear = 0.000001;
 		scene.rootNode.addChildNode(cameraNode)
 		
 		// place the camera
-		cameraNode.position = SCNVector3(x: 0, y: 0, z: 1.45)
+		cameraNode.position = SCNVector3(x: 0, y: 4.97, z: 14.33)
+		let glkMat = SCNMatrix4ToGLKMatrix4(cameraNode.transform)
 		
+		NSLog("cameraNode.transform: \(NSStringFromGLKMatrix4(glkMat))");
 
         // retrieve the SCNView
         let scnView = self.view as! SCNView

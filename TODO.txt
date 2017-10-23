@@ -21,8 +21,13 @@ QUESTIONS:
 	Why does mouse input speed change between vzync and non-vsync?
 	Why does non-async stutter?
 	Can we implement our own frame-limiting?
-	Why are the camera signs for Z opposite for AE and SK in test03?
-	Gainput?? ttps://github.com/jkuhlmann/gainput
+	Why do we have to invert our view matrix?
+		Apparently transforming everything into eye-space in the vertex shader is requiring this...
+		It also looks as though doing it the “other way” (not how we’re doing it) requires this:
+			https://computergraphics.stackexchange.com/questions/1502/why-is-the-transposed-inverse-of-the-model-view-matrix-used-to-transform-the-nor
+		https://stackoverflow.com/questions/4124041/is-opengl-coordinate-system-left-handed-or-right-handed
+		https://www.opengl.org/discussion_boards/showthread.php/178301-View-matrix-for-point-light-calculation-should-be-inverse
+
 
 
 BUILD:

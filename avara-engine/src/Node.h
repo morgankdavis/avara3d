@@ -137,11 +137,11 @@ namespace ae {
 		std::vector<std::shared_ptr<Node>>	m_childNodes;
 		
 		glm::vec3							m_position;
-		glm::vec4							m_rotation;
-		glm::vec3							m_eulerAngles;
+		//glm::vec4							m_rotation;
+		//glm::vec3							m_eulerAngles;
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
-		glm::mat4							m_transform;
+		//glm::mat4							m_transform;
 		
 		std::vector<std::shared_ptr<Node>>	allChildNodesRec();
 	};

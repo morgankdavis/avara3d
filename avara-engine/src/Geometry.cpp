@@ -99,7 +99,9 @@ unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectio
 		GLint projectionLoc = glGetUniformLocation(program, "projection");
 		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(modelMat));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(viewMat));
+		// TODO: WHY do we have to invert this?? see also Window::addDefaultCamera()
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(inverse(viewMat)));
+		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(viewMat));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projectionMat));
 		
 		// lights

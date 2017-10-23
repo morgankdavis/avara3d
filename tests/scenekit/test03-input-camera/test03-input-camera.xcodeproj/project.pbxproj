@@ -13,6 +13,7 @@
 		41A632D91F96CE4600698156 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41A632D81F96CE4600698156 /* Assets.xcassets */; };
 		41A632DC1F96CE4600698156 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41A632DA1F96CE4600698156 /* Main.storyboard */; };
 		41A633041F96D81500698156 /* ClientWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A633031F96D81500698156 /* ClientWindowController.swift */; };
+		41E3E5CD1F9D94B100C406DE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E3E5CC1F9D94B100C406DE /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		41A632DE1F96CE4600698156 /* test03_input_camera.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = test03_input_camera.entitlements; sourceTree = "<group>"; };
 		41A632E41F96D2FB00698156 /* test03-input-camera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "test03-input-camera-Bridging-Header.h"; sourceTree = "<group>"; };
 		41A633031F96D81500698156 /* ClientWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClientWindowController.swift; path = ../../../../../avara/Avara/Avara/ClientWindowController.swift; sourceTree = "<group>"; };
+		41E3E5CC1F9D94B100C406DE /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				41A632D21F96CE4600698156 /* AppDelegate.swift */,
 				41A632D41F96CE4600698156 /* GameViewController.swift */,
 				41A633031F96D81500698156 /* ClientWindowController.swift */,
+				41E3E5CC1F9D94B100C406DE /* Utilities.swift */,
 				41A632D61F96CE4600698156 /* art.scnassets */,
 				41A632D81F96CE4600698156 /* Assets.xcassets */,
 				41A632DA1F96CE4600698156 /* Main.storyboard */,
@@ -146,6 +149,7 @@
 			files = (
 				41A633041F96D81500698156 /* ClientWindowController.swift in Sources */,
 				41A632D51F96CE4600698156 /* GameViewController.swift in Sources */,
+				41E3E5CD1F9D94B100C406DE /* Utilities.swift in Sources */,
 				41A632D31F96CE4600698156 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
