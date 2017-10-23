@@ -148,6 +148,15 @@ vec4 Node::rotation() const {
 
 void Node::rotation(const vec4 rotation) {
 	// TODO: do it
+
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
+
+	float qx = rotation.x * sin(rotation.w/2.0f);
+	float qy = rotation.y * sin(rotation.w/2.0f);
+	float qz = rotation.z * sin(rotation.w/2.0f);
+	float qw = cos(rotation.w/2.0f);
+
+	m_orientation = quat(qx, qy, qz, qw);
 }
 
 vec3 Node::eulerAngles() const {

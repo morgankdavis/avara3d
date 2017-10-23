@@ -2,8 +2,7 @@ TODO:
 
 ——————————————————————————————————
 
-Switch to gainput
-WINDOWS??
+WINDOWS BUILD??
 
 
 SCENE GRAPH INFO
@@ -20,7 +19,6 @@ GOLD MINE https://github.com/karimnaaji/hdreffects
 QUESTIONS:
 	Why does mouse input speed change between vzync and non-vsync?
 	Why does non-async stutter?
-	Can we implement our own frame-limiting?
 	Why do we have to invert our view matrix?
 		Apparently transforming everything into eye-space in the vertex shader is requiring this...
 		It also looks as though doing it the “other way” (not how we’re doing it) requires this:

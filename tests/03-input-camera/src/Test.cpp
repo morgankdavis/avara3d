@@ -51,22 +51,18 @@ int Test::run(const vector<string>& args) {
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
-	
-	
-	
+
+
 	for (auto n : scene->rootNode()->immediateChildNodes()) {
 		if (n->camera()) {
 			m_cameraNode = n;
-			m_cameraNode->camera()->zNear(0.000000001);
-//			m_camRotation = vec3(0.0f, 0.0f, 0.0f);
-//			m_cameraNode->transform( translate(mat4(1.0), vec3(0.0f, 0.0f, 0.5f)));
-			cout << "camera transform: " << n->transform() << endl;
 			break;
 		}
 	}
-	
-	
-	
+
+	m_suzanneNode = scene->rootNode()->childNode("Suzanne", true);
+
+
 	m_inputManager = window.inputManager();
 	
 	window.display();
@@ -91,8 +87,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
-		cout << "Key: " << to_string(k) << endl;
-		//printf("key name: %c\n", k);
+		//cout << "Key: " << to_string(k) << endl;
+		printf("Key: %c\n", k);
 	}
 
 	if (keysDown.count(Key_Escape)) {
@@ -117,8 +113,15 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	// move camera
 	
-	// TODO: Use trig
-	const static float mouseSensitivity = 0.5f;
+	// TODO: Use trig/radius
+
+
+	// tanA = y/x
+	// tanA = mouseDelta / distance
+	// A = atan(mouseDelta / distance)
+
+	//const static float mouseSensitivity = 0.5f;
+	const static float mouseSensitivity = (1.0f / 1.5f);
 	
 	if (m_cameraNode) {
 		
@@ -129,8 +132,11 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		vec3 camUp = m_cameraNode->worldUp();
 
 		
-		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
-		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
+//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
+//		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
+
+		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
+		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
 		vec3 angles = m_cameraNode->eulerAngles();
 		m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
@@ -164,7 +170,25 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;//normalize(cross(camRight, camForward));
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
+
+
 	}
+
+
+
+	if(keysDown.count(Key_Right)) {
+		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+	}
+	else if(keysDown.count(Key_Left)) {
+		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+	}
+	if(keysDown.count(Key_Up)) {
+		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z + deltaSeconds));
+	}
+	else if(keysDown.count(Key_Down)) {
+		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z - deltaSeconds));
+	}
+
 }
 
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
