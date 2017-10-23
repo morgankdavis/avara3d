@@ -17,7 +17,11 @@
 
 #include <assimp/matrix4x4.h>
 #include <assimp/vector2.h>
+#ifdef WINDOWS
+#include <optional.hpp>
+#else
 #include <boost/optional.hpp>
+#endif
 #include <glm/glm.hpp>
 
 #include "Types.h"

@@ -27,9 +27,11 @@ endif()
 if(XCODE)
 	add_definitions("-DAPPLE" "-DMACOS" "-DXCODE")
 elseif(MACOS)
-	#add_definitions("-DAPPLE" "-DMACOS")
+	add_definitions("-DAPPLE" "-DMACOS")
 elseif(LINUX)
 	add_definitions("-DLINUX")
+elseif(WINDOWS)
+	add_definitions("-DWINDOWS")
 endif()
 
 
