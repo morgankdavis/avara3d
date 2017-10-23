@@ -91,7 +91,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
-		cout << "Key: " << k << endl;
+		cout << "Key: " << to_string(k) << endl;
 		//printf("key name: %c\n", k);
 	}
 
@@ -118,7 +118,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	// move camera
 	
 	// TODO: Use trig
-	const static float mouseSensitivity = 0.25f;
+	const static float mouseSensitivity = 0.5f;
 	
 	if (m_cameraNode) {
 		
@@ -133,8 +133,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
 		
 		vec3 angles = m_cameraNode->eulerAngles();
-		cout << "angles: " << angles << endl;
-		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotX, angles.y + deltaRotY, angles.z));
+		m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
+		//m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, angles.y + deltaRotY, angles.z));
 		//m_cameraNode->eulerAngles(vec3(angles.x, angles.y, angles.z));
 
 		

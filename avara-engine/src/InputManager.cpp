@@ -29,7 +29,7 @@ using namespace glm;
 // TODO: this is going to be a problem when we start making multiple instances of InputManager
 // this may help/GLFW callbacks:
 // http://www.newty.de/fpt/callback.html
-InputManager *inputManager;
+InputManager* inputManager;
 //gainput::InputManager*	gainputInputManager;
 //gainput::DeviceId gainputMouseId;
 //gainput::InputMap* gainputInputMap;
@@ -163,7 +163,7 @@ void InputManager::update(float deltaSeconds) {
 					m_mousePositionDelta.x += event.value;
 				}
 				else {
-					m_mousePositionDelta.y -= event.value; // vertical scroll seems to be inverted
+					m_mousePositionDelta.y += -event.value; // vertical scroll seems to be inverted
 				}
 				break;
 
