@@ -55,29 +55,31 @@ Node::Node(const shared_ptr<Geometry> geometry):
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
 
-	m_geometry->node(this);
+		m_geometry->node(this);
 }
 
-Node::Node(const string& name, const mat4 transform):
+Node::Node(const string& name, const mat4 t):
 	m_name(name),
 	m_hidden(false),
 	m_parent(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
-
+		
+		transform(t);
 }
 
-Node::Node(const string& name, const mat4 transform, const shared_ptr<Geometry> geometry):
-		m_name(name),
-		m_hidden(false),
-		m_parent(nullptr),
-		m_position(vec3(0.0f, 0.0f, 0.0f)),
-		m_orientation(quat()),
-		m_scale(vec3(1.0f, 1.0f, 1.0f)),
-		m_geometry(geometry) {
-
-	m_geometry->node(this);
+Node::Node(const string& name, const mat4 t, const shared_ptr<Geometry> geometry):
+	m_name(name),
+	m_hidden(false),
+	m_parent(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_geometry(geometry) {
+		
+		transform(t);
+		m_geometry->node(this);
 }
 
 /***************************************************************************************
@@ -106,6 +108,7 @@ shared_ptr<Camera> Node::camera() const {
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
+	camera->node(this);
 	m_camera = camera;
 	//m_camera->node(this);
 }

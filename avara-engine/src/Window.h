@@ -23,7 +23,8 @@ namespace ae {
 	class Camera;
 	class Color;
 	class InputManager;
-
+	class Node;
+	
 #if defined(EXPERIMENTAL)
 	class Screen;
 #endif
@@ -80,12 +81,12 @@ namespace ae {
 		std::shared_ptr<Color> backgroundColor() const;
 		void backgroundColor(const std::shared_ptr<Color> color);
 
-		std::shared_ptr<Camera> pointOfView() const;
-		void pointOfView(const std::shared_ptr<Camera> camera);
+		std::shared_ptr<Node> pointOfView() const;
+		void pointOfView(const std::shared_ptr<Node> camera);
 		
 		std::shared_ptr<InputManager> inputManager();
 
-		void addDefaultCamera();
+		std::shared_ptr<Node> addDefaultPointOfView();
 		
 		windowWillUpdateFuction willUpdateCallback();
 		void willUpdateCallback(windowWillUpdateFuction function);
@@ -110,7 +111,7 @@ namespace ae {
 		unsigned						m_framebufferHeight;
 		AntialiasingMode				m_antialiasingMode;
 		std::shared_ptr<Color>			m_backgroundColor;
-		std::shared_ptr<Camera>			m_pointOfView;
+		std::shared_ptr<Node>			m_pointOfView;
 		std::shared_ptr<InputManager> 	m_inputManager;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;

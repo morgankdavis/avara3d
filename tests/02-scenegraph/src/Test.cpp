@@ -41,14 +41,18 @@ int Test::run(const vector<string>& args) {
 	
 	// BoxA: load, translate +10x, scale 2xyz, rotate 45deg on z
 	
-	auto boxAScene = TestSceneNamed("box");
-	auto boxANode = boxAScene->rootNode()->allChildNodes()[2];
+	auto boxAScene = TestSceneNamed("dragon", "obj");
+	//auto boxANode = boxAScene->rootNode()->childNode("teapot", false);
+	auto boxANode = boxAScene->rootNode()->immediateChildNodes()[0];
 	boxANode->name("A");
-	auto boxATranslate = 	translate(mat4(1.0f), vec3(10.0f, 0.0f, 0.0f));
-	auto boxAScale = 		scale(mat4(1.0f), vec3(2.0f, 2.0f, 2.0f));
-	auto boxARotate = 		rotate(mat4(1.0f), (float)radians(45.0), vec3(0.0f, 0.0f, 1.0f));
-	//boxANode->transform((boxATranslate * boxAScale) * boxARotate);
-	boxANode->transform(boxARotate * boxAScale * boxATranslate);
+	
+	cout << "boxANode: " << boxANode->transform() << endl;
+	
+//	auto boxATranslate = 	translate(mat4(1.0f), vec3(10.0f, 0.0f, 0.0f));
+//	auto boxAScale = 		scale(mat4(1.0f), vec3(2.0f, 2.0f, 2.0f));
+//	auto boxARotate = 		rotate(mat4(1.0f), (float)radians(45.0), vec3(0.0f, 0.0f, 1.0f));
+	//boxANode->transform(boxARotate * boxAScale * boxATranslate);
+	//boxANode->transform(boxATranslate * boxAScale * boxARotate);
 	
 	//	cout << "boxATranslate:\n" << boxATranslate << endl;
 	//	cout << "boxAScale:\n" << boxAScale << endl;
@@ -58,28 +62,39 @@ int Test::run(const vector<string>& args) {
 	
 	// BoxB: load, translate -10x, -5y : attach to BoxA
 	
-	auto boxBScene = TestSceneNamed("box");
-	auto boxBNode = boxBScene->rootNode()->allChildNodes()[2];
-	boxBNode->name("B");
-	auto boxBTranslate = translate(mat4(1.0f), vec3(-15.0f, -5.0f, 0.0f));
-	boxBNode->transform(boxBTranslate);
-	boxANode->addChildNode(boxBNode);
+//	auto boxBScene = TestSceneNamed("teapot");
+//	auto boxBNode = boxBScene->rootNode()->childNode("teapot", false);
+//	boxBNode->name("B");
+//	auto boxBTranslate = translate(mat4(1.0f), vec3(-15.0f, -5.0f, 0.0f));
+//	boxBNode->transform(boxBTranslate);
+//	boxANode->addChildNode(boxBNode);
 	
 	
 	// BoxC: load, translate -10z : attach to BoxB
 	
-	auto boxCScene = TestSceneNamed("box");
-	auto boxCNode = boxCScene->rootNode()->allChildNodes()[2];
-	boxCNode->name("C");
-	auto boxCTranslate = translate(mat4(1.0f), vec3(0.0f, 0.0f, -10.0f));
-	boxCNode->transform(boxCTranslate);
-	boxBNode->addChildNode(boxCNode);
+//	auto boxCScene = TestSceneNamed("teapot");
+//	auto boxCNode = boxCScene->rootNode()->childNode("teapot", false);
+//	boxCNode->name("C");
+//	auto boxCTranslate = translate(mat4(1.0f), vec3(0.0f, 0.0f, -10.0f));
+//	boxCNode->transform(boxCTranslate);
+//	boxBNode->addChildNode(boxCNode);
 	
 	
 	
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode()->addChildNode(boxANode);
+	
+	
+	auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+	auto camNode = make_shared<Node>();
+	camNode->camera(camera);
+	camNode->name("Camera node");
+	camNode->position(vec3(0.0f, 5.0f, 50.0f));
+	scene->rootNode()->addChildNode(camNode);
+	
+	
+	
 	
 	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));

@@ -15,6 +15,9 @@ SCENE GRAPH INFO
 Move camera realtime
 GOLD MINE https://github.com/karimnaaji/hdreffects
 
+Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
+Check nodes don’t already exist when adding children?
+
 
 QUESTIONS:
 	Why does mouse input speed change between vzync and non-vsync?
@@ -85,6 +88,9 @@ Wrap GLM - https://github.com/cinder/Cinder/tree/master/include/cinder
 
 
 Laundry list:
+
+	Add model loader progress callback Assimp::ProgressHandler
+	Import camera? — fix Z-up files
 	
 	SCREENSHOTS & VIDEO
 		ppm: http://netpbm.sourceforge.net/doc/ppm.html

@@ -20,8 +20,8 @@ using namespace glm;
 
 Camera::Camera():
 	m_fov(radians(45.0)),
-	m_zNear(0.001),
-	m_zFar(10000.0) {
+	m_zNear(0.01),
+	m_zFar(1000.0) {
 
 	// TODO: HARD CODED VIEWPORT SIZE!
 		m_projection = perspective(m_fov,
@@ -33,7 +33,7 @@ Camera::Camera():
 Camera::Camera(const float zNear, const float zFar, const float fov):
 	m_zNear(zNear),
 	m_zFar(zFar),
-	m_fov(fov) {
+	m_fov(radians(fov)) {
 
 	// TODO: HARD CODED VIEWPORT SIZE!
 	m_projection = perspective(m_fov,
@@ -108,5 +108,17 @@ mat4 Camera::projection() {
 void Camera::projection(const mat4 projection) {
 	m_projection = projection;
 	// compute constituent properties??
+}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
+Node* Camera::node() const {
+	return m_node;
+}
+
+void Camera::node(Node* node) {
+	m_node = node;
 }
 

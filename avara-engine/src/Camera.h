@@ -17,6 +17,10 @@
 
 namespace ae {
 	
+	
+	class Node;
+	
+	
 	class Camera {
 		
 	public:
@@ -54,6 +58,13 @@ namespace ae {
 		glm::mat4 projection();
 		void projection(const glm::mat4 projection);
 		
+		/***************************************************************************************
+		     MARK:   Internal
+		 **************************************************************************************/
+		
+		Node* node() const;
+		void node(Node* node);
+		
 	private:
 		
 		/***************************************************************************************
@@ -67,6 +78,8 @@ namespace ae {
 		float					m_zFar;
 		
 		glm::mat4				m_projection;
+		
+		Node*					m_node;
 	};
 }
 

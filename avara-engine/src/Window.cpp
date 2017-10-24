@@ -138,7 +138,7 @@ shared_ptr<Scene> Window::scene() const {
 void Window::scene(const shared_ptr<Scene> scene) {
 	m_scene = scene;
 
-	addDefaultCamera();
+	//checkAddDefaultCamera();
 }
 
 void Window::enableCursor(bool enabled) {
@@ -208,11 +208,11 @@ void Window::backgroundColor(const shared_ptr<Color> color) {
 	m_backgroundColor = color;
 }
 
-shared_ptr<Camera> Window::pointOfView() const {
+shared_ptr<Node> Window::pointOfView() const {
 	return m_pointOfView;
 }
 
-void Window::pointOfView(const shared_ptr<Camera> camera) {
+void Window::pointOfView(const shared_ptr<Node> camera) {
 	m_pointOfView = camera;
 }
 
@@ -223,8 +223,16 @@ shared_ptr<InputManager> Window::inputManager() {
 	return m_inputManager;
 }
 
-void Window::addDefaultCamera() {
+shared_ptr<Node> Window::addDefaultPointOfView() {
+	
+//	for (auto node : m_scene->rootNode()->allChildNodes()) {
+//		if (node->camera()) {
+//			return;
+//		}
+//	}
+	
 	auto cameraNode = make_shared<Node>();
+	//m_scene->rootNode()->addChildNode(cameraNode); // done below
 	cameraNode->camera(make_shared<Camera>());
 
 	auto boundingPoints = (*scene()->boundingPoints());
@@ -290,10 +298,12 @@ void Window::addDefaultCamera() {
 
 	cameraNode->transform(viewMat);
 	
-	cout << "default viewMat: " << viewMat << endl;
+	//cout << "default viewMat: " << viewMat << endl;
 
 	scene()->rootNode()->addChildNode(cameraNode);
-	pointOfView(cameraNode->camera());
+	pointOfView(cameraNode);
+	
+	return cameraNode;
 }
 
 windowWillUpdateFuction Window::willUpdateCallback() {
@@ -342,24 +352,55 @@ void Window::mainLoop(const float deltaSeconds) {
 	glClearColor(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, framebufferWidth(), framebufferHeight());
-
-	// THIS IS BAD.
-	// we want to be able to say pointOfView()->node->camera()
-	// need to solve class forwarding/circular references.
+	
+	
+	
 	mat4 viewMat = mat4(1.0f);
 	mat4 projectionMat = mat4(1.0f);
-	bool foundCamera = false;
-	for (auto node: scene()->rootNode()->allChildNodes()) {
-		if (node->camera() == pointOfView()) {
-			viewMat = node->worldTransform();
-			projectionMat = node->camera()->projection();
-			foundCamera = true;
-			break;
+	
+	shared_ptr<Camera> camera = nullptr;
+	
+	if (pointOfView()) {
+		camera = pointOfView()->camera();
+	}
+	
+	if (!camera) {
+		// try to find one
+		for (auto node: scene()->rootNode()->allChildNodes()) {
+			if (node->camera()) {
+				camera = node->camera();
+				pointOfView(node);
+				break;
+			}
 		}
 	}
-	if (!foundCamera) {
-		cout << "*** NO CAMERA FOUND IN SCENE! ***" << endl;
+	if (!camera) {
+		// still no camera. add a default one.
+		pointOfView(addDefaultPointOfView());
+		camera = pointOfView()->camera();
 	}
+			
+	viewMat = pointOfView()->worldTransform();
+	projectionMat = pointOfView()->camera()->projection();
+
+
+//	// THIS IS BAD.
+//	// we want to be able to say pointOfView()->node->camera()
+//	// need to solve class forwarding/circular references.
+//	mat4 viewMat = mat4(1.0f);
+//	mat4 projectionMat = mat4(1.0f);
+//	bool foundCamera = false;
+//	for (auto node: scene()->rootNode()->allChildNodes()) {
+//		if (node->camera() == pointOfView()) {
+//			viewMat = node->worldTransform();
+//			projectionMat = node->camera()->projection();
+//			foundCamera = true;
+//			break;
+//		}
+//	}
+//	if (!foundCamera) {
+//		cout << "*** NO CAMERA FOUND IN SCENE! ***" << endl;
+//	}
 
 	for (auto node: scene()->rootNode()->allChildNodes()) {
 		if (!node->hidden()) {

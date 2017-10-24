@@ -53,14 +53,15 @@ int Test::run(const vector<string>& args) {
 	window.enableCursor(false);
 
 
-	for (auto n : scene->rootNode()->immediateChildNodes()) {
-		if (n->camera()) {
-			m_cameraNode = n;
-			break;
-		}
-	}
+//	for (auto n : scene->rootNode()->immediateChildNodes()) {
+//		if (n->camera()) {
+//			m_cameraNode = n;
+//			break;
+//		}
+//	}
 
 	m_suzanneNode = scene->rootNode()->childNode("Suzanne", true);
+	//m_suzanneNode = scene->rootNode()->allChildNodes()[0];
 
 
 	m_inputManager = window.inputManager();
@@ -123,6 +124,17 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	//const static float mouseSensitivity = 0.5f;
 	const static float mouseSensitivity = (1.0f / 1.5f);
 	
+	
+	if (!m_cameraNode) {
+		for (auto n : scene.rootNode()->immediateChildNodes()) {
+			if (n->camera()) {
+				m_cameraNode = n;
+				break;
+			}
+		}
+	}
+	
+	
 	if (m_cameraNode) {
 		
 		// look
@@ -175,20 +187,20 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 
 
-
-	if(keysDown.count(Key_Right)) {
-		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+	if (m_suzanneNode) {
+		if(keysDown.count(Key_Right)) {
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+		}
+		else if(keysDown.count(Key_Left)) {
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+		}
+		if(keysDown.count(Key_Up)) {
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z + deltaSeconds));
+		}
+		else if(keysDown.count(Key_Down)) {
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z - deltaSeconds));
+		}
 	}
-	else if(keysDown.count(Key_Left)) {
-		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
-	}
-	if(keysDown.count(Key_Up)) {
-		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z + deltaSeconds));
-	}
-	else if(keysDown.count(Key_Down)) {
-		m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z - deltaSeconds));
-	}
-
 }
 
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
