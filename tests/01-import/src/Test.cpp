@@ -12,6 +12,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 #include "ae.h"
@@ -53,37 +54,33 @@ int Test::run(const vector<string>& args) {
 	mat4 parentScale = scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.0f) * 25.0f);
 	parentNode->transform(parentScale);
 	
-	//	cout << "test scene nodes:" << endl;
-	//	auto testNodes = testScene->rootNode()->allChildNodes();
-	//	for (auto node : testNodes) {
-	//		cout << "node: " << node->name() << endl;
-	//	}
-	
-	
-	
-	
 
 	auto siameseScene = TestSceneNamed("siamese");
-	
-	//	cout << "siamese nodes:" << endl;
-	//	for (auto n : siameseScene->rootNode()->allChildNodes()) {
-	//		cout << n->name() << endl;
-	//	}
-	siameseNode = siameseScene->rootNode()->allChildNodes()[4];
+	siameseNode = siameseScene->rootNode()->childNode("Cube", true);
+	siameseNode->name("siamese");
 	cout << "siameseNode: " << siameseNode->name() << endl;
 	siameseNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
 	siameseNode->hidden(false);
-	//parentNode->addChildNode(siameseNode);
-	
 	
 	
 	torusNode = testScene->rootNode()->allChildNodes()[8];
+	torusNode->name("torus");
 	
 	
 	suzanneNode = testScene->rootNode()->allChildNodes()[7];
+	suzanneNode->name("suzanneNode");
 	suzanneNode->transform(translate(mat4(1.0f), vec3(-0.25f, 0.0f, 0.0f)));
 	suzanneNode->hidden(false);
 	suzanneNode->addChildNode(siameseNode);
+	
+	
+	auto palmScene = TestSceneNamed("cartoon_palm_tree", "obj");
+	palmNode = palmScene->rootNode();
+	palmNode->name("palm");
+	cout << "palmNode: " << palmNode->name() << endl;
+	palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
+	palmNode->hidden(false);
+	parentNode->addChildNode(palmNode);
 	
 	
 	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

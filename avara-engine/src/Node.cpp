@@ -12,6 +12,7 @@
 #include <iostream>
 
 //#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -209,6 +210,11 @@ void Node::scale(const glm::vec3 scale) {
 }
 
 mat4 Node::transform() const {
+//	return mat4(1.0);
+//	return m_transform;
+	
+	// in matrix notation, this is "scale, rotate, translate" -- which is conventional
+	// https://gamedev.stackexchange.com/questions/29260/transform-matrix-multiplication-order
 	// t = p * r * s ?
 	
 	// TranslationMatrix * RotationMatrix * ScaleMatrix
@@ -219,11 +225,17 @@ mat4 Node::transform() const {
 	mat4 r = mat4_cast(m_orientation);
 	mat4 s = glm::scale(mat4(1.0), m_scale);
 	
-	return t * r * s;
+	return t * r * s; // <-- common
+	//return s * r * t; // <-- scenekit?
+	// it almost looks as is GLM is applying the multiplication operator with proper association here
+	// not reverse association with mat4s
 }
 
 void Node::transform(const mat4 transform) {
 
+//	m_transform = transform;
+//	return;
+	
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -236,6 +248,14 @@ void Node::transform(const mat4 transform) {
 			  translation,
 			  skew,
 			  perspective);
+	
+	// NOTE:
+	// we're doing this because it appears to be consistent with SceneKit
+	// the quaternion decomposition negates all axis in GLM.. not sure if one of the other is "correct"
+	// of if quaternions are defined such that either is fine. either way, SO FAR is appears to be consistent
+	//orientation.x *= -1; orientation.y *= -1; orientation.z *= -1;
+	// EDIT: yes a very naive approach. this was fixed in GLM issue #448 for release 0.9.9.9
+	
 	
 	m_position = translation;
 	m_scale = scale;
@@ -251,7 +271,7 @@ mat4 Node::worldTransform() {
 	while (iter != path.begin()) {
 		--iter;
 		Node* node = *iter;
-		 t = t * node->transform();
+		t = t * node->transform();
 	}
 
 	t = t * transform();

@@ -2,6 +2,7 @@ find_package(OpenGL REQUIRED)
 
 
 add_subdirectory(src)
+#add_subdirectory(extern)
 
 
 file(GLOB HEADERS src/*.h)

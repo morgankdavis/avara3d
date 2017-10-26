@@ -14,13 +14,16 @@ func D2R(_ d: Float) -> Float {
 	return d * (3.1415 / 180.0)
 }
 
+func NSStringFromSCNVector3(_ vec: SCNVector3) -> NSString {
+	return NSString(format: "{ %f, %f, %f }", vec.x, vec.y, vec.z)
+}
+
+func NSStringFromSCNVector4(_ vec: SCNVector4) -> NSString {
+	return NSString(format: "{ %f, %f, %f, %f }", vec.x, vec.y, vec.z, vec.w)
+}
 
 func NSStringFromSCNMatrix4(_ m: SCNMatrix4) -> NSString {
-	return NSString(format: "%03.3f, %03.3f, %03.3f, %3.3f\n%03.3f, %03.3f, %03.3f, %3.3f\n%03.3f, %03.3f, %03.3f, %3.3f\n%03.3f, %03.3f, %03.3f, %3.3f\n",
-//	                m.m11, m.m12, m.m13, m.m14,
-//					m.m21, m.m22, m.m23, m.m24,
-//					m.m31, m.m32, m.m33, m.m34,
-//					m.m41, m.m42, m.m43, m.m44)
+	return NSString(format: "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n",
 		m.m11, m.m21, m.m31, m.m41,
 		m.m12, m.m22, m.m32, m.m42,
 		m.m13, m.m23, m.m33, m.m43,
@@ -33,68 +36,117 @@ class GameViewController: NSViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		
-		// BoxA: load, translate +10x, scale 2xyz, rotate 45deg on z
-		
-		let boxAScene = SCNScene(named: "art.scnassets/dragon.obj")!
-		//var boxANode = boxAScene.rootNode.childNode(withName: "teapot", recursively: false)
-		var boxANode = boxAScene.rootNode.childNodes[0]
 
-		boxANode.name = "A"
 		
-		NSLog("boxANode: \(NSStringFromSCNMatrix4(boxANode.transform))")
-		
-		
-//		let boxATranslate = 	SCNMatrix4MakeTranslation(10.0, 0.0, 0.0)
-//		let boxAScale = 		SCNMatrix4MakeScale(2.0, 2.0, 2.0)
-//		let boxARotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(45.0)), 0.0, 0.0, 1.0)
-//		boxANode?.transform = 	SCNMatrix4Mult(SCNMatrix4Mult(boxATranslate, boxAScale), boxARotate)
-		//boxANode?.transform = 	SCNMatrix4Mult(boxARotate, SCNMatrix4Mult(boxAScale, boxATranslate))
-		
-//		NSLog("boxATranslate:\n\(NSStringFromSCNMatrix4(boxATranslate))")
-//		NSLog("boxAScale:\n\(NSStringFromSCNMatrix4(boxAScale))")
-//		NSLog("boxARotate:\n\(NSStringFromSCNMatrix4(boxARotate))")
-//		NSLog("boxANode?.transform:\n\(NSStringFromSCNMatrix4(boxANode!.transform))")
-		
-		
-		// BoxB: load, translate -10x, -5y : attach to BoxA
-		
-//		let boxBScene = SCNScene(named: "art.scnassets/teapot.dae")!
-//		var boxBNode = boxBScene.rootNode.childNode(withName: "teapot", recursively: false)
-//		boxBNode?.name = "B"
-//		let boxBTranslate = SCNMatrix4MakeTranslation(-15.0, -5.0, 0.0)
-//		boxBNode?.transform = boxBTranslate
-//		boxANode?.addChildNode(boxBNode!)
-		
-		
-		// BoxC: load, translate -10z : attach to BoxB
-		
-//		let boxCScene = SCNScene(named: "art.scnassets/teapot.dae")!
-//		var boxCNode = boxCScene.rootNode.childNode(withName: "teapot", recursively: false)
-//		boxCNode?.name = "C"
-//		let boxCTranslate = SCNMatrix4MakeTranslation(0.0, 0.0, -10.0)
-//		boxCNode?.transform = boxCTranslate
-//		boxBNode?.addChildNode(boxCNode!)
+		let aScene = SCNScene(named: "art.scnassets/dragon.obj")!
+		let aNode = aScene.rootNode.childNodes[0]
+		aNode.name = "A"
+		let aTranslate = 	SCNMatrix4MakeTranslation(10.0, 0.0, 0.0)
+		let aScale = 		SCNMatrix4MakeScale(2.0, 2.0, 2.0)
+		let aRotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(45.0)), 0.0, 0.0, 1.0)
+		let aTIn =			SCNMatrix4Mult(SCNMatrix4Mult(aTranslate, aScale), aRotate)
+		NSLog("aTIn:\n\(NSStringFromSCNMatrix4(aTIn))")
+		aNode.transform = 	aTIn
+		NSLog("aNode transform:\n\(NSStringFromSCNMatrix4(aNode.transform))")
+		NSLog("aNode orientation: \(NSStringFromSCNVector4(aNode.orientation))")
+		NSLog("aNode rotation: \(NSStringFromSCNVector4(aNode.rotation))")
+		NSLog("aNode eulerRangles: \(NSStringFromSCNVector3(aNode.eulerAngles))")
 		
 		
 		
+		let bScene = SCNScene(named: "art.scnassets/dragon.obj")!
+		let bNode = bScene.rootNode.childNodes[0]
+		bNode.name = "B"
+		let bTranslate = 	SCNMatrix4MakeTranslation(0.0, -20.0, -7.0)
+		let bScale = 		SCNMatrix4MakeScale(1.0, 1.0, 1.5)
+		let bRotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(30.0)), 1.0, 1.0, 0.0)
+		let bTIn =			SCNMatrix4Mult(SCNMatrix4Mult(bTranslate, bScale), bRotate)
+		NSLog("bTIn:\n\(NSStringFromSCNMatrix4(bTIn))")
+		bNode.transform = bTIn
+		NSLog("bNode transform:\n\(NSStringFromSCNMatrix4(bNode.transform))")
+		NSLog("bNode orientation: \(NSStringFromSCNVector4(bNode.orientation))")
+		NSLog("bNode rotation: \(NSStringFromSCNVector4(bNode.rotation))")
+		NSLog("bNode eulerRangles: \(NSStringFromSCNVector3(bNode.eulerAngles))")
+		aNode.addChildNode(bNode);
 		
-		var scene = SCNScene()
-		scene.rootNode.addChildNode(boxANode)
 		
+		
+		let fScene = SCNScene(named: "art.scnassets/dragon.obj")!
+		let fNode = fScene.rootNode.childNodes[0]
+		fNode.name = "F"
+		let fTranslate = 	SCNMatrix4MakeTranslation(-16.0, 0.0, -60.0)
+		let fScale = 		SCNMatrix4MakeScale(2.0, 5.0, 3.0)
+		let fRotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(-90.0)), 0.0, 1.0, 3.0)
+		let fTIn =			SCNMatrix4Mult(SCNMatrix4Mult(fTranslate, fScale), fRotate)
+		NSLog("fTIn:\n\(NSStringFromSCNMatrix4(fTIn))")
+		fNode.transform = fTIn
+		NSLog("fNode transform:\n\(NSStringFromSCNMatrix4(fNode.transform))")
+		NSLog("fNode orientation: \(NSStringFromSCNVector4(fNode.orientation))")
+		NSLog("fNode rotation: \(NSStringFromSCNVector4(fNode.rotation))")
+		NSLog("fNode eulerRangles: \(NSStringFromSCNVector3(fNode.eulerAngles))")
+		bNode.addChildNode(fNode);
+
+
+		
+		let pScene = SCNScene(named: "art.scnassets/cartoon_palm_tree.obj")!
+		let pNode = pScene.rootNode.childNodes[0]
+		pNode.name = "P"
+		let pTranslate = 	SCNMatrix4MakeTranslation(0.0, -7.0, 0.0)
+		let pScale = 		SCNMatrix4MakeScale(1.0, 1.0, 10.0)
+		let pRotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(50.0)), 1.0, 1.0, 0.0)
+		let pTIn =			SCNMatrix4Mult(SCNMatrix4Mult(pScale, pRotate), pTranslate)
+		NSLog("pTIn:\n\(NSStringFromSCNMatrix4(pTIn))")
+		pNode.transform = pTIn
+		NSLog("pNode transform:\n\(NSStringFromSCNMatrix4(pNode.transform))")
+		NSLog("pNode orientation: \(NSStringFromSCNVector4(pNode.orientation))")
+		NSLog("pNode rotation: \(NSStringFromSCNVector4(pNode.rotation))")
+		NSLog("pNode eulerRangles: \(NSStringFromSCNVector3(pNode.eulerAngles))")
+		fNode.addChildNode(pNode);
+		
+		
+		
+		let gScene = SCNScene(named: "art.scnassets/ConvaliaBouquet.obj")!
+		let gNode = gScene.rootNode.childNodes[0]
+		gNode.name = "P"
+		let gTranslate = 	SCNMatrix4MakeTranslation(0.0, -7.0, 0.0)
+		let gScale = 		SCNMatrix4MakeScale(1.0, 1.0, 1.0)
+		let gRotate = 		SCNMatrix4MakeRotation(CGFloat(D2R(-50.0)), 1.0, 1.0, 0.0)
+		let gTIn =			SCNMatrix4Mult(SCNMatrix4Mult(gRotate, gTranslate), gScale)
+		NSLog("gTIn:\n\(NSStringFromSCNMatrix4(gTIn))")
+		gNode.transform = gTIn
+		NSLog("gNode transform:\n\(NSStringFromSCNMatrix4(gNode.transform))")
+		NSLog("gNode orientation: \(NSStringFromSCNVector4(gNode.orientation))")
+		NSLog("gNode rotation: \(NSStringFromSCNVector4(gNode.rotation))")
+		NSLog("gNode eulerRangles: \(NSStringFromSCNVector3(gNode.eulerAngles))")
+		aNode.addChildNode(gNode);
+		
+		
+		
+		
+		
+		let scene = SCNScene()
+		scene.rootNode.addChildNode(aNode)
+		
+		
+		NSLog("aNode worldTransform:\n\(NSStringFromSCNMatrix4(aNode.worldTransform))")
+		NSLog("bNode worldTransform:\n\(NSStringFromSCNMatrix4(bNode.worldTransform))")
+		NSLog("fNode worldTransform:\n\(NSStringFromSCNMatrix4(fNode.worldTransform))")
+		NSLog("pNode worldTransform:\n\(NSStringFromSCNMatrix4(pNode.worldTransform))")
+		
+
 		let cameraNode = SCNNode()
 		cameraNode.camera = SCNCamera()
 		cameraNode.camera?.xFov = 30.0
 		cameraNode.camera?.yFov = 30.0
-		cameraNode.camera?.zNear = 0.0001
+		cameraNode.camera?.zNear = 0.01
 		cameraNode.camera?.zFar = 1000.0
 		scene.rootNode.addChildNode(cameraNode)
-		cameraNode.position = SCNVector3(x: 0, y: 5, z: 50)
-		
-		
-		
-		
-		
+		cameraNode.position = SCNVector3(x: 0, y: 5, z: 100)
+
+
+
+
+
 		let scnView = self.view as! SCNView
 		scnView.scene = scene
 		//scnView.allowsCameraControl = true

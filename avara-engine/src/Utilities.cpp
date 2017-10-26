@@ -34,7 +34,7 @@ ostream& ae::utils::operator<<(ostream& os, const glm::vec4& v) {
 }
 
 ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
-	os << "(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
+	os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
 	return os;
 }
 

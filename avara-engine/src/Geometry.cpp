@@ -75,6 +75,8 @@ unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectio
 	// MODEL
 	mat4 modelMat = node()->worldTransform();
 	
+	//cout << "DRAW '" << node()->name() << "' worldTransform:\n" << modelMat << endl;
+	
 	unsigned int numPolygons = 0;
 
 	for (auto element : elements()) {
@@ -98,9 +100,9 @@ unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectio
 		GLint viewLoc = glGetUniformLocation(program, "view");
 		GLint projectionLoc = glGetUniformLocation(program, "projection");
 		
-		cout << "RENDER, modelMat:\n" << modelMat << endl;
-		cout << "RENDER, viewMat:\n" << viewMat << endl;
-		cout << "RENDER, projectionMat:\n" << projectionMat << endl;
+//		cout << "RENDER, modelMat:\n" << modelMat << endl;
+//		cout << "RENDER, viewMat:\n" << viewMat << endl;
+//		cout << "RENDER, projectionMat:\n" << projectionMat << endl;
 		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(modelMat));
 		// TODO: WHY do we have to invert this?? see also Window::addDefaultCamera()
