@@ -70,13 +70,13 @@ namespace ae {
 		glm::vec3 position() const;
 		void position(const glm::vec3 position);
 		
-		glm::vec4 rotation() const;
+		glm::vec4 rotation() const; // angle == 4th component
 		void rotation(const glm::vec4 rotation);
 		
-		glm::vec3 eulerAngles() const;
+		glm::vec3 eulerAngles() const; // pitch, yaw, roll
 		void eulerAngles(const glm::vec3 eulerAngles);
 		
-		glm::quat orientation() const;
+		glm::quat orientation() const; // angle == 1st component
 		void orientation(const glm::quat orientation);
 		
 		glm::vec3 scale() const;
@@ -85,13 +85,11 @@ namespace ae {
 		glm::mat4 transform() const;
 		void transform(const glm::mat4 transform);
 		
-		
 		glm::mat4 worldTransform();
 		
 		glm::vec3 worldFormard();
 		glm::vec3 worldUp();
 		glm::vec3 worldRight();
-		
 		
 		//std::weak_ptr<Node>					m_parent;
 		
@@ -137,11 +135,8 @@ namespace ae {
 		std::vector<std::shared_ptr<Node>>	m_childNodes;
 		
 		glm::vec3							m_position;
-		//glm::vec4							m_rotation;
-		//glm::vec3							m_eulerAngles;
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
-//		glm::mat4							m_transform;
 		
 		std::vector<std::shared_ptr<Node>>	allChildNodesRec();
 	};

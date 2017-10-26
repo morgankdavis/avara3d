@@ -2,21 +2,26 @@ TODO:
 
 ——————————————————————————————————
 
+Proper scene graph unroll - DFS?
+Write alternate mouse input?
+
 WINDOWS BUILD??
 
 
-SCENE GRAPH INFO
-	https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
-	http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
-	https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
-	EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
-	http://libcinder.org
+Fix Euler Angles order
+	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 
-Move camera realtime
-GOLD MINE https://github.com/karimnaaji/hdreffects
+
+Shader class! + Incorporate (VBO, VAO classes?)
+RELOAD SHADERS REALTIME
+Color class
+
 
 Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
 Check nodes don’t already exist when adding children?
+
+LOGGING
+	https://github.com/SergiusTheBest/plog
 
 
 QUESTIONS:
@@ -44,24 +49,13 @@ Separate Window and Renderer
 Fix key callback crash on exit (escape)
 Init per Window. Test multiple windows. Fix global framebuffer size.
 
-Propter scene graph unwind (child nodes, worldTransform, nodeNamed, CACHING)
-
-Color -> struct? or build a struct?
-
 Default light (may need to wait for shader)
 
 Draw bounding boxes, modal origin, world origin, axis plane grid?
 Mouseover == raycast & print x,y,z of anything hit
 
-SHADER CLASS EXAMPLE
-RELOAD SHADERS REALTIME
-
-Combine phong color/phong texture
-Texture or color
-
 Lazy load geometry elements (compile shader + load materials) + Add pre-load method
 
-Abstract light + add multiple light support + multiple types
 ——————————————————————————————————
 
 HDR/Bloom - Crocus!
@@ -172,4 +166,18 @@ OPTIMIZATION
 	Vector:
 		reserve
 		emplace_back
+
+
+
+
+
+Resources:
+
+SCENE GRAPH INFO
+	https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
+	http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
+	https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
+	EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
+	http://libcinder.org
+
 	

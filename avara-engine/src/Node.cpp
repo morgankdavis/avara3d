@@ -101,7 +101,6 @@ shared_ptr<Light> Node::light() const {
 
 void Node::light(const shared_ptr<Light> light) {
 	m_light = light;
-	//m_light->node(this);
 }
 
 shared_ptr<Camera> Node::camera() const {
@@ -111,7 +110,6 @@ shared_ptr<Camera> Node::camera() const {
 void Node::camera(const shared_ptr<Camera> camera) {
 	camera->node(this);
 	m_camera = camera;
-	//m_camera->node(this);
 }
 
 shared_ptr<Geometry> Node::geometry() const {
@@ -141,6 +139,8 @@ void Node::position(const vec3 position) {
 
 vec4 Node::rotation() const {
 
+	//http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+	
 	vec4 angleAxis = vec4(m_orientation.x / sqrt(1-m_orientation.w*m_orientation.w),
 						  m_orientation.y / sqrt(1-m_orientation.w*m_orientation.w),
 						  m_orientation.z / sqrt(1-m_orientation.w*m_orientation.w),
@@ -150,40 +150,50 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec4 rotation) {
+	
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
+	
+	vec3 rotationNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 
-	float qx = rotation.x * sin(rotation.w/2.0f);
-	float qy = rotation.y * sin(rotation.w/2.0f);
-	float qz = rotation.z * sin(rotation.w/2.0f);
+	float qx = rotationNormalized.x * sin(rotation.w/2.0f);
+	float qy = rotationNormalized.y * sin(rotation.w/2.0f);
+	float qz = rotationNormalized.z * sin(rotation.w/2.0f);
 	float qw = cos(rotation.w/2.0f);
 
-	m_orientation = quat(qx, qy, qz, qw);
+	m_orientation = quat(qw, qx, qy, qz);
 }
 
-vec3 Node::eulerAngles() const {
+vec3 Node::eulerAngles() const {  // pitch, yaw, roll
+	
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
+	// note that the linked equation seems to have switched attitude and bank
+	
+	auto q = m_orientation;
+	
+	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z,
+						1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
+	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z,
+						  1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
+	float roll = asin(2*q.x*q.y + 2.0f*q.z*q.w);
+
+	return vec3(pitch, yaw, roll);
+}
+
+void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
+
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	
-	float heading = atan2(2.0f*m_orientation.y*m_orientation.w - 2.0f*m_orientation.x*m_orientation.z,
-						  1.0f - 2.0f*m_orientation.y*m_orientation.y - 2.0f*m_orientation.z*m_orientation.z);
-	float attitude = asin(2*m_orientation.x*m_orientation.y + 2.0f*m_orientation.z*m_orientation.w);
-	float bank = atan2(2.0f*m_orientation.x*m_orientation.w - 2.0f*m_orientation.y*m_orientation.z,
-					   1.0f - 2.0f*m_orientation.x*m_orientation.x - 2.0f*m_orientation.z*m_orientation.z);
+	float pitch = eulerAngles.x;
+	float yaw = eulerAngles.y;
+	float roll = eulerAngles.z;
 	
-	return vec3(heading, attitude, bank);
-}
-
-void Node::eulerAngles(const vec3 eulerAngles) {
-
-	float heading = eulerAngles.x;
-	float attitude = eulerAngles.y;
-	float bank = eulerAngles.z;
-	
-	float c1 = cos(heading / 2.0f);
-	float c2 = cos(attitude / 2.0f);
-	float c3 = cos(bank / 2.0f);
-	float s1 = sin(heading / 2.0f);
-	float s2 = sin(attitude / 2.0f);
-	float s3 = sin(bank / 2.0f);
+	float c1 = cos(yaw / 2.0f);
+	float c2 = cos(roll / 2.0f);
+	float c3 = cos(pitch / 2.0f);
+	float s1 = sin(yaw / 2.0f);
+	float s2 = sin(roll / 2.0f);
+	float s3 = sin(pitch / 2.0f);
 	
 	float w = c1*c2*c3 - s1*s2*s3;
 	float x = s1*s2*c3 + c1*c2*s3;
@@ -210,32 +220,16 @@ void Node::scale(const glm::vec3 scale) {
 }
 
 mat4 Node::transform() const {
-//	return mat4(1.0);
-//	return m_transform;
-	
-	// in matrix notation, this is "scale, rotate, translate" -- which is conventional
-	// https://gamedev.stackexchange.com/questions/29260/transform-matrix-multiplication-order
-	// t = p * r * s ?
-	
-	// TranslationMatrix * RotationMatrix * ScaleMatrix
-	// http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
-	
-	
+
 	mat4 t = translate(mat4(1.0), m_position);
 	mat4 r = mat4_cast(m_orientation);
 	mat4 s = glm::scale(mat4(1.0), m_scale);
 	
-	return t * r * s; // <-- common
-	//return s * r * t; // <-- scenekit?
-	// it almost looks as is GLM is applying the multiplication operator with proper association here
-	// not reverse association with mat4s
+	return t * r * s;
 }
 
 void Node::transform(const mat4 transform) {
 
-//	m_transform = transform;
-//	return;
-	
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -248,18 +242,10 @@ void Node::transform(const mat4 transform) {
 			  translation,
 			  skew,
 			  perspective);
-	
-	// NOTE:
-	// we're doing this because it appears to be consistent with SceneKit
-	// the quaternion decomposition negates all axis in GLM.. not sure if one of the other is "correct"
-	// of if quaternions are defined such that either is fine. either way, SO FAR is appears to be consistent
-	//orientation.x *= -1; orientation.y *= -1; orientation.z *= -1;
-	// EDIT: yes a very naive approach. this was fixed in GLM issue #448 for release 0.9.9.9
-	
-	
+
 	m_position = translation;
 	m_scale = scale;
-	m_orientation = orientation;
+	m_orientation = orientation; // must use GLM 0.9.9.9 or later! 0.9.9.8 has a bug.
 }
 
 mat4 Node::worldTransform() {

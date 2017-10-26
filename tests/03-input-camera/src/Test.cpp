@@ -151,9 +151,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
 		vec3 angles = m_cameraNode->eulerAngles();
-		m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
-		//m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, angles.y + deltaRotY, angles.z));
-		//m_cameraNode->eulerAngles(vec3(angles.x, angles.y, angles.z));
+		// pitch, yaw, roll
+		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 		
 		// move
