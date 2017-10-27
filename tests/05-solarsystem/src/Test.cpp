@@ -36,43 +36,33 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 	
+
+
+
+	auto solarSystemScene = make_shared<Scene>();
 	
-//	solarSystem
-//	|    |
-//	|   sun
-//	|
-//	earthOrbit
-//	|    |
-//	|  earth
-//	|
-//	moonOrbit
-//	|
-//	moon
+	auto sunScene = TestSceneNamed("teapot");
+	auto sunNode = sunScene->rootNode()->allChildNodes()[1];
+	sunNode->scale(vec3(1.0) * 1.00f);
 	
-	
-	auto scene = make_shared<Scene>();
-	
-	auto sunScene = TestSceneNamed("sphere", "obj");
-	auto sunNode = sunScene->rootNode()->allChildNodes()[0];
-	
-	auto earthOrbitNode = make_shared<Node>("earth orbit");
-	earthOrbitNode->position(vec3(1.0f, 0.0f, 0.0f));
-	auto earthScene = TestSceneNamed("sphere", "obj");
-	auto earthNode = earthScene->rootNode()->allChildNodes()[0];
-	earthNode->scale(vec3(1.0) * 0.25f);
-	
-	auto moonOrbitNode = make_shared<Node>("moon orbit");
-	moonOrbitNode->position(vec3(0.5f, 0.0f, 0.0f));
-	auto moonScene = TestSceneNamed("sphere", "obj");
-	auto moonNode = moonScene->rootNode()->allChildNodes()[0];
-	moonNode->scale(vec3(1.0) * 0.025f);
-	
-	
-	scene->rootNode()->addChildNode(sunNode);
-	scene->rootNode()->addChildNode(earthOrbitNode);
-	earthOrbitNode->addChildNode(earthNode);
-	earthOrbitNode->addChildNode(moonOrbitNode);
-	moonOrbitNode->addChildNode(moonNode);
+	m_earthOrbitNode = make_shared<Node>("earth orbit");
+	m_earthOrbitNode->position(vec3(20.0f, 0.0f, 0.0f));
+	auto earthScene = TestSceneNamed("teapot");
+	m_earthNode = earthScene->rootNode()->allChildNodes()[1];
+	m_earthNode->scale(vec3(1.0) * 0.1f);
+
+//	m_moonOrbitNode = make_shared<Node>("moon orbit");
+//	m_moonOrbitNode->position(vec3(0.5f, 0.0f, 0.0f));
+//	auto moonScene = TestSceneNamed("teapot");
+//	m_moonNode = moonScene->rootNode()->allChildNodes()[1];
+//	m_moonNode->scale(vec3(1.0) * 0.025f);
+
+
+	solarSystemScene->rootNode()->addChildNode(sunNode);
+	solarSystemScene->rootNode()->addChildNode(m_earthOrbitNode);
+	m_earthOrbitNode->addChildNode(m_earthNode);
+	//m_earthOrbitNode->addChildNode(m_moonOrbitNode);
+	//m_moonOrbitNode->addChildNode(m_moonNode);
 	
 	
 
@@ -81,7 +71,7 @@ int Test::run(const vector<string>& args) {
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.scene(scene);
+	window.scene(solarSystemScene);
 	window.enableCursor(false);
 
 	m_inputManager = window.inputManager();
@@ -102,6 +92,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	static float totalSeconds = 0;
 	totalSeconds += deltaSeconds;
 
+	// scene animation
+
+
+
+	static const float EARTH_ORBITAL_PERIOD = 1.00001742096; // hrs
+	static const float EARTH_ROTATIONAL_VELOCITY = 1674.4; // km/hr
+
+	auto earthOrbitRotation = vec4(0.0f, 1.0f, 0.0f, m_earthOrbitNode->rotation().w + radians(100.0 * deltaSeconds));
+	m_earthOrbitNode->rotation(earthOrbitRotation);
+
+
+
+
 	// get input
 	
 	auto keysDown = m_inputManager->keysDown();
@@ -110,7 +113,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
 	}
-	
+
+	// camera
 	
 	const static float mouseSensitivity = (1.0f / 1.5f);
 	
@@ -141,7 +145,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		
 		// move
 		
-		const static float MOVE_SPEED = 1.0f; // units/sec
+		const static float MOVE_SPEED = 50.0f; // units/sec
 		
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

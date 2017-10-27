@@ -10,9 +10,18 @@ Write alternate mouse input?
 WINDOWS BUILD??
 
 
+
+Add live rotations to scene graph test
+
+
+
 Fix Euler Angles order
 	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 
+scene graph return constituent parts by value so we can do things like:
+	earth->rotation().w += delta;
+
+Set mesh center by bounds (center sphere, for example)
 
 Shader class! + Incorporate (VBO, VAO classes?)
 RELOAD SHADERS REALTIME
