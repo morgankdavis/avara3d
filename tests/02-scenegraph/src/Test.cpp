@@ -40,7 +40,7 @@ int Test::run(const vector<string>& args) {
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 	
 	
-#define MATRIX_TEST		false
+#define MATRIX_TEST		true
 
 
 	if (MATRIX_TEST) {
