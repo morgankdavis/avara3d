@@ -87,7 +87,7 @@ namespace ae {
 		
 		glm::mat4 worldTransform();
 		
-		glm::vec3 worldFormard();
+		glm::vec3 worldForward();
 		glm::vec3 worldUp();
 		glm::vec3 worldRight();
 		

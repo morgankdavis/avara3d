@@ -10,8 +10,6 @@
 
 #include <iostream>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "ae.h"
 #include "InputManager.h"
 #include "Utilities.h"
@@ -37,13 +35,47 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
+	
+	
+//	solarSystem
+//	|    |
+//	|   sun
+//	|
+//	earthOrbit
+//	|    |
+//	|  earth
+//	|
+//	moonOrbit
+//	|
+//	moon
+	
+	
+	auto scene = make_shared<Scene>();
+	
+	auto sunScene = TestSceneNamed("sphere", "obj");
+	auto sunNode = sunScene->rootNode()->allChildNodes()[0];
+	
+	auto earthOrbitNode = make_shared<Node>("earth orbit");
+	earthOrbitNode->position(vec3(1.0f, 0.0f, 0.0f));
+	auto earthScene = TestSceneNamed("sphere", "obj");
+	auto earthNode = earthScene->rootNode()->allChildNodes()[0];
+	earthNode->scale(vec3(1.0) * 0.25f);
+	
+	auto moonOrbitNode = make_shared<Node>("moon orbit");
+	moonOrbitNode->position(vec3(0.5f, 0.0f, 0.0f));
+	auto moonScene = TestSceneNamed("sphere", "obj");
+	auto moonNode = moonScene->rootNode()->allChildNodes()[0];
+	moonNode->scale(vec3(1.0) * 0.025f);
+	
+	
+	scene->rootNode()->addChildNode(sunNode);
+	scene->rootNode()->addChildNode(earthOrbitNode);
+	earthOrbitNode->addChildNode(earthNode);
+	earthOrbitNode->addChildNode(moonOrbitNode);
+	moonOrbitNode->addChildNode(moonNode);
+	
+	
 
-	
-	auto scene = TestSceneNamed("importTest");
-	//auto scene = TestSceneNamed("dragon", "obj");
-	
-//	auto node = scene->rootNode()->immediateChildNodes()[4];
-//	node->position();
 
 	
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
@@ -51,18 +83,6 @@ int Test::run(const vector<string>& args) {
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
-
-
-//	for (auto n : scene->rootNode()->immediateChildNodes()) {
-//		if (n->camera()) {
-//			m_cameraNode = n;
-//			break;
-//		}
-//	}
-
-	m_suzanneNode = scene->rootNode()->childNode("Suzanne", true);
-	//m_suzanneNode = scene->rootNode()->allChildNodes()[0];
-
 
 	m_inputManager = window.inputManager();
 	
@@ -82,46 +102,16 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	static float totalSeconds = 0;
 	totalSeconds += deltaSeconds;
 
-	
-	
 	// get input
 	
 	auto keysDown = m_inputManager->keysDown();
-	for (auto k : keysDown) {
-		//cout << "Key: " << to_string(k) << endl;
-		printf("Key: %c\n", k);
-	}
-
+	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+	
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
 	}
 	
-	for (auto mb : m_inputManager->mouseButtonsDown()) {
-		cout << "Mouse button: " << mb << endl;
-	}
 	
-	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
-//	if (mousePositionDelta.x || mousePositionDelta.y) {
-//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
-//	}
-	
-	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
-	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
-		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
-	}
-	
-	
-	
-	// move camera
-	
-	// TODO: Use trig/radius
-
-
-	// tanA = y/x
-	// tanA = mouseDelta / distance
-	// A = atan(mouseDelta / distance)
-
-	//const static float mouseSensitivity = 0.5f;
 	const static float mouseSensitivity = (1.0f / 1.5f);
 	
 	
@@ -138,27 +128,21 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (m_cameraNode) {
 		
 		// look
-
+		
 		vec3 camForward = m_cameraNode->worldForward();
 		vec3 camRight = m_cameraNode->worldRight();
 		vec3 camUp = m_cameraNode->worldUp();
-
 		
-//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
-//		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
-
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
 		vec3 angles = m_cameraNode->eulerAngles();
-		// pitch, yaw, roll
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
 		
 		// move
-
+		
 		const static float MOVE_SPEED = 1.0f; // units/sec
-
+		
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -180,22 +164,6 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		if(keysDown.count(Key_Space)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
-		}
-	}
-
-
-	if (m_suzanneNode) {
-		if(keysDown.count(Key_Right)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
-		}
-		else if(keysDown.count(Key_Left)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
-		}
-		if(keysDown.count(Key_Up)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z + deltaSeconds));
-		}
-		else if(keysDown.count(Key_Down)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z - deltaSeconds));
 		}
 	}
 }

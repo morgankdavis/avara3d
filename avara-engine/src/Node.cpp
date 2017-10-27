@@ -35,6 +35,7 @@ using namespace glm;
 
 Node::Node():
 	m_parent(nullptr),
+	m_hidden(false),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
@@ -48,6 +49,7 @@ Node::Node(const string& name):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+		
 }
 
 Node::Node(const shared_ptr<Geometry> geometry):
@@ -169,6 +171,8 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
 	
+	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
+	
 	auto q = m_orientation;
 	
 	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z,
@@ -183,6 +187,8 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+	
+	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 	
 	float pitch = eulerAngles.x;
 	float yaw = eulerAngles.y;
@@ -265,7 +271,7 @@ mat4 Node::worldTransform() {
 	return t;
 }
 
-vec3 Node::worldFormard() {
+vec3 Node::worldForward() {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -281,8 +287,7 @@ vec3 Node::worldFormard() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	vec4 forward = inverse(rotationMat) * vec4(0, 0, -1, 1);
-	return normalize(vec3(forward));
+	return normalize(inverse(rotationMat) * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() {
@@ -301,8 +306,7 @@ vec3 Node::worldUp() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	vec4 up = inverse(rotationMat) * vec4(0, 1, 0, 1);
-	return normalize(vec3(up));
+	return normalize(inverse(rotationMat) * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() {
@@ -321,12 +325,8 @@ vec3 Node::worldRight() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	vec4 right = inverse(rotationMat) * vec4(1, 0, 0, 1);
-	return normalize(vec3(right));
+	return normalize(inverse(rotationMat) * vec4(1, 0, 0, 1));
 }
-
-
-
 
 void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {

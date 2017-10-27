@@ -83,6 +83,18 @@ int Test::run(const vector<string>& args) {
 	parentNode->addChildNode(palmNode);
 	
 	
+	auto teapotScene = TestSceneNamed("teapot");
+	teapotNode = teapotScene->rootNode();
+	teapotNode->name("teapot");
+	cout << "palmNode: " << teapotNode->name() << endl;
+	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
+	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
+	teapotNode->transform(teapotTranslate * teapotScale);
+	teapotNode->hidden(false);
+	parentNode->addChildNode(teapotNode);
+	
+	
+	
 	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
