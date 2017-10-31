@@ -16,6 +16,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Camera.h"
 #include "Geometry.h"
@@ -176,19 +177,46 @@ void Node::rotation(const vec4 rotation) {
 		the axis is normalised so: ax*ax + ay*ay + az*az = 1
 		the quaternion is also normalised so cos(angle/2)2 + ax*ax * sin(angle/2)2 + ay*ay * sin(angle/2)2+ az*az * sin(angle/2)2 = 1
 	 */
+	
+#if 0 // LOCKS
+	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
+	float angle = rotation.w;
+	
+	m_orientation = rotate(quat(1.0f, 0.0f, 0.0f, 0.0f), angle, axisNormalized);
+#endif
+	
+	
+#if 0 // LOCKS
+	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
+	float angle = rotation.w;
+	
+	m_orientation = glm::angleAxis(angle, axisNormalized);
+#endif
+	
 
+#if 0 // THIS WORKS... sort of
 
-	vec4 rotationNormalized = normalize(rotation);
+	//vec4 rotationNormalized = normalize(rotation);
+	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 
-	float qx = rotationNormalized.x * sin(rotationNormalized.w/2.0f);
-	float qy = rotationNormalized.y * sin(rotationNormalized.w/2.0f);
-	float qz = rotationNormalized.z * sin(rotationNormalized.w/2.0f);
+	float qx = axisNormalized.x * sin(rotation.w/2.0f);
+	float qy = axisNormalized.y * sin(rotation.w/2.0f);
+	float qz = axisNormalized.z * sin(rotation.w/2.0f);
 	float qw = cos(rotation.w/2.0f);
+	
+	// this one works with incramental rotations but now vary large ones
 //	float qw = (rotation.w > 0 ?
 //				cos(fmod(rotation.w, 2.0f*M_PI)/2.0f) :
 //				-cos(fmod(rotation.w, 2.0f*M_PI)/2.0f));
+	
+	// this one works with very large locations, but not with incramental ones
+//	float qw = (rotation.w > 0 ?
+//				cos(fmod(rotation.w/2.0f, 2.0f*M_PI)) :
+//				-cos(fmod(rotation.w/2.0f, 2.0f*M_PI)));
 
 	m_orientation = quat(qw, qx, qy, qz);
+
+#endif
 
 
 //	float qx = rotation.x * sin(rotation.w/2.0f);

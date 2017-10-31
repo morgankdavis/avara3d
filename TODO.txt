@@ -2,10 +2,15 @@ TODO:
 
 ——————————————————————————————————
 
-Fix camera
+Check out GLM_GTX_quaternion for Euler Angles (faster?)
+
+Should I be storing everything as constituent matrices inside Node?
+	(or just rotation?)
 
 Proper scene graph unroll - DFS?
 Write alternate mouse input?
+
+Convert scene callbacks to use shared/WEAK? pointers
 
 WINDOWS BUILD??
 

@@ -39,18 +39,13 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 	
+	
 
-	typedef enum {
-		MatrixTestCase,
-		Convenience1TestCase,
-		EulerTestCase,
-		ReverseEulerTestCase,
-		RotationAnimationTestCase
-	} TestCase;
+	
+	TEST = RotationAnimationTestCase;
+
 	
 	
-	static const TestCase TEST = ReverseEulerTestCase;
-
 
 	if (TEST == MatrixTestCase) {
 	
@@ -203,13 +198,11 @@ int Test::run(const vector<string>& args) {
 		bNode->addChildNode(cNode);
 
 
-		// this test FAILS. perhaps scene kit is applying the rotations in a different order than our equations
 		auto dScene = TestSceneNamed("dragon", "obj");
 		auto dNode = dScene->rootNode();
 		dNode->name("D");
 		dNode->position(vec3(-15.0f, 10.0f, 20.0f));
 		dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(60.0f), (float)radians(30.0f)));
-		//dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(30.0f), (float)radians(60.0f)));
 		xNode->addChildNode(dNode);
 		
 		
@@ -385,7 +378,36 @@ int Test::run(const vector<string>& args) {
 		window.display();
 	}
 	else if (TEST == RotationAnimationTestCase) {
+		auto rootNode = make_shared<Node>();
 		
+		auto aScene = TestSceneNamed("teapot");
+		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		aNode->name("A");
+
+		
+		
+		
+		rootNode->addChildNode(aNode);
+		
+		
+		
+		auto scene = make_shared<Scene>();
+		scene->rootNode()->addChildNode(rootNode);
+		
+		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
+		
+		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camNode = make_shared<Node>();
+		camNode->camera(camera);
+		camNode->name("Camera node");
+		camNode->position(vec3(0.0f, 10.0f, 150.0f));
+		scene->rootNode()->addChildNode(camNode);
+		
+		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+		window.scene(scene);
+		window.display();
 	}
 	
 	return 0;
@@ -393,6 +415,19 @@ int Test::run(const vector<string>& args) {
 
 void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
+	static float totalSeconds = 0;
+	totalSeconds += deltaSeconds;
+	
+	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	
+	
+	
+	if (TEST == RotationAnimationTestCase) {
+		auto node = scene.rootNode()->childNode("A", true);
+		node->rotation(vec4(1.0f, 0.0f, 0.0f, node->rotation().w + radians(rotationDeg * 2.0f)));
+		
+		cout << "node transform:\n" << node->transform() << endl;
+	}
 }
 
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {

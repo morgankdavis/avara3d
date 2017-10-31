@@ -31,23 +31,32 @@ func NSStringFromSCNMatrix4(_ m: SCNMatrix4) -> NSString {
 }
 
 
-class GameViewController: NSViewController {
+enum TestCase {
+	case matrix
+	case convenience1
+	case euler
+	case reverseEuler
+	case rotationAnimation
+}
+
+
+class GameViewController: NSViewController, SCNSceneRendererDelegate {
+	
+	
+	private 		var TEST: TestCase = 					.reverseEuler
+	private         var lastRenderTime:                     Double?
+	private         var rotationNode: 						SCNNode!
+	
     
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		
 		
-		let MATRIX_TEST = false
-		enum TestCase {
-			case matrix
-			case convenience1
-			case euler
-			case reverseEuler
-			case rotationAnimation
-		}
 		
-		let TEST: TestCase = .reverseEuler
+		TEST = .convenience1
+		
+		
 		
 		
 		if (TEST == .matrix) {
@@ -200,7 +209,6 @@ class GameViewController: NSViewController {
 
 
 
-			// FAILS
 			let dScene = SCNScene(named: "art.scnassets/dragon.obj")!
 			let dNode = dScene.rootNode.childNodes[0]
 			dNode.name = "D"
@@ -373,12 +381,83 @@ class GameViewController: NSViewController {
 			cameraNode.position = SCNVector3(x: 0, y: 10, z: 150)
 			
 			let scnView = self.view as! SCNView
+			scnView.delegate = self
 			scnView.scene = scene
 			scnView.backgroundColor = NSColor.darkGray
 			scnView.autoenablesDefaultLighting = true
 		}
 		else if (TEST == .rotationAnimation) {
+			let rootNode = SCNNode()
 			
+			let aScene = SCNScene(named: "art.scnassets/teapot.dae")!
+			let aNode = aScene.rootNode.childNodes[1]
+			aNode.name = "A"
+
+			
+			rotationNode = aNode;
+			
+			
+			rootNode.addChildNode(aNode)
+			
+			
+			// HACK
+			let dummyAction = SCNAction.scale(by: 1.0, duration: 1.0)
+			let repeatAction = SCNAction.repeatForever(dummyAction)
+			rootNode.runAction(repeatAction)
+			
+			
+			let scene = SCNScene()
+			scene.rootNode.addChildNode(rootNode)
+			
+			NSLog("aNode worldTransform:\n\(NSStringFromSCNMatrix4(aNode.worldTransform))")
+			
+			let cameraNode = SCNNode()
+			cameraNode.camera = SCNCamera()
+			cameraNode.camera?.xFov = 30.0
+			cameraNode.camera?.yFov = 30.0
+			cameraNode.camera?.zNear = 0.01
+			cameraNode.camera?.zFar = 1000.0
+			scene.rootNode.addChildNode(cameraNode)
+			cameraNode.position = SCNVector3(x: 0, y: 10, z: 150)
+			
+			let scnView = self.view as! SCNView
+			scnView.delegate = self
+			scnView.scene = scene
+			scnView.backgroundColor = NSColor.darkGray
+			scnView.autoenablesDefaultLighting = true
+		}
+	}
+	
+	
+	/*****************************************************************************************************/
+	// MARK:    SCNSceneRendererDelegate
+	/*****************************************************************************************************/
+	
+	public func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+		//NSLog("renderer(%@, updateAtTime: %f)", renderer.description, time)
+		
+		if let lastTime = self.lastRenderTime {
+			lastRenderTime = time
+			
+			let dT = Double(time - lastTime)
+			
+			if TEST == TestCase.rotationAnimation {
+				
+
+				let rotationDeg: CGFloat = CGFloat(dT) * 30.0; // 30deg/sec
+				
+				
+				//renderer.loops = true
+				
+				let newRot = rotationNode.rotation.w + CGFloat(D2R(Float(rotationDeg) * 2.0))
+				
+				NSLog("newRot: \(newRot)")
+				
+				rotationNode.rotation = SCNVector4(x: 1.0, y: 0.0, z: 0.0, w: newRot)
+			}
+		}
+		else {
+			lastRenderTime = time
 		}
 	}
 }

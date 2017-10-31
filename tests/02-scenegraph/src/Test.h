@@ -15,6 +15,16 @@
 
 
 namespace ae {
+	
+	
+	typedef enum {
+		MatrixTestCase,
+		Convenience1TestCase,
+		EulerTestCase,
+		ReverseEulerTestCase,
+		RotationAnimationTestCase
+	} TestCase;
+	
 
 
 	class Scene;
@@ -29,6 +39,8 @@ namespace ae {
 		void windowDidUpdateCallback(Scene& scene, float deltaSeconds);
 		
 	private:
+		
+		TestCase TEST;
 
 	};
 }
