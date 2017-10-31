@@ -137,6 +137,7 @@ namespace ae {
 		glm::vec3							m_position;
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
+//		glm::mat4							m_pivot;
 		
 		std::vector<std::shared_ptr<Node>>	allChildNodesRec();
 	};

@@ -29,6 +29,9 @@ using namespace std;
 using namespace glm;
 
 
+#define ALTERNATE_EULERS
+
+
 /***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
@@ -161,6 +164,9 @@ void Node::rotation(const vec4 rotation) {
 	float qy = rotationNormalized.y * sin(rotation.w/2.0f);
 	float qz = rotationNormalized.z * sin(rotation.w/2.0f);
 	float qw = cos(rotation.w/2.0f);
+//	float qw = (rotation.w > 0 ?
+//				cos(fmod(rotation.w, 2.0f*M_PI)/2.0f) :
+//				-cos(fmod(rotation.w, 2.0f*M_PI)/2.0f));
 
 	m_orientation = quat(qw, qx, qy, qz);
 }
@@ -170,6 +176,8 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
+	
+#ifndef ALTERNATE_EULERS
 	
 	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 	
@@ -182,31 +190,55 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	float roll = asin(2*q.x*q.y + 2.0f*q.z*q.w);
 
 	return vec3(pitch, yaw, roll);
+	
+#else
+	// !! http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
+	
+	
+	
+#endif
 }
 
 void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 
+	// NOTE:
+	// this first formula works well for one rotation at a time,
+	// but it combines multiple rotations in a different order than SceneKit
+	// so we break it into three different rotations and apply them how we like.
+	
+	
+#ifndef ALTERNATE_EULERS
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	
-	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
+	// this works. order appears to be different from SceneKit
 	
 	float pitch = eulerAngles.x;
 	float yaw = eulerAngles.y;
 	float roll = eulerAngles.z;
-	
+
 	float c1 = cos(yaw / 2.0f);
 	float c2 = cos(roll / 2.0f);
 	float c3 = cos(pitch / 2.0f);
 	float s1 = sin(yaw / 2.0f);
 	float s2 = sin(roll / 2.0f);
 	float s3 = sin(pitch / 2.0f);
-	
+
 	float w = c1*c2*c3 - s1*s2*s3;
 	float x = s1*s2*c3 + c1*c2*s3;
 	float y = s1*c2*c3 + c1*s2*s3;
 	float z = c1*s2*c3 - s1*c2*s3;
-	
+
 	m_orientation = quat(w, x, y, z);
+	
+#else
+	
+	auto rotationX = rotate(mat4(1.0f), eulerAngles.x, vec3(1.0f, 0.0f, 0.0f));
+	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));
+	auto rotationZ = rotate(mat4(1.0f), eulerAngles.z, vec3(0.0f, 0.0f, 1.0f));
+
+	//m_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
+	m_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
+#endif
 }
 
 quat Node::orientation() const {

@@ -55,30 +55,45 @@ int Test::run(const vector<string>& args) {
 	parentNode->transform(parentScale);
 	
 
+	cout << "Loading siamese scene..." << endl;
 	auto siameseScene = TestSceneNamed("siamese");
-	siameseNode = siameseScene->rootNode()->childNode("Cube", true);
-	siameseNode->name("siamese");
+//	for (auto node : siameseScene->rootNode()->allChildNodes()) {
+//		cout << "siamese: " << node->name() << endl;
+//	}
+	siameseNode = siameseScene->rootNode()->childNode("ID448995888", true);
+	siameseNode->name("Siamese");
 	cout << "siameseNode: " << siameseNode->name() << endl;
-	siameseNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
+	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
+	siameseNode->scale(siameseNode->scale() * 0.001f);
 	siameseNode->hidden(false);
 	
 	
-	torusNode = testScene->rootNode()->allChildNodes()[8];
+	torusNode = testScene->rootNode()->allChildNodes()[6];
 	torusNode->name("torus");
 	
 	
-	suzanneNode = testScene->rootNode()->allChildNodes()[7];
-	suzanneNode->name("suzanneNode");
-	suzanneNode->transform(translate(mat4(1.0f), vec3(-0.25f, 0.0f, 0.0f)));
-	suzanneNode->hidden(false);
-	suzanneNode->addChildNode(siameseNode);
+	coneNode = testScene->rootNode()->allChildNodes()[8];
+	coneNode->name("cone");
+	
+	
+	ballNode = testScene->rootNode()->allChildNodes()[4];
+	ballNode->name("ball");
+
+	
+	
+//	suzanneNode = testScene->rootNode()->allChildNodes()[7];
+//	suzanneNode->name("suzanne");
+//	suzanneNode->transform(translate(mat4(1.0f), vec3(-0.25f, 0.0f, 0.0f)));
+//	suzanneNode->hidden(false);
+//	suzanneNode->addChildNode(siameseNode);
 	
 	
 	auto palmScene = TestSceneNamed("cartoon_palm_tree", "obj");
 	palmNode = palmScene->rootNode();
 	palmNode->name("palm");
 	cout << "palmNode: " << palmNode->name() << endl;
-	palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
+	//palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
+	palmNode->scale(vec3(1.0f) * 0.025f);
 	palmNode->hidden(false);
 	parentNode->addChildNode(palmNode);
 	
@@ -121,16 +136,21 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 								 radians(rotationDeg),
 								 vec3(0.0f, 1.0f, 0.0f)));
 	
-	auto siameseRotate = rotate(siameseNode->transform(), radians(rotationDeg * 2.0f), vec3(1.0f, 1.0f, 1.0f));
-	siameseNode->transform(siameseRotate);
+//	auto siameseRotate = rotate(siameseNode->transform(), radians(rotationDeg * 2.0f), vec3(1.0f, 1.0f, 1.0f));
+//	siameseNode->transform(siameseRotate);
+	siameseNode->rotation(vec4(0.0f, 1.0f, 1.0f, siameseNode->rotation().w + radians(rotationDeg * 2.0f)));
 	
 	torusNode->transform(rotate(torusNode->transform(),
+							   radians(rotationDeg),
+							   vec3(1.0f, 0.0f, 1.0f)));
+	
+	coneNode->transform(rotate(coneNode->transform(),
 								radians(rotationDeg),
 								vec3(0.0f, 0.0f, 1.0f)));
 	
-	//	suzanneNode->transform(rotate(suzanneNode->transform(),
-	//								radians(rotationDeg),
-	//								vec3(0.0f, 1.0f, 0.0f)));
+		ballNode->transform(rotate(ballNode->transform(),
+									radians(rotationDeg),
+									vec3(sin(totalSeconds), cos(totalSeconds), -cos(totalSeconds))));
 	
 	
 	
@@ -145,6 +165,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	//	teapotNode->transform(rotate(teapotNode->transform(),
 	//								  radians(rotationDeg),
 	//								  vec3(0.0f, 0.0f, 1.0f)));
+	teapotNode->rotation(vec4(0.0f, 1.0f, 0.0f, teapotNode->rotation().w - radians(rotationDeg * 3.0f)));
 }
 
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {

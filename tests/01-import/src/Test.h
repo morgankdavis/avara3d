@@ -37,7 +37,9 @@ namespace ae {
 		std::shared_ptr<Node>		palmNode;
 		std::shared_ptr<Node>		siameseNode;
 		std::shared_ptr<Node>		torusNode;
+		std::shared_ptr<Node>		coneNode;
 		std::shared_ptr<Node>		suzanneNode;
+		std::shared_ptr<Node>		ballNode;
 	};
 }
 

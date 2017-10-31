@@ -2,23 +2,32 @@ TODO:
 
 ——————————————————————————————————
 
-Fix camera
+Implement Node pivot
+FIX ROTATION PAST 180 // Test scene graph with rotation
+
+Fix Euler Angles order
+	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
+	Turn each into rotation matrix & apply?
+
+EULERS FROM QUATERNION order:
+	http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
+
+Explore eulerAngles +=
+
+Mouseover == raycast & print x,y,z of anything hit
+
 
 Proper scene graph unroll - DFS?
 Write alternate mouse input?
 
 WINDOWS BUILD??
-
-
-Fix Euler Angles order
-	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
+	https://github.com/g-truc/ogl-samples
 
 
 Shader class! + Incorporate (VBO, VAO classes?)
 RELOAD SHADERS REALTIME
 Color class
 
-Fix scene import Z-up
 
 Basic geometric shapes?
 	Icosahedron: https://schneide.wordpress.com/2016/07/15/generating-an-icosphere-in-c/
@@ -26,6 +35,7 @@ Basic geometric shapes?
 
 Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
 Check nodes don’t already exist when adding children?
+
 
 LOGGING
 	https://github.com/SergiusTheBest/plog
@@ -47,10 +57,13 @@ BUILD:
 	Add MacOS framework - https://cmake.org/cmake/help/v3.10/prop_tgt/FRAMEWORK.html
 	Compile libraries from SOURCE (cmake — no system library dependencies)
 
-Compile with -O0
 
 
 Separate Window and Renderer
+
+Public/internal interfaces?
+	https://www.codeproject.com/Articles/42466/Hiding-Implementation-Details-in-C
+	https://stackoverflow.com/questions/2272735/private-public-header-example
 
 
 Fix key callback crash on exit (escape)
@@ -59,7 +72,6 @@ Init per Window. Test multiple windows. Fix global framebuffer size.
 Default light (may need to wait for shader)
 
 Draw bounding boxes, modal origin, world origin, axis plane grid?
-Mouseover == raycast & print x,y,z of anything hit
 
 Lazy load geometry elements (compile shader + load materials) + Add pre-load method
 
@@ -115,9 +127,6 @@ Laundry list:
 	Fix frame buffer size synchronization
 	glDeleteProgram
 		delete vertex data
-
-
-Build for Windows…
 
 
 Physics integration

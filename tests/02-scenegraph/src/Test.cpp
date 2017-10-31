@@ -39,11 +39,20 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 	
+
+	typedef enum {
+		MatrixTestCase,
+		Convenience1TestCase,
+		EulerTestCase,
+		ReverseEulerTestCase,
+		RotationAnimationTestCase
+	} TestCase;
 	
-#define MATRIX_TEST		false
+	
+	static const TestCase TEST = EulerTestCase;
 
 
-	if (MATRIX_TEST) {
+	if (TEST == MatrixTestCase) {
 	
 	// test using raw matrix manipulation
 		
@@ -156,7 +165,7 @@ int Test::run(const vector<string>& args) {
 		window.display();
 		
 	}
-	else {
+	else if (TEST == Convenience1TestCase) {
 		
 		// test using constituent parts manipulation
 		
@@ -178,12 +187,13 @@ int Test::run(const vector<string>& args) {
 		auto bNode = bScene->rootNode();
 		bNode->name("B");
 		bNode->position(vec3(0.0f, -3.0f, 0.0f));
-		bNode->rotation(vec4(3.0f, 1.0f, 2.0f, (float)radians(-70.0f)));
+		bNode->rotation(vec4(3.0f, 1.0f, 2.0f, (float)radians(574.0f)));
 		bNode->scale(vec3(15.0f, 1.0f, 1.0f));
 		aNode->addChildNode(bNode);
-		
-		
-		
+		cout << "bNode->rotation(): " << bNode->rotation() << endl;
+
+
+
 		auto cScene = TestSceneNamed("cartoon_palm_tree", "obj");
 		auto cNode = cScene->rootNode();
 		cNode->name("C");
@@ -191,14 +201,15 @@ int Test::run(const vector<string>& args) {
 		cNode->scale(vec3(0.5f, 0.5f, -2.0f));
 		cNode->position(vec3(-2.0f, 1.0f, -2.0f));
 		bNode->addChildNode(cNode);
-		
-		
+
+
 		// this test FAILS. perhaps scene kit is applying the rotations in a different order than our equations
 		auto dScene = TestSceneNamed("dragon", "obj");
 		auto dNode = dScene->rootNode();
 		dNode->name("D");
 		dNode->position(vec3(-15.0f, 10.0f, 20.0f));
 		dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(60.0f), (float)radians(30.0f)));
+		//dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(30.0f), (float)radians(60.0f)));
 		xNode->addChildNode(dNode);
 		
 		
@@ -207,9 +218,9 @@ int Test::run(const vector<string>& args) {
 		scene->rootNode()->addChildNode(xNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
-		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
-		cout << "cNode worldTransform:\n" << cNode->worldTransform() << endl;
-		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
+//		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
+//		cout << "cNode worldTransform:\n" << cNode->worldTransform() << endl;
+//		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
 		
 		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
@@ -223,6 +234,148 @@ int Test::run(const vector<string>& args) {
 		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 		window.scene(scene);
 		window.display();
+	}
+	else if (TEST == EulerTestCase) {
+		
+		auto rootNode = make_shared<Node>();
+		
+		auto aScene = TestSceneNamed("teapot");
+		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		aNode->name("A");
+		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
+		aNode->eulerAngles(vec3((float)radians(45.0f), 0, 0));
+		
+		
+		auto bScene = TestSceneNamed("teapot");
+		auto bNode = bScene->rootNode()->childNode("ID20564224", true); // teapot
+		bNode->name("B");
+		bNode->position(vec3(25.0f, 25.0f, 0.0f));
+		bNode->eulerAngles(vec3(0, (float)radians(45.0f), 0));
+		
+		
+		auto cScene = TestSceneNamed("teapot");
+		auto cNode = cScene->rootNode()->childNode("ID20564224", true); // teapot
+		cNode->name("C");
+		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
+		cNode->eulerAngles(vec3(0, 0, (float)radians(45.0f)));
+		
+		
+		auto dScene = TestSceneNamed("teapot");
+		auto dNode = dScene->rootNode()->childNode("ID20564224", true); // teapot
+		dNode->name("D");
+		dNode->position(vec3(25.0f, -25.0f, 0.0f));
+		dNode->eulerAngles(vec3((float)radians(30.0f), (float)radians(45.0f), (float)radians(60.0f)));
+		
+		
+		auto eScene = TestSceneNamed("teapot");
+		auto eNode = eScene->rootNode()->childNode("ID20564224", true); // teapot
+		eNode->name("E");
+		eNode->position(vec3(0.0f, 0.0f, 0.0f));
+		eNode->eulerAngles(vec3((float)radians(-130.0f), (float)radians(70.0f), (float)radians(20.0f)));
+		
+		
+		
+		rootNode->addChildNode(aNode);
+		rootNode->addChildNode(bNode);
+		rootNode->addChildNode(cNode);
+		rootNode->addChildNode(dNode);
+		rootNode->addChildNode(eNode);
+		
+		
+		
+		auto scene = make_shared<Scene>();
+		scene->rootNode()->addChildNode(rootNode);
+		
+		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
+		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
+		cout << "cNode worldTransform:\n" << cNode->worldTransform() << endl;
+		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
+		cout << "eNode worldTransform:\n" << eNode->worldTransform() << endl;
+		
+		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camNode = make_shared<Node>();
+		camNode->camera(camera);
+		camNode->name("Camera node");
+		camNode->position(vec3(0.0f, 10.0f, 150.0f));
+		scene->rootNode()->addChildNode(camNode);
+		
+		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+		window.scene(scene);
+		window.display();
+	}
+	else if (TEST == ReverseEulerTestCase) {
+		auto rootNode = make_shared<Node>();
+		
+		auto aScene = TestSceneNamed("teapot");
+		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		aNode->name("A");
+		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
+		aNode->orientation(quat((float)radians(45.0f), 1.0f, 0.0f, 0.0f));
+		cout << "aNode eulerAngles: " << aNode->eulerAngles() << endl;
+		
+		
+		auto bScene = TestSceneNamed("teapot");
+		auto bNode = bScene->rootNode()->childNode("ID20564224", true); // teapot
+		bNode->name("B");
+		bNode->position(vec3(25.0f, 25.0f, 0.0f));
+		bNode->orientation(quat((float)radians(45.0f), 0.0f, 1.0f, 0.0f));
+		cout << "bNode eulerAngles: " << bNode->eulerAngles() << endl;
+		
+		
+		
+		auto cScene = TestSceneNamed("teapot");
+		auto cNode = cScene->rootNode()->childNode("ID20564224", true); // teapot
+		cNode->name("C");
+		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
+		cNode->orientation(quat((float)radians(45.0f), 0.0f, 0.0f, 1.0f));
+		cout << "cNode eulerAngles: " << cNode->eulerAngles() << endl;
+		
+		
+		
+		auto dScene = TestSceneNamed("teapot");
+		auto dNode = dScene->rootNode()->childNode("ID20564224", true); // teapot
+		dNode->name("D");
+		dNode->position(vec3(25.0f, -25.0f, 0.0f));
+		dNode->orientation(quat((float)radians(45.0f), 0.5f, 0.25f, 0.35f));
+		cout << "dNode eulerAngles: " << dNode->eulerAngles() << endl;
+		
+		
+		
+		
+		
+		rootNode->addChildNode(aNode);
+		rootNode->addChildNode(bNode);
+		rootNode->addChildNode(cNode);
+		rootNode->addChildNode(dNode);
+		//rootNode->addChildNode(eNode);
+		
+		
+		
+		auto scene = make_shared<Scene>();
+		scene->rootNode()->addChildNode(rootNode);
+		
+		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
+		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
+		cout << "cNode worldTransform:\n" << cNode->worldTransform() << endl;
+		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
+//		cout << "eNode worldTransform:\n" << eNode->worldTransform() << endl;
+		
+		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camNode = make_shared<Node>();
+		camNode->camera(camera);
+		camNode->name("Camera node");
+		camNode->position(vec3(0.0f, 10.0f, 150.0f));
+		scene->rootNode()->addChildNode(camNode);
+		
+		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+		window.scene(scene);
+		window.display();
+	}
+	else if (TEST == RotationAnimationTestCase) {
 		
 	}
 	
