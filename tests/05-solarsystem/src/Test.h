@@ -40,6 +40,11 @@ namespace ae {
 		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
+
+		std::shared_ptr<Node>				m_earthOrbitNode;
+		std::shared_ptr<Node>				m_earthNode;
+		std::shared_ptr<Node>				m_moonOrbitNode;
+		std::shared_ptr<Node>				m_moonNode;
 	};
 }
 

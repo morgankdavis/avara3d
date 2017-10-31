@@ -2,32 +2,37 @@ TODO:
 
 ——————————————————————————————————
 
-Implement Node pivot
-FIX ROTATION PAST 180 // Test scene graph with rotation
-
-Fix Euler Angles order
-	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
-	Turn each into rotation matrix & apply?
-
-EULERS FROM QUATERNION order:
-	http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
-
-Explore eulerAngles +=
-
-Mouseover == raycast & print x,y,z of anything hit
-
+Fix camera
 
 Proper scene graph unroll - DFS?
 Write alternate mouse input?
 
 WINDOWS BUILD??
-	https://github.com/g-truc/ogl-samples
 
+Explore eulerAngles +=
+
+Mouseover == raycast & print x,y,z of anything hit
+
+Add live rotations to scene graph test
+
+Proper scene graph unroll - DFS?
+Write alternate mouse input?
+
+
+
+Fix Euler Angles order
+	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
+
+scene graph return constituent parts by value so we can do things like:
+	earth->rotation().w += delta;
+
+Set mesh center by bounds (center sphere, for example)
 
 Shader class! + Incorporate (VBO, VAO classes?)
 RELOAD SHADERS REALTIME
 Color class
 
+Fix scene import Z-up
 
 Basic geometric shapes?
 	Icosahedron: https://schneide.wordpress.com/2016/07/15/generating-an-icosphere-in-c/
@@ -35,7 +40,6 @@ Basic geometric shapes?
 
 Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
 Check nodes don’t already exist when adding children?
-
 
 LOGGING
 	https://github.com/SergiusTheBest/plog
@@ -60,10 +64,6 @@ BUILD:
 
 
 Separate Window and Renderer
-
-Public/internal interfaces?
-	https://www.codeproject.com/Articles/42466/Hiding-Implementation-Details-in-C
-	https://stackoverflow.com/questions/2272735/private-public-header-example
 
 
 Fix key callback crash on exit (escape)

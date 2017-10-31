@@ -145,6 +145,13 @@ void Node::position(const vec3 position) {
 vec4 Node::rotation() const {
 
 	//http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+
+	/*
+		angle = 2 * acos(qw)
+		x = qx / sqrt(1-qw*qw)
+		y = qy / sqrt(1-qw*qw)
+		z = qz / sqrt(1-qw*qw)
+	 */
 	
 	vec4 angleAxis = vec4(m_orientation.x / sqrt(1-m_orientation.w*m_orientation.w),
 						  m_orientation.y / sqrt(1-m_orientation.w*m_orientation.w),
@@ -157,32 +164,53 @@ vec4 Node::rotation() const {
 void Node::rotation(const vec4 rotation) {
 	
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
-	
-	vec3 rotationNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 
-	float qx = rotationNormalized.x * sin(rotation.w/2.0f);
-	float qy = rotationNormalized.y * sin(rotation.w/2.0f);
-	float qz = rotationNormalized.z * sin(rotation.w/2.0f);
+	/*
+		qx = ax * sin(angle/2)
+		qy = ay * sin(angle/2)
+		qz = az * sin(angle/2)
+		qw = cos(angle/2)
+
+		where:
+
+		the axis is normalised so: ax*ax + ay*ay + az*az = 1
+		the quaternion is also normalised so cos(angle/2)2 + ax*ax * sin(angle/2)2 + ay*ay * sin(angle/2)2+ az*az * sin(angle/2)2 = 1
+	 */
+
+
+	vec4 rotationNormalized = normalize(rotation);
+
+	float qx = rotationNormalized.x * sin(rotationNormalized.w/2.0f);
+	float qy = rotationNormalized.y * sin(rotationNormalized.w/2.0f);
+	float qz = rotationNormalized.z * sin(rotationNormalized.w/2.0f);
 	float qw = cos(rotation.w/2.0f);
 //	float qw = (rotation.w > 0 ?
 //				cos(fmod(rotation.w, 2.0f*M_PI)/2.0f) :
 //				-cos(fmod(rotation.w, 2.0f*M_PI)/2.0f));
 
 	m_orientation = quat(qw, qx, qy, qz);
+
+
+//	float qx = rotation.x * sin(rotation.w/2.0f);
+//	float qy = rotation.y * sin(rotation.w/2.0f);
+//	float qz = rotation.z * sin(rotation.w/2.0f);
+//	float qw = cos(rotation.w/2.0f);
+//
+//	m_orientation = quat(qw, qx, qy, qz);
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
-	
+
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
 	
 #ifndef ALTERNATE_EULERS
-	
+
 	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
-	
+
 	auto q = m_orientation;
-	
+
 	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z,
 						1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
 	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z,
@@ -211,7 +239,7 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	
 	// this works. order appears to be different from SceneKit
-	
+
 	float pitch = eulerAngles.x;
 	float yaw = eulerAngles.y;
 	float roll = eulerAngles.z;
@@ -240,6 +268,39 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	m_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
 }
+
+//vec3 Node::eulerAngles() const {
+//	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+//
+//	float heading = atan2(2.0f*m_orientation.y*m_orientation.w - 2.0f*m_orientation.x*m_orientation.z,
+//						  1.0f - 2.0f*m_orientation.y*m_orientation.y - 2.0f*m_orientation.z*m_orientation.z);
+//	float attitude = asin(2*m_orientation.x*m_orientation.y + 2.0f*m_orientation.z*m_orientation.w);
+//	float bank = atan2(2.0f*m_orientation.x*m_orientation.w - 2.0f*m_orientation.y*m_orientation.z,
+//					   1.0f - 2.0f*m_orientation.x*m_orientation.x - 2.0f*m_orientation.z*m_orientation.z);
+//
+//	return vec3(heading, attitude, bank);
+//}
+//
+//void Node::eulerAngles(const vec3 eulerAngles) {
+//
+//	float heading = eulerAngles.x;
+//	float attitude = eulerAngles.y;
+//	float bank = eulerAngles.z;
+//
+//	float c1 = cos(heading / 2.0f);
+//	float c2 = cos(attitude / 2.0f);
+//	float c3 = cos(bank / 2.0f);
+//	float s1 = sin(heading / 2.0f);
+//	float s2 = sin(attitude / 2.0f);
+//	float s3 = sin(bank / 2.0f);
+//
+//	float w = c1*c2*c3 - s1*s2*s3;
+//	float x = s1*s2*c3 + c1*c2*s3;
+//	float y = s1*c2*c3 + c1*s2*s3;
+//	float z = c1*s2*c3 - s1*c2*s3;
+//
+//	m_orientation = quat(w, x, y, z);
+//}
 
 quat Node::orientation() const {
 	return m_orientation;
@@ -319,7 +380,8 @@ vec3 Node::worldForward() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	return normalize(inverse(rotationMat) * vec4(0, 0, -1, 1));
+	// this used to only work when rotationMatrix was inverted...(?)
+	return normalize(rotationMat * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() {
@@ -338,7 +400,8 @@ vec3 Node::worldUp() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	return normalize(inverse(rotationMat) * vec4(0, 1, 0, 1));
+	// this used to only work when rotationMatrix was inverted...(?)
+	return normalize(rotationMat * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() {
@@ -357,7 +420,8 @@ vec3 Node::worldRight() {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	return normalize(inverse(rotationMat) * vec4(1, 0, 0, 1));
+	// this used to only work when rotationMatrix was inverted...(?)
+	return normalize(rotationMat * vec4(1, 0, 0, 1));
 }
 
 void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
