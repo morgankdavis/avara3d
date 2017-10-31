@@ -222,7 +222,33 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 #else
 	// !! http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
 	
+//	void threeaxisrot(double r11, double r12, double r21, double r31, double r32, double res[]){
+//		res[0] = atan2( r31, r32 );
+//		res[1] = asin ( r21 );
+//		res[2] = atan2( r11, r12 );
 	
+//	threeaxisrot( 2*(q.x*q.y + q.w*q.z),
+//				 q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z,
+//				 -2*(q.x*q.z - q.w*q.y),
+//				 2*(q.y*q.z + q.w*q.x),
+//				 q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z,
+//				 res);
+	
+	auto q = m_orientation;
+	vec3 res = vec3(0.0f, 0.0f, 0.0f);
+	res.x = atan2(2*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+	res.y = asin(-2*(q.x*q.z - q.w*q.y));
+	res.z = atan2(2*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z);
+	
+	return res;
+	
+//	threeaxisrot( 2*(q.x*q.y + q.w*q.z), // r11
+//				 q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z, // r12
+//				 -2*(q.x*q.z - q.w*q.y), // r21
+//				 2*(q.y*q.z + q.w*q.x), // r31
+//				 q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z, // r32
+//				 res);
+
 	
 #endif
 }

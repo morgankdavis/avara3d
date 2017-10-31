@@ -49,7 +49,7 @@ int Test::run(const vector<string>& args) {
 	} TestCase;
 	
 	
-	static const TestCase TEST = EulerTestCase;
+	static const TestCase TEST = ReverseEulerTestCase;
 
 
 	if (TEST == MatrixTestCase) {
@@ -342,6 +342,15 @@ int Test::run(const vector<string>& args) {
 		cout << "dNode eulerAngles: " << dNode->eulerAngles() << endl;
 		
 		
+		// what does in comes out
+		
+		auto uNode = make_shared<Node>();
+		uNode->eulerAngles(vec3((float)radians(40.0f), (float)radians(-35.0f), (float)radians(75.0f)));
+		cout << "uNode->eulerAngles(): " << uNode->eulerAngles() << endl;
+		
+		auto vNode = make_shared<Node>();
+		vNode->eulerAngles(vec3((float)radians(-10.0f), (float)radians(25.0f), (float)radians(30.0f)));
+		cout << "vNode->eulerAngles(): " << vNode->eulerAngles() << endl;
 		
 		
 		

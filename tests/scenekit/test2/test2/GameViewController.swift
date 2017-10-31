@@ -47,7 +47,7 @@ class GameViewController: NSViewController {
 			case rotationAnimation
 		}
 		
-		let TEST: TestCase = .euler
+		let TEST: TestCase = .reverseEuler
 		
 		
 		if (TEST == .matrix) {
@@ -320,7 +320,6 @@ class GameViewController: NSViewController {
 			let bNode = bScene.rootNode.childNodes[1]
 			bNode.name = "B"
 			bNode.position = SCNVector3(25.0, 25.0, 0.0)
-			bNode.eulerAngles = SCNVector3(0, CGFloat(D2R(45.0)), 0)
 			bNode.orientation = SCNQuaternion(0.0, 1.0, 0.0, CGFloat(D2R(45.0)))
 			NSLog("bNode eulerRangles: \(NSStringFromSCNVector3(bNode.eulerAngles))")
 			
@@ -330,7 +329,6 @@ class GameViewController: NSViewController {
 			let cNode = cScene.rootNode.childNodes[1]
 			cNode.name = "C"
 			cNode.position = SCNVector3(-25.0, -25.0, 0.0)
-			cNode.eulerAngles = SCNVector3(0, 0, CGFloat(D2R(45.0)))
 			cNode.orientation = SCNQuaternion(0.0, 0.0, 1.0, CGFloat(D2R(45.0)))
 			NSLog("cNode eulerRangles: \(NSStringFromSCNVector3(cNode.eulerAngles))")
 			
@@ -340,10 +338,10 @@ class GameViewController: NSViewController {
 			let dNode = dScene.rootNode.childNodes[1]
 			dNode.name = "D"
 			dNode.position = SCNVector3(25.0, -25.0, 0.0)
-			dNode.eulerAngles = SCNVector3(0, 0, CGFloat(D2R(45.0)))
-			dNode.eulerAngles = SCNVector3(CGFloat(D2R(30.0)), CGFloat(D2R(45.0)), CGFloat(D2R(60.0)))
 			dNode.orientation = SCNQuaternion(0.5, 0.25, 0.35, CGFloat(D2R(45.0)))
 			NSLog("dNode eulerRangles: \(NSStringFromSCNVector3(dNode.eulerAngles))")
+			
+			
 			
 			
 			

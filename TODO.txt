@@ -196,4 +196,9 @@ SCENE GRAPH INFO
 	EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
 	http://libcinder.org
 
+Quaternion <-> Euler angle live calculator:
+	http://quaternions.online/
+Quaternion -> Euler angle any sequence:
+	http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
+
 	
