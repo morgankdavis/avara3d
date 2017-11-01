@@ -16,6 +16,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include "Types.h"
+
 
 namespace ae {
 
@@ -23,19 +25,6 @@ namespace ae {
 	class Program;
 
 
-	typedef struct {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 textureCoordinate;
-	} Vertex;
-
-	typedef struct {
-		unsigned int a;
-		unsigned int b;
-		unsigned int c;
-	} Face;
-	
-	
 	class GeometryElement {
 		
 	public:

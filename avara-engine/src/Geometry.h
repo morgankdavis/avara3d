@@ -64,14 +64,21 @@ namespace ae {
 		unsigned int draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
+	protected:
+
+		/***************************************************************************************
+		     MARK:   Protected
+		 **************************************************************************************/
+
+		std::vector<std::shared_ptr<GeometryElement>>			m_elements;
+
 	private:
-		
+
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
 
 		std::string												m_name;
-		std::vector<std::shared_ptr<GeometryElement>>			m_elements;
 		std::vector<std::shared_ptr<Material>>					m_materials;
 		Node*													m_node;
 	};

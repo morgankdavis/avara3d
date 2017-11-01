@@ -6,6 +6,12 @@ Look at:
 	Raknet
 	CEGUI2
 
+Geometry primitives:
+	Plane
+	Box
+	Sphere
+	- Generate normals:
+		https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
 
 
 Tests:

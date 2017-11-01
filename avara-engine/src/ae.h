@@ -11,6 +11,7 @@
 
 
 #include "Init.h"
+#include "Box.h"
 #include "Camera.h"
 #include "Color.h"
 #include "Exception.h"
@@ -25,6 +26,7 @@
 #include "Node.h"
 #include "PhysicsBody.h"
 #include "PhysicsWorld.h"
+#include "Plane.h"
 #include "Program.h"
 #include "Scene.h"
 #include "Window.h"

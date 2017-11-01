@@ -104,6 +104,30 @@ mat4 ae::utils::aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	return to;
 }
 
+void TransformVertices(vector<Vertex>& verts, const mat4 t, bool norm) {
+
+	for (auto vertex : verts) {
+		vertex.position = vec3(t * vec4(vertex.position, 1.0f));
+
+		if (norm) {
+			vertex.normal = vec3(t * vec4(vertex.normal, 0.0f));
+		}
+	}
+
+//	vector<Vertex>::iterator it = verts->begin(), end = verts->end();
+//	while (it != end) {
+//		vec3 pos_transformed = vec3(t * vec4((*it).position, 1.0f));
+//		(*it).position = pos_transformed;
+//
+//		if (norm) {
+//			vec3 norm_transformed = vec3(t * vec4((*it).normal, 0.0f));
+//			(*it).normal = norm_transformed;
+//		}
+//
+//		++it;
+//	}
+}
+
 string ae::utils::TestDataDirectoryPath() {
 #ifdef XCODE
 	return "../../../../tests/testdata/";
@@ -142,8 +166,6 @@ std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& nam
 	}
 	return nullptr;
 }
-
-
 
 vector<string> ae::utils::pathComponents(const string& str, const set<char> delimiters) {
 	vector<string> result;

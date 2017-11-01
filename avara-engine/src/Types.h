@@ -10,6 +10,9 @@
 #define Types_h
 
 
+#include <glm/glm.hpp>
+
+
 namespace ae {
 
 	typedef enum {
@@ -54,6 +57,19 @@ namespace ae {
 		LightType_Directional,
 		LightType_Spot
 	} LightType;
+
+
+	typedef struct {
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 textureCoordinate;
+	} Vertex;
+
+	typedef struct {
+		unsigned int a;
+		unsigned int b;
+		unsigned int c;
+	} Face;
 	
 	
 	typedef enum {
