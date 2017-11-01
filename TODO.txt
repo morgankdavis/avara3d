@@ -2,6 +2,20 @@ TODO:
 
 ——————————————————————————————————
 
+Look at:
+	Raknet
+	CEGUI2
+
+
+
+Tests:
+	04 - geometryprimitives
+	05 - materials-lights
+	06 - debugging (log, gui, bounding box, wireframe)
+	07 - solarsystem
+
+
+
 Check out GLM_GTX_quaternion for Euler Angles (faster?)
 
 Should I be storing everything as constituent matrices inside Node?
@@ -176,7 +190,8 @@ Laundry list:
 
 
 Wish list:
-    Camera lookAt constaint
+    	Camera lookAt constaint
+	Geometry subdivision
 
 
 
@@ -195,6 +210,7 @@ OPTIMIZATION
 Resources:
 
 SCENE GRAPH INFO
+	https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/scenegraphs/Tutorial%206%20-%20Scene%20Graphs.pdf
 	https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
 	http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
 	https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
