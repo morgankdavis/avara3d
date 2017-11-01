@@ -66,9 +66,11 @@ Box::Box(float width, float height, float length):
 	vertsVector.assign(verts, verts+8);
 
 	auto facesVector = vector<Face>();
-	facesVector.assign(faces, faces+8);
+	facesVector.assign(faces, faces+12);
 
 	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
 
 	m_elements.push_back(element);
+
+	generateNormals();
 }

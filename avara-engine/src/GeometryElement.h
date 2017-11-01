@@ -49,8 +49,8 @@ namespace ae {
 		void load();
 		GLint glVAO();
 		GLint glIBO();
-		std::vector<Vertex>	vertices() const;
-		std::vector<Face> faces() const;
+		std::vector<Vertex>& vertices();
+		std::vector<Face>& faces();
 		
 	private:
 		

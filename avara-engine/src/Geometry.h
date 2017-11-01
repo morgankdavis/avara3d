@@ -61,6 +61,9 @@ namespace ae {
 		Node* node() const;
 		void node(Node* node);
 
+		void hardTransform(const glm::mat4 t, bool norm);
+		void generateNormals();
+
 		unsigned int draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 

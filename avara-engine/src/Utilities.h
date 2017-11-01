@@ -48,8 +48,6 @@ namespace ae {
 		//		template <typename RM, typename CM>
 //		void RowMajorToColumnMajorMat4(const RM& from, CM& to);
 		glm::mat4 aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
-
-		void TransformVertices(std::vector<Vertex>& verts, const glm::mat4 t, bool norm);
 		
 		std::string ShaderSourceDirectoryPath();
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);

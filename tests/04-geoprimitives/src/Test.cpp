@@ -43,6 +43,7 @@ int Test::run(const vector<string>& args) {
 
 	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
 	auto planeNode = make_shared<Node>();
+	planeGeo->name("plane");
 	planeNode->geometry(planeGeo);
 	m_planeNode = planeNode;
 	scene->rootNode()->addChildNode(planeNode);
@@ -50,6 +51,7 @@ int Test::run(const vector<string>& args) {
 
 	auto boxGeo = make_shared<Box>(1.0f, 3.0f, 3.0f);
 	auto boxNode = make_shared<Node>();
+	boxGeo->name("box");
 	boxNode->geometry(boxGeo);
 	m_boxNode = boxNode;
 	scene->rootNode()->addChildNode(boxNode);

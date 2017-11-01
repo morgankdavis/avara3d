@@ -122,10 +122,10 @@ GLint GeometryElement::glIBO() {
 	return m_glIBO;
 }
 
-vector<Vertex> GeometryElement::vertices() const {
+vector<Vertex>& GeometryElement::vertices() {
 	return m_vertices;
 }
 
-vector<Face> GeometryElement::faces() const {
+vector<Face>& GeometryElement::faces() {
 	return m_faces;
 }

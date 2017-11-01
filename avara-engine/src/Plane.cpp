@@ -45,21 +45,11 @@ Plane::Plane(float width, float height):
 	vertsVector.assign(verts, verts+4);
 
 	auto facesVector = vector<Face>();
-	facesVector.assign(faces, faces+4);
+	facesVector.assign(faces, faces+2);
 
 	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
 
 	m_elements.push_back(element);
 
-	//auto elements = vector<shared_ptr<GeometryElement>>();
-	//auto materials = vector<shared_ptr<Material>>();
-
-	//elements->push_back(element);
-
-	// c-array to vector: w_.assign(w, w + len);
-
-	//Geometry(elements, materials);
-
-//	Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
-//	const std::vector<std::shared_ptr<Material>> materials);
+	generateNormals();
 }
