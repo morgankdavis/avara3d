@@ -71,94 +71,22 @@ void Geometry::node(Node* node) {
 }
 
 void Geometry::hardTransform(const mat4 t, bool norm) {
-
-//	for (auto vertex : verts) {
-//		vertex.position = vec3(t * vec4(vertex.position, 1.0f));
-//
-//		if (norm) {
-//			vertex.normal = vec3(t * vec4(vertex.normal, 0.0f));
-//		}
-//	}
-
-//	vector<Vertex>::iterator it = verts->begin(), end = verts->end();
-//	while (it != end) {
-//		vec3 pos_transformed = vec3(t * vec4((*it).position, 1.0f));
-//		(*it).position = pos_transformed;
-//
-//		if (norm) {
-//			vec3 norm_transformed = vec3(t * vec4((*it).normal, 0.0f));
-//			(*it).normal = norm_transformed;
-//		}
-//
-//		++it;
-//	}
+	for (auto element : m_elements) {
+		element->hardTransform(t, norm);
+	}
 }
 
-void Geometry::generateNormals() {
-	// https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
-	// this appears to be calculating FLAT NORMALS
+void Geometry::generateSmoothNormals() {
+	for (auto element : m_elements) {
+		element->generateSmoothNormals();
+	}
+}
 
-//	Begin Function CalculateSurfaceNormal (Input Triangle) Returns Vector
-//
-//	Set Vector U to (Triangle.p2 minus Triangle.p1)
-//	Set Vector V to (Triangle.p3 minus Triangle.p1)
-//
-//	Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
-//	Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
-//	Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
-//
-//	Returning Normal
-//
-//	End Function
-
-	cout << "generateNormals()" << endl;
-	cout << "name: " << name() << endl;
-	cout << "num elements: " << m_elements.size() << endl;
+void Geometry::generateFlatNormals() {
 
 	for (auto element : m_elements) {
-		auto verticies = element->vertices(); // I *THINK* this is copying
-		auto faces = element->faces();
-
-		cout << "faces count: " << faces.size() << endl;
-
-		for (auto face : faces) {
-			Vertex* v1 = &verticies[face.a];
-			Vertex* v2 = &verticies[face.b];
-			Vertex* v3 = &verticies[face.c];
-
-			vec3 u = v2->position - v1->position;
-			vec3 v = v3->position - v1->position;
-
-			vec3 normal;
-			normal.x = u.y * v.z - u.z * v.y;
-			normal.y = u.z * v.x - u.x * v.z;
-			normal.z = u.x * v.y - u.y * v.x;
-			//normal = normalize(normal);
-
-			v1->normal = normal;
-			v2->normal = normal;
-			v3->normal = normal;
-		}
-
-
-		for (auto vertex : verticies) {
-			cout << "normal: " << vertex.normal << endl;
-		}
-		cout << "-" << endl;
+		element->generateFlatNormals();
 	}
-
-	for (auto element : m_elements) {
-		auto verticies = element->vertices();
-
-		for (auto vertex : verticies) {
-			cout << "normal: " << vertex.normal << endl;
-		}
-		cout << "=" << endl;
-	}
-
-
-	// SMOOTH NORMALS?
-	// https://stackoverflow.com/questions/6656358/calculating-normals-in-a-triangle-mesh/6661242#6661242
 }
 
 unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectionMat) {

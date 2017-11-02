@@ -46,7 +46,12 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 
-		void load();
+		void hardTransform(const glm::mat4 t, bool norm);
+		void generateSmoothNormals();
+		void generateFlatNormals();
+
+		void loadVertexData();
+
 		GLint glVAO();
 		GLint glIBO();
 		std::vector<Vertex>& vertices();

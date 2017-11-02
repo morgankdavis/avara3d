@@ -72,5 +72,5 @@ Box::Box(float width, float height, float length):
 
 	m_elements.push_back(element);
 
-	generateNormals();
+	generateFlatNormals();
 }

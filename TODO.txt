@@ -57,6 +57,8 @@ Shader class! + Incorporate (VBO, VAO classes?)
 RELOAD SHADERS REALTIME
 Color class
 
+#define GLM_FORCE_CUDA?
+
 Fix scene import Z-up
 
 Basic geometric shapes?
@@ -214,6 +216,12 @@ OPTIMIZATION
 
 
 Resources:
+
+Netwokring
+	https://github.com/lsalzman/enet
+	https://github.com/facebookarchive/RakNet
+	https://github.com/networkprotocol/yojimbo
+	https://github.com/google/protobuf
 
 SCENE GRAPH INFO
 	https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/scenegraphs/Tutorial%206%20-%20Scene%20Graphs.pdf

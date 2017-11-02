@@ -51,5 +51,5 @@ Plane::Plane(float width, float height):
 
 	m_elements.push_back(element);
 
-	generateNormals();
+	generateFlatNormals();
 }
