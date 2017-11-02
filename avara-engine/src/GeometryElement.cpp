@@ -84,9 +84,9 @@ void GeometryElement::generateFlatNormals() {
 	// https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
 
 	for (Face face : m_faces) {
-		Vertex* v1 = &m_vertices[face.c];
+		Vertex* v1 = &m_vertices[face.a];
 		Vertex* v2 = &m_vertices[face.b];
-		Vertex* v3 = &m_vertices[face.a];
+		Vertex* v3 = &m_vertices[face.c];
 
 		vec3 u = v2->position - v1->position;
 		vec3 v = v3->position - v1->position;

@@ -60,7 +60,7 @@ int Test::run(const vector<string>& args) {
 //	for (auto node : siameseScene->rootNode()->allChildNodes()) {
 //		cout << "siamese: " << node->name() << endl;
 //	}
-	siameseNode = siameseScene->rootNode()->childNode("ID448995888", true);
+	siameseNode = siameseScene->rootNode()->immediateChildNodes()[2];
 	siameseNode->name("Siamese");
 	cout << "siameseNode: " << siameseNode->name() << endl;
 	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
@@ -70,6 +70,7 @@ int Test::run(const vector<string>& args) {
 	
 	torusNode = testScene->rootNode()->allChildNodes()[6];
 	torusNode->name("torus");
+	torusNode->geometry()->generateFlatNormals();
 	
 	
 	coneNode = testScene->rootNode()->allChildNodes()[8];
