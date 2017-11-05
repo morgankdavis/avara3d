@@ -322,6 +322,7 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 	shared_ptr<Node> newNode = nullptr;
 
 	if (numMeshes > 0) {
+		cout << "Adding node WITH geometry..." << endl;
 		auto geometry = make_shared<Geometry>(elements, materials);
 		geometry->name(name);
 
@@ -329,6 +330,7 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 		aeParentNode->addChildNode(newNode);
 	}
 	else {
+		cout << "Adding node WITHOUT geometry..." << endl;
 		newNode = make_shared<Node>(name, transform);
 		aeParentNode->addChildNode(newNode);
 	}

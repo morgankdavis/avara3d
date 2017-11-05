@@ -70,7 +70,6 @@ int Test::run(const vector<string>& args) {
 	
 	torusNode = testScene->rootNode()->allChildNodes()[6];
 	torusNode->name("torus");
-	torusNode->geometry()->generateFlatNormals();
 	
 	
 	coneNode = testScene->rootNode()->allChildNodes()[8];
@@ -102,13 +101,15 @@ int Test::run(const vector<string>& args) {
 	auto teapotScene = TestSceneNamed("teapot");
 	teapotNode = teapotScene->rootNode();
 	teapotNode->name("teapot");
-	cout << "palmNode: " << teapotNode->name() << endl;
+	cout << "teapotNode: " << teapotNode->name() << endl;
 	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
 	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
 	teapotNode->transform(teapotTranslate * teapotScale);
 	teapotNode->hidden(false);
 	parentNode->addChildNode(teapotNode);
-	
+//	if (teapotNode->geometry() != nullptr) { // requires teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
+//		teapotNode->geometry()->generateFlatNormals();
+//	}
 	
 	
 	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

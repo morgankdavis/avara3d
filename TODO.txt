@@ -2,14 +2,14 @@ TODO:
 
 ——————————————————————————————————
 
-Look at:
-	Raknet
-	CEGUI2
+
+Euler angles are fucked again moving past 180
+
 
 Geometry primitives:
 	Plane
 	Box
-	Sphere
+	Sphere - https://github.com/g-truc/ogl-samples/blob/master/framework/mesh.hpp
 	- Generate normals:
 		https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
 
@@ -110,9 +110,6 @@ Generate primitive geometry types
 
 
 Print on-screen:
-    NANOGUI: https://github.com/wjakob/nanogui
-    https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
-
     Timing
         ms
         fps
@@ -165,6 +162,12 @@ Console + config files
 
 
 Audio
+
+
+UI
+	CEGUI2
+	NANOGUI: https://github.com/wjakob/nanogui
+    https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
 
 
 

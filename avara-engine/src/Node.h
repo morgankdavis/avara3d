@@ -37,7 +37,7 @@ namespace ae {
 		Node(const std::string& name);
 		Node(const std::shared_ptr<Geometry> geometry);
 		Node(const std::string& name, const glm::mat4 transform);
-		Node(const std::string& name, const glm::mat4 transform, const std::shared_ptr<Geometry> geometry);
+		Node(const std::string& name, const glm::mat4 transform, std::shared_ptr<Geometry> geometry);
 
 		/***************************************************************************************
      		MARK:   Public

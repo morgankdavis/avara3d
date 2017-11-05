@@ -71,20 +71,21 @@ void Geometry::node(Node* node) {
 }
 
 void Geometry::hardTransform(const mat4 t, bool norm) {
-	for (auto element : m_elements) {
+	for (auto element : elements()) {
 		element->hardTransform(t, norm);
 	}
 }
 
 void Geometry::generateSmoothNormals() {
-	for (auto element : m_elements) {
+	for (auto element : elements()) {
 		element->generateSmoothNormals();
 	}
 }
 
 void Geometry::generateFlatNormals() {
 
-	for (auto element : m_elements) {
+	//cout << "m_elements count: " << m_elements.size() << endl;
+	for (auto element : elements()) {
 		element->generateFlatNormals();
 	}
 }

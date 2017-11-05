@@ -76,7 +76,7 @@ Node::Node(const string& name, const mat4 t):
 		transform(t);
 }
 
-Node::Node(const string& name, const mat4 t, const shared_ptr<Geometry> geometry):
+Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
 	m_name(name),
 	m_hidden(false),
 	m_parent(nullptr),
@@ -84,7 +84,9 @@ Node::Node(const string& name, const mat4 t, const shared_ptr<Geometry> geometry
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
 	m_geometry(geometry) {
-		
+
+//		m_geometry = geometry;
+//		cout << "Creating node with geometry: " << geometry << endl;
 		transform(t);
 		m_geometry->node(this);
 }

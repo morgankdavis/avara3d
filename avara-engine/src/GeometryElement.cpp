@@ -77,7 +77,50 @@ void GeometryElement::hardTransform(const mat4 t, bool norm) {
 }
 
 void GeometryElement::generateSmoothNormals() {
+	// https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm
 	// https://stackoverflow.com/questions/6656358/calculating-normals-in-a-triangle-mesh/6661242#6661242
+
+
+	/*
+	void GLSObject::ComputeVerticeNormal (int ixVertice)
+	{
+		// Allocate a temporary storage to store adjacent faces indexes
+		if (!m_pStorage)
+		{
+			m_pStorage = new int[m_nbFaces];
+			if (!m_pStorage)
+				return;
+		}
+		// Store each face which has an intersection with the ixVertice'th vertex
+		int nbAdjFaces = 0;
+		GLFace * pFace = (GLFace *)&OBJ_FACES;
+		for (int ix = 0; ix < m_nbFaces; ix++, pFace++)
+			if (pFace->v1 == ixVertice)
+				m_pStorage[nbAdjFaces++] = ix;
+			else
+			if (pFace->v2 == ixVertice)
+				m_pStorage[nbAdjFaces++] = ix;
+			else
+			if (pFace->v3 == ixVertice)
+				m_pStorage[nbAdjFaces++] = ix;
+		// Average all adjacent faces normals to get the vertex normal
+		GLpoint pn;
+		pn.x = pn.y = pn.z = 0;
+		for (int jx = 0; jx < nbAdjFaces; jx++)
+		{
+			int ixFace= m_pStorage[jx];
+			pn.x += m_pFaceNormals[ixFace].x;
+			pn.y += m_pFaceNormals[ixFace].y;
+			pn.z += m_pFaceNormals[ixFace].z;
+		}
+		pn.x /= nbAdjFaces;
+		pn.y /= nbAdjFaces;
+		pn.z /= nbAdjFaces;
+
+		// Normalize the vertex normal
+		VectorNormalize(&pn, &m_pVertNormals[ixVertice]);
+	}
+	 */
 }
 
 void GeometryElement::generateFlatNormals() {
