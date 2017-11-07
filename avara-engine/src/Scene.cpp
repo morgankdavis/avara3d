@@ -128,6 +128,12 @@ void Scene::loadFile(const string& path) {
 	unsigned int assimpFlags = aiProcess_Triangulate
 		| aiProcess_SortByPType
 		| aiProcess_GenSmoothNormals
+		// "This will, in fact, reduce the number of draw calls."
+	    // http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410af5fe0d6ee720c91359dc61cb849f2ebf
+		| aiProcess_OptimizeMeshes
+		// "If this flag is not specified, no vertices are referenced by more than one face and no index buffer is required for rendering."
+		// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410a444a6c9d8b63e6dc9e1e2e1edd3cbcd4
+		| aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality
 		| aiProcess_ValidateDataStructure;
 

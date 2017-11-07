@@ -29,6 +29,7 @@
 #include "Plane.h"
 #include "Program.h"
 #include "Scene.h"
+#include "Sphere.h"
 #include "Window.h"
 
 

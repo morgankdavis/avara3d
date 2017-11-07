@@ -54,31 +54,58 @@ void GeometryElement::program(const shared_ptr<Program> program) {
 
 void GeometryElement::hardTransform(const mat4 t, bool norm) {
 
-//	for (auto vertex : verts) {
-//		vertex.position = vec3(t * vec4(vertex.position, 1.0f));
-//
-//		if (norm) {
-//			vertex.normal = vec3(t * vec4(vertex.normal, 0.0f));
-//		}
-//	}
+	for (int v=0; v<m_vertices.size(); ++v) {
+		Vertex* vertex = &m_vertices[v];
+		vertex->position = vec3(t * vec4(vertex->position, 1.0f));
 
-//	vector<Vertex>::iterator it = verts->begin(), end = verts->end();
-//	while (it != end) {
-//		vec3 pos_transformed = vec3(t * vec4((*it).position, 1.0f));
-//		(*it).position = pos_transformed;
-//
-//		if (norm) {
-//			vec3 norm_transformed = vec3(t * vec4((*it).normal, 0.0f));
-//			(*it).normal = norm_transformed;
-//		}
-//
-//		++it;
-//	}
+		if (norm) {
+			vertex->normal = normalize(vec3(t * vec4(vertex->normal, 0.0f)));
+		}
+	}
 }
 
 void GeometryElement::generateSmoothNormals() {
 	// https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm
 	// https://stackoverflow.com/questions/6656358/calculating-normals-in-a-triangle-mesh/6661242#6661242
+
+	generateFlatNormals();
+
+	cout << "m_vertices: " << m_vertices.size() << endl;
+	cout << "m_faces: " << m_faces.size() << endl;
+
+	auto newVerticies = vector<Vertex>();
+	for (unsigned v=0 ; v<m_vertices.size() ; ++v) {
+		auto sharedVerticies = vector<Vertex>();
+
+		for (auto face : m_faces) {
+			if (face.a == v) {
+				sharedVerticies.push_back(m_vertices[face.a]);
+			}
+			else if (face.b == v) {
+				sharedVerticies.push_back(m_vertices[face.b]);
+			}
+			else if (face.c == v) {
+				sharedVerticies.push_back(m_vertices[face.c]);
+			}
+		}
+
+		vec3 normal = vec3(0.0f, 0.0f, 0.0f);
+
+		cout << "sharedVerticies: " << sharedVerticies.size() << endl;
+		for (auto sharedVertex : sharedVerticies) {
+			normal.x += sharedVertex.normal.x;
+			normal.y += sharedVertex.normal.y;
+			normal.z += sharedVertex.normal.z;
+		}
+		normal.x /= sharedVerticies.size();
+		normal.y /= sharedVerticies.size();
+		normal.z /= sharedVerticies.size();
+		normal = normalize(normal);
+
+		auto newVertex = (Vertex){ m_vertices[v].position, normal, m_vertices[v].textureCoordinate };
+		newVerticies.push_back(newVertex);
+	}
+	m_vertices = newVerticies;
 
 
 	/*
@@ -134,11 +161,7 @@ void GeometryElement::generateFlatNormals() {
 		vec3 u = v2->position - v1->position;
 		vec3 v = v3->position - v1->position;
 
-		vec3 normal;
-		normal.x = u.y * v.z - u.z * v.y;
-		normal.y = u.z * v.x - u.x * v.z;
-		normal.z = u.x * v.y - u.y * v.x;
-		normal = normalize(normal);
+		vec3 normal = normalize(cross(u, v));
 
 		v1->normal = normal;
 		v2->normal = normal;
