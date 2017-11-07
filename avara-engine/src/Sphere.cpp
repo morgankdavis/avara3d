@@ -26,25 +26,27 @@ using namespace glm;
 	MARK:   Lifecycle
 **************************************************************************************/
 
-Sphere::Sphere():
+Sphere::Sphere(float radius, unsigned subdivisions):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
-	auto vertsVector = vector<Vertex>();
-	auto facesVector = vector<Face>();
+	auto verts = vector<Vertex>();
+	auto faces = vector<Face>();
 
-	generateIcosahedron(vertsVector, 2);
+	generateIcosahedron(verts, subdivisions);
 
-	int face = 0;
-	for (auto v : vertsVector) {
-		//cout << "vertex: " << v.position.x << ", " << v.position.y << ", " << v.position.z << end;
-		//printf("vertex: %.2f, %.2f, %.2f\n", v.position.x, v.position.y, v.position.z);
-
-		facesVector.push_back((Face){face + 0, face + 1, face + 2});
-
+	unsigned face = 0;
+	for (unsigned f=0 ; f<verts.size()/3 ; ++f) {
+		// not 100% sure why the winding order appears to reverse for odd numbers of subdivions...
+		if (subdivisions % 2 == 0) {
+			faces.push_back((Face) {face + 0, face + 1, face + 2});
+		}
+		else {
+			faces.push_back((Face) {face + 2, face + 1, face + 0});
+		}
 		face += 3;
 	}
 
-	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
+	auto element = make_shared<GeometryElement>(verts, faces);
 
 	m_elements.push_back(element);
 
@@ -56,7 +58,9 @@ Sphere::Sphere():
 **************************************************************************************/
 
 void Sphere::generateIcosahedron(vector<Vertex>& verticies, int subdivision) {
-	//The golden ratio
+	// https://github.com/g-truc/ogl-samples/blob/master/framework/mesh.cpp
+
+	// the golden ratio
 	float t = (1 + sqrt(5)) / 2;
 	float size = 1.0f;
 

@@ -29,7 +29,7 @@ namespace ae {
 	    	 MARK:   Lifecycle
 	 	 **************************************************************************************/
 		
-		Sphere();
+		Sphere(float radius, unsigned subdivisions);
 
 	private:
 
