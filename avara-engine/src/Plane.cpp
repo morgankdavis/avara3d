@@ -37,8 +37,10 @@ Plane::Plane(float width, float height):
 	};
 
 	Face faces[] = {
-			{ 0, 1, 2 },
-			{ 2, 3, 0 }
+//			{ 0, 1, 2 },
+//			{ 2, 3, 0 }
+			{ 2, 1, 0 },
+			{ 0, 3, 2 }
 	};
 
 	auto vertsVector = vector<Vertex>();
