@@ -11,6 +11,9 @@
 #include <iostream>
 #include <memory>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 #include "GeometryElement.h"
 #include "Utilities.h"
 #include "Types.h"
@@ -51,6 +54,9 @@ Sphere::Sphere(float radius, unsigned subdivisions):
 	m_elements.push_back(element);
 
 	generateFlatNormals();
+
+	mat4 scale = glm::scale(mat4(1.0f), vec3(radius, radius, radius));
+	hardTransform(scale, true);
 }
 
 /***************************************************************************************
