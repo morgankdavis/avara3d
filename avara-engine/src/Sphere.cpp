@@ -37,6 +37,7 @@ Sphere::Sphere(float radius, unsigned subdivisions):
 
 	generateIcosahedron(verts, subdivisions);
 
+	// "real" faces: https://stackoverflow.com/questions/30912865/how-to-index-the-faces-of-a-icosahedron
 	unsigned face = 0;
 	for (unsigned f=0 ; f<verts.size()/3 ; ++f) {
 		// not 100% sure why the winding order appears to reverse for odd numbers of subdivions...
@@ -50,12 +51,12 @@ Sphere::Sphere(float radius, unsigned subdivisions):
 	}
 
 	auto element = make_shared<GeometryElement>(verts, faces);
-
 	m_elements.push_back(element);
 
-	generateFlatNormals();
+	//generateFlatNormals();
+	generateSmoothNormals();
 
-	mat4 scale = glm::scale(mat4(1.0f), vec3(radius, radius, radius));
+	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f) * radius);
 	hardTransform(scale, true);
 }
 

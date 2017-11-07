@@ -78,6 +78,13 @@ int Test::run(const vector<string>& args) {
 	
 	ballNode = testScene->rootNode()->allChildNodes()[4];
 	ballNode->name("ball");
+	//ballNode->geometry()->generateSmoothNormals();
+	ballNode->geometry()->generateFlatNormals();
+
+	for (auto face : ballNode->geometry()->elements()[0]->faces()) {
+		//cout << "face: " << face << endl;
+		printf("face: %d, %d, %d\n", face.a, face.b, face.c);
+	}
 
 	
 	
@@ -100,6 +107,7 @@ int Test::run(const vector<string>& args) {
 	
 	auto teapotScene = TestSceneNamed("teapot");
 	teapotNode = teapotScene->rootNode();
+	//teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
 	teapotNode->name("teapot");
 	cout << "teapotNode: " << teapotNode->name() << endl;
 	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
@@ -108,7 +116,8 @@ int Test::run(const vector<string>& args) {
 	teapotNode->hidden(false);
 	parentNode->addChildNode(teapotNode);
 //	if (teapotNode->geometry() != nullptr) { // requires teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
-//		teapotNode->geometry()->generateFlatNormals();
+////		teapotNode->geometry()->generateFlatNormals();
+//	teapotNode->geometry()->generateSmoothNormals();
 //	}
 	
 	

@@ -45,7 +45,6 @@ namespace ae {
 		void name(const std::string& name);
 		
 		std::vector<std::shared_ptr<GeometryElement>>& elements();
-		
 		std::vector<std::shared_ptr<Material>>& materials();
 		
 //		Material firstMaterial();

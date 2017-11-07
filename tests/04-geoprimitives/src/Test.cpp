@@ -57,7 +57,7 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNode(boxNode);
 
 
-	auto sphereGeo = make_shared<Sphere>(2, 5);
+	auto sphereGeo = make_shared<Sphere>(2, 2);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);
