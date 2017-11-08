@@ -48,7 +48,7 @@ GLFWwindow				*g_glfwWindow;
 #define DEFAULT_HEIGHT		600
 
 #define FULL_SCREEN			false
-#define ENABLE_VSYNC		true
+#define ENABLE_VSYNC		false
 
 
 void glfwErrorCallback(int error, const char* description) {
