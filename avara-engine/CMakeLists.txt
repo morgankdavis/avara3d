@@ -1,8 +1,9 @@
+
 find_package(OpenGL REQUIRED)
 
 
+add_subdirectory(external)
 add_subdirectory(src)
-#add_subdirectory(extern)
 
 
 file(GLOB HEADERS src/*.h)
@@ -22,8 +23,6 @@ if(MACOS) #---------- MACOS -----------
 	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
 	
 	# local libraries
-	
-	#find_library(LIB_GAINPUT NAME gainput PATHS "lib/macos")
 	
 
 	#link_directories("/usr/local/lib/" "/System/Library/Frameworks")
@@ -53,9 +52,7 @@ elseif(LINUX) #---------- LINUX -----------
 
 	# local libraries
 	
-	#find_library(LIB_GAINPUT NAME gainput PATHS "lib/linux")
-	#find_library(LIB_GLEW NAME GLEW PATHS "lib/linux64")
-	
+
 	# compiler flags
 	
 	#-pedantic
@@ -143,10 +140,10 @@ add_library(ae ${HEADERS} ${SOURCES})
 
 
 if(MACOS)
-	target_link_libraries(ae manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
 	target_link_libraries(ae freetype boost_container ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
 	target_link_libraries(ae ${ALL_LIBS})
