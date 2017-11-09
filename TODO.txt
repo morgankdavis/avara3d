@@ -27,7 +27,17 @@ Tests:
 	04 - geometryprimitives
 	05 - materials-lights
 	06 - debugging (log, gui, bounding box, wireframe)
+		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
+		http://www2.compute.dtu.dk/~janba/Wireframe/
 	07 - solarsystem
+
+	30 - bullet
+
+	40 - multithreading
+
+	50 - audio
+
+	60 - network
 
 
 

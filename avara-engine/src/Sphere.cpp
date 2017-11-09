@@ -53,8 +53,8 @@ Sphere::Sphere(float radius, unsigned subdivisions):
 	auto element = make_shared<GeometryElement>(verts, faces);
 	m_elements.push_back(element);
 
-	//generateFlatNormals();
-	generateSmoothNormals();
+	generateFlatNormals();
+	//generateSmoothNormals();
 
 	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f) * radius);
 	hardTransform(scale, true);

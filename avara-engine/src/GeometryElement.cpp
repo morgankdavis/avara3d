@@ -91,7 +91,7 @@ void GeometryElement::generateSmoothNormals() {
 
 		vec3 normal = vec3(0.0f, 0.0f, 0.0f);
 
-		cout << "sharedVerticies: " << sharedVerticies.size() << endl;
+		//cout << "sharedVerticies: " << sharedVerticies.size() << endl;
 		for (auto sharedVertex : sharedVerticies) {
 			normal.x += sharedVertex.normal.x;
 			normal.y += sharedVertex.normal.y;
