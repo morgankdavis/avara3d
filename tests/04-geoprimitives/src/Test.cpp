@@ -41,31 +41,80 @@ int Test::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 
 
-//	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
-//	auto planeNode = make_shared<Node>();
-//	planeGeo->name("plane");
-//	planeNode->geometry(planeGeo);
-//	m_planeNode = planeNode;
-//	scene->rootNode()->addChildNode(planeNode);
-//
-//
-//	auto boxGeo = make_shared<Box>(1.0f, 3.0f, 3.0f);
-//	auto boxNode = make_shared<Node>();
-//	boxGeo->name("box");
-//	boxNode->geometry(boxGeo);
-//	m_boxNode = boxNode;
-//	scene->rootNode()->addChildNode(boxNode);
+	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
+	auto planeNode = make_shared<Node>();
+	planeGeo->name("plane");
+	planeNode->geometry(planeGeo);
+	scene->rootNode()->addChildNode(planeNode);
+	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
+	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
 
-	auto sphereGeo = make_shared<Sphere>(1, 6);
+	auto boxGeo = make_shared<Box>(2.0f, 1.0f, 0.25f);
+	auto boxNode = make_shared<Node>();
+	boxGeo->name("box");
+	boxNode->geometry(boxGeo);
+	scene->rootNode()->addChildNode(boxNode);
+	boxNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-70.0f)));
+	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
+
+
+	auto sphereGeo = make_shared<Sphere>(0.5, 24);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);
-	m_sphereNode = sphereNode;
 	scene->rootNode()->addChildNode(sphereNode);
-
-
+	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 	
+	
+	auto torusGeo = make_shared<Torus>(0.25f, 1.0f, 64, 128);
+	auto torusNode = make_shared<Node>();
+	torusGeo->name("torus");
+	torusNode->geometry(torusGeo);
+	scene->rootNode()->addChildNode(torusNode);
+	torusNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(45.0f)));
+	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
+	
+	
+	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 1.0f, 128, 64);
+	auto tubeNode = make_shared<Node>();
+	tubeGeo->name("tube");
+	tubeNode->geometry(tubeGeo);
+	scene->rootNode()->addChildNode(tubeNode);
+	tubeNode->rotation(vec4(1.0f, -1.0f, 0.0f, radians(-45.0f)));
+	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
+	
+	
+	auto capsuleGeo = make_shared<Capsule>(0.5f, 0.5f, 128, 32, 64);
+	auto capsuleNode = make_shared<Node>();
+	capsuleGeo->name("capsule");
+	capsuleNode->geometry(capsuleGeo);
+	scene->rootNode()->addChildNode(capsuleNode);
+	capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
+	
+	
+	auto cylinderGeo = make_shared<Cylinder>(0.5f, 1.0f, 128, 64);
+	auto cylinderNode = make_shared<Node>();
+	cylinderGeo->name("cylinder");
+	cylinderNode->geometry(cylinderGeo);
+	scene->rootNode()->addChildNode(cylinderNode);
+	cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
+	
+	
+	auto coneGeo = make_shared<Cone>(1.0, 1.0f, 128, 64);
+	auto coneNode = make_shared<Node>();
+	coneGeo->name("cone");
+	coneNode->geometry(coneGeo);
+	scene->rootNode()->addChildNode(coneNode);
+	coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
+	
+	
+	
+	
+
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
@@ -164,7 +213,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 		// move
 
-		const static float MOVE_SPEED = 1.0f; // units/sec
+		const static float MOVE_SPEED = 5.0f; // units/sec
 
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

@@ -36,9 +36,6 @@ namespace ae {
 
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
-		std::shared_ptr<Node>				m_planeNode;
-		std::shared_ptr<Node>				m_boxNode;
-		std::shared_ptr<Node>				m_sphereNode;
 	};
 }
 

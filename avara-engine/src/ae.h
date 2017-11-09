@@ -13,7 +13,10 @@
 #include "Init.h"
 #include "Box.h"
 #include "Camera.h"
+#include "Capsule.h"
 #include "Color.h"
+#include "Cone.h"
+#include "Cylinder.h"
 #include "Exception.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
@@ -28,9 +31,11 @@
 #include "PhysicsWorld.h"
 #include "Plane.h"
 #include "Program.h"
+#include "Pyramid.h"
 #include "Scene.h"
 #include "Sphere.h"
+#include "Torus.h"
+#include "Tube.h"
 #include "Window.h"
-
 
 #endif /* ae_h */

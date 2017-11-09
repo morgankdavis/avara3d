@@ -180,12 +180,12 @@ void Node::rotation(const vec4 rotation) {
 		the quaternion is also normalised so cos(angle/2)2 + ax*ax * sin(angle/2)2 + ay*ay * sin(angle/2)2+ az*az * sin(angle/2)2 = 1
 	 */
 	
-#if 0 // LOCKS
+//#if 0 // LOCKS
 	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 	float angle = rotation.w;
 	
 	m_orientation = rotate(quat(1.0f, 0.0f, 0.0f, 0.0f), angle, axisNormalized);
-#endif
+//#endif
 	
 	
 #if 0 // LOCKS
