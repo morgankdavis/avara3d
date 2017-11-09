@@ -6,6 +6,7 @@ add_subdirectory(external)
 add_subdirectory(src)
 
 include_directories(external/generator/include)
+include_directories(external/glm-0.9.9.9)
 
 
 file(GLOB HEADERS src/*.h)
