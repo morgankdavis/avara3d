@@ -11,17 +11,25 @@
 #include <iostream>
 #include <memory>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
+#include <generator/generator.hpp>
+
+//#define GLM_ENABLE_EXPERIMENTAL
+//#include <glm/gtx/transform.hpp>
 
 #include "GeometryElement.h"
 #include "Utilities.h"
 #include "Types.h"
 
 
+
+
+
+
+
 using namespace ae;
 using namespace ae::utils;
 using namespace std;
+using namespace generator;
 using namespace glm;
 
 
@@ -29,35 +37,77 @@ using namespace glm;
 	MARK:   Lifecycle
 **************************************************************************************/
 
-Sphere::Sphere(float radius, unsigned subdivisions):
+Sphere::Sphere(float radius, unsigned segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
 	auto verts = vector<Vertex>();
 	auto faces = vector<Face>();
 
-	generateIcosahedron(verts, subdivisions);
+//	generateIcosahedron(verts, subdivisions);
+//
+//	// "real" faces: https://stackoverflow.com/questions/30912865/how-to-index-the-faces-of-a-icosahedron
+//	unsigned face = 0;
+//	for (unsigned f=0 ; f<verts.size()/3 ; ++f) {
+//		// not 100% sure why the winding order appears to reverse for odd numbers of subdivions...
+//		if (subdivisions % 2 == 0) {
+//			faces.push_back((Face) {face + 0, face + 1, face + 2});
+//		}
+//		else {
+//			faces.push_back((Face) {face + 2, face + 1, face + 0});
+//		}
+//		face += 3;
+//	}
+//
+//	auto element = make_shared<GeometryElement>(verts, faces);
+//	m_elements.push_back(element);
+//
+//	generateFlatNormals();
+//	//generateSmoothNormals();
+//
+//	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f) * radius);
+//	hardTransform(scale, true);
 
-	// "real" faces: https://stackoverflow.com/questions/30912865/how-to-index-the-faces-of-a-icosahedron
-	unsigned face = 0;
-	for (unsigned f=0 ; f<verts.size()/3 ; ++f) {
-		// not 100% sure why the winding order appears to reverse for odd numbers of subdivions...
-		if (subdivisions % 2 == 0) {
-			faces.push_back((Face) {face + 0, face + 1, face + 2});
-		}
-		else {
-			faces.push_back((Face) {face + 2, face + 1, face + 0});
-		}
-		face += 3;
+
+
+
+
+
+//	class MeshVertex {
+//	public:
+//		gml::dvec3 position;
+//		gml::dvec3 normal;
+//		gml::dvec2 texCoord;
+//	};
+//
+//	class Triangle {
+//	public:
+//		gml::uvec3 vertices;
+//	};
+
+	IcoSphereMesh icoSphere{radius, segments};
+
+	for (const MeshVertex& v : icoSphere.vertices()) {
+		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
+						  vec3(v.normal[0], v.normal[1], v.normal[2]),
+						  vec2(v.texCoord[0], v.texCoord[1])};
+		verts.push_back(vertex);
+	}
+	for (const Triangle& t : icoSphere.triangles()) {
+		Face face = { t.vertices[0], t.vertices[1], t.vertices[2]};
+		faces.push_back(face);
 	}
 
 	auto element = make_shared<GeometryElement>(verts, faces);
 	m_elements.push_back(element);
 
-	generateFlatNormals();
-	//generateSmoothNormals();
 
-	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f) * radius);
-	hardTransform(scale, true);
+//	auto generatorVertices = icoSphere.vertices(); // generator
+//	auto generatorTriangles = icoSphere.triangles(); // generator
+
+
+
+
+
 }
 
 /***************************************************************************************

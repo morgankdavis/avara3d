@@ -41,23 +41,23 @@ int Test::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 
 
-	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
-	auto planeNode = make_shared<Node>();
-	planeGeo->name("plane");
-	planeNode->geometry(planeGeo);
-	m_planeNode = planeNode;
-	scene->rootNode()->addChildNode(planeNode);
+//	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
+//	auto planeNode = make_shared<Node>();
+//	planeGeo->name("plane");
+//	planeNode->geometry(planeGeo);
+//	m_planeNode = planeNode;
+//	scene->rootNode()->addChildNode(planeNode);
+//
+//
+//	auto boxGeo = make_shared<Box>(1.0f, 3.0f, 3.0f);
+//	auto boxNode = make_shared<Node>();
+//	boxGeo->name("box");
+//	boxNode->geometry(boxGeo);
+//	m_boxNode = boxNode;
+//	scene->rootNode()->addChildNode(boxNode);
 
 
-	auto boxGeo = make_shared<Box>(1.0f, 3.0f, 3.0f);
-	auto boxNode = make_shared<Node>();
-	boxGeo->name("box");
-	boxNode->geometry(boxGeo);
-	m_boxNode = boxNode;
-	scene->rootNode()->addChildNode(boxNode);
-
-
-	auto sphereGeo = make_shared<Sphere>(1, 4);
+	auto sphereGeo = make_shared<Sphere>(1, 6);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);

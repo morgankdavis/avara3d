@@ -5,6 +5,8 @@ find_package(OpenGL REQUIRED)
 add_subdirectory(external)
 add_subdirectory(src)
 
+include_directories(external/generator/include)
+
 
 file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
