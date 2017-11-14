@@ -138,10 +138,10 @@ add_library(ae ${HEADERS} ${SOURCES})
 
 
 if(MACOS)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
-	target_link_libraries(ae freetype boost_container ${FRAMEWORKS})
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z)
+	target_link_libraries(ae ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
 	target_link_libraries(ae ${ALL_LIBS})
