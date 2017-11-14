@@ -6,7 +6,7 @@ add_subdirectory(external)
 add_subdirectory(src)
 
 include_directories(external/generator/include)
-include_directories(external/glm-0.9.9.9)
+#include_directories(external/glm-0.9.9.9)
 
 
 file(GLOB HEADERS src/*.h)
@@ -41,14 +41,6 @@ if(MACOS) #---------- MACOS -----------
 	# silence "MACOSX_RPATH is not specified for the following targets:"
 	set(CMAKE_MACOSX_RPATH 1)
 	
-	
-	## GLFW
-	#
-	#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	#add_subdirectory(extern/glfw-3.2.1)
-	
 elseif(LINUX) #---------- LINUX -----------
 	
 	include_directories("/usr/include" "/usr/local/include" "include")
@@ -64,13 +56,6 @@ elseif(LINUX) #---------- LINUX -----------
 		-Wall -fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-reorder -Wfloat-equal")
 		
-		
-	# GLFW
-	
-	#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	#add_subdirectory(extern/glfw-3.2.1)
 
 elseif(WINDOWS) #---------- WINDOWS-----------
 
@@ -118,17 +103,27 @@ elseif(WINDOWS) #---------- WINDOWS-----------
 endif()
 	
 	
+
+# GLFW
+
+#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+#add_subdirectory(external/glfw-3.2.1)
+
+
+
 # assimp
 
 #add_subdirectory(extern/assimp-4.0.1)
 	
 	
+
 # GLEW
 
-#add_subdirectory(extern/glew-2.1.0/build/cmake)
+#add_subdirectory(external/glew-2.1.0/build/cmake)
+#include_directories(external/glew-2.1.0/include)
 	
-	
-
 
 
 # ZLIB
@@ -143,10 +138,10 @@ add_library(ae ${HEADERS} ${SOURCES})
 
 
 if(MACOS)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
 	target_link_libraries(ae freetype boost_container ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw GLEW assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z) # ${LIB_GAINPUT}  ${LIB_GLEW}
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
 	target_link_libraries(ae ${ALL_LIBS})
