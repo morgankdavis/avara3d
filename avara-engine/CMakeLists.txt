@@ -59,7 +59,7 @@ elseif(LINUX) #---------- LINUX -----------
 
 elseif(WINDOWS) #---------- WINDOWS-----------
 
-	add_subdirectory(extern)
+	#add_subdirectory(extern)
 	
 	# On Visual 2005 and above, this module can set the debug working directory
 	#cmake_policy(SET CMP0026 OLD)
@@ -68,67 +68,22 @@ elseif(WINDOWS) #---------- WINDOWS-----------
 	#include(MSVCMultipleProcessCompile) # /MP
 
 
+	#set(ALL_LIBS
+	#	${OPENGL_LIBRARY}
+	#	glfw
+	#	GLEW_1130
+	#)
 
+	#add_definitions(
+	#	-DTW_STATIC
+	#	-DTW_NO_LIB_PRAGMA
+	#	-DTW_NO_DIRECT3D
+	#	-DGLEW_STATIC
+	#	-D_CRT_SECURE_NO_WARNINGS
+	#)
 
-	
-	#find_package(GLEW REQUIRED)
-
-	include_directories(
-		extern/glfw-3.1.2/include/
-		extern/glm-0.9.7.1/
-		extern/glew-1.13.0/include/
-		extern/assimp-3.0.1270/include/
-		extern/bullet-2.81-rev2613/src/
-		extern/boost/
-		.
-	)
-
-	set(ALL_LIBS
-		${OPENGL_LIBRARY}
-		glfw
-		GLEW_1130
-	)
-
-	add_definitions(
-		-DTW_STATIC
-		-DTW_NO_LIB_PRAGMA
-		-DTW_NO_DIRECT3D
-		-DGLEW_STATIC
-		-D_CRT_SECURE_NO_WARNINGS
-	)
-
-	#set(CMAKE_CXX_FLAGS "-std=c++14 \
-	#	-Wall -fmessage-length=0 -UGLFW_CDECL \
-	#	-Wfloat-equal -Wno-reorder -Wfloat-equal")
 endif()
 	
-	
-
-# GLFW
-
-#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#add_subdirectory(external/glfw-3.2.1)
-
-
-
-# assimp
-
-#add_subdirectory(extern/assimp-4.0.1)
-	
-	
-
-# GLEW
-
-#add_subdirectory(external/glew-2.1.0/build/cmake)
-#include_directories(external/glew-2.1.0/include)
-	
-
-
-# ZLIB
-
-#add_subdirectory(extern/zlib-1.2.11)
 
 
 # ae
@@ -144,6 +99,7 @@ elseif(LINUX)
 	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
-	target_link_libraries(ae ${ALL_LIBS})
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp)
+	target_link_libraries(ae ${OPENGL_LIBRARY})
 endif()
 

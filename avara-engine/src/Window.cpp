@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iostream>
 
-#define GLFW_DLL
+//#define GLFW_DLL
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 

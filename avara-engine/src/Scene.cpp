@@ -206,7 +206,9 @@ void Scene::loadFile(const string& path) {
 						cout << "Texture " << i << " filename: " << filename.C_Str() << endl;
 
 						char fullPath[1024];
+#ifndef WINDOWS
 						realpath(path.c_str(), fullPath);
+#endif
 						set<char> delims{'/'};
 						vector<string> pathComponents = utils::pathComponents(fullPath, delims);
 						pathComponents.pop_back();

@@ -1,7 +1,11 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
+Fix realpath() in Windows
+	http://www.boost.org/doc/libs/1_45_0/libs/filesystem/v2/doc/index.htm#tutorial
+
+Read Beginner's Guide to Linkers: http://www.lurklurk.org/linkers/linkers.html
 
 Euler angles are fucked again moving past 180
 

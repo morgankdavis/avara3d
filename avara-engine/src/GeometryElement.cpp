@@ -102,7 +102,11 @@ void GeometryElement::generateSmoothNormals() {
 		normal.z /= sharedVerticies.size();
 		normal = normalize(normal);
 
-		auto newVertex = (Vertex){ m_vertices[v].position, normal, m_vertices[v].textureCoordinate };
+		Vertex newVertex;
+		newVertex.position = m_vertices[v].position;
+		newVertex.normal = normal;
+		newVertex.textureCoordinate = m_vertices[v].textureCoordinate;
+		//auto newVertex = (Vertex){ m_vertices[v].position, normal, m_vertices[v].textureCoordinate };
 		newVerticies.push_back(newVertex);
 	}
 	m_vertices = newVerticies;

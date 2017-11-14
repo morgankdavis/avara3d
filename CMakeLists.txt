@@ -46,6 +46,9 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(avara-engine/external/glfw-3.2.1)
+if(WINDOWS)
+	include_directories(avara-engine/external/glfw-3.2.1/include)
+endif()
 
 # GLEW
 
@@ -59,6 +62,7 @@ set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
 
 # we always seem to have trouble importing the headers for assimp 4.0.1... 
 #add_subdirectory(avara-engine/external/assimp-4.0.1)
@@ -69,7 +73,11 @@ include_directories(avara-engine/external/assimp-3.3.1/include)
 
 # boost
 
-include_directories(avara-engine/external/boost_1_65_1)
+#if(WINDOWS)
+#	include_directories(avara-engine/external/boost_1_65_1-win)
+#else()
+	include_directories(avara-engine/external/boost_1_65_1)
+#endif()
 
 
 add_subdirectory(avara-engine)

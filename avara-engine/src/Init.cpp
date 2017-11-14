@@ -28,7 +28,7 @@
 
 
 #include <GL/glew.h>
-#define GLFW_DLL
+//#define GLFW_DLL
 #include <GLFW/glfw3.h>
 //#if defined(EXPERIMENTAL)
 //#include <nanogui/nanogui.h>
