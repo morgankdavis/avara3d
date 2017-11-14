@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <iostream>
 
-//#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
