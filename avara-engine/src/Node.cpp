@@ -12,6 +12,7 @@
 #include <iostream>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -302,6 +303,7 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	float yaw = eulerAngles.y;
 	float roll = eulerAngles.z;
 
+	// ORIGINAL
 	float c1 = cos(yaw / 2.0f);
 	float c2 = cos(roll / 2.0f);
 	float c3 = cos(pitch / 2.0f);
@@ -319,15 +321,39 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 #else
 
 	// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-//	quat quatAroundX = quat( eulerAngles.x, vec3(1.0,0.0,0.0) );
-//	quat quatAroundY = quat( eulerAngles.y, vec3(0.0,1.0,0.0) );
-//	quat quatAroundZ = quat( eulerAngles.z, vec3(0.0,0.0,1.0) );
-//	//quat finalOrientation = quatAroundX * quatAroundY * quatAroundZ;
+
+
+
+//	float sx = sin(eulerAngles.x/2.0), sy = sin(eulerAngles.y/2.0), sz = sin(eulerAngles.z/2.0),
+//	cx = cos(eulerAngles.x/2.0), cy = cos(eulerAngles.y/2.0), cz = cos(eulerAngles.z/2.0);
+//
+//	m_orientation = normalize(quat( cx*cy*cz + sx*sy*sz,
+//	   sx*cy*cz - cx*sy*sz,
+//	   cx*sy*cz + sx*cy*sz,
+//	   cx*cy*sz - sx*sy*cz )); // for XYZ application order
+
+
+
+	//m_orientation = toQuat( orientate3( eulerAngles ) );
+
+	//m_orientation = toQuat( yawPitchRoll( eulerAngles.y, eulerAngles.x, eulerAngles.z ) );
+
+
+//	// https://www.opengl.org/discussion_boards/showthread.php/174858-GLM-Initializing-Quaternion-with-Eular-XYZ
+//	quat quatAroundX = angleAxis( eulerAngles.x, vec3(1.0,0.0,0.0) );
+//	quat quatAroundY = angleAxis( eulerAngles.y, vec3(0.0,1.0,0.0) );
+//	quat quatAroundZ = angleAxis( eulerAngles.z, vec3(0.0,0.0,1.0) );
+//	//quat finalOrientation = normalize(quatAroundX * quatAroundY * quatAroundZ);
 //	quat finalOrientation = quatAroundZ * quatAroundY * quatAroundX;
 //	m_orientation = finalOrientation;
-//	return;
 
 
+
+
+	//m_orientation = quat(eulerAngles); // WOW this works, but still acts strange after 180
+
+
+	//return;
 	
 	auto rotationX = rotate(mat4(1.0f), eulerAngles.x, vec3(1.0f, 0.0f, 0.0f));
 	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));
