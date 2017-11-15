@@ -5,6 +5,7 @@ project(avara-engine)
 
 
 if(UNIX AND APPLE)
+    message(status, "We think we're APPLE")
     set(MACOS TRUE)
     if(CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
@@ -12,16 +13,34 @@ if(UNIX AND APPLE)
 endif()
 
 if(UNIX AND NOT APPLE)
+    message(status, "We think we're LINUX")
     set(LINUX TRUE)
 endif()
 
 if(WIN32)
+    message(status, "We think we're WINDOWS")
     set(WINDOWS TRUE)
 endif()
 
+if(WIN64)
+    message(status, "We think we're WIN64")
+endif()
+
 #if(MSVS OR MSYS OR MINGW)
-#    set(Visual studio?)
 #endif()
+
+if(MINGW)
+    message(status, "We think we're MINGW")
+    set(WINDOWS TRUE)
+endif()
+
+if(MSVS)
+    message(status, "We think we're MSVS")
+endif()
+
+if(MSYS)
+    message(status, "We think we're MSYS")
+endif()
 
 
 if(XCODE)
@@ -32,6 +51,9 @@ elseif(LINUX)
 	add_definitions("-DLINUX")
 elseif(WINDOWS)
 	add_definitions("-DWINDOWS")
+    if(MINGW)
+        add_definitions("-DMINGW")
+    endif()
 endif()
 
 
@@ -46,7 +68,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(avara-engine/external/glfw-3.2.1)
-if(WINDOWS)
+if(WINDOWS) # donno
 	include_directories(avara-engine/external/glfw-3.2.1/include)
 endif()
 
@@ -57,14 +79,18 @@ include_directories(avara-engine/external/glew-2.1.0/include)
 
 # assimp
 
+#include_directories("/usr/include" "/usr/local/include" "include")
+
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+
 if(WINDOWS)
 	set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
 endif()
+
 # we always seem to have trouble importing the headers for assimp 4.0.1... 
 #add_subdirectory(avara-engine/external/assimp-4.0.1)
 #include_directories(avara-engine/external/assimp-4.0.1/include)
@@ -74,11 +100,8 @@ include_directories(avara-engine/external/assimp-3.3.1/include)
 
 # boost
 
-#if(WINDOWS)
-#	include_directories(avara-engine/external/boost_1_65_1-win)
-#else()
-	include_directories(avara-engine/external/boost_1_65_1)
-#endif()
+include_directories(avara-engine/external/boost_1_65_1)
+
 
 
 add_subdirectory(avara-engine)

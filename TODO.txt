@@ -2,12 +2,38 @@
 
 ——————————————————————————————————
 
+ASSIMP MINGW!
+	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
+
 Fix realpath() in Windows
 	http://www.boost.org/doc/libs/1_45_0/libs/filesystem/v2/doc/index.htm#tutorial
+	check "REALPATH" dir on Windows desktop for alternate implementation
+	_fullpath is a Windows-supported replacement?
+
+inline void MakeAbsolutePath (const char* in, char* _out)
+{
+    ai_assert(in && _out);
+    char* ret;
+#if defined( _MSC_VER ) || defined( __MINGW32__ )
+    ret = ::_fullpath( _out, in, PATHLIMIT );
+#else
+    // use realpath
+    ret = realpath(in, _out);
+#endif
+    if(!ret) {
+        // preserve the input path, maybe someone else is able to fix
+        // the path before it is accessed (e.g. our file system filter)
+        DefaultLogger::get()->warn("Invalid path: "+std::string(in));
+        strcpy(_out,in);
+    }
+}
+
 
 Read Beginner's Guide to Linkers: http://www.lurklurk.org/linkers/linkers.html
 
 Euler angles are fucked again moving past 180
+
+Try Linux binary on gooseserver / work? try windows binary at work? try mac binary at work?
 
 
 GENERATE "REAL" INDEXING FOR IMPORTED MESHES:
