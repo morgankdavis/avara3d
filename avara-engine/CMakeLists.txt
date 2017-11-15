@@ -15,7 +15,7 @@ file(GLOB SOURCES src/*.c*)
 
 if(MACOS) #---------- MACOS -----------
 	
-	include_directories("/usr/include" "/usr/local/include" "include")
+	#include_directories("/usr/include" "/usr/local/include" "include")
 
 	# system frameworks
 	
@@ -93,7 +93,7 @@ add_library(ae ${HEADERS} ${SOURCES})
 
 
 if(MACOS)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew assimp z)
+	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z)
 	target_link_libraries(ae ${FRAMEWORKS})
 elseif(LINUX)
 	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z)
