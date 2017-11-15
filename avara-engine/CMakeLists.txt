@@ -22,7 +22,9 @@ if(MACOS)
 
 	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
 	
-	set(CMAKE_CXX_FLAGS "-Wall -mmacosx-version-min=10.8 -arch x86_64 \
+	# -stdlib=libc++ is needed in macOS…
+	set(CMAKE_CXX_FLAGS "-stdlib=libc++ \
+		-Wall -mmacosx-version-min=10.8 -arch x86_64 \
 		-fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
 	
