@@ -58,6 +58,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <cctype>
 
+// added by Morgan for MINGW
+// (strcasecmp and strncasecmp)
+#ifdef MINGW
+    #include <strings.h>
+#endif
+
 namespace Assimp    {
 
 // -------------------------------------------------------------------------------
@@ -138,7 +144,7 @@ inline int ASSIMP_stricmp(const char *s1, const char *s2)
 #if (defined _MSC_VER)
 
     return ::_stricmp(s1,s2);
-#elif defined( __GNUC__  ) && !defined(MINGW) // && !defined(MINGW) added by Morgan for MINGW
+#elif defined( __GNUC__  )
 
     return ::strcasecmp(s1,s2);
 #else
@@ -187,7 +193,7 @@ inline int ASSIMP_strincmp(const char *s1, const char *s2, unsigned int n)
 
     return ::_strnicmp(s1,s2,n);
 
-#elif defined( __GNUC__ ) && !defined(MINGW) // && !defined(MINGW) added by Morgan for MINGW
+#elif defined( __GNUC__ )
 
     return ::strncasecmp(s1,s2, n);
 

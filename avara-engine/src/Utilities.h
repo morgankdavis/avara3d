@@ -55,6 +55,7 @@ namespace ae {
 		
 		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);
 		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);
+		char* ae_realpath(const char* path, char* resolved_path);
 	}
 }
 

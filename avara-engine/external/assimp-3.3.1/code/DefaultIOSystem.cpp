@@ -55,7 +55,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 
-#ifdef MINGW // added by Morgan
+// added by Morgan for MINGW
+// needed for realpath_assimp
+#ifdef MINGW
     #include <windows.h>
     #include <stdlib.h>
     #include <limits.h>
@@ -143,16 +145,11 @@ bool IOSystem::ComparePaths (const char* one, const char* second) const
 // ------------------------------------------------------------------------------------------------
 // Convert a relative path into an absolute path
 #ifdef MINGW // added by Morgan
-//inline void MakeAbsolutePath (const char* in, char* _out)
-//{
-//    strcpy(_out,in); // yikes...
-//}
-
 
 // custom realpath()
 
 #define PATH_MAX PATHLIMIT
-char *realpath(const char *path, char resolved_path[PATH_MAX])
+char *realpath_assimp(const char *path, char resolved_path[PATH_MAX])
 {
     char *return_path = 0;
 
@@ -281,7 +278,7 @@ inline void MakeAbsolutePath (const char* in, char* _out)
     ai_assert(in && _out);
     char* ret;
 
-    ret = realpath(in, _out);
+    ret = realpath_assimp(in, _out);
 
     if(!ret) {
         // preserve the input path, maybe someone else is able to fix
