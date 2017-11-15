@@ -29,36 +29,26 @@ inline void MakeAbsolutePath (const char* in, char* _out)
 }
 
 
+Typedef shared/weak pointers
+
+
 Read Beginner's Guide to Linkers: http://www.lurklurk.org/linkers/linkers.html
 
 Euler angles are fucked again moving past 180
+	!! https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
 
 Try Linux binary on gooseserver / work? try windows binary at work? try mac binary at work?
 
 
-GENERATE "REAL" INDEXING FOR IMPORTED MESHES:
-	https://github.com/zeux/meshoptimizer
-	https://fgiesen.wordpress.com/2013/12/14/simple-lossless-index-buffer-compression/
-	https://stackoverflow.com/questions/24571624/separating-mesh
-
-More on smooth normals:
-	https://computergraphics.stackexchange.com/questions/4031/programmatically-generating-vertex-normals
-
-
-Geometry primitives:
-	Plane
-	Box
-	Sphere - https://github.com/g-truc/ogl-samples/blob/master/framework/mesh.hpp
-	- Generate normals:
-		https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
 
 
 Tests:
 	04 - geometryprimitives
 	05 - materials-lights
-	06 - debugging (log, gui, bounding box, wireframe)
+	06 - debugging (log, gui, axes, wireframe, bounding box)
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
 		http://www2.compute.dtu.dk/~janba/Wireframe/
+		https://github.com/SergiusTheBest/plog
 	07 - solarsystem
 
 	30 - bullet
@@ -73,25 +63,13 @@ Tests:
 
 Check out GLM_GTX_quaternion for Euler Angles (faster?)
 
-Should I be storing everything as constituent matrices inside Node?
-	(or just rotation?)
 
 Proper scene graph unroll - DFS?
-Write alternate mouse input?
+Alternate mouse input
 
 Convert scene callbacks to use shared/WEAK? pointers
 
-WINDOWS BUILD??
-
-Explore eulerAngles +=
-
 Mouseover == raycast & print x,y,z of anything hit
-
-Add live rotations to scene graph test
-
-Proper scene graph unroll - DFS?
-Write alternate mouse input?
-
 
 
 Fix Euler Angles order
@@ -100,13 +78,9 @@ Fix Euler Angles order
 scene graph return constituent parts by value so we can do things like:
 	earth->rotation().w += delta;
 
-Set mesh center by bounds (center sphere, for example)
-
 Shader class! + Incorporate (VBO, VAO classes?)
 RELOAD SHADERS REALTIME
 Color class
-
-#define GLM_FORCE_CUDA?
 
 Fix scene import Z-up
 
@@ -115,10 +89,7 @@ Basic geometric shapes?
 
 
 Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
-Check nodes don’t already exist when adding children?
-
-LOGGING
-	https://github.com/SergiusTheBest/plog
+Check nodes don’t already exist when adding children
 
 
 QUESTIONS:
@@ -130,12 +101,6 @@ QUESTIONS:
 			https://computergraphics.stackexchange.com/questions/1502/why-is-the-transposed-inverse-of-the-model-view-matrix-used-to-transform-the-nor
 		https://stackoverflow.com/questions/4124041/is-opengl-coordinate-system-left-handed-or-right-handed
 		https://www.opengl.org/discussion_boards/showthread.php/178301-View-matrix-for-point-light-calculation-should-be-inverse
-
-
-
-BUILD:
-	Add MacOS framework - https://cmake.org/cmake/help/v3.10/prop_tgt/FRAMEWORK.html
-	Compile libraries from SOURCE (cmake — no system library dependencies)
 
 
 

@@ -233,6 +233,9 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
+
+	// CHECK THIS OUT
+	//return glm::eulerAngles(m_orientation);
 	
 #ifndef ALTERNATE_EULERS
 
@@ -314,6 +317,17 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	m_orientation = quat(w, x, y, z);
 	
 #else
+
+	// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
+//	quat quatAroundX = quat( eulerAngles.x, vec3(1.0,0.0,0.0) );
+//	quat quatAroundY = quat( eulerAngles.y, vec3(0.0,1.0,0.0) );
+//	quat quatAroundZ = quat( eulerAngles.z, vec3(0.0,0.0,1.0) );
+//	//quat finalOrientation = quatAroundX * quatAroundY * quatAroundZ;
+//	quat finalOrientation = quatAroundZ * quatAroundY * quatAroundX;
+//	m_orientation = finalOrientation;
+//	return;
+
+
 	
 	auto rotationX = rotate(mat4(1.0f), eulerAngles.x, vec3(1.0f, 0.0f, 0.0f));
 	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));

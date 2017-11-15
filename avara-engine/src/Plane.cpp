@@ -30,6 +30,9 @@ using namespace std;
 Plane::Plane(float width, float height):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
+	/// @param size Half of the side length in x (0) and y (1) direction.
+	/// @param segments Number of subdivisions in the x (0) and y (1) direction.
+
 	PlaneMesh plane{{width, height}, {1, 1}};
 	
 	auto verts = vector<Vertex>();
