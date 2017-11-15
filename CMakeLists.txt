@@ -79,8 +79,6 @@ include_directories(avara-engine/external/glew-2.1.0/include)
 
 # assimp
 
-#include_directories("/usr/include" "/usr/local/include" "include")
-
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
@@ -106,6 +104,4 @@ include_directories(avara-engine/external/boost_1_65_1)
 
 add_subdirectory(avara-engine)
 add_subdirectory(tests)
-
-
 
