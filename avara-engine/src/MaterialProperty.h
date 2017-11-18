@@ -86,7 +86,6 @@ namespace ae {
 		
 		int							m_glTex;
 	};
-	
 }
 
 

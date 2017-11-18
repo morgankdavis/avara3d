@@ -34,16 +34,19 @@ Typedef shared/weak pointers
 
 Read Beginner's Guide to Linkers: http://www.lurklurk.org/linkers/linkers.html
 
-Euler angles are fucked again moving past 180
-	!! https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-	https://glm.g-truc.net/0.9.2/api/a00259.html
 
-Fix rotation past 180
-	Don't normalize it??
+Rotations
+	Try storing with rotation matrix instead of quaternion
 
-Try Linux binary on gooseserver / work? try windows binary at work? try mac binary at work?
+	Euler angles are fucked again moving past 180
+		https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
+		https://glm.g-truc.net/0.9.2/api/a00259.html
+
+	Axis-angle is also fucked +-180
 
 
+BOUNDING BOX!
+	https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
 
 
 Tests:

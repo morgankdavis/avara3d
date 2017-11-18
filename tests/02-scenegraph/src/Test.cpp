@@ -381,7 +381,7 @@ int Test::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = TestSceneNamed("teapot");
-		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto aNode = aScene->rootNode()->childNode("teapot", true); // teapot
 		aNode->name("A");
 
 		
@@ -424,8 +424,18 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	if (TEST == RotationAnimationTestCase) {
 		auto node = scene.rootNode()->childNode("A", true);
-		node->rotation(vec4(1.0f, 0.0f, 0.0f, node->rotation().w + radians(rotationDeg * 2.0f)));
-		
+
+		// we WANT this to work (this is how scene kit works)
+		// but it locks after 2PI rotation
+		// (we think it's becasue rotation() is clipping to 2PI when the underlying quaternion indicates anything larger
+		//node->rotation(vec4(1.0f, 0.0f, 0.0f, node->rotation().w + radians(rotationDeg * 2.0f)));
+
+		float newAngle = node->rotation().w + radians(rotationDeg * 2.0f);
+		newAngle = (newAngle > 0 ?
+					fmod(newAngle, 2.0f*M_PI) :
+					fmod(newAngle, 2.0f*M_PI));
+		node->rotation(vec4(1.0f, 0.0f, 0.0f, newAngle));
+
 		cout << "node transform:\n" << node->transform() << endl;
 	}
 }
