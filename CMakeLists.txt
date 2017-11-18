@@ -60,7 +60,7 @@ endif()
 
 # GLM
 
-include_directories(avara-engine/external/glm-0.9.9.9)
+include_directories(avara-engine/external/glm-0.9.9-a2)
 
 # GLFW
 
