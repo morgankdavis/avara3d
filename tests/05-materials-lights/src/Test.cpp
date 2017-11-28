@@ -38,7 +38,11 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 
-	auto scene = make_shared<Scene>();
+	//auto scene = make_shared<Scene>();
+
+
+	cout << "Loading siamese scene..." << endl;
+	auto scene = TestSceneNamed("siamese");
 	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

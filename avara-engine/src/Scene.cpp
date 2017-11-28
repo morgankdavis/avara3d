@@ -12,6 +12,7 @@
 
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
+#include <boost/filesystem.hpp>
 
 #include "Camera.h"
 #include "Color.h"
@@ -27,9 +28,10 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace std;
-using namespace glm;
 using namespace Assimp;
+using namespace boost::filesystem;
+using namespace glm;
+using namespace std;
 
 
 /***************************************************************************************
@@ -121,9 +123,9 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
      MARK:   Private
  **************************************************************************************/
 
-void Scene::loadFile(const string& path) {
+void Scene::loadFile(const string& importPath) {
 	
-	cout << "Loading scene: " << path << endl;
+	cout << "Loading scene: " << importPath << endl;
 
 	unsigned int assimpFlags = aiProcess_Triangulate
 		| aiProcess_SortByPType
@@ -137,7 +139,7 @@ void Scene::loadFile(const string& path) {
 		| aiProcess_ImproveCacheLocality
 		| aiProcess_ValidateDataStructure;
 
-	const aiScene* scene = aiImportFile(path.c_str(), assimpFlags);
+	const aiScene* scene = aiImportFile(importPath.c_str(), assimpFlags);
 	
 	if (scene) {
 		
@@ -205,32 +207,42 @@ void Scene::loadFile(const string& path) {
 					if (ret == AI_SUCCESS) {
 						cout << "Texture " << i << " filename: " << filename.C_Str() << endl;
 
-						char fullPath[1024];
-						// TODO: wtf?
-#ifdef WINDOWS
-						ae_realpath(path.c_str(), fullPath);
-#else
-						realpath(path.c_str(), fullPath);
-#endif
-
-						set<char> delims{'/'};
-						vector<string> pathComponents = utils::pathComponents(fullPath, delims);
-						pathComponents.pop_back();
-						
 						string textureName = filename.C_Str();
-						if (textureName.substr(0,2) == "./") {
+						if (textureName.substr(0,1) == "/") {
+							textureName = textureName.substr(1, textureName.length()-1);
+						}
+						else if (textureName.substr(0,2) == "./") {
 							textureName = textureName.substr(2, textureName.length()-2);
 						}
-						pathComponents.push_back(textureName);
-						string texturePath = pathFromComponents(pathComponents, '/');
-						
-						auto ambientDiffuseMaterialProperty = make_shared<MaterialProperty>(texturePath);
+
+						path texturePath = canonical(path(textureName), path(importPath).parent_path());
+
+//						char fullPath[1024];
+//						// TODO: wtf?
+//#ifdef WINDOWS
+//						ae_realpath(path.c_str(), fullPath);
+//#else
+//						realpath(importPath.c_str(), fullPath);
+//#endif
+//
+//						set<char> delims{'/'};
+//						vector<string> pathComponents = utils::pathComponents(fullPath, delims);
+//						pathComponents.pop_back();
+//
+//						string textureName = filename.C_Str();
+//						if (textureName.substr(0,2) == "./") {
+//							textureName = textureName.substr(2, textureName.length()-2);
+//						}
+//						pathComponents.push_back(textureName);
+//						string texturePath = pathFromComponents(pathComponents, '/');
+//
+						auto ambientDiffuseMaterialProperty = make_shared<MaterialProperty>(texturePath.string());
 						auto specularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>());
 						auto material = make_shared<Material>("",
 															  ambientDiffuseMaterialProperty,
 															  ambientDiffuseMaterialProperty,
 															  specularMaterialProperty);
-						
+
 						materials().push_back(material);
 					}
 					else {
