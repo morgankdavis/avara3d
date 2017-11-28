@@ -1,5 +1,5 @@
 
-set(EXECUTABLE_NAME "test05-solarsystem")
+set(EXECUTABLE_NAME "test07-solarsystem")
 
 
 # add headers from avara-engine

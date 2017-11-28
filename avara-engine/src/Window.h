@@ -55,6 +55,9 @@ namespace ae {
 		void scene(const std::shared_ptr<Scene> scene);
 
 		void enableCursor(bool enabled);
+
+		DebugOption& debugOptions();
+		void debugOptions(const DebugOption& options);
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -110,6 +113,7 @@ namespace ae {
 		unsigned						m_framebufferWidth;
 		unsigned						m_framebufferHeight;
 		AntialiasingMode				m_antialiasingMode;
+		DebugOption						m_debugOptions;
 		std::shared_ptr<Color>			m_backgroundColor;
 		std::shared_ptr<Node>			m_pointOfView;
 		std::shared_ptr<InputManager> 	m_inputManager;

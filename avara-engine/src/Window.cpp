@@ -141,6 +141,14 @@ void Window::scene(const shared_ptr<Scene> scene) {
 	//checkAddDefaultCamera();
 }
 
+DebugOption& Window::debugOptions() {
+	return m_debugOptions;
+}
+
+void Window::debugOptions(const DebugOption& options) {
+	m_debugOptions = options;
+}
+
 void Window::enableCursor(bool enabled) {
 	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
 }

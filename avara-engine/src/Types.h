@@ -59,6 +59,28 @@ namespace ae {
 	} LightType;
 
 
+	typedef enum {
+		DebugOption_showBoundingBoxes = 	1 << 0,
+		DebugOption_showWireframe = 		1 << 1,
+		DebugOption_showPhysicsShapes = 	1 << 2,
+		DebugOption_showCameras = 			1 << 3,
+		DebugOption_showLights = 			1 << 4,
+		DebugOption_showLightExtents = 		1 << 5
+
+	} DebugOption;
+
+//	static var showPhysicsShapes: SCNDebugOptions
+//	static var showBoundingBoxes: SCNDebugOptions
+//	static var showLightInfluences: SCNDebugOptions
+//	static var showLightExtents: SCNDebugOptions
+//	static var showPhysicsFields: SCNDebugOptions
+//	static var showWireframe: SCNDebugOptions
+//	static var renderAsWireframe: SCNDebugOptions
+//	static var showCameras: SCNDebugOptions
+//	static var showConstraints: SCNDebugOptions
+//	static var showCreases: SCNDebugOptions
+//	static var showSkeletons: SCNDebugOptions
+
 	typedef struct {
 		glm::vec3 position;
 		glm::vec3 normal;

@@ -211,7 +211,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
-	
+
 #ifndef ALTERNATE_EULERS
 
 	// works great, but appears to be ZXY order.

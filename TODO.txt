@@ -32,9 +32,6 @@ inline void MakeAbsolutePath (const char* in, char* _out)
 Typedef shared/weak pointers
 
 
-Read Beginner's Guide to Linkers: http://www.lurklurk.org/linkers/linkers.html
-
-
 Rotations
 	Try storing with rotation matrix instead of quaternion
 
@@ -50,12 +47,14 @@ BOUNDING BOX!
 
 
 Tests:
-	04 - geometryprimitives
+	04 - geoprimitives
 	05 - materials-lights
 	06 - debugging (log, gui, axes, wireframe, bounding box)
+		debug options
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
 		http://www2.compute.dtu.dk/~janba/Wireframe/
 		https://github.com/SergiusTheBest/plog
+		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
 	07 - solarsystem
 
 	30 - bullet
