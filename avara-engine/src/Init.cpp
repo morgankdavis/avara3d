@@ -113,6 +113,5 @@ int ae::init() {
 		 << aiGetVersionMinor() << "."
 		 << aiGetVersionRevision() << endl;
 
-
 	return 0;
 }
