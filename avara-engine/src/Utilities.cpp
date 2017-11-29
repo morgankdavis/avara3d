@@ -65,7 +65,7 @@ ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
 	return (os << str);
 }
 
-optional<string> ae::utils::loadTextFile(const string &path) {
+optional<string> ae::utils::LoadTextFile(const string &path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -140,10 +140,16 @@ std::string ae::utils::ShaderSourceDirectoryPath() {
 #endif
 }
 
+string ae::utils::ShaderPath(const string& name, const string& type) {
+
+	return ShaderSourceDirectoryPath() + name + "." + type;
+}
+
 std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
-	string fullPath = ShaderSourceDirectoryPath() + name + "." + type;
+//	string fullPath = ShaderSourceDirectoryPath() + name + "." + type;
+	string fullPath = ShaderPath(name, type);
 	
-	auto source = loadTextFile(fullPath);
+	auto source = LoadTextFile(fullPath);
 	if (source) {
 		return make_shared<string>(*source);
 	}

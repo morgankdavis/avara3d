@@ -12,10 +12,11 @@
 
 #include "Program.h"
 #include "Types.h"
-//#include "Utilities.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 using namespace glm;
 
@@ -29,11 +30,37 @@ GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 	m_faces(faces),
 	m_glVAO(-1),
 	m_glIBO(-1) {
-	// TODO: **** TEMPORARY ***
-	m_program = make_shared<Program>(ProgramType_Default);
-	if (!m_program->compile()) {
-		cerr << "*** ERROR COMPILING SHADER ***" << endl;
-	}
+		
+		
+//	// TODO: **** TEMPORARY ***
+//	m_program = make_shared<Program>(ProgramType_Default);
+//	if (!m_program->compile()) {
+//		cerr << "*** ERROR COMPILING SHADER ***" << endl;
+//	}
+		
+		// TODO: **** TEMPORARY ***
+		
+//		auto vs = ShaderSourceNamed("default", "vert");
+//		auto fs = ShaderSourceNamed("default", "frag");
+		
+		string vs = ShaderPath("default", "vert");
+		string fs = ShaderPath("default", "frag");
+		
+		m_program = make_shared<Program>(vs, fs);
+		
+		if (m_program->compile()) {
+			cout << "Shader program 'default' compiled." << endl;
+			
+			if (m_program->link()) {
+				cout << "Shader program 'default' linked." << endl;
+			}
+			else {
+				cout << "Couldn't link 'default' shader." << endl;
+			}
+		}
+		else {
+			cout << "Couldn't compile 'default' shader." << endl;
+		}
 }
 
 /***************************************************************************************

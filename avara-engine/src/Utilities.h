@@ -1,4 +1,4 @@
-﻿//
+//
 //  Utilities.h
 //	avara-engine
 //
@@ -37,7 +37,7 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
 		
-		boost::optional<std::string> loadTextFile(const std::string &path);
+		boost::optional<std::string> LoadTextFile(const std::string &path);
 
 		glm::vec2 aiVector3DToGLMVec2(const aiVector2D& from);
 		glm::vec3 aiVector3DToGLMVec3(const aiVector3D& from);
@@ -46,6 +46,7 @@ namespace ae {
 		glm::mat4 aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
 		
 		std::string ShaderSourceDirectoryPath();
+		std::string ShaderPath(const std::string& name, const std::string& type);
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
 
 		std::string TestDataDirectoryPath();

@@ -1,9 +1,9 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
-ASSIMP MINGW!
-	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
+FIX BOOST LINKING (ld: library not found for -lboost_system)
+Clean up Program log vs. printf vs. cout
 
 Fix realpath() in Windows
 	http://www.boost.org/doc/libs/1_45_0/libs/filesystem/v2/doc/index.htm#tutorial
@@ -50,6 +50,7 @@ Tests:
 	04 - geoprimitives
 	05 - materials-lights
 	06 - debugging (log, gui, axes, wireframe, bounding box)
+		log, prints, exceptions
 		debug options
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
 		http://www2.compute.dtu.dk/~janba/Wireframe/
@@ -239,6 +240,9 @@ OPTIMIZATION
 
 
 Resources:
+
+ASSIMP MINGW!
+	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
 
 Netwokring
 	https://github.com/lsalzman/enet

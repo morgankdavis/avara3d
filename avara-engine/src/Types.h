@@ -29,12 +29,18 @@ namespace ae {
 //		SceneLoadingOption_ImproveCacheLocality
 //	} SceneLoadingOption;
 
+//	typedef enum {
+//		ProgramType_Default,
+//		ProgramType_PhongPlain, // temporary
+//		ProgramType_PhongTexture, // temporary
+//		ProgramType_Fancy // temporary
+//	} ProgramType;
+	
+	
 	typedef enum {
-		ProgramType_Default,
-		ProgramType_PhongPlain, // temporary
-		ProgramType_PhongTexture, // temporary
-		ProgramType_Fancy // temporary
-	} ProgramType;
+		ShaderType_Vertex,
+		ShaderType_Fragment
+	} ShaderType;
 
 	typedef enum {
 		WrapMode_Clamp,
