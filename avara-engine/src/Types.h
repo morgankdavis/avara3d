@@ -41,6 +41,14 @@ namespace ae {
 		ShaderType_Vertex,
 		ShaderType_Fragment
 	} ShaderType;
+	
+	
+	typedef enum {
+		MaterialPropertyType_Ambient,
+		MaterialPropertyType_Diffuse,
+		MaterialPropertyType_Specular
+	} MaterialPropertyType;
+	
 
 	typedef enum {
 		WrapMode_Clamp,

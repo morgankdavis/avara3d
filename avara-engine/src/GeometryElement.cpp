@@ -43,8 +43,10 @@ GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 //		auto vs = ShaderSourceNamed("default", "vert");
 //		auto fs = ShaderSourceNamed("default", "frag");
 		
-		string vs = ShaderPath("default", "vert");
-		string fs = ShaderPath("default", "frag");
+//		string vs = ShaderPath("default", "vert");
+//		string fs = ShaderPath("default", "frag");
+		string vs = ShaderPath("phong_texture", "vert");
+		string fs = ShaderPath("phong_texture", "frag");
 		
 		m_program = make_shared<Program>(vs, fs);
 		

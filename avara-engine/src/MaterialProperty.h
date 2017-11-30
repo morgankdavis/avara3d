@@ -13,6 +13,8 @@
 #include <memory>
 #include <string>
 
+#include <GL/glew.h>
+
 #include "Types.h"
 
 
@@ -31,8 +33,9 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 
-		MaterialProperty(const std::string imagePath);
+//		MaterialProperty(const MaterialPropertyType& type, const std::shared_ptr<Image> image);
 		MaterialProperty(const std::shared_ptr<Image> image);
+//		MaterialProperty(const MaterialPropertyType& type, const std::shared_ptr<Color> color);
 		MaterialProperty(const std::shared_ptr<Color> color);
 		
 		/***************************************************************************************
@@ -65,7 +68,8 @@ namespace ae {
 		 **************************************************************************************/
 		
 		void load();
-		int glTex();
+		void bind(MaterialPropertyType type, int slot, GLuint programID);
+		int glTextureID();
 		
 	private:
 		
@@ -84,7 +88,7 @@ namespace ae {
 		float						m_maxAnisotropy;
 		
 		
-		int							m_glTex;
+		int							m_glTextureID;
 	};
 }
 

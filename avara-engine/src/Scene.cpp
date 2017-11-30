@@ -15,7 +15,7 @@
 #include <boost/filesystem.hpp>
 
 #include "Camera.h"
-#include "Color.h"
+//#include "Color.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Image.h"
@@ -217,32 +217,16 @@ void Scene::loadFile(const string& importPath) {
 
 						path texturePath = canonical(path(textureName), path(importPath).parent_path());
 
-//						char fullPath[1024];
-//						// TODO: wtf?
-//#ifdef WINDOWS
-//						ae_realpath(path.c_str(), fullPath);
-//#else
-//						realpath(importPath.c_str(), fullPath);
-//#endif
+//						auto textureImage = make_shared<Image>(texturePath.string());
 //
-//						set<char> delims{'/'};
-//						vector<string> pathComponents = utils::pathComponents(fullPath, delims);
-//						pathComponents.pop_back();
-//
-//						string textureName = filename.C_Str();
-//						if (textureName.substr(0,2) == "./") {
-//							textureName = textureName.substr(2, textureName.length()-2);
-//						}
-//						pathComponents.push_back(textureName);
-//						string texturePath = pathFromComponents(pathComponents, '/');
-//
-						auto ambientDiffuseMaterialProperty = make_shared<MaterialProperty>(texturePath.string());
-						auto specularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>());
-						auto material = make_shared<Material>("",
-															  ambientDiffuseMaterialProperty,
-															  ambientDiffuseMaterialProperty,
-															  specularMaterialProperty);
-
+//						auto ambientDiffuseMaterialProperty = make_shared<MaterialProperty>(textureImage);
+//						auto specularMaterialProperty = make_shared<MaterialProperty>(Color::Gray());
+//						auto material = make_shared<Material>("",
+//															  ambientDiffuseMaterialProperty,
+//															  ambientDiffuseMaterialProperty,
+//															  specularMaterialProperty);
+						
+						auto material = make_shared<Material>(texturePath.string());
 						materials().push_back(material);
 					}
 					else {

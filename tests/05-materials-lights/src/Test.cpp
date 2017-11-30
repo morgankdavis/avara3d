@@ -41,6 +41,12 @@ int Test::run(const vector<string>& args) {
 	
 	auto scene = TestSceneNamed("siamese");
 	
+	for (auto node : scene->rootNode()->allChildNodes()) {
+		cout << "node: " << node->name() << endl;
+	}
+	auto siameseNode = scene->rootNode()->childNode("Siamese", true);
+	siameseNode->scale(siameseNode->scale() * 0.025f);
+	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));

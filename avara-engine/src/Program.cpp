@@ -47,8 +47,8 @@ Program::Program(const std::string& vertexShaderPath,
 		auto vs = LoadTextFile(vertexShaderPath);
 		auto fs = LoadTextFile(fragmentShaderPath);
 		
-		cout << "vs: " << *vs << endl;
-		cout << "fs: " << *fs << endl;
+//		cout << "vs: " << *vs << endl;
+//		cout << "fs: " << *fs << endl;
 		
 		if (vs && fs) {
 			vertexShaderSource(vs);

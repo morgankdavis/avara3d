@@ -5,6 +5,10 @@ TODO:
 FIX BOOST LINKING (ld: library not found for -lboost_system)
 Clean up Program log vs. printf vs. cout
 
+
+MOVE Program from GeometryElement to Material
+
+
 Fix realpath() in Windows
 	http://www.boost.org/doc/libs/1_45_0/libs/filesystem/v2/doc/index.htm#tutorial
 	check "REALPATH" dir on Windows desktop for alternate implementation
@@ -29,8 +33,6 @@ inline void MakeAbsolutePath (const char* in, char* _out)
 }
 
 
-Typedef shared/weak pointers
-
 
 Rotations
 	Try storing with rotation matrix instead of quaternion
@@ -44,6 +46,8 @@ Rotations
 
 BOUNDING BOX!
 	https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
+
+Use “inNAME” for fragment shader attributes
 
 
 Tests:
@@ -89,9 +93,8 @@ Fix Euler Angles order
 scene graph return constituent parts by value so we can do things like:
 	earth->rotation().w += delta;
 
-Shader class! + Incorporate (VBO, VAO classes?)
-RELOAD SHADERS REALTIME
-Color class
+Make name() boost::optional
+Make lazy load GL identifiers boost::optional
 
 Fix scene import Z-up
 

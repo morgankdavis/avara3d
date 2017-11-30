@@ -34,9 +34,8 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Material(const std::string name);
-		Material(const std::string name,
-				 std::shared_ptr<MaterialProperty> ambient,
+		Material(const std::string imagePath);
+		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
 		
@@ -44,8 +43,8 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 
-		std::string name() const;
-		void name(const std::string name);
+//		std::string name() const;
+//		void name(const std::string name);
 		
 		std::shared_ptr<MaterialProperty> ambient() const;
 		void ambient(const std::shared_ptr<MaterialProperty> property);
@@ -84,7 +83,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		std::string							m_name;
+//		std::string							m_name;
 		
 		std::shared_ptr<MaterialProperty>	m_ambient;
 		std::shared_ptr<MaterialProperty> 	m_diffuse;

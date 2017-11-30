@@ -16,6 +16,7 @@
 
 #include "GeometryElement.h"
 #include "Material.h"
+#include "MaterialProperty.h"
 #include "Node.h"
 #include "Program.h"
 #include "Utilities.h"
@@ -99,7 +100,18 @@ unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectio
 	
 	unsigned int numPolygons = 0;
 	
-	for (auto element : elements()) {
+	//for (auto element : elements()) {
+	for (int e=0; e < m_elements.size(); ++e) {
+		
+		cout << "element: " << e << endl;
+		
+		auto element = m_elements[e];
+		//cout << "m_materials size: " << m_materials.size() << endl;
+		shared_ptr<Material> material = nullptr;
+		if (m_materials.size() > e) {
+			material = m_materials[e];
+		}
+//		material = m_materials[0];
 		
 		auto program = element->program();
 		GLint vao = element->glVAO();
@@ -114,13 +126,32 @@ unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectio
 		
 		program->use();
 		
-		// MVP
+		// uniforms
 		
 		program->setUniform("model", modelMat);
 		program->setUniform("view", inverse(viewMat));
 		program->setUniform("projection", projectionMat);
+		
+		
+		// textures
+		
+		//program->setUniform("useAmbientTexture", true);
+		
+		if (material) {
+			material->ambient()->bind(MaterialPropertyType_Diffuse, GL_TEXTURE0, program->glID());
+		}
+		
+//				GLint texDiffuseLoc = glGetUniformLocation(program, "texture_diffuse");
+//		
+//				glActiveTexture(GL_TEXTURE0);
+//				glBindTexture(GL_TEXTURE_2D, materials()[0]->diffuse()->glTex());
+//				glUniform1i(texDiffuseLoc, 0);
+
+		
+		
 
 		// draw
+		// TODO: Put this into GeometryElement
 		
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
