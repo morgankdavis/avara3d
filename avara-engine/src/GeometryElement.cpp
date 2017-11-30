@@ -214,10 +214,13 @@ void GeometryElement::loadVertexData() {
 	glGenVertexArrays(1, &vao);
 	m_glVAO = vao;  // m_glVAO is signed (change this!)
 	glBindVertexArray(vao);
+	
+	GLuint glProgramID = m_program->glID();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 //	GLuint positionIndex = glGetAttribLocation(glProgramID, "vertex_position");
-	GLuint positionIndex = 0;
+//	GLuint positionIndex = 0;
+	GLuint positionIndex = m_program->getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -228,7 +231,8 @@ void GeometryElement::loadVertexData() {
 	glEnableVertexAttribArray(positionIndex);
 
 //	GLuint normalIndex = glGetAttribLocation(glProgramID, "vertex_normal");
-	GLuint normalIndex = 1;
+//	GLuint normalIndex = 1;
+	GLuint normalIndex = m_program->getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -239,7 +243,8 @@ void GeometryElement::loadVertexData() {
 	glEnableVertexAttribArray(normalIndex);
 
 //	GLuint texCoordIndex = glGetAttribLocation(glProgramID, "texture_coordinate");
-	GLuint texCoordIndex = 2;
+//	GLuint texCoordIndex = 2;
+	GLuint texCoordIndex = m_program->getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, // attrib index
 						  2, // num components per attrib (2 float in vec2)
 						  GL_FLOAT, // component type

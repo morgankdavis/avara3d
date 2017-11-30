@@ -10,6 +10,9 @@
 #define Color_h
 
 
+#include <memory>
+
+
 namespace ae {
 	
 	class Color {
@@ -37,21 +40,25 @@ namespace ae {
 	     MARK:   Static
 	 **************************************************************************************/
 	
-//	static Color red();
-//	static Color black();
-//	static Color blue();
-//	static Color brown();
-//	static Color clear();
-//	static Color cyan();
-//	static Color gray();
-//	static Color lightGray();
-//	static Color darkGray();
-//	static Color green();
-//	static Color magenta();
-//	static Color orange();
-//	static Color purple();
-//	static Color white();
-//	static Color yellow();
+	static std::shared_ptr<Color> MakeColorBlack();
+	static std::shared_ptr<Color> MakeColorWhite();
+	static std::shared_ptr<Color> MakeColorGray();
+	static std::shared_ptr<Color> MakeColorLightGray();
+	static std::shared_ptr<Color> MakeColorDarkGray();
+	static std::shared_ptr<Color> MakeColorMaroon();
+	static std::shared_ptr<Color> MakeColorRed();
+	static std::shared_ptr<Color> MakeColorOrange();
+	static std::shared_ptr<Color> MakeColorYellow();
+	static std::shared_ptr<Color> MakeColorOlive();
+	static std::shared_ptr<Color> MakeColorLine();
+	static std::shared_ptr<Color> MakeColorGreen();
+	static std::shared_ptr<Color> MakeColorCyan();
+	static std::shared_ptr<Color> MakeColorBlue();
+	static std::shared_ptr<Color> MakeColorNavy();
+	static std::shared_ptr<Color> MakeColorTeal();
+	static std::shared_ptr<Color> MakeColorMagenta();
+	static std::shared_ptr<Color> MakeColorPurple();
+	static std::shared_ptr<Color> MakeColorBrown();
 }
 
 

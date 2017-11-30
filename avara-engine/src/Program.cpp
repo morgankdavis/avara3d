@@ -88,23 +88,23 @@ bool Program::compile() {
 bool Program::link() {
 	
 	if (isLinked()) return true;
-	if (glID() <= 0) return false;
+	if (m_glID <= 0) return false;
 	
-	glLinkProgram(glID());
+	glLinkProgram(m_glID);
 	
 	int status = 0;
-	glGetProgramiv(glID(), GL_LINK_STATUS, &status);
+	glGetProgramiv(m_glID, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		int length = 0;
 		logString({});
 		
-		glGetProgramiv(glID(), GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
 		if (length > 0) {
 			// TODO: put on stack
 			char* c_log = new char[length];
 			int written = 0;
-			glGetProgramInfoLog(glID(), length, &written, c_log);
+			glGetProgramInfoLog(m_glID, length, &written, c_log);
 			logString(string(c_log));
 			delete[] c_log;
 		}
@@ -121,20 +121,20 @@ bool Program::validate() {
 	if (!isLinked()) return false;
 	
 	GLint status;
-	glValidateProgram(glID());
-	glGetProgramiv(glID(), GL_VALIDATE_STATUS, &status);
+	glValidateProgram(m_glID);
+	glGetProgramiv(m_glID, GL_VALIDATE_STATUS, &status);
 	
 	if (status == GL_FALSE) {
 		// Store log and return false
 		int length = 0;
 		logString({});
 		
-		glGetProgramiv(glID(), GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
 		if (length > 0) {
 			char * c_log = new char[length];
 			int written = 0;
-			glGetProgramInfoLog(glID(), length, &written, c_log);
+			glGetProgramInfoLog(m_glID, length, &written, c_log);
 			logString(string(c_log));
 			delete[] c_log;
 		}
@@ -148,20 +148,20 @@ bool Program::validate() {
 
 void Program::use() {
 	
-	if (glID() <= 0 || (!m_isLinked)) {
+	if (m_glID <= 0 || (!m_isLinked)) {
 		cout << "Program not ready." << endl;
 	}
 	else {
-		glUseProgram(glID());
+		glUseProgram(m_glID);
 	}
 }
 
 void Program::bindAttribLocation(GLuint location, const char* name) {
-	glBindAttribLocation(glID(), location, name);
+	glBindAttribLocation(m_glID, location, name);
 }
 
 void Program::bindFragDataLocation(GLuint location, const char* name) {
-	glBindFragDataLocation(glID(), location, name);
+	glBindFragDataLocation(m_glID, location, name);
 }
 
 void Program::setUniform(const char* name, float x, float y, float z) {
@@ -257,6 +257,11 @@ void Program::setUniform(const char* name, float val) {
 	}
 }
 
+GLint Program::getAttributeLocation(const char* name) {
+	
+	return glGetAttribLocation(m_glID, name);
+}
+
 void Program::printActiveUniforms() {
 	
 	GLint nUniforms, size, location, maxLen;
@@ -264,16 +269,16 @@ void Program::printActiveUniforms() {
 	GLsizei written;
 	GLenum type;
 	
-	glGetProgramiv(glID(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-	glGetProgramiv(glID(), GL_ACTIVE_UNIFORMS, &nUniforms);
+	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
 	
 	name = (GLchar*)malloc(maxLen);
 	
 	printf(" Location | Name\n");
 	printf("------------------------------------------------\n");
 	for (int i=0 ; i<nUniforms ; ++i) {
-		glGetActiveUniform(glID(), i, maxLen, &written, &size, &type, name);
-		location = glGetUniformLocation(glID(), name);
+		glGetActiveUniform(m_glID, i, maxLen, &written, &size, &type, name);
+		location = glGetUniformLocation(m_glID, name);
 		printf(" %-8d | %s\n" ,location, name);
 	}
 	
@@ -286,16 +291,16 @@ void Program::printActiveAttribs() {
 	GLenum type;
 	GLchar* name;
 	
-	glGetProgramiv(glID(), GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-	glGetProgramiv(glID(), GL_ACTIVE_ATTRIBUTES, &nAttribs);
+	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 	
 	name = (GLchar*)malloc(maxLength);
 	
 	printf(" Index | Name\n");
 	printf("------------------------------------------------\n");
 	for (int i=0 ; i<nAttribs ; i++) {
-		glGetActiveAttrib(glID(), i, maxLength, &written, &size, &type, name);
-		location = glGetAttribLocation(glID(), name);
+		glGetActiveAttrib(m_glID, i, maxLength, &written, &size, &type, name);
+		location = glGetAttribLocation(m_glID, name);
 		printf(" %-5d | %s\n", location, name);
 	}
 	
@@ -332,9 +337,9 @@ void Program::fragmentShaderSource(optional<std::string> source) {
 
 bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	
-//	if (glID() <= 0) {
+//	if (m_glID <= 0) {
 //		glID(glCreateProgram());
-//		if (glID() == 0) {
+//		if (m_glID == 0) {
 //			logString(string("Unable to create shader program."));
 //			return false;
 //		}
@@ -376,14 +381,14 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 		return false;
 	}
 	else {
-		glAttachShader(glID(), shaderID);
+		glAttachShader(m_glID, shaderID);
 		
 		return true;
 	}
 }
 
 GLint Program::getUniformLocation(const char* name) {
-	return glGetUniformLocation(glID(), name);
+	return glGetUniformLocation(m_glID, name);
 }
 
 void Program::glID(GLuint glID) {

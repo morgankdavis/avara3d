@@ -60,6 +60,8 @@ namespace ae {
 		void setUniform(const char* name, int val);
 		void setUniform(const char* name, float val);
 		
+		GLint getAttributeLocation(const char* name);
+		
 		void printActiveUniforms();
 		void printActiveAttribs();
 		

@@ -67,6 +67,10 @@ Tests:
 	60 - network
 
 
+Why use layout= instead of getAttributeLocation()
+	https://stackoverflow.com/questions/4635913/explicit-vs-automatic-attribute-location-binding-for-opengl-shaders
+
+
 
 Check out GLM_GTX_quaternion for Euler Angles (faster?)
 
