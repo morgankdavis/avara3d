@@ -39,13 +39,13 @@ Plane::Plane(float width, float height):
 	for (const MeshVertex& v : plane.vertices()) {
 		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
 			vec3(v.normal[0], v.normal[1], v.normal[2]),
-			vec2(v.texCoord[0], v.texCoord[1])};
+			vec2(v.texCoord[0], v.texCoord[1]) };
 		verts.push_back(vertex);
 	}
 		
 	auto faces = vector<Face>();
 	for (const Triangle& t : plane.triangles()) {
-		Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2]};
+		Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2] };
 		faces.push_back(face);
 	}
 	

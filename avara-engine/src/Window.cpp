@@ -24,21 +24,11 @@
 #include "Scene.h"
 #include "Utilities.h"
 
-//#if defined(EXPERIMENTAL)
-//#include <nanogui/nanogui.h>
-//#include <glad/glad.h>
-//#endif
-
 
 using namespace std;
 using namespace ae;
 using namespace glm;
 using namespace utils;
-
-
-//#if defined(EXPERIMENTAL)
-//using namespace nanogui;
-//#endif
 
 
 /***************************************************************************************
@@ -84,19 +74,6 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 	m_didUpdateCallback(nullptr) {
 
 	window = this;
-
-
-//#if defined(EXPERIMENTAL)
-//#if defined(NANOGUI_GLAD)
-//	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-//        throw std::runtime_error("Could not initialize GLAD!");
-//    glGetError(); // pull and ignore unhandled errors like GL_INVALID_ENUM
-//#endif
-//#endif
-//
-//	m_screen = make_shared<Screen>();
-//	m_screen->initialize(window, true);
-
 }
 
 Window::~Window() {
@@ -353,7 +330,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 }
 
 void Window::mainLoop(const float deltaSeconds) {
-	//cout << "-------------------------------------------------------------------------------" << endl;
+	cout << "\n-------------------------------------------------------------------------------" << endl;
 	
 	unsigned int numPolygons = 0;
 	
@@ -361,18 +338,12 @@ void Window::mainLoop(const float deltaSeconds) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, framebufferWidth(), framebufferHeight());
 	
-	
-	
-	mat4 viewMat = mat4(1.0f);
-	mat4 projectionMat = mat4(1.0f);
-	
 	shared_ptr<Camera> camera = nullptr;
 	
 	if (pointOfView()) {
 		camera = pointOfView()->camera();
 	}
-	
-	if (!camera) {
+	else {
 		// try to find one
 		for (auto node: scene()->rootNode()->allChildNodes()) {
 			if (node->camera()) {
@@ -387,34 +358,16 @@ void Window::mainLoop(const float deltaSeconds) {
 		pointOfView(addDefaultPointOfView());
 		camera = pointOfView()->camera();
 	}
-			
-	viewMat = pointOfView()->worldTransform();
-	projectionMat = pointOfView()->camera()->projection();
-
-
-//	// THIS IS BAD.
-//	// we want to be able to say pointOfView()->node->camera()
-//	// need to solve class forwarding/circular references.
-//	mat4 viewMat = mat4(1.0f);
-//	mat4 projectionMat = mat4(1.0f);
-//	bool foundCamera = false;
-//	for (auto node: scene()->rootNode()->allChildNodes()) {
-//		if (node->camera() == pointOfView()) {
-//			viewMat = node->worldTransform();
-//			projectionMat = node->camera()->projection();
-//			foundCamera = true;
-//			break;
-//		}
-//	}
-//	if (!foundCamera) {
-//		cout << "*** NO CAMERA FOUND IN SCENE! ***" << endl;
-//	}
+	
+	auto viewMat = pointOfView()->worldTransform();
+	auto projectionMat = pointOfView()->camera()->projection();
 
 	for (auto node: scene()->rootNode()->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
-				numPolygons += geometry->draw(viewMat, projectionMat);
+				auto modelMat = node->worldTransform();
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
 			}
 		}
 	}
@@ -424,12 +377,6 @@ void Window::mainLoop(const float deltaSeconds) {
 	}
 	glfwPollEvents();
 
-	// TODO: Move to client side
-//	if (glfwGetKey(g_glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-//		glfwSetWindowShouldClose(g_glfwWindow, 1);
-//	}
-//	else {
-		glfwSwapBuffers(g_glfwWindow);
-		updateFrametime(numPolygons);
-//	}
+	glfwSwapBuffers(g_glfwWindow);
+	updateFrametime(numPolygons);
 }

@@ -22,6 +22,7 @@
 namespace ae {
 
 
+	class Material;
 	class Program;
 
 
@@ -46,14 +47,19 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 
+		unsigned int draw(const glm::mat4& modelMat,
+						  const glm::mat4& viewMat,
+						  const glm::mat4& projectionMat,
+						  const Material* material);
+		
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();
 		void generateFlatNormals();
 
 		void loadVertexData();
 
-		GLint glVAO();
-		GLint glIBO();
+		GLuint glVAO();
+		GLuint glIBO();
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
 		
@@ -66,8 +72,8 @@ namespace ae {
 		std::shared_ptr<Program>				m_program;
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
-		GLint									m_glVAO;
-		GLint									m_glIBO;
+		GLuint									m_glVAO;
+		GLuint									m_glIBO;
 	};
 }
 

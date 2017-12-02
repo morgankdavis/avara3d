@@ -22,6 +22,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Scene.h"
+#include "Color.h"
 
 
 using namespace std;
@@ -83,11 +84,11 @@ optional<string> ae::utils::LoadTextFile(const string &path) {
 	return {};
 }
 
-vec2 ae::utils::aiVector3DToGLMVec2(const aiVector2D& from) {
+vec2 ae::utils::AIVector3DToGLMVec2(const aiVector2D& from) {
 	return vec2(from.x, from.y);
 }
 
-vec3 ae::utils::aiVector3DToGLMVec3(const aiVector3D& from) {
+vec3 ae::utils::AIVector3DToGLMVec3(const aiVector3D& from) {
 	return vec3(from.x, from.y, from.z);
 }
 
@@ -96,7 +97,7 @@ vec3 ae::utils::aiVector3DToGLMVec3(const aiVector3D& from) {
 // i.e. from aiMatrix4x4 to glm::mat4
 //template <typename RM, typename CM>
 //void ae::utils::RowMajorToColumnMajorMat4(const RM& from, CM& to) {
-mat4 ae::utils::aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
+mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	mat4 to;
 
 	to[0][0] = from.a1; to[1][0] = from.a2;
@@ -109,6 +110,10 @@ mat4 ae::utils::aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	to[2][3] = from.d3; to[3][3] = from.d4;
 
 	return to;
+}
+
+Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
+	return Color(from.r, from.g, from.b, from.a);
 }
 
 string ae::utils::TestDataDirectoryPath() {

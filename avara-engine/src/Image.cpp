@@ -56,13 +56,7 @@ bool Image::load() {
 
 		m_width = width;
 		m_height = height;
-		
-		// check dimensions are power of 2
-//		if ((width & (width - 1)) != 0 || (height & (height - 1)) != 0) {
-//			printf("Image is not power-of-2 dimensions: %s\n", path_cstr);
-//			return false;
-//		}
-		
+
 		// horizontal flip
 		int width_in_bytes = width * 4;
 		unsigned char *top = NULL;

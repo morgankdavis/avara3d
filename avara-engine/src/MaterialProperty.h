@@ -33,9 +33,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 
-//		MaterialProperty(const MaterialPropertyType& type, const std::shared_ptr<Image> image);
 		MaterialProperty(const std::shared_ptr<Image> image);
-//		MaterialProperty(const MaterialPropertyType& type, const std::shared_ptr<Color> color);
 		MaterialProperty(const std::shared_ptr<Color> color);
 		
 		/***************************************************************************************
@@ -68,7 +66,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		void load();
-		void bind(MaterialPropertyType type, int slot, GLuint programID);
+		void bind(MaterialPropertyType type, GLuint programID);
 		int glTextureID();
 		
 	private:

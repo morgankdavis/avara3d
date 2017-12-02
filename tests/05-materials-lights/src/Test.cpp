@@ -38,14 +38,23 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 
+//	auto scene = make_shared<Scene>();
 	
-	auto scene = TestSceneNamed("siamese");
+	auto siameseScene = TestSceneNamed("siamese");
+	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+	siameseNode->scale(siameseNode->scale() * 0.015f);
+	siameseNode->position(vec3(5.0, 0, 0));
+//	scene->rootNode()->addChildNode(siameseNode);
+	auto scene = siameseScene;
 	
-	for (auto node : scene->rootNode()->allChildNodes()) {
-		cout << "node: " << node->name() << endl;
-	}
-	auto siameseNode = scene->rootNode()->childNode("Siamese", true);
-	siameseNode->scale(siameseNode->scale() * 0.025f);
+	
+	
+//	auto testScene = TestSceneNamed("materialTest");
+//	for (auto node : testScene->rootNode()->allChildNodes()) {
+//		cout << "node: " << node->name() << endl;
+//	}
+	//scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
+//	auto scene = testScene;
 	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

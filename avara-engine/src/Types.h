@@ -56,6 +56,12 @@ namespace ae {
 		WrapMode_lampToBorder,
 		WrapMode_Mirror
 	} WrapMode;
+	
+	
+	typedef enum {
+		MaterialFillMode_Fill,
+		MaterialFillMode_Line
+	} MaterialFillMode;
 
 
 	typedef enum {

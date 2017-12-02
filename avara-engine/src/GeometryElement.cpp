@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include "Material.h"
+#include "MaterialProperty.h"
 #include "Program.h"
 #include "Types.h"
 #include "Utilities.h"
@@ -28,21 +30,11 @@ using namespace glm;
 GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 	m_vertices(verticies),
 	m_faces(faces),
-	m_glVAO(-1),
-	m_glIBO(-1) {
-		
-		
-//	// TODO: **** TEMPORARY ***
-//	m_program = make_shared<Program>(ProgramType_Default);
-//	if (!m_program->compile()) {
-//		cerr << "*** ERROR COMPILING SHADER ***" << endl;
-//	}
+	m_glVAO(0),
+	m_glIBO(0) {
 		
 		// TODO: **** TEMPORARY ***
-		
-//		auto vs = ShaderSourceNamed("default", "vert");
-//		auto fs = ShaderSourceNamed("default", "frag");
-		
+
 //		string vs = ShaderPath("default", "vert");
 //		string fs = ShaderPath("default", "frag");
 		string vs = ShaderPath("phong_texture", "vert");
@@ -63,6 +55,8 @@ GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 		else {
 			cout << "Couldn't compile 'default' shader." << endl;
 		}
+		
+		loadVertexData();
 }
 
 /***************************************************************************************
@@ -80,6 +74,46 @@ void GeometryElement::program(const shared_ptr<Program> program) {
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
+
+unsigned int GeometryElement::draw(const glm::mat4& modelMat,
+								   const glm::mat4& viewMat,
+								   const glm::mat4& projectionMat,
+								   const Material* material) {
+
+	// gl config
+	
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
+	
+	program()->use();
+	
+	// uniforms
+	
+	m_program->setUniform("model", modelMat);
+	m_program->setUniform("view", inverse(viewMat));
+	m_program->setUniform("projection", projectionMat);
+	
+	
+	// materials
+	
+	if (material) {
+		material->ambient()->bind(MaterialPropertyType_Ambient, m_program->glID());
+		material->diffuse()->bind(MaterialPropertyType_Diffuse, m_program->glID());
+		material->specular()->bind(MaterialPropertyType_Specular, m_program->glID());
+	}
+	
+	// draw
+	
+	glBindVertexArray(m_glVAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
+	unsigned int facesSize = m_faces.size();
+	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	
+	// stats
+	
+	return facesSize;
+}
 
 void GeometryElement::hardTransform(const mat4 t, bool norm) {
 
@@ -268,14 +302,11 @@ void GeometryElement::loadVertexData() {
 				 GL_STATIC_DRAW);
 }
 
-GLint GeometryElement::glVAO() {
-	if (m_glVAO == -1) {
-		loadVertexData();
-	}
+GLuint GeometryElement::glVAO() {
 	return m_glVAO;
 }
 
-GLint GeometryElement::glIBO() {
+GLuint GeometryElement::glIBO() {
 	return m_glIBO;
 }
 

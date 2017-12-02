@@ -25,11 +25,7 @@ namespace ae {
 	class InputManager;
 	class Node;
 	
-#if defined(EXPERIMENTAL)
-	class Screen;
-#endif
-
-
+	
 	using windowWillUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
 	using windowDidUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
 	
@@ -120,11 +116,6 @@ namespace ae {
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;
-
-
-//#if defined(EXPERIMENTAL)
-//		std::shared_ptr<Screen>		m_screen;
-//#endif
 	};
 }
 

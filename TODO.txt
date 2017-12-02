@@ -7,41 +7,8 @@ Clean up Program log vs. printf vs. cout
 
 
 MOVE Program from GeometryElement to Material
+Clean up init/window
 
-
-Fix realpath() in Windows
-	http://www.boost.org/doc/libs/1_45_0/libs/filesystem/v2/doc/index.htm#tutorial
-	check "REALPATH" dir on Windows desktop for alternate implementation
-	_fullpath is a Windows-supported replacement?
-
-inline void MakeAbsolutePath (const char* in, char* _out)
-{
-    ai_assert(in && _out);
-    char* ret;
-#if defined( _MSC_VER ) || defined( __MINGW32__ )
-    ret = ::_fullpath( _out, in, PATHLIMIT );
-#else
-    // use realpath
-    ret = realpath(in, _out);
-#endif
-    if(!ret) {
-        // preserve the input path, maybe someone else is able to fix
-        // the path before it is accessed (e.g. our file system filter)
-        DefaultLogger::get()->warn("Invalid path: "+std::string(in));
-        strcpy(_out,in);
-    }
-}
-
-
-
-Rotations
-	Try storing with rotation matrix instead of quaternion
-
-	Euler angles are fucked again moving past 180
-		https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-		https://glm.g-truc.net/0.9.2/api/a00259.html
-
-	Axis-angle is also fucked +-180
 
 
 BOUNDING BOX!
@@ -53,6 +20,11 @@ Use “inNAME” for fragment shader attributes
 Tests:
 	04 - geoprimitives
 	05 - materials-lights
+		load ambient, diffuse, specular texture/color
+		[make sure to refactor texture/color loading]
+		background color
+		skybox
+		multiple point lights
 	06 - debugging (log, gui, axes, wireframe, bounding box, screenshots)
 		log [cinder log?], prints, exceptions
 		debug options
@@ -229,7 +201,7 @@ Laundry list:
 
 
 Wish list:
-    	Camera lookAt constaint
+    	Camera lookAt constraint
 	Geometry subdivision
 
 
@@ -243,15 +215,26 @@ OPTIMIZATION
 		emplace_back
 
 
+Nitpick:
+	Superclass for geometry primitives
+
+
+BUGS:
+	Looks like default camera isn’t respecting transform correctly
+		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
+
 
 
 
 Resources:
 
+Wavefront OBJ Importing
+	https://github.com/syoyo/tinyobjloader
+
 ASSIMP MINGW!
 	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
 
-Netwokring
+Networking
 	https://github.com/lsalzman/enet
 	https://github.com/facebookarchive/RakNet
 	https://github.com/networkprotocol/yojimbo

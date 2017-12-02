@@ -5,8 +5,9 @@ in vec3 vertex_normal_eye;
 in vec2 tex_coord;
 
 uniform mat4 view;
-uniform sampler2D texture_diffuse;
-//uniform sampler2D texture_specular;
+uniform sampler2D ambientSampler;
+uniform sampler2D diffuseSampler;
+uniform sampler2D texture_specular;
 
 layout (location = 0) out vec4 frag_color;
 
@@ -24,8 +25,8 @@ float specular_exponent = 150.0;
 
 void main () {
     //vec3 Ks = vec3(texture(texture_specular, tex_coord));
-    vec3 Kd = vec3(texture(texture_diffuse, tex_coord));
-    vec3 Ka = vec3(texture(texture_diffuse, tex_coord));
+    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));
+    vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
     
     // ambient intensity
     vec3 Ia = La * Ka;

@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include <assimp/color4.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
@@ -27,6 +28,7 @@
 namespace ae {
 
 
+	class Color;
 	class Scene;
 
 
@@ -39,11 +41,12 @@ namespace ae {
 		
 		boost::optional<std::string> LoadTextFile(const std::string &path);
 
-		glm::vec2 aiVector3DToGLMVec2(const aiVector2D& from);
-		glm::vec3 aiVector3DToGLMVec3(const aiVector3D& from);
+		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
+		glm::vec3 AIVector3DToGLMVec3(const aiVector3D& from);
 		//		template <typename RM, typename CM>
 //		void RowMajorToColumnMajorMat4(const RM& from, CM& to);
-		glm::mat4 aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		Color AIColor4DToColor(const aiColor4D& from);
 		
 		std::string ShaderSourceDirectoryPath();
 		std::string ShaderPath(const std::string& name, const std::string& type);

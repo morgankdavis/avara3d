@@ -24,22 +24,6 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-//MaterialProperty::MaterialProperty(const std::string imagePath):
-//		m_image(make_shared<Image>(imagePath)),
-//		m_color(nullptr),
-//		m_wrapS(WrapMode_Clamp),
-//		m_wrapT(WrapMode_Clamp),
-//		m_minificationFilter(WrapMode_Linear),
-//		m_magnificationFilter(WrapMode_Linear),
-//		m_mipFilter(WrapMode_Linear),
-//		m_maxAnisotropy(0),
-//		m_glTex(-1) {
-//
-//		// TODO: temporary
-//			m_image->load();
-//}
-
-//MaterialProperty::MaterialProperty(const MaterialPropertyType& type, const std::shared_ptr<Image> image):
 MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 	m_image(image),
 	m_color(nullptr),
@@ -55,7 +39,6 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 		m_image->load();
 }
 
-//MaterialProperty::MaterialProperty(const MaterialPropertyType& type, onst std::shared_ptr<Color> color):
 MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
@@ -135,54 +118,92 @@ void MaterialProperty::maxAnisotropy(const float max) {
 
 void MaterialProperty::load() {
 	
-	cout << "Loading texture..." << endl;
-	
-	// generate, activate and bind texture
-	GLuint texID;
-	glGenTextures(1, &texID);
-	m_glTextureID = texID; // m_glTex is signed (change!)
-	glBindTexture(GL_TEXTURE_2D, texID);
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 image()->width(),
-				 image()->height(),
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 image()->data());
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	if (m_image != nullptr) {
+		cout << "Loading texture..." << endl;
+		
+		// generate, activate and bind texture
+		GLuint texID;
+		glGenTextures(1, &texID);
+		m_glTextureID = texID; // m_glTex is signed (change?)
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,
+					 GL_RGBA,
+					 m_image->width(),
+					 m_image->height(),
+					 0,
+					 GL_RGBA,
+					 GL_UNSIGNED_BYTE,
+					 m_image->data());
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}
 }
 
-void MaterialProperty::bind(MaterialPropertyType type, int slot, GLuint programID) {
+void MaterialProperty::bind(MaterialPropertyType type, GLuint programID) {
 	
 	// ***** TODO: Bind texture if using a texture, otherwise set color uniform *****
 	
-	string uniformName = "";
-	switch (type) {
-		case MaterialPropertyType_Ambient:
-			uniformName = "ambientSampler";
-			break;
-		case MaterialPropertyType_Diffuse:
-			uniformName = "texture_diffuse";
-			break;
-		case MaterialPropertyType_Specular:
-			uniformName = "specularSampler";
-			break;
-		default:
-			cout << "Invalid MaterialPropertyType: " << type << endl;
-			return;
+	if (m_image) {
+		
+		string uniformName = "";
+		GLenum slot;
+		GLint index;
+		
+		switch (type) {
+			case MaterialPropertyType_Ambient:
+				uniformName = "ambientSampler";
+				slot = GL_TEXTURE0;
+				index = 0;
+				break;
+			case MaterialPropertyType_Diffuse:
+				uniformName = "diffuseSampler";
+				slot = GL_TEXTURE1;
+				index = 1;
+				break;
+			case MaterialPropertyType_Specular:
+				uniformName = "specularSampler";
+				slot = GL_TEXTURE2;
+				index = 2;
+				break;
+			default:
+				cout << "Invalid MaterialPropertyType: " << type << endl;
+				return;
+		}
+		
+		GLint loc = glGetUniformLocation(programID, uniformName.c_str());
+		glActiveTexture(slot); // GL_TEXTUREX
+		glBindTexture(GL_TEXTURE_2D, glTextureID());
+		glUniform1i(loc, index); // 1 for GL_TEXTURE1?
 	}
-	
-	GLint loc = glGetUniformLocation(programID, uniformName.c_str());
-	glActiveTexture(slot); // GL_TEXTUREX
-	glBindTexture(GL_TEXTURE_2D, glTextureID());
-	glUniform1i(loc, 0); // 1 for GL_TEXTURE1?
-
+	else { // color
+		
+//		string uniformName = "";
+//
+//		switch (type) {
+//			case MaterialPropertyType_Ambient:
+//				uniformName = "ambientSampler";
+//				slot = GL_TEXTURE0;
+//				index = 0;
+//				break;
+//			case MaterialPropertyType_Diffuse:
+//				uniformName = "diffuseSampler";
+//				slot = GL_TEXTURE1;
+//				index = 1;
+//				break;
+//			case MaterialPropertyType_Specular:
+//				uniformName = "specularSampler";
+//				slot = GL_TEXTURE2;
+//				index = 2;
+//				break;
+//			default:
+//				cout << "Invalid MaterialPropertyType: " << type << endl;
+//				return;
+//		}
+	}
 }
 
 int MaterialProperty::glTextureID() {

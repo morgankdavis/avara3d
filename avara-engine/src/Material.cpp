@@ -33,7 +33,7 @@ Material::Material(const string imagePath):
 	m_lockAmbientWithDiffuse(false),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
-	m_fillMode(MaterialFillModeFill) {
+	m_fillMode(MaterialFillMode_Fill) {
 		
 		// makes a "best guess" for a material based on a referenced image file
 		// (locks ambient and diffuse and sets a medium specular color)
@@ -42,7 +42,7 @@ Material::Material(const string imagePath):
 		
 		auto textureImage = make_shared<Image>(imagePath);
 		auto ambientDiffuseProperty = make_shared<MaterialProperty>(textureImage);
-		auto specularProperty = make_shared<MaterialProperty>(Color::Gray());
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Gray()));
 
 		m_ambient = ambientDiffuseProperty;
 		m_diffuse = ambientDiffuseProperty;
@@ -61,8 +61,12 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_lockAmbientWithDiffuse(false),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
-	m_fillMode(MaterialFillModeFill) {
+	m_fillMode(MaterialFillMode_Fill) {
 	
+}
+
+Material::~Material() {
+	cout << "[Material deallocating]" << endl;
 }
 
 /***************************************************************************************

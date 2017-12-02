@@ -13,17 +13,13 @@
 #include <memory>
 #include <string>
 
+#include "Types.h"
+
 
 namespace ae {
 
 
 	class MaterialProperty;
-
-
-	typedef enum {
-		MaterialFillModeFill,
-		MaterialFillModeLine
-	} MaterialFillMode;
 
 
 	class Material {
@@ -38,6 +34,7 @@ namespace ae {
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
+		~Material();
 		
 		/***************************************************************************************
 		     MARK:   Public

@@ -85,167 +85,33 @@ void Geometry::generateSmoothNormals() {
 
 void Geometry::generateFlatNormals() {
 
-	//cout << "m_elements count: " << m_elements.size() << endl;
 	for (auto element : elements()) {
 		element->generateFlatNormals();
 	}
 }
 
-unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectionMat) {
-	
-	// MODEL
-	mat4 modelMat = node()->worldTransform();
-	
-	//cout << "DRAW '" << node()->name() << "' worldTransform:\n" << modelMat << endl;
+unsigned int Geometry::draw(const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat) {
 	
 	unsigned int numPolygons = 0;
 	
-	//for (auto element : elements()) {
 	for (int e=0; e < m_elements.size(); ++e) {
 		
 		cout << "element: " << e << endl;
 		
 		auto element = m_elements[e];
-		//cout << "m_materials size: " << m_materials.size() << endl;
 		shared_ptr<Material> material = nullptr;
 		if (m_materials.size() > e) {
+			cout << "Using material " << e << endl;
 			material = m_materials[e];
 		}
-//		material = m_materials[0];
 		
-		auto program = element->program();
-		GLint vao = element->glVAO();
-		GLint ibo = element->glIBO();
-		auto faces = element->faces();
-		
-		// gl config
-		
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
-		
-		program->use();
-		
-		// uniforms
-		
-		program->setUniform("model", modelMat);
-		program->setUniform("view", inverse(viewMat));
-		program->setUniform("projection", projectionMat);
-		
-		
-		// textures
-		
-		//program->setUniform("useAmbientTexture", true);
-		
-		if (material) {
-			material->ambient()->bind(MaterialPropertyType_Diffuse, GL_TEXTURE0, program->glID());
-		}
-		
-//				GLint texDiffuseLoc = glGetUniformLocation(program, "texture_diffuse");
-//		
-//				glActiveTexture(GL_TEXTURE0);
-//				glBindTexture(GL_TEXTURE_2D, materials()[0]->diffuse()->glTex());
-//				glUniform1i(texDiffuseLoc, 0);
-
-		
-		
-
-		// draw
-		// TODO: Put this into GeometryElement
-		
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		unsigned int facesSize = faces.size();
-		glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
-		
-		// stats
-		
-		numPolygons += facesSize;
-		
-	} // geometry element
+		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));
+	}
 	
 	return numPolygons;
 }
-
-//unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectionMat) {
-//
-//	// MODEL
-//	mat4 modelMat = node()->worldTransform();
-//
-//	//cout << "DRAW '" << node()->name() << "' worldTransform:\n" << modelMat << endl;
-//
-//	unsigned int numPolygons = 0;
-//
-//	for (auto element : elements()) {
-//
-//		GLint program = element->program()->glProgramID();
-//		GLint vao = element->glVAO();
-//		GLint ibo = element->glIBO();
-//		auto faces = element->faces();
-//
-//		// gl config
-//
-//		glEnable(GL_DEPTH_TEST);
-//		glDepthFunc(GL_LESS);
-//		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
-//
-//		glUseProgram(program);
-//
-//		// MVP
-//
-//		GLint modelLoc = glGetUniformLocation(program, "model");
-//		GLint viewLoc = glGetUniformLocation(program, "view");
-//		GLint projectionLoc = glGetUniformLocation(program, "projection");
-//
-////		cout << "RENDER, modelMat:\n" << modelMat << endl;
-////		cout << "RENDER, viewMat:\n" << viewMat << endl;
-////		cout << "RENDER, projectionMat:\n" << projectionMat << endl;
-//
-//		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(modelMat));
-//		// TODO: WHY do we have to invert this?? see also Window::addDefaultCamera()
-//		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(inverse(viewMat)));
-//		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(viewMat));
-//		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projectionMat));
-//
-//		// lights
-//
-////		vec3 lightPosition = vec3(70.0f, 70.0f, 50.0f);
-////
-////		GLint lightPositionLoc = glGetUniformLocation(program, "light_position_world");
-////		glUniform3fv (lightPositionLoc, 1, value_ptr(lightPosition));
-//
-//
-//		//vec3 lightColor = vec3(0.8f, 0.4f, 0.4f);
-////		GLint lightColorLoc = glGetUniformLocation(program, "light_color");
-////		glUniform3fv (lightColorLoc, 1, value_ptr(lightColor));
-//
-//		// textures
-//
-////		GLint texDiffuseLoc = glGetUniformLocation(program, "texture_diffuse");
-////
-////		glActiveTexture(GL_TEXTURE0);
-////		glBindTexture(GL_TEXTURE_2D, materials()[0]->diffuse()->glTex());
-////		glUniform1i(texDiffuseLoc, 0);
-////		glActiveTexture(GL_TEXTURE1);
-////		glBindTexture(GL_TEXTURE_2D, texture1);
-////		glUniform1i(_textureUniform, 1);
-//
-//
-//		// draw
-//
-//		glBindVertexArray(vao);
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//		unsigned int facesSize = faces.size();
-//		glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
-//
-//		// stats
-//
-//		numPolygons += facesSize;
-//
-//	} // geometry element
-//
-//	return numPolygons;
-//}
 
 shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 
