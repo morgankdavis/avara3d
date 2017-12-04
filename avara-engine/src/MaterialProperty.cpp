@@ -14,6 +14,7 @@
 
 #include "Color.h"
 #include "Image.h"
+#include "Program.h"
 
 
 using namespace ae;
@@ -25,7 +26,7 @@ using namespace std;
  **************************************************************************************/
 
 MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
-	m_image(image),
+	m_image(nullptr),
 	m_color(nullptr),
 	m_wrapS(WrapMode_Clamp),
 	m_wrapT(WrapMode_Clamp),
@@ -35,8 +36,7 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 	m_maxAnisotropy(0),
 	m_glTextureID(-1) {
 
-		// TODO: temporary
-		m_image->load();
+		this->image(image);
 }
 
 MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
@@ -62,6 +62,8 @@ shared_ptr<Image> MaterialProperty::image() {
 
 void MaterialProperty::image(const shared_ptr<Image> image) {
 	m_image = image;
+	m_image->load();
+	loadTexture();
 }
 
 shared_ptr<Color> MaterialProperty::color() {
@@ -116,9 +118,9 @@ void MaterialProperty::maxAnisotropy(const float max) {
      MARK:   Internal
  **************************************************************************************/
 
-void MaterialProperty::load() {
+void MaterialProperty::loadTexture() {
 	
-	if (m_image != nullptr) {
+	if (m_image) {
 		cout << "Loading texture..." << endl;
 		
 		// generate, activate and bind texture
@@ -143,73 +145,71 @@ void MaterialProperty::load() {
 	}
 }
 
-void MaterialProperty::bind(MaterialPropertyType type, GLuint programID) {
+void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 	
-	// ***** TODO: Bind texture if using a texture, otherwise set color uniform *****
-	
-	if (m_image) {
+	if (m_image) { // texture
 		
-		string uniformName = "";
+		string useUniformName = "";
+		string samplerUniformName = "";
 		GLenum slot;
 		GLint index;
 		
 		switch (type) {
 			case MaterialPropertyType_Ambient:
-				uniformName = "ambientSampler";
-				slot = GL_TEXTURE0;
-				index = 0;
+				useUniformName = "useAmbientSampler";
+				samplerUniformName = "ambientSampler";
+				slot = GL_TEXTURE0; index = 0;
 				break;
 			case MaterialPropertyType_Diffuse:
-				uniformName = "diffuseSampler";
-				slot = GL_TEXTURE1;
-				index = 1;
+				useUniformName = "useDiffuseSampler";
+				samplerUniformName = "diffuseSampler";
+				slot = GL_TEXTURE1; index = 1;
 				break;
 			case MaterialPropertyType_Specular:
-				uniformName = "specularSampler";
-				slot = GL_TEXTURE2;
-				index = 2;
+				useUniformName = "useSpecularSampler";
+				samplerUniformName = "specularSampler";
+				slot = GL_TEXTURE2; index = 2;
 				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
 		}
-		
-		GLint loc = glGetUniformLocation(programID, uniformName.c_str());
-		glActiveTexture(slot); // GL_TEXTUREX
-		glBindTexture(GL_TEXTURE_2D, glTextureID());
-		glUniform1i(loc, index); // 1 for GL_TEXTURE1?
+
+		program.setUniform(useUniformName.c_str(), true);
+		program.bindTexture(samplerUniformName.c_str(), slot, glTextureID(), index);
 	}
 	else { // color
 		
-//		string uniformName = "";
-//
-//		switch (type) {
-//			case MaterialPropertyType_Ambient:
-//				uniformName = "ambientSampler";
-//				slot = GL_TEXTURE0;
-//				index = 0;
-//				break;
-//			case MaterialPropertyType_Diffuse:
-//				uniformName = "diffuseSampler";
-//				slot = GL_TEXTURE1;
-//				index = 1;
-//				break;
-//			case MaterialPropertyType_Specular:
-//				uniformName = "specularSampler";
-//				slot = GL_TEXTURE2;
-//				index = 2;
-//				break;
-//			default:
-//				cout << "Invalid MaterialPropertyType: " << type << endl;
-//				return;
-//		}
+		string useUniformName = "";
+		string colorUniformName = "";
+
+		switch (type) {
+			case MaterialPropertyType_Ambient:
+				useUniformName = "useAmbientSampler";
+				colorUniformName = "ambientColor";
+				break;
+			case MaterialPropertyType_Diffuse:
+				useUniformName = "useDiffuseSampler";
+				colorUniformName = "diffuseColor";
+				break;
+			case MaterialPropertyType_Specular:
+				useUniformName = "useSpecularSampler";
+				colorUniformName = "specularColor";
+				break;
+			default:
+				cout << "Invalid MaterialPropertyType: " << type << endl;
+				return;
+		}
+
+		program.setUniform(useUniformName.c_str(), false);
+		program.setUniform(colorUniformName.c_str(), m_color->r, m_color->g, m_color->b);
 	}
 }
 
-int MaterialProperty::glTextureID() {
-	if (m_glTextureID == -1) {
-		load();
-	}
+GLuint MaterialProperty::glTextureID() {
+//	if (m_glTextureID == -1) {
+//		loadTexture();
+//	}
 	return m_glTextureID;
 }
 

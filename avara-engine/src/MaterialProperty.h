@@ -23,6 +23,7 @@ namespace ae {
 
 	class Color;
 	class Image;
+	class Program;
 	
 	
 	class MaterialProperty {
@@ -65,9 +66,9 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void load();
-		void bind(MaterialPropertyType type, GLuint programID);
-		int glTextureID();
+		void loadTexture();
+		void bind(MaterialPropertyType type, Program& program);
+		GLuint glTextureID();
 		
 	private:
 		
@@ -85,8 +86,7 @@ namespace ae {
 		FilterMode					m_mipFilter;
 		float						m_maxAnisotropy;
 		
-		
-		int							m_glTextureID;
+		GLuint						m_glTextureID;
 	};
 }
 

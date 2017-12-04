@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+#include "Color.h" // temporary
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Program.h"
@@ -75,9 +76,9 @@ void GeometryElement::program(const shared_ptr<Program> program) {
      MARK:   Internal
  **************************************************************************************/
 
-unsigned int GeometryElement::draw(const glm::mat4& modelMat,
-								   const glm::mat4& viewMat,
-								   const glm::mat4& projectionMat,
+unsigned int GeometryElement::draw(const mat4& modelMat,
+								   const mat4& viewMat,
+								   const mat4& projectionMat,
 								   const Material* material) {
 
 	// gl config
@@ -86,7 +87,7 @@ unsigned int GeometryElement::draw(const glm::mat4& modelMat,
 	glDepthFunc(GL_LESS);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
 	
-	program()->use();
+	m_program->use();
 	
 	// uniforms
 	
@@ -94,13 +95,15 @@ unsigned int GeometryElement::draw(const glm::mat4& modelMat,
 	m_program->setUniform("view", inverse(viewMat));
 	m_program->setUniform("projection", projectionMat);
 	
-	
 	// materials
 	
 	if (material) {
-		material->ambient()->bind(MaterialPropertyType_Ambient, m_program->glID());
-		material->diffuse()->bind(MaterialPropertyType_Diffuse, m_program->glID());
-		material->specular()->bind(MaterialPropertyType_Specular, m_program->glID());
+		if (material->locksAmbientWithDiffuse())
+			material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
+		else
+			material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
+		material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
+		material->specular()->bind(MaterialPropertyType_Specular, *m_program);
 	}
 	
 	// draw
@@ -123,6 +126,7 @@ void GeometryElement::hardTransform(const mat4 t, bool norm) {
 
 		if (norm) {
 			vertex->normal = normalize(vec3(t * vec4(vertex->normal, 0.0f)));
+			//vertex->normal = vec3(t * vec4(vertex->normal, 0.0f));
 		}
 	}
 }

@@ -14,7 +14,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 
+#include "Color.h" // temporary
 #include "GeometryElement.h"
+#include "Image.h" // temporary
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
@@ -36,7 +38,23 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const std::vector<std::shared_ptr<Material>> materials):
 	m_elements(elements),
 	m_materials(materials) {
-
+		
+		cout << "Creating geometry with materials: " << endl;
+		
+		for (auto material : materials) {
+			if (material->diffuse()->image()) {
+				cout << "Diffuse image: ("
+				<< material->diffuse()->image()->width()
+				<< ", " << material->diffuse()->image()->height() << ")" << endl;
+			}
+			
+			if (material->diffuse()->color()) {
+				cout << "Diffuse color: ("
+				<< material->diffuse()->color()->r << ", "
+				<< material->diffuse()->color()->g << ", "
+				<< material->diffuse()->color()->b << ")" << endl;
+			}
+		}
 }
 
 /***************************************************************************************
@@ -90,20 +108,19 @@ void Geometry::generateFlatNormals() {
 	}
 }
 
-unsigned int Geometry::draw(const glm::mat4& modelMat,
-							const glm::mat4& viewMat,
-							const glm::mat4& projectionMat) {
+unsigned int Geometry::draw(const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat) {
 	
 	unsigned int numPolygons = 0;
 	
 	for (int e=0; e < m_elements.size(); ++e) {
-		
-		cout << "element: " << e << endl;
-		
+
 		auto element = m_elements[e];
+
 		shared_ptr<Material> material = nullptr;
 		if (m_materials.size() > e) {
-			cout << "Using material " << e << endl;
+			//cout << "Using material " << e << endl;
 			material = m_materials[e];
 		}
 		

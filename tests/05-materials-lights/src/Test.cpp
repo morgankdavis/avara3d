@@ -40,12 +40,12 @@ int Test::run(const vector<string>& args) {
 
 //	auto scene = make_shared<Scene>();
 	
-	auto siameseScene = TestSceneNamed("siamese");
-	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-	siameseNode->scale(siameseNode->scale() * 0.015f);
-	siameseNode->position(vec3(5.0, 0, 0));
-//	scene->rootNode()->addChildNode(siameseNode);
-	auto scene = siameseScene;
+//	auto siameseScene = TestSceneNamed("siamese");
+//	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+//	siameseNode->scale(siameseNode->scale() * 0.015f);
+//	siameseNode->position(vec3(5.0, 0, 0));
+////	scene->rootNode()->addChildNode(siameseNode);
+//	auto scene = siameseScene;
 	
 	
 	
@@ -53,8 +53,23 @@ int Test::run(const vector<string>& args) {
 //	for (auto node : testScene->rootNode()->allChildNodes()) {
 //		cout << "node: " << node->name() << endl;
 //	}
-	//scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
+////	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
 //	auto scene = testScene;
+	
+	
+//	auto duckScene = TestSceneNamed("duck");
+//	auto scene = duckScene;
+	
+	
+	auto palmScene = TestSceneNamed("cartoon_palm_tree");
+	auto scene = palmScene;
+	
+//	auto importTestScene = TestSceneNamed("importTest");
+//	auto scene = importTestScene;
+	
+//	auto palletScene = TestSceneNamed("Pallet");
+//	auto scene = palletScene;
+
 	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

@@ -30,7 +30,7 @@ Material::Material(const string imagePath):
 //	m_specular(nullptr),
 	m_specularExponent(1.0),
 	m_litPerPixel(true),
-	m_lockAmbientWithDiffuse(false),
+	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
 	m_fillMode(MaterialFillMode_Fill) {
@@ -58,7 +58,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_specular(specular),
 	m_specularExponent(1.0),
 	m_litPerPixel(true),
-	m_lockAmbientWithDiffuse(false),
+	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
 	m_fillMode(MaterialFillMode_Fill) {
@@ -121,12 +121,12 @@ void Material::litPerPixel(const bool flag) {
 	m_litPerPixel = flag;
 }
 
-bool Material::lockAmbientWithDiffuse() const {
-	return m_lockAmbientWithDiffuse;
+bool Material::locksAmbientWithDiffuse() const {
+	return m_locksAmbientWithDiffuse;
 }
 
-void Material::lockAmbientWithDiffuse(const bool flag) {
-	m_lockAmbientWithDiffuse = flag;
+void Material::locksAmbientWithDiffuse(const bool flag) {
+	m_locksAmbientWithDiffuse = flag;
 }
 
 bool Material::doubleSided() const {

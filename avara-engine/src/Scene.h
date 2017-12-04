@@ -44,7 +44,7 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::shared_ptr<Node>	rootNode() const;
+		std::shared_ptr<Node> rootNode() const;
 		//void rootNode(const std::shared_ptr<Node> node);
 		
 //		bool					isPaused;

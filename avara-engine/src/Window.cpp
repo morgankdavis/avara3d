@@ -20,6 +20,8 @@
 #include "Geometry.h"
 #include "Globals.h"
 #include "InputManager.h"
+//#include "Material.h" // temporary
+//#include "MaterialProperty.h" // temporary
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
@@ -359,6 +361,16 @@ void Window::mainLoop(const float deltaSeconds) {
 		camera = pointOfView()->camera();
 	}
 	
+	
+//	for (auto mat : m_scene->materials()) {
+//		cout << "Color: ("
+//		<< mat->diffuse()->color()->r << ", "
+//		<< mat->diffuse()->color()->g<< ", "
+//		<< mat->diffuse()->color()->b << ")"<< endl;
+//	}
+	
+	
+	
 	auto viewMat = pointOfView()->worldTransform();
 	auto projectionMat = pointOfView()->camera()->projection();
 
@@ -366,6 +378,7 @@ void Window::mainLoop(const float deltaSeconds) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
+				cout << "Node: " << node->name() << endl;
 				auto modelMat = node->worldTransform();
 				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
 			}
