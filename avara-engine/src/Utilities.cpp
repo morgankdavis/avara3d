@@ -8,6 +8,7 @@
 
 #include "Utilities.h"
 
+#include <algorithm>
 #include <fstream>
 #include <memory>
 #ifdef WINDOWS
@@ -114,6 +115,11 @@ mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 
 Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
+}
+
+float ae::utils::Max(const vec3& v) {
+	
+	return std::max(std::max(v.x, v.y), v.z);
 }
 
 string ae::utils::TestDataDirectoryPath() {

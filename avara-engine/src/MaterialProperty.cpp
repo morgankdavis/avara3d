@@ -157,19 +157,20 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		switch (type) {
 			case MaterialPropertyType_Ambient:
 				useUniformName = "useAmbientSampler";
-				samplerUniformName = "ambientSampler";
+				samplerUniformName = "samplers.ambient";
 				slot = GL_TEXTURE0; index = 0;
 				break;
 			case MaterialPropertyType_Diffuse:
 				useUniformName = "useDiffuseSampler";
-				samplerUniformName = "diffuseSampler";
+				samplerUniformName = "samplers.diffuse";
 				slot = GL_TEXTURE1; index = 1;
 				break;
 			case MaterialPropertyType_Specular:
 				useUniformName = "useSpecularSampler";
-				samplerUniformName = "specularSampler";
+				samplerUniformName = "samplers.specular";
 				slot = GL_TEXTURE2; index = 2;
 				break;
+				
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
@@ -186,15 +187,15 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		switch (type) {
 			case MaterialPropertyType_Ambient:
 				useUniformName = "useAmbientSampler";
-				colorUniformName = "ambientColor";
+				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType_Diffuse:
 				useUniformName = "useDiffuseSampler";
-				colorUniformName = "diffuseColor";
+				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType_Specular:
 				useUniformName = "useSpecularSampler";
-				colorUniformName = "specularColor";
+				colorUniformName = "colors.specular";
 				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;

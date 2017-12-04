@@ -48,6 +48,8 @@ namespace ae {
 		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
 		Color AIColor4DToColor(const aiColor4D& from);
 		
+		float Max(const glm::vec3& v);
+		
 		std::string ShaderSourceDirectoryPath();
 		std::string ShaderPath(const std::string& name, const std::string& type);
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);

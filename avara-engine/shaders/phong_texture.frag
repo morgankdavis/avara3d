@@ -5,15 +5,26 @@ in vec3 vertex_normal_eye;
 in vec2 tex_coord;
 
 uniform mat4 view;
+
 uniform bool useAmbientSampler;
 uniform bool useDiffuseSampler;
 uniform bool useSpecularSampler;
-uniform sampler2D ambientSampler;
-uniform sampler2D diffuseSampler;
-uniform sampler2D specularSampler;
-uniform vec3 ambientColor;
-uniform vec3 diffuseColor;
-uniform vec3 specularColor;
+
+struct Samplers {
+	sampler2D ambient;
+	sampler2D diffuse;
+	sampler2D specular;
+};
+
+struct Colors {
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+
+uniform Samplers samplers;
+uniform Colors colors;
+
 
 layout (location = 0) out vec4 frag_color;
 
@@ -35,12 +46,18 @@ void main () {
 	vec3 Kd = vec3(0.0, 0.0, 0.0);
 	vec3 Ks = vec3(0.0, 0.0, 0.0);
 	
-	if (useAmbientSampler) Ka = vec3(texture(ambientSampler, tex_coord));
-	else Ka = ambientColor;
-	if (useDiffuseSampler) Kd = vec3(texture(diffuseSampler, tex_coord));
-	else Kd = diffuseColor;
-	if (useSpecularSampler) Ks = vec3(texture(specularSampler, tex_coord));
-	else Ks = specularColor;
+	if (useAmbientSampler)
+		Ka = vec3(texture(samplers.ambient, tex_coord));
+	else
+		Ka = colors.ambient;
+	if (useDiffuseSampler)
+		Kd = vec3(texture(samplers.diffuse, tex_coord));
+	else
+		Kd = colors.diffuse;
+	if (useSpecularSampler)
+		Ks = vec3(texture(samplers.specular, tex_coord));
+	else
+		Ks = colors.specular;
 	
 //	vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
 //    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));

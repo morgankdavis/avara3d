@@ -194,6 +194,16 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	return boundingPoints;
 }
 
+vec3 Scene::extent() const{
+	
+	auto bp = *boundingPoints();
+	return vec3(bp["xMax"].x - bp["xMin"].x,
+				bp["yMax"].y - bp["yMin"].y,
+				bp["zMax"].z - bp["zMin"].z);
+	
+//	return vec3(1.0f, 1.0f, 1.0f);
+}
+
 /***************************************************************************************
      MARK:   Private
  **************************************************************************************/

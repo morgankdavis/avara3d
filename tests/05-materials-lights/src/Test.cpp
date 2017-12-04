@@ -48,7 +48,7 @@ int Test::run(const vector<string>& args) {
 //	auto scene = siameseScene;
 	
 	
-	
+//
 //	auto testScene = TestSceneNamed("materialTest");
 //	for (auto node : testScene->rootNode()->allChildNodes()) {
 //		cout << "node: " << node->name() << endl;
@@ -61,11 +61,11 @@ int Test::run(const vector<string>& args) {
 //	auto scene = duckScene;
 	
 	
-	auto palmScene = TestSceneNamed("cartoon_palm_tree");
-	auto scene = palmScene;
+//	auto palmScene = TestSceneNamed("cartoon_palm_tree");
+//	auto scene = palmScene;
 	
-//	auto importTestScene = TestSceneNamed("importTest");
-//	auto scene = importTestScene;
+	auto importTestScene = TestSceneNamed("importTest");
+	auto scene = importTestScene;
 	
 //	auto palletScene = TestSceneNamed("Pallet");
 //	auto scene = palletScene;
@@ -137,7 +137,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 		// move
 
-		const static float MOVE_SPEED = 5.0f; // units/sec
+		//const static float MOVE_SPEED = 5.0f; // units/sec
+		const static float MOVE_SPEED = Max(scene.extent());
 
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

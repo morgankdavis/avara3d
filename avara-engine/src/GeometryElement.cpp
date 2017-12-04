@@ -50,11 +50,11 @@ GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
 				cout << "Shader program 'default' linked." << endl;
 			}
 			else {
-				cout << "Couldn't link 'default' shader." << endl;
+				cout << "Couldn't link 'default' shader:\n" << *(m_program->logString()) << endl;
 			}
 		}
 		else {
-			cout << "Couldn't compile 'default' shader." << endl;
+			cout << "Couldn't compile 'default' shader:\n" << *(m_program->logString()) << endl;
 		}
 		
 		loadVertexData();

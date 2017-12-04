@@ -67,6 +67,7 @@ namespace ae {
 		std::vector<std::shared_ptr<GeometryElement>>& geometryElements();
 		std::vector<std::shared_ptr<Material>>& materials();
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
+		glm::vec3 extent() const;
 		
 	private:
 		

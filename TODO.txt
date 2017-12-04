@@ -8,7 +8,6 @@ Change useAmbientSampler, etc to bitmask
 MOVE Program from GeometryElement to Material -> if no material use a default material
 Gamma correction
 Normalize normals in hardTransform()? (instead of vertex shader)
-Scene::extent()
 Import cameras & lights?
 
 
