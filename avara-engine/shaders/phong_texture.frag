@@ -42,22 +42,16 @@ float specular_exponent = 150.0;
 
 void main () {
 	
-	vec3 Ka = vec3(1.0, 0.0, 0.0);
+	vec3 Ka = vec3(0.0, 0.0, 0.0);
 	vec3 Kd = vec3(0.0, 0.0, 0.0);
 	vec3 Ks = vec3(0.0, 0.0, 0.0);
 	
-	if (useAmbientSampler)
-		Ka = vec3(texture(samplers.ambient, tex_coord));
-	else
-		Ka = colors.ambient;
-	if (useDiffuseSampler)
-		Kd = vec3(texture(samplers.diffuse, tex_coord));
-	else
-		Kd = colors.diffuse;
-	if (useSpecularSampler)
-		Ks = vec3(texture(samplers.specular, tex_coord));
-	else
-		Ks = colors.specular;
+	if (useAmbientSampler) Ka = vec3(texture(samplers.ambient, tex_coord));
+	else Ka = colors.ambient;
+	if (useDiffuseSampler) Kd = vec3(texture(samplers.diffuse, tex_coord));
+	else Kd = colors.diffuse;
+	if (useSpecularSampler) Ks = vec3(texture(samplers.specular, tex_coord));
+	else Ks = colors.specular;
 	
 //	vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
 //    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));

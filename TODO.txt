@@ -2,25 +2,25 @@ TODO:
 
 ——————————————————————————————————
 
+Artificial frame limit
+Rename enableCursor
 Add node/geometry to scene -> copy materials
+Fix specular color
 Add shininess property
 Change useAmbientSampler, etc to bitmask
-MOVE Program from GeometryElement to Material -> if no material use a default material
+MOVE Program from GeometryElement to Material -> if no material use a default material (?)
 Gamma correction
 Normalize normals in hardTransform()? (instead of vertex shader)
 Import cameras & lights?
+Missing texture texture
+Texture filtering
+Screen scaling
+Might attenuation
 
 
 FIX BOOST LINKING (ld: library not found for -lboost_system)
 Clean up Program log vs. printf vs. cout
 Clean up init/window
-
-
-
-BOUNDING BOX!
-	https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
-
-Use “inNAME” for fragment shader attributes
 
 
 Tests:

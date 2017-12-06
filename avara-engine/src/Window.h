@@ -55,6 +55,9 @@ namespace ae {
 		DebugOption& debugOptions();
 		void debugOptions(const DebugOption& options);
 		
+		float maximumFramerate();
+		void maximumFramerate(float max);
+		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
@@ -113,6 +116,7 @@ namespace ae {
 		std::shared_ptr<Color>			m_backgroundColor;
 		std::shared_ptr<Node>			m_pointOfView;
 		std::shared_ptr<InputManager> 	m_inputManager;
+		float 							m_maximumFramerate;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;

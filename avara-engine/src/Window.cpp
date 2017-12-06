@@ -72,6 +72,7 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 	m_backgroundColor(nullptr),
 	m_pointOfView(nullptr),
 	m_inputManager(nullptr),
+	m_maximumFramerate(60.0),
 	m_willUpdateCallback(nullptr),
 	m_didUpdateCallback(nullptr) {
 
@@ -98,15 +99,21 @@ void Window::display() {
 		static double previousSeconds = glfwGetTime();
 		float totalSeconds = glfwGetTime();
 		float deltaSeconds = totalSeconds - previousSeconds;
-		previousSeconds = totalSeconds;
 		
-		if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
+		cout << "deltaSeconds: " << deltaSeconds << endl;
 		
-		mainLoop(deltaSeconds);
+//		if (deltaSeconds < 1.0f/m_maximumFramerate) {
 		
-		if (!glfwWindowShouldClose(g_glfwWindow)) {
-			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
-		}
+			previousSeconds = totalSeconds;
+			
+			if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
+			
+			mainLoop(deltaSeconds);
+			
+			if (!glfwWindowShouldClose(g_glfwWindow)) {
+				if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
+			}
+//		}
 	}
 }
 
@@ -120,6 +127,10 @@ void Window::scene(const shared_ptr<Scene> scene) {
 	//checkAddDefaultCamera();
 }
 
+void Window::enableCursor(bool enabled) {
+	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+}
+
 DebugOption& Window::debugOptions() {
 	return m_debugOptions;
 }
@@ -128,8 +139,12 @@ void Window::debugOptions(const DebugOption& options) {
 	m_debugOptions = options;
 }
 
-void Window::enableCursor(bool enabled) {
-	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+float Window::maximumFramerate() {
+	return m_maximumFramerate;
+}
+
+void Window::maximumFramerate(float max) {
+	m_maximumFramerate = max;
 }
 
 /***************************************************************************************
@@ -211,12 +226,6 @@ shared_ptr<InputManager> Window::inputManager() {
 }
 
 shared_ptr<Node> Window::addDefaultPointOfView() {
-	
-//	for (auto node : m_scene->rootNode()->allChildNodes()) {
-//		if (node->camera()) {
-//			return;
-//		}
-//	}
 	
 	auto cameraNode = make_shared<Node>();
 	//m_scene->rootNode()->addChildNode(cameraNode); // done below
@@ -332,22 +341,23 @@ void Window::updateFrametime(unsigned int numPolygons) {
 }
 
 void Window::mainLoop(const float deltaSeconds) {
+	
 	cout << "\n-------------------------------------------------------------------------------" << endl;
 	
 	unsigned int numPolygons = 0;
 	
-	glClearColor(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
+	glClearColor(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, framebufferWidth(), framebufferHeight());
+	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
 	shared_ptr<Camera> camera = nullptr;
 	
 	if (pointOfView()) {
-		camera = pointOfView()->camera();
+		camera = m_pointOfView->camera();
 	}
 	else {
 		// try to find one
-		for (auto node: scene()->rootNode()->allChildNodes()) {
+		for (auto node: m_scene->rootNode()->allChildNodes()) {
 			if (node->camera()) {
 				camera = node->camera();
 				pointOfView(node);
@@ -358,23 +368,13 @@ void Window::mainLoop(const float deltaSeconds) {
 	if (!camera) {
 		// still no camera. add a default one.
 		pointOfView(addDefaultPointOfView());
-		camera = pointOfView()->camera();
+		camera = m_pointOfView->camera();
 	}
-	
-	
-//	for (auto mat : m_scene->materials()) {
-//		cout << "Color: ("
-//		<< mat->diffuse()->color()->r << ", "
-//		<< mat->diffuse()->color()->g<< ", "
-//		<< mat->diffuse()->color()->b << ")"<< endl;
-//	}
-	
-	
-	
-	auto viewMat = pointOfView()->worldTransform();
-	auto projectionMat = pointOfView()->camera()->projection();
 
-	for (auto node: scene()->rootNode()->allChildNodes()) {
+	auto viewMat = m_pointOfView->worldTransform();
+	auto projectionMat = m_pointOfView->camera()->projection();
+
+	for (auto node: m_scene->rootNode()->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {

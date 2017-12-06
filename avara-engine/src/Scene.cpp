@@ -50,9 +50,15 @@ static string FilepathFromTextureFilename(const string& filename, const string& 
 		textureName = textureName.substr(2, textureName.length()-2);
 	}
 	
-	path texturePath = canonical(path(textureName), path(basePath));
+	try {
+		path texturePath = canonical(path(textureName), path(basePath));
+		return texturePath.string();
+	}
+	catch (const boost::filesystem::filesystem_error& e) {
+		cout << "Error expanding path: " << e.what() << endl;
+	}
 	
-	return texturePath.string();
+	return ""; // TODO: Bad!
 }
 
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,

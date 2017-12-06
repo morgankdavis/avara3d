@@ -60,16 +60,36 @@ int Test::run(const vector<string>& args) {
 //	auto duckScene = TestSceneNamed("duck");
 //	auto scene = duckScene;
 	
-	
 //	auto palmScene = TestSceneNamed("cartoon_palm_tree");
 //	auto scene = palmScene;
 	
-	auto importTestScene = TestSceneNamed("importTest");
-	auto scene = importTestScene;
+//	auto importTestScene = TestSceneNamed("importTest");
+//	auto scene = importTestScene;
 	
 //	auto palletScene = TestSceneNamed("Pallet");
 //	auto scene = palletScene;
+	
+//	auto mushroomScene = TestSceneNamed("mushroom");
+//	auto scene = mushroomScene;
+	
+//	auto crocusScene = TestSceneNamed("FL43_Crocus_sp_Crocus_3ds/FL43_1");
+//	auto scene = crocusScene;
+	
+//	auto tree1Scene = TestSceneNamed("tree1");
+//	auto scene = tree1Scene;
+	
+//	auto tunaScene = TestSceneNamed("tuna");
+//	auto scene = tunaScene;
 
+//	auto woodContainerScene = TestSceneNamed("WoodContainer");
+//	auto scene = woodContainerScene;
+	
+//	auto crate1Scene = TestSceneNamed("Crate1");
+//	auto scene = crate1Scene;
+
+	auto woddenCrateScene = TestSceneNamed("WoddenCrate");
+	auto scene = woddenCrateScene;
+	
 	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
@@ -77,6 +97,7 @@ int Test::run(const vector<string>& args) {
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
+	window.maximumFramerate(120.0);
 
 	m_inputManager = window.inputManager();
 	
