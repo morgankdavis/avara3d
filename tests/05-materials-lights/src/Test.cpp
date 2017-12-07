@@ -38,30 +38,39 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 
-//	auto scene = make_shared<Scene>();
 	
+	
+//	auto scene = make_shared<Scene>();
+//
 //	auto siameseScene = TestSceneNamed("siamese");
 //	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-//	siameseNode->scale(siameseNode->scale() * 0.015f);
-//	siameseNode->position(vec3(5.0, 0, 0));
-////	scene->rootNode()->addChildNode(siameseNode);
-//	auto scene = siameseScene;
-	
-	
+//	siameseNode->scale(siameseNode->scale() * 0.15f);
+//	siameseNode->position(vec3(25.0, 0, 0));
+//	scene->rootNode()->addChildNode(siameseNode);
 //
-//	auto testScene = TestSceneNamed("materialTest");
-//	for (auto node : testScene->rootNode()->allChildNodes()) {
-//		cout << "node: " << node->name() << endl;
-//	}
-////	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
-//	auto scene = testScene;
+//	auto testScene = TestSceneNamed("importTest");
+//	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
+	
+	
+	
+//	auto siameseBadTextureScene = TestSceneNamed("siamese_badTexture");
+//	auto siameseBadTextureNode = siameseBadTextureScene->rootNode()->childNode("Siamese", true);
+//	siameseBadTextureNode->scale(siameseBadTextureNode->scale() * 0.15f);
+//	siameseBadTextureNode->position(vec3(25.0, 0, 0));
+//	//scene->rootNode()->addChildNode(siameseNode);
+//	auto scene = siameseBadTextureScene;
+//
 	
 	
 //	auto duckScene = TestSceneNamed("duck");
 //	auto scene = duckScene;
 	
 //	auto palmScene = TestSceneNamed("cartoon_palm_tree");
-//	auto scene = palmScene;
+//	auto palmNode = palmScene->rootNode()->childNode("palm_tree", true);
+//	for (auto node : palmScene->rootNode()->allChildNodes()) {
+//		cout << "node: " << node->name() << endl;
+//	}
+//	scene->rootNode()->addChildNode(palmNode);
 	
 //	auto importTestScene = TestSceneNamed("importTest");
 //	auto scene = importTestScene;
@@ -87,10 +96,21 @@ int Test::run(const vector<string>& args) {
 //	auto crate1Scene = TestSceneNamed("Crate1");
 //	auto scene = crate1Scene;
 
-	auto woddenCrateScene = TestSceneNamed("WoddenCrate");
-	auto scene = woddenCrateScene;
+//	auto woddenCrateScene = TestSceneNamed("WoddenCrate);
+//	auto scene = woddenCrateScene;
 	
 	
+	auto scene = make_shared<Scene>();
+	auto coneGeo = make_shared<Cone>(1.0, 1.0, 16, 16);
+	auto coneNode = make_shared<Node>(coneGeo);
+	auto red = make_shared<Color>(Color::Red());
+	auto coneMaterialProperty = make_shared<MaterialProperty>(red);
+	auto coneMaterial = make_shared<Material>();
+	coneMaterial->diffuse(coneMaterialProperty);
+	//coneGeo->materials().push_back(<#const_reference __x#>)
+	scene->rootNode()->addChildNode(coneNode);
+	
+
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -159,7 +179,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		// move
 
 		//const static float MOVE_SPEED = 5.0f; // units/sec
-		const static float MOVE_SPEED = Max(scene.extent());
+		auto extent = scene.extent();
+		cout << "Scene extent: " << extent << endl;
+		const static float MOVE_SPEED = Max(extent);
 
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

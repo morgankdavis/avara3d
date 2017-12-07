@@ -13,7 +13,7 @@
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <boost/filesystem.hpp>
-//#include <boost/optional.hpp>
+#include <boost/optional.hpp>
 
 #include "Camera.h"
 #include "Color.h"
@@ -40,7 +40,7 @@ using namespace std;
      MARK:   Static
  **************************************************************************************/
 
-static string FilepathFromTextureFilename(const string& filename, const string& basePath) {
+static boost::optional<string> FilepathFromTextureFilename(const string& filename, const string& basePath) {
 
 	string textureName = filename;
 	if (textureName.substr(0,1) == "/") {
@@ -58,7 +58,15 @@ static string FilepathFromTextureFilename(const string& filename, const string& 
 		cout << "Error expanding path: " << e.what() << endl;
 	}
 	
-	return ""; // TODO: Bad!
+	cout << "*** Missing texture: " << filename << " ***" << endl;
+	
+	return {};
+}
+
+static shared_ptr<Image> MissingTextureImage() {
+	static shared_ptr<Image> image = nullptr;
+	if (!image) image = make_shared<Image>(ImagesDirectoryPath() + "missing_texture.png");
+	return image;
 }
 
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
@@ -88,10 +96,15 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		aiString filename;
 		if (aiMaterial->GetTexture(type, 0, &filename,
 								   NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-			string texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
-			cout << "Texture path: " << texturePath << endl;
-			auto textureImage = make_shared<Image>(texturePath);
-			return make_shared<MaterialProperty>(textureImage);
+			boost::optional<string> texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
+			if (texturePath) {
+				cout << "Texture path: " << *texturePath << endl;
+				auto textureImage = make_shared<Image>(*texturePath);
+				return make_shared<MaterialProperty>(textureImage);
+			}
+			else {
+				return make_shared<MaterialProperty>(MissingTextureImage());
+			}
 		}
 	}
 	else { // color
@@ -114,22 +127,21 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
-
 /***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
 Scene::Scene():
-	m_rootNode(make_shared<Node>("Root node")),
+	m_rootNode(make_shared<Node>("Root node"))/*,
 	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
-	m_materials(vector<shared_ptr<Material>>()) {
+	m_materials(vector<shared_ptr<Material>>())*/ {
 
 }
 
 Scene::Scene(const std::string& path):
-	m_rootNode(make_shared<Node>("Root node")),
+	m_rootNode(make_shared<Node>("Root node"))/*,
 	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
-	m_materials(vector<shared_ptr<Material>>()) {
+	m_materials(vector<shared_ptr<Material>>())*/ {
 
 	loadFile(path);
 }
@@ -150,14 +162,6 @@ shared_ptr<Node> Scene::rootNode() const {
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
-
-vector<shared_ptr<GeometryElement>>& Scene::geometryElements() {
-	return m_geometryElements;
-}
-
-vector<shared_ptr<Material>>& Scene::materials() {
-	return m_materials;
-}
 
 shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 
@@ -206,8 +210,6 @@ vec3 Scene::extent() const{
 	return vec3(bp["xMax"].x - bp["xMin"].x,
 				bp["yMax"].y - bp["yMin"].y,
 				bp["zMax"].z - bp["zMin"].z);
-	
-//	return vec3(1.0f, 1.0f, 1.0f);
 }
 
 /***************************************************************************************
@@ -233,6 +235,12 @@ void Scene::loadFile(const string& importPath) {
 	const aiScene* scene = aiImportFile(importPath.c_str(), assimpFlags);
 	
 	if (scene) {
+		
+		// copy all the meshes and materials out of the aiScene
+		// use them to construct our GeometryElements
+		// (we are not keeping a master list)
+		auto importElements = vector<shared_ptr<GeometryElement>>();
+		auto importMaterials = vector<shared_ptr<Material>>();
 		
 		// ********** meshes (ae::GeometryElement) **********
 		
@@ -274,7 +282,8 @@ void Scene::loadFile(const string& importPath) {
 			}
 			
 			auto element = make_shared<GeometryElement>(verts, faces);
-			geometryElements().push_back(element);
+			//geometryElements().push_back(element);
+			importElements.push_back(element);
 		}
 		
 
@@ -292,17 +301,19 @@ void Scene::loadFile(const string& importPath) {
 			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
 
 			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
-			m_materials.push_back(material);
+			//m_materials.push_back(material);
+			importMaterials.push_back(material);
 		}
 		
-		cout << "Import num materials: " << m_materials.size() << endl;
+		//cout << "Import num materials: " << m_materials.size() << endl;
+		cout << "Import num materials: " << importMaterials.size() << endl;
 
 		// ********** nodes (ae::Geometry) **********
 		
 		// in AI terminology, a "node" is what we call a "geometry"
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
 		
-		addAIGeometryNodes(scene, rootNode());
+		addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
 
 		// ********** lights **********
 
@@ -346,24 +357,23 @@ void Scene::loadFile(const string& importPath) {
 	aiReleaseImport(scene);
 }
 
-void Scene::addAIGeometryNodes(const aiScene* aiScene, shared_ptr<Node> aeRootNode) {
+void Scene::addAIGeometryNodes(const aiScene* aiScene,
+							   shared_ptr<Node> aeRootNode,
+							   const vector<shared_ptr<GeometryElement>>& importElements,
+							   const vector<shared_ptr<Material>>& importMaterials) {
 	aiNode* aiRootGeometryNode = aiScene->mRootNode;
 	unsigned int nChildren = aiRootGeometryNode->mNumChildren;
 	for (unsigned int i=0; i<nChildren; ++i) {
 		aiNode* child = (aiRootGeometryNode->mChildren)[i];
-		addAIGeometryNodeRec(aiScene, child, aeRootNode);
+		addAIGeometryNodeRec(aiScene, child, aeRootNode, importElements, importMaterials);
 	}
 }
 
 void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 								 const aiNode* aiGeometryNode,
-								 shared_ptr<Node> aeParentNode) {
-	
-	aiMetadata* md = aiGeometryNode->mMetaData;
-	if (md) {
-		// not sure what this is for yet
-		cout << md->mKeys << endl;
-	}
+								 shared_ptr<Node> aeParentNode,
+								 const vector<shared_ptr<GeometryElement>>& importElements,
+								 const vector<shared_ptr<Material>>& importMaterials) {
 
 	string name = aiGeometryNode->mName.C_Str();
 	mat4 transform = AIMaxtrix4x4ToGLMMat4(aiGeometryNode->mTransformation);
@@ -378,13 +388,17 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 		cout << "Reading mesh " << m << endl;
 		
 		unsigned int meshIndex = aiGeometryNode->mMeshes[m];
-		auto element = m_geometryElements[meshIndex];
+		//auto element = m_geometryElements[meshIndex];
+		auto element = importElements[meshIndex];
 		elements.push_back(element);
 
 		unsigned int materialIndex = aiScene->mMeshes[meshIndex]->mMaterialIndex;
-		if (m_materials.size() && (m_materials.size()-1 >= materialIndex)) {
-			cout << "m_materials count: " << m_materials.size() << endl;
-			auto material = m_materials[materialIndex];
+//		if (m_materials.size() && (m_materials.size()-1 >= materialIndex)) {
+//			cout << "m_materials count: " << m_materials.size() << endl;
+		if (importMaterials.size() && (importMaterials.size()-1 >= materialIndex)) {
+			cout << "importMaterials count: " << importMaterials.size() << endl;
+			//auto material = m_materials[materialIndex];
+			auto material = importMaterials[materialIndex];
 			materials.push_back(material);
 		}
 	}
@@ -411,6 +425,6 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 	unsigned int nChildren = aiGeometryNode->mNumChildren;
 	for (unsigned int i = 0; i < nChildren; ++i) {
 		aiNode *child = (aiGeometryNode->mChildren)[i];
-		addAIGeometryNodeRec(aiScene, child, newNode);
+		addAIGeometryNodeRec(aiScene, child, newNode, importElements, importMaterials);
 	}
 }

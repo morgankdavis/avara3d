@@ -23,6 +23,20 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
+Material::Material():
+	//	m_name(name),
+	m_ambient(nullptr),
+	m_diffuse(nullptr),
+	m_specular(nullptr),
+	m_specularExponent(1.0),
+	m_litPerPixel(true),
+	m_locksAmbientWithDiffuse(true),
+	m_doubleSided(false),
+	m_readFromDepthBuffer(true),
+	m_fillMode(MaterialFillMode_Fill) {
+	
+}
+
 Material::Material(const string imagePath):
 //	m_name(name),
 //	m_ambient(nullptr),

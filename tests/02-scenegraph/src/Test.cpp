@@ -42,7 +42,7 @@ int Test::run(const vector<string>& args) {
 	
 
 	
-	TEST = RotationAnimationTestCase;
+	TEST = MatrixTestCase;
 
 	
 	

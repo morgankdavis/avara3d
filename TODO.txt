@@ -207,6 +207,8 @@ Laundry list:
 		https://en.wikibooks.org/wiki/OpenGL_Programming/Motion_Blur
 	Shadows
 	Bump/normal/displacement maps
+		Normal: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+		TOOL! http://www.crazybump.com/
 	Emission
 	Ambient occlusion
 

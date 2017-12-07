@@ -22,9 +22,9 @@
 #include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
 
-#include "Scene.h"
 #include "Color.h"
-
+#include "Image.h"
+#include "Scene.h"
 
 using namespace std;
 using namespace glm;
@@ -151,13 +151,23 @@ std::string ae::utils::ShaderSourceDirectoryPath() {
 #endif
 }
 
-string ae::utils::ShaderPath(const string& name, const string& type) {
+std::string ae::utils::ImagesDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/images/";
+#else
+	return "../../../avara-engine/images/";
+#endif
+}
 
+string ae::utils::ShaderPath(const string& name, const string& type) {
 	return ShaderSourceDirectoryPath() + name + "." + type;
 }
 
+std::string ae::utils::ImagePath(const std::string& name, const std::string& type) {
+	return ImagesDirectoryPath() + name + "." + type;
+}
+
 std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
-//	string fullPath = ShaderSourceDirectoryPath() + name + "." + type;
 	string fullPath = ShaderPath(name, type);
 	
 	auto source = LoadTextFile(fullPath);
@@ -165,6 +175,12 @@ std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& nam
 		return make_shared<string>(*source);
 	}
 	return nullptr;
+}
+
+std::shared_ptr<Image> ae::utils::ImageNamed(const std::string& name, const std::string& type) {
+	string fullPath = ImagePath(name, type);
+	
+	return make_shared<Image>(fullPath);
 }
 
 //vector<string> ae::utils::pathComponents(const string& str, const set<char> delimiters) {

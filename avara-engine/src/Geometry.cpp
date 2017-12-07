@@ -120,8 +120,10 @@ unsigned int Geometry::draw(const mat4& modelMat,
 
 		shared_ptr<Material> material = nullptr;
 		if (m_materials.size() > e) {
-			//cout << "Using material " << e << endl;
 			material = m_materials[e];
+		}
+		else if (m_materials.size() > 0) {
+			material = m_materials[m_materials.size()-1 % e];
 		}
 		
 		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));

@@ -24,9 +24,9 @@
 namespace ae {
 
 
+	class GeometryElement;
 	class Material;
 	class Node;
-	class GeometryElement;
 	
 	
 	class Scene {
@@ -64,8 +64,6 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		std::vector<std::shared_ptr<GeometryElement>>& geometryElements();
-		std::vector<std::shared_ptr<Material>>& materials();
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		glm::vec3 extent() const;
 		
@@ -77,14 +75,18 @@ namespace ae {
 		
 		void loadFile(const std::string& path);
 		void addAIGeometryNodes(const aiScene* aiScene,
-								std::shared_ptr<Node> aeRootNode);
+								std::shared_ptr<Node> aeRootNode,
+								const std::vector<std::shared_ptr<GeometryElement>>& elements,
+								const std::vector<std::shared_ptr<Material>>& materials);
 		void addAIGeometryNodeRec(const aiScene* aiScene,
 								  const aiNode* aiGeometryNode,
-								  std::shared_ptr<Node> aeParentNode);
+								  std::shared_ptr<Node> aeParentNode,
+								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
+								  const std::vector<std::shared_ptr<Material>>& materials);
 		
 		std::shared_ptr<Node>								m_rootNode;
-		std::vector<std::shared_ptr<GeometryElement>>		m_geometryElements;
-		std::vector<std::shared_ptr<Material>>				m_materials;
+//		std::vector<std::shared_ptr<GeometryElement>>		m_geometryElements;
+//		std::vector<std::shared_ptr<Material>>				m_materials;
 	};
 }
 

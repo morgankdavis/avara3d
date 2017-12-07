@@ -79,12 +79,12 @@ int Test::run(const vector<string>& args) {
 	ballNode = testScene->rootNode()->allChildNodes()[4];
 	ballNode->name("ball");
 	//ballNode->geometry()->generateSmoothNormals();
-	ballNode->geometry()->generateFlatNormals();
-
-	for (auto face : ballNode->geometry()->elements()[0]->faces()) {
-		//cout << "face: " << face << endl;
-		printf("face: %d, %d, %d\n", face.a, face.b, face.c);
-	}
+//	ballNode->geometry()->generateFlatNormals();
+//
+//	for (auto face : ballNode->geometry()->elements()[0]->faces()) {
+//		//cout << "face: " << face << endl;
+//		printf("face: %d, %d, %d\n", face.a, face.b, face.c);
+//	}
 
 	
 	

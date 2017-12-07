@@ -59,6 +59,7 @@ Node::Node(const string& name):
 
 Node::Node(const shared_ptr<Geometry> geometry):
 	m_hidden(false),
+	m_geometry(geometry),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {

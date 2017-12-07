@@ -28,7 +28,7 @@ using namespace glm;
      MARK:   Lifecycle
  **************************************************************************************/
 
-GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
+GeometryElement::GeometryElement(vector<Vertex>& verticies, vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
 	m_glVAO(0),
@@ -306,13 +306,13 @@ void GeometryElement::loadVertexData() {
 				 GL_STATIC_DRAW);
 }
 
-GLuint GeometryElement::glVAO() {
-	return m_glVAO;
-}
-
-GLuint GeometryElement::glIBO() {
-	return m_glIBO;
-}
+//GLuint GeometryElement::glVAO() {
+//	return m_glVAO;
+//}
+//
+//GLuint GeometryElement::glIBO() {
+//	return m_glIBO;
+//}
 
 vector<Vertex>& GeometryElement::vertices() {
 	return m_vertices;

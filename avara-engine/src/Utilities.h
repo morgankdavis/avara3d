@@ -29,6 +29,7 @@ namespace ae {
 
 
 	class Color;
+	class Image;
 	class Scene;
 
 
@@ -51,8 +52,11 @@ namespace ae {
 		float Max(const glm::vec3& v);
 		
 		std::string ShaderSourceDirectoryPath();
+		std::string ImagesDirectoryPath();
 		std::string ShaderPath(const std::string& name, const std::string& type);
+		std::string ImagePath(const std::string& name, const std::string& type);
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
+		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
 
 		std::string TestDataDirectoryPath();
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);

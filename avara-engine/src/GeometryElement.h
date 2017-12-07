@@ -34,7 +34,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		GeometryElement(std::vector<Vertex> verticies, std::vector<Face> faces);
+		GeometryElement(std::vector<Vertex>& verticies, std::vector<Face>& faces);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -58,8 +58,8 @@ namespace ae {
 
 		void loadVertexData();
 
-		GLuint glVAO();
-		GLuint glIBO();
+//		GLuint glVAO();
+//		GLuint glIBO();
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
 		
