@@ -48,7 +48,27 @@ int Test::run(const vector<string>& args) {
 
 	auto testScene = TestSceneNamed("importTest");
 	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
-	
+
+
+	auto planeGeo = make_shared<Plane>(100.0f, 100.0f);
+	auto planeNode = make_shared<Node>();
+	planeGeo->name("plane");
+	planeNode->geometry(planeGeo);
+	scene->rootNode()->addChildNode(planeNode);
+	//planeNode->scale(planeNode->scale() * 10.0f);
+	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
+	planeNode->position(vec3(0.0f, -65.0f, 0.0f));
+	scene->rootNode()->addChildNode(planeNode);
+
+
+	auto tileImage = TestImageNamed("tiles_1_diff", "jpg");
+	auto planeMaterialProperty = make_shared<MaterialProperty>(tileImage);
+	auto planeMaterial = make_shared<Material>();
+	planeMaterial->diffuse(planeMaterialProperty);
+	planeGeo->materials().push_back(planeMaterial);
+
+
+
 	
 	
 //	auto siameseBadTextureScene = TestSceneNamed("siamese_badTexture");
@@ -63,17 +83,23 @@ int Test::run(const vector<string>& args) {
 //	auto duckScene = TestSceneNamed("duck");
 //	auto scene = duckScene;
 	
-//	auto palmScene = TestSceneNamed("cartoon_palm_tree");
+	auto palmScene = TestSceneNamed("cartoon_palm_tree");
 //	auto palmNode = palmScene->rootNode()->childNode("palm_tree", true);
 //	for (auto node : palmScene->rootNode()->allChildNodes()) {
 //		cout << "node: " << node->name() << endl;
 //	}
-//	scene->rootNode()->addChildNode(palmNode);
+	palmScene->rootNode()->scale(palmScene->rootNode()->scale() * 32.0f);
+	palmScene->rootNode()->position(vec3(0.0f, 47.0f, 0.0f));
+	scene->rootNode()->addChildNode(palmScene->rootNode());
 	
 //	auto importTestScene = TestSceneNamed("importTest");
 //	auto scene = importTestScene;
 	
-//	auto palletScene = TestSceneNamed("Pallet");
+	auto palletScene = TestSceneNamed("Pallet");
+	palletScene->rootNode()->position(vec3(-35.0f, 35.0f, 0.0f));
+	palletScene->rootNode()->scale(palletScene->rootNode()->scale() * 20.0f);
+	palletScene->rootNode()->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	scene->rootNode()->addChildNode(palletScene->rootNode());
 //	auto scene = palletScene;
 	
 //	auto mushroomScene = TestSceneNamed("mushroom");
@@ -85,7 +111,11 @@ int Test::run(const vector<string>& args) {
 //	auto tree1Scene = TestSceneNamed("tree1");
 //	auto scene = tree1Scene;
 	
-//	auto tunaScene = TestSceneNamed("tuna");
+	auto tunaScene = TestSceneNamed("tuna");
+	tunaScene->rootNode()->position(vec3(18.0f, 2.5f, 45.0f));
+	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 2.0f);
+	//tunaScene->rootNode()->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	scene->rootNode()->addChildNode(tunaScene->rootNode());
 //	auto scene = tunaScene;
 
 //	auto woodContainerScene = TestSceneNamed("WoodContainer");
