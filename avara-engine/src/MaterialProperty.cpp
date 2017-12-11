@@ -28,6 +28,7 @@ using namespace std;
 MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 	m_image(nullptr),
 	m_color(nullptr),
+	m_cube(nullptr),
 	m_wrapS(WrapMode_Clamp),
 	m_wrapT(WrapMode_Clamp),
 	m_minificationFilter(WrapMode_Linear),
@@ -42,6 +43,7 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
+	m_cube(nullptr),
 	m_wrapS(WrapMode_Clamp),
 	m_wrapT(WrapMode_Clamp),
 	m_minificationFilter(WrapMode_Linear),
@@ -52,11 +54,26 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	
 }
 
+MaterialProperty::MaterialProperty(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
+	m_image(nullptr),
+	m_color(nullptr),
+	m_cube(nullptr),
+	m_wrapS(WrapMode_Clamp),
+	m_wrapT(WrapMode_Clamp),
+	m_minificationFilter(WrapMode_Linear),
+	m_magnificationFilter(WrapMode_Linear),
+	m_mipFilter(WrapMode_Linear),
+	m_maxAnisotropy(0),
+	m_glTextureID(-1) {
+	
+		this->cube(cube);
+}
+
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
-shared_ptr<Image> MaterialProperty::image() {
+shared_ptr<Image> MaterialProperty::image() const {
 	return m_image;
 }
 
@@ -66,12 +83,20 @@ void MaterialProperty::image(const shared_ptr<Image> image) {
 	loadTexture();
 }
 
-shared_ptr<Color> MaterialProperty::color() {
+shared_ptr<Color> MaterialProperty::color() const {
 	return m_color;
 }
 
 void MaterialProperty::color(const shared_ptr<Color> color) {
 	m_color = color;
+}
+
+shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
+	return m_cube;
+}
+
+void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
+	m_cube = cube;
 }
 
 WrapMode MaterialProperty::wrapS() const {

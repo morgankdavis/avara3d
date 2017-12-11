@@ -6,6 +6,12 @@ in vec2 tex_coord;
 
 uniform mat4 view;
 
+//const uint ambientSampler = 1 << 0;
+//const uint diffuseSampler = 1 << 0;
+//const uint specularSampler = 1 << 0;
+//
+//uniform uint usingSamplers;
+
 uniform bool useAmbientSampler;
 uniform bool useDiffuseSampler;
 uniform bool useSpecularSampler;
@@ -22,8 +28,15 @@ struct Colors {
 	vec3 specular;
 };
 
+struct Light {
+	uint type;
+	vec3 position;
+	vec3 color;
+};
+
 uniform Samplers samplers;
 uniform Colors colors;
+uniform Light lights[8];
 
 
 layout (location = 0) out vec4 frag_color;

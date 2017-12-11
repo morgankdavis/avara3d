@@ -102,10 +102,11 @@ void Window::display() {
 		
 		cout << "deltaSeconds: " << deltaSeconds << endl;
 		
-//		if (deltaSeconds < 1.0f/m_maximumFramerate) {
+//		static const float frameInASecond = 1.0f/60.0f;
+//		float diff = deltaSeconds - (m_maximumFramerate * frameInASecond);
+//		if (diff >= 0) {
+//		if (deltaSeconds >= (m_maximumFramerate * frameInASecond)) {
 		
-			previousSeconds = totalSeconds;
-			
 			if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
 			
 			mainLoop(deltaSeconds);
@@ -114,6 +115,12 @@ void Window::display() {
 				if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
 			}
 //		}
+//		else {
+//			sleep(fabs(diff));
+//		}
+		
+		previousSeconds = totalSeconds;
+		
 	}
 }
 
@@ -131,6 +138,14 @@ void Window::enableCursor(bool enabled) {
 	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
 }
 
+float Window::maximumFramerate() {
+	return m_maximumFramerate;
+}
+
+void Window::maximumFramerate(float max) {
+	m_maximumFramerate = max;
+}
+
 DebugOption& Window::debugOptions() {
 	return m_debugOptions;
 }
@@ -139,12 +154,8 @@ void Window::debugOptions(const DebugOption& options) {
 	m_debugOptions = options;
 }
 
-float Window::maximumFramerate() {
-	return m_maximumFramerate;
-}
-
-void Window::maximumFramerate(float max) {
-	m_maximumFramerate = max;
+shared_ptr<Image> Window::snapshot() {
+	return nullptr;
 }
 
 /***************************************************************************************
@@ -202,13 +213,13 @@ void Window::antialiasingMode(const AntialiasingMode mode) {
 	glfwWindowHint(GLFW_SAMPLES, mode);
 }
 
-shared_ptr<Color> Window::backgroundColor() const {
-	return m_backgroundColor;
-}
-
-void Window::backgroundColor(const shared_ptr<Color> color) {
-	m_backgroundColor = color;
-}
+//shared_ptr<Color> Window::backgroundColor() const {
+//	return m_backgroundColor;
+//}
+//
+//void Window::backgroundColor(const shared_ptr<Color> color) {
+//	m_backgroundColor = color;
+//}
 
 shared_ptr<Node> Window::pointOfView() const {
 	return m_pointOfView;
@@ -378,7 +389,6 @@ void Window::mainLoop(const float deltaSeconds) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
-				cout << "Node: " << node->name() << endl;
 				auto modelMat = node->worldTransform();
 				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
 			}

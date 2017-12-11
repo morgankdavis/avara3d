@@ -26,6 +26,7 @@ namespace ae {
 
 	class GeometryElement;
 	class Material;
+	class MaterialProperty;
 	class Node;
 	
 	
@@ -47,11 +48,11 @@ namespace ae {
 		std::shared_ptr<Node> rootNode() const;
 		//void rootNode(const std::shared_ptr<Node> node);
 		
+		std::shared_ptr<MaterialProperty> background() const;
+		void background(const std::shared_ptr<MaterialProperty> background);
+		
 //		bool					isPaused;
-//		
-//		MaterialProperty		background;
-//		MaterialProperty		lightingEnvironment;
-//		
+//
 //		float					fogDistanceStart;
 //		float					fogDistanceEnd;
 //		float					fogDensityExponent;
@@ -85,8 +86,7 @@ namespace ae {
 								  const std::vector<std::shared_ptr<Material>>& materials);
 		
 		std::shared_ptr<Node>								m_rootNode;
-//		std::vector<std::shared_ptr<GeometryElement>>		m_geometryElements;
-//		std::vector<std::shared_ptr<Material>>				m_materials;
+		std::shared_ptr<MaterialProperty>					m_background;
 	};
 }
 

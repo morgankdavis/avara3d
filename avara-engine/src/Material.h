@@ -65,9 +65,6 @@ namespace ae {
 		bool doubleSided() const;
 		void doubleSided(const bool flag);
 		
-		bool readFromDepthBuffer() const;
-		void readFromDepthBuffer(const bool flag);
-		
 		MaterialFillMode fillMode() const;
 		void fillMode(const MaterialFillMode mode);
 		

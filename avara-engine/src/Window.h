@@ -22,6 +22,7 @@ namespace ae {
 	class Scene;
 	class Camera;
 	class Color;
+	class Image;
 	class InputManager;
 	class Node;
 	
@@ -51,12 +52,14 @@ namespace ae {
 		void scene(const std::shared_ptr<Scene> scene);
 
 		void enableCursor(bool enabled);
-
-		DebugOption& debugOptions();
-		void debugOptions(const DebugOption& options);
 		
 		float maximumFramerate();
 		void maximumFramerate(float max);
+		
+		DebugOption& debugOptions();
+		void debugOptions(const DebugOption& options);
+		
+		std::shared_ptr<Image> snapshot();
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -80,8 +83,8 @@ namespace ae {
 		AntialiasingMode antialiasingMode() const;
 		void antialiasingMode(const AntialiasingMode mode);
 
-		std::shared_ptr<Color> backgroundColor() const;
-		void backgroundColor(const std::shared_ptr<Color> color);
+//		std::shared_ptr<Color> backgroundColor() const;
+//		void backgroundColor(const std::shared_ptr<Color> color);
 
 		std::shared_ptr<Node> pointOfView() const;
 		void pointOfView(const std::shared_ptr<Node> camera);

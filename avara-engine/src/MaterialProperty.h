@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <GL/glew.h>
 
@@ -36,16 +37,20 @@ namespace ae {
 
 		MaterialProperty(const std::shared_ptr<Image> image);
 		MaterialProperty(const std::shared_ptr<Color> color);
+		MaterialProperty(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::shared_ptr<Image> image();
+		std::shared_ptr<Image> image() const;
 		void image(const std::shared_ptr<Image> image);
 		
-		std::shared_ptr<Color> color();
+		std::shared_ptr<Color> color() const;
 		void color(const std::shared_ptr<Color> color);
+		
+		std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube() const; // +X, -X, +Y, -Y, +Z, -Z,
+		void cube(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
 		WrapMode wrapS() const;
 		void wrapS(const WrapMode mode);
@@ -76,17 +81,18 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		std::shared_ptr<Image>		m_image;
-		std::shared_ptr<Color>		m_color;
+		std::shared_ptr<Image>									m_image;
+		std::shared_ptr<Color>									m_color;
+		std::shared_ptr<std::vector<std::shared_ptr<Image>>>	m_cube;
 		
-		WrapMode					m_wrapS;
-		WrapMode					m_wrapT;
-		FilterMode					m_minificationFilter;
-		FilterMode					m_magnificationFilter;
-		FilterMode					m_mipFilter;
-		float						m_maxAnisotropy;
+		WrapMode												m_wrapS;
+		WrapMode												m_wrapT;
+		FilterMode												m_minificationFilter;
+		FilterMode												m_magnificationFilter;
+		FilterMode												m_mipFilter;
+		float													m_maxAnisotropy;
 		
-		GLuint						m_glTextureID;
+		GLuint													m_glTextureID;
 	};
 }
 

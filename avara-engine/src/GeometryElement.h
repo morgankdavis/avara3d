@@ -58,8 +58,6 @@ namespace ae {
 
 		void loadVertexData();
 
-//		GLuint glVAO();
-//		GLuint glIBO();
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
 		

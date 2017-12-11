@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "ae.h"
-#include "InputManager.h"
+//#include "InputManager.h"
 #include "Utilities.h"
 
 
@@ -40,16 +40,16 @@ int Test::run(const vector<string>& args) {
 
 	
 	
-//	auto scene = make_shared<Scene>();
-//
-//	auto siameseScene = TestSceneNamed("siamese");
-//	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-//	siameseNode->scale(siameseNode->scale() * 0.15f);
-//	siameseNode->position(vec3(25.0, 0, 0));
-//	scene->rootNode()->addChildNode(siameseNode);
-//
-//	auto testScene = TestSceneNamed("importTest");
-//	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
+	auto scene = make_shared<Scene>();
+
+	auto siameseScene = TestSceneNamed("siamese");
+	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+	siameseNode->scale(siameseNode->scale() * 0.15f);
+	siameseNode->position(vec3(25.0, 0, 0));
+	scene->rootNode()->addChildNode(siameseNode);
+
+	auto testScene = TestSceneNamed("importTest");
+	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
 	
 	
 	
@@ -57,9 +57,9 @@ int Test::run(const vector<string>& args) {
 //	auto siameseBadTextureNode = siameseBadTextureScene->rootNode()->childNode("Siamese", true);
 //	siameseBadTextureNode->scale(siameseBadTextureNode->scale() * 0.15f);
 //	siameseBadTextureNode->position(vec3(25.0, 0, 0));
-//	//scene->rootNode()->addChildNode(siameseNode);
+////	scene->rootNode()->addChildNode(siameseNode);
 //	auto scene = siameseBadTextureScene;
-//
+
 	
 	
 //	auto duckScene = TestSceneNamed("duck");
@@ -100,16 +100,27 @@ int Test::run(const vector<string>& args) {
 //	auto scene = woddenCrateScene;
 	
 	
-	auto scene = make_shared<Scene>();
-	auto coneGeo = make_shared<Cone>(1.0, 1.0, 16, 16);
-	auto coneNode = make_shared<Node>(coneGeo);
-	auto red = make_shared<Color>(Color::Red());
-	auto coneMaterialProperty = make_shared<MaterialProperty>(red);
-	auto coneMaterial = make_shared<Material>();
-	coneMaterial->diffuse(coneMaterialProperty);
-	//coneGeo->materials().push_back(<#const_reference __x#>)
-	scene->rootNode()->addChildNode(coneNode);
+//	auto scene = make_shared<Scene>();
+//	auto coneGeo = make_shared<Cone>(1.0, 1.0, 64, 64);
+//	auto coneNode = make_shared<Node>(coneGeo);
+//	auto red = make_shared<Color>(Color::Red());
+//	auto coneMaterialProperty = make_shared<MaterialProperty>(red);
+//	auto coneMaterial = make_shared<Material>();
+//	coneMaterial->diffuse(coneMaterialProperty);
+//	coneGeo->materials().push_back(coneMaterial);
+//	scene->rootNode()->addChildNode(coneNode);
 	
+	
+//	auto fishermansBastionCube = shared_ptr<vector<shared_ptr<Image>>>();
+//	(*fishermansBastionCube)[0] = TestImageNamed("fishermansBastion_posx", "jpg");
+//	(*fishermansBastionCube)[1] = TestImageNamed("fishermansBastion_negx", "jpg");
+//	(*fishermansBastionCube)[2] = TestImageNamed("fishermansBastion_posy", "jpg");
+//	(*fishermansBastionCube)[3] = TestImageNamed("fishermansBastion_negy", "jpg");
+//	(*fishermansBastionCube)[4] = TestImageNamed("fishermansBastion_posz", "jpg");
+//	(*fishermansBastionCube)[5] = TestImageNamed("fishermansBastion_negz", "jpg");
+//
+//	auto skyboxMaterialProperty = make_shared<MaterialProperty>(fishermansBastionCube);
+//	scene->background(skyboxMaterialProperty);
 
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
@@ -117,7 +128,7 @@ int Test::run(const vector<string>& args) {
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
-	window.maximumFramerate(120.0);
+	window.maximumFramerate(240.0);
 
 	m_inputManager = window.inputManager();
 	
@@ -178,10 +189,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 		// move
 
-		//const static float MOVE_SPEED = 5.0f; // units/sec
-		auto extent = scene.extent();
-		cout << "Scene extent: " << extent << endl;
-		const static float MOVE_SPEED = Max(extent);
+//		const static float MOVE_SPEED = 5.0f; // units/sec
+		static float MOVE_SPEED = 0;
+		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
 
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

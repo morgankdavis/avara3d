@@ -147,9 +147,9 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 
 	auto worldTransform = m_node->worldTransform();
 
-	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
-	cout << worldTransform << endl;
-	cout << "Num elements: " << m_elements.size() << endl;
+//	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
+//	cout << worldTransform << endl;
+//	cout << "Num elements: " << m_elements.size() << endl;
 
 	for (auto element : m_elements) {
 		for (auto v : element->vertices()) {
@@ -166,10 +166,10 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 		}
 	}
 
-	cout << "GEOMETRY '" << name() << "' " << "boundingPoints: " << endl;
-	for (auto const& i : (*boundingPoints)) {
-		cout << i.first << ": " << i.second << endl;
-	}
+//	cout << "GEOMETRY '" << name() << "' " << "boundingPoints: " << endl;
+//	for (auto const& i : (*boundingPoints)) {
+//		cout << i.first << ": " << i.second << endl;
+//	}
 
 	return boundingPoints;
 }

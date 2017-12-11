@@ -26,6 +26,7 @@
 #include "Image.h"
 #include "Scene.h"
 
+
 using namespace std;
 using namespace glm;
 using namespace boost;
@@ -94,10 +95,6 @@ vec3 ae::utils::AIVector3DToGLMVec3(const aiVector3D& from) {
 }
 
 // https://github.com/mruan/gl-exp/blob/master/src/math_util.hpp
-// copy from Row-major to Column major matrix
-// i.e. from aiMatrix4x4 to glm::mat4
-//template <typename RM, typename CM>
-//void ae::utils::RowMajorToColumnMajorMat4(const RM& from, CM& to) {
 mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	mat4 to;
 
@@ -117,9 +114,52 @@ Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
 
+bool ae::utils::Zero(const vec3& v) {
+	return fabs(v.x)<0.00001f && fabs(v.y)<0.00001f && fabs(v.z)<0.00001f;
+}
+
 float ae::utils::Max(const vec3& v) {
-	
 	return std::max(std::max(v.x, v.y), v.z);
+}
+
+std::string ae::utils::ShaderSourceDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/shaders/";
+#else
+	return "../../../avara-engine/shaders/";
+#endif
+}
+
+string ae::utils::ShaderPath(const string& name, const string& type) {
+	return ShaderSourceDirectoryPath() + name + "." + type;
+}
+
+std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
+	string fullPath = ShaderPath(name, type);
+	
+	auto source = LoadTextFile(fullPath);
+	if (source) {
+		return make_shared<string>(*source);
+	}
+	return nullptr;
+}
+
+std::string ae::utils::ImagesDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/images/";
+#else
+	return "../../../avara-engine/images/";
+#endif
+}
+
+std::shared_ptr<Image> ae::utils::ImageNamed(const std::string& name, const std::string& type) {
+	string fullPath = ImagePath(name, type);
+	
+	return make_shared<Image>(fullPath);
+}
+
+std::string ae::utils::ImagePath(const std::string& name, const std::string& type) {
+	return ImagesDirectoryPath() + name + "." + type;
 }
 
 string ae::utils::TestDataDirectoryPath() {
@@ -136,52 +176,26 @@ std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is
 
 std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 												 const string& type) {
-
+	
 	string fullPath = TestDataDirectoryPath() + "scenes/" + name + "." + type;
 	return make_shared<Scene>(fullPath);
 }
 
-
-
-std::string ae::utils::ShaderSourceDirectoryPath() {
-#ifdef XCODE
-	return "../../../../avara-engine/shaders/";
-#else
-	return "../../../avara-engine/shaders/";
-#endif
+std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name) {
+	return TestImageNamed(name, "png");
 }
 
-std::string ae::utils::ImagesDirectoryPath() {
-#ifdef XCODE
-	return "../../../../avara-engine/images/";
-#else
-	return "../../../avara-engine/images/";
-#endif
-}
-
-string ae::utils::ShaderPath(const string& name, const string& type) {
-	return ShaderSourceDirectoryPath() + name + "." + type;
-}
-
-std::string ae::utils::ImagePath(const std::string& name, const std::string& type) {
-	return ImagesDirectoryPath() + name + "." + type;
-}
-
-std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
-	string fullPath = ShaderPath(name, type);
+std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
+									  const std::string& type) {
 	
-	auto source = LoadTextFile(fullPath);
-	if (source) {
-		return make_shared<string>(*source);
-	}
-	return nullptr;
-}
-
-std::shared_ptr<Image> ae::utils::ImageNamed(const std::string& name, const std::string& type) {
-	string fullPath = ImagePath(name, type);
-	
+	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
 	return make_shared<Image>(fullPath);
 }
+
+//std::vector<std::shared_ptr<Image>> ae::utils::TestCubeMaterialPropertyNamed(const std::string& name,
+//																			 const std::string& type) {
+//
+//}
 
 //vector<string> ae::utils::pathComponents(const string& str, const set<char> delimiters) {
 //	vector<string> result;

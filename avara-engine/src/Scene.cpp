@@ -65,7 +65,7 @@ static boost::optional<string> FilepathFromTextureFilename(const string& filenam
 
 static shared_ptr<Image> MissingTextureImage() {
 	static shared_ptr<Image> image = nullptr;
-	if (!image) image = make_shared<Image>(ImagesDirectoryPath() + "missing_texture.png");
+	if (!image) image = make_shared<Image>(ImagesDirectoryPath() + "missing_texture2.png");
 	return image;
 }
 
@@ -159,6 +159,14 @@ shared_ptr<Node> Scene::rootNode() const {
 //	m_rootNode = node;
 //}
 
+shared_ptr<MaterialProperty> Scene::background() const {
+	return m_background;
+}
+
+void Scene::background(const shared_ptr<MaterialProperty> background) {
+	m_background = background;
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -177,7 +185,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : rootNode()->allChildNodes()) {
+	for (auto node : m_rootNode->allChildNodes()) {
 		if (node->geometry()) {
 			geometries.push_back(node->geometry());
 		}
@@ -196,10 +204,10 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 		if ((*points)["zMax"].z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = (*points)["zMax"];
 	}
 
-	cout << "SCENE boundingPoints: " << endl;
-	for (auto const& x : (*boundingPoints)) {
-		cout << x.first << ": " << x.second << endl;
-	}
+	//cout << "SCENE boundingPoints: " << endl;
+//	for (auto const& x : (*boundingPoints)) {
+//		cout << x.first << ": " << x.second << endl;
+//	}
 
 	return boundingPoints;
 }

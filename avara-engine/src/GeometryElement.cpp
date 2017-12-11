@@ -80,7 +80,6 @@ unsigned int GeometryElement::draw(const mat4& modelMat,
 								   const mat4& viewMat,
 								   const mat4& projectionMat,
 								   const Material* material) {
-
 	// gl config
 	
 	glEnable(GL_DEPTH_TEST);
@@ -98,12 +97,22 @@ unsigned int GeometryElement::draw(const mat4& modelMat,
 	// materials
 	
 	if (material) {
-		if (material->locksAmbientWithDiffuse())
-			material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
-		else
-			material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
-		material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
-		material->specular()->bind(MaterialPropertyType_Specular, *m_program);
+		if (material->locksAmbientWithDiffuse()) {
+			if (material->diffuse()) {
+				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
+			}
+		}
+		else {
+			if (material->ambient()) {
+				material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
+			}
+		}
+		if (material->diffuse()) {
+			material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
+		}
+		if (material->specular()) {
+			material->specular()->bind(MaterialPropertyType_Specular, *m_program);
+		}
 	}
 	
 	// draw
@@ -305,14 +314,6 @@ void GeometryElement::loadVertexData() {
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
 }
-
-//GLuint GeometryElement::glVAO() {
-//	return m_glVAO;
-//}
-//
-//GLuint GeometryElement::glIBO() {
-//	return m_glIBO;
-//}
 
 vector<Vertex>& GeometryElement::vertices() {
 	return m_vertices;
