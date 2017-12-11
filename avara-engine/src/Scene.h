@@ -24,9 +24,10 @@
 namespace ae {
 
 
-	class Material;
-	class Node;
 	class GeometryElement;
+	class Material;
+	class MaterialProperty;
+	class Node;
 	
 	
 	class Scene {
@@ -44,14 +45,14 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::shared_ptr<Node>	rootNode() const;
+		std::shared_ptr<Node> rootNode() const;
 		//void rootNode(const std::shared_ptr<Node> node);
 		
+		std::shared_ptr<MaterialProperty> background() const;
+		void background(const std::shared_ptr<MaterialProperty> background);
+		
 //		bool					isPaused;
-//		
-//		MaterialProperty		background;
-//		MaterialProperty		lightingEnvironment;
-//		
+//
 //		float					fogDistanceStart;
 //		float					fogDistanceEnd;
 //		float					fogDensityExponent;
@@ -64,9 +65,8 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		std::vector<std::shared_ptr<GeometryElement>>& geometryElements();
-		std::vector<std::shared_ptr<Material>>& materials();
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
+		glm::vec3 extent() const;
 		
 	private:
 		
@@ -76,14 +76,17 @@ namespace ae {
 		
 		void loadFile(const std::string& path);
 		void addAIGeometryNodes(const aiScene* aiScene,
-								std::shared_ptr<Node> aeRootNode);
+								std::shared_ptr<Node> aeRootNode,
+								const std::vector<std::shared_ptr<GeometryElement>>& elements,
+								const std::vector<std::shared_ptr<Material>>& materials);
 		void addAIGeometryNodeRec(const aiScene* aiScene,
 								  const aiNode* aiGeometryNode,
-								  std::shared_ptr<Node> aeParentNode);
+								  std::shared_ptr<Node> aeParentNode,
+								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
+								  const std::vector<std::shared_ptr<Material>>& materials);
 		
 		std::shared_ptr<Node>								m_rootNode;
-		std::vector<std::shared_ptr<GeometryElement>>		m_geometryElements;
-		std::vector<std::shared_ptr<Material>>				m_materials;
+		std::shared_ptr<MaterialProperty>					m_background;
 	};
 }
 

@@ -1,4 +1,4 @@
-﻿//
+//
 //  Utilities.h
 //	avara-engine
 //
@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include <assimp/color4.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
@@ -27,6 +28,8 @@
 namespace ae {
 
 
+	class Color;
+	class Image;
 	class Scene;
 
 
@@ -37,21 +40,35 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
 		
-		boost::optional<std::string> loadTextFile(const std::string &path);
+		boost::optional<std::string> LoadTextFile(const std::string &path);
 
-		glm::vec2 aiVector3DToGLMVec2(const aiVector2D& from);
-		glm::vec3 aiVector3DToGLMVec3(const aiVector3D& from);
-		//		template <typename RM, typename CM>
-//		void RowMajorToColumnMajorMat4(const RM& from, CM& to);
-		glm::mat4 aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
+		glm::vec3 AIVector3DToGLMVec3(const aiVector3D& from);
+		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		Color AIColor4DToColor(const aiColor4D& from);
+		
+		bool Zero(const glm::vec3& v);
+		float Max(const glm::vec3& v);
 		
 		std::string ShaderSourceDirectoryPath();
+		std::string ShaderPath(const std::string& name, const std::string& type);
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
+		
+		std::string ImagesDirectoryPath();
+		std::string ImagePath(const std::string& name, const std::string& type);
+		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
 
 		std::string TestDataDirectoryPath();
+		
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
 											  const std::string& type);
+		
+		std::shared_ptr<Image> TestImageNamed(const std::string& name);
+		std::shared_ptr<Image> TestImageNamed(const std::string& name,
+											  const std::string& type);
+//		std::vector<std::shared_ptr<Image>> TestCubeMaterialPropertyNamed(const std::string& name,
+//																		  const std::string& type);
 		
 //		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);
 //		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);

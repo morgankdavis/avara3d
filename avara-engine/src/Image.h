@@ -50,7 +50,6 @@ namespace ae {
 		unsigned char*		m_data;
 		std::string			m_path;
 		bool				m_loaded;
-		
 	};
 }
 

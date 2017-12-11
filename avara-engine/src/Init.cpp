@@ -10,29 +10,9 @@
 
 #include <iostream>
 
-//#if defined(EXPERIMENTAL)
-//#if defined(NANOGUI_GLAD)
-//#if defined(NANOGUI_SHARED) && !defined(GLAD_GLAPI_EXPORT)
-//        #define GLAD_GLAPI_EXPORT
-//    #endif
-//
-//    #include <glad/glad.h>
-//#else
-//#if defined(__APPLE__)
-//#define GLFW_INCLUDE_GLCOREARB
-//#else
-//#define GL_GLEXT_PROTOTYPES
-//#endif
-//#endif
-//#endif // EXPERIMENTAL
-
-
 #include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
-//#if defined(EXPERIMENTAL)
-//#include <nanogui/nanogui.h>
-//#endif
 #include <assimp/version.h>
 
 #include "Globals.h"
@@ -74,13 +54,11 @@ int ae::init() {
 		return -1;
 	}
 
-//#ifdef MACOS
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 16);
-//#endif
 
 	if (FULL_SCREEN) {
 		GLFWmonitor *monitor = glfwGetPrimaryMonitor();

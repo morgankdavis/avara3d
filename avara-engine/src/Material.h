@@ -13,17 +13,13 @@
 #include <memory>
 #include <string>
 
+#include "Types.h"
+
 
 namespace ae {
 
 
 	class MaterialProperty;
-
-
-	typedef enum {
-		MaterialFillModeFill,
-		MaterialFillModeLine
-	} MaterialFillMode;
 
 
 	class Material {
@@ -34,18 +30,19 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Material(const std::string name);
-		Material(const std::string name,
-				 std::shared_ptr<MaterialProperty> ambient,
+		Material();
+		Material(const std::string imagePath);
+		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
+		~Material();
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 
-		std::string name() const;
-		void name(const std::string name);
+//		std::string name() const;
+//		void name(const std::string name);
 		
 		std::shared_ptr<MaterialProperty> ambient() const;
 		void ambient(const std::shared_ptr<MaterialProperty> property);
@@ -62,14 +59,11 @@ namespace ae {
 		bool litPerPixel() const;
 		void litPerPixel(const bool flag);
 		
-		bool lockAmbientWithDiffuse() const;
-		void lockAmbientWithDiffuse(const bool flag);
+		bool locksAmbientWithDiffuse() const;
+		void locksAmbientWithDiffuse(const bool flag);
 		
 		bool doubleSided() const;
 		void doubleSided(const bool flag);
-		
-		bool readFromDepthBuffer() const;
-		void readFromDepthBuffer(const bool flag);
 		
 		MaterialFillMode fillMode() const;
 		void fillMode(const MaterialFillMode mode);
@@ -84,7 +78,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		std::string							m_name;
+//		std::string							m_name;
 		
 		std::shared_ptr<MaterialProperty>	m_ambient;
 		std::shared_ptr<MaterialProperty> 	m_diffuse;
@@ -92,7 +86,7 @@ namespace ae {
 
 		float 								m_specularExponent;
 		bool 								m_litPerPixel;
-		bool 								m_lockAmbientWithDiffuse;
+		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
 		bool 								m_readFromDepthBuffer;
 		MaterialFillMode 					m_fillMode;

@@ -10,6 +10,88 @@
 
 
 using namespace ae;
+using namespace std;
+
+
+/***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+Color Color::Black() {
+	return Color(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Color Color::White() {
+	return Color(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+Color Color::Gray() {
+	return Color(0.5f, 0.5, 0.5f, 1.0f);
+}
+
+Color Color::LightGray() {
+	return Color(0.75f, 0.75f, 0.75f, 1.0f);
+}
+
+Color Color::DarkGray() {
+	return Color(0.25f, 0.25f, 0.25f, 1.0f);
+}
+
+Color Color::Maroon() {
+	return Color(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Color Color::Red() {
+	return Color(1.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Color Color::Orange() {
+	return Color(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
+}
+
+Color Color::Yellow() {
+	return Color(1.0f, 1.0f, 0.0f, 1.0f);
+}
+
+Color Color::Olive() {
+	return Color(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
+}
+
+Color Color::Line() {
+	return Color(0.0f, 1.0f, 0.0f, 1.0f);
+}
+
+Color Color::Green() {
+	return Color(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
+}
+
+Color Color::Cyan() {
+	return Color(0.0f, 1.0f, 1.0f, 1.0f);
+}
+
+Color Color::Blue() {
+	return Color(0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+Color Color::Navy() {
+	return Color(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
+}
+
+Color Color::Teal() {
+	return Color(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
+}
+
+Color Color::Magenta() {
+	return Color(1.0f, 0.0f, 1.0f, 1.0f);
+}
+
+Color Color::Purple() {
+	return Color(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
+}
+
+Color Color::Brown() {
+	return Color(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
+}
 
 
 /***************************************************************************************
@@ -21,7 +103,7 @@ Color::Color():
 	g(0.0),
 	b(0.0),
 	a(1.0) {
-
+		
 }
 
 Color::Color(const float r, const float g, const float b, const float a):
@@ -31,67 +113,17 @@ Color::Color(const float r, const float g, const float b, const float a):
 	a(a) {
 }
 
+Color::Color(const float black):
+	r(black),
+	g(black),
+	b(black),
+	a(1.0) {
+	
+}
 
-/***************************************************************************************
-     MARK:   Static
- **************************************************************************************/
-
-//static Color red() {
-//	return Color(1.0, 0.0, 0.0, 1.0);
-//}
-//
-//static Color black() {
-//	return Color(0.0, 0.0, 0.0, 1.0);
-//}
-//
-//static Color blue() {
-//	return Color(0.0, 0.0, 1.0, 1.0);
-//}
-//
-//static Color brown() {
-//
-//}
-//
-//static Color clear() {
-//	return Color(0.0, 0.0, 0.0, 0.0);
-//}
-//
-//static Color cyan() {
-//
-//}
-//
-//static Color gray() {
-//
-//}
-//
-//static Color lightGray() {
-//
-//}
-//
-//static Color darkGray() {
-//
-//}
-//
-//static Color green() {
-//	return Color(0.0, 1.0, 0.0, 1.0);
-//}
-//
-//static Color magenta() {
-//
-//}
-//
-//static Color orange() {
-//
-//}
-//
-//static Color purple() {
-//
-//}
-//
-//static Color white() {
-//	return Color(1.0, 1.0, 1.0, 1.0);
-//}
-//
-//static Color yellow() {
-//
-//}
+Color::Color(const Color& color) {
+	r = color.r;
+	g = color.g;
+	b = color.b;
+	a = color.a;
+}

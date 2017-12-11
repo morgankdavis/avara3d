@@ -20,25 +20,17 @@
 #include "Geometry.h"
 #include "Globals.h"
 #include "InputManager.h"
+//#include "Material.h" // temporary
+//#include "MaterialProperty.h" // temporary
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
-
-//#if defined(EXPERIMENTAL)
-//#include <nanogui/nanogui.h>
-//#include <glad/glad.h>
-//#endif
 
 
 using namespace std;
 using namespace ae;
 using namespace glm;
 using namespace utils;
-
-
-//#if defined(EXPERIMENTAL)
-//using namespace nanogui;
-//#endif
 
 
 /***************************************************************************************
@@ -80,23 +72,11 @@ Window::Window(const unsigned width, const unsigned height, const float framebuf
 	m_backgroundColor(nullptr),
 	m_pointOfView(nullptr),
 	m_inputManager(nullptr),
+	m_maximumFramerate(60.0),
 	m_willUpdateCallback(nullptr),
 	m_didUpdateCallback(nullptr) {
 
 	window = this;
-
-
-//#if defined(EXPERIMENTAL)
-//#if defined(NANOGUI_GLAD)
-//	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-//        throw std::runtime_error("Could not initialize GLAD!");
-//    glGetError(); // pull and ignore unhandled errors like GL_INVALID_ENUM
-//#endif
-//#endif
-//
-//	m_screen = make_shared<Screen>();
-//	m_screen->initialize(window, true);
-
 }
 
 Window::~Window() {
@@ -119,15 +99,28 @@ void Window::display() {
 		static double previousSeconds = glfwGetTime();
 		float totalSeconds = glfwGetTime();
 		float deltaSeconds = totalSeconds - previousSeconds;
+		
+		cout << "deltaSeconds: " << deltaSeconds << endl;
+		
+//		static const float frameInASecond = 1.0f/60.0f;
+//		float diff = deltaSeconds - (m_maximumFramerate * frameInASecond);
+//		if (diff >= 0) {
+//		if (deltaSeconds >= (m_maximumFramerate * frameInASecond)) {
+		
+			if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
+			
+			mainLoop(deltaSeconds);
+			
+			if (!glfwWindowShouldClose(g_glfwWindow)) {
+				if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
+			}
+//		}
+//		else {
+//			sleep(fabs(diff));
+//		}
+		
 		previousSeconds = totalSeconds;
 		
-		if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
-		
-		mainLoop(deltaSeconds);
-		
-		if (!glfwWindowShouldClose(g_glfwWindow)) {
-			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
-		}
 	}
 }
 
@@ -141,6 +134,18 @@ void Window::scene(const shared_ptr<Scene> scene) {
 	//checkAddDefaultCamera();
 }
 
+void Window::enableCursor(bool enabled) {
+	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+}
+
+float Window::maximumFramerate() {
+	return m_maximumFramerate;
+}
+
+void Window::maximumFramerate(float max) {
+	m_maximumFramerate = max;
+}
+
 DebugOption& Window::debugOptions() {
 	return m_debugOptions;
 }
@@ -149,8 +154,8 @@ void Window::debugOptions(const DebugOption& options) {
 	m_debugOptions = options;
 }
 
-void Window::enableCursor(bool enabled) {
-	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+shared_ptr<Image> Window::snapshot() {
+	return nullptr;
 }
 
 /***************************************************************************************
@@ -208,13 +213,13 @@ void Window::antialiasingMode(const AntialiasingMode mode) {
 	glfwWindowHint(GLFW_SAMPLES, mode);
 }
 
-shared_ptr<Color> Window::backgroundColor() const {
-	return m_backgroundColor;
-}
-
-void Window::backgroundColor(const shared_ptr<Color> color) {
-	m_backgroundColor = color;
-}
+//shared_ptr<Color> Window::backgroundColor() const {
+//	return m_backgroundColor;
+//}
+//
+//void Window::backgroundColor(const shared_ptr<Color> color) {
+//	m_backgroundColor = color;
+//}
 
 shared_ptr<Node> Window::pointOfView() const {
 	return m_pointOfView;
@@ -232,12 +237,6 @@ shared_ptr<InputManager> Window::inputManager() {
 }
 
 shared_ptr<Node> Window::addDefaultPointOfView() {
-	
-//	for (auto node : m_scene->rootNode()->allChildNodes()) {
-//		if (node->camera()) {
-//			return;
-//		}
-//	}
 	
 	auto cameraNode = make_shared<Node>();
 	//m_scene->rootNode()->addChildNode(cameraNode); // done below
@@ -353,28 +352,23 @@ void Window::updateFrametime(unsigned int numPolygons) {
 }
 
 void Window::mainLoop(const float deltaSeconds) {
-	//cout << "-------------------------------------------------------------------------------" << endl;
+	
+	cout << "\n-------------------------------------------------------------------------------" << endl;
 	
 	unsigned int numPolygons = 0;
 	
-	glClearColor(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
+	glClearColor(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, framebufferWidth(), framebufferHeight());
-	
-	
-	
-	mat4 viewMat = mat4(1.0f);
-	mat4 projectionMat = mat4(1.0f);
+	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
 	shared_ptr<Camera> camera = nullptr;
 	
 	if (pointOfView()) {
-		camera = pointOfView()->camera();
+		camera = m_pointOfView->camera();
 	}
-	
-	if (!camera) {
+	else {
 		// try to find one
-		for (auto node: scene()->rootNode()->allChildNodes()) {
+		for (auto node: m_scene->rootNode()->allChildNodes()) {
 			if (node->camera()) {
 				camera = node->camera();
 				pointOfView(node);
@@ -385,36 +379,18 @@ void Window::mainLoop(const float deltaSeconds) {
 	if (!camera) {
 		// still no camera. add a default one.
 		pointOfView(addDefaultPointOfView());
-		camera = pointOfView()->camera();
+		camera = m_pointOfView->camera();
 	}
-			
-	viewMat = pointOfView()->worldTransform();
-	projectionMat = pointOfView()->camera()->projection();
 
+	auto viewMat = m_pointOfView->worldTransform();
+	auto projectionMat = m_pointOfView->camera()->projection();
 
-//	// THIS IS BAD.
-//	// we want to be able to say pointOfView()->node->camera()
-//	// need to solve class forwarding/circular references.
-//	mat4 viewMat = mat4(1.0f);
-//	mat4 projectionMat = mat4(1.0f);
-//	bool foundCamera = false;
-//	for (auto node: scene()->rootNode()->allChildNodes()) {
-//		if (node->camera() == pointOfView()) {
-//			viewMat = node->worldTransform();
-//			projectionMat = node->camera()->projection();
-//			foundCamera = true;
-//			break;
-//		}
-//	}
-//	if (!foundCamera) {
-//		cout << "*** NO CAMERA FOUND IN SCENE! ***" << endl;
-//	}
-
-	for (auto node: scene()->rootNode()->allChildNodes()) {
+	for (auto node: m_scene->rootNode()->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
-				numPolygons += geometry->draw(viewMat, projectionMat);
+				auto modelMat = node->worldTransform();
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
 			}
 		}
 	}
@@ -424,12 +400,6 @@ void Window::mainLoop(const float deltaSeconds) {
 	}
 	glfwPollEvents();
 
-	// TODO: Move to client side
-//	if (glfwGetKey(g_glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-//		glfwSetWindowShouldClose(g_glfwWindow, 1);
-//	}
-//	else {
-		glfwSwapBuffers(g_glfwWindow);
-		updateFrametime(numPolygons);
-//	}
+	glfwSwapBuffers(g_glfwWindow);
+	updateFrametime(numPolygons);
 }

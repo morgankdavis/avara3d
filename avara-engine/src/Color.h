@@ -10,6 +10,9 @@
 #define Color_h
 
 
+#include <memory>
+
+
 namespace ae {
 	
 	class Color {
@@ -17,11 +20,37 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static Color Black();
+		static Color White();
+		static Color Gray();
+		static Color LightGray();
+		static Color DarkGray();
+		static Color Maroon();
+		static Color Red();
+		static Color Orange();
+		static Color Yellow();
+		static Color Olive();
+		static Color Line();
+		static Color Green();
+		static Color Cyan();
+		static Color Blue();
+		static Color Navy();
+		static Color Teal();
+		static Color Magenta();
+		static Color Purple();
+		static Color Brown();
+		
+		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
 		Color();
 		Color(const float r, const float g, const float b, const float a);
+		Color(const float black);
+		Color(const Color& color); // copy
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -32,26 +61,6 @@ namespace ae {
 		float b;
 		float a;
 	};
-	
-	/***************************************************************************************
-	     MARK:   Static
-	 **************************************************************************************/
-	
-//	static Color red();
-//	static Color black();
-//	static Color blue();
-//	static Color brown();
-//	static Color clear();
-//	static Color cyan();
-//	static Color gray();
-//	static Color lightGray();
-//	static Color darkGray();
-//	static Color green();
-//	static Color magenta();
-//	static Color orange();
-//	static Color purple();
-//	static Color white();
-//	static Color yellow();
 }
 
 

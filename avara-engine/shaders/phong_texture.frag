@@ -5,8 +5,39 @@ in vec3 vertex_normal_eye;
 in vec2 tex_coord;
 
 uniform mat4 view;
-uniform sampler2D texture_diffuse;
-//uniform sampler2D texture_specular;
+
+//const uint ambientSampler = 1 << 0;
+//const uint diffuseSampler = 1 << 0;
+//const uint specularSampler = 1 << 0;
+//
+//uniform uint usingSamplers;
+
+uniform bool useAmbientSampler;
+uniform bool useDiffuseSampler;
+uniform bool useSpecularSampler;
+
+struct Samplers {
+	sampler2D ambient;
+	sampler2D diffuse;
+	sampler2D specular;
+};
+
+struct Colors {
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+
+struct Light {
+	uint type;
+	vec3 position;
+	vec3 color;
+};
+
+uniform Samplers samplers;
+uniform Colors colors;
+uniform Light lights[8];
+
 
 layout (location = 0) out vec4 frag_color;
 
@@ -17,16 +48,28 @@ vec3 Ls = vec3(1.0, 1.0, 1.0);
 vec3 Ld = vec3(0.7, 0.7, 0.7);
 vec3 La = vec3(0.2, 0.2, 0.2);
 
-vec3 Ks = vec3(1.0, 1.0, 1.0);
+//vec3 Ks = vec3(1.0, 1.0, 1.0);
 
 float specular_exponent = 150.0;
 
 
 void main () {
-    //vec3 Ks = vec3(texture(texture_specular, tex_coord));
-    vec3 Kd = vec3(texture(texture_diffuse, tex_coord));
-    vec3 Ka = vec3(texture(texture_diffuse, tex_coord));
-    
+	
+	vec3 Ka = vec3(0.0, 0.0, 0.0);
+	vec3 Kd = vec3(0.0, 0.0, 0.0);
+	vec3 Ks = vec3(0.0, 0.0, 0.0);
+	
+	if (useAmbientSampler) Ka = vec3(texture(samplers.ambient, tex_coord));
+	else Ka = colors.ambient;
+	if (useDiffuseSampler) Kd = vec3(texture(samplers.diffuse, tex_coord));
+	else Kd = colors.diffuse;
+	if (useSpecularSampler) Ks = vec3(texture(samplers.specular, tex_coord));
+	else Ks = colors.specular;
+	
+//	vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
+//    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));
+//	//vec3 Ks = vec3(texture(texture_specular, tex_coord));
+	
     // ambient intensity
     vec3 Ia = La * Ka;
     

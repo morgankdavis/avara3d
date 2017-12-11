@@ -29,12 +29,26 @@ namespace ae {
 //		SceneLoadingOption_ImproveCacheLocality
 //	} SceneLoadingOption;
 
+//	typedef enum {
+//		ProgramType_Default,
+//		ProgramType_PhongPlain, // temporary
+//		ProgramType_PhongTexture, // temporary
+//		ProgramType_Fancy // temporary
+//	} ProgramType;
+	
+	
 	typedef enum {
-		ProgramType_Default,
-		ProgramType_PhongPlain, // temporary
-		ProgramType_PhongTexture, // temporary
-		ProgramType_Fancy // temporary
-	} ProgramType;
+		ShaderType_Vertex,
+		ShaderType_Fragment
+	} ShaderType;
+	
+	
+	typedef enum {
+		MaterialPropertyType_Ambient,
+		MaterialPropertyType_Diffuse,
+		MaterialPropertyType_Specular
+	} MaterialPropertyType;
+	
 
 	typedef enum {
 		WrapMode_Clamp,
@@ -42,6 +56,12 @@ namespace ae {
 		WrapMode_lampToBorder,
 		WrapMode_Mirror
 	} WrapMode;
+	
+	
+	typedef enum {
+		MaterialFillMode_Fill,
+		MaterialFillMode_Line
+	} MaterialFillMode;
 
 
 	typedef enum {

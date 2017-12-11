@@ -8,6 +8,10 @@
 
 #include "Material.h"
 
+#include <iostream>
+
+#include "Color.h"
+#include "Image.h"
 #include "MaterialProperty.h"
 
 
@@ -19,48 +23,77 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-Material::Material(const string name):
-	m_name(name),
+Material::Material():
+	//	m_name(name),
 	m_ambient(nullptr),
 	m_diffuse(nullptr),
 	m_specular(nullptr),
-	m_specularExponent(1.0),
+	m_specularExponent(150.0),
 	m_litPerPixel(true),
-	m_lockAmbientWithDiffuse(false),
+	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
-	m_fillMode(MaterialFillModeFill) {
+	m_fillMode(MaterialFillMode_Fill) {
 	
 }
 
-Material::Material(const string name,
-				   shared_ptr<MaterialProperty> ambient,
+Material::Material(const string imagePath):
+//	m_name(name),
+//	m_ambient(nullptr),
+//	m_diffuse(nullptr),
+//	m_specular(nullptr),
+	m_specularExponent(150.0),
+	m_litPerPixel(true),
+	m_locksAmbientWithDiffuse(true),
+	m_doubleSided(false),
+	m_readFromDepthBuffer(true),
+	m_fillMode(MaterialFillMode_Fill) {
+		
+		// makes a "best guess" for a material based on a referenced image file
+		// (locks ambient and diffuse and sets a medium specular color)
+	
+		cout << "Making material with image: " << imagePath << endl;
+		
+		auto textureImage = make_shared<Image>(imagePath);
+		auto ambientDiffuseProperty = make_shared<MaterialProperty>(textureImage);
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Gray()));
+
+		m_ambient = ambientDiffuseProperty;
+		m_diffuse = ambientDiffuseProperty;
+		m_specular = specularProperty;
+}
+
+Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular):
-	m_name(name),
+//	m_name(name),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
 	m_specular(specular),
-	m_specularExponent(1.0),
+	m_specularExponent(150.0),
 	m_litPerPixel(true),
-	m_lockAmbientWithDiffuse(false),
+	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_readFromDepthBuffer(true),
-	m_fillMode(MaterialFillModeFill) {
+	m_fillMode(MaterialFillMode_Fill) {
 	
+}
+
+Material::~Material() {
+	cout << "[Material deallocating]" << endl;
 }
 
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
-string Material::name() const {
-	return m_name;
-}
-
-void Material::name(const string name) {
-	m_name = name;
-}
+//string Material::name() const {
+//	return m_name;
+//}
+//
+//void Material::name(const string name) {
+//	m_name = name;
+//}
 
 shared_ptr<MaterialProperty> Material::ambient() const {
 	return m_ambient;
@@ -102,12 +135,12 @@ void Material::litPerPixel(const bool flag) {
 	m_litPerPixel = flag;
 }
 
-bool Material::lockAmbientWithDiffuse() const {
-	return m_lockAmbientWithDiffuse;
+bool Material::locksAmbientWithDiffuse() const {
+	return m_locksAmbientWithDiffuse;
 }
 
-void Material::lockAmbientWithDiffuse(const bool flag) {
-	m_lockAmbientWithDiffuse = flag;
+void Material::locksAmbientWithDiffuse(const bool flag) {
+	m_locksAmbientWithDiffuse = flag;
 }
 
 bool Material::doubleSided() const {
@@ -116,14 +149,6 @@ bool Material::doubleSided() const {
 
 void Material::doubleSided(const bool flag) {
 	m_doubleSided = flag;
-}
-
-bool Material::readFromDepthBuffer() const {
-	return m_readFromDepthBuffer;
-}
-
-void Material::readFromDepthBuffer(const bool flag) {
-	m_readFromDepthBuffer = flag;
 }
 
 MaterialFillMode Material::fillMode() const {

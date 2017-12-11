@@ -22,14 +22,11 @@ namespace ae {
 	class Scene;
 	class Camera;
 	class Color;
+	class Image;
 	class InputManager;
 	class Node;
 	
-#if defined(EXPERIMENTAL)
-	class Screen;
-#endif
-
-
+	
 	using windowWillUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
 	using windowDidUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
 	
@@ -55,9 +52,14 @@ namespace ae {
 		void scene(const std::shared_ptr<Scene> scene);
 
 		void enableCursor(bool enabled);
-
+		
+		float maximumFramerate();
+		void maximumFramerate(float max);
+		
 		DebugOption& debugOptions();
 		void debugOptions(const DebugOption& options);
+		
+		std::shared_ptr<Image> snapshot();
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -81,8 +83,8 @@ namespace ae {
 		AntialiasingMode antialiasingMode() const;
 		void antialiasingMode(const AntialiasingMode mode);
 
-		std::shared_ptr<Color> backgroundColor() const;
-		void backgroundColor(const std::shared_ptr<Color> color);
+//		std::shared_ptr<Color> backgroundColor() const;
+//		void backgroundColor(const std::shared_ptr<Color> color);
 
 		std::shared_ptr<Node> pointOfView() const;
 		void pointOfView(const std::shared_ptr<Node> camera);
@@ -117,14 +119,10 @@ namespace ae {
 		std::shared_ptr<Color>			m_backgroundColor;
 		std::shared_ptr<Node>			m_pointOfView;
 		std::shared_ptr<InputManager> 	m_inputManager;
+		float 							m_maximumFramerate;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;
-
-
-//#if defined(EXPERIMENTAL)
-//		std::shared_ptr<Screen>		m_screen;
-//#endif
 	};
 }
 

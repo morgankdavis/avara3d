@@ -1,35 +1,75 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
+Add modulo material selection for Geometry::draw()
+Default material? — check with SceneKit
 
-Shader class + incorporate VBO, VAO classes
-	https://github.com/Overv/OOGL
+Fill out Geometry:: material convenience functions
+
+Bitmask for useXSampler
+
+Material::fillMode() and doubleSided()
+Material::specularExponent -> shininess + implement
+
+Fix specular color
+Gamma correction
+Texture filtering
+
+Light attenuation
+
+Cubemap class? - Skybox
+
+Generate UV’s for geometry primitives?
+
+Artificial frame limit
+	https://gafferongames.com/post/fix_your_timestep/
+Rename enableCursor
+Import cameras & lights?
+Screen scaling
 
 
-ASSIMP MINGW!
-	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
+
+FIX BOOST LINKING (ld: library not found for -lboost_system)
+Clean up Program log vs. printf vs. cout
+Clean up init/window
 
 
 Tests:
+	01 - import
+	02 - scenegraph
+	03 - input-camera
 	04 - geoprimitives
 	05 - materials-lights
-	06 - debugging (log, gui, axes, wireframe, bounding box, origin)
+		load ambient, diffuse, specular texture/color
+		[make sure to refactor texture/color loading]
+		background color
+		skybox
+		multiple point lights
+	06 - debugging (log, gui, axes, wireframe, bounding box, screenshots)
+		log [cinder log?], prints, exceptions
 		debug options
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
 		http://www2.compute.dtu.dk/~janba/Wireframe/
 		https://github.com/SergiusTheBest/plog
 		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
-		Mouseover == raycast & print x,y,z of anything hit
+		Check const
+
 	07 - solarsystem
 
-	30 - bullet
+	30 - physics
 
 	40 - multithreading
 
 	50 - audio
 
 	60 - network
+
+	70 - scripting
+
+
+Why use layout= instead of getAttributeLocation()
+	https://stackoverflow.com/questions/4635913/explicit-vs-automatic-attribute-location-binding-for-opengl-shaders
 
 
 
@@ -41,8 +81,8 @@ Convert scene callbacks to use shared/WEAK? pointers
 
 
 
-RELOAD SHADERS REALTIME
-Color class
+Make name() boost::optional
+Make lazy load GL identifiers boost::optional
 
 Fix scene import Z-up
 
@@ -108,13 +148,13 @@ Laundry list:
 
 	Program to generate shader sources C file for embedding into app
 
+	Custom scene/mesh/material format
+		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
+
     Default lighting
 	Why is Cat not scaled properly after rotation in Test3? Compare to SceneKit.
 	gamma correction
-	convert member functions to Capitals?
 	Release vertex and texture data on deconstruction
-	Rename “test1” target to “tests”
-	Rename “main.cpp” to “tests.cpp” and see if main() still works
 	Convert raw pointers to weak_ptr
 	Revisit scene graph traversal
 	Fix frame buffer size synchronization
@@ -164,13 +204,15 @@ Laundry list:
 	Motion blur
 		https://en.wikibooks.org/wiki/OpenGL_Programming/Motion_Blur
 	Shadows
-	Normal maps
+	Bump/normal/displacement maps
+		Normal: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+		TOOL! http://www.crazybump.com/
 	Emission
 	Ambient occlusion
 
 
 Wish list:
-    	Camera lookAt constaint
+    	Camera lookAt constraint
 	Geometry subdivision
 
 
@@ -184,12 +226,26 @@ OPTIMIZATION
 		emplace_back
 
 
+Nitpick:
+	Superclass for geometry primitives
+
+
+BUGS:
+	Looks like default camera isn’t respecting transform correctly
+		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
+
 
 
 
 Resources:
 
-Netwokring
+Wavefront OBJ Importing
+	https://github.com/syoyo/tinyobjloader
+
+ASSIMP MINGW!
+	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
+
+Networking
 	https://github.com/lsalzman/enet
 	https://github.com/facebookarchive/RakNet
 	https://github.com/networkprotocol/yojimbo

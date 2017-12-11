@@ -64,7 +64,9 @@ namespace ae {
 		void generateSmoothNormals();
 		void generateFlatNormals();
 
-		unsigned int draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
+		unsigned int draw(const glm::mat4& modelMat,
+						  const glm::mat4& viewMat,
+						  const glm::mat4& projectionMat);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:

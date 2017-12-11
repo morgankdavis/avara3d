@@ -9,7 +9,7 @@ layout (location = 0) out vec4 frag_color;
 
 
 
-vec3 light_position_world = vec3(0.0, 10000.0, 10000.0);
+vec3 light_position_world = vec3(70.0, 70.0, 70.0);
 
 vec3 Ld = vec3(0.6, 0.6, 0.6);
 vec3 La = vec3(0.4, 0.4, 0.4);

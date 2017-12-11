@@ -14,6 +14,7 @@
 
 #include "Color.h"
 #include "Image.h"
+#include "Program.h"
 
 
 using namespace ae;
@@ -24,68 +25,78 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-MaterialProperty::MaterialProperty(const std::string imagePath):
-		m_image(make_shared<Image>(imagePath)),
-		m_color(nullptr),
-		m_wrapS(WrapMode_Clamp),
-		m_wrapT(WrapMode_Clamp),
-		m_minificationFilter(WrapMode_Linear),
-		m_magnificationFilter(WrapMode_Linear),
-		m_mipFilter(WrapMode_Linear),
-		m_maxAnisotropy(0),
-		m_glTex(-1) {
-
-		// TODO: temporary
-			m_image->load();
-}
-
-
 MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
-	m_image(image),
+	m_image(nullptr),
 	m_color(nullptr),
+	m_cube(nullptr),
 	m_wrapS(WrapMode_Clamp),
 	m_wrapT(WrapMode_Clamp),
 	m_minificationFilter(WrapMode_Linear),
 	m_magnificationFilter(WrapMode_Linear),
 	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
-	m_glTex(-1) {
+	m_glTextureID(-1) {
 
-		// TODO: temporary
-		m_image->load();
+		this->image(image);
 }
 
 MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
+	m_cube(nullptr),
 	m_wrapS(WrapMode_Clamp),
 	m_wrapT(WrapMode_Clamp),
 	m_minificationFilter(WrapMode_Linear),
 	m_magnificationFilter(WrapMode_Linear),
 	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
-	m_glTex(-1) {
+	m_glTextureID(-1) {
 	
+}
+
+MaterialProperty::MaterialProperty(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
+	m_image(nullptr),
+	m_color(nullptr),
+	m_cube(nullptr),
+	m_wrapS(WrapMode_Clamp),
+	m_wrapT(WrapMode_Clamp),
+	m_minificationFilter(WrapMode_Linear),
+	m_magnificationFilter(WrapMode_Linear),
+	m_mipFilter(WrapMode_Linear),
+	m_maxAnisotropy(0),
+	m_glTextureID(-1) {
+	
+		this->cube(cube);
 }
 
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
-shared_ptr<Image> MaterialProperty::image() {
+shared_ptr<Image> MaterialProperty::image() const {
 	return m_image;
 }
 
 void MaterialProperty::image(const shared_ptr<Image> image) {
 	m_image = image;
+	m_image->load();
+	loadTexture();
 }
 
-shared_ptr<Color> MaterialProperty::color() {
+shared_ptr<Color> MaterialProperty::color() const {
 	return m_color;
 }
 
 void MaterialProperty::color(const shared_ptr<Color> color) {
 	m_color = color;
+}
+
+shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
+	return m_cube;
+}
+
+void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
+	m_cube = cube;
 }
 
 WrapMode MaterialProperty::wrapS() const {
@@ -132,35 +143,99 @@ void MaterialProperty::maxAnisotropy(const float max) {
      MARK:   Internal
  **************************************************************************************/
 
-int MaterialProperty::glTex() {
-	if (m_glTex == -1) {
-		load();
+void MaterialProperty::loadTexture() {
+	
+	if (m_image) {
+		cout << "Loading texture..." << endl;
+		
+		// generate, activate and bind texture
+		GLuint texID;
+		glGenTextures(1, &texID);
+		m_glTextureID = texID; // m_glTex is signed (change?)
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,
+					 GL_RGBA,
+					 m_image->width(),
+					 m_image->height(),
+					 0,
+					 GL_RGBA,
+					 GL_UNSIGNED_BYTE,
+					 m_image->data());
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
-	return m_glTex;
 }
 
-void MaterialProperty::load() {
+void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 	
-	cout << "Loading texture..." << endl;
-	
-	// generate, activate and bind texture
-	GLuint tex;
-	glGenTextures(1, &tex);
-	m_glTex = tex; // m_glTex is signed (change!)
-	glBindTexture(GL_TEXTURE_2D, tex);
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 image()->width(),
-				 image()->height(),
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 image()->data());
+	if (m_image) { // texture
+		
+		string useUniformName = "";
+		string samplerUniformName = "";
+		GLenum slot;
+		GLint index;
+		
+		switch (type) {
+			case MaterialPropertyType_Ambient:
+				useUniformName = "useAmbientSampler";
+				samplerUniformName = "samplers.ambient";
+				slot = GL_TEXTURE0; index = 0;
+				break;
+			case MaterialPropertyType_Diffuse:
+				useUniformName = "useDiffuseSampler";
+				samplerUniformName = "samplers.diffuse";
+				slot = GL_TEXTURE1; index = 1;
+				break;
+			case MaterialPropertyType_Specular:
+				useUniformName = "useSpecularSampler";
+				samplerUniformName = "samplers.specular";
+				slot = GL_TEXTURE2; index = 2;
+				break;
+				
+			default:
+				cout << "Invalid MaterialPropertyType: " << type << endl;
+				return;
+		}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		program.setUniform(useUniformName.c_str(), true);
+		program.bindTexture(samplerUniformName.c_str(), slot, glTextureID(), index);
+	}
+	else { // color
+		
+		string useUniformName = "";
+		string colorUniformName = "";
+
+		switch (type) {
+			case MaterialPropertyType_Ambient:
+				useUniformName = "useAmbientSampler";
+				colorUniformName = "colors.ambient";
+				break;
+			case MaterialPropertyType_Diffuse:
+				useUniformName = "useDiffuseSampler";
+				colorUniformName = "colors.diffuse";
+				break;
+			case MaterialPropertyType_Specular:
+				useUniformName = "useSpecularSampler";
+				colorUniformName = "colors.specular";
+				break;
+			default:
+				cout << "Invalid MaterialPropertyType: " << type << endl;
+				return;
+		}
+
+		program.setUniform(useUniformName.c_str(), false);
+		program.setUniform(colorUniformName.c_str(), m_color->r, m_color->g, m_color->b);
+	}
+}
+
+GLuint MaterialProperty::glTextureID() {
+//	if (m_glTextureID == -1) {
+//		loadTexture();
+//	}
+	return m_glTextureID;
 }
 

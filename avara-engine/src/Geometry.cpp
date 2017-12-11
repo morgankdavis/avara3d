@@ -14,8 +14,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 
+#include "Color.h" // temporary
 #include "GeometryElement.h"
+#include "Image.h" // temporary
 #include "Material.h"
+#include "MaterialProperty.h"
 #include "Node.h"
 #include "Program.h"
 #include "Utilities.h"
@@ -35,7 +38,23 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const std::vector<std::shared_ptr<Material>> materials):
 	m_elements(elements),
 	m_materials(materials) {
-
+		
+		cout << "Creating geometry with materials: " << endl;
+		
+		for (auto material : materials) {
+			if (material->diffuse()->image()) {
+				cout << "Diffuse image: ("
+				<< material->diffuse()->image()->width()
+				<< ", " << material->diffuse()->image()->height() << ")" << endl;
+			}
+			
+			if (material->diffuse()->color()) {
+				cout << "Diffuse color: ("
+				<< material->diffuse()->color()->r << ", "
+				<< material->diffuse()->color()->g << ", "
+				<< material->diffuse()->color()->b << ")" << endl;
+			}
+		}
 }
 
 /***************************************************************************************
@@ -84,89 +103,32 @@ void Geometry::generateSmoothNormals() {
 
 void Geometry::generateFlatNormals() {
 
-	//cout << "m_elements count: " << m_elements.size() << endl;
 	for (auto element : elements()) {
 		element->generateFlatNormals();
 	}
 }
 
-unsigned int Geometry::draw(const glm::mat4& viewMat, const glm::mat4& projectionMat) {
-
-	// MODEL
-	mat4 modelMat = node()->worldTransform();
-	
-	//cout << "DRAW '" << node()->name() << "' worldTransform:\n" << modelMat << endl;
+unsigned int Geometry::draw(const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat) {
 	
 	unsigned int numPolygons = 0;
+	
+	for (int e=0; e < m_elements.size(); ++e) {
 
-	for (auto element : elements()) {
+		auto element = m_elements[e];
 
-		GLint program = element->program()->glProgramID();
-		GLint vao = element->glVAO();
-		GLint ibo = element->glIBO();
-		auto faces = element->faces();
-
-		// gl config
+		shared_ptr<Material> material = nullptr;
+		if (m_materials.size() > e) {
+			material = m_materials[e];
+		}
+		else if (m_materials.size() > 0) {
+			material = m_materials[m_materials.size()-1 % e];
+		}
 		
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
-		
-		glUseProgram(program);
-		
-		// MVP
-		
-		GLint modelLoc = glGetUniformLocation(program, "model");
-		GLint viewLoc = glGetUniformLocation(program, "view");
-		GLint projectionLoc = glGetUniformLocation(program, "projection");
-		
-//		cout << "RENDER, modelMat:\n" << modelMat << endl;
-//		cout << "RENDER, viewMat:\n" << viewMat << endl;
-//		cout << "RENDER, projectionMat:\n" << projectionMat << endl;
-		
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(modelMat));
-		// TODO: WHY do we have to invert this?? see also Window::addDefaultCamera()
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(inverse(viewMat)));
-		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(viewMat));
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projectionMat));
-		
-		// lights
-		
-//		vec3 lightPosition = vec3(70.0f, 70.0f, 50.0f);
-//
-//		GLint lightPositionLoc = glGetUniformLocation(program, "light_position_world");
-//		glUniform3fv (lightPositionLoc, 1, value_ptr(lightPosition));
-
-		
-		//vec3 lightColor = vec3(0.8f, 0.4f, 0.4f);
-//		GLint lightColorLoc = glGetUniformLocation(program, "light_color");
-//		glUniform3fv (lightColorLoc, 1, value_ptr(lightColor));
-		
-		// textures
-		
-//		GLint texDiffuseLoc = glGetUniformLocation(program, "texture_diffuse");
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, materials()[0]->diffuse()->glTex());
-//		glUniform1i(texDiffuseLoc, 0);
-//		glActiveTexture(GL_TEXTURE1);
-//		glBindTexture(GL_TEXTURE_2D, texture1);
-//		glUniform1i(_textureUniform, 1);
-		
-		
-		// draw
-
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		unsigned int facesSize = faces.size();
-		glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
-		
-		// stats
-
-		numPolygons += facesSize;
-		
-	} // geometry element
-
+		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));
+	}
+	
 	return numPolygons;
 }
 
@@ -185,9 +147,9 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 
 	auto worldTransform = m_node->worldTransform();
 
-	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
-	cout << worldTransform << endl;
-	cout << "Num elements: " << m_elements.size() << endl;
+//	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
+//	cout << worldTransform << endl;
+//	cout << "Num elements: " << m_elements.size() << endl;
 
 	for (auto element : m_elements) {
 		for (auto v : element->vertices()) {
@@ -204,10 +166,10 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 		}
 	}
 
-	cout << "GEOMETRY '" << name() << "' " << "boundingPoints: " << endl;
-	for (auto const& i : (*boundingPoints)) {
-		cout << i.first << ": " << i.second << endl;
-	}
+//	cout << "GEOMETRY '" << name() << "' " << "boundingPoints: " << endl;
+//	for (auto const& i : (*boundingPoints)) {
+//		cout << i.first << ": " << i.second << endl;
+//	}
 
 	return boundingPoints;
 }

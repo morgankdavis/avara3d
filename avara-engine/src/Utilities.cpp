@@ -8,6 +8,7 @@
 
 #include "Utilities.h"
 
+#include <algorithm>
 #include <fstream>
 #include <memory>
 #ifdef WINDOWS
@@ -21,6 +22,8 @@
 #include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Color.h"
+#include "Image.h"
 #include "Scene.h"
 
 
@@ -65,7 +68,7 @@ ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
 	return (os << str);
 }
 
-optional<string> ae::utils::loadTextFile(const string &path) {
+optional<string> ae::utils::LoadTextFile(const string &path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -83,20 +86,16 @@ optional<string> ae::utils::loadTextFile(const string &path) {
 	return {};
 }
 
-vec2 ae::utils::aiVector3DToGLMVec2(const aiVector2D& from) {
+vec2 ae::utils::AIVector3DToGLMVec2(const aiVector2D& from) {
 	return vec2(from.x, from.y);
 }
 
-vec3 ae::utils::aiVector3DToGLMVec3(const aiVector3D& from) {
+vec3 ae::utils::AIVector3DToGLMVec3(const aiVector3D& from) {
 	return vec3(from.x, from.y, from.z);
 }
 
 // https://github.com/mruan/gl-exp/blob/master/src/math_util.hpp
-// copy from Row-major to Column major matrix
-// i.e. from aiMatrix4x4 to glm::mat4
-//template <typename RM, typename CM>
-//void ae::utils::RowMajorToColumnMajorMat4(const RM& from, CM& to) {
-mat4 ae::utils::aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
+mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	mat4 to;
 
 	to[0][0] = from.a1; to[1][0] = from.a2;
@@ -109,6 +108,58 @@ mat4 ae::utils::aiMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	to[2][3] = from.d3; to[3][3] = from.d4;
 
 	return to;
+}
+
+Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
+	return Color(from.r, from.g, from.b, from.a);
+}
+
+bool ae::utils::Zero(const vec3& v) {
+	return fabs(v.x)<0.00001f && fabs(v.y)<0.00001f && fabs(v.z)<0.00001f;
+}
+
+float ae::utils::Max(const vec3& v) {
+	return std::max(std::max(v.x, v.y), v.z);
+}
+
+std::string ae::utils::ShaderSourceDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/shaders/";
+#else
+	return "../../../avara-engine/shaders/";
+#endif
+}
+
+string ae::utils::ShaderPath(const string& name, const string& type) {
+	return ShaderSourceDirectoryPath() + name + "." + type;
+}
+
+std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
+	string fullPath = ShaderPath(name, type);
+	
+	auto source = LoadTextFile(fullPath);
+	if (source) {
+		return make_shared<string>(*source);
+	}
+	return nullptr;
+}
+
+std::string ae::utils::ImagesDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/images/";
+#else
+	return "../../../avara-engine/images/";
+#endif
+}
+
+std::shared_ptr<Image> ae::utils::ImageNamed(const std::string& name, const std::string& type) {
+	string fullPath = ImagePath(name, type);
+	
+	return make_shared<Image>(fullPath);
+}
+
+std::string ae::utils::ImagePath(const std::string& name, const std::string& type) {
+	return ImagesDirectoryPath() + name + "." + type;
 }
 
 string ae::utils::TestDataDirectoryPath() {
@@ -125,30 +176,26 @@ std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is
 
 std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 												 const string& type) {
-
+	
 	string fullPath = TestDataDirectoryPath() + "scenes/" + name + "." + type;
 	return make_shared<Scene>(fullPath);
 }
 
-
-
-std::string ae::utils::ShaderSourceDirectoryPath() {
-#ifdef XCODE
-	return "../../../../avara-engine/shaders/";
-#else
-	return "../../../avara-engine/shaders/";
-#endif
+std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name) {
+	return TestImageNamed(name, "png");
 }
 
-std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
-	string fullPath = ShaderSourceDirectoryPath() + name + "." + type;
+std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
+									  const std::string& type) {
 	
-	auto source = loadTextFile(fullPath);
-	if (source) {
-		return make_shared<string>(*source);
-	}
-	return nullptr;
+	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
+	return make_shared<Image>(fullPath);
 }
+
+//std::vector<std::shared_ptr<Image>> ae::utils::TestCubeMaterialPropertyNamed(const std::string& name,
+//																			 const std::string& type) {
+//
+//}
 
 //vector<string> ae::utils::pathComponents(const string& str, const set<char> delimiters) {
 //	vector<string> result;

@@ -10,12 +10,16 @@
 
 #include <iostream>
 
+#include "Color.h" // temporary
+#include "Material.h"
+#include "MaterialProperty.h"
 #include "Program.h"
 #include "Types.h"
-//#include "Utilities.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 using namespace glm;
 
@@ -24,16 +28,36 @@ using namespace glm;
      MARK:   Lifecycle
  **************************************************************************************/
 
-GeometryElement::GeometryElement(vector<Vertex> verticies, vector<Face> faces):
+GeometryElement::GeometryElement(vector<Vertex>& verticies, vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
-	m_glVAO(-1),
-	m_glIBO(-1) {
-	// TODO: **** TEMPORARY ***
-	m_program = make_shared<Program>(ProgramType_Default);
-	if (!m_program->compile()) {
-		cerr << "*** ERROR COMPILING SHADER ***" << endl;
-	}
+	m_glVAO(0),
+	m_glIBO(0) {
+		
+		// TODO: **** TEMPORARY ***
+
+//		string vs = ShaderPath("default", "vert");
+//		string fs = ShaderPath("default", "frag");
+		string vs = ShaderPath("phong_texture", "vert");
+		string fs = ShaderPath("phong_texture", "frag");
+		
+		m_program = make_shared<Program>(vs, fs);
+		
+		if (m_program->compile()) {
+			cout << "Shader program 'default' compiled." << endl;
+			
+			if (m_program->link()) {
+				cout << "Shader program 'default' linked." << endl;
+			}
+			else {
+				cout << "Couldn't link 'default' shader:\n" << *(m_program->logString()) << endl;
+			}
+		}
+		else {
+			cout << "Couldn't compile 'default' shader:\n" << *(m_program->logString()) << endl;
+		}
+		
+		loadVertexData();
 }
 
 /***************************************************************************************
@@ -52,6 +76,57 @@ void GeometryElement::program(const shared_ptr<Program> program) {
      MARK:   Internal
  **************************************************************************************/
 
+unsigned int GeometryElement::draw(const mat4& modelMat,
+								   const mat4& viewMat,
+								   const mat4& projectionMat,
+								   const Material* material) {
+	// gl config
+	
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
+	
+	m_program->use();
+	
+	// uniforms
+	
+	m_program->setUniform("model", modelMat);
+	m_program->setUniform("view", inverse(viewMat));
+	m_program->setUniform("projection", projectionMat);
+	
+	// materials
+	
+	if (material) {
+		if (material->locksAmbientWithDiffuse()) {
+			if (material->diffuse()) {
+				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
+			}
+		}
+		else {
+			if (material->ambient()) {
+				material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
+			}
+		}
+		if (material->diffuse()) {
+			material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
+		}
+		if (material->specular()) {
+			material->specular()->bind(MaterialPropertyType_Specular, *m_program);
+		}
+	}
+	
+	// draw
+	
+	glBindVertexArray(m_glVAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
+	unsigned int facesSize = m_faces.size();
+	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	
+	// stats
+	
+	return facesSize;
+}
+
 void GeometryElement::hardTransform(const mat4 t, bool norm) {
 
 	for (int v=0; v<m_vertices.size(); ++v) {
@@ -60,6 +135,7 @@ void GeometryElement::hardTransform(const mat4 t, bool norm) {
 
 		if (norm) {
 			vertex->normal = normalize(vec3(t * vec4(vertex->normal, 0.0f)));
+			//vertex->normal = vec3(t * vec4(vertex->normal, 0.0f));
 		}
 	}
 }
@@ -187,10 +263,13 @@ void GeometryElement::loadVertexData() {
 	glGenVertexArrays(1, &vao);
 	m_glVAO = vao;  // m_glVAO is signed (change this!)
 	glBindVertexArray(vao);
+	
+	GLuint glProgramID = m_program->glID();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 //	GLuint positionIndex = glGetAttribLocation(glProgramID, "vertex_position");
-	GLuint positionIndex = 0;
+//	GLuint positionIndex = 0;
+	GLuint positionIndex = m_program->getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -201,7 +280,8 @@ void GeometryElement::loadVertexData() {
 	glEnableVertexAttribArray(positionIndex);
 
 //	GLuint normalIndex = glGetAttribLocation(glProgramID, "vertex_normal");
-	GLuint normalIndex = 1;
+//	GLuint normalIndex = 1;
+	GLuint normalIndex = m_program->getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -212,7 +292,8 @@ void GeometryElement::loadVertexData() {
 	glEnableVertexAttribArray(normalIndex);
 
 //	GLuint texCoordIndex = glGetAttribLocation(glProgramID, "texture_coordinate");
-	GLuint texCoordIndex = 2;
+//	GLuint texCoordIndex = 2;
+	GLuint texCoordIndex = m_program->getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, // attrib index
 						  2, // num components per attrib (2 float in vec2)
 						  GL_FLOAT, // component type
@@ -232,17 +313,6 @@ void GeometryElement::loadVertexData() {
 				 m_faces.size() * sizeof(Face),
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
-}
-
-GLint GeometryElement::glVAO() {
-	if (m_glVAO == -1) {
-		loadVertexData();
-	}
-	return m_glVAO;
-}
-
-GLint GeometryElement::glIBO() {
-	return m_glIBO;
 }
 
 vector<Vertex>& GeometryElement::vertices() {
