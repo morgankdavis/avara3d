@@ -38,7 +38,7 @@ int Test::run(const vector<string>& args) {
 	
 	if (init() != 0) { cout << "Init error!" << endl; return -1; }
 
-	
+
 	auto scene = TestSceneNamed("siamese");
 	
 
