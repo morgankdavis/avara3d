@@ -15,14 +15,6 @@ Import cameras & lights?
 
 
 
-
-
-
-FIX BOOST LINKING (ld: library not found for -lboost_system)
-Clean up Program log vs. printf vs. cout
-Clean up init/window
-
-
 Tests:
 	01 - import
 	02 - scenegraph
@@ -46,6 +38,10 @@ Tests:
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Automatic framebuffer scaling?
+		FIX BOOST LINKING (ld: library not found for -lboost_system)
+		Clean up Program log vs. printf vs. cout
+		Clean up init/window
+
 	07 - solarsystem
 
 	30 - physics
@@ -63,23 +59,11 @@ Why use layout= instead of getAttributeLocation()
 	https://stackoverflow.com/questions/4635913/explicit-vs-automatic-attribute-location-binding-for-opengl-shaders
 
 
-
-Check out GLM_GTX_quaternion for Euler Angles (faster?)
-
-
 Proper scene graph unroll - DFS?
 Alternate mouse input
 
 Convert scene callbacks to use shared/WEAK? pointers
 
-Mouseover == raycast & print x,y,z of anything hit
-
-
-Fix Euler Angles order
-	http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
-
-scene graph return constituent parts by value so we can do things like:
-	earth->rotation().w += delta;
 
 Make name() boost::optional
 Make lazy load GL identifiers boost::optional
@@ -107,14 +91,7 @@ QUESTIONS:
 
 
 Separate Window and Renderer
-
-
-Fix key callback crash on exit (escape)
 Init per Window. Test multiple windows. Fix global framebuffer size.
-
-Default light (may need to wait for shader)
-
-Draw bounding boxes, modal origin, world origin, axis plane grid?
 
 Lazy load geometry elements (compile shader + load materials) + Add pre-load method
 
