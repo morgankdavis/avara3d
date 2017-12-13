@@ -2,31 +2,19 @@ TODO:
 
 ——————————————————————————————————
 
+Add skybox
 Add modulo material selection for Geometry::draw()
-Default material? — check with SceneKit
-
+Default material — check with SceneKit
 Fill out Geometry:: material convenience functions
-
-Bitmask for useXSampler
-
 Material::fillMode() and doubleSided()
-Material::specularExponent -> shininess + implement
-
-Fix specular color
-Gamma correction
-Texture filtering
-
-Light attenuation
-
-Cubemap class? - Skybox
-
-Generate UV’s for geometry primitives?
-
-Artificial frame limit
-	https://gafferongames.com/post/fix_your_timestep/
-Rename enableCursor
+Material::specularExponent -> shininess + implement + fix specular color
+Add filtering and clamping options + scale UVs (texture tiling)
+Add gamma correction
+Add multiple point lights + attenuation
 Import cameras & lights?
-Screen scaling
+
+
+
 
 
 
@@ -46,7 +34,7 @@ Tests:
 		background color
 		skybox
 		multiple point lights
-	06 - debugging (log, gui, axes, wireframe, bounding box, screenshots)
+	06 - debugging & cleanup (log, gui, axes, wireframe, bounding box, screenshots)
 		log [cinder log?], prints, exceptions
 		debug options
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
@@ -54,6 +42,10 @@ Tests:
 		https://github.com/SergiusTheBest/plog
 		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
 		Check const
+		Artificial frame limit
+			https://gafferongames.com/post/fix_your_timestep/
+		Rename enableCursor
+		Automatic framebuffer scaling?
 	07 - solarsystem
 
 	30 - physics
