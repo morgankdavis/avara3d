@@ -221,7 +221,25 @@ void Window::antialiasingMode(const AntialiasingMode mode) {
 //	m_backgroundColor = color;
 //}
 
-shared_ptr<Node> Window::pointOfView() const {
+shared_ptr<Node> Window::pointOfView() {
+	
+	if (m_pointOfView) {
+		return m_pointOfView;
+	}
+	else {
+		// try to assign one from the scene
+		for (auto node: m_scene->rootNode()->allChildNodes()) {
+			if (node->camera()) {
+				m_pointOfView = node;
+				return m_pointOfView;
+			}
+		}
+	}
+	if (!m_pointOfView) {
+		// still no POV. add a default one.
+		m_pointOfView = defaultPointOfView();
+	}
+	
 	return m_pointOfView;
 }
 
@@ -236,7 +254,7 @@ shared_ptr<InputManager> Window::inputManager() {
 	return m_inputManager;
 }
 
-shared_ptr<Node> Window::addDefaultPointOfView() {
+shared_ptr<Node> Window::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
 	//m_scene->rootNode()->addChildNode(cameraNode); // done below
@@ -355,46 +373,12 @@ void Window::mainLoop(const float deltaSeconds) {
 	
 	cout << "\n-------------------------------------------------------------------------------" << endl;
 	
-	unsigned int numPolygons = 0;
+	unsigned numPolygons = 0;
 	
-	glClearColor(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
-	
-	shared_ptr<Camera> camera = nullptr;
-	
-	if (pointOfView()) {
-		camera = m_pointOfView->camera();
-	}
-	else {
-		// try to find one
-		for (auto node: m_scene->rootNode()->allChildNodes()) {
-			if (node->camera()) {
-				camera = node->camera();
-				pointOfView(node);
-				break;
-			}
-		}
-	}
-	if (!camera) {
-		// still no camera. add a default one.
-		pointOfView(addDefaultPointOfView());
-		camera = m_pointOfView->camera();
-	}
 
-	auto viewMat = m_pointOfView->worldTransform();
-	auto projectionMat = m_pointOfView->camera()->projection();
+	numPolygons += m_scene->draw(pointOfView());
 
-	for (auto node: m_scene->rootNode()->allChildNodes()) {
-		if (!node->hidden()) {
-			auto geometry = node->geometry();
-			if (geometry != nullptr) {
-				auto modelMat = node->worldTransform();
-				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
-			}
-		}
-	}
-	
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);
 	}

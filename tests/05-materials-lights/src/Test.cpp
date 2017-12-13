@@ -149,7 +149,11 @@ int Test::run(const vector<string>& args) {
 //
 //	auto skyboxMaterialProperty = make_shared<MaterialProperty>(fishermansBastionCube);
 //	scene->background(skyboxMaterialProperty);
-
+	
+	
+//	auto backgroundColor = make_shared<Color>(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
+//	auto background = make_shared<MaterialProperty>(backgroundColor);
+//	scene->background(background);
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));

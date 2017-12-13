@@ -86,12 +86,12 @@ namespace ae {
 //		std::shared_ptr<Color> backgroundColor() const;
 //		void backgroundColor(const std::shared_ptr<Color> color);
 
-		std::shared_ptr<Node> pointOfView() const;
+		std::shared_ptr<Node> pointOfView();
 		void pointOfView(const std::shared_ptr<Node> camera);
 		
 		std::shared_ptr<InputManager> inputManager();
 
-		std::shared_ptr<Node> addDefaultPointOfView();
+		std::shared_ptr<Node> defaultPointOfView();
 		
 		windowWillUpdateFuction willUpdateCallback();
 		void willUpdateCallback(windowWillUpdateFuction function);

@@ -65,6 +65,7 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
+		unsigned draw(std::shared_ptr<Node> pointOfView) const;
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		glm::vec3 extent() const;
 		

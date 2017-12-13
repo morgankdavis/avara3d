@@ -171,6 +171,35 @@ void Scene::background(const shared_ptr<MaterialProperty> background) {
      MARK:   Internal
  **************************************************************************************/
 
+unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
+
+	unsigned numPolygons = 0;
+	
+	if (m_background && m_background->color()) {
+		auto color = *(m_background->color());
+		glClearColor(color.r, color.g, color.b, 1.0f);
+	}
+	else {
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	auto viewMat = pointOfView->worldTransform();
+	auto projectionMat = pointOfView->camera()->projection();
+	
+	for (auto node: m_rootNode->allChildNodes()) {
+		if (!node->hidden()) {
+			auto geometry = node->geometry();
+			if (geometry != nullptr) {
+				auto modelMat = node->worldTransform();
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
+			}
+		}
+	}
+	
+	return numPolygons;
+}
+
 shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 
 	float maxFloat = numeric_limits<float>::max();

@@ -3,15 +3,12 @@ TODO:
 ——————————————————————————————————
 
 Add skybox
-Add modulo material selection for Geometry::draw()
 Default material — check with SceneKit
-Fill out Geometry:: material convenience functions
 Material::fillMode() and doubleSided()
 Material::specularExponent -> shininess + implement + fix specular color
-Add filtering and clamping options + scale UVs (texture tiling)
+Add Material filtering and clamping options + scale UVs (texture tiling)
 Add gamma correction
 Add multiple point lights + attenuation
-Import cameras & lights?
 
 
 
@@ -41,6 +38,7 @@ Tests:
 		FIX BOOST LINKING (ld: library not found for -lboost_system)
 		Clean up Program log vs. printf vs. cout
 		Clean up init/window
+		Fix plane generation (normals??)
 
 	07 - solarsystem
 
@@ -119,21 +117,17 @@ Wrap GLM - https://github.com/cinder/Cinder/tree/master/include/cinder
 
 Laundry list:
 
-	Add model loader progress callback Assimp::ProgressHandler
-	Import camera? — fix Z-up files
-	
 	SCREENSHOTS & VIDEO
 		ppm: http://netpbm.sourceforge.net/doc/ppm.html
 		png/jpeg: https://github.com/nothings/stb/blob/master/stb_image_write.h
 
-	Gamma correction
-
 	Move init stuff into Window
 
-	Program to generate shader sources C file for embedding into app
+	Embed shader sources into app
 
 	Custom scene/mesh/material format
 		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
+		Import camera and lights
 
     Default lighting
 	Why is Cat not scaled properly after rotation in Test3? Compare to SceneKit.
@@ -144,18 +138,6 @@ Laundry list:
 	Fix frame buffer size synchronization
 	glDeleteProgram
 		delete vertex data
-
-
-Physics integration
-Multithreading
-
-
-Logging library
-Console + config files
-
-
-Audio
-
 
 UI
 	CEGUI2
