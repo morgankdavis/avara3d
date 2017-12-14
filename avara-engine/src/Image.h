@@ -28,10 +28,10 @@ namespace ae {
 		~Image();
 		
 		/***************************************************************************************
-		     MARK:   Public
+		     MARK:   Internal
 		 **************************************************************************************/
 
-		bool load();
+		bool load(bool flipHorizontal);
 
 		unsigned width() const;
 		unsigned height() const;

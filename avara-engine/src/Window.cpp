@@ -100,7 +100,7 @@ void Window::display() {
 		float totalSeconds = glfwGetTime();
 		float deltaSeconds = totalSeconds - previousSeconds;
 		
-		cout << "deltaSeconds: " << deltaSeconds << endl;
+		//cout << "deltaSeconds: " << deltaSeconds << endl;
 		
 //		static const float frameInASecond = 1.0f/60.0f;
 //		float diff = deltaSeconds - (m_maximumFramerate * frameInASecond);
@@ -371,7 +371,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 
 void Window::mainLoop(const float deltaSeconds) {
 	
-	cout << "\n-------------------------------------------------------------------------------" << endl;
+	//cout << "\n-------------------------------------------------------------------------------" << endl;
 	
 	unsigned numPolygons = 0;
 	

@@ -138,29 +138,46 @@ int Test::run(const vector<string>& args) {
 //	coneGeo->materials().push_back(coneMaterial);
 //	scene->rootNode()->addChildNode(coneNode);
 	
+
 	
-//	auto fishermansBastionCube = shared_ptr<vector<shared_ptr<Image>>>();
-//	(*fishermansBastionCube)[0] = TestImageNamed("fishermansBastion_posx", "jpg");
-//	(*fishermansBastionCube)[1] = TestImageNamed("fishermansBastion_negx", "jpg");
-//	(*fishermansBastionCube)[2] = TestImageNamed("fishermansBastion_posy", "jpg");
-//	(*fishermansBastionCube)[3] = TestImageNamed("fishermansBastion_negy", "jpg");
-//	(*fishermansBastionCube)[4] = TestImageNamed("fishermansBastion_posz", "jpg");
-//	(*fishermansBastionCube)[5] = TestImageNamed("fishermansBastion_negz", "jpg");
-//
-//	auto skyboxMaterialProperty = make_shared<MaterialProperty>(fishermansBastionCube);
-//	scene->background(skyboxMaterialProperty);
+	
+	auto cube = make_shared<vector<shared_ptr<Image>>>();
+	cube->push_back(TestImageNamed("nebula1_blue_posx", "png"));
+	cube->push_back(TestImageNamed("nebula1_blue_negx", "png"));
+	cube->push_back(TestImageNamed("nebula1_blue_posy", "png"));
+	cube->push_back(TestImageNamed("nebula1_blue_negy", "png"));
+	cube->push_back(TestImageNamed("nebula1_blue_posz", "png"));
+	cube->push_back(TestImageNamed("nebula1_blue_negz", "png"));
+	auto background = make_shared<MaterialProperty>(cube);
+	scene->background(background);
+	
+	
+	
+	
+//	auto cube = make_shared<vector<shared_ptr<Image>>>();
+//	cube->push_back(TestImageNamed("yokohama_posx", "jpg"));
+//	cube->push_back(TestImageNamed("yokohama_negx", "jpg"));
+//	cube->push_back(TestImageNamed("yokohama_posy", "jpg"));
+//	cube->push_back(TestImageNamed("yokohama_negy", "jpg"));
+//	cube->push_back(TestImageNamed("yokohama_posz", "jpg"));
+//	cube->push_back(TestImageNamed("yokohama_negz", "jpg"));
+//	auto background = make_shared<MaterialProperty>(cube);
+//	scene->background(background);
+	
 	
 	
 //	auto backgroundColor = make_shared<Color>(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
+//	//auto backgroundColor = make_shared<Color>(Color::Lime());
 //	auto background = make_shared<MaterialProperty>(backgroundColor);
 //	scene->background(background);
+	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);
 	window.enableCursor(false);
-	window.maximumFramerate(240.0);
+	//window.maximumFramerate(240.0);
 
 	m_inputManager = window.inputManager();
 	

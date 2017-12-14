@@ -28,35 +28,30 @@ using namespace glm;
      MARK:   Lifecycle
  **************************************************************************************/
 
-GeometryElement::GeometryElement(vector<Vertex>& verticies, vector<Face>& faces):
+//GeometryElement::GeometryElement(std::string shaderName):
+//	m_vertices(nullptr),
+//	m_faces(nullptr),
+//	m_glVAO(0),
+//	m_glIBO(0) {
+//	
+//		loadShaderNamed(shaderName);
+//}
+
+GeometryElement::GeometryElement(vector<Vertex>& verticies,
+								 vector<Face>& faces):
+	GeometryElement(verticies, faces, "default") {
+	
+}
+
+GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
+								 std::vector<Face>& faces,
+								 std::string shaderName):
 	m_vertices(verticies),
 	m_faces(faces),
 	m_glVAO(0),
 	m_glIBO(0) {
 		
-		// TODO: **** TEMPORARY ***
-
-//		string vs = ShaderPath("default", "vert");
-//		string fs = ShaderPath("default", "frag");
-		string vs = ShaderPath("phong_texture", "vert");
-		string fs = ShaderPath("phong_texture", "frag");
-		
-		m_program = make_shared<Program>(vs, fs);
-		
-		if (m_program->compile()) {
-			cout << "Shader program 'default' compiled." << endl;
-			
-			if (m_program->link()) {
-				cout << "Shader program 'default' linked." << endl;
-			}
-			else {
-				cout << "Couldn't link 'default' shader:\n" << *(m_program->logString()) << endl;
-			}
-		}
-		else {
-			cout << "Couldn't compile 'default' shader:\n" << *(m_program->logString()) << endl;
-		}
-		
+		loadShaderNamed(shaderName);
 		loadVertexData();
 }
 
@@ -76,15 +71,23 @@ void GeometryElement::program(const shared_ptr<Program> program) {
      MARK:   Internal
  **************************************************************************************/
 
-unsigned int GeometryElement::draw(const mat4& modelMat,
-								   const mat4& viewMat,
-								   const mat4& projectionMat,
-								   const Material* material) {
+unsigned GeometryElement::draw(const mat4& modelMat,
+							   const mat4& viewMat,
+							   const mat4& projectionMat,
+							   const Material* material) {
 	// gl config
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
+	
+	glDepthMask(GL_TRUE);
+	
+	// use shader program
 	
 	m_program->use();
 	
@@ -249,7 +252,29 @@ void GeometryElement::generateFlatNormals() {
 	}
 }
 
+void GeometryElement::loadShaderNamed(const string& shaderName) {
+	
+	m_program = make_shared<Program>(shaderName);
+	
+	if (m_program->compile()) {
+		cout << "Shader program '" << shaderName << "' compiled." << endl;
+		
+		if (m_program->link()) {
+			cout << "Shader program '" << shaderName << "' linked." << endl;
+		}
+		else {
+			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+		}
+	}
+	else {
+		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+	}
+}
+
 void GeometryElement::loadVertexData() {
+	
+	// TODO: release any existing buffers
+	
 	cout << "Loading vertex data..." << endl;
 
 	auto verts = m_vertices;
@@ -259,16 +284,11 @@ void GeometryElement::loadVertexData() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
 
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	m_glVAO = vao;  // m_glVAO is signed (change this!)
-	glBindVertexArray(vao);
+	glGenVertexArrays(1, &m_glVAO);
+	glBindVertexArray(m_glVAO);
 	
-	GLuint glProgramID = m_program->glID();
-
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//	GLuint positionIndex = glGetAttribLocation(glProgramID, "vertex_position");
-//	GLuint positionIndex = 0;
+	
 	GLuint positionIndex = m_program->getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
@@ -276,11 +296,8 @@ void GeometryElement::loadVertexData() {
 						  GL_FALSE, // normalize
 						  sizeof(Vertex), // stride
 						  0); // start offset
-	// TODO: MIGHT HAVE TO HAPPEN EVERY DRAW
 	glEnableVertexAttribArray(positionIndex);
 
-//	GLuint normalIndex = glGetAttribLocation(glProgramID, "vertex_normal");
-//	GLuint normalIndex = 1;
 	GLuint normalIndex = m_program->getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
@@ -288,11 +305,8 @@ void GeometryElement::loadVertexData() {
 						  GL_FALSE, // normalize
 						  sizeof(Vertex), // stride
 						  (void *)sizeof(vec3)); // start offset
-	// TODO: MIGHT HAVE TO HAPPEN EVERY DRAW
 	glEnableVertexAttribArray(normalIndex);
 
-//	GLuint texCoordIndex = glGetAttribLocation(glProgramID, "texture_coordinate");
-//	GLuint texCoordIndex = 2;
 	GLuint texCoordIndex = m_program->getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, // attrib index
 						  2, // num components per attrib (2 float in vec2)
@@ -300,15 +314,10 @@ void GeometryElement::loadVertexData() {
 						  GL_FALSE, // normalize
 						  sizeof(Vertex), // stride
 						  (void *)(sizeof(vec3) + sizeof(vec3))); // start offset
-	// TODO: MIGHT HAVE TO HAPPEN EVERY DRAW
 	glEnableVertexAttribArray(texCoordIndex);
 
-
-
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	m_glIBO = ibo; // m_glIBO is signed (change this!)
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glGenBuffers(1, &m_glIBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 m_faces.size() * sizeof(Face),
 				 &(m_faces[0]),

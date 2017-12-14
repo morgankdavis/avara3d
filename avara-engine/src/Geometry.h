@@ -63,10 +63,10 @@ namespace ae {
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();
 		void generateFlatNormals();
-
-		unsigned int draw(const glm::mat4& modelMat,
-						  const glm::mat4& viewMat,
-						  const glm::mat4& projectionMat);
+		
+		unsigned draw(const glm::mat4& modelMat,
+					  const glm::mat4& viewMat,
+					  const glm::mat4& projectionMat);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:
@@ -76,6 +76,7 @@ namespace ae {
 		 **************************************************************************************/
 
 		std::vector<std::shared_ptr<GeometryElement>>			m_elements;
+		std::vector<std::shared_ptr<Material>>					m_materials;
 
 	private:
 
@@ -84,7 +85,6 @@ namespace ae {
 		 **************************************************************************************/
 
 		std::string												m_name;
-		std::vector<std::shared_ptr<Material>>					m_materials;
 		Node*													m_node;
 	};
 }

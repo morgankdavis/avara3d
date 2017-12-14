@@ -61,6 +61,9 @@ namespace ae {
 		FilterMode minificationFilter() const;
 		void minificationFilter(const FilterMode mode);
 		
+		FilterMode magnificationFilter() const;
+		void magnificationFilter(const FilterMode mode);
+		
 		FilterMode mipFilter() const;
 		void mipFilter(const FilterMode mode);
 		

@@ -33,7 +33,7 @@ namespace ae {
 		static Color Orange();
 		static Color Yellow();
 		static Color Olive();
-		static Color Line();
+		static Color Lime();
 		static Color Green();
 		static Color Cyan();
 		static Color Blue();

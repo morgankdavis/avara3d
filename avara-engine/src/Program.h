@@ -30,7 +30,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+		Program(const std::string& name);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -67,6 +67,7 @@ namespace ae {
 		void printActiveUniforms();
 		void printActiveAttribs();
 		
+		std::string name() const;
 		GLuint glID();
 		bool isLinked();
 		boost::optional<std::string> vertexShaderSource();
@@ -87,6 +88,7 @@ namespace ae {
 		void isLinked(bool isLinked);
 		void logString(boost::optional<std::string> logString);
 		
+		std::string  					m_name;
 		GLuint  						m_glID;
 		bool 							m_isLinked;
 		boost::optional<std::string>	m_logString;

@@ -36,10 +36,10 @@ Image::~Image() {
 }
 
 /***************************************************************************************
-     MARK:   Public
+     MARK:   Internal
  **************************************************************************************/
 
-bool Image::load() {
+bool Image::load(bool flipHorizontal) {
 	
 	if (!m_loaded) {
 		
@@ -57,21 +57,23 @@ bool Image::load() {
 		m_width = width;
 		m_height = height;
 
-		// horizontal flip
-		int width_in_bytes = width * 4;
-		unsigned char *top = NULL;
-		unsigned char *bottom = NULL;
-		unsigned char temp = 0;
-		int half_height = height / 2;
-		for (int row = 0; row < half_height; row++) {
-			top = m_data + row * width_in_bytes;
-			bottom = m_data + (height - row - 1) * width_in_bytes;
-			for (int col = 0; col < width_in_bytes; col++) {
-				temp = *top;
-				*top = *bottom;
-				*bottom = temp;
-				top++;
-				bottom++;
+		if (flipHorizontal) {
+			// this is not needed for cube maps (?)
+			int width_in_bytes = width * 4;
+			unsigned char *top = NULL;
+			unsigned char *bottom = NULL;
+			unsigned char temp = 0;
+			int half_height = height / 2;
+			for (int row = 0; row < half_height; row++) {
+				top = m_data + row * width_in_bytes;
+				bottom = m_data + (height - row - 1) * width_in_bytes;
+				for (int col = 0; col < width_in_bytes; col++) {
+					temp = *top;
+					*top = *bottom;
+					*bottom = temp;
+					top++;
+					bottom++;
+				}
 			}
 		}
 		

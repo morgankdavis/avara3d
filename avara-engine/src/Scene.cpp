@@ -9,6 +9,7 @@
 #include "Scene.h"
 
 #include <iostream>
+//#include <memory>
 
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -24,6 +25,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
+#include "SkyboxGeometry.h"
 #include "Utilities.h"
 
 
@@ -164,6 +166,21 @@ shared_ptr<MaterialProperty> Scene::background() const {
 }
 
 void Scene::background(const shared_ptr<MaterialProperty> background) {
+	
+	if (background->cube()) {
+		auto material = make_shared<Material>();
+		material->ambient(background); // this is a hack...
+
+		// generate the skybox geometry if it hasn't already been
+		if (!m_skyboxGeometry) {
+			m_skyboxGeometry = make_shared<SkyboxGeometry>(material);
+		}
+		else {
+			// we already have the geometry, just update its material
+			m_skyboxGeometry->material(material);
+		}
+	}
+
 	m_background = background;
 }
 
@@ -175,18 +192,27 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 
 	unsigned numPolygons = 0;
 	
-	if (m_background && m_background->color()) {
-		auto color = *(m_background->color());
-		glClearColor(color.r, color.g, color.b, 1.0f);
-	}
-	else {
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	}
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	auto viewMat = pointOfView->worldTransform();
 	auto projectionMat = pointOfView->camera()->projection();
 	
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if (m_background) {
+		if (m_background->cube()) {
+			mat4 skyboxViewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+										pointOfView->worldForward(), // center - look at
+										pointOfView->worldUp()); // up
+			
+			m_skyboxGeometry->draw(skyboxViewMat, projectionMat);
+		}
+		else if (m_background->color()) {
+			auto color = *(m_background->color());
+			glClearColor(color.r, color.g, color.b, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+	}
+
 	for (auto node: m_rootNode->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();

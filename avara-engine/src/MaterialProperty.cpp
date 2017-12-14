@@ -79,7 +79,7 @@ shared_ptr<Image> MaterialProperty::image() const {
 
 void MaterialProperty::image(const shared_ptr<Image> image) {
 	m_image = image;
-	m_image->load();
+	m_image->load(true);
 	loadTexture();
 }
 
@@ -97,6 +97,10 @@ shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
 
 void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
 	m_cube = cube;
+	for (auto image : *cube) {
+		image->load(false);
+	}
+	loadTexture();
 }
 
 WrapMode MaterialProperty::wrapS() const {
@@ -123,6 +127,14 @@ void MaterialProperty::minificationFilter(const FilterMode mode) {
 	m_minificationFilter = mode;
 }
 
+FilterMode MaterialProperty::magnificationFilter() const {
+	return m_magnificationFilter;
+}
+
+void MaterialProperty::magnificationFilter(const FilterMode mode) {
+	m_magnificationFilter = mode;
+}
+
 FilterMode MaterialProperty::mipFilter() const {
 	return m_mipFilter;
 }
@@ -145,14 +157,48 @@ void MaterialProperty::maxAnisotropy(const float max) {
 
 void MaterialProperty::loadTexture() {
 	
-	if (m_image) {
-		cout << "Loading texture..." << endl;
+	if (m_cube) {
+		cout << "Loading cube texture..." << endl;
 		
-		// generate, activate and bind texture
-		GLuint texID;
-		glGenTextures(1, &texID);
-		m_glTextureID = texID; // m_glTex is signed (change?)
-		glBindTexture(GL_TEXTURE_2D, texID);
+		GLenum sides[] = {
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+		
+		glGenTextures(1, &m_glTextureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_glTextureID);
+		
+		for (int s=0; s<6; ++s) {
+			GLenum side = sides[s];
+			Image image = *(*m_cube)[s];
+			
+			glTexImage2D(side,
+						 0,
+						 GL_RGBA,
+						 image.width(),
+						 image.height(),
+						 0,
+						 GL_RGBA,
+						 GL_UNSIGNED_BYTE,
+						 image.data());
+		}
+		
+		// format cube map texture
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	else if (m_image) {
+		cout << "Loading 2D texture..." << endl;
+		
+		glGenTextures(1, &m_glTextureID);
+		glBindTexture(GL_TEXTURE_2D, m_glTextureID);
+		
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
 					 GL_RGBA,
@@ -163,8 +209,8 @@ void MaterialProperty::loadTexture() {
 					 GL_UNSIGNED_BYTE,
 					 m_image->data());
 		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_CLAMP_TO_EDGE
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_CLAMP_TO_EDGE
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
@@ -172,8 +218,10 @@ void MaterialProperty::loadTexture() {
 
 void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 	
-	if (m_image) { // texture
-		
+	if (m_cube) { // currently only used for skybox
+		program.bindTexture("cubeSampler", GL_TEXTURE0, m_glTextureID, 0);
+	}
+	else if (m_image) { // texture
 		string useUniformName = "";
 		string samplerUniformName = "";
 		GLenum slot;
@@ -202,7 +250,7 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		}
 
 		program.setUniform(useUniformName.c_str(), true);
-		program.bindTexture(samplerUniformName.c_str(), slot, glTextureID(), index);
+		program.bindTexture(samplerUniformName.c_str(), slot, m_glTextureID, index);
 	}
 	else { // color
 		

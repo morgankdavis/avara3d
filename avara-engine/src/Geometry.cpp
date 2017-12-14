@@ -35,26 +35,10 @@ using namespace utils;
  **************************************************************************************/
 
 Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
-				   const std::vector<std::shared_ptr<Material>> materials):
+				   const vector<shared_ptr<Material>> materials):
 	m_elements(elements),
 	m_materials(materials) {
-		
-		cout << "Creating geometry with materials: " << endl;
-		
-		for (auto material : materials) {
-			if (material->diffuse()->image()) {
-				cout << "Diffuse image: ("
-				<< material->diffuse()->image()->width()
-				<< ", " << material->diffuse()->image()->height() << ")" << endl;
-			}
-			
-			if (material->diffuse()->color()) {
-				cout << "Diffuse color: ("
-				<< material->diffuse()->color()->r << ", "
-				<< material->diffuse()->color()->g << ", "
-				<< material->diffuse()->color()->b << ")" << endl;
-			}
-		}
+
 }
 
 /***************************************************************************************
@@ -102,20 +86,20 @@ void Geometry::generateSmoothNormals() {
 }
 
 void Geometry::generateFlatNormals() {
-
+	
 	for (auto element : elements()) {
 		element->generateFlatNormals();
 	}
 }
 
-unsigned int Geometry::draw(const mat4& modelMat,
-							const mat4& viewMat,
-							const mat4& projectionMat) {
+unsigned Geometry::draw(const mat4& modelMat,
+						const mat4& viewMat,
+						const mat4& projectionMat) {
 	
-	unsigned int numPolygons = 0;
+	unsigned numPolygons = 0;
 	
 	for (int e=0; e < m_elements.size(); ++e) {
-
+		
 		auto element = m_elements[e];
 
 		shared_ptr<Material> material = nullptr;

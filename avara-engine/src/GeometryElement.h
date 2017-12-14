@@ -34,7 +34,12 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		GeometryElement(std::vector<Vertex>& verticies, std::vector<Face>& faces);
+		//GeometryElement(std::string shaderName);
+		GeometryElement(std::vector<Vertex>& verticies,
+						std::vector<Face>& faces);
+		GeometryElement(std::vector<Vertex>& verticies,
+						std::vector<Face>& faces,
+						std::string shaderName);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -46,25 +51,26 @@ namespace ae {
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
-
-		unsigned int draw(const glm::mat4& modelMat,
-						  const glm::mat4& viewMat,
-						  const glm::mat4& projectionMat,
-						  const Material* material);
+		
+		unsigned draw(const glm::mat4& modelMat,
+					  const glm::mat4& viewMat,
+					  const glm::mat4& projectionMat,
+					  const Material* material);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();
 		void generateFlatNormals();
 
+		void loadShaderNamed(const std::string& shaderName);
 		void loadVertexData();
 
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
 		
-	private:
+	protected:
 		
 		/***************************************************************************************
-		     MARK:   Private
+		     MARK:   Protected
 		 **************************************************************************************/
 		
 		std::shared_ptr<Program>				m_program;
@@ -72,6 +78,18 @@ namespace ae {
 		std::vector<Face>						m_faces;
 		GLuint									m_glVAO;
 		GLuint									m_glIBO;
+		
+//	private:
+//		
+//		/***************************************************************************************
+//		     MARK:   Private
+//		 **************************************************************************************/
+//		
+//		std::shared_ptr<Program>				m_program;
+//		std::vector<Vertex>						m_vertices;
+//		std::vector<Face>						m_faces;
+//		GLuint									m_glVAO;
+//		GLuint									m_glIBO;
 	};
 }
 

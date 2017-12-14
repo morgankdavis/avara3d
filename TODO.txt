@@ -3,6 +3,7 @@ TODO:
 ——————————————————————————————————
 
 Add skybox
+Clean shader files (git)
 Default material — check with SceneKit
 Material::fillMode() and doubleSided()
 Material::specularExponent -> shininess + implement + fix specular color
@@ -190,6 +191,7 @@ OPTIMIZATION
 	Vector:
 		reserve
 		emplace_back
+	skybox doesn’t use normals, tex coords, tangents or bitangents
 
 
 Nitpick:

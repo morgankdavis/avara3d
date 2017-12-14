@@ -29,35 +29,39 @@ using namespace std;
      MARK:   Lifecycle
  ******************************************************************************/
 
-Program::Program(const string& vertexShaderPath,
-				 const string& fragmentShaderPath):
+Program::Program(const string& name):
+	m_name(name),
 	m_glID(0),
 	m_isLinked(false) {
 		
-	m_logString = {};
-	m_vertexShaderSource = {};
-	m_fragmentShaderSource = {};
+		m_logString = {};
+		m_vertexShaderSource = {};
+		m_fragmentShaderSource = {};
 		
-	m_glID = glCreateProgram();
+		m_glID = glCreateProgram();
 		
-	if (m_glID == 0) {
-		logString(string("Unable to create shader program."));
-	}
-	else {
-		auto vs = LoadTextFile(vertexShaderPath);
-		auto fs = LoadTextFile(fragmentShaderPath);
-		
-//		cout << "vs: " << *vs << endl;
-//		cout << "fs: " << *fs << endl;
-		
-		if (vs && fs) {
-			vertexShaderSource(vs);
-			fragmentShaderSource(fs);
+		if (m_glID == 0) {
+			logString(string("Unable to create shader program."));
 		}
 		else {
-			cout << "Couldn't load shader files." << endl;
+			
+			string vsPath = ShaderPath(name, "vert");
+			string fsPath = ShaderPath(name, "frag");
+			
+			auto vsSource = LoadTextFile(vsPath);
+			auto fsSource = LoadTextFile(fsPath);
+			
+	//		cout << "vs: " << *vs << endl;
+	//		cout << "fs: " << *fs << endl;
+			
+			if (vsSource && fsSource) {
+				vertexShaderSource(vsSource);
+				fragmentShaderSource(fsSource);
+			}
+			else {
+				cout << "Couldn't load shader files." << endl;
+			}
 		}
-	}
 }
 
 /*******************************************************************************
@@ -312,6 +316,10 @@ void Program::printActiveAttribs() {
 	}
 	
 	free(name);
+}
+
+std::string Program::name() const {
+	return m_name;
 }
 
 GLuint Program::glID() {
