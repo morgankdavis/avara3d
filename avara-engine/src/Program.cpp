@@ -45,8 +45,8 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			string vsPath = ShaderPath(name, "vert");
-			string fsPath = ShaderPath(name, "frag");
+			string vsPath = ShaderPath(name, "vs");
+			string fsPath = ShaderPath(name, "fs");
 			
 			auto vsSource = LoadTextFile(vsPath);
 			auto fsSource = LoadTextFile(fsPath);
