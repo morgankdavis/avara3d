@@ -101,8 +101,8 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	}
 	
 	if (material && material->doubleSided()) {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		glDisable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
 	}
 	else {
 		glEnable(GL_CULL_FACE);

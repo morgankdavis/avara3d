@@ -2,9 +2,7 @@ TODO:
 
 ——————————————————————————————————
 
-Material::fillMode() and doubleSided() + import double sided?
-	Double sided on palm tree
-Material::specularExponent -> shininess + implement + fix specular color
+fix specular color + Material::specularExponent + test specular map
 
 
 AI_MATKEY_ENABLE_WIREFRAME

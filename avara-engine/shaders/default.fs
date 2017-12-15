@@ -64,17 +64,11 @@ float specular_exponent = 150.0;
 
 void main () {
 	
+	// defaults
 	vec3 Ka = vec3(0.75, 0.75, 0.75);
 	vec3 Kd = vec3(1.0, 1.0, 1.0);
 	vec3 Ks = vec3(0.0, 0.0, 0.0);
-	
-//	if (useAmbientSampler) Ka = vec3(texture(samplers.ambient, tex_coord));
-//	else Ka = colors.ambient;
-//	if (useDiffuseSampler) Kd = vec3(texture(samplers.diffuse, tex_coord));
-//	else Kd = colors.diffuse;
-//	if (useSpecularSampler) Ks = vec3(texture(samplers.specular, tex_coord));
-//	else Ks = colors.specular;
-	
+
 	switch (ambientMode) {
 		case MATERIAL_MODE_COLOR: 	Ka = colors.ambient; 								break;
 		case MATERIAL_MODE_SAMPLER:	Ka = vec3(texture(samplers.ambient, tex_coord));	break;
@@ -90,29 +84,26 @@ void main () {
 		case MATERIAL_MODE_SAMPLER:	Ks = vec3(texture(samplers.specular, tex_coord));	break;
 	}
 	
-//	vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
-//    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));
-//	//vec3 Ks = vec3(texture(texture_specular, tex_coord));
-	
     // ambient intensity
+	
     vec3 Ia = La * Ka;
     
     // diffuse intensity
+	
     // raise light position to eye space
     vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
     vec3 direction_to_light_eye = normalize(light_position_eye - vertex_position_eye);
     float dot_prod_diffuse = max(dot(direction_to_light_eye, vertex_normal_eye), 0.0);
     vec3 Id = Ld * Kd * dot_prod_diffuse; // final diffuse intensity
-    
-    //    frag_color = vec4(Id + Ia, 1.0);
-    
+
     // specular intensity
+	
     vec3 surface_to_viewer_eye = normalize(-vertex_position_eye); // viewer is at 0,0,0
     
-    //    vec3 reflection_eye = reflect(-direction_to_light_eye, vertex_normal_eye);
-    //    float dot_prod_specular = dot(reflection_eye, surface_to_viewer_eye);
-    //    dot_prod_specular = max(dot_prod_specular, 0.0);
-    //    float specular_factor = pow(dot_prod_specular, specular_exponent);
+//    vec3 reflection_eye = reflect(-direction_to_light_eye, vertex_normal_eye);
+//    float dot_prod_specular = dot(reflection_eye, surface_to_viewer_eye);
+//    dot_prod_specular = max(dot_prod_specular, 0.0);
+//    float specular_factor = pow(dot_prod_specular, specular_exponent);
     
     // blinn
     vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
@@ -121,6 +112,5 @@ void main () {
     
     vec3 Is = Ls * Ks * specular_factor; // final specular intensity
     
-    // final color
     frag_color = vec4(Is + Id + Ia, 1.0);
 }
