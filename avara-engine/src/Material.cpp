@@ -24,29 +24,25 @@ using namespace std;
  **************************************************************************************/
 
 Material::Material():
-	//	m_name(name),
+//	m_name(name),
 	m_ambient(nullptr),
 	m_diffuse(nullptr),
 	m_specular(nullptr),
 	m_specularExponent(150.0),
-	m_litPerPixel(true),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_readFromDepthBuffer(true),
 	m_fillMode(MaterialFillMode_Fill) {
 	
 }
 
 Material::Material(const string imagePath):
 //	m_name(name),
-//	m_ambient(nullptr),
-//	m_diffuse(nullptr),
-//	m_specular(nullptr),
+	m_ambient(nullptr),
+	m_diffuse(nullptr),
+	m_specular(nullptr),
 	m_specularExponent(150.0),
-	m_litPerPixel(true),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_readFromDepthBuffer(true),
 	m_fillMode(MaterialFillMode_Fill) {
 		
 		// makes a "best guess" for a material based on a referenced image file
@@ -71,10 +67,8 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_diffuse(diffuse),
 	m_specular(specular),
 	m_specularExponent(150.0),
-	m_litPerPixel(true),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_readFromDepthBuffer(true),
 	m_fillMode(MaterialFillMode_Fill) {
 	
 }
@@ -125,14 +119,6 @@ float Material::specularExponent() const {
 
 void Material::specularExponent(const float exponent) {
 	m_specularExponent = exponent;
-}
-
-bool Material::litPerPixel() const {
-	return m_litPerPixel;
-}
-
-void Material::litPerPixel(const bool flag) {
-	m_litPerPixel = flag;
 }
 
 bool Material::locksAmbientWithDiffuse() const {

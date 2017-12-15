@@ -56,9 +56,6 @@ namespace ae {
 		float specularExponent() const;
 		void specularExponent(const float exponent);
 		
-		bool litPerPixel() const;
-		void litPerPixel(const bool flag);
-		
 		bool locksAmbientWithDiffuse() const;
 		void locksAmbientWithDiffuse(const bool flag);
 		
@@ -85,10 +82,8 @@ namespace ae {
 		std::shared_ptr<MaterialProperty> 	m_specular;
 
 		float 								m_specularExponent;
-		bool 								m_litPerPixel;
 		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
-		bool 								m_readFromDepthBuffer;
 		MaterialFillMode 					m_fillMode;
 		
 	};

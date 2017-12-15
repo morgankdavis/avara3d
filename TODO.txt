@@ -2,8 +2,8 @@ TODO:
 
 ——————————————————————————————————
 
-Default material — check with SceneKit
-Material::fillMode() and doubleSided()
+Material::fillMode() and doubleSided() + import double sided?
+	Double sided on palm tree
 Material::specularExponent -> shininess + implement + fix specular color
 
 Add Material filtering and clamping options + anisotropy, mipmapping

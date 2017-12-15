@@ -99,6 +99,13 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	
 	// materials
 	
+	if (material && material->fillMode() == MaterialFillMode_Line) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
+	}
+	else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // GL_FILL, GL_POINT, GL_LINE
+	}
+	
 	if (material) {
 		if (material->locksAmbientWithDiffuse()) {
 			if (material->diffuse()) {

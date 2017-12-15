@@ -45,6 +45,9 @@ int Test::run(const vector<string>& args) {
 	siameseNode->scale(siameseNode->scale() * 0.15f);
 	siameseNode->position(vec3(25.0, 0, 0));
 	scene->rootNode()->addChildNode(siameseNode);
+	for (auto m : siameseNode->geometry()->materials()) {
+		m->fillMode(MaterialFillMode_Line);
+	}
 
 	auto testScene = TestSceneNamed("importTest");
 	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
