@@ -149,11 +149,17 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNode(coneNode);
 	
 	
-	// default default material
-//	auto boxNode = make_shared<Node>();
-//	auto boxGeometry = make_shared<Box>(10, 10, 10);
-//	boxNode->geometry(boxGeometry);
-//	scene->rootNode()->addChildNode(boxNode);
+	// default material + specular color
+	auto boxNode = make_shared<Node>();
+	auto boxGeometry = make_shared<Box>(10, 10, 10);
+	boxNode->geometry(boxGeometry);
+	auto boxMaterial = make_shared<Material>();
+	//auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
+	auto specularMap = TestImageNamed("bw_checker_grid");
+	auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(specularMap);
+	boxMaterial->specular(boxSpecularMaterialProperty);
+	boxGeometry->materials().push_back(boxMaterial);
+	scene->rootNode()->addChildNode(boxNode);
 	
 	
 

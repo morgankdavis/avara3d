@@ -2,8 +2,7 @@ TODO:
 
 ——————————————————————————————————
 
-fix specular color + Material::specularExponent + test specular map
-
+Material::specularExponent
 
 AI_MATKEY_ENABLE_WIREFRAME
 AI_DEFAULT_MATERIAL_NAME
