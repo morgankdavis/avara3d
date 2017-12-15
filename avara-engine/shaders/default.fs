@@ -6,15 +6,20 @@ in vec2 tex_coord;
 
 uniform mat4 view;
 
-//const uint ambientSampler = 1 << 0;
-//const uint diffuseSampler = 1 << 0;
-//const uint specularSampler = 1 << 0;
-//
-//uniform uint usingSamplers;
-
 uniform bool useAmbientSampler;
 uniform bool useDiffuseSampler;
 uniform bool useSpecularSampler;
+
+
+const int MATERIAL_MODE_NONE = 0;
+const int MATERIAL_MODE_COLOR = 1;
+const int MATERIAL_MODE_SAMPLER = 2;
+
+//struct MaterialMode {
+//	int none = 0;
+//	int color = 1;
+//	int sampler = 2;
+//};
 
 struct Samplers {
 	sampler2D ambient;
@@ -34,9 +39,13 @@ struct Light {
 	vec3 color;
 };
 
-uniform Samplers samplers;
-uniform Colors colors;
-uniform Light lights[8];
+
+uniform int 		ambientMode;
+uniform int 		diffuseMode;
+uniform int 		specularMode;
+uniform Samplers 	samplers;
+uniform Colors 		colors;
+uniform Light 		lights[8];
 
 
 layout (location = 0) out vec4 frag_color;
@@ -45,7 +54,7 @@ layout (location = 0) out vec4 frag_color;
 vec3 light_position_world = vec3(70.0, 70.0, 70.0);
 
 vec3 Ls = vec3(1.0, 1.0, 1.0);
-vec3 Ld = vec3(0.7, 0.7, 0.7);
+vec3 Ld = vec3(1.0, 1.0, 1.0);
 vec3 La = vec3(0.2, 0.2, 0.2);
 
 //vec3 Ks = vec3(1.0, 1.0, 1.0);
@@ -55,16 +64,31 @@ float specular_exponent = 150.0;
 
 void main () {
 	
-	vec3 Ka = vec3(0.0, 0.0, 0.0);
-	vec3 Kd = vec3(0.0, 0.0, 0.0);
+	vec3 Ka = vec3(0.75, 0.75, 0.75);
+	vec3 Kd = vec3(1.0, 1.0, 1.0);
 	vec3 Ks = vec3(0.0, 0.0, 0.0);
 	
-	if (useAmbientSampler) Ka = vec3(texture(samplers.ambient, tex_coord));
-	else Ka = colors.ambient;
-	if (useDiffuseSampler) Kd = vec3(texture(samplers.diffuse, tex_coord));
-	else Kd = colors.diffuse;
-	if (useSpecularSampler) Ks = vec3(texture(samplers.specular, tex_coord));
-	else Ks = colors.specular;
+//	if (useAmbientSampler) Ka = vec3(texture(samplers.ambient, tex_coord));
+//	else Ka = colors.ambient;
+//	if (useDiffuseSampler) Kd = vec3(texture(samplers.diffuse, tex_coord));
+//	else Kd = colors.diffuse;
+//	if (useSpecularSampler) Ks = vec3(texture(samplers.specular, tex_coord));
+//	else Ks = colors.specular;
+	
+	switch (ambientMode) {
+		case MATERIAL_MODE_COLOR: 	Ka = colors.ambient; 								break;
+		case MATERIAL_MODE_SAMPLER:	Ka = vec3(texture(samplers.ambient, tex_coord));	break;
+	}
+	
+	switch (diffuseMode) {
+		case MATERIAL_MODE_COLOR:	Kd = colors.diffuse;								break;
+		case MATERIAL_MODE_SAMPLER:	Kd = vec3(texture(samplers.diffuse, tex_coord));	break;
+	}
+	
+	switch (specularMode) {
+		case MATERIAL_MODE_COLOR:	Ks = colors.specular;								break;
+		case MATERIAL_MODE_SAMPLER:	Ks = vec3(texture(samplers.specular, tex_coord));	break;
+	}
 	
 //	vec3 Ka = vec3(texture(diffuseSampler, tex_coord));
 //    vec3 Kd = vec3(texture(diffuseSampler, tex_coord));

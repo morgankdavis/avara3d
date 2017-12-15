@@ -138,33 +138,20 @@ int Test::run(const vector<string>& args) {
 //	coneGeo->materials().push_back(coneMaterial);
 //	scene->rootNode()->addChildNode(coneNode);
 	
+	
+	auto boxNode = make_shared<Node>();
+	auto boxGeometry = make_shared<Box>(10, 10, 10);
+	boxNode->geometry(boxGeometry);
+	scene->rootNode()->addChildNode(boxNode);
+	
+	
 
-	
-	
-	auto cube = make_shared<vector<shared_ptr<Image>>>();
-	cube->push_back(TestImageNamed("nebula1_blue_posx", "png"));
-	cube->push_back(TestImageNamed("nebula1_blue_negx", "png"));
-	cube->push_back(TestImageNamed("nebula1_blue_posy", "png"));
-	cube->push_back(TestImageNamed("nebula1_blue_negy", "png"));
-	cube->push_back(TestImageNamed("nebula1_blue_posz", "png"));
-	cube->push_back(TestImageNamed("nebula1_blue_negz", "png"));
-	auto background = make_shared<MaterialProperty>(cube);
+	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
+//	auto background = make_shared<MaterialProperty>(TestCubeNamed("yokohama", "jpg"));
+//	auto background = make_shared<MaterialProperty>(TestCubeNamed("fishermansBastion", "jpg"));
 	scene->background(background);
-	
-	
-	
-	
-//	auto cube = make_shared<vector<shared_ptr<Image>>>();
-//	cube->push_back(TestImageNamed("yokohama_posx", "jpg"));
-//	cube->push_back(TestImageNamed("yokohama_negx", "jpg"));
-//	cube->push_back(TestImageNamed("yokohama_posy", "jpg"));
-//	cube->push_back(TestImageNamed("yokohama_negy", "jpg"));
-//	cube->push_back(TestImageNamed("yokohama_posz", "jpg"));
-//	cube->push_back(TestImageNamed("yokohama_negz", "jpg"));
-//	auto background = make_shared<MaterialProperty>(cube);
-//	scene->background(background);
-	
-	
+
+
 	
 //	auto backgroundColor = make_shared<Color>(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
 //	//auto backgroundColor = make_shared<Color>(Color::Lime());

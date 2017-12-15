@@ -21,7 +21,7 @@ using namespace glm;
 Camera::Camera():
 	m_fov(radians(45.0)),
 	m_zNear(0.01),
-	m_zFar(1000.0) {
+	m_zFar(10000.0) {
 
 	// TODO: HARD CODED VIEWPORT SIZE!
 		m_projection = perspective(m_fov,

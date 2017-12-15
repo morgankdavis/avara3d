@@ -11,13 +11,13 @@
 #include <algorithm>
 #include <fstream>
 #include <memory>
-#ifdef WINDOWS
-	#include <windows.h>
-	#include <stdlib.h>
-	#include <limits.h>
-	#include <errno.h>
-	#include <sys/stat.h>
-#endif
+//#ifdef WINDOWS
+//	#include <windows.h>
+//	#include <stdlib.h>
+//	#include <limits.h>
+//	#include <errno.h>
+//	#include <sys/stat.h>
+//#endif
 
 #include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
@@ -186,11 +186,29 @@ std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name) {
 }
 
 std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
-									  const std::string& type) {
+												 const std::string& type) {
 	
 	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
 	return make_shared<Image>(fullPath);
 }
+
+std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(const std::string& name,
+																			  const std::string& type) {
+	
+	auto cube = make_shared<vector<std::shared_ptr<Image>>>();
+	
+	cube->push_back(TestImageNamed(name + "_posx", type));
+	cube->push_back(TestImageNamed(name + "_negx", type));
+	cube->push_back(TestImageNamed(name + "_posy", type));
+	cube->push_back(TestImageNamed(name + "_negy", type));
+	cube->push_back(TestImageNamed(name + "_posz", type));
+	cube->push_back(TestImageNamed(name + "_negz", type));
+	
+	return cube;
+}
+
+
+
 
 //std::vector<std::shared_ptr<Image>> ae::utils::TestCubeMaterialPropertyNamed(const std::string& name,
 //																			 const std::string& type) {

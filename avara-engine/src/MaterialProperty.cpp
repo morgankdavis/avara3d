@@ -22,6 +22,16 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Types
+ **************************************************************************************/
+
+typedef enum {
+	MaterialMode_None = 0,
+	MaterialMode_Color = 1,
+	MaterialMode_Sampler = 2
+} MaterialMode;
+
+/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
@@ -213,6 +223,13 @@ void MaterialProperty::loadTexture() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_CLAMP_TO_EDGE
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateTextureMipmap(m_glTextureID);
+		
+//		float aniso = 16.0f;
+//		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &aniso);
+//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, aniso);
 	}
 }
 
@@ -222,24 +239,24 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		program.bindTexture("cubeSampler", GL_TEXTURE0, m_glTextureID, 0);
 	}
 	else if (m_image) { // texture
-		string useUniformName = "";
+		string modeUniformName = "";
 		string samplerUniformName = "";
 		GLenum slot;
 		GLint index;
 		
 		switch (type) {
 			case MaterialPropertyType_Ambient:
-				useUniformName = "useAmbientSampler";
+				modeUniformName = "ambientMode";
 				samplerUniformName = "samplers.ambient";
 				slot = GL_TEXTURE0; index = 0;
 				break;
 			case MaterialPropertyType_Diffuse:
-				useUniformName = "useDiffuseSampler";
+				modeUniformName = "diffuseMode";
 				samplerUniformName = "samplers.diffuse";
 				slot = GL_TEXTURE1; index = 1;
 				break;
 			case MaterialPropertyType_Specular:
-				useUniformName = "useSpecularSampler";
+				modeUniformName = "specularMode";
 				samplerUniformName = "samplers.specular";
 				slot = GL_TEXTURE2; index = 2;
 				break;
@@ -248,34 +265,33 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
 		}
-
-		program.setUniform(useUniformName.c_str(), true);
+		
+		program.setUniform(modeUniformName.c_str(), MaterialMode_Sampler);
 		program.bindTexture(samplerUniformName.c_str(), slot, m_glTextureID, index);
 	}
 	else { // color
-		
-		string useUniformName = "";
+		string modeUniformName = "";
 		string colorUniformName = "";
-
+		
 		switch (type) {
 			case MaterialPropertyType_Ambient:
-				useUniformName = "useAmbientSampler";
+				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType_Diffuse:
-				useUniformName = "useDiffuseSampler";
+				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType_Specular:
-				useUniformName = "useSpecularSampler";
+				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
 		}
-
-		program.setUniform(useUniformName.c_str(), false);
+		
+		program.setUniform(modeUniformName.c_str(), MaterialMode_Color);
 		program.setUniform(colorUniformName.c_str(), m_color->r, m_color->g, m_color->b);
 	}
 }

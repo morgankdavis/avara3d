@@ -2,14 +2,16 @@ TODO:
 
 ——————————————————————————————————
 
-Add skybox
-Clean shader files (git)
 Default material — check with SceneKit
 Material::fillMode() and doubleSided()
 Material::specularExponent -> shininess + implement + fix specular color
-Add Material filtering and clamping options + scale UVs (texture tiling)
+
+Add Material filtering and clamping options + anisotropy, mipmapping
+Scale UVs (texture tiling)
 Add gamma correction
 Add multiple point lights + attenuation
+	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
+Re-arrange scene interestingly + test geometry instancing
 
 
 
@@ -40,6 +42,7 @@ Tests:
 		Clean up Program log vs. printf vs. cout
 		Clean up init/window
 		Fix plane generation (normals??)
+		ERROR HANDLING (shader failed to compile, etc)
 
 	07 - solarsystem
 

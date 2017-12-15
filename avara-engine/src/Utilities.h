@@ -57,6 +57,8 @@ namespace ae {
 		std::string ImagesDirectoryPath();
 		std::string ImagePath(const std::string& name, const std::string& type);
 		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
+		std::shared_ptr<std::vector<std::shared_ptr<Image>>> TestCubeNamed(const std::string& name,
+																		   const std::string& type);
 
 		std::string TestDataDirectoryPath();
 		

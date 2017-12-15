@@ -57,10 +57,10 @@ Plane::Plane(float width, float height):
 //	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 //
 //	Vertex verts[] = {
-//			{ vec3(-width/2.0f, -height/2.0f, 0.0f ), 	vec3(0.0f, 0.0f, 1.0f), 	vec2(0.0f, 1.0f) },
+//			{ vec3(-width/2.0f, -height/2.0f, 0.0f ), 	vec3(0.0f, 0.0f, 1.0f), 	vec2(0.0f, 5.0f) },
 //			{ vec3(-width/2.0f, height/2.0f, 0.0f ), 	vec3(0.0f, 0.0f, 1.0f), 	vec2(0.0f, 0.0f) },
-//			{ vec3(width/2.0f, height/2.0f, 0.0f ),		vec3(0.0f, 0.0f, 1.0f), 	vec2(1.0f, 0.0f) },
-//			{ vec3(width/2.0f, -height/2.0f, 0.0f ), 	vec3(0.0f, 0.0f, 1.0f), 	vec2(1.0f, 1.0f) }
+//			{ vec3(width/2.0f, height/2.0f, 0.0f ),		vec3(0.0f, 0.0f, 1.0f), 	vec2(5.0f, 0.0f) },
+//			{ vec3(width/2.0f, -height/2.0f, 0.0f ), 	vec3(0.0f, 0.0f, 1.0f), 	vec2(5.0f, 5.0f) }
 //	};
 //
 //	Face faces[] = {
