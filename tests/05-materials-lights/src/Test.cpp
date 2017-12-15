@@ -94,6 +94,13 @@ int Test::run(const vector<string>& args) {
 	palmScene->rootNode()->scale(palmScene->rootNode()->scale() * 32.0f);
 	palmScene->rootNode()->position(vec3(0.0f, 47.0f, 0.0f));
 	scene->rootNode()->addChildNode(palmScene->rootNode());
+	for (auto n : palmScene->rootNode()->allChildNodes()) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
 	
 //	auto importTestScene = TestSceneNamed("importTest");
 //	auto scene = importTestScene;
@@ -142,10 +149,11 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNode(coneNode);
 	
 	
-	auto boxNode = make_shared<Node>();
-	auto boxGeometry = make_shared<Box>(10, 10, 10);
-	boxNode->geometry(boxGeometry);
-	scene->rootNode()->addChildNode(boxNode);
+	// default default material
+//	auto boxNode = make_shared<Node>();
+//	auto boxGeometry = make_shared<Box>(10, 10, 10);
+//	boxNode->geometry(boxGeometry);
+//	scene->rootNode()->addChildNode(boxNode);
 	
 	
 

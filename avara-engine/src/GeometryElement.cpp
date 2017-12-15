@@ -79,12 +79,6 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
-	
 	glDepthMask(GL_TRUE);
 	
 	// use shader program
@@ -100,10 +94,19 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	// materials
 	
 	if (material && material->fillMode() == MaterialFillMode_Line) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // GL_FILL, GL_POINT, GL_LINE
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // GL_FILL, GL_POINT, GL_LINE
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	
+	if (material && material->doubleSided()) {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+	}
+	else {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 	}
 	
 	if (material) {
