@@ -1,7 +1,7 @@
 #version 330
 
 
-const int ALPHA_REJECTION_THRESHOLD = 0.2;
+const float ALPHA_REJECTION_THRESHOLD = 0.2;
 
 const int MATERIAL_MODE_NONE = 0;
 const int MATERIAL_MODE_COLOR = 1;
