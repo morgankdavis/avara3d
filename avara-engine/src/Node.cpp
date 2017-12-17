@@ -39,6 +39,7 @@ using namespace glm;
  **************************************************************************************/
 
 Node::Node():
+	m_name(nullptr),
 	m_parent(nullptr),
 	m_hidden(false),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
@@ -58,6 +59,7 @@ Node::Node(const string& name):
 }
 
 Node::Node(const shared_ptr<Geometry> geometry):
+	m_name(nullptr),
 	m_hidden(false),
 	m_geometry(geometry),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),

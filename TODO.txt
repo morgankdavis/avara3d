@@ -2,9 +2,6 @@ TODO:
 
 ——————————————————————————————————
 
-Add Material filtering and clamping options + anisotropy, mipmapping
-Scale UVs (texture tiling)
-Add gamma correction
 Add multiple point lights + attenuation
 	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
 Re-arrange scene interestingly + test geometry instancing
@@ -69,8 +66,6 @@ Alternate mouse input
 
 Convert scene callbacks to use shared/WEAK? pointers
 
-
-Make name() boost::optional
 Make lazy load GL identifiers boost::optional
 
 Fix scene import Z-up
@@ -92,7 +87,6 @@ QUESTIONS:
 			https://computergraphics.stackexchange.com/questions/1502/why-is-the-transposed-inverse-of-the-model-view-matrix-used-to-transform-the-nor
 		https://stackoverflow.com/questions/4124041/is-opengl-coordinate-system-left-handed-or-right-handed
 		https://www.opengl.org/discussion_boards/showthread.php/178301-View-matrix-for-point-light-calculation-should-be-inverse
-
 
 
 Separate Window and Renderer
@@ -127,6 +121,10 @@ Laundry list:
 	SCREENSHOTS & VIDEO
 		ppm: http://netpbm.sourceforge.net/doc/ppm.html
 		png/jpeg: https://github.com/nothings/stb/blob/master/stb_image_write.h
+
+	Add Material filtering and clamping options + anisotropy, mipmapping
+	Scale UVs (texture tiling)
+	Gamma correction
 
 	Move init stuff into Window
 

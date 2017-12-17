@@ -36,6 +36,7 @@ using namespace utils;
 
 Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const vector<shared_ptr<Material>> materials):
+	m_name(nullptr),
 	m_elements(elements),
 	m_materials(materials) {
 		

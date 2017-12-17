@@ -23,19 +23,6 @@ namespace ae {
 		AntialiasingMode_16X =	16
 	} AntialiasingMode;
 
-//	typedef enum {
-//		SceneLoadingOption_ValidateStructure,
-//		SceneLoadingOption_PreTransform,
-//		SceneLoadingOption_ImproveCacheLocality
-//	} SceneLoadingOption;
-
-//	typedef enum {
-//		ProgramType_Default,
-//		ProgramType_PhongPlain, // temporary
-//		ProgramType_PhongTexture, // temporary
-//		ProgramType_Fancy // temporary
-//	} ProgramType;
-	
 	
 	typedef enum {
 		ShaderType_Vertex,
@@ -49,19 +36,19 @@ namespace ae {
 		MaterialPropertyType_Specular
 	} MaterialPropertyType;
 	
+	
+	typedef enum {
+		MaterialFillMode_Fill,
+		MaterialFillMode_Line
+	} MaterialFillMode;
 
+	
 	typedef enum {
 		WrapMode_Clamp,
 		WrapMode_Repeat,
 		WrapMode_lampToBorder,
 		WrapMode_Mirror
 	} WrapMode;
-	
-	
-	typedef enum {
-		MaterialFillMode_Fill,
-		MaterialFillMode_Line
-	} MaterialFillMode;
 
 
 	typedef enum {
@@ -73,20 +60,19 @@ namespace ae {
 
 	typedef enum {
 		LightType_Ambient,
-		LightType_Omni,
+		LightType_Point,
 		LightType_Directional,
 		LightType_Spot
 	} LightType;
 
 
 	typedef enum {
-		DebugOption_showBoundingBoxes = 	1 << 0,
-		DebugOption_showWireframe = 		1 << 1,
-		DebugOption_showPhysicsShapes = 	1 << 2,
-		DebugOption_showCameras = 			1 << 3,
-		DebugOption_showLights = 			1 << 4,
-		DebugOption_showLightExtents = 		1 << 5
-
+		DebugOption_ShowBoundingBoxes = 	1 << 0,
+		DebugOption_ShowWireframe = 		1 << 1,
+		DebugOption_ShowPhysicsShapes = 	1 << 2,
+		DebugOption_ShowCameras = 			1 << 3,
+		DebugOption_ShowLights = 			1 << 4,
+		DebugOption_ShowLightExtents = 		1 << 5
 	} DebugOption;
 
 //	static var showPhysicsShapes: SCNDebugOptions

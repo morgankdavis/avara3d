@@ -20,6 +20,30 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+static WrapMode WrapModeForGLWrapMode() {
+	
+//#define GL_NEAREST 0x2600
+//#define GL_LINEAR 0x2601
+//#define GL_NEAREST_MIPMAP_NEAREST 0x2700
+//#define GL_LINEAR_MIPMAP_NEAREST 0x2701
+//#define GL_NEAREST_MIPMAP_LINEAR 0x2702
+//#define GL_LINEAR_MIPMAP_LINEAR 0x2703
+//#define GL_TEXTURE_MAG_FILTER 0x2800
+//#define GL_TEXTURE_MIN_FILTER 0x2801
+//#define GL_TEXTURE_WRAP_S 0x2802
+//#define GL_TEXTURE_WRAP_T 0x2803
+//#define GL_CLAMP 0x2900
+//#define GL_REPEAT 0x2901
+}
+
+static FilterMode FilterModeForGLFilterMode() {
+	
+}
+
+/***************************************************************************************
      MARK:   Types
  **************************************************************************************/
 
@@ -115,39 +139,81 @@ WrapMode MaterialProperty::wrapS() const {
 	return m_wrapS;
 }
 
-void MaterialProperty::wrapS(const WrapMode mode) {
+void MaterialProperty::wrapS(WrapMode mode) {
 	m_wrapS = mode;
+	
+//	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER, GL_MIRRORED_REPEAT, GL_REPEAT, or GL_MIRROR_CLAMP_TO_EDGE. GL_CLAMP_TO_EDGE
+	
+	//WrapModeForGLWrapMode()
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, m_glTextureID);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_CLAMP_TO_EDGE
 }
 
 WrapMode MaterialProperty::wrapT() const {
 	return m_wrapT;
 }
 
-void MaterialProperty::wrapT(const WrapMode mode) {
+void MaterialProperty::wrapT(WrapMode mode) {
 	m_wrapT = mode;
+	
+//	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER, GL_MIRRORED_REPEAT, GL_REPEAT, or GL_MIRROR_CLAMP_TO_EDGE
+	
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, m_glTextureID);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_CLAMP_TO_EDGE
 }
 
 FilterMode MaterialProperty::minificationFilter() const {
 	return m_minificationFilter;
 }
 
-void MaterialProperty::minificationFilter(const FilterMode mode) {
+void MaterialProperty::minificationFilter(FilterMode mode) {
 	m_minificationFilter = mode;
+	
+//	GL_NEAREST
+//
+//	Returns the value of the texture element that is nearest (in Manhattan distance) to the specified texture coordinates.
+//	GL_LINEAR
+//
+//	Returns the weighted average of the four texture elements that are closest to the specified texture coordinates. These can include items wrapped or repeated from other parts of a texture, depending on the values of GL_TEXTURE_WRAP_S and GL_TEXTURE_WRAP_T, and on the exact mapping.
+//	GL_NEAREST_MIPMAP_NEAREST
+//
+//	Chooses the mipmap that most closely matches the size of the pixel being textured and uses the GL_NEAREST criterion (the texture element closest to the specified texture coordinates) to produce a texture value.
+//	GL_LINEAR_MIPMAP_NEAREST
+//
+//	Chooses the mipmap that most closely matches the size of the pixel being textured and uses the GL_LINEAR criterion (a weighted average of the four texture elements that are closest to the specified texture coordinates) to produce a texture value.
+//	GL_NEAREST_MIPMAP_LINEAR
+//
+//	Chooses the two mipmaps that most closely match the size of the pixel being textured and uses the GL_NEAREST criterion (the texture element closest to the specified texture coordinates ) to produce a texture value from each mipmap. The final texture value is a weighted average of those two values.
+//	GL_LINEAR_MIPMAP_LINEAR
+
+	//FilterModeForGLFilterMode
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, m_glTextureID);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
 FilterMode MaterialProperty::magnificationFilter() const {
 	return m_magnificationFilter;
 }
 
-void MaterialProperty::magnificationFilter(const FilterMode mode) {
+void MaterialProperty::magnificationFilter(FilterMode mode) {
 	m_magnificationFilter = mode;
+	
+//	GL_NEAREST
+//
+//	Returns the value of the texture element that is nearest (in Manhattan distance) to the specified texture coordinates.
+//	GL_LINEAR
+//
+//	Returns the weighted average of the texture elements that are closest to the specified texture coordinates. These can include items wrapped or repeated from other parts of a texture, depending on the values of GL_TEXTURE_WRAP_S and GL_TEXTURE_WRAP_T, and on the exact mapping.
+	
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, m_glTextureID);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 FilterMode MaterialProperty::mipFilter() const {
 	return m_mipFilter;
 }
 
-void MaterialProperty::mipFilter(const FilterMode mode) {
+void MaterialProperty::mipFilter(FilterMode mode) {
 	m_mipFilter = mode;
 }
 
@@ -155,7 +221,7 @@ float MaterialProperty::maxAnisotropy() const {
 	return m_maxAnisotropy;
 }
 
-void MaterialProperty::maxAnisotropy(const float max) {
+void MaterialProperty::maxAnisotropy(float max) {
 	m_maxAnisotropy = max;
 }
 
@@ -217,17 +283,10 @@ void MaterialProperty::loadTexture() {
 					 GL_UNSIGNED_BYTE,
 					 m_image->data());
 		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_CLAMP_TO_EDGE
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_CLAMP_TO_EDGE
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		//glGenerateTextureMipmap(m_glTextureID);
-		
-//		float aniso = 16.0f;
-//		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &aniso);
-//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, aniso);
 	}
 }
 

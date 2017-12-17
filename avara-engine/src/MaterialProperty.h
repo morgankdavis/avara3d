@@ -53,22 +53,22 @@ namespace ae {
 		void cube(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
 		WrapMode wrapS() const;
-		void wrapS(const WrapMode mode);
+		void wrapS(WrapMode mode);
 		
 		WrapMode wrapT() const;
-		void wrapT(const WrapMode mode);
+		void wrapT(WrapMode mode);
 		
 		FilterMode minificationFilter() const;
-		void minificationFilter(const FilterMode mode);
+		void minificationFilter(FilterMode mode);
 		
 		FilterMode magnificationFilter() const;
-		void magnificationFilter(const FilterMode mode);
+		void magnificationFilter(FilterMode mode);
 		
 		FilterMode mipFilter() const;
-		void mipFilter(const FilterMode mode);
+		void mipFilter(FilterMode mode);
 		
 		float maxAnisotropy() const;
-		void maxAnisotropy(const float max);
+		void maxAnisotropy(float max);
 		
 		/***************************************************************************************
 		     MARK:   Internal

@@ -40,7 +40,6 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Material();
-//		Material(const std::string imagePath);
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);

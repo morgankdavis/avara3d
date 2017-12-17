@@ -18,7 +18,6 @@
 
 
 using namespace ae;
-//using namespace boost;
 using namespace glm;
 using namespace std;
 
@@ -41,34 +40,6 @@ shared_ptr<Material> Material::DefaultMaterial() {
      MARK:   Lifecycle
  **************************************************************************************/
 
-//Material::Material():
-////	m_name(name),
-//	m_ambient(nullptr),
-//	m_diffuse(nullptr),
-//	m_specular(nullptr),
-//	m_specularExponent(150.0),
-//	m_locksAmbientWithDiffuse(true),
-//	m_doubleSided(false),
-//	m_fillMode(MaterialFillMode_Fill) {
-//
-//}
-//
-//Material::Material(const string imagePath):
-////	m_name(name),
-//	m_ambient(nullptr),
-//	m_diffuse(nullptr),
-//	m_specular(nullptr),
-//	m_specularExponent(150.0),
-//	m_locksAmbientWithDiffuse(true),
-//	m_doubleSided(false),
-//	m_fillMode(MaterialFillMode_Fill) {
-//
-//		cout << "Making material with image: " << imagePath << endl;
-//
-//		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Image>(imagePath));
-//		m_diffuse = diffuseProperty;
-//}
-
 Material::Material():
 	Material(nullptr, nullptr, nullptr, "default") {
 	
@@ -85,7 +56,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
 				   string programName):
-//	m_name(name),
+	m_name(nullptr),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
 	m_specular(specular),
