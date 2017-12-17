@@ -40,7 +40,7 @@ SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 									 const mat4& projectionMat,
 									 const Material& material) {
-
+	
 	// gl config
 
 //	glEnable(GL_DEPTH_TEST); // not needed

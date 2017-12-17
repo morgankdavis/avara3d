@@ -48,7 +48,7 @@ bool Image::load(bool flipHorizontal) {
 		int width, height, num_byte_pix;
 		const char *path_cstr = m_path.c_str();
 		m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
-		
+
 		if (!m_data) {
 			printf("Error loading image data from path: %s\n", path_cstr);
 			return false;
@@ -64,15 +64,15 @@ bool Image::load(bool flipHorizontal) {
 			unsigned char *bottom = NULL;
 			unsigned char temp = 0;
 			int half_height = height / 2;
-			for (int row = 0; row < half_height; row++) {
+			for (int row = 0; row < half_height; ++row) {
 				top = m_data + row * width_in_bytes;
 				bottom = m_data + (height - row - 1) * width_in_bytes;
 				for (int col = 0; col < width_in_bytes; col++) {
 					temp = *top;
 					*top = *bottom;
 					*bottom = temp;
-					top++;
-					bottom++;
+					++top;
+					++bottom;
 				}
 			}
 		}

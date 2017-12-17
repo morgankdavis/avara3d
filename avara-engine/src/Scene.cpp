@@ -72,8 +72,8 @@ static shared_ptr<Image> MissingTextureImage() {
 }
 
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
-															aiTextureType type,
-															string basePath) {
+																   aiTextureType type,
+																   string basePath) {
 	
 	string typeStr = "";
 	switch (type) {
@@ -362,9 +362,17 @@ void Scene::loadFile(const string& importPath) {
 			auto ambientProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_AMBIENT, basePath);
 			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
 			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
+			
+			// specular exponent
+			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
+			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
+			float shininess = 0;
+			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+				cout << "Specular exponent: " << shininess << endl;
+			}
 
 			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
-			//m_materials.push_back(material);
+			material->specularExponent(shininess);
 			importMaterials.push_back(material);
 		}
 		

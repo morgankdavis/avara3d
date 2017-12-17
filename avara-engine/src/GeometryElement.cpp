@@ -75,11 +75,31 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
 							   const Material* material) {
+	
 	// gl config
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_ONE_MINUS_SRC_ALPHA
+
+//	GL_ZERO
+//	GL_ONE
+//	GL_SRC_COLOR
+//	GL_ONE_MINUS_SRC_COLOR
+//	GL_DST_COLOR
+//	GL_ONE_MINUS_DST_COLOR
+//	GL_SRC_ALPHA
+//	GL_ONE_MINUS_SRC_ALPHA
+//	GL_DST_ALPHA
+//	GL_ONE_MINUS_DST_ALPHA
+//	GL_CONSTANT_COLOR
+//	GL_ONE_MINUS_CONSTANT_COLOR
+//	GL_CONSTANT_ALPHA
+//	GL_ONE_MINUS_CONSTANT_ALPHA
+//	GL_SRC_ALPHA_SATURATE
 	
 	// use shader program
 	
@@ -92,6 +112,8 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	m_program->setUniform("projection", projectionMat);
 	
 	// materials
+	
+	// TODO: move all this shit into Material::configureProgram/prepareToRender
 	
 	if (material && material->fillMode() == MaterialFillMode_Line) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -109,7 +131,16 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	}
 	
 	if (material) {
-		if (material->locksAmbientWithDiffuse()) {
+//		m_program->setUniform("useSpecularExponent", true);
+		m_program->setUniform("specularExponent", material->specularExponent());
+	}
+//	else {
+//		m_program->setUniform("useSpecularExponent", false);
+//	}
+	
+	if (material) {
+		// only lock for diffuse textures, not colors
+		if (material->diffuse() && material->diffuse()->image() && material->locksAmbientWithDiffuse()) {
 			if (material->diffuse()) {
 				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
 			}

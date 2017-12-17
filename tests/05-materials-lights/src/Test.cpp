@@ -42,33 +42,41 @@ int Test::run(const vector<string>& args) {
 
 	auto siameseScene = TestSceneNamed("siamese");
 	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-	siameseNode->scale(siameseNode->scale() * 0.15f);
-	siameseNode->position(vec3(25.0, 0, 0));
+	siameseNode->scale(siameseNode->scale() * 0.075f);
+	siameseNode->position(vec3(-13.5, -64.0, 0));
+	//siameseNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-15.0f)));
 	scene->rootNode()->addChildNode(siameseNode);
-	for (auto m : siameseNode->geometry()->materials()) {
-		m->fillMode(MaterialFillMode_Line);
-	}
+//	for (auto m : siameseNode->geometry()->materials()) {
+//		m->fillMode(MaterialFillMode_Line);
+//	}
 
-	auto testScene = TestSceneNamed("importTest");
-	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
-
-
-	auto planeGeo = make_shared<Plane>(100.0f, 100.0f);
-	auto planeNode = make_shared<Node>();
-	planeGeo->name("plane");
-	planeNode->geometry(planeGeo);
-	scene->rootNode()->addChildNode(planeNode);
-	//planeNode->scale(planeNode->scale() * 10.0f);
-	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
-	planeNode->position(vec3(0.0f, -65.0f, 0.0f));
-	scene->rootNode()->addChildNode(planeNode);
+//	auto testScene = TestSceneNamed("importTest");
+//	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
 
 
-	auto tileImage = TestImageNamed("tiles_1_diff", "jpg");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(tileImage);
-	auto planeMaterial = make_shared<Material>();
-	planeMaterial->diffuse(planeMaterialProperty);
-	planeGeo->materials().push_back(planeMaterial);
+//	auto planeGeo = make_shared<Plane>(100.0f, 100.0f);
+//	auto planeNode = make_shared<Node>();
+//	planeGeo->name("plane");
+//	planeNode->geometry(planeGeo);
+//	scene->rootNode()->addChildNode(planeNode);
+//	//planeNode->scale(planeNode->scale() * 10.0f);
+//	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
+//	planeNode->position(vec3(0.0f, -65.0f, 0.0f));
+//	scene->rootNode()->addChildNode(planeNode);
+	
+//	auto tileImage = TestImageNamed("tiles_1_diff", "jpg");
+//	auto planeMaterialProperty = make_shared<MaterialProperty>(tileImage);
+//	auto planeMaterial = make_shared<Material>();
+//	planeMaterial->diffuse(planeMaterialProperty);
+//	planeGeo->materials().push_back(planeMaterial);
+	
+	
+	
+	auto islandScene = TestSceneNamed("Island", "obj");
+	auto islandNode = islandScene->rootNode()->allChildNodes()[0];
+	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
+	scene->rootNode()->addChildNode(islandNode);
+	
 
 
 
@@ -86,21 +94,21 @@ int Test::run(const vector<string>& args) {
 //	auto duckScene = TestSceneNamed("duck");
 //	auto scene = duckScene;
 	
-	auto palmScene = TestSceneNamed("cartoon_palm_tree");
-//	auto palmNode = palmScene->rootNode()->childNode("palm_tree", true);
-//	for (auto node : palmScene->rootNode()->allChildNodes()) {
-//		cout << "node: " << node->name() << endl;
+//	auto palmScene = TestSceneNamed("cartoon_palm_tree");
+////	auto palmNode = palmScene->rootNode()->childNode("palm_tree", true);
+////	for (auto node : palmScene->rootNode()->allChildNodes()) {
+////		cout << "node: " << node->name() << endl;
+////	}
+//	palmScene->rootNode()->scale(palmScene->rootNode()->scale() * 32.0f);
+//	palmScene->rootNode()->position(vec3(0.0f, 47.0f, 0.0f));
+//	scene->rootNode()->addChildNode(palmScene->rootNode());
+//	for (auto n : palmScene->rootNode()->allChildNodes()) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
 //	}
-	palmScene->rootNode()->scale(palmScene->rootNode()->scale() * 32.0f);
-	palmScene->rootNode()->position(vec3(0.0f, 47.0f, 0.0f));
-	scene->rootNode()->addChildNode(palmScene->rootNode());
-	for (auto n : palmScene->rootNode()->allChildNodes()) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
 	
 //	auto importTestScene = TestSceneNamed("importTest");
 //	auto scene = importTestScene;
@@ -122,9 +130,9 @@ int Test::run(const vector<string>& args) {
 //	auto scene = tree1Scene;
 	
 	auto tunaScene = TestSceneNamed("tuna");
-	tunaScene->rootNode()->position(vec3(18.0f, 2.5f, 45.0f));
-	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 2.0f);
-	//tunaScene->rootNode()->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	tunaScene->rootNode()->position(vec3(-13.0f, -72.0f, 40.0f));
+	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
+	tunaScene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-90.0f)));
 	scene->rootNode()->addChildNode(tunaScene->rootNode());
 //	auto scene = tunaScene;
 
@@ -150,16 +158,35 @@ int Test::run(const vector<string>& args) {
 	
 	
 	// default material + specular color
-	auto boxNode = make_shared<Node>();
-	auto boxGeometry = make_shared<Box>(10, 10, 10);
-	boxNode->geometry(boxGeometry);
-	auto boxMaterial = make_shared<Material>();
-	//auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
-	auto specularMap = TestImageNamed("bw_checker_grid");
-	auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(specularMap);
-	boxMaterial->specular(boxSpecularMaterialProperty);
-	boxGeometry->materials().push_back(boxMaterial);
-	scene->rootNode()->addChildNode(boxNode);
+//	auto boxNode = make_shared<Node>();
+//	auto boxGeometry = make_shared<Box>(10, 10, 10);
+//	boxNode->geometry(boxGeometry);
+////	auto boxMaterial = make_shared<Material>();
+////	boxMaterial->specularExponent(150);
+////	//auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
+////	auto specularMap = TestImageNamed("bw_checker_grid");
+////	auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(specularMap);
+////	boxMaterial->specular(boxSpecularMaterialProperty);
+////	boxGeometry->materials().push_back(boxMaterial);
+//	scene->rootNode()->addChildNode(boxNode);
+	
+	
+	
+	
+	auto palm1Scene = TestSceneNamed("palm1", "obj");
+	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
+	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
+	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
+	scene->rootNode()->addChildNode(palm1Scene->rootNode());
+	
+	for (auto n : palm1Scene->rootNode()->allChildNodes()) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+	
 	
 	
 

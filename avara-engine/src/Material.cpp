@@ -20,6 +20,20 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<Material> Material::DefaultMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+		material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+	}
+	return material;
+}
+
+/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
@@ -45,18 +59,10 @@ Material::Material(const string imagePath):
 	m_doubleSided(false),
 	m_fillMode(MaterialFillMode_Fill) {
 		
-		// makes a "best guess" for a material based on a referenced image file
-		// (locks ambient and diffuse and sets a medium specular color)
-	
 		cout << "Making material with image: " << imagePath << endl;
 		
-		auto textureImage = make_shared<Image>(imagePath);
-		auto ambientDiffuseProperty = make_shared<MaterialProperty>(textureImage);
-		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Gray()));
-
-		m_ambient = ambientDiffuseProperty;
-		m_diffuse = ambientDiffuseProperty;
-		m_specular = specularProperty;
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Image>(imagePath));
+		m_diffuse = diffuseProperty;
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,

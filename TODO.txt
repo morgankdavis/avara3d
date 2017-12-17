@@ -2,12 +2,21 @@ TODO:
 
 ——————————————————————————————————
 
-Material::specularExponent
+Use default material, move program to material?
+Material::configureProgram/prepareToRender
+Geometry::addMaterial()/replaceMaterial()/removeMaterial()
+
+Geometry::elements() should be const + add add addElement()/replaceElement()/removeElement() that checks * sets default materials
+
+Proper alpha blending
+	http://www.openglsuperbible.com/2013/08/20/is-order-independent-transparency-really-necessary/
+	https://www.khronos.org/opengl/wiki/Transparency_Sorting
+	http://www.humus.name/index.php?page=3D&ID=61
+	http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 
 AI_MATKEY_ENABLE_WIREFRAME
 AI_DEFAULT_MATERIAL_NAME
 AI_MATKEY_NAME
-
 
 Add Material filtering and clamping options + anisotropy, mipmapping
 Scale UVs (texture tiling)
@@ -41,11 +50,14 @@ Tests:
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Automatic framebuffer scaling?
-		FIX BOOST LINKING (ld: library not found for -lboost_system)
 		Clean up Program log vs. printf vs. cout
 		Clean up init/window
 		Fix plane generation (normals??)
 		ERROR HANDLING (shader failed to compile, etc)
+		DefaultMaterial + copy constructor
+		NodeRef, MaterialRef, etc
+		Create shader library
+		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 
 	07 - solarsystem
 
@@ -136,6 +148,12 @@ Laundry list:
 		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
 		Import camera and lights
 
+	Proper alpha blending — depth peeling or a-buffer
+		http://blog.icare3d.org/2010/06/fast-and-accurate-single-pass-buffer.html
+		https://www.sjbaker.org/steve/omniv/alpha_sorting.html
+		http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
+		http://www.humus.name/index.php?page=3D&ID=61
+
     Default lighting
 	Why is Cat not scaled properly after rotation in Test3? Compare to SceneKit.
 	gamma correction
@@ -185,6 +203,7 @@ Laundry list:
 
 
 Wish list:
+	Save animated GIF
     	Camera lookAt constraint
 	Geometry subdivision
 
