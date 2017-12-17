@@ -29,8 +29,9 @@ using namespace std;
 
 SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 											 vector<Face>& faces):
-	GeometryElement(verticies, faces, "skybox") {
+	GeometryElement(verticies, faces) { // GeometryElement(verticies, faces, "skybox")
 	
+		cout << "Creating SkyboxGeometryElement..." << endl;
 }
 
 /***************************************************************************************
@@ -39,27 +40,26 @@ SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 
 unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 									 const mat4& projectionMat,
-									 const Material& material) {
+									 const Material* material) {
+	
+	auto program = material->program();
 	
 	// gl config
-
-//	glEnable(GL_DEPTH_TEST); // not needed
-//	glDepthFunc(GL_LESS); // not needed
 	
 	glDepthMask(GL_FALSE);
 
 	// use shader program
 	
-	m_program->use();
+	program->use();
 
 	// uniforms
 	
-	m_program->setUniform("view", viewMat);
-	m_program->setUniform("projection", projectionMat);
+	program->setUniform("view", viewMat);
+	program->setUniform("projection", projectionMat);
 
 	// material
 	
-	material.ambient()->bind(MaterialPropertyType_Ambient, *m_program);
+	material->ambient()->bind(MaterialPropertyType_Ambient, *program);
 
 	// draw
 

@@ -165,11 +165,12 @@ shared_ptr<MaterialProperty> Scene::background() const {
 	return m_background;
 }
 
-void Scene::background(const shared_ptr<MaterialProperty> background) {
+void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
-	if (background->cube()) {
-		auto material = make_shared<Material>();
-		material->ambient(background); // this is a hack...
+	if (backgroundProperty->cube()) {
+		//auto ambientProperty = make_shared<MaterialProperty>(background);
+		auto material = make_shared<Material>(backgroundProperty, nullptr, nullptr, "skybox");
+		//material->ambient(background); // this is a hack...
 
 		// generate the skybox geometry if it hasn't already been
 		if (!m_skyboxGeometry) {
@@ -181,7 +182,7 @@ void Scene::background(const shared_ptr<MaterialProperty> background) {
 		}
 	}
 
-	m_background = background;
+	m_background = backgroundProperty;
 }
 
 /***************************************************************************************

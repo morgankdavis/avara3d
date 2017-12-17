@@ -35,9 +35,9 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 
-		MaterialProperty(const std::shared_ptr<Image> image);
-		MaterialProperty(const std::shared_ptr<Color> color);
-		MaterialProperty(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
+		MaterialProperty(std::shared_ptr<Image> image);
+		MaterialProperty(std::shared_ptr<Color> color);
+		MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
 		/***************************************************************************************
 		     MARK:   Public

@@ -26,9 +26,9 @@ using namespace std;
 
 SkyboxGeometry::SkyboxGeometry(const shared_ptr<Material> material):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
-		
+
 		m_materials.push_back(material);
-		
+
 		Vertex verts[] = {
 			{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
 			{ vec3(-0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
@@ -71,6 +71,8 @@ SkyboxGeometry::SkyboxGeometry(const shared_ptr<Material> material):
 		
 		auto element = make_shared<SkyboxGeometryElement>(vertsVector, facesVector);
 		m_elements.push_back(element);
+		
+		element->loadVertexData(*material->program());
 }
 
 /***************************************************************************************
@@ -95,7 +97,7 @@ unsigned SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
 	GeometryElement geoElem = *(m_elements[0]);
 	SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);
 
-	return element.draw(viewMat, projectionMat, *m_materials[0]);
+	return element.draw(viewMat, projectionMat, &(*m_materials[0]));
 }
 
 

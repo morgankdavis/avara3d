@@ -36,7 +36,7 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		boost::optional<std::string> logString();
+		boost::optional<std::string> logString() const;
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -62,17 +62,17 @@ namespace ae {
 		
 		void bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index);
 		
-		GLint getAttributeLocation(const char* name);
+		GLint getAttributeLocation(const char* name) const;
 		
-		void printActiveUniforms();
-		void printActiveAttribs();
+		void printActiveUniforms() const;
+		void printActiveAttribs() const;
 		
 		std::string name() const;
 		GLuint glID();
-		bool isLinked();
-		boost::optional<std::string> vertexShaderSource();
+		bool isLinked() const;
+		boost::optional<std::string> vertexShaderSource() const;
 		void vertexShaderSource(boost::optional<std::string> source);
-		boost::optional<std::string> fragmentShaderSource();
+		boost::optional<std::string> fragmentShaderSource() const;
 		void fragmentShaderSource(boost::optional<std::string> source);
 		
 	private:

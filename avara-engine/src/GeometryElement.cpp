@@ -28,44 +28,48 @@ using namespace glm;
      MARK:   Lifecycle
  **************************************************************************************/
 
-//GeometryElement::GeometryElement(std::string shaderName):
-//	m_vertices(nullptr),
-//	m_faces(nullptr),
+//GeometryElement::GeometryElement(vector<Vertex>& verticies,
+//								 vector<Face>& faces):
+//	GeometryElement(verticies, faces, "default") {
+//
+//}
+//
+//GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
+//								 std::vector<Face>& faces,
+//								 std::string shaderName):
+//	m_vertices(verticies),
+//	m_faces(faces),
+//	m_vertexDataLoaded(false),
 //	m_glVAO(0),
 //	m_glIBO(0) {
-//	
-//		loadShaderNamed(shaderName);
+//
+//		//loadShaderNamed(shaderName);
+//		//loadVertexData();
 //}
 
-GeometryElement::GeometryElement(vector<Vertex>& verticies,
-								 vector<Face>& faces):
-	GeometryElement(verticies, faces, "default") {
-	
-}
-
 GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
-								 std::vector<Face>& faces,
-								 std::string shaderName):
+								 std::vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
+	//m_vertexDataLoaded(false),
 	m_glVAO(0),
 	m_glIBO(0) {
-		
-		loadShaderNamed(shaderName);
-		loadVertexData();
+	
+	//loadShaderNamed(shaderName);
+	//loadVertexData();
 }
 
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
-shared_ptr<Program> GeometryElement::program() const {
-	return m_program;
-}
-
-void GeometryElement::program(const shared_ptr<Program> program) {
-	m_program = program;
-}
+//shared_ptr<Program> GeometryElement::program() const {
+//	return m_program;
+//}
+//
+//void GeometryElement::program(const shared_ptr<Program> program) {
+//	m_program = program;
+//}
 
 /***************************************************************************************
      MARK:   Internal
@@ -74,7 +78,12 @@ void GeometryElement::program(const shared_ptr<Program> program) {
 unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
-							   const Material* material) {
+							   const Material* inMaterial) {
+	
+	Material material = *(Material::DefaultMaterial());
+	if (inMaterial) material = *inMaterial;
+	
+	auto program = material.program();
 	
 	// gl config
 	
@@ -83,80 +92,62 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	glDepthMask(GL_TRUE);
 	
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_ONE_MINUS_SRC_ALPHA
-
-//	GL_ZERO
-//	GL_ONE
-//	GL_SRC_COLOR
-//	GL_ONE_MINUS_SRC_COLOR
-//	GL_DST_COLOR
-//	GL_ONE_MINUS_DST_COLOR
-//	GL_SRC_ALPHA
-//	GL_ONE_MINUS_SRC_ALPHA
-//	GL_DST_ALPHA
-//	GL_ONE_MINUS_DST_ALPHA
-//	GL_CONSTANT_COLOR
-//	GL_ONE_MINUS_CONSTANT_COLOR
-//	GL_CONSTANT_ALPHA
-//	GL_ONE_MINUS_CONSTANT_ALPHA
-//	GL_SRC_ALPHA_SATURATE
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	// use shader program
 	
-	m_program->use();
+	program->use();
 	
 	// uniforms
+
+	program->setUniform("model", modelMat);
+	program->setUniform("view", inverse(viewMat));
+	program->setUniform("projection", projectionMat);
 	
-	m_program->setUniform("model", modelMat);
-	m_program->setUniform("view", inverse(viewMat));
-	m_program->setUniform("projection", projectionMat);
 	
-	// materials
+	material.prepareToRender();
+
 	
-	// TODO: move all this shit into Material::configureProgram/prepareToRender
-	
-	if (material && material->fillMode() == MaterialFillMode_Line) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	else {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	
-	if (material && material->doubleSided()) {
-		glDisable(GL_CULL_FACE);
-	}
-	else {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
-	
-	if (material) {
-//		m_program->setUniform("useSpecularExponent", true);
-		m_program->setUniform("specularExponent", material->specularExponent());
-	}
-//	else {
-//		m_program->setUniform("useSpecularExponent", false);
+//	// materials
+//
+//	// TODO: move all this shit into Material::configureProgram/prepareToRender
+//
+//	if (material && material->fillMode() == MaterialFillMode_Line) {
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //	}
-	
-	if (material) {
-		// only lock for diffuse textures, not colors
-		if (material->diffuse() && material->diffuse()->image() && material->locksAmbientWithDiffuse()) {
-			if (material->diffuse()) {
-				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
-			}
-		}
-		else {
-			if (material->ambient()) {
-				material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
-			}
-		}
-		if (material->diffuse()) {
-			material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
-		}
-		if (material->specular()) {
-			material->specular()->bind(MaterialPropertyType_Specular, *m_program);
-		}
-	}
+//	else {
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	}
+//
+//	if (material && material->doubleSided()) {
+//		glDisable(GL_CULL_FACE);
+//	}
+//	else {
+//		glEnable(GL_CULL_FACE);
+//		glCullFace(GL_BACK);
+//	}
+//
+//	if (material) {
+//		m_program->setUniform("specularExponent", material->specularExponent());
+//
+//		// only lock for diffuse textures, not colors
+//		if (material->diffuse() && material->diffuse()->image() && material->locksAmbientWithDiffuse()) {
+//			if (material->diffuse()) {
+//				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
+//			}
+//		}
+//		else {
+//			if (material->ambient()) {
+//				material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
+//			}
+//		}
+//		if (material->diffuse()) {
+//			material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
+//		}
+//		if (material->specular()) {
+//			material->specular()->bind(MaterialPropertyType_Specular, *m_program);
+//		}
+//	}
 	
 	// draw
 	
@@ -292,44 +283,44 @@ void GeometryElement::generateFlatNormals() {
 	}
 }
 
-void GeometryElement::loadShaderNamed(const string& shaderName) {
-	
-	m_program = make_shared<Program>(shaderName);
-	
-	if (m_program->compile()) {
-		cout << "Shader program '" << shaderName << "' compiled." << endl;
-		
-		if (m_program->link()) {
-			cout << "Shader program '" << shaderName << "' linked." << endl;
-		}
-		else {
-			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-		}
-	}
-	else {
-		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-	}
-}
+//void GeometryElement::loadShaderProgram(const string& shaderName) {
+//	
+//	m_program = make_shared<Program>(shaderName);
+//	
+//	if (m_program->compile()) {
+//		cout << "Shader program '" << shaderName << "' compiled." << endl;
+//		
+//		if (m_program->link()) {
+//			cout << "Shader program '" << shaderName << "' linked." << endl;
+//		}
+//		else {
+//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+//		}
+//	}
+//	else {
+//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+//	}
+//}
 
-void GeometryElement::loadVertexData() {
+void GeometryElement::loadVertexData(const Program& program) {
 	
 	// TODO: release any existing buffers
 	
-	cout << "Loading vertex data..." << endl;
-
+	cout << "Loading vertex data... " << &program << endl;
+	
 	auto verts = m_vertices;
-
+	
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
-
+	
 	glGenVertexArrays(1, &m_glVAO);
 	glBindVertexArray(m_glVAO);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	
-	GLuint positionIndex = m_program->getAttributeLocation("vertex_position");
+	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -337,8 +328,8 @@ void GeometryElement::loadVertexData() {
 						  sizeof(Vertex), // stride
 						  0); // start offset
 	glEnableVertexAttribArray(positionIndex);
-
-	GLuint normalIndex = m_program->getAttributeLocation("vertex_normal");
+	
+	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -346,8 +337,8 @@ void GeometryElement::loadVertexData() {
 						  sizeof(Vertex), // stride
 						  (void *)sizeof(vec3)); // start offset
 	glEnableVertexAttribArray(normalIndex);
-
-	GLuint texCoordIndex = m_program->getAttributeLocation("texture_coordinate");
+	
+	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, // attrib index
 						  2, // num components per attrib (2 float in vec2)
 						  GL_FLOAT, // component type
@@ -355,7 +346,7 @@ void GeometryElement::loadVertexData() {
 						  sizeof(Vertex), // stride
 						  (void *)(sizeof(vec3) + sizeof(vec3))); // start offset
 	glEnableVertexAttribArray(texCoordIndex);
-
+	
 	glGenBuffers(1, &m_glIBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,

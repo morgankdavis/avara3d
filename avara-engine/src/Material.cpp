@@ -13,9 +13,11 @@
 #include "Color.h"
 #include "Image.h"
 #include "MaterialProperty.h"
+#include "Program.h"
 
 
 using namespace ae;
+using namespace glm;
 using namespace std;
 
 
@@ -37,37 +39,50 @@ shared_ptr<Material> Material::DefaultMaterial() {
      MARK:   Lifecycle
  **************************************************************************************/
 
-Material::Material():
-//	m_name(name),
-	m_ambient(nullptr),
-	m_diffuse(nullptr),
-	m_specular(nullptr),
-	m_specularExponent(150.0),
-	m_locksAmbientWithDiffuse(true),
-	m_doubleSided(false),
-	m_fillMode(MaterialFillMode_Fill) {
-	
-}
+//Material::Material():
+////	m_name(name),
+//	m_ambient(nullptr),
+//	m_diffuse(nullptr),
+//	m_specular(nullptr),
+//	m_specularExponent(150.0),
+//	m_locksAmbientWithDiffuse(true),
+//	m_doubleSided(false),
+//	m_fillMode(MaterialFillMode_Fill) {
+//
+//}
+//
+//Material::Material(const string imagePath):
+////	m_name(name),
+//	m_ambient(nullptr),
+//	m_diffuse(nullptr),
+//	m_specular(nullptr),
+//	m_specularExponent(150.0),
+//	m_locksAmbientWithDiffuse(true),
+//	m_doubleSided(false),
+//	m_fillMode(MaterialFillMode_Fill) {
+//
+//		cout << "Making material with image: " << imagePath << endl;
+//
+//		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Image>(imagePath));
+//		m_diffuse = diffuseProperty;
+//}
 
-Material::Material(const string imagePath):
-//	m_name(name),
-	m_ambient(nullptr),
-	m_diffuse(nullptr),
-	m_specular(nullptr),
-	m_specularExponent(150.0),
-	m_locksAmbientWithDiffuse(true),
-	m_doubleSided(false),
-	m_fillMode(MaterialFillMode_Fill) {
-		
-		cout << "Making material with image: " << imagePath << endl;
-		
-		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Image>(imagePath));
-		m_diffuse = diffuseProperty;
+Material::Material():
+	Material(nullptr, nullptr, nullptr, "default") {
+	
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular):
+	Material(ambient, diffuse, specular, "default") {
+	
+}
+
+Material::Material(shared_ptr<MaterialProperty> ambient,
+				   shared_ptr<MaterialProperty> diffuse,
+				   shared_ptr<MaterialProperty> specular,
+				   string shaderName):
 //	m_name(name),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
@@ -75,12 +90,10 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_specularExponent(150.0),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_fillMode(MaterialFillMode_Fill) {
+	m_fillMode(MaterialFillMode_Fill),
+	m_program(nullptr) {
 	
-}
-
-Material::~Material() {
-	cout << "[Material deallocating]" << endl;
+		loadShaderProgram(shaderName);
 }
 
 /***************************************************************************************
@@ -149,4 +162,75 @@ MaterialFillMode Material::fillMode() const {
 
 void Material::fillMode(const MaterialFillMode mode) {
 	m_fillMode = mode;
+}
+
+shared_ptr<Program> Material::program() const {
+	return m_program;
+}
+
+void Material::program(const shared_ptr<Program> program) {
+	m_program = program;
+}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
+void Material::loadShaderProgram(const string& shaderName) {
+	
+	m_program = make_shared<Program>(shaderName);
+	
+	if (m_program->compile()) {
+		cout << "Shader program '" << shaderName << "' compiled." << endl;
+		
+		if (m_program->link()) {
+			cout << "Shader program '" << shaderName << "' linked." << endl;
+		}
+		else {
+			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+		}
+	}
+	else {
+		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+	}
+}
+
+void Material::prepareToRender() const {
+	
+//	m_program->setUniform("model", modelMat);
+//	m_program->setUniform("view", inverse(viewMat));
+//	m_program->setUniform("projection", projectionMat);
+	
+	if (m_fillMode == MaterialFillMode_Line) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	
+	if (m_doubleSided) {
+		glDisable(GL_CULL_FACE);
+	}
+	else {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+	
+	m_program->setUniform("specularExponent", m_specularExponent);
+	
+	// only lock for diffuse textures, not colors
+	if (m_diffuse && m_diffuse->image() && m_locksAmbientWithDiffuse) {
+		m_diffuse->bind(MaterialPropertyType_Ambient, *m_program);
+	}
+	else {
+		if (m_ambient) {
+			m_ambient->bind(MaterialPropertyType_Ambient, *m_program);
+		}
+	}
+	if (m_diffuse) {
+		m_diffuse->bind(MaterialPropertyType_Diffuse, *m_program);
+	}
+	if (m_specular) {
+		m_specular->bind(MaterialPropertyType_Specular, *m_program);
+	}
 }

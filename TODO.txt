@@ -2,17 +2,8 @@ TODO:
 
 ——————————————————————————————————
 
-Use default material, move program to material?
-Material::configureProgram/prepareToRender
 Geometry::addMaterial()/replaceMaterial()/removeMaterial()
-
 Geometry::elements() should be const + add add addElement()/replaceElement()/removeElement() that checks * sets default materials
-
-Proper alpha blending
-	http://www.openglsuperbible.com/2013/08/20/is-order-independent-transparency-really-necessary/
-	https://www.khronos.org/opengl/wiki/Transparency_Sorting
-	http://www.humus.name/index.php?page=3D&ID=61
-	http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 
 AI_MATKEY_ENABLE_WIREFRAME
 AI_DEFAULT_MATERIAL_NAME
@@ -163,6 +154,7 @@ Laundry list:
 	Fix frame buffer size synchronization
 	glDeleteProgram
 		delete vertex data
+	FXAA
 
 UI
 	CEGUI2

@@ -20,6 +20,7 @@ namespace ae {
 
 
 	class MaterialProperty;
+	class Program;
 
 
 	class Material {
@@ -37,11 +38,14 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Material();
-		Material(const std::string imagePath);
+//		Material(const std::string imagePath);
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
-		~Material();
+		Material(std::shared_ptr<MaterialProperty> ambient,
+				 std::shared_ptr<MaterialProperty> diffuse,
+				 std::shared_ptr<MaterialProperty> specular,
+				 std::string shaderName);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -71,13 +75,25 @@ namespace ae {
 		MaterialFillMode fillMode() const;
 		void fillMode(const MaterialFillMode mode);
 		
+		std::shared_ptr<Program> program() const;
+		void program(const std::shared_ptr<Program> program);
+		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		//void bindSpecular();
+		void loadShaderProgram(const std::string& shaderName);
+		void prepareToRender() const;
 		
-		private:
+	protected:
+		
+		/***************************************************************************************
+		     MARK:   Protected
+		 **************************************************************************************/
+		
+		std::shared_ptr<Program>			m_program;
+		
+	private:
 		
 		/***************************************************************************************
 		     MARK:   Private

@@ -38,7 +38,24 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const vector<shared_ptr<Material>> materials):
 	m_elements(elements),
 	m_materials(materials) {
+		
+		for (int e=0; e < m_elements.size(); ++e) {
+			auto element = m_elements[e];
+			
+			if (m_materials.size() > e) {
+				auto element = m_elements[e];
+				auto material = m_materials[e];
+				element->loadVertexData(*(material->program()));
+			}
+			else {
+				element->loadVertexData(*(Material::DefaultMaterial()->program()));
+			}
+		}
 
+
+//		for (int m=0; m < m_elements.size() - m_materials.size(); ++m) {
+//			m_materials.push_back(Material::DefaultMaterial());
+//		}
 }
 
 /***************************************************************************************
@@ -101,16 +118,18 @@ unsigned Geometry::draw(const mat4& modelMat,
 	for (int e=0; e < m_elements.size(); ++e) {
 		
 		auto element = m_elements[e];
+		auto material = m_materials[e];
 
-		shared_ptr<Material> material = nullptr;
-		if (m_materials.size() > e) {
-			material = m_materials[e];
-		}
-		else if (m_materials.size() > 0) {
-			material = m_materials[m_materials.size()-1 % e];
-		}
+//		shared_ptr<Material> material = nullptr;
+//		if (m_materials.size() > e) {
+//			material = m_materials[e];
+//		}
+//		else if (m_materials.size() > 0) {
+//			material = m_materials[m_materials.size()-1 % e];
+//		}
 		
 		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));
+		//numPolygons += element->draw(modelMat, viewMat, projectionMat, *material);
 	}
 	
 	return numPolygons;

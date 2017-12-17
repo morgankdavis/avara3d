@@ -50,7 +50,7 @@ namespace ae {
 		//void rootNode(const std::shared_ptr<Node> node);
 		
 		std::shared_ptr<MaterialProperty> background() const;
-		void background(const std::shared_ptr<MaterialProperty> background);
+		void background(std::shared_ptr<MaterialProperty> background);
 		
 //		bool					isPaused;
 //

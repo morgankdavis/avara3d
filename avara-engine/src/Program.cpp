@@ -68,7 +68,7 @@ Program::Program(const string& name):
      MARK:   Public
  ******************************************************************************/
 
-optional<string> Program::logString() {
+optional<string> Program::logString() const {
 	return m_logString;
 }
 
@@ -268,12 +268,12 @@ void Program::bindTexture(const char* name, const GLenum& slot, const GLuint& te
 	setUniform(name, index);
 }
 
-GLint Program::getAttributeLocation(const char* name) {
+GLint Program::getAttributeLocation(const char* name) const {
 	
 	return glGetAttribLocation(m_glID, name);
 }
 
-void Program::printActiveUniforms() {
+void Program::printActiveUniforms() const {
 	
 	GLint nUniforms, size, location, maxLen;
 	GLchar* name;
@@ -296,7 +296,7 @@ void Program::printActiveUniforms() {
 	free(name);
 }
 
-void Program::printActiveAttribs() {
+void Program::printActiveAttribs() const {
 	
 	GLint written, size, location, maxLength, nAttribs;
 	GLenum type;
@@ -326,11 +326,11 @@ GLuint Program::glID() {
 	return m_glID;
 }
 
-bool Program::isLinked() {
+bool Program::isLinked() const {
 	return m_isLinked;
 }
 
-optional<string> Program::vertexShaderSource() {
+optional<string> Program::vertexShaderSource() const {
 	return m_vertexShaderSource;
 }
 
@@ -338,7 +338,7 @@ void Program::vertexShaderSource(optional<string> source) {
 	m_vertexShaderSource = source;
 }
 
-optional<string> Program::fragmentShaderSource() {
+optional<string> Program::fragmentShaderSource() const {
 	return m_fragmentShaderSource;
 }
 

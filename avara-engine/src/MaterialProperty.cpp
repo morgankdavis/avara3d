@@ -10,8 +10,6 @@
 
 #include <iostream>
 
-#include <GL/glew.h>
-
 #include "Color.h"
 #include "Image.h"
 #include "Program.h"
@@ -35,7 +33,7 @@ typedef enum {
      MARK:   Lifecycle
  **************************************************************************************/
 
-MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
+MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
 	m_image(nullptr),
 	m_color(nullptr),
 	m_cube(nullptr),
@@ -50,7 +48,7 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Image> image):
 		this->image(image);
 }
 
-MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
+MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
 	m_cube(nullptr),
@@ -64,7 +62,7 @@ MaterialProperty::MaterialProperty(const std::shared_ptr<Color> color):
 	
 }
 
-MaterialProperty::MaterialProperty(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
+MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
 	m_image(nullptr),
 	m_color(nullptr),
 	m_cube(nullptr),

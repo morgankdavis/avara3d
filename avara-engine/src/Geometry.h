@@ -47,6 +47,8 @@ namespace ae {
 		std::vector<std::shared_ptr<GeometryElement>>& elements();
 		std::vector<std::shared_ptr<Material>>& materials();
 		
+		//void replaceMaterial(const int index, const Material& replacement);
+		
 //		Material firstMaterial();
 //		Material materialNamed(const std::string& name);
 //		void insertMaterial(const Material& material, const int index);

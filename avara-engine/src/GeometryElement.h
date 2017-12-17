@@ -24,7 +24,7 @@ namespace ae {
 
 	class Material;
 	class Program;
-
+	
 
 	class GeometryElement {
 		
@@ -34,19 +34,18 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		//GeometryElement(std::string shaderName);
 		GeometryElement(std::vector<Vertex>& verticies,
 						std::vector<Face>& faces);
-		GeometryElement(std::vector<Vertex>& verticies,
-						std::vector<Face>& faces,
-						std::string shaderName);
+//		GeometryElement(std::vector<Vertex>& verticies,
+//						std::vector<Face>& faces,
+//						std::string shaderName);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 
-		std::shared_ptr<Program> program() const;
-		void program(const std::shared_ptr<Program> program);
+//		std::shared_ptr<Program> program() const;
+//		void program(const std::shared_ptr<Program> program);
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -61,8 +60,8 @@ namespace ae {
 		void generateSmoothNormals();
 		void generateFlatNormals();
 
-		void loadShaderNamed(const std::string& shaderName);
-		void loadVertexData();
+		//void loadShaderNamed(const std::string& shaderName);
+		void loadVertexData(const Program& program);
 
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
@@ -73,9 +72,9 @@ namespace ae {
 		     MARK:   Protected
 		 **************************************************************************************/
 		
-		std::shared_ptr<Program>				m_program;
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
+		//bool									m_vertexDataLoaded;
 		GLuint									m_glVAO;
 		GLuint									m_glIBO;
 		
