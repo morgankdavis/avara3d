@@ -97,7 +97,7 @@ Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
      MARK:   Public
  **************************************************************************************/
 
-string Node::name() const {
+boost::optional<std::string> Node::name() const {
 	return m_name;
 }
 

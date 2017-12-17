@@ -76,7 +76,6 @@ namespace ae {
 		
 		void loadTexture();
 		void bind(MaterialPropertyType type, Program& program);
-		GLuint glTextureID();
 		
 	private:
 		

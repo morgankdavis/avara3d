@@ -43,7 +43,7 @@ MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
 	m_magnificationFilter(WrapMode_Linear),
 	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
-	m_glTextureID(-1) {
+	m_glTextureID(1) {
 
 		this->image(image);
 }
@@ -58,7 +58,7 @@ MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
 	m_magnificationFilter(WrapMode_Linear),
 	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
-	m_glTextureID(-1) {
+	m_glTextureID(1) {
 	
 }
 
@@ -72,7 +72,7 @@ MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<I
 	m_magnificationFilter(WrapMode_Linear),
 	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(0),
-	m_glTextureID(-1) {
+	m_glTextureID(1) {
 	
 		this->cube(cube);
 }
@@ -293,11 +293,3 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		program.setUniform(colorUniformName.c_str(), m_color->r, m_color->g, m_color->b);
 	}
 }
-
-GLuint MaterialProperty::glTextureID() {
-//	if (m_glTextureID == -1) {
-//		loadTexture();
-//	}
-	return m_glTextureID;
-}
-

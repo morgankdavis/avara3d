@@ -27,7 +27,7 @@ using namespace std;
 SkyboxGeometry::SkyboxGeometry(const shared_ptr<Material> material):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
-		m_materials.push_back(material);
+		addMaterial(material);
 
 		Vertex verts[] = {
 			{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },

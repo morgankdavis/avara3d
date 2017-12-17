@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/optional.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -43,7 +44,7 @@ namespace ae {
      		MARK:   Public
  		 **************************************************************************************/
 
-		std::string name() const;
+		boost::optional<std::string> name() const;
 		void name(const std::string& name);
 		
 		std::shared_ptr<Light> light() const;
@@ -123,7 +124,7 @@ namespace ae {
      		MARK:   Private
  		**************************************************************************************/
 		
-		std::string							m_name;
+		boost::optional<std::string>		m_name;
 		
 		std::shared_ptr<Light>				m_light;
 		std::shared_ptr<Camera>				m_camera;

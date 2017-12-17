@@ -312,6 +312,7 @@ void Scene::loadFile(const string& importPath) {
 		for (int m=0; m<numMeshes; ++m) {
 			aiMesh *mesh = scene->mMeshes[m];
 			
+			// should be set for parent Geometry
 			aiString name = mesh->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
 				cout << "mName: " << name.C_Str() << endl;
@@ -364,6 +365,8 @@ void Scene::loadFile(const string& importPath) {
 			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
 			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
 			
+			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+			
 			// specular exponent
 			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
 			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
@@ -371,9 +374,16 @@ void Scene::loadFile(const string& importPath) {
 			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
 				cout << "Specular exponent: " << shininess << endl;
 			}
-
-			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
 			material->specularExponent(shininess);
+			
+			aiString name;
+			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
+				if (strcmp(name.C_Str(), "") != 0) {
+					cout << "Name: " << name.C_Str() << endl;
+					material->name(name.C_Str());
+				}
+			}
+
 			importMaterials.push_back(material);
 		}
 		
@@ -391,12 +401,21 @@ void Scene::loadFile(const string& importPath) {
 
 		for (unsigned int l=0; l<scene->mNumLights; --l) {
 			break; // disable light importing, we'll do it ourselves!
-
+			
+			aiLight* aiLight = scene->mLights[l];
 			auto light = make_shared<Light>();
+			
+			cout << "Adding light: " << light << endl;
+			
+			aiString name = aiLight->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				cout << "Name: " << name.C_Str() << endl;
+				light->name(name.C_Str());
+			}
+			
 			auto lightNode = make_shared<Node>("Light");
 			lightNode->light(light);
 			rootNode()->addChildNode(lightNode);
-			cout << "Adding light: " << light << endl;
 		}
 
 		// ********** cameras **********
@@ -405,10 +424,19 @@ void Scene::loadFile(const string& importPath) {
 			break; // disable camera importing, we'll do it ourselves!
 
 			aiCamera* aiCamera = scene->mCameras[c];
-
+			
 			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
 											  aiCamera->mClipPlaneFar,
 											  aiCamera->mHorizontalFOV);
+			
+			aiString name = aiCamera->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				cout << "Name: " << name.C_Str() << endl;
+				camera->name(name.C_Str());
+			}
+			
+			cout << "Adding camera: " << camera << endl;
+
 			auto cameraNode = make_shared<Node>("Camera");
 			cameraNode->camera(camera);
 
@@ -419,7 +447,6 @@ void Scene::loadFile(const string& importPath) {
 			cameraNode->transform(viewMat);
 
 			rootNode()->addChildNode(cameraNode);
-			cout << "Adding camera: " << camera << endl;
 		}
 	}
 	else {
@@ -448,6 +475,12 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 								 const vector<shared_ptr<Material>>& importMaterials) {
 
 	string name = aiGeometryNode->mName.C_Str();
+	
+//	aiString name = aiGeometryNode->mName;
+//	if (strcmp(name.C_Str(), "") != 0) {
+//		cout << "Name: " << name.C_Str() << endl;
+//	}
+	
 	mat4 transform = AIMaxtrix4x4ToGLMMat4(aiGeometryNode->mTransformation);
 	cout << "Adding '" << name << "' with transform: " << endl;
 	cout << transform << endl;
@@ -460,16 +493,12 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 		cout << "Reading mesh " << m << endl;
 		
 		unsigned int meshIndex = aiGeometryNode->mMeshes[m];
-		//auto element = m_geometryElements[meshIndex];
 		auto element = importElements[meshIndex];
 		elements.push_back(element);
 
 		unsigned int materialIndex = aiScene->mMeshes[meshIndex]->mMaterialIndex;
-//		if (m_materials.size() && (m_materials.size()-1 >= materialIndex)) {
-//			cout << "m_materials count: " << m_materials.size() << endl;
 		if (importMaterials.size() && (importMaterials.size()-1 >= materialIndex)) {
 			cout << "importMaterials count: " << importMaterials.size() << endl;
-			//auto material = m_materials[materialIndex];
 			auto material = importMaterials[materialIndex];
 			materials.push_back(material);
 		}

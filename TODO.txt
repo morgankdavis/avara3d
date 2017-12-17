@@ -2,20 +2,12 @@ TODO:
 
 ——————————————————————————————————
 
-Geometry::addMaterial()/replaceMaterial()/removeMaterial()
-Geometry::elements() should be const + add add addElement()/replaceElement()/removeElement() that checks * sets default materials
-
-AI_MATKEY_ENABLE_WIREFRAME
-AI_DEFAULT_MATERIAL_NAME
-AI_MATKEY_NAME
-
 Add Material filtering and clamping options + anisotropy, mipmapping
 Scale UVs (texture tiling)
 Add gamma correction
 Add multiple point lights + attenuation
 	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
 Re-arrange scene interestingly + test geometry instancing
-
 
 
 Tests:
@@ -37,7 +29,7 @@ Tests:
 		https://github.com/SergiusTheBest/plog
 		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
 		Check const
-		Artificial frame limit
+		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Automatic framebuffer scaling?
@@ -46,15 +38,20 @@ Tests:
 		Fix plane generation (normals??)
 		ERROR HANDLING (shader failed to compile, etc)
 		DefaultMaterial + copy constructor
-		NodeRef, MaterialRef, etc
+		NodeRef, MaterialRef, etc + use weak_ptr
 		Create shader library
+		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 
 	07 - solarsystem
+		Emission, multiply?
 
 	30 - physics
 
 	40 - multithreading
+		#include <thread>
+		unsigned int n = std::thread::hardware_concurrency();
+		std::cout << n << " concurrent threads are supported.\n";
 
 	50 - audio
 

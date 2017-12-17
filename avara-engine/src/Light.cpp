@@ -10,6 +10,7 @@
 
 
 using namespace ae;
+using namespace std;
 
 
 /***************************************************************************************
@@ -18,4 +19,16 @@ using namespace ae;
 
 Light::Light() {
 	
+}
+
+/***************************************************************************************
+     MARK:   Public
+ **************************************************************************************/
+
+boost::optional<string> Light::name() const {
+	return m_name;
+}
+
+void Light::name(const string& name) {
+	m_name = name;
 }

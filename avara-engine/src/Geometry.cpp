@@ -62,7 +62,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
      MARK:   Public
  **************************************************************************************/
 
-string Geometry::name() const {
+boost::optional<string> Geometry::name() const {
 	return m_name;
 }
 
@@ -70,12 +70,48 @@ void Geometry::name(const string& name) {
 	m_name = name;
 }
 
-vector<shared_ptr<GeometryElement>>& Geometry::elements() {
+const vector<shared_ptr<GeometryElement>>& Geometry::elements() {
 	return m_elements;
 }
 
-vector<shared_ptr<Material>>& Geometry::materials() {
+const vector<shared_ptr<Material>>& Geometry::materials() {
 	return m_materials;
+}
+
+shared_ptr<Material> Geometry::firstMaterial() const {
+	if (m_materials.size() > 0) {
+		return m_materials[0];
+	}
+	return nullptr;
+}
+
+shared_ptr<Material> Geometry::materialNamed(const string& name) const {
+	for (auto material : m_materials) {
+		auto matName = material->name();
+		if (matName) {
+			if (!(*matName).compare(name)) {
+				return material;
+			}
+		}
+	}
+	return nullptr;
+}
+
+void Geometry::addMaterial(const shared_ptr<Material> material) {
+	m_materials.emplace_back(material);
+}
+
+void Geometry::insertMaterial(const shared_ptr<Material> material, int index) {
+	m_materials.insert(m_materials.begin()+index, material);
+}
+
+void Geometry::removeMaterial(int index) {
+	m_materials.erase(m_materials.begin()+index);
+}
+
+void Geometry::replaceMaterial(int index, const shared_ptr<Material> replacement) {
+	removeMaterial(index);
+	insertMaterial(replacement, index);
 }
 
 /***************************************************************************************

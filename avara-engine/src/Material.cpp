@@ -9,6 +9,7 @@
 #include "Material.h"
 
 #include <iostream>
+#include <memory>
 
 #include "Color.h"
 #include "Image.h"
@@ -17,6 +18,7 @@
 
 
 using namespace ae;
+//using namespace boost;
 using namespace glm;
 using namespace std;
 
@@ -82,7 +84,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
-				   string shaderName):
+				   string programName):
 //	m_name(name),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
@@ -93,20 +95,20 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_fillMode(MaterialFillMode_Fill),
 	m_program(nullptr) {
 	
-		loadShaderProgram(shaderName);
+		loadShaderProgram(programName);
 }
 
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
-//string Material::name() const {
-//	return m_name;
-//}
-//
-//void Material::name(const string name) {
-//	m_name = name;
-//}
+boost::optional<std::string> Material::name() const {
+	return m_name;
+}
+
+void Material::name(const string& name) {
+	m_name = name;
+}
 
 shared_ptr<MaterialProperty> Material::ambient() const {
 	return m_ambient;
@@ -136,7 +138,7 @@ float Material::specularExponent() const {
 	return m_specularExponent;
 }
 
-void Material::specularExponent(const float exponent) {
+void Material::specularExponent(float exponent) {
 	m_specularExponent = exponent;
 }
 
@@ -144,7 +146,7 @@ bool Material::locksAmbientWithDiffuse() const {
 	return m_locksAmbientWithDiffuse;
 }
 
-void Material::locksAmbientWithDiffuse(const bool flag) {
+void Material::locksAmbientWithDiffuse(bool flag) {
 	m_locksAmbientWithDiffuse = flag;
 }
 
@@ -152,7 +154,7 @@ bool Material::doubleSided() const {
 	return m_doubleSided;
 }
 
-void Material::doubleSided(const bool flag) {
+void Material::doubleSided(bool flag) {
 	m_doubleSided = flag;
 }
 
@@ -160,7 +162,7 @@ MaterialFillMode Material::fillMode() const {
 	return m_fillMode;
 }
 
-void Material::fillMode(const MaterialFillMode mode) {
+void Material::fillMode(MaterialFillMode mode) {
 	m_fillMode = mode;
 }
 

@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 
 
@@ -41,19 +42,18 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::string name() const;
+		boost::optional<std::string> name() const;
 		void name(const std::string& name);
 		
-		std::vector<std::shared_ptr<GeometryElement>>& elements();
-		std::vector<std::shared_ptr<Material>>& materials();
+		const std::vector<std::shared_ptr<GeometryElement>>& elements();
+		const std::vector<std::shared_ptr<Material>>& materials();
 		
-		//void replaceMaterial(const int index, const Material& replacement);
-		
-//		Material firstMaterial();
-//		Material materialNamed(const std::string& name);
-//		void insertMaterial(const Material& material, const int index);
-//		void removeMaterial(const int index);
-//		void removeMaterial(const int index, const Material& replacement);
+		std::shared_ptr<Material> firstMaterial() const;
+		std::shared_ptr<Material> materialNamed(const std::string& name) const;
+		void addMaterial(const std::shared_ptr<Material> material);
+		void insertMaterial(const std::shared_ptr<Material> material, int index);
+		void removeMaterial(int index);
+		void replaceMaterial(int index, const std::shared_ptr<Material> replacement);
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -86,7 +86,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 
-		std::string												m_name;
+		boost::optional<std::string>							m_name;
 		Node*													m_node;
 	};
 }

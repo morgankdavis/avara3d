@@ -13,6 +13,8 @@
 #include <memory>
 #include <string>
 
+#include <boost/optional.hpp>
+
 #include "Types.h"
 
 
@@ -45,14 +47,14 @@ namespace ae {
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular,
-				 std::string shaderName);
+				 std::string programName);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 
-//		std::string name() const;
-//		void name(const std::string name);
+		boost::optional<std::string> name() const;
+		void name(const std::string& name);
 		
 		std::shared_ptr<MaterialProperty> ambient() const;
 		void ambient(const std::shared_ptr<MaterialProperty> property);
@@ -64,19 +66,19 @@ namespace ae {
 		void specular(const std::shared_ptr<MaterialProperty> property);
 		
 		float specularExponent() const;
-		void specularExponent(const float exponent);
+		void specularExponent(float exponent);
 		
 		bool locksAmbientWithDiffuse() const;
-		void locksAmbientWithDiffuse(const bool flag);
+		void locksAmbientWithDiffuse(bool flag);
 		
 		bool doubleSided() const;
-		void doubleSided(const bool flag);
+		void doubleSided(bool flag);
 		
 		MaterialFillMode fillMode() const;
-		void fillMode(const MaterialFillMode mode);
+		void fillMode(MaterialFillMode mode);
 		
 		std::shared_ptr<Program> program() const;
-		void program(const std::shared_ptr<Program> program);
+		void program(const std::shared_ptr<Program> program); // remove this?
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -99,7 +101,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-//		std::string							m_name;
+		boost::optional<std::string>		m_name;
 		
 		std::shared_ptr<MaterialProperty>	m_ambient;
 		std::shared_ptr<MaterialProperty> 	m_diffuse;
@@ -109,7 +111,6 @@ namespace ae {
 		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
 		MaterialFillMode 					m_fillMode;
-		
 	};
 }
 
