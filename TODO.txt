@@ -2,7 +2,21 @@ TODO:
 
 ——————————————————————————————————
 
+Move numLights to lights UBO? [CLEAN UP]
+View and projection mat into UBO?
+
+Int -> GLuint:
+	Scene.h m_glLightsUBO
+	Geometry.h draw()
+Clean up Scene.h ubo gen
+
+
+FIGURE OUT HOW TO GET MAX_LIGHTS CLOSEST TO EACH GEOMETRY CENTER…?
+	Or closest to camera…? But in front of the camera?
+
+
 Add multiple point lights + attenuation
+	UBO for Lights shader block: http://sunandblackcat.com/tipFullView.php?l=eng&topicid=21
 	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
 Re-arrange scene interestingly + test geometry instancing
 
@@ -139,6 +153,12 @@ Laundry list:
 		https://www.sjbaker.org/steve/omniv/alpha_sorting.html
 		http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 		http://www.humus.name/index.php?page=3D&ID=61
+
+	Distance fog
+	Normal mapping
+	Shadows
+	Depth of field
+	Bloom
 
     Default lighting
 	Why is Cat not scaled properly after rotation in Test3? Compare to SceneKit.

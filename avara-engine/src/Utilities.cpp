@@ -110,6 +110,10 @@ mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	return to;
 }
 
+Color ae::utils::AIColor3DToColor(const aiColor3D& from) {
+	return Color(from.r, from.g, from.b, 1.0f);
+}
+
 Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }

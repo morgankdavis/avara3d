@@ -39,6 +39,25 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Types
+ **************************************************************************************/
+
+typedef struct {
+	int type;
+	float PADDING1[3];
+	vec3 position_world;
+	float PADDING2[1];
+	vec3 color;
+	float PADDING3[1];
+	//	vec3 direction_world;
+	//	float attenuationStart;
+	//	float attenuationEnd;
+	//	float attenuationExponent;
+	//	float innerAngle;
+	//	float outerAngle;
+} LightBlock;
+
+/***************************************************************************************
      MARK:   Static
  **************************************************************************************/
 
@@ -129,22 +148,33 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
+LightType LightTypeForAILightType(aiLightSourceType aiType) {
+	switch (aiType) {
+		case aiLightSource_DIRECTIONAL: return LightType_Point;
+		case aiLightSource_SPOT: return LightType_Point;
+		default: return LightType_Point;
+	}
+}
+
 /***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
 Scene::Scene():
-	m_rootNode(make_shared<Node>("Root node"))/*,
-	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
-	m_materials(vector<shared_ptr<Material>>())*/ {
-
+	m_rootNode(make_shared<Node>("Root node")) {
+		
+		uint32 ubo;
+		glGenBuffers(1, &ubo);
+		m_glLightsUBO = ubo;
 }
 
 Scene::Scene(const std::string& path):
-	m_rootNode(make_shared<Node>("Root node"))/*,
-	m_geometryElements(vector<shared_ptr<GeometryElement>>()),
-	m_materials(vector<shared_ptr<Material>>())*/ {
+	m_rootNode(make_shared<Node>("Root node")) {
 
+		uint32 ubo;
+		glGenBuffers(1, &ubo);
+		m_glLightsUBO = ubo;
+		
 	loadFile(path);
 }
 
@@ -213,13 +243,94 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	const int NUM_LIGHTS = 8;
+	
+//	program->setUniform("numLights", NUM_LIGHTS);
+	
+	
+	LightBlock lightBlock[NUM_LIGHTS];
+	
+	lightBlock[0].type = LightType_Ambient;
+	lightBlock[0].color = vec3(0.2, 0.2, 0.2);
+	
+	lightBlock[1].type = LightType_Point;
+	lightBlock[1].position_world = vec3(70.0, 70.0, 70.0);
+	lightBlock[1].color = vec3(1.0, 1.0, 1.0);
+	
+	lightBlock[2].type = LightType_Point;
+	lightBlock[2].position_world = vec3(-50.0, 50.0, -50.0);
+	lightBlock[2].color = vec3(1.0, 0.0, 0.5);
+	
+	lightBlock[3].type = LightType_Point;
+	lightBlock[3].position_world = vec3(40.0, -20.0, -30.0);
+	lightBlock[3].color = vec3(0.0, 0.5, 1.0);
+	
+	lightBlock[4].type = LightType_Point;
+	lightBlock[4].position_world = vec3(40.0, -30.0, 100.0);
+	lightBlock[4].color = vec3(0.0, 1.0, 1.0);
+	
+	lightBlock[5].type = LightType_Point;
+	lightBlock[5].position_world = vec3(0.0, -500.0, 0.0);
+	lightBlock[5].color = vec3(1.0, 1.0, 0.0);
+	
+	lightBlock[6].type = LightType_Point;
+	lightBlock[6].position_world = vec3(-50.0, 50.0, -50.0);
+	lightBlock[6].color = vec3(1.0, 0.0, 1.0);
+	
+	lightBlock[7].type = LightType_Point;
+	lightBlock[7].position_world = vec3(60.0, -10.0, 70.0);
+	lightBlock[7].color = vec3(0.0, 0.0, 1.0);
+	
+	
+//	GLuint programID = program->glID();
+//	GLuint blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
+	
+	
+	
+	typedef struct {
+		int numLights;
+		float PADDING1;
+		float PADDING2;
+		float PADDING3;
+		LightBlock lights[8];
+	} LightBlockBlock;
+	
+	LightBlockBlock lightsBlockBlock;
+	lightsBlockBlock.numLights = NUM_LIGHTS;
+	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
+	//lightsBlockBlock.lights = lightBlock;
+	
+	
+	//program->setUniform("numLights", NUM_LIGHTS);
+	
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
+	
+	//glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, m_glLightsUBO);
+	
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
+	//glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock)*NUM_LIGHTS, &lightBlock[0], GL_DYNAMIC_DRAW);
+	
+	
+	
+	
+	
+	
+	
 
 	for (auto node: m_rootNode->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				auto modelMat = node->worldTransform();
-				numPolygons += geometry->draw(modelMat, viewMat, projectionMat);
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glLightsUBO);
 			}
 		}
 	}
@@ -319,8 +430,7 @@ void Scene::loadFile(const string& importPath) {
 			}
 			
 			auto verts = vector<Vertex>();
-			unsigned int numUVChannels = mesh->GetNumUVChannels();
-			cout << "numUVChannels: " << numUVChannels << endl;
+
 			bool hasNormals = mesh->HasNormals();
 			bool hasTextureCoordinates = mesh->HasTextureCoords(0);
 			
@@ -387,9 +497,6 @@ void Scene::loadFile(const string& importPath) {
 			importMaterials.push_back(material);
 		}
 		
-		//cout << "Import num materials: " << m_materials.size() << endl;
-		cout << "Import num materials: " << importMaterials.size() << endl;
-
 		// ********** nodes (ae::Geometry) **********
 		
 		// in AI terminology, a "node" is what we call a "geometry"
@@ -403,15 +510,19 @@ void Scene::loadFile(const string& importPath) {
 			break; // disable light importing, we'll do it ourselves!
 			
 			aiLight* aiLight = scene->mLights[l];
-			auto light = make_shared<Light>();
 			
-			cout << "Adding light: " << light << endl;
-			
+			Color color = AIColor3DToColor(aiLight->mColorDiffuse);
+
+			auto light = make_shared<Light>(LightTypeForAILightType(aiLight->mType),
+											make_shared<Color>(color));
+
 			aiString name = aiLight->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
 				cout << "Name: " << name.C_Str() << endl;
 				light->name(name.C_Str());
 			}
+			
+			cout << "Adding light: " << light << endl;
 			
 			auto lightNode = make_shared<Node>("Light");
 			lightNode->light(light);

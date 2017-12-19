@@ -202,6 +202,12 @@ int Test::run(const vector<string>& args) {
 //	auto background = make_shared<MaterialProperty>(backgroundColor);
 //	scene->background(background);
 	
+	
+	
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::Red()));
+	auto ambientLightNode = make_shared<Node>(ambientLight);
+	scene->rootNode()->addChildNode(ambientLightNode);
+	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));

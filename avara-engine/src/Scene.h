@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <assimp/scene.h>
+//#include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Types.h"
@@ -39,7 +40,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Scene(); // no want but Window is complaining about wanting a "default contructor" for us
+		Scene(); // no want but Window is complaining about wanting a default contructor
 		Scene(const std::string& path);
 		
 		/***************************************************************************************
@@ -90,6 +91,8 @@ namespace ae {
 		std::shared_ptr<Node>								m_rootNode;
 		std::shared_ptr<MaterialProperty>					m_background;
 		std::shared_ptr<SkyboxGeometry>						m_skyboxGeometry;
+		
+		int													m_glLightsUBO;
 	};
 }
 

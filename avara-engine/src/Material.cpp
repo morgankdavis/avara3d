@@ -56,7 +56,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
 				   string programName):
-	m_name(nullptr),
+	m_name(boost::none),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
 	m_specular(specular),
@@ -170,10 +170,6 @@ void Material::loadShaderProgram(const string& shaderName) {
 
 void Material::prepareToRender() const {
 	
-//	m_program->setUniform("model", modelMat);
-//	m_program->setUniform("view", inverse(viewMat));
-//	m_program->setUniform("projection", projectionMat);
-	
 	if (m_fillMode == MaterialFillMode_Line) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -192,7 +188,7 @@ void Material::prepareToRender() const {
 	m_program->setUniform("specularExponent", m_specularExponent);
 	
 	// only lock for diffuse textures, not colors
-	if (m_diffuse && m_diffuse->image() && m_locksAmbientWithDiffuse) {
+	if (m_locksAmbientWithDiffuse && m_diffuse && (m_diffuse->color() || m_diffuse->image())) {
 		m_diffuse->bind(MaterialPropertyType_Ambient, *m_program);
 	}
 	else {

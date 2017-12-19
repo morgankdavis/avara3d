@@ -22,6 +22,7 @@ namespace ae {
 
 
 	class Color;
+	class Node;
 	
 	
 	class Light {
@@ -32,7 +33,8 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Light();
+		Light(LightType type);
+		Light(LightType type, const std::shared_ptr<Color> color);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -42,15 +44,25 @@ namespace ae {
 		void name(const std::string& name);
 		
 		/***************************************************************************************
+		     MARK:   Internal
+		 **************************************************************************************/
+		
+		Node* node() const;
+		void node(Node* node);
+		
+	private:
+		
+		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		boost::optional<std::string>			m_name;
+		boost::optional<std::string>		m_name;
 		
-//		std::string		name;
-//
-//		Color			color;
-//
+		LightType							m_type;
+		std::shared_ptr<Color>				m_color;
+		
+		Node*								m_node;
+
 //		float			attenuationStartDistance;
 //		float			attenuationEndDistance;
 //		float			attenuationFalloffExponent;

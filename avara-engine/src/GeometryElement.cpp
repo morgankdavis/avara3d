@@ -24,6 +24,25 @@ using namespace std;
 using namespace glm;
 
 
+///***************************************************************************************
+//     MARK:   Types
+// **************************************************************************************/
+//
+//typedef struct {
+//	int type;
+//	float PADDING1[3];
+//	vec3 position_world;
+//	float PADDING2[1];
+//	vec3 color;
+//	float PADDING3[1];
+//	//	vec3 direction_world;
+//	//	float attenuationStart;
+//	//	float attenuationEnd;
+//	//	float attenuationExponent;
+//	//	float innerAngle;
+//	//	float outerAngle;
+//} LightBlock;
+
 /***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
@@ -53,10 +72,10 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 	m_faces(faces),
 	//m_vertexDataLoaded(false),
 	m_glVAO(0),
-	m_glIBO(0) {
+m_glIBO(0) {//,
+	//m_glUBO(0) {
 	
-	//loadShaderNamed(shaderName);
-	//loadVertexData();
+		//glGenBuffers(1, &m_glUBO);
 }
 
 /***************************************************************************************
@@ -78,6 +97,7 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
+							   GLuint glLightsUBO,
 							   const Material* inMaterial) {
 	
 	Material material = *(Material::DefaultMaterial());
@@ -106,48 +126,52 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	
 	
 	material.prepareToRender();
-
 	
-//	// materials
-//
-//	// TODO: move all this shit into Material::configureProgram/prepareToRender
-//
-//	if (material && material->fillMode() == MaterialFillMode_Line) {
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	}
-//	else {
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//	}
-//
-//	if (material && material->doubleSided()) {
-//		glDisable(GL_CULL_FACE);
-//	}
-//	else {
-//		glEnable(GL_CULL_FACE);
-//		glCullFace(GL_BACK);
-//	}
-//
-//	if (material) {
-//		m_program->setUniform("specularExponent", material->specularExponent());
-//
-//		// only lock for diffuse textures, not colors
-//		if (material->diffuse() && material->diffuse()->image() && material->locksAmbientWithDiffuse()) {
-//			if (material->diffuse()) {
-//				material->diffuse()->bind(MaterialPropertyType_Ambient, *m_program);
-//			}
-//		}
-//		else {
-//			if (material->ambient()) {
-//				material->ambient()->bind(MaterialPropertyType_Ambient, *m_program);
-//			}
-//		}
-//		if (material->diffuse()) {
-//			material->diffuse()->bind(MaterialPropertyType_Diffuse, *m_program);
-//		}
-//		if (material->specular()) {
-//			material->specular()->bind(MaterialPropertyType_Specular, *m_program);
-//		}
-//	}
+	
+//	const int NUM_LIGHTS = 8;
+//	program->setUniform("numLights", NUM_LIGHTS);
+
+//	
+//	LightBlock lightBlock[NUM_LIGHTS];
+//	
+//	lightBlock[0].type = LightType_Ambient;
+//	lightBlock[0].color = vec3(0.2, 0.2, 0.2);
+//	
+//	lightBlock[1].type = LightType_Point;
+//	lightBlock[1].position_world = vec3(70.0, 70.0, 70.0);
+//	lightBlock[1].color = vec3(1.0, 1.0, 1.0);
+//	
+//	lightBlock[2].type = LightType_Point;
+//	lightBlock[2].position_world = vec3(-50.0, 50.0, -50.0);
+//	lightBlock[2].color = vec3(1.0, 0.0, 0.5);
+//	
+//	lightBlock[3].type = LightType_Point;
+//	lightBlock[3].position_world = vec3(40.0, -20.0, -30.0);
+//	lightBlock[3].color = vec3(0.0, 0.5, 1.0);
+//	
+//	lightBlock[4].type = LightType_Point;
+//	lightBlock[4].position_world = vec3(40.0, -30.0, 100.0);
+//	lightBlock[4].color = vec3(0.0, 1.0, 1.0);
+//	
+//	lightBlock[5].type = LightType_Point;
+//	lightBlock[5].position_world = vec3(30.0, 100.0, -30.0);
+//	lightBlock[5].color = vec3(1.0, 1.0, 0.0);
+//	
+//	lightBlock[6].type = LightType_Point;
+//	lightBlock[6].position_world = vec3(-50.0, 50.0, -50.0);
+//	lightBlock[6].color = vec3(1.0, 0.0, 1.0);
+//	
+//	lightBlock[7].type = LightType_Point;
+//	lightBlock[7].position_world = vec3(60.0, -10.0, 70.0);
+//	lightBlock[7].color = vec3(0.0, 0.0, 1.0);
+//	
+//	
+	GLuint programID = program->glID();
+	GLuint blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, glLightsUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock)*NUM_LIGHTS, &lightBlock[0], GL_DYNAMIC_DRAW);
+	
 	
 	// draw
 	

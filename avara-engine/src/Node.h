@@ -37,6 +37,8 @@ namespace ae {
 		Node();
 		Node(const std::string& name);
 		Node(const std::shared_ptr<Geometry> geometry);
+		Node(const std::shared_ptr<Light> light);
+		Node(const std::shared_ptr<Camera> camera);
 		Node(const std::string& name, const glm::mat4 transform);
 		Node(const std::string& name, const glm::mat4 transform, std::shared_ptr<Geometry> geometry);
 

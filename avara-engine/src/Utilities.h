@@ -18,6 +18,7 @@
 
 #include <assimp/color4.h>
 #include <assimp/matrix4x4.h>
+#include <assimp/types.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
 #include <glm/glm.hpp>
@@ -45,6 +46,7 @@ namespace ae {
 		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
 		glm::vec3 AIVector3DToGLMVec3(const aiVector3D& from);
 		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		Color AIColor3DToColor(const aiColor3D& from);
 		Color AIColor4DToColor(const aiColor4D& from);
 		
 		bool Zero(const glm::vec3& v);

@@ -39,9 +39,12 @@ using namespace glm;
  **************************************************************************************/
 
 Node::Node():
-	m_name(nullptr),
+	m_name(boost::none),
 	m_parent(nullptr),
 	m_hidden(false),
+	m_camera(nullptr),
+	m_light(nullptr),
+	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
@@ -50,8 +53,11 @@ Node::Node():
 
 Node::Node(const string& name):
 	m_name(name),
-	m_hidden(false),
 	m_parent(nullptr),
+	m_hidden(false),
+	m_camera(nullptr),
+	m_light(nullptr),
+	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
@@ -59,8 +65,11 @@ Node::Node(const string& name):
 }
 
 Node::Node(const shared_ptr<Geometry> geometry):
-	m_name(nullptr),
+	m_name(boost::none),
+	m_parent(nullptr),
 	m_hidden(false),
+	m_camera(nullptr),
+	m_light(nullptr),
 	m_geometry(geometry),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
@@ -69,10 +78,41 @@ Node::Node(const shared_ptr<Geometry> geometry):
 		m_geometry->node(this);
 }
 
+Node::Node(const shared_ptr<Light> light):
+	m_name(boost::none),
+	m_parent(nullptr),
+	m_hidden(false),
+	m_camera(nullptr),
+	m_light(light),
+	m_geometry(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+		
+		m_light->node(this);
+}
+
+Node::Node(const shared_ptr<Camera> camera):
+	m_name(boost::none),
+	m_parent(nullptr),
+	m_hidden(false),
+	m_camera(camera),
+	m_light(nullptr),
+	m_geometry(nullptr),
+	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_orientation(quat()),
+	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+		
+		m_camera->node(this);
+}
+
 Node::Node(const string& name, const mat4 t):
 	m_name(name),
-	m_hidden(false),
 	m_parent(nullptr),
+	m_hidden(false),
+	m_camera(nullptr),
+	m_light(nullptr),
+	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)) {

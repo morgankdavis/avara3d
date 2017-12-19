@@ -54,6 +54,7 @@ namespace ae {
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
+					  GLuint glLightsUBO,
 					  const Material* material);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
@@ -77,6 +78,7 @@ namespace ae {
 		//bool									m_vertexDataLoaded;
 		GLuint									m_glVAO;
 		GLuint									m_glIBO;
+		//GLuint									m_glUBO;
 		
 //	private:
 //		

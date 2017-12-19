@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
+//#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 
@@ -68,7 +69,8 @@ namespace ae {
 		
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
-					  const glm::mat4& projectionMat);
+					  const glm::mat4& projectionMat,
+					  int glLightsUBO);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:
