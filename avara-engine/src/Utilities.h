@@ -41,6 +41,8 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
 		
+		std::ostream& operator<<(std::ostream& os, const Color& c);
+		
 		boost::optional<std::string> LoadTextFile(const std::string &path);
 
 		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
@@ -48,6 +50,9 @@ namespace ae {
 		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
 		Color AIColor3DToColor(const aiColor3D& from);
 		Color AIColor4DToColor(const aiColor4D& from);
+		
+		int Random(int min, int max);
+		float Random(float min, int max);
 		
 		bool Zero(const glm::vec3& v);
 		float Max(const glm::vec3& v);

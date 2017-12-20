@@ -11,6 +11,15 @@
 #include <iostream>
 //#include <memory>
 
+
+// for light sorting
+#include <map>
+#include <set>
+#include <algorithm>
+#include <functional>
+
+
+
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <boost/filesystem.hpp>
@@ -148,12 +157,35 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
-LightType LightTypeForAILightType(aiLightSourceType aiType) {
+static LightType LightTypeForAILightType(aiLightSourceType aiType) {
 	switch (aiType) {
-		case aiLightSource_DIRECTIONAL: return LightType_Point;
-		case aiLightSource_SPOT: return LightType_Point;
+		case aiLightSource_DIRECTIONAL: return LightType_Directional;
+		case aiLightSource_SPOT: return LightType_Spot;
 		default: return LightType_Point;
 	}
+}
+
+static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
+	
+	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
+	
+	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
+	
+	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
+		return elem1.second < elem2.second;
+	};
+	
+	set<std::pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
+																		lights.end(),
+																		compFunctor);
+	
+	auto sortedVector = vector<shared_ptr<Node>>();
+	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
+		//cout << element.first << " :: " << element.second << endl;
+		sortedVector.emplace_back(element.first);
+	}
+	
+	return sortedVector;
 }
 
 /***************************************************************************************
@@ -247,85 +279,145 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	
 	
 	
+	auto allNodes = m_rootNode->allChildNodes();
+	
+	// clean this up into one helper
+	
+	shared_ptr<Node> ambientLight = nullptr;
+	auto lightsUnsorted = map<shared_ptr<Node>, float>();
+	
+	// find all lights in the scene and their distances from the camera
+	vec3 cameraPos_world = pointOfView->worldPosition();
+	for (auto node: allNodes) {
+		if (!node->hidden()) {
+			auto light = node->light();
+			if (light != nullptr) {
+				if (light->type() == LightType_Point) {
+					auto lightPos_world = node->worldPosition();
+					auto lightToCamera = lightPos_world - cameraPos_world;
+					auto lightToCameraDistance = length(lightToCamera);
+					lightsUnsorted[node] = lightToCameraDistance;
+					//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
+				}
+				else if (light->type() == LightType_Ambient) {
+					ambientLight = node;
+				}
+			}
+		}
+	}
+	
+	auto lightsSorted = SortedLights(lightsUnsorted);
+	//cout << "lightsSorted: " << lightsSorted << endl;
+	
+#define MAX_LIGHTS 8
+	
+	unsigned endIndex = std::min((unsigned)lightsSorted.size(), (unsigned)(MAX_LIGHTS-1));
+	vector<shared_ptr<Node>>::const_iterator first = lightsSorted.begin() + 0;
+	vector<shared_ptr<Node>>::const_iterator last = lightsSorted.begin() + endIndex;
+	vector<shared_ptr<Node>> lightsSlice(first, last);
+	// TODO: if no ambient light we're only using 7 other lights
+	lightsSlice.emplace_back(ambientLight);
+	//cout << "lightsSlice: " << lightsSlice << endl;
+	//cout << "lightsSlice size: " << lightsSlice.size() << endl;
 	
 	
 	
-	const int NUM_LIGHTS = 8;
+	unsigned numLights = lightsSlice.size();
+	LightBlock lightBlock[numLights];
 	
-//	program->setUniform("numLights", NUM_LIGHTS);
-	
-	
-	LightBlock lightBlock[NUM_LIGHTS];
-	
-	lightBlock[0].type = LightType_Ambient;
-	lightBlock[0].color = vec3(0.2, 0.2, 0.2);
-	
-	lightBlock[1].type = LightType_Point;
-	lightBlock[1].position_world = vec3(70.0, 70.0, 70.0);
-	lightBlock[1].color = vec3(1.0, 1.0, 1.0);
-	
-	lightBlock[2].type = LightType_Point;
-	lightBlock[2].position_world = vec3(-50.0, 50.0, -50.0);
-	lightBlock[2].color = vec3(1.0, 0.0, 0.5);
-	
-	lightBlock[3].type = LightType_Point;
-	lightBlock[3].position_world = vec3(40.0, -20.0, -30.0);
-	lightBlock[3].color = vec3(0.0, 0.5, 1.0);
-	
-	lightBlock[4].type = LightType_Point;
-	lightBlock[4].position_world = vec3(40.0, -30.0, 100.0);
-	lightBlock[4].color = vec3(0.0, 1.0, 1.0);
-	
-	lightBlock[5].type = LightType_Point;
-	lightBlock[5].position_world = vec3(0.0, -500.0, 0.0);
-	lightBlock[5].color = vec3(1.0, 1.0, 0.0);
-	
-	lightBlock[6].type = LightType_Point;
-	lightBlock[6].position_world = vec3(-50.0, 50.0, -50.0);
-	lightBlock[6].color = vec3(1.0, 0.0, 1.0);
-	
-	lightBlock[7].type = LightType_Point;
-	lightBlock[7].position_world = vec3(60.0, -10.0, 70.0);
-	lightBlock[7].color = vec3(0.0, 0.0, 1.0);
-	
-	
-//	GLuint programID = program->glID();
-//	GLuint blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
-	
-	
-	
+	for (int l=0; l<numLights; ++l) {
+		auto node = lightsSlice[l];
+		auto light = node->light();
+		
+		lightBlock[l].type = light->type();
+		lightBlock[l].position_world = node->worldPosition();
+		
+//		cout << "lightBlock[" << l << "].position_world: ("
+//		<< lightBlock[l].position_world[0] << ", "
+//		<< lightBlock[l].position_world[1] << ", "
+//		<< lightBlock[l].position_world[2] << ")" << endl;
+
+		
+		auto color = *light->color();
+		lightBlock[l].color = vec3(color.r, color.g, color.b);
+//		cout << "[" << l << "] lightBlock[l].color: ("
+//		<< lightBlock[l].color[0] << ", "
+//		<< lightBlock[l].color[1] << ", "
+//		<< lightBlock[l].color[2] << ")" << endl;
+	}
+
 	typedef struct {
 		int numLights;
 		float PADDING1;
 		float PADDING2;
 		float PADDING3;
-		LightBlock lights[8];
+		LightBlock lights[MAX_LIGHTS];
 	} LightBlockBlock;
 	
+	
+	
 	LightBlockBlock lightsBlockBlock;
-	lightsBlockBlock.numLights = NUM_LIGHTS;
+	lightsBlockBlock.numLights = numLights;
 	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
-	//lightsBlockBlock.lights = lightBlock;
-	
-	
-	//program->setUniform("numLights", NUM_LIGHTS);
 	
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
-	
-	//glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, m_glLightsUBO);
-	
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
-	//glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock)*NUM_LIGHTS, &lightBlock[0], GL_DYNAMIC_DRAW);
 	
 	
+	// setup lights UBO
 	
+//	const int NUM_LIGHTS = 8;
+//
+//	LightBlock lightBlock[NUM_LIGHTS];
+//
+//	lightBlock[0].type = LightType_Ambient;
+//	lightBlock[0].color = vec3(0.2, 0.2, 0.2);
+//
+//	lightBlock[1].type = LightType_Point;
+//	lightBlock[1].position_world = vec3(70.0, 70.0, 70.0);
+//	lightBlock[1].color = vec3(1.0, 1.0, 1.0);
+//
+//	lightBlock[2].type = LightType_Point;
+//	lightBlock[2].position_world = vec3(-50.0, 50.0, -50.0);
+//	lightBlock[2].color = vec3(1.0, 0.0, 0.5);
+//
+//	lightBlock[3].type = LightType_Point;
+//	lightBlock[3].position_world = vec3(40.0, -20.0, -30.0);
+//	lightBlock[3].color = vec3(0.0, 0.5, 1.0);
+//
+//	lightBlock[4].type = LightType_Point;
+//	lightBlock[4].position_world = vec3(40.0, -30.0, 100.0);
+//	lightBlock[4].color = vec3(0.0, 1.0, 1.0);
+//
+//	lightBlock[5].type = LightType_Point;
+//	lightBlock[5].position_world = vec3(0.0, -500.0, 0.0);
+//	lightBlock[5].color = vec3(1.0, 1.0, 0.0);
+//
+//	lightBlock[6].type = LightType_Point;
+//	lightBlock[6].position_world = vec3(-50.0, 50.0, -50.0);
+//	lightBlock[6].color = vec3(1.0, 0.0, 1.0);
+//
+//	lightBlock[7].type = LightType_Point;
+//	lightBlock[7].position_world = vec3(60.0, -10.0, 70.0);
+//	lightBlock[7].color = vec3(0.0, 0.0, 1.0);
+//
+//	typedef struct {
+//		int numLights;
+//		float PADDING1;
+//		float PADDING2;
+//		float PADDING3;
+//		LightBlock lights[8];
+//	} LightBlockBlock;
 	
+//	LightBlockBlock lightsBlockBlock;
+//	lightsBlockBlock.numLights = NUM_LIGHTS;
+//	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
 	
-	
-	
+//	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
 
-	for (auto node: m_rootNode->allChildNodes()) {
+	for (auto node: allNodes) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {

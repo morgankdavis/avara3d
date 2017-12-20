@@ -43,6 +43,12 @@ namespace ae {
 		boost::optional<std::string> name() const;
 		void name(const std::string& name);
 		
+		LightType type() const;
+		void type(LightType type);
+		
+		std::shared_ptr<Color> color() const;
+		void color(std::shared_ptr<Color> color);
+		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/

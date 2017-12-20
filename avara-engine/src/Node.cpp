@@ -407,24 +407,27 @@ void Node::transform(const mat4 transform) {
 	m_orientation = orientation; // must use GLM 0.9.9.9 or later! 0.9.9.8 has a bug.
 }
 
-mat4 Node::worldTransform() {
-
-	auto t = mat4(1.0f);
-	auto path = pathToRoot();
-
-	auto iter = path.end();
-	while (iter != path.begin()) {
-		--iter;
-		Node* node = *iter;
-		t = t * node->transform();
-	}
-
-	t = t * transform();
-
-	return t;
+vec3 Node::worldPosition() const {
+	return vec3(worldTransform() * vec4(m_position.x, m_position.y, m_position.z, 1.0));
 }
 
-vec3 Node::worldForward() {
+vec4 Node::worldRotation() const {
+	return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+vec3 Node::worldEulerAngles() const {
+	return vec3(0.0, 0.0, 0.0);
+}
+
+quat Node::worldOrientation() const {
+	return quat(1.0, 0.0, 0.0, 0.0);
+}
+
+vec3 Node::worldScale() const {
+	return vec3(0.0, 0.0, 0.0);
+}
+
+vec3 Node::worldForward() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -444,7 +447,7 @@ vec3 Node::worldForward() {
 	return normalize(rotationMat * vec4(0, 0, -1, 1));
 }
 
-vec3 Node::worldUp() {
+vec3 Node::worldUp() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -464,7 +467,7 @@ vec3 Node::worldUp() {
 	return normalize(rotationMat * vec4(0, 1, 0, 1));
 }
 
-vec3 Node::worldRight() {
+vec3 Node::worldRight() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -482,6 +485,23 @@ vec3 Node::worldRight() {
 
 	// this used to only work when rotationMatrix was inverted...(?)
 	return normalize(rotationMat * vec4(1, 0, 0, 1));
+}
+
+mat4 Node::worldTransform() const {
+	
+	auto t = mat4(1.0f);
+	auto path = pathToRoot();
+	
+	auto iter = path.end();
+	while (iter != path.begin()) {
+		--iter;
+		Node* node = *iter;
+		t = t * node->transform();
+	}
+	
+	t = t * transform();
+	
+	return t;
 }
 
 void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
@@ -548,7 +568,7 @@ void Node::parent(Node* parent) {
 	m_parent = parent;
 }
 
-vector<Node*> Node::pathToRoot() {
+vector<Node*> Node::pathToRoot() const {
 	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
 	
 	auto parents = vector<Node*>();
@@ -564,7 +584,7 @@ vector<Node*> Node::pathToRoot() {
 	return parents;
 }
 
-std::vector<std::shared_ptr<Node>> Node::immediateChildNodes() {
+std::vector<std::shared_ptr<Node>> Node::immediateChildNodes() const {
 	return m_childNodes;
 }
 

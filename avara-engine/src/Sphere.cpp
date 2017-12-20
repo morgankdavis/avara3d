@@ -14,6 +14,8 @@
 #include <generator/generator.hpp>
 
 #include "GeometryElement.h"
+#include "Material.h" // TODO: REMOVE
+#include "Program.h" // TODO: REMOVE
 #include "Utilities.h"
 #include "Types.h"
 
@@ -50,7 +52,57 @@ Sphere::Sphere(float radius, int segments):
 
 	auto element = make_shared<GeometryElement>(verts, faces);
 	m_elements.push_back(element);
+		
+		
+		
+		
+		
+		
+		// TODO: REMOVE (should be in super)
+		
+		for (int e=0; e < m_elements.size(); ++e) {
+			auto element = m_elements[e];
+			
+			if (m_materials.size() > e) {
+				auto element = m_elements[e];
+				auto material = m_materials[e];
+				element->loadVertexData(*(material->program()));
+			}
+			else {
+				element->loadVertexData(*(Material::DefaultMaterial()->program()));
+			}
+		}
+
 }
+
+
+
+
+//Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
+//				   const vector<shared_ptr<Material>> materials):
+//m_name(boost::none),
+//m_elements(elements),
+//m_materials(materials) {
+//
+//	for (int e=0; e < m_elements.size(); ++e) {
+//		auto element = m_elements[e];
+//
+//		if (m_materials.size() > e) {
+//			auto element = m_elements[e];
+//			auto material = m_materials[e];
+//			element->loadVertexData(*(material->program()));
+//		}
+//		else {
+//			element->loadVertexData(*(Material::DefaultMaterial()->program()));
+//		}
+//	}
+//
+//
+//	//		for (int m=0; m < m_elements.size() - m_materials.size(); ++m) {
+//	//			m_materials.push_back(Material::DefaultMaterial());
+//	//		}
+//}
+
 
 //Sphere::Sphere(float radius, int segments):
 //	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {

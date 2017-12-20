@@ -17,6 +17,8 @@
 
 #include "Globals.h"
 
+#include <time.h>
+
 
 using namespace std;
 
@@ -90,6 +92,8 @@ int ae::init() {
 		 << aiGetVersionMajor() << "."
 		 << aiGetVersionMinor() << "."
 		 << aiGetVersionRevision() << endl;
+	
+	srand(time(NULL));
 
 	return 0;
 }

@@ -68,6 +68,11 @@ ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
 	return (os << str);
 }
 
+ostream& ae::utils::operator<<(ostream& os, const Color& c) {
+	os << "(" << c.r << ", " << c.g << ", " << c.b << ", " << c.a << ")";
+	return os;
+}
+
 optional<string> ae::utils::LoadTextFile(const string &path) {
 	string line;
 	string source = "";
@@ -116,6 +121,17 @@ Color ae::utils::AIColor3DToColor(const aiColor3D& from) {
 
 Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
+}
+
+int ae::utils::Random(int min, int max) {
+	return (min + (rand() % static_cast<int>(max - min + 1)));
+}
+
+float ae::utils::Random(float min, int max) {
+	float random = ((float) rand()) / (float) RAND_MAX;
+	float diff = max - min;
+	float r = random * diff;
+	return (min + r);
 }
 
 bool ae::utils::Zero(const vec3& v) {

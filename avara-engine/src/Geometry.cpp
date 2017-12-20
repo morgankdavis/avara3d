@@ -156,7 +156,15 @@ unsigned Geometry::draw(const mat4& modelMat,
 	for (int e=0; e < m_elements.size(); ++e) {
 		
 		auto element = m_elements[e];
-		auto material = m_materials[e];
+		//auto material = m_materials[e];
+		//auto material = m_materials.at(e);
+		shared_ptr<Material> material = nullptr;
+		if (m_materials.size() > e) {
+			material = m_materials[e];
+		}
+		else {
+			material = Material::DefaultMaterial();
+		}
 
 //		shared_ptr<Material> material = nullptr;
 //		if (m_materials.size() > e) {

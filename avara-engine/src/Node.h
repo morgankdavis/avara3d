@@ -72,7 +72,7 @@ namespace ae {
 		
 		glm::vec3 position() const;
 		void position(const glm::vec3 position);
-		
+
 		glm::vec4 rotation() const; // angle == 4th component
 		void rotation(const glm::vec4 rotation);
 		
@@ -88,11 +88,17 @@ namespace ae {
 		glm::mat4 transform() const;
 		void transform(const glm::mat4 transform);
 		
-		glm::mat4 worldTransform();
+		glm::vec3 worldPosition() const;
+		glm::vec4 worldRotation() const; // angle == 4th component
+		glm::vec3 worldEulerAngles() const; // pitch, yaw, roll
+		glm::quat worldOrientation() const; // angle == 1st component
+		glm::vec3 worldScale() const;
 		
-		glm::vec3 worldForward();
-		glm::vec3 worldUp();
-		glm::vec3 worldRight();
+		glm::vec3 worldForward() const;
+		glm::vec3 worldUp() const;
+		glm::vec3 worldRight() const;
+		
+		glm::mat4 worldTransform() const;
 		
 		//std::weak_ptr<Node>					m_parent;
 		
@@ -117,8 +123,8 @@ namespace ae {
  		 **************************************************************************************/
 		
 		void parent(Node* parent);
-		std::vector<Node*> pathToRoot();
-		std::vector<std::shared_ptr<Node>> immediateChildNodes();
+		std::vector<Node*> pathToRoot() const;
+		std::vector<std::shared_ptr<Node>> immediateChildNodes() const;
 		
 	private:
 

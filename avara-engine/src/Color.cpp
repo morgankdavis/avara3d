@@ -8,6 +8,8 @@
 
 #include "Color.h"
 
+#include <vector>
+
 
 using namespace ae;
 using namespace std;
@@ -91,6 +93,30 @@ Color Color::Purple() {
 
 Color Color::Brown() {
 	return Color(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
+}
+
+vector<Color> Color::Rainbow() {
+	auto colors = vector<Color>();
+	colors.emplace_back(Black());
+	colors.emplace_back(White());
+	colors.emplace_back(Gray());
+	colors.emplace_back(LightGray());
+	colors.emplace_back(DarkGray());
+	colors.emplace_back(Maroon());
+	colors.emplace_back(Red());
+	colors.emplace_back(Orange());
+	colors.emplace_back(Yellow());
+	colors.emplace_back(Olive());
+	colors.emplace_back(Lime());
+	colors.emplace_back(Green());
+	colors.emplace_back(Cyan());
+	colors.emplace_back(Blue());
+	colors.emplace_back(Navy());
+	colors.emplace_back(Teal());
+	colors.emplace_back(Magenta());
+	colors.emplace_back(Purple());
+	colors.emplace_back(Brown());
+	return colors;
 }
 
 

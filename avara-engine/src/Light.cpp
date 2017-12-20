@@ -43,6 +43,22 @@ void Light::name(const string& name) {
 	m_name = name;
 }
 
+LightType Light::type() const {
+	return m_type;
+}
+
+void Light::type(LightType type) {
+	m_type = type;
+}
+
+std::shared_ptr<Color> Light::color() const {
+	return m_color;
+}
+
+void Light::color(std::shared_ptr<Color> color) {
+	m_color = color;
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/

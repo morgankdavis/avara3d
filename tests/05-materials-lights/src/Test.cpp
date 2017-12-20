@@ -204,9 +204,36 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::Red()));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::DarkGray()));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
+	
+	
+	
+	const int NUM_RANDOM_LIGHTS = 50;
+	auto colors = Color::Rainbow();
+	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
+		auto light = make_shared<Light>(LightType_Point);
+		auto lightNode = make_shared<Node>(light);
+		int randX = Random(-150, 150);
+		int randY = Random(-150, 150);
+		int randZ = Random(-150, 150);
+		lightNode->position(vec3(randX, randY, randZ));
+		auto color = make_shared<Color>(colors[Random(0, 18)]);
+		light->color(color);
+		cout << "Adding random light with position: "
+		<< lightNode->position()<< ", color: " << *light->color() << endl;
+		
+		auto geometry = make_shared<Sphere>(5.0, 8);
+		
+		auto materialProperty = make_shared<MaterialProperty>(color);
+		auto material = make_shared<Material>(materialProperty, materialProperty, nullptr);
+		geometry->addMaterial(material);
+		lightNode->geometry(geometry);
+		
+		scene->rootNode()->addChildNode(lightNode);
+	}
+
 	
 
 	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);

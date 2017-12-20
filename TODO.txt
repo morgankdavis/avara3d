@@ -3,6 +3,12 @@ TODO:
 ——————————————————————————————————
 
 Move numLights to lights UBO? [CLEAN UP]
+	-> clean up light sorting
+	rename lightsBlockBlock
+	make light spheres use emissive property
+	make element->draw() material mandatory, and add default material in Geometry::draw()
+	Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
+
 View and projection mat into UBO?
 
 Int -> GLuint:
