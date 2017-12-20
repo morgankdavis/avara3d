@@ -408,7 +408,7 @@ void Node::transform(const mat4 transform) {
 }
 
 vec3 Node::worldPosition() const {
-	return vec3(worldTransform() * vec4(m_position.x, m_position.y, m_position.z, 1.0));
+	return vec3(worldTransform() * vec4(1.0, 1.0, 1.0, 1.0));
 }
 
 vec4 Node::worldRotation() const {
