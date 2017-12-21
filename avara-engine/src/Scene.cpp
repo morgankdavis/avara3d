@@ -114,6 +114,9 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		case aiTextureType_SPECULAR:
 			typeStr = "specular";
 			break;
+		case aiTextureType_EMISSIVE:
+			typeStr = "emissive";
+			break;
 		default:
 			cout << "Unsupported material type: " << type << endl;
 			return nullptr;
@@ -566,8 +569,11 @@ void Scene::loadFile(const string& importPath) {
 			auto ambientProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_AMBIENT, basePath);
 			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
 			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
+			// not sure why, but some models have emissive colors that are messing everything up...
+			//auto emissiveProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_EMISSIVE, basePath);
 			
 			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+			//material->emissive(emissiveProperty);
 			
 			// specular exponent
 			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/

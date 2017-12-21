@@ -23,8 +23,8 @@ Color Color::Black() {
 	return Color(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-Color Color::White() {
-	return Color(1.0f, 1.0f, 1.0f, 1.0f);
+Color Color::DarkGray() {
+	return Color(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
 Color Color::Gray() {
@@ -35,8 +35,8 @@ Color Color::LightGray() {
 	return Color(0.75f, 0.75f, 0.75f, 1.0f);
 }
 
-Color Color::DarkGray() {
-	return Color(0.25f, 0.25f, 0.25f, 1.0f);
+Color Color::White() {
+	return Color(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 Color Color::Maroon() {
@@ -98,10 +98,10 @@ Color Color::Brown() {
 vector<Color> Color::Rainbow() {
 	auto colors = vector<Color>();
 	colors.emplace_back(Black());
-	colors.emplace_back(White());
+	colors.emplace_back(DarkGray());
 	colors.emplace_back(Gray());
 	colors.emplace_back(LightGray());
-	colors.emplace_back(DarkGray());
+	colors.emplace_back(White());
 	colors.emplace_back(Maroon());
 	colors.emplace_back(Red());
 	colors.emplace_back(Orange());

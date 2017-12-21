@@ -60,6 +60,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_ambient(ambient),
 	m_diffuse(diffuse),
 	m_specular(specular),
+	m_emissive(nullptr),
 	m_specularExponent(150.0),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
@@ -67,6 +68,12 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_program(nullptr) {
 	
 		loadShaderProgram(programName);
+}
+
+Material::Material(std::shared_ptr<MaterialProperty> emissive):
+	Material(nullptr, nullptr, nullptr, "default") {
+	
+		m_emissive = emissive;
 }
 
 /***************************************************************************************
@@ -103,6 +110,14 @@ shared_ptr<MaterialProperty> Material::specular() const {
 
 void Material::specular(const shared_ptr<MaterialProperty> property) {
 	m_specular = property;
+}
+
+shared_ptr<MaterialProperty> Material::emissive() const {
+	return m_emissive;
+}
+
+void Material::emissive(const shared_ptr<MaterialProperty> property) {
+	m_emissive = property;
 }
 
 float Material::specularExponent() const {
@@ -201,5 +216,8 @@ void Material::prepareToRender() const {
 	}
 	if (m_specular) {
 		m_specular->bind(MaterialPropertyType_Specular, *m_program);
+	}
+	if (m_emissive) {
+		m_emissive->bind(MaterialPropertyType_Emissive, *m_program);
 	}
 }

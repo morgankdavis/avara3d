@@ -47,6 +47,7 @@ namespace ae {
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular,
 				 std::string programName);
+		Material(std::shared_ptr<MaterialProperty> emissive);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -63,6 +64,9 @@ namespace ae {
 		
 		std::shared_ptr<MaterialProperty> specular() const;
 		void specular(const std::shared_ptr<MaterialProperty> property);
+		
+		std::shared_ptr<MaterialProperty> emissive() const;
+		void emissive(const std::shared_ptr<MaterialProperty> property);
 		
 		float specularExponent() const;
 		void specularExponent(float exponent);
@@ -105,6 +109,7 @@ namespace ae {
 		std::shared_ptr<MaterialProperty>	m_ambient;
 		std::shared_ptr<MaterialProperty> 	m_diffuse;
 		std::shared_ptr<MaterialProperty> 	m_specular;
+		std::shared_ptr<MaterialProperty> 	m_emissive;
 
 		float 								m_specularExponent;
 		bool 								m_locksAmbientWithDiffuse;

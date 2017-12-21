@@ -33,7 +33,8 @@ namespace ae {
 	typedef enum {
 		MaterialPropertyType_Ambient,
 		MaterialPropertyType_Diffuse,
-		MaterialPropertyType_Specular
+		MaterialPropertyType_Specular,
+		MaterialPropertyType_Emissive
 	} MaterialPropertyType;
 	
 	

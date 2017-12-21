@@ -24,10 +24,10 @@ namespace ae {
 		 **************************************************************************************/
 		
 		static Color Black();
-		static Color White();
+		static Color DarkGray();
 		static Color Gray();
 		static Color LightGray();
-		static Color DarkGray();
+		static Color White();
 		static Color Maroon();
 		static Color Red();
 		static Color Orange();

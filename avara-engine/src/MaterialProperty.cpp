@@ -23,10 +23,6 @@ using namespace std;
      MARK:   Static
  **************************************************************************************/
 
-
-
-
-
 static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
 		case FilterMode_Nearest: 				return GL_NEAREST;
@@ -113,7 +109,7 @@ MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<I
 	m_wrapT(WrapMode_ClampToEdge),
 	m_minificationFilter(FilterMode_LinearMipmapLinear),
 	m_magnificationFilter(FilterMode_Linear),
-	m_maxAnisotropy(4),
+	m_maxAnisotropy(16),
 	m_glTextureID(0) {
 	
 		this->cube(cube);
@@ -325,7 +321,11 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 				samplerUniformName = "samplers.specular";
 				slot = GL_TEXTURE2; index = 2;
 				break;
-				
+			case MaterialPropertyType_Emissive:
+				modeUniformName = "emissiveMode";
+				samplerUniformName = "samplers.emissive";
+				slot = GL_TEXTURE2; index = 3;
+				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
@@ -350,6 +350,10 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 			case MaterialPropertyType_Specular:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
+				break;
+			case MaterialPropertyType_Emissive:
+				modeUniformName = "emissiveMode";
+				colorUniformName = "colors.emissive";
 				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;

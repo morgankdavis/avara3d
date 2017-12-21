@@ -84,12 +84,11 @@ namespace ae {
 		std::shared_ptr<Color>									m_color;
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>>	m_cube;
 		
-		WrapMode												m_wrapS;
-		WrapMode												m_wrapT;
 		FilterMode												m_minificationFilter;
 		FilterMode												m_magnificationFilter;
-		FilterMode												m_mipFilter;
 		float													m_maxAnisotropy;
+		WrapMode												m_wrapS;
+		WrapMode												m_wrapT;
 		
 		GLuint													m_glTextureID;
 	};

@@ -2,21 +2,21 @@ TODO:
 
 ——————————————————————————————————
 
-Move numLights to lights UBO? [CLEAN UP]
-	-> clean up light sorting
-	rename lightsBlockBlock
-	make light spheres use emissive property
-	make element->draw() material mandatory, and add default material in Geometry::draw()
-	Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
-	Attenuation
++ MOVE DEFAULT MATERIAL TO RENDER TIME?
+Attenuation
+clean up light sorting
+rename lightsBlockBlock
+make light spheres use emissive property
+make element->draw() material mandatory, and add default material in Geometry::draw()
+Clean up Scene.h ubo gen
+Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
+Check cube map filtering properties
 
-
-View and projection mat into UBO?
 
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
-Clean up Scene.h ubo gen
+
 
 
 FIGURE OUT HOW TO GET MAX_LIGHTS CLOSEST TO EACH GEOMETRY CENTER…?
@@ -62,6 +62,7 @@ Tests:
 		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Add Window to scene render callbacks
+		View and projection mat into UBO?
 
 	07 - solarsystem
 		Emission, multiply?

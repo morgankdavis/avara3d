@@ -41,11 +41,14 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 		if (geometry) {
 			
 			for (auto material : geometry->materials()) {
-				material->diffuse()->minificationFilter(mode);
-				material->diffuse()->magnificationFilter(mode);
-				material->specular()->minificationFilter(mode);
-				material->specular()->magnificationFilter(mode);
-				// emission
+				if (material->diffuse()) {
+					material->diffuse()->minificationFilter(mode);
+					material->diffuse()->magnificationFilter(mode);
+				}
+				if (material->specular()) {
+					material->specular()->minificationFilter(mode);
+					material->specular()->magnificationFilter(mode);
+				}
 			}
 		}
 	}
@@ -59,9 +62,8 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 		if (geometry) {
 			
 			for (auto material : geometry->materials()) {
-				material->diffuse()->maxAnisotropy(anisotropy);
-				material->specular()->maxAnisotropy(anisotropy);
-				// emission
+				if (material->diffuse()) material->diffuse()->maxAnisotropy(anisotropy);
+				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
 			}
 		}
 	}
@@ -253,6 +255,14 @@ int Test::run(const vector<string>& args) {
 	pointLightNode->position(vec3(70.0, 70.0, 70.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 	
+	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto material = make_shared<Material>();
+	material->name("LIGHT material");
+	material->emissive(materialProperty);
+	auto geometry = make_shared<Sphere>(3.5, 16);
+	geometry->addMaterial(material);
+	pointLightNode->geometry(geometry);
+	
 	
 	
 //	// random lights
@@ -265,7 +275,7 @@ int Test::run(const vector<string>& args) {
 //		int randY = Random(-150, 150);
 //		int randZ = Random(-150, 150);
 //		lightNode->position(vec3(randX, randY, randZ));
-//		auto color = make_shared<Color>(colors[Random(0, colors.size()-1)]);
+//		auto color = make_shared<Color>(colors[Random(4, colors.size()-1-4)]);
 //		light->color(color);
 //		cout << "Adding random light with position: "
 //		<< lightNode->position()<< ", color: " << *light->color() << endl;
@@ -273,7 +283,8 @@ int Test::run(const vector<string>& args) {
 //		auto geometry = make_shared<Sphere>(3.5, 16);
 //
 //		auto materialProperty = make_shared<MaterialProperty>(color);
-//		auto material = make_shared<Material>(materialProperty, materialProperty, nullptr);
+//		auto material = make_shared<Material>();
+//		material->emissive(materialProperty);
 //		geometry->addMaterial(material);
 //		lightNode->geometry(geometry);
 //
