@@ -30,6 +30,44 @@ using namespace glm;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+void SetAllFilterModes(FilterMode mode, Scene& scene) {
+	
+	for (auto node : scene.rootNode()->allChildNodes()) {
+		
+		auto geometry = node->geometry();
+		if (geometry) {
+			
+			for (auto material : geometry->materials()) {
+				material->diffuse()->minificationFilter(mode);
+				material->diffuse()->magnificationFilter(mode);
+				material->specular()->minificationFilter(mode);
+				material->specular()->magnificationFilter(mode);
+				// emission
+			}
+		}
+	}
+}
+
+void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
+	
+	for (auto node : scene.rootNode()->allChildNodes()) {
+		
+		auto geometry = node->geometry();
+		if (geometry) {
+			
+			for (auto material : geometry->materials()) {
+				material->diffuse()->maxAnisotropy(anisotropy);
+				material->specular()->maxAnisotropy(anisotropy);
+				// emission
+			}
+		}
+	}
+}
+
+/***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
@@ -197,7 +235,8 @@ int Test::run(const vector<string>& args) {
 
 
 	
-//	auto backgroundColor = make_shared<Color>(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
+//	//auto backgroundColor = make_shared<Color>(151.0f/255.0f, 182.0f/255.0f, 214.0f/255.0f, 1.0f);
+//	auto backgroundColor = make_shared<Color>(Color::Maroon());
 //	//auto backgroundColor = make_shared<Color>(Color::Lime());
 //	auto background = make_shared<MaterialProperty>(backgroundColor);
 //	scene->background(background);
@@ -209,30 +248,37 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(ambientLightNode);
 	
 	
+	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+	auto pointLightNode = make_shared<Node>(pointLight);
+	pointLightNode->position(vec3(70.0, 70.0, 70.0));
+	scene->rootNode()->addChildNode(pointLightNode);
 	
-	const int NUM_RANDOM_LIGHTS = 50;
-	auto colors = Color::Rainbow();
-	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-		auto light = make_shared<Light>(LightType_Point);
-		auto lightNode = make_shared<Node>(light);
-		int randX = Random(-150, 150);
-		int randY = Random(-150, 150);
-		int randZ = Random(-150, 150);
-		lightNode->position(vec3(randX, randY, randZ));
-		auto color = make_shared<Color>(colors[Random(0, 18)]);
-		light->color(color);
-		cout << "Adding random light with position: "
-		<< lightNode->position()<< ", color: " << *light->color() << endl;
-		
-		auto geometry = make_shared<Sphere>(5.0, 8);
-		
-		auto materialProperty = make_shared<MaterialProperty>(color);
-		auto material = make_shared<Material>(materialProperty, materialProperty, nullptr);
-		geometry->addMaterial(material);
-		lightNode->geometry(geometry);
-		
-		scene->rootNode()->addChildNode(lightNode);
-	}
+	
+	
+//	// random lights
+//	const int NUM_RANDOM_LIGHTS = 7;
+//	auto colors = Color::Rainbow();
+//	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
+//		auto light = make_shared<Light>(LightType_Point);
+//		auto lightNode = make_shared<Node>(light);
+//		int randX = Random(-150, 150);
+//		int randY = Random(-150, 150);
+//		int randZ = Random(-150, 150);
+//		lightNode->position(vec3(randX, randY, randZ));
+//		auto color = make_shared<Color>(colors[Random(0, colors.size()-1)]);
+//		light->color(color);
+//		cout << "Adding random light with position: "
+//		<< lightNode->position()<< ", color: " << *light->color() << endl;
+//
+//		auto geometry = make_shared<Sphere>(3.5, 16);
+//
+//		auto materialProperty = make_shared<MaterialProperty>(color);
+//		auto material = make_shared<Material>(materialProperty, materialProperty, nullptr);
+//		geometry->addMaterial(material);
+//		lightNode->geometry(geometry);
+//
+//		scene->rootNode()->addChildNode(lightNode);
+//	}
 
 	
 
@@ -250,12 +296,6 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
-
-
-
-
-
-
 void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 	static float totalSeconds = 0;
@@ -268,6 +308,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
 	}
+	
+	if 		(keysDown.count(Key_1))	SetAllFilterModes(FilterMode_Nearest, scene);
+	else if (keysDown.count(Key_2))	SetAllFilterModes(FilterMode_Linear, scene);
+	else if (keysDown.count(Key_3))	SetAllFilterModes(FilterMode_NearestMipmapNearest, scene);
+	else if (keysDown.count(Key_4))	SetAllFilterModes(FilterMode_NearestMipmapLinear, scene);
+	else if (keysDown.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
+	else if (keysDown.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
+	
+	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
+	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
+	
+	
+	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 
 

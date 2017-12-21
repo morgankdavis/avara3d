@@ -72,7 +72,7 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 	m_faces(faces),
 	//m_vertexDataLoaded(false),
 	m_glVAO(0),
-m_glIBO(0) {//,
+	m_glIBO(0) {//,
 	//m_glUBO(0) {
 	
 		//glGenBuffers(1, &m_glUBO);

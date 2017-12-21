@@ -38,24 +38,27 @@ namespace ae {
 	
 	
 	typedef enum {
-		MaterialFillMode_Fill,
-		MaterialFillMode_Line
-	} MaterialFillMode;
+		FillMode_Fill,
+		FillMode_Line
+	} FillMode;
 
 	
 	typedef enum {
-		WrapMode_Clamp,
-		WrapMode_Repeat,
-		WrapMode_lampToBorder,
-		WrapMode_Mirror
-	} WrapMode;
-
-
-	typedef enum {
-		WrapMode_None,
-		WrapMode_Nearest,
-		WrapMode_Linear
+		FilterMode_Nearest,
+		FilterMode_Linear,
+		FilterMode_NearestMipmapNearest,
+		FilterMode_LinearMipmapNearest,
+		FilterMode_NearestMipmapLinear,
+		FilterMode_LinearMipmapLinear
 	} FilterMode;
+	
+	
+	typedef enum {
+		WrapMode_ClampToEdge,
+		WrapMode_ClampToBorder,
+		WrapMode_Repeat,
+		WrapMode_MirroredRepeat
+	} WrapMode;
 
 
 	typedef enum {

@@ -52,23 +52,20 @@ namespace ae {
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube() const; // +X, -X, +Y, -Y, +Z, -Z,
 		void cube(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
-		WrapMode wrapS() const;
-		void wrapS(WrapMode mode);
-		
-		WrapMode wrapT() const;
-		void wrapT(WrapMode mode);
-		
 		FilterMode minificationFilter() const;
 		void minificationFilter(FilterMode mode);
 		
 		FilterMode magnificationFilter() const;
 		void magnificationFilter(FilterMode mode);
-		
-		FilterMode mipFilter() const;
-		void mipFilter(FilterMode mode);
-		
+
 		float maxAnisotropy() const;
 		void maxAnisotropy(float max);
+		
+		WrapMode wrapS() const;
+		void wrapS(WrapMode mode);
+		
+		WrapMode wrapT() const;
+		void wrapT(WrapMode mode);
 		
 		/***************************************************************************************
 		     MARK:   Internal

@@ -8,6 +8,8 @@ Move numLights to lights UBO? [CLEAN UP]
 	make light spheres use emissive property
 	make element->draw() material mandatory, and add default material in Geometry::draw()
 	Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
+	Attenuation
+
 
 View and projection mat into UBO?
 
@@ -59,6 +61,7 @@ Tests:
 		Create shader library
 		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
+		Add Window to scene render callbacks
 
 	07 - solarsystem
 		Emission, multiply?

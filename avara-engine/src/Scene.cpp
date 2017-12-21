@@ -309,7 +309,7 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	auto lightsSorted = SortedLights(lightsUnsorted);
 	//cout << "lightsSorted: " << lightsSorted << endl;
 	
-#define MAX_LIGHTS 8
+#define MAX_LIGHTS 7
 	
 	unsigned endIndex = std::min((unsigned)lightsSorted.size(), (unsigned)(MAX_LIGHTS-1));
 	vector<shared_ptr<Node>>::const_iterator first = lightsSorted.begin() + 0;

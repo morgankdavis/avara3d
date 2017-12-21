@@ -53,7 +53,6 @@ uniform 	int 		specularMode;
 uniform		float 		specularExponent;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
-//uniform 	int			numLights;
 layout(std140) uniform LightBlock {
 	int		numLights;
 	float 	PADDING1;

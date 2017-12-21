@@ -73,8 +73,8 @@ namespace ae {
 		bool doubleSided() const;
 		void doubleSided(bool flag);
 		
-		MaterialFillMode fillMode() const;
-		void fillMode(MaterialFillMode mode);
+		FillMode fillMode() const;
+		void fillMode(FillMode mode);
 		
 		std::shared_ptr<Program> program() const;
 		void program(const std::shared_ptr<Program> program); // remove this?
@@ -109,7 +109,7 @@ namespace ae {
 		float 								m_specularExponent;
 		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
-		MaterialFillMode 					m_fillMode;
+		FillMode 							m_fillMode;
 	};
 }
 

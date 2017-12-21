@@ -63,7 +63,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_specularExponent(150.0),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_fillMode(MaterialFillMode_Fill),
+	m_fillMode(FillMode_Fill),
 	m_program(nullptr) {
 	
 		loadShaderProgram(programName);
@@ -129,11 +129,11 @@ void Material::doubleSided(bool flag) {
 	m_doubleSided = flag;
 }
 
-MaterialFillMode Material::fillMode() const {
+FillMode Material::fillMode() const {
 	return m_fillMode;
 }
 
-void Material::fillMode(MaterialFillMode mode) {
+void Material::fillMode(FillMode mode) {
 	m_fillMode = mode;
 }
 
@@ -170,7 +170,7 @@ void Material::loadShaderProgram(const string& shaderName) {
 
 void Material::prepareToRender() const {
 	
-	if (m_fillMode == MaterialFillMode_Line) {
+	if (m_fillMode == FillMode_Line) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {

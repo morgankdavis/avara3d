@@ -107,7 +107,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
-		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
+		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
+		<< mouseScrollWheelDelta.y << ")" << endl;
 	}
 	
 	
@@ -188,16 +189,23 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 	if (m_suzanneNode) {
 		if(keysDown.count(Key_Right)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds,
+											m_suzanneNode->eulerAngles().y,
+											m_suzanneNode->eulerAngles().z));
 		}
 		else if(keysDown.count(Key_Left)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x - deltaSeconds,
+											m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z));
 		}
 		if(keysDown.count(Key_Up)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z + deltaSeconds));
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x,
+											m_suzanneNode->eulerAngles().y,
+											m_suzanneNode->eulerAngles().z + deltaSeconds));
 		}
 		else if(keysDown.count(Key_Down)) {
-			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x, m_suzanneNode->eulerAngles().y, m_suzanneNode->eulerAngles().z - deltaSeconds));
+			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x,
+											m_suzanneNode->eulerAngles().y,
+											m_suzanneNode->eulerAngles().z - deltaSeconds));
 		}
 	}
 }
