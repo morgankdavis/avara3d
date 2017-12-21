@@ -252,8 +252,10 @@ int Test::run(const vector<string>& args) {
 	
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
 	auto pointLightNode = make_shared<Node>(pointLight);
-	pointLightNode->position(vec3(70.0, 70.0, 70.0));
+	pointLightNode->position(vec3(0.0, 0.0, 0.0));
 	scene->rootNode()->addChildNode(pointLightNode);
+	
+	m_lightNode = pointLightNode;
 	
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -392,6 +394,28 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
+	}
+	
+	
+	
+	
+	// move the light
+	
+	if (m_lightNode) {
+		
+		auto center = vec3(0, -75, 0);
+		
+		static float radiusX = 100.0;
+		static float radiusY = 100.0;
+		
+		static float rotationSpeed = radians(30.0); // deg/secs
+		static float angle = 0;
+		angle += rotationSpeed * deltaSeconds;
+		
+		float x = sin(angle) * radiusX;
+		float y = cos(angle) * radiusY;
+
+		m_lightNode->position(center + vec3(x, y, -x));
 	}
 }
 

@@ -2,6 +2,7 @@ TODO:
 
 ——————————————————————————————————
 
+Animate lights
 + MOVE DEFAULT MATERIAL TO RENDER TIME?
 Attenuation
 clean up light sorting
