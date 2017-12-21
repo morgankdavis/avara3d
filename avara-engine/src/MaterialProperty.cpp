@@ -156,19 +156,21 @@ FilterMode MaterialProperty::minificationFilter() const {
 void MaterialProperty::minificationFilter(FilterMode mode) {
 	m_minificationFilter = mode;
 	
+	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	
 	switch (mode) {
 		case FilterMode_NearestMipmapNearest:
 		case FilterMode_NearestMipmapLinear:
 		case FilterMode_LinearMipmapNearest:
 		case FilterMode_LinearMipmapLinear:
-			glGenerateMipmap(GL_TEXTURE_2D);
+			glGenerateMipmap(texType);
 			break;
 		default:
 			break;
 	}
 	
-	glBindTexture(GL_TEXTURE_2D, m_glTextureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
+	glBindTexture(texType, m_glTextureID);
+	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
 
 FilterMode MaterialProperty::magnificationFilter() const {
@@ -178,11 +180,13 @@ FilterMode MaterialProperty::magnificationFilter() const {
 void MaterialProperty::magnificationFilter(FilterMode mode) {
 	m_magnificationFilter = mode;
 	
+	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	
 	switch (mode) {
 		case FilterMode_Nearest:
 		case FilterMode_Linear:
-			glBindTexture(GL_TEXTURE_2D, m_glTextureID);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
+			glBindTexture(texType, m_glTextureID);
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 			break;
 		default:
 			cout << "Error: unsupported magnification filter mode: " << mode << endl;
@@ -196,12 +200,14 @@ float MaterialProperty::maxAnisotropy() const {
 
 void MaterialProperty::maxAnisotropy(float max) {
 	float anisotropy = max;
+	
+	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 
-	glBindTexture(GL_TEXTURE_2D, m_glTextureID);
+	glBindTexture(texType, m_glTextureID);
 	float largest;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (anisotropy > largest) anisotropy = largest;
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 	
 	m_maxAnisotropy = anisotropy;
 }
@@ -213,8 +219,10 @@ WrapMode MaterialProperty::wrapS() const {
 void MaterialProperty::wrapS(WrapMode mode) {
 	m_wrapS = mode;
 	
-	glBindTexture(GL_TEXTURE_2D, m_glTextureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
+	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	
+	glBindTexture(texType, m_glTextureID);
+	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
 }
 
 WrapMode MaterialProperty::wrapT() const {
@@ -224,8 +232,10 @@ WrapMode MaterialProperty::wrapT() const {
 void MaterialProperty::wrapT(WrapMode mode) {
 	m_wrapT = mode;
 	
-	glBindTexture(GL_TEXTURE_2D, m_glTextureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
+	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	
+	glBindTexture(texType, m_glTextureID);
+	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
 }
 
 /***************************************************************************************
@@ -263,12 +273,11 @@ void MaterialProperty::loadTexture() {
 						 image.data());
 		}
 		
-		// format cube map texture
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		minificationFilter(FilterMode_LinearMipmapLinear);
+		magnificationFilter(FilterMode_Linear);
+		maxAnisotropy(16);
+		wrapS(WrapMode_ClampToEdge);
+		wrapT(WrapMode_ClampToEdge);
 	}
 	else if (m_image) {
 		cout << "Loading 2D texture..." << endl;
