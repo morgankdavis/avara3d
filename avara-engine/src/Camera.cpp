@@ -8,6 +8,9 @@
 
 #include "Camera.h"
 
+#include <iostream>
+
+#include "Utilities.h"
 
 using namespace ae;
 using namespace std;
@@ -21,27 +24,19 @@ using namespace glm;
 Camera::Camera():
 	m_fov(radians(45.0)),
 	m_zNear(0.01),
-	m_zFar(10000.0) {
+	m_zFar(10000.0),
+	m_aspectRatio(1.0) {
 
-	// TODO: HARD CODED VIEWPORT SIZE!
-		m_projection = perspective(m_fov,
-								   800.0f/600.0f,
-								   //1920.0f/1080.0f,
-								   m_zNear,
-								   m_zFar);
+		constructProjectionMat();
 }
 
-Camera::Camera(const float zNear, const float zFar, const float fov):
+Camera::Camera(float zNear, float zFar, float fov):
 	m_zNear(zNear),
 	m_zFar(zFar),
-	m_fov(radians(fov)) {
+	m_fov(radians(fov)),
+	m_aspectRatio(1.0) {
 
-	// TODO: HARD CODED VIEWPORT SIZE!
-	m_projection = perspective(m_fov,
-							   800.0f/600.0f,
-							   //1920.0f/1080.0f,
-							   m_zNear,
-							   m_zFar);
+		constructProjectionMat();
 }
 
 /***************************************************************************************
@@ -52,36 +47,24 @@ string Camera::name() {
 	return m_name;
 }
 
-void Camera::name(const string name) {
+void Camera::name(string name) {
 	m_name = name;
 }
 
-//vec3 Camera::forward() const {
-//	return vec3(0.0f);
-//}
-//
-//vec3 Camera::up() const {
-//	return vec3(0.0f);
-//}
-//
-//vec3 Camera::right() const {
-//	return vec3(0.0f);
-//}
-
-void Camera::translate(const vec3 translation) {
+void Camera::translate(vec3 translation) {
 	
 }
 
-void Camera::rotate(const vec3 rotation) {
+void Camera::rotate(vec3 rotation) {
 	
 }
 
 float Camera::fov() {
 	return m_fov;
-	// recompute projection
+	constructProjectionMat();
 }
 
-void Camera::fov(const float fov) {
+void Camera::fov(float fov) {
 	m_fov = fov;
 }
 
@@ -89,32 +72,52 @@ float Camera::zNear() {
 	return m_zNear;
 }
 
-void Camera::zNear(const float zNear) {
+void Camera::zNear(float zNear) {
 	m_zNear = zNear;
-	// recompute projection
+	constructProjectionMat();
 }
 
 float Camera::zFar() {
 	return m_zFar;
 }
 
-void Camera::zFar(const float zFar) {
+void Camera::zFar(float zFar) {
 	m_zFar = zFar;
-	// recompute projection
+	constructProjectionMat();
+}
+
+float Camera::aspectRatio() {
+	return m_aspectRatio;
+}
+
+void Camera::aspectRatio(float ratio) {
+	// small optimization as Window::mainLoop() calls this every draw
+	if (!utils::FloatEqual(ratio, m_aspectRatio, 0.01)) {
+		m_aspectRatio = ratio;
+		constructProjectionMat();
+	}
 }
 
 mat4 Camera::projection() {
 	return m_projection;
 }
 
-void Camera::projection(const mat4 projection) {
-	m_projection = projection;
-	// compute constituent properties??
-}
+//void Camera::projection(mat4 projection) {
+//	m_projection = projection;
+//	// compute constituent properties??
+//}
 
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
+
+void Camera::constructProjectionMat() {
+	
+	m_projection = perspective(m_fov,
+							   m_aspectRatio,
+							   m_zNear,
+							   m_zFar);
+}
 
 Node* Camera::node() const {
 	return m_node;

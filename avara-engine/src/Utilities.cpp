@@ -146,6 +146,10 @@ float ae::utils::Max(const vec3& v) {
 	return std::max(std::max(v.x, v.y), v.z);
 }
 
+bool ae::utils::FloatEqual(float a, float b, float tolerance) {
+	return (fabs(a - b) <= tolerance);
+}
+
 std::string ae::utils::ShaderSourceDirectoryPath() {
 #ifdef XCODE
 	return "../../../../avara-engine/shaders/";

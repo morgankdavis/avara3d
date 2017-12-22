@@ -30,37 +30,38 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Camera();
-		Camera(const float zNear, const float zFar, const float fov);
+		Camera(float zNear, float zFar, float fov);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
 		std::string name();
-		void name(const std::string name);
-		
-//		glm::vec3 forward() const;
-//		glm::vec3 up() const;
-//		glm::vec3 right() const;
-		
-		void translate(const glm::vec3 translation);
-		void rotate(const glm::vec3 rotation);
+		void name(std::string name);
+
+		void translate(glm::vec3 translation);
+		void rotate(glm::vec3 rotation);
 		
 		float fov();
-		void fov(const float fov);
+		void fov(float fov);
 		
 		float zNear();
-		void zNear(const float zNear);
+		void zNear(float zNear);
 		
 		float zFar();
-		void zFar(const float zFar);
+		void zFar(float zFar);
+		
+		float aspectRatio();
+		void aspectRatio(float ratio);
 		
 		glm::mat4 projection();
-		void projection(const glm::mat4 projection);
+//		void projection(const glm::mat4 projection);
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
+		
+		void constructProjectionMat();
 		
 		Node* node() const;
 		void node(Node* node);
@@ -76,6 +77,7 @@ namespace ae {
 		float					m_fov;
 		float					m_zNear;
 		float					m_zFar;
+		float					m_aspectRatio;
 		
 		glm::mat4				m_projection;
 		

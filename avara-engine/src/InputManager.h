@@ -78,8 +78,8 @@ namespace ae {
 		void initManyMouse();
 		void quitManyMouse();
 //		void initGainput();
-		void registerGLFWCallbacks();
-		void unregisterGLFWCallbacks();
+		void registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 		
 		void clearKeysDown(); // called after keysDown()
 		void clearMouseDown(); // called after mouseButtonsDown()

@@ -23,10 +23,10 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define FRAMEBUFFER_SCALE       1.0f
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
-bool FULLSCREEN = false;
+#define FRAMEBUFFER_SCALE       1.0
+#define WINDOW_WIDTH			1024
+#define WINDOW_HEIGHT			768
+#define FULLSCREEN 				true
 
 
 /***************************************************************************************
@@ -76,8 +76,14 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
-	if (init() != 0) { cout << "Init error!" << endl; return -1; }
-
+	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.enableCursor(false);
+	window.vSyncEnabled(false);
+	m_inputManager = window.inputManager();
+	
+	
 	auto scene = make_shared<Scene>();
 
 	auto siameseScene = TestSceneNamed("siamese");
@@ -294,19 +300,20 @@ int Test::run(const vector<string>& args) {
 //		scene->rootNode()->addChildNode(lightNode);
 //	}
 
-	int windowWidth = WINDOW_WIDTH;
-	int windowHeight = WINDOW_HEIGHT;
-	if (FULLSCREEN) GetScreenResolution(windowWidth, windowHeight);
+//	int windowWidth = WINDOW_WIDTH;
+//	int windowHeight = WINDOW_HEIGHT;
+//	if (FULLSCREEN) GetScreenResolution(windowWidth, windowHeight);
 
-	auto window = Window(windowWidth, windowHeight, FRAMEBUFFER_SCALE);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.scene(scene);
-	window.enableCursor(false);
+//	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//	window.scene(scene);
+//	window.enableCursor(false);
 	//window.maximumFramerate(240.0);
 
-	m_inputManager = window.inputManager();
+//	m_inputManager = window.inputManager();
 	
+	window.scene(scene);
 	window.display();
 	
 	return 0;

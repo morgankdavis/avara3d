@@ -57,6 +57,8 @@ namespace ae {
 		bool Zero(const glm::vec3& v);
 		float Max(const glm::vec3& v);
 		
+		bool FloatEqual(float a, float b, float tolerance);
+		
 		std::string ShaderSourceDirectoryPath();
 		std::string ShaderPath(const std::string& name, const std::string& type);
 		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);

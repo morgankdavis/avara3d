@@ -12,16 +12,15 @@
 #include <iostream>
 
 //#define GLFW_DLL
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
 #include "Color.h"
 #include "Geometry.h"
 #include "Globals.h"
+#include "Init.h"
 #include "InputManager.h"
-//#include "Material.h" // temporary
-//#include "MaterialProperty.h" // temporary
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
@@ -37,7 +36,8 @@ using namespace utils;
      MARK:   Globals
  **************************************************************************************/
 
-Window *window;
+Window* i_window;
+GLFWwindow* i_glfwWindow;
 
 /***************************************************************************************
      MARK:   GLFW Callbacks
@@ -46,37 +46,88 @@ Window *window;
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	cout << "glfwWindowSizeCallback()" << endl;
 	
-	window->width(aWidth);
-	window->height(aHeight);
+	i_window->width(aWidth);
+	i_window->height(aHeight);
 }
 
 void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	cout << "glfwFramebufferSizeCallback()" << endl;
 	
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
+	i_window->framebufferWidth(i_window->width() * i_window->framebufferScale());
+	i_window->framebufferHeight(i_window->height() * i_window->framebufferScale());
 }
 
 /***************************************************************************************
      MARK:   Lifescycle
  **************************************************************************************/
 
-Window::Window(const unsigned width, const unsigned height, const float framebufferScale):
-	m_scene(make_shared<Scene>()),
-	m_width(width),
-	m_height(height),
-	m_framebufferScale(framebufferScale),
-	m_framebufferWidth(m_width * m_framebufferScale),
-	m_framebufferHeight(m_height * m_framebufferScale),
-	m_antialiasingMode(AntialiasingMode_None),
-	m_backgroundColor(nullptr),
-	m_pointOfView(nullptr),
-	m_inputManager(nullptr),
-	m_maximumFramerate(60.0),
-	m_willUpdateCallback(nullptr),
-	m_didUpdateCallback(nullptr) {
+Window::Window(bool fullScreen, unsigned width, unsigned height, float framebufferScale) {
+//	m_scene(make_shared<Scene>()),
+//	m_width(width),
+//	m_height(height),
+//	m_framebufferScale(framebufferScale),
+//	m_framebufferWidth(m_width * m_framebufferScale),
+//	m_framebufferHeight(m_height * m_framebufferScale),
+//	m_antialiasingMode(AntialiasingMode_None),
+//	m_backgroundColor(nullptr),
+//	m_pointOfView(nullptr),
+//	m_inputManager(nullptr),
+//	m_maximumFramerate(60.0),
+//	m_willUpdateCallback(nullptr),
+//	m_didUpdateCallback(nullptr) {
 
-	window = this;
+		if (initGLFW() != 0) {
+			cout << "Init error!" << endl;// return -1;
+		}
+		
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_SAMPLES, 16);
+	
+		int viewportWidth = width;
+		int viewportHeight = height;
+		
+		if (fullScreen) {
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+			i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+			viewportWidth = vmode->width;
+			viewportHeight = vmode->height;
+		}
+		else {
+			i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+		}
+		
+		if (!i_glfwWindow) {
+			cout << "Error creating glfwWindow." << endl;
+			glfwTerminate();
+			//return -1;
+		}
+		
+		glfwMakeContextCurrent(i_glfwWindow);
+		vSyncEnabled(false);
+	
+		initGLEW();
+	
+		i_window = this;
+			
+		// moved from initializer list
+		
+		m_scene = make_shared<Scene>();
+		m_width = viewportWidth;
+		m_height = viewportHeight;
+		m_framebufferScale = framebufferScale;
+		m_framebufferWidth = m_width * m_framebufferScale;
+		m_framebufferHeight = m_height * m_framebufferScale;
+		m_antialiasingMode = AntialiasingMode_None;
+		m_backgroundColor = nullptr;
+		m_pointOfView = nullptr;
+		m_inputManager = nullptr;
+		m_maximumFramerate = 60.0;
+		m_willUpdateCallback = nullptr;
+		m_didUpdateCallback = nullptr;
 }
 
 Window::~Window() {
@@ -90,12 +141,12 @@ Window::~Window() {
 void Window::display() {
 	cout << "Window::display()" << endl;
 
-	glfwMakeContextCurrent(g_glfwWindow); // also done in Init
+	glfwMakeContextCurrent(i_glfwWindow); // also done in Init
 	
-	glfwSetWindowSizeCallback(g_glfwWindow, glfwWindowSizeCallback);
-	glfwSetFramebufferSizeCallback(g_glfwWindow, glfwFramebufferSizeCallback);
+	glfwSetWindowSizeCallback(i_glfwWindow, glfwWindowSizeCallback);
+	glfwSetFramebufferSizeCallback(i_glfwWindow, glfwFramebufferSizeCallback);
 	
-	while (!glfwWindowShouldClose(g_glfwWindow)) {
+	while (!glfwWindowShouldClose(i_glfwWindow)) {
 		static double previousSeconds = glfwGetTime();
 		float totalSeconds = glfwGetTime();
 		float deltaSeconds = totalSeconds - previousSeconds;
@@ -111,7 +162,7 @@ void Window::display() {
 			
 			mainLoop(deltaSeconds);
 			
-			if (!glfwWindowShouldClose(g_glfwWindow)) {
+			if (!glfwWindowShouldClose(i_glfwWindow)) {
 				if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
 			}
 //		}
@@ -135,10 +186,20 @@ void Window::scene(const shared_ptr<Scene> scene) {
 }
 
 void Window::enableCursor(bool enabled) {
-	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
 }
 
-float Window::maximumFramerate() {
+bool Window::vSyncEnabled() const {
+	return m_vSyncEnabled;
+}
+
+void Window::vSyncEnabled(bool enabled) {
+	m_vSyncEnabled = enabled;
+	if (!enabled) glfwSwapInterval(0);
+	else glfwSwapInterval(1);
+}
+
+float Window::maximumFramerate() const {
 	return m_maximumFramerate;
 }
 
@@ -146,15 +207,15 @@ void Window::maximumFramerate(float max) {
 	m_maximumFramerate = max;
 }
 
-DebugOption& Window::debugOptions() {
+DebugOption Window::debugOptions() const {
 	return m_debugOptions;
 }
 
-void Window::debugOptions(const DebugOption& options) {
+void Window::debugOptions(const DebugOption options) {
 	m_debugOptions = options;
 }
 
-shared_ptr<Image> Window::snapshot() {
+shared_ptr<Image> Window::snapshot() const {
 	return nullptr;
 }
 
@@ -258,7 +319,9 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
 	//m_scene->rootNode()->addChildNode(cameraNode); // done below
-	cameraNode->camera(make_shared<Camera>());
+	auto camera = make_shared<Camera>();
+	camera->name("default camera");
+	cameraNode->camera(camera);
 
 	auto boundingPoints = (*scene()->boundingPoints());
 
@@ -314,21 +377,17 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	cout << "eye: " << eye << endl;
 	cout << "center: " << center << endl;
 
-//	mat4 viewMat = lookAt(eye,	// eye - location
-//						  center,	// center - look at
-//						  vec3(0, 1, 0));	// up
-	
-	// TODO: WHY does look at appear to invert its output?? see also Geometry::draw()
 	mat4 viewMat = translate(mat4(1.0f), eye);
-
 	cameraNode->transform(viewMat);
-	
-	//cout << "default viewMat: " << viewMat << endl;
 
 	scene()->rootNode()->addChildNode(cameraNode);
 	pointOfView(cameraNode);
 	
 	return cameraNode;
+}
+
+GLFWwindow* Window::glfwWindow() const {
+	return i_glfwWindow;
 }
 
 windowWillUpdateFuction Window::willUpdateCallback() {
@@ -364,7 +423,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 		float percentGoal = (ms / GOAL_TIME) * 100.0f;
 		char tmp[128];
 		sprintf(tmp, "%.1f ms | %.1f fps | %.1f %% | %u polys", ms, fps, percentGoal, numPolygons);
-		glfwSetWindowTitle(g_glfwWindow, tmp);
+		glfwSetWindowTitle(i_glfwWindow, tmp);
 		elapsedFrames = 0;
 	}
 }
@@ -377,13 +436,16 @@ void Window::mainLoop(const float deltaSeconds) {
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 
-	numPolygons += m_scene->draw(pointOfView());
+	auto pov = pointOfView();
+	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+	pov->camera()->aspectRatio(aspectRatio);
+	numPolygons += m_scene->draw(pov);
 
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);
 	}
 	glfwPollEvents();
 
-	glfwSwapBuffers(g_glfwWindow);
+	glfwSwapBuffers(i_glfwWindow);
 	updateFrametime(numPolygons);
 }

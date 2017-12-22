@@ -10,7 +10,6 @@
 #define ae_h
 
 
-#include "Init.h"
 #include "Box.h"
 #include "Camera.h"
 #include "Capsule.h"
