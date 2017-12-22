@@ -40,23 +40,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 	m_elements(elements),
 	m_materials(materials) {
 		
-		for (int e=0; e < m_elements.size(); ++e) {
-			auto element = m_elements[e];
-			
-			if (m_materials.size() > e) {
-				auto element = m_elements[e];
-				auto material = m_materials[e];
-				element->loadVertexData(*(material->program()));
-			}
-			else {
-				element->loadVertexData(*(Material::DefaultMaterial()->program()));
-			}
-		}
-
-
-//		for (int m=0; m < m_elements.size() - m_materials.size(); ++m) {
-//			m_materials.push_back(Material::DefaultMaterial());
-//		}
+		loadVertexData();
 }
 
 /***************************************************************************************
@@ -125,6 +109,21 @@ Node* Geometry::node() const {
 
 void Geometry::node(Node* node) {
 	m_node = node;
+}
+
+void Geometry::loadVertexData() {
+	for (int e=0; e < m_elements.size(); ++e) {
+		auto element = m_elements[e];
+		
+		if (m_materials.size() > e) {
+			auto element = m_elements[e];
+			auto material = m_materials[e];
+			element->loadVertexData(*(material->program()));
+		}
+		else {
+			element->loadVertexData(*(Material::DefaultMaterial()->program()));
+		}
+	}
 }
 
 void Geometry::hardTransform(const mat4 t, bool norm) {

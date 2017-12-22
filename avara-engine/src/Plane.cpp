@@ -51,6 +51,8 @@ Plane::Plane(float width, float height):
 
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
+		
+		loadVertexData();
 }
 
 //Plane::Plane(float width, float height):

@@ -34,45 +34,26 @@ using namespace std;
 Sphere::Sphere(float radius, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
-	IcoSphereMesh icoSphere{radius, segments};
+		IcoSphereMesh icoSphere{radius, segments};
 
-	auto verts = vector<Vertex>();
-	for (const MeshVertex& v : icoSphere.vertices()) {
-		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
-						  vec3(v.normal[0], v.normal[1], v.normal[2]),
-						  vec2(v.texCoord[0], v.texCoord[1]) };
-		verts.push_back(vertex);
-	}
+		auto verts = vector<Vertex>();
+		for (const MeshVertex& v : icoSphere.vertices()) {
+			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
+							  vec3(v.normal[0], v.normal[1], v.normal[2]),
+							  vec2(v.texCoord[0], v.texCoord[1]) };
+			verts.push_back(vertex);
+		}
 		
-	auto faces = vector<Face>();
-	for (const Triangle& t : icoSphere.triangles()) {
-		Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2]};
-		faces.push_back(face);
-	}
-
-	auto element = make_shared<GeometryElement>(verts, faces);
-	m_elements.push_back(element);
-		
-		
-		
-		
-		
-		
-		// TODO: REMOVE (should be in super)
-		
-		for (int e=0; e < m_elements.size(); ++e) {
-			auto element = m_elements[e];
-			
-			if (m_materials.size() > e) {
-				auto element = m_elements[e];
-				auto material = m_materials[e];
-				element->loadVertexData(*(material->program()));
-			}
-			else {
-				element->loadVertexData(*(Material::DefaultMaterial()->program()));
-			}
+		auto faces = vector<Face>();
+		for (const Triangle& t : icoSphere.triangles()) {
+			Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2]};
+			faces.push_back(face);
 		}
 
+		auto element = make_shared<GeometryElement>(verts, faces);
+		m_elements.push_back(element);
+		
+		loadVertexData();
 }
 
 

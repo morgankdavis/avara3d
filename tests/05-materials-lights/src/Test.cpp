@@ -156,7 +156,8 @@ int Test::run(const vector<string>& args) {
 	auto palletScene = TestSceneNamed("Pallet");
 	palletScene->rootNode()->position(vec3(-35.0f, 35.0f, 0.0f));
 	palletScene->rootNode()->scale(palletScene->rootNode()->scale() * 20.0f);
-	palletScene->rootNode()->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	//palletScene->rootNode()->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	palletScene->rootNode()->eulerAngles(vec3(radians(-90.0f), radians(40.0f), radians(0.0f)));
 	scene->rootNode()->addChildNode(palletScene->rootNode());
 //	auto scene = palletScene;
 	
@@ -254,9 +255,9 @@ int Test::run(const vector<string>& args) {
 	auto pointLightNode = make_shared<Node>(pointLight);
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
 	scene->rootNode()->addChildNode(pointLightNode);
-	
+
 	m_lightNode = pointLightNode;
-	
+
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");

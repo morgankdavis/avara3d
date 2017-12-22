@@ -2,7 +2,9 @@ TODO:
 
 ——————————————————————————————————
 
-Animate lights
+Try light picking per geometry?
+Remove ambient light from MAX_LIGHTS
+Figure out why NUM_LIGHTS == 7 is still choosing something
 + MOVE DEFAULT MATERIAL TO RENDER TIME?
 Attenuation
 clean up light sorting
@@ -10,24 +12,11 @@ rename lightsBlockBlock
 make light spheres use emissive property
 make element->draw() material mandatory, and add default material in Geometry::draw()
 Clean up Scene.h ubo gen
-Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
-Check cube map filtering properties
 
 
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
-
-
-
-FIGURE OUT HOW TO GET MAX_LIGHTS CLOSEST TO EACH GEOMETRY CENTER…?
-	Or closest to camera…? But in front of the camera?
-
-
-Add multiple point lights + attenuation
-	UBO for Lights shader block: http://sunandblackcat.com/tipFullView.php?l=eng&topicid=21
-	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
-Re-arrange scene interestingly + test geometry instancing
 
 
 Tests:

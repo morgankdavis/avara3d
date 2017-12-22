@@ -62,6 +62,8 @@ namespace ae {
 		
 		Node* node() const;
 		void node(Node* node);
+		
+		void loadVertexData();
 
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();
