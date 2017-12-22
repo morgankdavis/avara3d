@@ -24,9 +24,9 @@ using namespace glm;
 
 
 #define FRAMEBUFFER_SCALE       1.0
-#define WINDOW_WIDTH			1024
-#define WINDOW_HEIGHT			768
-#define FULLSCREEN 				true
+#define WINDOW_WIDTH			800
+#define WINDOW_HEIGHT			600
+#define FULLSCREEN 				false
 
 
 /***************************************************************************************
@@ -257,61 +257,49 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
-	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	auto pointLightNode = make_shared<Node>(pointLight);
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	scene->rootNode()->addChildNode(pointLightNode);
-
-	m_lightNode = pointLightNode;
-
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+//	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+//	auto pointLightNode = make_shared<Node>(pointLight);
+//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+//	scene->rootNode()->addChildNode(pointLightNode);
+//
+//	m_lightNode = pointLightNode;
+//
+//	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+//	auto material = make_shared<Material>();
+//	material->name("LIGHT material");
+//	material->emissive(materialProperty);
+//	auto geometry = make_shared<Sphere>(3.5, 16);
+//	geometry->addMaterial(material);
+//	pointLightNode->geometry(geometry);
 	
 	
 	
-//	// random lights
-//	const int NUM_RANDOM_LIGHTS = 7;
-//	auto colors = Color::Rainbow();
-//	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-//		auto light = make_shared<Light>(LightType_Point);
-//		auto lightNode = make_shared<Node>(light);
-//		int randX = Random(-150, 150);
-//		int randY = Random(-150, 150);
-//		int randZ = Random(-150, 150);
-//		lightNode->position(vec3(randX, randY, randZ));
-//		auto color = make_shared<Color>(colors[Random(4, colors.size()-1-4)]);
-//		light->color(color);
-//		cout << "Adding random light with position: "
-//		<< lightNode->position()<< ", color: " << *light->color() << endl;
-//
-//		auto geometry = make_shared<Sphere>(3.5, 16);
-//
-//		auto materialProperty = make_shared<MaterialProperty>(color);
-//		auto material = make_shared<Material>();
-//		material->emissive(materialProperty);
-//		geometry->addMaterial(material);
-//		lightNode->geometry(geometry);
-//
-//		scene->rootNode()->addChildNode(lightNode);
-//	}
+	// random lights
+	const int NUM_RANDOM_LIGHTS = 8;
+	auto colors = Color::Rainbow();
+	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
+		auto light = make_shared<Light>(LightType_Point);
+		auto lightNode = make_shared<Node>(light);
+		int randX = Random(-150, 150);
+		int randY = Random(-150, 150);
+		int randZ = Random(-150, 150);
+		lightNode->position(vec3(randX, randY, randZ));
+		auto color = make_shared<Color>(colors[Random(4, colors.size()-1-4)]);
+		light->color(color);
+		cout << "Adding random light with position: "
+		<< lightNode->position()<< ", color: " << *light->color() << endl;
 
-//	int windowWidth = WINDOW_WIDTH;
-//	int windowHeight = WINDOW_HEIGHT;
-//	if (FULLSCREEN) GetScreenResolution(windowWidth, windowHeight);
+		auto geometry = make_shared<Sphere>(3.5, 16);
 
-//	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-//	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-//	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-//	window.scene(scene);
-//	window.enableCursor(false);
-	//window.maximumFramerate(240.0);
+		auto materialProperty = make_shared<MaterialProperty>(color);
+		auto material = make_shared<Material>();
+		material->emissive(materialProperty);
+		geometry->addMaterial(material);
+		lightNode->geometry(geometry);
 
-//	m_inputManager = window.inputManager();
+		scene->rootNode()->addChildNode(lightNode);
+	}
+
 	
 	window.scene(scene);
 	window.display();
