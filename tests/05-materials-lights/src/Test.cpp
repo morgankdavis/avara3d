@@ -246,25 +246,25 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::DarkGray()));
-	auto ambientLightNode = make_shared<Node>(ambientLight);
-	scene->rootNode()->addChildNode(ambientLightNode);
-	
-	
-	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	auto pointLightNode = make_shared<Node>(pointLight);
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	scene->rootNode()->addChildNode(pointLightNode);
-
-	m_lightNode = pointLightNode;
-
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::DarkGray()));
+//	auto ambientLightNode = make_shared<Node>(ambientLight);
+//	scene->rootNode()->addChildNode(ambientLightNode);
+//
+//
+//	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+//	auto pointLightNode = make_shared<Node>(pointLight);
+//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+//	scene->rootNode()->addChildNode(pointLightNode);
+//
+//	m_lightNode = pointLightNode;
+//
+//	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+//	auto material = make_shared<Material>();
+//	material->name("LIGHT material");
+//	material->emissive(materialProperty);
+//	auto geometry = make_shared<Sphere>(3.5, 16);
+//	geometry->addMaterial(material);
+//	pointLightNode->geometry(geometry);
 	
 	
 	

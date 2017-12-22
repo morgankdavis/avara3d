@@ -45,12 +45,14 @@ using namespace std;
  **************************************************************************************/
 
 typedef struct {
-	int type;
-	float PADDING1[3];
+	int32_t type;
+	float32_t PADDING1;
+	float32_t PADDING2;
+	float32_t PADDING3;
 	vec3 position_world;
-	float PADDING2[1];
+	float32_t PADDING4;
 	vec3 color;
-	float PADDING3[1];
+	float32_t PADDING5;
 	//	vec3 direction_world;
 	//	float attenuationStart;
 	//	float attenuationEnd;
@@ -312,7 +314,9 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	vector<shared_ptr<Node>>::const_iterator last = lightsSorted.begin() + endIndex;
 	vector<shared_ptr<Node>> lightsSlice(first, last);
 	// TODO: if no ambient light we're only using 7 other lights
-	lightsSlice.emplace_back(ambientLight);
+	if (ambientLight) {
+		lightsSlice.emplace_back(ambientLight);
+	}
 	//cout << "lightsSlice: " << lightsSlice << endl;
 	//cout << "lightsSlice size: " << lightsSlice.size() << endl;
 	
@@ -320,7 +324,7 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	
 	unsigned numLights = lightsSlice.size();
 	LightBlock lightBlock[numLights];
-	
+
 	for (int l=0; l<numLights; ++l) {
 		auto node = lightsSlice[l];
 		auto light = node->light();
@@ -343,19 +347,19 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	}
 
 	typedef struct {
-		int numLights;
-		float PADDING1;
-		float PADDING2;
-		float PADDING3;
+		int32_t numLights;
+		float32_t PADDING1;
+		float32_t PADDING2;
+		float32_t PADDING3;
 		LightBlock lights[MAX_LIGHTS];
 	} LightBlockBlock;
 	
-	
-	
+
 	LightBlockBlock lightsBlockBlock;
 	lightsBlockBlock.numLights = numLights;
 	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
-	
+
+	cout << "sizeof(lightsBlockBlock): " << sizeof(lightsBlockBlock) << endl;
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
