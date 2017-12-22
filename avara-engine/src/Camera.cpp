@@ -26,6 +26,7 @@ Camera::Camera():
 	// TODO: HARD CODED VIEWPORT SIZE!
 		m_projection = perspective(m_fov,
 								   800.0f/600.0f,
+								   //1920.0f/1080.0f,
 								   m_zNear,
 								   m_zFar);
 }
@@ -38,6 +39,7 @@ Camera::Camera(const float zNear, const float zFar, const float fov):
 	// TODO: HARD CODED VIEWPORT SIZE!
 	m_projection = perspective(m_fov,
 							   800.0f/600.0f,
+							   //1920.0f/1080.0f,
 							   m_zNear,
 							   m_zFar);
 }

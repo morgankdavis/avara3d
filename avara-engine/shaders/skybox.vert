@@ -1,5 +1,6 @@
 #version 330
 
+
 in vec3 vertex_position;
 
 uniform mat4 view;

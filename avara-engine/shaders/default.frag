@@ -72,6 +72,8 @@ void main () {
 	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ke = vec4(0.0, 0.0, 0.0, 1.0);
+
+	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	
 	switch (emissiveMode) {
 		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emissive, 1.0);					break;
@@ -79,7 +81,7 @@ void main () {
 	}
 	
 	if (emissiveMode != MATERIAL_MODE_NONE) { // nothing else mattress
-		fragColor += vec4(vec3(Ke), 1.0);
+        fragColor += vec4(vec3(Ke), 1.0);
 	}
 	else {
 		switch (ambientMode) {
@@ -160,6 +162,6 @@ void main () {
 			}
 		}
 		
-	fragColor = vec4(vec3(fragColor), Kd.a);
+	    fragColor = vec4(vec3(fragColor), Kd.a);
 	}
 }
