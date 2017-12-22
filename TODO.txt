@@ -9,7 +9,7 @@ clean up light sorting
 rename lightsBlockBlock
 make light spheres use emissive property
 make element->draw() material mandatory, and add default material in Geometry::draw()
-Clean up Scene.h ubo gen
+Clean up Scene.h ubo gen - move glGetUniformBlockIndex to Program
 Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
 Check cube map filtering properties
 
@@ -64,6 +64,7 @@ Tests:
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Add Window to scene render callbacks
 		View and projection mat into UBO?
+		Dispose of generated buffers where appropriate
 
 	07 - solarsystem
 		Emission, multiply?

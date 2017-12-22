@@ -44,7 +44,7 @@ using namespace std;
      MARK:   Types
  **************************************************************************************/
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	int32_t type;
 	float32_t PADDING1;
 	float32_t PADDING2;
@@ -280,22 +280,20 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 	auto allNodes = m_rootNode->allChildNodes();
 	
 	// clean this up into one helper
-	
+
+	#define MAX_LIGHTS 7
+
+	auto lights = vector<shared_ptr<Node>>();
 	shared_ptr<Node> ambientLight = nullptr;
-	auto lightsUnsorted = map<shared_ptr<Node>, float>();
 	
-	// find all lights in the scene and their distances from the camera
+	// find all lights in the scene
 	vec3 cameraPos_world = pointOfView->worldPosition();
 	for (auto node: allNodes) {
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {
 				if (light->type() == LightType_Point) {
-					auto lightPos_world = node->worldPosition();
-					auto lightToCamera = lightPos_world - cameraPos_world;
-					auto lightToCameraDistance = length(lightToCamera);
-					lightsUnsorted[node] = lightToCameraDistance;
-					//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
+					lights.emplace_back(node);
 				}
 				else if (light->type() == LightType_Ambient) {
 					ambientLight = node;
@@ -303,30 +301,90 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 			}
 		}
 	}
-	
-	auto lightsSorted = SortedLights(lightsUnsorted);
+
+	if (lights.size() > MAX_LIGHTS-1) {
+
+		// find all light distances from the camera
+
+		auto lightsUnsorted = map<shared_ptr<Node>, float>();
+		vec3 cameraPos_world = pointOfView->worldPosition();
+		for (auto lightNode: lights) {
+			auto lightPos_world = lightNode->worldPosition();
+			auto lightToCamera = lightPos_world - cameraPos_world;
+			auto lightToCameraDistance = length(lightToCamera);
+			lightsUnsorted[lightNode] = lightToCameraDistance;
+			//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
+		}
+
+		lights = SortedLights(lightsUnsorted);
+
+
+
+
+		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_LIGHTS-1));
+		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
+		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
+		vector<shared_ptr<Node>> lightsSlice(first, last);
+		// TODO: if no ambient light we're only using 7 other lights
+
+
+		lights = lightsSlice;
+	}
+
+	if (ambientLight) lights.emplace_back(ambientLight);
+
+//
+//	// find all lights in the scene and their distances from the camera
+//	vec3 cameraPos_world = pointOfView->worldPosition();
+//	for (auto node: allNodes) {
+//		if (!node->hidden()) {
+//			auto light = node->light();
+//			if (light != nullptr) {
+//				if (light->type() == LightType_Point) {
+//					auto lightPos_world = node->worldPosition();
+//					auto lightToCamera = lightPos_world - cameraPos_world;
+//					auto lightToCameraDistance = length(lightToCamera);
+//					lightsUnsorted[node] = lightToCameraDistance;
+//					//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
+//				}
+//				else if (light->type() == LightType_Ambient) {
+//					ambientLight = node;
+//				}
+//			}
+//		}
+//	}
+//
+//
+//	auto lightsUnsorted = map<shared_ptr<Node>, float>();
+//
+//
+//
+//	shared_ptr<Node> lightsSorted = nullptr;
+//	if (lightsUnsorted.size() > MAX_LIGHTS) {
+//		lightsSorted = SortedLights(lightsUnsorted);
+//	}
+//	else lightsSorted = lightsUnsorted;
 	//cout << "lightsSorted: " << lightsSorted << endl;
 	
-#define MAX_LIGHTS 7
-	
-	unsigned endIndex = std::min((unsigned)lightsSorted.size(), (unsigned)(MAX_LIGHTS-1));
-	vector<shared_ptr<Node>>::const_iterator first = lightsSorted.begin() + 0;
-	vector<shared_ptr<Node>>::const_iterator last = lightsSorted.begin() + endIndex;
-	vector<shared_ptr<Node>> lightsSlice(first, last);
-	// TODO: if no ambient light we're only using 7 other lights
-	if (ambientLight) {
-		lightsSlice.emplace_back(ambientLight);
-	}
+//	unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_LIGHTS-1));
+//	vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
+//	vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
+//	vector<shared_ptr<Node>> lightsSlice(first, last);
+//	// TODO: if no ambient light we're only using 7 other lights
+//	if (ambientLight) {
+//		lightsSlice.emplace_back(ambientLight);
+//	}
+
 	//cout << "lightsSlice: " << lightsSlice << endl;
 	//cout << "lightsSlice size: " << lightsSlice.size() << endl;
 	
 	
 	
-	unsigned numLights = lightsSlice.size();
+	unsigned numLights = lights.size();
 	LightBlock lightBlock[numLights];
 
 	for (int l=0; l<numLights; ++l) {
-		auto node = lightsSlice[l];
+		auto node = lights[l];
 		auto light = node->light();
 		
 		lightBlock[l].type = light->type();
@@ -346,7 +404,7 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 //		<< lightBlock[l].color[2] << ")" << endl;
 	}
 
-	typedef struct {
+	typedef struct __attribute__((packed)) {
 		int32_t numLights;
 		float32_t PADDING1;
 		float32_t PADDING2;
@@ -357,65 +415,11 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 
 	LightBlockBlock lightsBlockBlock;
 	lightsBlockBlock.numLights = numLights;
-	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
-
-	cout << "sizeof(lightsBlockBlock): " << sizeof(lightsBlockBlock) << endl;
+	memcpy(&lightsBlockBlock.lights, &lightBlock, sizeof(lightBlock));
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
 	
-	
-	// setup lights UBO
-	
-//	const int NUM_LIGHTS = 8;
-//
-//	LightBlock lightBlock[NUM_LIGHTS];
-//
-//	lightBlock[0].type = LightType_Ambient;
-//	lightBlock[0].color = vec3(0.2, 0.2, 0.2);
-//
-//	lightBlock[1].type = LightType_Point;
-//	lightBlock[1].position_world = vec3(70.0, 70.0, 70.0);
-//	lightBlock[1].color = vec3(1.0, 1.0, 1.0);
-//
-//	lightBlock[2].type = LightType_Point;
-//	lightBlock[2].position_world = vec3(-50.0, 50.0, -50.0);
-//	lightBlock[2].color = vec3(1.0, 0.0, 0.5);
-//
-//	lightBlock[3].type = LightType_Point;
-//	lightBlock[3].position_world = vec3(40.0, -20.0, -30.0);
-//	lightBlock[3].color = vec3(0.0, 0.5, 1.0);
-//
-//	lightBlock[4].type = LightType_Point;
-//	lightBlock[4].position_world = vec3(40.0, -30.0, 100.0);
-//	lightBlock[4].color = vec3(0.0, 1.0, 1.0);
-//
-//	lightBlock[5].type = LightType_Point;
-//	lightBlock[5].position_world = vec3(0.0, -500.0, 0.0);
-//	lightBlock[5].color = vec3(1.0, 1.0, 0.0);
-//
-//	lightBlock[6].type = LightType_Point;
-//	lightBlock[6].position_world = vec3(-50.0, 50.0, -50.0);
-//	lightBlock[6].color = vec3(1.0, 0.0, 1.0);
-//
-//	lightBlock[7].type = LightType_Point;
-//	lightBlock[7].position_world = vec3(60.0, -10.0, 70.0);
-//	lightBlock[7].color = vec3(0.0, 0.0, 1.0);
-//
-//	typedef struct {
-//		int numLights;
-//		float PADDING1;
-//		float PADDING2;
-//		float PADDING3;
-//		LightBlock lights[8];
-//	} LightBlockBlock;
-	
-//	LightBlockBlock lightsBlockBlock;
-//	lightsBlockBlock.numLights = NUM_LIGHTS;
-//	memcpy(&lightsBlockBlock.lights, &lightBlock,  sizeof(lightBlock));
-	
-//	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlockBlock), &lightsBlockBlock, GL_DYNAMIC_DRAW);
 
 	for (auto node: allNodes) {
 		if (!node->hidden()) {

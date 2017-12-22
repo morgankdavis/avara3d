@@ -333,7 +333,7 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 			case MaterialPropertyType_Emissive:
 				modeUniformName = "emissiveMode";
 				samplerUniformName = "samplers.emissive";
-				slot = GL_TEXTURE2; index = 3;
+				slot = GL_TEXTURE3; index = 3;
 				break;
 			default:
 				cout << "Invalid MaterialPropertyType: " << type << endl;
