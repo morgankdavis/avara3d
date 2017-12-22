@@ -34,6 +34,8 @@ bool FULLSCREEN = false;
  **************************************************************************************/
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
+
+	cout << "SetAllFilterModes: " << mode << endl;
 	
 	for (auto node : scene.rootNode()->allChildNodes()) {
 		
@@ -55,6 +57,8 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 }
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
+
+	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
 	
 	for (auto node : scene.rootNode()->allChildNodes()) {
 		
