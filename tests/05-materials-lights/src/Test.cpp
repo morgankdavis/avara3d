@@ -13,7 +13,6 @@
 #include <glm/glm.hpp>
 
 #include "ae.h"
-//#include "InputManager.h"
 #include "Utilities.h"
 
 
@@ -27,6 +26,7 @@ using namespace glm;
 #define FRAMEBUFFER_SCALE       1.0f
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
+bool FULLSCREEN = false;
 
 
 /***************************************************************************************
@@ -293,9 +293,11 @@ int Test::run(const vector<string>& args) {
 //		scene->rootNode()->addChildNode(lightNode);
 //	}
 
-	
+	int windowWidth = WINDOW_WIDTH;
+	int windowHeight = WINDOW_HEIGHT;
+	if (FULLSCREEN) GetScreenResolution(windowWidth, windowHeight);
 
-	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+	auto window = Window(windowWidth, windowHeight, FRAMEBUFFER_SCALE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.scene(scene);

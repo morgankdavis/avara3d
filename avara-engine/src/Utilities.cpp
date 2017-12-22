@@ -19,8 +19,12 @@
 //	#include <sys/stat.h>
 //#endif
 
+#include <GLFW/glfw3.h>
 #include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
+//#ifdef LINUX
+//#include <X11/Xlib.h>
+//#endif
 
 #include "Color.h"
 #include "Image.h"
@@ -399,4 +403,41 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 //	return return_path;
 //#endif
 //}
+
+
+void ae::utils::GetScreenResolution(int& width, int& height) {
+
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode *vmode = glfwGetVideoMode(monitor);
+	width = vmode->width;
+	height = vmode->height;
+
+//#ifdef MACOS
+//	CGRect mainMonitor = CGDisplayBounds(CGMainDisplayID());
+//	CGFloat monitorHeight = CGRectGetHeight(mainMonitor);
+//	CGFloat monitorWidth = CGRectGetWidth(mainMonitor);
+//#endif
+//
+//#ifdef LINUX
+//	Display* disp = XOpenDisplay(NULL);
+//	Screen* scrn = DefaultScreenOfDisplay(disp);
+//	width = scrn->width;
+//	height = scrn->height;
+//#endif
+//
+//#ifdef WINDOWS
+//	#include "wtypes.h"
+//
+//	RECT desktop;
+//   // Get a handle to the desktop window
+//   const HWND hDesktop = GetDesktopWindow();
+//   // Get the size of screen to the variable desktop
+//   GetWindowRect(hDesktop, &desktop);
+//   // The top left corner will have coordinates (0,0)
+//   // and the bottom right corner will have coordinates
+//   // (horizontal, vertical)
+//   horizontal = desktop.right;
+//   vertical = desktop.bottom;
+//#endif
+}
 
