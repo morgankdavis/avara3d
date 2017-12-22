@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include "Color.h" // temporary
+#include "Color.h"
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Program.h"

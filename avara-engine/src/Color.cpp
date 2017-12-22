@@ -8,8 +8,6 @@
 
 #include "Color.h"
 
-#include <vector>
-
 
 using namespace ae;
 using namespace std;

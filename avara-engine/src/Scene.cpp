@@ -8,17 +8,11 @@
 
 #include "Scene.h"
 
-#include <iostream>
-//#include <memory>
-
-
-// for light sorting
-#include <map>
-#include <set>
 #include <algorithm>
 #include <functional>
-
-
+#include <iostream>
+#include <map>
+#include <set>
 
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -41,7 +35,6 @@
 using namespace ae;
 using namespace ae::utils;
 using namespace Assimp;
-//using namespace boost;
 using namespace boost::filesystem;
 using namespace glm;
 using namespace std;
