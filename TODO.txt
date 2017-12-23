@@ -3,10 +3,8 @@ TODO:
 ——————————————————————————————————
 
 
-make element->draw() material mandatory, and add default material in Geometry::draw()
-	+ MOVE DEFAULT MATERIAL TO RENDER TIME?
 Light attenuation
-Clean up Scene.h ubo gen - move glGetUniformBlockIndex to Program
+MOVE PALLET
 
 
 Int -> GLuint:

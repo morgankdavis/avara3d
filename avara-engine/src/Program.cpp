@@ -261,6 +261,12 @@ void Program::setUniform(const char* name, float val) {
 	}
 }
 
+void Program::bindUniformBlock(const char* name, GLuint location) {
+	
+	GLuint blockIndex = glGetUniformBlockIndex(m_glID, name);
+	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+}
+
 void Program::bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index) {
 	
 	glActiveTexture(slot);

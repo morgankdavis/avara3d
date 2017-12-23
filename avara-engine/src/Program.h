@@ -60,6 +60,8 @@ namespace ae {
 		void setUniform(const char* name, int val);
 		void setUniform(const char* name, float val);
 		
+		void bindUniformBlock(const char* name, GLuint location);
+		
 		void bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index);
 		
 		GLint getAttributeLocation(const char* name) const;

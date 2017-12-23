@@ -44,8 +44,8 @@ namespace ae {
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  GLuint glLightsUBO,
-					  const Material* material);
+					  const Material& material,
+					  GLuint glLightsUBO);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();
