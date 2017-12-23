@@ -44,6 +44,7 @@ struct Light {
 //	float 	attenuationStart;
 //	float 	attenuationEnd;
 //	float 	attenuationExponent;
+//	vec3 	direction_world;
 //	float 	innerAngle;
 //	float 	outerAngle;
 };
