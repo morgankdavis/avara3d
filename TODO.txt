@@ -4,8 +4,8 @@ TODO:
 
 
 Light attenuation
-MOVE PALLET
-
+	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
+	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
 
 Int -> GLuint:
 	Scene.h m_glLightsUBO
@@ -229,6 +229,9 @@ BUGS:
 
 
 Resources:
+
+Volumetric spot lights
+	http://john-chapman-graphics.blogspot.com/2013/01/good-enough-volumetrics-for-spotlights.html
 
 Wavefront OBJ Importing
 	https://github.com/syoyo/tinyobjloader

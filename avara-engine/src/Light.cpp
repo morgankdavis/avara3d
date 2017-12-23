@@ -27,7 +27,8 @@ Light::Light(LightType type):
 Light::Light(LightType type, const shared_ptr<Color> color):
 	m_name(boost::none),
 	m_type(type),
-	m_color(color) {
+	m_color(color),
+	m_attenuationFactor(1.0f) {
 	
 }
 
@@ -51,12 +52,20 @@ void Light::type(LightType type) {
 	m_type = type;
 }
 
-std::shared_ptr<Color> Light::color() const {
+shared_ptr<Color> Light::color() const {
 	return m_color;
 }
 
-void Light::color(std::shared_ptr<Color> color) {
+void Light::color(shared_ptr<Color> color) {
 	m_color = color;
+}
+
+float Light::attenuationFactor() const {
+	return m_attenuationFactor;
+}
+
+void Light::attenuationFactor(float factor) {
+	m_attenuationFactor = factor;
 }
 
 /***************************************************************************************

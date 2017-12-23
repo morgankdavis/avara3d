@@ -48,14 +48,18 @@ using namespace std;
  **************************************************************************************/
 
 typedef struct __attribute__((packed)) {
-	int32_t type;
-	float32_t PADDING1;
-	float32_t PADDING2;
-	float32_t PADDING3;
-	vec3 position_world;
-	float32_t PADDING4;
-	vec3 color;
-	float32_t PADDING5;
+	int32_t 	type;
+	float32_t 	PADDING1;
+	float32_t 	PADDING2;
+	float32_t 	PADDING3;
+	vec3 		position_world;
+	float32_t 	PADDING4;
+	vec3 		color;
+	float32_t 	PADDING5;
+	float 		attenuationFactor;
+	float32_t 	PADDING6;
+	float32_t	PADDING7;
+	float32_t 	PADDING8;
 	//	vec3 direction_world;
 	//	float attenuationStart;
 	//	float attenuationEnd;
@@ -100,7 +104,8 @@ static shared_ptr<Image> MissingTextureImage() {
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath) {
-	
+
+	// TODO: Clean up
 	// this is hacky...
 //#define AI_MATKEY_COLOR_DIFFUSE "$clr.diffuse",0,0
 //#define AI_MATKEY_COLOR_AMBIENT "$clr.ambient",0,0
@@ -112,22 +117,18 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	switch (type) {
 		case aiTextureType_AMBIENT:
 			strcpy(colorType, "$clr.ambient");
-			//colorType = "$clr.ambient";
 			typeStr = "ambient";
 			break;
 		case aiTextureType_DIFFUSE:
 			strcpy(colorType, "$clr.diffuse");
-			//colorType = "$clr.diffuse";
 			typeStr = "diffuse";
 			break;
 		case aiTextureType_SPECULAR:
 			strcpy(colorType, "$clr.specular");
-			//colorType = "$clr.specular";
 			typeStr = "specular";
 			break;
 		case aiTextureType_EMISSIVE:
 			strcpy(colorType, "$clr.emissive");
-			//colorType = "$clr.emissive";
 			typeStr = "emissive";
 			break;
 		default:
@@ -665,16 +666,17 @@ void Scene::bindLights(const Node& pointOfView) const {
 		
 		lightStruct[l].type = light->type();
 		lightStruct[l].position_world = node->worldPosition();
+		lightStruct[l].attenuationFactor = light->attenuationFactor();
 		
 		auto color = *light->color();
 		lightStruct[l].color = vec3(color.r, color.g, color.b);
 	}
 	
 	typedef struct __attribute__((packed)) {
-		int32_t numLights;
-		float32_t PADDING1;
-		float32_t PADDING2;
-		float32_t PADDING3;
+		int32_t 	numLights;
+		float32_t 	PADDING1;
+		float32_t 	PADDING2;
+		float32_t 	PADDING3;
 		LightStruct lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
 	} LightBlock;
 	

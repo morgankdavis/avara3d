@@ -152,20 +152,24 @@ int Test::run(const vector<string>& args) {
 //	auto backgroundColor = make_shared<Color>(Color::Navy());
 //	auto background = make_shared<MaterialProperty>(backgroundColor);
 //	scene->background(background);
-	
-	
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(Color::DarkGray()));
+
+
+//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.05, 0.05, 0.05, 1.0));
+	//auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
+	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+	pointLight->attenuationFactor(0.0005);
 	auto pointLightNode = make_shared<Node>(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	m_lightNode = pointLightNode;
+	m_pointLightNode = pointLightNode;
 	
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
@@ -232,6 +236,17 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
 	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
+
+
+	if 		(keysDown.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
+	else if (keysDown.count(Key_F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
+	else if (keysDown.count(Key_F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+
+
+	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.000005);
+
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 
@@ -295,7 +310,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	
 	// move the light
 	
-	if (m_lightNode) {
+	if (m_pointLightNode) {
 		
 		auto center = vec3(0, -75, 0);
 		
@@ -309,7 +324,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
 
-		m_lightNode->position(center + vec3(x, y, -x));
+		m_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
 

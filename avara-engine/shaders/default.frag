@@ -36,6 +36,10 @@ struct Light {
 	float 	PADDING4;
 	vec3 	color;
 	float 	PADDING5;
+	float 	attenuationFactor;
+	float 	PADDING6;
+	float 	PADDING7;
+	float 	PADDING8;
 //	vec3 	direction_world;
 //	float 	attenuationStart;
 //	float 	attenuationEnd;
@@ -80,8 +84,11 @@ void main () {
 		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emissive, tex_coord));	break;
 	}
 	
-	if (emissiveMode != MATERIAL_MODE_NONE) { // nothing else mattress
-        fragColor += vec4(vec3(Ke), 1.0);
+	if (emissiveMode != MATERIAL_MODE_NONE) {
+
+	    // *** emissive intensity ***
+
+        fragColor += vec4(vec3(Ke), 1.0); // nothing else mattress
 	}
 	else {
 		switch (ambientMode) {
@@ -116,22 +123,31 @@ void main () {
 			
 			if (light.type == LIGHT_TYPE_AMBIENT) {
 				
-				// ambient intensity
+				// *** ambient intensity ***
 				
 				Ia = La * vec3(Ka);
 				fragColor += vec4(Is + Id + Ia, 0.0);
 			}
 			else if (light.type == LIGHT_TYPE_POINT) {
 				
-				// diffuse intensity
+				// *** diffuse intensity ***
 				
 				// raise light position to eye space
 				vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 				vec3 direction_to_light_eye = normalize(light_position_eye - vertex_position_eye);
 				float dot_prod_diffuse = max(dot(direction_to_light_eye, vertex_normal_eye), 0.0);
-				Id = Ld * vec3(Kd) * dot_prod_diffuse; // final diffuse intensity
+
+				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
+
+//                // TODO: optimize
+                //float distanceToLight = length(light_position_eye - vertex_position_eye);
+                float distanceToLight = distance(light_position_eye, vertex_position_eye);
+				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2));
+				//float attenuation = 1.0 / (1.0 + 0.0001 * pow(distanceToLight, 2));
+//
+				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity
 				
-				// specular intensity
+				// *** specular intensity ***
 				
 				Is = vec3(0.0, 0.0, 0.0);
 				if (Ks.x != 0 || Ks.y != 0 || Ks.z != 0) {
@@ -149,7 +165,13 @@ void main () {
 					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 					float specular_factor = pow(dot_prod_specular, specularExponent); // 200
 					
-					Is = Ls * vec3(Ks) * specular_factor; // final specular intensity
+					//Is = Ls * vec3(Ks) * specular_factor; // specular intensity (original)
+
+                    //vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
+					//float distanceToLight = length(light_position_eye - vertex_position_eye);
+                    //float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2));
+
+                    Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity
 				}
 				
 				fragColor += vec4(Is + Id + Ia, 0.0);

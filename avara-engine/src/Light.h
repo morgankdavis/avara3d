@@ -48,6 +48,9 @@ namespace ae {
 		
 		std::shared_ptr<Color> color() const;
 		void color(std::shared_ptr<Color> color);
+
+		float attenuationFactor() const;
+		void attenuationFactor(float factor);
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -68,6 +71,8 @@ namespace ae {
 		std::shared_ptr<Color>				m_color;
 		
 		Node*								m_node;
+
+		float								m_attenuationFactor; // att = 1/(1-k(d^2))
 
 //		float			attenuationStartDistance;
 //		float			attenuationEndDistance;
