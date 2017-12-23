@@ -100,18 +100,34 @@ static shared_ptr<Image> MissingTextureImage() {
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath) {
+	
+	// this is hacky...
+//#define AI_MATKEY_COLOR_DIFFUSE "$clr.diffuse",0,0
+//#define AI_MATKEY_COLOR_AMBIENT "$clr.ambient",0,0
+//#define AI_MATKEY_COLOR_SPECULAR "$clr.specular",0,0
+//#define AI_MATKEY_COLOR_EMISSIVE "$clr.emissive",0,0
+	
+	char colorType[1024];
 	string typeStr = "";
 	switch (type) {
 		case aiTextureType_AMBIENT:
+			strcpy(colorType, "$clr.ambient");
+			//colorType = "$clr.ambient";
 			typeStr = "ambient";
 			break;
 		case aiTextureType_DIFFUSE:
+			strcpy(colorType, "$clr.diffuse");
+			//colorType = "$clr.diffuse";
 			typeStr = "diffuse";
 			break;
 		case aiTextureType_SPECULAR:
+			strcpy(colorType, "$clr.specular");
+			//colorType = "$clr.specular";
 			typeStr = "specular";
 			break;
 		case aiTextureType_EMISSIVE:
+			strcpy(colorType, "$clr.emissive");
+			//colorType = "$clr.emissive";
 			typeStr = "emissive";
 			break;
 		default:
@@ -140,7 +156,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	else { // color
 		
 		aiColor4D aiColor;
-		if (aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, aiColor) == AI_SUCCESS) {
+		if (aiMaterial->Get(colorType, 0, 0, aiColor) == AI_SUCCESS) {
 			cout << "Color: ("
 			<< aiColor.r << ", "
 			<< aiColor.g << ", "
