@@ -4,7 +4,8 @@ TODO:
 
 
 Light attenuation
-MOVE PALLET
+	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+Gamma correction
 
 
 Int -> GLuint:

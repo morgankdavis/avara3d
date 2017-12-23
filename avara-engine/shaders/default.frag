@@ -36,10 +36,10 @@ struct Light {
 	float 	PADDING4;
 	vec3 	color;
 	float 	PADDING5;
-//	vec3 	direction_world;
 //	float 	attenuationStart;
 //	float 	attenuationEnd;
 //	float 	attenuationExponent;
+//	vec3 	direction_world;
 //	float 	innerAngle;
 //	float 	outerAngle;
 };
