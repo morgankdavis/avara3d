@@ -13,6 +13,8 @@
 #include <functional>
 #include <memory>
 
+#include <GLFW/glfw3.h>
+
 #include "Types.h"
 
 
@@ -39,7 +41,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Window(const unsigned width, const unsigned height, const float framebufferScale);
+		Window(bool fullScreen, unsigned width, unsigned height, float framebufferScale);
 		~Window();
 		
 		/***************************************************************************************
@@ -53,13 +55,16 @@ namespace ae {
 
 		void enableCursor(bool enabled);
 		
-		float maximumFramerate();
+		bool vSyncEnabled() const;
+		void vSyncEnabled(bool enabled);
+		
+		float maximumFramerate() const;
 		void maximumFramerate(float max);
 		
-		DebugOption& debugOptions();
-		void debugOptions(const DebugOption& options);
+		DebugOption debugOptions() const;
+		void debugOptions(const DebugOption options);
 		
-		std::shared_ptr<Image> snapshot();
+		std::shared_ptr<Image> snapshot() const;
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -83,15 +88,14 @@ namespace ae {
 		AntialiasingMode antialiasingMode() const;
 		void antialiasingMode(const AntialiasingMode mode);
 
-//		std::shared_ptr<Color> backgroundColor() const;
-//		void backgroundColor(const std::shared_ptr<Color> color);
-
 		std::shared_ptr<Node> pointOfView();
 		void pointOfView(const std::shared_ptr<Node> camera);
 		
 		std::shared_ptr<InputManager> inputManager();
 
 		std::shared_ptr<Node> defaultPointOfView();
+		
+		GLFWwindow* glfwWindow() const;
 		
 		windowWillUpdateFuction willUpdateCallback();
 		void willUpdateCallback(windowWillUpdateFuction function);
@@ -119,6 +123,7 @@ namespace ae {
 		std::shared_ptr<Color>			m_backgroundColor;
 		std::shared_ptr<Node>			m_pointOfView;
 		std::shared_ptr<InputManager> 	m_inputManager;
+		bool							m_vSyncEnabled;
 		float 							m_maximumFramerate;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;

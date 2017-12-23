@@ -48,7 +48,6 @@ namespace ae {
 		 **************************************************************************************/
 		
 		std::shared_ptr<Node> rootNode() const;
-		//void rootNode(const std::shared_ptr<Node> node);
 		
 		std::shared_ptr<MaterialProperty> background() const;
 		void background(std::shared_ptr<MaterialProperty> background);
@@ -87,6 +86,7 @@ namespace ae {
 								  std::shared_ptr<Node> aeParentNode,
 								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
 								  const std::vector<std::shared_ptr<Material>>& materials);
+		void bindLights(const Node& pointOfView) const;
 		
 		std::shared_ptr<Node>								m_rootNode;
 		std::shared_ptr<MaterialProperty>					m_background;

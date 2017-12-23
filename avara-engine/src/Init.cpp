@@ -23,77 +23,65 @@
 using namespace std;
 
 
-GLFWwindow				*g_glfwWindow;
-
-
-#define DEFAULT_WIDTH		800
-#define DEFAULT_HEIGHT		600
-
-#define FULL_SCREEN			false
-#define ENABLE_VSYNC		false
-
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
 
 void glfwErrorCallback(int error, const char* description) {
 	cout << "glfwErrorCallback(): error: " << error
 	<< ", description: "  << description << endl;
 }
 
-
-int ae::init() {
-	cout << "init()" << endl;
+int ae::initGLFW() {
+	static bool initialized = false;
 	
-	int glfwMajVers, glfwMinVers, glfwRev;
-	glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-	cout << "Starting GLFW version " << glfwMajVers << "." << glfwMinVers << "." << glfwRev << endl;
+	if (!initialized) {
+		cout << "initGLFW()" << endl;
+		
+		int glfwMajVers, glfwMinVers, glfwRev;
+		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
+		cout << "Starting GLFW version " << glfwMajVers << "." << glfwMinVers << "." << glfwRev << endl;
+		
+		glfwSetErrorCallback(glfwErrorCallback);
+		
+		if (glfwInit()) {
+			cout << "GLFW Initialized." << endl;
+		}
+		else {
+			cout << "Error initializing GLFW." << endl;
+			return -1;
+		}
 	
-	glfwSetErrorCallback(glfwErrorCallback);
+		cout << "Assimp version: "
+		<< aiGetVersionMajor() << "."
+		<< aiGetVersionMinor() << "."
+		<< aiGetVersionRevision() << endl;
+		
+		srand(time(NULL));
+		
+		initialized = true;
+	}
+
+	return 0;
+}
+
+int ae::initGLEW() {
+	cout << "initGLEW()" << endl;
 	
-	if (glfwInit()) {
-		cout << "GLFW Initialized." << endl;
-	}
-	else {
-		cout << "Error initializing GLFW." << endl;
-		return -1;
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 16);
-
-	if (FULL_SCREEN) {
-		GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode *vmode = glfwGetVideoMode(monitor);
-		g_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-	}
-	else {
-		g_glfwWindow = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "avara-engine", NULL, NULL);
-	}
-
-	if (!g_glfwWindow) {
-		cout << "Error creating glfwWindow." << endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(g_glfwWindow);
-	glewExperimental = GL_TRUE;
-	glewInit();
-
-	if (!ENABLE_VSYNC) glfwSwapInterval(0);
-
-	const GLubyte *renderer = glGetString(GL_RENDERER);
-	const GLubyte *version = glGetString(GL_VERSION);
-	cout << "Renderer: " << renderer << endl;
-	cout << "Version: " << version << endl;
-
-	cout << "Assimp version: "
-		 << aiGetVersionMajor() << "."
-		 << aiGetVersionMinor() << "."
-		 << aiGetVersionRevision() << endl;
+	// must set OpenGL context first
 	
-	srand(time(NULL));
-
+	static bool initialized = false;
+	if (!initialized) {
+		glewExperimental = GL_TRUE;
+		glewInit();
+		
+		const GLubyte *renderer = glGetString(GL_RENDERER);
+		const GLubyte *version = glGetString(GL_VERSION);
+		cout << "Renderer: " << renderer << endl;
+		cout << "Version: " << version << endl;
+		
+		initialized = true;
+	}
+	
 	return 0;
 }

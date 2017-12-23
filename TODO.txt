@@ -2,32 +2,14 @@ TODO:
 
 ——————————————————————————————————
 
-Animate lights
-+ MOVE DEFAULT MATERIAL TO RENDER TIME?
-Attenuation
-clean up light sorting
-rename lightsBlockBlock
-make light spheres use emissive property
-make element->draw() material mandatory, and add default material in Geometry::draw()
-Clean up Scene.h ubo gen - move glGetUniformBlockIndex to Program
-Geometry::Geometry() should check materials/load vertex data in a subroutine (CLEAN SPHERE!)
-Check cube map filtering properties
+
+Light attenuation
+MOVE PALLET
 
 
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
-
-
-
-FIGURE OUT HOW TO GET MAX_LIGHTS CLOSEST TO EACH GEOMETRY CENTER…?
-	Or closest to camera…? But in front of the camera?
-
-
-Add multiple point lights + attenuation
-	UBO for Lights shader block: http://sunandblackcat.com/tipFullView.php?l=eng&topicid=21
-	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
-Re-arrange scene interestingly + test geometry instancing
 
 
 Tests:
@@ -53,11 +35,8 @@ Tests:
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Automatic framebuffer scaling?
-		Clean up Program log vs. printf vs. cout
-		Clean up init/window
 		Fix plane generation (normals??)
 		ERROR HANDLING (shader failed to compile, etc)
-		DefaultMaterial + copy constructor
 		NodeRef, MaterialRef, etc + use weak_ptr
 		Create shader library
 		external/rpavlik-cmake-modules-fe2273?

@@ -46,12 +46,9 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
-							   GLuint glLightsUBO,
-							   const Material* inMaterial) {
-	
-	Material material = *(Material::DefaultMaterial());
-	if (inMaterial) material = *inMaterial;
-	
+							   const Material& material,
+							   GLuint glLightsUBO) {
+
 	auto program = material.program();
 	
 	// gl config
@@ -73,15 +70,9 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	program->setUniform("view", inverse(viewMat));
 	program->setUniform("projection", projectionMat);
 	
-	
 	material.prepareToRender();
-	
 
-	GLuint programID = program->glID();
-	GLuint blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
-
-	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, glLightsUBO);
-	
+	program->bindUniformBlock("LightBlock", glLightsUBO);
 	
 	// draw
 	

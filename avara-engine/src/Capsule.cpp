@@ -38,22 +38,24 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
 		
-	CapsuleMesh capsule{radius, height, slices, segments, rings};
-	
-	auto verts = vector<Vertex>();
-	for (const MeshVertex& v : capsule.vertices()) {
-		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
-			vec3(v.normal[0], v.normal[1], v.normal[2]),
-			vec2(v.texCoord[0], v.texCoord[1]) };
-		verts.push_back(vertex);
-	}
+		CapsuleMesh capsule{radius, height, slices, segments, rings};
 		
-	auto faces = vector<Face>();
-	for (const Triangle& t : capsule.triangles()) {
-		Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2] };
-		faces.push_back(face);
-	}
-	
-	auto element = make_shared<GeometryElement>(verts, faces);
-	m_elements.push_back(element);
+		auto verts = vector<Vertex>();
+		for (const MeshVertex& v : capsule.vertices()) {
+			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
+				vec3(v.normal[0], v.normal[1], v.normal[2]),
+				vec2(v.texCoord[0], v.texCoord[1]) };
+			verts.push_back(vertex);
+		}
+			
+		auto faces = vector<Face>();
+		for (const Triangle& t : capsule.triangles()) {
+			Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2] };
+			faces.push_back(face);
+		}
+		
+		auto element = make_shared<GeometryElement>(verts, faces);
+		m_elements.push_back(element);
+		
+		loadVertexData();
 }

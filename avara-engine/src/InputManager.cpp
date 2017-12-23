@@ -89,14 +89,14 @@ InputManager::InputManager(Window* window):
 
 		inputManager = this;
 		
-		registerGLFWCallbacks();
+		registerGLFWCallbacks(window->glfwWindow());
 		initManyMouse();
 //		initGainput();
 }
 
 InputManager::~InputManager() {
 	quitManyMouse();
-	unregisterGLFWCallbacks();
+	unregisterGLFWCallbacks(m_window->glfwWindow());
 //	if (gainputInputManager) delete gainputInputManager;
 //	if (gainputInputMap) delete gainputInputMap;
 }
@@ -280,11 +280,11 @@ void InputManager::quitManyMouse() {
 //	//		map->MapBool(ButtonConfirm, padId, gainput::PadButtonA);
 //}
 
-void InputManager::registerGLFWCallbacks() {
+void InputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 	// register GLFW callbacks
 	
 	// TODO: USE A LOCAL GLFEWINDOW FOR WINDOW!
-	GLFWwindow* glfwWindow = g_glfwWindow;
+	//GLFWwindow* glfwWindow = g_glfwWindow;
 	
 	glfwSetMouseButtonCallback(glfwWindow, InputManager::glfwMouseButtonCallback);
 	//	glfwSetCursorPosCallback(glfwWindow, glfwCursorPositionCallback);
@@ -292,9 +292,9 @@ void InputManager::registerGLFWCallbacks() {
 	glfwSetKeyCallback(glfwWindow, InputManager::glfwKeyCallback);
 }
 
-void InputManager::unregisterGLFWCallbacks() {
+void InputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	// TODO: USE A LOCAL GLFEWINDOW FOR WINDOW!
-	GLFWwindow* glfwWindow = g_glfwWindow;
+	//GLFWwindow* glfwWindow = g_glfwWindow;
 	
 	glfwSetMouseButtonCallback(glfwWindow, NULL);
 	glfwSetCursorPosCallback(glfwWindow, NULL);

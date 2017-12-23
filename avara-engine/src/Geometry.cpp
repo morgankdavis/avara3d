@@ -40,23 +40,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 	m_elements(elements),
 	m_materials(materials) {
 		
-		for (int e=0; e < m_elements.size(); ++e) {
-			auto element = m_elements[e];
-			
-			if (m_materials.size() > e) {
-				auto element = m_elements[e];
-				auto material = m_materials[e];
-				element->loadVertexData(*(material->program()));
-			}
-			else {
-				element->loadVertexData(*(Material::DefaultMaterial()->program()));
-			}
-		}
-
-
-//		for (int m=0; m < m_elements.size() - m_materials.size(); ++m) {
-//			m_materials.push_back(Material::DefaultMaterial());
-//		}
+		loadVertexData();
 }
 
 /***************************************************************************************
@@ -127,6 +111,21 @@ void Geometry::node(Node* node) {
 	m_node = node;
 }
 
+void Geometry::loadVertexData() {
+	for (int e=0; e < m_elements.size(); ++e) {
+		auto element = m_elements[e];
+		
+		if (m_materials.size() > e) {
+			auto element = m_elements[e];
+			auto material = m_materials[e];
+			element->loadVertexData(*(material->program()));
+		}
+		else {
+			element->loadVertexData(*(Material::DefaultMaterial()->program()));
+		}
+	}
+}
+
 void Geometry::hardTransform(const mat4 t, bool norm) {
 	for (auto element : elements()) {
 		element->hardTransform(t, norm);
@@ -156,8 +155,6 @@ unsigned Geometry::draw(const mat4& modelMat,
 	for (int e=0; e < m_elements.size(); ++e) {
 		
 		auto element = m_elements[e];
-		//auto material = m_materials[e];
-		//auto material = m_materials.at(e);
 		shared_ptr<Material> material = nullptr;
 		if (m_materials.size() > e) {
 			material = m_materials[e];
@@ -174,8 +171,7 @@ unsigned Geometry::draw(const mat4& modelMat,
 //			material = m_materials[m_materials.size()-1 % e];
 //		}
 		
-		numPolygons += element->draw(modelMat, viewMat, projectionMat, glLightsUBO, &(*material));
-		//numPolygons += element->draw(modelMat, viewMat, projectionMat, *material);
+		numPolygons += element->draw(modelMat, viewMat, projectionMat, *material, glLightsUBO);
 	}
 	
 	return numPolygons;

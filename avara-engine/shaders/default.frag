@@ -61,7 +61,7 @@ layout(std140) uniform LightBlock {
 	float 	PADDING1;
 	float 	PADDING2;
 	float 	PADDING3;
-	Light 	lights[8];
+	Light 	lights[9];
 };
 out 		vec4 		fragColor;
 
