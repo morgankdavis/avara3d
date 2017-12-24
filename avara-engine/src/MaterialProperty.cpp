@@ -264,7 +264,7 @@ void MaterialProperty::loadTexture() {
 			
 			glTexImage2D(side,
 						 0,
-						 GL_RGBA,
+						 GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
 						 image.width(),
 						 image.height(),
 						 0,
@@ -287,7 +287,7 @@ void MaterialProperty::loadTexture() {
 		
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
-					 GL_RGBA,
+					 GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
 					 m_image->width(),
 					 m_image->height(),
 					 0,

@@ -1,6 +1,8 @@
 #version 330
 
 
+#define GAMMA 	                    2.2
+
 #define ALPHA_REJECTION_THRESHOLD 	0.5
 
 #define MATERIAL_MODE_NONE 			0
@@ -89,7 +91,8 @@ void main () {
 
 	    // *** emissive intensity ***
 
-        fragColor += vec4(vec3(Ke), 1.0); // nothing else mattress
+        fragColor = vec4(vec3(Ke), 1.0);
+        // (no other lighting calculations)
 	}
 	else {
 		switch (ambientMode) {
@@ -140,13 +143,10 @@ void main () {
 
 				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
 
-//                // TODO: optimize
-                //float distanceToLight = length(light_position_eye - vertex_position_eye);
                 float distanceToLight = distance(light_position_eye, vertex_position_eye);
 				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2));
-				//float attenuation = 1.0 / (1.0 + 0.0001 * pow(distanceToLight, 2));
-//
-				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity
+
+				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity w/attenuation
 				
 				// *** specular intensity ***
 				
@@ -164,15 +164,9 @@ void main () {
 					// blinn
 					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
 					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-					float specular_factor = pow(dot_prod_specular, specularExponent); // 200
-					
-					//Is = Ls * vec3(Ks) * specular_factor; // specular intensity (original)
+					float specular_factor = pow(dot_prod_specular, specularExponent);
 
-                    //vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
-					//float distanceToLight = length(light_position_eye - vertex_position_eye);
-                    //float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2));
-
-                    Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity
+                    Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity w/attenuation
 				}
 				
 				fragColor += vec4(Is + Id + Ia, 0.0);
@@ -187,4 +181,7 @@ void main () {
 		
 	    fragColor = vec4(vec3(fragColor), Kd.a);
 	}
+
+	// gamma correction
+	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

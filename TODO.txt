@@ -7,6 +7,11 @@ Light attenuation
 	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
 	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
 
+Gomma correction
+	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+
+Distance fog
+
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()

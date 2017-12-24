@@ -87,14 +87,15 @@ int Test::run(const vector<string>& args) {
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.enableCursor(false);
 	window.vSyncEnabled(false);
+	//window.antialiasingMode(AntialiasingMode_None);
 	m_inputManager = window.inputManager();
 	
 	auto scene = make_shared<Scene>();
 
 	auto siameseScene = TestSceneNamed("siamese");
 	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-	siameseNode->scale(siameseNode->scale() * 0.075f);
-	siameseNode->position(vec3(-13.5, -64.0, 0));
+	siameseNode->scale(siameseNode->scale() * 0.070f);
+	siameseNode->position(vec3(-13.5, -64.5, 0));
 	//siameseNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-15.0f)));
 	scene->rootNode()->addChildNode(siameseNode);
 //	for (auto m : siameseNode->geometry()->materials()) {
@@ -154,23 +155,21 @@ int Test::run(const vector<string>& args) {
 //	scene->background(background);
 
 
-//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.05, 0.05, 0.05, 1.0));
-	//auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
+//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(1.0, 1.0, 1.0, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	pointLight->attenuationFactor(0.0005);
+	pointLight->attenuationFactor(0.0001);
 	auto pointLightNode = make_shared<Node>(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	m_pointLightNode = pointLightNode;
-	
+//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+//	m_pointLightNode = pointLightNode;
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -187,6 +186,7 @@ int Test::run(const vector<string>& args) {
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
 //		auto light = make_shared<Light>(LightType_Point);
+//		light->attenuationFactor(0.0001);
 //		auto lightNode = make_shared<Node>(light);
 //		int randX = Random(-150, 150);
 //		int randY = Random(-150, 150);
@@ -207,7 +207,6 @@ int Test::run(const vector<string>& args) {
 //
 //		scene->rootNode()->addChildNode(lightNode);
 //	}
-
 	
 	window.scene(scene);
 	window.display();
@@ -244,8 +243,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 
 	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
-	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.000005);
+	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.000015);
+	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.000001);
 
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();

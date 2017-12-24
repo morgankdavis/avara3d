@@ -130,14 +130,19 @@ Color::Color():
 		
 }
 
-Color::Color(const float r, const float g, const float b, const float a):
+Color::Color(float r, float g, float b):
+	Color(r, g, b, 1.0) {
+
+}
+
+Color::Color(float r, float g, float b, float a):
 	r(r),
 	g(g),
 	b(b),
 	a(a) {
 }
 
-Color::Color(const float black):
+Color::Color(float black):
 	r(black),
 	g(black),
 	b(black),

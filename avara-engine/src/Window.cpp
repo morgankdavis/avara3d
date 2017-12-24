@@ -84,7 +84,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, float framebuff
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 16);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 	
 		int viewportWidth = width;
 		int viewportHeight = height;
