@@ -2,20 +2,13 @@ TODO:
 
 ——————————————————————————————————
 
+Fog UBO
 
-Light attenuation
-	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
-	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
-
-Gomma correction
-	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
-
-Distance fog
+Are specular maps being applied correctly? Look at palm bark -- try replacing map
 
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
-
 
 Tests:
 	01 - import
@@ -35,20 +28,23 @@ Tests:
 		http://www2.compute.dtu.dk/~janba/Wireframe/
 		https://github.com/SergiusTheBest/plog
 		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
+		ERROR HANDLING (shader failed to compile, etc)
 		Check const
+		Clean up shader naming (vertex_ -> frag_, casing, etc)
+		Factor shader code
+		Create shader library
+		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Automatic framebuffer scaling?
 		Fix plane generation (normals??)
-		ERROR HANDLING (shader failed to compile, etc)
 		NodeRef, MaterialRef, etc + use weak_ptr
-		Create shader library
 		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Add Window to scene render callbacks
 		View and projection mat into UBO?
-		Dispose of generated buffers where appropriate
+		Dispose of generated buffers where appropriate // glUnmapBuffer?
 
 	07 - solarsystem
 		Emission, multiply?
@@ -100,7 +96,6 @@ QUESTIONS:
 
 
 Separate Window and Renderer
-Init per Window. Test multiple windows. Fix global framebuffer size.
 
 Lazy load geometry elements (compile shader + load materials) + Add pre-load method
 
@@ -136,9 +131,8 @@ Laundry list:
 	Scale UVs (texture tiling)
 	Gamma correction
 
-	Move init stuff into Window
-
 	Embed shader sources into app
+		https://github.com/cyrilcode/embed-resource/tree/a49d88b618b85bfc7aaa02f3b5c74b7058048045
 
 	Custom scene/mesh/material format
 		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
@@ -234,6 +228,22 @@ BUGS:
 
 
 Resources:
+
+Light attenuation
+	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
+	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+	https://www.desmos.com/calculator/kp89d5khyb
+	https://www.desmos.com/calculator/nmnaud1hrw
+
+Gomma correction
+	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+
+Distance fog
+	http://opengl-notes.readthedocs.io/en/latest/topics/texturing/aliasing.html
+	http://in2gpu.com/2014/07/22/create-fog-shader/
+	http://www.iquilezles.org/www/articles/fog/fog.htm
+	http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
+	UBO ISSUES: https://stackoverflow.com/questions/12746040/multiple-glsl-uniform-buffers
 
 Volumetric spot lights
 	http://john-chapman-graphics.blogspot.com/2013/01/good-enough-volumetrics-for-spotlights.html

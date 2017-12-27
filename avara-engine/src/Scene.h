@@ -25,6 +25,7 @@
 namespace ae {
 
 
+	class Color;
 	class GeometryElement;
 	class Material;
 	class MaterialProperty;
@@ -54,10 +55,10 @@ namespace ae {
 		
 //		bool					isPaused;
 //
-//		float					fogDistanceStart;
-//		float					fogDistanceEnd;
+		float					fogDistanceStart;
+		float					fogDistanceEnd;
 //		float					fogDensityExponent;
-//		Color					fogColor;
+		std::shared_ptr<Color>	fogColor() const;
 //		
 //		PhysicsWorld			physicsWorld;
 //

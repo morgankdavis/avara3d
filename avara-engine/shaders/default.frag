@@ -51,6 +51,15 @@ struct Light {
 //	float 	outerAngle;
 };
 
+struct Fog {
+	float 	startDistance;
+	float 	endDistance;
+	float 	densityExponent;
+	float 	PADDING1;
+	vec3 	color;
+	float 	PADDING2;
+};
+
 
 in 			vec3 		vertex_position_eye;
 in 			vec3 		vertex_normal_eye;
@@ -70,6 +79,9 @@ layout(std140) uniform LightBlock {
 	float 	PADDING3;
 	Light 	lights[9];
 };
+//layout(std140) uniform FogBlock {
+//	Fog fog;
+//};
 out 		vec4 		fragColor;
 
 
@@ -184,4 +196,27 @@ void main () {
 
 	// gamma correction
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
+
+
+
+
+
+//    float fogStart = 600.0;
+//	float fogEnd = 1200.0;
+//    //vec4  fogColor = vec4(0.4, 0.4, 0.4, 1.0);
+//    vec4 fogColor = vec4(fog.color, 1.0);
+//
+//    // Calculate fog
+//    float dist = length(vertex_position_eye);
+//
+//    float fogFactor = (fogEnd - dist) /
+//                      (fogEnd - fogStart);
+//    fogFactor = clamp(fogFactor, 0.0, 1.0);
+//
+//    fragColor = mix(fogColor, fragColor, fogFactor);
+
+
+    // exponential
+    // fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
+    // http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
 }

@@ -28,7 +28,7 @@ using namespace glm;
 #define FRAMEBUFFER_SCALE       1.0
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
-#define FULLSCREEN 				true
+#define FULLSCREEN 				false
 
 
 /***************************************************************************************
@@ -155,7 +155,8 @@ int Test::run(const vector<string>& args) {
 //	scene->background(background);
 
 
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
+//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
 //	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(1.0, 1.0, 1.0, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	m_ambientLightNode = ambientLightNode;
@@ -163,13 +164,13 @@ int Test::run(const vector<string>& args) {
 
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	pointLight->attenuationFactor(0.0001);
+	pointLight->attenuationFactor(0.00015);
 	auto pointLightNode = make_shared<Node>(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
-//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-//	m_pointLightNode = pointLightNode;
+	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+	m_pointLightNode = pointLightNode;
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -180,9 +181,9 @@ int Test::run(const vector<string>& args) {
 	pointLightNode->geometry(geometry);
 	
 	
-	
+
 //	// random lights
-//	const int NUM_RANDOM_LIGHTS = 8;
+//	const int NUM_RANDOM_LIGHTS = 50;
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
 //		auto light = make_shared<Light>(LightType_Point);
@@ -243,8 +244,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 
 	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.000015);
-	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.000001);
+	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
 
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
