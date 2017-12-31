@@ -24,7 +24,7 @@ if(MACOS)
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
 	#-pedantic
-	#set(CMAKE_CXX_FLAGS "-std=c++17 -stdlib=libc++ \
+	#set(CMAKE_CXX_FLAGS "-std=c++ -stdlib=libc++ \
 	#	-Wall -mmacosx-version-min=10.8 -arch x86_64 \
 	#	-fmessage-length=0 -UGLFW_CDECL \
 	#	-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
@@ -37,7 +37,7 @@ if(MACOS)
 elseif(LINUX)
 	##-pedantic
 	##-Wno-c++11-long-long
-	#set(CMAKE_CXX_FLAGS "-std=c++17 \
+	#set(CMAKE_CXX_FLAGS "-std=c++ \
 	#	-Wall -fmessage-length=0 -UGLFW_CDECL \
 	#	-Wfloat-equal -Wno-reorder -Wfloat-equal")
 	
