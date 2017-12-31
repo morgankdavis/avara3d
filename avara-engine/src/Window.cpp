@@ -61,7 +61,7 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
      MARK:   Lifescycle
  **************************************************************************************/
 
-Window::Window(bool fullScreen, unsigned width, unsigned height, float framebufferScale) {
+Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI) {
 //	m_scene(make_shared<Scene>()),
 //	m_width(width),
 //	m_height(height),
@@ -84,11 +84,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, float framebuff
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: Temporary
+		glfwWindowHint(GLFW_SAMPLES, 2); // TODO: Temporary
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	
 		int viewportWidth = width;
 		int viewportHeight = height;
+    
+        float scaleFactor = 1.0;
 		
 		if (fullScreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -96,10 +98,21 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, float framebuff
 			i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
+            
+            scaleFactor = GetScreenScaleFactor(monitor);
+            
 		}
 		else {
 			i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+            
+            // TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
+            // causing a segfault.  So we'll cheat and use the main monitor (probably the one)
+            // it's going to use anyway...
+            //scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
+            scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
+    
+        cout << "scaleFactor: " << scaleFactor << endl;
 		
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;
@@ -119,7 +132,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, float framebuff
 		m_scene = make_shared<Scene>();
 		m_width = viewportWidth;
 		m_height = viewportHeight;
-		m_framebufferScale = framebufferScale;
+    
+    
+        m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
 		m_antialiasingMode = AntialiasingMode_None;

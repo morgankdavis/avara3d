@@ -25,7 +25,7 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define FRAMEBUFFER_SCALE       1.0
+#define USE_HIGH_DPI            true
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
@@ -82,7 +82,7 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
 	window.enableCursor(false);

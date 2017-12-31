@@ -21,6 +21,7 @@
 #include <assimp/types.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
+#include <GLFW/glfw3.h> // moved from .cpp
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -86,7 +87,8 @@ namespace ae {
 //		char* ae_realpath(const char* path, char* resolved_path);
 
 
-		void GetScreenResolution(int& width, int& height);
+		//void GetScreenResolution(int& width, int& height);
+        float GetScreenScaleFactor(GLFWmonitor* monitor);
 	}
 }
 

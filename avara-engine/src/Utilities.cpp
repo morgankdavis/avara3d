@@ -19,12 +19,20 @@
 //	#include <sys/stat.h>
 //#endif
 
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h> // moved to .h
 #include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
 //#ifdef LINUX
 //#include <X11/Xlib.h>
 //#endif
+#ifdef MACOS
+#include <CoreGraphics/CoreGraphics.h>
+#endif
+
+#ifdef MACOS
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+#include <GLFW/glfw3native.h>
 
 #include "Color.h"
 #include "Image.h"
@@ -409,39 +417,58 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 //}
 
 
-void ae::utils::GetScreenResolution(int& width, int& height) {
+//void ae::utils::GetScreenResolution(int& width, int& height) {
+//
+//    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+//    const GLFWvidmode *vmode = glfwGetVideoMode(monitor);
+//    width = vmode->width;
+//    height = vmode->height;
+//
+////#ifdef MACOS
+////    CGRect mainMonitor = CGDisplayBounds(CGMainDisplayID());
+////    CGFloat monitorHeight = CGRectGetHeight(mainMonitor);
+////    CGFloat monitorWidth = CGRectGetWidth(mainMonitor);
+////#endif
+////
+////#ifdef LINUX
+////    Display* disp = XOpenDisplay(NULL);
+////    Screen* scrn = DefaultScreenOfDisplay(disp);
+////    width = scrn->width;
+////    height = scrn->height;
+////#endif
+////
+////#ifdef WINDOWS
+////    #include "wtypes.h"
+////
+////    RECT desktop;
+////   // Get a handle to the desktop window
+////   const HWND hDesktop = GetDesktopWindow();
+////   // Get the size of screen to the variable desktop
+////   GetWindowRect(hDesktop, &desktop);
+////   // The top left corner will have coordinates (0,0)
+////   // and the bottom right corner will have coordinates
+////   // (horizontal, vertical)
+////   horizontal = desktop.right;
+////   vertical = desktop.bottom;
+////#endif
+//}
 
-	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode *vmode = glfwGetVideoMode(monitor);
-	width = vmode->width;
-	height = vmode->height;
+float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
 
-//#ifdef MACOS
-//	CGRect mainMonitor = CGDisplayBounds(CGMainDisplayID());
-//	CGFloat monitorHeight = CGRectGetHeight(mainMonitor);
-//	CGFloat monitorWidth = CGRectGetWidth(mainMonitor);
-//#endif
-//
-//#ifdef LINUX
-//	Display* disp = XOpenDisplay(NULL);
-//	Screen* scrn = DefaultScreenOfDisplay(disp);
-//	width = scrn->width;
-//	height = scrn->height;
-//#endif
-//
-//#ifdef WINDOWS
-//	#include "wtypes.h"
-//
-//	RECT desktop;
-//   // Get a handle to the desktop window
-//   const HWND hDesktop = GetDesktopWindow();
-//   // Get the size of screen to the variable desktop
-//   GetWindowRect(hDesktop, &desktop);
-//   // The top left corner will have coordinates (0,0)
-//   // and the bottom right corner will have coordinates
-//   // (horizontal, vertical)
-//   horizontal = desktop.right;
-//   vertical = desktop.bottom;
-//#endif
+#ifdef MACOS
+    
+    //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    //GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+    CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+    CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+    
+    
+    Size width = CGDisplayModeGetWidth(currentModeRef);
+    Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+    return (float)pixelWidth / (float)width;
+    
+#endif
+    
+    return 1.0;
 }
 
