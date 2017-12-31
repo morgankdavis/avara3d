@@ -233,6 +233,9 @@ BUGS:
 
 Resources:
 
+Cmake 3.8+
+	https://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04/610352
+
 Light attenuation
 	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
 	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
