@@ -17,7 +17,7 @@ file(GLOB SOURCES src/*.c*)
 include_directories("/usr/include" "/usr/local/include")
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 
 if(MACOS)

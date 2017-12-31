@@ -12,6 +12,8 @@ Int -> GLuint:
 
 Replace boost with C++17!
 
+Play with C++17: https://italiancpp.github.io/
+
 Tests:
 	01 - import
 	02 - scenegraph
