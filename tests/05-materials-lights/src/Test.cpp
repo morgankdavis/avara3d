@@ -169,8 +169,8 @@ int Test::run(const vector<string>& args) {
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	m_pointLightNode = pointLightNode;
+//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+//	m_pointLightNode = pointLightNode;
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -183,7 +183,7 @@ int Test::run(const vector<string>& args) {
 	
 
 //	// random lights
-//	const int NUM_RANDOM_LIGHTS = 50;
+//	const int NUM_RANDOM_LIGHTS = 100;
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
 //		auto light = make_shared<Light>(LightType_Point);
