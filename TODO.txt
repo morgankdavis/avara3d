@@ -10,6 +10,9 @@ Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
 
+Auto screen scaling
+
+
 Tests:
 	01 - import
 	02 - scenegraph

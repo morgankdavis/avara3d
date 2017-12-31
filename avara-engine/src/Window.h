@@ -41,7 +41,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Window(bool fullScreen, unsigned width, unsigned height, float framebufferScale);
+		Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI);
 		~Window();
 		
 		/***************************************************************************************
