@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libmanymouse.a  CMakeFiles/manymouse.dir/linux_evdev.c.o CMakeFiles/manymouse.dir/macosx_hidmanager.c.o CMakeFiles/manymouse.dir/macosx_hidutilities.c.o CMakeFiles/manymouse.dir/manymouse.c.o CMakeFiles/manymouse.dir/windows_wminput.c.o CMakeFiles/manymouse.dir/x11_xinput2.c.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libmanymouse.a

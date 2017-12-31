@@ -17,20 +17,32 @@ file(GLOB SOURCES src/*.c*)
 include_directories("/usr/include" "/usr/local/include")
 
 
+set(CMAKE_CXX_STANDARD 17)
+
+
 if(MACOS)
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
 	#-pedantic
-	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ \
+	#set(CMAKE_CXX_FLAGS "-std=c++17 -stdlib=libc++ \
+	#	-Wall -mmacosx-version-min=10.8 -arch x86_64 \
+	#	-fmessage-length=0 -UGLFW_CDECL \
+	#	-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
+	
+	set(CMAKE_CXX_FLAGS "-stdlib=libc++ \
 		-Wall -mmacosx-version-min=10.8 -arch x86_64 \
 		-fmessage-length=0 -UGLFW_CDECL \
 		-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
+	
 elseif(LINUX)
-	#-pedantic
-	#-Wno-c++11-long-long
-	set(CMAKE_CXX_FLAGS "-std=c++14 \
-		-Wall -fmessage-length=0 -UGLFW_CDECL \
-		-Wfloat-equal -Wno-reorder -Wfloat-equal")
+	##-pedantic
+	##-Wno-c++11-long-long
+	#set(CMAKE_CXX_FLAGS "-std=c++17 \
+	#	-Wall -fmessage-length=0 -UGLFW_CDECL \
+	#	-Wfloat-equal -Wno-reorder -Wfloat-equal")
+	
+	set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
+		-Wfloat-equal -Wno-reorder -Wfloat-equal")	
 endif()
 
 

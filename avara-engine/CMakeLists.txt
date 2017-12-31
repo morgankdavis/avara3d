@@ -11,7 +11,7 @@ file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 
 if(MACOS)
