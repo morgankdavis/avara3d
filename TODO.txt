@@ -10,6 +10,8 @@ Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
 
+Replace boost with C++17!
+
 Tests:
 	01 - import
 	02 - scenegraph
