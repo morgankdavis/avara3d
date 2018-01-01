@@ -66,7 +66,16 @@ typedef struct __attribute__((packed)) {
 	//	float attenuationExponent;
 	//	float innerAngle;
 	//	float outerAngle;
-} LightStruct;
+} LightGLSLStruct;
+
+typedef struct __attribute__((packed)) {
+	float32_t 	startDistance;
+	float32_t 	endDistance;
+	float32_t 	densityExponent;
+	float32_t 	PADDING1;
+	vec3 		color;
+	float32_t 	PADDING2;
+} FogGLSLStruct;
 
 /***************************************************************************************
      MARK:   Static
@@ -210,19 +219,25 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
  **************************************************************************************/
 
 Scene::Scene():
-	m_rootNode(make_shared<Node>("Root node")) {
+	m_rootNode(make_shared<Node>("Root node")),
+	m_background(nullptr),
+	m_fogStartDistance(0.0),
+	m_fogEndDistance(0.0),
+	m_fogDensityExponent(0.0),
+	m_fogColor(nullptr) {
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
-		m_glLightsUBO = ubo;
+		m_glEnvironmentUBO = ubo;
 }
 
 Scene::Scene(const std::string& path):
-	m_rootNode(make_shared<Node>("Root node")) {
+	Scene() {
+	//m_rootNode(make_shared<Node>("Root node")) {
 
-		uint32 ubo;
-		glGenBuffers(1, &ubo);
-		m_glLightsUBO = ubo;
+//		uint32 ubo;
+//		glGenBuffers(1, &ubo);
+//		m_glEnvironmentUBO = ubo;
 		
 		loadFile(path);
 }
@@ -260,6 +275,38 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	m_background = backgroundProperty;
 }
 
+float Scene::fogStartDistance() const {
+	return m_fogStartDistance;
+}
+
+void Scene::fogStartDistance(float distance) {
+	m_fogStartDistance = distance;
+}
+
+float Scene::fogEndDistance() const {
+	return m_fogEndDistance;
+}
+
+void Scene::fogEndDistance(float distance) {
+	m_fogEndDistance = distance;
+}
+
+float Scene::fogDensityExponent() const {
+	return m_fogDensityExponent;
+}
+
+void Scene::fogDensityExponent(float exponent) {
+	m_fogDensityExponent = exponent;
+}
+
+std::shared_ptr<Color> Scene::fogColor() const {
+	return m_fogColor;
+}
+
+void Scene::fogColor(std::shared_ptr<Color> color) {
+	m_fogColor = color;
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -289,14 +336,14 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 		}
 	}
 
-	bindLights(*pointOfView);
+	bindEnvironment(*pointOfView);
 
 	for (auto node: m_rootNode->allChildNodes()) {
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				auto modelMat = node->worldTransform();
-				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glLightsUBO);
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glEnvironmentUBO);
 			}
 		}
 	}
@@ -610,8 +657,10 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 	}
 }
 
-void Scene::bindLights(const Node& pointOfView) const {
+void Scene::bindEnvironment(const Node& pointOfView) const {
 
+	// lights
+	
 	auto lights = vector<shared_ptr<Node>>();
 	shared_ptr<Node> ambientLight = nullptr;
 	
@@ -658,7 +707,7 @@ void Scene::bindLights(const Node& pointOfView) const {
 	if (ambientLight) lights.emplace_back(ambientLight);
 	
 	unsigned numLights = lights.size();
-	LightStruct lightStruct[numLights];
+	LightGLSLStruct lightStruct[numLights];
 	
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
@@ -672,18 +721,32 @@ void Scene::bindLights(const Node& pointOfView) const {
 		lightStruct[l].color = vec3(color.r, color.g, color.b);
 	}
 	
+	// fog
+	
+	FogGLSLStruct fogStruct;
+	fogStruct.startDistance = m_fogStartDistance;
+	fogStruct.endDistance = m_fogEndDistance;
+	fogStruct.densityExponent = m_fogDensityExponent;
+	fogStruct.startDistance = m_fogStartDistance;
+	if (m_fogColor) fogStruct.color = vec3(m_fogColor->r, m_fogColor->b, m_fogColor->b);
+	else fogStruct.color = vec3(0.0, 0.0, 0.0);
+	
+	// block
+	
 	typedef struct __attribute__((packed)) {
-		int32_t 	numLights;
-		float32_t 	PADDING1;
-		float32_t 	PADDING2;
-		float32_t 	PADDING3;
-		LightStruct lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-	} LightBlock;
+		int32_t 			numLights;
+		float32_t 			PADDING1;
+		float32_t 			PADDING2;
+		float32_t 			PADDING3;
+		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+		FogGLSLStruct		fog;
+	} EnvironmentBlock;
 	
-	LightBlock lightsBlock;
-	lightsBlock.numLights = numLights;
-	memcpy(&lightsBlock.lights, &lightStruct, sizeof(lightStruct));
+	EnvironmentBlock environmentBlock;
+	environmentBlock.numLights = numLights;
+	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
+	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
 	
-	glBindBuffer(GL_UNIFORM_BUFFER, m_glLightsUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightsBlock), &lightsBlock, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_glEnvironmentUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }

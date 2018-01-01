@@ -72,7 +72,7 @@ namespace ae {
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  int glLightsUBO);
+					  int glEnvironmentUBO);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:

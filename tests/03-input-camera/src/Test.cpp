@@ -24,7 +24,6 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define FRAMEBUFFER_SCALE       1.0f
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 
@@ -36,8 +35,13 @@ using namespace glm;
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
-	if (init() != 0) { cout << "Init error!" << endl; return -1; }
+	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
 
+	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.enableCursor(false);
+	window.vSyncEnabled(false);
 	
 	auto scene = TestSceneNamed("importTest");
 	//auto scene = TestSceneNamed("dragon", "obj");
@@ -46,11 +50,11 @@ int Test::run(const vector<string>& args) {
 //	node->position();
 
 	
-	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.scene(scene);
-	window.enableCursor(false);
+//	auto window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//	window.scene(scene);
+//	window.enableCursor(false);
 
 
 //	for (auto n : scene->rootNode()->immediateChildNodes()) {
@@ -64,8 +68,13 @@ int Test::run(const vector<string>& args) {
 	//m_suzanneNode = scene->rootNode()->allChildNodes()[0];
 
 
-	m_inputManager = window.inputManager();
 	
+	auto backgroundColor = make_shared<Color>(Color::White());
+	auto background = make_shared<MaterialProperty>(backgroundColor);
+	scene->background(background);
+
+	window.scene(scene);
+	m_inputManager = window.inputManager();
 	window.display();
 	
 	return 0;

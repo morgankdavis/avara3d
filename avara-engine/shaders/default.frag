@@ -72,12 +72,13 @@ uniform 	int 		emissiveMode;
 uniform		float 		specularExponent;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
-layout(std140) uniform LightBlock {
+layout(std140) uniform EnvironmentBlock {
 	int		numLights;
 	float 	PADDING1;
 	float 	PADDING2;
 	float 	PADDING3;
 	Light 	lights[9];
+	Fog 	fog;
 };
 //layout(std140) uniform FogBlock {
 //	Fog fog;
@@ -194,29 +195,23 @@ void main () {
 	    fragColor = vec4(vec3(fragColor), Kd.a);
 	}
 
-	// gamma correction
-	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
-
-
-
-
-
-//    float fogStart = 600.0;
-//	float fogEnd = 1200.0;
-//    //vec4  fogColor = vec4(0.4, 0.4, 0.4, 1.0);
-//    vec4 fogColor = vec4(fog.color, 1.0);
-//
-//    // Calculate fog
-//    float dist = length(vertex_position_eye);
-//
-//    float fogFactor = (fogEnd - dist) /
-//                      (fogEnd - fogStart);
-//    fogFactor = clamp(fogFactor, 0.0, 1.0);
-//
-//    fragColor = mix(fogColor, fragColor, fogFactor);
+	// fog
+	
+	if (fog.endDistance > 0) {
+		float vertDist = length(vertex_position_eye);
+		float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+		
+		fragColor = mix(vec4(fog.color, 1.0), fragColor, fogFactor);
+	}
 
 
     // exponential
     // fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
     // http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
+	
+	
+	// gamma correction
+	
+	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

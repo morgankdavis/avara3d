@@ -148,7 +148,7 @@ void Geometry::generateFlatNormals() {
 unsigned Geometry::draw(const mat4& modelMat,
 						const mat4& viewMat,
 						const mat4& projectionMat,
-						int glLightsUBO) {
+						int glEnvironmentUBO) {
 	
 	unsigned numPolygons = 0;
 	
@@ -171,7 +171,7 @@ unsigned Geometry::draw(const mat4& modelMat,
 //			material = m_materials[m_materials.size()-1 % e];
 //		}
 		
-		numPolygons += element->draw(modelMat, viewMat, projectionMat, *material, glLightsUBO);
+		numPolygons += element->draw(modelMat, viewMat, projectionMat, *material, glEnvironmentUBO);
 	}
 	
 	return numPolygons;

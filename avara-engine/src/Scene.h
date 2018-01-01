@@ -53,15 +53,19 @@ namespace ae {
 		std::shared_ptr<MaterialProperty> background() const;
 		void background(std::shared_ptr<MaterialProperty> background);
 		
-//		bool					isPaused;
-//
-		float					fogDistanceStart;
-		float					fogDistanceEnd;
-//		float					fogDensityExponent;
-		std::shared_ptr<Color>	fogColor() const;
-//		
-//		PhysicsWorld			physicsWorld;
-//
+		//bool					isPaused;
+
+		float fogStartDistance() const;
+		void fogStartDistance(float distance);
+		float fogEndDistance() const;
+		void fogEndDistance(float distance);
+		float fogDensityExponent() const;
+		void fogDensityExponent(float exponent);
+		std::shared_ptr<Color> fogColor() const;
+		void fogColor(std::shared_ptr<Color> color);
+		
+		//PhysicsWorld			physicsWorld;
+
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -87,13 +91,18 @@ namespace ae {
 								  std::shared_ptr<Node> aeParentNode,
 								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
 								  const std::vector<std::shared_ptr<Material>>& materials);
-		void bindLights(const Node& pointOfView) const;
+		void bindEnvironment(const Node& pointOfView) const;
 		
-		std::shared_ptr<Node>								m_rootNode;
-		std::shared_ptr<MaterialProperty>					m_background;
-		std::shared_ptr<SkyboxGeometry>						m_skyboxGeometry;
+		std::shared_ptr<Node>						m_rootNode;
+		std::shared_ptr<MaterialProperty>			m_background;
+		std::shared_ptr<SkyboxGeometry>				m_skyboxGeometry;
 		
-		int													m_glLightsUBO;
+		float										m_fogStartDistance;
+		float										m_fogEndDistance;
+		float										m_fogDensityExponent;
+		std::shared_ptr<Color>						m_fogColor;
+		
+		int											m_glEnvironmentUBO;
 	};
 }
 

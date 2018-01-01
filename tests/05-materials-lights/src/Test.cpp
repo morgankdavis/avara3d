@@ -88,7 +88,6 @@ int Test::run(const vector<string>& args) {
 	window.enableCursor(false);
 	window.vSyncEnabled(false);
 	//window.antialiasingMode(AntialiasingMode_None);
-	m_inputManager = window.inputManager();
 	
 	auto scene = make_shared<Scene>();
 
@@ -169,8 +168,8 @@ int Test::run(const vector<string>& args) {
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
-//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-//	m_pointLightNode = pointLightNode;
+	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+	m_pointLightNode = pointLightNode;
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -209,7 +208,15 @@ int Test::run(const vector<string>& args) {
 //		scene->rootNode()->addChildNode(lightNode);
 //	}
 	
+	
+	scene->fogStartDistance(500.0);
+	scene->fogEndDistance(5000.0);
+	scene->fogDensityExponent(0.0);
+	scene->fogColor(make_shared<Color>(Color::LightGray()));
+
+	
 	window.scene(scene);
+	m_inputManager = window.inputManager();
 	window.display();
 	
 	return 0;
