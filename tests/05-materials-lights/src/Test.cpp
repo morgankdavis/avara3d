@@ -274,7 +274,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (m_cameraNode) {
 		
 		
-		cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
+		//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
 
 		// look
 
