@@ -61,6 +61,9 @@ namespace ae {
 		void fogEndDistance(float distance);
 		float fogDensityExponent() const;
 		void fogDensityExponent(float exponent);
+		// 0 = constant, alpha respected
+		// 1 = linear, alpha ignored
+		// >=2 = exponential, alpha ignored
 		std::shared_ptr<Color> fogColor() const;
 		void fogColor(std::shared_ptr<Color> color);
 		

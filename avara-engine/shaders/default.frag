@@ -56,8 +56,8 @@ struct Fog {
 	float 	endDistance;
 	float 	densityExponent;
 	float 	PADDING1;
-	vec3 	color;
-	float 	PADDING2;
+	vec4 	color;
+	//float 	PADDING2;
 };
 
 
@@ -84,6 +84,11 @@ layout(std140) uniform EnvironmentBlock {
 //	Fog fog;
 //};
 out 		vec4 		fragColor;
+
+
+bool FloatEqual(float a, float b, float tolarance) {
+	return (abs(a-b) <= tolarance);
+}
 
 
 void main () {
@@ -195,20 +200,25 @@ void main () {
 	    fragColor = vec4(vec3(fragColor), Kd.a);
 	}
 
+	
 	// fog
 	
-	if (fog.endDistance > 0) {
-		float vertDist = length(vertex_position_eye);
-		float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
-		
-		fragColor = mix(vec4(fog.color, 1.0), fragColor, fogFactor);
+	if (!FloatEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
+		if (FloatEqual(fog.densityExponent, 0.0, 0.0001)) { // constant
+			fragColor = mix(fragColor, vec4(fog.color.rgb, 1.0), fog.color.a);
+		}
+		else if (FloatEqual(fog.densityExponent, 1.0, 0.0001)) { // linear
+			float vertDist = length(vertex_position_eye);
+			float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
+			fogFactor = clamp(fogFactor, 0.0, 1.0);
+			fragColor = mix(vec4(fog.color.rgb, 1.0), fragColor, fogFactor);
+		}
+		else if (fog.densityExponent >= 2.0) { // exponential
+			// NOT IMPLEMENTED
+			// fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
+			// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
+		}
 	}
-
-
-    // exponential
-    // fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
-    // http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
 	
 	
 	// gamma correction

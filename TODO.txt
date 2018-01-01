@@ -6,11 +6,11 @@ Fog UBO
 
 Are specular maps being applied correctly? Look at palm bark -- try replacing map
 
+Cleanup color MATKEY_
+
 Int -> GLuint:
 	Scene.h m_glLightsUBO
 	Geometry.h draw()
-
-Replace boost with C++17!
 
 Play with C++17: https://italiancpp.github.io/
 

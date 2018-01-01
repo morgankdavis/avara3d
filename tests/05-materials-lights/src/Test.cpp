@@ -211,7 +211,7 @@ int Test::run(const vector<string>& args) {
 	
 	scene->fogStartDistance(500.0);
 	scene->fogEndDistance(5000.0);
-	scene->fogDensityExponent(0.0);
+	scene->fogDensityExponent(1.0);
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
 	
@@ -272,6 +272,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 
 	if (m_cameraNode) {
+		
+		
+		cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
 
 		// look
 

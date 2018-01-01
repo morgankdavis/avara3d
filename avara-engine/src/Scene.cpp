@@ -73,8 +73,8 @@ typedef struct __attribute__((packed)) {
 	float32_t 	endDistance;
 	float32_t 	densityExponent;
 	float32_t 	PADDING1;
-	vec3 		color;
-	float32_t 	PADDING2;
+	vec4 		color;
+	//float32_t 	PADDING2;
 } FogGLSLStruct;
 
 /***************************************************************************************
@@ -167,11 +167,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		
 		aiColor4D aiColor;
 		if (aiMaterial->Get(colorType, 0, 0, aiColor) == AI_SUCCESS) {
-			cout << "Color: ("
-			<< aiColor.r << ", "
-			<< aiColor.g << ", "
-			<< aiColor.b << ", "
-			<< aiColor.a << ")" << endl;
+			cout << "Color: (" << aiColor.r << ", " << aiColor.g << ", " << aiColor.b << ", " << aiColor.a << ")" << endl;
 			auto aeColor = make_shared<Color>(AIColor4DToColor(aiColor));
 			return make_shared<MaterialProperty>(aeColor);
 		}
@@ -728,8 +724,8 @@ void Scene::bindEnvironment(const Node& pointOfView) const {
 	fogStruct.endDistance = m_fogEndDistance;
 	fogStruct.densityExponent = m_fogDensityExponent;
 	fogStruct.startDistance = m_fogStartDistance;
-	if (m_fogColor) fogStruct.color = vec3(m_fogColor->r, m_fogColor->b, m_fogColor->b);
-	else fogStruct.color = vec3(0.0, 0.0, 0.0);
+	if (m_fogColor) fogStruct.color = vec4(m_fogColor->r, m_fogColor->g, m_fogColor->b, m_fogColor->a);
+	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
 	
 	// block
 	
