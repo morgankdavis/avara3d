@@ -60,24 +60,46 @@ ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
 	return os;
 }
 
+//template<typename OStream>
+//OStream& ae::utils::operator<<(OStream& os, const mat4& m) {
+//
+//    // "GLM uses column major ordering, so the addressing is m[col][row]"
+//    // http://stackoverflow.com/questions/26454838/glm-multiplication-order
+//
+//    char str[1024];
+//    snprintf(str, sizeof(str),
+//             "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
+//             m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+//             m[0][1], m[1][1], m[2][1], m[3][1],
+//             m[0][2], m[1][2], m[2][2], m[3][2],
+//             m[0][3], m[1][3], m[2][3], m[3][3]);
+//
+//    /*m[0][0], m[0][1], m[0][2], m[0][3], // consistent with to_string and SceneKit notation...
+//     m[1][0], m[1][1], m[1][2], m[1][3],
+//     m[2][0], m[2][1], m[2][2], m[2][3],
+//     m[3][0], m[3][1], m[3][2], m[3][3]);*/
+//
+//    return (os << str);
+//}
+
 ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
-	// "GLM uses column major ordering, so the addressing is m[col][row]"
-	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
-	
-	char str[1024];
-	snprintf(str, sizeof(str),
-			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
-			  m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
-			  m[0][1], m[1][1], m[2][1], m[3][1],
-			  m[0][2], m[1][2], m[2][2], m[3][2],
-			  m[0][3], m[1][3], m[2][3], m[3][3]);
-			 
-			 /*m[0][0], m[0][1], m[0][2], m[0][3], // consistent with to_string and SceneKit notation...
-			 m[1][0], m[1][1], m[1][2], m[1][3],
-			 m[2][0], m[2][1], m[2][2], m[2][3],
-			 m[3][0], m[3][1], m[3][2], m[3][3]);*/
-	
-	return (os << str);
+    // "GLM uses column major ordering, so the addressing is m[col][row]"
+    // http://stackoverflow.com/questions/26454838/glm-multiplication-order
+
+    char str[1024];
+    snprintf(str, sizeof(str),
+             "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
+              m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+              m[0][1], m[1][1], m[2][1], m[3][1],
+              m[0][2], m[1][2], m[2][2], m[3][2],
+              m[0][3], m[1][3], m[2][3], m[3][3]);
+
+             /*m[0][0], m[0][1], m[0][2], m[0][3], // consistent with to_string and SceneKit notation...
+             m[1][0], m[1][1], m[1][2], m[1][3],
+             m[2][0], m[2][1], m[2][2], m[2][3],
+             m[3][0], m[3][1], m[3][2], m[3][3]);*/
+
+    return (os << str);
 }
 
 ostream& ae::utils::operator<<(ostream& os, const Color& c) {

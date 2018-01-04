@@ -116,7 +116,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
     
         cout << "scaleFactor: " << scaleFactor << endl;
-		g_logger->info("scaleFactor: {}", scaleFactor);
+		LOG->info("scaleFactor: {}", scaleFactor);
+    
+        //LOG->debug("mat: {}", mat4(1.0));
 		
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;
