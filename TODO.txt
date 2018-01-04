@@ -12,11 +12,6 @@ Tests:
 	03 - input-camera
 	04 - geoprimitives
 	05 - materials-lights
-		load ambient, diffuse, specular texture/color
-		[make sure to refactor texture/color loading]
-		background color
-		skybox
-		multiple point lights
 	06 - debugging & cleanup (log, gui, axes, wireframe, bounding box, screenshots)
 		log [cinder log?], prints, exceptions
 		debug options
@@ -25,7 +20,6 @@ Tests:
 		https://github.com/SergiusTheBest/plog
 		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
 		ERROR HANDLING (shader failed to compile, etc)
-		Check const
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
 		Create shader library
@@ -41,7 +35,6 @@ Tests:
 		Add Window to scene render callbacks
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
-
 	07 - solarsystem
 		Emission, multiply?
 
@@ -57,6 +50,8 @@ Tests:
 	60 - network
 
 	70 - scripting
+
+	80 - vulkan? metal? deferred shading?
 
 
 Why use layout= instead of getAttributeLocation()
@@ -140,15 +135,14 @@ Laundry list:
 		http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 		http://www.humus.name/index.php?page=3D&ID=61
 
+	“int” and “unsigned” should be appropriate GL types
+
 	Distance fog
 	Normal mapping
 	Shadows
 	Depth of field
 	Bloom
 
-    Default lighting
-	Why is Cat not scaled properly after rotation in Test3? Compare to SceneKit.
-	gamma correction
 	Release vertex and texture data on deconstruction
 	Convert raw pointers to weak_ptr
 	Revisit scene graph traversal

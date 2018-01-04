@@ -62,7 +62,7 @@ namespace ae {
 		void maximumFramerate(float max);
 		
 		DebugOption debugOptions() const;
-		void debugOptions(const DebugOption options);
+		void debugOptions(DebugOption options);
 		
 		std::shared_ptr<Image> snapshot() const;
 		
@@ -71,22 +71,22 @@ namespace ae {
 		 **************************************************************************************/
 
 		unsigned width() const;
-		void width(const unsigned width);
+		void width(unsigned width);
 		
 		unsigned height() const;
-		void height(const unsigned height);
+		void height(unsigned height);
 		
 		unsigned framebufferScale() const;
-		void framebufferScale(const unsigned aScale);
+		void framebufferScale(unsigned aScale);
 		
 		unsigned framebufferWidth() const;
-		void framebufferWidth(const unsigned width);
+		void framebufferWidth(unsigned width);
 		
 		unsigned framebufferHeight() const;
-		void framebufferHeight(const unsigned height);
+		void framebufferHeight(unsigned height);
 		
 		AntialiasingMode antialiasingMode() const;
-		void antialiasingMode(const AntialiasingMode mode);
+		void antialiasingMode(AntialiasingMode mode);
 
 		std::shared_ptr<Node> pointOfView();
 		void pointOfView(const std::shared_ptr<Node> camera);

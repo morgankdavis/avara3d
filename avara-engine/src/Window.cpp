@@ -75,9 +75,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 //	m_maximumFramerate(60.0),
 //	m_willUpdateCallback(nullptr),
 //	m_didUpdateCallback(nullptr) {
+	
+		if (initLog() != 0) {
+			cout << "Error initializing log." << endl;
+		}
 
 		if (initGLFW() != 0) {
-			cout << "Init error!" << endl;// return -1;
+			cout << "Error initializing GLFW." << endl;
 		}
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -112,6 +116,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
     
         cout << "scaleFactor: " << scaleFactor << endl;
+		g_logger->info("scaleFactor: {}", scaleFactor);
 		
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;
@@ -226,7 +231,7 @@ DebugOption Window::debugOptions() const {
 	return m_debugOptions;
 }
 
-void Window::debugOptions(const DebugOption options) {
+void Window::debugOptions(DebugOption options) {
 	m_debugOptions = options;
 }
 
@@ -242,7 +247,7 @@ unsigned Window::width() const {
 	return m_width;
 }
 
-void Window::width(const unsigned aWidth) {
+void Window::width(unsigned aWidth) {
 	m_width = aWidth;
 	framebufferWidth(m_width * m_framebufferScale);
 }
@@ -251,7 +256,7 @@ unsigned Window::height() const {
 	return m_height;
 }
 
-void Window::height(const unsigned aHeight) {
+void Window::height(unsigned aHeight) {
 	m_height = aHeight;
 	framebufferHeight(m_height * m_framebufferScale);
 }
@@ -260,7 +265,7 @@ unsigned Window::framebufferScale() const {
 	return m_framebufferScale;
 }
 
-void Window::framebufferScale(const unsigned aScale) {
+void Window::framebufferScale(unsigned aScale) {
 	m_framebufferScale = aScale;
 }
 
@@ -268,7 +273,7 @@ unsigned Window::framebufferWidth() const {
 	return m_framebufferWidth;
 }
 
-void Window::framebufferWidth(const unsigned aWidth) {
+void Window::framebufferWidth(unsigned aWidth) {
 	m_framebufferWidth = aWidth;
 }
 
@@ -276,7 +281,7 @@ unsigned Window::framebufferHeight() const {
 	return m_framebufferHeight;
 }
 
-void Window::framebufferHeight(const unsigned aHeight) {
+void Window::framebufferHeight(unsigned aHeight) {
 	m_framebufferHeight = aHeight;
 }
 
@@ -284,7 +289,7 @@ AntialiasingMode Window::antialiasingMode() const {
 	return m_antialiasingMode;
 }
 
-void Window::antialiasingMode(const AntialiasingMode mode) {
+void Window::antialiasingMode(AntialiasingMode mode) {
 	m_antialiasingMode = mode;
 	glfwWindowHint(GLFW_SAMPLES, mode);
 }
