@@ -145,7 +145,8 @@ int Test::run(const vector<string>& args) {
 		}
 	}
 
-	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
+//	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
+	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
 //	auto background = make_shared<MaterialProperty>(TestCubeNamed("yokohama", "jpg"));
 //	auto background = make_shared<MaterialProperty>(TestCubeNamed("fishermansBastion", "jpg"));
 	scene->background(background);
@@ -341,107 +342,3 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
 
 }
-
-
-
-//	auto testScene = TestSceneNamed("importTest");
-//	scene->rootNode()->addChildNodes(testScene->rootNode()->allChildNodes());
-
-
-//	auto planeGeo = make_shared<Plane>(100.0f, 100.0f);
-//	auto planeNode = make_shared<Node>();
-//	planeGeo->name("plane");
-//	planeNode->geometry(planeGeo);
-//	scene->rootNode()->addChildNode(planeNode);
-//	//planeNode->scale(planeNode->scale() * 10.0f);
-//	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
-//	planeNode->position(vec3(0.0f, -65.0f, 0.0f));
-//	scene->rootNode()->addChildNode(planeNode);
-
-//	auto tileImage = TestImageNamed("tiles_1_diff", "jpg");
-//	auto planeMaterialProperty = make_shared<MaterialProperty>(tileImage);
-//	auto planeMaterial = make_shared<Material>();
-//	planeMaterial->diffuse(planeMaterialProperty);
-//	planeGeo->materials().push_back(planeMaterial);
-
-
-//	auto siameseBadTextureScene = TestSceneNamed("siamese_badTexture");
-//	auto siameseBadTextureNode = siameseBadTextureScene->rootNode()->childNode("Siamese", true);
-//	siameseBadTextureNode->scale(siameseBadTextureNode->scale() * 0.15f);
-//	siameseBadTextureNode->position(vec3(25.0, 0, 0));
-////	scene->rootNode()->addChildNode(siameseNode);
-//	auto scene = siameseBadTextureScene;
-
-
-
-//	auto duckScene = TestSceneNamed("duck");
-//	auto scene = duckScene;
-
-//	auto palmScene = TestSceneNamed("cartoon_palm_tree");
-////	auto palmNode = palmScene->rootNode()->childNode("palm_tree", true);
-////	for (auto node : palmScene->rootNode()->allChildNodes()) {
-////		cout << "node: " << node->name() << endl;
-////	}
-//	palmScene->rootNode()->scale(palmScene->rootNode()->scale() * 32.0f);
-//	palmScene->rootNode()->position(vec3(0.0f, 47.0f, 0.0f));
-//	scene->rootNode()->addChildNode(palmScene->rootNode());
-//	for (auto n : palmScene->rootNode()->allChildNodes()) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-
-//	auto importTestScene = TestSceneNamed("importTest");
-//	auto scene = importTestScene;
-
-
-//	auto scene = palletScene;
-
-//	auto mushroomScene = TestSceneNamed("mushroom");
-//	auto scene = mushroomScene;
-
-//	auto crocusScene = TestSceneNamed("FL43_Crocus_sp_Crocus_3ds/FL43_1");
-//	auto scene = crocusScene;
-
-//	auto tree1Scene = TestSceneNamed("tree1");
-//	auto scene = tree1Scene;
-
-
-//	auto scene = tunaScene;
-
-//	auto woodContainerScene = TestSceneNamed("WoodContainer");
-//	auto scene = woodContainerScene;
-
-//	auto crate1Scene = TestSceneNamed("Crate1");
-//	auto scene = crate1Scene;
-
-//	auto woddenCrateScene = TestSceneNamed("WoddenCrate);
-//	auto scene = woddenCrateScene;
-
-
-//	auto scene = make_shared<Scene>();
-//	auto coneGeo = make_shared<Cone>(1.0, 1.0, 64, 64);
-//	auto coneNode = make_shared<Node>(coneGeo);
-//	auto red = make_shared<Color>(Color::Red());
-//	auto coneMaterialProperty = make_shared<MaterialProperty>(red);
-//	auto coneMaterial = make_shared<Material>();
-//	coneMaterial->diffuse(coneMaterialProperty);
-//	coneGeo->materials().push_back(coneMaterial);
-//	scene->rootNode()->addChildNode(coneNode);
-
-
-// default material + specular color
-//	auto boxNode = make_shared<Node>();
-//	auto boxGeometry = make_shared<Box>(10, 10, 10);
-//	boxNode->geometry(boxGeometry);
-////	auto boxMaterial = make_shared<Material>();
-////	boxMaterial->specularExponent(150);
-////	//auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
-////	auto specularMap = TestImageNamed("bw_checker_grid");
-////	auto boxSpecularMaterialProperty = make_shared<MaterialProperty>(specularMap);
-////	boxMaterial->specular(boxSpecularMaterialProperty);
-////	boxGeometry->materials().push_back(boxMaterial);
-//	scene->rootNode()->addChildNode(boxNode);
-

@@ -10,14 +10,26 @@
 #define Init_h
 
 
+#include <memory>
+
+#include <spdlog/spdlog.h>
+
+
+extern std::shared_ptr<spdlog::logger>		g_logger;
+
 namespace ae {
+	
 
 	/***************************************************************************************
 	     MARK:   Internal
 	 **************************************************************************************/
 	
+	int initLog();
 	int initGLFW();
 	int initGLEW();
+	
+//	// not marking extern creates seemingly unrelated duplicate symbol errors
+//	extern std::shared_ptr<spdlog::logger>		g_logger;
 }
 
 

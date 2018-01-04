@@ -20,16 +20,61 @@
 #include <time.h>
 
 
+using namespace spdlog;
 using namespace std;
 
+
+/***************************************************************************************
+     MARK:   Configuration
+ **************************************************************************************/
+
+#define LOG_FILENAME	"ae.log"
+#define LOG_QUEUE_SIZE	13
+#define LOG_SIZE 		1024 * 1024 * 5
+#define LOG_ROTATIONS	3
+
+/***************************************************************************************
+     MARK:   Global vars
+ **************************************************************************************/
+
+std::shared_ptr<spdlog::logger>		g_logger;
 
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
 
 void glfwErrorCallback(int error, const char* description) {
-	cout << "glfwErrorCallback(): error: " << error
-	<< ", description: "  << description << endl;
+	cout << "glfwErrorCallback(): error: " << error << ", description: "  << description << endl;
+}
+
+int ae::initLog() {
+	
+	static bool initialized = false;
+	
+	if (!initialized) {
+		try {
+			set_async_mode(pow(2, LOG_QUEUE_SIZE)); // queue size must be power of 2
+			
+//			g_logger = rotating_logger_mt("ae-log", LOG_FILENAME, LOG_SIZE, LOG_ROTATIONS);
+//			g_logger->info("Init.");
+
+			vector<sink_ptr> sinks;
+			sinks.push_back(make_shared<sinks::stdout_sink_st>());
+			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILENAME, LOG_SIZE, LOG_ROTATIONS));
+			g_logger = make_shared<logger>("ae-log", begin(sinks), end(sinks));
+			register_logger(g_logger);
+
+			g_logger->info("Init.");
+		}
+		catch (const spdlog::spdlog_ex& ex) {
+			
+			cout << "Log initialization failed: " << ex.what() << endl;
+		}
+	
+		initialized = true;
+	}
+	
+	return 0;
 }
 
 int ae::initGLFW() {

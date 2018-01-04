@@ -75,9 +75,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 //	m_maximumFramerate(60.0),
 //	m_willUpdateCallback(nullptr),
 //	m_didUpdateCallback(nullptr) {
+	
+		if (initLog() != 0) {
+			cout << "Error initializing log." << endl;
+		}
 
 		if (initGLFW() != 0) {
-			cout << "Init error!" << endl;// return -1;
+			cout << "Error initializing GLFW." << endl;
 		}
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -113,6 +117,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
     
         cout << "scaleFactor: " << scaleFactor << endl;
+		g_logger->info("scaleFactor: {}", scaleFactor);
 		
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;

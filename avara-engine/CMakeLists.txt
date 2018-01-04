@@ -6,6 +6,9 @@ add_subdirectory(src)
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
 
+add_subdirectory(external/spdlog-0.16.2)
+include_directories(external/spdlog-0.16.2/include)
+
 
 file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
