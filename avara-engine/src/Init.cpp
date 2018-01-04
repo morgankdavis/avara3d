@@ -78,7 +78,7 @@ int ae::initLog() {
 			register_logger(LOG);
             
             // Under VisualStudio, this must be called before main finishes to workaround a known VS issue
-            drop_all(); 
+            //drop_all(); 
             
             // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
             set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%l] %v");
