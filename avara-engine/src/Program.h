@@ -36,7 +36,7 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		boost::optional<std::string> logString() const;
+//		boost::optional<std::string> logString() const;
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -66,8 +66,8 @@ namespace ae {
 		
 		GLint getAttributeLocation(const char* name) const;
 		
-		void printActiveUniforms() const;
-		void printActiveAttribs() const;
+//		void printActiveUniforms() const;
+//		void printActiveAttribs() const;
 		
 		std::string name() const;
 		GLuint glID();
@@ -88,12 +88,12 @@ namespace ae {
 		
 		void glID(GLuint glID);
 		void isLinked(bool isLinked);
-		void logString(boost::optional<std::string> logString);
+//		void logString(boost::optional<std::string> logString);
 		
 		std::string  					m_name;
 		GLuint  						m_glID;
 		bool 							m_isLinked;
-		boost::optional<std::string>	m_logString;
+//		boost::optional<std::string>	m_logString;
 		boost::optional<std::string>	m_vertexShaderSource;
 		boost::optional<std::string>	m_fragmentShaderSource;
 	};

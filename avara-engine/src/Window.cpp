@@ -18,8 +18,8 @@
 #include "Camera.h"
 #include "Color.h"
 #include "Geometry.h"
-#include "Globals.h"
-#include "Init.h"
+#include "Global.h"
+//#include "Init.h"
 #include "InputManager.h"
 #include "Node.h"
 #include "Scene.h"
@@ -114,21 +114,21 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
             //scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
             scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
-    
-        cout << "scaleFactor: " << scaleFactor << endl;
-		//LOG->info("scaleFactor: {}", scaleFactor);
+
+		INFO_F("scaleFactor: {}", scaleFactor);
 	
 
-		TRACE("vec3: {}", StringFromGLMVec3({1, 2, 3}));
-		DEBUG("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
-		INFO("quat: {}", StringFromGLMQuat(quat()));
-		WARN("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
-		ERROR("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
-		CRITICAL("DICKS {} {} {}", "x", "y", "z");
-	
+//		TRACE_F("vec3: {}", StringFromGLMVec3({1, 2, 3}));
+//		DEBUG_F("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
+//		INFO_F("quat: {}", StringFromGLMQuat(quat()));
+//		WARN_F("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
+//		ERROR_F("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
+//		CRITICAL_F("DICKS {} {} {}", "x", "y", "z");
+
 
 		if (!i_glfwWindow) {
-			cout << "Error creating glfwWindow." << endl;
+			//cout << "Error creating glfwWindow." << endl;
+			CRITICAL_F("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
 			glfwTerminate();
 			//return -1;
 		}
@@ -167,7 +167,7 @@ Window::~Window() {
  **************************************************************************************/
 
 void Window::display() {
-	cout << "Window::display()" << endl;
+	TRACE("Window::display()");
 
 	glfwMakeContextCurrent(i_glfwWindow); // also done in Init
 	
@@ -364,10 +364,10 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	// ztan(angle) = x
 	// z = x/tan(angle)
 
-	float maxX = boundingPoints["xMax"].x;
-	float minX = boundingPoints["xMin"].x;
-	float maxY = boundingPoints["yMax"].y;
-	float minY = boundingPoints["yMin"].y;
+//	float maxX = boundingPoints["xMax"].x;
+//	float minX = boundingPoints["xMin"].x;
+//	float maxY = boundingPoints["yMax"].y;
+//	float minY = boundingPoints["yMin"].y;
 
 	float maxZ = abs(boundingPoints["zMax"].z);
 
@@ -379,8 +379,8 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	float angleV = fovV / 2.0;
 	float zV = xV / tan(angleV);
 
-	cout << "zH: " << zH << endl;
-	cout << "zV: " << zV << endl;
+//	cout << "zH: " << zH << endl;
+//	cout << "zV: " << zV << endl;
 
 	zH += maxZ;
 	zV += maxZ;
@@ -389,21 +389,21 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
 	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
 
-	cout << "maxX: " << maxX << endl;
-	cout << "minX: " << minX << endl;
-	cout << "maxY: " << maxY << endl;
-	cout << "minY: " << minY << endl;
-
-	cout << "maxZ: " << maxZ << endl;
-
-	cout << "midX: " << midX << endl;
-	cout << "midY: " << midY << endl;
+//	cout << "maxX: " << maxX << endl;
+//	cout << "minX: " << minX << endl;
+//	cout << "maxY: " << maxY << endl;
+//	cout << "minY: " << minY << endl;
+//
+//	cout << "maxZ: " << maxZ << endl;
+//
+//	cout << "midX: " << midX << endl;
+//	cout << "midY: " << midY << endl;
 
 	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
 	vec3 center = vec3(midX, midY, 0);
 
-	cout << "eye: " << eye << endl;
-	cout << "center: " << center << endl;
+//	cout << "eye: " << eye << endl;
+//	cout << "center: " << center << endl;
 
 	mat4 viewMat = translate(mat4(1.0f), eye);
 	cameraNode->transform(viewMat);
@@ -459,6 +459,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 void Window::mainLoop(const float deltaSeconds) {
 	
 	//cout << "\n-------------------------------------------------------------------------------" << endl;
+	TRACE("-------------------------------------------------------------------------------");
 	
 	unsigned numPolygons = 0;
 	

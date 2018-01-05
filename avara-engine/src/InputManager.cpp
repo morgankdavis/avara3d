@@ -13,7 +13,7 @@
 //#include <gainput/gainput.h>
 #include "manymouse/manymouse.h"
 
-#include "Globals.h"
+#include "Global.h"
 #include "Window.h"
 
 
@@ -189,7 +189,8 @@ void InputManager::update(float deltaSeconds) {
 
 			case MANYMOUSE_EVENT_DISCONNECT:
 				// TODO: Handle this
-				cout << "Mouse " << event.device << " disconnected." << endl;
+				//cout << "Mouse " << event.device << " disconnected." << endl;
+				INFO_F("Mouse {} disconnected.", event.device);
 				break;
 
 			case MANYMOUSE_EVENT_ABSMOTION:
@@ -244,15 +245,19 @@ void InputManager::initManyMouse() {
 	const int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
-		cerr << "ManyMouse failed to initialize!" << endl;
+		//cerr << "ManyMouse failed to initialize!" << endl;
+		ERROR("ManyMouse failed to initialize.");
 	}
 	else if (availableMice == 0) {
-		cerr << "No mice detected!" << endl;
+		//cerr << "No mice detected!" << endl;
+		WARN("ManyMouse failed to initialize.");
 	}
 	else {
-		cout << "ManyMouse driver: " << ManyMouse_DriverName() << endl;
+		//cout << "ManyMouse driver: " << ManyMouse_DriverName() << endl;
+		INFO_F("ManyMouse driver: {}", ManyMouse_DriverName());
 		for (int m = 0; m<availableMice; ++m) {
-			cout << "mouse " << m << ": " << ManyMouse_DeviceName(m) << endl;
+			//cout << "Mouse " << m << ": " << ManyMouse_DeviceName(m) << endl;
+			INFO_F("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}
 }

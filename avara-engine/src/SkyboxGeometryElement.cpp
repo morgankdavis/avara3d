@@ -29,9 +29,8 @@ using namespace std;
 
 SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 											 vector<Face>& faces):
-	GeometryElement(verticies, faces) { // GeometryElement(verticies, faces, "skybox")
-	
-		cout << "Creating SkyboxGeometryElement..." << endl;
+	GeometryElement(verticies, faces) { 
+
 }
 
 /***************************************************************************************

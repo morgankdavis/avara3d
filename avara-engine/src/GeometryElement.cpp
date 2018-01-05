@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "Color.h"
+#include "Global.h"
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Program.h"
@@ -105,8 +106,8 @@ void GeometryElement::generateSmoothNormals() {
 
 	generateFlatNormals();
 
-	cout << "m_vertices: " << m_vertices.size() << endl;
-	cout << "m_faces: " << m_faces.size() << endl;
+	//cout << "m_vertices: " << m_vertices.size() << endl;
+	//cout << "m_faces: " << m_faces.size() << endl;
 
 	auto newVerticies = vector<Vertex>();
 	for (unsigned v=0 ; v<m_vertices.size() ; ++v) {
@@ -231,7 +232,8 @@ void GeometryElement::loadVertexData(const Program& program) {
 	
 	// TODO: release any existing buffers
 	
-	cout << "Loading vertex data... " << &program << endl;
+	//cout << "Loading vertex data... " << &program << endl;
+	INFO("Loading vertex data...");
 	
 	auto verts = m_vertices;
 	
@@ -278,6 +280,8 @@ void GeometryElement::loadVertexData(const Program& program) {
 				 m_faces.size() * sizeof(Face),
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
+	
+	INFO("Done.");
 }
 
 vector<Vertex>& GeometryElement::vertices() {

@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Global.h"
 #include "Utilities.h"
 
 
@@ -33,14 +34,16 @@ Program::Program(const string& name):
 	m_glID(0),
 	m_isLinked(false) {
 		
-		m_logString = {};
+//		m_logString = {};
 		m_vertexShaderSource = {};
 		m_fragmentShaderSource = {};
 		
 		m_glID = glCreateProgram();
 		
 		if (m_glID == 0) {
-			logString(string("Unable to create shader program."));
+			//logString(string("Unable to create shader program."));
+			ERROR("Unable to create shader program.");
+			// TODO: exception?
 		}
 		else {
 			
@@ -58,7 +61,8 @@ Program::Program(const string& name):
 				fragmentShaderSource(fsSource);
 			}
 			else {
-				cout << "Couldn't load shader files." << endl;
+				//cout << "Couldn't load shader files." << endl;
+				ERROR("Couldn't load shader sources.");
 			}
 		}
 }
@@ -67,9 +71,9 @@ Program::Program(const string& name):
      MARK:   Public
  ******************************************************************************/
 
-optional<string> Program::logString() const {
-	return m_logString;
-}
+//optional<string> Program::logString() const {
+//	return m_logString;
+//}
 
 /*******************************************************************************
      MARK:   Internal
@@ -99,7 +103,7 @@ bool Program::link() {
 	glGetProgramiv(m_glID, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		int length = 0;
-		logString({});
+		//logString({});
 		
 		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -108,7 +112,8 @@ bool Program::link() {
 			char* c_log = new char[length];
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			logString(string(c_log));
+			//logString(string(c_log));
+			ERROR_F("Link log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -130,7 +135,7 @@ bool Program::validate() {
 	if (status == GL_FALSE) {
 		// Store log and return false
 		int length = 0;
-		logString({});
+		//logString({});
 		
 		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -138,7 +143,8 @@ bool Program::validate() {
 			char * c_log = new char[length];
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			logString(string(c_log));
+			//logString(string(c_log));
+			ERROR_F("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -152,7 +158,8 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (m_glID <= 0 || (!m_isLinked)) {
-		cout << "*** Program NOT ready. ***" << endl;
+		//cout << "*** Program NOT ready. ***" << endl;
+		ERROR_F("Program '{}' not ready.", m_name);
 	}
 	else {
 		glUseProgram(m_glID);
@@ -174,7 +181,8 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 		glUniform3f(loc, x, y, z);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -185,7 +193,8 @@ void Program::setUniform(const char* name, const vec2& v) {
 		glUniform2f(loc, v.x, v.y);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -201,7 +210,8 @@ void Program::setUniform(const char* name, const vec4& v) {
 		glUniform4f(loc, v.x, v.y, v.z, v.w);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -212,7 +222,8 @@ void Program::setUniform(const char* name, const mat3& m) {
 		glUniformMatrix3fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -223,7 +234,8 @@ void Program::setUniform(const char* name, const mat4& m) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -234,7 +246,8 @@ void Program::setUniform(const char* name, bool val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -245,7 +258,8 @@ void Program::setUniform(const char* name, int val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
@@ -256,18 +270,19 @@ void Program::setUniform(const char* name, float val) {
 		glUniform1f(loc, val);
 	}
 	else {
-		printf("Uniform: %s not found.\n", name);
+		//printf("Uniform: %s not found.\n", name);
+		ERROR_F("Uniform '{}' not found.", name);
 	}
 }
 
 void Program::bindUniformBlock(const char* name, GLuint location) {
 	
-    // TODO: TEMPORARY
-    static GLint blockIndex = -1;
-    if (blockIndex == -1) {
-        cout << "bind" << endl;
-        blockIndex = glGetUniformBlockIndex(m_glID, name);
-    }
+    // TODO: OPTIMIZE (cache)
+//    static GLint blockIndex = -1;
+//    if (blockIndex == -1) {
+//        cout << "bind" << endl;
+        GLint blockIndex = glGetUniformBlockIndex(m_glID, name);
+//    }
 	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 }
 
@@ -283,50 +298,50 @@ GLint Program::getAttributeLocation(const char* name) const {
 	return glGetAttribLocation(m_glID, name);
 }
 
-void Program::printActiveUniforms() const {
-	
-	GLint nUniforms, size, location, maxLen;
-	GLchar* name;
-	GLsizei written;
-	GLenum type;
-	
-	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
-	
-	name = (GLchar*)malloc(maxLen);
-	
-	printf(" Location | Name\n");
-	printf("------------------------------------------------\n");
-	for (int i=0 ; i<nUniforms ; ++i) {
-		glGetActiveUniform(m_glID, i, maxLen, &written, &size, &type, name);
-		location = glGetUniformLocation(m_glID, name);
-		printf(" %-8d | %s\n" ,location, name);
-	}
-	
-	free(name);
-}
-
-void Program::printActiveAttribs() const {
-	
-	GLint written, size, location, maxLength, nAttribs;
-	GLenum type;
-	GLchar* name;
-	
-	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
-	
-	name = (GLchar*)malloc(maxLength);
-	
-	printf(" Index | Name\n");
-	printf("------------------------------------------------\n");
-	for (int i=0 ; i<nAttribs ; i++) {
-		glGetActiveAttrib(m_glID, i, maxLength, &written, &size, &type, name);
-		location = glGetAttribLocation(m_glID, name);
-		printf(" %-5d | %s\n", location, name);
-	}
-	
-	free(name);
-}
+//void Program::printActiveUniforms() const {
+//
+//	GLint nUniforms, size, location, maxLen;
+//	GLchar* name;
+//	GLsizei written;
+//	GLenum type;
+//
+//	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+//	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
+//
+//	name = (GLchar*)malloc(maxLen);
+//
+//	printf(" Location | Name\n");
+//	printf("------------------------------------------------\n");
+//	for (int i=0 ; i<nUniforms ; ++i) {
+//		glGetActiveUniform(m_glID, i, maxLen, &written, &size, &type, name);
+//		location = glGetUniformLocation(m_glID, name);
+//		printf(" %-8d | %s\n" ,location, name);
+//	}
+//
+//	free(name);
+//}
+//
+//void Program::printActiveAttribs() const {
+//
+//	GLint written, size, location, maxLength, nAttribs;
+//	GLenum type;
+//	GLchar* name;
+//
+//	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+//	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+//
+//	name = (GLchar*)malloc(maxLength);
+//
+//	printf(" Index | Name\n");
+//	printf("------------------------------------------------\n");
+//	for (int i=0 ; i<nAttribs ; i++) {
+//		glGetActiveAttrib(m_glID, i, maxLength, &written, &size, &type, name);
+//		location = glGetAttribLocation(m_glID, name);
+//		printf(" %-5d | %s\n", location, name);
+//	}
+//
+//	free(name);
+//}
 
 std::string Program::name() const {
 	return m_name;
@@ -392,14 +407,15 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
 	if (GL_FALSE == result) {
 		int length = 0;
-		logString({});
+		//logString({});
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack
 			char* c_log = new char[length];
 			int written = 0;
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
-			logString(string(c_log));
+			//logString(string(c_log));
+			ERROR_F("Compile log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -424,6 +440,7 @@ void Program::isLinked(bool isLinked) {
 	m_isLinked = isLinked;
 }
 
-void Program::logString(optional<string> logString) {
-	m_logString = logString;
-}
+//void Program::logString(optional<string> logString) {
+//	m_logString = logString;
+//}
+

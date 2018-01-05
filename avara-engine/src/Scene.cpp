@@ -23,6 +23,7 @@
 #include "Color.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
+#include "Global.h"
 #include "Image.h"
 #include "Light.h"
 #include "Material.h"
@@ -96,10 +97,12 @@ static boost::optional<string> FilepathFromTextureFilename(const string& filenam
 		return texturePath.string();
 	}
 	catch (const boost::filesystem::filesystem_error& e) {
-		cout << "Error expanding path: " << e.what() << endl;
+		ERROR_F("Error expanding path: {}", e.what());
+		//cout << "Error expanding path: " << e.what() << endl;
 	}
 	
-	cout << "*** Missing texture: " << filename << " ***" << endl;
+	WARN_F("Missing texture: {}", filename);
+	//cout << "*** Missing texture: " << filename << " ***" << endl;
 	
 	return {};
 }
@@ -141,11 +144,13 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 			typeStr = "emissive";
 			break;
 		default:
-			cout << "Unsupported material type: " << type << endl;
+			//cout << "Unsupported material type: " << type << endl;
+			WARN_F("Unsupported material type: {}", type);
 			return nullptr;
 	}
 	
-	cout << "Reading " << typeStr << " material..." << endl;
+	//cout << "Reading " << typeStr << " material..." << endl;
+	INFO_F("Reading {} material...", typeStr);
 	
 	if (aiMaterial->GetTextureCount(type)) { // texture
 		
@@ -154,7 +159,8 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 								   NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
 			boost::optional<string> texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
 			if (texturePath) {
-				cout << "Texture path: " << *texturePath << endl;
+				//cout << "Texture path: " << *texturePath << endl;
+				DEBUG_F("Texture path: {}", *texturePath);
 				auto textureImage = make_shared<Image>(*texturePath);
 				return make_shared<MaterialProperty>(textureImage);
 			}
@@ -167,12 +173,14 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		
 		aiColor4D aiColor;
 		if (aiMaterial->Get(colorType, 0, 0, aiColor) == AI_SUCCESS) {
-			cout << "Color: (" << aiColor.r << ", " << aiColor.g << ", " << aiColor.b << ", " << aiColor.a << ")" << endl;
+			//cout << "Color: (" << aiColor.r << ", " << aiColor.g << ", " << aiColor.b << ", " << aiColor.a << ")" << endl;
 			auto aeColor = make_shared<Color>(AIColor4DToColor(aiColor));
+			DEBUG_F("Color: {}", StringFromColor(*aeColor));
 			return make_shared<MaterialProperty>(aeColor);
 		}
 		else {
-			cout << "No " << typeStr << " material." << endl;
+			//cout << "No " << typeStr << " material." << endl;
+			DEBUG_F("No {} material...", typeStr);
 		}
 	}
 	
@@ -402,7 +410,8 @@ vec3 Scene::extent() const{
 
 void Scene::loadFile(const string& importPath) {
 	
-	cout << "Loading scene: " << importPath << endl;
+	///cout << "Loading scene: " << importPath << endl;
+	INFO_F("Loading scene: {}", importPath);
 
 	unsigned int assimpFlags = aiProcess_Triangulate
 		| aiProcess_SortByPType
@@ -435,7 +444,8 @@ void Scene::loadFile(const string& importPath) {
 			// should be set for parent Geometry
 			aiString name = mesh->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
-				cout << "mName: " << name.C_Str() << endl;
+				//cout << "mName: " << name.C_Str() << endl;
+				DEBUG_F("Mesh name: {}", name.C_Str());
 			}
 			
 			auto verts = vector<Vertex>();
@@ -473,9 +483,11 @@ void Scene::loadFile(const string& importPath) {
 
 		// ********** materials **********
 		
-		cout << "mNumMaterials: " << scene->mNumMaterials << endl;
+		//cout << "mNumMaterials: " << scene->mNumMaterials << endl;
+		DEBUG_F("Number of materials: {}", scene->mNumMaterials);
 		for (unsigned int m=0; m<scene->mNumMaterials; ++m) {
-			printf("material[%d]\n", m);
+			//printf("material[%d]\n", m);
+			DEBUG_F("[material {}]:", m);
 			aiMaterial* aiMaterial = scene->mMaterials[m];
 
 			string basePath = path(importPath).parent_path().string();
@@ -489,22 +501,24 @@ void Scene::loadFile(const string& importPath) {
 			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
 			//material->emissive(emissiveProperty);
 			
+			aiString name;
+			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
+				if (strcmp(name.C_Str(), "") != 0) {
+					//cout << "Name: " << name.C_Str() << endl;
+					DEBUG_F("Name: {}", name.C_Str());
+					material->name(name.C_Str());
+				}
+			}
+			
 			// specular exponent
 			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
 			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
 			float shininess = 0;
 			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-				cout << "Specular exponent: " << shininess << endl;
+				//cout << "Specular exponent: " << shininess << endl;
+				DEBUG_F("Specular exponent: {}", shininess);
 			}
 			material->specularExponent(shininess);
-			
-			aiString name;
-			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
-				if (strcmp(name.C_Str(), "") != 0) {
-					cout << "Name: " << name.C_Str() << endl;
-					material->name(name.C_Str());
-				}
-			}
 
 			importMaterials.push_back(material);
 		}
@@ -519,7 +533,7 @@ void Scene::loadFile(const string& importPath) {
 		// ********** lights **********
 
 		for (unsigned int l=0; l<scene->mNumLights; --l) {
-			break; // disable light importing, we'll do it ourselves!
+			break; // disabling for now...
 			
 			aiLight* aiLight = scene->mLights[l];
 			
@@ -530,11 +544,11 @@ void Scene::loadFile(const string& importPath) {
 
 			aiString name = aiLight->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
-				cout << "Name: " << name.C_Str() << endl;
+				//cout << "Name: " << name.C_Str() << endl;
 				light->name(name.C_Str());
 			}
 			
-			cout << "Adding light: " << light << endl;
+			//cout << "Adding light: " << light << endl;
 			
 			auto lightNode = make_shared<Node>("Light");
 			lightNode->light(light);
@@ -544,7 +558,7 @@ void Scene::loadFile(const string& importPath) {
 		// ********** cameras **********
 		
 		for (unsigned int c=0; c<scene->mNumCameras; --c) {
-			break; // disable camera importing, we'll do it ourselves!
+			break; // disabling for now...
 
 			aiCamera* aiCamera = scene->mCameras[c];
 			
@@ -554,11 +568,11 @@ void Scene::loadFile(const string& importPath) {
 			
 			aiString name = aiCamera->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
-				cout << "Name: " << name.C_Str() << endl;
+				//cout << "Name: " << name.C_Str() << endl;
 				camera->name(name.C_Str());
 			}
 			
-			cout << "Adding camera: " << camera << endl;
+			//cout << "Adding camera: " << camera << endl;
 
 			auto cameraNode = make_shared<Node>("Camera");
 			cameraNode->camera(camera);
@@ -573,7 +587,8 @@ void Scene::loadFile(const string& importPath) {
 		}
 	}
 	else {
-		cout << "Error importing mesh: " << aiGetErrorString() << endl;
+		//cout << "Error importing scene: " << aiGetErrorString() << endl;
+		ERROR_F("Error importing scene: {}", aiGetErrorString());
 	}
 	
 	aiReleaseImport(scene);
@@ -605,15 +620,18 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 //	}
 	
 	mat4 transform = AIMaxtrix4x4ToGLMMat4(aiGeometryNode->mTransformation);
-	cout << "Adding '" << name << "' with transform: " << endl;
-	cout << transform << endl;
+//	cout << "Adding '" << name << "' with transform: " << endl;
+//	cout << transform << endl;
+	DEBUG_F("Adding '{}' with transform:\n{}", name, StringFromGLMMat4(transform));
 	
 	auto elements = vector<shared_ptr<GeometryElement>>();
 	auto materials = vector<shared_ptr<Material>>();
 	int numMeshes = aiGeometryNode->mNumMeshes;
-	cout << "numMeshes: " << numMeshes << endl;
+	//cout << "numMeshes: " << numMeshes << endl;
+	DEBUG_F("Number of meshes: {}", numMeshes);
 	for (int m=0; m<numMeshes; ++m) {
-		cout << "Reading mesh " << m << endl;
+		//cout << "Reading mesh " << m << endl;
+		DEBUG_F("Reading mesh {}...", m);
 		
 		unsigned int meshIndex = aiGeometryNode->mMeshes[m];
 		auto element = importElements[meshIndex];
@@ -621,7 +639,6 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 
 		unsigned int materialIndex = aiScene->mMeshes[meshIndex]->mMaterialIndex;
 		if (importMaterials.size() && (importMaterials.size()-1 >= materialIndex)) {
-			cout << "importMaterials count: " << importMaterials.size() << endl;
 			auto material = importMaterials[materialIndex];
 			materials.push_back(material);
 		}
@@ -633,7 +650,8 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 	shared_ptr<Node> newNode = nullptr;
 
 	if (numMeshes > 0) {
-		cout << "Adding node WITH geometry..." << endl;
+		//cout << "Adding node WITH geometry..." << endl;
+		DEBUG("Adding node WITH geometry...");
 		auto geometry = make_shared<Geometry>(elements, materials);
 		geometry->name(name);
 
@@ -641,7 +659,8 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 		aeParentNode->addChildNode(newNode);
 	}
 	else {
-		cout << "Adding node WITHOUT geometry..." << endl;
+		//cout << "Adding node WITHOUT geometry..." << endl;
+		DEBUG("Adding node WITHOUT geometry...");
 		newNode = make_shared<Node>(name, transform);
 		aeParentNode->addChildNode(newNode);
 	}

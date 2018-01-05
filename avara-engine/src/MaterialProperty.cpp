@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "Color.h"
+#include "Global.h"
 #include "Image.h"
 #include "Program.h"
 
@@ -189,7 +190,9 @@ void MaterialProperty::magnificationFilter(FilterMode mode) {
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 			break;
 		default:
-			cout << "Error: unsupported magnification filter mode: " << mode << endl;
+			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
+			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
+			WARN_F("Unsupported magnification filter mode: {}", mode);
 			break;
 	}
 }
@@ -245,7 +248,8 @@ void MaterialProperty::wrapT(WrapMode mode) {
 void MaterialProperty::loadTexture() {
 	
 	if (m_cube) {
-		cout << "Loading cube texture..." << endl;
+		//cout << "Loading cube texture..." << endl;
+		INFO("Buffering cube texture...");
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -278,9 +282,12 @@ void MaterialProperty::loadTexture() {
 		maxAnisotropy(16);
 		wrapS(WrapMode_ClampToEdge);
 		wrapT(WrapMode_ClampToEdge);
+		
+		INFO("Done.");
 	}
 	else if (m_image) {
-		cout << "Loading 2D texture..." << endl;
+		//cout << "Loading 2D texture..." << endl;
+		INFO("Buffering 2D texture...");
 		
 		glGenTextures(1, &m_glTextureID);
 		glBindTexture(GL_TEXTURE_2D, m_glTextureID);
@@ -300,6 +307,8 @@ void MaterialProperty::loadTexture() {
 		maxAnisotropy(m_maxAnisotropy);
 		wrapS(m_wrapS);
 		wrapT(m_wrapT);
+		
+		INFO("Done.");
 	}
 }
 

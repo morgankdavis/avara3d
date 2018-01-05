@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "Color.h"
+#include "Global.h"
 #include "Image.h"
 #include "MaterialProperty.h"
 #include "Program.h"
@@ -169,18 +170,20 @@ void Material::loadShaderProgram(const string& shaderName) {
 	m_program = make_shared<Program>(shaderName);
 	
 	if (m_program->compile()) {
-		cout << "Shader program '" << shaderName << "' compiled." << endl;
+		//cout << "Shader program '" << shaderName << "' compiled." << endl;
+		INFO_F("Program '{}' compiled.", shaderName);
 		
 		if (m_program->link()) {
-			cout << "Shader program '" << shaderName << "' linked." << endl;
+			//cout << "Shader program '" << shaderName << "' linked." << endl;
+			INFO_F("Program '{}' linked.", shaderName);
 		}
-		else {
-			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-		}
+//		else {
+//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+//		}
 	}
-	else {
-		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-	}
+//	else {
+//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+//	}
 }
 
 void Material::prepareToRender() const {
