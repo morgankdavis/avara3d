@@ -9,15 +9,16 @@
 #include "Init.h"
 
 #include <iostream>
+#include <time.h>
 
+#include <assimp/version.h>
 #include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
-#include <assimp/version.h>
 
 #include "Globals.h"
 
-#include <time.h>
+
 
 
 using namespace spdlog;
@@ -32,12 +33,29 @@ using namespace std;
 #define LOG_QUEUE_SIZE	    12
 #define LOG_FILE_SIZE 		1024 * 1024 * 5
 #define LOG_FILE_ROTATIONS	3
+#define LOG_ENABLE_STDOUT	true
+#define LOG_LEVEL			level::trace
+#define LOG_FLESH_LEVEL		level::warn
+
+
+//typedef enum
+//{
+//	trace = 0,
+//	debug = 1,
+//	info = 2,
+//	warn = 3,
+//	err = 4,
+//	critical = 5,
+//	off = 6
+//} level_enum;
+
 
 /***************************************************************************************
      MARK:   Global vars
  **************************************************************************************/
 
-std::shared_ptr<spdlog::logger>		LOG;
+std::shared_ptr<spdlog::logger>		g_logger;
+//std::shared_ptr<spdlog::logger>		APP_LOG;
 
 /***************************************************************************************
      MARK:   Internal
@@ -56,34 +74,34 @@ int ae::initLog() {
 			set_async_mode(pow(2, LOG_QUEUE_SIZE)); // queue size must be power of 2
             
             //set_level(spd::level::info); //Set global log level to info
-            
-//            struct my_type
-//            {
-//                int i;
-//                template<typename OStream>
-//                friend OStream& operator<<(OStream& os, const my_type &c)
-//                {
-//                    return os << "[my_type i="<<c.i << "]";
-//                }
-//            };
-			
-//			g_logger = rotating_logger_mt("ae-log", LOG_FILENAME, LOG_SIZE, LOG_ROTATIONS);
-//			g_logger->info("Init.");
 
 			vector<sink_ptr> sinks;
-			sinks.push_back(make_shared<sinks::stdout_sink_st>());
-			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILE_NAME, LOG_FILE_SIZE,
+			if (LOG_ENABLE_STDOUT) {
+				sinks.push_back(make_shared<sinks::stdout_sink_st>());
+			}
+			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILE_NAME,
+																	  LOG_FILE_SIZE,
                                                                       LOG_FILE_ROTATIONS));
-			LOG = make_shared<logger>("ae-log", begin(sinks), end(sinks));
-			register_logger(LOG);
+			g_logger = make_shared<logger>("ae", begin(sinks), end(sinks));
+			//APP_LOG = make_shared<logger>("app", begin(sinks), end(sinks));
+			
+			register_logger(g_logger);
+			//register_logger(APP_LOG);
             
             // Under VisualStudio, this must be called before main finishes to workaround a known VS issue
             //drop_all(); 
             
             // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
-            set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%l] %v");
+            set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%n] [%l] %v");
+			
+			
+			set_level(LOG_LEVEL);
 
-			LOG->info("Init.");
+			g_logger->flush_on(LOG_FLESH_LEVEL);
+			//APP_LOG->flush_on(LOG_FLESH_LEVEL);
+			
+
+			g_logger->info("Init.");
 		}
 		catch (const spdlog_ex& ex) {
 			
@@ -95,6 +113,22 @@ int ae::initLog() {
 	
 	return 0;
 }
+
+
+
+//auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logfile", 23, 59);
+//// create synchronous  loggers
+//auto net_logger = std::make_shared<spdlog::logger>("net", daily_sink);
+//auto hw_logger  = std::make_shared<spdlog::logger>("hw",  daily_sink);
+//auto db_logger  = std::make_shared<spdlog::logger>("db",  daily_sink);
+//
+//net_logger->set_level(spdlog::level::critical); // independent levels
+//hw_logger->set_level(spdlog::level::debug);
+//
+//// globally register the loggers so so the can be accessed using spdlog::get(logger_name)
+//spdlog::register_logger(net_logger);
+
+
 
 int ae::initGLFW() {
 	static bool initialized = false;

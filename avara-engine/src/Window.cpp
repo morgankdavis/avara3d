@@ -33,7 +33,7 @@ using namespace utils;
 
 
 /***************************************************************************************
-     MARK:   Globals
+     MARK:   Internal Members
  **************************************************************************************/
 
 Window* i_window;
@@ -116,10 +116,17 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
     
         cout << "scaleFactor: " << scaleFactor << endl;
-		LOG->info("scaleFactor: {}", scaleFactor);
-    
-        //LOG->debug("mat: {}", mat4(1.0));
-		
+		//LOG->info("scaleFactor: {}", scaleFactor);
+	
+
+		TRACE("vec3: {}", StringFromGLMVec3({1, 2, 3}));
+		DEBUG("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
+		INFO("quat: {}", StringFromGLMQuat(quat()));
+		WARN("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
+		ERROR("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
+		CRITICAL("DICKS {} {} {}", "x", "y", "z");
+	
+
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;
 			glfwTerminate();
@@ -138,7 +145,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		m_scene = make_shared<Scene>();
 		m_width = viewportWidth;
 		m_height = viewportHeight;
-    
     
         m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
 		m_framebufferWidth = m_width * m_framebufferScale;

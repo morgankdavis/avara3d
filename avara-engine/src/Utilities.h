@@ -40,11 +40,15 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
 		std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
-//        template<typename OStream>
-//        OStream& operator<<(OStream& os, const glm::mat4& m);
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
-		
 		std::ostream& operator<<(std::ostream& os, const Color& c);
+		
+		// work-around for spdlog
+		std::string StringFromGLMVec3(const glm::vec3& v);
+		std::string StringFromGLMVec4(const glm::vec4& v);
+		std::string StringFromGLMQuat(const glm::quat& q);
+		std::string StringFromGLMMat4(const glm::mat4& m);
+		std::string StringFromColor(const Color& c);
 		
 		boost::optional<std::string> LoadTextFile(const std::string &path);
 
