@@ -186,9 +186,9 @@ void Material::loadShaderProgram(const string& shaderName) {
 //	}
 }
 
-void Material::prepareToRender() const {
+void Material::prepareToRender(DebugOption debugOptions) const {
 	
-	if (m_fillMode == FillMode_Line) {
+	if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Line)) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {

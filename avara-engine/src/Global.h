@@ -17,6 +17,8 @@
 
 
 
+#define MAX_DYNAMIC_LIGHTS	8
+
 #define LOG_FILE_NAME	    "ae.log"
 #define LOG_QUEUE_SIZE	    12
 #define LOG_FILE_SIZE 		1024 * 1024 * 5
@@ -24,9 +26,6 @@
 #define LOG_ENABLE_STDOUT	true
 #define LOG_LEVEL			level::debug
 #define LOG_FLUSH_LEVEL		level::warn
-
-
-
 
 #define MAX_PATH_LEN  1024
 

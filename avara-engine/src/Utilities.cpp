@@ -9,7 +9,8 @@
 #include "Utilities.h"
 
 #include <algorithm>
-#include <sstream> // temporary?
+#include <iostream>
+#include <sstream>
 #include <fstream>
 #include <memory>
 //#ifdef WINDOWS
@@ -37,6 +38,7 @@
 
 #include "Color.h"
 #include "Image.h"
+//#include "Node.h"
 #include "Scene.h"
 
 
@@ -502,4 +504,15 @@ float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
     
     return 1.0;
 }
+
+//void ae::utils::PrintAllChildNodeNames(shared_ptr<Node> theNode) {
+//	for (auto n : theNode->allChildNodes()) {
+//		if (n->name()) {
+//			cout << "Name: " << *(n->name()) << endl;
+//		}
+//		else {
+//			cout << "Name: (null)" << endl;
+//		}
+//	}
+//}
 

@@ -45,7 +45,8 @@ namespace ae {
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const Material& material,
-					  GLuint glEnvironmentUBO);
+					  GLuint glEnvironmentUBO,
+					  DebugOption debugOptions);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
 		void generateSmoothNormals();

@@ -19,6 +19,8 @@
 //#include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include "Types.h"
+
 
 namespace ae {
 
@@ -72,7 +74,8 @@ namespace ae {
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  int glEnvironmentUBO);
+					  int glEnvironmentUBO,
+					  DebugOption debugOptions);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:

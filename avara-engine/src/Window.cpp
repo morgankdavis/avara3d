@@ -468,7 +468,7 @@ void Window::mainLoop(const float deltaSeconds) {
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
-	numPolygons += m_scene->draw(pov);
+	numPolygons += m_scene->draw(pov, m_debugOptions);
 
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);

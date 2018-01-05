@@ -41,9 +41,6 @@ using namespace glm;
 using namespace std;
 
 
-#define MAX_DYNAMIC_LIGHTS	8
-
-
 /***************************************************************************************
      MARK:   Types
  **************************************************************************************/
@@ -315,7 +312,7 @@ void Scene::fogColor(std::shared_ptr<Color> color) {
      MARK:   Internal
  **************************************************************************************/
 
-unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
+unsigned Scene::draw(shared_ptr<Node> pointOfView, DebugOption debugOptions) const {
 
 	unsigned numPolygons = 0;
 	
@@ -347,7 +344,7 @@ unsigned Scene::draw(std::shared_ptr<Node> pointOfView) const {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				auto modelMat = node->worldTransform();
-				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glEnvironmentUBO);
+				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glEnvironmentUBO, debugOptions);
 			}
 		}
 	}

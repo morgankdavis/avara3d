@@ -59,6 +59,9 @@ unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 	// material
 	
 	material->ambient()->bind(MaterialPropertyType_Ambient, *program);
+	
+	//material->prepareToRender((DebugOption)0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // this should be replaced with a "SkyboxMaterial"...
 
 	// draw
 

@@ -48,7 +48,8 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
 							   const Material& material,
-							   GLuint glEnvironmentUBO) {
+							   GLuint glEnvironmentUBO,
+							   DebugOption debugOptions) {
 
 	auto program = material.program();
 	
@@ -71,7 +72,7 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	program->setUniform("view", inverse(viewMat));
 	program->setUniform("projection", projectionMat);
 	
-	material.prepareToRender();
+	material.prepareToRender(debugOptions);
 
 	program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
 	

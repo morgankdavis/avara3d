@@ -2,9 +2,6 @@ TODO:
 
 ——————————————————————————————————
 
-Cache uniform locations
-
-Play with C++17: https://italiancpp.github.io/
 
 Tests:
 	01 - import
@@ -12,9 +9,16 @@ Tests:
 	03 - input-camera
 	04 - geoprimitives
 	05 - materials-lights
-	06 - debugging & cleanup (log, gui, axes, wireframe, bounding box, screenshots)
-		log [cinder log?], prints, exceptions
+	06 - debugging & cleanup
 		debug options
+			Cleanup skybox draw() / Material* / debugOptions, etc
+			Make Skybox material…
+		wireframe
+			should wireframes be white, emissive?
+			Program statics? Program::Default(), Wireframe(), Skybox() ?
+		bounding box
+		screenshots
+		text overlay
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
 		http://www2.compute.dtu.dk/~janba/Wireframe/
 		https://github.com/SergiusTheBest/plog
@@ -22,7 +26,8 @@ Tests:
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
-		Create shader library
+		Cache uniform locations
+		Shader library
 		Read config from TOML file?
 		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
@@ -30,14 +35,11 @@ Tests:
 		Rename enableCursor
 		Check plane generation (normals??)
 		NodeRef, MaterialRef, etc + use weak_ptr
-		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Add Window to scene render callbacks
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
 		Unuse/unbind things?
-	07 - solarsystem
-		Emission, multiply?
 
 	30 - physics
 

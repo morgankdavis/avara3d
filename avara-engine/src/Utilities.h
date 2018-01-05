@@ -32,6 +32,7 @@ namespace ae {
 
 	class Color;
 	class Image;
+	//class Node;
 	class Scene;
 
 
@@ -95,6 +96,9 @@ namespace ae {
 
 		//void GetScreenResolution(int& width, int& height);
         float GetScreenScaleFactor(GLFWmonitor* monitor);
+		
+		
+		//void PrintAllChildNodeNames(std::shared_ptr<Node> theNode);
 	}
 }
 
