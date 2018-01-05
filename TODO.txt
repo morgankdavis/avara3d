@@ -21,18 +21,19 @@ Tests:
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
 		Create shader library
+		Read config from TOML file?
 		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
-		Automatic framebuffer scaling?
-		Fix plane generation (normals??)
+		Check plane generation (normals??)
 		NodeRef, MaterialRef, etc + use weak_ptr
 		external/rpavlik-cmake-modules-fe2273?
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Add Window to scene render callbacks
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
+		Unuse/unbind things?
 	07 - solarsystem
 		Emission, multiply?
 
