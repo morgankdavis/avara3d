@@ -262,7 +262,12 @@ void Program::setUniform(const char* name, float val) {
 
 void Program::bindUniformBlock(const char* name, GLuint location) {
 	
-	GLuint blockIndex = glGetUniformBlockIndex(m_glID, name);
+    // TODO: TEMPORARY
+    static GLint blockIndex = -1;
+    if (blockIndex == -1) {
+        cout << "bind" << endl;
+        blockIndex = glGetUniformBlockIndex(m_glID, name);
+    }
 	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 }
 

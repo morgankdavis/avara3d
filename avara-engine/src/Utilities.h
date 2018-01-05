@@ -40,6 +40,8 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
 		std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
+//        template<typename OStream>
+//        OStream& operator<<(OStream& os, const glm::mat4& m);
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
 		
 		std::ostream& operator<<(std::ostream& os, const Color& c);

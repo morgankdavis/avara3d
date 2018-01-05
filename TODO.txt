@@ -2,6 +2,8 @@ TODO:
 
 ——————————————————————————————————
 
+Cache uniform locations
+
 Play with C++17: https://italiancpp.github.io/
 
 Tests:

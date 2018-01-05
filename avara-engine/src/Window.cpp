@@ -110,14 +110,15 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 			i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
             
             // TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-            // causing a segfault.  So we'll cheat and use the main monitor (probably the one)
-            // it's going to use anyway...
+            // causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
             //scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
             scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
     
         cout << "scaleFactor: " << scaleFactor << endl;
-		g_logger->info("scaleFactor: {}", scaleFactor);
+		LOG->info("scaleFactor: {}", scaleFactor);
+    
+        //LOG->debug("mat: {}", mat4(1.0));
 		
 		if (!i_glfwWindow) {
 			cout << "Error creating glfwWindow." << endl;

@@ -28,16 +28,16 @@ using namespace std;
      MARK:   Configuration
  **************************************************************************************/
 
-#define LOG_FILENAME	"ae.log"
-#define LOG_QUEUE_SIZE	13
-#define LOG_SIZE 		1024 * 1024 * 5
-#define LOG_ROTATIONS	3
+#define LOG_FILE_NAME	    "ae.log"
+#define LOG_QUEUE_SIZE	    12
+#define LOG_FILE_SIZE 		1024 * 1024 * 5
+#define LOG_FILE_ROTATIONS	3
 
 /***************************************************************************************
      MARK:   Global vars
  **************************************************************************************/
 
-std::shared_ptr<spdlog::logger>		g_logger;
+std::shared_ptr<spdlog::logger>		LOG;
 
 /***************************************************************************************
      MARK:   Internal
@@ -54,19 +54,38 @@ int ae::initLog() {
 	if (!initialized) {
 		try {
 			set_async_mode(pow(2, LOG_QUEUE_SIZE)); // queue size must be power of 2
+            
+            //set_level(spd::level::info); //Set global log level to info
+            
+//            struct my_type
+//            {
+//                int i;
+//                template<typename OStream>
+//                friend OStream& operator<<(OStream& os, const my_type &c)
+//                {
+//                    return os << "[my_type i="<<c.i << "]";
+//                }
+//            };
 			
 //			g_logger = rotating_logger_mt("ae-log", LOG_FILENAME, LOG_SIZE, LOG_ROTATIONS);
 //			g_logger->info("Init.");
 
 			vector<sink_ptr> sinks;
 			sinks.push_back(make_shared<sinks::stdout_sink_st>());
-			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILENAME, LOG_SIZE, LOG_ROTATIONS));
-			g_logger = make_shared<logger>("ae-log", begin(sinks), end(sinks));
-			register_logger(g_logger);
+			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILE_NAME, LOG_FILE_SIZE,
+                                                                      LOG_FILE_ROTATIONS));
+			LOG = make_shared<logger>("ae-log", begin(sinks), end(sinks));
+			register_logger(LOG);
+            
+            // Under VisualStudio, this must be called before main finishes to workaround a known VS issue
+            //drop_all(); 
+            
+            // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
+            set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%l] %v");
 
-			g_logger->info("Init.");
+			LOG->info("Init.");
 		}
-		catch (const spdlog::spdlog_ex& ex) {
+		catch (const spdlog_ex& ex) {
 			
 			cout << "Log initialization failed: " << ex.what() << endl;
 		}
