@@ -100,6 +100,11 @@ include_directories(avara-engine/external/assimp-3.3.1/include)
 
 include_directories(avara-engine/external/boost_1_65_1)
 
+# spdlog
+
+add_subdirectory(avara-engine/external/spdlog-0.16.2)
+include_directories(avara-engine/external/spdlog-0.16.2/include)
+
 
 
 add_subdirectory(avara-engine)

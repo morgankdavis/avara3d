@@ -16,6 +16,10 @@
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
 
+#include "Logger.h"
+#include "LoggerManager.h"
+#include "Types.h"
+
 
 using namespace ae;
 using namespace spdlog;
@@ -26,7 +30,13 @@ using namespace std;
      MARK:   Global vars
  **************************************************************************************/
 
-std::shared_ptr<spdlog::logger>		ae::g_logger;
+//shared_ptr<LoggerManager>	ae::g_loggerManager;
+shared_ptr<Logger>			ae::g_aeLogger;
+
+//std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	ae::g_spdlogMainFileSink;
+//std::shared_ptr<spdlog::sinks::stdout_sink_st>			ae::g_spdlogSTDOUTSink;
+
+//shared_ptr<logger>			ae::g_logger; // temporary
 //std::shared_ptr<spdlog::logger>		APP_LOG;
 
 int 	ae::g_glfwLastErrorCode;
@@ -52,43 +62,65 @@ int ae::initLog() {
 	static bool initialized = false;
 	
 	if (!initialized) {
-		try {
-			set_async_mode(pow(2, LOG_QUEUE_SIZE)); // queue size must be power of 2
-			
-			//set_level(spd::level::info); //Set global log level to info
-			
-			vector<sink_ptr> sinks;
-			if (LOG_ENABLE_STDOUT) {
-				sinks.push_back(make_shared<sinks::stdout_sink_st>());
-			}
-			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(LOG_FILE_NAME,
-																	  LOG_FILE_SIZE,
-																	  LOG_FILE_ROTATIONS));
-			g_logger = make_shared<logger>("ae", begin(sinks), end(sinks));
-			//APP_LOG = make_shared<logger>("app", begin(sinks), end(sinks));
-			
-			register_logger(g_logger);
-			//register_logger(APP_LOG);
-			
-			// Under VisualStudio, this must be called before main finishes to workaround a known VS issue
-			//drop_all();
-			
-			// https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
-			set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%n] [%l]\t%v");
-			
-			
-			set_level(LOG_LEVEL);
-			
-			g_logger->flush_on(LOG_FLUSH_LEVEL);
-			//APP_LOG->flush_on(LOG_FLESH_LEVEL);
-			
-			
-			g_logger->info("Init.");
-		}
-		catch (const spdlog_ex& ex) {
-			
-			cout << "Log initialization failed: " << ex.what() << endl;
-		}
+		
+		
+//		g_spdlogMainFileSink = make_shared<sinks::rotating_file_sink_mt>(string(LOG_MAIN_FILE_NAME) + ".log",
+//																		 LOG_FILE_SIZE,
+//																		 LOG_FILE_ROTATIONS);
+//		g_spdlogSTDOUTSink = make_shared<sinks::stdout_sink_st>();
+		
+		
+		
+
+//		g_loggerManager = make_shared<LoggerManager>();
+//
+//
+//		// if (LOG_ENABLE_STDOUT)
+//
+//
+		LoggerSink sinks = (LoggerSink)0;
+		if (LOG_ENABLE_STDOUT) sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
+		sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
+		g_aeLogger = make_shared<Logger>("ae", sinks);
+		g_aeLogger->info("Init.");
+		
+//		try {
+//			set_async_mode(pow(2, LOG_QUEUE_SIZE)); // queue size must be power of 2
+//
+//			//set_level(spd::level::info); //Set global log level to info
+//
+//			vector<sink_ptr> sinks;
+//			if (LOG_ENABLE_STDOUT) {
+//				sinks.push_back(make_shared<sinks::stdout_sink_st>());
+//			}
+//			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>((LOG_MAIN_FILE_NAME + ".log"),
+//																	  LOG_FILE_SIZE,
+//																	  LOG_FILE_ROTATIONS));
+//			g_logger = make_shared<logger>("ae", begin(sinks), end(sinks));
+//			//APP_LOG = make_shared<logger>("app", begin(sinks), end(sinks));
+//
+//			register_logger(g_logger);
+//			//register_logger(APP_LOG);
+//
+//			// Under VisualStudio, this must be called before main finishes to workaround a known VS issue
+//			//drop_all();
+//
+//			// https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
+//			set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%n] [%l]\t%v");
+//
+//
+//			set_level(LOG_LEVEL);
+//
+//			g_logger->flush_on(LOG_FLUSH_LEVEL);
+//			//APP_LOG->flush_on(LOG_FLESH_LEVEL);
+//
+//
+//			g_logger->info("Init.");
+//		}
+//		catch (const spdlog_ex& ex) {
+//
+//			cout << "Log initialization failed: " << ex.what() << endl;
+//		}
 		
 		initialized = true;
 	}

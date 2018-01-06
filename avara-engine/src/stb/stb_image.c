@@ -3305,7 +3305,7 @@ static stbi_uc *stbi_psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 // Softimage PIC loader
 // by Tom Seddon
 //
-// See http://softimage.wiki.softimage.com/index.php/INFO:_PIC_file_format
+// See http://softimage.wiki.softimage.com/index.php/AE_LOG.info:_PIC_file_format
 // See http://ozviz.wasp.uwa.edu.au/~pbourke/dataformats/softimagepic/
 
 static int pic_is4(stbi *s,const char *str)

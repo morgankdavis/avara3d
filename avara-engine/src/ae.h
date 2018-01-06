@@ -23,6 +23,7 @@
 #include "Image.h"
 #include "InputManager.h"
 #include "Light.h"
+#include "Logger.h" // THIS INCLUDES <spdlog/spdlog.h>... requires client targets to have it in their include path...
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"

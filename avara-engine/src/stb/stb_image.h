@@ -187,7 +187,7 @@
 #ifndef STBI_NO_STDIO
 
 #if defined(_MSC_VER) && _MSC_VER >= 0x1400
-#define _CRT_SECURE_NO_WARNINGS // suppress bogus warnings about fopen()
+#define _CRT_SECURE_NO_AE_LOG.warnINGS // suppress bogus warnings about fopen()
 #endif
 
 #include <stdio.h>

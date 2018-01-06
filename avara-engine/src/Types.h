@@ -78,18 +78,14 @@ namespace ae {
 		DebugOption_ShowLights = 			1 << 4,
 		DebugOption_ShowLightExtents = 		1 << 5
 	} DebugOption;
-
-//	static var showPhysicsShapes: SCNDebugOptions
-//	static var showBoundingBoxes: SCNDebugOptions
-//	static var showLightInfluences: SCNDebugOptions
-//	static var showLightExtents: SCNDebugOptions
-//	static var showPhysicsFields: SCNDebugOptions
-//	static var showWireframe: SCNDebugOptions
-//	static var renderAsWireframe: SCNDebugOptions
-//	static var showCameras: SCNDebugOptions
-//	static var showConstraints: SCNDebugOptions
-//	static var showCreases: SCNDebugOptions
-//	static var showSkeletons: SCNDebugOptions
+	
+	
+	typedef enum {
+		LoggerSink_MainFile =	1 << 0,
+		LoggerSink_NamedFile =	1 << 1,
+		LoggerSink_STDOUT = 	1 << 2
+	} LoggerSink;
+	
 
 	typedef struct {
 		glm::vec3 position;
@@ -97,10 +93,11 @@ namespace ae {
 		glm::vec2 textureCoordinate;
 	} Vertex;
 
+	
 	typedef struct {
-		unsigned int a;
-		unsigned int b;
-		unsigned int c;
+		unsigned a;
+		unsigned b;
+		unsigned c;
 	} Face;
 	
 	

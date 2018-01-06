@@ -46,8 +46,8 @@
 
 #define USE_NOTIFICATIONS 1
 
-#define HIDREPORTERRORNUM(s,n)	do {} while (false)
-#define HIDREPORTERROR(s)		do {} while (false)
+#define HIDREPORTAE_LOG.errorNUM(s,n)	do {} while (false)
+#define HIDREPORTAE_LOG.error(s)		do {} while (false)
 
 typedef enum HIDElementTypeMask
 {
@@ -683,11 +683,11 @@ static unsigned long HIDCloseReleaseInterface (pRecDevice pDevice)
 			//  do nothing as device was not opened, thus can't be closed
 		}
 		else if (kIOReturnSuccess != result)
-			HIDREPORTERRORNUM ("HIDCloseReleaseInterface - Failed to close IOHIDDeviceInterface.", result);
+			HIDREPORTAE_LOG.errorNUM ("HIDCloseReleaseInterface - Failed to close IOHIDDeviceInterface.", result);
 		//release the interface
 		result = (*(IOHIDDeviceInterface**) pDevice->interface)->Release (pDevice->interface);
 		if (kIOReturnSuccess != result)
-			HIDREPORTERRORNUM ("HIDCloseReleaseInterface - Failed to release interface.", result);
+			HIDREPORTAE_LOG.errorNUM ("HIDCloseReleaseInterface - Failed to release interface.", result);
 		pDevice->interface = NULL;
 	}	
 	return result;
@@ -809,23 +809,23 @@ static IOReturn hid_DisposeReleaseQueue (pRecDevice pDevice)
 			// stop queue
 			result = (*(IOHIDQueueInterface**) pDevice->queue)->stop (pDevice->queue);
 			if (kIOReturnSuccess != result)
-				HIDREPORTERRORNUM ("hid_DisposeReleaseQueue - Failed to stop queue.", result);
+				HIDREPORTAE_LOG.errorNUM ("hid_DisposeReleaseQueue - Failed to stop queue.", result);
 			// dispose of queue
 			result = (*(IOHIDQueueInterface**) pDevice->queue)->dispose (pDevice->queue);
 			if (kIOReturnSuccess != result)
-				HIDREPORTERRORNUM ("hid_DisposeReleaseQueue - Failed to dipose queue.", result);
+				HIDREPORTAE_LOG.errorNUM ("hid_DisposeReleaseQueue - Failed to dipose queue.", result);
 			// release the queue
 			result = (*(IOHIDQueueInterface**) pDevice->queue)->Release (pDevice->queue);
 			if (kIOReturnSuccess != result)
-				HIDREPORTERRORNUM ("hid_DisposeReleaseQueue - Failed to release queue.", result);
+				HIDREPORTAE_LOG.errorNUM ("hid_DisposeReleaseQueue - Failed to release queue.", result);
 
 			pDevice->queue = NULL;
 		}
 		else
-			HIDREPORTERROR ("hid_DisposeReleaseQueue - no queue.");
+			HIDREPORTAE_LOG.error ("hid_DisposeReleaseQueue - no queue.");
 	}
 	else
-		HIDREPORTERROR ("hid_DisposeReleaseQueue - Invalid device.");
+		HIDREPORTAE_LOG.error ("hid_DisposeReleaseQueue - Invalid device.");
     return result;
 }
 
@@ -850,7 +850,7 @@ static unsigned long  HIDDequeueDevice (pRecDevice pDevice)
 				{
 					result = (*(IOHIDQueueInterface**) pDevice->queue)->removeElement (pDevice->queue, pElement->cookie);
 					if (kIOReturnSuccess != result)
-						HIDREPORTERRORNUM ("HIDDequeueDevice - Failed to remove element from queue.", result);
+						HIDREPORTAE_LOG.errorNUM ("HIDDequeueDevice - Failed to remove element from queue.", result);
 				}
 				pElement = HIDGetNextDeviceElement (pElement, kHIDElementTypeIO);
 			}
@@ -859,7 +859,7 @@ static unsigned long  HIDDequeueDevice (pRecDevice pDevice)
 		// interface will be closed and released on call to HIDReleaseDeviceList
 		result = hid_DisposeReleaseQueue (pDevice);
 		if (kIOReturnSuccess != result)
-			HIDREPORTERRORNUM ("removeElement - Failed to dispose and release queue.", result);
+			HIDREPORTAE_LOG.errorNUM ("removeElement - Failed to dispose and release queue.", result);
 #if USE_ASYNC_EVENTS
 		else if (NULL != pDevice->queueRunLoopSource)
 		{
@@ -872,7 +872,7 @@ static unsigned long  HIDDequeueDevice (pRecDevice pDevice)
 	}
 	else
 	{
-		HIDREPORTERROR ("HIDDequeueDevice - Invalid device.");
+		HIDREPORTAE_LOG.error ("HIDDequeueDevice - Invalid device.");
 		result = kIOReturnBadArgument;
 	}
     return result;
@@ -891,7 +891,7 @@ static unsigned long HIDReleaseAllDeviceQueues (void)
     {
         result = HIDDequeueDevice (pDevice);
         if (kIOReturnSuccess != result)
-            HIDREPORTERRORNUM ("HIDReleaseAllDeviceQueues - Could not dequeue device.", result);
+            HIDREPORTAE_LOG.errorNUM ("HIDReleaseAllDeviceQueues - Could not dequeue device.", result);
         pDevice = HIDGetNextDevice (pDevice);
     }
     return result;
@@ -918,15 +918,15 @@ static unsigned char HIDGetEvent (pRecDevice pDevice, void * pHIDEvent)
 			if (kIOReturnUnderrun == result)
 				return false;  // no events in queue not an error per say
 			else if (kIOReturnSuccess != result) // actual error versus just an empty queue
-				HIDREPORTERRORNUM ("HIDGetEvent - Could not get HID event via getNextEvent.", result);
+				HIDREPORTAE_LOG.errorNUM ("HIDGetEvent - Could not get HID event via getNextEvent.", result);
 			else
 				return true;
 		}
 		else
-			HIDREPORTERROR ("HIDGetEvent - queue does not exist.");
+			HIDREPORTAE_LOG.error ("HIDGetEvent - queue does not exist.");
 	}
 	else
-		HIDREPORTERROR ("HIDGetEvent - invalid device.");
+		HIDREPORTAE_LOG.error ("HIDGetEvent - invalid device.");
 
     return false; // did not get event
 }
@@ -1382,20 +1382,20 @@ static IOReturn hid_CreateQueue (pRecDevice pDevice)
 				{
 					result = (*(IOHIDQueueInterface**) pDevice->queue)->create (pDevice->queue, 0, kDeviceQueueSize); // create actual queue
 					if (kIOReturnSuccess != result)
-						HIDREPORTERRORNUM ("hid_CreateQueue - Failed to create queue via create", result);
+						HIDREPORTAE_LOG.errorNUM ("hid_CreateQueue - Failed to create queue via create", result);
 				}
 				else
 				{
-					HIDREPORTERROR ("hid_CreateQueue - Failed to alloc IOHIDQueueInterface ** via allocQueue");
+					HIDREPORTAE_LOG.error ("hid_CreateQueue - Failed to alloc IOHIDQueueInterface ** via allocQueue");
 					result = kIOReturnError; // synthesis error
 				}
 			}
 			else
-				HIDREPORTERRORNUM ("hid_CreateQueue - Device inteface does not exist for queue creation", result);
+				HIDREPORTAE_LOG.errorNUM ("hid_CreateQueue - Device inteface does not exist for queue creation", result);
 		}
 	}
 	else
-		HIDREPORTERRORNUM ("hid_CreateQueue - Invalid Device", result);
+		HIDREPORTAE_LOG.errorNUM ("hid_CreateQueue - Invalid Device", result);
     return result;
 }
 
@@ -1409,19 +1409,19 @@ static unsigned long  HIDQueueDevice (pRecDevice pDevice)
 		// error checking
 		if (NULL == pDevice)
 		{
-			HIDREPORTERROR ("HIDQueueDevice - Device does not exist.");
+			HIDREPORTAE_LOG.error ("HIDQueueDevice - Device does not exist.");
 			return kIOReturnBadArgument;
 		}
 		if (NULL == pDevice->interface) // must have interface
 		{
-			HIDREPORTERROR ("HIDQueueDevice - Device does not have interface.");
+			HIDREPORTAE_LOG.error ("HIDQueueDevice - Device does not have interface.");
 			return kIOReturnError;
 		}
 		if (NULL == pDevice->queue) // if no queue create queue
 			result = hid_CreateQueue (pDevice);
 		if ((kIOReturnSuccess != result) || (NULL == pDevice->queue))
 		{
-			HIDREPORTERRORNUM ("HIDQueueDevice - problem creating queue.", result);
+			HIDREPORTAE_LOG.errorNUM ("HIDQueueDevice - problem creating queue.", result);
 			if (kIOReturnSuccess != result)
 				return result;
 			else
@@ -1431,7 +1431,7 @@ static unsigned long  HIDQueueDevice (pRecDevice pDevice)
 		// stop queue
 		result = (*(IOHIDQueueInterface**) pDevice->queue)->stop (pDevice->queue);
 		if (kIOReturnSuccess != result)
-			HIDREPORTERRORNUM ("HIDQueueDevice - Failed to stop queue.", result);
+			HIDREPORTAE_LOG.errorNUM ("HIDQueueDevice - Failed to stop queue.", result);
 
 		// queue element
   //¥ pElement = HIDGetFirstDeviceElement (pDevice, kHIDElementTypeIO);
@@ -1443,7 +1443,7 @@ static unsigned long  HIDQueueDevice (pRecDevice pDevice)
 			{
 				result = (*(IOHIDQueueInterface**) pDevice->queue)->addElement (pDevice->queue, pElement->cookie, 0);
 				if (kIOReturnSuccess != result)
-					HIDREPORTERRORNUM ("HIDQueueDevice - Failed to add element to queue.", result);
+					HIDREPORTAE_LOG.errorNUM ("HIDQueueDevice - Failed to add element to queue.", result);
 			}
 			//¥ pElement = HIDGetNextDeviceElement (pElement, kHIDElementTypeIO);
 			pElement = HIDGetNextDeviceElement (pElement, kHIDElementTypeInput | kHIDElementTypeFeature);
@@ -1452,11 +1452,11 @@ static unsigned long  HIDQueueDevice (pRecDevice pDevice)
 		// start queue
 		result = (*(IOHIDQueueInterface**) pDevice->queue)->start (pDevice->queue);
 		if (kIOReturnSuccess != result)
-			HIDREPORTERRORNUM ("HIDQueueDevice - Failed to start queue.", result);
+			HIDREPORTAE_LOG.errorNUM ("HIDQueueDevice - Failed to start queue.", result);
 		
 	}
 	else
-		HIDREPORTERROR ("HIDQueueDevice - Invalid device.");
+		HIDREPORTAE_LOG.error ("HIDQueueDevice - Invalid device.");
 
     return result;
 }

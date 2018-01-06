@@ -12,7 +12,7 @@
 
 #include "stb/stb_image.h"
 
-#include "Global.h"
+#include "Logger.h"
 
 
 
@@ -46,7 +46,7 @@ bool Image::load(bool flipHorizontal) {
 	if (!m_loaded) {
 		
 		//cout << "Loading image at path: " << m_path << endl;
-		INFO_F("Loading image at path: {}", m_path);
+		AE_LOG.info("Loading image at path: {}", m_path);
 		
 		int width, height, num_byte_pix;
 		const char *path_cstr = m_path.c_str();
@@ -54,7 +54,7 @@ bool Image::load(bool flipHorizontal) {
 
 		if (!m_data) {
 			//printf("Error loading image at path: %s\n", path_cstr);
-			ERROR_F("Error loading image at path: {}", path_cstr);
+			AE_LOG.error("Error loading image at path: {}", path_cstr);
 			return false;
 		}
 
@@ -84,7 +84,7 @@ bool Image::load(bool flipHorizontal) {
 		m_loaded = true;
 	}
 	
-	INFO("Done.");
+	AE_LOG.info("Done.");
 	
 	return true;
 }

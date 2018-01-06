@@ -21,6 +21,7 @@
 #include "Global.h"
 //#include "Init.h"
 #include "InputManager.h"
+#include "Logger.h"
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
@@ -81,7 +82,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
 
 		if (initGLFW() != 0) {
-			cout << "Error initializing GLFW." << endl;
+			AE_LOG.critical("Error initializing GLFW.");
 		}
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -115,20 +116,20 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
             scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
 
-		INFO_F("scaleFactor: {}", scaleFactor);
+		AE_LOG.info("scaleFactor: {}", scaleFactor);
 	
 
-//		TRACE_F("vec3: {}", StringFromGLMVec3({1, 2, 3}));
-//		DEBUG_F("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
-//		INFO_F("quat: {}", StringFromGLMQuat(quat()));
-//		WARN_F("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
-//		ERROR_F("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
-//		CRITICAL_F("DICKS {} {} {}", "x", "y", "z");
+//		AE_LOG.trace_F("vec3: {}", StringFromGLMVec3({1, 2, 3}));
+//		AE_LOG.debug("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
+//		AE_LOG.info("quat: {}", StringFromGLMQuat(quat()));
+//		AE_LOG.warn("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
+//		AE_LOG.error("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
+//		AE_LOG.critical("DICKS {} {} {}", "x", "y", "z");
 
 
 		if (!i_glfwWindow) {
 			//cout << "Error creating glfwWindow." << endl;
-			CRITICAL_F("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
+			AE_LOG.critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
 			glfwTerminate();
 			//return -1;
 		}
@@ -167,7 +168,7 @@ Window::~Window() {
  **************************************************************************************/
 
 void Window::display() {
-	TRACE("Window::display()");
+	AE_LOG.trace("Window::display()");
 
 	glfwMakeContextCurrent(i_glfwWindow); // also done in Init
 	
@@ -459,7 +460,7 @@ void Window::updateFrametime(unsigned int numPolygons) {
 void Window::mainLoop(const float deltaSeconds) {
 	
 	//cout << "\n-------------------------------------------------------------------------------" << endl;
-	TRACE("-------------------------------------------------------------------------------");
+	AE_LOG.trace("-------------------------------------------------------------------------------");
 	
 	unsigned numPolygons = 0;
 	

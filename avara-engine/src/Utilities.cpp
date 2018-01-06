@@ -398,15 +398,15 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 //				//Convert MS errors into standard errors
 //				switch (GetLastError())
 //				{
-//					case ERROR_FILE_NOT_FOUND:
+//					case AE_LOG.errorILE_NOT_FOUND:
 //						errno = ENOENT;
 //						break;
 //
-//					case ERROR_PATH_NOT_FOUND: case ERROR_INVALID_DRIVE:
+//					case AE_LOG.error_PATH_NOT_FOUND: case AE_LOG.error_INVALID_DRIVE:
 //						errno = ENOTDIR;
 //						break;
 //
-//					case ERROR_ACCESS_DENIED:
+//					case AE_LOG.error_ACCESS_DENIED:
 //						errno = EACCES;
 //						break;
 //

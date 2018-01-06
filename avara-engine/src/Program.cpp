@@ -14,8 +14,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Global.h"
 #include "Utilities.h"
+#include "Logger.h"
 
 
 using namespace ae;
@@ -42,7 +42,7 @@ Program::Program(const string& name):
 		
 		if (m_glID == 0) {
 			//logString(string("Unable to create shader program."));
-			ERROR("Unable to create shader program.");
+			AE_LOG.error("Unable to create shader program.");
 			// TODO: exception?
 		}
 		else {
@@ -62,7 +62,7 @@ Program::Program(const string& name):
 			}
 			else {
 				//cout << "Couldn't load shader files." << endl;
-				ERROR("Couldn't load shader sources.");
+				AE_LOG.error("Couldn't load shader sources.");
 			}
 		}
 }
@@ -113,7 +113,7 @@ bool Program::link() {
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
 			//logString(string(c_log));
-			ERROR_F("Link log:\n{}", c_log);
+			AE_LOG.error("Link log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -144,7 +144,7 @@ bool Program::validate() {
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
 			//logString(string(c_log));
-			ERROR_F("Validate log:\n{}", c_log);
+			AE_LOG.error("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -159,7 +159,7 @@ void Program::use() {
 	
 	if (m_glID <= 0 || (!m_isLinked)) {
 		//cout << "*** Program NOT ready. ***" << endl;
-		ERROR_F("Program '{}' not ready.", m_name);
+		AE_LOG.error("Program '{}' not ready.", m_name);
 	}
 	else {
 		glUseProgram(m_glID);
@@ -182,7 +182,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -194,7 +194,7 @@ void Program::setUniform(const char* name, const vec2& v) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -211,7 +211,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -223,7 +223,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -235,7 +235,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -247,7 +247,7 @@ void Program::setUniform(const char* name, bool val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -259,7 +259,7 @@ void Program::setUniform(const char* name, int val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -271,7 +271,7 @@ void Program::setUniform(const char* name, float val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		ERROR_F("Uniform '{}' not found.", name);
+		AE_LOG.error("Uniform '{}' not found.", name);
 	}
 }
 
@@ -415,7 +415,7 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 			int written = 0;
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
 			//logString(string(c_log));
-			ERROR_F("Compile log:\n{}", c_log);
+			AE_LOG.error("Compile log:\n{}", c_log);
 			delete[] c_log;
 		}
 		

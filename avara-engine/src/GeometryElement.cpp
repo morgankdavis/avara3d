@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "Color.h"
-#include "Global.h"
+#include "Logger.h"
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Program.h"
@@ -234,7 +234,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 	// TODO: release any existing buffers
 	
 	//cout << "Loading vertex data... " << &program << endl;
-	INFO("Loading vertex data...");
+	AE_LOG.info("Loading vertex data...");
 	
 	auto verts = m_vertices;
 	
@@ -282,7 +282,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
 	
-	INFO("Done.");
+	AE_LOG.info("Done.");
 }
 
 vector<Vertex>& GeometryElement::vertices() {

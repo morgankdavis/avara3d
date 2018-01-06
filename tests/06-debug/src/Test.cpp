@@ -45,6 +45,15 @@ int Test::run(const vector<string>& args) {
 	
 	window.debugOptions(DebugOption_ShowWireframe);
 	
+	
+	LoggerSink sinks = (LoggerSink)0;
+	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
+	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
+	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
+	auto logger = make_shared<Logger>("test06", sinks);
+	
+	logger->info("Test.");
+	
 	auto scene = make_shared<Scene>();
 	
 

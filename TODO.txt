@@ -222,6 +222,14 @@ BUGS:
 
 Resources:
 
+Singleton:
+	https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+
+TOLM
+	https://github.com/toml-lang/toml
+	https://github.com/mayah/tinytoml
+	https://github.com/skystrife/cpptoml
+
 Cmake 3.8+
 	https://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04/610352
 
