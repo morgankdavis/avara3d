@@ -140,7 +140,6 @@ Laundry list:
 
 	“int” and “unsigned” should be appropriate GL types
 
-	Distance fog
 	Normal mapping
 	Shadows
 	Depth of field
@@ -190,6 +189,9 @@ Laundry list:
 		TOOL! http://www.crazybump.com/
 	Emission
 	Ambient occlusion
+
+NEW LOGGING SYSTEM
+	Either isolate spdlog, write our own, or look at something like: https://github.com/SergiusTheBest/plog
 
 
 Wish list:
