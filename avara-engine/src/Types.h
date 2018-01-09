@@ -40,7 +40,8 @@ namespace ae {
 	
 	typedef enum {
 		FillMode_Fill,
-		FillMode_Line
+		FillMode_Lines,
+		FillMode_Points
 	} FillMode;
 
 	

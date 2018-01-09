@@ -68,7 +68,7 @@ namespace ae {
 		
 		void loadVertexData();
 
-		void hardTransform(const glm::mat4 t, bool norm);
+		void hardTransform(glm::mat4 t, bool norm);
 		void generateSmoothNormals();
 		void generateFlatNormals();
 		
@@ -78,7 +78,7 @@ namespace ae {
 					  int glEnvironmentUBO,
 					  DebugOption debugOptions);
 		
-		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
+		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
 
 	protected:
 

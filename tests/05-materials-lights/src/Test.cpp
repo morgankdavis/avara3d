@@ -98,7 +98,7 @@ int Test::run(const vector<string>& args) {
 	//siameseNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-15.0f)));
 	scene->rootNode()->addChildNode(siameseNode);
 //	for (auto m : siameseNode->geometry()->materials()) {
-//		m->fillMode(MaterialFillMode_Line);
+//		m->fillMode(MaterialFillMode_Lines);
 //	}
 
 	auto islandScene = TestSceneNamed("Island", "obj");

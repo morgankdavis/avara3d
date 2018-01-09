@@ -58,7 +58,8 @@ int Test::run(const vector<string>& args) {
 
 	auto teapotScene = TestSceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->allChildNodes()[1];
-	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Line);
+	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
+//	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
 	scene->rootNode()->addChildNode(teapotNode);
 	
 	auto dragonScene = TestSceneNamed("dragon", "obj");

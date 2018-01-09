@@ -11,8 +11,8 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-			DebugOption_ShowBoundingBoxes
-			DebugOption_ShowLights
+		DebugOption_ShowBoundingBoxes
+		DebugOption_ShowLights
 
 		screenshots
 		text overlay

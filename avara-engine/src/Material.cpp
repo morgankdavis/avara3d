@@ -203,9 +203,12 @@ void Material::prepareToRender(DebugOption debugOptions) {
 	else {
 		m_program = Program::Default();
 		
-		//if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Line)) {
-		if (m_fillMode == FillMode_Line) {
+		//if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Lines)) {
+		if (m_fillMode == FillMode_Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		else if (m_fillMode == FillMode_Points) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		}
 		else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

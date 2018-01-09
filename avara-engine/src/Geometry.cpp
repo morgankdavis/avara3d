@@ -133,7 +133,7 @@ void Geometry::loadVertexData() {
 	}
 }
 
-void Geometry::hardTransform(const mat4 t, bool norm) {
+void Geometry::hardTransform(mat4 t, bool norm) {
 	for (auto element : elements()) {
 		element->hardTransform(t, norm);
 	}
@@ -179,13 +179,14 @@ unsigned Geometry::draw(const mat4& modelMat,
 //			material = m_materials[m_materials.size()-1 % e];
 //		}
 		
-		numPolygons += element->draw(modelMat, viewMat, projectionMat, *material, glEnvironmentUBO, debugOptions);
+		numPolygons += element->draw(modelMat, viewMat, projectionMat,
+									 *material, glEnvironmentUBO, debugOptions);
 	}
 	
 	return numPolygons;
 }
 
-shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
+shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
 
 	float maxFloat = numeric_limits<float>::max();
 	float minFloat = numeric_limits<float>::min();
@@ -198,7 +199,7 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
-	auto worldTransform = m_node->worldTransform();
+	//auto worldTransform = m_node->worldTransform();
 
 //	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
 //	cout << worldTransform << endl;
@@ -206,7 +207,8 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints() const {
 
 	for (auto element : m_elements) {
 		for (auto v : element->vertices()) {
-			vec3 p = vec3(worldTransform * vec4(v.position, 1.0f)); // transform to world space
+			vec3 p = v.position;
+			if (worldSpace) p = vec3(m_node->worldTransform() * vec4(v.position, 1.0f));
 
 			if (p.x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = p;
 			if (p.x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = p;
