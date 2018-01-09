@@ -34,6 +34,7 @@ namespace ae {
 		static std::shared_ptr<Program> Default();
 		static std::shared_ptr<Program> Skybox();
 		static std::shared_ptr<Program> Wireframe();
+        static std::shared_ptr<Program> AABB();
 		
 		/***************************************************************************************
 		     MARK:   Lifecycle

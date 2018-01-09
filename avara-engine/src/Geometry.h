@@ -28,6 +28,7 @@ namespace ae {
 	class GeometryElement;
 	class Material;
 	class Node;
+    class Program;
 
 
 	class Geometry {
@@ -78,7 +79,12 @@ namespace ae {
 					  int glEnvironmentUBO,
 					  DebugOption debugOptions);
 		
+		void drawAABB(const glm::mat4& modelMat,
+					  const glm::mat4& viewMat,
+					  const glm::mat4& projectionMat);
+		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
+        void loadAABBVertexData(const Program& program);
 
 	protected:
 
@@ -97,6 +103,7 @@ namespace ae {
 
 		boost::optional<std::string>							m_name;
 		Node*													m_node;
+        int                                                     m_glAABBVAO;
 	};
 }
 

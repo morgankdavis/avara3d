@@ -375,7 +375,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	}
 
 	for (auto geometry : geometries) {
-		auto points = geometry->boundingPoints(false);
+		auto points = geometry->boundingPoints(true);
 
 		if ((*points)["xMin"].x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = (*points)["xMin"];
 		if ((*points)["xMax"].x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = (*points)["xMax"];

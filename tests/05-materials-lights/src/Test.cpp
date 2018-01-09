@@ -88,6 +88,7 @@ int Test::run(const vector<string>& args) {
 	window.enableCursor(false);
 	window.vSyncEnabled(false);
 	//window.antialiasingMode(AntialiasingMode_None);
+	m_window = &window;
 	
 	auto scene = make_shared<Scene>();
 
@@ -254,6 +255,21 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
 	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+    
+    
+    DebugOption options = (DebugOption)m_window->debugOptions();
+    if (keysDown.count(Key_Up)) {
+        m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
+    }
+    else if (keysDown.count(Key_Down)) {
+        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
+    }
+    if (keysDown.count(Key_Right)) {
+        m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+    }
+    else if (keysDown.count(Key_Left)) {
+        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+    }
 
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();

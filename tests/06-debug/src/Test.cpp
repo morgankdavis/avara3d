@@ -58,6 +58,7 @@ int Test::run(const vector<string>& args) {
 
 	auto teapotScene = TestSceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->allChildNodes()[1];
+    teapotNode->rotation({1, 0, 0, radians(30.0)});
 	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
 	scene->rootNode()->addChildNode(teapotNode);
@@ -119,16 +120,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		exit(0);
 	}
 	
-	if (keysDown.count(Key_Page_Up)) {
-		m_window->debugOptions(DebugOption_ShowWireframe);
+    DebugOption options = (DebugOption)m_window->debugOptions();
+	if (keysDown.count(Key_Up)) {
+		m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
 	}
-	else if (keysDown.count(Key_Page_Down)) {
-		m_window->debugOptions((DebugOption)0);
+	else if (keysDown.count(Key_Down)) {
+		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
 	}
-	
-//	if (keysDown.count(Key_1)) {
-//		scene->debug
-//	}
+    if (keysDown.count(Key_Right)) {
+        m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+    }
+    else if (keysDown.count(Key_Left)) {
+        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+    }
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 
