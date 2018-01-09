@@ -40,13 +40,14 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Material();
+		Material(std::shared_ptr<Program> program);
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular,
-				 std::string programName);
+				 std::shared_ptr<Program> program);
 		Material(std::shared_ptr<MaterialProperty> emissive);
 		
 		/***************************************************************************************
@@ -81,14 +82,14 @@ namespace ae {
 		void fillMode(FillMode mode);
 		
 		std::shared_ptr<Program> program() const;
-		void program(const std::shared_ptr<Program> program); // remove this?
+		void program(std::shared_ptr<Program> program);
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void loadShaderProgram(const std::string& shaderName);
-		void prepareToRender(DebugOption debugOptions) const;
+		//void loadShaderProgram(const std::string& shaderName);
+		void prepareToRender(DebugOption debugOptions);
 		
 	protected:
 		

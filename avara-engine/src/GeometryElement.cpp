@@ -47,7 +47,7 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 unsigned GeometryElement::draw(const mat4& modelMat,
 							   const mat4& viewMat,
 							   const mat4& projectionMat,
-							   const Material& material,
+							   Material& material,
 							   GLuint glEnvironmentUBO,
 							   DebugOption debugOptions) {
 

@@ -13,7 +13,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Material.h"
+#include "SkyboxMaterial.h"
 #include "MaterialProperty.h"
 #include "Program.h"
 
@@ -39,9 +39,9 @@ SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 
 unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 									 const mat4& projectionMat,
-									 const Material* material) {
+									 const SkyboxMaterial& material) {
 	
-	auto program = material->program();
+	auto program = material.program();
 	
 	// gl config
 	
@@ -58,10 +58,9 @@ unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 
 	// material
 	
-	material->ambient()->bind(MaterialPropertyType_Ambient, *program);
+	material.cubeProperty()->bind(MaterialPropertyType_Ambient, *program); // property type is arbitrary...
 	
-	//material->prepareToRender((DebugOption)0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // this should be replaced with a "SkyboxMaterial"...
+	material.prepareToRender((DebugOption)0);
 
 	// draw
 

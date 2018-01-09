@@ -46,7 +46,7 @@ bool Image::load(bool flipHorizontal) {
 	if (!m_loaded) {
 		
 		//cout << "Loading image at path: " << m_path << endl;
-		AE_LOG.info("Loading image at path: {}", m_path);
+		AE_LOG.info("Loading image at path '{}'...", m_path);
 		
 		int width, height, num_byte_pix;
 		const char *path_cstr = m_path.c_str();

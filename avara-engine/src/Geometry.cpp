@@ -34,6 +34,13 @@ using namespace utils;
      MARK:   Lifecycle
  **************************************************************************************/
 
+Geometry::Geometry():
+	m_name(boost::none),
+	m_elements(vector<shared_ptr<GeometryElement>>()),
+	m_materials(vector<shared_ptr<Material>>()) {
+
+}
+
 Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const vector<shared_ptr<Material>> materials):
 	m_name(boost::none),

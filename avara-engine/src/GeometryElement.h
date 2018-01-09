@@ -44,7 +44,7 @@ namespace ae {
 		unsigned draw(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const Material& material,
+					  Material& material,
 					  GLuint glEnvironmentUBO,
 					  DebugOption debugOptions);
 		

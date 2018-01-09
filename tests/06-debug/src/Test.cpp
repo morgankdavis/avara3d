@@ -34,31 +34,31 @@ using namespace glm;
  **************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-	cout << "Test::run()\n" << endl;
-	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.enableCursor(false);
-	window.vSyncEnabled(false);
-	//window.antialiasingMode(AntialiasingMode_None);
-	
-	window.debugOptions(DebugOption_ShowWireframe);
-	
-	
 	LoggerSink sinks = (LoggerSink)0;
 	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	auto logger = make_shared<Logger>("test06", sinks);
 	
-	logger->info("Test.");
+	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI);
+	logger->info("Test::run()");
+	
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.enableCursor(false);
+	window.vSyncEnabled(false);
+	//window.antialiasingMode(AntialiasingMode_None);
+	m_window = &window;
+	
+	//window.debugOptions(DebugOption_ShowWireframe);
+
 	
 	auto scene = make_shared<Scene>();
 	
 
 	auto teapotScene = TestSceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->allChildNodes()[1];
+	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Line);
 	scene->rootNode()->addChildNode(teapotNode);
 	
 	auto dragonScene = TestSceneNamed("dragon", "obj");
@@ -78,12 +78,11 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	pointLight->attenuationFactor(0.00015);
+	pointLight->attenuationFactor(0.000015);
 	auto pointLightNode = make_shared<Node>(pointLight);
-	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
-	pointLightNode->position(vec3(0.0, 70.0, 70.0));
+	pointLightNode->position({200.0, 20.0, -20.0});
 
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
@@ -117,6 +116,13 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	auto keysDown = m_inputManager->keysDown();
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
+	}
+	
+	if (keysDown.count(Key_Page_Up)) {
+		m_window->debugOptions(DebugOption_ShowWireframe);
+	}
+	else if (keysDown.count(Key_Page_Down)) {
+		m_window->debugOptions((DebugOption)0);
 	}
 	
 //	if (keysDown.count(Key_1)) {

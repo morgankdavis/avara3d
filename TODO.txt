@@ -10,13 +10,10 @@ Tests:
 	04 - geoprimitives
 	05 - materials-lights
 	06 - debugging & cleanup
-		debug options
-			Cleanup skybox draw() / Material* / debugOptions, etc
-			Make Skybox material…
-		wireframe
-			should wireframes be white, emissive?
-			Program statics? Program::Default(), Wireframe(), Skybox() ?
-		bounding box
+
+			DebugOption_ShowBoundingBoxes
+			DebugOption_ShowLights
+
 		screenshots
 		text overlay
 		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
@@ -36,10 +33,10 @@ Tests:
 		Check plane generation (normals??)
 		NodeRef, MaterialRef, etc + use weak_ptr
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
-		Add Window to scene render callbacks
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
 		Unuse/unbind things?
+		glsgify?
 
 	30 - physics
 

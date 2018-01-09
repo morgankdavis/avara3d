@@ -42,21 +42,26 @@ shared_ptr<Material> Material::DefaultMaterial() {
  **************************************************************************************/
 
 Material::Material():
-	Material(nullptr, nullptr, nullptr, "default") {
+	Material(nullptr, nullptr, nullptr, Program::Default()) {
+	
+}
+
+Material::Material(shared_ptr<Program> program):
+	Material(nullptr, nullptr, nullptr, program) {
 	
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular):
-	Material(ambient, diffuse, specular, "default") {
-	
+	Material(ambient, diffuse, specular, Program::Default()) {
+
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
-				   string programName):
+				   shared_ptr<Program> program):
 	m_name(boost::none),
 	m_ambient(ambient),
 	m_diffuse(diffuse),
@@ -66,13 +71,13 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_fillMode(FillMode_Fill),
-	m_program(nullptr) {
+	m_program(program) {
 	
-		loadShaderProgram(programName);
+		//loadShaderProgram(programName);
 }
 
 Material::Material(std::shared_ptr<MaterialProperty> emissive):
-	Material(nullptr, nullptr, nullptr, "default") {
+	Material() {
 	
 		m_emissive = emissive;
 }
@@ -157,70 +162,86 @@ shared_ptr<Program> Material::program() const {
 	return m_program;
 }
 
-void Material::program(const shared_ptr<Program> program) {
+void Material::program(shared_ptr<Program> program) {
 	m_program = program;
+	
+	//loadShaderProgram(program);
 }
 
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
 
-void Material::loadShaderProgram(const string& shaderName) {
-	
-	m_program = make_shared<Program>(shaderName);
-	
-	if (m_program->compile()) {
-		//cout << "Shader program '" << shaderName << "' compiled." << endl;
-		AE_LOG.info("Program '{}' compiled.", shaderName);
-		
-		if (m_program->link()) {
-			//cout << "Shader program '" << shaderName << "' linked." << endl;
-			AE_LOG.info("Program '{}' linked.", shaderName);
-		}
-//		else {
-//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+//void Material::loadShaderProgram(const string& shaderName) {
+//
+//	m_program = make_shared<Program>(shaderName);
+//
+//	if (m_program->compile()) {
+//		//cout << "Shader program '" << shaderName << "' compiled." << endl;
+//		AE_LOG.info("Program '{}' compiled.", shaderName);
+//
+//		if (m_program->link()) {
+//			//cout << "Shader program '" << shaderName << "' linked." << endl;
+//			AE_LOG.info("Program '{}' linked.", shaderName);
 //		}
-	}
-//	else {
-//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+////		else {
+////			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+////		}
 //	}
-}
+////	else {
+////		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+////	}
+//}
 
-void Material::prepareToRender(DebugOption debugOptions) const {
+void Material::prepareToRender(DebugOption debugOptions) {
 	
-	if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Line)) {
+	if (debugOptions & DebugOption_ShowWireframe) {
+		m_program = Program::Wireframe();
+		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	
-	if (m_doubleSided) {
-		glDisable(GL_CULL_FACE);
-	}
-	else {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
-	
-	m_program->setUniform("specularExponent", m_specularExponent);
-	
-	// only lock for diffuse textures, not colors
-	if (m_locksAmbientWithDiffuse && m_diffuse && (m_diffuse->color() || m_diffuse->image())) {
-		m_diffuse->bind(MaterialPropertyType_Ambient, *m_program);
-	}
-	else {
-		if (m_ambient) {
-			m_ambient->bind(MaterialPropertyType_Ambient, *m_program);
+		m_program = Program::Default();
+		
+		//if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Line)) {
+		if (m_fillMode == FillMode_Line) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
-	}
-	if (m_diffuse) {
-		m_diffuse->bind(MaterialPropertyType_Diffuse, *m_program);
-	}
-	if (m_specular) {
-		m_specular->bind(MaterialPropertyType_Specular, *m_program);
-	}
-	if (m_emissive) {
-		m_emissive->bind(MaterialPropertyType_Emissive, *m_program);
+		else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		
+		if (m_doubleSided) {
+			glDisable(GL_CULL_FACE);
+		}
+		else {
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+		}
+		
+		m_program->setUniform("specularExponent", m_specularExponent);
+		
+		// this is a bit of a hack, but since we're sharing programs now this needs to be reset...
+		//MaterialPropertyType_Emissive
+		m_program->setUniform("emissiveMode", 0); // 0 = MaterialMode_None
+		
+		// only lock for diffuse textures, not colors
+		if (m_locksAmbientWithDiffuse && m_diffuse && (m_diffuse->color() || m_diffuse->image())) {
+			m_diffuse->bind(MaterialPropertyType_Ambient, *m_program);
+		}
+		else {
+			if (m_ambient) {
+				m_ambient->bind(MaterialPropertyType_Ambient, *m_program);
+			}
+		}
+		if (m_diffuse) {
+			m_diffuse->bind(MaterialPropertyType_Diffuse, *m_program);
+		}
+		if (m_specular) {
+			m_specular->bind(MaterialPropertyType_Specular, *m_program);
+		}
+		if (m_emissive) {
+			m_emissive->bind(MaterialPropertyType_Emissive, *m_program);
+		}
 	}
 }

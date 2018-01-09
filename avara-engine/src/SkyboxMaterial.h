@@ -1,16 +1,16 @@
 //
-//  SkyboxGeometry.h
+//  SkyboxMaterial.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 12/12/17.
+//  Created by Morgan Davis on 1/8/18.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifndef SkyboxGeometry_h
-#define SkyboxGeometry_h
+#ifndef SkyboxMaterial_h
+#define SkyboxMaterial_h
 
 
-#include "Geometry.h"
+#include "Material.h"
 
 #include <memory>
 
@@ -18,10 +18,10 @@
 namespace ae {
 	
 	
-	class SkyboxMaterial;
+	class Material;
 	
 	
-	class SkyboxGeometry: public Geometry {
+	class SkyboxMaterial: public Material {
 		
 	public:
 		
@@ -29,16 +29,20 @@ namespace ae {
 		   	MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		SkyboxGeometry(const std::shared_ptr<SkyboxMaterial> material);
+		SkyboxMaterial(std::shared_ptr<MaterialProperty> cubeProperty);
 		
 		/***************************************************************************************
 		   	MARK:   Internal
 		 **************************************************************************************/
 		
-		unsigned draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
+		std::shared_ptr<MaterialProperty> cubeProperty() const;
+		void cubeProperty(std::shared_ptr<MaterialProperty> property);
 		
-		void material(std::shared_ptr<SkyboxMaterial> material);
-		//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material);
+		/***************************************************************************************
+		   	MARK:   Material
+		 **************************************************************************************/
+		
+		void prepareToRender(DebugOption debugOptions) const;
 
 	private:
 		
@@ -46,9 +50,9 @@ namespace ae {
 			MARK:   Private
 		 **************************************************************************************/
 
-		std::vector<std::shared_ptr<SkyboxMaterial>>		m_materials;
+		std::shared_ptr<MaterialProperty>	m_cubeProperty;
 	};
 }
 
 
-#endif /* SkyboxGeometry_h */
+#endif /* SkyboxMaterial_h */

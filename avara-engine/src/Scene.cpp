@@ -31,6 +31,7 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "SkyboxGeometry.h"
+#include "SkyboxMaterial.h"
 #include "Utilities.h"
 
 
@@ -244,7 +245,6 @@ Scene::Scene(const std::string& path):
 		loadFile(path);
 }
 
-
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
@@ -261,7 +261,8 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
 	if (backgroundProperty->cube()) {
 		//auto ambientProperty = make_shared<MaterialProperty>(background);
-		auto material = make_shared<Material>(backgroundProperty, nullptr, nullptr, "skybox");
+		//auto material = make_shared<Material>(backgroundProperty, nullptr, nullptr, "skybox");
+		auto material = make_shared<SkyboxMaterial>(backgroundProperty);
 		//material->ambient(background); // this is a hack...
 
 		// generate the skybox geometry if it hasn't already been
@@ -368,7 +369,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 
 	vector<shared_ptr<Geometry>> geometries;
 	for (auto node : m_rootNode->allChildNodes()) {
-		if (node->geometry()) {
+		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
 	}

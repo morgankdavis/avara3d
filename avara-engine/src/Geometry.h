@@ -38,6 +38,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 
+		Geometry();
 		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
 				 const std::vector<std::shared_ptr<Material>> materials);
 		
@@ -76,6 +77,7 @@ namespace ae {
 					  const glm::mat4& projectionMat,
 					  int glEnvironmentUBO,
 					  DebugOption debugOptions);
+		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 
 	protected:

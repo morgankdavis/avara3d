@@ -20,10 +20,38 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace boost;
+//using namespace boost;
 using namespace glm;
 using namespace std;
 
+
+/***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<Program> Program::Default() {
+	static shared_ptr<Program> program = nullptr;
+	if (!program) {
+		program = make_shared<Program>("default");
+	}
+	return program;
+}
+
+shared_ptr<Program> Program::Skybox() {
+	static shared_ptr<Program> program = nullptr;
+	if (!program) {
+		program = make_shared<Program>("skybox");
+	}
+	return program;
+}
+
+shared_ptr<Program> Program::Wireframe() {
+	static shared_ptr<Program> program = nullptr;
+	if (!program) {
+		program = make_shared<Program>("wireframe");
+	}
+	return program;
+}
 
 /*******************************************************************************
      MARK:   Lifecycle
@@ -57,8 +85,10 @@ Program::Program(const string& name):
 	//		cout << "fs: " << *fs << endl;
 			
 			if (vsSource && fsSource) {
-				vertexShaderSource(vsSource);
-				fragmentShaderSource(fsSource);
+				vertexShaderSource(*vsSource);
+				fragmentShaderSource(*fsSource);
+				
+				prepare();
 			}
 			else {
 				//cout << "Couldn't load shader files." << endl;
@@ -355,25 +385,49 @@ bool Program::isLinked() const {
 	return m_isLinked;
 }
 
-optional<string> Program::vertexShaderSource() const {
+boost::optional<string> Program::vertexShaderSource() const {
 	return m_vertexShaderSource;
 }
 
-void Program::vertexShaderSource(optional<string> source) {
+//void Program::vertexShaderSource(boost::optional<string> source) {
+void Program::vertexShaderSource(string source) {
 	m_vertexShaderSource = source;
 }
 
-optional<string> Program::fragmentShaderSource() const {
+boost::optional<string> Program::fragmentShaderSource() const {
 	return m_fragmentShaderSource;
 }
 
-void Program::fragmentShaderSource(optional<string> source) {
+//void Program::fragmentShaderSource(boost::optional<string> source) {
+void Program::fragmentShaderSource(string source) {
 	m_fragmentShaderSource = source;
 }
 
 /*******************************************************************************
      MARK:   Private
  ******************************************************************************/
+
+void Program::prepare() {
+	AE_LOG.trace("Program::prepare()");
+	
+	if (!m_isLinked) {
+		if (compile()) {
+			//cout << "Shader program '" << shaderName << "' compiled." << endl;
+			AE_LOG.info("Program '{}' compiled.", m_name);
+			
+			if (link()) {
+				//cout << "Shader program '" << shaderName << "' linked." << endl;
+				AE_LOG.info("Program '{}' linked.", m_name);
+			}
+	//		else {
+	//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+	//		}
+		}
+	//	else {
+	//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
+	//	}
+	}
+}
 
 bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	

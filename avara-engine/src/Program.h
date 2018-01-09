@@ -12,6 +12,7 @@
 #define Program_h
 
 
+#include <memory>
 #include <string>
 
 #include <boost/optional.hpp>
@@ -25,6 +26,14 @@ namespace ae {
 	class Program {
 		
 	public:
+		
+		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<Program> Default();
+		static std::shared_ptr<Program> Skybox();
+		static std::shared_ptr<Program> Wireframe();
 		
 		/***************************************************************************************
 		     MARK:   Lifecycle
@@ -73,15 +82,19 @@ namespace ae {
 		GLuint glID();
 		bool isLinked() const;
 		boost::optional<std::string> vertexShaderSource() const;
-		void vertexShaderSource(boost::optional<std::string> source);
+		//void vertexShaderSource(boost::optional<std::string> source);
+		void vertexShaderSource(std::string source);
 		boost::optional<std::string> fragmentShaderSource() const;
-		void fragmentShaderSource(boost::optional<std::string> source);
+		//void fragmentShaderSource(boost::optional<std::string> source);
+		void fragmentShaderSource(std::string source);
 		
 	private:
 
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
+		
+		void prepare();
 		
 		bool compileShaderFromString(const std::string& source, ShaderType type);
 		GLint getUniformLocation(const char* name);

@@ -21,6 +21,7 @@ namespace ae {
 	
 	
 	class Image;
+	class SkyboxMaterial;
 	
 	
 	class SkyboxGeometryElement: public GeometryElement {
@@ -40,7 +41,7 @@ namespace ae {
 		
 		unsigned draw(const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const Material* material);
+					  const SkyboxMaterial& material);
 		
 	private:
 		
