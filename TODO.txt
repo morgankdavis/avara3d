@@ -11,8 +11,11 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Remove src/stb
+		
+		MJPEG??
+
 		Move manymouse and meshoptimizer to /external
+			+ REMOVE FROM /src
 
 		Input manager: stickyDown, stickyUp
 		

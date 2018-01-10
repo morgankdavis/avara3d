@@ -3,11 +3,17 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(src)
 
+include_directories(external)
+
+add_subdirectory(external/manymouse)
+include_directories(external/manymouse)
+
+add_subdirectory(external/meshoptimizer)
+include_directories(external/meshoptimizer)
+
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
 
-#add_subdirectory(external/stb)
-#include_directories(external/stb/include)
 include_directories(external/stb)
 
 #add_subdirectory(external/spdlog-0.16.2)

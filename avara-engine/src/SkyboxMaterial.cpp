@@ -48,7 +48,20 @@ void SkyboxMaterial::prepareToRender(DebugOption debugOptions) const {
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
-	glCullFace(GL_FRONT);
+	
+	glDisable(GL_CULL_FACE);
+	
+	//glCullFace(GL_FRONT);
+	
+	
+//	if (m_doubleSided) {
+//		glDisable(GL_CULL_FACE);
+//	}
+//	else {
+//		glEnable(GL_CULL_FACE);
+//		glCullFace(GL_BACK);
+//	}
+	
 //	if (m_doubleSided) {
 //		glDisable(GL_CULL_FACE);
 //	}
