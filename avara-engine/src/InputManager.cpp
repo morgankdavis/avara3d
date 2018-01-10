@@ -10,7 +10,6 @@
 
 #include <iostream>
 
-//#include <gainput/gainput.h>
 #include "manymouse/manymouse.h"
 
 #include "Logger.h"
@@ -26,19 +25,7 @@ using namespace glm;
      MARK:   Globals
  **************************************************************************************/
 
-// TODO: this is going to be a problem when we start making multiple instances of InputManager
-// this may help/GLFW callbacks:
-// http://www.newty.de/fpt/callback.html
 InputManager* inputManager;
-//gainput::InputManager*	gainputInputManager;
-//gainput::DeviceId gainputMouseId;
-//gainput::InputMap* gainputInputMap;
-//
-//enum GainputMouseAxis
-//{
-//	MouseX,
-//	MouseY
-//};
 
 /***************************************************************************************
      MARK:   GLFW Callbacks
@@ -91,30 +78,49 @@ InputManager::InputManager(Window* window):
 		
 		registerGLFWCallbacks(window->glfwWindow());
 		initManyMouse();
-//		initGainput();
 }
 
 InputManager::~InputManager() {
 	quitManyMouse();
 	unregisterGLFWCallbacks(m_window->glfwWindow());
-//	if (gainputInputManager) delete gainputInputManager;
-//	if (gainputInputMap) delete gainputInputMap;
 }
 
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
+/* IMPLEMENT */ bool InputManager::keyDown(Key key) {
+	
+}
+
+/* IMPLEMENT */ bool InputManager::mouseButtonDown(MouseButton button) {
+	
+}
+
+/* IMPLEMENT */ bool InputManager::stickyKeyDown(Key key) {
+	
+}
+
+/* IMPLEMENT */ bool InputManager::stickyMouseButtonDown(MouseButton button) {
+	
+}
+
 set<Key> InputManager::keysDown() {
 	auto keysDownCopy = m_keysDown;
-	clearKeysDown();
 	return keysDownCopy;
 }
 
 set<MouseButton> InputManager::mouseButtonsDown() {
 	auto mosueButtonsDownCopy = m_mouseButtonsDown;
-	clearMouseDown();
 	return mosueButtonsDownCopy;
+}
+
+/* IMPLEMENT */ set<Key> stickyKeysDown() {
+	
+}
+
+/* IMPLEMENT */ set<MouseButton> stickyMouseButtonsDown() {
+	
 }
 
 vec2 InputManager::mousePositionDelta() {
@@ -136,20 +142,7 @@ vec2 InputManager::mouseScrollWheelDelta() {
 void InputManager::update(float deltaSeconds) {
 	
 //	cout << "update()" << endl;
-//
-//	gainputInputManager->Update(deltaSeconds);
-//
-////	if (gainputInputMap->GetFloatDelta(MouseX) != 0.0f || gainputInputMap->GetFloatDelta(MouseY) != 0.0f)
-////	{
-//		std::cout << "Mouse: " << gainputInputMap->GetFloat(MouseX) << ", " << gainputInputMap->GetFloat(MouseY) << std::endl;
-////	}
-//
-//
-//
-////	m_mousePositionDelta.x += gainputInputMap->GetFloatDelta(MouseX);
-////	m_mousePositionDelta.y += gainputInputMap->GetFloatDelta(MouseY);
-//
-	
+
 	static ManyMouseEvent event;
 
 	while (ManyMouse_PollEvent(&event)) {
@@ -266,30 +259,8 @@ void InputManager::quitManyMouse() {
 	ManyMouse_Quit();
 }
 
-//void InputManager::initGainput() {
-//	//m_gainputInputManager = make_shared<gainput::InputManager>();
-//
-//	// setup gainput
-//	gainputInputManager = new gainput::InputManager(false);
-//	//		cout << "gainput time: " << manager->GetTime() << endl;
-//			gainputInputManager->SetDisplaySize(800, 600);
-//	gainputMouseId = gainputInputManager->CreateDevice<gainput::InputDeviceMouse>();
-//	//		keyboardId = manager->CreateDevice<gainput::InputDeviceKeyboard>();
-//	//		padId = manager->CreateDevice<gainput::InputDevicePad>();
-//	//
-//	gainputInputMap = new gainput::InputMap(*gainputInputManager);
-//	//		map->MapBool(ButtonMenu, keyboardId, gainput::KeyEscape);
-//	//		map->MapBool(ButtonConfirm, mouseId, gainput::MouseButtonLeft);
-//	gainputInputMap->MapFloat(MouseX, gainputMouseId, gainput::MouseAxisX);
-//	gainputInputMap->MapFloat(MouseY, gainputMouseId, gainput::MouseAxisY);
-//	//		map->MapBool(ButtonConfirm, padId, gainput::PadButtonA);
-//}
-
 void InputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 	// register GLFW callbacks
-	
-	// TODO: USE A LOCAL GLFEWINDOW FOR WINDOW!
-	//GLFWwindow* glfwWindow = g_glfwWindow;
 	
 	glfwSetMouseButtonCallback(glfwWindow, InputManager::glfwMouseButtonCallback);
 	//	glfwSetCursorPosCallback(glfwWindow, glfwCursorPositionCallback);
@@ -298,9 +269,7 @@ void InputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 }
 
 void InputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
-	// TODO: USE A LOCAL GLFEWINDOW FOR WINDOW!
-	//GLFWwindow* glfwWindow = g_glfwWindow;
-	
+
 	glfwSetMouseButtonCallback(glfwWindow, NULL);
 	glfwSetCursorPosCallback(glfwWindow, NULL);
 	glfwSetScrollCallback(glfwWindow, NULL);
@@ -309,14 +278,6 @@ void InputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 Window* InputManager::window() const {
 	return m_window;
-}
-
-void InputManager::clearKeysDown() {
-	//m_keysDown.clear();
-}
-
-void InputManager::clearMouseDown() {
-	//m_mouseButtonsDown.clear();
 }
 
 void InputManager::clearMousePositionDelta() {

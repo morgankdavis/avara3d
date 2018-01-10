@@ -42,9 +42,18 @@ namespace ae {
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
+		
+		/* IMPLEMENT */ bool keyDown(Key key);
+		/* IMPLEMENT */ bool mouseButtonDown(MouseButton button);
+		/* IMPLEMENT */ bool stickyKeyDown(Key key);
+		/* IMPLEMENT */ bool stickyMouseButtonDown(MouseButton button);
 
-		std::set<Key> keysDown(); // keys down since last query
-		std::set<MouseButton> mouseButtonsDown(); // mouse buttons down since last query
+		std::set<Key> keysDown(); // keys currently down
+		std::set<MouseButton> mouseButtonsDown(); // mouse buttons down
+		
+		/* IMPLEMENT */ std::set<Key> stickyKeysDown(); // only reports keys down for one query until they are released
+		/* IMPLEMENT */ std::set<MouseButton> stickyMouseButtonsDown(); // only reports mouse buttons down for one query until they are released
+		
 		glm::vec2 mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 		
@@ -57,6 +66,8 @@ namespace ae {
 		
 		std::set<Key> 				m_keysDown;
 		std::set<MouseButton> 		m_mouseButtonsDown;
+		/* IMPLEMENT */ std::set<Key> 				m_stickyKeysDown;
+		/* IMPLEMENT */ std::set<MouseButton> 		m_stickyMmouseButtonsDown;
 		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
 		
@@ -77,18 +88,13 @@ namespace ae {
 
 		void initManyMouse();
 		void quitManyMouse();
-//		void initGainput();
 		void registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 		
-		void clearKeysDown(); // called after keysDown()
-		void clearMouseDown(); // called after mouseButtonsDown()
 		void clearMousePositionDelta(); // called after mouseMoveDelta()
 		void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
 
-		Window*									m_window;
-		//GLFWwindow*							m_glfwWindow;
-		//std::shared_ptr<gainput::InputManager>	m_gainputInputManager;
+		Window*					m_window;
 	};
 }
 

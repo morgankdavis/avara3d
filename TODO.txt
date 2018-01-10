@@ -12,19 +12,16 @@ Tests:
 	06 - debugging & cleanup
 
 		Input manager: stickyDown, stickyUp
-		
-		Look at PLog
-			https://github.com/SergiusTheBest/plog
 
 		Text overlay
 			https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_01
+			https://github.com/tlorach/OpenGLText
 
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
 		Cache uniform locations
 		Proper scene graph unroll - DFS?
-		Read config from TOML file?
 		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
@@ -35,6 +32,7 @@ Tests:
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
 		Unuse/unbind things?
+		glDeleteProgram, etc
 		glsgify?
 
 	30 - physics
@@ -107,11 +105,13 @@ Wrap GLM - https://github.com/cinder/Cinder/tree/master/include/cinder
 
 Laundry list:
 
-	SCREENSHOTS & VIDEO
-		ppm: http://netpbm.sourceforge.net/doc/ppm.html
-		png/jpeg: https://github.com/nothings/stb/blob/master/stb_image_write.h
+	Read config from TOML file
 
-	Add Material filtering and clamping options + anisotropy, mipmapping
+	Property encapsulate logging.
+		Look at PLog? https://github.com/SergiusTheBest/plog
+
+	Screenshot PPM? http://netpbm.sourceforge.net/doc/ppm.html
+
 	Scale UVs (texture tiling)
 	Gamma correction
 
@@ -128,26 +128,17 @@ Laundry list:
 		http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 		http://www.humus.name/index.php?page=3D&ID=61
 
-	“int” and “unsigned” should be appropriate GL types
-
 	Normal mapping
 	Shadows
+	SSAA
 	Depth of field
 	Bloom
-
-	Release vertex and texture data on deconstruction
-	Convert raw pointers to weak_ptr
-	Revisit scene graph traversal
-	Fix frame buffer size synchronization
-	glDeleteProgram
-		delete vertex data
-	FXAA
+	Motion blur
 
 UI
 	CEGUI2
 	NANOGUI: https://github.com/wjakob/nanogui
     https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
-
 
 
 Lua?
@@ -158,27 +149,15 @@ Lua?
 	https://github.com/jeremyong/Selene
 
 
-Squirral??
+Squirral?
     http://squirrel-lang.org/
     http://wiki.squirrel-lang.org/default.aspx/SquirrelWiki/SqPlus.html
 
 
 
-Custom shaders
-
-
 
 Laundry list:
     Node pivot point: https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
-	Skybox
-	Motion blur
-		https://en.wikibooks.org/wiki/OpenGL_Programming/Motion_Blur
-	Shadows
-	Bump/normal/displacement maps
-		Normal: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
-		TOOL! http://www.crazybump.com/
-	Emission
-	Ambient occlusion
 
 NEW LOGGING SYSTEM
 	Either isolate spdlog, write our own, or look at something like: https://github.com/SergiusTheBest/plog
