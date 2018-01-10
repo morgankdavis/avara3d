@@ -25,7 +25,6 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define FRAMEBUFFER_SCALE       1.0f
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 
@@ -37,8 +36,19 @@ using namespace glm;
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
-	if (init() != 0) { cout << "Init error!" << endl; return -1; }
+	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
 	
+	
+	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.enableCursor(true);
+	window.vSyncEnabled(false);
+	
+	
+	
+	
+	auto scene = make_shared<Scene>();
 	
 
 	
@@ -138,7 +148,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto scene = make_shared<Scene>();
+		
 		scene->rootNode()->addChildNode(aNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -153,11 +163,11 @@ int Test::run(const vector<string>& args) {
 		camNode->position(vec3(0.0f, 5.0f, 100.0f));
 		scene->rootNode()->addChildNode(camNode);
 		
-		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-		window.scene(scene);
-		window.display();
+//		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//		window.scene(scene);
+//		window.display();
 		
 	}
 	else if (TEST == Convenience1TestCase) {
@@ -207,7 +217,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto scene = make_shared<Scene>();
+		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChildNode(xNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -222,11 +232,11 @@ int Test::run(const vector<string>& args) {
 		camNode->position(vec3(0.0f, 5.0f, 100.0f));
 		scene->rootNode()->addChildNode(camNode);
 		
-		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-		window.scene(scene);
-		window.display();
+//		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//		window.scene(scene);
+//		window.display();
 	}
 	else if (TEST == EulerTestCase) {
 		
@@ -276,7 +286,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto scene = make_shared<Scene>();
+		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChildNode(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -292,11 +302,11 @@ int Test::run(const vector<string>& args) {
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
 		scene->rootNode()->addChildNode(camNode);
 		
-		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-		window.scene(scene);
-		window.display();
+//		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//		window.scene(scene);
+//		window.display();
 	}
 	else if (TEST == ReverseEulerTestCase) {
 		auto rootNode = make_shared<Node>();
@@ -355,7 +365,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto scene = make_shared<Scene>();
+		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChildNode(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -371,11 +381,11 @@ int Test::run(const vector<string>& args) {
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
 		scene->rootNode()->addChildNode(camNode);
 		
-		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-		window.scene(scene);
-		window.display();
+//		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//		window.scene(scene);
+//		window.display();
 	}
 	else if (TEST == RotationAnimationTestCase) {
 		auto rootNode = make_shared<Node>();
@@ -391,7 +401,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto scene = make_shared<Scene>();
+		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChildNode(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -403,12 +413,21 @@ int Test::run(const vector<string>& args) {
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
 		scene->rootNode()->addChildNode(camNode);
 		
-		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-		window.scene(scene);
-		window.display();
+//		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
+//		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+//		window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+//		window.scene(scene);
+//		window.display();
 	}
+	
+	
+	auto backgroundColor = make_shared<Color>(Color::White());
+	auto background = make_shared<MaterialProperty>(backgroundColor);
+	scene->background(background);
+	
+	
+	window.scene(scene);
+	window.display();
 	
 	return 0;
 }

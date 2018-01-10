@@ -26,7 +26,6 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define FRAMEBUFFER_SCALE       1.0f
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 
@@ -37,7 +36,14 @@ using namespace glm;
 
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
-	if (init() != 0) { cout << "Init error!" << endl; return -1; }
+	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
+	
+	
+	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
+	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.enableCursor(true);
+	window.vSyncEnabled(false);
 	
 	
 	auto testScene = TestSceneNamed("importTest");
@@ -57,16 +63,13 @@ int Test::run(const vector<string>& args) {
 
 	cout << "Loading siamese scene..." << endl;
 	auto siameseScene = TestSceneNamed("siamese");
-//	for (auto node : siameseScene->rootNode()->allChildNodes()) {
-//		cout << "siamese: " << node->name() << endl;
-//	}
 	siameseNode = siameseScene->rootNode()->immediateChildNodes()[2];
 	siameseNode->name("Siamese");
-	cout << "siameseNode: " << siameseNode->name() << endl;
+	cout << "siameseNode: " << *siameseNode->name() << endl;
 	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
 	siameseNode->scale(siameseNode->scale() * 0.001f);
 	siameseNode->hidden(false);
-	
+
 	
 	torusNode = testScene->rootNode()->allChildNodes()[6];
 	torusNode->name("torus");
@@ -78,27 +81,12 @@ int Test::run(const vector<string>& args) {
 	
 	ballNode = testScene->rootNode()->allChildNodes()[4];
 	ballNode->name("ball");
-	//ballNode->geometry()->generateSmoothNormals();
-//	ballNode->geometry()->generateFlatNormals();
-//
-//	for (auto face : ballNode->geometry()->elements()[0]->faces()) {
-//		//cout << "face: " << face << endl;
-//		printf("face: %d, %d, %d\n", face.a, face.b, face.c);
-//	}
 
-	
-	
-//	suzanneNode = testScene->rootNode()->allChildNodes()[7];
-//	suzanneNode->name("suzanne");
-//	suzanneNode->transform(translate(mat4(1.0f), vec3(-0.25f, 0.0f, 0.0f)));
-//	suzanneNode->hidden(false);
-//	suzanneNode->addChildNode(siameseNode);
-	
 	
 	auto palmScene = TestSceneNamed("cartoon_palm_tree", "obj");
 	palmNode = palmScene->rootNode();
 	palmNode->name("palm");
-	cout << "palmNode: " << palmNode->name() << endl;
+	cout << "palmNode: " << *palmNode->name() << endl;
 	//palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
 	palmNode->scale(vec3(1.0f) * 0.025f);
 	palmNode->hidden(false);
@@ -109,21 +97,19 @@ int Test::run(const vector<string>& args) {
 	teapotNode = teapotScene->rootNode();
 	//teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
 	teapotNode->name("teapot");
-	cout << "teapotNode: " << teapotNode->name() << endl;
+	cout << "teapotNode: " << *teapotNode->name() << endl;
 	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
 	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
 	teapotNode->transform(teapotTranslate * teapotScale);
 	teapotNode->hidden(false);
 	parentNode->addChildNode(teapotNode);
-//	if (teapotNode->geometry() != nullptr) { // requires teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
-////		teapotNode->geometry()->generateFlatNormals();
-//	teapotNode->geometry()->generateSmoothNormals();
-//	}
 	
 	
-	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	auto backgroundColor = make_shared<Color>(Color::White());
+	auto background = make_shared<MaterialProperty>(backgroundColor);
+	testScene->background(background);
+	
+
 	window.scene(testScene);
 	window.display();
 	

@@ -11,8 +11,6 @@
 #include <iostream>
 
 #include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
-//#include <glm/gtx/transform.hpp>
 
 #include "ae.h"
 #include "Utilities.h"

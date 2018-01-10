@@ -11,12 +11,6 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		
-		MJPEG??
-
-		Move manymouse and meshoptimizer to /external
-			+ REMOVE FROM /src
-
 		Input manager: stickyDown, stickyUp
 		
 		Look at PLog
