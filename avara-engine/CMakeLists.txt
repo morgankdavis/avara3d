@@ -6,6 +6,10 @@ add_subdirectory(src)
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
 
+#add_subdirectory(external/stb)
+#include_directories(external/stb/include)
+include_directories(external/stb)
+
 #add_subdirectory(external/spdlog-0.16.2)
 #include_directories(external/spdlog-0.16.2/include)
 
@@ -47,13 +51,25 @@ add_library(ae ${HEADERS} ${SOURCES})
 
 
 if(MACOS)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z boost_system boost_filesystem)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
 	target_link_libraries(ae ${FRAMEWORKS})
 elseif(LINUX)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z boost_system boost_filesystem)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
-	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp boost_system boost_filesystem)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp boost_system boost_filesystem)
 	target_link_libraries(ae ${OPENGL_LIBRARY})
 endif()
+
+
+#if(MACOS)
+#	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z boost_system boost_filesystem)
+#	target_link_libraries(ae ${FRAMEWORKS})
+#elseif(LINUX)
+#	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp z boost_system boost_filesystem)
+#	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
+#elseif(WINDOWS)
+#	target_link_libraries(ae generator manymouse meshoptimizer stb glfw glew_s assimp boost_system boost_filesystem)
+#	target_link_libraries(ae ${OPENGL_LIBRARY})
+#endif()
 

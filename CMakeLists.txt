@@ -105,6 +105,10 @@ include_directories(avara-engine/external/boost_1_65_1)
 add_subdirectory(avara-engine/external/spdlog-0.16.2)
 include_directories(avara-engine/external/spdlog-0.16.2/include)
 
+# stb
+
+include_directories(avara-engine/external/stb)
+
 
 
 add_subdirectory(avara-engine)

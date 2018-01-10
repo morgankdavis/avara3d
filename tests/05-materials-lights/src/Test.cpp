@@ -28,7 +28,7 @@ using namespace glm;
 #define USE_HIGH_DPI            true
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
-#define FULLSCREEN 				false
+#define FULLSCREEN 				true
 
 
 /***************************************************************************************
@@ -255,6 +255,10 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
 	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+	
+	if (keysDown.count(Key_Backslash)) {
+		SaveSnapshot(m_window->snapshot());
+	}
     
     
     DebugOption options = (DebugOption)m_window->debugOptions();

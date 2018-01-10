@@ -19,7 +19,7 @@
 #include "Color.h"
 #include "Geometry.h"
 #include "Global.h"
-//#include "Init.h"
+#include "Image.h"
 #include "InputManager.h"
 #include "Logger.h"
 #include "Node.h"
@@ -245,7 +245,12 @@ void Window::debugOptions(DebugOption options) {
 }
 
 shared_ptr<Image> Window::snapshot() const {
-	return nullptr;
+	
+	unsigned char *buf = (unsigned char*)malloc(m_framebufferWidth * m_framebufferHeight * 4);
+	glReadPixels(0, 0, m_framebufferWidth, m_framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+	auto image = make_shared<Image>(buf, m_framebufferWidth, m_framebufferHeight);
+	free(buf);
+	return image;
 }
 
 /***************************************************************************************

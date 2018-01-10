@@ -11,27 +11,29 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		DebugOption_ShowBoundingBoxes
-		DebugOption_ShowLights
+		Remove src/stb
+		Move manymouse and meshoptimizer to /external
 
-		screenshots
-		text overlay
-		http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
-		http://www2.compute.dtu.dk/~janba/Wireframe/
-		https://github.com/SergiusTheBest/plog
-		bounding box: https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
+		Input manager: stickyDown, stickyUp
+		
+		Look at PLog
+			https://github.com/SergiusTheBest/plog
+
+		Text overlay
+			https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_01
+
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
 		Cache uniform locations
-		Shader library
+		Proper scene graph unroll - DFS?
 		Read config from TOML file?
 		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
 		Rename enableCursor
 		Check plane generation (normals??)
-		NodeRef, MaterialRef, etc + use weak_ptr
+		weak_ptr
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
@@ -56,12 +58,6 @@ Tests:
 
 Why use layout= instead of getAttributeLocation()
 	https://stackoverflow.com/questions/4635913/explicit-vs-automatic-attribute-location-binding-for-opengl-shaders
-
-
-Proper scene graph unroll - DFS?
-Alternate mouse input
-
-Convert scene callbacks to use shared/WEAK? pointers
 
 Make lazy load GL identifiers boost::optional
 

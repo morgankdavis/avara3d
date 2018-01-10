@@ -5,6 +5,8 @@ set(EXECUTABLE_NAME "test06-debug")
 # add headers from avara-engine
 include_directories(${CMAKE_SOURCE_DIR}/avara-engine/src)
 
+# https://github.com/nothings/stb/blob/master/docs/stb_howto.txt
+#include_directories(${CMAKE_SOURCE_DIR}/avara-engine/external/stb)
 
 #add_subdirectory(include)
 #add_subdirectory(src)

@@ -9,10 +9,14 @@
 #include "Utilities.h"
 
 #include <algorithm>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <memory>
+#ifndef WINDOWS
+#include <sys/time.h>
+#endif
 //#ifdef WINDOWS
 //	#include <windows.h>
 //	#include <stdlib.h>
@@ -39,7 +43,9 @@
 #include "Color.h"
 #include "Image.h"
 //#include "Node.h"
+#include "Logger.h"
 #include "Scene.h"
+
 
 
 using namespace std;
@@ -250,15 +256,17 @@ std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 	return make_shared<Scene>(fullPath);
 }
 
-std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name) {
-	return TestImageNamed(name, "png");
+std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
+												 bool flipHorizontal) {
+	return TestImageNamed(name, "png", flipHorizontal);
 }
 
 std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
-												 const std::string& type) {
+												 const std::string& type,
+												 bool flipHorizontal) {
 	
 	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
-	return make_shared<Image>(fullPath);
+	return make_shared<Image>(fullPath, flipHorizontal);
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(const std::string& name,
@@ -266,14 +274,58 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 	
 	auto cube = make_shared<vector<std::shared_ptr<Image>>>();
 	
-	cube->push_back(TestImageNamed(name + "_posx", type));
-	cube->push_back(TestImageNamed(name + "_negx", type));
-	cube->push_back(TestImageNamed(name + "_posy", type));
-	cube->push_back(TestImageNamed(name + "_negy", type));
-	cube->push_back(TestImageNamed(name + "_posz", type));
-	cube->push_back(TestImageNamed(name + "_negz", type));
+	cube->push_back(TestImageNamed(name + "_posx", type, false));
+	cube->push_back(TestImageNamed(name + "_negx", type, false));
+	cube->push_back(TestImageNamed(name + "_posy", type, false));
+	cube->push_back(TestImageNamed(name + "_negy", type, false));
+	cube->push_back(TestImageNamed(name + "_posz", type, false));
+	cube->push_back(TestImageNamed(name + "_negz", type, false));
 	
 	return cube;
+}
+
+
+void ae::utils::SaveSnapshot(std::shared_ptr<Image> image) {
+	
+#ifdef WINDOWS
+	
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer[1024];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	//strftime(buffer, sizeof(buffer), "%Y-%m-%d_%I:%M:%S", timeinfo);
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
+
+	char filename[256] = "";
+	sprintf(filename, "Snapshot_%s.png", buffer);
+	
+	AE_LOG.info("Saving snapshot '{}'...", filename);
+	
+	image->writePNG(filename);
+	
+#else
+	
+	// gettimeofday() is POSIX
+	
+	timeval curTime;
+	gettimeofday(&curTime, NULL);
+	int milli = curTime.tv_usec / 1000;
+	
+	char buffer[128];
+	strftime(buffer, 128, "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	
+	char filename[256] = "";
+	sprintf(filename, "Snapshot_%s.%03d.png", buffer, milli);
+	//printf("current time: %s \n", currentTime);
+	
+	AE_LOG.info("Saving snapshot '{}'...", filename);
+	
+	image->writePNG(filename);
+
+#endif
 }
 
 

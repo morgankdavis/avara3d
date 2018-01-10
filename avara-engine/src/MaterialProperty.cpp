@@ -126,7 +126,7 @@ shared_ptr<Image> MaterialProperty::image() const {
 
 void MaterialProperty::image(const shared_ptr<Image> image) {
 	m_image = image;
-	m_image->load(true);
+	//m_image->load(true);
 	loadTexture();
 }
 
@@ -144,9 +144,9 @@ shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
 
 void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
 	m_cube = cube;
-	for (auto image : *cube) {
-		image->load(false);
-	}
+//	for (auto image : *cube) {
+//		image->load(false);
+//	}
 	loadTexture();
 }
 

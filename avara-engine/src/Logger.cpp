@@ -69,7 +69,7 @@ Logger::Logger(string name, LoggerSink sinks):
 			
 			register_logger(logger);
 			
-			set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%n] [%l] %v");
+			set_pattern("%Y-%d-%m %H:%M:%S.%e [%n] [%l] %v");
 			set_level(LOG_LEVEL);
 			logger->flush_on(LOG_FLUSH_LEVEL);
 			

@@ -59,7 +59,7 @@ int Test::run(const vector<string>& args) {
 	auto teapotScene = TestSceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->allChildNodes()[1];
     teapotNode->rotation({1, 0, 0, radians(30.0)});
-	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
+//	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
 	scene->rootNode()->addChildNode(teapotNode);
 	
@@ -133,6 +133,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
     else if (keysDown.count(Key_Left)) {
         m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
     }
+	if (keysDown.count(Key_Backslash)) {
+		SaveSnapshot(m_window->snapshot());
+	}
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 

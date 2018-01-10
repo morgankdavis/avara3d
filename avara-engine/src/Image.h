@@ -5,6 +5,8 @@
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
+//  8 bit RGBA
+//
 
 #ifndef Image_h
 #define Image_h
@@ -16,7 +18,7 @@
 namespace ae {
 
 
-	class Image { // 8 bit RGBA
+	class Image {
 		
 	public:
 		
@@ -24,20 +26,24 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Image(const std::string path);
+		Image(const std::string path, bool flipHorizontal=true);
+		Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal=true);
 		~Image();
+		
+		/***************************************************************************************
+		     MARK:   Public
+		 **************************************************************************************/
+		
+		unsigned width() const;
+		unsigned height() const;
+		bool writePNG(std::string path) const;
+		
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
-
-		bool load(bool flipHorizontal);
-
-		unsigned width() const;
-		unsigned height() const;
+		
 		unsigned char* data() const;
-		std::string path() const;
-		bool loaded() const;
 		
 	private:
 		
@@ -45,11 +51,12 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
+		void loadFile(std::string path, bool flipHorizontal);
+		void flip();
+		
 		unsigned			m_width;
 		unsigned			m_height;
 		unsigned char*		m_data;
-		std::string			m_path;
-		bool				m_loaded;
 	};
 }
 

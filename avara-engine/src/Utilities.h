@@ -83,15 +83,20 @@ namespace ae {
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
 											  const std::string& type);
 		
-		std::shared_ptr<Image> TestImageNamed(const std::string& name);
 		std::shared_ptr<Image> TestImageNamed(const std::string& name,
-											  const std::string& type);
+											  bool flipHorizontal=true);
+		std::shared_ptr<Image> TestImageNamed(const std::string& name,
+											  const std::string& type,
+											  bool flipHorizontal=true);
 //		std::vector<std::shared_ptr<Image>> TestCubeMaterialPropertyNamed(const std::string& name,
 //																		  const std::string& type);
 		
 //		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);
 //		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);
 //		char* ae_realpath(const char* path, char* resolved_path);
+		
+		
+		void SaveSnapshot(std::shared_ptr<Image> image);
 
 
 		//void GetScreenResolution(int& width, int& height);

@@ -10,10 +10,12 @@
 
 #include <iostream>
 
-#include "stb/stb_image.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 #include "Logger.h"
-
 
 
 using namespace ae;
@@ -24,70 +26,36 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-Image::Image(const string path):
-	m_path(path),
-	m_loaded(false),
-	m_data(nullptr) {
+Image::Image(const string path, bool flipHorizontal):
+	m_data(nullptr),
+	m_width(0),
+	m_height(0) {
 		
+		loadFile(path, flipHorizontal);
+}
+
+Image::Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal):
+	m_data(nullptr),
+	m_width(width),
+	m_height(height) {
+	
+		m_data = (unsigned char*)malloc(width * height * 4);
+		memcpy(m_data, data, width * height * 4);
+		
+		flip();
 }
 
 Image::~Image() {
 	if (m_data) {
-		stbi_image_free(m_data);
+		//stbi_image_free(m_data);
+		//stbi_image_free() == free()
+		free(m_data);
 	}
 }
 
 /***************************************************************************************
-     MARK:   Internal
+     MARK:   Public
  **************************************************************************************/
-
-bool Image::load(bool flipHorizontal) {
-	
-	if (!m_loaded) {
-		
-		//cout << "Loading image at path: " << m_path << endl;
-		AE_LOG.info("Loading image at path '{}'...", m_path);
-		
-		int width, height, num_byte_pix;
-		const char *path_cstr = m_path.c_str();
-		m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
-
-		if (!m_data) {
-			//printf("Error loading image at path: %s\n", path_cstr);
-			AE_LOG.error("Error loading image at path: {}", path_cstr);
-			return false;
-		}
-
-		m_width = width;
-		m_height = height;
-
-		if (flipHorizontal) {
-			// this is not needed for cube maps (?)
-			int width_in_bytes = width * 4;
-			unsigned char *top = NULL;
-			unsigned char *bottom = NULL;
-			unsigned char temp = 0;
-			int half_height = height / 2;
-			for (int row = 0; row < half_height; ++row) {
-				top = m_data + row * width_in_bytes;
-				bottom = m_data + (height - row - 1) * width_in_bytes;
-				for (int col = 0; col < width_in_bytes; col++) {
-					temp = *top;
-					*top = *bottom;
-					*bottom = temp;
-					++top;
-					++bottom;
-				}
-			}
-		}
-		
-		m_loaded = true;
-	}
-	
-	AE_LOG.info("Done.");
-	
-	return true;
-}
 
 unsigned Image::width() const {
 	return m_width;
@@ -97,14 +65,89 @@ unsigned Image::height() const {
 	return m_height;
 }
 
+bool Image::writePNG(std::string path) const {
+	
+	// int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes)
+	
+	stbi_write_png(path.c_str(), m_width, m_height, 4, m_data, m_width*4);
+	
+	// ret 0 == fail
+	
+	return true;
+}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
 unsigned char* Image::data() const {
 	return m_data;
 }
 
-string Image::path() const {
-	return m_path;
+/***************************************************************************************
+     MARK:   Private
+ **************************************************************************************/
+
+void Image::loadFile(std::string path, bool flipHorizontal) {
+	
+	//cout << "Loading image at path: " << m_path << endl;
+	AE_LOG.info("Loading image at path '{}'...", path);
+	
+	int width, height, num_byte_pix;
+	const char *path_cstr = path.c_str();
+	m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
+	
+	if (!m_data) {
+		//printf("Error loading image at path: %s\n", path_cstr);
+		AE_LOG.error("Error loading image at path: {}", path_cstr);
+		// TODO: exception
+		return;
+	}
+	
+	m_width = width;
+	m_height = height;
+	
+	if (flipHorizontal) {
+		flip();
+		
+		//		// this is not needed for cube maps (?)
+		//		int width_in_bytes = width * 4;
+		//		unsigned char *top = NULL;
+		//		unsigned char *bottom = NULL;
+		//		unsigned char temp = 0;
+		//		int half_height = height / 2;
+		//		for (int row = 0; row < half_height; ++row) {
+		//			top = m_data + row * width_in_bytes;
+		//			bottom = m_data + (height - row - 1) * width_in_bytes;
+		//			for (int col = 0; col < width_in_bytes; col++) {
+		//				temp = *top;
+		//				*top = *bottom;
+		//				*bottom = temp;
+		//				++top;
+		//				++bottom;
+		//			}
+		//		}
+	}
+	
+	AE_LOG.info("Done.");
 }
 
-bool Image::loaded() const {
-	return m_loaded;
+void Image::flip() {
+	// this is not needed for cube maps (?)
+	int width_in_bytes = m_width * 4;
+	unsigned char *top = NULL;
+	unsigned char *bottom = NULL;
+	unsigned char temp = 0;
+	int half_height = m_height / 2;
+	for (int row = 0; row < half_height; ++row) {
+		top = m_data + row * width_in_bytes;
+		bottom = m_data + (m_height - row - 1) * width_in_bytes;
+		for (int col = 0; col < width_in_bytes; col++) {
+			temp = *top;
+			*top = *bottom;
+			*bottom = temp;
+			++top;
+			++bottom;
+		}
+	}
 }
