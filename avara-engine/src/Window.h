@@ -112,6 +112,12 @@ namespace ae {
 		void updateFrametime(unsigned int numPolygons);
 		void mainLoop(const float deltaSeconds);
 		
+		
+		
+		void testFontstash();
+		
+		
+		
 		std::shared_ptr<Scene>			m_scene;
 		unsigned						m_width;
 		unsigned						m_height;

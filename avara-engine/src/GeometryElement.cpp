@@ -83,6 +83,8 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	unsigned int facesSize = m_faces.size();
 	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	
+	program->unuse();
+	
 	// stats
 	
 	return facesSize;

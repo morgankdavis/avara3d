@@ -11,6 +11,16 @@
 #include <algorithm>
 #include <iostream>
 
+
+
+#include <stdio.h>
+#include <string.h>
+#define FONTSTASH_IMPLEMENTATION
+//#define FONS_USE_FREETYPE
+#include "fontstash.h"
+
+
+
 //#define GLFW_DLL
 //#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,6 +35,18 @@
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
+
+
+
+#include <GLFW/glfw3.h>
+#define GLFONTSTASH_IMPLEMENTATION
+#include "glfontstash.h"
+
+
+int fontNormal = FONS_INVALID;
+FONScontext* fs = NULL;
+
+
 
 
 using namespace std;
@@ -157,6 +179,19 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		m_maximumFramerate = 60.0;
 		m_willUpdateCallback = nullptr;
 		m_didUpdateCallback = nullptr;
+	
+	
+	
+	
+	fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+	if (fs == NULL) {
+		printf("Could not create stash.\n");
+	}
+	
+	fontNormal = fonsAddFont(fs, "sans", "SourceCodePro-Regular.otf");
+	if (fontNormal == FONS_INVALID) {
+		printf("Could not add font normal.\n");
+	}
 }
 
 Window::~Window() {
@@ -475,6 +510,11 @@ void Window::mainLoop(const float deltaSeconds) {
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
 	numPolygons += m_scene->draw(pov, m_debugOptions);
+	
+	
+	//testFontstash();
+	
+	
 
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);
@@ -484,3 +524,56 @@ void Window::mainLoop(const float deltaSeconds) {
 	glfwSwapBuffers(i_glfwWindow);
 	updateFrametime(numPolygons);
 }
+
+void Window::testFontstash() {
+	
+	float sx, sy, dx, dy, lh = 0;
+	int width, height;
+
+	unsigned int white,black,brown,blue;
+	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
+	// Update and render
+	glViewport(0, 0, width, height);
+	glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_TEXTURE_2D);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0,width,height,0,-1,1);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glDisable(GL_DEPTH_TEST);
+	glColor4ub(255,255,255,255);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
+	
+	white = glfonsRGBA(255,255,255,255);
+	brown = glfonsRGBA(192,128,0,128);
+	blue = glfonsRGBA(0,192,255,255);
+	black = glfonsRGBA(0,0,0,255);
+	
+	sx = 50; sy = 50;
+	
+	dx = sx; dy = sy;
+
+	fonsClearState(fs);
+	
+	fonsSetSize(fs, 124.0f);
+	fonsSetFont(fs, fontNormal);
+	fonsVertMetrics(fs, NULL, NULL, &lh);
+	dx = sx;
+	dy += lh;
+	
+	fonsSetSize(fs, 124.0f);
+	fonsSetFont(fs, fontNormal);
+	fonsSetColor(fs, white);
+	dx = fonsDrawText(fs, dx, dy, "The quick",NULL);
+	
+	glEnable(GL_DEPTH_TEST);
+}
+

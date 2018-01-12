@@ -5,6 +5,8 @@ add_subdirectory(src)
 
 include_directories(external)
 
+include_directories(external/fontstash)
+
 add_subdirectory(external/manymouse)
 include_directories(external/manymouse)
 

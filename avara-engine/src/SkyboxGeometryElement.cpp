@@ -68,6 +68,8 @@ unsigned SkyboxGeometryElement::draw(const mat4& viewMat,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	unsigned int facesSize = m_faces.size();
 	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	
+	program->unuse();
 
 	// stats
 

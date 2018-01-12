@@ -56,6 +56,7 @@ namespace ae {
 		bool link();
 		bool validate();
 		void use();
+		void unuse();
 		
 		void bindAttribLocation(GLuint location, const char* name);
 		void bindFragDataLocation(GLuint location, const char* name);

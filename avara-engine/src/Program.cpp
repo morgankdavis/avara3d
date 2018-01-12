@@ -204,6 +204,10 @@ void Program::use() {
 	}
 }
 
+void Program::unuse() {
+	glUseProgram(0);
+}
+
 void Program::bindAttribLocation(GLuint location, const char* name) {
 	glBindAttribLocation(m_glID, location, name);
 }
