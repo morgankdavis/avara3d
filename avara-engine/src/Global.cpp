@@ -11,10 +11,34 @@
 #include <iostream>
 #include <time.h>
 
+
+
+
+//#include <stdio.h>
+//#include <string.h>
+#define FONTSTASH_IMPLEMENTATION
+//#define FONS_USE_FREETYPE
+#include "fontstash.h"
+
+
+
+
 #include <assimp/version.h>
 #include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
+
+
+
+
+//#include <GL/glew.h>
+#define GLFONTSTASH_IMPLEMENTATION
+//#include "glfontstash.h"
+#include "gl3corefontstash.h"
+
+
+
+
 
 #include "Logger.h"
 #include "LoggerManager.h"
@@ -173,7 +197,7 @@ int ae::initGLEW() {
 		const GLubyte *renderer = glGetString(GL_RENDERER);
 		const GLubyte *version = glGetString(GL_VERSION);
 		AE_LOG.info("Renderer: {}", renderer);
-		AE_LOG.info("Version: {}", renderer);
+		AE_LOG.info("Version: {}", version);
 		
 		initialized = true;
 	}

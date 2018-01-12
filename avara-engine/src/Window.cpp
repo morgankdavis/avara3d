@@ -13,10 +13,10 @@
 
 
 
-#include <stdio.h>
-#include <string.h>
-#define FONTSTASH_IMPLEMENTATION
-//#define FONS_USE_FREETYPE
+////#include <stdio.h>
+////#include <string.h>
+//#define FONTSTASH_IMPLEMENTATION
+////#define FONS_USE_FREETYPE
 #include "fontstash.h"
 
 
@@ -38,9 +38,12 @@
 
 
 
-#include <GLFW/glfw3.h>
-#define GLFONTSTASH_IMPLEMENTATION
-#include "glfontstash.h"
+//#include <GLFW/glfw3.h> // probably not needed (make Fontstash happy?)
+
+////#include <GL/glew.h>
+//#define GLFONTSTASH_IMPLEMENTATION
+////#include "glfontstash.h"
+#include "gl3corefontstash.h"
 
 
 int fontNormal = FONS_INVALID;
@@ -110,9 +113,17 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: Temporary
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+	
+	
+	// THIS WORKS WITH FONT STASH
+//	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+//	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+//	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	
 		int viewportWidth = width;
 		int viewportHeight = height;
@@ -506,13 +517,13 @@ void Window::mainLoop(const float deltaSeconds) {
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 
-	auto pov = pointOfView();
-	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
-	pov->camera()->aspectRatio(aspectRatio);
-	numPolygons += m_scene->draw(pov, m_debugOptions);
+//	auto pov = pointOfView();
+//	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+//	pov->camera()->aspectRatio(aspectRatio);
+//	numPolygons += m_scene->draw(pov, m_debugOptions);
 	
 	
-	//testFontstash();
+	testFontstash();
 	
 	
 
@@ -529,6 +540,8 @@ void Window::testFontstash() {
 	
 	float sx, sy, dx, dy, lh = 0;
 	int width, height;
+	
+		glDisable(GL_DEPTH_TEST);
 
 	unsigned int white,black,brown,blue;
 	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
@@ -537,20 +550,20 @@ void Window::testFontstash() {
 	glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	//glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0,width,height,0,-1,1);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glDisable(GL_DEPTH_TEST);
-	glColor4ub(255,255,255,255);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	glDisable(GL_TEXTURE_2D);
+//	glMatrixMode(GL_PROJECTION);
+//	glLoadIdentity();
+//	glOrtho(0,width,height,0,-1,1);
+//
+//	glMatrixMode(GL_MODELVIEW);
+//	glLoadIdentity();
+//	glDisable(GL_DEPTH_TEST);
+//	glColor4ub(255,255,255,255);
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+//	glEnable(GL_CULL_FACE);
 	
 	white = glfonsRGBA(255,255,255,255);
 	brown = glfonsRGBA(192,128,0,128);
@@ -560,6 +573,12 @@ void Window::testFontstash() {
 	sx = 50; sy = 50;
 	
 	dx = sx; dy = sy;
+	
+	glBegin(GL_LINES);
+	glColor4ub(0,0,0,128);
+	glVertex2f(dx-5,dy);
+	glVertex2f(dx-10,dy);
+	glEnd();
 
 	fonsClearState(fs);
 	
@@ -574,6 +593,5 @@ void Window::testFontstash() {
 	fonsSetColor(fs, white);
 	dx = fonsDrawText(fs, dx, dy, "The quick",NULL);
 	
-	glEnable(GL_DEPTH_TEST);
 }
 
