@@ -18,6 +18,7 @@
 //#define FONTSTASH_IMPLEMENTATION
 ////#define FONS_USE_FREETYPE
 #include "fontstash.h"
+//#include "Program.h"
 
 
 
@@ -538,6 +539,9 @@ void Window::mainLoop(const float deltaSeconds) {
 
 void Window::testFontstash() {
 	
+	
+	//Program::Wireframe()->use();
+	
 	float sx, sy, dx, dy, lh = 0;
 	int width, height;
 	
@@ -573,12 +577,7 @@ void Window::testFontstash() {
 	sx = 50; sy = 50;
 	
 	dx = sx; dy = sy;
-	
-	glBegin(GL_LINES);
-	glColor4ub(0,0,0,128);
-	glVertex2f(dx-5,dy);
-	glVertex2f(dx-10,dy);
-	glEnd();
+
 
 	fonsClearState(fs);
 	
