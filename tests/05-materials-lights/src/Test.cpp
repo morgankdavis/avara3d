@@ -241,8 +241,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	else if (keysDown.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
 	else if (keysDown.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
 	
-	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
-	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
+//	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
+//	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
 
 
 	if 		(keysDown.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
@@ -272,6 +272,12 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
     else if (keysDown.count(Key_Left)) {
         m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
     }
+	if (keysDown.count(Key_RightBracket)) {
+		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
+	}
+	else if (keysDown.count(Key_LeftBracket)) {
+		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+	}
 
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();

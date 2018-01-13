@@ -11,35 +11,16 @@
 #include <iostream>
 #include <time.h>
 
-
-
-
-//#include <stdio.h>
-//#include <string.h>
 #define FONTSTASH_IMPLEMENTATION
-//#define FONS_USE_FREETYPE
 #include "fontstash.h"
-
-
-
 
 #include <assimp/version.h>
 #include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
 
-
-
-
-//#include <GL/glew.h>
 #define GLFONTSTASH_IMPLEMENTATION
-//#include "glfontstash.h"
-//#include "gl3corefontstash.h"
 #include "gl3fontstash.h"
-
-
-
-
 
 #include "Logger.h"
 #include "LoggerManager.h"

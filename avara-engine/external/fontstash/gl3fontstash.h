@@ -27,6 +27,7 @@
 
 FONScontext* gl3fonsCreate(int width, int height, int flags);
 void gl3fonsDelete(FONScontext* ctx);
+void gl3fonsProjectionSize(FONScontext* ctx, int width, int height);
 void gl3fonsProjection(FONScontext* ctx, GLfloat *mat);
 
 unsigned int gl3fonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -376,6 +377,20 @@ error:
 void gl3fonsDelete(FONScontext* ctx)
 {
 	fonsDeleteInternal(ctx);
+}
+
+void gl3fonsProjectionSize(FONScontext* ctx, int width, int height) {
+	// convenience added by morgan
+	GLfloat mat[16];
+	memset(mat, 0, 16 * sizeof(GLfloat));
+	mat[0] = 2.0 / width;
+	mat[5] = -2.0 / height;
+	mat[10] = 2.0;
+	mat[12] = -1.0;
+	mat[13] = 1.0;
+	mat[14] = -1.0;
+	mat[15] = 1.0;
+	gl3fonsProjection(ctx, mat);
 }
 
 // Keeping in mind that in OpenGL 0,0 is the bottom left corner of your screen but for text 

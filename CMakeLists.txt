@@ -109,6 +109,10 @@ include_directories(avara-engine/external/spdlog-0.16.2/include)
 
 include_directories(avara-engine/external/stb)
 
+# fontstash
+
+include_directories(avara-engine/external/fontstash)
+
 
 
 add_subdirectory(avara-engine)

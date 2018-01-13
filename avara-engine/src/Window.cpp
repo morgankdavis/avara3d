@@ -11,19 +11,8 @@
 #include <algorithm>
 #include <iostream>
 
-
-
-////#include <stdio.h>
-////#include <string.h>
-//#define FONTSTASH_IMPLEMENTATION
-////#define FONS_USE_FREETYPE
-#include "fontstash.h"
-//#include "Program.h"
-
-
-
-//#define GLFW_DLL
-//#include <GLFW/glfw3.h>
+#//include "fontstash.h"
+#include "gl3fontstash.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
@@ -36,22 +25,6 @@
 #include "Node.h"
 #include "Scene.h"
 #include "Utilities.h"
-
-
-
-//#include <GLFW/glfw3.h> // probably not needed (make Fontstash happy?)
-
-////#include <GL/glew.h>
-//#define GLFONTSTASH_IMPLEMENTATION
-////#include "glfontstash.h"
-//#include "gl3corefontstash.h"
-#include "gl3fontstash.h"
-
-
-int fontNormal = FONS_INVALID;
-FONScontext* fs = NULL;
-
-
 
 
 using namespace std;
@@ -115,17 +88,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: Temporary
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	
-	
-	// THIS WORKS WITH FONT STASH
-//	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-//	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-//	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	
 		int viewportWidth = width;
 		int viewportHeight = height;
@@ -152,15 +117,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		}
 
 		AE_LOG.info("scaleFactor: {}", scaleFactor);
-	
-
-//		AE_LOG.trace_F("vec3: {}", StringFromGLMVec3({1, 2, 3}));
-//		AE_LOG.debug("vec4: {}", StringFromGLMVec4({1, 2, 3, 4}));
-//		AE_LOG.info("quat: {}", StringFromGLMQuat(quat()));
-//		AE_LOG.warn("mat4:\n{}", StringFromGLMMat4(mat4(1.0)));
-//		AE_LOG.error("color: {}", StringFromColor(Color(0.25, 0.5, 0.75, 1.0)));
-//		AE_LOG.critical("DICKS {} {} {}", "x", "y", "z");
-
 
 		if (!i_glfwWindow) {
 			//cout << "Error creating glfwWindow." << endl;
@@ -175,6 +131,22 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		initGLEW();
 	
 		i_window = this;
+	
+		// setup Font Stash
+	
+		m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+		if (m_fonsContext == NULL) {
+			AE_LOG.error("Error creating Font Stash context.");
+		}
+	
+		string fontName = "SourceCodePro-Semibold";
+		string fontType = "otf";
+		string fontPath = FontPath(fontName, fontType);
+	
+		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
+		if (m_fonsFont == FONS_INVALID) {
+			AE_LOG.error("Could not load font: {}", fontPath);
+		}
 			
 		// moved from initializer list
 		
@@ -186,26 +158,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
 		m_antialiasingMode = AntialiasingMode_None;
+		m_debugOptions = DebugOption_ShowStatsOveray;
 		m_backgroundColor = nullptr;
 		m_pointOfView = nullptr;
 		m_inputManager = nullptr;
 		m_maximumFramerate = 60.0;
 		m_willUpdateCallback = nullptr;
 		m_didUpdateCallback = nullptr;
-	
-	
-	
-	
-	fs = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-	if (fs == NULL) {
-		printf("Could not create stash.\n");
-	}
-	
-	fontNormal = fonsAddFont(fs, "sans", "DroidSerif-Regular.ttf");
-	//fontNormal = fonsAddFont(fs, "sans", "SourceCodePro-Regular.otf");
-	if (fontNormal == FONS_INVALID) {
-		printf("Could not add font normal.\n");
-	}
 }
 
 Window::~Window() {
@@ -493,25 +452,25 @@ void Window::didUpdateCallback(windowDidUpdateFuction function) {
      MARK:   Private
  **************************************************************************************/
 
-void Window::updateFrametime(unsigned int numPolygons) {
-	const float GOAL_TIME = 16.6666667f;
-	static unsigned elapsedFrames = 0; ++elapsedFrames;
-	static float previousSeconds = glfwGetTime();
-	float currentSeconds = glfwGetTime();
-	float elapsedSeconds = currentSeconds - previousSeconds;
-	if (elapsedSeconds > 0.25) {
-		previousSeconds = currentSeconds;
-		float ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-		float fps = elapsedFrames/elapsedSeconds;
-		float percentGoal = (ms / GOAL_TIME) * 100.0f;
-		char tmp[128];
-		sprintf(tmp, "%.1f ms | %.1f fps | %.1f %% | %u polys", ms, fps, percentGoal, numPolygons);
-		glfwSetWindowTitle(i_glfwWindow, tmp);
-		elapsedFrames = 0;
-	}
-}
+//void Window::updateFrametime(unsigned int numPolygons) {
+//	const float GOAL_TIME = 16.6666667f;
+//	static unsigned elapsedFrames = 0; ++elapsedFrames;
+//	static float previousSeconds = glfwGetTime();
+//	float currentSeconds = glfwGetTime();
+//	float elapsedSeconds = currentSeconds - previousSeconds;
+//	if (elapsedSeconds > 0.25) {
+//		previousSeconds = currentSeconds;
+//		float ms = ((elapsedSeconds*1000.0) / elapsedFrames);
+//		float fps = elapsedFrames/elapsedSeconds;
+//		float percentGoal = (ms / GOAL_TIME) * 100.0f;
+//		char tmp[128];
+//		sprintf(tmp, "%.1f ms | %.1f fps | %.1f %% | %u polys", ms, fps, percentGoal, numPolygons);
+//		glfwSetWindowTitle(i_glfwWindow, tmp);
+//		elapsedFrames = 0;
+//	}
+//}
 
-void Window::mainLoop(const float deltaSeconds) {
+void Window::mainLoop(float deltaSeconds) {
 	
 	//cout << "\n-------------------------------------------------------------------------------" << endl;
 	AE_LOG.trace("-------------------------------------------------------------------------------");
@@ -520,104 +479,145 @@ void Window::mainLoop(const float deltaSeconds) {
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 
-//	auto pov = pointOfView();
-//	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
-//	pov->camera()->aspectRatio(aspectRatio);
-//	numPolygons += m_scene->draw(pov, m_debugOptions);
+	auto pov = pointOfView();
+	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+	pov->camera()->aspectRatio(aspectRatio);
+	numPolygons += m_scene->draw(pov, m_debugOptions);
 	
-	
-	testFontstash();
-	
-	
-
+	glfwPollEvents();
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);
 	}
-	glfwPollEvents();
+	
+	if (m_debugOptions & DebugOption_ShowStatsOveray) {
+		updateStatsOverlay(numPolygons);
+	}
 
 	glfwSwapBuffers(i_glfwWindow);
-	updateFrametime(numPolygons);
+	//updateFrametime(numPolygons);
 }
 
-void Window::testFontstash() {
+void Window::updateStatsOverlay(unsigned numPolygons) {
 	
+	static float fps = 0.0;
+	static float ms = 0.0;
+	static float percent = 0.0;
 	
-	//Program::Wireframe()->use();
+	static unsigned nodes = 0.0;
+	static unsigned geometries = 0.0;
+	static unsigned meshes = 0.0;
+	static unsigned polygons = numPolygons;
+	static unsigned lights = 0.0;
 	
-	float sx, sy, dx, dy, lh = 0;
-	int width, height;
-	
-		glDisable(GL_DEPTH_TEST);
-	
+	static vec3 cameraPos = {0.0, 0.0, 0.0};
 
-	
-	
+	const float GOAL_TIME = 16.6666667f;
 
-	unsigned int white,black,brown,blue;
+	static unsigned elapsedFrames = 0; ++elapsedFrames;
+	static float previousSeconds = glfwGetTime();
+	float currentSeconds = glfwGetTime();
+	float elapsedSeconds = currentSeconds - previousSeconds;
+
+	if (elapsedSeconds > 0.25) {
+		
+		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
+		fps = elapsedFrames/elapsedSeconds;
+		percent = (ms / GOAL_TIME) * 100.0f;
+
+		// reset stats
+		previousSeconds = currentSeconds;
+		elapsedFrames = 0;
+	}
+		
+
+	int width;
+	int height;
 	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
+	gl3fonsProjectionSize(m_fonsContext, width, height);
+	
+	glDisable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	
+	float dx = 12.0;
+	float dy = 20.0;
+	
+	fonsClearState(m_fonsContext);
+	
+	fonsSetFont(m_fonsContext, m_fonsFont);
+
+	static float textSize = 12.0;
+	static float hPadding = 0.0;
+	
+	char tmpStr[256];
 	
 	
+	//	framerate		322
+	//	frametime		7.6
+	//
+	//	nodes			14
+	//	geometries		7
+	//	meshes			12
+	//	polygons		576,300
+	//	lights			2
+	//
+	//	camera pos		-23.4, 43.6, -66.3
 	
 	
-	GLfloat mat[16];
+	sprintf(tmpStr, "%-14s %.1f" ,"framerate", fps);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
-	memset(mat, 0, 16 * sizeof(GLfloat));
-	//mat[0] = 2.0 / screenwidth;
-	//mat[5] = -2.0 / screenheight;
-	mat[0] = 2.0 / width;
-	mat[5] = -2.0 / height;
-	mat[10] = 2.0;
-	mat[12] = -1.0;
-	mat[13] = 1.0;
-	mat[14] = -1.0;
-	mat[15] = 1.0;
+	sprintf(tmpStr, "%-14s %.1f" ,"frametime", ms);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
-	gl3fonsProjection(fs, mat);
+	sprintf(tmpStr, "%-14s %.1f" ,"percent", percent);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
+	dy += textSize; // skip a line
+
+	sprintf(tmpStr, "%-14s %d" ,"nodes", nodes);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
+	sprintf(tmpStr, "%-14s %d" ,"geometries", geometries);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
-	// Update and render
-	glViewport(0, 0, width, height);
-	glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	//glClear(GL_DEPTH_BUFFER_BIT);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	glDisable(GL_TEXTURE_2D);
-//	glMatrixMode(GL_PROJECTION);
-//	glLoadIdentity();
-//	glOrtho(0,width,height,0,-1,1);
-//
-//	glMatrixMode(GL_MODELVIEW);
-//	glLoadIdentity();
-//	glDisable(GL_DEPTH_TEST);
-//	glColor4ub(255,255,255,255);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-//	glEnable(GL_CULL_FACE);
+	sprintf(tmpStr, "%-14s %d" ,"meshes", meshes);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
-	white = gl3fonsRGBA(255,255,255,255);
-	brown = gl3fonsRGBA(192,128,0,128);
-	blue = gl3fonsRGBA(0,192,255,255);
-	black = gl3fonsRGBA(0,0,0,255);
+	sprintf(tmpStr, "%-14s %d" ,"polygons", polygons);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
 	
-	sx = 50; sy = 50;
-	
-	dx = sx; dy = sy;
+	sprintf(tmpStr, "%-14s %d" ,"lights", lights);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
+}
+
+//string createStatLine(string label, string value, unsigned )
 
 
-	fonsClearState(fs);
+float Window::drawTextLine(std::string line, float size, float dx, float dy) {
+	// must setup fons GL state first
 	
-	fonsSetSize(fs, 124.0f);
-	fonsSetFont(fs, fontNormal);
-	fonsVertMetrics(fs, NULL, NULL, &lh);
-	dx = sx;
-	dy += lh;
+	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
+	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
 	
-	fonsSetSize(fs, 124.0f);
-	fonsSetFont(fs, fontNormal);
-	fonsSetColor(fs, white);
-	dx = fonsDrawText(fs, dx, dy, "The quick",NULL);
+	fonsSetSize(m_fonsContext, size);
 	
+	fonsSetColor(m_fonsContext, black);
+	fonsSetBlur(m_fonsContext, 1);
+	fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
+	
+	fonsSetColor(m_fonsContext, white);
+	fonsSetBlur(m_fonsContext, 0);
+	return fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
 }
 

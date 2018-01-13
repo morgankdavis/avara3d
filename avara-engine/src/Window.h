@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 
+#include "fontstash.h"
 #include <GLFW/glfw3.h>
 
 #include "Types.h"
@@ -109,12 +110,10 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 
-		void updateFrametime(unsigned int numPolygons);
-		void mainLoop(const float deltaSeconds);
-		
-		
-		
-		void testFontstash();
+		//void updateFrametime(unsigned int numPolygons);
+		void mainLoop(float deltaSeconds);
+		void updateStatsOverlay(unsigned numPolygons);
+		float drawTextLine(std::string line, float size, float dx, float dy);
 		
 		
 		
@@ -131,6 +130,8 @@ namespace ae {
 		std::shared_ptr<InputManager> 	m_inputManager;
 		bool							m_vSyncEnabled;
 		float 							m_maximumFramerate;
+		FONScontext* 					m_fonsContext;
+		int								m_fonsFont;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;

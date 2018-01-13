@@ -11,11 +11,9 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Input manager: stickyDown, stickyUp
+		frameStats struct
 
-		Text overlay
-			https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_01
-			https://github.com/tlorach/OpenGLText
+		Input manager: stickyDown, stickyUp
 
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
@@ -31,7 +29,7 @@ Tests:
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		View and projection mat into UBO?
 		Dispose of generated buffers where appropriate // glUnmapBuffer?
-		Unuse/unbind things?
+		Unuse/unbind things?s
 		glDeleteProgram, etc
 		glsgify?
 

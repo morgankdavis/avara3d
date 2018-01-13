@@ -25,8 +25,7 @@
 //	#include <sys/stat.h>
 //#endif
 
-//#include <GLFW/glfw3.h> // moved to .h
-#include <assimp/cimport.h>
+//#include <GLFW/glfw3.h> // moved to .h#include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
 //#ifdef LINUX
 //#include <X11/Xlib.h>
@@ -284,6 +283,18 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 	return cube;
 }
 
+
+std::string ae::utils::FontsDirectoryPath() {
+#ifdef XCODE
+	return "../../../../avara-engine/fonts/";
+#else
+	return "../../../avara-engine/fonts/";
+#endif
+}
+
+std::string ae::utils::FontPath(const std::string& name, const std::string& type) {
+	return FontsDirectoryPath() + name + "." + type;
+}
 
 void ae::utils::SaveSnapshot(std::shared_ptr<Image> image) {
 	
