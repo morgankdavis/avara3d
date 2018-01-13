@@ -249,5 +249,14 @@ namespace ae {
 	} MouseButton;
 }
 
+typedef struct {
+	unsigned nodes;
+	unsigned geometries;
+	unsigned meshes;
+	unsigned polygons;
+	unsigned lights;
+	glm::vec3 cameraPosition;
+} DrawStats;
+
 
 #endif /* Types_h */

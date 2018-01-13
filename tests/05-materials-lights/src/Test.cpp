@@ -26,7 +26,7 @@ using namespace glm;
 #define USE_HIGH_DPI            true
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
-#define FULLSCREEN 				true
+#define FULLSCREEN 				false
 
 
 /***************************************************************************************

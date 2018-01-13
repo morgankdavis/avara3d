@@ -112,7 +112,7 @@ namespace ae {
 
 		//void updateFrametime(unsigned int numPolygons);
 		void mainLoop(float deltaSeconds);
-		void updateStatsOverlay(unsigned numPolygons);
+		void updateStatsOverlay(DrawStats& stats);
 		float drawTextLine(std::string line, float size, float dx, float dy);
 		
 		

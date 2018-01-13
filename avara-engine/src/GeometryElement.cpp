@@ -44,12 +44,13 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
      MARK:   Internal
  **************************************************************************************/
 
-unsigned GeometryElement::draw(const mat4& modelMat,
-							   const mat4& viewMat,
-							   const mat4& projectionMat,
-							   Material& material,
-							   GLuint glEnvironmentUBO,
-							   DebugOption debugOptions) {
+void GeometryElement::draw(const mat4& modelMat,
+						   const mat4& viewMat,
+						   const mat4& projectionMat,
+						   Material& material,
+						   GLuint glEnvironmentUBO,
+						   DebugOption debugOptions,
+						   DrawStats& stats) {
 
 	auto program = material.program();
 	
@@ -80,14 +81,11 @@ unsigned GeometryElement::draw(const mat4& modelMat,
 	
 	glBindVertexArray(m_glVAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
-	unsigned int facesSize = m_faces.size();
-	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	unsigned int numFaces = m_faces.size();
+	stats.polygons += numFaces;
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	
 	program->unuse();
-	
-	// stats
-	
-	return facesSize;
 }
 
 void GeometryElement::hardTransform(const mat4 t, bool norm) {

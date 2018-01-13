@@ -11,8 +11,6 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		frameStats struct
-
 		Input manager: stickyDown, stickyUp
 
 		ERROR HANDLING (shader failed to compile, etc)

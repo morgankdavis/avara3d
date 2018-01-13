@@ -155,15 +155,16 @@ void Geometry::generateFlatNormals() {
 	}
 }
 
-unsigned Geometry::draw(const mat4& modelMat,
-						const mat4& viewMat,
-						const mat4& projectionMat,
-						int glEnvironmentUBO,
-						DebugOption debugOptions) {
+void Geometry::draw(const mat4& modelMat,
+					const mat4& viewMat,
+					const mat4& projectionMat,
+					int glEnvironmentUBO,
+					DebugOption debugOptions,
+					DrawStats& stats) {
 	
-	unsigned numPolygons = 0;
-	
-	for (int e=0; e < m_elements.size(); ++e) {
+	unsigned numElements = m_elements.size();
+	stats.meshes += numElements;
+	for (int e=0; e < numElements; ++e) {
 		
 		auto element = m_elements[e];
 		shared_ptr<Material> material = nullptr;
@@ -173,24 +174,14 @@ unsigned Geometry::draw(const mat4& modelMat,
 		else {
 			material = Material::DefaultMaterial();
 		}
-
-//		shared_ptr<Material> material = nullptr;
-//		if (m_materials.size() > e) {
-//			material = m_materials[e];
-//		}
-//		else if (m_materials.size() > 0) {
-//			material = m_materials[m_materials.size()-1 % e];
-//		}
 		
-		numPolygons += element->draw(modelMat, viewMat, projectionMat,
-									 *material, glEnvironmentUBO, debugOptions);
+		element->draw(modelMat, viewMat, projectionMat,
+					  *material, glEnvironmentUBO, debugOptions, stats);
 	}
-    
+	
     if (debugOptions & DebugOption_ShowBoundingBoxes) {
 		drawAABB(modelMat, viewMat, projectionMat);
     }
-	
-	return numPolygons;
 }
 
 void Geometry::drawAABB(const glm::mat4& modelMat,

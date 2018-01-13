@@ -472,44 +472,37 @@ void Window::didUpdateCallback(windowDidUpdateFuction function) {
 
 void Window::mainLoop(float deltaSeconds) {
 	
-	//cout << "\n-------------------------------------------------------------------------------" << endl;
 	AE_LOG.trace("-------------------------------------------------------------------------------");
 	
-	unsigned numPolygons = 0;
-	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
-
+	
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
-	numPolygons += m_scene->draw(pov, m_debugOptions);
+	
+	DrawStats stats = {};
+	stats.cameraPosition = pov->position();
+	
+	m_scene->draw(pov, m_debugOptions, stats);
 	
 	glfwPollEvents();
+	
 	if (m_inputManager != nullptr) {
 		m_inputManager->update(deltaSeconds);
 	}
 	
 	if (m_debugOptions & DebugOption_ShowStatsOveray) {
-		updateStatsOverlay(numPolygons);
+		updateStatsOverlay(stats);
 	}
 
 	glfwSwapBuffers(i_glfwWindow);
-	//updateFrametime(numPolygons);
 }
 
-void Window::updateStatsOverlay(unsigned numPolygons) {
+void Window::updateStatsOverlay(DrawStats& stats) {
 	
 	static float fps = 0.0;
 	static float ms = 0.0;
 	static float percent = 0.0;
-	
-	static unsigned nodes = 0.0;
-	static unsigned geometries = 0.0;
-	static unsigned meshes = 0.0;
-	static unsigned polygons = numPolygons;
-	static unsigned lights = 0.0;
-	
-	static vec3 cameraPos = {0.0, 0.0, 0.0};
 
 	const float GOAL_TIME = 16.6666667f;
 
@@ -528,8 +521,7 @@ void Window::updateStatsOverlay(unsigned numPolygons) {
 		previousSeconds = currentSeconds;
 		elapsedFrames = 0;
 	}
-		
-
+	
 	int width;
 	int height;
 	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
@@ -548,7 +540,7 @@ void Window::updateStatsOverlay(unsigned numPolygons) {
 	
 	fonsSetFont(m_fonsContext, m_fonsFont);
 
-	static float textSize = 12.0;
+	static float textSize = 14.0;
 	static float hPadding = 0.0;
 	
 	char tmpStr[256];
@@ -580,23 +572,30 @@ void Window::updateStatsOverlay(unsigned numPolygons) {
 	
 	dy += textSize; // skip a line
 
-	sprintf(tmpStr, "%-14s %d" ,"nodes", nodes);
+	sprintf(tmpStr, "%-14s %d" ,"nodes", stats.nodes);
 	drawTextLine(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"geometries", geometries);
+	sprintf(tmpStr, "%-14s %d" ,"geometries", stats.geometries);
 	drawTextLine(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"meshes", meshes);
+	sprintf(tmpStr, "%-14s %d" ,"meshes", stats.meshes);
 	drawTextLine(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"polygons", polygons);
+	sprintf(tmpStr, "%-14s %d" ,"polygons", stats.polygons);
 	drawTextLine(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"lights", lights);
+	sprintf(tmpStr, "%-14s %d" ,"lights", stats.lights);
+	drawTextLine(tmpStr, textSize, dx, dy);
+	dy += (textSize + hPadding);
+	
+	dy += textSize; // skip a line
+	
+	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f" ,"camera pos",
+			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	drawTextLine(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 }

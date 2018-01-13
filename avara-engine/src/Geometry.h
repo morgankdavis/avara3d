@@ -73,11 +73,12 @@ namespace ae {
 		void generateSmoothNormals();
 		void generateFlatNormals();
 		
-		unsigned draw(const glm::mat4& modelMat,
-					  const glm::mat4& viewMat,
-					  const glm::mat4& projectionMat,
-					  int glEnvironmentUBO,
-					  DebugOption debugOptions);
+		void draw(const glm::mat4& modelMat,
+				  const glm::mat4& viewMat,
+				  const glm::mat4& projectionMat,
+				  int glEnvironmentUBO,
+				  DebugOption debugOptions,
+				  DrawStats& stats);
 		
 		void drawAABB(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,

@@ -314,9 +314,9 @@ void Scene::fogColor(std::shared_ptr<Color> color) {
      MARK:   Internal
  **************************************************************************************/
 
-unsigned Scene::draw(shared_ptr<Node> pointOfView, DebugOption debugOptions) const {
-
-	unsigned numPolygons = 0;
+void Scene::draw(shared_ptr<Node> pointOfView,
+				 DebugOption& debugOptions,
+				 DrawStats& stats) {
 	
 	auto viewMat = pointOfView->worldTransform();
 	auto projectionMat = pointOfView->camera()->projection();
@@ -339,19 +339,20 @@ unsigned Scene::draw(shared_ptr<Node> pointOfView, DebugOption debugOptions) con
 		}
 	}
 
-	bindEnvironment(*pointOfView);
+	bindEnvironment(*pointOfView, stats);
 
 	for (auto node: m_rootNode->allChildNodes()) {
+		stats.nodes++;
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
+				stats.geometries++;
 				auto modelMat = node->worldTransform();
-				numPolygons += geometry->draw(modelMat, viewMat, projectionMat, m_glEnvironmentUBO, debugOptions);
+				geometry->draw(modelMat, viewMat, projectionMat,
+							   m_glEnvironmentUBO, debugOptions, stats);
 			}
 		}
 	}
-	
-	return numPolygons;
 }
 
 shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
@@ -671,7 +672,7 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 	}
 }
 
-void Scene::bindEnvironment(const Node& pointOfView) const {
+void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 
 	// lights
 	
@@ -709,11 +710,10 @@ void Scene::bindEnvironment(const Node& pointOfView) const {
 		
 		lights = SortedLights(lightsUnsorted);
 		
-		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS-1));
+		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
 		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
 		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
 		vector<shared_ptr<Node>> lightsSlice(first, last);
-		// TODO: if no ambient light we're only using 7 other lights
 		
 		lights = lightsSlice;
 	}
@@ -722,6 +722,8 @@ void Scene::bindEnvironment(const Node& pointOfView) const {
 	
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
+	
+	stats.lights = numLights - 1; // not counting ambient
 	
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];

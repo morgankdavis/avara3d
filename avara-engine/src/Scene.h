@@ -74,7 +74,9 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		unsigned draw(std::shared_ptr<Node> pointOfView, DebugOption debugOptions) const;
+		void draw(std::shared_ptr<Node> pointOfView,
+				  DebugOption& debugOptions,
+				  DrawStats& stats);
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		glm::vec3 extent() const;
 		
@@ -94,7 +96,7 @@ namespace ae {
 								  std::shared_ptr<Node> aeParentNode,
 								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
 								  const std::vector<std::shared_ptr<Material>>& materials);
-		void bindEnvironment(const Node& pointOfView) const;
+		void bindEnvironment(const Node& pointOfView, DrawStats& stats) const;
 		
 		std::shared_ptr<Node>						m_rootNode;
 		std::shared_ptr<MaterialProperty>			m_background;
