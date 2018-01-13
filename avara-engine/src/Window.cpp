@@ -533,15 +533,15 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	
-	float dx = 12.0;
-	float dy = 20.0;
+	float dx = 12.0 * m_framebufferScale;
+	float dy = 20.0 * m_framebufferScale;
 	
 	fonsClearState(m_fonsContext);
 	
 	fonsSetFont(m_fonsContext, m_fonsFont);
 
-	static float textSize = 14.0;
-	static float hPadding = 0.0;
+	static float textSize = 14.0 * m_framebufferScale;
+	static float hPadding = 0.0 * m_framebufferScale;
 	
 	char tmpStr[256];
 	
