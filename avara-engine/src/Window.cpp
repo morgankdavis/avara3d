@@ -44,7 +44,8 @@
 ////#include <GL/glew.h>
 //#define GLFONTSTASH_IMPLEMENTATION
 ////#include "glfontstash.h"
-#include "gl3corefontstash.h"
+//#include "gl3corefontstash.h"
+#include "gl3fontstash.h"
 
 
 int fontNormal = FONS_INVALID;
@@ -195,12 +196,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 	
 	
 	
-	fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+	fs = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
 	if (fs == NULL) {
 		printf("Could not create stash.\n");
 	}
 	
-	fontNormal = fonsAddFont(fs, "sans", "SourceCodePro-Regular.otf");
+	fontNormal = fonsAddFont(fs, "sans", "DroidSerif-Regular.ttf");
+	//fontNormal = fonsAddFont(fs, "sans", "SourceCodePro-Regular.otf");
 	if (fontNormal == FONS_INVALID) {
 		printf("Could not add font normal.\n");
 	}
@@ -546,9 +548,34 @@ void Window::testFontstash() {
 	int width, height;
 	
 		glDisable(GL_DEPTH_TEST);
+	
+
+	
+	
 
 	unsigned int white,black,brown,blue;
 	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
+	
+	
+	
+	
+	GLfloat mat[16];
+	
+	memset(mat, 0, 16 * sizeof(GLfloat));
+	//mat[0] = 2.0 / screenwidth;
+	//mat[5] = -2.0 / screenheight;
+	mat[0] = 2.0 / width;
+	mat[5] = -2.0 / height;
+	mat[10] = 2.0;
+	mat[12] = -1.0;
+	mat[13] = 1.0;
+	mat[14] = -1.0;
+	mat[15] = 1.0;
+	
+	gl3fonsProjection(fs, mat);
+	
+	
+	
 	// Update and render
 	glViewport(0, 0, width, height);
 	glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
@@ -569,10 +596,10 @@ void Window::testFontstash() {
 //	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 //	glEnable(GL_CULL_FACE);
 	
-	white = glfonsRGBA(255,255,255,255);
-	brown = glfonsRGBA(192,128,0,128);
-	blue = glfonsRGBA(0,192,255,255);
-	black = glfonsRGBA(0,0,0,255);
+	white = gl3fonsRGBA(255,255,255,255);
+	brown = gl3fonsRGBA(192,128,0,128);
+	blue = gl3fonsRGBA(0,192,255,255);
+	black = gl3fonsRGBA(0,0,0,255);
 	
 	sx = 50; sy = 50;
 	

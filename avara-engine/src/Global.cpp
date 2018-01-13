@@ -34,7 +34,8 @@
 //#include <GL/glew.h>
 #define GLFONTSTASH_IMPLEMENTATION
 //#include "glfontstash.h"
-#include "gl3corefontstash.h"
+//#include "gl3corefontstash.h"
+#include "gl3fontstash.h"
 
 
 
