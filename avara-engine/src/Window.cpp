@@ -511,13 +511,14 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	float currentSeconds = glfwGetTime();
 	float elapsedSeconds = currentSeconds - previousSeconds;
 
-	if (elapsedSeconds > 0.25) {
+	if (elapsedSeconds > 0.5) {
+		// only update the framerate stats every so often so they're readable
 		
 		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
 		fps = elapsedFrames/elapsedSeconds;
 		percent = (ms / GOAL_TIME) * 100.0f;
 
-		// reset stats
+		// reset framerate stats
 		previousSeconds = currentSeconds;
 		elapsedFrames = 0;
 	}
