@@ -48,14 +48,14 @@ GifWriter* 		i_gifWriter;
  **************************************************************************************/
 
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	cout << "glfwWindowSizeCallback()" << endl;
+	AE_LOG.trace("glfwWindowSizeCallback()");
 	
 	i_window->width(aWidth);
 	i_window->height(aHeight);
 }
 
 void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	cout << "glfwFramebufferSizeCallback()" << endl;
+	AE_LOG.trace("glfwFramebufferSizeCallback()");
 	
 	i_window->framebufferWidth(i_window->width() * i_window->framebufferScale());
 	i_window->framebufferHeight(i_window->height() * i_window->framebufferScale());
@@ -81,13 +81,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 //	m_willUpdateCallback(nullptr),
 //	m_didUpdateCallback(nullptr) {
 	
-		if (initLog() != 0) {
-			cout << "Error initializing log." << endl;
-		}
+		if (initLog() != 0) { cout << "Error initializing log." << endl; }
 
-		if (initGLFW() != 0) {
-			AE_LOG.critical("Error initializing GLFW.");
-		}
+		if (initGLFW() != 0) { AE_LOG.critical("Error initializing GLFW."); }
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -137,18 +133,14 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		// setup Font Stash
 	
 		m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-		if (m_fonsContext == NULL) {
-			AE_LOG.error("Error creating Font Stash context.");
-		}
+		if (m_fonsContext == NULL) { AE_LOG.error("Error creating Font Stash context."); }
 	
 		string fontName = "SourceCodePro-Semibold";
 		string fontType = "otf";
 		string fontPath = FontPath(fontName, fontType);
 	
 		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
-		if (m_fonsFont == FONS_INVALID) {
-			AE_LOG.error("Could not load font: {}", fontPath);
-		}
+		if (m_fonsFont == FONS_INVALID) { AE_LOG.error("Could not load font: {}", fontPath); }
 			
 		// moved from initializer list
 		
