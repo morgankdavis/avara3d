@@ -11,8 +11,6 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Input manager: stickyDown, stickyUp
-
 		Add runtime antialiasing change
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)

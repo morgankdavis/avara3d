@@ -250,36 +250,40 @@ shared_ptr<Image> Window::snapshot() const {
 }
 
 void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate) {
-	AE_LOG.info("Starting GIF recording...");
-	
-	m_gifRecordingMaxFramerate = maxFramerate;
-
-	m_gifRecordingHeight = m_framebufferHeight;
-	m_gifRecordingWidth = m_framebufferWidth;
-	if (m_gifRecordingHeight > maxHeight) {
-		float scale = (float)maxHeight / (float)m_framebufferHeight;
-		m_gifRecordingHeight = m_framebufferHeight * scale;
-		m_gifRecordingWidth = m_framebufferWidth * scale;
+	if (!m_recordingGIF) {
+		AE_LOG.info("Starting GIF recording...");
+		
+		m_gifRecordingMaxFramerate = maxFramerate;
+		
+		m_gifRecordingHeight = m_framebufferHeight;
+		m_gifRecordingWidth = m_framebufferWidth;
+		if (m_gifRecordingHeight > maxHeight) {
+			float scale = (float)maxHeight / (float)m_framebufferHeight;
+			m_gifRecordingHeight = m_framebufferHeight * scale;
+			m_gifRecordingWidth = m_framebufferWidth * scale;
+		}
+		
+		unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+		
+		i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
+		// gif-h frame time is in 100ths of a second
+		GifBegin(i_gifWriter, filename.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
+		
+		m_recordingGIF = true;
 	}
-
-	unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
-	
-	i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
-	// gif-h frame time is in 100ths of a second
-	GifBegin(i_gifWriter, filename.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
-	
-	m_recordingGIF = true;
 }
 
 void Window::stopGIFRecording() {
-	AE_LOG.info("Stopping GIF recording.");
-	
-	m_recordingGIF = false;
-	
-	GifEnd(i_gifWriter);
-	// crashing... but it doesn't look like GifEnd() frees everything,
-	// just the main buffer.
-	//free(i_gifWriter);
+	if (m_recordingGIF) {
+		m_recordingGIF = false;
+		
+		GifEnd(i_gifWriter);
+		// crashing... but it doesn't look like GifEnd() frees everything,
+		// just the main buffer.
+		//free(i_gifWriter);
+		
+		AE_LOG.info("Stopped GIF recording.");
+	}
 }
 
 /***************************************************************************************
@@ -502,6 +506,7 @@ void Window::mainLoop(float deltaSeconds) {
 	pov->camera()->aspectRatio(aspectRatio);
 	
 	DrawStats stats = {};
+	//stats.cameraPosition = pov->worldPosition();
 	stats.cameraPosition = pov->position();
 	
 	m_scene->draw(pov, m_debugOptions, stats);

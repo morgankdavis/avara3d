@@ -28,48 +28,16 @@ using namespace glm;
 InputManager* inputManager;
 
 /***************************************************************************************
-     MARK:   GLFW Callbacks
- **************************************************************************************/
-
-void glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
-	//cout << "glfwMouseButtonCallback()" << endl;
-	
-	if (action == GLFW_PRESS) {
-		inputManager->m_mouseButtonsDown.insert((MouseButton)button);
-	}
-	else if (action == GLFW_RELEASE) {
-		inputManager->m_mouseButtonsDown.erase((MouseButton)button);
-	}
-}
-
-void glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
-	//cout << "glfwCursorPositionCallback()" << endl;
-	// ignoring in favor of ManyMouse
-}
-
-void glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
-	//cout << "glfwScrollWheelCallback()" << endl;
-	// ignoring in favor of ManyMouse
-}
-
-void glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
-	//cout << "glfwKeyCallback()" << endl;
-
-	if (action == GLFW_PRESS) {
-		inputManager->m_keysDown.insert((Key)key);
-	}
-	else if (action == GLFW_RELEASE) {
-		inputManager->m_keysDown.erase((Key)key);
-	}
-}
-
-/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
 InputManager::InputManager(Window* window):
 	m_keysDown(set<Key>()),
 	m_mouseButtonsDown(set<MouseButton>()),
+	m_keysPressed(set<Key>()),
+	m_keysPressedCleared(set<Key>()),
+	m_mouseButtonsPressed(set<MouseButton>()),
+	m_mouseButtonsPressedCleared(set<MouseButton>()),
 	m_mousePositionDelta(vec2(0.0f, 0.0f)),
 	m_mouseScrollWheelDelta(vec2(0.0f, 0.0f)),
 	m_window(window) {
@@ -89,20 +57,30 @@ InputManager::~InputManager() {
      MARK:   Public
  **************************************************************************************/
 
-/* IMPLEMENT */ bool InputManager::keyDown(Key key) {
-	
+bool InputManager::keyDown(Key key) {
+	return m_keysDown.count(key);
 }
 
-/* IMPLEMENT */ bool InputManager::mouseButtonDown(MouseButton button) {
-	
+bool InputManager::mouseButtonDown(MouseButton button) {
+	return m_mouseButtonsDown.count(button);
 }
 
-/* IMPLEMENT */ bool InputManager::stickyKeyDown(Key key) {
-	
+bool InputManager::keyPressed(Key key) {
+	bool pressed = inputManager->m_keysPressed.count(key);
+	if (pressed) {
+		inputManager->m_keysPressed.erase(key);
+		inputManager->m_keysPressedCleared.insert(key);
+	}
+	return pressed;
 }
 
-/* IMPLEMENT */ bool InputManager::stickyMouseButtonDown(MouseButton button) {
-	
+bool InputManager::mouseButtonPressed(MouseButton button) {
+	bool pressed = inputManager->m_mouseButtonsPressed.count(button);
+	if (pressed) {
+		inputManager->m_mouseButtonsPressed.erase(button);
+		inputManager->m_mouseButtonsPressedCleared.insert(button);
+	}
+	return pressed;
 }
 
 set<Key> InputManager::keysDown() {
@@ -115,12 +93,16 @@ set<MouseButton> InputManager::mouseButtonsDown() {
 	return mosueButtonsDownCopy;
 }
 
-/* IMPLEMENT */ set<Key> stickyKeysDown() {
-	
+set<Key> InputManager::keysPressed() {
+	auto keysPressedCopy = m_keysPressed;
+	m_keysPressed.clear();
+	return keysPressedCopy;
 }
 
-/* IMPLEMENT */ set<MouseButton> stickyMouseButtonsDown() {
-	
+set<MouseButton> InputManager::mouseButtonsPressed() {
+	auto mouseButtonsPressedCopy = m_mouseButtonsPressed;
+	m_mouseButtonsPressed.clear();
+	return mouseButtonsPressedCopy;
 }
 
 vec2 InputManager::mousePositionDelta() {
@@ -203,9 +185,16 @@ void InputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, i
 	
 	if (action == GLFW_PRESS) {
 		inputManager->m_mouseButtonsDown.insert((MouseButton)button);
+		
+		// if button is in "cleared" it means the client already read it, so don't add it again until
+		// we get button up, and then back down again
+		if (inputManager->m_mouseButtonsPressedCleared.count((MouseButton)button) == 0) {
+			inputManager->m_mouseButtonsPressed.insert((MouseButton)button);
+		}
 	}
 	else if (action == GLFW_RELEASE) {
 		inputManager->m_mouseButtonsDown.erase((MouseButton)button);
+		inputManager->m_mouseButtonsPressedCleared.erase((MouseButton)button);
 	}
 }
 
@@ -224,9 +213,16 @@ void InputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode
 	
 	if (action == GLFW_PRESS) {
 		inputManager->m_keysDown.insert((Key)key);
+		
+		// if key is in "cleared" it means the client already read it, so don't add it again until
+		// we get key up, and then back down again
+		if (inputManager->m_keysPressedCleared.count((Key)key) == 0) {
+			inputManager->m_keysPressed.insert((Key)key);
+		}
 	}
 	else if (action == GLFW_RELEASE) {
 		inputManager->m_keysDown.erase((Key)key);
+		inputManager->m_keysPressedCleared.erase((Key)key);
 	}
 }
 
@@ -238,18 +234,14 @@ void InputManager::initManyMouse() {
 	const int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
-		//cerr << "ManyMouse failed to initialize!" << endl;
 		AE_LOG.error("ManyMouse failed to initialize.");
 	}
 	else if (availableMice == 0) {
-		//cerr << "No mice detected!" << endl;
 		AE_LOG.warn("ManyMouse failed to initialize.");
 	}
 	else {
-		//cout << "ManyMouse driver: " << ManyMouse_DriverName() << endl;
 		AE_LOG.info("ManyMouse driver: {}", ManyMouse_DriverName());
 		for (int m = 0; m<availableMice; ++m) {
-			//cout << "Mouse " << m << ": " << ManyMouse_DeviceName(m) << endl;
 			AE_LOG.info("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}

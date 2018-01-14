@@ -228,65 +228,61 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	totalSeconds += deltaSeconds;
 
 	// get input
+	
+	auto keysPressed = m_inputManager->keysPressed();
 
-	auto keysDown = m_inputManager->keysDown();
-	if (keysDown.count(Key_Escape)) {
+	if (keysPressed.count(Key_Escape)) {
 		exit(0);
 	}
 	
-	if 		(keysDown.count(Key_1))	SetAllFilterModes(FilterMode_Nearest, scene);
-	else if (keysDown.count(Key_2))	SetAllFilterModes(FilterMode_Linear, scene);
-	else if (keysDown.count(Key_3))	SetAllFilterModes(FilterMode_NearestMipmapNearest, scene);
-	else if (keysDown.count(Key_4))	SetAllFilterModes(FilterMode_NearestMipmapLinear, scene);
-	else if (keysDown.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
-	else if (keysDown.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
+	if 		(keysPressed.count(Key_1))	SetAllFilterModes(FilterMode_Nearest, scene);
+	else if (keysPressed.count(Key_2))	SetAllFilterModes(FilterMode_Linear, scene);
+	else if (keysPressed.count(Key_3))	SetAllFilterModes(FilterMode_NearestMipmapNearest, scene);
+	else if (keysPressed.count(Key_4))	SetAllFilterModes(FilterMode_NearestMipmapLinear, scene);
+	else if (keysPressed.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
+	else if (keysPressed.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
 	
 //	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
 //	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
 
 
-	if 		(keysDown.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
-	else if (keysDown.count(Key_F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
-	else if (keysDown.count(Key_F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	if 		(keysPressed.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
+	else if (keysPressed.count(Key_F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
+	else if (keysPressed.count(Key_F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 
 
-	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+	if 		(keysPressed.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysPressed.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysPressed.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
 
     DebugOption options = (DebugOption)m_window->debugOptions();
-    if (keysDown.count(Key_Up)) {
+    if (keysPressed.count(Key_Up)) {
         m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
     }
-    else if (keysDown.count(Key_Down)) {
+    else if (keysPressed.count(Key_Down)) {
         m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
     }
-    if (keysDown.count(Key_Right)) {
+    if (keysPressed.count(Key_Right)) {
         m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
     }
-    else if (keysDown.count(Key_Left)) {
+    else if (keysPressed.count(Key_Left)) {
         m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
     }
-	if (keysDown.count(Key_RightBracket)) {
+	if (keysPressed.count(Key_RightBracket)) {
 		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
 	}
-	else if (keysDown.count(Key_LeftBracket)) {
+	else if (keysPressed.count(Key_LeftBracket)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
 	}
 	
-	if (keysDown.count(Key_Backslash)) {
+	if (keysPressed.count(Key_Backslash)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysDown.count(Key_Equal)) {
-		static bool started = false;
-		if (!started) {
-			StartGIFRecording(*m_window, 240, 8);
-			//StartGIFRecording(*m_window, 320, 4);
-			started = true;
-		}
+	if (keysPressed.count(Key_Equal)) {
+		StartGIFRecording(*m_window, 240, 8);
 	}
-	else if (keysDown.count(Key_Minus)) {
+	else if (keysPressed.count(Key_Minus)) {
 		StopGIFRecording(*m_window);
 	}
 	
@@ -324,6 +320,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 		// move
+		
+		auto keysDown = m_inputManager->keysDown();
 
 //		const static float MOVE_SPEED = 5.0f; // units/sec
 		static float MOVE_SPEED = 0;

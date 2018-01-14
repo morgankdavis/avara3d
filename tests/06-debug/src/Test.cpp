@@ -114,46 +114,74 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	totalSeconds += deltaSeconds;
 
 	// get input
+	
+	auto keysPressed = m_inputManager->keysPressed();
 
-	auto keysDown = m_inputManager->keysDown();
-	if (keysDown.count(Key_Escape)) {
+	if (keysPressed.count(Key_Escape)) {
 		exit(0);
 	}
 	
     DebugOption options = (DebugOption)m_window->debugOptions();
-	if (keysDown.count(Key_Up)) {
+	if (keysPressed.count(Key_Up)) {
 		m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
 	}
-	else if (keysDown.count(Key_Down)) {
+	else if (keysPressed.count(Key_Down)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
 	}
-    if (keysDown.count(Key_Right)) {
+    if (keysPressed.count(Key_Right)) {
         m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
     }
-    else if (keysDown.count(Key_Left)) {
+    else if (keysPressed.count(Key_Left)) {
         m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
     }
-	if (keysDown.count(Key_RightBracket)) {
+	if (keysPressed.count(Key_RightBracket)) {
 		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
 	}
-	else if (keysDown.count(Key_LeftBracket)) {
+	else if (keysPressed.count(Key_LeftBracket)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
 	}
 	
-	if (keysDown.count(Key_Backslash)) {
+	if (keysPressed.count(Key_Backslash)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysDown.count(Key_Equal)) {
-		static bool started = false;
-		if (!started) {
-			StartGIFRecording(*m_window, 240, 8);
-			started = true;
-		}
+	if (keysPressed.count(Key_Equal)) {
+		StartGIFRecording(*m_window, 240, 8);
 	}
-	else if (keysDown.count(Key_Minus)) {
+	else if (keysPressed.count(Key_Minus)) {
 		StopGIFRecording(*m_window);
 	}
+	
+//	auto keysPressed = m_inputManager->keysPressed();
+//
+//	if (keysPressed.count(Key_T)) {
+//		cout << "T PRESSED" << endl;
+//	}
+//
+//	if (keysPressed.count(Key_R)) {
+//		cout << "R PRESSED" << endl;
+//	}
+
+	
+//	if (m_inputManager->keyPressed(Key_T)) {
+//		cout << "T PRESSED" << endl;
+//	}
+//
+//	if (m_inputManager->keyPressed(Key_R)) {
+//		cout << "R PRESSED" << endl;
+//	}
+//
+//	if (m_inputManager->keyDown(Key_L)) {
+//		cout << "L DOWN" << endl;
+//	}
+//
+//	if (m_inputManager->mouseButtonPressed(MouseButton_3)) {
+//		cout << "MouseButton_3 PRESSED" << endl;
+//	}
+//
+//	if (m_inputManager->mouseButtonDown(MouseButton_2)) {
+//		cout << "MouseButton_2 DOWN" << endl;
+//	}
 	
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
@@ -192,6 +220,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
 
+		auto keysDown = m_inputManager->keysDown();
+		
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
