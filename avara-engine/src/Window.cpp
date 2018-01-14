@@ -65,7 +65,8 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
      MARK:   Lifescycle
  **************************************************************************************/
 
-Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI) {
+Window::Window(bool fullScreen, unsigned width, unsigned height,
+			   bool useHighDPI, AntialiasingMode antialiasingMode) {
 //	m_scene(make_shared<Scene>()),
 //	m_width(width),
 //	m_height(height),
@@ -92,7 +93,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: Temporary
+		glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	
 		int viewportWidth = width;
@@ -158,7 +159,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
         m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
-		m_antialiasingMode = AntialiasingMode_None;
+		m_antialiasingMode = antialiasingMode;
 		m_debugOptions = DebugOption_ShowStatsOveray;
 		m_backgroundColor = nullptr;
 		m_pointOfView = nullptr;
@@ -336,10 +337,10 @@ AntialiasingMode Window::antialiasingMode() const {
 	return m_antialiasingMode;
 }
 
-void Window::antialiasingMode(AntialiasingMode mode) {
-	m_antialiasingMode = mode;
-	glfwWindowHint(GLFW_SAMPLES, mode);
-}
+//void Window::antialiasingMode(AntialiasingMode mode) {
+//	m_antialiasingMode = mode;
+//	glfwWindowHint(GLFW_SAMPLES, mode);
+//}
 
 //shared_ptr<Color> Window::backgroundColor() const {
 //	return m_backgroundColor;

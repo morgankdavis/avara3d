@@ -43,7 +43,8 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI);
+		Window(bool fullScreen, unsigned width, unsigned height,
+			   bool useHighDPI = true, AntialiasingMode antialiasingMode = AntialiasingMode_None);
 		~Window();
 		
 		/***************************************************************************************
@@ -75,22 +76,21 @@ namespace ae {
 		 **************************************************************************************/
 
 		unsigned width() const;
-		void width(unsigned width);
+		/* PROBABLY REMOVE */ void width(unsigned width);
 		
 		unsigned height() const;
-		void height(unsigned height);
+		/* PROBABLY REMOVE */ void height(unsigned height);
 		
 		unsigned framebufferScale() const;
-		void framebufferScale(unsigned aScale);
+		/* PROBABLY REMOVE */ void framebufferScale(unsigned aScale);
 		
 		unsigned framebufferWidth() const;
-		void framebufferWidth(unsigned width);
+		/* PROBABLY REMOVE */ void framebufferWidth(unsigned width);
 		
 		unsigned framebufferHeight() const;
-		void framebufferHeight(unsigned height);
+		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
 		
 		AntialiasingMode antialiasingMode() const;
-		void antialiasingMode(AntialiasingMode mode);
 
 		std::shared_ptr<Node> pointOfView();
 		void pointOfView(const std::shared_ptr<Node> camera);

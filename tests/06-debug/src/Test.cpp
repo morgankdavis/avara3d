@@ -27,6 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
+#define ANTIALIAS_MODE			AntialiasingMode_4X
 
 
 /***************************************************************************************
@@ -40,7 +41,7 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	auto logger = make_shared<Logger>("test06", sinks);
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI);
+	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
 	logger->info("Test::run()");
 	
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -152,14 +153,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		StopGIFRecording(*m_window);
 	}
 	
-//	auto keysPressed = m_inputManager->keysPressed();
-//
+
+	
+	
 //	if (keysPressed.count(Key_T)) {
 //		cout << "T PRESSED" << endl;
+//
+//		m_window->antialiasingMode(AntialiasingMode_2X);
 //	}
 //
 //	if (keysPressed.count(Key_R)) {
 //		cout << "R PRESSED" << endl;
+//
+//		m_window->antialiasingMode(AntialiasingMode_16X);
 //	}
 
 	
