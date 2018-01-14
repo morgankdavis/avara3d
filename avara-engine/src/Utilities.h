@@ -32,8 +32,8 @@ namespace ae {
 
 	class Color;
 	class Image;
-	//class Node;
 	class Scene;
+	class Window;
 
 
 	namespace utils {
@@ -98,8 +98,12 @@ namespace ae {
 //		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);
 //		char* ae_realpath(const char* path, char* resolved_path);
 		
+		std::string DateTimeString();
 		
-		void SaveSnapshot(std::shared_ptr<Image> image);
+		void SaveSnapshot(Window& window);
+		
+		void StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate);
+		void StopGIFRecording(Window& window);
 
 
 		//void GetScreenResolution(int& width, int& height);

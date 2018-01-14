@@ -25,6 +25,7 @@ namespace ae {
 	class Scene;
 	class Camera;
 	class Color;
+	class GIFRecording;
 	class Image;
 	class InputManager;
 	class Node;
@@ -66,6 +67,8 @@ namespace ae {
 		void debugOptions(DebugOption options);
 		
 		std::shared_ptr<Image> snapshot() const;
+		void startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate);
+		void stopGIFRecording();
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -113,8 +116,8 @@ namespace ae {
 		//void updateFrametime(unsigned int numPolygons);
 		void mainLoop(float deltaSeconds);
 		void updateStatsOverlay(DrawStats& stats);
-		float drawTextLine(std::string line, float size, float dx, float dy);
-		
+		float drawText(std::string line, float size, float dx, float dy);
+		void checkSaveGIFFrame(float deltaSeconds);
 		
 		
 		std::shared_ptr<Scene>			m_scene;
@@ -132,6 +135,10 @@ namespace ae {
 		float 							m_maximumFramerate;
 		FONScontext* 					m_fonsContext;
 		int								m_fonsFont;
+		bool							m_recordingGIF;
+		unsigned						m_gifRecordingWidth;
+		unsigned						m_gifRecordingHeight;
+		unsigned						m_gifRecordingMaxFramerate;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;

@@ -139,9 +139,22 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	else if (keysDown.count(Key_LeftBracket)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
 	}
+	
 	if (keysDown.count(Key_Backslash)) {
-		SaveSnapshot(m_window->snapshot());
+		SaveSnapshot(*m_window);
 	}
+	
+	if (keysDown.count(Key_Equal)) {
+		static bool started = false;
+		if (!started) {
+			StartGIFRecording(*m_window, 240, 8);
+			started = true;
+		}
+	}
+	else if (keysDown.count(Key_Minus)) {
+		StopGIFRecording(*m_window);
+	}
+	
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 

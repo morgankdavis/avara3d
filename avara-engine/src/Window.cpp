@@ -11,9 +11,11 @@
 #include <algorithm>
 #include <iostream>
 
-#//include "fontstash.h"
+#include "gif.h"
 #include "gl3fontstash.h"
 #include <glm/gtc/matrix_transform.hpp>
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
 
 #include "Camera.h"
 #include "Color.h"
@@ -37,8 +39,9 @@ using namespace utils;
      MARK:   Internal Members
  **************************************************************************************/
 
-Window* i_window;
-GLFWwindow* i_glfwWindow;
+Window* 		i_window;
+GLFWwindow* 	i_glfwWindow;
+GifWriter* 		i_gifWriter;
 
 /***************************************************************************************
      MARK:   GLFW Callbacks
@@ -119,10 +122,8 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		AE_LOG.info("scaleFactor: {}", scaleFactor);
 
 		if (!i_glfwWindow) {
-			//cout << "Error creating glfwWindow." << endl;
 			AE_LOG.critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
 			glfwTerminate();
-			//return -1;
 		}
 		
 		glfwMakeContextCurrent(i_glfwWindow);
@@ -165,6 +166,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height, bool useHighDPI
 		m_maximumFramerate = 60.0;
 		m_willUpdateCallback = nullptr;
 		m_didUpdateCallback = nullptr;
+		m_recordingGIF = false;
 }
 
 Window::~Window() {
@@ -178,7 +180,7 @@ Window::~Window() {
 void Window::display() {
 	AE_LOG.trace("Window::display()");
 
-	glfwMakeContextCurrent(i_glfwWindow); // also done in Init
+	glfwMakeContextCurrent(i_glfwWindow);
 	
 	glfwSetWindowSizeCallback(i_glfwWindow, glfwWindowSizeCallback);
 	glfwSetFramebufferSizeCallback(i_glfwWindow, glfwFramebufferSizeCallback);
@@ -187,28 +189,16 @@ void Window::display() {
 		static double previousSeconds = glfwGetTime();
 		float totalSeconds = glfwGetTime();
 		float deltaSeconds = totalSeconds - previousSeconds;
+
+		if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
 		
-		//cout << "deltaSeconds: " << deltaSeconds << endl;
+		mainLoop(deltaSeconds);
 		
-//		static const float frameInASecond = 1.0f/60.0f;
-//		float diff = deltaSeconds - (m_maximumFramerate * frameInASecond);
-//		if (diff >= 0) {
-//		if (deltaSeconds >= (m_maximumFramerate * frameInASecond)) {
-		
-			if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
-			
-			mainLoop(deltaSeconds);
-			
-			if (!glfwWindowShouldClose(i_glfwWindow)) {
-				if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
-			}
-//		}
-//		else {
-//			sleep(fabs(diff));
-//		}
+		if (!glfwWindowShouldClose(i_glfwWindow)) {
+			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
+		}
 		
 		previousSeconds = totalSeconds;
-		
 	}
 }
 
@@ -218,8 +208,6 @@ shared_ptr<Scene> Window::scene() const {
 
 void Window::scene(const shared_ptr<Scene> scene) {
 	m_scene = scene;
-
-	//checkAddDefaultCamera();
 }
 
 void Window::enableCursor(bool enabled) {
@@ -259,6 +247,39 @@ shared_ptr<Image> Window::snapshot() const {
 	auto image = make_shared<Image>(buf, m_framebufferWidth, m_framebufferHeight);
 	free(buf);
 	return image;
+}
+
+void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate) {
+	AE_LOG.info("Starting GIF recording...");
+	
+	m_gifRecordingMaxFramerate = maxFramerate;
+
+	m_gifRecordingHeight = m_framebufferHeight;
+	m_gifRecordingWidth = m_framebufferWidth;
+	if (m_gifRecordingHeight > maxHeight) {
+		float scale = (float)maxHeight / (float)m_framebufferHeight;
+		m_gifRecordingHeight = m_framebufferHeight * scale;
+		m_gifRecordingWidth = m_framebufferWidth * scale;
+	}
+
+	unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	
+	i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
+	// gif-h frame time is in 100ths of a second
+	GifBegin(i_gifWriter, filename.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
+	
+	m_recordingGIF = true;
+}
+
+void Window::stopGIFRecording() {
+	AE_LOG.info("Stopping GIF recording.");
+	
+	m_recordingGIF = false;
+	
+	GifEnd(i_gifWriter);
+	// crashing... but it doesn't look like GifEnd() frees everything,
+	// just the main buffer.
+	//free(i_gifWriter);
 }
 
 /***************************************************************************************
@@ -496,6 +517,8 @@ void Window::mainLoop(float deltaSeconds) {
 	}
 
 	glfwSwapBuffers(i_glfwWindow);
+	
+	checkSaveGIFFrame(deltaSeconds);
 }
 
 void Window::updateStatsOverlay(DrawStats& stats) {
@@ -560,51 +583,51 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	
 	
 	sprintf(tmpStr, "%-14s %.1f" ,"framerate", fps);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %.1f" ,"frametime", ms);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %.1f" ,"percent", percent);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	dy += textSize; // skip a line
 
 	sprintf(tmpStr, "%-14s %d" ,"nodes", stats.nodes);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %d" ,"geometries", stats.geometries);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %d" ,"meshes", stats.meshes);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %d" ,"polygons", stats.polygons);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	sprintf(tmpStr, "%-14s %d" ,"lights", stats.lights);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	dy += textSize; // skip a line
 	
 	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f" ,"camera pos",
 			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-	drawTextLine(tmpStr, textSize, dx, dy);
+	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 }
 
 //string createStatLine(string label, string value, unsigned )
 
 
-float Window::drawTextLine(std::string line, float size, float dx, float dy) {
+float Window::drawText(std::string line, float size, float dx, float dy) {
 	// must setup fons GL state first
 	
 	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
@@ -619,5 +642,31 @@ float Window::drawTextLine(std::string line, float size, float dx, float dy) {
 	fonsSetColor(m_fonsContext, white);
 	fonsSetBlur(m_fonsContext, 0);
 	return fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
+}
+
+void Window::checkSaveGIFFrame(float deltaSeconds) {
+	
+	if (m_recordingGIF) {
+		
+		static float secondsAccum = 0;
+		secondsAccum += deltaSeconds;
+		
+		unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+		
+		if (secondsAccum >= frameTime/1000.0) {
+
+			auto frame = snapshot();
+			
+			unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
+			stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
+							   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
+			
+			// gif-h frame time is in 100ths of a second
+			GifWriteFrame(i_gifWriter, resizedFrameData,
+						  m_gifRecordingWidth, m_gifRecordingHeight, (secondsAccum*1000.0)/10.0);
+			
+			secondsAccum = secondsAccum - frameTime/1000.0;
+		}
+	}
 }
 

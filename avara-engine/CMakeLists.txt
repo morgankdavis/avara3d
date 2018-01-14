@@ -18,6 +18,8 @@ include_directories(external/generator/include)
 
 include_directories(external/stb)
 
+include_directories(external/gif-h)
+
 #add_subdirectory(external/spdlog-0.16.2)
 #include_directories(external/spdlog-0.16.2/include)
 

@@ -253,12 +253,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if 		(keysDown.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysDown.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
 	else if (keysDown.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
-	
-	if (keysDown.count(Key_Backslash)) {
-		SaveSnapshot(m_window->snapshot());
-	}
-    
-    
+
     DebugOption options = (DebugOption)m_window->debugOptions();
     if (keysDown.count(Key_Up)) {
         m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
@@ -278,7 +273,22 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	else if (keysDown.count(Key_LeftBracket)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
 	}
-
+	
+	if (keysDown.count(Key_Backslash)) {
+		SaveSnapshot(*m_window);
+	}
+	
+	if (keysDown.count(Key_Equal)) {
+		static bool started = false;
+		if (!started) {
+			StartGIFRecording(*m_window, 240, 8);
+			//StartGIFRecording(*m_window, 320, 4);
+			started = true;
+		}
+	}
+	else if (keysDown.count(Key_Minus)) {
+		StopGIFRecording(*m_window);
+	}
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 

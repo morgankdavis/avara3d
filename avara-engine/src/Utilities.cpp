@@ -44,6 +44,7 @@
 //#include "Node.h"
 #include "Logger.h"
 #include "Scene.h"
+#include "Window.h"
 
 
 
@@ -296,47 +297,100 @@ std::string ae::utils::FontPath(const std::string& name, const std::string& type
 	return FontsDirectoryPath() + name + "." + type;
 }
 
-void ae::utils::SaveSnapshot(std::shared_ptr<Image> image) {
+std::string ae::utils::DateTimeString() {
+	
+	char buffer[256];
 	
 #ifdef WINDOWS
-	
 	time_t rawtime;
 	struct tm * timeinfo;
-	char buffer[1024];
-
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-
-	//strftime(buffer, sizeof(buffer), "%Y-%m-%d_%I:%M:%S", timeinfo);
+	
 	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
-
-	char filename[256] = "";
-	sprintf(filename, "Snapshot_%s.png", buffer);
-	
-	AE_LOG.info("Saving snapshot '{}'...", filename);
-	
-	image->writePNG(filename);
-	
 #else
-	
 	// gettimeofday() is POSIX
 	
 	timeval curTime;
 	gettimeofday(&curTime, NULL);
 	int milli = curTime.tv_usec / 1000;
 	
-	char buffer[128];
-	strftime(buffer, 128, "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	sprintf(buffer, "%s.%03d", buffer, milli);
+#endif
+	
+	return string(buffer);
+}
+
+void ae::utils::SaveSnapshot(Window& window) {
+	
+	auto image = window.snapshot();
+	
+	string dateTime = DateTimeString();
 	
 	char filename[256] = "";
-	sprintf(filename, "Snapshot_%s.%03d.png", buffer, milli);
-	//printf("current time: %s \n", currentTime);
+	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
 	
 	AE_LOG.info("Saving snapshot '{}'...", filename);
 	
 	image->writePNG(filename);
 
-#endif
+//#ifdef WINDOWS
+//
+//	time_t rawtime;
+//	struct tm * timeinfo;
+//	char buffer[1024];
+//
+//	time(&rawtime);
+//	timeinfo = localtime(&rawtime);
+//
+//	//strftime(buffer, sizeof(buffer), "%Y-%m-%d_%I:%M:%S", timeinfo);
+//	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
+//
+//	char filename[256] = "";
+//	sprintf(filename, "Snapshot_%s.png", buffer);
+//
+//	AE_LOG.info("Saving snapshot '{}'...", filename);
+//
+//	image->writePNG(filename);
+//
+//#else
+//
+//	// gettimeofday() is POSIX
+//
+//	timeval curTime;
+//	gettimeofday(&curTime, NULL);
+//	int milli = curTime.tv_usec / 1000;
+//
+//	char buffer[128];
+//	strftime(buffer, 128, "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+//
+//	char filename[256] = "";
+//	sprintf(filename, "Snapshot_%s.%03d.png", buffer, milli);
+//	//printf("current time: %s \n", currentTime);
+//
+//	AE_LOG.info("Saving snapshot '{}'...", filename);
+//
+//	image->writePNG(filename);
+//
+//#endif
+	
+	//auto filename = DateTimeString();
+}
+
+
+void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate) {
+	
+	string dateTime = DateTimeString();
+	
+	char filename[256] = "";
+	sprintf(filename, "Recording_%s.gif", dateTime.c_str());
+
+	window.startGIFRecording(filename, maxHeight, maxFramerate);
+}
+
+void ae::utils::StopGIFRecording(Window& window) {
+	window.stopGIFRecording();
 }
 
 

@@ -13,6 +13,7 @@ Tests:
 
 		Input manager: stickyDown, stickyUp
 
+		Add runtime antialiasing change
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
@@ -25,10 +26,7 @@ Tests:
 		Check plane generation (normals??)
 		weak_ptr
 		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
-		View and projection mat into UBO?
-		Dispose of generated buffers where appropriate // glUnmapBuffer?
-		Unuse/unbind things?s
-		glDeleteProgram, etc
+		Dispose of generated buffers where appropriate // glUnmapBuffer? - Unuse/unbind things, glDeleteProgram, etc
 		glsgify?
 
 	30 - physics
