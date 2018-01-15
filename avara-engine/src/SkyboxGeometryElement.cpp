@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 
+#include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "SkyboxMaterial.h"

@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #include "Types.h"
 
@@ -90,7 +90,7 @@ namespace ae {
 		WrapMode												m_wrapS;
 		WrapMode												m_wrapT;
 		
-		GLuint													m_glTextureID;
+		unsigned												m_glTextureID;
 	};
 }
 

@@ -13,10 +13,15 @@
 #include <functional>
 #include <memory>
 
-#include "fontstash.h"
-#include <GLFW/glfw3.h>
+//#include <GL/glew.h> // must be before anything including gl.h
+//#include "fontstash.h"
+//#include <GLFW/glfw3.h>
 
 #include "Types.h"
+
+
+struct FONScontext;
+struct GLFWwindow;
 
 
 namespace ae {

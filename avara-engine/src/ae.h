@@ -9,7 +9,6 @@
 #ifndef ae_h
 #define ae_h
 
-
 #include "Box.h"
 #include "Camera.h"
 #include "Capsule.h"
@@ -23,7 +22,7 @@
 #include "Image.h"
 #include "InputManager.h"
 #include "Light.h"
-#include "Logger.h" // THIS INCLUDES <spdlog/spdlog.h>... requires client targets to have it in their include path...
+#include "Logger.h"
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"

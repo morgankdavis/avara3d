@@ -11,6 +11,7 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
+		Refactor fons/render buffer init
 		GLBlitFramebuffer() for resolution upscaling
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)

@@ -11,8 +11,12 @@
 #include <algorithm>
 #include <iostream>
 
+
+#include <GL/glew.h> // include before anything that might include GL/gl.h...
 #include "gif.h"
+#include "fontstash.h"
 #include "gl3fontstash.h"
+#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
@@ -141,6 +145,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	
 		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
 		if (m_fonsFont == FONS_INVALID) { AE_LOG.error("Could not load font: {}", fontPath); }
+	
+		// setup render framebuffer
+	
+//		unsigned int renderFramebuffer = 0;
+//		glGenFramebuffers(1, &renderFramebuffer);
+//		glBindFramebuffer(GL_FRAMEBUFFER, renderFramebuffer);
+	
 			
 		// moved from initializer list
 		

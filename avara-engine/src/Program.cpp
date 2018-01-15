@@ -329,14 +329,14 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 }
 
-void Program::bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index) {
+void Program::bindTexture(const char* name, const unsigned& slot, const unsigned& textureID, unsigned index) {
 	
 	glActiveTexture(slot);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	setUniform(name, index);
+	setUniform(name, (int)index);
 }
 
-GLint Program::getAttributeLocation(const char* name) const {
+unsigned Program::getAttributeLocation(const char* name) const {
 	
 	return glGetAttribLocation(m_glID, name);
 }
@@ -495,7 +495,7 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	}
 }
 
-GLint Program::getUniformLocation(const char* name) {
+unsigned Program::getUniformLocation(const char* name) {
 	
 	int location = -1;
 	if (m_uniformLocations.find(name) == m_uniformLocations.end()) {

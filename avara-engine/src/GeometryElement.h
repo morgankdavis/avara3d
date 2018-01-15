@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -45,7 +45,7 @@ namespace ae {
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
 				  Material& material,
-				  GLuint glEnvironmentUBO,
+				  unsigned glEnvironmentUBO,
 				  DebugOption debugOptions,
 				  DrawStats& stats);
 		
@@ -66,8 +66,8 @@ namespace ae {
 		
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
-		GLuint									m_glVAO;
-		GLuint									m_glIBO;
+		unsigned								m_glVAO;
+		unsigned								m_glIBO;
 
 	};
 }

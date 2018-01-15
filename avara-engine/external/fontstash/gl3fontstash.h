@@ -28,7 +28,7 @@
 FONScontext* gl3fonsCreate(int width, int height, int flags);
 void gl3fonsDelete(FONScontext* ctx);
 void gl3fonsProjectionSize(FONScontext* ctx, int width, int height);
-void gl3fonsProjection(FONScontext* ctx, GLfloat *mat);
+void gl3fonsProjection(FONScontext* ctx, float *mat);
 
 unsigned int gl3fonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 

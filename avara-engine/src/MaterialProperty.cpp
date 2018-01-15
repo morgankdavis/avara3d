@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include <GL/glew.h>
+
 #include "Color.h"
 #include "Image.h"
 #include "Logger.h"

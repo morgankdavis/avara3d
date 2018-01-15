@@ -34,6 +34,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 
+#include <GLFW/glfw3.h>
 #ifdef MACOS
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
