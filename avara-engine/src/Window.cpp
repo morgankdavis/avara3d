@@ -134,24 +134,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	
 		i_window = this;
 	
-		// setup Font Stash
+		initFontstash();
 	
-		m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-		if (m_fonsContext == NULL) { AE_LOG.error("Error creating Font Stash context."); }
-	
-		string fontName = "SourceCodePro-Semibold";
-		string fontType = "otf";
-		string fontPath = FontPath(fontName, fontType);
-	
-		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
-		if (m_fonsFont == FONS_INVALID) { AE_LOG.error("Could not load font: {}", fontPath); }
-	
-		// setup render framebuffer
-	
-//		unsigned int renderFramebuffer = 0;
-//		glGenFramebuffers(1, &renderFramebuffer);
-//		glBindFramebuffer(GL_FRAMEBUFFER, renderFramebuffer);
-	
+		setupRenderBuffer();
 			
 		// moved from initializer list
 		
@@ -499,10 +484,70 @@ void Window::didUpdateCallback(windowDidUpdateFuction function) {
 //	}
 //}
 
+void Window::initFontstash() {
+
+	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+	if (m_fonsContext == NULL) { AE_LOG.error("Error creating Font Stash context."); }
+	
+	string fontName = "SourceCodePro-Semibold";
+	string fontType = "otf";
+	string fontPath = FontPath(fontName, fontType);
+	
+	m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
+	if (m_fonsFont == FONS_INVALID) { AE_LOG.error("Could not load font: {}", fontPath); }
+}
+
+void Window::setupRenderBuffer() {
+	
+	return;
+	
+	
+	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+	
+	// save current draw framebuffer handle...
+	GLint drawFboId = 0, readFboId = 0;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+	//glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
+	m_drawFramebuffer = drawFboId;
+	
+	// render framebuffer
+	
+	//GLuint renderFramebuffer = 0;
+	glGenFramebuffers(1, &m_renderFramebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
+	
+	// render texture
+	
+	GLuint renderTexture;
+	glGenTextures(1, &renderTexture);
+	
+	glBindTexture(GL_TEXTURE_2D, renderTexture);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	
+	// render depth buffer
+	
+	GLuint depthRenderBuffer;
+	glGenRenderbuffers(1, &depthRenderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+	
+	// setup draw buffer
+	
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture, 0);
+	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+}
+
 void Window::mainLoop(float deltaSeconds) {
 	
 	AE_LOG.trace("-------------------------------------------------------------------------------");
 	
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
 	auto pov = pointOfView();
@@ -525,6 +570,28 @@ void Window::mainLoop(float deltaSeconds) {
 		updateStatsOverlay(stats);
 	}
 
+//	void glBlitFramebuffer( 	GLint srcX0,
+//						   GLint srcY0,
+//						   GLint srcX1,
+//						   GLint srcY1,
+//						   GLint dstX0,
+//						   GLint dstY0,
+//						   GLint dstX1,
+//						   GLint dstY1,
+//						   GLbitfield mask,
+//						   GLenum filter);
+	
+//	GL_DRAW_BUFFER
+//	GL_READ_BUFFER
+	
+//	glBindFramebuffer(GL_READ_BUFFER, m_renderFramebuffer);
+//	glBindFramebuffer(GL_DRAW_BUFFER, m_drawFramebuffer);
+//
+//	glBlitFramebuffer(0, 0, m_width, m_height,
+//					  0, 0, m_framebufferWidth, m_framebufferHeight,
+//					  GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//
+//	glBindFramebuffer(GL_FRAMEBUFFER, m_drawFramebuffer);
 	glfwSwapBuffers(i_glfwWindow);
 	
 	checkSaveGIFFrame(deltaSeconds);

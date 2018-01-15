@@ -118,6 +118,8 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 
+		void initFontstash();
+		void setupRenderBuffer();
 		//void updateFrametime(unsigned int numPolygons);
 		void mainLoop(float deltaSeconds);
 		void updateStatsOverlay(DrawStats& stats);
@@ -144,6 +146,8 @@ namespace ae {
 		unsigned						m_gifRecordingWidth;
 		unsigned						m_gifRecordingHeight;
 		unsigned						m_gifRecordingMaxFramerate;
+		unsigned						m_renderFramebuffer;
+		unsigned						m_drawFramebuffer;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;

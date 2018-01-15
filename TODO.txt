@@ -11,8 +11,9 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Refactor fons/render buffer init
 		GLBlitFramebuffer() for resolution upscaling
+			https://www.opengl.org/discussion_boards/showthread.php/199483-Creating-Low-resolution-output-using-glBlitFrameBuffer
+
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
