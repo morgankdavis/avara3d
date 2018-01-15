@@ -11,6 +11,7 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
+		GLBlitFramebuffer() for resolution upscaling
 		weak_ptr
 		Cache uniform locations
 		ERROR HANDLING (shader failed to compile, etc)

@@ -570,6 +570,7 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	
 	//	framerate		322
 	//	frametime		7.6
+	//  percent         10.2
 	//
 	//	nodes			14
 	//	geometries		7
