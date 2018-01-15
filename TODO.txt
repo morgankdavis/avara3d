@@ -13,14 +13,12 @@ Tests:
 
 		GLBlitFramebuffer() for resolution upscaling
 		weak_ptr
-		Cache uniform locations
 		ERROR HANDLING (shader failed to compile, etc)
 		Clean up shader naming (vertex_ -> frag_, casing, etc)
 		Factor shader code
 		Proper scene graph unroll - DFS?
 		Rename enableCursor
 		Check plane generation (normals??)
-		FIX BOOST LINKING (ld: library not found for -lboost_system) + test in windows
 		Dispose of generated buffers where appropriate // glUnmapBuffer? - Unuse/unbind things, glDeleteProgram, etc
 
 

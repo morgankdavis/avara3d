@@ -12,6 +12,7 @@
 #define Program_h
 
 
+#include <map>
 #include <memory>
 #include <string>
 
@@ -111,6 +112,7 @@ namespace ae {
 //		boost::optional<std::string>	m_logString;
 		boost::optional<std::string>	m_vertexShaderSource;
 		boost::optional<std::string>	m_fragmentShaderSource;
+		std::map<std::string, int>		m_uniformLocations;
 	};
 }
 

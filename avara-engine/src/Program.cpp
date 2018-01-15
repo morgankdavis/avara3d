@@ -68,7 +68,8 @@ shared_ptr<Program> Program::AABB() {
 Program::Program(const string& name):
 	m_name(name),
 	m_glID(0),
-	m_isLinked(false) {
+	m_isLinked(false),
+	m_uniformLocations(map<string, int>() ){
 		
 //		m_logString = {};
 		m_vertexShaderSource = {};
@@ -495,7 +496,17 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 }
 
 GLint Program::getUniformLocation(const char* name) {
-	return glGetUniformLocation(m_glID, name);
+	
+	int location = -1;
+	if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
+		location = glGetUniformLocation(m_glID, name);
+		cout << "Caching uniform location: " << name << endl;
+		m_uniformLocations[name] = location;
+	}
+	else {
+		location = m_uniformLocations[name];
+	}
+	return location;
 }
 
 void Program::glID(GLuint glID) {
