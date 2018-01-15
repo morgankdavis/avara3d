@@ -594,7 +594,7 @@ void Window::mainLoop(float deltaSeconds) {
 //	glBindFramebuffer(GL_FRAMEBUFFER, m_drawFramebuffer);
 	glfwSwapBuffers(i_glfwWindow);
 	
-	checkSaveGIFFrame(deltaSeconds);
+	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 }
 
 void Window::updateStatsOverlay(DrawStats& stats) {
@@ -721,29 +721,26 @@ float Window::drawText(std::string line, float size, float dx, float dy) {
 	return fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
 }
 
-void Window::checkSaveGIFFrame(float deltaSeconds) {
-	
-	if (m_recordingGIF) {
-		
-		static float secondsAccum = 0;
-		secondsAccum += deltaSeconds;
-		
-		unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
-		
-		if (secondsAccum >= frameTime/1000.0) {
+void Window::saveGIFFrame(float deltaSeconds) {
 
-			auto frame = snapshot();
-			
-			unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
-			stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
-							   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
-			
-			// gif-h frame time is in 100ths of a second
-			GifWriteFrame(i_gifWriter, resizedFrameData,
-						  m_gifRecordingWidth, m_gifRecordingHeight, (secondsAccum*1000.0)/10.0);
-			
-			secondsAccum = secondsAccum - frameTime/1000.0;
-		}
+	static float secondsAccum = 0;
+	secondsAccum += deltaSeconds;
+	
+	unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	
+	if (secondsAccum >= frameTime/1000.0) {
+		
+		auto frame = snapshot();
+		
+		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
+		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
+						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
+		
+		// gif-h frame time is in 100ths of a second
+		GifWriteFrame(i_gifWriter, resizedFrameData,
+					  m_gifRecordingWidth, m_gifRecordingHeight, (secondsAccum*1000.0)/10.0);
+		
+		secondsAccum = secondsAccum - frameTime/1000.0;
 	}
 }
 

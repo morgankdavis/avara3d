@@ -124,7 +124,7 @@ namespace ae {
 		void mainLoop(float deltaSeconds);
 		void updateStatsOverlay(DrawStats& stats);
 		float drawText(std::string line, float size, float dx, float dy);
-		void checkSaveGIFFrame(float deltaSeconds);
+		void saveGIFFrame(float deltaSeconds);
 		
 		
 		std::shared_ptr<Scene>			m_scene;

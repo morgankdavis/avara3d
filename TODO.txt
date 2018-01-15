@@ -77,27 +77,13 @@ Lazy load geometry elements (compile shader + load materials) + Add pre-load met
 
 ——————————————————————————————————
 
-HDR/Bloom - Crocus!
-
-Generate primitive geometry types
-
-
-Print on-screen:
-    Timing
-        ms
-        fps
-    Num polygons
-    Num nodes
-    Camera position
-
-
 Add error handling/exceptions
     http://www.drdobbs.com/custom-exception-types/184401913
 
-Wrap GLM - https://github.com/cinder/Cinder/tree/master/include/cinder
-
 
 Laundry list:
+
+	Speed up gif downsampling with glBlitFramebuffer() instead of stb_image_resize()?
 
 	Read config from TOML file
 
