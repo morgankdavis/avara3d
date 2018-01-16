@@ -11,8 +11,14 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		GLBlitFramebuffer() for resolution upscaling
+		Find GL_INVALID_VALUE 0x0501 when loading scene
+		GL_INVALID_ENUM 0x0500?
+		GL_INVALID_OPERATION 0x0502
+
+		glBlitFramebuffer() for resolution upscaling
 			https://www.opengl.org/discussion_boards/showthread.php/199483-Creating-Low-resolution-output-using-glBlitFrameBuffer
+
+https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFramebuffer+glfwSwapBuffers&source=bl&ots=yYJ-E-jz6D&sig=lRAKc8c9lSezweBUgPpHTdbbElc&hl=en&sa=X&ved=0ahUKEwjlkumi29vYAhWKq1QKHUAwBgQQ6AEIUjAF#v=onepage&q=glBlitFramebuffer%20glfwSwapBuffers&f=false
 
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
@@ -45,24 +51,12 @@ Tests:
 	80 - vulkan? metal? deferred shading?
 
 
-Why use layout= instead of getAttributeLocation()
-	https://stackoverflow.com/questions/4635913/explicit-vs-automatic-attribute-location-binding-for-opengl-shaders
-
-Make lazy load GL identifiers boost::optional
-
-Fix scene import Z-up
-
-Basic geometric shapes?
-	Icosahedron: https://schneide.wordpress.com/2016/07/15/generating-an-icosphere-in-c/
-
-
 Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
 Check nodes don’t already exist when adding children
 
 
 QUESTIONS:
 	Why does mouse input speed change between vzync and non-vsync?
-	Why does non-async stutter?
 	Why do we have to invert our view matrix?
 		Apparently transforming everything into eye-space in the vertex shader is requiring this...
 		It also looks as though doing it the “other way” (not how we’re doing it) requires this:
@@ -72,8 +66,6 @@ QUESTIONS:
 
 
 Separate Window and Renderer
-
-Lazy load geometry elements (compile shader + load materials) + Add pre-load method
 
 ——————————————————————————————————
 
@@ -89,8 +81,6 @@ Laundry list:
 
 	Property encapsulate logging.
 		Look at PLog? https://github.com/SergiusTheBest/plog
-
-	Screenshot PPM? http://netpbm.sourceforge.net/doc/ppm.html
 
 	Scale UVs (texture tiling)
 	Gamma correction
@@ -128,12 +118,9 @@ Lua?
 	https://www.lua.org/wshop14/Zykov.pdf
 	https://github.com/jeremyong/Selene
 
-
 Squirral?
     http://squirrel-lang.org/
     http://wiki.squirrel-lang.org/default.aspx/SquirrelWiki/SqPlus.html
-
-
 
 
 Laundry list:
@@ -144,7 +131,6 @@ NEW LOGGING SYSTEM
 
 
 Wish list:
-	Save animated GIF
     	Camera lookAt constraint
 	Geometry subdivision
 
@@ -167,7 +153,6 @@ Nitpick:
 BUGS:
 	Looks like default camera isn’t respecting transform correctly
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
-
 
 
 

@@ -87,6 +87,7 @@ int Test::run(const vector<string>& args) {
 	window.enableCursor(false);
 	window.vSyncEnabled(false);
 	//window.antialiasingMode(AntialiasingMode_None);
+	window.debugOptions(DebugOption_ShowStatsOveray);
 	m_window = &window;
 	
 	auto scene = make_shared<Scene>();

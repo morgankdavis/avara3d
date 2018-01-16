@@ -500,7 +500,6 @@ unsigned Program::getUniformLocation(const char* name) {
 	int location = -1;
 	if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
 		location = glGetUniformLocation(m_glID, name);
-		cout << "Caching uniform location: " << name << endl;
 		m_uniformLocations[name] = location;
 	}
 	else {

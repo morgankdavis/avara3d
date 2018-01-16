@@ -95,6 +95,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 	
 		int viewportWidth = width;
 		int viewportHeight = height;
@@ -136,7 +137,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	
 		initFontstash();
 	
-		setupRenderBuffer();
+	
 			
 		// moved from initializer list
 		
@@ -147,8 +148,13 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
         m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
+	
+	
+		setupRenderBuffer(); // needs width and height!
+	
+	
 		m_antialiasingMode = antialiasingMode;
-		m_debugOptions = DebugOption_ShowStatsOveray;
+		m_debugOptions = (DebugOption)0;
 		m_backgroundColor = nullptr;
 		m_pointOfView = nullptr;
 		m_inputManager = nullptr;
@@ -501,18 +507,10 @@ void Window::setupRenderBuffer() {
 	
 	return;
 	
-	
 	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-	
-	// save current draw framebuffer handle...
-	GLint drawFboId = 0, readFboId = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
-	//glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
-	m_drawFramebuffer = drawFboId;
-	
+
 	// render framebuffer
 	
-	//GLuint renderFramebuffer = 0;
 	glGenFramebuffers(1, &m_renderFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
 	
@@ -523,32 +521,49 @@ void Window::setupRenderBuffer() {
 	
 	glBindTexture(GL_TEXTURE_2D, renderTexture);
 	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	
+	// new from antoin {
+//	glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
+//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture, 0);
+	// }
 	
 	// render depth buffer
 	
+	// ORIGINAL
 	GLuint depthRenderBuffer;
 	glGenRenderbuffers(1, &depthRenderBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+
+	
 	
 	// setup draw buffer
 	
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture, 0);
-	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
+	
+	GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fbStatus == GL_FRAMEBUFFER_COMPLETE) {
+		AE_LOG.info("Render framebuffer created.");
+	}
+	else {
+		AE_LOG.error("Error creating render framebuffer: {}", fbStatus);
+	}
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Window::mainLoop(float deltaSeconds) {
 	
 	AE_LOG.trace("-------------------------------------------------------------------------------");
-	
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
-	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -558,46 +573,40 @@ void Window::mainLoop(float deltaSeconds) {
 	//stats.cameraPosition = pov->worldPosition();
 	stats.cameraPosition = pov->position();
 	
+	GLenum err = glGetError(); // GL_NO_ERROR
+	if (err != GL_NO_ERROR) {
+		AE_LOG.error("*** glGetError: {} ***", err);
+	}
+	
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glReadBuffer(GL_COLOR_ATTACHMENT0);
+	
+	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
+//	glViewport(0, 0, m_width, m_height);
+//	glClearColor(1.0, 0, 0, 1.0);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
-	glfwPollEvents();
-	
-	if (m_inputManager != nullptr) {
-		m_inputManager->update(deltaSeconds);
-	}
-	
-	if (m_debugOptions & DebugOption_ShowStatsOveray) {
-		updateStatsOverlay(stats);
-	}
+	if (m_debugOptions & DebugOption_ShowStatsOveray) updateStatsOverlay(stats);
 
-//	void glBlitFramebuffer( 	GLint srcX0,
-//						   GLint srcY0,
-//						   GLint srcX1,
-//						   GLint srcY1,
-//						   GLint dstX0,
-//						   GLint dstY0,
-//						   GLint dstX1,
-//						   GLint dstY1,
-//						   GLbitfield mask,
-//						   GLenum filter);
-	
-//	GL_DRAW_BUFFER
-//	GL_READ_BUFFER
-	
-//	glBindFramebuffer(GL_READ_BUFFER, m_renderFramebuffer);
-//	glBindFramebuffer(GL_DRAW_BUFFER, m_drawFramebuffer);
-	
+//	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_renderFramebuffer);
 //	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 //
 //	glBlitFramebuffer(0, 0, m_width, m_height,
 //					  0, 0, m_framebufferWidth, m_framebufferHeight,
-//					  GL_COLOR_BUFFER_BIT, GL_NEAREST);
+//					  GL_COLOR_BUFFER_BIT, GL_NEAREST); // must be GL_NEAREST for integer format data
 //
-//	glBindFramebuffer(GL_FRAMEBUFFER, m_drawFramebuffer);
 //	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glfwSwapBuffers(i_glfwWindow);
 	
+	glfwSwapBuffers(i_glfwWindow);
+
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
+	
+	glfwPollEvents();
+	
+	if (m_inputManager) m_inputManager->update(deltaSeconds);
 }
 
 void Window::updateStatsOverlay(DrawStats& stats) {
