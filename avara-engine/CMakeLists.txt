@@ -54,6 +54,10 @@ elseif(LINUX)
 
 elseif(WINDOWS)
 
+#	message("WINDOWS")
+#	set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
+#		-Wfloat-equal -Wno-reorder -Wfloat-equal -D_WIN32_WINNT=0x600")
+
 endif()
 	
 

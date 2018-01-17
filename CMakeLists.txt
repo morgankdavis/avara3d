@@ -4,6 +4,18 @@ cmake_minimum_required(VERSION 3.8) # 3.8 required for CXX_STANDARD 17
 project(avara-engine)
 
 
+# print environment for debugging...
+
+message("ENVIRONMENT:")
+
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+
+
 if(UNIX AND APPLE)
     message(status, "We think we're APPLE")
     set(MACOS TRUE)
@@ -30,7 +42,12 @@ endif()
 #endif()
 
 if(MINGW)
-    message(status, "We think we're MINGW")
+    message(status, "We think we're MINGW (32?)")
+    set(WINDOWS TRUE)
+endif()
+
+if(MINGW_64)
+    message(status, "We think we're MINGW64")
     set(WINDOWS TRUE)
 endif()
 
@@ -55,6 +72,16 @@ elseif(WINDOWS)
         add_definitions("-DMINGW")
     endif()
 endif()
+
+
+
+#if(WINDOWS)
+#
+#message("WINDOWS FLAGS")
+#set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
+#		-Wfloat-equal -Wno-reorder -Wfloat-equal -D_WIN32_WINNT=0x600")
+#
+#endif()
 
 
 

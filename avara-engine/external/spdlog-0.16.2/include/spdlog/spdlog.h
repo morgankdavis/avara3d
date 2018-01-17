@@ -7,6 +7,10 @@
 
 #pragma once
 
+// temporary
+//-D_WIN32_WINNT=0x600
+//#define _WIN32_WINNT=0x600
+
 #define SPDLOG_VERSION "0.16.2"
 
 #include "tweakme.h"

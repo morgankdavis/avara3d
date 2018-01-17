@@ -1,4 +1,4 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
@@ -10,6 +10,10 @@ Tests:
 	04 - geoprimitives
 	05 - materials-lights
 	06 - debugging & cleanup
+
+		Build assimp & spdlog in MINGW64
+			https://github.com/Alexpux/MINGW-packages
+			https://github.com/Alexpux/MINGW-packages/blob/master/mingw-w64-assimp/build-fixes.patch
 
 		Find GL_INVALID_VALUE 0x0501 when loading scene
 		GL_INVALID_ENUM 0x0500?
@@ -36,6 +40,9 @@ https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFrame
 
 
 	30 - physics
+
+		MINGW64?
+			https://github.com/Alexpux/MINGW-packages/tree/master/mingw-w64-bullet
 
 	40 - multithreading
 		#include <thread>
