@@ -68,7 +68,8 @@ shared_ptr<Program> Program::AABB() {
 Program::Program(const string& name):
 	m_name(name),
 	m_glID(0),
-	m_isLinked(false) {
+	m_isLinked(false),
+	m_uniformLocations(map<string, int>() ){
 		
 //		m_logString = {};
 		m_vertexShaderSource = {};
@@ -328,14 +329,14 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 }
 
-void Program::bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index) {
+void Program::bindTexture(const char* name, const unsigned& slot, const unsigned& textureID, unsigned index) {
 	
 	glActiveTexture(slot);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	setUniform(name, index);
+	setUniform(name, (int)index);
 }
 
-GLint Program::getAttributeLocation(const char* name) const {
+unsigned Program::getAttributeLocation(const char* name) const {
 	
 	return glGetAttribLocation(m_glID, name);
 }
@@ -494,8 +495,17 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	}
 }
 
-GLint Program::getUniformLocation(const char* name) {
-	return glGetUniformLocation(m_glID, name);
+unsigned Program::getUniformLocation(const char* name) {
+	
+	int location = -1;
+	if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
+		location = glGetUniformLocation(m_glID, name);
+		m_uniformLocations[name] = location;
+	}
+	else {
+		location = m_uniformLocations[name];
+	}
+	return location;
 }
 
 void Program::glID(GLuint glID) {

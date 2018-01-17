@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include <GL/glew.h>
+
 #include "Color.h"
 #include "Logger.h"
 #include "Material.h"
@@ -48,7 +50,7 @@ void GeometryElement::draw(const mat4& modelMat,
 						   const mat4& viewMat,
 						   const mat4& projectionMat,
 						   Material& material,
-						   GLuint glEnvironmentUBO,
+						   unsigned glEnvironmentUBO,
 						   DebugOption debugOptions,
 						   DrawStats& stats) {
 

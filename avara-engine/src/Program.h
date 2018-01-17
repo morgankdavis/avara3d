@@ -12,11 +12,12 @@
 #define Program_h
 
 
+#include <map>
 #include <memory>
 #include <string>
 
 #include <boost/optional.hpp>
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #include "Types.h"
 
@@ -58,8 +59,8 @@ namespace ae {
 		void use();
 		void unuse();
 		
-		void bindAttribLocation(GLuint location, const char* name);
-		void bindFragDataLocation(GLuint location, const char* name);
+		void bindAttribLocation(unsigned location, const char* name);
+		void bindFragDataLocation(unsigned location, const char* name);
 		
 		void setUniform(const char* name, float x, float y, float z);
 		void setUniform(const char* name, const glm::vec2& v);
@@ -71,17 +72,17 @@ namespace ae {
 		void setUniform(const char* name, int val);
 		void setUniform(const char* name, float val);
 		
-		void bindUniformBlock(const char* name, GLuint location);
+		void bindUniformBlock(const char* name, unsigned location);
 		
-		void bindTexture(const char* name, const GLenum& slot, const GLuint& textureID, GLint index);
+		void bindTexture(const char* name, const unsigned& slot, const unsigned& textureID, unsigned index);
 		
-		GLint getAttributeLocation(const char* name) const;
+		unsigned getAttributeLocation(const char* name) const;
 		
 //		void printActiveUniforms() const;
 //		void printActiveAttribs() const;
 		
 		std::string name() const;
-		GLuint glID();
+		unsigned glID();
 		bool isLinked() const;
 		boost::optional<std::string> vertexShaderSource() const;
 		//void vertexShaderSource(boost::optional<std::string> source);
@@ -99,18 +100,19 @@ namespace ae {
 		void prepare();
 		
 		bool compileShaderFromString(const std::string& source, ShaderType type);
-		GLint getUniformLocation(const char* name);
+		unsigned getUniformLocation(const char* name);
 		
-		void glID(GLuint glID);
+		void glID(unsigned glID);
 		void isLinked(bool isLinked);
 //		void logString(boost::optional<std::string> logString);
 		
 		std::string  					m_name;
-		GLuint  						m_glID;
+		unsigned  						m_glID;
 		bool 							m_isLinked;
 //		boost::optional<std::string>	m_logString;
 		boost::optional<std::string>	m_vertexShaderSource;
 		boost::optional<std::string>	m_fragmentShaderSource;
+		std::map<std::string, int>		m_uniformLocations;
 	};
 }
 

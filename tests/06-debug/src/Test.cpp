@@ -51,6 +51,7 @@ int Test::run(const vector<string>& args) {
 	//window.antialiasingMode(AntialiasingMode_None);
 	m_window = &window;
 	
+	window.debugOptions(DebugOption_ShowStatsOveray);
 	//window.debugOptions(DebugOption_ShowWireframe);
 
 	

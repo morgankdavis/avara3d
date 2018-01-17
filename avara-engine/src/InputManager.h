@@ -16,10 +16,13 @@
 #include <set>
 
 //#define GLFW_DLL
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
 #include "Types.h"
+
+
+struct GLFWwindow;
 
 
 namespace ae {

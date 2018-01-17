@@ -18,6 +18,7 @@
 #include <assimp/postprocess.h>
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
+#include <GL/glew.h>
 
 #include "Camera.h"
 #include "Color.h"

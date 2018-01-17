@@ -13,10 +13,15 @@
 #include <functional>
 #include <memory>
 
-#include "fontstash.h"
-#include <GLFW/glfw3.h>
+//#include <GL/glew.h> // must be before anything including gl.h
+//#include "fontstash.h"
+//#include <GLFW/glfw3.h>
 
 #include "Types.h"
+
+
+struct FONScontext;
+struct GLFWwindow;
 
 
 namespace ae {
@@ -113,11 +118,13 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 
+		void initFontstash();
+		void setupRenderBuffer();
 		//void updateFrametime(unsigned int numPolygons);
 		void mainLoop(float deltaSeconds);
 		void updateStatsOverlay(DrawStats& stats);
 		float drawText(std::string line, float size, float dx, float dy);
-		void checkSaveGIFFrame(float deltaSeconds);
+		void saveGIFFrame(float deltaSeconds);
 		
 		
 		std::shared_ptr<Scene>			m_scene;
@@ -139,6 +146,8 @@ namespace ae {
 		unsigned						m_gifRecordingWidth;
 		unsigned						m_gifRecordingHeight;
 		unsigned						m_gifRecordingMaxFramerate;
+		unsigned						m_renderFramebuffer;
+		//unsigned						m_drawFramebuffer;
 		
 		windowWillUpdateFuction 		m_willUpdateCallback;
 		windowDidUpdateFuction 			m_didUpdateCallback;
