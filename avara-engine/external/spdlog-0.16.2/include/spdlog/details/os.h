@@ -35,6 +35,10 @@
 #include <share.h>
 #endif
 
+#ifdef MINGW
+#include <time.h>
+#endif
+
 #else // unix
 
 #include <unistd.h>
@@ -79,10 +83,15 @@ inline spdlog::log_clock::time_point now()
 }
 inline std::tm localtime(const std::time_t &time_tt)
 {
-
-#ifdef _WIN32
+    // #if  defined (macro1)  || !defined (macro2) || defined (macro3)
+#if defined(_WIN32) && !defined(MINGW)
+//#ifndef MINGW
     std::tm tm;
     localtime_s(&tm, &time_tt);
+//#else
+//    std::tm tm;
+//    localtime_r(&time_tt, &tm);
+//#endif
 #else
     std::tm tm;
     localtime_r(&time_tt, &tm);

@@ -1,4 +1,4 @@
-
+﻿
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(src)
@@ -53,7 +53,10 @@ elseif(LINUX)
 		-Wfloat-equal -Wno-reorder -Wfloat-equal")	
 
 elseif(WINDOWS)
+	# for spdlog
+	# -D_WIN32_WINNT=0x600
 
+	#set(CMAKE_CXX_FLAGS "-D_WIN32_WINNT=0x600")
 endif()
 	
 

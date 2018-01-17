@@ -8,7 +8,7 @@
 
 #include "manymouse.h"
 
-#if (defined(_WIN32) || defined(_WINDOWS) || defined(__CYGWIN__))
+#if (defined(_WIN32) || defined(_WINDOWS) || defined(__CYGWIN__) || defined(__MINGW32__))
 
 /* WinUser.h won't include rawinput stuff without this... */
 #if (_WIN32_WINNT < 0x0501)
@@ -44,7 +44,7 @@ static HWND raw_hwnd = NULL;
 static const char *class_name = "ManyMouseRawInputCatcher";
 static const char *win_name = "ManyMouseRawInputMsgWindow";
 static ATOM class_atom = 0;
-static AE_LOG.critical_SECTION mutex;
+static CRITICAL_SECTION mutex;
 
 typedef struct
 {
@@ -81,16 +81,16 @@ static BOOL (WINAPI *pPeekMessageA)(LPMSG,HWND,UINT,UINT,UINT);
 static BOOL (WINAPI *pTranslateMessage)(const MSG *);
 static LRESULT (WINAPI *pDispatchMessageA)(const MSG *);
 static BOOL (WINAPI *pDestroyWindow)(HWND);
-static void (WINAPI *pInitializeCriticalSection)(LPAE_LOG.critical_SECTION);
-static void (WINAPI *pEnterCriticalSection)(LPAE_LOG.critical_SECTION);
-static void (WINAPI *pLeaveCriticalSection)(LPAE_LOG.critical_SECTION);
-static void (WINAPI *pDeleteCriticalSection)(LPAE_LOG.critical_SECTION);
+static void (WINAPI *pInitializeCriticalSection)(LPCRITICAL_SECTION);
+static void (WINAPI *pEnterCriticalSection)(LPCRITICAL_SECTION);
+static void (WINAPI *pLeaveCriticalSection)(LPCRITICAL_SECTION);
+static void (WINAPI *pDeleteCriticalSection)(LPCRITICAL_SECTION);
 static DWORD (WINAPI *pGetLastError)(void);
-static HDEVAE_LOG.info (WINAPI *pSetupDiGetClassDevsA)(LPGUID, LPCTSTR, HWND, DWORD);
-static BOOL (WINAPI *pSetupDiEnumDeviceInfo)(HDEVAE_LOG.info, DWORD, PSP_DEVAE_LOG.info_DATA);
-static BOOL (WINAPI *pSetupDiGetDeviceInstanceIdA)(HDEVAE_LOG.info, PSP_DEVAE_LOG.info_DATA, PTSTR, DWORD, PDWORD);
-static BOOL (WINAPI *pSetupDiGetDeviceRegistryPropertyA)(HDEVAE_LOG.info, PSP_DEVAE_LOG.info_DATA, DWORD, PDWORD, PBYTE, DWORD, PDWORD);
-static BOOL (WINAPI *pSetupDiDestroyDeviceInfoList)(HDEVAE_LOG.info);
+static HDEVINFO (WINAPI *pSetupDiGetClassDevsA)(LPGUID, LPCTSTR, HWND, DWORD);
+static BOOL (WINAPI *pSetupDiEnumDeviceInfo)(HDEVINFO, DWORD, PSP_DEVINFO_DATA);
+static BOOL (WINAPI *pSetupDiGetDeviceInstanceIdA)(HDEVINFO, PSP_DEVINFO_DATA, PTSTR, DWORD, PDWORD);
+static BOOL (WINAPI *pSetupDiGetDeviceRegistryPropertyA)(HDEVINFO, PSP_DEVINFO_DATA, DWORD, PDWORD, PBYTE, DWORD, PDWORD);
+static BOOL (WINAPI *pSetupDiDestroyDeviceInfoList)(HDEVINFO);
 
 static int symlookup(HMODULE dll, void **addr, const char *sym)
 {
@@ -324,7 +324,7 @@ static void wminput_handler(WPARAM wParam, LPARAM lParam)
         return;  /* unexpected packet? */
 
     lpb = (LPBYTE) alloca(dwSize);
-    if (lpb == NULL) 
+    if (lpb == NULL)
         return;
     if (pGetRawInputData((HRAWINPUT) lParam, RID_INPUT, lpb, &dwSize,
                           sizeof (RAWINPUTHEADER)) != dwSize)
@@ -410,8 +410,8 @@ static void cleanup_window(void)
 } /* cleanup_window */
 
 
-static int get_devinfo_data(HDEVAE_LOG.info devinfo, const char *devinstance,
-                            SP_DEVAE_LOG.info_DATA *data)
+static int get_devinfo_data(HDEVINFO devinfo, const char *devinstance,
+                            SP_DEVINFO_DATA *data)
 {
     DWORD i = 0;
     const DWORD bufsize = string_length(devinstance) + 1;
@@ -421,11 +421,11 @@ static int get_devinfo_data(HDEVAE_LOG.info devinfo, const char *devinstance,
 
     while (1)
     {
-        ZeroMemory(data, sizeof (SP_DEVAE_LOG.info_DATA));
-        data->cbSize = sizeof (SP_DEVAE_LOG.info_DATA);
+        ZeroMemory(data, sizeof (SP_DEVINFO_DATA));
+        data->cbSize = sizeof (SP_DEVINFO_DATA);
         if (!pSetupDiEnumDeviceInfo(devinfo, i++, data))
         {
-            if (pGetLastError() == AE_LOG.error_NO_MORE_ITEMS)
+            if (pGetLastError() == ERROR_NO_MORE_ITEMS)
                 break;
             else
                 continue;
@@ -446,9 +446,9 @@ static int get_devinfo_data(HDEVAE_LOG.info devinfo, const char *devinstance,
 static void get_dev_name_by_instance(const char *devinstance, char *name,
                                      size_t namesize)
 {
-    SP_DEVAE_LOG.info_DATA devdata;
+    SP_DEVINFO_DATA devdata;
     const DWORD flags = DIGCF_ALLCLASSES | DIGCF_PRESENT;
-    HDEVAE_LOG.info devinfo = pSetupDiGetClassDevsA(NULL, NULL, NULL, flags);
+    HDEVINFO devinfo = pSetupDiGetClassDevsA(NULL, NULL, NULL, flags);
     if (devinfo == INVALID_HANDLE_VALUE)
         return;
 
@@ -632,7 +632,7 @@ static int check_for_disconnects(ManyMouseEvent *ev)
     if (mouse->handle != NULL)  /* not NULL == still plugged in. */
     {
         UINT size = 0;
-        UINT rc = pGetRawInputDeviceInfoA(mouse->handle, RIDI_DEVICEAE_LOG.info,
+        UINT rc = pGetRawInputDeviceInfoA(mouse->handle, RIDI_DEVICEINFO,
                                           NULL, &size);
         if (rc == (UINT) -1)  /* failed...probably unplugged... */
         {
