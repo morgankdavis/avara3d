@@ -1,5 +1,6 @@
 
-cmake_minimum_required(VERSION 3.8) # 3.8 required for CXX_STANDARD 17
+# cmake 3.8 is required for C++17
+cmake_minimum_required(VERSION 3.0)
 
 project(avara-engine)
 
@@ -30,7 +31,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(WIN32)
-    message(status, "We think we're WINDOWS")
+    message(status, "We think we're WIN32")
     set(WINDOWS TRUE)
 endif()
 
@@ -49,6 +50,7 @@ endif()
 if(MINGW_64)
     message(status, "We think we're MINGW64")
     set(WINDOWS TRUE)
+    #set(D_WIN32_WINNT=0x600) # fix spdlog?
 endif()
 
 if(MSVS)

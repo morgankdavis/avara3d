@@ -48,7 +48,7 @@ using namespace std;
      MARK:   Types
  **************************************************************************************/
 
-typedef struct __attribute__((packed)) {
+typedef struct {
 	int32_t 	type;
 	float32_t 	PADDING1;
 	float32_t 	PADDING2;
@@ -69,7 +69,7 @@ typedef struct __attribute__((packed)) {
 	//	float outerAngle;
 } LightGLSLStruct;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
 	float32_t 	startDistance;
 	float32_t 	endDistance;
 	float32_t 	densityExponent;
@@ -750,7 +750,7 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 	
 	// block
 	
-	typedef struct __attribute__((packed)) {
+	typedef struct {
 		int32_t 			numLights;
 		float32_t 			PADDING1;
 		float32_t 			PADDING2;
