@@ -81,23 +81,37 @@ inline spdlog::log_clock::time_point now()
 #endif
 
 }
+
 inline std::tm localtime(const std::time_t &time_tt)
 {
-    // #if  defined (macro1)  || !defined (macro2) || defined (macro3)
-#if defined(_WIN32) && !defined(MINGW)
-//#ifndef MINGW
-    std::tm tm;
+#ifdef _WIN32
+/* I changed here */
+#ifdef __MINGW32__
+	std::tm tm;
+	tm = *::localtime(&time_tt);
+#else
+	std::tm tm;
     localtime_s(&tm, &time_tt);
+#endif
+#else
+	std::tm tm;
+    localtime_r(&time_tt, &tm);
+#endif
+	return tm;
+}
+
+//inline std::tm localtime(const std::time_t &time_tt)
+//{
+//    // #if  defined (macro1)  || !defined (macro2) || defined (macro3)
+//#if defined(_WIN32) && !defined(MINGW)
+//    std::tm tm;
+//    localtime_s(&tm, &time_tt);
 //#else
 //    std::tm tm;
 //    localtime_r(&time_tt, &tm);
 //#endif
-#else
-    std::tm tm;
-    localtime_r(&time_tt, &tm);
-#endif
-    return tm;
-}
+//    return tm;
+//}
 
 inline std::tm localtime()
 {
@@ -105,19 +119,36 @@ inline std::tm localtime()
     return localtime(now_t);
 }
 
-
 inline std::tm gmtime(const std::time_t &time_tt)
 {
-
 #ifdef _WIN32
-    std::tm tm;
-    gmtime_s(&tm, &time_tt);
+/* I changed here */
+#ifdef __MINGW32__
+	std::tm tm;
+	tm = *::gmtime(&time_tt);
 #else
-    std::tm tm;
+	std::tm tm;
+    gmtime_s(&tm, &time_tt);
+#endif
+#else
+	std::tm tm;
     gmtime_r(&time_tt, &tm);
 #endif
-    return tm;
+	return tm;
 }
+
+//inline std::tm gmtime(const std::time_t &time_tt)
+//{
+//
+//#ifdef _WIN32
+//    std::tm tm;
+//    gmtime_s(&tm, &time_tt);
+//#else
+//    std::tm tm;
+//    gmtime_r(&time_tt, &tm);
+//#endif
+//    return tm;
+//}
 
 inline std::tm gmtime()
 {

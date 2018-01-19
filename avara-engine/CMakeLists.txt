@@ -23,8 +23,6 @@ include_directories(external/gif-h)
 #add_subdirectory(external/spdlog-0.16.2)
 #include_directories(external/spdlog-0.16.2/include)
 
-add_subdirectory(external/winpthreads)
-include_directories(external/winpthreads/include)
 
 file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
@@ -63,6 +61,12 @@ elseif(WINDOWS)
 #	set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
 #		-Wfloat-equal -Wno-reorder -Wfloat-equal -D_WIN32_WINNT=0x600")
 
+	if(MINGW64)
+		add_subdirectory(external/winpthreads)
+		include_directories(external/winpthreads/include)
+	endif()
+
+
 	set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -lpthread")
 
 endif()
@@ -79,8 +83,9 @@ elseif(LINUX)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif(WINDOWS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp boost_system boost_filesystem)
-	target_link_libraries(ae winpthreads)
+	if(MINGW64)
+		target_link_libraries(ae winpthreads)
+	endif()
 	target_link_libraries(ae ${OPENGL_LIBRARY})
-
 endif()
 

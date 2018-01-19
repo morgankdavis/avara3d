@@ -33,26 +33,30 @@ endif()
 if(WIN32)
     message(status, "We think we're WIN32")
     set(WINDOWS TRUE)
+    set(WIN32 TRUE)
 endif()
 
 if(WIN64)
     message(status, "We think we're WIN64")
+    set(WINDOWS TRUE)
+    set(WIN64 TRUE)
 endif()
 
-#if(MSVS OR MSYS OR MINGW)
-#endif()
 
 if(MINGW)
-    message(status, "We think we're MINGW (32)")
+    message(status, "We think we're MINGW")
     set(WINDOWS TRUE)
-    set(MINGW32 TRUE)
-endif()
 
-if(MINGW_64) # this doesn't do anything
-    message(status, "We think we're MINGW64")
-    set(WINDOWS TRUE)
-    set(MINGW64 TRUE)
-    #set(D_WIN32_WINNT=0x600) # fix spdlog?
+    if(CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
+        message(status, "*** MINGW32 ***")
+        set(MINGW32 TRUE)
+        set(WIN32 TRUE)
+    else()
+        message(status, "*** MINGW64 ***")
+        set(MINGW64 TRUE)
+        set(WIN64 TRUE)
+    endif()
+
 endif()
 
 if(MSVS)
