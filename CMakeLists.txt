@@ -43,13 +43,15 @@ endif()
 #endif()
 
 if(MINGW)
-    message(status, "We think we're MINGW (32?)")
+    message(status, "We think we're MINGW (32)")
     set(WINDOWS TRUE)
+    set(MINGW32 TRUE)
 endif()
 
-if(MINGW_64)
+if(MINGW_64) # this doesn't do anything
     message(status, "We think we're MINGW64")
     set(WINDOWS TRUE)
+    set(MINGW64 TRUE)
     #set(D_WIN32_WINNT=0x600) # fix spdlog?
 endif()
 
@@ -118,7 +120,7 @@ if(WINDOWS)
 	set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
 endif()
 
-# we always seem to have trouble importing the headers for assimp 4.0.1... 
+# we always seem to have trouble importing the headers for assimp 4.0.1...
 #add_subdirectory(avara-engine/external/assimp-4.0.1)
 #include_directories(avara-engine/external/assimp-4.0.1/include)
 
@@ -148,4 +150,3 @@ include_directories(avara-engine/external/fontstash)
 
 add_subdirectory(avara-engine)
 add_subdirectory(tests)
-

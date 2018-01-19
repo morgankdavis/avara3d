@@ -136,10 +136,15 @@ bool IOSystem::ComparePaths (const char* one, const char* second) const
 
 // maximum path length
 // XXX http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
+#ifdef MINGW // MinGW-w64 fix by morgan
+#define PATH_MAX 4096
+#define PATHLIMIT 4096
+#else
 #ifdef PATH_MAX
 #   define PATHLIMIT PATH_MAX
 #else
 #   define PATHLIMIT 4096
+#endif
 #endif
 
 // ------------------------------------------------------------------------------------------------
