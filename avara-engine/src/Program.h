@@ -74,7 +74,8 @@ namespace ae {
 		
 		void bindUniformBlock(const char* name, unsigned location);
 		
-		void bindTexture(const char* name, const unsigned& slot, const unsigned& textureID, unsigned index);
+		void bindTexture(const char* name, const int& target, const unsigned& slot,
+						 const unsigned& textureID, unsigned index);
 		
 		unsigned getAttributeLocation(const char* name) const;
 		

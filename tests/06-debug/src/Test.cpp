@@ -64,19 +64,18 @@ int Test::run(const vector<string>& args) {
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
 	scene->rootNode()->addChildNode(teapotNode);
-	
+
 	auto dragonScene = TestSceneNamed("dragon", "obj");
 	auto dragonNode = dragonScene->rootNode()->allChildNodes()[0];
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 	scene->rootNode()->addChildNode(dragonNode);
 
-	
+
 //	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
 //	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky2", "png"));
 	scene->background(background);
-
 
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
@@ -96,8 +95,8 @@ int Test::run(const vector<string>& args) {
 	auto geometry = make_shared<Sphere>(3.5, 16);
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
-	
-	
+
+
 	scene->fogStartDistance(500.0);
 	scene->fogEndDistance(5000.0);
 	scene->fogDensityExponent(1.0);

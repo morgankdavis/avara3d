@@ -175,6 +175,13 @@ Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
 
+void ae::utils::CheckGLError() {
+	GLenum err = glGetError();
+	if (err != GL_NO_ERROR) {
+		AE_LOG.warn("*** WINDOW glGetError: {} ***", err);
+	}
+}
+
 int ae::utils::Random(int min, int max) {
 	return (min + (rand() % static_cast<int>(max - min + 1)));
 }

@@ -39,9 +39,11 @@ namespace ae {
 		 	MARK:   Internal
 		 **************************************************************************************/
 		
-		unsigned draw(const glm::mat4& viewMat,
+		void draw(const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const SkyboxMaterial& material);
+		
+		void loadVertexData(const Program& program);
 		
 	private:
 		

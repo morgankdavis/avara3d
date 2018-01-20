@@ -29,6 +29,7 @@ extern "C" {
 #else
 #define FONS_DEF extern
 #endif
+	
 
 #define FONS_INVALID -1
 
@@ -1250,6 +1251,7 @@ static void fons__flush(FONScontext* stash)
 	if (stash->dirtyRect[0] < stash->dirtyRect[2] && stash->dirtyRect[1] < stash->dirtyRect[3]) {
 		if (stash->params.renderUpdate != NULL)
 			stash->params.renderUpdate(stash->params.userPtr, stash->dirtyRect, stash->texData);
+
 		// Reset dirty rect
 		stash->dirtyRect[0] = stash->params.width;
 		stash->dirtyRect[1] = stash->params.height;
@@ -1302,8 +1304,8 @@ static float fons__getVertAlign(FONScontext* stash, FONSfont* font, int align, s
 }
 
 FONS_DEF float fonsDrawText(FONScontext* stash,
-				   float x, float y,
-				   const char* str, const char* end)
+							float x, float y,
+							const char* str, const char* end)
 {
 	FONSstate* state = fons__getState(stash);
 	unsigned int codepoint;
@@ -1337,6 +1339,7 @@ FONS_DEF float fonsDrawText(FONScontext* stash,
 		width = fonsTextBounds(stash, x,y, str, end, NULL);
 		x -= width * 0.5f;
 	}
+
 	// Align vertically.
 	y += fons__getVertAlign(stash, font, state->align, isize);
 
@@ -1361,7 +1364,7 @@ FONS_DEF float fonsDrawText(FONScontext* stash,
 		prevGlyphIndex = glyph != NULL ? glyph->index : -1;
 	}
 	fons__flush(stash);
-
+	
 	return x;
 }
 

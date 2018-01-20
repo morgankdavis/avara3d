@@ -1,4 +1,4 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
@@ -11,18 +11,9 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Build assimp & spdlog in MINGW64
-			https://github.com/Alexpux/MINGW-packages
-			https://github.com/Alexpux/MINGW-packages/blob/master/mingw-w64-assimp/build-fixes.patch
+		AE_LOG. -> AE_LOG->
 
-		Find GL_INVALID_VALUE 0x0501 when loading scene
-		GL_INVALID_ENUM 0x0500?
-		GL_INVALID_OPERATION 0x0502
-
-		glBlitFramebuffer() for resolution upscaling
-			https://www.opengl.org/discussion_boards/showthread.php/199483-Creating-Low-resolution-output-using-glBlitFrameBuffer
-
-https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFramebuffer+glfwSwapBuffers&source=bl&ots=yYJ-E-jz6D&sig=lRAKc8c9lSezweBUgPpHTdbbElc&hl=en&sa=X&ved=0ahUKEwjlkumi29vYAhWKq1QKHUAwBgQQ6AEIUjAF#v=onepage&q=glBlitFramebuffer%20glfwSwapBuffers&f=false
+		Include skybox in "stats"
 
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
@@ -33,16 +24,11 @@ https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFrame
 		Check plane generation (normals??)
 		Dispose of generated buffers where appropriate // glUnmapBuffer? - Unuse/unbind things, glDeleteProgram, etc
 
-
 		FIX FUCKING MOUSE INPUT
 		Artificial frame limit?
 			https://gafferongames.com/post/fix_your_timestep/
 
-
 	30 - physics
-
-		MINGW64?
-			https://github.com/Alexpux/MINGW-packages/tree/master/mingw-w64-bullet
 
 	40 - multithreading
 		#include <thread>
@@ -81,6 +67,10 @@ Add error handling/exceptions
 
 
 Laundry list:
+
+	glBlitFramebuffer() for resolution upscaling
+		https://www.opengl.org/discussion_boards/showthread.php/199483-Creating-Low-resolution-output-using-glBlitFrameBuffer
+		https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFramebuffer+glfwSwapBuffers&source=bl&ots=yYJ-E-jz6D&sig=lRAKc8c9lSezweBUgPpHTdbbElc&hl=en&sa=X&ved=0ahUKEwjlkumi29vYAhWKq1QKHUAwBgQQ6AEIUjAF#v=onepage&q=glBlitFramebuffer%20glfwSwapBuffers&f=false
 
 	Speed up gif downsampling with glBlitFramebuffer() instead of stb_image_resize()?
 

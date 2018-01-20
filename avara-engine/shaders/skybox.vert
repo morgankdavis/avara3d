@@ -1,7 +1,14 @@
 #version 330
 
 
-in vec3 vertex_position;
+//in vec3 vertex_position;
+//
+//in vec3 vertex_normal;
+
+layout (location = 0) in vec3 vertex_position;
+//layout (location = 1) in vec3 vertex_normal;
+//layout (location = 1) in vec3 texture_coordinate;
+
 
 uniform mat4 view;
 uniform mat4 projection;

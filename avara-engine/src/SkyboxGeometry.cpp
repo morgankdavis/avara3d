@@ -14,6 +14,7 @@
 #include "SkyboxGeometryElement.h"
 #include "SkyboxMaterial.h"
 #include "Material.h"
+#include "Utilities.h"
 
 
 using namespace ae;
@@ -30,7 +31,7 @@ SkyboxGeometry::SkyboxGeometry(const shared_ptr<SkyboxMaterial> material):
 //	m_name(boost::none),
 //	m_elements(elements),
 //	m_materials(materials) {
-		
+
 		m_materials = vector<shared_ptr<SkyboxMaterial>>();
 		m_materials.emplace_back(material);
 
@@ -126,7 +127,7 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
      MARK:   Geometry
  **************************************************************************************/
 
-unsigned SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
+void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
 
 	GeometryElement geoElem = *(m_elements[0]);
 	SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);
@@ -135,7 +136,7 @@ unsigned SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
 	
 	SkyboxMaterial skyMaterial = *m_materials[0];
 
-	return element.draw(viewMat, projectionMat, skyMaterial);
+	element.draw(viewMat, projectionMat, skyMaterial);
 }
 
 

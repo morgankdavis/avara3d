@@ -329,10 +329,11 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 }
 
-void Program::bindTexture(const char* name, const unsigned& slot, const unsigned& textureID, unsigned index) {
+void Program::bindTexture(const char* name, const int& target, const unsigned& slot,
+						  const unsigned& textureID, unsigned index) {
 	
 	glActiveTexture(slot);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(target, textureID);
 	setUniform(name, (int)index);
 }
 

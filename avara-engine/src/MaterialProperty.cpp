@@ -16,6 +16,7 @@
 #include "Image.h"
 #include "Logger.h"
 #include "Program.h"
+#include "Utilities.h"
 
 
 using namespace ae;
@@ -317,7 +318,9 @@ void MaterialProperty::loadTexture() {
 void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 	
 	if (m_cube) { // currently only used for skybox
-		program.bindTexture("cubeSampler", GL_TEXTURE0, m_glTextureID, 0);
+		utils::CheckGLError();
+		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, m_glTextureID, 0);
+		utils::CheckGLError();
 	}
 	else if (m_image) { // texture
 		string modeUniformName = "";
@@ -350,9 +353,9 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 				cout << "Invalid MaterialPropertyType: " << type << endl;
 				return;
 		}
-		
+
 		program.setUniform(modeUniformName.c_str(), MaterialMode_Sampler);
-		program.bindTexture(samplerUniformName.c_str(), slot, m_glTextureID, index);
+		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, m_glTextureID, index);
 	}
 	else { // color
 		string modeUniformName = "";

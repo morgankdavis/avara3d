@@ -35,7 +35,7 @@ namespace ae {
 		   	MARK:   Internal
 		 **************************************************************************************/
 		
-		unsigned draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
+		void draw(const glm::mat4& viewMat, const glm::mat4& projectionMat);
 		
 		void material(std::shared_ptr<SkyboxMaterial> material);
 		//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material);
