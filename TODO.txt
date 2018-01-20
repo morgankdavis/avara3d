@@ -11,16 +11,10 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		AE_LOG. -> AE_LOG->
-
-		Include skybox in "stats"
-
+		Rename enableCursor
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
-		Clean up shader naming (vertex_ -> frag_, casing, etc)
-		Factor shader code
 		Proper scene graph unroll - DFS?
-		Rename enableCursor
 		Check plane generation (normals??)
 		Dispose of generated buffers where appropriate // glUnmapBuffer? - Unuse/unbind things, glDeleteProgram, etc
 

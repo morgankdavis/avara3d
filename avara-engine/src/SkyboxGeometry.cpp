@@ -127,7 +127,7 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
      MARK:   Geometry
  **************************************************************************************/
 
-void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
+void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, DrawStats& stats) {
 
 	GeometryElement geoElem = *(m_elements[0]);
 	SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);
@@ -136,7 +136,7 @@ void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
 	
 	SkyboxMaterial skyMaterial = *m_materials[0];
 
-	element.draw(viewMat, projectionMat, skyMaterial);
+	element.draw(viewMat, projectionMat, skyMaterial, stats);
 }
 
 

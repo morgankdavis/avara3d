@@ -178,7 +178,7 @@ Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 void ae::utils::CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG.warn("*** WINDOW glGetError: {} ***", err);
+		AE_LOG->warn("*** WINDOW glGetError: {} ***", err);
 	}
 }
 
@@ -339,7 +339,7 @@ void ae::utils::SaveSnapshot(Window& window) {
 	char filename[256] = "";
 	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
 	
-	AE_LOG.info("Saving snapshot '{}'...", filename);
+	AE_LOG->info("Saving snapshot '{}'...", filename);
 	
 	image->writePNG(filename);
 
@@ -358,7 +358,7 @@ void ae::utils::SaveSnapshot(Window& window) {
 //	char filename[256] = "";
 //	sprintf(filename, "Snapshot_%s.png", buffer);
 //
-//	AE_LOG.info("Saving snapshot '{}'...", filename);
+//	AE_LOG->info("Saving snapshot '{}'...", filename);
 //
 //	image->writePNG(filename);
 //
@@ -377,7 +377,7 @@ void ae::utils::SaveSnapshot(Window& window) {
 //	sprintf(filename, "Snapshot_%s.%03d.png", buffer, milli);
 //	//printf("current time: %s \n", currentTime);
 //
-//	AE_LOG.info("Saving snapshot '{}'...", filename);
+//	AE_LOG->info("Saving snapshot '{}'...", filename);
 //
 //	image->writePNG(filename);
 //
@@ -523,15 +523,15 @@ void ae::utils::StopGIFRecording(Window& window) {
 //				//Convert MS errors into standard errors
 //				switch (GetLastError())
 //				{
-//					case AE_LOG.errorILE_NOT_FOUND:
+//					case AE_LOG->errorILE_NOT_FOUND:
 //						errno = ENOENT;
 //						break;
 //
-//					case AE_LOG.error_PATH_NOT_FOUND: case AE_LOG.error_INVALID_DRIVE:
+//					case AE_LOG->error_PATH_NOT_FOUND: case AE_LOG->error_INVALID_DRIVE:
 //						errno = ENOTDIR;
 //						break;
 //
-//					case AE_LOG.error_ACCESS_DENIED:
+//					case AE_LOG->error_ACCESS_DENIED:
 //						errno = EACCES;
 //						break;
 //

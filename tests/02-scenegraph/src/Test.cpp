@@ -35,18 +35,13 @@ using namespace glm;
 
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
-	
-	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
-	
-	
+
 	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.enableCursor(true);
-	window.vSyncEnabled(false);
-	
-	
-	
+	window.captureCursor(true);
+	window.enableVSync(false);
+
 	
 	auto scene = make_shared<Scene>();
 	

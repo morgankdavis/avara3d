@@ -1,7 +1,7 @@
 #version 330
 
 
-#define GAMMA 	                    2.2
+#define GAMMA		2.2
 
 
 in vec3 tex_coord;

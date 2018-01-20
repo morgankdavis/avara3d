@@ -195,7 +195,7 @@ void MaterialProperty::magnificationFilter(FilterMode mode) {
 		default:
 			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
 			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
-			AE_LOG.warn("Unsupported magnification filter mode: {}", mode);
+			AE_LOG->warn("Unsupported magnification filter mode: {}", mode);
 			break;
 	}
 }
@@ -252,7 +252,7 @@ void MaterialProperty::loadTexture() {
 	
 	if (m_cube) {
 		//cout << "Loading cube texture..." << endl;
-		AE_LOG.info("Buffering cube texture...");
+		AE_LOG->info("Buffering cube texture...");
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -286,11 +286,11 @@ void MaterialProperty::loadTexture() {
 		wrapS(WrapMode_ClampToEdge);
 		wrapT(WrapMode_ClampToEdge);
 		
-		AE_LOG.info("Done.");
+		AE_LOG->info("Done.");
 	}
 	else if (m_image) {
 		//cout << "Loading 2D texture..." << endl;
-		AE_LOG.info("Buffering 2D texture...");
+		AE_LOG->info("Buffering 2D texture...");
 		
 		glGenTextures(1, &m_glTextureID);
 		glBindTexture(GL_TEXTURE_2D, m_glTextureID);
@@ -311,7 +311,7 @@ void MaterialProperty::loadTexture() {
 		wrapS(m_wrapS);
 		wrapT(m_wrapT);
 		
-		AE_LOG.info("Done.");
+		AE_LOG->info("Done.");
 	}
 }
 

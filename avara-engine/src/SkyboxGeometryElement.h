@@ -40,8 +40,9 @@ namespace ae {
 		 **************************************************************************************/
 		
 		void draw(const glm::mat4& viewMat,
-					  const glm::mat4& projectionMat,
-					  const SkyboxMaterial& material);
+				  const glm::mat4& projectionMat,
+				  const SkyboxMaterial& material,
+				  DrawStats& stats);
 		
 		void loadVertexData(const Program& program);
 		

@@ -58,18 +58,18 @@ namespace ae {
 	
 
 	// gross. wish we knew how to properly overload these...
-//	#define AE_LOG.trace(msg)				g_logger->trace(msg)
-//	#define AE_LOG.trace_F(fmt, ...)		g_logger->trace(fmt, __VA_ARGS__)
-//	#define AE_LOG.debug(msg)				g_logger->debug(msg)
-//	#define AE_LOG.debug(fmt, ...)		g_logger->debug(fmt, __VA_ARGS__)
-//	#define AE_LOG.info(msg)				g_logger->info(msg)
-//	#define AE_LOG.info(fmt, ...)		g_logger->info(fmt, __VA_ARGS__)
-//	#define AE_LOG.warn(msg)				g_logger->warn(msg)
-//	#define AE_LOG.warn(fmt, ...)		g_logger->warn(fmt, __VA_ARGS__)
-//	#define AE_LOG.error(msg)				g_logger->error(msg)
-//	#define AE_LOG.error(fmt, ...)		g_logger->error(fmt, __VA_ARGS__)
-//	#define AE_LOG.critical(msg)			g_logger->critical(msg)
-//	#define AE_LOG.critical(fmt, ...)	g_logger->critical(fmt, __VA_ARGS__)
+//	#define AE_LOG->trace(msg)				g_logger->trace(msg)
+//	#define AE_LOG->trace_F(fmt, ...)		g_logger->trace(fmt, __VA_ARGS__)
+//	#define AE_LOG->debug(msg)				g_logger->debug(msg)
+//	#define AE_LOG->debug(fmt, ...)		g_logger->debug(fmt, __VA_ARGS__)
+//	#define AE_LOG->info(msg)				g_logger->info(msg)
+//	#define AE_LOG->info(fmt, ...)		g_logger->info(fmt, __VA_ARGS__)
+//	#define AE_LOG->warn(msg)				g_logger->warn(msg)
+//	#define AE_LOG->warn(fmt, ...)		g_logger->warn(fmt, __VA_ARGS__)
+//	#define AE_LOG->error(msg)				g_logger->error(msg)
+//	#define AE_LOG->error(fmt, ...)		g_logger->error(fmt, __VA_ARGS__)
+//	#define AE_LOG->critical(msg)			g_logger->critical(msg)
+//	#define AE_LOG->critical(fmt, ...)	g_logger->critical(fmt, __VA_ARGS__)
 
 
 	int initLog();

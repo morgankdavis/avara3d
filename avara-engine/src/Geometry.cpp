@@ -266,7 +266,7 @@ void Geometry::loadAABBVertexData(const Program& program) {
     
     if (m_glAABBVAO < 0) {
         
-        AE_LOG.debug("loadAABBVertexData()");
+        AE_LOG->debug("loadAABBVertexData()");
         
         map<string, vec3> bp = *boundingPoints(false);
  

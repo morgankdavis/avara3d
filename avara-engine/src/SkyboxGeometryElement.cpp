@@ -41,8 +41,9 @@ SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
  **************************************************************************************/
 
 void SkyboxGeometryElement::draw(const mat4& viewMat,
-									 const mat4& projectionMat,
-									 const SkyboxMaterial& material) {
+								 const mat4& projectionMat,
+								 const SkyboxMaterial& material,
+								 DrawStats& stats) {
 	
 	auto program = material.program();
 	
@@ -68,8 +69,9 @@ void SkyboxGeometryElement::draw(const mat4& viewMat,
 
 	glBindVertexArray(m_glVAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
-	unsigned int facesSize = m_faces.size();
-	glDrawElements(GL_TRIANGLES, facesSize * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	unsigned int numFaces = m_faces.size();
+	stats.polygons += numFaces;
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	
 	program->unuse();
 }
@@ -79,7 +81,7 @@ void SkyboxGeometryElement::loadVertexData(const Program& program) {
 	// TODO: release any existing buffers
 	
 	//cout << "Loading vertex data... " << &program << endl;
-	AE_LOG.info("Loading skybox vertex data...");
+	AE_LOG->info("Loading skybox vertex data...");
 	
 	auto verts = m_vertices;
 	
@@ -102,24 +104,6 @@ void SkyboxGeometryElement::loadVertexData(const Program& program) {
 						  0); // start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-//	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
-//	glVertexAttribPointer(normalIndex, // attrib index
-//						  3, // num components per attrib (3 float in vec3)
-//						  GL_FLOAT, // component type
-//						  GL_FALSE, // normalize
-//						  sizeof(Vertex), // stride
-//						  (void *)sizeof(vec3)); // start offset
-//	glEnableVertexAttribArray(normalIndex);
-	
-//	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
-//	glVertexAttribPointer(texCoordIndex, // attrib index
-//						  3, // num components per attrib (3 float in vec3)
-//						  GL_FLOAT, // component type
-//						  GL_FALSE, // normalize
-//						  sizeof(Vertex), // stride
-//						  (void *)(sizeof(vec3))); // start offset
-//	glEnableVertexAttribArray(texCoordIndex);
-	
 	glGenBuffers(1, &m_glIBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -127,5 +111,5 @@ void SkyboxGeometryElement::loadVertexData(const Program& program) {
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
 	
-	AE_LOG.info("Done.");
+	AE_LOG->info("Done.");
 }

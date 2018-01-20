@@ -180,11 +180,11 @@ void Material::program(shared_ptr<Program> program) {
 //
 //	if (m_program->compile()) {
 //		//cout << "Shader program '" << shaderName << "' compiled." << endl;
-//		AE_LOG.info("Program '{}' compiled.", shaderName);
+//		AE_LOG->info("Program '{}' compiled.", shaderName);
 //
 //		if (m_program->link()) {
 //			//cout << "Shader program '" << shaderName << "' linked." << endl;
-//			AE_LOG.info("Program '{}' linked.", shaderName);
+//			AE_LOG->info("Program '{}' linked.", shaderName);
 //		}
 ////		else {
 ////			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;

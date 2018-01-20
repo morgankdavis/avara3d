@@ -52,14 +52,14 @@ GifWriter* 		i_gifWriter;
  **************************************************************************************/
 
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG.trace("glfwWindowSizeCallback()");
+	AE_LOG->trace("glfwWindowSizeCallback()");
 	
 	i_window->width(aWidth);
 	i_window->height(aHeight);
 }
 
 void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG.trace("glfwFramebufferSizeCallback()");
+	AE_LOG->trace("glfwFramebufferSizeCallback()");
 	
 	i_window->framebufferWidth(i_window->width() * i_window->framebufferScale());
 	i_window->framebufferHeight(i_window->height() * i_window->framebufferScale());
@@ -87,7 +87,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	
 		if (initLog() != 0) { cout << "Error initializing log." << endl; }
 
-		if (initGLFW() != 0) { AE_LOG.critical("Error initializing GLFW."); }
+		if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -121,15 +121,15 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
             scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
 
-		AE_LOG.info("scaleFactor: {}", scaleFactor);
+		AE_LOG->info("scaleFactor: {}", scaleFactor);
 
 		if (!i_glfwWindow) {
-			AE_LOG.critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
+			AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
 			glfwTerminate();
 		}
 		
 		glfwMakeContextCurrent(i_glfwWindow);
-		vSyncEnabled(false);
+		enableVSync(false);
 	
 		initGLEW();
 	
@@ -173,7 +173,7 @@ Window::~Window() {
  **************************************************************************************/
 
 void Window::display() {
-	AE_LOG.trace("Window::display()");
+	AE_LOG->trace("Window::display()");
 
 	glfwMakeContextCurrent(i_glfwWindow);
 	
@@ -205,15 +205,15 @@ void Window::scene(const shared_ptr<Scene> scene) {
 	m_scene = scene;
 }
 
-void Window::enableCursor(bool enabled) {
-	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED));
+void Window::captureCursor(bool captured) {
+	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-bool Window::vSyncEnabled() const {
+bool Window::enableVSync() const {
 	return m_vSyncEnabled;
 }
 
-void Window::vSyncEnabled(bool enabled) {
+void Window::enableVSync(bool enabled) {
 	m_vSyncEnabled = enabled;
 	if (!enabled) glfwSwapInterval(0);
 	else glfwSwapInterval(1);
@@ -246,7 +246,7 @@ shared_ptr<Image> Window::snapshot() const {
 
 void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate) {
 	if (!m_recordingGIF) {
-		AE_LOG.info("Starting GIF recording...");
+		AE_LOG->info("Starting GIF recording...");
 		
 		m_gifRecordingMaxFramerate = maxFramerate;
 		
@@ -277,7 +277,7 @@ void Window::stopGIFRecording() {
 		// just the main buffer.
 		//free(i_gifWriter);
 		
-		AE_LOG.info("Stopped GIF recording.");
+		AE_LOG->info("Stopped GIF recording.");
 	}
 }
 
@@ -493,14 +493,14 @@ void Window::didUpdateCallback(windowDidUpdateFuction function) {
 void Window::initFontstash() {
 
 	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-	if (m_fonsContext == NULL) { AE_LOG.error("Error creating Font Stash context."); }
+	if (m_fonsContext == NULL) { AE_LOG->error("Error creating Font Stash context."); }
 	
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	string fontPath = FontPath(fontName, fontType);
 	
 	m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
-	if (m_fonsFont == FONS_INVALID) { AE_LOG.error("Could not load font: {}", fontPath); }
+	if (m_fonsFont == FONS_INVALID) { AE_LOG->error("Could not load font: {}", fontPath); }
 }
 
 void Window::setupRenderBuffer() {
@@ -552,10 +552,10 @@ void Window::setupRenderBuffer() {
 	
 	GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (fbStatus == GL_FRAMEBUFFER_COMPLETE) {
-		AE_LOG.info("Render framebuffer created.");
+		AE_LOG->info("Render framebuffer created.");
 	}
 	else {
-		AE_LOG.error("Error creating render framebuffer: {}", fbStatus);
+		AE_LOG->error("Error creating render framebuffer: {}", fbStatus);
 	}
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -563,7 +563,7 @@ void Window::setupRenderBuffer() {
 
 void Window::mainLoop(float deltaSeconds) {
 	
-	AE_LOG.trace("-------------------------------------------------------------------------------");
+	AE_LOG->trace("-------------------------------------------------------------------------------");
 	
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -574,7 +574,7 @@ void Window::mainLoop(float deltaSeconds) {
 	stats.cameraPosition = pov->position();
 	
 	CheckGLError();
-	//GLenum err = glGetError(); if (err != GL_NO_ERROR) AE_LOG.warn("*** WINDOW glGetError: {} ***", err);
+	//GLenum err = glGetError(); if (err != GL_NO_ERROR) AE_LOG->warn("*** WINDOW glGetError: {} ***", err);
 	
 	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

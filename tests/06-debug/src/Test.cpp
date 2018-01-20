@@ -46,8 +46,8 @@ int Test::run(const vector<string>& args) {
 	
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.enableCursor(false);
-	window.vSyncEnabled(false);
+	window.captureCursor(true);
+	window.enableVSync(false);
 	//window.antialiasingMode(AntialiasingMode_None);
 	m_window = &window;
 	
