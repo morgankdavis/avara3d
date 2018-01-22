@@ -28,6 +28,7 @@ using namespace glm;
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			AntialiasingMode_4X
+#define MOUSE_SENSITIVITY		0.005f
 
 
 /***************************************************************************************
@@ -195,7 +196,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 
 	// move camera
 
-	const static float mouseSensitivity = (1.0f / 0.5f);
+	const static float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 
 
 	if (!m_cameraNode) {

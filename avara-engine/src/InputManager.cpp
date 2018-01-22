@@ -22,6 +22,10 @@ using namespace std;
 using namespace glm;
 
 
+#define FLIP_MOUSE_VERTICAL		true
+#define FLIP_MOUSE_HORIZONTAL	false
+
+
 /***************************************************************************************
      MARK:   Globals
  **************************************************************************************/
@@ -90,8 +94,8 @@ set<Key> InputManager::keysDown() {
 }
 
 set<MouseButton> InputManager::mouseButtonsDown() {
-	auto mosueButtonsDownCopy = m_mouseButtonsDown;
-	return mosueButtonsDownCopy;
+	auto mouseButtonsDownCopy = m_mouseButtonsDown;
+	return mouseButtonsDownCopy;
 }
 
 set<Key> InputManager::keysPressed() {
@@ -107,6 +111,9 @@ set<MouseButton> InputManager::mouseButtonsPressed() {
 }
 
 vec2 InputManager::mousePositionDelta() {
+//	if (m_mousePositionDelta.x != 0 && m_mousePositionDelta.y != 0) {
+//		cout << "DELTA: " << m_mousePositionDelta.x << ", " << m_mousePositionDelta.y << endl;
+//	}
 	auto mouseMoveDeltaCopy = m_mousePositionDelta;
 	clearMousePositionDelta();
 	return mouseMoveDeltaCopy;
@@ -128,18 +135,24 @@ void InputManager::update(float deltaSeconds) {
 
 	static ManyMouseEvent event;
 
+	int pollCount = 0;
 	while (ManyMouse_PollEvent(&event)) {
-
+		++pollCount;
 		switch(event.type) {
-
+				
 			case MANYMOUSE_EVENT_RELMOTION:
+				//cout << "pollCount: " << pollCount << endl;
 				//cout << "Mouse moved " << event.value << " on " << (event.item == 0 ? "X" : "Y") << " axis." << endl;
 
+				//AE_LOG->debug("min: {}, max: {}", event.minval, event.maxval);
+				
 				if (event.item == 0) {
-					m_mousePositionDelta.x += event.value;
+					cout << "event.value: " << event.value << endl;
+					m_mousePositionDelta.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 				}
 				else {
-					m_mousePositionDelta.y += -event.value; // vertical scroll seems to be inverted
+					//cout << "event.value: " << event.value << endl;
+					m_mousePositionDelta.y += (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 				}
 				break;
 
@@ -166,7 +179,7 @@ void InputManager::update(float deltaSeconds) {
 			case MANYMOUSE_EVENT_DISCONNECT:
 				// TODO: Handle this
 				//cout << "Mouse " << event.device << " disconnected." << endl;
-				AE_LOG->info("Mouse {} disconnected.", event.device);
+				AE_LOG->warn("Mouse {} disconnected.", event.device);
 				break;
 
 			case MANYMOUSE_EVENT_ABSMOTION:

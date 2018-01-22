@@ -11,12 +11,12 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		FIX BOUNDING BOXES
-
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
 		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
 		FIX FUCKING MOUSE INPUT
+			Sensitivity changes with framerate
+			RBS in macOS does is getting absolute values??
 
 	30 - physics
 
@@ -59,6 +59,9 @@ Add error handling/exceptions
 
 
 Laundry list:
+
+	Get unique comp ID for performance & mouse sensitivity
+		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
 
 	Proper scene graph unroll
 
