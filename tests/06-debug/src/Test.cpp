@@ -23,11 +23,11 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define USE_HIGH_DPI            true
+#define USE_HIGH_DPI            false
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			AntialiasingMode_4X
+#define ANTIALIAS_MODE			AntialiasingMode_None
 
 
 /***************************************************************************************

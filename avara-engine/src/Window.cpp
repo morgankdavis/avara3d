@@ -575,7 +575,7 @@ void Window::mainLoop(float deltaSeconds) {
 	
 	GLenum err = glGetError(); // GL_NO_ERROR
 	if (err != GL_NO_ERROR) {
-		AE_LOG.error("*** glGetError: {} ***", err);
+		//AE_LOG.error("*** glGetError: {} ***", err);
 	}
 	
 	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
@@ -633,11 +633,8 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 		previousSeconds = currentSeconds;
 		elapsedFrames = 0;
 	}
-	
-	int width;
-	int height;
-	glfwGetFramebufferSize(i_glfwWindow, &width, &height);
-	gl3fonsProjectionSize(m_fonsContext, width, height);
+
+	gl3fonsProjectionSize(m_fonsContext, m_framebufferWidth, m_framebufferHeight);
 	
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -656,20 +653,6 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	static float hPadding = 0.0 * m_framebufferScale;
 	
 	char tmpStr[256];
-	
-	
-	//	framerate		322
-	//	frametime		7.6
-	//  percent         10.2
-	//
-	//	nodes			14
-	//	geometries		7
-	//	meshes			12
-	//	polygons		576,300
-	//	lights			2
-	//
-	//	camera pos		-23.4, 43.6, -66.3
-	
 	
 	sprintf(tmpStr, "%-14s %.1f" ,"framerate", fps);
 	drawText(tmpStr, textSize, dx, dy);
@@ -713,10 +696,7 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	dy += (textSize + hPadding);
 }
 
-//string createStatLine(string label, string value, unsigned )
-
-
-float Window::drawText(std::string line, float size, float dx, float dy) {
+float Window::drawText(string line, float size, float dx, float dy) {
 	// must setup fons GL state first
 	
 	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
