@@ -91,7 +91,7 @@ unsigned char* Image::data() const {
 void Image::loadFile(std::string path, bool flipHorizontal) {
 	
 	//cout << "Loading image at path: " << m_path << endl;
-	AE_LOG.info("Loading image at path '{}'...", path);
+	AE_LOG->info("Loading image at path '{}'...", path);
 	
 	int width, height, num_byte_pix;
 	const char *path_cstr = path.c_str();
@@ -99,7 +99,7 @@ void Image::loadFile(std::string path, bool flipHorizontal) {
 	
 	if (!m_data) {
 		//printf("Error loading image at path: %s\n", path_cstr);
-		AE_LOG.error("Error loading image at path: {}", path_cstr);
+		AE_LOG->error("Error loading image at path: {}", path_cstr);
 		// TODO: exception
 		return;
 	}
@@ -129,7 +129,7 @@ void Image::loadFile(std::string path, bool flipHorizontal) {
 		//		}
 	}
 	
-	AE_LOG.info("Done.");
+	AE_LOG->info("Done.");
 }
 
 void Image::flip() {

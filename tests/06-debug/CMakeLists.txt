@@ -44,7 +44,13 @@ elseif(LINUX)
 	#	-Wfloat-equal -Wno-reorder -Wfloat-equal")
 	
 	set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
-		-Wfloat-equal -Wno-reorder -Wfloat-equal")	
+		-Wfloat-equal -Wno-reorder -Wfloat-equal")
+
+elseif(WINDOWS)
+
+	#set(CMAKE_CXX_FLAGS "-static-libgcc")
+	set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -static -lpthread -lwinpthread")
+
 endif()
 
 

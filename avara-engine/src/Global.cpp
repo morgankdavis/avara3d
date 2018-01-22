@@ -138,24 +138,24 @@ int ae::initGLFW() {
 	static bool initialized = false;
 	
 	if (!initialized) {
-		AE_LOG.trace("initGLFW()");
+		AE_LOG->trace("initGLFW()");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		//cout << "Starting GLFW version " << glfwMajVers << "." << glfwMinVers << "." << glfwRev << endl;
-		AE_LOG.info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
+		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 		
 		glfwSetErrorCallback(glfwErrorCallback);
 		
 		if (glfwInit()) {
-			AE_LOG.info("GLFW Initialized.");
+			AE_LOG->info("GLFW Initialized.");
 		}
 		else {
-			AE_LOG.critical("Error initializing GLFW.");
+			AE_LOG->critical("Error initializing GLFW.");
 			return -1;
 		}
 		
-		AE_LOG.info("Assimp version: {}.{}.{}",
+		AE_LOG->info("Assimp version: {}.{}.{}",
 					aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
 		
 		srand(time(NULL));
@@ -167,7 +167,7 @@ int ae::initGLFW() {
 }
 
 int ae::initGLEW() {
-	AE_LOG.trace("initGLEW()");
+	AE_LOG->trace("initGLEW()");
 	
 	// must set OpenGL context first
 	
@@ -178,8 +178,8 @@ int ae::initGLEW() {
 		
 		const GLubyte *renderer = glGetString(GL_RENDERER);
 		const GLubyte *version = glGetString(GL_VERSION);
-		AE_LOG.info("Renderer: {}", renderer);
-		AE_LOG.info("Version: {}", version);
+		AE_LOG->info("Renderer: {}", renderer);
+		AE_LOG->info("Version: {}", version);
 		
 		initialized = true;
 	}

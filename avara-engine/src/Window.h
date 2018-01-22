@@ -61,10 +61,10 @@ namespace ae {
 		std::shared_ptr<Scene> scene() const;
 		void scene(const std::shared_ptr<Scene> scene);
 
-		void enableCursor(bool enabled);
+		void captureCursor(bool captured);
 		
-		bool vSyncEnabled() const;
-		void vSyncEnabled(bool enabled);
+		bool enableVSync() const;
+		void enableVSync(bool enabled);
 		
 		float maximumFramerate() const;
 		void maximumFramerate(float max);

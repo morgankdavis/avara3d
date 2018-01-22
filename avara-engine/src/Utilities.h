@@ -62,6 +62,8 @@ namespace ae {
 		Color AIColor3DToColor(const aiColor3D& from);
 		Color AIColor4DToColor(const aiColor4D& from);
 		
+		void CheckGLError();
+		
 		int Random(int min, int max);
 		float Random(float min, int max);
 		

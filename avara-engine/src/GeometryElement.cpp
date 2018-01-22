@@ -42,6 +42,12 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 
 }
 
+GeometryElement::~GeometryElement() {
+//	glDeleteBuffers(1, &m_glVBO);
+//	glDeleteBuffers(1, &m_glIBO);
+//	glDeleteVertexArrays(1, &m_glVAO);
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -212,31 +218,12 @@ void GeometryElement::generateFlatNormals() {
 	}
 }
 
-//void GeometryElement::loadShaderProgram(const string& shaderName) {
-//	
-//	m_program = make_shared<Program>(shaderName);
-//	
-//	if (m_program->compile()) {
-//		cout << "Shader program '" << shaderName << "' compiled." << endl;
-//		
-//		if (m_program->link()) {
-//			cout << "Shader program '" << shaderName << "' linked." << endl;
-//		}
-//		else {
-//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-//		}
-//	}
-//	else {
-//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-//	}
-//}
-
 void GeometryElement::loadVertexData(const Program& program) {
 	
 	// TODO: release any existing buffers
 	
 	//cout << "Loading vertex data... " << &program << endl;
-	AE_LOG.info("Loading vertex data...");
+	AE_LOG->info("Loading vertex data...");
 	
 	auto verts = m_vertices;
 	
@@ -244,6 +231,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
+	m_glVBO = vbo;
 	
 	glGenVertexArrays(1, &m_glVAO);
 	glBindVertexArray(m_glVAO);
@@ -284,7 +272,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
 	
-	AE_LOG.info("Done.");
+	AE_LOG->info("Done.");
 }
 
 vector<Vertex>& GeometryElement::vertices() {

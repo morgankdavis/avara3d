@@ -34,14 +34,18 @@ namespace ae {
 		
 		SkyboxGeometryElement(std::vector<Vertex>& verticies,
 							  std::vector<Face>& faces);
+		~SkyboxGeometryElement();
 		
 		/***************************************************************************************
 		 	MARK:   Internal
 		 **************************************************************************************/
 		
-		unsigned draw(const glm::mat4& viewMat,
-					  const glm::mat4& projectionMat,
-					  const SkyboxMaterial& material);
+		void draw(const glm::mat4& viewMat,
+				  const glm::mat4& projectionMat,
+				  const SkyboxMaterial& material,
+				  DrawStats& stats);
+		
+		void loadVertexData(const Program& program);
 		
 	private:
 		

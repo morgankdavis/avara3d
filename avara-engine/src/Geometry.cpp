@@ -14,9 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 
-#include "Color.h" // temporary
 #include "GeometryElement.h"
-#include "Image.h" // temporary
 #include "Logger.h"
 #include "Material.h"
 #include "MaterialProperty.h"
@@ -51,6 +49,12 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
     m_glAABBVAO(-1) {
 		
 		loadVertexData();
+}
+
+Geometry::~Geometry() {
+//	glDeleteBuffers(1, &m_glAABBVBO);
+//	GLuint vao = m_glAABBVAO;
+//	glDeleteVertexArrays(1, &vao);
 }
 
 /***************************************************************************************
@@ -214,6 +218,7 @@ void Geometry::drawAABB(const glm::mat4& modelMat,
 	
 	glBindVertexArray(m_glAABBVAO);
 	glDrawArrays(GL_LINES, 0, 24 * sizeof(vec3));
+	//glBindVertexArray(0);
 }
 
 shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
@@ -266,7 +271,7 @@ void Geometry::loadAABBVertexData(const Program& program) {
     
     if (m_glAABBVAO < 0) {
         
-        AE_LOG.debug("loadAABBVertexData()");
+        AE_LOG->debug("loadAABBVertexData()");
         
         map<string, vec3> bp = *boundingPoints(false);
  
@@ -287,30 +292,31 @@ void Geometry::loadAABBVertexData(const Program& program) {
         vec3 eight =    vec3(xMax, yMin, zMin);
 
         vec3 verts[] = {
-            one, two,
-            two, three,
-            three, four,
-            four, one,
-            five, six,
-            six, seven,
-            seven, eight,
-            eight, five,
-            one, five,
-            two, six,
-            three, seven,
-            four, eight};
+            one, 	two,
+            two, 	three,
+            three,	four,
+            four, 	one,
+            five, 	six,
+            six, 	seven,
+            seven, 	eight,
+            eight, 	five,
+            one, 	five,
+            two, 	six,
+            three, 	seven,
+            four, 	eight};
         
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(vec3), &(verts[0]), GL_STATIC_DRAW);
+		m_glAABBVBO = vbo;
         
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
-        m_glAABBVAO = vao;
+       	m_glAABBVAO = vao;
         
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vao);
         
         GLuint positionIndex = program.getAttributeLocation("vertex_position");
         glVertexAttribPointer(positionIndex, // attrib index
@@ -320,5 +326,9 @@ void Geometry::loadAABBVertexData(const Program& program) {
                               sizeof(vec3), // stride
                               0); // start offset
         glEnableVertexAttribArray(positionIndex);
+		
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		glBindVertexArray(0);
+//		glEnableVertexAttribArray(0);
     }
 }

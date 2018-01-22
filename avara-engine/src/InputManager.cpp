@@ -166,7 +166,7 @@ void InputManager::update(float deltaSeconds) {
 			case MANYMOUSE_EVENT_DISCONNECT:
 				// TODO: Handle this
 				//cout << "Mouse " << event.device << " disconnected." << endl;
-				AE_LOG.info("Mouse {} disconnected.", event.device);
+				AE_LOG->info("Mouse {} disconnected.", event.device);
 				break;
 
 			case MANYMOUSE_EVENT_ABSMOTION:
@@ -235,15 +235,15 @@ void InputManager::initManyMouse() {
 	const int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
-		AE_LOG.error("ManyMouse failed to initialize.");
+		AE_LOG->error("ManyMouse failed to initialize.");
 	}
 	else if (availableMice == 0) {
-		AE_LOG.warn("ManyMouse failed to initialize.");
+		AE_LOG->warn("ManyMouse failed to initialize.");
 	}
 	else {
-		AE_LOG.info("ManyMouse driver: {}", ManyMouse_DriverName());
+		AE_LOG->info("ManyMouse driver: {}", ManyMouse_DriverName());
 		for (int m = 0; m<availableMice; ++m) {
-			AE_LOG.info("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+			AE_LOG->info("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}
 }

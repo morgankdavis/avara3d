@@ -262,16 +262,21 @@ static void gl3fons__renderUpdate(void* userPtr, int* rect, const unsigned char*
 	GLFONScontext* gl = (GLFONScontext*)userPtr;
 	int w = rect[2] - rect[0];
 	int h = rect[3] - rect[1];
-
+	
 	if (gl->tex == 0) return;
-	glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+	
+	// disabled by Morgan. doesn't do anything and isn't supported by OGL3
+	//glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+	
 	glBindTexture(GL_TEXTURE_2D, gl->tex);
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, gl->width);
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect[0]);
 	glPixelStorei(GL_UNPACK_SKIP_ROWS, rect[1]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect[0], rect[1], w, h, GL_RED,GL_UNSIGNED_BYTE, data);
-	glPopClientAttrib();
+
+	// disabled by Morgan. doesn't do anything and isn't supported by OGL3
+	//glPopClientAttrib();
 }
 
 static void gl3fons__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
@@ -279,7 +284,8 @@ static void gl3fons__renderDraw(void* userPtr, const float* verts, const float* 
 	GLFONScontext* gl = (GLFONScontext*)userPtr;
 	if (gl->tex == 0) return;
 
-	glEnable(GL_TEXTURE_2D);
+	// disbled by Morgan. this is another fixed function thing that isn't used in OGL3
+	//glEnable(GL_TEXTURE_2D);
 
 	if (gl->shader == 0) return;
 	if (gl->vao == 0) return;

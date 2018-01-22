@@ -14,6 +14,7 @@
 #include "SkyboxGeometryElement.h"
 #include "SkyboxMaterial.h"
 #include "Material.h"
+#include "Utilities.h"
 
 
 using namespace ae;
@@ -30,7 +31,7 @@ SkyboxGeometry::SkyboxGeometry(const shared_ptr<SkyboxMaterial> material):
 //	m_name(boost::none),
 //	m_elements(elements),
 //	m_materials(materials) {
-		
+
 		m_materials = vector<shared_ptr<SkyboxMaterial>>();
 		m_materials.emplace_back(material);
 
@@ -114,19 +115,11 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
 	//m_materials.push_back(material);
 }
 
-//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material) {
-//
-//}
-
-//shared_ptr<vector<shared_ptr<Image>>> SkyboxGeometry::cube() const {
-//	return m_cube;
-//}
-
 /***************************************************************************************
      MARK:   Geometry
  **************************************************************************************/
 
-unsigned SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
+void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, DrawStats& stats) {
 
 	GeometryElement geoElem = *(m_elements[0]);
 	SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);
@@ -135,32 +128,5 @@ unsigned SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat) {
 	
 	SkyboxMaterial skyMaterial = *m_materials[0];
 
-	return element.draw(viewMat, projectionMat, skyMaterial);
+	element.draw(viewMat, projectionMat, skyMaterial, stats);
 }
-
-
-
-
-//unsigned Geometry::draw(const mat4& modelMat,
-//						const mat4& viewMat,
-//						const mat4& projectionMat) {
-//
-//	unsigned numPolygons = 0;
-//
-//	for (int e=0; e < m_elements.size(); ++e) {
-//
-//		auto element = m_elements[e];
-//
-//		shared_ptr<Material> material = nullptr;
-//		if (m_materials.size() > e) {
-//			material = m_materials[e];
-//		}
-//		else if (m_materials.size() > 0) {
-//			material = m_materials[m_materials.size()-1 % e];
-//		}
-//
-//		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));
-//	}
-//
-//	return numPolygons;
-//}

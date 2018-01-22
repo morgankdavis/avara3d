@@ -84,8 +84,8 @@ int Test::run(const vector<string>& args) {
 	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
 	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
 	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.enableCursor(false);
-	window.vSyncEnabled(false);
+	window.captureCursor(true);
+	window.enableVSync(false);
 	//window.antialiasingMode(AntialiasingMode_None);
 	window.debugOptions(DebugOption_ShowStatsOveray);
 	m_window = &window;

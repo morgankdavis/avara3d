@@ -94,7 +94,7 @@ namespace ae {
 		glm::vec3 normal;
 		glm::vec2 textureCoordinate;
 	} Vertex;
-
+	
 	
 	typedef struct {
 		unsigned a;
