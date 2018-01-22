@@ -11,6 +11,8 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
+		Wireframe mode is producing a glError			
+
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)
 		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
