@@ -1,4 +1,4 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
@@ -61,6 +61,8 @@ Add error handling/exceptions
 
 
 Laundry list:
+
+	Fix HID trackpad input in Windows
 
 	Get unique comp ID for performance & mouse sensitivity
 		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
