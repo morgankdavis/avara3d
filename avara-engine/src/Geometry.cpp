@@ -316,7 +316,7 @@ void Geometry::loadAABBVertexData(const Program& program) {
         glBindVertexArray(vao);
        	m_glAABBVAO = vao;
         
-        glBindBuffer(GL_ARRAY_BUFFER, vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         
         GLuint positionIndex = program.getAttributeLocation("vertex_position");
         glVertexAttribPointer(positionIndex, // attrib index
