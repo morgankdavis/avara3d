@@ -178,7 +178,7 @@ Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 void ae::utils::CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG->warn("*** WINDOW glGetError: {} ***", err);
+		AE_LOG->warn("*** glGetError: {} ***", err);
 	}
 }
 

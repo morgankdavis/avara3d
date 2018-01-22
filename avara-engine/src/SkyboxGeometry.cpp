@@ -115,14 +115,6 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
 	//m_materials.push_back(material);
 }
 
-//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material) {
-//
-//}
-
-//shared_ptr<vector<shared_ptr<Image>>> SkyboxGeometry::cube() const {
-//	return m_cube;
-//}
-
 /***************************************************************************************
      MARK:   Geometry
  **************************************************************************************/
@@ -138,30 +130,3 @@ void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, DrawSt
 
 	element.draw(viewMat, projectionMat, skyMaterial, stats);
 }
-
-
-
-
-//unsigned Geometry::draw(const mat4& modelMat,
-//						const mat4& viewMat,
-//						const mat4& projectionMat) {
-//
-//	unsigned numPolygons = 0;
-//
-//	for (int e=0; e < m_elements.size(); ++e) {
-//
-//		auto element = m_elements[e];
-//
-//		shared_ptr<Material> material = nullptr;
-//		if (m_materials.size() > e) {
-//			material = m_materials[e];
-//		}
-//		else if (m_materials.size() > 0) {
-//			material = m_materials[m_materials.size()-1 % e];
-//		}
-//
-//		numPolygons += element->draw(modelMat, viewMat, projectionMat, &(*material));
-//	}
-//
-//	return numPolygons;
-//}

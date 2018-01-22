@@ -318,9 +318,7 @@ void MaterialProperty::loadTexture() {
 void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 	
 	if (m_cube) { // currently only used for skybox
-		utils::CheckGLError();
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, m_glTextureID, 0);
-		utils::CheckGLError();
 	}
 	else if (m_image) { // texture
 		string modeUniformName = "";

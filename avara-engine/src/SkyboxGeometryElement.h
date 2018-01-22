@@ -34,6 +34,7 @@ namespace ae {
 		
 		SkyboxGeometryElement(std::vector<Vertex>& verticies,
 							  std::vector<Face>& faces);
+		~SkyboxGeometryElement();
 		
 		/***************************************************************************************
 		 	MARK:   Internal

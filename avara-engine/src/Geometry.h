@@ -42,6 +42,7 @@ namespace ae {
 		Geometry();
 		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
 				 const std::vector<std::shared_ptr<Material>> materials);
+		~Geometry();
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -104,7 +105,8 @@ namespace ae {
 
 		boost::optional<std::string>							m_name;
 		Node*													m_node;
-        int                                                     m_glAABBVAO;
+		unsigned												m_glAABBVBO;
+        int                                                		m_glAABBVAO;
 	};
 }
 

@@ -42,6 +42,12 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 
 }
 
+GeometryElement::~GeometryElement() {
+//	glDeleteBuffers(1, &m_glVBO);
+//	glDeleteBuffers(1, &m_glIBO);
+//	glDeleteVertexArrays(1, &m_glVAO);
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -225,6 +231,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
+	m_glVBO = vbo;
 	
 	glGenVertexArrays(1, &m_glVAO);
 	glBindVertexArray(m_glVAO);

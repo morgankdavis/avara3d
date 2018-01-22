@@ -36,6 +36,7 @@ namespace ae {
 		
 		GeometryElement(std::vector<Vertex>& verticies,
 						std::vector<Face>& faces);
+		~GeometryElement();
 
 		/***************************************************************************************
 		     MARK:   Internal
@@ -66,6 +67,7 @@ namespace ae {
 		
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
+		unsigned								m_glVBO;
 		unsigned								m_glVAO;
 		unsigned								m_glIBO;
 

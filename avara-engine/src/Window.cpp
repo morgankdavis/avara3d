@@ -137,8 +137,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	
 		initFontstash();
 	
-	
-			
 		// moved from initializer list
 		
 		m_scene = make_shared<Scene>();
@@ -149,9 +147,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
 	
-	
 		setupRenderBuffer(); // needs width and height!
-	
 	
 		m_antialiasingMode = antialiasingMode;
 		m_debugOptions = (DebugOption)0;
