@@ -245,7 +245,7 @@ void InputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode
  **************************************************************************************/
 
 void InputManager::initManyMouse() {
-	const int availableMice = ManyMouse_Init();
+	int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
 		AE_LOG->error("ManyMouse failed to initialize.");

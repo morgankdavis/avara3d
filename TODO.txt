@@ -1,4 +1,4 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
@@ -63,6 +63,9 @@ Add error handling/exceptions
 Laundry list:
 
 	Fix HID trackpad input in Windows
+		http://keithditch.powweb.com/Games/html/raw_input.html
+		https://msdn.microsoft.com/en-us/library/windows/desktop/ms645543(v=vs.85).aspx#_win32_Registration_for_Raw_Input
+		https://msdn.microsoft.com/en-us/library/windows/desktop/ms645546(v=vs.85).aspx
 
 	Get unique comp ID for performance & mouse sensitivity
 		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
