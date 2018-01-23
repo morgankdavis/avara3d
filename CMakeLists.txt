@@ -56,7 +56,6 @@ if(MINGW)
         set(MINGW64 TRUE)
         set(WIN64 TRUE)
     endif()
-
 endif()
 
 if(MSVS)
@@ -78,19 +77,13 @@ elseif(WINDOWS)
 	add_definitions("-DWINDOWS")
     if(MINGW)
         add_definitions("-DMINGW")
+	if(MINGW32)
+        	add_definitions("-DMINGW32")
+	else()
+		add_definitions("-DMINGW64")
+    	endif()
     endif()
 endif()
-
-
-
-#if(WINDOWS)
-#
-#message("WINDOWS FLAGS")
-#set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
-#		-Wfloat-equal -Wno-reorder -Wfloat-equal -D_WIN32_WINNT=0x600")
-#
-#endif()
-
 
 
 # GLM

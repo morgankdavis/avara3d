@@ -11,7 +11,9 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Wireframe mode is producing a glError			
+		Wireframe mode is producing a glError
+
+		Remove manymouse printfs
 
 		weak_ptr
 		ERROR HANDLING (shader failed to compile, etc)

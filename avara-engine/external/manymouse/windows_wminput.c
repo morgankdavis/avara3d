@@ -221,8 +221,9 @@ static void queue_from_rawinput(const RAWINPUT *raw)
     const RAWMOUSE *mouse = &raw->data.mouse;
     ManyMouseEvent event;
 
-    if (raw->header.dwType != RIM_TYPEMOUSE)
+    if (raw->header.dwType != RIM_TYPEMOUSE) {
         return;
+    }
 
     for (i = 0; i < available_mice; i++)  /* find the device for event. */
     {
@@ -230,8 +231,13 @@ static void queue_from_rawinput(const RAWINPUT *raw)
             break;
     } /* for */
 
-    if (i == available_mice)
+    // modified by Morgan
+    // from some reason MinGW/64 is reporting header->hDevice (above) as 0 ??
+#ifndef MINGW
+    if (i == available_mice) {
         return;  /* not found?! */
+    }
+#endif
 
     /*
      * RAWINPUT packs a bunch of events into one, so we split it up into

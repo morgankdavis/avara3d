@@ -48,8 +48,9 @@ elseif(LINUX)
 
 elseif(WINDOWS)
 
-	#set(CMAKE_CXX_FLAGS "-static-libgcc")
-	set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -static -lpthread -lwinpthread")
+#	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+#		set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -lpthread")
+#	endif()
 
 endif()
 
