@@ -147,7 +147,7 @@ void InputManager::update(float deltaSeconds) {
 				//AE_LOG->debug("min: {}, max: {}", event.minval, event.maxval);
 				
 				if (event.item == 0) {
-					cout << "event.value: " << event.value << endl;
+					//cout << "event.value: " << event.value << endl;
 					m_mousePositionDelta.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 				}
 				else {
