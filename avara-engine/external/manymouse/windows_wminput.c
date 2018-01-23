@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <setupapi.h>
 #include <malloc.h>  /* needed for alloca(). */
+#include <stdio.h> // TEMPORARY MORGAN
 
 /* Cygwin's headers don't have WM_INPUT right now... */
 #ifndef WM_INPUT
@@ -216,13 +217,17 @@ static void queue_event(const ManyMouseEvent *event)
 
 static void queue_from_rawinput(const RAWINPUT *raw)
 {
+    printf("queue_from_rawinput()\n");
+
     int i;
     const RAWINPUTHEADER *header = &raw->header;
     const RAWMOUSE *mouse = &raw->data.mouse;
     ManyMouseEvent event;
 
-    if (raw->header.dwType != RIM_TYPEMOUSE)
+    if (raw->header.dwType != RIM_TYPEMOUSE) {
+        printf("raw->header.dwType != RIM_TYPEMOUSE\n");
         return;
+    }
 
     for (i = 0; i < available_mice; i++)  /* find the device for event. */
     {
@@ -230,8 +235,10 @@ static void queue_from_rawinput(const RAWINPUT *raw)
             break;
     } /* for */
 
-    if (i == available_mice)
+    if (i == available_mice) {
+        printf("i == available_mice\n");
         return;  /* not found?! */
+    }
 
     /*
      * RAWINPUT packs a bunch of events into one, so we split it up into
@@ -581,10 +588,12 @@ static int windows_wminput_init(void)
 
     if (!init_event_queue())
     {
+        printf("!init_event_queue()\n");
         cleanup_window();
         available_mice = 0;
     } /* if */
 
+    printf("available_mice: %d\n", available_mice);
     return available_mice;
 } /* windows_wminput_init */
 
