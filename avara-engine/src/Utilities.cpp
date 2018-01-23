@@ -194,7 +194,8 @@ float ae::utils::Random(float min, int max) {
 }
 
 bool ae::utils::Zero(const vec3& v) {
-	return fabs(v.x)<0.00001f && fabs(v.y)<0.00001f && fabs(v.z)<0.00001f;
+	static float tolerance = 0.00001f;
+	return FloatEqual(v.x, 0, tolerance) && FloatEqual(v.y, 0, tolerance) && FloatEqual(v.z, 0, tolerance);
 }
 
 float ae::utils::Max(const vec3& v) {

@@ -67,7 +67,7 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 
-		void update(float deltaSeconds);
+		void update();
 		Window* window() const;
 		
 		std::set<Key> 				m_keysDown;

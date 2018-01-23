@@ -23,11 +23,13 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define USE_HIGH_DPI            true
+#define ENABLE_HIGH_DPI        	true
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			AntialiasingMode_4X
+#define ANTIALIASING_MODE		AntialiasingMode_4X
+#define ENABLE_VSYNC			false
+#define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5f
 
 
@@ -42,13 +44,15 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	auto logger = make_shared<Logger>("test06", sinks);
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
+	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
 	logger->info("Test::run()");
 	
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
-	window.captureCursor(true);
-	window.enableVSync(false);
+	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	window.captureCursor(CAPTURE_CURSOR);
+	m_vsyncEnabled = ENABLE_VSYNC;
+	window.enableVSync(m_vsyncEnabled);
 	//window.antialiasingMode(AntialiasingMode_None);
 	m_window = &window;
 	
@@ -108,37 +112,43 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
-void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
-
-	static float totalSeconds = 0;
-	totalSeconds += deltaSeconds;
-
+void Test::windowUpdateCallback(Scene& scene, float time) {
+	
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+	
 	// get input
 	
 	auto keysPressed = m_inputManager->keysPressed();
-
+	
 	if (keysPressed.count(Key_Escape)) {
 		exit(0);
 	}
 	
-    DebugOption options = (DebugOption)m_window->debugOptions();
+	DebugOption options = (DebugOption)m_window->debugOptions();
 	if (keysPressed.count(Key_Up)) {
 		m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
 	}
 	else if (keysPressed.count(Key_Down)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
 	}
-    if (keysPressed.count(Key_Right)) {
-        m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
-    }
-    else if (keysPressed.count(Key_Left)) {
-        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
-    }
+	if (keysPressed.count(Key_Right)) {
+		m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+	}
+	else if (keysPressed.count(Key_Left)) {
+		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+	}
 	if (keysPressed.count(Key_RightBracket)) {
 		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
 	}
 	else if (keysPressed.count(Key_LeftBracket)) {
 		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+	}
+	
+	if (keysPressed.count(Key_V)) {
+		m_vsyncEnabled = !m_vsyncEnabled;
+		m_window->enableVSync(m_vsyncEnabled);
 	}
 	
 	if (keysPressed.count(Key_Backslash)) {
@@ -152,50 +162,12 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		StopGIFRecording(*m_window);
 	}
 	
-
-	
-	
-//	if (keysPressed.count(Key_T)) {
-//		cout << "T PRESSED" << endl;
-//
-//		m_window->antialiasingMode(AntialiasingMode_2X);
-//	}
-//
-//	if (keysPressed.count(Key_R)) {
-//		cout << "R PRESSED" << endl;
-//
-//		m_window->antialiasingMode(AntialiasingMode_16X);
-//	}
-
-	
-//	if (m_inputManager->keyPressed(Key_T)) {
-//		cout << "T PRESSED" << endl;
-//	}
-//
-//	if (m_inputManager->keyPressed(Key_R)) {
-//		cout << "R PRESSED" << endl;
-//	}
-//
-//	if (m_inputManager->keyDown(Key_L)) {
-//		cout << "L DOWN" << endl;
-//	}
-//
-//	if (m_inputManager->mouseButtonPressed(MouseButton_3)) {
-//		cout << "MouseButton_3 PRESSED" << endl;
-//	}
-//
-//	if (m_inputManager->mouseButtonDown(MouseButton_2)) {
-//		cout << "MouseButton_2 DOWN" << endl;
-//	}
-	
+	// mouselook
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
-
-	// move camera
-
-	const static float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
-
-
+	
+	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
+	
 	if (!m_cameraNode) {
 		for (auto n : scene.rootNode()->immediateChildNodes()) {
 			if (n->camera()) {
@@ -204,27 +176,30 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			}
 		}
 	}
-
+	
 	if (m_cameraNode) {
-
+		
 		// look
-
+		
 		vec3 camForward = m_cameraNode->worldForward();
 		vec3 camRight = m_cameraNode->worldRight();
 		vec3 camUp = m_cameraNode->worldUp();
-
+		
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
-
+		
+//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
+//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
+		
 		vec3 angles = m_cameraNode->eulerAngles();
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
+		
 		// move
-
-//		const static float MOVE_SPEED = 5.0f; // units/sec
+		
+		//		const static float MOVE_SPEED = 5.0f; // units/sec
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
-
+		
 		auto keysDown = m_inputManager->keysDown();
 		
 		if(keysDown.count(Key_W)) {
@@ -235,7 +210,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-
+		
 		if(keysDown.count(Key_A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -244,7 +219,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-
+		
 		if(keysDown.count(Key_Space)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -252,6 +227,12 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 }
 
-void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
-
+void Test::windowWillRenderCallback(Scene& scene, float time) {
+	
 }
+
+void Test::windowDidRenderCallback(Scene& scene, float time) {
+	
+}
+
+

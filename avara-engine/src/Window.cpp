@@ -155,8 +155,9 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		m_pointOfView = nullptr;
 		m_inputManager = nullptr;
 		m_maximumFramerate = 60.0;
-		m_willUpdateCallback = nullptr;
-		m_didUpdateCallback = nullptr;
+		m_updateCallback = nullptr;
+		m_willRenderCallback = nullptr;
+		m_didRenderCallback = nullptr;
 		m_recordingGIF = false;
 }
 
@@ -169,7 +170,7 @@ Window::~Window() {
  **************************************************************************************/
 
 void Window::display() {
-	AE_LOG->trace("Window::display()");
+	AE_LOG->info("Window::display()");
 
 	glfwMakeContextCurrent(i_glfwWindow);
 	
@@ -177,19 +178,7 @@ void Window::display() {
 	glfwSetFramebufferSizeCallback(i_glfwWindow, glfwFramebufferSizeCallback);
 	
 	while (!glfwWindowShouldClose(i_glfwWindow)) {
-		static double previousSeconds = glfwGetTime();
-		float totalSeconds = glfwGetTime();
-		float deltaSeconds = totalSeconds - previousSeconds;
-
-		if (m_willUpdateCallback) m_willUpdateCallback(*m_scene, deltaSeconds);
-		
-		mainLoop(deltaSeconds);
-		
-		if (!glfwWindowShouldClose(i_glfwWindow)) {
-			if (m_didUpdateCallback) m_didUpdateCallback(*m_scene, deltaSeconds);
-		}
-		
-		previousSeconds = totalSeconds;
+		mainLoop();
 	}
 }
 
@@ -448,20 +437,28 @@ GLFWwindow* Window::glfwWindow() const {
 	return i_glfwWindow;
 }
 
-windowWillUpdateFuction Window::willUpdateCallback() {
-	return m_willUpdateCallback;
+WindowUpdateFuction Window::updateCallback() {
+	return m_updateCallback;
 }
 
-void Window::willUpdateCallback(windowWillUpdateFuction function) {
-	m_willUpdateCallback = function;
+void Window::updateCallback(WindowUpdateFuction function) {
+	m_updateCallback = function;
 }
 
-windowDidUpdateFuction Window::didUpdateCallback() {
-	return m_didUpdateCallback;
+WindowWillRenderFuction Window::willRenderCallback() {
+	return m_willRenderCallback;
 }
 
-void Window::didUpdateCallback(windowDidUpdateFuction function) {
-	m_didUpdateCallback = function;
+void Window::willRenderCallback(WindowWillRenderFuction function) {
+	m_willRenderCallback = function;
+}
+
+WindowDidRenderFuction Window::didRenderCallback() {
+	return m_didRenderCallback;
+}
+
+void Window::didRenderCallback(WindowDidRenderFuction function) {
+	m_didRenderCallback = function;
 }
 
 /***************************************************************************************
@@ -557,10 +554,17 @@ void Window::setupRenderBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Window::mainLoop(float deltaSeconds) {
+void Window::mainLoop() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");
-	
+
+	float time = glfwGetTime();
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+
+	if (m_updateCallback) m_updateCallback(*m_scene, glfwGetTime());
+
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
@@ -580,6 +584,8 @@ void Window::mainLoop(float deltaSeconds) {
 //	glClearColor(1.0, 0, 0, 1.0);
 //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	if (m_willRenderCallback) m_willRenderCallback(*m_scene, glfwGetTime());
+	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
 	if (m_debugOptions & DebugOption_ShowStatsOveray) updateStatsOverlay(stats);
@@ -597,13 +603,10 @@ void Window::mainLoop(float deltaSeconds) {
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	glfwPollEvents();
+	if (m_didRenderCallback) m_didRenderCallback(*m_scene, glfwGetTime());
 	
-//	static int frameCount = 0;
-//	if ((frameCount % 1000) == 0) {
-		if (m_inputManager) m_inputManager->update(deltaSeconds);
-//	}
-//	++frameCount;
+	glfwPollEvents();
+	if (m_inputManager) m_inputManager->update();
 }
 
 void Window::updateStatsOverlay(DrawStats& stats) {
@@ -651,7 +654,7 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	
 	char tmpStr[256];
 	
-	sprintf(tmpStr, "%-14s %.1f" ,"framerate", fps);
+	sprintf(tmpStr, "%-14s %.1f%s" ,"framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	

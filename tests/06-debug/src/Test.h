@@ -30,14 +30,16 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowWillUpdateCallback(Scene& scene, float deltaSeconds);
-		void windowDidUpdateCallback(Scene& scene, float deltaSeconds);
+		void windowUpdateCallback(Scene& scene, float time);
+		void windowWillRenderCallback(Scene& scene, float time);
+		void windowDidRenderCallback(Scene& scene, float time);
 		
 	private:
 
 		Window*								m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
+		bool								m_vsyncEnabled;
 	};
 }
 

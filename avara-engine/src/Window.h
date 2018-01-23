@@ -36,8 +36,9 @@ namespace ae {
 	class Node;
 	
 	
-	using windowWillUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
-	using windowDidUpdateFuction = std::function<void(Scene& scene, float deltaSeconds)>;
+	using WindowUpdateFuction = std::function<void(Scene& scene, float time)>;
+	using WindowWillRenderFuction = std::function<void(Scene& scene, float time)>;
+	using WindowDidRenderFuction = std::function<void(Scene& scene, float time)>;
 	
 	
 	class Window {
@@ -106,11 +107,14 @@ namespace ae {
 		
 		GLFWwindow* glfwWindow() const;
 		
-		windowWillUpdateFuction willUpdateCallback();
-		void willUpdateCallback(windowWillUpdateFuction function);
+		WindowUpdateFuction updateCallback();
+		void updateCallback(WindowUpdateFuction function);
 		
-		windowDidUpdateFuction didUpdateCallback();
-		void didUpdateCallback(windowDidUpdateFuction function);
+		WindowWillRenderFuction willRenderCallback();
+		void willRenderCallback(WindowWillRenderFuction function);
+		
+		WindowDidRenderFuction didRenderCallback();
+		void didRenderCallback(WindowDidRenderFuction function);
 
 	private:
 		
@@ -120,8 +124,7 @@ namespace ae {
 
 		void initFontstash();
 		void setupRenderBuffer();
-		//void updateFrametime(unsigned int numPolygons);
-		void mainLoop(float deltaSeconds);
+		void mainLoop();
 		void updateStatsOverlay(DrawStats& stats);
 		float drawText(std::string line, float size, float dx, float dy);
 		void saveGIFFrame(float deltaSeconds);
@@ -149,8 +152,9 @@ namespace ae {
 		unsigned						m_renderFramebuffer;
 		//unsigned						m_drawFramebuffer;
 		
-		windowWillUpdateFuction 		m_willUpdateCallback;
-		windowDidUpdateFuction 			m_didUpdateCallback;
+		WindowUpdateFuction				m_updateCallback;
+		WindowWillRenderFuction 		m_willRenderCallback;
+		WindowDidRenderFuction 			m_didRenderCallback;
 	};
 }
 

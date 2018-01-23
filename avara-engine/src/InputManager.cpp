@@ -129,15 +129,17 @@ vec2 InputManager::mouseScrollWheelDelta() {
      MARK:   Internal
  **************************************************************************************/
 
-void InputManager::update(float deltaSeconds) {
+void InputManager::update() {
 	
 //	cout << "update()" << endl;
 
 	static ManyMouseEvent event;
+	
+//	vec2 accumMousePosition = {0, 0};
+//	int xEvents = 0;
+//	int yEvents = 0;
 
-	int pollCount = 0;
 	while (ManyMouse_PollEvent(&event)) {
-		++pollCount;
 		switch(event.type) {
 				
 			case MANYMOUSE_EVENT_RELMOTION:
@@ -146,13 +148,19 @@ void InputManager::update(float deltaSeconds) {
 
 				//AE_LOG->debug("min: {}, max: {}", event.minval, event.maxval);
 				
+				// we used to ACCUMULATE the delta.
+				// it turns out manymouse is doing that for us, and the most recent even has the accumulation...
 				if (event.item == 0) {
-					//cout << "event.value: " << event.value << endl;
-					m_mousePositionDelta.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+//					++xEvents;
+//					accumMousePosition.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+//					cout << "X value: " << event.value << endl;
+					m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 				}
 				else {
-					//cout << "event.value: " << event.value << endl;
-					m_mousePositionDelta.y += (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+//					++yEvents;
+//					accumMousePosition.y += (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+//					cout << "Y value: " << event.value << endl;
+					m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 				}
 				break;
 
@@ -188,6 +196,9 @@ void InputManager::update(float deltaSeconds) {
 				break;
 		}
 	}
+	
+//	m_mousePositionDelta.x = accumMousePosition.x / (float)xEvents;
+//	m_mousePositionDelta.y = accumMousePosition.y / (float)yEvents;
 }
 
 /***************************************************************************************
