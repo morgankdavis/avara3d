@@ -72,10 +72,7 @@ int Test::run(const vector<string>& args) {
 	dragonNode->position({50, 0, 0});
 	scene->rootNode()->addChildNode(dragonNode);
 
-
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky2", "png"));
 	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));

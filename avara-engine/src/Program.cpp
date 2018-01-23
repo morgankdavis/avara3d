@@ -325,8 +325,10 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 //    if (blockIndex == -1) {
 //        cout << "bind" << endl;
         GLint blockIndex = glGetUniformBlockIndex(m_glID, name);
+	if (blockIndex != GL_INVALID_INDEX) {
 //    }
-	glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+	}
 }
 
 void Program::bindTexture(const char* name, const int& target, const unsigned& slot,

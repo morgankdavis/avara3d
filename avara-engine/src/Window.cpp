@@ -599,11 +599,11 @@ void Window::mainLoop(float deltaSeconds) {
 	
 	glfwPollEvents();
 	
-	static int frameCount = 0;
-	if ((frameCount % 1000) == 0) {
+//	static int frameCount = 0;
+//	if ((frameCount % 1000) == 0) {
 		if (m_inputManager) m_inputManager->update(deltaSeconds);
-	}
-	++frameCount;
+//	}
+//	++frameCount;
 }
 
 void Window::updateStatsOverlay(DrawStats& stats) {

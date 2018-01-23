@@ -82,8 +82,10 @@ void GeometryElement::draw(const mat4& modelMat,
 	program->setUniform("projection", projectionMat);
 	
 	material.prepareToRender(debugOptions);
-
-	program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
+	
+	if (!(debugOptions & DebugOption_ShowWireframe)) {
+		program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
+	}
 	
 	// draw
 	

@@ -18,6 +18,7 @@
 #include "Logger.h"
 #include "MaterialProperty.h"
 #include "Program.h"
+#include "Utilities.h"
 
 
 using namespace ae;
@@ -199,7 +200,6 @@ void Material::prepareToRender(DebugOption debugOptions) {
 	
 	if (debugOptions & DebugOption_ShowWireframe) {
 		m_program = Program::Wireframe();
-		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
