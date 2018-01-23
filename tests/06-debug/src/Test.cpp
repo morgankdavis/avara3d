@@ -28,7 +28,7 @@ using namespace glm;
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			AntialiasingMode_4X
-#define MOUSE_SENSITIVITY		0.005f
+#define MOUSE_SENSITIVITY		0.5f
 
 
 /***************************************************************************************
