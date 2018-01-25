@@ -769,8 +769,9 @@ ADD_LIBRARY( assimp ${assimp_src} )
 
 # added by Morgan
 target_compile_options(assimp PRIVATE "-w")
-target_compile_options(assimp PRIVATE "-mmacosx-version-min=10.9")
-#set(CMAKE_OSX_DEPLOYMENT_TARGET "10.8" CACHE STRING "Minimum OS X deployment version")
+if(MACOS)
+	target_compile_options(assimp PRIVATE "-mmacosx-version-min=10.9")
+endif()
 
 
 TARGET_LINK_LIBRARIES(assimp ${ZLIB_LIBRARIES} ${OPENDDL_PARSER_LIBRARIES} )

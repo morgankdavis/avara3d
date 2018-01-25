@@ -100,7 +100,9 @@ add_library (glew_s STATIC ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
 set_target_properties (glew_s PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC" OUTPUT_NAME "${GLEW_LIB_NAME}" PREFIX lib)
 
 # added by Morgan
-target_compile_options(glew_s PRIVATE "-mmacosx-version-min=10.9")
+if(MACOS)
+	target_compile_options(glew_s PRIVATE "-mmacosx-version-min=10.9")
+endif()
 
 if (MSVC)
   # add options from visual studio project

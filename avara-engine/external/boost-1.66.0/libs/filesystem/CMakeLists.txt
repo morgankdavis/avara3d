@@ -4,4 +4,6 @@ file(GLOB SOURCES src/*.c*)
 
 add_library(boost_filesystem ${HEADERS} ${SOURCES})
 
-target_compile_options(boost_filesystem PRIVATE "-mmacosx-version-min=10.9")
+if(MACOS)
+	target_compile_options(boost_filesystem PRIVATE "-mmacosx-version-min=10.9")
+endif()

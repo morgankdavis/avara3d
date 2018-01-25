@@ -83,7 +83,9 @@ target_compile_options(glfw PRIVATE
 		
 # added by Morgan			   
 target_compile_options(glfw PRIVATE "-w")
-target_compile_options(glfw PRIVATE "-mmacosx-version-min=10.9")
+if(MACOS)
+	target_compile_options(glfw PRIVATE "-mmacosx-version-min=10.9")
+endif()
 
 if (BUILD_SHARED_LIBS)
     if (WIN32)
