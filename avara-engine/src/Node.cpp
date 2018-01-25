@@ -515,7 +515,7 @@ void Node::addChildNode(shared_ptr<Node> node) {
 	m_childNodes.push_back(node);
 }
 
-void Node::insertChildNode(const Node& node, const int index) {
+void Node::insertChildNode(const Node& node, int index) {
 	
 }
 
@@ -539,19 +539,24 @@ Node* Node::parent() const {
 	return m_parent;
 }
 
-vector<shared_ptr<Node>> Node::allChildNodes() { // why no const?
+vector<shared_ptr<Node>> Node::childNodes(bool resursive) { // why no const?
 	// returns all decendants in BFS order
-		
-	auto children = allChildNodesRec();
-	children.erase(children.begin());
-	return children;
+	
+	if (resursive) {
+		auto children = childNodesRec();
+		children.erase(children.begin());
+		return children;
+	}
+	else {
+		return m_childNodes;
+	}
 }
 
-shared_ptr<Node> Node::childNode(const string& name, const bool resursive) {
+shared_ptr<Node> Node::childNode(const string& name, bool resursive) {
 
-	auto children = vector<shared_ptr<Node>>();
-	if (resursive) children = allChildNodes();
-	else children = m_childNodes;
+	//auto children = vector<shared_ptr<Node>>();
+	auto children = childNodes(resursive);
+	//else children = m_childNodes;
 	
 	for (auto child : children) {
 		if (child->name() == name) return child;
@@ -584,15 +589,15 @@ vector<Node*> Node::pathToRoot() const {
 	return parents;
 }
 
-std::vector<std::shared_ptr<Node>> Node::immediateChildNodes() const {
-	return m_childNodes;
-}
+//std::vector<std::shared_ptr<Node>> Node::childNodes(false) const {
+//	return m_childNodes;
+//}
 
 /***************************************************************************************
      MARK:   Private
  **************************************************************************************/
 
-vector<shared_ptr<Node>> Node::allChildNodesRec() { // why no const?
+vector<shared_ptr<Node>> Node::childNodesRec() { // why no const?
 	// recursive algorithm to do BFS, returning all children as well as this node
 
 	auto children = vector<shared_ptr<Node>>();
@@ -601,7 +606,7 @@ vector<shared_ptr<Node>> Node::allChildNodesRec() { // why no const?
 	children.push_back(thisShared);
 	
 	for (auto child : m_childNodes) {
-		auto allChildCNodes = child->allChildNodesRec();
+		auto allChildCNodes = child->childNodesRec();
 		children.insert(children.end(), allChildCNodes.begin(), allChildCNodes.end());
 	}
 

@@ -63,14 +63,14 @@ int Test::run(const vector<string>& args) {
 	
 
 	auto teapotScene = TestSceneNamed("teapot");
-	auto teapotNode = teapotScene->rootNode()->allChildNodes()[1];
+	auto teapotNode = teapotScene->rootNode()->childNodes(true)[1];
     teapotNode->rotation({1, 0, 0, radians(30.0)});
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
 	scene->rootNode()->addChildNode(teapotNode);
 
 	auto dragonScene = TestSceneNamed("dragon", "obj");
-	auto dragonNode = dragonScene->rootNode()->allChildNodes()[0];
+	auto dragonNode = dragonScene->rootNode()->childNodes(true)[0];
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 	scene->rootNode()->addChildNode(dragonNode);
@@ -179,7 +179,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->immediateChildNodes()) {
+		for (auto n : scene.rootNode()->childNodes(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

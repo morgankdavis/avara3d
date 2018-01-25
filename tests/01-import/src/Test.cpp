@@ -46,7 +46,7 @@ int Test::run(const vector<string>& args) {
 	
 	
 	auto testScene = TestSceneNamed("importTest");
-	auto rootImmediateChildren = testScene->rootNode()->immediateChildNodes();
+	auto rootImmediateChildren = testScene->rootNode()->childNodes(false);
 	
 	for (auto c : rootImmediateChildren) {
 		c->removeFromParentNode();
@@ -62,7 +62,7 @@ int Test::run(const vector<string>& args) {
 
 	cout << "Loading siamese scene..." << endl;
 	auto siameseScene = TestSceneNamed("siamese");
-	siameseNode = siameseScene->rootNode()->immediateChildNodes()[2];
+	siameseNode = siameseScene->rootNode()->childNodes(false)[2];
 	siameseNode->name("Siamese");
 	cout << "siameseNode: " << *siameseNode->name() << endl;
 	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
@@ -70,15 +70,15 @@ int Test::run(const vector<string>& args) {
 	siameseNode->hidden(false);
 
 	
-	torusNode = testScene->rootNode()->allChildNodes()[6];
+	torusNode = testScene->rootNode()->childNodes(true)[6];
 	torusNode->name("torus");
 	
 	
-	coneNode = testScene->rootNode()->allChildNodes()[8];
+	coneNode = testScene->rootNode()->childNodes(true)[8];
 	coneNode->name("cone");
 	
 	
-	ballNode = testScene->rootNode()->allChildNodes()[4];
+	ballNode = testScene->rootNode()->childNodes(true)[4];
 	ballNode->name("ball");
 
 	
@@ -94,7 +94,7 @@ int Test::run(const vector<string>& args) {
 	
 	auto teapotScene = TestSceneNamed("teapot");
 	teapotNode = teapotScene->rootNode();
-	//teapotNode = teapotScene->rootNode()->immediateChildNodes()[1];
+	//teapotNode = teapotScene->rootNode()->childNodes(false)[1];
 	teapotNode->name("teapot");
 	cout << "teapotNode: " << *teapotNode->name() << endl;
 	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));

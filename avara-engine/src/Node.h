@@ -104,13 +104,13 @@ namespace ae {
 		
 		void addChildNodes(std::vector<std::shared_ptr<Node>> nodes);
 		void addChildNode(std::shared_ptr<Node> node);
-		void insertChildNode(const Node& node, const int index);
+		void insertChildNode(const Node& node, int index);
 		void removeFromParentNode();
 		void replaceChildNode(const Node& replace, const Node& with);
 		
 		Node* parent() const;
-		std::shared_ptr<Node> childNode(const std::string& name, const bool resursive);
-		std::vector<std::shared_ptr<Node>> allChildNodes();
+		std::shared_ptr<Node> childNode(const std::string& name, bool resursive = false);
+		std::vector<std::shared_ptr<Node>> childNodes(bool resursive);
 		
 
 //		glm::vec3 convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
@@ -124,7 +124,7 @@ namespace ae {
 		
 		void parent(Node* parent);
 		std::vector<Node*> pathToRoot() const;
-		std::vector<std::shared_ptr<Node>> immediateChildNodes() const;
+		//std::vector<std::shared_ptr<Node>> childNodes(false) const;
 		
 	private:
 
@@ -148,7 +148,7 @@ namespace ae {
 		glm::vec3							m_scale;
 //		glm::mat4							m_pivot;
 		
-		std::vector<std::shared_ptr<Node>>	allChildNodesRec();
+		std::vector<std::shared_ptr<Node>>	childNodesRec();
 	};
 }
 

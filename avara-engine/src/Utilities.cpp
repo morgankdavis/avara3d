@@ -632,7 +632,7 @@ float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
 }
 
 //void ae::utils::PrintAllChildNodeNames(shared_ptr<Node> theNode) {
-//	for (auto n : theNode->allChildNodes()) {
+//	for (auto n : theNode->childNodes(true)) {
 //		if (n->name()) {
 //			cout << "Name: " << *(n->name()) << endl;
 //		}

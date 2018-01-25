@@ -342,7 +342,7 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 
 	bindEnvironment(*pointOfView, stats);
 
-	for (auto node: m_rootNode->allChildNodes()) {
+	for (auto node: m_rootNode->childNodes(true)) {
 		stats.nodes++;
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
@@ -370,7 +370,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : m_rootNode->allChildNodes()) {
+	for (auto node : m_rootNode->childNodes(true)) {
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -681,7 +681,7 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 	shared_ptr<Node> ambientLight = nullptr;
 	
 	// find all lights in the scene
-	for (auto node: m_rootNode->allChildNodes()) {
+	for (auto node: m_rootNode->childNodes(true)) {
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {

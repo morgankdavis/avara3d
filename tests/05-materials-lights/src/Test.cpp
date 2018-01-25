@@ -38,7 +38,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 	cout << "SetAllFilterModes: " << mode << endl;
 	
-	for (auto node : scene.rootNode()->allChildNodes()) {
+	for (auto node : scene.rootNode()->childNodes(true)) {
 		
 		auto geometry = node->geometry();
 		if (geometry) {
@@ -61,7 +61,7 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
 	
-	for (auto node : scene.rootNode()->allChildNodes()) {
+	for (auto node : scene.rootNode()->childNodes(true)) {
 		
 		auto geometry = node->geometry();
 		if (geometry) {
@@ -104,12 +104,12 @@ int Test::run(const vector<string>& args) {
 //	}
 
 	auto islandScene = TestSceneNamed("Island", "obj");
-	auto islandNode = islandScene->rootNode()->allChildNodes()[0];
+	auto islandNode = islandScene->rootNode()->childNodes(true)[0];
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChildNode(islandNode);
 
 	auto palletScene = TestSceneNamed("Pallet_rot");
-	auto palletNode = palletScene->rootNode()->allChildNodes()[2];
+	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
 	//palletNode->position(vec3(-35.0f, 35.0f, 0.0f));
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
@@ -139,7 +139,7 @@ int Test::run(const vector<string>& args) {
 	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
 	scene->rootNode()->addChildNode(palm1Scene->rootNode());
 	
-	for (auto n : palm1Scene->rootNode()->allChildNodes()) {
+	for (auto n : palm1Scene->rootNode()->childNodes(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
 				m->doubleSided(true);
@@ -315,7 +315,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->immediateChildNodes()) {
+		for (auto n : scene.rootNode()->childNodes(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

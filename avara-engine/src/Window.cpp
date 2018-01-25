@@ -239,7 +239,7 @@ shared_ptr<Node> Window::pointOfView() {
 	}
 	else {
 		// try to assign one from the scene
-		for (auto node: m_scene->rootNode()->allChildNodes()) {
+		for (auto node: m_scene->rootNode()->childNodes(true)) {
 			if (node->camera()) {
 				m_pointOfView = node;
 				return m_pointOfView;

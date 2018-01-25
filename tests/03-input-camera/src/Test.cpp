@@ -45,7 +45,7 @@ int Test::run(const vector<string>& args) {
 	auto scene = TestSceneNamed("importTest");
 	//auto scene = TestSceneNamed("dragon", "obj");
 	
-//	auto node = scene->rootNode()->immediateChildNodes()[4];
+//	auto node = scene->rootNode()->childNodes(false)[4];
 //	node->position();
 
 	
@@ -56,7 +56,7 @@ int Test::run(const vector<string>& args) {
 //	window.enableCursor(false);
 
 
-//	for (auto n : scene->rootNode()->immediateChildNodes()) {
+//	for (auto n : scene->rootNode()->childNodes(false)) {
 //		if (n->camera()) {
 //			m_cameraNode = n;
 //			break;
@@ -64,7 +64,7 @@ int Test::run(const vector<string>& args) {
 //	}
 
 	m_suzanneNode = scene->rootNode()->childNode("Suzanne", true);
-	//m_suzanneNode = scene->rootNode()->allChildNodes()[0];
+	//m_suzanneNode = scene->rootNode()->childNodes(true)[0];
 
 
 	
@@ -94,7 +94,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
 		//cout << "Key: " << to_string(k) << endl;
-		printf("Key: %c\n", k);
+		//printf("Key: %c\n", k);
 	}
 	
 	if (keysDown.count(Key_Escape)) {
@@ -123,7 +123,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->immediateChildNodes()) {
+		for (auto n : scene.rootNode()->childNodes(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

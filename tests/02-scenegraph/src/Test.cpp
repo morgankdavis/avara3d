@@ -58,7 +58,7 @@ int Test::run(const vector<string>& args) {
 	// test using raw matrix manipulation
 		
 		auto aScene = TestSceneNamed("dragon", "obj");
-		auto aNode = aScene->rootNode()->immediateChildNodes()[0];
+		auto aNode = aScene->rootNode()->childNodes(false)[0];
 		aNode->name("A");
 		auto aTranslate = 	translate(mat4(1.0f), vec3(10.0f, 0.0f, 0.0f));
 		auto aScale = 		scale(mat4(1.0f), vec3(2.0f, 2.0f, 2.0f));
@@ -74,7 +74,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto bScene = TestSceneNamed("dragon", "obj");
-		auto bNode = bScene->rootNode()->immediateChildNodes()[0];
+		auto bNode = bScene->rootNode()->childNodes(false)[0];
 		bNode->name("B");
 		auto bTranslate = 	translate(mat4(1.0f), vec3(0.0f, -20.0f, -7.0f));
 		auto bScale = 		scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.5f));
@@ -92,7 +92,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto fScene = TestSceneNamed("dragon", "obj");
-		auto fNode = fScene->rootNode()->immediateChildNodes()[0];
+		auto fNode = fScene->rootNode()->childNodes(false)[0];
 		fNode->name("F");
 		auto fTranslate = 	translate(mat4(1.0f), vec3(-16.0f, 0.0f, -60.0f));
 		auto fScale = 		scale(mat4(1.0f), vec3(2.0f, 5.0f, 3.0f));
@@ -175,7 +175,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto aScene = TestSceneNamed("dragon", "obj");
-		auto aNode = aScene->rootNode()->immediateChildNodes()[0];
+		auto aNode = aScene->rootNode()->childNodes(false)[0];
 		aNode->name("A");
 		aNode->position(vec3(20.0f, 0.0f, 0.0f));
 		aNode->scale(vec3(2.0f, 3.0f, 2.0f));

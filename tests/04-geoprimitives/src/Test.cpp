@@ -119,7 +119,7 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	for (auto n : scene->rootNode()->allChildNodes()) {
+	for (auto n : scene->rootNode()->childNodes(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
 				m->doubleSided(true);
@@ -191,7 +191,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	const static float mouseSensitivity = (1.0f / 0.5f);
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->immediateChildNodes()) {
+		for (auto n : scene.rootNode()->childNodes(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;
