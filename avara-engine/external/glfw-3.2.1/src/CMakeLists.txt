@@ -80,6 +80,10 @@ target_compile_definitions(glfw PRIVATE
 target_compile_options(glfw PRIVATE
                        "$<$<C_COMPILER_ID:Clang>:-Wall>"
                        "$<$<C_COMPILER_ID:GNU>:-Wall>")
+		
+# added by Morgan			   
+target_compile_options(glfw PRIVATE "-w")
+target_compile_options(glfw PRIVATE "-mmacosx-version-min=10.9")
 
 if (BUILD_SHARED_LIBS)
     if (WIN32)

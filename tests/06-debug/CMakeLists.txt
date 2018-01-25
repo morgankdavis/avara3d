@@ -1,62 +1,44 @@
 
 set(EXECUTABLE_NAME "test06-debug")
+MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
 
 
 # add headers from avara-engine
 include_directories(${CMAKE_SOURCE_DIR}/avara-engine/src)
-
-# https://github.com/nothings/stb/blob/master/docs/stb_howto.txt
-#include_directories(${CMAKE_SOURCE_DIR}/avara-engine/external/stb)
-
-#add_subdirectory(include)
-#add_subdirectory(src)
 
 
 file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-include_directories("/usr/include" "/usr/local/include")
-
-
-set(CMAKE_CXX_STANDARD 14)
+add_executable(${EXECUTABLE_NAME} ${HEADERS} ${SOURCES})
+target_link_libraries(${EXECUTABLE_NAME} ae)
 
 
 if(MACOS)
+	
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
+	
+	target_compile_options(${EXECUTABLE_NAME} PRIVATE
+		"-mmacosx-version-min=10.9")
 
-	#-pedantic
-	#set(CMAKE_CXX_FLAGS "-std=c++ -stdlib=libc++ \
-	#	-Wall -mmacosx-version-min=10.8 -arch x86_64 \
-	#	-fmessage-length=0 -UGLFW_CDECL \
-	#	-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
-	
-	set(CMAKE_CXX_FLAGS "-stdlib=libc++ \
-		-Wall -mmacosx-version-min=10.8 -arch x86_64 \
-		-fmessage-length=0 -UGLFW_CDECL \
-		-Wfloat-equal -Wno-c++11-long-long -Wself-assign -Wno-reorder")
-	
+	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ -arch x86_64")
+
 elseif(LINUX)
-	##-pedantic
-	##-Wno-c++11-long-long
-	#set(CMAKE_CXX_FLAGS "-std=c++ \
-	#	-Wall -fmessage-length=0 -UGLFW_CDECL \
-	#	-Wfloat-equal -Wno-reorder -Wfloat-equal")
 	
-	set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -UGLFW_CDECL \
-		-Wfloat-equal -Wno-reorder -Wfloat-equal")
-
-elseif(WINDOWS)
-
-#	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-#		set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -lpthread")
-#	endif()
+	include_directories("/usr/include" "/usr/local/include")
+	
+	set(CMAKE_CXX_FLAGS "-std=c++14")
 
 endif()
 
 
-MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
-
-add_executable(${EXECUTABLE_NAME} ${HEADERS} ${SOURCES})
-target_link_libraries(${EXECUTABLE_NAME} ae)
+target_compile_options(${EXECUTABLE_NAME} PRIVATE 
+	"-fmessage-length=0"
+	"-UGLFW_CDECL"
+	"-Wno-float-equal"
+	"-Wno-c++11-long-long"
+	"-Wno-self-assign"
+	"-Wno-reorder"
+	"-Wno-address-of-packed-member")
 

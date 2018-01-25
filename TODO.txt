@@ -11,9 +11,6 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-
-		Fix assume -W float equal! + -w for all external dependancies
-
 		If a material is accessed through the default accessor, assign and return a copy of the default material
 
 		Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly

@@ -112,15 +112,9 @@ set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-
 if(WINDOWS)
 	set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
 endif()
-
-# we always seem to have trouble importing the headers for assimp 4.0.1...
-#add_subdirectory(avara-engine/external/assimp-4.0.1)
-#include_directories(avara-engine/external/assimp-4.0.1/include)
-
 add_subdirectory(avara-engine/external/assimp-3.3.1)
 include_directories(avara-engine/external/assimp-3.3.1/include)
 
@@ -142,7 +136,6 @@ include_directories(avara-engine/external/stb)
 # fontstash
 
 include_directories(avara-engine/external/fontstash)
-
 
 
 add_subdirectory(avara-engine)
