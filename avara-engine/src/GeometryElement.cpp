@@ -60,7 +60,8 @@ void GeometryElement::draw(const mat4& modelMat,
 						   DebugOption debugOptions,
 						   DrawStats& stats) {
 
-	auto program = material.program();
+	//auto program = material.program();
+	auto program = material.selectProgram(debugOptions);
 	
 	// gl config
 	

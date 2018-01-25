@@ -27,8 +27,9 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowWillUpdateCallback(Scene& scene, float deltaSeconds);
-		void windowDidUpdateCallback(Scene& scene, float deltaSeconds);
+		void windowUpdateCallback(Scene& scene, float time);
+		void windowWillRenderCallback(Scene& scene, float time);
+		void windowDidRenderCallback(Scene& scene, float time);
 		
 	private:
 		

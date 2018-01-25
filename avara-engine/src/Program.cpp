@@ -320,14 +320,13 @@ void Program::setUniform(const char* name, float val) {
 
 void Program::bindUniformBlock(const char* name, GLuint location) {
 	
-    // TODO: OPTIMIZE (cache)
-//    static GLint blockIndex = -1;
-//    if (blockIndex == -1) {
-//        cout << "bind" << endl;
-        GLint blockIndex = glGetUniformBlockIndex(m_glID, name);
+	GLint blockIndex = glGetUniformBlockIndex(m_glID, name);
 	if (blockIndex != GL_INVALID_INDEX) {
-//    }
 		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+	}
+	else {
+		//printf("Uniform block: %s not found.\n", name);
+		AE_LOG->error("Uniform block '{}' not found.", name);
 	}
 }
 

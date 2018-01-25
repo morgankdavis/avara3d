@@ -159,6 +159,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		m_willRenderCallback = nullptr;
 		m_didRenderCallback = nullptr;
 		m_recordingGIF = false;
+		m_cursorCaptured = false;
 }
 
 Window::~Window() {
@@ -180,6 +181,8 @@ void Window::display() {
 	while (!glfwWindowShouldClose(i_glfwWindow)) {
 		mainLoop();
 	}
+	
+	stopGIFRecording();
 }
 
 shared_ptr<Scene> Window::scene() const {
@@ -190,11 +193,16 @@ void Window::scene(const shared_ptr<Scene> scene) {
 	m_scene = scene;
 }
 
+bool Window::cursorCaptured() const {
+	return m_cursorCaptured;
+}
+
 void Window::captureCursor(bool captured) {
+	m_cursorCaptured = captured;
 	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-bool Window::enableVSync() const {
+bool Window::vSyncEnabled() const {
 	return m_vSyncEnabled;
 }
 
@@ -220,6 +228,43 @@ void Window::debugOptions(DebugOption options) {
 	m_debugOptions = options;
 }
 
+AntialiasingMode Window::antialiasingMode() const {
+	return m_antialiasingMode;
+}
+
+shared_ptr<Node> Window::pointOfView() {
+	
+	if (m_pointOfView) {
+		return m_pointOfView;
+	}
+	else {
+		// try to assign one from the scene
+		for (auto node: m_scene->rootNode()->allChildNodes()) {
+			if (node->camera()) {
+				m_pointOfView = node;
+				return m_pointOfView;
+			}
+		}
+	}
+	if (!m_pointOfView) {
+		// still no POV. add a default one.
+		m_pointOfView = defaultPointOfView();
+	}
+	
+	return m_pointOfView;
+}
+
+void Window::pointOfView(const shared_ptr<Node> camera) {
+	m_pointOfView = camera;
+}
+
+shared_ptr<InputManager> Window::inputManager() {
+	if (m_inputManager == nullptr) {
+		m_inputManager = make_shared<InputManager>(this);
+	}
+	return m_inputManager;
+}
+
 shared_ptr<Image> Window::snapshot() const {
 	
 	unsigned char *buf = (unsigned char*)malloc(m_framebufferWidth * m_framebufferHeight * 4);
@@ -227,6 +272,10 @@ shared_ptr<Image> Window::snapshot() const {
 	auto image = make_shared<Image>(buf, m_framebufferWidth, m_framebufferHeight);
 	free(buf);
 	return image;
+}
+
+bool Window::recordingGIF() const {
+	return m_recordingGIF;
 }
 
 void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate) {
@@ -312,10 +361,6 @@ void Window::framebufferHeight(unsigned aHeight) {
 	m_framebufferHeight = aHeight;
 }
 
-AntialiasingMode Window::antialiasingMode() const {
-	return m_antialiasingMode;
-}
-
 //void Window::antialiasingMode(AntialiasingMode mode) {
 //	m_antialiasingMode = mode;
 //	glfwWindowHint(GLFW_SAMPLES, mode);
@@ -328,39 +373,6 @@ AntialiasingMode Window::antialiasingMode() const {
 //void Window::backgroundColor(const shared_ptr<Color> color) {
 //	m_backgroundColor = color;
 //}
-
-shared_ptr<Node> Window::pointOfView() {
-	
-	if (m_pointOfView) {
-		return m_pointOfView;
-	}
-	else {
-		// try to assign one from the scene
-		for (auto node: m_scene->rootNode()->allChildNodes()) {
-			if (node->camera()) {
-				m_pointOfView = node;
-				return m_pointOfView;
-			}
-		}
-	}
-	if (!m_pointOfView) {
-		// still no POV. add a default one.
-		m_pointOfView = defaultPointOfView();
-	}
-	
-	return m_pointOfView;
-}
-
-void Window::pointOfView(const shared_ptr<Node> camera) {
-	m_pointOfView = camera;
-}
-
-shared_ptr<InputManager> Window::inputManager() {
-	if (m_inputManager == nullptr) {
-		m_inputManager = make_shared<InputManager>(this);
-	}
-	return m_inputManager;
-}
 
 shared_ptr<Node> Window::defaultPointOfView() {
 	
@@ -464,24 +476,6 @@ void Window::didRenderCallback(WindowDidRenderFuction function) {
 /***************************************************************************************
      MARK:   Private
  **************************************************************************************/
-
-//void Window::updateFrametime(unsigned int numPolygons) {
-//	const float GOAL_TIME = 16.6666667f;
-//	static unsigned elapsedFrames = 0; ++elapsedFrames;
-//	static float previousSeconds = glfwGetTime();
-//	float currentSeconds = glfwGetTime();
-//	float elapsedSeconds = currentSeconds - previousSeconds;
-//	if (elapsedSeconds > 0.25) {
-//		previousSeconds = currentSeconds;
-//		float ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-//		float fps = elapsedFrames/elapsedSeconds;
-//		float percentGoal = (ms / GOAL_TIME) * 100.0f;
-//		char tmp[128];
-//		sprintf(tmp, "%.1f ms | %.1f fps | %.1f %% | %u polys", ms, fps, percentGoal, numPolygons);
-//		glfwSetWindowTitle(i_glfwWindow, tmp);
-//		elapsedFrames = 0;
-//	}
-//}
 
 void Window::initFontstash() {
 

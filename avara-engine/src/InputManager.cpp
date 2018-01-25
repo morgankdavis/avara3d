@@ -150,6 +150,7 @@ void InputManager::update() {
 				
 				// we used to ACCUMULATE the delta.
 				// it turns out manymouse is doing that for us, and the most recent even has the accumulation...
+				// update: actually that doesn't look to be the case... wtf??
 				if (event.item == 0) {
 //					++xEvents;
 //					accumMousePosition.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);

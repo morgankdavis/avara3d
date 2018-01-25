@@ -37,8 +37,9 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
 	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(true);
 	window.enableVSync(false);
 
@@ -427,33 +428,40 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
-void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
+/***************************************************************************************
+     MARK:   Window Callbacks
+ **************************************************************************************/
 
-	static float totalSeconds = 0;
-	totalSeconds += deltaSeconds;
+void Test::windowUpdateCallback(Scene& scene, float time) {
+	
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
-	
-	
-	
+
 	if (TEST == RotationAnimationTestCase) {
 		auto node = scene.rootNode()->childNode("A", true);
-
+		
 		// we WANT this to work (this is how scene kit works)
 		// but it locks after 2PI rotation
 		// (we think it's becasue rotation() is clipping to 2PI when the underlying quaternion indicates anything larger
 		//node->rotation(vec4(1.0f, 0.0f, 0.0f, node->rotation().w + radians(rotationDeg * 2.0f)));
-
+		
 		float newAngle = node->rotation().w + radians(rotationDeg * 2.0f);
 		newAngle = (newAngle > 0 ?
 					fmod(newAngle, 2.0f*M_PI) :
 					fmod(newAngle, 2.0f*M_PI));
 		node->rotation(vec4(1.0f, 0.0f, 0.0f, newAngle));
-
+		
 		cout << "node transform:\n" << node->transform() << endl;
 	}
 }
 
-void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
+void Test::windowWillRenderCallback(Scene& scene, float time) {
+
+}
+
+void Test::windowDidRenderCallback(Scene& scene, float time) {
 
 }

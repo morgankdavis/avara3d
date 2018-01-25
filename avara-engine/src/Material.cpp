@@ -196,14 +196,25 @@ void Material::program(shared_ptr<Program> program) {
 ////	}
 //}
 
-void Material::prepareToRender(DebugOption debugOptions) {
-	
+shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
 	if (debugOptions & DebugOption_ShowWireframe) {
 		m_program = Program::Wireframe();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
 		m_program = Program::Default();
+	}
+	return m_program;
+}
+
+void Material::prepareToRender(DebugOption debugOptions) {
+	
+	if (debugOptions & DebugOption_ShowWireframe) {
+		//m_program = Program::Wireframe();
+		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else {
+		//m_program = Program::Default();
 		
 		//if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Lines)) {
 		if (m_fillMode == FillMode_Lines) {

@@ -36,8 +36,9 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
 	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(true);
 	window.enableVSync(false);
 	
@@ -78,18 +79,15 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
+/***************************************************************************************
+     MARK:   Window Callbacks
+ **************************************************************************************/
 
-
-
-
-
-
-void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
-
-	static float totalSeconds = 0;
-	totalSeconds += deltaSeconds;
-
+void Test::windowUpdateCallback(Scene& scene, float time) {
 	
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
 	
 	// get input
 	
@@ -98,7 +96,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		//cout << "Key: " << to_string(k) << endl;
 		printf("Key: %c\n", k);
 	}
-
+	
 	if (keysDown.count(Key_Escape)) {
 		exit(0);
 	}
@@ -108,9 +106,9 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
-//	if (mousePositionDelta.x || mousePositionDelta.y) {
-//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
-//	}
+	//	if (mousePositionDelta.x || mousePositionDelta.y) {
+	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
+	//	}
 	
 	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
@@ -118,16 +116,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		<< mouseScrollWheelDelta.y << ")" << endl;
 	}
 	
-	
-	
 	// move camera
-	
-	// TODO: Use trig/radius
-
-
-	// tanA = y/x
-	// tanA = mouseDelta / distance
-	// A = atan(mouseDelta / distance)
 
 	//const static float mouseSensitivity = 0.5f;
 	const static float mouseSensitivity = (1.0f / 1.5f);
@@ -146,15 +135,19 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	if (m_cameraNode) {
 		
 		// look
-
+		
 		vec3 camForward = m_cameraNode->worldForward();
 		vec3 camRight = m_cameraNode->worldRight();
 		vec3 camUp = m_cameraNode->worldUp();
-
 		
-//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
-//		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
-
+		
+		//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
+		//		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
+		
+		// tanA = y/x
+		// tanA = mouseDelta / distance
+		// A = atan(mouseDelta / distance)
+		
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
@@ -163,12 +156,13 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		//m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
 		// pitch, yaw, roll
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
+		
 		
 		// move
-
-		const static float MOVE_SPEED = 1.0f; // units/sec
-
+		
+		static float MOVE_SPEED = 0;
+		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
+		
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -192,8 +186,8 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 	}
-
-
+	
+	
 	if (m_suzanneNode) {
 		if(keysDown.count(Key_Right)) {
 			m_suzanneNode->eulerAngles(vec3(m_suzanneNode->eulerAngles().x + deltaSeconds,
@@ -217,6 +211,10 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	}
 }
 
-void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
+void Test::windowWillRenderCallback(Scene& scene, float time) {
+
+}
+
+void Test::windowDidRenderCallback(Scene& scene, float time) {
 
 }

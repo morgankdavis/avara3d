@@ -62,9 +62,10 @@ namespace ae {
 		std::shared_ptr<Scene> scene() const;
 		void scene(const std::shared_ptr<Scene> scene);
 
+		bool cursorCaptured() const;
 		void captureCursor(bool captured);
 		
-		bool enableVSync() const;
+		bool vSyncEnabled() const;
 		void enableVSync(bool enabled);
 		
 		float maximumFramerate() const;
@@ -73,7 +74,16 @@ namespace ae {
 		DebugOption debugOptions() const;
 		void debugOptions(DebugOption options);
 		
+		AntialiasingMode antialiasingMode() const;
+		
+		std::shared_ptr<Node> pointOfView();
+		void pointOfView(const std::shared_ptr<Node> camera);
+		
+		std::shared_ptr<InputManager> inputManager();
+		
 		std::shared_ptr<Image> snapshot() const;
+		
+		bool recordingGIF() const;
 		void startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate);
 		void stopGIFRecording();
 		
@@ -95,13 +105,6 @@ namespace ae {
 		
 		unsigned framebufferHeight() const;
 		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
-		
-		AntialiasingMode antialiasingMode() const;
-
-		std::shared_ptr<Node> pointOfView();
-		void pointOfView(const std::shared_ptr<Node> camera);
-		
-		std::shared_ptr<InputManager> inputManager();
 
 		std::shared_ptr<Node> defaultPointOfView();
 		
@@ -151,6 +154,7 @@ namespace ae {
 		unsigned						m_gifRecordingMaxFramerate;
 		unsigned						m_renderFramebuffer;
 		//unsigned						m_drawFramebuffer;
+		bool							m_cursorCaptured;
 		
 		WindowUpdateFuction				m_updateCallback;
 		WindowWillRenderFuction 		m_willRenderCallback;

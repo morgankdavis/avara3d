@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+//#include "Types.h"
+
 
 namespace ae {
 
@@ -39,7 +41,6 @@ namespace ae {
 		Window*								m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
-		bool								m_vsyncEnabled;
 	};
 }
 

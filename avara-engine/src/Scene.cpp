@@ -719,7 +719,20 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 		lights = lightsSlice;
 	}
 	
-	if (ambientLight) lights.emplace_back(ambientLight);
+	// check for default lighting
+	
+	if (lights.size() == 0) {
+		auto detaultPoint = Light::DefaultPointNode();
+		// set position based on scene extent...
+		static vec3 sceneExtent = extent(); // only doing this once or it runs reallll slow
+		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
+			sceneExtent.y + sceneExtent.y/4.0,
+			sceneExtent.z + sceneExtent.z/4.0});
+		lights.emplace_back(detaultPoint);
+	}
+	if (!ambientLight) ambientLight = Light::DefaultAmbientNode();
+	
+	lights.emplace_back(ambientLight);
 	
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];

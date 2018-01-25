@@ -30,6 +30,15 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<Light> DefaultAmbient();
+		static std::shared_ptr<Light> DefaultPoint();
+		static std::shared_ptr<Node> DefaultAmbientNode();
+		static std::shared_ptr<Node> DefaultPointNode();
+		
+		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		

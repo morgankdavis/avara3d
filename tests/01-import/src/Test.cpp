@@ -38,8 +38,9 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
 	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(true);
 	window.enableVSync(false);
 	
@@ -118,12 +119,11 @@ int Test::run(const vector<string>& args) {
      MARK:   Window Callbacks
  **************************************************************************************/
 
-void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
-//	cout << "windowWillUpdateCallback(" << &scene << ", "
-//	<< deltaSeconds << ")" << endl;
+void Test::windowUpdateCallback(Scene& scene, float time) {
 	
-	static float totalSeconds = 0;
-	totalSeconds += deltaSeconds;
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 	
@@ -131,39 +131,27 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 								 radians(rotationDeg),
 								 vec3(0.0f, 1.0f, 0.0f)));
 	
-//	auto siameseRotate = rotate(siameseNode->transform(), radians(rotationDeg * 2.0f), vec3(1.0f, 1.0f, 1.0f));
-//	siameseNode->transform(siameseRotate);
 	siameseNode->rotation(vec4(0.0f, 1.0f, 1.0f, siameseNode->rotation().w + radians(rotationDeg * 2.0f)));
 	
 	torusNode->transform(rotate(torusNode->transform(),
-							   radians(rotationDeg),
-							   vec3(1.0f, 0.0f, 1.0f)));
+								radians(rotationDeg),
+								vec3(1.0f, 0.0f, 1.0f)));
 	
 	coneNode->transform(rotate(coneNode->transform(),
-								radians(rotationDeg),
-								vec3(0.0f, 0.0f, 1.0f)));
+							   radians(rotationDeg),
+							   vec3(0.0f, 0.0f, 1.0f)));
 	
-		ballNode->transform(rotate(ballNode->transform(),
-									radians(rotationDeg),
-									vec3(sin(totalSeconds), cos(totalSeconds), -cos(totalSeconds))));
-	
-	
-	
-	//	siameseNode->transform(rotate(siameseNode->transform(),
-	//								  radians(rotationDeg * 10.0f),
-	//								  vec3(1.0f, 0.0f, 0.0f)));
-	
-	//	palmNode->transform(rotate(palmNode->transform(),
-	//								  radians(rotationDeg),
-	//								  vec3(1.0f, 0.0f, 0.0f)));
-	//
-	//	teapotNode->transform(rotate(teapotNode->transform(),
-	//								  radians(rotationDeg),
-	//								  vec3(0.0f, 0.0f, 1.0f)));
+	ballNode->transform(rotate(ballNode->transform(),
+							   radians(rotationDeg),
+							   vec3(sin(time), cos(time), -cos(time))));
+
 	teapotNode->rotation(vec4(0.0f, 1.0f, 0.0f, teapotNode->rotation().w - radians(rotationDeg * 3.0f)));
 }
 
-void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
-//	cout << "windowDidUpdateCallback(" << &scene << ", "
-//	<< deltaSeconds << ")" << endl;
+void Test::windowWillRenderCallback(Scene& scene, float time) {
+
+}
+
+void Test::windowDidRenderCallback(Scene& scene, float time) {
+
 }

@@ -11,14 +11,16 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Wireframe turn OFF gl error: 1282 (0x0502, GL_INVALID_OPERATION)
-			#define GL_INVALID_ENUM                   0x0500
-			#define GL_INVALID_VALUE                  0x0501
-			#define GL_INVALID_OPERATION              0x0502
-			#define GL_STACK_OVERFLOW                 0x0503
 
-		weak_ptr
+		Fix assume -W float equal! + -w for all external dependancies
+
+		If a material is accessed through the default accessor, assign and return a copy of the default material
+
+		Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
+		Check nodes don’t already exist when adding children
+
 		ERROR HANDLING (shader failed to compile, etc)
+			http://www.drdobbs.com/custom-exception-types/184401913
 		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
 
 	30 - physics
@@ -38,13 +40,10 @@ Tests:
 
 	80 - vulkan? metal? deferred shading?
 
-
-Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
-Check nodes don’t already exist when adding children
-
+——————————————————————————————————
 
 QUESTIONS:
-	Why does mouse input speed change between vzync and non-vsync?
+
 	Why do we have to invert our view matrix?
 		Apparently transforming everything into eye-space in the vertex shader is requiring this...
 		It also looks as though doing it the “other way” (not how we’re doing it) requires this:
@@ -53,22 +52,11 @@ QUESTIONS:
 		https://www.opengl.org/discussion_boards/showthread.php/178301-View-matrix-for-point-light-calculation-should-be-inverse
 
 
-Separate Window and Renderer
-
-——————————————————————————————————
-
-Add error handling/exceptions
-    http://www.drdobbs.com/custom-exception-types/184401913
-
-
 Laundry list:
 
-	Fix HID trackpad input in Windows
-		http://keithditch.powweb.com/Games/html/raw_input.html
-		https://msdn.microsoft.com/en-us/library/windows/desktop/ms645543(v=vs.85).aspx#_win32_Registration_for_Raw_Input
-		https://msdn.microsoft.com/en-us/library/windows/desktop/ms645546(v=vs.85).aspx
-
-	Get unique comp ID for performance & mouse sensitivity
+	weak_ptr
+	
+	Get unique comp ID for performance settings (or load a config...)
 		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
 
 	Proper scene graph unroll
@@ -143,17 +131,10 @@ Wish list:
 
 
 OPTIMIZATION
-	ONLY GET UNIFORM LOCATIONS WHEN ABSOLUTELY NECESSARY
-	Cache shaders + separate out compiling shaders & loading VOA + allow precache
 	Cache scene graph unrolls
 	Vector:
 		reserve
 		emplace_back
-	skybox doesn’t use normals, tex coords, tangents or bitangents
-
-
-Nitpick:
-	Superclass for geometry primitives
 
 
 BUGS:

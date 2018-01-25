@@ -89,6 +89,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		//void loadShaderProgram(const std::string& shaderName);
+		std::shared_ptr<Program> selectProgram(DebugOption debugOptions);
 		void prepareToRender(DebugOption debugOptions);
 		
 	protected:

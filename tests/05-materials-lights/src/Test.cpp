@@ -82,8 +82,9 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
 	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
-	window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
-	window.didUpdateCallback(bind(&Test::windowDidUpdateCallback, this, _1, _2));
+	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(true);
 	window.enableVSync(false);
 	//window.antialiasingMode(AntialiasingMode_None);
@@ -224,15 +225,20 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
-void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
+/***************************************************************************************
+     MARK:   Window Callbacks
+ **************************************************************************************/
 
-	static float totalSeconds = 0;
-	totalSeconds += deltaSeconds;
-
+void Test::windowUpdateCallback(Scene& scene, float time) {
+	
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+	
 	// get input
 	
 	auto keysPressed = m_inputManager->keysPressed();
-
+	
 	if (keysPressed.count(Key_Escape)) {
 		exit(0);
 	}
@@ -244,57 +250,70 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 	else if (keysPressed.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
 	else if (keysPressed.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
 	
-//	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
-//	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
-
-
+	//	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
+	//	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
+	
+	
 	if 		(keysPressed.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
 	else if (keysPressed.count(Key_F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
 	else if (keysPressed.count(Key_F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
-
-
+	
+	
 	if 		(keysPressed.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysPressed.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
 	else if (keysPressed.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
-
-    DebugOption options = (DebugOption)m_window->debugOptions();
-    if (keysPressed.count(Key_Up)) {
-        m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
-    }
-    else if (keysPressed.count(Key_Down)) {
-        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
-    }
-    if (keysPressed.count(Key_Right)) {
-        m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
-    }
-    else if (keysPressed.count(Key_Left)) {
-        m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
-    }
-	if (keysPressed.count(Key_RightBracket)) {
-		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
+	
+	
+	DebugOption options = (DebugOption)m_window->debugOptions();
+	if (keysPressed.count(Key_F)) {
+		if (m_window->debugOptions() & DebugOption_ShowWireframe) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
+		}
 	}
-	else if (keysPressed.count(Key_LeftBracket)) {
-		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+	if (keysPressed.count(Key_B)) {
+		if (m_window->debugOptions() & DebugOption_ShowBoundingBoxes) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+		}
+	}
+	if (keysPressed.count(Key_I)) {
+		if (m_window->debugOptions() & DebugOption_ShowStatsOveray) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
+		}
+	}
+	
+	if (keysPressed.count(Key_V)) {
+		m_window->enableVSync(!(m_window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(Key_Backslash)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysPressed.count(Key_Equal)) {
-		StartGIFRecording(*m_window, 240, 8);
-	}
-	else if (keysPressed.count(Key_Minus)) {
-		StopGIFRecording(*m_window);
+	if (keysPressed.count(Key_R)) {
+		if (!m_window->recordingGIF()) {
+			StartGIFRecording(*m_window, 240, 8);
+		}
+		else {
+			StopGIFRecording(*m_window);
+		}
 	}
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
-
+	
 	// move camera
-
+	
 	const static float mouseSensitivity = (1.0f / 0.5f);
-
-
+	
+	
 	if (!m_cameraNode) {
 		for (auto n : scene.rootNode()->immediateChildNodes()) {
 			if (n->camera()) {
@@ -303,32 +322,32 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			}
 		}
 	}
-
+	
 	if (m_cameraNode) {
 		
 		
 		//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
-
+		
 		// look
-
+		
 		vec3 camForward = m_cameraNode->worldForward();
 		vec3 camRight = m_cameraNode->worldRight();
 		vec3 camUp = m_cameraNode->worldUp();
-
+		
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
-
+		
 		vec3 angles = m_cameraNode->eulerAngles();
 		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
+		
 		// move
 		
 		auto keysDown = m_inputManager->keysDown();
-
-//		const static float MOVE_SPEED = 5.0f; // units/sec
+		
+		//		const static float MOVE_SPEED = 5.0f; // units/sec
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
-
+		
 		if(keysDown.count(Key_W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -337,7 +356,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-
+		
 		if(keysDown.count(Key_A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -346,7 +365,7 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-
+		
 		if(keysDown.count(Key_Space)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
@@ -368,11 +387,15 @@ void Test::windowWillUpdateCallback(Scene& scene, float deltaSeconds) {
 		
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
-
+		
 		m_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
 
-void Test::windowDidUpdateCallback(Scene& scene, float deltaSeconds) {
+void Test::windowWillRenderCallback(Scene& scene, float time) {
+
+}
+
+void Test::windowDidRenderCallback(Scene& scene, float time) {
 
 }

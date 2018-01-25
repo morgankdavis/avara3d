@@ -9,11 +9,49 @@
 #include "Light.h"
 
 #include "Color.h"
+#include "Node.h"
 
 
 using namespace ae;
 using namespace std;
 
+
+/***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<Light> Light::DefaultAmbient() {
+	static shared_ptr<Light> light = nullptr;
+	if (!light) {
+		light = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
+	}
+	return light;
+}
+
+shared_ptr<Light> Light::DefaultPoint() {
+	static shared_ptr<Light> light = nullptr;
+	if (!light) {
+		light = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+		light->attenuationFactor(0.0);
+	}
+	return light;
+}
+
+shared_ptr<Node> Light::DefaultAmbientNode() {
+	static shared_ptr<Node> node = nullptr;
+	if (!node) {
+		node = make_shared<Node>(DefaultAmbient());
+	}
+	return node;
+}
+
+shared_ptr<Node> Light::DefaultPointNode() {
+	static shared_ptr<Node> node = nullptr;
+	if (!node) {
+		node = make_shared<Node>(DefaultPoint());
+	}
+	return node;
+}
 
 /***************************************************************************************
      MARK:   Lifecycle

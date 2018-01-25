@@ -51,13 +51,12 @@ int Test::run(const vector<string>& args) {
 	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
 	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(CAPTURE_CURSOR);
-	m_vsyncEnabled = ENABLE_VSYNC;
-	window.enableVSync(m_vsyncEnabled);
+	window.enableVSync(ENABLE_VSYNC);
 	//window.antialiasingMode(AntialiasingMode_None);
 	m_window = &window;
 	
+	//m_debugOptions = DebugOption_ShowStatsOveray;
 	window.debugOptions(DebugOption_ShowStatsOveray);
-	//window.debugOptions(DebugOption_ShowWireframe);
 
 	
 	auto scene = make_shared<Scene>();
@@ -112,6 +111,10 @@ int Test::run(const vector<string>& args) {
 	return 0;
 }
 
+/***************************************************************************************
+     MARK:   Window Callbacks
+ **************************************************************************************/
+
 void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	static double previousSeconds = time;
@@ -127,39 +130,46 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	}
 	
 	DebugOption options = (DebugOption)m_window->debugOptions();
-	if (keysPressed.count(Key_Up)) {
-		m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
+	if (keysPressed.count(Key_F)) {
+		if (m_window->debugOptions() & DebugOption_ShowWireframe) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
+		}
 	}
-	else if (keysPressed.count(Key_Down)) {
-		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
+	if (keysPressed.count(Key_B)) {
+		if (m_window->debugOptions() & DebugOption_ShowBoundingBoxes) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+		}
 	}
-	if (keysPressed.count(Key_Right)) {
-		m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+	if (keysPressed.count(Key_I)) {
+		if (m_window->debugOptions() & DebugOption_ShowStatsOveray) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
+		}
 	}
-	else if (keysPressed.count(Key_Left)) {
-		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
-	}
-	if (keysPressed.count(Key_RightBracket)) {
-		m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
-	}
-	else if (keysPressed.count(Key_LeftBracket)) {
-		m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
-	}
-	
+
 	if (keysPressed.count(Key_V)) {
-		m_vsyncEnabled = !m_vsyncEnabled;
-		m_window->enableVSync(m_vsyncEnabled);
+		m_window->enableVSync(!(m_window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(Key_Backslash)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysPressed.count(Key_Equal)) {
-		StartGIFRecording(*m_window, 240, 8);
-	}
-	else if (keysPressed.count(Key_Minus)) {
-		StopGIFRecording(*m_window);
+	if (keysPressed.count(Key_R)) {
+		if (!m_window->recordingGIF()) {
+			StartGIFRecording(*m_window, 240, 8);
+		}
+		else {
+			StopGIFRecording(*m_window);
+		}
 	}
 	
 	// mouselook
