@@ -11,10 +11,7 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		If a material is accessed through the default accessor, assign and return a copy of the default material
-
-		Check SCNNode “childNodes” for recursion or not and modify ae::Node accordingly
-		Check nodes don’t already exist when adding children
+		Setup all geometries with their own default materials
 
 		ERROR HANDLING (shader failed to compile, etc)
 			http://www.drdobbs.com/custom-exception-types/184401913
@@ -52,6 +49,8 @@ QUESTIONS:
 Laundry list:
 
 	weak_ptr
+
+	Check nodes don’t already exist when adding children
 	
 	Get unique comp ID for performance settings (or load a config...)
 		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
