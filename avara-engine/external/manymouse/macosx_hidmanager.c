@@ -247,7 +247,7 @@ static void enum_callback(void *ctx, IOReturn res,
             mice[physical_mice].device = device;
             mice[physical_mice].logical = -1;  /* filled in later. */
             mice[physical_mice].name = get_device_name(device);
-            if (mice[physical_mice].name == NULL)
+			if (mice[physical_mice].name == NULL)
                 return;  /* This is bad! Don't add this mouse, I guess. */
 
             physical_mice++;
