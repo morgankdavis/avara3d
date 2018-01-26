@@ -13,10 +13,6 @@
 #include <functional>
 #include <memory>
 
-//#include <GL/glew.h> // must be before anything including gl.h
-//#include "fontstash.h"
-//#include <GLFW/glfw3.h>
-
 #include "Types.h"
 
 
@@ -39,7 +35,7 @@ namespace ae {
 	using WindowUpdateFuction = std::function<void(Scene& scene, float time)>;
 	using WindowWillRenderFuction = std::function<void(Scene& scene, float time)>;
 	using WindowDidRenderFuction = std::function<void(Scene& scene, float time)>;
-	
+
 	
 	class Window {
 		

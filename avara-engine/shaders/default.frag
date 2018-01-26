@@ -42,7 +42,6 @@ struct Light {
 	float 	PADDING6;
 	float 	PADDING7;
 	float 	PADDING8;
-//	vec3 	direction_world;
 //	float 	attenuationStart;
 //	float 	attenuationEnd;
 //	float 	attenuationExponent;
@@ -57,7 +56,6 @@ struct Fog {
 	float 	densityExponent;
 	float 	PADDING1;
 	vec4 	color;
-	//float 	PADDING2;
 };
 
 
@@ -80,9 +78,6 @@ layout(std140) uniform EnvironmentBlock {
 	Light 	lights[9];
 	Fog 	fog;
 };
-//layout(std140) uniform FogBlock {
-//	Fog fog;
-//};
 out 		vec4 		fragColor;
 
 

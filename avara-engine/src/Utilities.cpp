@@ -17,19 +17,9 @@
 #ifndef WINDOWS
 #include <sys/time.h>
 #endif
-//#ifdef WINDOWS
-//	#include <windows.h>
-//	#include <stdlib.h>
-//	#include <limits.h>
-//	#include <errno.h>
-//	#include <sys/stat.h>
-//#endif
 
-//#include <GLFW/glfw3.h> // moved to .h#include <assimp/cimport.h>
 #include <glm/gtc/quaternion.hpp>
-//#ifdef LINUX
-//#include <X11/Xlib.h>
-//#endif
+
 #ifdef MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #endif
@@ -42,7 +32,6 @@
 
 #include "Color.h"
 #include "Image.h"
-//#include "Node.h"
 #include "Logger.h"
 #include "Scene.h"
 #include "Window.h"

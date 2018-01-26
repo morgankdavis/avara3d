@@ -552,10 +552,10 @@ void Window::setupRenderBuffer() {
 		AE_LOG->info("Render framebuffer created.");
 	}
 	else {
-		char errMsg[1024];
-		sprintf(errMsg, "Error creating render framebuffer: %s\n", fbStatus);
-		//AE_LOG->error("Error creating render framebuffer: {}", fbStatus);
-		throw Exception(errMsg);
+		//char errMsg[1024];
+		//sprintf(errMsg, "Error creating render framebuffer: %s\n", fbStatus);
+		AE_LOG->critical("Error creating render framebuffer: {}", fbStatus);
+		//throw Exception(errMsg);
 	}
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

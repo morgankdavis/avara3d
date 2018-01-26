@@ -104,6 +104,13 @@ namespace ae {
 	
 	
 	typedef enum {
+		PhysicsBodyShape_Static =		0,
+		PhysicsBodyShape_Dynamic =		1,
+		PhysicsBodyShape_Kinematic =	2
+	} PhysicsBodyType;
+	
+	
+	typedef enum {
 		Key_Space = 32,
 		Key_Apostrophe = 39,  /* ' */
 		Key_Comma = 44,  /* , */
@@ -247,16 +254,17 @@ namespace ae {
 		MouseButton_7 = 6,
 		MouseButton_8 = 7
 	} MouseButton;
+	
+	
+	typedef struct {
+		unsigned nodes;
+		unsigned geometries;
+		unsigned meshes;
+		unsigned polygons;
+		unsigned lights;
+		glm::vec3 cameraPosition;
+	} DrawStats;
 }
-
-typedef struct {
-	unsigned nodes;
-	unsigned geometries;
-	unsigned meshes;
-	unsigned polygons;
-	unsigned lights;
-	glm::vec3 cameraPosition;
-} DrawStats;
 
 
 #endif /* Types_h */

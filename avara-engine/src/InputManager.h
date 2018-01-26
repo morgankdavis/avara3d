@@ -15,8 +15,6 @@
 #include <memory>
 #include <set>
 
-//#define GLFW_DLL
-//#include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
 #include "Types.h"

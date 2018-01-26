@@ -10,12 +10,17 @@
 
 
 using namespace ae;
+using namespace std;
 
 
 /***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
-PhysicsBody::PhysicsBody() {
+PhysicsBody::PhysicsBody(PhysicsBodyType type) {
+	
+}
+
+PhysicsBody::PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape) {
 	
 }

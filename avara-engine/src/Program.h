@@ -17,7 +17,6 @@
 #include <string>
 
 #include <boost/optional.hpp>
-//#include <GL/glew.h>
 
 #include "Types.h"
 

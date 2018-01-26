@@ -16,7 +16,6 @@
 #include <vector>
 
 #include <assimp/scene.h>
-//#include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Types.h"
