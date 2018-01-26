@@ -20,6 +20,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "Camera.h"
+#include "Exception.h"
 #include "Geometry.h"
 #include "Light.h"
 #include "Utilities.h"
@@ -495,7 +496,7 @@ mat4 Node::worldTransform() const {
 	auto iter = path.end();
 	while (iter != path.begin()) {
 		--iter;
-		Node* node = *iter;
+		shared_ptr<Node> node = *iter;
 		t = t * node->transform();
 	}
 	
@@ -511,12 +512,17 @@ void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
 }
 
 void Node::addChildNode(shared_ptr<Node> node) {
+
+	if (containsNode(node)) {
+		throw Exception("Node already exists in tree.");
+	}
+	
 	node->m_parent = this;
 	m_childNodes.push_back(node);
 }
 
 void Node::insertChildNode(const Node& node, int index) {
-	
+	// see notes about Node already existing here/elsewhere in addChildNode()
 }
 
 void Node::removeFromParentNode() {
@@ -565,6 +571,16 @@ shared_ptr<Node> Node::childNode(const string& name, bool resursive) {
 	return nullptr;
 }
 
+bool Node::containsNode(std::shared_ptr<Node> node) {
+	auto top = root();
+	if (!top) top = shared_from_this();
+	auto sceneNodes = top->childNodes(true);
+	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
+		return true;
+	}
+	return false;
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -573,15 +589,15 @@ void Node::parent(Node* parent) {
 	m_parent = parent;
 }
 
-vector<Node*> Node::pathToRoot() const {
+vector<shared_ptr<Node>> Node::pathToRoot() const {
 	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
 	
-	auto parents = vector<Node*>();
+	auto parents = vector<shared_ptr<Node>>();
 	
 	auto p = this->parent();
 	if (p != nullptr) {
 		do {
-			parents.push_back(p);
+			parents.push_back(make_shared<Node>(*p));
 			p = p->parent();
 		} while (p != nullptr);
 	}
@@ -589,9 +605,13 @@ vector<Node*> Node::pathToRoot() const {
 	return parents;
 }
 
-//std::vector<std::shared_ptr<Node>> Node::childNodes(false) const {
-//	return m_childNodes;
-//}
+shared_ptr<Node> Node::root() {
+	auto path = pathToRoot();
+	if (path.size() > 0) {
+		return path.back();
+	}
+	return nullptr;
+}
 
 /***************************************************************************************
      MARK:   Private

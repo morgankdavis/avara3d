@@ -100,8 +100,6 @@ namespace ae {
 		
 		glm::mat4 worldTransform() const;
 		
-		//std::weak_ptr<Node>					m_parent;
-		
 		void addChildNodes(std::vector<std::shared_ptr<Node>> nodes);
 		void addChildNode(std::shared_ptr<Node> node);
 		void insertChildNode(const Node& node, int index);
@@ -109,8 +107,9 @@ namespace ae {
 		void replaceChildNode(const Node& replace, const Node& with);
 		
 		Node* parent() const;
-		std::shared_ptr<Node> childNode(const std::string& name, bool resursive = false);
 		std::vector<std::shared_ptr<Node>> childNodes(bool resursive);
+		std::shared_ptr<Node> childNode(const std::string& name, bool resursive);
+		bool containsNode(std::shared_ptr<Node> node);
 		
 
 //		glm::vec3 convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
@@ -123,14 +122,16 @@ namespace ae {
  		 **************************************************************************************/
 		
 		void parent(Node* parent);
-		std::vector<Node*> pathToRoot() const;
-		//std::vector<std::shared_ptr<Node>> childNodes(false) const;
+		std::vector<std::shared_ptr<Node>> pathToRoot() const;
+		std::shared_ptr<Node> root();
 		
 	private:
 
 		/***************************************************************************************
      		MARK:   Private
  		**************************************************************************************/
+		
+		std::vector<std::shared_ptr<Node>>	childNodesRec();
 		
 		boost::optional<std::string>		m_name;
 		
@@ -147,8 +148,6 @@ namespace ae {
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
 //		glm::mat4							m_pivot;
-		
-		std::vector<std::shared_ptr<Node>>	childNodesRec();
 	};
 }
 

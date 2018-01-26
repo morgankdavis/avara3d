@@ -11,6 +11,8 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
+		fix if(MACOS)
+
 		Setup all geometries with their own default materials
 
 		ERROR HANDLING (shader failed to compile, etc)
@@ -51,8 +53,6 @@ QUESTIONS:
 Laundry list:
 
 	weak_ptr
-
-	Check nodes don’t already exist when adding children
 	
 	Get unique comp ID for performance settings (or load a config...)
 		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way

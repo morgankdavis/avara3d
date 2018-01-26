@@ -74,6 +74,16 @@ int Test::run(const vector<string>& args) {
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 	scene->rootNode()->addChildNode(dragonNode);
+	
+	
+	// test exception
+	try {
+		scene->rootNode()->addChildNode(teapotNode);
+	}
+	catch (Exception& e) {
+		logger->error(e.what());
+	}
+	
 
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
 	scene->background(background);

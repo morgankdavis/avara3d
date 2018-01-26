@@ -17,31 +17,8 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-Exception::Exception() {
+Exception::Exception(const string& what):
+	runtime_error(what) {
 	
 }
 
-Exception::Exception(const string what) {
-	//m_what(what) {
-	
-}
-
-/***************************************************************************************
-     MARK:   Exception
- **************************************************************************************/
-
-//virtual const char* Exception::what() const throw() {
-//	return "Things";
-//}
-
-/***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
-
-//const char* Exception::what() const {
-//	return nullptr;
-//}
-
-//void Exception::what(const string what) {
-//	//m_what = what;
-//}
