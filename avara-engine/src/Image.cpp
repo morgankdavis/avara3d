@@ -15,6 +15,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include "Exception.h"
 #include "Logger.h"
 
 
@@ -99,8 +100,10 @@ void Image::loadFile(std::string path, bool flipHorizontal) {
 	
 	if (!m_data) {
 		//printf("Error loading image at path: %s\n", path_cstr);
-		AE_LOG->error("Error loading image at path: {}", path_cstr);
-		// TODO: exception
+		char errMsg[1024];
+		sprintf(errMsg, "Error loading image at path: %s\n", path_cstr);
+		throw Exception(errMsg);
+		//AE_LOG->error("Error loading image at path: {}", path_cstr);
 		return;
 	}
 	

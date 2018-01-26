@@ -23,6 +23,7 @@
 
 #include "Camera.h"
 #include "Color.h"
+#include "Exception.h"
 #include "Geometry.h"
 #include "Global.h"
 #include "Image.h"
@@ -480,14 +481,23 @@ void Window::didRenderCallback(WindowDidRenderFuction function) {
 void Window::initFontstash() {
 
 	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-	if (m_fonsContext == NULL) { AE_LOG->error("Error creating Font Stash context."); }
+	if (m_fonsContext == NULL) {
+		//AE_LOG->error("Error creating Font Stash context.");
+		throw Exception("Error creating Font Stash context.");
+	}
 	
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	string fontPath = FontPath(fontName, fontType);
 	
 	m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
-	if (m_fonsFont == FONS_INVALID) { AE_LOG->error("Could not load font: {}", fontPath); }
+	if (m_fonsFont == FONS_INVALID) {
+		char errStr[1024];
+		sprintf(errStr, "Could not load font: %s\n", fontPath.c_str());
+		throw Exception(errStr);
+		//AE_LOG->error("Could not load font: {}", fontPath);
+		
+	}
 }
 
 void Window::setupRenderBuffer() {
@@ -542,7 +552,10 @@ void Window::setupRenderBuffer() {
 		AE_LOG->info("Render framebuffer created.");
 	}
 	else {
-		AE_LOG->error("Error creating render framebuffer: {}", fbStatus);
+		char errMsg[1024];
+		sprintf(errMsg, "Error creating render framebuffer: %s\n", fbStatus);
+		//AE_LOG->error("Error creating render framebuffer: {}", fbStatus);
+		throw Exception(errMsg);
 	}
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

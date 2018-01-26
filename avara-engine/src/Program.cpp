@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Exception.h"
 #include "Utilities.h"
 #include "Logger.h"
 
@@ -69,18 +70,22 @@ Program::Program(const string& name):
 	m_name(name),
 	m_glID(0),
 	m_isLinked(false),
+	m_logString(boost::optional<string>(boost::none)),
+	m_vertexShaderSource(boost::optional<string>(boost::none)),
+	m_fragmentShaderSource(boost::optional<string>(boost::none)),
 	m_uniformLocations(map<string, int>() ){
 		
 //		m_logString = {};
-		m_vertexShaderSource = {};
-		m_fragmentShaderSource = {};
+//		m_vertexShaderSource = {};
+//		m_fragmentShaderSource = {};
 		
 		m_glID = glCreateProgram();
 		
 		if (m_glID == 0) {
 			//logString(string("Unable to create shader program."));
-			AE_LOG->error("Unable to create shader program.");
-			// TODO: exception?
+			//string errMsg = "Unable to create shader program.";
+			AE_LOG->critical("Unable to create shader program.");
+			//throw Exception(errMsg);
 		}
 		else {
 			
@@ -101,18 +106,11 @@ Program::Program(const string& name):
 			}
 			else {
 				//cout << "Couldn't load shader files." << endl;
-				AE_LOG->error("Couldn't load shader sources.");
+				//string errMsg = "Couldn't load shader sources.";
+				throw Exception("Couldn't load shader sources.");
 			}
 		}
 }
-
-/*******************************************************************************
-     MARK:   Public
- ******************************************************************************/
-
-//optional<string> Program::logString() const {
-//	return m_logString;
-//}
 
 /*******************************************************************************
      MARK:   Internal
@@ -142,7 +140,7 @@ bool Program::link() {
 	glGetProgramiv(m_glID, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		int length = 0;
-		//logString({});
+		m_logString = boost::none;
 		
 		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -151,8 +149,8 @@ bool Program::link() {
 			char* c_log = new char[length];
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			//logString(string(c_log));
-			AE_LOG->error("Link log:\n{}", c_log);
+			m_logString = string(c_log);
+			//AE_LOG->error("Link log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -174,7 +172,7 @@ bool Program::validate() {
 	if (status == GL_FALSE) {
 		// Store log and return false
 		int length = 0;
-		//logString({});
+		m_logString = boost::none;
 		
 		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -182,8 +180,8 @@ bool Program::validate() {
 			char * c_log = new char[length];
 			int written = 0;
 			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			//logString(string(c_log));
-			AE_LOG->error("Validate log:\n{}", c_log);
+			m_logString = string(c_log);
+			//AE_LOG->error("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -198,7 +196,7 @@ void Program::use() {
 	
 	if (m_glID <= 0 || (!m_isLinked)) {
 		//cout << "*** Program NOT ready. ***" << endl;
-		AE_LOG->error("Program '{}' not ready.", m_name);
+		AE_LOG->critical("Program '{}' not ready.", m_name);
 	}
 	else {
 		glUseProgram(m_glID);
@@ -225,7 +223,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -237,7 +235,7 @@ void Program::setUniform(const char* name, const vec2& v) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -254,7 +252,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -266,7 +264,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -278,7 +276,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -290,7 +288,7 @@ void Program::setUniform(const char* name, bool val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -302,7 +300,7 @@ void Program::setUniform(const char* name, int val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -314,7 +312,7 @@ void Program::setUniform(const char* name, float val) {
 	}
 	else {
 		//printf("Uniform: %s not found.\n", name);
-		AE_LOG->error("Uniform '{}' not found.", name);
+		AE_LOG->warn("Uniform '{}' not found.", name);
 	}
 }
 
@@ -326,7 +324,7 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	}
 	else {
 		//printf("Uniform block: %s not found.\n", name);
-		AE_LOG->error("Uniform block '{}' not found.", name);
+		AE_LOG->warn("Uniform block '{}' not found.", name);
 	}
 }
 
@@ -434,13 +432,13 @@ void Program::prepare() {
 				//cout << "Shader program '" << shaderName << "' linked." << endl;
 				AE_LOG->info("Program '{}' linked.", m_name);
 			}
-	//		else {
-	//			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-	//		}
+			else {
+				AE_LOG->critical("Couldn't link {} shaders:\n{}", m_name, *m_logString);
+			}
 		}
-	//	else {
-	//		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-	//	}
+		else {
+			AE_LOG->critical("Couldn't compile {} shader:\n{}", m_name, *m_logString);
+		}
 	}
 }
 
@@ -476,15 +474,15 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
 	if (GL_FALSE == result) {
 		int length = 0;
-		//logString({});
+		m_logString = boost::none;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack
 			char* c_log = new char[length];
 			int written = 0;
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
-			//logString(string(c_log));
-			AE_LOG->error("Compile log:\n{}", c_log);
+			m_logString = string(c_log);
+			AE_LOG->warn("Compile log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -518,7 +516,7 @@ void Program::isLinked(bool isLinked) {
 	m_isLinked = isLinked;
 }
 
-//void Program::logString(optional<string> logString) {
+//void Program::logString(boost::optional<string> logString) {
 //	m_logString = logString;
 //}
 

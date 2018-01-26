@@ -22,6 +22,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Exception.h"
 #include "Types.h"
 
 
@@ -127,16 +128,22 @@ namespace ae {
 		template<typename T>
 		inline void critical(const T& msg) {
 			m_logger->log(spdlog::level::critical, msg);
+			m_logger->flush();
+			std::abort();
 		}
 		
 		template <typename... Args>
 		inline void critical(const wchar_t* fmt, const Args&... args) {
 			m_logger->log(spdlog::level::critical, fmt, args...);
+			m_logger->flush();
+			std::abort();
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void critical(const char* fmt, const Arg1 &arg1, const Args&... args) {
 			m_logger->log(spdlog::level::critical, fmt, arg1, args...);
+			m_logger->flush();
+			std::abort();
 		}
 		
 		

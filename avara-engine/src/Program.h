@@ -44,12 +44,6 @@ namespace ae {
 		Program(const std::string& name);
 		
 		/***************************************************************************************
-		     MARK:   Public
-		 **************************************************************************************/
-		
-//		boost::optional<std::string> logString() const;
-		
-		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
@@ -105,12 +99,12 @@ namespace ae {
 		
 		void glID(unsigned glID);
 		void isLinked(bool isLinked);
-//		void logString(boost::optional<std::string> logString);
+		void logString(boost::optional<std::string> logString);
 		
 		std::string  					m_name;
 		unsigned  						m_glID;
 		bool 							m_isLinked;
-//		boost::optional<std::string>	m_logString;
+		boost::optional<std::string>	m_logString;
 		boost::optional<std::string>	m_vertexShaderSource;
 		boost::optional<std::string>	m_fragmentShaderSource;
 		std::map<std::string, int>		m_uniformLocations;

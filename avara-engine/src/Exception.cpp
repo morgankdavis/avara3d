@@ -8,6 +8,8 @@
 
 #include "Exception.h"
 
+#include "Logger.h"
+
 
 using namespace ae;
 using namespace std;
@@ -19,6 +21,6 @@ using namespace std;
 
 Exception::Exception(const string& what):
 	runtime_error(what) {
-	
+	AE_LOG->error(what);
 }
 

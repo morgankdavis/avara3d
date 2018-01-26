@@ -11,14 +11,7 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		fix if(MACOS)
-
-		Setup all geometries with their own default materials1
-
-		ERROR HANDLING (shader failed to compile, etc)
-			http://www.drdobbs.com/custom-exception-types/184401913
-			Asserts vs exceptions
-	
+		Setup all geometries with their own default materials	
 		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
 
 	30 - physics
@@ -51,6 +44,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Wireframe MATERIAL?
 
 	weak_ptr
 	

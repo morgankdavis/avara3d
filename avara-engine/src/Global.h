@@ -11,8 +11,8 @@
 
 
 #include <memory>
+#include <string>
 
-//#include <GL/glew.h>
 #include <spdlog/spdlog.h>
 
 
@@ -31,32 +31,10 @@
 
 namespace ae {
 	
-	
-//	class Logger;
-//	class LoggerManager;
-	
-	
-//	extern std::shared_ptr<LoggerManager>	g_loggerManager;
-
-	
-//	extern std::shared_ptr<spdlog::logger> 	g_logger; // TEMPORARY
-	
-	
-//	extern std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	g_spdlogMainFileSink;
-//	extern std::shared_ptr<spdlog::sinks::stdout_sink_st>			g_spdlogSTDOUTSink;
-
-	
-	
-
 	extern int 		g_glfwLastErrorCode;
 	extern char* 	g_glfwLastErrorDescription;
 
 	
-	
-	
-	
-	
-
 	// gross. wish we knew how to properly overload these...
 //	#define AE_LOG->trace(msg)				g_logger->trace(msg)
 //	#define AE_LOG->trace_F(fmt, ...)		g_logger->trace(fmt, __VA_ARGS__)

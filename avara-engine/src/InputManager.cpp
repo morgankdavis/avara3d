@@ -13,6 +13,7 @@
 #include <GLFW/glfw3.h>
 #include "manymouse/manymouse.h"
 
+#include "Exception.h"
 #include "Logger.h"
 #include "Window.h"
 
@@ -260,7 +261,8 @@ void InputManager::initManyMouse() {
 	int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
-		AE_LOG->error("ManyMouse failed to initialize.");
+		//AE_LOG->error("ManyMouse failed to initialize.");
+		throw Exception("ManyMouse failed to initialize.");
 	}
 	else if (availableMice == 0) {
 		AE_LOG->warn("ManyMouse failed to initialize.");

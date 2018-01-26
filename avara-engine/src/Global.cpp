@@ -33,20 +33,12 @@ using namespace std;
 
 
 /***************************************************************************************
-     MARK:   Global vars
+     MARK:   Globals
  **************************************************************************************/
 
-//shared_ptr<LoggerManager>	ae::g_loggerManager;
-shared_ptr<Logger>			ae::g_aeLogger;
-
-//std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	ae::g_spdlogMainFileSink;
-//std::shared_ptr<spdlog::sinks::stdout_sink_st>			ae::g_spdlogSTDOUTSink;
-
-//shared_ptr<logger>			ae::g_logger; // temporary
-//std::shared_ptr<spdlog::logger>		APP_LOG;
-
-int 	ae::g_glfwLastErrorCode;
-char* 	ae::g_glfwLastErrorDescription;
+shared_ptr<Logger>		ae::g_aeLogger;
+int 					ae::g_glfwLastErrorCode;
+char* 					ae::g_glfwLastErrorDescription;
 
 /***************************************************************************************
      MARK:   Internal
