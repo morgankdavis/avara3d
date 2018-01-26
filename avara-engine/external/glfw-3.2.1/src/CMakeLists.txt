@@ -83,7 +83,7 @@ target_compile_options(glfw PRIVATE
 		
 # added by Morgan			   
 target_compile_options(glfw PRIVATE "-w")
-if(MACOS)
+if(UNIX AND APPLE)
 	target_compile_options(glfw PRIVATE "-mmacosx-version-min=10.9")
 endif()
 

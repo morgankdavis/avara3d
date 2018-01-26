@@ -769,7 +769,7 @@ ADD_LIBRARY( assimp ${assimp_src} )
 
 # added by Morgan
 target_compile_options(assimp PRIVATE "-w")
-if(MACOS)
+if(UNIX AND APPLE)
 	target_compile_options(assimp PRIVATE "-mmacosx-version-min=10.9")
 endif()
 

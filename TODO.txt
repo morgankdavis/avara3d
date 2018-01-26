@@ -13,7 +13,7 @@ Tests:
 
 		fix if(MACOS)
 
-		Setup all geometries with their own default materials
+		Setup all geometries with their own default materials1
 
 		ERROR HANDLING (shader failed to compile, etc)
 			http://www.drdobbs.com/custom-exception-types/184401913
