@@ -104,10 +104,23 @@ namespace ae {
 	
 	
 	typedef enum {
-		PhysicsBodyShape_Static =		0,
-		PhysicsBodyShape_Dynamic =		1,
-		PhysicsBodyShape_Kinematic =	2
+		PhysicsBodyType_Static =	0,
+		PhysicsBodyType_Dynamic =	1,
+		PhysicsBodyType_Kinematic =	2
 	} PhysicsBodyType;
+	
+	
+	typedef enum {
+		PhysicsShapeOption_Compound =	0,
+		PhysicsShapeOption_Type =		1
+	} PhysicsShapeOption;
+	
+	
+	typedef enum {
+		PhysicsShapeType_BoundingBox =			0,
+		PhysicsShapeType_ConcavePolyhedron =	1,
+		PhysicsShapeType_ConvexHull =			2
+	} PhysicsShapeType;
 	
 	
 	typedef enum {

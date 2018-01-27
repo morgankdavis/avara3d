@@ -21,6 +21,6 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type) {
 	
 }
 
-PhysicsBody::PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape) {
+PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape) {
 	
 }

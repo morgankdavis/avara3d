@@ -11,12 +11,17 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Fix GIF recording framerate
-		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
-
 	30 - physics
 
 		Scale UVs (texture tiling)
+
+		Notes:
+			SCNPhysicsBehavior
+			SCNPhysicsHingeJoint
+			SCNPhysicsBallSocketJoint
+			SCNPhysicsConeTwistJoint
+			SCNPhysicsSliderJoint
+			SCNPhysicsVehicle
 
 	40 - multithreading
 		#include <thread>
@@ -45,12 +50,11 @@ QUESTIONS:
 
 Laundry list:
 
+	Fix GIF recording framerate
+
 	Wireframe MATERIAL?
 
 	weak_ptr
-	
-	Get unique comp ID for performance settings (or load a config...)
-		https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
 
 	Proper scene graph unroll
 

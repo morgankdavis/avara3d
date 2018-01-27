@@ -112,6 +112,13 @@ Program::Program(const string& name):
 		}
 }
 
+Program::~Program() {
+//	if (m_glID > 0) {
+//		AE_LOG->debug("Deleting '{}' GL program...", m_name);
+//		glDeleteProgram(m_glID);
+//	}
+}
+
 /*******************************************************************************
      MARK:   Internal
  ******************************************************************************/

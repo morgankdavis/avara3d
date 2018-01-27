@@ -119,6 +119,13 @@ MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<I
 		this->cube(cube);
 }
 
+MaterialProperty::~MaterialProperty() {
+//	if (m_glTextureID > 0) {
+//		AE_LOG->debug("Deleting GL texture {}...", m_glTextureID);
+//		glDeleteTextures(1, &m_glTextureID);
+//	}
+}
+
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/

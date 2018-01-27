@@ -17,6 +17,6 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-PhysicsShape::PhysicsShape() {
+PhysicsShape::PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeOption options) {
 	
 }

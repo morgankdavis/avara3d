@@ -38,6 +38,7 @@ namespace ae {
 		MaterialProperty(std::shared_ptr<Image> image);
 		MaterialProperty(std::shared_ptr<Color> color);
 		MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
+		~MaterialProperty();
 		
 		/***************************************************************************************
 		     MARK:   Public

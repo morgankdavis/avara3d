@@ -11,11 +11,16 @@
 
 
 #include <memory>
+#include <vector>
 
 #include "Types.h"
 
 
 namespace ae {
+	
+	
+	class Geometry;
+	
 
 	class PhysicsShape {
 		
@@ -25,7 +30,15 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		PhysicsShape();
+		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeOption options);
+		
+		/***************************************************************************************
+		     MARK:   Public
+		 **************************************************************************************/
+		
+		std::shared_ptr<Geometry> sourceGrometry() const;
+		PhysicsShapeOption options() const;
+		std::vector<glm::mat4> transforms() const;
 	};
 }
 

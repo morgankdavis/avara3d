@@ -12,10 +12,16 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "Types.h"
 
 
 namespace ae {
+	
+	
+	class Node;
+	
 
 	class PhysicsContact {
 		
@@ -26,6 +32,18 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsContact();
+		
+		/***************************************************************************************
+		     MARK:   Public
+		 **************************************************************************************/
+		
+		std::shared_ptr<Node> nodeA() const;
+		std::shared_ptr<Node> nodeB() const;
+		glm::vec3 contactPoint() const;
+		glm::vec3 contactNormal() const;
+		float collisionImpulse() const;
+		float penetrationDistance() const;
+		float sweepTestFraction() const;
 	};
 }
 
