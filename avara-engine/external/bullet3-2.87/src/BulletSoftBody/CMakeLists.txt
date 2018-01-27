@@ -38,8 +38,8 @@ SET(BulletSoftBody_HDRS
 )
 
 
-
-ADD_LIBRARY(BulletSoftBody  ${BulletSoftBody_SRCS} ${BulletSoftBody_HDRS})
+# switched to static by Morgan
+ADD_LIBRARY(BulletSoftBody STATIC ${BulletSoftBody_SRCS} ${BulletSoftBody_HDRS})
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)

@@ -8,6 +8,8 @@
 
 #include "PhysicsWorld.h"
 
+//#include "btBulletDynamicsCommon.h"
+
 
 using namespace ae;
 using namespace std;
@@ -19,4 +21,12 @@ using namespace std;
 
 PhysicsWorld::PhysicsWorld() {
 	
+	m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
+	m_btDispatcher = make_shared<btCollisionDispatcher>(&(*m_btCollisionConfiguration));
+	m_btBroadphase = make_shared<btDbvtBroadphase>();
+	m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
+	m_btWorld = make_shared<btDiscreteDynamicsWorld>(&(*m_btDispatcher),
+													 &(*m_btBroadphase),
+													 &(*m_btSolver),
+													 &(*m_btCollisionConfiguration));
 }

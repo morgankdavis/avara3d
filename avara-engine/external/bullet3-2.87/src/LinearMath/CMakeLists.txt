@@ -46,7 +46,8 @@ SET(LinearMath_HDRS
 	btVector3.h
 )
 
-ADD_LIBRARY(LinearMath ${LinearMath_SRCS} ${LinearMath_HDRS})
+# switched to static by Morgan
+ADD_LIBRARY(LinearMath STATIC ${LinearMath_SRCS} ${LinearMath_HDRS})
 SET_TARGET_PROPERTIES(LinearMath PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(LinearMath PROPERTIES SOVERSION ${BULLET_VERSION})
 

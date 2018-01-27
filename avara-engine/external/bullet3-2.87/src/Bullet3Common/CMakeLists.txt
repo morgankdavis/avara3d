@@ -34,7 +34,8 @@ SET(Bullet3Common_HDRS
 	shared/b3Quat.h
 )
 
-ADD_LIBRARY(Bullet3Common ${Bullet3Common_SRCS} ${Bullet3Common_HDRS})
+# switched to static by Morgan
+ADD_LIBRARY(Bullet3Common STATIC ${Bullet3Common_SRCS} ${Bullet3Common_HDRS})
 SET_TARGET_PROPERTIES(Bullet3Common PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Common PROPERTIES SOVERSION ${BULLET_VERSION})
 

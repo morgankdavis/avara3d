@@ -39,8 +39,8 @@ SET(Bullet3OpenCL_clew_HDRS
 #	${Root_HDRS}
 )
 
-
-ADD_LIBRARY(Bullet3OpenCL_clew ${Bullet3OpenCL_clew_SRCS} ${Bullet3OpenCL_clew_HDRS})
+# switched to static by Morgan
+ADD_LIBRARY(Bullet3OpenCL_clew STATIC ${Bullet3OpenCL_clew_SRCS} ${Bullet3OpenCL_clew_HDRS})
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)

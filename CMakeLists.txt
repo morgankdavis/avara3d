@@ -137,6 +137,9 @@ include_directories(avara-engine/external/stb)
 
 include_directories(avara-engine/external/fontstash)
 
+# bullet
+include_directories(avara-engine/external/bullet3-2.87/src)
+
 
 add_subdirectory(avara-engine)
 add_subdirectory(tests)

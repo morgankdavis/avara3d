@@ -251,7 +251,8 @@ SET(BulletCollision_HDRS
 )
 
 
-ADD_LIBRARY(BulletCollision ${BulletCollision_SRCS} ${BulletCollision_HDRS})
+# switched to static by Morgan
+ADD_LIBRARY(BulletCollision STATIC ${BulletCollision_SRCS} ${BulletCollision_HDRS})
 SET_TARGET_PROPERTIES(BulletCollision PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletCollision PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)

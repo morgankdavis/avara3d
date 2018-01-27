@@ -12,11 +12,18 @@
 
 #include <memory>
 
+#include "btBulletDynamicsCommon.h"
 #include <glm/glm.hpp>
 
 
 namespace ae {
 	
+	
+//	class btDefaultCollisionConfiguration;
+//	class btCollisionDispatcher;
+//	class btDbvtBroadphase;
+//	class btSequentialImpulseConstraintSolver;
+//	class btDiscreteDynamicsWorld;
 	
 	class HitTestResult;
 	class PhysicsBody;
@@ -65,6 +72,12 @@ namespace ae {
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
+		
+		std::shared_ptr<btDefaultCollisionConfiguration> 		m_btCollisionConfiguration;
+		std::shared_ptr<btCollisionDispatcher>					m_btDispatcher;
+		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
+		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
+		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
 	};
 	
 }

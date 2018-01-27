@@ -14,7 +14,9 @@ Tests:
 	30 - physics
 
 		Add bullet to build system
+		Disable extra bullet targets (not in ALL_BUILD)
 		Init physics world in ae::PhysicsWorld
+		Clean up cmake linking
 
 		Scale UVs (texture tiling)
 

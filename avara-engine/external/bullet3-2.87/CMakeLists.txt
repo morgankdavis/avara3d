@@ -324,46 +324,46 @@ OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for 
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
 
-
-IF(BUILD_PYBULLET)
-	FIND_PACKAGE(PythonLibs)
-
-	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
-	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
-	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
-
-	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" OFF)
-
-	IF(BUILD_PYBULLET_NUMPY)
-		#include(FindNumPy)
-		FIND_PACKAGE(NumPy)
-		if (PYTHON_NUMPY_FOUND)
-			message("NumPy found")
-			add_definitions(-DPYBULLET_USE_NUMPY)
-		else()
-			message("NumPy not found")
-		endif()
-	ENDIF()
-
-	IF(WIN32)
-		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
-	ELSE(WIN32)
-		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
-	ENDIF(WIN32)
-
-	IF(APPLE)
-		OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
-		IF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
-			add_definitions(-DB3_NO_PYTHON_FRAMEWORK)
-		ENDIF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
-		OPTION(BUILD_PYBULLET_SHOW_PY_VERSION "Set when you want to show the PY_MAJOR_VERSION and PY_MAJOR_VERSION using #pragme message." OFF)
-		IF(BUILD_PYBULLET_SHOW_PY_VERSION)
-			add_definitions(-DB3_DUMP_PYTHON_VERSION)
-		ENDIF()
-
-	ENDIF(APPLE)
-
-ENDIF(BUILD_PYBULLET)
+# disabled by Morgan
+# IF(BUILD_PYBULLET)
+# 	FIND_PACKAGE(PythonLibs)
+#
+# 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
+# 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
+# 	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
+#
+# 	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" OFF)
+#
+# 	IF(BUILD_PYBULLET_NUMPY)
+# 		#include(FindNumPy)
+# 		FIND_PACKAGE(NumPy)
+# 		if (PYTHON_NUMPY_FOUND)
+# 			message("NumPy found")
+# 			add_definitions(-DPYBULLET_USE_NUMPY)
+# 		else()
+# 			message("NumPy not found")
+# 		endif()
+# 	ENDIF()
+#
+# 	IF(WIN32)
+# 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
+# 	ELSE(WIN32)
+# 		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
+# 	ENDIF(WIN32)
+#
+# 	IF(APPLE)
+# 		OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
+# 		IF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
+# 			add_definitions(-DB3_NO_PYTHON_FRAMEWORK)
+# 		ENDIF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
+# 		OPTION(BUILD_PYBULLET_SHOW_PY_VERSION "Set when you want to show the PY_MAJOR_VERSION and PY_MAJOR_VERSION using #pragme message." OFF)
+# 		IF(BUILD_PYBULLET_SHOW_PY_VERSION)
+# 			add_definitions(-DB3_DUMP_PYTHON_VERSION)
+# 		ENDIF()
+#
+# 	ENDIF(APPLE)
+#
+# ENDIF(BUILD_PYBULLET)
 
 IF(BUILD_BULLET3)
 	 IF(APPLE)
@@ -391,21 +391,22 @@ ELSE()
 	ADD_DEFINITIONS(-DNO_OPENGL3)
 ENDIF(BUILD_OPENGL3_DEMOS)
 
-OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
-IF(BUILD_BULLET2_DEMOS)
+# disabled by Morgan
+# OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
+# IF(BUILD_BULLET2_DEMOS)
+#
+# 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
+# 		SUBDIRS(examples)
+# 	ENDIF()
+#
+# ENDIF(BUILD_BULLET2_DEMOS)
 
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
-		SUBDIRS(examples)
-	ENDIF()
 
-ENDIF(BUILD_BULLET2_DEMOS)
-
-
-
-OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
-IF(BUILD_EXTRAS)
-  SUBDIRS(Extras)
-ENDIF(BUILD_EXTRAS)
+# disabled by Morgan
+# OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
+# IF(BUILD_EXTRAS)
+#   SUBDIRS(Extras)
+# ENDIF(BUILD_EXTRAS)
 
 
 
@@ -423,36 +424,38 @@ ELSE()
 ENDIF()
 
 
-IF(INSTALL_LIBS)
-	#INSTALL of other files requires CMake 2.6
-	IF(BUILD_EXTRAS)
-		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-			OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
-		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-	ENDIF(BUILD_EXTRAS)
+# disabled by Morgan
+# IF(INSTALL_LIBS)
+# 	#INSTALL of other files requires CMake 2.6
+# 	IF(BUILD_EXTRAS)
+# 		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+# 			OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
+# 		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+# 	ENDIF(BUILD_EXTRAS)
+#
+# 	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
+# 	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
+# 	## the following are directories where stuff will be installed to
+# 	SET(INCLUDE_INSTALL_DIR "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
+# 	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
+# 	IF(NOT MSVC)
+# 	  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
+#   	INSTALL(
+# 		FILES
+# 		${CMAKE_CURRENT_BINARY_DIR}/bullet.pc
+# 		DESTINATION
+# 		${PKGCONFIG_INSTALL_PREFIX})
+# 	ENDIF(NOT MSVC)
+# ENDIF()
 
-	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
-	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
-	## the following are directories where stuff will be installed to
-	SET(INCLUDE_INSTALL_DIR "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
-	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
-	IF(NOT MSVC)
-	  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
-  	INSTALL(
-		FILES
-		${CMAKE_CURRENT_BINARY_DIR}/bullet.pc
-		DESTINATION
-		${PKGCONFIG_INSTALL_PREFIX})
-	ENDIF(NOT MSVC)
-ENDIF()
 
-
-OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
-
-IF (BUILD_UNIT_TESTS)
-	ENABLE_TESTING()
-	SUBDIRS(test)
-ENDIF()
+# disabled by Morgan
+# OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
+#
+# IF (BUILD_UNIT_TESTS)
+# 	ENABLE_TESTING()
+# 	SUBDIRS(test)
+# ENDIF()
 
 set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
 list (APPEND BULLET_LIBRARIES LinearMath)
