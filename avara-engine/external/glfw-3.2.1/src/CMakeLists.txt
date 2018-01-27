@@ -107,7 +107,8 @@ if (BUILD_SHARED_LIBS)
                               INSTALL_NAME_DIR "lib${LIB_SUFFIX}")
     elseif (UNIX)
         # Hide symbols not explicitly tagged for export from the shared library
-        target_compile_options(glfw PRIVATE "-fvisibility=hidden")
+		# commented out by Morgan
+        #target_compile_options(glfw PRIVATE "-fvisibility=hidden")
     endif()
 
     target_compile_definitions(glfw INTERFACE -DGLFW_DLL)

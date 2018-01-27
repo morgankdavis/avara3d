@@ -13,8 +13,8 @@
 
 
 #include <GL/glew.h> // include before anything that might include GL/gl.h...
-#include "gif.h"
 #include "fontstash.h"
+#include "gif.h"
 #include "gl3fontstash.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -362,19 +362,6 @@ void Window::framebufferHeight(unsigned aHeight) {
 	m_framebufferHeight = aHeight;
 }
 
-//void Window::antialiasingMode(AntialiasingMode mode) {
-//	m_antialiasingMode = mode;
-//	glfwWindowHint(GLFW_SAMPLES, mode);
-//}
-
-//shared_ptr<Color> Window::backgroundColor() const {
-//	return m_backgroundColor;
-//}
-//
-//void Window::backgroundColor(const shared_ptr<Color> color) {
-//	m_backgroundColor = color;
-//}
-
 shared_ptr<Node> Window::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
@@ -396,11 +383,6 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	// ztan(angle) = x
 	// z = x/tan(angle)
 
-//	float maxX = boundingPoints["xMax"].x;
-//	float minX = boundingPoints["xMin"].x;
-//	float maxY = boundingPoints["yMax"].y;
-//	float minY = boundingPoints["yMin"].y;
-
 	float maxZ = abs(boundingPoints["zMax"].z);
 
 	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
@@ -411,9 +393,6 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	float angleV = fovV / 2.0;
 	float zV = xV / tan(angleV);
 
-//	cout << "zH: " << zH << endl;
-//	cout << "zV: " << zV << endl;
-
 	zH += maxZ;
 	zV += maxZ;
 
@@ -421,21 +400,7 @@ shared_ptr<Node> Window::defaultPointOfView() {
 	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
 	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
 
-//	cout << "maxX: " << maxX << endl;
-//	cout << "minX: " << minX << endl;
-//	cout << "maxY: " << maxY << endl;
-//	cout << "minY: " << minY << endl;
-//
-//	cout << "maxZ: " << maxZ << endl;
-//
-//	cout << "midX: " << midX << endl;
-//	cout << "midY: " << midY << endl;
-
 	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
-	vec3 center = vec3(midX, midY, 0);
-
-//	cout << "eye: " << eye << endl;
-//	cout << "center: " << center << endl;
 
 	mat4 viewMat = translate(mat4(1.0f), eye);
 	cameraNode->transform(viewMat);

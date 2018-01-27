@@ -87,6 +87,7 @@ target_compile_options(ae PRIVATE
 	"-Wno-c++11-long-long"
 	"-Wno-self-assign"
 	"-Wno-reorder"
-	"-Wno-address-of-packed-member")
+	"-Wno-address-of-packed-member"
+	"-Wno-unused-function")
 
 

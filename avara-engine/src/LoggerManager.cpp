@@ -76,6 +76,8 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 		
 		cout << "Log initialization failed: " << ex.what() << endl;
 	}
+	
+	return nullptr;
 }
 
 shared_ptr<spdlog::logger> LoggerManager::loggerNamed(string& name) {
