@@ -36,6 +36,11 @@ IF (BUILD_SHARED_LIBS)
   TARGET_LINK_LIBRARIES(BulletInverseDynamics Bullet3Common LinearMath)
 ENDIF (BUILD_SHARED_LIBS)
 
+# added by Morgan
+if(UNIX AND APPLE)
+	target_compile_options(BulletInverseDynamics PRIVATE "-mmacosx-version-min=10.9")
+endif()
+
 
 # disabled by Morgan
 # IF (INSTALL_LIBS)

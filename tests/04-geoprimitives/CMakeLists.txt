@@ -19,8 +19,8 @@ if(MACOS)
 	
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 	
-	target_compile_options(${EXECUTABLE_NAME} PRIVATE
-		"-mmacosx-version-min=10.9")
+	# target_compile_options(${EXECUTABLE_NAME} PRIVATE
+	# 	"-mmacosx-version-min=10.9")
 
 	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ -arch x86_64")
 

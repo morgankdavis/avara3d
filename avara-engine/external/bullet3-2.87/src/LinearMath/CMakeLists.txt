@@ -51,6 +51,11 @@ ADD_LIBRARY(LinearMath STATIC ${LinearMath_SRCS} ${LinearMath_HDRS})
 SET_TARGET_PROPERTIES(LinearMath PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(LinearMath PROPERTIES SOVERSION ${BULLET_VERSION})
 
+# added by Morgan
+if(UNIX AND APPLE)
+	target_compile_options(LinearMath PRIVATE "-mmacosx-version-min=10.9")
+endif()
+
 # disabled by Morgan
 #IF (INSTALL_LIBS)
 #	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)

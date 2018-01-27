@@ -65,6 +65,11 @@ endif ()
 SET_TARGET_PROPERTIES(Bullet3Collision PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Collision PROPERTIES SOVERSION ${BULLET_VERSION})
 
+# added by Morgan
+if(UNIX AND APPLE)
+	target_compile_options(Bullet3Collision PRIVATE "-mmacosx-version-min=10.9")
+endif()
+
 # disabled by Morgan
 # IF (INSTALL_LIBS)
 # 	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)

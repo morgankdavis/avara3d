@@ -47,6 +47,11 @@ IF (BUILD_SHARED_LIBS)
   TARGET_LINK_LIBRARIES(Bullet3OpenCL_clew LinearMath Bullet3Dynamics ${CMAKE_DL_LIBS})
 ENDIF (BUILD_SHARED_LIBS)
 
+# added by Morgan
+if(UNIX AND APPLE)
+	target_compile_options(Bullet3OpenCL_clew PRIVATE "-mmacosx-version-min=10.9")
+endif()
+
 
 # disabled by Morgan
 # IF (INSTALL_LIBS)

@@ -46,6 +46,11 @@ IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletSoftBody BulletDynamics)
 ENDIF (BUILD_SHARED_LIBS)
 
+# added by Morgan
+if(UNIX AND APPLE)
+	target_compile_options(BulletSoftBody PRIVATE "-mmacosx-version-min=10.9")
+endif()
+
 # disabled by Morgan
 # IF (INSTALL_LIBS)
 # 	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)

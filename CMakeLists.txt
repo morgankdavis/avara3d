@@ -120,7 +120,6 @@ include_directories(avara-engine/external/assimp-3.3.1/include)
 
 # boost
 
-#include_directories(avara-engine/external/boost_1_65_1)
 include_directories(avara-engine/external/boost-1.66.0)
 add_subdirectory(avara-engine/external/boost-1.66.0)
 
@@ -138,7 +137,9 @@ include_directories(avara-engine/external/stb)
 include_directories(avara-engine/external/fontstash)
 
 # bullet
+
 include_directories(avara-engine/external/bullet3-2.87/src)
+add_subdirectory(avara-engine/external/bullet3-2.87)
 
 
 add_subdirectory(avara-engine)

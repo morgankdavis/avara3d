@@ -18,8 +18,8 @@ include_directories(external/stb)
 
 include_directories(external/gif-h)
 
-add_subdirectory(external/bullet3-2.87)
-#include_directories(external/bullet3-2.87/src)
+# add_subdirectory(external/bullet3-2.87)
+# include_directories(external/bullet3-2.87/src)
 
 
 file(GLOB HEADERS src/*.h)
@@ -29,7 +29,7 @@ file(GLOB SOURCES src/*.c*)
 add_library(ae ${HEADERS} ${SOURCES})
 
 
-target_link_libraries(ae Bullet3Collision Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath BulletFileLoader BulletWorldImporter)
+target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
 
 if(MACOS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
