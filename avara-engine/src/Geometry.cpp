@@ -105,7 +105,9 @@ void Geometry::insertMaterial(const shared_ptr<Material> material, int index) {
 }
 
 void Geometry::removeMaterial(int index) {
-	m_materials.erase(m_materials.begin()+index);
+	if (m_materials.size() >= index-1) {
+		m_materials.erase(m_materials.begin()+index);
+	}
 }
 
 void Geometry::replaceMaterial(int index, const shared_ptr<Material> replacement) {

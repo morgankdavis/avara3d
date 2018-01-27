@@ -110,6 +110,7 @@ int Test::run(const vector<string>& args) {
 	
 	
 	auto coneGeo = make_shared<Cone>(1.0, 1.0f, 128, 64);
+	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
 	coneGeo->name("cone");
 	coneNode->geometry(coneGeo);
@@ -117,27 +118,25 @@ int Test::run(const vector<string>& args) {
 	coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
 	
+
+	// ******** make everything look like it did before materials worked ********
 	
+	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+	material->doubleSided(true);
 	
 	for (auto n : scene->rootNode()->childNodes(true)) {
 		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
+			n->geometry()->replaceMaterial(0, material);
 		}
 	}
 	
-	
-	
-//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
-//	auto ambientLightNode = make_shared<Node>(ambientLight);
-//	scene->rootNode()->addChildNode(ambientLightNode);
-	
-	
-	
-	auto backgroundColor = make_shared<Color>(Color::White());
+	auto backgroundColor = make_shared<Color>(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
 	auto background = make_shared<MaterialProperty>(backgroundColor);
 	scene->background(background);
+	
+	// **************************************************************************
 
 	
 	

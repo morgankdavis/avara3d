@@ -11,7 +11,7 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-		Setup all geometries with their own default materials	
+		Fix GIF recording framerate
 		Dispose of generated buffers where appropriate - Unuse/unbind things, glDeleteProgram, glGenTextures
 
 	30 - physics

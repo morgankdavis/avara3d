@@ -417,9 +417,23 @@ int Test::run(const vector<string>& args) {
 	}
 	
 	
-	auto backgroundColor = make_shared<Color>(Color::White());
+	// ******** make everything look like it did before materials worked ********
+	
+	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+	
+	for (auto n : scene->rootNode()->childNodes(true)) {
+		if (n->geometry()) {
+			n->geometry()->replaceMaterial(0, material);
+		}
+	}
+	
+	auto backgroundColor = make_shared<Color>(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
 	auto background = make_shared<MaterialProperty>(backgroundColor);
 	scene->background(background);
+	
+	// **************************************************************************
 	
 	
 	window.scene(scene);

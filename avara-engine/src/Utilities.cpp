@@ -378,12 +378,8 @@ void ae::utils::SaveSnapshot(Window& window) {
 
 
 void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate) {
-	
-	string dateTime = DateTimeString();
-	
 	char filename[256] = "";
-	sprintf(filename, "Recording_%s.gif", dateTime.c_str());
-
+	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
 	window.startGIFRecording(filename, maxHeight, maxFramerate);
 }
 

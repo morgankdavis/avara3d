@@ -45,8 +45,8 @@ int Test::run(const vector<string>& args) {
 	window.enableVSync(false);
 	
 	
-	auto testScene = TestSceneNamed("importTest");
-	auto rootImmediateChildren = testScene->rootNode()->childNodes(false);
+	auto scene = TestSceneNamed("importTest");
+	auto rootImmediateChildren = scene->rootNode()->childNodes(false);
 	
 	for (auto c : rootImmediateChildren) {
 		c->removeFromParentNode();
@@ -54,31 +54,32 @@ int Test::run(const vector<string>& args) {
 	
 	parentNode = make_shared<Node>();
 	parentNode->addChildNodes(rootImmediateChildren);
-	testScene->rootNode()->addChildNode(parentNode);
+	scene->rootNode()->addChildNode(parentNode);
 	
-	mat4 parentScale = scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.0f) * 25.0f);
-	parentNode->transform(parentScale);
+//	mat4 parentScale = scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.0f) * 25.0f);
+//	parentNode->transform(parentScale);
 	
 
-	cout << "Loading siamese scene..." << endl;
-	auto siameseScene = TestSceneNamed("siamese");
-	siameseNode = siameseScene->rootNode()->childNodes(false)[2];
-	siameseNode->name("Siamese");
-	cout << "siameseNode: " << *siameseNode->name() << endl;
-	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
-	siameseNode->scale(siameseNode->scale() * 0.001f);
-	siameseNode->hidden(false);
+//	cout << "Loading siamese scene..." << endl;
+//	auto siameseScene = TestSceneNamed("siamese");
+//	siameseNode = siameseScene->rootNode()->childNodes(false)[3];
+//	siameseNode->name("Siamese");
+//	cout << "siameseNode: " << *siameseNode->name() << endl;
+//	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
+//	siameseNode->scale(siameseNode->scale() * 0.1f);
+//	siameseNode->hidden(false);
+//	parentNode->addChildNode(siameseNode);
 
 	
-	torusNode = testScene->rootNode()->childNodes(true)[6];
+	torusNode = scene->rootNode()->childNodes(true)[6];
 	torusNode->name("torus");
 	
 	
-	coneNode = testScene->rootNode()->childNodes(true)[8];
+	coneNode = scene->rootNode()->childNodes(true)[8];
 	coneNode->name("cone");
 	
 	
-	ballNode = testScene->rootNode()->childNodes(true)[4];
+	ballNode = scene->rootNode()->childNodes(true)[4];
 	ballNode->name("ball");
 
 	
@@ -87,30 +88,49 @@ int Test::run(const vector<string>& args) {
 	palmNode->name("palm");
 	cout << "palmNode: " << *palmNode->name() << endl;
 	//palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
-	palmNode->scale(vec3(1.0f) * 0.025f);
+	palmNode->scale(vec3(1.0f) * 2.0f);
 	palmNode->hidden(false);
 	parentNode->addChildNode(palmNode);
 	
 	
-	auto teapotScene = TestSceneNamed("teapot");
-	teapotNode = teapotScene->rootNode();
-	//teapotNode = teapotScene->rootNode()->childNodes(false)[1];
-	teapotNode->name("teapot");
-	cout << "teapotNode: " << *teapotNode->name() << endl;
-	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
-	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
-	teapotNode->transform(teapotTranslate * teapotScale);
-	teapotNode->hidden(false);
-	parentNode->addChildNode(teapotNode);
+//	auto teapotScene = TestSceneNamed("teapot");
+//	teapotNode = teapotScene->rootNode();
+//	//teapotNode = teapotScene->rootNode()->childNodes(false)[1];
+//	teapotNode->name("teapot");
+//	cout << "teapotNode: " << *teapotNode->name() << endl;
+//	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
+//	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
+//	teapotNode->transform(teapotTranslate * teapotScale);
+//	teapotNode->hidden(false);
+//	parentNode->addChildNode(teapotNode);
 	
 	
-	auto backgroundColor = make_shared<Color>(Color::White());
+	
+	// ******** make everything look like it did before materials worked ********
+	
+	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+	
+	for (auto n : scene->rootNode()->childNodes(true)) {
+		if (n->geometry()) {
+			n->geometry()->replaceMaterial(0, material);
+		}
+	}
+	
+	auto backgroundColor = make_shared<Color>(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
 	auto background = make_shared<MaterialProperty>(backgroundColor);
-	testScene->background(background);
+	scene->background(background);
 	
+	// **************************************************************************
+	
+	
+	//StartGIFRecording(window, 240, 8);
 
-	window.scene(testScene);
+	window.scene(scene);
 	window.display();
+	
+	//StopGIFRecording(window);
 	
 	return 0;
 }
@@ -131,21 +151,21 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 								 radians(rotationDeg),
 								 vec3(0.0f, 1.0f, 0.0f)));
 	
-	siameseNode->rotation(vec4(0.0f, 1.0f, 1.0f, siameseNode->rotation().w + radians(rotationDeg * 2.0f)));
+	//siameseNode->rotation(vec4(0.0f, 1.0f, 1.0f, siameseNode->rotation().w + radians(rotationDeg * 2.0f)));
 	
-	torusNode->transform(rotate(torusNode->transform(),
-								radians(rotationDeg),
-								vec3(1.0f, 0.0f, 1.0f)));
-	
-	coneNode->transform(rotate(coneNode->transform(),
-							   radians(rotationDeg),
-							   vec3(0.0f, 0.0f, 1.0f)));
-	
-	ballNode->transform(rotate(ballNode->transform(),
-							   radians(rotationDeg),
-							   vec3(sin(time), cos(time), -cos(time))));
+//	torusNode->transform(rotate(torusNode->transform(),
+//								radians(rotationDeg),
+//								vec3(1.0f, 0.0f, 1.0f)));
+//
+//	coneNode->transform(rotate(coneNode->transform(),
+//							   radians(rotationDeg),
+//							   vec3(0.0f, 0.0f, 1.0f)));
+//
+//	ballNode->transform(rotate(ballNode->transform(),
+//							   radians(rotationDeg),
+//							   vec3(sin(time), cos(time), -cos(time))));
 
-	teapotNode->rotation(vec4(0.0f, 1.0f, 0.0f, teapotNode->rotation().w - radians(rotationDeg * 3.0f)));
+	//teapotNode->rotation(vec4(0.0f, 1.0f, 0.0f, teapotNode->rotation().w - radians(rotationDeg * 3.0f)));
 }
 
 void Test::windowWillRenderCallback(Scene& scene, float time) {
