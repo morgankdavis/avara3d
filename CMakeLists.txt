@@ -7,18 +7,18 @@ project(avara-engine)
 
 # print environment for debugging...
 
-message("ENVIRONMENT:")
+#message("ENVIRONMENT:")
 
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
-execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+#execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 
 
 if(UNIX AND APPLE)
-    message(status, "We think we're APPLE")
+    message("We think we're APPLE")
     set(MACOS TRUE)
     if(CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
@@ -26,44 +26,44 @@ if(UNIX AND APPLE)
 endif()
 
 if(UNIX AND NOT APPLE)
-    message(status, "We think we're LINUX")
+    message("We think we're LINUX")
     set(LINUX TRUE)
 endif()
 
 if(WIN32)
-    message(status, "We think we're WIN32")
+    message("We think we're WIN32")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
 endif()
 
 if(WIN64)
-    message(status, "We think we're WIN64")
+    message("We think we're WIN64")
     set(WINDOWS TRUE)
     set(WIN64 TRUE)
 endif()
 
 
 if(MINGW)
-    message(status, "We think we're MINGW")
+    message("We think we're MINGW")
     set(WINDOWS TRUE)
 
     if(CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
-        message(status, "*** MINGW32 ***")
+        message("*** MINGW32 ***")
         set(MINGW32 TRUE)
         set(WIN32 TRUE)
     else()
-        message(status, "*** MINGW64 ***")
+        message("*** MINGW64 ***")
         set(MINGW64 TRUE)
         set(WIN64 TRUE)
     endif()
 endif()
 
 if(MSVS)
-    message(status, "We think we're MSVS")
+    message("We think we're MSVS")
 endif()
 
 if(MSYS)
-    message(status, "We think we're MSYS")
+    message("We think we're MSYS")
 endif()
 
 

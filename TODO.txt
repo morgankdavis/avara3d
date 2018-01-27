@@ -13,6 +13,9 @@ Tests:
 
 	30 - physics
 
+		Add bullet to build system
+		Init physics world in ae::PhysicsWorld
+
 		Scale UVs (texture tiling)
 
 		Notes:

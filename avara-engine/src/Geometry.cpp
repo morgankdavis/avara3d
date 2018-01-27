@@ -219,7 +219,7 @@ void Geometry::drawAABB(const glm::mat4& modelMat,
 	// draw
 	
 	glBindVertexArray(m_glAABBVAO);
-	glDrawArrays(GL_LINES, 0, 24 * sizeof(vec3));
+	glDrawArrays(GL_LINES, 0, 24);
 	//glBindVertexArray(0);
 }
 
