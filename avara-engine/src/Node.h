@@ -24,6 +24,7 @@ namespace ae {
 	class Camera;
 	class Geometry;
 	class Light;
+	class PhysicsBody;
 
 
 	class Node : public std::enable_shared_from_this<Node> {
@@ -109,8 +110,9 @@ namespace ae {
 		Node* parent() const;
 		std::vector<std::shared_ptr<Node>> childNodes(bool resursive);
 		std::shared_ptr<Node> childNode(const std::string& name, bool resursive);
-		bool containsNode(std::shared_ptr<Node> node);
 		
+		std::shared_ptr<PhysicsBody> physicsBody() const;
+		void physicsBody(std::shared_ptr<PhysicsBody> body);
 
 //		glm::vec3 convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
 //		glm::vec3 convertPositionToNode(const glm::vec3& position, const Node& toNode);
@@ -124,6 +126,7 @@ namespace ae {
 		void parent(Node* parent);
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;
 		std::shared_ptr<Node> root();
+		bool treeContainsNode(std::shared_ptr<Node> node);
 		
 	private:
 
@@ -148,6 +151,8 @@ namespace ae {
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
 //		glm::mat4							m_pivot;
+		
+		std::shared_ptr<PhysicsBody>		m_physicsBody;
 	};
 }
 

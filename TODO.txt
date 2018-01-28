@@ -16,6 +16,8 @@ Tests:
 		Init physics world in ae::PhysicsWorld
 		Clean up cmake linking
 
+		Clean up Node constructor?
+
 		Scale UVs (texture tiling)
 
 		Notes:

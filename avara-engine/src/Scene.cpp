@@ -228,7 +228,8 @@ Scene::Scene():
 	m_fogStartDistance(0.0),
 	m_fogEndDistance(0.0),
 	m_fogDensityExponent(0.0),
-	m_fogColor(nullptr) {
+	m_fogColor(nullptr),
+	m_physicsWorld(nullptr) {
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -309,6 +310,14 @@ std::shared_ptr<Color> Scene::fogColor() const {
 
 void Scene::fogColor(std::shared_ptr<Color> color) {
 	m_fogColor = color;
+}
+
+shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
+	return m_physicsWorld;
+}
+
+void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
+	m_physicsWorld = world;
 }
 
 /***************************************************************************************

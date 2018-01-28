@@ -2,8 +2,8 @@
 //  PhysicsBody.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 1/26/18.
+//  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
 #ifndef PhysicsBody_h
@@ -99,6 +99,30 @@ namespace ae {
 		void clearForces();
 		
 		void resetTransform();
+		
+	private:
+		
+		/***************************************************************************************
+		     MARK:   Private
+		 **************************************************************************************/
+		
+		std::shared_ptr<PhysicsShape> 		m_shape;
+		PhysicsBodyType 					m_type;
+		glm::vec3 							m_velocityFactor;
+		glm::vec3 							m_angularVelocityFactor;
+		bool 								m_affectedByGravity;
+		float 								m_mass;
+		float 								m_charge;
+		float 								m_friction;
+		float 								m_rollingFriction;
+		float 								m_restitution;
+		float 								m_damping;
+		float 								m_angularDamping;
+		glm::vec3 							m_momentOfInertia;
+		glm::vec3 							m_velocity;
+		glm::vec4 							m_angularVelocity;
+		bool 								m_resting;
+		bool 								m_allowsResting;
 	};
 }
 

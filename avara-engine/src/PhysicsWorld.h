@@ -2,8 +2,8 @@
 //  PhysicsWorld.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 1/26/18.
+//  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
 #ifndef PhysicsWorld_h
@@ -67,6 +67,12 @@ namespace ae {
 														const glm::mat4& fromMat,
 														const glm::mat4& toMat); // may add options
 		
+		/***************************************************************************************
+		     MARK:   Internal
+		 **************************************************************************************/
+		
+		void step(float deltaTime);
+		
 	private:
 		
 		/***************************************************************************************
@@ -78,6 +84,10 @@ namespace ae {
 		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
 		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
+		
+		glm::vec3 												m_gravity;
+		float 													m_speed;
+		float 													m_timestep;
 	};
 	
 }

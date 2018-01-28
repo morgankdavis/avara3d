@@ -29,6 +29,7 @@ namespace ae {
 	class Material;
 	class MaterialProperty;
 	class Node;
+	class PhysicsWorld;
 	class SkyboxGeometry;
 	
 	
@@ -66,8 +67,8 @@ namespace ae {
 		std::shared_ptr<Color> fogColor() const;
 		void fogColor(std::shared_ptr<Color> color);
 		
-		//PhysicsWorld			physicsWorld;
-
+		std::shared_ptr<PhysicsWorld> physicsWorld() const;
+		void physicsWorld(std::shared_ptr<PhysicsWorld> world);
 		
 		/***************************************************************************************
 		     MARK:   Internal
@@ -107,6 +108,8 @@ namespace ae {
 		std::shared_ptr<Color>						m_fogColor;
 		
 		int											m_glEnvironmentUBO;
+		
+		std::shared_ptr<PhysicsWorld> 				m_physicsWorld;
 	};
 }
 

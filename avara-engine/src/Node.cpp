@@ -48,7 +48,8 @@ Node::Node():
 	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 	
 }
 
@@ -61,7 +62,8 @@ Node::Node(const string& name):
 	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 		
 }
 
@@ -74,7 +76,8 @@ Node::Node(const shared_ptr<Geometry> geometry):
 	m_geometry(geometry),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 
 		m_geometry->node(this);
 }
@@ -88,7 +91,8 @@ Node::Node(const shared_ptr<Light> light):
 	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 		
 		m_light->node(this);
 }
@@ -102,7 +106,8 @@ Node::Node(const shared_ptr<Camera> camera):
 	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 		
 		m_camera->node(this);
 }
@@ -116,7 +121,8 @@ Node::Node(const string& name, const mat4 t):
 	m_geometry(nullptr),
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)) {
+	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_physicsBody(nullptr) {
 		
 		transform(t);
 }
@@ -128,7 +134,8 @@ Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_geometry(geometry) {
+	m_geometry(geometry),
+	m_physicsBody(nullptr) {
 
 //		m_geometry = geometry;
 //		cout << "Creating node with geometry: " << geometry << endl;
@@ -513,7 +520,7 @@ void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
 
 void Node::addChildNode(shared_ptr<Node> node) {
 
-	if (containsNode(node)) {
+	if (treeContainsNode(node)) {
 		throw Exception("Node already exists in tree.");
 	}
 	
@@ -571,14 +578,12 @@ shared_ptr<Node> Node::childNode(const string& name, bool resursive) {
 	return nullptr;
 }
 
-bool Node::containsNode(std::shared_ptr<Node> node) {
-	auto top = root();
-	if (!top) top = shared_from_this();
-	auto sceneNodes = top->childNodes(true);
-	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
-		return true;
-	}
-	return false;
+shared_ptr<PhysicsBody> Node::physicsBody() const {
+	return m_physicsBody;
+}
+
+void Node::physicsBody(shared_ptr<PhysicsBody> body) {
+	m_physicsBody = body;
 }
 
 /***************************************************************************************
@@ -611,6 +616,16 @@ shared_ptr<Node> Node::root() {
 		return path.back();
 	}
 	return nullptr;
+}
+
+bool Node::treeContainsNode(shared_ptr<Node> node) {
+	auto top = root();
+	if (!top) top = shared_from_this();
+	auto sceneNodes = top->childNodes(true);
+	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
+		return true;
+	}
+	return false;
 }
 
 /***************************************************************************************

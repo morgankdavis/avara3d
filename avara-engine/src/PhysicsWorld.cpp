@@ -2,8 +2,8 @@
 //  PhysicsWorld.cpp
 //	avara-engine
 //
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 1/26/18.
+//  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
 #include "PhysicsWorld.h"
@@ -29,4 +29,12 @@ PhysicsWorld::PhysicsWorld() {
 													 &(*m_btBroadphase),
 													 &(*m_btSolver),
 													 &(*m_btCollisionConfiguration));
+}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
+void PhysicsWorld::step(float deltaTime) {
+	
 }
