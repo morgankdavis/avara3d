@@ -30,7 +30,7 @@ using namespace std;
 Box::Box(float width, float height, float length):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 	
-		BoxMesh box{{width, height, length}, {1, 1, 1}};
+		BoxMesh box{{width/2.0, height/2.0, length/2.0}, {1, 1, 1}};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : box.vertices()) {

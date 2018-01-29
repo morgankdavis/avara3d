@@ -42,7 +42,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	unsigned random = Random(0, 1);
 	shared_ptr<Node> node = nullptr;
 	if (random == 0) node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
-	else node = make_shared<Node>(make_shared<Sphere>(1.0, 4));
+	else node = make_shared<Node>(make_shared<Sphere>(0.5, 4));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -128,9 +128,9 @@ int Test::run(const vector<string>& args) {
 				++colorIndex;
 				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
 
-				vec3 position = { 2.0 * i,
-					10 + 2.0 * k,
-					2.0 * j };
+				vec3 position = { 1.0 * i,
+					10 + 1.0 * k,
+					1.0 * j };
 				
 				addObject(*scene, position, color);
 			}
