@@ -112,8 +112,9 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
 	btScalar posError = 0;
 	const btVector3 dummy(0, 0, 0);
 	
-	btScalar kp = 1;
-	btScalar kd = 1;
+	// disabled by Morgan -- compiler said they're unused
+//	btScalar kp = 1;
+//	btScalar kd = 1;
 	int numRows = getNumRows();
 
 	for (int row=0;row<numRows;row++)
@@ -122,7 +123,8 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
 
 
         int dof = 0;
-        btScalar currentPosition = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
+		// disabled by Morgan -- compiler said it's unused
+        //btScalar currentPosition = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
         btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
 		btScalar auxVel = 0;
 		

@@ -11,14 +11,16 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-	30 - physics
+	30 - rigidbodies
 
 		Init physics world in ae::PhysicsWorld
 		Clean up cmake linking
 
 		Physics INITIALIZER LISTS
 
-		Rename test30 to "init-fallingboxes"
+		Rename test30 to "test30 -rigidbodies"
+
+		Add broadphase
 
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree
@@ -30,13 +32,25 @@ Tests:
 
 			What is world is make after body??
 
+			What about attaching geometry after physics body?sh
+
 			Maybe addedToNode() should happen on first draw?
+
+		Special cases for box shape, plane, sphere, etc
+			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Shapes
+
+		Add bt shape scaling
+
+		Optimize statics
+			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
 
 		Clean up Node constructor?
 
 		Shut down & cleanup
 
 		Scale UVs (texture tiling)
+
+		Optimize with btTriangleIndexVertexArray
 
 		Notes:
 			SCNPhysicsBehavior
@@ -45,6 +59,10 @@ Tests:
 			SCNPhysicsConeTwistJoint
 			SCNPhysicsSliderJoint
 			SCNPhysicsVehicle
+	
+	31 - contact
+
+	32 - utilities (ray cast, sweep, etc)
 
 	40 - multithreading
 		#include <thread>

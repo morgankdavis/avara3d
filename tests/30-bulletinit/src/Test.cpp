@@ -34,6 +34,30 @@ using namespace glm;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	unsigned random = Random(0, 1);
+	shared_ptr<Node> node = nullptr;
+	if (random == 0) node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
+	else node = make_shared<Node>(make_shared<Sphere>(1.0, 4));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	physicsBody->mass(1.0);
+	physicsBody->restitution(0.45);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
+/***************************************************************************************
      MARK:   Public
  **************************************************************************************/
 
@@ -67,7 +91,7 @@ int Test::run(const vector<string>& args) {
 	
 	const float PLANE_DIM = 25.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	auto planeMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	auto planeMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::White()));
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
@@ -75,24 +99,48 @@ int Test::run(const vector<string>& args) {
 	planeNode->position({planeNode->position().x,
 		planeNode->position().y - PLANE_DIM,
 		planeNode->position().z});
+	
+	
+	auto placePhysicsShape = make_shared<PhysicsShape>(planeNode->geometry(), PhysicsShapeType_ConvexHull);
+	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
+	planePhysicsBody->mass(0);
+	planePhysicsBody->restitution(0.5);
+	planeNode->physicsBody(planePhysicsBody);
+	
+	
 	scene->rootNode()->addChildNode(planeNode);
 	
 	
 	
 	
+	#define BOX_ARRAY_SIZE_X	4
+	#define BOX_ARRAY_SIZE_Y	6
+	#define BOX_ARRAY_SIZE_Z	4
 	
-	const float BOX_DIM = 1.0;
-	auto boxNode = make_shared<Node>(make_shared<Box>(BOX_DIM, BOX_DIM, BOX_DIM));
-	auto boxMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 0, 0, 1.0));
-	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
-	boxNode->geometry()->addMaterial(boxMaterial);
-	boxNode->position({0, 10, 0});
+	unsigned colorIndex = 0;
+	auto colors = Color::Rainbow();
+	
+	for (int k=0; k<BOX_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <BOX_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<BOX_ARRAY_SIZE_Z; ++j) {
+				
+				auto color = make_shared<Color>(colors[colorIndex + 4]);
+				++colorIndex;
+				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+
+				vec3 position = { 2.0 * i,
+					10 + 2.0 * k,
+					2.0 * j };
+				
+				addObject(*scene, position, color);
+			}
+		}
+	}
 	
 	
-	auto boxPhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic);
-	boxNode->physicsBody(boxPhysicsBody);
 	
-	scene->rootNode()->addChildNode(boxNode);
+	
+//	addBox(*scene, {0, 10, 0}, make_shared<Color>(Color::Red()));
 	
 	
 	
@@ -140,6 +188,7 @@ int Test::run(const vector<string>& args) {
  **************************************************************************************/
 
 void Test::windowUpdateCallback(Scene& scene, float time) {
+	m_logger->trace("windowUpdateCallback()");
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;

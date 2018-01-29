@@ -110,10 +110,10 @@ namespace ae {
 	} PhysicsBodyType;
 	
 	
-	typedef enum {
-		PhysicsShapeOption_Compound =	0,
-		PhysicsShapeOption_Type =		1
-	} PhysicsShapeOption;
+//	typedef enum {
+//		PhysicsShapeOption_Compound =	0,
+//		PhysicsShapeOption_Type =		1
+//	} PhysicsShapeOption;
 	
 	
 	typedef enum {

@@ -18,7 +18,7 @@
 #include <assimp/postprocess.h>
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
 
 #include "Camera.h"

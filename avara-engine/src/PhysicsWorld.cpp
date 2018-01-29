@@ -23,7 +23,7 @@ using namespace std;
  **************************************************************************************/
 
 PhysicsWorld::PhysicsWorld() {
-	
+
 	m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
 	m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
 	m_btBroadphase = make_shared<btDbvtBroadphase>();
@@ -47,7 +47,8 @@ void PhysicsWorld::step() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	m_btWorld->stepSimulation(deltaSeconds);
+	//m_btWorld->stepSimulation(deltaSeconds);
+	m_btWorld->stepSimulation(deltaSeconds, 5);
 	
 // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
 //	btDynamicsWorld::stepSimulation(

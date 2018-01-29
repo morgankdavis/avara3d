@@ -27,6 +27,8 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "PhysicsBody.h"
+#include "PhysicsContact.h"
+#include "PhysicsShape.h"
 #include "PhysicsWorld.h"
 #include "Plane.h"
 #include "Program.h"

@@ -789,7 +789,8 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
     
     
     btScalar restitution = 0.f;
-    btScalar penetration = isFriction? 0 : cp.getDistance();
+	// disabled by Morgan -- compiler said it's unused
+    //btScalar penetration = isFriction? 0 : cp.getDistance();
     
     btScalar rel_vel = 0.f;
     int ndofA  = 0;

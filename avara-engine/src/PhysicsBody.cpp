@@ -9,13 +9,17 @@
 #include "PhysicsBody.h"
 
 
+#include "Logger.h"
 #include "Node.h"
 #include "Scene.h"
+#include "PhysicsShape.h"
 #include "PhysicsWorld.h"
+#include "Utilities.h"
 
 
 using namespace ae;
 using namespace std;
+using namespace ae::utils;
 
 
 /***************************************************************************************
@@ -30,25 +34,44 @@ using namespace std;
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
 	/* ... */
+	m_mass(1.0f),
 	m_type(type),
+	m_shape(nullptr),
 	m_node(nullptr) {
+		
+		//auto boxPhysicsShape = make_shared<PhysicsShape>(boxNode->geometry(), PhysicsShapeType_ConvexHull);
 	
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
 	/* ... */
+	m_mass(1.0f),
+	m_type(type),
+	m_shape(shape),
 	m_node(nullptr) {
 	
 		
 }
 
-shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
-	return m_btMotionState;
+/***************************************************************************************
+     MARK:   Public
+ **************************************************************************************/
+
+float PhysicsBody::mass() const {
+	return m_mass;
 }
 
-//void PhysicsBody::btMotionState(shared_ptr<btDefaultMotionState> motionState) {
-//	
-//}
+void PhysicsBody::mass(float mass) {
+	m_mass = mass;
+}
+
+float PhysicsBody::restitution() const {
+	return m_restitution;
+}
+
+void PhysicsBody::restitution(float restitution) {
+	m_restitution = restitution;
+}
 
 /***************************************************************************************
      MARK:   Internal
@@ -57,31 +80,47 @@ shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
 void PhysicsBody::addedToNode(Node& node) {
 	m_node = &node;
 	
+//	if (!m_shape) {
+//		m_shape = make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull);
+//	}
 	
-	btBoxShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
-	
-	
+	if (m_shape->btShape() == nullptr) {
+		m_shape->createBTShape();
+	}
 	
 	btTransform transform;
 	transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
-	//transform.setIdentity();
-	//transform.setOrigin(btVector3(0.0f, 0.0f, 0.0f));
-	// t.getOpenGLMatrix(glm::value_ptr(WoodenCrateInstances.at(i).transform));
-	
-
-	// *** may not be right... ***
-	// http://bulletphysics.org/Bullet/BulletFull/structbtDefaultMotionState.html
 	m_btMotionState = make_shared<btDefaultMotionState>(transform);
 	
 	
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0f, m_btMotionState.get(), boxShape);
-	btRigidBody* rigidBody = new btRigidBody(rbInfo);
-	//m_btRigidBody = make_shared<btRigidBody>(rbInfo);
 	
-	//m_world->addRigidBody(rigidBody);
+	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
+
+	btVector3 localInertia(0, 0, 0);
+	if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
 	
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PhysicsBodyType_Static ? 0 : m_mass),
+														   m_btMotionState.get(),
+														   collisionShape,
+														   localInertia);
 	
-	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(rigidBody);
+	rigidBodyInfo.m_mass = m_mass;
+	rigidBodyInfo.m_restitution = m_restitution;
+	// TODO: hard-coded4
+//	rigidBodyInfo.m_angularDamping = 0.0;
+	rigidBodyInfo.m_friction = .25f;
+	rigidBodyInfo.m_rollingFriction = .25f;
+	
+
+	
+	// ionInfo BoxRBCI1(mass, mBoxMotionState1, mBoxShape, boxInertia);
+	m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
+	
+	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+}
+
+shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
+	return m_btMotionState;
 }
 
 /***************************************************************************************

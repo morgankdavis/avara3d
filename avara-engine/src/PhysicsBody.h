@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -41,10 +41,10 @@ namespace ae {
 		 **************************************************************************************/
 		
 		std::shared_ptr<PhysicsShape> shape() const;
-		void shape(std::shared_ptr<PhysicsShape> shape);
+		/* REMOVE? */ void shape(std::shared_ptr<PhysicsShape> shape);
 		
 		PhysicsBodyType type() const;
-		void type(PhysicsBodyType type);
+		/* REMOVE? */ void type(PhysicsBodyType type);
 		
 		glm::vec3 velocityFactor() const;
 		void velocityFactor(glm::vec3 factor);
@@ -102,14 +102,12 @@ namespace ae {
 		
 		void resetTransform();
 		
-		std::shared_ptr<btDefaultMotionState> btMotionState() const;
-		//void btMotionState(std::shared_ptr<btDefaultMotionState> motionState);
-		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
 		void addedToNode(Node& node);
+		std::shared_ptr<btDefaultMotionState> btMotionState() const;
 		
 	private:
 		
@@ -141,7 +139,7 @@ namespace ae {
 		Node*									m_node;
 		
 		std::shared_ptr<btDefaultMotionState>	m_btMotionState;
-		//std::shared_ptr<btRigidBody>			m_btRigidBody;
+		std::shared_ptr<btRigidBody>			m_btRigidBody;
 	};
 }
 

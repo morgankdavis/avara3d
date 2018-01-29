@@ -13,6 +13,8 @@
 #include <memory>
 #include <vector>
 
+#include <btBulletDynamicsCommon.h>
+
 #include "Types.h"
 
 
@@ -30,15 +32,35 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeOption options);
+		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::shared_ptr<Geometry> sourceGrometry() const;
-		PhysicsShapeOption options() const;
-		std::vector<glm::mat4> transforms() const;
+		std::shared_ptr<Geometry> sourceGeometry() const;
+		PhysicsShapeType type() const;
+		/* ? */ std::vector<glm::mat4> transforms() const;
+		
+		/***************************************************************************************
+		     MARK:   Internal
+		 **************************************************************************************/
+		
+		void createBTShape();
+		std::shared_ptr<btCollisionShape> btShape() const;
+		
+	private:
+		
+		/***************************************************************************************
+		     MARK:   Public
+		 **************************************************************************************/
+		
+		std::shared_ptr<Geometry> 			m_sourceGeometry;
+		PhysicsShapeType 					m_type;
+		std::vector<glm::mat4> 				m_transforms;
+		
+		std::shared_ptr<btCollisionShape>	m_btShape;
+		std::shared_ptr<btTriangleMesh>		m_btTriangleMesh;
 	};
 }
 
