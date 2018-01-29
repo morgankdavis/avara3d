@@ -42,12 +42,13 @@ int Test::run(const vector<string>& args) {
 	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
-	auto logger = make_shared<Logger>("test30", sinks);
+	m_logger = make_shared<Logger>("test30", sinks);
 	
 	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
-	logger->info("Test::run()");
+	m_logger->info("Test::run()");
 	
 	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window.didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
 	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
 	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	window.captureCursor(CAPTURE_CURSOR);
@@ -57,6 +58,11 @@ int Test::run(const vector<string>& args) {
 
 	
 	auto scene = make_shared<Scene>();
+	
+	
+	
+	auto physicsWorld = make_shared<PhysicsWorld>();
+	scene->physicsWorld(physicsWorld);
 	
 	
 	const float PLANE_DIM = 25.0;
@@ -81,18 +87,16 @@ int Test::run(const vector<string>& args) {
 	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
 	boxNode->geometry()->addMaterial(boxMaterial);
 	boxNode->position({0, 10, 0});
+	
+	
+	auto boxPhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic);
+	boxNode->physicsBody(boxPhysicsBody);
+	
 	scene->rootNode()->addChildNode(boxNode);
 	
 	
 	
-	
-	
-	
-	auto physicsWorld = make_shared<PhysicsWorld>();
-	scene->physicsWorld(physicsWorld);
-	
-	
-	
+
 	
 
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
@@ -229,32 +233,41 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		//		const static float MOVE_SPEED = 5.0f; // units/sec
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
-		
+
 		auto keysDown = m_inputManager->keysDown();
 		
-		if(keysDown.count(Key_W)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+		float moveMultiplier = 1.0;
+		if (keysDown.count(Key_LeftShift)) {
+			moveMultiplier = 2.0;
+		}
+		
+		if (keysDown.count(Key_W)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_S)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+		else if (keysDown.count(Key_S)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_A)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+		if (keysDown.count(Key_A)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_D)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+		else if (keysDown.count(Key_D)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_Space)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+		if (keysDown.count(Key_Space)) {
+			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 	}
+}
+
+void Test::didSimulatePhysicsCallback(Scene& scene, float time) {
+	m_logger->trace("didSimulatePhysicsCallback()");
 }
 
 void Test::windowWillRenderCallback(Scene& scene, float time) {

@@ -18,6 +18,7 @@
 #include <assimp/postprocess.h>
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
+#include "btBulletDynamicsCommon.h"
 #include <GL/glew.h>
 
 #include "Camera.h"
@@ -31,6 +32,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
+#include "PhysicsBody.h"
 #include "SkyboxGeometry.h"
 #include "SkyboxMaterial.h"
 #include "Utilities.h"
@@ -231,6 +233,8 @@ Scene::Scene():
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr) {
 		
+		m_rootNode->scene(this);
+		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
 		m_glEnvironmentUBO = ubo;
@@ -357,7 +361,20 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				stats.geometries++;
-				auto modelMat = node->worldTransform();
+				auto modelMat = mat4(1.0);
+				auto physicsBody = node->physicsBody();
+				if (physicsBody) {
+					auto motionState = physicsBody->btMotionState();
+					btTransform transform;
+					motionState->getWorldTransform(transform);
+					transform.getOpenGLMatrix(value_ptr(modelMat));
+					
+					//t.getOpenGLMatrix(glm::value_ptr(WoodenCrateInstances.at(i).transform));
+					//modelMat = 
+				}
+				else {
+					modelMat= node->worldTransform();
+				}
 				geometry->draw(modelMat, viewMat, projectionMat,
 							   m_glEnvironmentUBO, debugOptions, stats);
 			}

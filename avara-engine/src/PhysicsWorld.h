@@ -10,6 +10,7 @@
 #define PhysicsWorld_h
 
 
+#include <functional>
 #include <memory>
 
 #include "btBulletDynamicsCommon.h"
@@ -33,6 +34,13 @@ namespace ae {
 	
 	class PhysicsWorld {
 		
+		using PhysicsWorldDidBeginContactFunction = std::function<void(PhysicsWorld& world,
+																	   PhysicsContact& contact)>;
+		using PhysicsWorldDidUpdateContactFunction = std::function<void(PhysicsWorld& world,
+																		PhysicsContact& contact)>;
+		using PhysicsWorldDidEndContactFunction = std::function<void(PhysicsWorld& world,
+																	 PhysicsContact& contact)>;
+																		 
 	public:
 		
 		// callbacks
@@ -71,7 +79,10 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void step(float deltaTime);
+		//void step(float deltaTime);
+		void step();
+		
+		std::shared_ptr<btDiscreteDynamicsWorld> btWorld() const;
 		
 	private:
 		
@@ -89,7 +100,6 @@ namespace ae {
 		float 													m_speed;
 		float 													m_timestep;
 	};
-	
 }
 
 

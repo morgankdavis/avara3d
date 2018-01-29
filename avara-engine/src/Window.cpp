@@ -30,6 +30,7 @@
 #include "InputManager.h"
 #include "Logger.h"
 #include "Node.h"
+#include "PhysicsWorld.h"
 #include "Scene.h"
 #include "Utilities.h"
 
@@ -86,81 +87,81 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 //	m_willUpdateCallback(nullptr),
 //	m_didUpdateCallback(nullptr) {
 	
-		if (initLog() != 0) { cout << "Error initializing log." << endl; }
-
-		if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
-		
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
+	if (initLog() != 0) { cout << "Error initializing log." << endl; }
+	if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
+	
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 //		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-	
-		int viewportWidth = width;
-		int viewportHeight = height;
-    
-        float scaleFactor = 1.0;
-		
-		if (fullScreen) {
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-			i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-			viewportWidth = vmode->width;
-			viewportHeight = vmode->height;
-            
-            scaleFactor = GetScreenScaleFactor(monitor);
-            
-		}
-		else {
-			i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
-            
-            // TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-            // causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-            //scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
-            scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
-		}
 
-		AE_LOG->info("scaleFactor: {}", scaleFactor);
+	int viewportWidth = width;
+	int viewportHeight = height;
 
-		if (!i_glfwWindow) {
-			AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
-			glfwTerminate();
-		}
+	float scaleFactor = 1.0;
+	
+	if (fullScreen) {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+		i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+		viewportWidth = vmode->width;
+		viewportHeight = vmode->height;
 		
-		glfwMakeContextCurrent(i_glfwWindow);
-		enableVSync(false);
-	
-		initGLEW();
-	
-		i_window = this;
-	
-		initFontstash();
-	
-		// moved from initializer list
+		scaleFactor = GetScreenScaleFactor(monitor);
 		
-		m_scene = make_shared<Scene>();
-		m_width = viewportWidth;
-		m_height = viewportHeight;
-    
-        m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
-		m_framebufferWidth = m_width * m_framebufferScale;
-		m_framebufferHeight = m_height * m_framebufferScale;
+	}
+	else {
+		i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+		
+		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
+		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
+		//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
+		scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
+	}
+
+	AE_LOG->info("scaleFactor: {}", scaleFactor);
+
+	if (!i_glfwWindow) {
+		AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
+		glfwTerminate();
+	}
 	
-		setupRenderBuffer(); // needs width and height!
+	glfwMakeContextCurrent(i_glfwWindow);
+	enableVSync(false);
+
+	initGLEW();
+
+	i_window = this;
+
+	initFontstash();
+
+	// moved from initializer list
 	
-		m_antialiasingMode = antialiasingMode;
-		m_debugOptions = (DebugOption)0;
-		m_backgroundColor = nullptr;
-		m_pointOfView = nullptr;
-		m_inputManager = nullptr;
-		m_maximumFramerate = 60.0;
-		m_updateCallback = nullptr;
-		m_willRenderCallback = nullptr;
-		m_didRenderCallback = nullptr;
-		m_recordingGIF = false;
-		m_cursorCaptured = false;
+	m_scene = make_shared<Scene>();
+	m_width = viewportWidth;
+	m_height = viewportHeight;
+
+	m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
+	m_framebufferWidth = m_width * m_framebufferScale;
+	m_framebufferHeight = m_height * m_framebufferScale;
+
+	setupRenderBuffer(); // needs width and height!
+
+	m_antialiasingMode = antialiasingMode;
+	m_debugOptions = (DebugOption)0;
+	m_backgroundColor = nullptr;
+	m_pointOfView = nullptr;
+	m_inputManager = nullptr;
+	m_maximumFramerate = 60.0;
+	m_updateCallback = nullptr;
+	m_didSimulatePhysicsCallback = nullptr;
+	m_willRenderCallback = nullptr;
+	m_didRenderCallback = nullptr;
+	m_recordingGIF = false;
+	m_cursorCaptured = false;
 }
 
 Window::~Window() {
@@ -423,6 +424,14 @@ void Window::updateCallback(WindowUpdateFuction function) {
 	m_updateCallback = function;
 }
 
+WindowDidSimulatePhysicsFuction Window::didSimulatePhysicsCallback() {
+	return m_didSimulatePhysicsCallback;
+}
+
+void Window::didSimulatePhysicsCallback(WindowDidSimulatePhysicsFuction function) {
+	m_didSimulatePhysicsCallback = function;
+}
+
 WindowWillRenderFuction Window::willRenderCallback() {
 	return m_willRenderCallback;
 }
@@ -544,6 +553,16 @@ void Window::mainLoop() {
 	DrawStats stats = {};
 	//stats.cameraPosition = pov->worldPosition();
 	stats.cameraPosition = pov->position();
+	
+	// sinulate physics
+	auto physicsWorld = m_scene->physicsWorld();
+	if (physicsWorld) {
+		physicsWorld->step();
+		
+		if (m_didSimulatePhysicsCallback) {
+			m_didSimulatePhysicsCallback(*m_scene, glfwGetTime());
+		}
+	}
 	
 	CheckGLError();
 	

@@ -33,6 +33,7 @@ namespace ae {
 	
 	
 	using WindowUpdateFuction = std::function<void(Scene& scene, float time)>;
+	using WindowDidSimulatePhysicsFuction = std::function<void(Scene& scene, float time)>;
 	using WindowWillRenderFuction = std::function<void(Scene& scene, float time)>;
 	using WindowDidRenderFuction = std::function<void(Scene& scene, float time)>;
 
@@ -83,6 +84,23 @@ namespace ae {
 		void startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate);
 		void stopGIFRecording();
 		
+		/*
+		- hitTest:options:
+		Searches the renderer’s scene for objects corresponding to a point in the rendered image.
+
+		- isNodeInsideFrustum:withPointOfView:
+		Returns a Boolean value indicating whether a node might be visible from a specified point of view.
+
+		- nodesInsideFrustumWithPointOfView:
+		Returns all nodes that might be visible from a specified point of view.
+
+		- projectPoint:
+		Projects a point from the 3D world coordinate system of the scene to the 2D pixel coordinate system of the renderer.
+
+		- unprojectPoint:
+		Unprojects a point from the 2D pixel coordinate system of the renderer to the 3D world coordinate system of the scene.
+		*/
+		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
@@ -109,6 +127,9 @@ namespace ae {
 		WindowUpdateFuction updateCallback();
 		void updateCallback(WindowUpdateFuction function);
 		
+		WindowDidSimulatePhysicsFuction didSimulatePhysicsCallback();
+		void didSimulatePhysicsCallback(WindowDidSimulatePhysicsFuction function);
+		
 		WindowWillRenderFuction willRenderCallback();
 		void willRenderCallback(WindowWillRenderFuction function);
 		
@@ -129,32 +150,33 @@ namespace ae {
 		void saveGIFFrame(float deltaSeconds);
 		
 		
-		std::shared_ptr<Scene>			m_scene;
-		unsigned						m_width;
-		unsigned						m_height;
-		float							m_framebufferScale;
-		unsigned						m_framebufferWidth;
-		unsigned						m_framebufferHeight;
-		AntialiasingMode				m_antialiasingMode;
-		DebugOption						m_debugOptions;
-		std::shared_ptr<Color>			m_backgroundColor;
-		std::shared_ptr<Node>			m_pointOfView;
-		std::shared_ptr<InputManager> 	m_inputManager;
-		bool							m_vSyncEnabled;
-		float 							m_maximumFramerate;
-		FONScontext* 					m_fonsContext;
-		int								m_fonsFont;
-		bool							m_recordingGIF;
-		unsigned						m_gifRecordingWidth;
-		unsigned						m_gifRecordingHeight;
-		unsigned						m_gifRecordingMaxFramerate;
-		unsigned						m_renderFramebuffer;
-		//unsigned						m_drawFramebuffer;
-		bool							m_cursorCaptured;
+		std::shared_ptr<Scene>				m_scene;
+		unsigned							m_width;
+		unsigned							m_height;
+		float								m_framebufferScale;
+		unsigned							m_framebufferWidth;
+		unsigned							m_framebufferHeight;
+		AntialiasingMode					m_antialiasingMode;
+		DebugOption							m_debugOptions;
+		std::shared_ptr<Color>				m_backgroundColor;
+		std::shared_ptr<Node>				m_pointOfView;
+		std::shared_ptr<InputManager> 		m_inputManager;
+		bool								m_vSyncEnabled;
+		float 								m_maximumFramerate;
+		FONScontext* 						m_fonsContext;
+		int									m_fonsFont;
+		bool								m_recordingGIF;
+		unsigned							m_gifRecordingWidth;
+		unsigned							m_gifRecordingHeight;
+		unsigned							m_gifRecordingMaxFramerate;
+		unsigned							m_renderFramebuffer;
+		//unsigned							m_drawFramebuffer;
+		bool								m_cursorCaptured;
 		
-		WindowUpdateFuction				m_updateCallback;
-		WindowWillRenderFuction 		m_willRenderCallback;
-		WindowDidRenderFuction 			m_didRenderCallback;
+		WindowUpdateFuction					m_updateCallback;
+		WindowDidSimulatePhysicsFuction		m_didSimulatePhysicsCallback;
+		WindowWillRenderFuction 			m_willRenderCallback;
+		WindowDidRenderFuction 				m_didRenderCallback;
 	};
 }
 

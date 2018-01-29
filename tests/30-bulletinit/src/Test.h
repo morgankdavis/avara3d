@@ -14,13 +14,12 @@
 #include <string>
 #include <vector>
 
-//#include "Types.h"
-
 
 namespace ae {
 
 
 	class InputManager;
+	class Logger;
 	class Node;
 	class Scene;
 	class Window;
@@ -33,6 +32,7 @@ namespace ae {
 		int run(const std::vector<std::string>& args);
 		
 		void windowUpdateCallback(Scene& scene, float time);
+		void didSimulatePhysicsCallback(Scene& scene, float time);
 		void windowWillRenderCallback(Scene& scene, float time);
 		void windowDidRenderCallback(Scene& scene, float time);
 		
@@ -41,6 +41,7 @@ namespace ae {
 		Window*								m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
+		std::shared_ptr<Logger>				m_logger;
 	};
 }
 

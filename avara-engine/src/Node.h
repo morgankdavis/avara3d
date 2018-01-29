@@ -25,6 +25,7 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
+	class Scene;
 
 
 	class Node : public std::enable_shared_from_this<Node> {
@@ -124,15 +125,20 @@ namespace ae {
  		 **************************************************************************************/
 		
 		void parent(Node* parent);
+		std::shared_ptr<Node> root() const;
+		
+		Scene* scene() const;
+		void scene(Scene* scene);
+		
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;
-		std::shared_ptr<Node> root();
+		
 		bool treeContainsNode(std::shared_ptr<Node> node);
 		
 	private:
 
 		/***************************************************************************************
      		MARK:   Private
- 		**************************************************************************************/
+ 		 **************************************************************************************/
 		
 		std::vector<std::shared_ptr<Node>>	childNodesRec();
 		
@@ -145,6 +151,7 @@ namespace ae {
 		bool								m_hidden;
 
 		Node*								m_parent;
+		Scene* 								m_scene;
 		std::vector<std::shared_ptr<Node>>	m_childNodes;
 		
 		glm::vec3							m_position;

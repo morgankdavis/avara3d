@@ -23,6 +23,7 @@
 #include "Exception.h"
 #include "Geometry.h"
 #include "Light.h"
+#include "PhysicsBody.h"
 #include "Utilities.h"
 
 
@@ -49,7 +50,8 @@ Node::Node():
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 	
 }
 
@@ -63,7 +65,8 @@ Node::Node(const string& name):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 		
 }
 
@@ -77,7 +80,8 @@ Node::Node(const shared_ptr<Geometry> geometry):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 
 		m_geometry->node(this);
 }
@@ -92,7 +96,8 @@ Node::Node(const shared_ptr<Light> light):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 		
 		m_light->node(this);
 }
@@ -107,7 +112,8 @@ Node::Node(const shared_ptr<Camera> camera):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 		
 		m_camera->node(this);
 }
@@ -122,7 +128,8 @@ Node::Node(const string& name, const mat4 t):
 	m_position(vec3(0.0f, 0.0f, 0.0f)),
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 		
 		transform(t);
 }
@@ -135,7 +142,8 @@ Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
 	m_orientation(quat()),
 	m_scale(vec3(1.0f, 1.0f, 1.0f)),
 	m_geometry(geometry),
-	m_physicsBody(nullptr) {
+	m_physicsBody(nullptr),
+	m_scene(nullptr) {
 
 //		m_geometry = geometry;
 //		cout << "Creating node with geometry: " << geometry << endl;
@@ -526,6 +534,11 @@ void Node::addChildNode(shared_ptr<Node> node) {
 	
 	node->m_parent = this;
 	m_childNodes.push_back(node);
+	
+	auto physicsBody = node->physicsBody();
+	if (physicsBody) {
+		physicsBody->addedToNode(*this);
+	}
 }
 
 void Node::insertChildNode(const Node& node, int index) {
@@ -594,6 +607,27 @@ void Node::parent(Node* parent) {
 	m_parent = parent;
 }
 
+shared_ptr<Node> Node::root() const {
+	auto path = pathToRoot();
+	if (path.size() > 0) {
+		return path.back();
+	}
+	return nullptr;
+}
+
+Scene* Node::scene() const {
+	if (m_parent) {
+		return root()->scene();
+	}
+	else {
+		return m_scene;
+	}
+}
+
+void Node::scene(Scene* scene) {
+	m_scene = scene;
+}
+
 vector<shared_ptr<Node>> Node::pathToRoot() const {
 	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
 	
@@ -608,14 +642,6 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	}
 	
 	return parents;
-}
-
-shared_ptr<Node> Node::root() {
-	auto path = pathToRoot();
-	if (path.size() > 0) {
-		return path.back();
-	}
-	return nullptr;
 }
 
 bool Node::treeContainsNode(shared_ptr<Node> node) {

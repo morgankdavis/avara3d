@@ -16,7 +16,25 @@ Tests:
 		Init physics world in ae::PhysicsWorld
 		Clean up cmake linking
 
+		Physics INITIALIZER LISTS
+
+		Rename test30 to "init-fallingboxes"
+
+		Make sure PhysicsBody is initialized properly when:
+			Added to unattached node, then node is added to tree
+			Added to node after in tree
+			What is the node is in an detached tree with no scene?
+
+			addNode()
+			insertNode() etc.
+
+			What is world is make after body??
+
+			Maybe addedToNode() should happen on first draw?
+
 		Clean up Node constructor?
+
+		Shut down & cleanup
 
 		Scale UVs (texture tiling)
 
@@ -54,6 +72,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Log level per log?
 
 	Fix GIF recording framerate
 

@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include "btBulletDynamicsCommon.h"
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -20,6 +21,7 @@
 namespace ae {
 	
 	
+	class Node;
 	class PhysicsShape;
 	
 	
@@ -100,29 +102,46 @@ namespace ae {
 		
 		void resetTransform();
 		
+		std::shared_ptr<btDefaultMotionState> btMotionState() const;
+		//void btMotionState(std::shared_ptr<btDefaultMotionState> motionState);
+		
+		/***************************************************************************************
+		     MARK:   Internal
+		 **************************************************************************************/
+		
+		void addedToNode(Node& node);
+		
 	private:
 		
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		std::shared_ptr<PhysicsShape> 		m_shape;
-		PhysicsBodyType 					m_type;
-		glm::vec3 							m_velocityFactor;
-		glm::vec3 							m_angularVelocityFactor;
-		bool 								m_affectedByGravity;
-		float 								m_mass;
-		float 								m_charge;
-		float 								m_friction;
-		float 								m_rollingFriction;
-		float 								m_restitution;
-		float 								m_damping;
-		float 								m_angularDamping;
-		glm::vec3 							m_momentOfInertia;
-		glm::vec3 							m_velocity;
-		glm::vec4 							m_angularVelocity;
-		bool 								m_resting;
-		bool 								m_allowsResting;
+//		Node* node() const;
+//		void node(Node* node);
+		
+		std::shared_ptr<PhysicsShape> 			m_shape;
+		PhysicsBodyType 						m_type;
+		glm::vec3 								m_velocityFactor;
+		glm::vec3 								m_angularVelocityFactor;
+		bool 									m_affectedByGravity;
+		float 									m_mass;
+		float 									m_charge;
+		float 									m_friction;
+		float 									m_rollingFriction;
+		float 									m_restitution;
+		float 									m_damping;
+		float 									m_angularDamping;
+		glm::vec3 								m_momentOfInertia;
+		glm::vec3 								m_velocity;
+		glm::vec4 								m_angularVelocity;
+		bool 									m_resting;
+		bool 									m_allowsResting;
+		
+		Node*									m_node;
+		
+		std::shared_ptr<btDefaultMotionState>	m_btMotionState;
+		//std::shared_ptr<btRigidBody>			m_btRigidBody;
 	};
 }
 
