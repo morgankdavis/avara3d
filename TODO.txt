@@ -13,10 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		Disable bullet softbody
-
-		Check all generator "half sizes"
-
 		Physics debug drawing
 
 		Add default constructors + initializer lists (Node, Material, ...)

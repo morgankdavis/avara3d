@@ -4,7 +4,9 @@ IF(BUILD_BULLET3)
 ENDIF(BUILD_BULLET3)
 
 
-SUBDIRS(   BulletInverseDynamics BulletSoftBody BulletCollision BulletDynamics LinearMath Bullet3Common)
+# modified by Morgan to disable soft body
+# SUBDIRS(   BulletInverseDynamics BulletSoftBody BulletCollision BulletDynamics LinearMath Bullet3Common)
+SUBDIRS(   BulletInverseDynamics BulletCollision BulletDynamics LinearMath Bullet3Common)
 
 
 # disabled by Morgan
