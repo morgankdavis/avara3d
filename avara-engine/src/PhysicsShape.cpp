@@ -31,7 +31,6 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PhysicsShapeType type)
 	m_btShape(nullptr),
 	m_btTriangleMesh(nullptr) {
 		
-
 }
 
 /***************************************************************************************

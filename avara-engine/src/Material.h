@@ -81,12 +81,15 @@ namespace ae {
 		FillMode fillMode() const;
 		void fillMode(FillMode mode);
 		
-		std::shared_ptr<Program> program() const;
-		void program(std::shared_ptr<Program> program);
+		float uvScale() const;
+		void uvScale(float scale);
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
+		
+		std::shared_ptr<Program> program() const;
+		void program(std::shared_ptr<Program> program);
 		
 		//void loadShaderProgram(const std::string& shaderName);
 		std::shared_ptr<Program> selectProgram(DebugOption debugOptions);
@@ -117,6 +120,7 @@ namespace ae {
 		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
 		FillMode 							m_fillMode;
+		float 								m_uvScale;
 	};
 }
 

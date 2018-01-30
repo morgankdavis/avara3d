@@ -1,5 +1,5 @@
 
-set(EXECUTABLE_NAME "test30-bulletinit")
+set(EXECUTABLE_NAME "test30-rigidbody")
 MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
 
 

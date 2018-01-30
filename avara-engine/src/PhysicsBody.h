@@ -40,11 +40,11 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		std::shared_ptr<PhysicsShape> shape() const;
-		/* REMOVE? */ void shape(std::shared_ptr<PhysicsShape> shape);
-		
 		PhysicsBodyType type() const;
 		/* REMOVE? */ void type(PhysicsBodyType type);
+		
+		std::shared_ptr<PhysicsShape> shape() const;
+		/* REMOVE? */ void shape(std::shared_ptr<PhysicsShape> shape);
 		
 		glm::vec3 velocityFactor() const;
 		void velocityFactor(glm::vec3 factor);
@@ -114,12 +114,9 @@ namespace ae {
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
-		
-//		Node* node() const;
-//		void node(Node* node);
-		
-		std::shared_ptr<PhysicsShape> 			m_shape;
+
 		PhysicsBodyType 						m_type;
+		std::shared_ptr<PhysicsShape> 			m_shape;
 		glm::vec3 								m_velocityFactor;
 		glm::vec3 								m_angularVelocityFactor;
 		bool 									m_affectedByGravity;

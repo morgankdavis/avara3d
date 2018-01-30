@@ -19,13 +19,7 @@
 
 namespace ae {
 	
-	
-//	class btDefaultCollisionConfiguration;
-//	class btCollisionDispatcher;
-//	class btDbvtBroadphase;
-//	class btSequentialImpulseConstraintSolver;
-//	class btDiscreteDynamicsWorld;
-	
+
 	class HitTestResult;
 	class PhysicsBody;
 	class PhysicsContact;
@@ -79,7 +73,6 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		//void step(float deltaTime);
 		void step();
 		
 		std::shared_ptr<btDiscreteDynamicsWorld> btWorld() const;

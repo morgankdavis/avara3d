@@ -33,7 +33,7 @@ Plane::Plane(float width, float height):
 		/// @param size Half of the side length in x (0) and y (1) direction.
 		/// @param segments Number of subdivisions in the x (0) and y (1) direction.
 
-		PlaneMesh plane{{width, height}, {1, 1}};
+		PlaneMesh plane{{width/2.0, height/2.0}, {1, 1}};
 
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : plane.vertices()) {

@@ -42,7 +42,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	unsigned random = Random(0, 1);
 	shared_ptr<Node> node = nullptr;
 	if (random == 0) node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
-	else node = make_shared<Node>(make_shared<Sphere>(0.5, 4));
+	else node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -89,10 +89,14 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 	
 	
-	const float PLANE_DIM = 25.0;
+	const float PLANE_DIM = 20.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	auto planeMaterialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::White()));
+	auto gridImage = TestImageNamed("grid2");
+	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	planeMaterialProperty->wrapS(WrapMode_Repeat);
+	planeMaterialProperty->wrapT(WrapMode_Repeat);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
+	planeMaterial->uvScale(PLANE_DIM);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0, radians(90.0)});
@@ -113,25 +117,23 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
+	// added random boxes and spheres
+	
 	#define BOX_ARRAY_SIZE_X	4
 	#define BOX_ARRAY_SIZE_Y	6
 	#define BOX_ARRAY_SIZE_Z	4
 	
 	unsigned colorIndex = 0;
 	auto colors = Color::Rainbow();
-	
 	for (int k=0; k<BOX_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <BOX_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<BOX_ARRAY_SIZE_Z; ++j) {
-				
 				auto color = make_shared<Color>(colors[colorIndex + 4]);
 				++colorIndex;
 				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-
 				vec3 position = { 1.0 * i,
 					10 + 1.0 * k,
 					1.0 * j };
-				
 				addObject(*scene, position, color);
 			}
 		}
@@ -149,15 +151,8 @@ int Test::run(const vector<string>& args) {
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
 //	scene->rootNode()->addChildNode(pearScene->rootNode());
 	
-	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
-	for (auto n : crateScene->rootNode()->childNodes(false)) {
-		auto material = n->geometry()->firstMaterial();
-		material->diffuse()->wrapS(WrapMode_Repeat);
-		material->diffuse()->wrapT(WrapMode_Repeat);
-		material->specular()->wrapS(WrapMode_Repeat);
-		material->specular()->wrapT(WrapMode_Repeat);
-		scene->rootNode()->addChildNode(n);
-	}
+//	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
+//	scene->rootNode()->addChildNode(crateScene->rootNode());
 
 //	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
 //	scene->rootNode()->addChildNode(apple1Scene->rootNode());
@@ -181,13 +176,7 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNode(slurmScene->rootNode());
 
 //	auto picnictableScene = TestSceneNamed("picnictable/picnictable", "obj");
-//	auto picnictableNode = picnictableScene->rootNode()->childNodes(false)[0];
-//	auto picnictableMaterial = picnictableNode->geometry()->firstMaterial();
-//	picnictableMaterial->diffuse()->wrapS(WrapMode_Repeat);
-//	picnictableMaterial->diffuse()->wrapT(WrapMode_Repeat);
-//	picnictableMaterial->specular()->wrapS(WrapMode_Repeat);
-//	picnictableMaterial->specular()->wrapT(WrapMode_Repeat);
-//	scene->rootNode()->addChildNode(picnictableNode);
+//	scene->rootNode()->addChildNode(picnictableScene->rootNode());
 	
 	
 

@@ -13,14 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
-		Init physics world in ae::PhysicsWorld
-		Clean up cmake linking
+		Add default constructors + initializer lists (Node, Material, ...)
 
-		Physics INITIALIZER LISTS
+		Disable bullet softbody
 
-		Rename test30 to "test30 -rigidbodies"
-
-		Add broadphase
+		Check all generator "half sizes"
 
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree
@@ -43,14 +40,9 @@ Tests:
 
 		Optimize statics
 			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
-
-		Clean up Node constructor?
+		Optimize with btTriangleIndexVertexArray
 
 		Shut down & cleanup
-
-		Scale UVs (texture tiling)
-
-		Optimize with btTriangleIndexVertexArray
 
 		Notes:
 			SCNPhysicsBehavior

@@ -44,6 +44,20 @@ namespace ae {
 		float collisionImpulse() const;
 		float penetrationDistance() const;
 		float sweepTestFraction() const;
+		
+	private:
+		
+		/***************************************************************************************
+		     MARK:   Private
+		 **************************************************************************************/
+		
+		std::shared_ptr<Node> 		m_nodeA;
+		std::shared_ptr<Node> 		m_nodeB;
+		glm::vec3 					m_contactPoint;
+		glm::vec3 					m_contactNormal;
+		float 						m_collisionImpulse;
+		float 						m_penetrationDistance;
+		float 						m_sweepTestFraction;
 	};
 }
 

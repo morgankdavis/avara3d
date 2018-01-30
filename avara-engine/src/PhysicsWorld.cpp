@@ -8,13 +8,13 @@
 
 #include "PhysicsWorld.h"
 
-//#include "btBulletDynamicsCommon.h"
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
 
 
 using namespace ae;
+using namespace glm;
 using namespace std;
 
 
@@ -22,16 +22,70 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-PhysicsWorld::PhysicsWorld() {
+PhysicsWorld::PhysicsWorld():
+	m_gravity(9.807),
+	m_speed(1.0),
+	m_timestep(1.0/60.0) {
+	
+		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
+		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
+		m_btBroadphase = make_shared<btDbvtBroadphase>();
+		m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
+		m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
+														 m_btBroadphase.get(),
+														 m_btSolver.get(),
+														 m_btCollisionConfiguration.get());
+}
 
-	m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
-	m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
-	m_btBroadphase = make_shared<btDbvtBroadphase>();
-	m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
-	m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
-													 m_btBroadphase.get(),
-													 m_btSolver.get(),
-													 m_btCollisionConfiguration.get());
+/***************************************************************************************
+     MARK:   Public
+ **************************************************************************************/
+
+vec3 PhysicsWorld::gravity() const {
+	return m_gravity;
+}
+
+void PhysicsWorld::gravity(vec3 gravity) {
+	m_gravity = gravity;
+}
+
+float PhysicsWorld::speed() const {
+	return m_speed;
+}
+
+void PhysicsWorld::speed(float speed) {
+	m_speed = speed;
+}
+
+float PhysicsWorld::timestep() const {
+	return m_timestep;
+}
+
+void PhysicsWorld::timestep(float timestep) {
+	m_timestep = timestep;
+}
+
+void PhysicsWorld::updateCollisionPairs() {
+	
+}
+
+shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
+													 shared_ptr<PhysicsBody> bodyB) {
+	return nullptr;
+}
+
+shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> body) {
+	return nullptr;
+}
+
+shared_ptr<HitTestResult> PhysicsWorld::rayTest(vec3 fromVec, vec3 toVec) {
+	return nullptr;
+}
+
+shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsContact> contact,
+														 const mat4& fromMat,
+														 const mat4& toMat) {
+	return nullptr;
 }
 
 /***************************************************************************************
@@ -48,7 +102,8 @@ void PhysicsWorld::step() {
 	previousSeconds = time;
 	
 	//m_btWorld->stepSimulation(deltaSeconds);
-	m_btWorld->stepSimulation(deltaSeconds, 5);
+//	m_btWorld->stepSimulation(deltaSeconds, 2, m_timestep);
+	m_btWorld->stepSimulation(deltaSeconds, 2, 1.0/120.0);
 	
 // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
 //	btDynamicsWorld::stepSimulation(

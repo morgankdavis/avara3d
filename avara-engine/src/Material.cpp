@@ -74,6 +74,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
 	m_fillMode(FillMode_Fill),
+	m_uvScale(1.0f),
 	m_program(program) {
 	
 		//loadShaderProgram(programName);
@@ -161,6 +162,18 @@ void Material::fillMode(FillMode mode) {
 	m_fillMode = mode;
 }
 
+float Material::uvScale() const {
+	return m_uvScale;
+}
+
+void Material::uvScale(float scale) {
+	m_uvScale = scale;
+}
+
+/***************************************************************************************
+     MARK:   Internal
+ **************************************************************************************/
+
 shared_ptr<Program> Material::program() const {
 	return m_program;
 }
@@ -170,10 +183,6 @@ void Material::program(shared_ptr<Program> program) {
 	
 	//loadShaderProgram(program);
 }
-
-/***************************************************************************************
-     MARK:   Internal
- **************************************************************************************/
 
 //void Material::loadShaderProgram(const string& shaderName) {
 //
@@ -236,6 +245,9 @@ void Material::prepareToRender(DebugOption debugOptions) {
 		}
 		
 		m_program->setUniform("specularExponent", m_specularExponent);
+		
+		m_program->setUniform("uvScale", m_uvScale);
+//		m_program->setUniform("specularExponent", m_uvScale);
 		
 		// this is a bit of a hack, but since we're sharing programs now this needs to be reset...
 		//MaterialPropertyType_Emissive

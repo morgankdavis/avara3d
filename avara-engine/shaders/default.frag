@@ -68,6 +68,7 @@ uniform 	int 		diffuseMode;
 uniform 	int 		specularMode;
 uniform 	int 		emissiveMode;
 uniform		float 		specularExponent;
+uniform		float 		uvScale;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 layout(std140) uniform EnvironmentBlock {
@@ -87,7 +88,7 @@ bool FloatEqual(float a, float b, float tolarance) {
 
 
 void main () {
-
+	
 	vec4 Ka = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
@@ -96,8 +97,9 @@ void main () {
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	
 	switch (emissiveMode) {
-		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emissive, 1.0);					break;
-		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emissive, tex_coord));	break;
+		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emissive, 1.0);				break;
+		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emissive, 
+													  tex_coord * uvScale));		break;
 	}
 	
 	if (emissiveMode != MATERIAL_MODE_NONE) {
@@ -109,18 +111,21 @@ void main () {
 	}
 	else {
 		switch (ambientMode) {
-			case MATERIAL_MODE_COLOR: 	Ka = vec4(colors.ambient, 1.0);						break;
-			case MATERIAL_MODE_SAMPLER:	Ka = vec4(texture(samplers.ambient, tex_coord));	break;
+			case MATERIAL_MODE_COLOR: 	Ka = vec4(colors.ambient, 1.0);				break;
+			case MATERIAL_MODE_SAMPLER:	Ka = vec4(texture(samplers.ambient,
+														  tex_coord * uvScale));	break;
 		}
 		
 		switch (diffuseMode) {
-			case MATERIAL_MODE_COLOR:	Kd = vec4(colors.diffuse, 1.0);						break;
-			case MATERIAL_MODE_SAMPLER:	Kd = vec4(texture(samplers.diffuse, tex_coord));	break;
+			case MATERIAL_MODE_COLOR:	Kd = vec4(colors.diffuse, 1.0);				break;
+			case MATERIAL_MODE_SAMPLER:	Kd = vec4(texture(samplers.diffuse,
+														  tex_coord * uvScale));	break;
 		}
 		
 		switch (specularMode) {
-			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);					break;
-			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular, tex_coord));	break;
+			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);			break;
+			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
+														  tex_coord * uvScale));	break;
 		}
 		
 		// look at depth peeling or a-buffers for proper alpha blending
