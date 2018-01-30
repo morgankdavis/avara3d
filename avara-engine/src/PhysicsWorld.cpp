@@ -11,9 +11,11 @@
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -49,7 +51,7 @@ vec3 PhysicsWorld::gravity() const {
 
 void PhysicsWorld::gravity(vec3 gravity) {
 	m_gravity = gravity;
-	m_btWorld->setGravity({gravity.x, gravity.y, gravity.z});
+	m_btWorld->setGravity(BTVector3FromGLMVec3(gravity));
 }
 
 float PhysicsWorld::speed() const {

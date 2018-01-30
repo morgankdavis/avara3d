@@ -164,6 +164,14 @@ Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
 
+btVector3 ae::utils::BTVector3FromGLMVec3(glm::vec3& from) {
+	return btVector3(from.x, from.y, from.z);
+}
+
+btVector4 ae::utils::BTVector4FromGLMVec4(glm::vec4& from) {
+	return btVector4(from.x, from.y, from.z, from.w);
+}
+
 void ae::utils::CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {

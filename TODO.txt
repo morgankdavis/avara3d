@@ -13,11 +13,17 @@ Tests:
 
 	30 - rigidbodies
 
+		Rename and re-order:
+
+		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
+		glm::vec3 AIVector3DToGLMVec3(const aiVector3D& from);
+		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
+		Color AIColor3DToColor(const aiColor3D& from);
+		Color AIColor4DToColor(const aiColor4D& from);
+
 		Physics debug drawing
 
 		Add default constructors + initializer lists (Node, Material, ...)
-
-		Utility functions for bt <-> GLM
 
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree

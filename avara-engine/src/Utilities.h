@@ -21,6 +21,7 @@
 #include <assimp/types.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
+#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -60,6 +61,9 @@ namespace ae {
 		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
 		Color AIColor3DToColor(const aiColor3D& from);
 		Color AIColor4DToColor(const aiColor4D& from);
+		
+		btVector3 BTVector3FromGLMVec3(glm::vec3& from);
+		btVector4 BTVector4FromGLMVec4(glm::vec4& from);
 		
 		void CheckGLError();
 		

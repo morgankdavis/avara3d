@@ -55,6 +55,8 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.5);
+	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
+	physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -212,7 +214,7 @@ int Test::run(const vector<string>& args) {
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::LightGray()));
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = make_shared<Node>(pointLight);

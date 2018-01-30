@@ -18,9 +18,9 @@
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
-using namespace ae::utils;
 
 
 /***************************************************************************************
@@ -30,8 +30,8 @@ using namespace ae::utils;
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
 	m_type(type),
 	m_shape(nullptr),
-	m_velocityFactor(1.0),
-	m_angularVelocityFactor(1.0),
+	m_velocityFactor({1.0, 1.0, 1.0}),
+	m_angularVelocityFactor({1.0, 1.0, 1.0}),
 	m_affectedByGravity(true),
 	m_mass(1.0),
 	m_charge(0.0),
@@ -247,8 +247,8 @@ void PhysicsBody::addedToNode(Node& node) {
 														   collisionShape,
 														   localInertia);
 	
-	// velocity factor
-	// angular velocity factor
+	// √ velocity factor
+	// √ angular velocity factor
 	// afected by gravity
 	rigidBodyInfo.m_mass = m_mass;
 	// charge
@@ -258,12 +258,17 @@ void PhysicsBody::addedToNode(Node& node) {
 	rigidBodyInfo.m_linearDamping = m_damping;
 	rigidBodyInfo.m_angularDamping = m_angularDamping;
 	// moment of inertia
-	// velocity
-	// angular velocity
+	// √ velocity
+	// √ angular velocity
 	// resting
 	// allows resting
 
 	m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
+	
+	m_btRigidBody->setLinearFactor(BTVector3FromGLMVec3(m_velocityFactor));
+	m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
+	m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
+	m_btRigidBody->setAngularVelocity(BTVector4FromGLMVec4(m_angularVelocity));
 	
 	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
 }
