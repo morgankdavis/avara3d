@@ -247,14 +247,22 @@ void PhysicsBody::addedToNode(Node& node) {
 														   collisionShape,
 														   localInertia);
 	
+	// velocity factor
+	// angular velocity factor
+	// afected by gravity
 	rigidBodyInfo.m_mass = m_mass;
-	rigidBodyInfo.m_restitution = m_restitution;
-	// TODO: hard-coded4
-//	rigidBodyInfo.m_angularDamping = 0.0;
+	// charge
 	rigidBodyInfo.m_friction = m_friction;
 	rigidBodyInfo.m_rollingFriction = m_rollingFriction;
+	rigidBodyInfo.m_restitution = m_restitution;
+	rigidBodyInfo.m_linearDamping = m_damping;
+	rigidBodyInfo.m_angularDamping = m_angularDamping;
+	// moment of inertia
+	// velocity
+	// angular velocity
+	// resting
+	// allows resting
 
-	// ionInfo BoxRBCI1(mass, mBoxMotionState1, mBoxShape, boxInertia);
 	m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
 	
 	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
@@ -263,16 +271,4 @@ void PhysicsBody::addedToNode(Node& node) {
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
 	return m_btMotionState;
 }
-
-/***************************************************************************************
-     MARK:   Private
- **************************************************************************************/
-
-//Node* PhysicsBody::node() const {
-//	return m_node;
-//}
-//
-//void PhysicsBody::node(Node* node) {
-//	m_node = node;
-//}
 

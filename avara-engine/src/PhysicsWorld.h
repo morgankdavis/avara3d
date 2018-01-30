@@ -52,8 +52,8 @@ namespace ae {
 		glm::vec3 gravity() const;
 		void gravity(glm::vec3 gravity);
 		
-		float speed() const;
-		void speed(float speed);
+		/* REMOVE? */ float speed() const;
+		/* REMOVE? */ void speed(float speed);
 		
 		float timestep() const;
 		void timestep(float timestep);

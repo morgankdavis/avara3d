@@ -23,7 +23,7 @@ using namespace std;
  **************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
-	m_gravity(9.807),
+	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),
 	m_timestep(1.0/60.0) {
 	
@@ -35,6 +35,8 @@ PhysicsWorld::PhysicsWorld():
 														 m_btBroadphase.get(),
 														 m_btSolver.get(),
 														 m_btCollisionConfiguration.get());
+		
+		gravity(m_gravity);
 }
 
 /***************************************************************************************
@@ -47,6 +49,7 @@ vec3 PhysicsWorld::gravity() const {
 
 void PhysicsWorld::gravity(vec3 gravity) {
 	m_gravity = gravity;
+	m_btWorld->setGravity({gravity.x, gravity.y, gravity.z});
 }
 
 float PhysicsWorld::speed() const {
@@ -102,8 +105,7 @@ void PhysicsWorld::step() {
 	previousSeconds = time;
 	
 	//m_btWorld->stepSimulation(deltaSeconds);
-//	m_btWorld->stepSimulation(deltaSeconds, 2, m_timestep);
-	m_btWorld->stepSimulation(deltaSeconds, 2, 1.0/120.0);
+	m_btWorld->stepSimulation(deltaSeconds, 5, m_timestep);
 	
 // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
 //	btDynamicsWorld::stepSimulation(

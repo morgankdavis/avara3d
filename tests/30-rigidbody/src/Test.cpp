@@ -27,10 +27,11 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIASING_MODE		AntialiasingMode_4X
+#define ANTIALIASING_MODE		AntialiasingMode_2X
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
-#define MOUSE_SENSITIVITY		0.5f
+#define MOUSE_SENSITIVITY		0.5
+#define PHYSICS_TIMESTEP		1.0/120.0
 
 
 /***************************************************************************************
@@ -52,6 +53,8 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	physicsBody->mass(1.0);
 	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -84,8 +87,8 @@ int Test::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 	
 	
-	
 	auto physicsWorld = make_shared<PhysicsWorld>();
+	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
 	
 	
@@ -109,6 +112,8 @@ int Test::run(const vector<string>& args) {
 	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
 	planePhysicsBody->mass(0);
 	planePhysicsBody->restitution(0.5);
+	planePhysicsBody->friction(0.5);
+	planePhysicsBody->rollingFriction(0.5);
 	planeNode->physicsBody(planePhysicsBody);
 	
 	
@@ -131,9 +136,9 @@ int Test::run(const vector<string>& args) {
 				auto color = make_shared<Color>(colors[colorIndex + 4]);
 				++colorIndex;
 				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { 1.0 * i,
-					10 + 1.0 * k,
-					1.0 * j };
+				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
+					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
+					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
 				addObject(*scene, position, color);
 			}
 		}
@@ -141,6 +146,29 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
+	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
+	
+	//crateScene->rootNode()->position({0, -5, 0});
+	
+	vector<shared_ptr<Node>> crateNodes;
+	//auto crateNode = make_shared<Node>();
+	
+	for (auto n : crateScene->rootNode()->childNodes(true)) {
+		if (n->geometry()) {
+			auto physicsShape = make_shared<PhysicsShape>(n->geometry(), PhysicsShapeType_ConvexHull);
+			auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, physicsShape);
+			physicsBody->mass(0);
+			physicsBody->restitution(0.5);
+			n->physicsBody(physicsBody);
+		}
+		n->position(n->position() + vec3(0, -20, 0));
+		crateNodes.emplace_back(n);
+		//crateNode->addChildNode(n);
+	}
+	
+	scene->rootNode()->addChildNodes(crateNodes);
+	//scene->rootNode()->addChildNode(crateNode);
+
 	
 //	auto pinappleScene = TestSceneNamed("pinapple/pinapple", "obj");
 //	scene->rootNode()->addChildNode(pinappleScene->rootNode());
@@ -151,9 +179,6 @@ int Test::run(const vector<string>& args) {
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
 //	scene->rootNode()->addChildNode(pearScene->rootNode());
 	
-//	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
-//	scene->rootNode()->addChildNode(crateScene->rootNode());
-
 //	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
 //	scene->rootNode()->addChildNode(apple1Scene->rootNode());
 
@@ -188,7 +213,8 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	pointLight->attenuationFactor(0.000000015);
+	//pointLight->attenuationFactor(0.000000015);
+	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = make_shared<Node>(pointLight);
 	scene->rootNode()->addChildNode(pointLightNode);
 

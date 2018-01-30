@@ -17,6 +17,8 @@ Tests:
 
 		Add default constructors + initializer lists (Node, Material, ...)
 
+		Utility functions for bt <-> GLM
+
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree
 			Added to node after in tree
