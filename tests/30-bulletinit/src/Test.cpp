@@ -140,11 +140,38 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-//	addBox(*scene, {0, 10, 0}, make_shared<Color>(Color::Red()));
+//	auto pinappleScene = TestSceneNamed("pinapple/pinapple", "obj");
+//	scene->rootNode()->addChildNode(pinappleScene->rootNode());
 	
-	
-	
+//	auto banana1Scene = TestSceneNamed("banana1/banana", "obj");
+//	scene->rootNode()->addChildNode(banana1Scene->rootNode());
 
+//	auto pearScene = TestSceneNamed("pear/pear", "obj");
+//	scene->rootNode()->addChildNode(pearScene->rootNode());
+	
+//	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
+//	scene->rootNode()->addChildNode(crateScene->rootNode());
+
+//	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
+//	scene->rootNode()->addChildNode(apple1Scene->rootNode());
+
+//	auto apple2Scene = TestSceneNamed("apple2/apple2", "obj");
+//	scene->rootNode()->addChildNode(apple2Scene->rootNode());
+	
+//	auto orange1Scene = TestSceneNamed("orange1/orange1", "obj");
+//	scene->rootNode()->addChildNode(orange1Scene->rootNode());
+	
+//	auto cherry1Scene = TestSceneNamed("cherry1/cherry1", "obj");
+//	scene->rootNode()->addChildNode(cherry1Scene->rootNode());
+	
+//	auto cherry2Scene = TestSceneNamed("cherry2/cherry2", "obj");
+//	scene->rootNode()->addChildNode(cherry2Scene->rootNode());
+	
+//	auto coke1Scene = TestSceneNamed("coke1/coke1", "obj");
+//	scene->rootNode()->addChildNode(coke1Scene->rootNode());
+	
+	auto slurmScene = TestSceneNamed("slurm/slurm", "obj");
+	scene->rootNode()->addChildNode(slurmScene->rootNode());
 	
 
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
