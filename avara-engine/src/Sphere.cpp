@@ -34,6 +34,9 @@ using namespace std;
 Sphere::Sphere(float radius, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
+		/// @param radius The radius of the containing sphere.
+		/// @param segments The number of segments per icosahedron edge. Must be >= 1.
+		
 		IcoSphereMesh icoSphere{radius, segments};
 
 		auto verts = vector<Vertex>();

@@ -13,11 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
-		Add default constructors + initializer lists (Node, Material, ...)
-
 		Disable bullet softbody
 
 		Check all generator "half sizes"
+
+		Physics debug drawing
+
+		Add default constructors + initializer lists (Node, Material, ...)
 
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree

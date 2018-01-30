@@ -47,7 +47,7 @@ int Test::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 
 
-	auto planeGeo = make_shared<Plane>(2.0f, 1.0f);
+	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
 	auto planeNode = make_shared<Node>();
 	planeGeo->name("plane");
 	planeNode->geometry(planeGeo);
@@ -56,7 +56,7 @@ int Test::run(const vector<string>& args) {
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
 
-	auto boxGeo = make_shared<Box>(2.0f, 1.0f, 0.25f);
+	auto boxGeo = make_shared<Box>(3.0f, 2.0f, 1.0f);
 	auto boxNode = make_shared<Node>();
 	boxGeo->name("box");
 	boxNode->geometry(boxGeo);
@@ -82,7 +82,7 @@ int Test::run(const vector<string>& args) {
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
 	
 	
-	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 1.0f, 128, 64);
+	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 2.0f, 128, 64);
 	auto tubeNode = make_shared<Node>();
 	tubeGeo->name("tube");
 	tubeNode->geometry(tubeGeo);
@@ -91,7 +91,7 @@ int Test::run(const vector<string>& args) {
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
 	
 	
-	auto capsuleGeo = make_shared<Capsule>(0.5f, 0.5f, 128, 32, 64);
+	auto capsuleGeo = make_shared<Capsule>(0.5f, 1.0f, 128, 32, 64);
 	auto capsuleNode = make_shared<Node>();
 	capsuleGeo->name("capsule");
 	capsuleNode->geometry(capsuleGeo);
@@ -100,7 +100,7 @@ int Test::run(const vector<string>& args) {
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
 	
 	
-	auto cylinderGeo = make_shared<Cylinder>(0.5f, 1.0f, 128, 64);
+	auto cylinderGeo = make_shared<Cylinder>(0.5f, 2.0f, 128, 64);
 	auto cylinderNode = make_shared<Node>();
 	cylinderGeo->name("cylinder");
 	cylinderNode->geometry(cylinderGeo);
@@ -109,7 +109,7 @@ int Test::run(const vector<string>& args) {
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
 	
 	
-	auto coneGeo = make_shared<Cone>(1.0, 1.0f, 128, 64);
+	auto coneGeo = make_shared<Cone>(1.0, 2.0f, 128, 64);
 	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
 	coneGeo->name("cone");
@@ -161,10 +161,6 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	// get input
 	
 	auto keysDown = m_inputManager->keysDown();
-	for (auto k : keysDown) {
-		//cout << "Key: " << to_string(k) << endl;
-		printf("Key: %c\n", k);
-	}
 	
 	if (keysDown.count(Key_Escape)) {
 		exit(0);

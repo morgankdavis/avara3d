@@ -37,7 +37,14 @@ Cone::Cone(float radius, float height, int slices, int segments):
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
 		
-		ConeMesh cone{radius, height, slices, segments};
+		///@param radius Radius of the negative z end on the xy-plane.
+		///@param size Half of the length of the cylinder along the z-axis.
+		///@param slices Number of subdivisions around the z-axis.
+		///@param segments Number subdivisions along the z-axis.
+		///@param start Counterclockwise angle around the z-axis relative to the x-axis.
+		///@param sweep Counterclockwise angle around the z-axis.
+		
+		ConeMesh cone{radius, height/2.0, slices, segments};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : cone.vertices()) {

@@ -37,8 +37,17 @@ Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int s
 //		int segments = 8,
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
+		
+		/// @param radius The outer radius of the cylinder on the xy-plane.
+		/// @param innerRadius The inner radius of the cylinder on the xy-plane.
+		/// @param size Half of the length of the cylinder along the z-axis.
+		/// @param slices Number nubdivisions around the z-axis.
+		/// @param segments Number of subdivisions along the z-axis.
+		/// @param rings Number radial subdivisions in the cap.
+		/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
+		/// @param sweep Counterclockwise angle around the z-axis.
 
-		CappedTubeMesh tube{outerRadius, innerRadius, height, slices, segments};
+		CappedTubeMesh tube{outerRadius, innerRadius, height/2.0, slices, segments};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : tube.vertices()) {

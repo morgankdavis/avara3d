@@ -37,7 +37,14 @@ Cylinder::Cylinder(float radius, float height, int slices, int segments):
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
 		
-		CylinderMesh cylinder{radius, height, slices, segments};
+		/// @param radius Radius of the cylinder along the xy-plane.
+		/// @param size Half of the length of the cylinder along the z-axis.
+		/// @param slices Subdivisions around the z-axis.
+		/// @param segments Subdivisions along the z-axis.
+		/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
+		/// @param sweep Counterclockwise angle around the z-axis.
+		
+		CylinderMesh cylinder{radius, height/2.0, slices, segments};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : cylinder.vertices()) {

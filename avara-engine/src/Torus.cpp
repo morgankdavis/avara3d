@@ -38,6 +38,15 @@ Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
 //		double minorSweep = gml::radians(360.0),
 //		double majorStart = 0.0,
 //		double majorSweep = gml::radians(360.0)
+		
+		/// @param minor Radius of the minor (inner) ring
+		/// @param major Radius of the major (outer) ring
+		/// @param slices Subdivisions around the minor ring
+		/// @param segments Subdivisions around the major ring
+		/// @param minorStart Counterclockwise angle relative to the xy-plane.
+		/// @param minorSweep Counterclockwise angle around the circle.
+		/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
+		/// @param majorSweep Counterclockwise angle around the z-axis.
 
 		TorusMesh torus{minorRadius, majorRadius, slices, segments};
 		

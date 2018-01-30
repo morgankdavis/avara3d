@@ -38,7 +38,14 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
 		
-		CapsuleMesh capsule{radius, height, slices, segments, rings};
+		/// @param radius Radius of the capsule on the xy-plane.
+		/// @param size Half of the length between centers of the caps along the z-axis.
+		/// @param slices Number of subdivisions around the z-axis.
+		/// @param rings Number of radial subdivisions in the caps.
+		/// @param start Counterclockwise angle relative to the x-axis.
+		/// @param sweep Counterclockwise angle.
+		
+		CapsuleMesh capsule{radius, height/2.0, slices, segments, rings};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : capsule.vertices()) {

@@ -30,6 +30,9 @@ using namespace std;
 Box::Box(float width, float height, float length):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 	
+		/// @param size Half of the side length in x (0), y (1) and z (2) direction.
+		/// @param segments The number of segments in x (0), y (1) and z (2)
+		
 		BoxMesh box{{width/2.0, height/2.0, length/2.0}, {1, 1, 1}};
 		
 		auto verts = vector<Vertex>();
