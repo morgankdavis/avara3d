@@ -149,8 +149,15 @@ int Test::run(const vector<string>& args) {
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
 //	scene->rootNode()->addChildNode(pearScene->rootNode());
 	
-//	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
-//	scene->rootNode()->addChildNode(crateScene->rootNode());
+	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
+	for (auto n : crateScene->rootNode()->childNodes(false)) {
+		auto material = n->geometry()->firstMaterial();
+		material->diffuse()->wrapS(WrapMode_Repeat);
+		material->diffuse()->wrapT(WrapMode_Repeat);
+		material->specular()->wrapS(WrapMode_Repeat);
+		material->specular()->wrapT(WrapMode_Repeat);
+		scene->rootNode()->addChildNode(n);
+	}
 
 //	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
 //	scene->rootNode()->addChildNode(apple1Scene->rootNode());
@@ -170,8 +177,18 @@ int Test::run(const vector<string>& args) {
 //	auto coke1Scene = TestSceneNamed("coke1/coke1", "obj");
 //	scene->rootNode()->addChildNode(coke1Scene->rootNode());
 	
-	auto slurmScene = TestSceneNamed("slurm/slurm", "obj");
-	scene->rootNode()->addChildNode(slurmScene->rootNode());
+//	auto slurmScene = TestSceneNamed("slurm/slurm", "obj");
+//	scene->rootNode()->addChildNode(slurmScene->rootNode());
+
+//	auto picnictableScene = TestSceneNamed("picnictable/picnictable", "obj");
+//	auto picnictableNode = picnictableScene->rootNode()->childNodes(false)[0];
+//	auto picnictableMaterial = picnictableNode->geometry()->firstMaterial();
+//	picnictableMaterial->diffuse()->wrapS(WrapMode_Repeat);
+//	picnictableMaterial->diffuse()->wrapT(WrapMode_Repeat);
+//	picnictableMaterial->specular()->wrapS(WrapMode_Repeat);
+//	picnictableMaterial->specular()->wrapT(WrapMode_Repeat);
+//	scene->rootNode()->addChildNode(picnictableNode);
+	
 	
 
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
