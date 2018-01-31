@@ -180,33 +180,33 @@ static btSimdScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& body1,
 }
 
 
-// disabled by Morgan -- compiler said it's unused
+// XX disabled by Morgan -- compiler said it's unused
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
-//static btSimdScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
-//{
-//#if defined (BT_ALLOW_SSE4)
-//	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
-//	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
-//	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
-//	const __m128 upperLimit		= _mm_set_ps1(c.m_upperLimit);
-//	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-//	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
-//	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
-//	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
-//	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse); // sum
-//	const __m128 maskLower		= _mm_cmpgt_ps(tmp, lowerLimit);
-//	const __m128 maskUpper		= _mm_cmpgt_ps(upperLimit, tmp);
-//	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), _mm_blendv_ps(_mm_sub_ps(upperLimit, c.m_appliedImpulse), deltaImpulse, maskUpper), maskLower);
-//	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, _mm_blendv_ps(upperLimit, tmp, maskUpper), maskLower);
-//	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
-//	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
-//	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
-//	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
-//	return deltaImpulse;
-//#else
-//	return gResolveSingleConstraintRowGeneric_sse2(body1,body2,c);
-//#endif
-//}
+static btSimdScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+{
+#if defined (BT_ALLOW_SSE4)
+	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
+	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
+	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
+	const __m128 upperLimit		= _mm_set_ps1(c.m_upperLimit);
+	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
+	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
+	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse); // sum
+	const __m128 maskLower		= _mm_cmpgt_ps(tmp, lowerLimit);
+	const __m128 maskUpper		= _mm_cmpgt_ps(upperLimit, tmp);
+	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), _mm_blendv_ps(_mm_sub_ps(upperLimit, c.m_appliedImpulse), deltaImpulse, maskUpper), maskLower);
+	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, _mm_blendv_ps(upperLimit, tmp, maskUpper), maskLower);
+	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
+	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
+	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
+	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
+	return deltaImpulse;
+#else
+	return gResolveSingleConstraintRowGeneric_sse2(body1,body2,c);
+#endif
+}
 
 
 
@@ -238,31 +238,31 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& bod
 }
 
 
-// disabled by Morgan -- compiler said it's unused
+// XX disabled by Morgan -- compiler said it's unused
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
-//static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
-//{
-//#ifdef BT_ALLOW_SSE4
-//	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
-//	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
-//	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
-//	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-//	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
-//	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
-//	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
-//	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse);
-//	const __m128 mask			= _mm_cmpgt_ps(tmp, lowerLimit);
-//	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), deltaImpulse, mask);
-//	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, tmp, mask);
-//	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
-//	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
-//	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
-//	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
-//	return deltaImpulse;
-//#else
-//	return gResolveSingleConstraintRowLowerLimit_sse2(body1,body2,c);
-//#endif //BT_ALLOW_SSE4
-//}
+static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+{
+#ifdef BT_ALLOW_SSE4
+	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
+	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
+	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
+	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
+	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
+	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse);
+	const __m128 mask			= _mm_cmpgt_ps(tmp, lowerLimit);
+	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), deltaImpulse, mask);
+	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, tmp, mask);
+	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
+	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
+	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
+	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
+	return deltaImpulse;
+#else
+	return gResolveSingleConstraintRowLowerLimit_sse2(body1,body2,c);
+#endif //BT_ALLOW_SSE4
+}
 
 
 #endif //USE_SIMD
