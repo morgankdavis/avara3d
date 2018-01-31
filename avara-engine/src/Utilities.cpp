@@ -10,18 +10,29 @@
 
 #include <algorithm>
 #include <ctime>
-#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <memory>
-#ifndef WINDOWS
+
+#ifdef WINDOWS
+#include <Windows.h>
+#endif
+
+#if defined(MACOS) || defined(LINUX)
 #include <sys/time.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
+
+#ifdef LINUX
+#include <libgen.h>
 #endif
 
 #include <glm/gtc/quaternion.hpp>
 
 #ifdef MACOS
 #include <CoreGraphics/CoreGraphics.h>
+#include <mach-o/dyld.h>
 #endif
 
 #include <GLFW/glfw3.h>
@@ -224,6 +235,68 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 /***************************************************************************************
  MARK:   File Utilities
  **************************************************************************************/
+
+boost::optional<string> ae::utils::ExecutablePath() {
+#if defined(MACOS)
+	
+	// https://stackoverflow.com/questions/799679/programmatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
+	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man3/dyld.3.html
+	
+	char path[1024];
+	uint32_t size = sizeof(path);
+	if (_NSGetExecutablePath(path, &size) == 0) {
+		return string(path);
+	}
+	
+#elif defined(LINUX)
+	
+	char path[1024];
+	ssize_t count = readlink("/proc/self/exe", result, 1024);
+	if (count != -1) {
+		path = dirname(result);
+		return string(path);
+	}
+	
+#elif defined(WINDOWS)
+	
+	// https://stackoverflow.com/questions/18783087/how-to-properly-use-getmodulefilename
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
+	
+	wchar_t path[1024]; 
+	if (GetModuleFileName(NULL, buffer, 1024)) {
+		return string(path);
+	}
+	
+#endif
+	
+	return boost::none;
+}
+
+boost::optional<string> ae::utils::ExecutableDirectory() {
+	return boost::none;
+}
+
+boost::optional<string> ae::utils::CurrentWorkingDirectory() {
+#if defined(MACOS) || defined(LINUX)
+	
+	char cwd[1024];
+	if (getcwd(cwd, sizeof(cwd))) {
+		return string(cwd);
+	}
+	
+#else
+	
+	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+	
+	wchar_t path[1024]; 
+	if (GetModuleFileName(NULL, path, 1024)) {
+		return string(path);
+	}
+	
+#endif
+	
+	return boost::none;
+}
 
 optional<string> ae::utils::LoadTextFile(const string &path) {
 	string line;

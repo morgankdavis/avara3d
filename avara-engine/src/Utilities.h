@@ -94,6 +94,10 @@ namespace ae {
 		 MARK:   File Utilities
 		 **************************************************************************************/
 		
+		boost::optional<std::string> ExecutablePath();
+		boost::optional<std::string> ExecutableDirectory();
+		boost::optional<std::string> CurrentWorkingDirectory();
+		
 		boost::optional<std::string> LoadTextFile(const std::string &path);
 		
 		std::string ShaderSourceDirectoryPath();

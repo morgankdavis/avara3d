@@ -36,6 +36,22 @@ using namespace glm;
 
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
+	
+	auto epath = ExecutablePath();
+	if (epath) {
+		cout << "ExecutablePath: " << *epath << endl;
+	}
+	else {
+		cout << "Can't get ExecutablePath" << endl;
+	}
+	
+	auto cwd = CurrentWorkingDirectory();
+	if (cwd) {
+		cout << "CurrentWorkingDirectory: " << *cwd << endl;
+	}
+	else {
+		cout << "Can't get CurrentWorkingDirectory" << endl;
+	}
 
 	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
 	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
