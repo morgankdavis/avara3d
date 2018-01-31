@@ -106,8 +106,11 @@ void PhysicsWorld::step() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
+	//timestep * x = 1.0
+	
 	//m_btWorld->stepSimulation(deltaSeconds);
-	m_btWorld->stepSimulation(deltaSeconds, 5, m_timestep);
+	unsigned maxSubSteps = lroundf(1.0/m_timestep);
+	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 	
 // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
 //	btDynamicsWorld::stepSimulation(

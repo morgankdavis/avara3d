@@ -31,7 +31,8 @@ using namespace glm;
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
-#define PHYSICS_TIMESTEP		1.0/120.0
+//#define PHYSICS_TIMESTEP		1.0/120.0
+#define PHYSICS_TIMESTEP		1.0/60.0
 
 
 /***************************************************************************************

@@ -40,6 +40,10 @@ namespace ae {
 
 
 	namespace utils {
+		
+		/***************************************************************************************
+		 MARK:   Output Utilities
+		 **************************************************************************************/
 
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
 		std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
@@ -47,25 +51,36 @@ namespace ae {
 		std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
 		std::ostream& operator<<(std::ostream& os, const Color& c);
 		
-		// work-around for spdlog
 		std::string StringFromGLMVec3(const glm::vec3& v);
 		std::string StringFromGLMVec4(const glm::vec4& v);
 		std::string StringFromGLMQuat(const glm::quat& q);
 		std::string StringFromGLMMat4(const glm::mat4& m);
 		std::string StringFromColor(const Color& c);
 		
-		boost::optional<std::string> LoadTextFile(const std::string &path);
+		std::string DateTimeString();
+		
+		/***************************************************************************************
+		 MARK:   Conversion Utilities
+		 **************************************************************************************/
 
-		glm::vec2 AIVector3DToGLMVec2(const aiVector2D& from);
-		glm::vec3 AIVector3DToGLMVec3(const aiVector3D& from);
-		glm::mat4 AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from);
-		Color AIColor3DToColor(const aiColor3D& from);
-		Color AIColor4DToColor(const aiColor4D& from);
+		glm::vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
+		glm::vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
+		glm::mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
+		Color ColorFromAIColor3D(const aiColor3D& from);
+		Color ColorFromAIColor4D(const aiColor4D& from);
 		
 		btVector3 BTVector3FromGLMVec3(glm::vec3& from);
 		btVector4 BTVector4FromGLMVec4(glm::vec4& from);
 		
+		/***************************************************************************************
+		 MARK:   Error Utilities
+		 **************************************************************************************/
+		
 		void CheckGLError();
+		
+		/***************************************************************************************
+		 MARK:   Numeric Utilities
+		 **************************************************************************************/
 		
 		int Random(int min, int max);
 		float Random(float min, int max);
@@ -74,6 +89,12 @@ namespace ae {
 		float Max(const glm::vec3& v);
 		
 		bool FloatEqual(float a, float b, float tolerance);
+		
+		/***************************************************************************************
+		 MARK:   File Utilities
+		 **************************************************************************************/
+		
+		boost::optional<std::string> LoadTextFile(const std::string &path);
 		
 		std::string ShaderSourceDirectoryPath();
 		std::string ShaderPath(const std::string& name, const std::string& type);
@@ -99,26 +120,17 @@ namespace ae {
 		std::shared_ptr<Image> TestImageNamed(const std::string& name,
 											  const std::string& type,
 											  bool flipHorizontal=true);
-//		std::vector<std::shared_ptr<Image>> TestCubeMaterialPropertyNamed(const std::string& name,
-//																		  const std::string& type);
 		
-//		std::vector<std::string> pathComponents(const std::string& str, const std::set<char> delimiters);
-//		std::string pathFromComponents(const std::vector<std::string> components, const char delimiter);
-//		char* ae_realpath(const char* path, char* resolved_path);
-		
-		std::string DateTimeString();
+		/***************************************************************************************
+		 MARK:   Misc Utilities
+		 **************************************************************************************/
 		
 		void SaveSnapshot(Window& window);
 		
 		void StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate);
 		void StopGIFRecording(Window& window);
 
-
-		//void GetScreenResolution(int& width, int& height);
         float GetScreenScaleFactor(GLFWmonitor* monitor);
-		
-		
-		//void PrintAllChildNodeNames(std::shared_ptr<Node> theNode);
 	}
 }
 

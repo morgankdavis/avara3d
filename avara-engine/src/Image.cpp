@@ -51,6 +51,7 @@ Image::~Image() {
 		//stbi_image_free(m_data);
 		//stbi_image_free() == free()
 		free(m_data);
+		//m_data = nullptr;
 	}
 }
 

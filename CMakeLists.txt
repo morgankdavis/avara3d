@@ -16,6 +16,8 @@ project(avara-engine)
 
 #execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 
+message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
+
 
 if(UNIX AND APPLE)
     message("We think we're APPLE")

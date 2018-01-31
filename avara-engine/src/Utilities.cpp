@@ -44,6 +44,10 @@ using namespace boost;
 using namespace ae;
 
 
+/***************************************************************************************
+ MARK:   Output Utilities
+ **************************************************************************************/
+
 ostream& ae::utils::operator<<(ostream& os, const glm::vec3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 	return os;
@@ -70,11 +74,6 @@ ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
               m[0][1], m[1][1], m[2][1], m[3][1],
               m[0][2], m[1][2], m[2][2], m[3][2],
               m[0][3], m[1][3], m[2][3], m[3][3]);
-
-             /*m[0][0], m[0][1], m[0][2], m[0][3], // consistent with to_string and SceneKit notation...
-             m[1][0], m[1][1], m[1][2], m[1][3],
-             m[2][0], m[2][1], m[2][2], m[2][3],
-             m[3][0], m[3][1], m[3][2], m[3][3]);*/
 
     return (os << str);
 }
@@ -114,34 +113,45 @@ string ae::utils::StringFromColor(const Color& c) {
 	return stringStream.str();
 }
 
-optional<string> ae::utils::LoadTextFile(const string &path) {
-	string line;
-	string source = "";
-	ifstream infile;
-	const char *path_cstr = path.c_str();
-	infile.open(path_cstr);
-	if (infile.is_open()) {
-		while (!infile.eof()) {
-			getline(infile, line);
-			source += line;
-			source += "\n";
-		}
-		infile.close();
-		return source;
-	}
-	return {};
+/***************************************************************************************
+ MARK:   Conversion Utilities
+ **************************************************************************************/
+
+std::string ae::utils::DateTimeString() {
+	
+	char buffer[256];
+	
+#ifdef WINDOWS
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
+#else
+	// gettimeofday() is POSIX
+	
+	timeval curTime;
+	gettimeofday(&curTime, NULL);
+	int milli = curTime.tv_usec / 1000;
+	
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	sprintf(buffer, "%s.%03d", buffer, milli);
+#endif
+	
+	return string(buffer);
 }
 
-vec2 ae::utils::AIVector3DToGLMVec2(const aiVector2D& from) {
+vec2 ae::utils::GLMVec2FromAIVector3D(const aiVector2D& from) {
 	return vec2(from.x, from.y);
 }
 
-vec3 ae::utils::AIVector3DToGLMVec3(const aiVector3D& from) {
+vec3 ae::utils::GLMVec3FromAIVector3D(const aiVector3D& from) {
 	return vec3(from.x, from.y, from.z);
 }
 
 // https://github.com/mruan/gl-exp/blob/master/src/math_util.hpp
-mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
+mat4 ae::utils::GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from) {
 	mat4 to;
 
 	to[0][0] = from.a1; to[1][0] = from.a2;
@@ -156,11 +166,11 @@ mat4 ae::utils::AIMaxtrix4x4ToGLMMat4(const aiMatrix4x4& from) {
 	return to;
 }
 
-Color ae::utils::AIColor3DToColor(const aiColor3D& from) {
+Color ae::utils::ColorFromAIColor3D(const aiColor3D& from) {
 	return Color(from.r, from.g, from.b, 1.0f);
 }
 
-Color ae::utils::AIColor4DToColor(const aiColor4D& from) {
+Color ae::utils::ColorFromAIColor4D(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
 
@@ -172,12 +182,20 @@ btVector4 ae::utils::BTVector4FromGLMVec4(glm::vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
+/***************************************************************************************
+ MARK:   Error Utilities
+ **************************************************************************************/
+
 void ae::utils::CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
 		AE_LOG->warn("*** glGetError: {} ***", err);
 	}
 }
+
+/***************************************************************************************
+ MARK:   Numeric Utilities
+ **************************************************************************************/
 
 int ae::utils::Random(int min, int max) {
 	return (min + (rand() % static_cast<int>(max - min + 1)));
@@ -201,6 +219,28 @@ float ae::utils::Max(const vec3& v) {
 
 bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
+}
+
+/***************************************************************************************
+ MARK:   File Utilities
+ **************************************************************************************/
+
+optional<string> ae::utils::LoadTextFile(const string &path) {
+	string line;
+	string source = "";
+	ifstream infile;
+	const char *path_cstr = path.c_str();
+	infile.open(path_cstr);
+	if (infile.is_open()) {
+		while (!infile.eof()) {
+			getline(infile, line);
+			source += line;
+			source += "\n";
+		}
+		infile.close();
+		return source;
+	}
+	return {};
 }
 
 std::string ae::utils::ShaderSourceDirectoryPath() {
@@ -303,30 +343,9 @@ std::string ae::utils::FontPath(const std::string& name, const std::string& type
 	return FontsDirectoryPath() + name + "." + type;
 }
 
-std::string ae::utils::DateTimeString() {
-	
-	char buffer[256];
-	
-#ifdef WINDOWS
-	time_t rawtime;
-	struct tm * timeinfo;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	
-	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
-#else
-	// gettimeofday() is POSIX
-	
-	timeval curTime;
-	gettimeofday(&curTime, NULL);
-	int milli = curTime.tv_usec / 1000;
-	
-	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
-	sprintf(buffer, "%s.%03d", buffer, milli);
-#endif
-	
-	return string(buffer);
-}
+/***************************************************************************************
+ MARK:   Misc Utilities
+ **************************************************************************************/
 
 void ae::utils::SaveSnapshot(Window& window) {
 	
@@ -340,50 +359,7 @@ void ae::utils::SaveSnapshot(Window& window) {
 	AE_LOG->info("Saving snapshot '{}'...", filename);
 	
 	image->writePNG(filename);
-
-//#ifdef WINDOWS
-//
-//	time_t rawtime;
-//	struct tm * timeinfo;
-//	char buffer[1024];
-//
-//	time(&rawtime);
-//	timeinfo = localtime(&rawtime);
-//
-//	//strftime(buffer, sizeof(buffer), "%Y-%m-%d_%I:%M:%S", timeinfo);
-//	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
-//
-//	char filename[256] = "";
-//	sprintf(filename, "Snapshot_%s.png", buffer);
-//
-//	AE_LOG->info("Saving snapshot '{}'...", filename);
-//
-//	image->writePNG(filename);
-//
-//#else
-//
-//	// gettimeofday() is POSIX
-//
-//	timeval curTime;
-//	gettimeofday(&curTime, NULL);
-//	int milli = curTime.tv_usec / 1000;
-//
-//	char buffer[128];
-//	strftime(buffer, 128, "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
-//
-//	char filename[256] = "";
-//	sprintf(filename, "Snapshot_%s.%03d.png", buffer, milli);
-//	//printf("current time: %s \n", currentTime);
-//
-//	AE_LOG->info("Saving snapshot '{}'...", filename);
-//
-//	image->writePNG(filename);
-//
-//#endif
-	
-	//auto filename = DateTimeString();
 }
-
 
 void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate) {
 	char filename[256] = "";
@@ -394,216 +370,6 @@ void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned m
 void ae::utils::StopGIFRecording(Window& window) {
 	window.stopGIFRecording();
 }
-
-
-
-
-//std::vector<std::shared_ptr<Image>> ae::utils::TestCubeMaterialPropertyNamed(const std::string& name,
-//																			 const std::string& type) {
-//
-//}
-
-//vector<string> ae::utils::pathComponents(const string& str, const set<char> delimiters) {
-//	vector<string> result;
-//
-//	char const* pch = str.c_str();
-//	char const* start = pch;
-//	for(; *pch; ++pch)
-//	{
-//		if (delimiters.find(*pch) != delimiters.end())
-//		{
-//			if (start != pch)
-//			{
-//				std::string str(start, pch);
-//				result.push_back(str);
-//			}
-//			else
-//			{
-//				result.push_back("");
-//			}
-//			start = pch + 1;
-//		}
-//	}
-//	result.push_back(start);
-//
-//	return result;
-//}
-//
-//string ae::utils::pathFromComponents(const vector<string> components, const char delimiter) {
-//	string path = "";
-//	for (unsigned int i=0; i<components.size(); ++i) {
-//		path += components[i];
-//		if (i < components.size()-1) { // not last item
-//			path += delimiter;
-//		}
-//	}
-//	return path;
-//}
-//
-//char* ae::utils::ae_realpath(const char* path, char* resolved_path) {
-//#ifndef WINDOWS
-//    return realpath(path, resolved_path);
-//#else
-//    // lost reference to original author...
-//
-//	char *return_path = 0;
-//
-//	if (path) //Else EINVAL
-//	{
-//		if (resolved_path)
-//		{
-//			return_path = resolved_path;
-//		}
-//		else
-//		{
-//			//Non standard extension that glibc uses
-//			return_path = (char*)malloc(PATH_MAX);
-//		}
-//
-//		if (return_path) //Else EINVAL
-//		{
-//			//This is a Win32 API function similar to what realpath() is supposed to do
-//			size_t size = GetFullPathNameA(path, PATH_MAX, return_path, 0);
-//
-//			//GetFullPathNameA() returns a size larger than buffer if buffer is too small
-//			if (size > PATH_MAX)
-//			{
-//				if (return_path != resolved_path) //Malloc'd buffer - Unstandard extension retry
-//				{
-//					size_t new_size;
-//
-//					free(return_path);
-//					return_path = (char*)malloc(size);
-//
-//					if (return_path)
-//					{
-//						new_size = GetFullPathNameA(path, size, return_path, 0); //Try again
-//
-//						if (new_size > size) //If it's still too large, we have a problem, don't try again
-//						{
-//							free(return_path);
-//							return_path = 0;
-//							errno = ENAMETOOLONG;
-//						}
-//						else
-//						{
-//							size = new_size;
-//						}
-//					}
-//					else
-//					{
-//						//I wasn't sure what to return here, but the standard does say to return EINVAL
-//						//if resolved_path is null, and in this case we couldn't malloc large enough buffer
-//						errno = EINVAL;
-//					}
-//				}
-//				else //resolved_path buffer isn't big enough
-//				{
-//					return_path = 0;
-//					errno = ENAMETOOLONG;
-//				}
-//			}
-//
-//			//GetFullPathNameA() returns 0 if some path resolve problem occured
-//			if (!size)
-//			{
-//				if (return_path != resolved_path) //Malloc'd buffer
-//				{
-//					free(return_path);
-//				}
-//
-//				return_path = 0;
-//
-//				//Convert MS errors into standard errors
-//				switch (GetLastError())
-//				{
-//					case AE_LOG->errorILE_NOT_FOUND:
-//						errno = ENOENT;
-//						break;
-//
-//					case AE_LOG->error_PATH_NOT_FOUND: case AE_LOG->error_INVALID_DRIVE:
-//						errno = ENOTDIR;
-//						break;
-//
-//					case AE_LOG->error_ACCESS_DENIED:
-//						errno = EACCES;
-//						break;
-//
-//					default: //Unknown Error
-//						errno = EIO;
-//						break;
-//				}
-//			}
-//
-//			//If we get to here with a valid return_path, we're still doing good
-//			if (return_path)
-//			{
-//				struct stat stat_buffer;
-//
-//				//Make sure path exists, stat() returns 0 on success
-//				if (stat(return_path, &stat_buffer))
-//				{
-//					if (return_path != resolved_path)
-//					{
-//						free(return_path);
-//					}
-//
-//					return_path = 0;
-//					//stat() will set the correct errno for us
-//				}
-//				//else we succeeded!
-//			}
-//		}
-//		else
-//		{
-//			errno = EINVAL;
-//		}
-//	}
-//	else
-//	{
-//		errno = EINVAL;
-//	}
-//
-//	return return_path;
-//#endif
-//}
-
-
-//void ae::utils::GetScreenResolution(int& width, int& height) {
-//
-//    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-//    const GLFWvidmode *vmode = glfwGetVideoMode(monitor);
-//    width = vmode->width;
-//    height = vmode->height;
-//
-////#ifdef MACOS
-////    CGRect mainMonitor = CGDisplayBounds(CGMainDisplayID());
-////    CGFloat monitorHeight = CGRectGetHeight(mainMonitor);
-////    CGFloat monitorWidth = CGRectGetWidth(mainMonitor);
-////#endif
-////
-////#ifdef LINUX
-////    Display* disp = XOpenDisplay(NULL);
-////    Screen* scrn = DefaultScreenOfDisplay(disp);
-////    width = scrn->width;
-////    height = scrn->height;
-////#endif
-////
-////#ifdef WINDOWS
-////    #include "wtypes.h"
-////
-////    RECT desktop;
-////   // Get a handle to the desktop window
-////   const HWND hDesktop = GetDesktopWindow();
-////   // Get the size of screen to the variable desktop
-////   GetWindowRect(hDesktop, &desktop);
-////   // The top left corner will have coordinates (0,0)
-////   // and the bottom right corner will have coordinates
-////   // (horizontal, vertical)
-////   horizontal = desktop.right;
-////   vertical = desktop.bottom;
-////#endif
-//}
 
 float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
 
@@ -623,15 +389,3 @@ float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
     
     return 1.0;
 }
-
-//void ae::utils::PrintAllChildNodeNames(shared_ptr<Node> theNode) {
-//	for (auto n : theNode->childNodes(true)) {
-//		if (n->name()) {
-//			cout << "Name: " << *(n->name()) << endl;
-//		}
-//		else {
-//			cout << "Name: (null)" << endl;
-//		}
-//	}
-//}
-

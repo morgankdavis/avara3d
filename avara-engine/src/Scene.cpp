@@ -176,7 +176,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		aiColor4D aiColor;
 		if (aiMaterial->Get(colorType, 0, 0, aiColor) == AI_SUCCESS) {
 			//cout << "Color: (" << aiColor.r << ", " << aiColor.g << ", " << aiColor.b << ", " << aiColor.a << ")" << endl;
-			auto aeColor = make_shared<Color>(AIColor4DToColor(aiColor));
+			auto aeColor = make_shared<Color>(ColorFromAIColor4D(aiColor));
 			AE_LOG->debug("Color: {}", StringFromColor(*aeColor));
 			return make_shared<MaterialProperty>(aeColor);
 		}
@@ -489,8 +489,8 @@ void Scene::loadFile(const string& importPath) {
 				if (hasNormals) normal = mesh->mNormals[v];
 				if (hasTextureCoordinates) texCoord = mesh->mTextureCoords[0][v];
 				
-				Vertex vert = {AIVector3DToGLMVec3(position),
-							   AIVector3DToGLMVec3(normal),
+				Vertex vert = {GLMVec3FromAIVector3D(position),
+							   GLMVec3FromAIVector3D(normal),
 							   vec2(texCoord.x, texCoord.y)};
 				verts.push_back(vert);
 			}
@@ -564,7 +564,7 @@ void Scene::loadFile(const string& importPath) {
 			
 			aiLight* aiLight = scene->mLights[l];
 			
-			Color color = AIColor3DToColor(aiLight->mColorDiffuse);
+			Color color = ColorFromAIColor3D(aiLight->mColorDiffuse);
 
 			auto light = make_shared<Light>(LightTypeForAILightType(aiLight->mType),
 											make_shared<Color>(color));
@@ -606,7 +606,7 @@ void Scene::loadFile(const string& importPath) {
 
 			aiNode* aiCamNode = scene->mRootNode->FindNode(aiCamera->mName);
 
-			auto viewMat = AIMaxtrix4x4ToGLMMat4(aiCamNode->mTransformation);
+			auto viewMat = GLMMat4FromAIMaxtrix4x4(aiCamNode->mTransformation);
 
 			cameraNode->transform(viewMat);
 
@@ -646,7 +646,7 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 //		cout << "Name: " << name.C_Str() << endl;
 //	}
 	
-	mat4 transform = AIMaxtrix4x4ToGLMMat4(aiGeometryNode->mTransformation);
+	mat4 transform = GLMMat4FromAIMaxtrix4x4(aiGeometryNode->mTransformation);
 //	cout << "Adding '" << name << "' with transform: " << endl;
 //	cout << transform << endl;
 	AE_LOG->debug("Adding '{}' with transform:\n{}", name, StringFromGLMMat4(transform));
