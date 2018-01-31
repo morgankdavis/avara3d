@@ -262,8 +262,11 @@ boost::optional<string> ae::utils::ExecutablePath() {
 	// https://stackoverflow.com/questions/18783087/how-to-properly-use-getmodulefilename
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
 	
-	wchar_t path[1024]; 
-	if (GetModuleFileName(NULL, buffer, 1024)) {
+	//wchar_t path[1024];
+	char path[1024];
+	if (GetModuleFileName(NULL, path, 1024)) {
+		//wstring ws(path);
+		//return string(ws.begin(), ws.end());
 		return string(path);
 	}
 	
@@ -288,8 +291,11 @@ boost::optional<string> ae::utils::CurrentWorkingDirectory() {
 	
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
 	
-	wchar_t path[1024]; 
+	//wchar_t path[1024];
+	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
+		//wstring ws(path);
+		//return string(ws.begin(), ws.end());
 		return string(path);
 	}
 	

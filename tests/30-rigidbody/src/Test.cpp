@@ -69,7 +69,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 int Test::run(const vector<string>& args) {
 	
-	cout << "CWD: " << CurrentWorkingDirectory() << endl;
+	//cout << "CWD: " << CurrentWorkingDirectory() << endl;
 	
 	LoggerSink sinks = (LoggerSink)0;
 	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
