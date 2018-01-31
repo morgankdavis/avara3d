@@ -17,9 +17,10 @@ SET(Bullet3Geometry_HDRS
 
 # switched to static by Morgan
 ADD_LIBRARY(Bullet3Geometry STATIC ${Bullet3Geometry_SRCS} ${Bullet3Geometry_HDRS})
-if (BUILD_SHARED_LIBS)
+# BUILD_SHARED_LIBS check disabled by Morgan
+#if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Geometry Bullet3Common)
-endif()
+#endif()
 SET_TARGET_PROPERTIES(Bullet3Geometry PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Geometry PROPERTIES SOVERSION ${BULLET_VERSION})
 

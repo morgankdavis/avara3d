@@ -31,9 +31,10 @@ SET(Bullet3Dynamics_HDRS
 
 # switched to static by Morgan
 ADD_LIBRARY(Bullet3Dynamics STATIC ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
-if (BUILD_SHARED_LIBS)
+# BUILD_SHARED_LIBS check disabled by Morgan
+#if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Dynamics Bullet3Collision)
-endif ()
+#endif ()
 SET_TARGET_PROPERTIES(Bullet3Dynamics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Dynamics PROPERTIES SOVERSION ${BULLET_VERSION})
 
