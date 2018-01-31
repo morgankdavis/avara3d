@@ -251,9 +251,9 @@ boost::optional<string> ae::utils::ExecutablePath() {
 #elif defined(LINUX)
 	
 	char path[1024];
-	ssize_t count = readlink("/proc/self/exe", result, 1024);
+	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
-		path = dirname(result);
+		//path = dirname(path);
 		return string(path);
 	}
 	
