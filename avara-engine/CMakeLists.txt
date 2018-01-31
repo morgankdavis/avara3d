@@ -78,8 +78,10 @@ elseif(WINDOWS)
 		include_directories(external/winpthreads/include)
 	endif()
 
-	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++ -lpthread")
+	else()
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
 	endif()
 
 endif()

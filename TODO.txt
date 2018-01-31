@@ -13,6 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
+		
+		Re-disable enabled bullet stuff
+		Fix Linux bullet linking
+
+		Only static link MinGW sodlib stuff for release builds?
 
 		cwd??
 

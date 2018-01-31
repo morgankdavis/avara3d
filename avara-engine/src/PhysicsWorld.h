@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 
+#include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 

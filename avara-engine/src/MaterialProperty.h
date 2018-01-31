@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 
-//#include <GL/glew.h>
-
 #include "Types.h"
 
 
