@@ -18,6 +18,7 @@
 #include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
+#include <LinearMath/btScalar.h> // for bullet version (!)
 
 #define GLFONTSTASH_IMPLEMENTATION
 #include "gl3fontstash.h"
@@ -146,6 +147,8 @@ int ae::initGLFW() {
 			AE_LOG->critical("Error initializing GLFW.");
 			return -1;
 		}
+
+		AE_LOG->info("Bullet version: {}",  btGetVersion());
 		
 		AE_LOG->info("Assimp version: {}.{}.{}",
 					aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
