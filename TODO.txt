@@ -13,13 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
-		
-		Re-disable enabled bullet stuff
-		Fix Linux bullet linking
-
-		Only static link MinGW sodlib stuff for release builds?
-
 		cwd??
+
+		cmake CMakelists.txt -DASSIMP_BUILD_NO_X_IMPORTER
 
 		Try disabling BUILD_BULLET3 and see what happens?
 

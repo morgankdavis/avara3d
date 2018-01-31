@@ -1,6 +1,6 @@
-prefix=C:/Program Files (x86)/avara-engine
+prefix=/usr/local
 exec_prefix=${prefix}
-libdir=C:/Program Files (x86)/avara-engine/lib
+libdir=/usr/local/lib
 includedir=${prefix}/include
 
 Name: glew
