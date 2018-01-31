@@ -21,6 +21,8 @@ Tests:
 
 		cwd??
 
+		Try disabling BUILD_BULLET3 and see what happens?
+
 		Physics debug drawing
 
 		Add default constructors + initializer lists (Node, Material, ...)

@@ -25,9 +25,10 @@ SET(Bullet2FileLoader_HDRS
 
 # switched to static by Morgan
 ADD_LIBRARY(Bullet2FileLoader STATIC ${Bullet2FileLoader_SRCS} ${Bullet2FileLoader_HDRS})
-if (BUILD_SHARED_LIBS)
+# BUILD_SHARED_LIBS check disabled by Morgan
+#if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet2FileLoader Bullet3Common)
-endif ()
+#endif ()
 SET_TARGET_PROPERTIES(Bullet2FileLoader PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet2FileLoader PROPERTIES SOVERSION ${BULLET_VERSION})
 
