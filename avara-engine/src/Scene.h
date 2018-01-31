@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <assimp/scene.h>
+#include <boost/filesystem.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Types.h"
@@ -42,7 +43,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Scene(); // no want but Window is complaining about wanting a default contructor
-		Scene(const std::string& path);
+		Scene(const boost::filesystem::path& path);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -86,7 +87,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void loadFile(const std::string& path);
+		void loadFile(const boost::filesystem::path& path);
 		void addAIGeometryNodes(const aiScene* aiScene,
 								std::shared_ptr<Node> aeRootNode,
 								const std::vector<std::shared_ptr<GeometryElement>>& elements,

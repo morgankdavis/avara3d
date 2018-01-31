@@ -238,7 +238,6 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 
 boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 #if defined(MACOS)
-	
 	// https://stackoverflow.com/questions/799679/programmatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
 	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man3/dyld.3.html
 	
@@ -247,17 +246,13 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return boost::filesystem::path(path);
 	}
-	
 #elif defined(LINUX)
-	
 	char path[1024];
 	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
 		return boost::filesystem::path(path);
 	}
-	
 #elif defined(WINDOWS)
-	
 	// https://stackoverflow.com/questions/18783087/how-to-properly-use-getmodulefilename
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
 	
@@ -265,46 +260,37 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 	if (GetModuleFileName(NULL, path, 1024)) {
 		return boost::filesystem::path(path);
 	}
-	
 #endif
-	
 	return boost::none;
 }
 
 boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
-	
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
 		auto execPath = boost::filesystem::path(*execPathStr);
 		return execPath.parent_path();
 	}
-	
 	return boost::none;
 }
 
 boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 #if defined(MACOS) || defined(LINUX)
-	
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return boost::filesystem::path(cwd);
 	}
-	
 #else
-	
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
 	
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
 		return boost::filesystem::path(path);
 	}
-	
 #endif
-	
 	return boost::none;
 }
 
-boost::optional<string> ae::utils::LoadTextFile(const string &path) {
+boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -319,55 +305,106 @@ boost::optional<string> ae::utils::LoadTextFile(const string &path) {
 		infile.close();
 		return source;
 	}
-	return {};
+	return boost::none;
 }
 
-string ae::utils::ShaderSourceDirectoryPath() {
-#ifdef XCODE
-	return "../../../../avara-engine/shaders/";
-#else
-	return "../../../avara-engine/shaders/";
-#endif
-}
-
-string ae::utils::ShaderPath(const string& name, const string& type) {
-	return ShaderSourceDirectoryPath() + name + "." + type;
-}
-
-shared_ptr<string> ae::utils::ShaderSourceNamed(const string& name, const string& type) {
-	string fullPath = ShaderPath(name, type);
+boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
+//#ifdef XCODE
+//	return "../../../../avara-engine/shaders/";
+//#else
+//	return "../../../avara-engine/shaders/";
+//#endif
 	
-	auto source = LoadTextFile(fullPath);
-	if (source) {
-		return make_shared<string>(*source);
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+#ifdef XCODE
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
+#else
+		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
+#endif
 	}
-	return nullptr;
+	return boost::none;
 }
 
-string ae::utils::ImagesDirectoryPath() {
+boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& name, const string& type) {
+	
+	auto shadersDir = ShadersDirectory();
+	if (shadersDir) {
+		return *shadersDir / (name + "." + type);
+	}
+	return boost::none;
+	
+//	return ShaderSourceDirectory() + name + "." + type;
+}
+
+//shared_ptr<string> ae::utils::ShaderSourceNamed(const string& name, const string& type) {
+//	string fullPath = ShaderPath(name, type);
+//	
+//	auto source = LoadTextFile(fullPath);
+//	if (source) {
+//		return make_shared<string>(*source);
+//	}
+//	return nullptr;
+//}
+
+boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
+//#ifdef XCODE
+//	return "../../../../avara-engine/images/";
+//#else
+//	return "../../../avara-engine/images/";
+//#endif
+	
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
 #ifdef XCODE
-	return "../../../../avara-engine/images/";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
 #else
-	return "../../../avara-engine/images/";
+		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "images";
 #endif
+	}
+	return boost::none;
 }
 
 shared_ptr<Image> ae::utils::ImageNamed(const string& name, const string& type) {
-	string fullPath = ImagePath(name, type);
+	auto imagesDir = ImagesDirectory();
+	if (imagesDir) {
+		auto fullPath = *imagesDir / (name + "." + type);
+		return make_shared<Image>(fullPath.string());
+	}
+	return nullptr;
 	
-	return make_shared<Image>(fullPath);
+//	string fullPath = ImagePath(name, type);
+//	
+//	return make_shared<Image>(fullPath);
 }
 
-string ae::utils::ImagePath(const string& name, const string& type) {
-	return ImagesDirectoryPath() + name + "." + type;
+boost::optional<boost::filesystem::path> ae::utils::ImagePath(const string& name, const string& type) {
+	
+	auto imagesDir = ImagesDirectory();
+	if (imagesDir) {
+		return *imagesDir / (name + "." + type);
+	}
+	return boost::none;
+	
+//	return ImagesDirectory() + name + "." + type;
 }
 
-string ae::utils::TestDataDirectoryPath() {
+boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
+//#ifdef XCODE
+//	return "../../../../tests/testdata/";
+//#else
+//	return "../../../tests/testdata/";
+//#endif
+	
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
 #ifdef XCODE
-	return "../../../../tests/testdata/";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "testdata";
 #else
-	return "../../../tests/testdata/";
+		return execDir->parent_path().parent_path().parent_path() / "tests" / "testdata";
 #endif
+	}
+	return boost::none;
 }
 
 shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shared_ptr scoped?
@@ -377,8 +414,15 @@ shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shar
 shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 												 const string& type) {
 	
-	string fullPath = TestDataDirectoryPath() + "scenes/" + name + "." + type;
-	return make_shared<Scene>(fullPath);
+	auto testDataDir = TestDataDirectory();
+	if (testDataDir) {
+		auto fullPath = *testDataDir / ("scenes/" + name + "." + type);
+		return make_shared<Scene>(fullPath.string());
+	}
+	return nullptr;
+	
+//	string fullPath = TestDataDirectory() + "scenes/" + name + "." + type;
+//	return make_shared<Scene>(fullPath);
 }
 
 shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
@@ -390,8 +434,17 @@ shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
 												 const string& type,
 												 bool flipHorizontal) {
 	
-	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
-	return make_shared<Image>(fullPath, flipHorizontal);
+	auto testDataDir = TestDataDirectory();
+	if (testDataDir) {
+		auto fullPath = *testDataDir / ("images/" + name + "." + type);
+		return make_shared<Image>(fullPath.string(), flipHorizontal);
+	}
+	return nullptr;
+	
+	
+	
+//	string fullPath = TestDataDirectory() + "images/" + name + "." + type;
+//	return make_shared<Image>(fullPath, flipHorizontal);
 }
 
 shared_ptr<vector<shared_ptr<Image>>> ae::utils::TestCubeNamed(const string& name,
@@ -419,7 +472,6 @@ boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
 #endif
 	}
-		
 	return boost::none;
 }
 
@@ -428,7 +480,6 @@ boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
 	if (fontsDir) {
 		return *fontsDir / (name + "." + type);
 	}
-	
 	return boost::none;
 }
 
@@ -447,13 +498,27 @@ void ae::utils::SaveSnapshot(Window& window) {
 	
 	AE_LOG->info("Saving snapshot '{}'...", filename);
 	
-	image->writePNG(filename);
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+		auto fullPath = *execDir / filename;
+		image->writePNG(fullPath);
+	}
+	else {
+		AE_LOG->warn("Couldn't locate executable directory.");
+	}
 }
 
 void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate) {
 	char filename[256] = "";
 	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
-	window.startGIFRecording(filename, maxHeight, maxFramerate);
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+		auto fullPath = *execDir / filename;
+		window.startGIFRecording(fullPath.c_str(), maxHeight, maxFramerate);
+	}
+	else {
+		AE_LOG->warn("Couldn't locate executable directory.");
+	}
 }
 
 void ae::utils::StopGIFRecording(Window& window) {

@@ -13,6 +13,8 @@
 #include <functional>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include "Types.h"
 
 
@@ -81,7 +83,8 @@ namespace ae {
 		std::shared_ptr<Image> snapshot() const;
 		
 		bool recordingGIF() const;
-		void startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate);
+		void startGIFRecording(const boost::filesystem::path& path,
+							   unsigned maxHeight, unsigned maxFramerate);
 		void stopGIFRecording();
 		
 		/*
@@ -146,7 +149,7 @@ namespace ae {
 		void setupRenderBuffer();
 		void mainLoop();
 		void updateStatsOverlay(DrawStats& stats);
-		float drawText(std::string line, float size, float dx, float dy);
+		float drawText(std::string text, float size, float dx, float dy);
 		void saveGIFFrame(float deltaSeconds);
 		
 		

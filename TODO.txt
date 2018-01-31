@@ -13,7 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		Current exec directory for all relative file loading
 
 		Try disabling BUILD_BULLET3 and see what happens?
 

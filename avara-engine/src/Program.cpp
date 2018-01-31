@@ -89,25 +89,31 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			string vsPath = ShaderPath(name, "vert");
-			string fsPath = ShaderPath(name, "frag");
+			auto vsPath = ShaderPath(name, "vert");
+			auto fsPath = ShaderPath(name, "frag");
 			
-			auto vsSource = LoadTextFile(vsPath);
-			auto fsSource = LoadTextFile(fsPath);
-			
-	//		cout << "vs: " << *vs << endl;
-	//		cout << "fs: " << *fs << endl;
-			
-			if (vsSource && fsSource) {
-				vertexShaderSource(*vsSource);
-				fragmentShaderSource(*fsSource);
+			if (vsPath && fsPath) {
+
+				auto vsSource = LoadTextFile(*vsPath);
+				auto fsSource = LoadTextFile(*fsPath);
 				
-				prepare();
+				//		cout << "vs: " << *vs << endl;
+				//		cout << "fs: " << *fs << endl;
+				
+				if (vsSource && fsSource) {
+					vertexShaderSource(*vsSource);
+					fragmentShaderSource(*fsSource);
+					
+					prepare();
+				}
+				else {
+					//cout << "Couldn't load shader files." << endl;
+					//string errMsg = "Couldn't load shader sources.";
+					throw Exception("Couldn't load shader sources.");
+				}
 			}
 			else {
-				//cout << "Couldn't load shader files." << endl;
-				//string errMsg = "Couldn't load shader sources.";
-				throw Exception("Couldn't load shader sources.");
+				throw Exception("Couldn't locate shader sources.");
 			}
 		}
 }

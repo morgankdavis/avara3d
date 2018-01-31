@@ -14,6 +14,8 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 
 namespace ae {
 
@@ -26,7 +28,7 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Image(const std::string path, bool flipHorizontal=true);
+		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
 		Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal=true);
 		~Image();
 		
@@ -36,7 +38,7 @@ namespace ae {
 		
 		unsigned width() const;
 		unsigned height() const;
-		bool writePNG(std::string path) const;
+		bool writePNG(boost::filesystem::path path) const;
 		
 		
 		/***************************************************************************************
@@ -51,7 +53,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void loadFile(std::string path, bool flipHorizontal);
+		void loadFile(boost::filesystem::path path, bool flipHorizontal);
 		void flip();
 		
 		unsigned			m_width;

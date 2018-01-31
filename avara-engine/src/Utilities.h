@@ -99,14 +99,14 @@ namespace ae {
 		boost::optional<boost::filesystem::path> ExecutableDirectory();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
 		
-		boost::optional<std::string> LoadTextFile(const std::string &path);
+		boost::optional<std::string> LoadTextFile(boost::filesystem::path& path);
 		
-		std::string ShaderSourceDirectoryPath();
-		std::string ShaderPath(const std::string& name, const std::string& type);
-		std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
+		boost::optional<boost::filesystem::path> ShadersDirectory();
+		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name, const std::string& type);
+		//std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
 		
-		std::string ImagesDirectoryPath();
-		std::string ImagePath(const std::string& name, const std::string& type);
+		boost::optional<boost::filesystem::path> ImagesDirectory();
+		boost::optional<boost::filesystem::path> ImagePath(const std::string& name, const std::string& type);
 		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>> TestCubeNamed(const std::string& name,
 																		   const std::string& type);
@@ -114,7 +114,7 @@ namespace ae {
 		boost::optional<boost::filesystem::path> FontsDirectory();
 		boost::optional<boost::filesystem::path> FontPath(const std::string& name, const std::string& type);
 
-		std::string TestDataDirectoryPath();
+		boost::optional<boost::filesystem::path> TestDataDirectory();
 		
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,

@@ -27,7 +27,7 @@ using namespace std;
      MARK:   Lifecycle
  **************************************************************************************/
 
-Image::Image(const string path, bool flipHorizontal):
+Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
 	m_data(nullptr),
 	m_width(0),
 	m_height(0) {
@@ -67,7 +67,7 @@ unsigned Image::height() const {
 	return m_height;
 }
 
-bool Image::writePNG(std::string path) const {
+bool Image::writePNG(boost::filesystem::path path) const {
 	
 	// int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes)
 	
@@ -90,10 +90,10 @@ unsigned char* Image::data() const {
      MARK:   Private
  **************************************************************************************/
 
-void Image::loadFile(std::string path, bool flipHorizontal) {
+void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	
 	//cout << "Loading image at path: " << m_path << endl;
-	AE_LOG->info("Loading image at path '{}'...", path);
+	AE_LOG->info("Loading image at path '{}'...", path.string());
 	
 	int width, height, num_byte_pix;
 	const char *path_cstr = path.c_str();

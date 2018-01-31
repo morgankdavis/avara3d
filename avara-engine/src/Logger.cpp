@@ -13,10 +13,12 @@
 //#include <spdlog/spdlog.h>
 
 #include "Global.h"
+#include "Utilities.h"
 //#include "LoggerManager.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace spdlog;
 using namespace std;
 
@@ -38,10 +40,17 @@ Logger::Logger(string name, LoggerSink sinks):
 		static bool initialized = false;
 		if (!initialized) {
 			
-			i_spdlogMainFileSink = make_shared<sinks::rotating_file_sink_mt>(string(LOG_MAIN_FILE_NAME) + ".log",
-																			 LOG_FILE_SIZE,
-																			 LOG_FILE_ROTATIONS);
-			i_spdlogSTDOUTSink = make_shared<sinks::stdout_sink_st>();
+			auto execDir = ExecutableDirectory();
+			if (execDir) {
+				auto logPath = *execDir / (string(LOG_MAIN_FILE_NAME) + ".log");
+				i_spdlogMainFileSink = make_shared<sinks::rotating_file_sink_mt>(logPath.c_str(),
+																				 LOG_FILE_SIZE,
+																				 LOG_FILE_ROTATIONS);
+				i_spdlogSTDOUTSink = make_shared<sinks::stdout_sink_st>();
+			}
+			else {
+				AE_LOG->warn("Couldn't locate executable directory.");
+			}
 			
 			initialized = true;
 		}

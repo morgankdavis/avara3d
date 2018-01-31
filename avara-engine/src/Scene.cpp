@@ -84,7 +84,7 @@ typedef struct {
      MARK:   Static
  **************************************************************************************/
 
-static boost::optional<string> FilepathFromTextureFilename(const string& filename, const string& basePath) {
+static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename, const string& basePath) {
 
 	string textureName = filename;
 	if (textureName.substr(0,1) == "/") {
@@ -96,7 +96,7 @@ static boost::optional<string> FilepathFromTextureFilename(const string& filenam
 	
 	try {
 		path texturePath = canonical(path(textureName), path(basePath));
-		return texturePath.string();
+		return texturePath;
 	}
 	catch (const boost::filesystem::filesystem_error& e) {
 		AE_LOG->error("Error expanding path: {}", e.what());
@@ -111,7 +111,16 @@ static boost::optional<string> FilepathFromTextureFilename(const string& filenam
 
 static shared_ptr<Image> MissingTextureImage() {
 	static shared_ptr<Image> image = nullptr;
-	if (!image) image = make_shared<Image>(ImagesDirectoryPath() + "missing_texture2.png");
+	if (!image) {
+		auto imagesDir = ImagesDirectory();
+		if (imagesDir) {
+			auto imagePath = *imagesDir / "missing_texture2.png";
+			image = make_shared<Image>(imagePath.string());
+		}
+		else {
+			AE_LOG->warn("Couldn't locate images directory.");
+		}
+	}
 	return image;
 }
 
@@ -159,10 +168,10 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		aiString filename;
 		if (aiMaterial->GetTexture(type, 0, &filename,
 								   NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-			boost::optional<string> texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
+			auto texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
 			if (texturePath) {
 				//cout << "Texture path: " << *texturePath << endl;
-				AE_LOG->debug("Texture path: {}", *texturePath);
+				AE_LOG->debug("Texture path: {}", texturePath->string());
 				auto textureImage = make_shared<Image>(*texturePath);
 				return make_shared<MaterialProperty>(textureImage);
 			}
@@ -240,7 +249,7 @@ Scene::Scene():
 		m_glEnvironmentUBO = ubo;
 }
 
-Scene::Scene(const std::string& path):
+Scene::Scene(const boost::filesystem::path& path):
 	Scene() {
 	//m_rootNode(make_shared<Node>("Root node")) {
 
@@ -435,10 +444,10 @@ vec3 Scene::extent() const{
      MARK:   Private
  **************************************************************************************/
 
-void Scene::loadFile(const string& importPath) {
+void Scene::loadFile(const boost::filesystem::path& importPath) {
 	
 	///cout << "Loading scene: " << importPath << endl;
-	AE_LOG->info("Loading scene: {}", importPath);
+	AE_LOG->info("Loading scene: {}", importPath.string());
 
 	unsigned int assimpFlags = aiProcess_Triangulate
 		| aiProcess_SortByPType

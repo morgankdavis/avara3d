@@ -280,7 +280,8 @@ bool Window::recordingGIF() const {
 	return m_recordingGIF;
 }
 
-void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigned maxFramerate) {
+void Window::startGIFRecording(const boost::filesystem::path& path,
+							   unsigned maxHeight, unsigned maxFramerate) {
 	if (!m_recordingGIF) {
 		AE_LOG->info("Starting GIF recording...");
 		
@@ -298,7 +299,7 @@ void Window::startGIFRecording(std::string filename, unsigned maxHeight, unsigne
 		
 		i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		// gif-h frame time is in 100ths of a second
-		GifBegin(i_gifWriter, filename.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
+		GifBegin(i_gifWriter, path.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
 		
 		m_recordingGIF = true;
 	}
@@ -694,7 +695,7 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	dy += (textSize + hPadding);
 }
 
-float Window::drawText(string line, float size, float dx, float dy) {
+float Window::drawText(string text, float size, float dx, float dy) {
 	// must setup fons GL state first
 	
 	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
@@ -704,11 +705,11 @@ float Window::drawText(string line, float size, float dx, float dy) {
 	
 	fonsSetColor(m_fonsContext, black);
 	fonsSetBlur(m_fonsContext, 1);
-	fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
+	fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
 	
 	fonsSetColor(m_fonsContext, white);
 	fonsSetBlur(m_fonsContext, 0);
-	return fonsDrawText(m_fonsContext, dx, dy, line.c_str(), NULL);
+	return fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
 }
 
 void Window::saveGIFFrame(float deltaSeconds) {
