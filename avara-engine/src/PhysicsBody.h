@@ -59,8 +59,8 @@ namespace ae {
 		float mass() const;
 		void mass(float mass);
 		
-		float charge() const;
-		void charge(float charge);
+		/* REMOVE? */ float charge() const;
+		/* REMOVE? */ void charge(float charge);
 		
 		float friction() const;
 		void friction(float friction);
@@ -83,9 +83,9 @@ namespace ae {
 		glm::vec3 velocity() const;
 		void velocity(glm::vec3 velocity);
 		
-		glm::vec4 angularVelocity() const;
-		void angularVelocity(glm::vec4 velocity);
-		
+		glm::vec3 angularVelocity() const;
+		void angularVelocity(glm::vec3 velocity);
+
 		bool resting() const;
 		void resting(bool flag);
 		
@@ -98,7 +98,7 @@ namespace ae {
 		
 		void applyForce(glm::vec3 force, bool impulse);
 		void applyForce(glm::vec3 force, glm::vec3 location, bool impulse);
-		void applyTorque(glm::vec4 force, bool impulse);
+		void applyTorque(glm::vec3 torque, bool impulse);
 		void clearForces();
 		
 		void resetTransform();
@@ -130,7 +130,7 @@ namespace ae {
 		float 									m_angularDamping;
 		glm::vec3 								m_momentOfInertia;
 		glm::vec3 								m_velocity;
-		glm::vec4 								m_angularVelocity;
+		glm::vec3 								m_angularVelocity;
 		bool 									m_resting;
 		bool 									m_allowsResting;
 		

@@ -42,7 +42,7 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type):
 	m_angularDamping(0.0),
 	m_momentOfInertia({0, 0, 0}),
 	m_velocity({0, 0, 0}),
-	m_angularVelocity({0, 0, 0, 0}),
+	m_angularVelocity({0, 0, 0}),
 	m_resting(false),
 	m_allowsResting(true),
 	m_node(nullptr),
@@ -165,7 +165,6 @@ void PhysicsBody::momentOfInertia(vec3 moment) {
 	m_momentOfInertia = moment;
 }
 
-
 vec3 PhysicsBody::velocity() const {
 	return m_velocity;
 }
@@ -174,11 +173,11 @@ void PhysicsBody::velocity(vec3 velocity) {
 	m_velocity = velocity;
 }
 
-vec4 PhysicsBody::angularVelocity() const {
+vec3 PhysicsBody::angularVelocity() const {
 	return m_angularVelocity;
 }
 
-void PhysicsBody::angularVelocity(vec4 velocity) {
+void PhysicsBody::angularVelocity(vec3 velocity) {
 	m_angularVelocity = velocity;
 }
 
@@ -198,24 +197,34 @@ void PhysicsBody::allowsResting(bool flag) {
 	m_allowsResting = flag;
 }
 
-void PhysicsBody::applyForce(glm::vec3 force, bool impulse) {
-	
+void PhysicsBody::applyForce(vec3 force, bool impulse) {
+	applyForce(force, {0, 0, 0}, impulse);
 }
 
-void PhysicsBody::applyForce(glm::vec3 force, glm::vec3 location, bool impulse) {
-	
+void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
+	if (m_btRigidBody) {
+		if (impulse) m_btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+		else m_btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+	}
 }
 
-void PhysicsBody::applyTorque(glm::vec4 force, bool impulse) {
-	
+void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
+	if (m_btRigidBody) {
+		if (impulse) m_btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
+		else  m_btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
+	}
 }
 
 void PhysicsBody::clearForces() {
-	
+	if (m_btRigidBody) m_btRigidBody->clearForces();
 }
 
 void PhysicsBody::resetTransform() {
-	
+	if (m_node) {
+		btTransform transform;
+		transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
+		m_btMotionState = make_shared<btDefaultMotionState>(transform);
+	}
 }
 
 /***************************************************************************************
@@ -233,9 +242,10 @@ void PhysicsBody::addedToNode(Node& node) {
 		m_shape->createBTShape();
 	}
 	
-	btTransform transform;
-	transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
-	m_btMotionState = make_shared<btDefaultMotionState>(transform);
+//	btTransform transform;
+//	transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
+//	m_btMotionState = make_shared<btDefaultMotionState>(transform);
+	resetTransform();
 
 	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
 
@@ -268,7 +278,7 @@ void PhysicsBody::addedToNode(Node& node) {
 	m_btRigidBody->setLinearFactor(BTVector3FromGLMVec3(m_velocityFactor));
 	m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
 	m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
-	m_btRigidBody->setAngularVelocity(BTVector4FromGLMVec4(m_angularVelocity));
+	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
 	
 	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
 }

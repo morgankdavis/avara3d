@@ -20,6 +20,8 @@ Tests:
 
 		Add default constructors + initializer lists (Node, Material, ...)
 
+		When setting note position, rotation, scale, set on physics body
+
 		Make sure PhysicsBody is initialized properly when:
 			Added to unattached node, then node is added to tree
 			Added to node after in tree
@@ -55,9 +57,8 @@ Tests:
 	
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
-	33 - constraints
-	34 - IK
-	35 - fields
+	33 - ik-constraints
+	34 - category-contact-collision-bitmasks
 
 	40 - multithreading
 		#include <thread>

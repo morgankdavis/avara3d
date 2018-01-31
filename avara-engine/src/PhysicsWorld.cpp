@@ -71,25 +71,37 @@ void PhysicsWorld::timestep(float timestep) {
 }
 
 void PhysicsWorld::updateCollisionPairs() {
-	
+	m_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
 shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
 													 shared_ptr<PhysicsBody> bodyB) {
+	
+	// contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
+	
 	return nullptr;
 }
 
 shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> body) {
+	
+	// contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
+	
 	return nullptr;
 }
 
 shared_ptr<HitTestResult> PhysicsWorld::rayTest(vec3 fromVec, vec3 toVec) {
+	
+	//rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
+	
 	return nullptr;
 }
 
 shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsContact> contact,
 														 const mat4& fromMat,
 														 const mat4& toMat) {
+	
+	// convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const 
+
 	return nullptr;
 }
 
