@@ -14,25 +14,23 @@
 #include <fstream>
 #include <memory>
 
-#ifdef WINDOWS
-#include <Windows.h>
-#endif
-
 #if defined(MACOS) || defined(LINUX)
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
 #endif
 
+#ifdef MACOS
+#include <CoreGraphics/CoreGraphics.h>
+#include <mach-o/dyld.h>
+#endif
+
 #ifdef LINUX
 #include <libgen.h>
 #endif
 
-#include <glm/gtc/quaternion.hpp>
-
-#ifdef MACOS
-#include <CoreGraphics/CoreGraphics.h>
-#include <mach-o/dyld.h>
+#ifdef WINDOWS
+#include <Windows.h>
 #endif
 
 #include <GLFW/glfw3.h>
@@ -41,6 +39,8 @@
 #endif
 #include <GLFW/glfw3native.h>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "Color.h"
 #include "Image.h"
 #include "Logger.h"
@@ -48,10 +48,10 @@
 #include "Window.h"
 
 
-
 using namespace std;
 using namespace glm;
-using namespace boost;
+//using namespace boost;
+//using namespace boost::filesystem;
 using namespace ae;
 
 
@@ -128,7 +128,7 @@ string ae::utils::StringFromColor(const Color& c) {
  MARK:   Conversion Utilities
  **************************************************************************************/
 
-std::string ae::utils::DateTimeString() {
+string ae::utils::DateTimeString() {
 	
 	char buffer[256];
 	
@@ -236,7 +236,7 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
  MARK:   File Utilities
  **************************************************************************************/
 
-boost::optional<string> ae::utils::ExecutablePath() {
+boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 #if defined(MACOS)
 	
 	// https://stackoverflow.com/questions/799679/programmatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
@@ -245,7 +245,7 @@ boost::optional<string> ae::utils::ExecutablePath() {
 	char path[1024];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
-		return string(path);
+		return boost::filesystem::path(path);
 	}
 	
 #elif defined(LINUX)
@@ -253,8 +253,7 @@ boost::optional<string> ae::utils::ExecutablePath() {
 	char path[1024];
 	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
-		//path = dirname(path);
-		return string(path);
+		return boost::filesystem::path(path);
 	}
 	
 #elif defined(WINDOWS)
@@ -262,12 +261,9 @@ boost::optional<string> ae::utils::ExecutablePath() {
 	// https://stackoverflow.com/questions/18783087/how-to-properly-use-getmodulefilename
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
 	
-	//wchar_t path[1024];
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
-		//wstring ws(path);
-		//return string(ws.begin(), ws.end());
-		return string(path);
+		return boost::filesystem::path(path);
 	}
 	
 #endif
@@ -275,28 +271,32 @@ boost::optional<string> ae::utils::ExecutablePath() {
 	return boost::none;
 }
 
-boost::optional<string> ae::utils::ExecutableDirectory() {
+boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
+	
+	auto execPathStr = ExecutablePath();
+	if (execPathStr) {
+		auto execPath = boost::filesystem::path(*execPathStr);
+		return execPath.parent_path();
+	}
+	
 	return boost::none;
 }
 
-boost::optional<string> ae::utils::CurrentWorkingDirectory() {
+boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 #if defined(MACOS) || defined(LINUX)
 	
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
-		return string(cwd);
+		return boost::filesystem::path(cwd);
 	}
 	
 #else
 	
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
 	
-	//wchar_t path[1024];
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
-		//wstring ws(path);
-		//return string(ws.begin(), ws.end());
-		return string(path);
+		return boost::filesystem::path(path);
 	}
 	
 #endif
@@ -304,7 +304,7 @@ boost::optional<string> ae::utils::CurrentWorkingDirectory() {
 	return boost::none;
 }
 
-optional<string> ae::utils::LoadTextFile(const string &path) {
+boost::optional<string> ae::utils::LoadTextFile(const string &path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -322,7 +322,7 @@ optional<string> ae::utils::LoadTextFile(const string &path) {
 	return {};
 }
 
-std::string ae::utils::ShaderSourceDirectoryPath() {
+string ae::utils::ShaderSourceDirectoryPath() {
 #ifdef XCODE
 	return "../../../../avara-engine/shaders/";
 #else
@@ -334,7 +334,7 @@ string ae::utils::ShaderPath(const string& name, const string& type) {
 	return ShaderSourceDirectoryPath() + name + "." + type;
 }
 
-std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& name, const std::string& type) {
+shared_ptr<string> ae::utils::ShaderSourceNamed(const string& name, const string& type) {
 	string fullPath = ShaderPath(name, type);
 	
 	auto source = LoadTextFile(fullPath);
@@ -344,7 +344,7 @@ std::shared_ptr<std::string> ae::utils::ShaderSourceNamed(const std::string& nam
 	return nullptr;
 }
 
-std::string ae::utils::ImagesDirectoryPath() {
+string ae::utils::ImagesDirectoryPath() {
 #ifdef XCODE
 	return "../../../../avara-engine/images/";
 #else
@@ -352,13 +352,13 @@ std::string ae::utils::ImagesDirectoryPath() {
 #endif
 }
 
-std::shared_ptr<Image> ae::utils::ImageNamed(const std::string& name, const std::string& type) {
+shared_ptr<Image> ae::utils::ImageNamed(const string& name, const string& type) {
 	string fullPath = ImagePath(name, type);
 	
 	return make_shared<Image>(fullPath);
 }
 
-std::string ae::utils::ImagePath(const std::string& name, const std::string& type) {
+string ae::utils::ImagePath(const string& name, const string& type) {
 	return ImagesDirectoryPath() + name + "." + type;
 }
 
@@ -370,34 +370,34 @@ string ae::utils::TestDataDirectoryPath() {
 #endif
 }
 
-std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shared_ptr scoped?
+shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shared_ptr scoped?
 	return TestSceneNamed(name, "dae");
 }
 
-std::shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
+shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 												 const string& type) {
 	
 	string fullPath = TestDataDirectoryPath() + "scenes/" + name + "." + type;
 	return make_shared<Scene>(fullPath);
 }
 
-std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
+shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
 												 bool flipHorizontal) {
 	return TestImageNamed(name, "png", flipHorizontal);
 }
 
-std::shared_ptr<Image> ae::utils::TestImageNamed(const std::string& name,
-												 const std::string& type,
+shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
+												 const string& type,
 												 bool flipHorizontal) {
 	
 	string fullPath = TestDataDirectoryPath() + "images/" + name + "." + type;
 	return make_shared<Image>(fullPath, flipHorizontal);
 }
 
-std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(const std::string& name,
-																			  const std::string& type) {
+shared_ptr<vector<shared_ptr<Image>>> ae::utils::TestCubeNamed(const string& name,
+																			  const string& type) {
 	
-	auto cube = make_shared<vector<std::shared_ptr<Image>>>();
+	auto cube = make_shared<vector<shared_ptr<Image>>>();
 	
 	cube->push_back(TestImageNamed(name + "_posx", type, false));
 	cube->push_back(TestImageNamed(name + "_negx", type, false));
@@ -410,16 +410,26 @@ std::shared_ptr<std::vector<std::shared_ptr<Image>>> ae::utils::TestCubeNamed(co
 }
 
 
-std::string ae::utils::FontsDirectoryPath() {
+boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
 #ifdef XCODE
-	return "../../../../avara-engine/fonts/";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
 #else
-	return "../../../avara-engine/fonts/";
+		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
 #endif
+	}
+		
+	return boost::none;
 }
 
-std::string ae::utils::FontPath(const std::string& name, const std::string& type) {
-	return FontsDirectoryPath() + name + "." + type;
+boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name, const string& type) {
+	auto fontsDir = FontsDirectory();
+	if (fontsDir) {
+		return *fontsDir / (name + "." + type);
+	}
+	
+	return boost::none;
 }
 
 /***************************************************************************************

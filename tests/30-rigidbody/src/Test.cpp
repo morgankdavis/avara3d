@@ -69,7 +69,32 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 int Test::run(const vector<string>& args) {
 	
-	//cout << "CWD: " << CurrentWorkingDirectory() << endl;
+	
+	auto epath = ExecutablePath();
+	if (epath) {
+		cout << "ExecutablePath: " << *epath << endl;
+	}
+	else {
+		cout << "Can't get ExecutablePath" << endl;
+	}
+	
+	auto edir = ExecutableDirectory();
+	if (edir) {
+		cout << "ExecutableDirectory: " << *edir << endl;
+	}
+	else {
+		cout << "Can't get ExecutableDirectory" << endl;
+	}
+	
+	auto cwd = CurrentWorkingDirectory();
+	if (cwd) {
+		cout << "CurrentWorkingDirectory: " << *cwd << endl;
+	}
+	else {
+		cout << "Can't get CurrentWorkingDirectory" << endl;
+	}
+	
+	
 	
 	LoggerSink sinks = (LoggerSink)0;
 	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);

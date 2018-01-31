@@ -13,9 +13,7 @@ Tests:
 
 	30 - rigidbodies
 
-		cwd??
-
-		cmake CMakelists.txt -DASSIMP_BUILD_NO_X_IMPORTER
+		Current exec directory for all relative file loading
 
 		Try disabling BUILD_BULLET3 and see what happens?
 
@@ -88,6 +86,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Convert all path manipulations to boost::filesystem
 
 	Log level per log?
 

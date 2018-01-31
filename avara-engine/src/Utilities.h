@@ -21,6 +21,7 @@
 #include <assimp/types.h>
 #include <assimp/vector2.h>
 #include <boost/optional.hpp>
+#include <boost/filesystem.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
@@ -94,9 +95,9 @@ namespace ae {
 		 MARK:   File Utilities
 		 **************************************************************************************/
 		
-		boost::optional<std::string> ExecutablePath();
-		boost::optional<std::string> ExecutableDirectory();
-		boost::optional<std::string> CurrentWorkingDirectory();
+		boost::optional<boost::filesystem::path> ExecutablePath();
+		boost::optional<boost::filesystem::path> ExecutableDirectory();
+		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
 		
 		boost::optional<std::string> LoadTextFile(const std::string &path);
 		
@@ -110,8 +111,8 @@ namespace ae {
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>> TestCubeNamed(const std::string& name,
 																		   const std::string& type);
 		
-		std::string FontsDirectoryPath();
-		std::string FontPath(const std::string& name, const std::string& type);
+		boost::optional<boost::filesystem::path> FontsDirectory();
+		boost::optional<boost::filesystem::path> FontPath(const std::string& name, const std::string& type);
 
 		std::string TestDataDirectoryPath();
 		

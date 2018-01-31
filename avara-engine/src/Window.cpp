@@ -462,15 +462,22 @@ void Window::initFontstash() {
 	
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
-	string fontPath = FontPath(fontName, fontType);
+	auto fontPath = FontPath(fontName, fontType);
 	
-	m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath.c_str());
-	if (m_fonsFont == FONS_INVALID) {
+	if (fontPath) {
+		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
+		if (m_fonsFont == FONS_INVALID) {
+			char errStr[1024];
+			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
+			throw Exception(errStr);
+			//AE_LOG->error("Could not load font: {}", fontPath);
+			
+		}
+	}
+	else {
 		char errStr[1024];
-		sprintf(errStr, "Could not load font: %s\n", fontPath.c_str());
+		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
 		throw Exception(errStr);
-		//AE_LOG->error("Could not load font: {}", fontPath);
-		
 	}
 }
 
