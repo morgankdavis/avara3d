@@ -299,7 +299,7 @@ void Window::startGIFRecording(const boost::filesystem::path& path,
 		
 		i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		// gif-h frame time is in 100ths of a second
-		GifBegin(i_gifWriter, path.c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
+		GifBegin(i_gifWriter, path.string().c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
 		
 		m_recordingGIF = true;
 	}
