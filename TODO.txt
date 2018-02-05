@@ -1,4 +1,4 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
@@ -14,7 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
-		Try disabling BUILD_BULLET3 and see what happens?
+		Windows boost::filesystem::path c_str() is wchar_t, not char_t
+			https://msdn.microsoft.com/en-us/library/d1ae6tz5.aspx
 
 		Physics debug drawing
 
