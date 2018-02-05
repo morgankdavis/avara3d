@@ -94,7 +94,9 @@ void GeometryElement::draw(const mat4& modelMat,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	unsigned int numFaces = m_faces.size();
 	stats.polygons += numFaces;
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	unsigned faceSize = sizeof(Face);
+	//glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	
 	program->unuse();
 }
@@ -228,12 +230,13 @@ void GeometryElement::loadVertexData(const Program& program) {
 	//cout << "Loading vertex data... " << &program << endl;
 	AE_LOG->info("Loading vertex data...");
 	
-	auto verts = m_vertices;
-	
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER,
+				 m_vertices.size() * sizeof(Vertex),
+				 &(m_vertices[0]),
+				 GL_STATIC_DRAW);
 	m_glVBO = vbo;
 	
 	glGenVertexArrays(1, &m_glVAO);
