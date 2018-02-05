@@ -276,7 +276,7 @@ boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 	string line;
 	string source = "";
 	ifstream infile;
-	const char *path_cstr = path.c_str();
+	const char *path_cstr = path.string().c_str();
 	infile.open(path_cstr);
 	if (infile.is_open()) {
 		while (!infile.eof()) {

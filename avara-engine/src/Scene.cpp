@@ -461,7 +461,7 @@ void Scene::loadFile(const boost::filesystem::path& importPath) {
 		| aiProcess_ImproveCacheLocality
 		| aiProcess_ValidateDataStructure;
 
-	const aiScene* scene = aiImportFile(importPath.c_str(), assimpFlags);
+	const aiScene* scene = aiImportFile(importPath.string().c_str(), assimpFlags);
 	
 	if (scene) {
 		

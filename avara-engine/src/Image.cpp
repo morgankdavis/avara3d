@@ -71,7 +71,7 @@ bool Image::writePNG(boost::filesystem::path path) const {
 	
 	// int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes)
 	
-	stbi_write_png(path.c_str(), m_width, m_height, 4, m_data, m_width*4);
+	stbi_write_png(path.string().c_str(), m_width, m_height, 4, m_data, m_width*4);
 	
 	// ret 0 == fail
 	
@@ -96,7 +96,7 @@ void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	AE_LOG->info("Loading image at path '{}'...", path.string());
 	
 	int width, height, num_byte_pix;
-	const char *path_cstr = path.c_str();
+	const char *path_cstr = path.string().c_str();
 	m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
 	
 	if (!m_data) {
