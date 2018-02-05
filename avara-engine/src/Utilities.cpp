@@ -50,8 +50,6 @@
 
 using namespace std;
 using namespace glm;
-//using namespace boost;
-//using namespace boost::filesystem;
 using namespace ae;
 
 
@@ -75,18 +73,18 @@ ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
 }
 
 ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
-    // "GLM uses column major ordering, so the addressing is m[col][row]"
-    // http://stackoverflow.com/questions/26454838/glm-multiplication-order
-
-    char str[1024];
-    snprintf(str, sizeof(str),
-             "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
-              m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
-              m[0][1], m[1][1], m[2][1], m[3][1],
-              m[0][2], m[1][2], m[2][2], m[3][2],
-              m[0][3], m[1][3], m[2][3], m[3][3]);
-
-    return (os << str);
+	// "GLM uses column major ordering, so the addressing is m[col][row]"
+	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
+	
+	char str[1024];
+	snprintf(str, sizeof(str),
+			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
+			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+			 m[0][1], m[1][1], m[2][1], m[3][1],
+			 m[0][2], m[1][2], m[2][2], m[3][2],
+			 m[0][3], m[1][3], m[2][3], m[3][3]);
+	
+	return (os << str);
 }
 
 ostream& ae::utils::operator<<(ostream& os, const Color& c) {
@@ -129,27 +127,20 @@ string ae::utils::StringFromColor(const Color& c) {
  **************************************************************************************/
 
 string ae::utils::DateTimeString() {
-	
 	char buffer[256];
-	
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	
 	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
 #else
-	// gettimeofday() is POSIX
-	
 	timeval curTime;
-	gettimeofday(&curTime, NULL);
+	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
-	
 	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
 	sprintf(buffer, "%s.%03d", buffer, milli);
 #endif
-	
 	return string(buffer);
 }
 
@@ -161,10 +152,9 @@ vec3 ae::utils::GLMVec3FromAIVector3D(const aiVector3D& from) {
 	return vec3(from.x, from.y, from.z);
 }
 
-// https://github.com/mruan/gl-exp/blob/master/src/math_util.hpp
 mat4 ae::utils::GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from) {
 	mat4 to;
-
+	
 	to[0][0] = from.a1; to[1][0] = from.a2;
 	to[2][0] = from.a3; to[3][0] = from.a4;
 	to[0][1] = from.b1; to[1][1] = from.b2;
@@ -173,7 +163,7 @@ mat4 ae::utils::GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from) {
 	to[2][2] = from.c3; to[3][2] = from.c4;
 	to[0][3] = from.d1; to[1][3] = from.d2;
 	to[2][3] = from.d3; to[3][3] = from.d4;
-
+	
 	return to;
 }
 
@@ -200,7 +190,7 @@ btVector4 ae::utils::BTVector4FromGLMVec4(glm::vec4& from) {
 void ae::utils::CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG->warn("*** glGetError: {} ***", err);
+		AE_LOG->warn("*** GL error: {} ***", err);
 	}
 }
 
@@ -238,9 +228,6 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 
 boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 #if defined(MACOS)
-	// https://stackoverflow.com/questions/799679/programmatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
-	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man3/dyld.3.html
-	
 	char path[1024];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
@@ -253,9 +240,6 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 		return boost::filesystem::path(path);
 	}
 #elif defined(WINDOWS)
-	// https://stackoverflow.com/questions/18783087/how-to-properly-use-getmodulefilename
-	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
-	
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
 		return boost::filesystem::path(path);
@@ -280,8 +264,6 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 		return boost::filesystem::path(cwd);
 	}
 #else
-	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-	
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
 		return boost::filesystem::path(path);
@@ -309,12 +291,6 @@ boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 }
 
 boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
-//#ifdef XCODE
-//	return "../../../../avara-engine/shaders/";
-//#else
-//	return "../../../avara-engine/shaders/";
-//#endif
-	
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 #ifdef XCODE
@@ -327,33 +303,14 @@ boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 }
 
 boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& name, const string& type) {
-	
 	auto shadersDir = ShadersDirectory();
 	if (shadersDir) {
 		return *shadersDir / (name + "." + type);
 	}
 	return boost::none;
-	
-//	return ShaderSourceDirectory() + name + "." + type;
 }
 
-//shared_ptr<string> ae::utils::ShaderSourceNamed(const string& name, const string& type) {
-//	string fullPath = ShaderPath(name, type);
-//	
-//	auto source = LoadTextFile(fullPath);
-//	if (source) {
-//		return make_shared<string>(*source);
-//	}
-//	return nullptr;
-//}
-
 boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
-//#ifdef XCODE
-//	return "../../../../avara-engine/images/";
-//#else
-//	return "../../../avara-engine/images/";
-//#endif
-	
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 #ifdef XCODE
@@ -373,29 +330,20 @@ shared_ptr<Image> ae::utils::ImageNamed(const string& name, const string& type) 
 	}
 	return nullptr;
 	
-//	string fullPath = ImagePath(name, type);
-//	
-//	return make_shared<Image>(fullPath);
+	//	string fullPath = ImagePath(name, type);
+	//	
+	//	return make_shared<Image>(fullPath);
 }
 
 boost::optional<boost::filesystem::path> ae::utils::ImagePath(const string& name, const string& type) {
-	
 	auto imagesDir = ImagesDirectory();
 	if (imagesDir) {
 		return *imagesDir / (name + "." + type);
 	}
 	return boost::none;
-	
-//	return ImagesDirectory() + name + "." + type;
 }
 
 boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
-//#ifdef XCODE
-//	return "../../../../tests/testdata/";
-//#else
-//	return "../../../tests/testdata/";
-//#endif
-	
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 #ifdef XCODE
@@ -407,49 +355,38 @@ boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 	return boost::none;
 }
 
-shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) { // why is shared_ptr scoped?
+shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
 	return TestSceneNamed(name, "dae");
 }
 
 shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
-												 const string& type) {
-	
+											const string& type) {
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
 		auto fullPath = *testDataDir / ("scenes/" + name + "." + type);
 		return make_shared<Scene>(fullPath.string());
 	}
 	return nullptr;
-	
-//	string fullPath = TestDataDirectory() + "scenes/" + name + "." + type;
-//	return make_shared<Scene>(fullPath);
 }
 
 shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-												 bool flipHorizontal) {
+											bool flipHorizontal) {
 	return TestImageNamed(name, "png", flipHorizontal);
 }
 
 shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-												 const string& type,
-												 bool flipHorizontal) {
-	
+											const string& type,
+											bool flipHorizontal) {
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
 		auto fullPath = *testDataDir / ("images/" + name + "." + type);
 		return make_shared<Image>(fullPath.string(), flipHorizontal);
 	}
 	return nullptr;
-	
-	
-	
-//	string fullPath = TestDataDirectory() + "images/" + name + "." + type;
-//	return make_shared<Image>(fullPath, flipHorizontal);
 }
 
 shared_ptr<vector<shared_ptr<Image>>> ae::utils::TestCubeNamed(const string& name,
-																			  const string& type) {
-	
+															   const string& type) {
 	auto cube = make_shared<vector<shared_ptr<Image>>>();
 	
 	cube->push_back(TestImageNamed(name + "_posx", type, false));
@@ -461,7 +398,6 @@ shared_ptr<vector<shared_ptr<Image>>> ae::utils::TestCubeNamed(const string& nam
 	
 	return cube;
 }
-
 
 boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 	auto execDir = ExecutableDirectory();
@@ -488,7 +424,6 @@ boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
  **************************************************************************************/
 
 void ae::utils::SaveSnapshot(Window& window) {
-	
 	auto image = window.snapshot();
 	
 	string dateTime = DateTimeString();
@@ -526,20 +461,15 @@ void ae::utils::StopGIFRecording(Window& window) {
 }
 
 float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
-
 #ifdef MACOS
-    
-    //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    //GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-    CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-    CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-    
-    
-    Size width = CGDisplayModeGetWidth(currentModeRef);
-    Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-    return (float)pixelWidth / (float)width;
-    
+	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+	
+	Size width = CGDisplayModeGetWidth(currentModeRef);
+	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+	return (float)pixelWidth / (float)width;
 #endif
-    
-    return 1.0;
+	return 1.0;
 }

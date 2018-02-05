@@ -32,20 +32,20 @@ struct GLFWmonitor;
 
 
 namespace ae {
-
-
+	
+	
 	class Color;
 	class Image;
 	class Scene;
 	class Window;
-
-
+	
+	
 	namespace utils {
 		
 		/***************************************************************************************
 		 MARK:   Output Utilities
 		 **************************************************************************************/
-
+		
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
 		std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
@@ -63,7 +63,7 @@ namespace ae {
 		/***************************************************************************************
 		 MARK:   Conversion Utilities
 		 **************************************************************************************/
-
+		
 		glm::vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
 		glm::vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
 		glm::mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
@@ -103,7 +103,6 @@ namespace ae {
 		
 		boost::optional<boost::filesystem::path> ShadersDirectory();
 		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name, const std::string& type);
-		//std::shared_ptr<std::string> ShaderSourceNamed(const std::string& name, const std::string& type);
 		
 		boost::optional<boost::filesystem::path> ImagesDirectory();
 		boost::optional<boost::filesystem::path> ImagePath(const std::string& name, const std::string& type);
@@ -113,7 +112,7 @@ namespace ae {
 		
 		boost::optional<boost::filesystem::path> FontsDirectory();
 		boost::optional<boost::filesystem::path> FontPath(const std::string& name, const std::string& type);
-
+		
 		boost::optional<boost::filesystem::path> TestDataDirectory();
 		
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
@@ -134,8 +133,8 @@ namespace ae {
 		
 		void StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate);
 		void StopGIFRecording(Window& window);
-
-        float GetScreenScaleFactor(GLFWmonitor* monitor);
+		
+		float GetScreenScaleFactor(GLFWmonitor* monitor);
 	}
 }
 
