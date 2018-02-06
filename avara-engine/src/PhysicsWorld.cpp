@@ -120,7 +120,6 @@ void PhysicsWorld::step() {
 	
 	//timestep * x = 1.0
 	
-	//m_btWorld->stepSimulation(deltaSeconds);
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 	

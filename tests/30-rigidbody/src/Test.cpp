@@ -155,15 +155,26 @@ int Test::run(const vector<string>& args) {
 	
 	// added random boxes and spheres
 	
-//	#define BOX_ARRAY_SIZE_X	4
-//	#define BOX_ARRAY_SIZE_Y	6
-//	#define BOX_ARRAY_SIZE_Z	4
+//#define BOX_ARRAY_SIZE_X	2
+//#define BOX_ARRAY_SIZE_Y	4
+//#define BOX_ARRAY_SIZE_Z	2
+	// -> 16
+	
+	#define BOX_ARRAY_SIZE_X	4
+	#define BOX_ARRAY_SIZE_Y	6
+	#define BOX_ARRAY_SIZE_Z	4
 	// -> 96
 	
-#define BOX_ARRAY_SIZE_X	2
-#define BOX_ARRAY_SIZE_Y	4
-#define BOX_ARRAY_SIZE_Z	2
-	// -> 16
+//#define BOX_ARRAY_SIZE_X	5
+//#define BOX_ARRAY_SIZE_Y	7
+//#define BOX_ARRAY_SIZE_Z	5
+	// -> 175
+	
+//#define BOX_ARRAY_SIZE_X	6
+//#define BOX_ARRAY_SIZE_Y	8
+//#define BOX_ARRAY_SIZE_Z	6
+	// -> 288
+
 	
 	unsigned colorIndex = 0;
 	auto colors = Color::Rainbow();
