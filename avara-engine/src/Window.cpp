@@ -318,62 +318,62 @@ void Window::stopGIFRecording() {
 	}
 }
 
-void Window::getVRAMStats(unsigned& total, unsigned& used) {
-	
-#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
-#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
-
-	GLint total_mem_kb = 0;
-glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, 
-			  &total_mem_kb);
-
-	GLint cur_avail_mem_kb = 0;
-glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, 
-			  &cur_avail_mem_kb);
-	
-	
-	
-	cout << "GL_NVX_gpu_memory_info: " << GL_NVX_gpu_memory_info << endl;
-	cout << "GLEW_NVX_gpu_memory_info: " << GLEW_NVX_gpu_memory_info << endl;
-	
-	if (GL_NVX_gpu_memory_info) {
-		cout << "1" << endl;
-		
-		int totalmem = 0;
-		int freemem = 0;
-		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
-		
-		cout << "totalmem: " << totalmem << endl;
-		cout << "freemem: " << freemem << endl;
-	}
-	else {
-		cout << "2" << endl;
-	}
-	
-	if (GLEW_NVX_gpu_memory_info) {
-		cout << "3" << endl;
-	}
-	else {
-		cout << "4" << endl;
-		
-		int totalmem = 0;
-		int freemem = 0;
-		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
-		
-		cout << "totalmem: " << totalmem << endl;
-		cout << "freemem: " << freemem << endl;
-	}
-	
-//	GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
-//	GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
-//	GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
-//	GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
-//	GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
-
-	
-}
+//void Window::getVRAMStats(unsigned& total, unsigned& used) {
+//	
+//#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+//#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+//
+//	GLint total_mem_kb = 0;
+//glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, 
+//			  &total_mem_kb);
+//
+//	GLint cur_avail_mem_kb = 0;
+//glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, 
+//			  &cur_avail_mem_kb);
+//	
+//	
+//	
+//	cout << "GL_NVX_gpu_memory_info: " << GL_NVX_gpu_memory_info << endl;
+//	cout << "GLEW_NVX_gpu_memory_info: " << GLEW_NVX_gpu_memory_info << endl;
+//	
+//	if (GL_NVX_gpu_memory_info) {
+//		cout << "1" << endl;
+//		
+//		int totalmem = 0;
+//		int freemem = 0;
+//		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
+//		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
+//		
+//		cout << "totalmem: " << totalmem << endl;
+//		cout << "freemem: " << freemem << endl;
+//	}
+//	else {
+//		cout << "2" << endl;
+//	}
+//	
+//	if (GLEW_NVX_gpu_memory_info) {
+//		cout << "3" << endl;
+//	}
+//	else {
+//		cout << "4" << endl;
+//		
+//		int totalmem = 0;
+//		int freemem = 0;
+//		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
+//		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
+//		
+//		cout << "totalmem: " << totalmem << endl;
+//		cout << "freemem: " << freemem << endl;
+//	}
+//	
+////	GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+////	GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+////	GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+////	GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+////	GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+//
+//	
+//}
 
 /***************************************************************************************
      MARK:   Internal

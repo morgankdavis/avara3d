@@ -87,7 +87,7 @@ namespace ae {
 							   unsigned maxHeight, unsigned maxFramerate);
 		void stopGIFRecording();
 		
-		void getVRAMStats(unsigned& total, unsigned& used);
+		//void getVRAMStats(unsigned& total, unsigned& used);
 		
 		/*
 		- hitTest:options:

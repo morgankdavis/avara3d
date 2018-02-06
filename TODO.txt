@@ -133,6 +133,9 @@ Laundry list:
 		http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
 		http://www.humus.name/index.php?page=3D&ID=61
 
+	Compressed textures + texture scaling (low, medium, high, highest)
+
+	Vertex lighting?
 	Normal mapping
 	Shadows
 	SSAA

@@ -27,7 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIASING_MODE		AntialiasingMode_2X
+#define ANTIALIASING_MODE		AntialiasingMode_None
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
@@ -155,9 +155,15 @@ int Test::run(const vector<string>& args) {
 	
 	// added random boxes and spheres
 	
-	#define BOX_ARRAY_SIZE_X	4
-	#define BOX_ARRAY_SIZE_Y	6
-	#define BOX_ARRAY_SIZE_Z	4
+//	#define BOX_ARRAY_SIZE_X	4
+//	#define BOX_ARRAY_SIZE_Y	6
+//	#define BOX_ARRAY_SIZE_Z	4
+	// -> 96
+	
+#define BOX_ARRAY_SIZE_X	2
+#define BOX_ARRAY_SIZE_Y	4
+#define BOX_ARRAY_SIZE_Z	2
+	// -> 16
 	
 	unsigned colorIndex = 0;
 	auto colors = Color::Rainbow();

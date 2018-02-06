@@ -24,8 +24,8 @@ using namespace glm;
 
 
 #define USE_HIGH_DPI            true
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
+#define WINDOW_WIDTH			1600
+#define WINDOW_HEIGHT			900
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			AntialiasingMode_None
 
@@ -251,8 +251,8 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	else if (keysPressed.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
 	else if (keysPressed.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
 	
-	//	if (keysDown.count(Key_Up)) 		SetAllMaxAnisotropy(16, scene);
-	//	else if (keysDown.count(Key_Down)) 	SetAllMaxAnisotropy(1, scene);
+	if 		(keysPressed.count(Key_LeftBracket))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(Key_RightBracket))	SetAllMaxAnisotropy(16, scene);
 	
 	
 	if 		(keysPressed.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
@@ -308,11 +308,11 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	
-	if (keysPressed.count(Key_M)) {
-		unsigned total = 0;
-		unsigned used = 0;
-		m_window->getVRAMStats(total, used);
-	}
+//	if (keysPressed.count(Key_M)) {
+//		unsigned total = 0;
+//		unsigned used = 0;
+//		m_window->getVRAMStats(total, used);
+//	}
 
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
