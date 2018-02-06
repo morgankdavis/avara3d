@@ -222,6 +222,7 @@ int Test::run(const vector<string>& args) {
 	m_inputManager = window.inputManager();
 	window.display();
 	
+	
 	return 0;
 }
 
@@ -306,6 +307,13 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 			StopGIFRecording(*m_window);
 		}
 	}
+	
+	if (keysPressed.count(Key_M)) {
+		unsigned total = 0;
+		unsigned used = 0;
+		m_window->getVRAMStats(total, used);
+	}
+
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 	

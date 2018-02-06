@@ -87,6 +87,8 @@ namespace ae {
 							   unsigned maxHeight, unsigned maxFramerate);
 		void stopGIFRecording();
 		
+		void getVRAMStats(unsigned& total, unsigned& used);
+		
 		/*
 		- hitTest:options:
 		Searches the renderer’s scene for objects corresponding to a point in the rendered image.

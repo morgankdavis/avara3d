@@ -1,4 +1,4 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
@@ -12,6 +12,8 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - rigidbodies
+		
+		Cmake "Found PythonLibs:" where is this coming from?
 
 
 		Windows boost::filesystem::path c_str() is wchar_t, not char_t
