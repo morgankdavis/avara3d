@@ -189,6 +189,22 @@ void PhysicsBody::resting(bool flag) {
 	m_resting = flag;
 }
 
+float PhysicsBody::linearSleepingThreshold() const {
+	
+}
+
+void PhysicsBody::setLinearSleepingThreshold(float threshold) {
+	
+}
+
+float PhysicsBody::angularSleepingThreshold() const {
+	
+}
+
+void PhysicsBody::setAngularSleepingThreshold(float threshold) {
+	
+}
+
 bool PhysicsBody::allowsResting() const {
 	return m_allowsResting;
 }
@@ -248,8 +264,19 @@ void PhysicsBody::addedToNode(Node& node) {
 	resetTransform();
 
 	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
+											   
+//	btBoxShape* colShape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+//	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(colShape);
 
-	btVector3 localInertia(0, 0, 0);
+//	bool isDynamic = (m_mass != 0.0);
+//	btVector3 localInertia(0, 0, 0);
+//	if (isDynamic) {
+//		localInertia = btVector3(50, 50, 50);
+//		collisionShape->calculateLocalInertia(m_mass, localInertia);
+//	}
+	
+	
+	btVector3 localInertia(1, 1, 1);
 	if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
 	
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PhysicsBodyType_Static ? 0 : m_mass),
@@ -281,6 +308,16 @@ void PhysicsBody::addedToNode(Node& node) {
 	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
 	
 	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+	
+	AE_LOG->debug("Linear sleeping threshold: {}",
+				  m_btRigidBody->getLinearSleepingThreshold()); // default .8
+	AE_LOG->debug("Angular sleeping threshold: {}",
+				  m_btRigidBody->getAngularSleepingThreshold()); // default 1
+	
+	m_btRigidBody->setSleepingThresholds(0.01, 0.01);
+	//m_btRigidBody->setSleepingThresholds(10.0, 10.0);
+	
+	m_btRigidBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {

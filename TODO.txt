@@ -15,6 +15,21 @@ Tests:
 		
 		Cmake "Found PythonLibs:" where is this coming from?
 
+		Bullet book:
+			Bullet thinks COM is world position — can be moved with compound shapes
+
+			Check out SIMD & btAlignedObjectArray
+
+			Debug drawing: inherit btIDebugDraw
+			world.SetDebugDrawer()
+
+			Check existing AABB draw VBOs/transforms. Do you need to use DynamicDraw for bullet VBOs?
+
+			setSleepingThreshold()
+			setActivationState(DISABLE_DEACTIVATION)
+
+			Gaffer on games - fix your timestep
+
 
 		Windows boost::filesystem::path c_str() is wchar_t, not char_t
 			https://msdn.microsoft.com/en-us/library/d1ae6tz5.aspx
@@ -26,6 +41,10 @@ Tests:
 		When setting note position, rotation, scale, set on physics body
 
 		Make sure PhysicsBody is initialized properly when:
+			Create a byPhysicsBody immediately
+				-> add to btWorld when ADDED TO NODE WITH PHYSICS WORLD
+				- OR - check all nodes in scene when adding a physics world + add bodies
+
 			Added to unattached node, then node is added to tree
 			Added to node after in tree
 			What is the node is in an detached tree with no scene?

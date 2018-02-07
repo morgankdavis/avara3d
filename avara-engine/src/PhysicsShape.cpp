@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Box.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Logger.h"
@@ -56,52 +57,62 @@ PhysicsShapeType PhysicsShape::type() const {
 void PhysicsShape::createBTShape() {
 	AE_LOG->debug("Creating bullet shape...");
 	
-	unsigned numVerticies = 0;
-	for (auto element : m_sourceGeometry->elements()) {
-		numVerticies += element->vertices().size();
-	}
 	
-//	switch (type) {
-//		case PhysicsBodyType_Static: {
-//
-//			m_btTriangleMesh = make_shared<btTriangleMesh>();
-//
-//			for (auto element : m_sourceGeometry->elements()) {
-//				auto verticies = element->vertices();
-//				for (auto face : element->faces()) {
-//					auto vertA = verticies[face.a].position;
-//					auto vertB = verticies[face.b].position;
-//					auto vertC = verticies[face.c].position;
-//					
-//					m_btTriangleMesh->addTriangle(*((btVector3*)(&vertA)),
-//												  *((btVector3*)(&vertB)),
-//												  *((btVector3*)(&vertC)),
-//												  false);
-//				}
-//			}
-//
-//			m_btShape = make_shared<btBvhTriangleMeshShape>(m_btTriangleMesh.get(), false);
-//
-//			break; }
-//			
-//		case PhysicsBodyType_Dynamic: {
+//	if (dynamic_cast<Box*>(&(*m_sourceGeometry))) {
+//		// do something
+//	}
+//	if (m_sourceGeometry) { // IF BOX
+//		
+//	}
+//	else { // some other more complex shape
+		unsigned numVerticies = 0;
+		for (auto element : m_sourceGeometry->elements()) {
+			numVerticies += element->vertices().size();
+		}
+		
+	//	switch (type) {
+	//		case PhysicsBodyType_Static: {
+	//
+	//			m_btTriangleMesh = make_shared<btTriangleMesh>();
+	//
+	//			for (auto element : m_sourceGeometry->elements()) {
+	//				auto verticies = element->vertices();
+	//				for (auto face : element->faces()) {
+	//					auto vertA = verticies[face.a].position;
+	//					auto vertB = verticies[face.b].position;
+	//					auto vertC = verticies[face.c].position;
+	//					
+	//					m_btTriangleMesh->addTriangle(*((btVector3*)(&vertA)),
+	//												  *((btVector3*)(&vertB)),
+	//												  *((btVector3*)(&vertC)),
+	//												  false);
+	//				}
+	//			}
+	//
+	//			m_btShape = make_shared<btBvhTriangleMeshShape>(m_btTriangleMesh.get(), false);
+	//
+	//			break; }
+	//			
+	//		case PhysicsBodyType_Dynamic: {
+				
+				vector<Vertex> verticies;
+				verticies.reserve(numVerticies);
+				
+				for (auto element : m_sourceGeometry->elements()) {
+					auto elementVerts = element->vertices();
+					verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+				}
+				
+				m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+														   numVerticies,
+														   sizeof(Vertex));
+				
+	//			break; }
+	//			
+	//		case PhysicsBodyType_Kinematic: {
+	//			break; }
+	//	}
 			
-			vector<Vertex> verticies;
-			verticies.reserve(numVerticies);
-			
-			for (auto element : m_sourceGeometry->elements()) {
-				auto elementVerts = element->vertices();
-				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-			}
-			
-			m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-													   numVerticies,
-													   sizeof(Vertex));
-			
-//			break; }
-//			
-//		case PhysicsBodyType_Kinematic: {
-//			break; }
 //	}
 }
 

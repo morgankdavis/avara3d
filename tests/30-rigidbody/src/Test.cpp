@@ -63,6 +63,27 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void addBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	physicsBody->mass(1.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
+	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
+	physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
@@ -125,6 +146,7 @@ int Test::run(const vector<string>& args) {
 	
 	const float PLANE_DIM = 20.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
+	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, PLANE_DIM));
 	auto gridImage = TestImageNamed("grid2");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WrapMode_Repeat);
@@ -160,9 +182,14 @@ int Test::run(const vector<string>& args) {
 //#define BOX_ARRAY_SIZE_Z	2
 	// -> 16
 	
-	#define BOX_ARRAY_SIZE_X	4
-	#define BOX_ARRAY_SIZE_Y	6
-	#define BOX_ARRAY_SIZE_Z	4
+#define BOX_ARRAY_SIZE_X	3
+#define BOX_ARRAY_SIZE_Y	4
+#define BOX_ARRAY_SIZE_Z	3
+	// -> 36
+	
+//	#define BOX_ARRAY_SIZE_X	4
+//	#define BOX_ARRAY_SIZE_Y	6
+//	#define BOX_ARRAY_SIZE_Z	4
 	// -> 96
 	
 //#define BOX_ARRAY_SIZE_X	5
@@ -187,7 +214,8 @@ int Test::run(const vector<string>& args) {
 				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
 					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
 					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
-				addObject(*scene, position, color);
+				//addObject(*scene, position, color);
+				addBox(*scene, position, color);
 			}
 		}
 	}

@@ -94,7 +94,7 @@ void GeometryElement::draw(const mat4& modelMat,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	unsigned int numFaces = m_faces.size();
 	stats.polygons += numFaces;
-	unsigned faceSize = sizeof(Face);
+	//unsigned faceSize = sizeof(Face);
 	//glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	
