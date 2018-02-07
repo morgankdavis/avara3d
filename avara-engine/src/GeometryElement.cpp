@@ -94,8 +94,6 @@ void GeometryElement::draw(const mat4& modelMat,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
 	unsigned int numFaces = m_faces.size();
 	stats.polygons += numFaces;
-	//unsigned faceSize = sizeof(Face);
-	//glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	
 	program->unuse();
@@ -160,48 +158,6 @@ void GeometryElement::generateSmoothNormals() {
 		newVerticies.push_back(newVertex);
 	}
 	m_vertices = newVerticies;
-
-
-	/*
-	void GLSObject::ComputeVerticeNormal (int ixVertice)
-	{
-		// Allocate a temporary storage to store adjacent faces indexes
-		if (!m_pStorage)
-		{
-			m_pStorage = new int[m_nbFaces];
-			if (!m_pStorage)
-				return;
-		}
-		// Store each face which has an intersection with the ixVertice'th vertex
-		int nbAdjFaces = 0;
-		GLFace * pFace = (GLFace *)&OBJ_FACES;
-		for (int ix = 0; ix < m_nbFaces; ix++, pFace++)
-			if (pFace->v1 == ixVertice)
-				m_pStorage[nbAdjFaces++] = ix;
-			else
-			if (pFace->v2 == ixVertice)
-				m_pStorage[nbAdjFaces++] = ix;
-			else
-			if (pFace->v3 == ixVertice)
-				m_pStorage[nbAdjFaces++] = ix;
-		// Average all adjacent faces normals to get the vertex normal
-		GLpoint pn;
-		pn.x = pn.y = pn.z = 0;
-		for (int jx = 0; jx < nbAdjFaces; jx++)
-		{
-			int ixFace= m_pStorage[jx];
-			pn.x += m_pFaceNormals[ixFace].x;
-			pn.y += m_pFaceNormals[ixFace].y;
-			pn.z += m_pFaceNormals[ixFace].z;
-		}
-		pn.x /= nbAdjFaces;
-		pn.y /= nbAdjFaces;
-		pn.z /= nbAdjFaces;
-
-		// Normalize the vertex normal
-		VectorNormalize(&pn, &m_pVertNormals[ixVertice]);
-	}
-	 */
 }
 
 void GeometryElement::generateFlatNormals() {
@@ -245,30 +201,30 @@ void GeometryElement::loadVertexData(const Program& program) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
-	glVertexAttribPointer(positionIndex, // attrib index
-						  3, // num components per attrib (3 float in vec3)
-						  GL_FLOAT, // component type
-						  GL_FALSE, // normalize
-						  sizeof(Vertex), // stride
-						  0); // start offset
+	glVertexAttribPointer(positionIndex, 			// attrib index
+						  3, 						// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 				// component type
+						  GL_FALSE, 				// normalize
+						  sizeof(Vertex), 			// stride
+						  0); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
 	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
-	glVertexAttribPointer(normalIndex, // attrib index
-						  3, // num components per attrib (3 float in vec3)
-						  GL_FLOAT, // component type
-						  GL_FALSE, // normalize
-						  sizeof(Vertex), // stride
-						  (void *)sizeof(vec3)); // start offset
+	glVertexAttribPointer(normalIndex, 				// attrib index
+						  3, 						// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 				// component type
+						  GL_FALSE, 				// normalize
+						  sizeof(Vertex), 			// stride
+						  (void *)sizeof(vec3)); 	// start offset
 	glEnableVertexAttribArray(normalIndex);
 	
 	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
-	glVertexAttribPointer(texCoordIndex, // attrib index
-						  2, // num components per attrib (2 float in vec2)
-						  GL_FLOAT, // component type
-						  GL_FALSE, // normalize
-						  sizeof(Vertex), // stride
-						  (void *)(sizeof(vec3) + sizeof(vec3))); // start offset
+	glVertexAttribPointer(texCoordIndex, 							// attrib index
+						  2, 										// num components per attrib (2 float in vec2)
+						  GL_FLOAT, 								// component type
+						  GL_FALSE, 								// normalize
+						  sizeof(Vertex), 							// stride
+						  (void *)(sizeof(vec3) + sizeof(vec3))); 	// start offset
 	glEnableVertexAttribArray(texCoordIndex);
 	
 	glGenBuffers(1, &m_glIBO);

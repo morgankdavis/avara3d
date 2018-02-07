@@ -321,12 +321,12 @@ void Geometry::loadAABBVertexData(const Program& program) {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         
         GLuint positionIndex = program.getAttributeLocation("vertex_position");
-        glVertexAttribPointer(positionIndex, // attrib index
-                              3, // num components per attrib (3 float in vec3)
-                              GL_FLOAT, // component type
-                              GL_FALSE, // normalize
-                              sizeof(vec3), // stride
-                              0); // start offset
+        glVertexAttribPointer(positionIndex, 	// attrib index
+                              3, 				// num components per attrib (3 float in vec3)
+                              GL_FLOAT, 		// component type
+                              GL_FALSE, 		// normalize
+                              sizeof(vec3), 	// stride
+                              0); 				// start offset
         glEnableVertexAttribArray(positionIndex);
 		
 //		glBindBuffer(GL_ARRAY_BUFFER, 0);
