@@ -33,6 +33,8 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "PhysicsBody.h"
+#include "PhysicsDebugDrawer.h"
+#include "PhysicsWorld.h"
 #include "SkyboxGeometry.h"
 #include "SkyboxMaterial.h"
 #include "Utilities.h"
@@ -388,6 +390,10 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 							   m_glEnvironmentUBO, debugOptions, stats);
 			}
 		}
+	}
+	
+	if (m_physicsWorld) {
+		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
 	}
 }
 

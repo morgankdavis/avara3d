@@ -175,11 +175,19 @@ Color ae::utils::ColorFromAIColor4D(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
 
-btVector3 ae::utils::BTVector3FromGLMVec3(glm::vec3& from) {
+vec3 ae::utils::GLMVec3FromBTVector3(const btVector3& from) {
+	return vec3(from.x(), from.y(), from.z());
+}
+
+vec4 ae::utils::GLMVec4FromBTVector4(const btVector4& from) {
+	return vec4(from.x(), from.y(), from.z(), from.w());
+}
+
+btVector3 ae::utils::BTVector3FromGLMVec3(const vec3& from) {
 	return btVector3(from.x, from.y, from.z);
 }
 
-btVector4 ae::utils::BTVector4FromGLMVec4(glm::vec4& from) {
+btVector4 ae::utils::BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 

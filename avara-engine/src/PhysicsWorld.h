@@ -24,6 +24,7 @@ namespace ae {
 	class HitTestResult;
 	class PhysicsBody;
 	class PhysicsContact;
+	class PhysicsDebugDrawer;
 	class PhysicsShape;
 	
 	
@@ -76,6 +77,8 @@ namespace ae {
 		
 		void step();
 		
+		std::shared_ptr<PhysicsDebugDrawer> debugDrawer() const;
+		
 		std::shared_ptr<btDiscreteDynamicsWorld> btWorld() const;
 		
 	private:
@@ -83,6 +86,8 @@ namespace ae {
 		/***************************************************************************************
 		     MARK:   Private
 		 **************************************************************************************/
+		
+		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
 		
 		std::shared_ptr<btDefaultCollisionConfiguration> 		m_btCollisionConfiguration;
 		std::shared_ptr<btCollisionDispatcher>					m_btDispatcher;

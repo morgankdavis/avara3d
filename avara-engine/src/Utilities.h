@@ -70,8 +70,10 @@ namespace ae {
 		Color ColorFromAIColor3D(const aiColor3D& from);
 		Color ColorFromAIColor4D(const aiColor4D& from);
 		
-		btVector3 BTVector3FromGLMVec3(glm::vec3& from);
-		btVector4 BTVector4FromGLMVec4(glm::vec4& from);
+		glm::vec3 GLMVec3FromBTVector3(const btVector3& from);
+		glm::vec4 GLMVec4FromBTVector4(const btVector4& from);
+		btVector3 BTVector3FromGLMVec3(const glm::vec3& from);
+		btVector4 BTVector4FromGLMVec4(const glm::vec4& from);
 		
 		/***************************************************************************************
 		 MARK:   Error Utilities

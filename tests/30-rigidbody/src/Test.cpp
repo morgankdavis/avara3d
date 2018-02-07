@@ -224,26 +224,20 @@ int Test::run(const vector<string>& args) {
 	
 	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
 	
-	//crateScene->rootNode()->position({0, -5, 0});
-	
-	vector<shared_ptr<Node>> crateNodes;
-	//auto crateNode = make_shared<Node>();
-	
-	for (auto n : crateScene->rootNode()->childNodes(true)) {
-		if (n->geometry()) {
-			auto physicsShape = make_shared<PhysicsShape>(n->geometry(), PhysicsShapeType_ConvexHull);
-			auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, physicsShape);
-			physicsBody->mass(0);
-			physicsBody->restitution(0.5);
-			n->physicsBody(physicsBody);
-		}
-		n->position(n->position() + vec3(0, -20, 0));
-		crateNodes.emplace_back(n);
-		//crateNode->addChildNode(n);
-	}
-	
-	scene->rootNode()->addChildNodes(crateNodes);
-	//scene->rootNode()->addChildNode(crateNode);
+
+//	vector<shared_ptr<Node>> crateNodes;
+//	for (auto n : crateScene->rootNode()->childNodes(true)) {
+//		if (n->geometry()) {
+//			auto physicsShape = make_shared<PhysicsShape>(n->geometry(), PhysicsShapeType_ConvexHull);
+//			auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, physicsShape);
+//			physicsBody->mass(0);
+//			physicsBody->restitution(0.5);
+//			n->physicsBody(physicsBody);
+//		}
+//		n->position(n->position() + vec3(0, -20, 0));
+//		crateNodes.emplace_back(n);
+//	}
+//	scene->rootNode()->addChildNodes(crateNodes);
 
 	
 //	auto pinappleScene = TestSceneNamed("pinapple/pinapple", "obj");

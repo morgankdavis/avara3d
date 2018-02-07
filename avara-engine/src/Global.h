@@ -16,17 +16,17 @@
 #include <spdlog/spdlog.h>
 
 
-#define MAX_DYNAMIC_LIGHTS	8
+#define MAX_DYNAMIC_LIGHTS		8
 
-#define LOG_MAIN_FILE_NAME	"ae"
-#define LOG_QUEUE_SIZE	    12
-#define LOG_FILE_SIZE 		1024 * 1024 * 5
-#define LOG_FILE_ROTATIONS	3
-#define LOG_ENABLE_STDOUT	true
-#define LOG_LEVEL			level::debug
-#define LOG_FLUSH_LEVEL		level::warn
+#define LOG_MAIN_FILE_NAME		"ae"
+#define LOG_QUEUE_SIZE	    	12
+#define LOG_FILE_SIZE 			1024 * 1024 * 5
+#define LOG_FILE_ROTATIONS		3
+#define LOG_ENABLE_STDOUT		true
+#define LOG_LEVEL				level::debug
+#define LOG_FLUSH_LEVEL			level::warn
 
-#define MAX_PATH_LEN  		1024
+#define MAX_PATH_LEN  			1024
 
 
 namespace ae {

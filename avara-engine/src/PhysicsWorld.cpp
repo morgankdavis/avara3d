@@ -11,6 +11,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
+#include "PhysicsDebugDrawer.h"
 #include "Utilities.h"
 
 
@@ -25,6 +26,7 @@ using namespace std;
  **************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
+	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
 	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),
 	m_timestep(1.0/60.0) {
@@ -39,6 +41,14 @@ PhysicsWorld::PhysicsWorld():
 														 m_btCollisionConfiguration.get());
 		
 		gravity(m_gravity);
+
+		// **** TEMPORARY ****
+		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_FastWireframe);
+		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+		m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe);
+		
+		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
 }
 
 /***************************************************************************************
@@ -118,16 +128,21 @@ void PhysicsWorld::step() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	//timestep * x = 1.0
-	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
+	
+	m_debugDrawer->clear();
+	m_btWorld->debugDrawWorld();
 	
 // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
 //	btDynamicsWorld::stepSimulation(
 //									btScalar timeStep,
 //									int maxSubSteps=1,
 //									btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
+}
+
+shared_ptr<PhysicsDebugDrawer> PhysicsWorld::debugDrawer() const {
+	return m_debugDrawer;
 }
 
 shared_ptr<btDiscreteDynamicsWorld> PhysicsWorld::btWorld() const {

@@ -12,6 +12,24 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - rigidbodies
+
+
+		Get debug rendering working
+			Replace Wireframe & AABB programs with "Lines" + add color uniform
+			RELEASE OLD VAO, VBO
+
+		AE_LOG function to return __FILE__:__func__()
+
+		Fix box rotation:
+
+			Get box shape working -
+			Get gereralized shapes working -
+
+		Crest btRigid body on init - add to world if exists
+		- update accessors to set properties on existing btWorld
+		- add body to init after added to node
+
+
 		
 		Cmake "Found PythonLibs:" where is this coming from?
 

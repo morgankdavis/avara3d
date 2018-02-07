@@ -190,6 +190,10 @@ namespace ae {
 	
 	extern std::shared_ptr<ae::Logger>		g_aeLogger;
 	#define AE_LOG							g_aeLogger
+	
+	#define AE_FILE							__FILE__
+	#define AE_FUNC							__func__
+	#define AE_LINE							__LINE__
 }
 
 
