@@ -76,9 +76,10 @@ namespace ae {
 		DebugOption_ShowBoundingBoxes = 	1 << 1,
 		DebugOption_ShowWireframe = 		1 << 2,
 		DebugOption_ShowPhysicsShapes = 	1 << 3,
-		DebugOption_ShowCameras = 			1 << 4,
-		DebugOption_ShowLights = 			1 << 5,
-		DebugOption_ShowLightExtents = 		1 << 6
+		DebugOption_ShowPhysicsContacts = 	1 << 4,
+		DebugOption_ShowCameras = 			1 << 5,
+		DebugOption_ShowLights = 			1 << 6,
+		DebugOption_ShowLightExtents = 		1 << 7
 	} DebugOption;
 	
 	

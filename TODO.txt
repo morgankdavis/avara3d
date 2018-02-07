@@ -14,9 +14,15 @@ Tests:
 	30 - rigidbodies
 
 
-		Get debug rendering working
-			Replace Wireframe & AABB programs with "Lines" + add color uniform
-			RELEASE OLD VAO, VBO
+		Replace debug rendering  Wireframe & AABB programs with "Lines" + add color uniform
+		Add interface into ae::DebugOption
+
+			DBG_DrawWireframe = 1,
+			DBG_DrawAabb=2,
+			DBG_DrawContactPoints=8,
+			DBG_DrawNormals = (1<<14),
+			DBG_DrawConstraints = (1 << 11),
+			DBG_DrawConstraintLimits = (1 << 12),
 
 		AE_LOG function to return __FILE__:__func__()
 

@@ -314,10 +314,10 @@ void PhysicsBody::addedToNode(Node& node) {
 	AE_LOG->debug("Angular sleeping threshold: {}",
 				  m_btRigidBody->getAngularSleepingThreshold()); // default 1
 	
-	m_btRigidBody->setSleepingThresholds(0.01, 0.01);
+	//m_btRigidBody->setSleepingThresholds(0.01, 0.01);
 	//m_btRigidBody->setSleepingThresholds(10.0, 10.0);
 	
-	m_btRigidBody->setActivationState(DISABLE_DEACTIVATION);
+	//m_btRigidBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {

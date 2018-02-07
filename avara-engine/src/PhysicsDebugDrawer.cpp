@@ -34,6 +34,17 @@ PhysicsDebugDrawer::PhysicsDebugDrawer():
 
 }
 
+PhysicsDebugDrawer::~PhysicsDebugDrawer() {
+	if (m_glLinesVBO >=0) {
+		GLuint vbo = m_glLinesVBO;
+		glDeleteBuffers(1, &vbo);
+	}
+	if (m_glLinesVAO >=0) {
+		GLuint vao = m_glLinesVAO;
+		glDeleteVertexArrays(1, &vao);
+	}
+}
+
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
@@ -41,13 +52,13 @@ PhysicsDebugDrawer::PhysicsDebugDrawer():
 void PhysicsDebugDrawer::clear() {
 	m_lines.clear();
 	
-	GLuint vbo = m_glLinesVBO;
-	glDeleteBuffers(1, &vbo);
-	GLuint vao = m_glLinesVAO;
-	glDeleteVertexArrays(1, &vao);
-
-	m_glLinesVBO = -1;
-	m_glLinesVAO = -1;
+//	GLuint vbo = m_glLinesVBO;
+//	glDeleteBuffers(1, &vbo);
+//	GLuint vao = m_glLinesVAO;
+//	glDeleteVertexArrays(1, &vao);
+//
+//	m_glLinesVBO = -1;
+//	m_glLinesVAO = -1;
 }
 
 void PhysicsDebugDrawer::draw(const mat4& viewMat,
@@ -91,19 +102,21 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 	m_lines.emplace_back(GLMVec3FromBTVector3(from));
 	m_lines.emplace_back(GLMVec3FromBTVector3(to));
 	//m_lines.emplace_back(color);
+	
+	//AE_LOG->debug("COLOR: {} {} {}", color.x(), color.y(), color.z());
 }
 
 void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& fromColor,
 								  const btVector3& toColor) {
-
+	AE_LOG->debug(AE_FUNC);
 }
 
 void PhysicsDebugDrawer::drawSphere (const btVector3& p,
 									 btScalar radius,
 									 const btVector3& color) {
-
+	AE_LOG->debug(AE_FUNC);
 }
 
 void PhysicsDebugDrawer::drawTriangle(const btVector3& a,
@@ -111,7 +124,7 @@ void PhysicsDebugDrawer::drawTriangle(const btVector3& a,
 									  const btVector3& c,
 									  const btVector3& color,
 									  btScalar alpha) {
-
+	AE_LOG->debug(AE_FUNC);
 }
 
 void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
@@ -119,16 +132,16 @@ void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										  btScalar distance,
 										  int lifeTime,
 										  const btVector3& color) {
-
+	//AE_LOG->debug(AE_FUNC);
 }
 
 void PhysicsDebugDrawer::reportErrorWarning(const char* warningString) {
-
+	AE_LOG->warn("Bullet warning: {}", warningString);
 }
 
 void PhysicsDebugDrawer::draw3dText(const btVector3& location,
 									const char* textString) {
-
+	AE_LOG->debug(AE_FUNC);
 }
 
 void PhysicsDebugDrawer::setDebugMode(int debugMode) {
@@ -149,18 +162,23 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 	
 	//AE_LOG->debug("loadLinesVertexData()");
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_STATIC_DRAW);
-	m_glLinesVBO = vbo;
+	if (m_glLinesVBO == -1) {
+		GLuint vbo;
+		glGenBuffers(1, &vbo);
+		m_glLinesVBO = vbo;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_glLinesVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_DYNAMIC_DRAW);
+//	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_STATIC_DRAW);
 	
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	m_glLinesVAO = vao;
+	if (m_glLinesVAO == -1) {
+		GLuint vao;
+		glGenVertexArrays(1, &vao);
+		m_glLinesVAO = vao;
+	}
+	glBindVertexArray((GLuint)m_glLinesVAO);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
