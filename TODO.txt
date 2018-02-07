@@ -44,21 +44,7 @@ Tests:
 
 			Check out SIMD & btAlignedObjectArray
 
-			Debug drawing: inherit btIDebugDraw
-			world.SetDebugDrawer()
-
-			Check existing AABB draw VBOs/transforms. Do you need to use DynamicDraw for bullet VBOs?
-
-			setSleepingThreshold()
-			setActivationState(DISABLE_DEACTIVATION)
-
 			Gaffer on games - fix your timestep
-
-
-		Windows boost::filesystem::path c_str() is wchar_t, not char_t
-			https://msdn.microsoft.com/en-us/library/d1ae6tz5.aspx
-
-		Physics debug drawing
 
 		Add default constructors + initializer lists (Node, Material, ...)
 
