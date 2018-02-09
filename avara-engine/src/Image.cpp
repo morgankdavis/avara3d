@@ -109,7 +109,7 @@ void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	if (!m_data) {
 		//printf("Error loading image at path: %s\n", path_cstr);
 		char errMsg[1024];
-		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string());
+		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string().c_str());
 		throw Exception(errMsg);
 		//AE_LOG->error("Error loading image at path: {}", path_cstr);
 		return;
