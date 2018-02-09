@@ -39,11 +39,10 @@ Logger::Logger(string name, LoggerSink sinks):
 		
 		static bool initialized = false;
 		if (!initialized) {
-			
 			auto execDir = ExecutableDirectory();
 			if (execDir) {
 				auto logPath = *execDir / (string(LOG_MAIN_FILE_NAME) + ".log");
-				i_spdlogMainFileSink = make_shared<sinks::rotating_file_sink_mt>(logPath.string().c_str(),
+				i_spdlogMainFileSink = make_shared<sinks::rotating_file_sink_mt>(logPath.string(),
 																				 LOG_FILE_SIZE,
 																				 LOG_FILE_ROTATIONS);
 				i_spdlogSTDOUTSink = make_shared<sinks::stdout_sink_st>();

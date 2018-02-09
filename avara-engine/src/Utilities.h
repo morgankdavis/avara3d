@@ -102,6 +102,7 @@ namespace ae {
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
 		
 		boost::optional<std::string> LoadTextFile(boost::filesystem::path& path);
+		std::vector<unsigned char> LoadBinaryFile(boost::filesystem::path& path);
 		
 		boost::optional<boost::filesystem::path> ShadersDirectory();
 		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name, const std::string& type);

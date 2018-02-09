@@ -17,9 +17,11 @@
 
 #include "Exception.h"
 #include "Logger.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 
 
@@ -93,16 +95,21 @@ unsigned char* Image::data() const {
 void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	
 	//cout << "Loading image at path: " << m_path << endl;
-	AE_LOG->info("Loading image at path '{}'...", path.string());
+	AE_LOG->info("Loading image at path {}...", path.string());
 	
 	int width, height, num_byte_pix;
-	const char *path_cstr = path.string().c_str();
-	m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
+	//const char *path_cstr = path.string().c_str();
+
+    // work-around for path.string().c_str() encoding error in Win7
+	auto fileBuf = LoadBinaryFile(path);
+
+	//m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
+    m_data = stbi_load_from_memory(&fileBuf[0], fileBuf.size(), &width, &height, &num_byte_pix, 4);
 	
 	if (!m_data) {
 		//printf("Error loading image at path: %s\n", path_cstr);
 		char errMsg[1024];
-		sprintf(errMsg, "Error loading image at path: %s\n", path_cstr);
+		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string());
 		throw Exception(errMsg);
 		//AE_LOG->error("Error loading image at path: {}", path_cstr);
 		return;

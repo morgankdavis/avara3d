@@ -97,9 +97,9 @@ Program::Program(const string& name):
 				auto vsSource = LoadTextFile(*vsPath);
 				auto fsSource = LoadTextFile(*fsPath);
 				
-				//		cout << "vs: " << *vs << endl;
-				//		cout << "fs: " << *fs << endl;
-				
+//                cout << "vs: " << *vs << endl;
+//                cout << "fs: " << *fs << endl;
+
 				if (vsSource && fsSource) {
 					vertexShaderSource(*vsSource);
 					fragmentShaderSource(*fsSource);
@@ -107,8 +107,6 @@ Program::Program(const string& name):
 					prepare();
 				}
 				else {
-					//cout << "Couldn't load shader files." << endl;
-					//string errMsg = "Couldn't load shader sources.";
 					throw Exception("Couldn't load shader sources.");
 				}
 			}

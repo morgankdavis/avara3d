@@ -1,4 +1,4 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
@@ -12,7 +12,6 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - rigidbodies
-
 
 		Replace debug rendering  Wireframe & AABB programs with "Lines" + add color uniform
 		Add interface into ae::DebugOption

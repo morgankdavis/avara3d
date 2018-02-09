@@ -30,6 +30,10 @@ elseif(LINUX)
 
 	set(CMAKE_CXX_FLAGS "-std=c++14")
 
+elseif(WINDOWS)
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
+
 endif()
 
 

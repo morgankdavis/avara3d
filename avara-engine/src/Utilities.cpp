@@ -281,11 +281,12 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 }
 
 boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
+	AE_LOG->debug("Loading text file at path: {}...", path.string());
+
 	string line;
 	string source = "";
 	ifstream infile;
-	const char *path_cstr = path.string().c_str();
-	infile.open(path_cstr);
+	infile.open(path.string());
 	if (infile.is_open()) {
 		while (!infile.eof()) {
 			getline(infile, line);
@@ -296,6 +297,20 @@ boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 		return source;
 	}
 	return boost::none;
+}
+
+
+std::vector<unsigned char> ae::utils::LoadBinaryFile(boost::filesystem::path& path) {
+    ifstream ifs(path.string(), ios::binary|ios::ate);
+    ifstream::pos_type pos = ifs.tellg();
+
+    std::vector<unsigned char> result(pos);
+
+    ifs.seekg(0, ios::beg);
+    //ifs.read(&result[0], pos);
+    ifs.read((char*)&result[0], pos);
+
+    return result;
 }
 
 boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
@@ -371,7 +386,7 @@ shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 											const string& type) {
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
-		auto fullPath = *testDataDir / ("scenes/" + name + "." + type);
+		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
 		return make_shared<Scene>(fullPath.string());
 	}
 	return nullptr;
@@ -387,7 +402,7 @@ shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
 											bool flipHorizontal) {
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
-		auto fullPath = *testDataDir / ("images/" + name + "." + type);
+		auto fullPath = *testDataDir / "images" / (name + "." + type);
 		return make_shared<Image>(fullPath.string(), flipHorizontal);
 	}
 	return nullptr;
@@ -457,7 +472,7 @@ void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned m
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto fullPath = *execDir / filename;
-		window.startGIFRecording(fullPath.c_str(), maxHeight, maxFramerate);
+		window.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
 	}
 	else {
 		AE_LOG->warn("Couldn't locate executable directory.");
