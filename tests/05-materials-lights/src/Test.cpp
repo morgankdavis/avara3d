@@ -267,11 +267,11 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	DebugOption options = (DebugOption)m_window->debugOptions();
 	if (keysPressed.count(Key_F)) {
-		if (m_window->debugOptions() & DebugOption_ShowWireframe) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframe));
+		if (m_window->debugOptions() & DebugOption_ShowWireframes) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframes));
 		}
 		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframe));
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key_B)) {

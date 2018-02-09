@@ -113,7 +113,7 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void addedToNode(Node& node);
+		void attachedToNode(Node& node);
 		std::shared_ptr<btDefaultMotionState> btMotionState() const;
 		
 	private:

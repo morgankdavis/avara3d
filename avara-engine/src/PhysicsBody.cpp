@@ -247,7 +247,7 @@ void PhysicsBody::resetTransform() {
      MARK:   Internal
  **************************************************************************************/
 
-void PhysicsBody::addedToNode(Node& node) {
+void PhysicsBody::attachedToNode(Node& node) {
 	m_node = &node;
 	
 //	if (!m_shape) {

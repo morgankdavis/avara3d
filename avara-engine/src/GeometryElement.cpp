@@ -84,7 +84,7 @@ void GeometryElement::draw(const mat4& modelMat,
 	
 	material.prepareToRender(debugOptions);
 	
-	if (!(debugOptions & DebugOption_ShowWireframe)) {
+	if (!(debugOptions & DebugOption_ShowWireframes)) {
 		program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
 	}
 	

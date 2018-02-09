@@ -26,6 +26,7 @@ namespace ae {
 	class PhysicsContact;
 	class PhysicsDebugDrawer;
 	class PhysicsShape;
+	class Scene;
 	
 	
 	class PhysicsWorld {
@@ -75,11 +76,12 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
+		void attachedToScene(Scene& scene);
+		
 		void step();
 		
-		std::shared_ptr<PhysicsDebugDrawer> debugDrawer() const;
-		
 		std::shared_ptr<btDiscreteDynamicsWorld> btWorld() const;
+		std::shared_ptr<PhysicsDebugDrawer> debugDrawer() const;
 		
 	private:
 		
@@ -87,13 +89,14 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
+		Scene*													m_scene;
 		
 		std::shared_ptr<btDefaultCollisionConfiguration> 		m_btCollisionConfiguration;
 		std::shared_ptr<btCollisionDispatcher>					m_btDispatcher;
 		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
 		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
+		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
 		
 		glm::vec3 												m_gravity;
 		float 													m_speed;

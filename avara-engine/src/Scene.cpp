@@ -333,6 +333,7 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	m_physicsWorld = world;
+	world->attachedToScene(*this);
 }
 
 /***************************************************************************************

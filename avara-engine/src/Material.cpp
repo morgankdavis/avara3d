@@ -206,7 +206,7 @@ void Material::program(shared_ptr<Program> program) {
 //}
 
 shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
-	if (debugOptions & DebugOption_ShowWireframe) {
+	if (debugOptions & DebugOption_ShowWireframes) {
 		m_program = Program::Wireframe();
 	}
 	else {
@@ -217,7 +217,7 @@ shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
 
 void Material::prepareToRender(DebugOption debugOptions) {
 	
-	if (debugOptions & DebugOption_ShowWireframe) {
+	if (debugOptions & DebugOption_ShowWireframes) {
 		//m_program = Program::Wireframe();
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -225,7 +225,7 @@ void Material::prepareToRender(DebugOption debugOptions) {
 	else {
 		//m_program = Program::Default();
 		
-		//if ((debugOptions & DebugOption_ShowWireframe) || (m_fillMode == FillMode_Lines)) {
+		//if ((debugOptions & DebugOption_ShowWireframes) || (m_fillMode == FillMode_Lines)) {
 		if (m_fillMode == FillMode_Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}

@@ -22,10 +22,30 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DebugOption option) {
+	
+	switch (option) {
+		case DebugOption_ShowPhysicsBoundingBoxes:		return btIDebugDraw::DBG_DrawAabb;
+		case DebugOption_ShowPhysicsWireframes:			return btIDebugDraw::DBG_DrawWireframe;
+		case DebugOption_ShowPhysicsContactPoints: 		return btIDebugDraw::DBG_DrawContactPoints;
+		case DebugOption_ShowPhysicsNormals: 			return btIDebugDraw::DBG_DrawNormals;
+		case DebugOption_ShowPhysicsConstraints: 		return btIDebugDraw::DBG_DrawConstraints;
+		case DebugOption_ShowPhysicsConstraintLimits:	return btIDebugDraw::DBG_DrawConstraintLimits;
+		default:
+			AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
+			return btIDebugDraw::DBG_NoDebug;
+	}
+}
+
+/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
+	m_scene(nullptr),
 	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
 	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),

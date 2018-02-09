@@ -72,14 +72,18 @@ namespace ae {
 
 
 	typedef enum {
-		DebugOption_ShowStatsOveray = 		1 << 0,
-		DebugOption_ShowBoundingBoxes = 	1 << 1,
-		DebugOption_ShowWireframe = 		1 << 2,
-		DebugOption_ShowPhysicsShapes = 	1 << 3,
-		DebugOption_ShowPhysicsContacts = 	1 << 4,
-		DebugOption_ShowCameras = 			1 << 5,
-		DebugOption_ShowLights = 			1 << 6,
-		DebugOption_ShowLightExtents = 		1 << 7
+		DebugOption_ShowStatsOveray = 				1 << 0,
+		DebugOption_ShowBoundingBoxes = 			1 << 1,
+		DebugOption_ShowWireframes = 				1 << 2,
+		DebugOption_ShowCameras = 					1 << 3,
+		DebugOption_ShowLights = 					1 << 4,
+		DebugOption_ShowLightExtents = 				1 << 5,
+		DebugOption_ShowPhysicsBoundingBoxes = 		1 << 6,
+		DebugOption_ShowPhysicsWireframes = 		1 << 7,
+		DebugOption_ShowPhysicsContactPoints = 		1 << 8,
+		DebugOption_ShowPhysicsNormals = 			1 << 9,
+		DebugOption_ShowPhysicsConstraints =		1 << 10,
+		DebugOption_ShowPhysicsConstraintLimits	=	1 >> 11
 	} DebugOption;
 	
 	

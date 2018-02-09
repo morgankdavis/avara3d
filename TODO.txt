@@ -17,14 +17,11 @@ Tests:
 		Replace debug rendering  Wireframe & AABB programs with "Lines" + add color uniform
 		Add interface into ae::DebugOption
 
-			DBG_DrawWireframe = 1,
-			DBG_DrawAabb=2,
-			DBG_DrawContactPoints=8,
-			DBG_DrawNormals = (1<<14),
-			DBG_DrawConstraints = (1 << 11),
-			DBG_DrawConstraintLimits = (1 << 12),
+		DBG_DrawConstraintLimits = (1 << 12),
 
 		AE_LOG function to return __FILE__:__func__()
+
+		Switch generator to GLM
 
 		Fix box rotation:
 
@@ -78,6 +75,10 @@ Tests:
 		Optimize with btTriangleIndexVertexArray
 
 		Shut down & cleanup
+
+		attachedToNode() -> detachedFromNode()
+		attachedToScene() -> detachedFromScene()
+			SAME FOR GEOMETRIES, etc (back pointers)
 
 		Notes:
 			SCNPhysicsBehavior
