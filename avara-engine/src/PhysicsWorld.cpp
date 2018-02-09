@@ -143,6 +143,10 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
      MARK:   Internal
  **************************************************************************************/
 
+void PhysicsWorld::attachedToScene(Scene& scene) {
+
+}
+
 //void PhysicsWorld::step(float deltaTime) {
 void PhysicsWorld::step() {
 	AE_LOG->trace("step()");
