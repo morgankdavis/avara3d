@@ -307,7 +307,6 @@ std::vector<unsigned char> ae::utils::LoadBinaryFile(boost::filesystem::path& pa
     std::vector<unsigned char> result(pos);
 
     ifs.seekg(0, ios::beg);
-    //ifs.read(&result[0], pos);
     ifs.read((char*)&result[0], pos);
 
     return result;

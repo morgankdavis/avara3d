@@ -157,16 +157,16 @@ int Test::run(const vector<string>& args) {
 //	scene->background(background);
 
 
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
+//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
 //	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
-//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
-	pointLight->attenuationFactor(0.00015);
+	pointLight->attenuationFactor(0.00005);
 	auto pointLightNode = make_shared<Node>(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);

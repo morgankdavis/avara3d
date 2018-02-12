@@ -1,4 +1,4 @@
-﻿TODO:
+TODO:
 
 ——————————————————————————————————
 
@@ -118,6 +118,9 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Try out flat shading
+		https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm
 
 	Convert all path manipulations to boost::filesystem
 
