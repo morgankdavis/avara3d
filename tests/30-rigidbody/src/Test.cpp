@@ -369,6 +369,15 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	
+	if (keysPressed.count(Key_G)) {
+		if (m_window->debugOptions() & DebugOption_ShowPhysicsWireframes) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsWireframes));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsWireframes));
+		}
+	}
+	
 	if (keysPressed.count(Key_C)) {
 		if (m_window->debugOptions() & DebugOption_ShowPhysicsContactPoints) {
 			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsContactPoints));
@@ -377,6 +386,15 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsContactPoints));
 		}
 	}
+	
+	
+	
+//	DebugOption_ShowPhysicsBoundingBoxes = 		1 << 6,
+//	DebugOption_ShowPhysicsWireframes = 		1 << 7,
+//	DebugOption_ShowPhysicsContactPoints = 		1 << 8,
+//	DebugOption_ShowPhysicsNormals = 			1 << 9,
+//	DebugOption_ShowPhysicsConstraints =		1 << 10,
+//	DebugOption_ShowPhysicsConstraintLimits	=	1 >> 11
 
 	if (keysPressed.count(Key_V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));

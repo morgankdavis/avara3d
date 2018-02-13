@@ -208,9 +208,11 @@ void Material::program(shared_ptr<Program> program) {
 shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
 	if (debugOptions & DebugOption_ShowWireframes) {
 		m_program = Program::Wireframe();
+		glEnable(GL_LINE_SMOOTH);
 	}
 	else {
 		m_program = Program::Default();
+		glDisable(GL_LINE_SMOOTH);
 	}
 	return m_program;
 }

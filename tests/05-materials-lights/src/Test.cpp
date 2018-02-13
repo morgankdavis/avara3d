@@ -27,7 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			1600
 #define WINDOW_HEIGHT			900
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			AntialiasingMode_None
+#define ANTIALIAS_MODE			AntialiasingMode_4X
 
 
 /***************************************************************************************

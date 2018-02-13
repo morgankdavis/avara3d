@@ -210,6 +210,7 @@ void Geometry::drawAABB(const glm::mat4& modelMat,
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
+	glEnable(GL_LINE_SMOOTH);
 
 	// use shader program
 	

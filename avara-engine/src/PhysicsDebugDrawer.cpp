@@ -67,6 +67,7 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
+		glEnable(GL_LINE_SMOOTH);
 		
 		// use shader program
 		
@@ -77,8 +78,6 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 		program.setUniform("model", mat4(1.0));
 		program.setUniform("view", inverse(viewMat));
 		program.setUniform("projection", projectionMat);
-		
-		//program.setUniform("vertex_color", vec3(1.0, 0.0, 0.0));
 		
 		// draw
 		
