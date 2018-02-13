@@ -212,7 +212,7 @@ shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
 	}
 	else {
 		m_program = Program::Default();
-		glDisable(GL_LINE_SMOOTH);
+		//glDisable(GL_LINE_SMOOTH);
 	}
 	return m_program;
 }

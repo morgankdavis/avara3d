@@ -95,21 +95,14 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& color) {
 	
-//	auto line = DebugLine(GLMVec3FromBTVector3(from),
-//						  GLMVec3FromBTVector3(to),
-//						  GLMVec3FromBTVector3(color));
-//	auto line = DebugLine(GLMVec3FromBTVector3(from),
-//						  GLMVec3FromBTVector3(to));
-//	m_lines.emplace_back(line);
+	btVector3 newColor = color;
+	
+	// if the line is white, change it to magenta
+	if (FloatEqual(newColor[0], 1.0) && FloatEqual(newColor[1], 1.0) && FloatEqual(newColor[2], 1.0)) {
+		newColor = btVector3(1.0, 0.25, 1.0);
+	}
 
-//	m_lines.emplace_back(GLMVec3FromBTVector3(from));
-//	m_lines.emplace_back(GLMVec3FromBTVector3(color));
-//	m_lines.emplace_back(GLMVec3FromBTVector3(to));
-//	m_lines.emplace_back(GLMVec3FromBTVector3(color));
-	
-	//AE_LOG->debug("COLOR: {} {} {}", color.x(), color.y(), color.z());
-	
-	drawLine(from, to, color, color);
+	drawLine(from, to, color, newColor);
 }
 
 void PhysicsDebugDrawer::drawLine(const btVector3& from,

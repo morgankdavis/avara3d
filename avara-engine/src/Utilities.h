@@ -91,7 +91,7 @@ namespace ae {
 		bool Zero(const glm::vec3& v);
 		float Max(const glm::vec3& v);
 		
-		bool FloatEqual(float a, float b, float tolerance);
+		bool FloatEqual(float a, float b, float tolerance = 0.001);
 		
 		/***************************************************************************************
 		 MARK:   File Utilities

@@ -13,7 +13,16 @@ Tests:
 
 	30 - rigidbodies
 
-		Debug draw - tuple + colors
+		Debug draw
+
+		Draw geometry:
+			If debug draw physics wireframe:
+				If physics object:
+					draw nothing! (Will draw physics wireframe)
+				else if no physics object
+					draw normal wireframe
+			
+
 
 		AE_LOG function to return __FILE__:__func__()
 
