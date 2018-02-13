@@ -49,11 +49,11 @@ Image::Image(unsigned char* data, unsigned width, unsigned height, bool flipHori
 }
 
 Image::~Image() {
-	if (m_data) {
+	if (m_data != nullptr) {
 		//stbi_image_free(m_data);
 		//stbi_image_free() == free()
 		free(m_data);
-		//m_data = nullptr;
+		m_data = nullptr;
 	}
 }
 

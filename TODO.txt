@@ -51,6 +51,12 @@ Tests:
 		attachedToScene() -> detachedFromScene()
 			SAME FOR GEOMETRIES, etc (back pointers)
 
+		SIMD alignment
+
+		Kinematic objects:
+			body->setCollisionFlags( body->getCollisionFlags() |
+			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
+
 		Notes:
 			SCNPhysicsBehavior
 			SCNPhysicsHingeJoint

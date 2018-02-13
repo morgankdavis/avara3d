@@ -276,7 +276,7 @@ void PhysicsBody::attachedToNode(Node& node) {
 //	}
 	
 	
-	btVector3 localInertia(1, 1, 1);
+	btVector3 localInertia(0, 0, 0);
 	if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
 	
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PhysicsBodyType_Static ? 0 : m_mass),

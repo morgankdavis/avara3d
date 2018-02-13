@@ -32,14 +32,37 @@ using namespace glm;
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
 //#define PHYSICS_TIMESTEP		1.0/120.0
-#define PHYSICS_TIMESTEP		1.0/60.0
+//#define PHYSICS_TIMESTEP		1.0/60.0
+#define PHYSICS_TIMESTEP		1.0/90.0
 
 
 /***************************************************************************************
      MARK:   Static
  **************************************************************************************/
 
-void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
+void ShootBall(Scene& scene, vec3 location, vec3 direction) {
+	
+	cout << "location: " << location << endl;
+	
+	auto node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
+	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::White()));
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	physicsBody->mass(300.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.0);
+	physicsBody->rollingFriction(0.0);
+	physicsBody->velocity(direction * 150.0f);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
+void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	unsigned random = Random(0, 1);
 	shared_ptr<Node> node = nullptr;
@@ -52,7 +75,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
-	physicsBody->mass(1.0);
+	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.5);
@@ -63,7 +86,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
-void addBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
+void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
 	auto materialProperty = make_shared<MaterialProperty>(color);
@@ -117,7 +140,7 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 	
 	
-	const float PLANE_DIM = 20.0;
+	const float PLANE_DIM = 40.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, PLANE_DIM));
 	auto gridImage = TestImageNamed("grid10");
@@ -188,8 +211,8 @@ int Test::run(const vector<string>& args) {
 				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
 					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
 					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
-				addObject(*scene, position, color);
-				//addBox(*scene, position, color);
+				AddObject(*scene, position, color);
+				//AddBox(*scene, position, color);
 			}
 		}
 	}
@@ -273,8 +296,8 @@ int Test::run(const vector<string>& args) {
 //	pointLightNode->geometry(geometry);
 
 
-	scene->fogStartDistance(500.0);
-	scene->fogEndDistance(5000.0);
+	scene->fogStartDistance(100.0);
+	scene->fogEndDistance(600.0);
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
@@ -298,6 +321,15 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	previousSeconds = time;
 	
 	// get input
+	
+	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
+	if (mouseButtonsPressed.count(MouseButton_1)) {
+//		ShootBall(scene, m_window->pointOfView()->worldPosition(), 
+//				  m_window->pointOfView()->worldForward());
+
+		ShootBall(scene, m_window->pointOfView()->position(), 
+				  m_window->pointOfView()->worldForward());
+	}
 	
 	auto keysPressed = m_inputManager->keysPressed();
 	

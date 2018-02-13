@@ -425,6 +425,23 @@ void Node::transform(const mat4 transform) {
 
 vec3 Node::worldPosition() const {
 	return vec3(worldTransform() * vec4(m_position, 1.0f));
+	
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//	
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//	
+//	//mat4 rotationMat = mat4_cast(orientation);
+//	
+//	return normalize(position() * translation);
 }
 
 vec4 Node::worldRotation() const {
@@ -459,7 +476,6 @@ vec3 Node::worldForward() const {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	// this used to only work when rotationMatrix was inverted...(?)
 	return normalize(rotationMat * vec4(0, 0, -1, 1));
 }
 
@@ -479,7 +495,6 @@ vec3 Node::worldUp() const {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	// this used to only work when rotationMatrix was inverted...(?)
 	return normalize(rotationMat * vec4(0, 1, 0, 1));
 }
 
@@ -499,7 +514,6 @@ vec3 Node::worldRight() const {
 
 	mat4 rotationMat = mat4_cast(orientation);
 
-	// this used to only work when rotationMatrix was inverted...(?)
 	return normalize(rotationMat * vec4(1, 0, 0, 1));
 }
 
