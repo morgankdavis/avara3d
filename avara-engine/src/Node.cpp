@@ -404,13 +404,13 @@ mat4 Node::transform() const {
 }
 
 void Node::transform(const mat4 transform) {
-
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
 	vec3 skew;
 	vec4 perspective;
 	
+	// use GLM 0.9.9 or later. 0.9.8.5 has a bug in orientation calculation
 	decompose(transform,
 			  scale,
 			  orientation,
@@ -420,28 +420,12 @@ void Node::transform(const mat4 transform) {
 
 	m_position = translation;
 	m_scale = scale;
-	m_orientation = orientation; // must use GLM 0.9.9.9 or later! 0.9.9.8 has a bug.
+	m_orientation = orientation;
 }
 
 vec3 Node::worldPosition() const {
-	return vec3(worldTransform() * vec4(m_position, 1.0f));
-	
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//	
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//	
-//	//mat4 rotationMat = mat4_cast(orientation);
-//	
-//	return normalize(position() * translation);
+	auto world = worldTransform();	
+	return vec3(world[3][0], world[3][1], world[3][2]);
 }
 
 vec4 Node::worldRotation() const {

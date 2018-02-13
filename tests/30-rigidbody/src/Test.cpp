@@ -31,9 +31,10 @@ using namespace glm;
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
+#define PHYSICS_TIMESTEP		1.0/60.0
+//#define PHYSICS_TIMESTEP		1.0/90.0
 //#define PHYSICS_TIMESTEP		1.0/120.0
-//#define PHYSICS_TIMESTEP		1.0/60.0
-#define PHYSICS_TIMESTEP		1.0/90.0
+//#define PHYSICS_TIMESTEP		1.0/240.0
 
 
 /***************************************************************************************
@@ -179,14 +180,14 @@ int Test::run(const vector<string>& args) {
 //#define BOX_ARRAY_SIZE_Z	2
 	// -> 16
 	
-//#define BOX_ARRAY_SIZE_X	3
-//#define BOX_ARRAY_SIZE_Y	4
-//#define BOX_ARRAY_SIZE_Z	3
+#define BOX_ARRAY_SIZE_X	3
+#define BOX_ARRAY_SIZE_Y	4
+#define BOX_ARRAY_SIZE_Z	3
 	// -> 36
 	
-#define BOX_ARRAY_SIZE_X	4
-#define BOX_ARRAY_SIZE_Y	6
-#define BOX_ARRAY_SIZE_Z	4
+//#define BOX_ARRAY_SIZE_X	4
+//#define BOX_ARRAY_SIZE_Y	6
+//#define BOX_ARRAY_SIZE_Z	4
 	// -> 96
 	
 //#define BOX_ARRAY_SIZE_X	5
@@ -324,11 +325,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
 	if (mouseButtonsPressed.count(MouseButton_1)) {
-//		ShootBall(scene, m_window->pointOfView()->worldPosition(), 
-//				  m_window->pointOfView()->worldForward());
-
-		ShootBall(scene, m_window->pointOfView()->position(), 
-				  m_window->pointOfView()->worldForward());
+		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
 	
 	auto keysPressed = m_inputManager->keysPressed();
