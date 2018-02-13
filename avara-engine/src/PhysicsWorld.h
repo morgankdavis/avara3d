@@ -17,6 +17,8 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
+#include "Types.h"
+
 
 namespace ae {
 	
@@ -77,6 +79,8 @@ namespace ae {
 		 **************************************************************************************/
 		
 		void attachedToScene(Scene& scene);
+		
+		void debugOptions(DebugOption options);
 		
 		void step();
 		

@@ -141,6 +141,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	// moved from initializer list
 	
 	m_scene = make_shared<Scene>();
+	m_scene->window(this);
 	m_width = viewportWidth;
 	m_height = viewportHeight;
 
@@ -193,6 +194,8 @@ shared_ptr<Scene> Window::scene() const {
 
 void Window::scene(const shared_ptr<Scene> scene) {
 	m_scene = scene;
+	m_scene->window(this);
+	m_scene->attachedToWindow(*this);
 }
 
 bool Window::cursorCaptured() const {
@@ -228,6 +231,10 @@ DebugOption Window::debugOptions() const {
 
 void Window::debugOptions(DebugOption options) {
 	m_debugOptions = options;
+	
+	if (m_scene && m_scene->physicsWorld()) {
+		m_scene->physicsWorld()->debugOptions(m_debugOptions);
+	}
 }
 
 AntialiasingMode Window::antialiasingMode() const {

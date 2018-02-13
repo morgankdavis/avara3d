@@ -12,7 +12,9 @@
 
 #include "Logger.h"
 #include "PhysicsDebugDrawer.h"
+#include "Scene.h"
 #include "Utilities.h"
+#include "Window.h"
 
 
 using namespace ae;
@@ -69,7 +71,7 @@ PhysicsWorld::PhysicsWorld():
 //									btIDebugDraw::DBG_ProfileTimings |
 //									btIDebugDraw::DBG_DrawContactPoints);
 //		
-//		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
 }
 
 /***************************************************************************************
@@ -141,7 +143,40 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
  **************************************************************************************/
 
 void PhysicsWorld::attachedToScene(Scene& scene) {
+	if (scene.window()) {
+		debugOptions(scene.window()->debugOptions());
+	}
+}
 
+void PhysicsWorld::debugOptions(DebugOption options) {
+	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
+
+	if (options & DebugOption_ShowPhysicsBoundingBoxes) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsBoundingBoxes));
+	}
+	if (options & DebugOption_ShowPhysicsWireframes) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsWireframes));
+	}
+	if (options & DebugOption_ShowPhysicsContactPoints) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsContactPoints));
+	}
+	if (options & DebugOption_ShowPhysicsNormals) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsNormals));
+	}
+	if (options & DebugOption_ShowPhysicsConstraints) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsConstraints));
+	}
+	if (options & DebugOption_ShowPhysicsConstraintLimits) {
+		btModes = (btIDebugDraw::DebugDrawModes)
+		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsConstraintLimits));
+	}
+	
+	m_debugDrawer->setDebugMode(btModes);
 }
 
 //void PhysicsWorld::step(float deltaTime) {

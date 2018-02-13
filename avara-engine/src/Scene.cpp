@@ -340,6 +340,20 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
      MARK:   Internal
  **************************************************************************************/
 
+Window* Scene::window() const {
+	return m_window;
+}
+
+void Scene::window(Window* window) {
+	m_window = window;
+}
+
+void Scene::attachedToWindow(Window& window) {
+	if (m_physicsWorld) {
+		m_physicsWorld->attachedToScene(*this);
+	}
+}
+
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DebugOption& debugOptions,
 				 DrawStats& stats) {

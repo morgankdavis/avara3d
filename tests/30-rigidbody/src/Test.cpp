@@ -357,6 +357,15 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 			m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
 		}
 	}
+	
+	if (keysPressed.count(Key_P)) {
+		if (m_window->debugOptions() & DebugOption_ShowPhysicsBoundingBoxes) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsBoundingBoxes));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsBoundingBoxes));
+		}
+	}
 
 	if (keysPressed.count(Key_V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));
