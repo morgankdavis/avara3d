@@ -192,12 +192,6 @@ void PhysicsWorld::step() {
 	
 	m_debugDrawer->clear();
 	m_btWorld->debugDrawWorld();
-	
-// http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
-//	btDynamicsWorld::stepSimulation(
-//									btScalar timeStep,
-//									int maxSubSteps=1,
-//									btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 }
 
 shared_ptr<PhysicsDebugDrawer> PhysicsWorld::debugDrawer() const {

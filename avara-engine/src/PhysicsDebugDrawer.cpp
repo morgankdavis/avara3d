@@ -56,30 +56,36 @@ void PhysicsDebugDrawer::clear() {
 void PhysicsDebugDrawer::draw(const mat4& viewMat,
 							  const mat4& projectionMat) {
 
-	Program program = *Program::Lines();
+	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 
-	loadLinesVertexData(program);
-	
-	// gl config
-	
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-	
-	// use shader program
-	
-	program.use();
-	
-	// uniforms
-	
-	program.setUniform("view", inverse(viewMat));
-	program.setUniform("projection", projectionMat);
-	
-	// draw
-	
-	glBindVertexArray(m_glLinesVAO);
-	glDrawArrays(GL_LINES, 0, m_lines.size());
-	//glBindVertexArray(0);
+		Program program = *Program::Lines();
+		
+		loadLinesVertexData(program);
+		
+		// gl config
+		
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
+		
+		// use shader program
+		
+		program.use();
+		
+		// uniforms
+		
+		program.setUniform("model", mat4(1.0));
+		program.setUniform("view", inverse(viewMat));
+		program.setUniform("projection", projectionMat);
+		
+		//program.setUniform("vertex_color", vec3(1.0, 0.0, 0.0));
+		
+		// draw
+		
+		glBindVertexArray(m_glLinesVAO);
+		glDrawArrays(GL_LINES, 0, m_lines.size());
+		//glBindVertexArray(0);
+	}
 }
 
 /***************************************************************************************
