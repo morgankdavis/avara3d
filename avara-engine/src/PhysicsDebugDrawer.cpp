@@ -51,14 +51,6 @@ PhysicsDebugDrawer::~PhysicsDebugDrawer() {
 
 void PhysicsDebugDrawer::clear() {
 	m_lines.clear();
-	
-//	GLuint vbo = m_glLinesVBO;
-//	glDeleteBuffers(1, &vbo);
-//	GLuint vao = m_glLinesVAO;
-//	glDeleteVertexArrays(1, &vao);
-//
-//	m_glLinesVBO = -1;
-//	m_glLinesVAO = -1;
 }
 
 void PhysicsDebugDrawer::draw(const mat4& viewMat,

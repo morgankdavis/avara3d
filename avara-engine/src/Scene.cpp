@@ -242,7 +242,8 @@ Scene::Scene():
 	m_fogEndDistance(0.0),
 	m_fogDensityExponent(0.0),
 	m_fogColor(nullptr),
-	m_physicsWorld(nullptr) {
+	m_physicsWorld(nullptr),
+	m_window(nullptr) {
 		
 		m_rootNode->scene(this);
 		
@@ -333,7 +334,7 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	m_physicsWorld = world;
-	world->attachedToScene(*this);
+	m_physicsWorld->attachedToScene(*this);
 }
 
 /***************************************************************************************
@@ -350,6 +351,8 @@ void Scene::window(Window* window) {
 
 void Scene::attachedToWindow(Window& window) {
 	if (m_physicsWorld) {
+		m_window = &window;
+		//m_physicsWorld->sc
 		m_physicsWorld->attachedToScene(*this);
 	}
 }

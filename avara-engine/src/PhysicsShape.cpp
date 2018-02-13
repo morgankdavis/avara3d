@@ -14,6 +14,7 @@
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Logger.h"
+#include "Sphere.h"
 
 
 using namespace ae;
@@ -58,13 +59,16 @@ void PhysicsShape::createBTShape() {
 	AE_LOG->debug("Creating bullet shape...");
 	
 	
-//	if (dynamic_cast<Box*>(&(*m_sourceGeometry))) {
-//		// do something
+//	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
+//		AE_LOG->debug("BOX");
 //	}
-//	if (m_sourceGeometry) { // IF BOX
-//		
+//	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
+//		AE_LOG->debug("SPHERE");
 //	}
-//	else { // some other more complex shape
+//	else { // some other non-primitive shape
+		
+		AE_LOG->debug("NON-PRIMITIVE SHAPE");
+		
 		unsigned numVerticies = 0;
 		for (auto element : m_sourceGeometry->elements()) {
 			numVerticies += element->vertices().size();
