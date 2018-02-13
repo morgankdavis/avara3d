@@ -34,7 +34,7 @@ namespace ae {
 		
 	public:
 		
-//		virtual void thing();
+		virtual void thing();
 		
 		/***************************************************************************************
 		     MARK:   Lifecycle

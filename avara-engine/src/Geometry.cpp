@@ -29,9 +29,9 @@ using namespace glm;
 using namespace utils;
 
 
-//void Geometry::thing() {
-//	
-//}
+void Geometry::thing() {
+	
+}
 
 
 /***************************************************************************************

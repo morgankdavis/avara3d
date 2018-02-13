@@ -34,6 +34,8 @@ using namespace std;
 Sphere::Sphere(float radius, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
+		m_radius = radius;
+		
 		/// @param radius The radius of the containing sphere.
 		/// @param segments The number of segments per icosahedron edge. Must be >= 1.
 		
@@ -116,74 +118,83 @@ Sphere::Sphere(float radius, int segments):
 //}
 
 /***************************************************************************************
+    	 MARK:   Public
+ **************************************************************************************/
+
+float Sphere::radius() const {
+	return m_radius;
+}
+
+/***************************************************************************************
 	MARK:   Private
 **************************************************************************************/
 
-void Sphere::generateIcosahedron(vector<Vertex>& verticies, int subdivision) {
-	// https://github.com/g-truc/ogl-samples/blob/master/framework/mesh.cpp
+//void Sphere::generateIcosahedron(vector<Vertex>& verticies, int subdivision) {
+//	// https://github.com/g-truc/ogl-samples/blob/master/framework/mesh.cpp
+//
+//	// the golden ratio
+//	float t = (1 + sqrt(5)) / 2;
+//	float size = 1.0f;
+//
+//	vec3 const A = normalize(vec3(-size, t * size, 0.0f));	// 0
+//	vec3 const B = normalize(vec3(+size, t * size, 0.0f));	// 1
+//	vec3 const C = normalize(vec3(-size,-t * size, 0.0f));	// 2
+//	vec3 const D = normalize(vec3(+size,-t * size, 0.0f));	// 3
+//
+//	vec3 const E = normalize(vec3(0.0f,-size, t * size));	// 4
+//	vec3 const F = normalize(vec3(0.0f, size, t * size));	// 5
+//	vec3 const G = normalize(vec3(0.0f,-size,-t * size));	// 6
+//	vec3 const H = normalize(vec3(0.0f, size,-t * size));	// 7
+//
+//	vec3 const I = normalize(vec3( t * size, 0.0f,-size));	// 8
+//	vec3 const J = normalize(vec3( t * size, 0.0f, size));	// 9
+//	vec3 const K = normalize(vec3(-t * size, 0.0f,-size));	// 10
+//	vec3 const L = normalize(vec3(-t * size, 0.0f, size));	// 11
+//
+//	subdivideIcosahedron(verticies, A, L, F, subdivision);
+//	subdivideIcosahedron(verticies, A, F, B, subdivision);
+//	subdivideIcosahedron(verticies, A, B, H, subdivision);
+//	subdivideIcosahedron(verticies, A, H, K, subdivision);
+//	subdivideIcosahedron(verticies, A, K, L, subdivision);
+//
+//	subdivideIcosahedron(verticies, B, F, J, subdivision);
+//	subdivideIcosahedron(verticies, F, L, E, subdivision);
+//	subdivideIcosahedron(verticies, L, K, C, subdivision);
+//	subdivideIcosahedron(verticies, K, H, G, subdivision);
+//	subdivideIcosahedron(verticies, H, B, I, subdivision);
+//
+//	subdivideIcosahedron(verticies, D, J, E, subdivision);
+//	subdivideIcosahedron(verticies, D, E, C, subdivision);
+//	subdivideIcosahedron(verticies, D, C, G, subdivision);
+//	subdivideIcosahedron(verticies, D, G, I, subdivision);
+//	subdivideIcosahedron(verticies, D, I, J, subdivision);
+//
+//	subdivideIcosahedron(verticies, E, J, F, subdivision);
+//	subdivideIcosahedron(verticies, C, E, L, subdivision);
+//	subdivideIcosahedron(verticies, G, C, K, subdivision);
+//	subdivideIcosahedron(verticies, I, G, H, subdivision);
+//	subdivideIcosahedron(verticies, J, I, B, subdivision);
+//}
+//
+//void Sphere::subdivideIcosahedron(vector<Vertex>& verticies, vec3 const& A0, vec3 const& B0, vec3 const& C0, int subdivide) {
+//	if (subdivide == 0) {
+//		verticies.push_back({A0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
+//		verticies.push_back({B0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
+//		verticies.push_back({C0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
+//	}
+//	else {
+//		vec3 A1 = (B0 + C0) * 0.5f;
+//		vec3 B1 = (C0 + A0) * 0.5f;
+//		vec3 C1 = (A0 + B0) * 0.5f;
+//
+//		if (length(A1) > 0.0f) A1 = normalize(A1);
+//		if (length(B1) > 0.0f) B1 = normalize(B1);
+//		if (length(C1) > 0.0f) C1 = normalize(C1);
+//
+//		subdivideIcosahedron(verticies, A0, B1, C1, subdivide - 1);
+//		subdivideIcosahedron(verticies, B0, C1, A1, subdivide - 1);
+//		subdivideIcosahedron(verticies, C0, A1, B1, subdivide - 1);
+//		subdivideIcosahedron(verticies, B1, A1, C1, subdivide - 1);
+//	}
+//}
 
-	// the golden ratio
-	float t = (1 + sqrt(5)) / 2;
-	float size = 1.0f;
-
-	vec3 const A = normalize(vec3(-size, t * size, 0.0f));	// 0
-	vec3 const B = normalize(vec3(+size, t * size, 0.0f));	// 1
-	vec3 const C = normalize(vec3(-size,-t * size, 0.0f));	// 2
-	vec3 const D = normalize(vec3(+size,-t * size, 0.0f));	// 3
-
-	vec3 const E = normalize(vec3(0.0f,-size, t * size));	// 4
-	vec3 const F = normalize(vec3(0.0f, size, t * size));	// 5
-	vec3 const G = normalize(vec3(0.0f,-size,-t * size));	// 6
-	vec3 const H = normalize(vec3(0.0f, size,-t * size));	// 7
-
-	vec3 const I = normalize(vec3( t * size, 0.0f,-size));	// 8
-	vec3 const J = normalize(vec3( t * size, 0.0f, size));	// 9
-	vec3 const K = normalize(vec3(-t * size, 0.0f,-size));	// 10
-	vec3 const L = normalize(vec3(-t * size, 0.0f, size));	// 11
-
-	subdivideIcosahedron(verticies, A, L, F, subdivision);
-	subdivideIcosahedron(verticies, A, F, B, subdivision);
-	subdivideIcosahedron(verticies, A, B, H, subdivision);
-	subdivideIcosahedron(verticies, A, H, K, subdivision);
-	subdivideIcosahedron(verticies, A, K, L, subdivision);
-
-	subdivideIcosahedron(verticies, B, F, J, subdivision);
-	subdivideIcosahedron(verticies, F, L, E, subdivision);
-	subdivideIcosahedron(verticies, L, K, C, subdivision);
-	subdivideIcosahedron(verticies, K, H, G, subdivision);
-	subdivideIcosahedron(verticies, H, B, I, subdivision);
-
-	subdivideIcosahedron(verticies, D, J, E, subdivision);
-	subdivideIcosahedron(verticies, D, E, C, subdivision);
-	subdivideIcosahedron(verticies, D, C, G, subdivision);
-	subdivideIcosahedron(verticies, D, G, I, subdivision);
-	subdivideIcosahedron(verticies, D, I, J, subdivision);
-
-	subdivideIcosahedron(verticies, E, J, F, subdivision);
-	subdivideIcosahedron(verticies, C, E, L, subdivision);
-	subdivideIcosahedron(verticies, G, C, K, subdivision);
-	subdivideIcosahedron(verticies, I, G, H, subdivision);
-	subdivideIcosahedron(verticies, J, I, B, subdivision);
-}
-
-void Sphere::subdivideIcosahedron(vector<Vertex>& verticies, vec3 const& A0, vec3 const& B0, vec3 const& C0, int subdivide) {
-	if (subdivide == 0) {
-		verticies.push_back({A0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
-		verticies.push_back({B0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
-		verticies.push_back({C0, vec3(0.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)});
-	}
-	else {
-		vec3 A1 = (B0 + C0) * 0.5f;
-		vec3 B1 = (C0 + A0) * 0.5f;
-		vec3 C1 = (A0 + B0) * 0.5f;
-
-		if (length(A1) > 0.0f) A1 = normalize(A1);
-		if (length(B1) > 0.0f) B1 = normalize(B1);
-		if (length(C1) > 0.0f) C1 = normalize(C1);
-
-		subdivideIcosahedron(verticies, A0, B1, C1, subdivide - 1);
-		subdivideIcosahedron(verticies, B0, C1, A1, subdivide - 1);
-		subdivideIcosahedron(verticies, C0, A1, B1, subdivide - 1);
-		subdivideIcosahedron(verticies, B1, A1, C1, subdivide - 1);
-	}
-}

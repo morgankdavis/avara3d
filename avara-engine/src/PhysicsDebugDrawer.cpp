@@ -56,7 +56,7 @@ void PhysicsDebugDrawer::clear() {
 void PhysicsDebugDrawer::draw(const mat4& viewMat,
 							  const mat4& projectionMat) {
 
-	Program program = *Program::AABB();
+	Program program = *Program::Lines();
 
 	loadLinesVertexData(program);
 	
@@ -72,7 +72,6 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 	
 	// uniforms
 	
-	program.setUniform("model", mat4(1.0)); // TEMPORARY
 	program.setUniform("view", inverse(viewMat));
 	program.setUniform("projection", projectionMat);
 	
@@ -90,10 +89,16 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& color) {
+	
+//	auto line = DebugLine(GLMVec3FromBTVector3(from),
+//						  GLMVec3FromBTVector3(to),
+//						  GLMVec3FromBTVector3(color));
+//	auto line = DebugLine(GLMVec3FromBTVector3(from),
+//						  GLMVec3FromBTVector3(to));
+//	m_lines.emplace_back(line);
 
 	m_lines.emplace_back(GLMVec3FromBTVector3(from));
 	m_lines.emplace_back(GLMVec3FromBTVector3(to));
-	//m_lines.emplace_back(color);
 	
 	//AE_LOG->debug("COLOR: {} {} {}", color.x(), color.y(), color.z());
 }
@@ -148,7 +153,72 @@ int PhysicsDebugDrawer::getDebugMode() const {
      MARK:   Private
  **************************************************************************************/
 
-//std::vector<DebugLine> popDebugLines();
+//void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
+//	
+//	//AE_LOG->debug("loadLinesVertexData()");
+//	
+//	if (m_glLinesVBO == -1) {
+//		GLuint vbo;
+//		glGenBuffers(1, &vbo);
+//		m_glLinesVBO = vbo;
+//	}
+//	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_glLinesVBO);
+//	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(DebugLine), &(m_lines[0]), GL_DYNAMIC_DRAW);
+//	
+//	if (m_glLinesVAO == -1) {
+//		GLuint vao;
+//		glGenVertexArrays(1, &vao);
+//		m_glLinesVAO = vao;
+//	}
+//	glBindVertexArray((GLuint)m_glLinesVAO);
+//	
+//	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+//	glVertexAttribPointer(positionIndex, 		// attrib index
+//						  3, 					// num components per attrib (3 float in vec3)
+//						  GL_FLOAT, 			// component type
+//						  GL_FALSE, 			// normalize
+//						  sizeof(DebugLine),	// stride
+//						  0); 					// start offset
+//	glEnableVertexAttribArray(positionIndex);
+//	
+//	GLuint colorIndex = program.getAttributeLocation("vertex_color");
+//	glVertexAttribPointer(colorIndex, 		// attrib index
+//						  3, 					// num components per attrib (3 float in vec3)
+//						  GL_FLOAT, 			// component type
+//						  GL_FALSE, 			// normalize
+//						  sizeof(DebugLine),	// stride
+//						  (void*)&(m_lines[2]));	// start offset <-----------
+//	glEnableVertexAttribArray(colorIndex);
+//}
+
+//void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
+//	
+//	//AE_LOG->debug("loadLinesVertexData()");
+//	
+//	if (m_glLinesVBO == -1) {
+//		GLuint vbo;
+//		glGenBuffers(1, &vbo);
+//		m_glLinesVBO = vbo;
+//	}
+//	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_glLinesVBO);
+//	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(DebugLine), &(m_lines[0]), GL_DYNAMIC_DRAW);
+//	
+//	if (m_glLinesVAO == -1) {
+//		GLuint vao;
+//		glGenVertexArrays(1, &vao);
+//		m_glLinesVAO = vao;
+//	}
+//	glBindVertexArray((GLuint)m_glLinesVAO);
+//	
+//	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+//	glVertexAttribPointer(positionIndex, 		// attrib index
+//						  3, 					// num components per attrib (3 float in vec3)
+//						  GL_FLOAT, 			// component type
+//						  GL_FALSE, 			// normalize
+//						  sizeof(DebugLine),	// stride
+//						  0); 					// start offset
+//	glEnableVertexAttribArray(positionIndex);
+//}
 
 void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 	
@@ -161,7 +231,6 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_glLinesVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_DYNAMIC_DRAW);
-//	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_STATIC_DRAW);
 	
 	if (m_glLinesVAO == -1) {
 		GLuint vao;
@@ -169,8 +238,6 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 		m_glLinesVAO = vao;
 	}
 	glBindVertexArray((GLuint)m_glLinesVAO);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 		// attrib index
@@ -181,3 +248,4 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 						  0); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
 }
+

@@ -57,7 +57,7 @@ void addObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.5);
 	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
-	physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
+	//physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -74,11 +74,11 @@ void addBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	physicsBody->mass(1.0);
-	physicsBody->restitution(0.45);
-	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->restitution(0.25);
+	physicsBody->friction(0.25);
+	physicsBody->rollingFriction(0.025);
 	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
-	physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
+	//physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -89,34 +89,7 @@ void addBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
  **************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-	
-	
-	auto epath = ExecutablePath();
-	if (epath) {
-		cout << "ExecutablePath: " << *epath << endl;
-	}
-	else {
-		cout << "Can't get ExecutablePath" << endl;
-	}
-	
-	auto edir = ExecutableDirectory();
-	if (edir) {
-		cout << "ExecutableDirectory: " << *edir << endl;
-	}
-	else {
-		cout << "Can't get ExecutableDirectory" << endl;
-	}
-	
-	auto cwd = CurrentWorkingDirectory();
-	if (cwd) {
-		cout << "CurrentWorkingDirectory: " << *cwd << endl;
-	}
-	else {
-		cout << "Can't get CurrentWorkingDirectory" << endl;
-	}
-	
-	
-	
+
 	LoggerSink sinks = (LoggerSink)0;
 	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
@@ -165,9 +138,9 @@ int Test::run(const vector<string>& args) {
 	auto placePhysicsShape = make_shared<PhysicsShape>(planeNode->geometry(), PhysicsShapeType_ConvexHull);
 	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
 	planePhysicsBody->mass(0);
-	planePhysicsBody->restitution(0.5);
-	planePhysicsBody->friction(0.5);
-	planePhysicsBody->rollingFriction(0.5);
+	planePhysicsBody->restitution(0.25);
+	planePhysicsBody->friction(0.75);
+	planePhysicsBody->rollingFriction(0.75);
 	planeNode->physicsBody(planePhysicsBody);
 	
 	
@@ -183,14 +156,14 @@ int Test::run(const vector<string>& args) {
 //#define BOX_ARRAY_SIZE_Z	2
 	// -> 16
 	
-#define BOX_ARRAY_SIZE_X	3
-#define BOX_ARRAY_SIZE_Y	4
-#define BOX_ARRAY_SIZE_Z	3
+//#define BOX_ARRAY_SIZE_X	3
+//#define BOX_ARRAY_SIZE_Y	4
+//#define BOX_ARRAY_SIZE_Z	3
 	// -> 36
 	
-//	#define BOX_ARRAY_SIZE_X	4
-//	#define BOX_ARRAY_SIZE_Y	6
-//	#define BOX_ARRAY_SIZE_Z	4
+#define BOX_ARRAY_SIZE_X	4
+#define BOX_ARRAY_SIZE_Y	6
+#define BOX_ARRAY_SIZE_Z	4
 	// -> 96
 	
 //#define BOX_ARRAY_SIZE_X	5
@@ -215,8 +188,8 @@ int Test::run(const vector<string>& args) {
 				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
 					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
 					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
-				//addObject(*scene, position, color);
-				addBox(*scene, position, color);
+				addObject(*scene, position, color);
+				//addBox(*scene, position, color);
 			}
 		}
 	}

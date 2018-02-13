@@ -29,11 +29,16 @@ using namespace std;
 
 Box::Box(float width, float height, float length):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+		
+		m_width = width;
+		m_height = height;
+		m_length = length;
 	
 		/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 		/// @param segments The number of segments in x (0), y (1) and z (2)
 		
 		BoxMesh box{{width/2.0, height/2.0, length/2.0}, {1, 1, 1}};
+		//BoxMesh box{{width/2.0, height/2.0, length/2.0}, {(int)lround(width), (int)lround(height), (int)lround(length)}};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : box.vertices()) {
@@ -104,3 +109,18 @@ Box::Box(float width, float height, float length):
 //	generateFlatNormals();
 //}
 
+/***************************************************************************************
+    	 MARK:   Public
+ **************************************************************************************/
+
+float Box::width() const {
+	return m_width;
+}
+
+float Box::height() const {
+	return m_height;
+}
+
+float Box::length() const {
+	return m_length;
+}

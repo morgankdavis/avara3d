@@ -306,6 +306,7 @@ void PhysicsBody::attachedToNode(Node& node) {
 	m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
 	m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
 	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
+	//m_btRigidBody->setGravity()
 	
 	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
 	

@@ -179,7 +179,6 @@ void PhysicsWorld::debugOptions(DebugOption options) {
 	m_debugDrawer->setDebugMode(btModes);
 }
 
-//void PhysicsWorld::step(float deltaTime) {
 void PhysicsWorld::step() {
 	AE_LOG->trace("step()");
 	

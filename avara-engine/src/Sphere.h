@@ -30,15 +30,23 @@ namespace ae {
 	 	 **************************************************************************************/
 		
 		Sphere(float radius, int segments);
+		
+		/***************************************************************************************
+		    	 MARK:   Public
+		 **************************************************************************************/
 
+		float radius() const;
+		
 	private:
 
 		/***************************************************************************************
 	    	 MARK:   Private
 	 	 **************************************************************************************/
+		
+		float		m_radius;
 
-		void generateIcosahedron(std::vector<Vertex>& verticies, int subdivision);
-		void subdivideIcosahedron(std::vector<Vertex>& verticies, glm::vec3 const& A0, glm::vec3 const& B0, glm::vec3 const& C0, int subdivide);
+//		void generateIcosahedron(std::vector<Vertex>& verticies, int subdivision);
+//		void subdivideIcosahedron(std::vector<Vertex>& verticies, glm::vec3 const& A0, glm::vec3 const& B0, glm::vec3 const& C0, int subdivide);
 	};
 	
 }

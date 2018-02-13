@@ -62,6 +62,14 @@ shared_ptr<Program> Program::AABB() {
     return program;
 }
 
+shared_ptr<Program> Program::Lines() {
+	static shared_ptr<Program> program = nullptr;
+	if (!program) {
+		program = make_shared<Program>("lines");
+	}
+	return program;
+}
+
 /*******************************************************************************
      MARK:   Lifecycle
  ******************************************************************************/

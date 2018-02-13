@@ -14,6 +14,7 @@
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Logger.h"
+#include "Plane.h"
 #include "Sphere.h"
 
 
@@ -59,65 +60,47 @@ void PhysicsShape::createBTShape() {
 	AE_LOG->debug("Creating bullet shape...");
 	
 	
-//	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
-//		AE_LOG->debug("BOX");
+	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
+		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0, box->height()/2.0, box->length()/2.0));
+	}
+	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
+		auto sphere = dynamic_cast<Sphere*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btSphereShape>(sphere->radius());
+	}
+	
+	// cylinder
+	// capsule
+	// cone
+	
+//	else if (dynamic_cast<Plane*>(m_sourceGeometry.get())) {
+//		auto plane = dynamic_cast<Plane*>(m_sourceGeometry.get());
+//		float thickness = (plane->width()/2.0 + plane->height()/2.0) / 50.0;
+//		m_btShape = make_shared<btBoxShape>(btVector3(plane->width()/2.0, plane->height()/2.0, thickness));
 //	}
-//	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
-//		AE_LOG->debug("SPHERE");
-//	}
-//	else { // some other non-primitive shape
-		
-		AE_LOG->debug("NON-PRIMITIVE SHAPE");
+	else {
+		// some other non-primitive shape
 		
 		unsigned numVerticies = 0;
 		for (auto element : m_sourceGeometry->elements()) {
 			numVerticies += element->vertices().size();
 		}
+		vector<Vertex> verticies;
+		verticies.reserve(numVerticies);
 		
-	//	switch (type) {
-	//		case PhysicsBodyType_Static: {
-	//
-	//			m_btTriangleMesh = make_shared<btTriangleMesh>();
-	//
-	//			for (auto element : m_sourceGeometry->elements()) {
-	//				auto verticies = element->vertices();
-	//				for (auto face : element->faces()) {
-	//					auto vertA = verticies[face.a].position;
-	//					auto vertB = verticies[face.b].position;
-	//					auto vertC = verticies[face.c].position;
-	//					
-	//					m_btTriangleMesh->addTriangle(*((btVector3*)(&vertA)),
-	//												  *((btVector3*)(&vertB)),
-	//												  *((btVector3*)(&vertC)),
-	//												  false);
-	//				}
-	//			}
-	//
-	//			m_btShape = make_shared<btBvhTriangleMeshShape>(m_btTriangleMesh.get(), false);
-	//
-	//			break; }
-	//			
-	//		case PhysicsBodyType_Dynamic: {
-				
-				vector<Vertex> verticies;
-				verticies.reserve(numVerticies);
-				
-				for (auto element : m_sourceGeometry->elements()) {
-					auto elementVerts = element->vertices();
-					verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-				}
-				
-				m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-														   numVerticies,
-														   sizeof(Vertex));
-				
-	//			break; }
-	//			
-	//		case PhysicsBodyType_Kinematic: {
-	//			break; }
-	//	}
-			
-//	}
+		for (auto element : m_sourceGeometry->elements()) {
+			auto elementVerts = element->vertices();
+			verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+		}
+		
+		m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+												   numVerticies,
+												   sizeof(Vertex));	
+	}
+	
+//	// *** TEMPORARY ***
+//	m_btShape->setMargin(0);
+//	AE_LOG->debug("m_btShape->getMargin(): {}", m_btShape->getMargin());
 }
 
 shared_ptr<btCollisionShape> PhysicsShape::btShape() const {

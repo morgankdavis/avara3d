@@ -30,10 +30,14 @@ using namespace std;
 Plane::Plane(float width, float height):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
+		m_width = width;
+		m_height = height;
+		
 		/// @param size Half of the side length in x (0) and y (1) direction.
 		/// @param segments Number of subdivisions in the x (0) and y (1) direction.
 
-		PlaneMesh plane{{width/2.0, height/2.0}, {1, 1}};
+		// subdivisions are good for Bullet
+		PlaneMesh plane{{width/2.0, height/2.0}, {(int)lround(width), (int)lround(height)}};
 
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : plane.vertices()) {
@@ -83,3 +87,14 @@ Plane::Plane(float width, float height):
 //		loadVertexData();
 //}
 
+/***************************************************************************************
+    	 MARK:   Public
+ **************************************************************************************/
+
+float Plane::width() const {
+	return m_width;
+}
+
+float Plane::height() const {
+	return m_height;
+}

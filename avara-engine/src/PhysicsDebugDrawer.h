@@ -20,7 +20,8 @@
 namespace ae {
 	
 	
-	//typedef std::tuple<btVector3, btVector3, btVector3> DebugLine;
+	//typedef std::tuple<glm::vec3, glm::vec3, glm::vec3> DebugLine;
+	//typedef std::tuple<glm::vec3, glm::vec3> DebugLine;
 	
 	
 	class Program;
@@ -44,8 +45,6 @@ namespace ae {
 		void clear();
 		void draw(const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat);
-		
-		//std::vector<DebugLine> popDebugLines(); // returns all saved debug lines and clears the buffer
 
 		/***************************************************************************************
 		     MARK:   btIDebugDraw
