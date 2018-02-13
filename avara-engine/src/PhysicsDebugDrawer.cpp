@@ -103,17 +103,26 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 //						  GLMVec3FromBTVector3(to));
 //	m_lines.emplace_back(line);
 
-	m_lines.emplace_back(GLMVec3FromBTVector3(from));
-	m_lines.emplace_back(GLMVec3FromBTVector3(to));
+//	m_lines.emplace_back(GLMVec3FromBTVector3(from));
+//	m_lines.emplace_back(GLMVec3FromBTVector3(color));
+//	m_lines.emplace_back(GLMVec3FromBTVector3(to));
+//	m_lines.emplace_back(GLMVec3FromBTVector3(color));
 	
 	//AE_LOG->debug("COLOR: {} {} {}", color.x(), color.y(), color.z());
+	
+	drawLine(from, to, color, color);
 }
 
 void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& fromColor,
 								  const btVector3& toColor) {
-	AE_LOG->debug(AE_FUNC);
+	//AE_LOG->debug(AE_FUNC);
+	
+	m_lines.emplace_back(GLMVec3FromBTVector3(from));
+	m_lines.emplace_back(GLMVec3FromBTVector3(fromColor));
+	m_lines.emplace_back(GLMVec3FromBTVector3(to));
+	m_lines.emplace_back(GLMVec3FromBTVector3(toColor));
 }
 
 void PhysicsDebugDrawer::drawSphere (const btVector3& p,
@@ -135,7 +144,10 @@ void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										  btScalar distance,
 										  int lifeTime,
 										  const btVector3& color) {
-	//AE_LOG->debug(AE_FUNC);
+	
+	const float DISTANCE_EXTENSION = 0.0;
+	btVector3 to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
+	drawLine(pointOnB, to, color, color);
 }
 
 void PhysicsDebugDrawer::reportErrorWarning(const char* warningString) {
@@ -250,8 +262,17 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
-						  sizeof(vec3), 		// stride
+						  sizeof(vec3)*2, 		// stride
 						  0); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
+	
+	GLuint colorIndex = program.getAttributeLocation("vertex_color");
+	glVertexAttribPointer(colorIndex, 		// attrib index
+						  3, 					// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 			// component type
+						  GL_FALSE, 			// normalize
+						  sizeof(vec3)*2, 		// stride
+						  (void*)sizeof(vec3));	// start offset
+	glEnableVertexAttribArray(colorIndex);
 }
 
