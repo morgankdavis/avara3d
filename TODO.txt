@@ -18,6 +18,9 @@ Tests:
 
 		DBG_DrawConstraintLimits = (1 << 12),
 
+		btConvexHullShape is fastest arbitrary. Reduce vertices to < 100
+			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+
 		AE_LOG function to return __FILE__:__func__()
 
 		Switch generator to GLM
@@ -89,8 +92,9 @@ Tests:
 	
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
-	33 - ik-constraints
-	34 - category-contact-collision-bitmasks
+	33 - categories
+		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
+	34 - ik-constraints
 
 	40 - multithreading
 		#include <thread>
@@ -118,6 +122,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Anti-cheat. PunkBuster? https://en.wikipedia.org/wiki/PunkBuster
 
 	Try out flat shading
 		https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm

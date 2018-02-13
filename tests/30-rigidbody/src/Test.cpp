@@ -147,12 +147,13 @@ int Test::run(const vector<string>& args) {
 	const float PLANE_DIM = 20.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, PLANE_DIM));
-	auto gridImage = TestImageNamed("grid2");
+	auto gridImage = TestImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WrapMode_Repeat);
 	planeMaterialProperty->wrapT(WrapMode_Repeat);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-	planeMaterial->uvScale(PLANE_DIM);
+	//planeMaterial->uvScale(PLANE_DIM);
+	planeMaterial->uvScale(PLANE_DIM*0.1);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0, radians(90.0)});

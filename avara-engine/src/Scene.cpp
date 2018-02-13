@@ -116,7 +116,7 @@ static shared_ptr<Image> MissingTextureImage() {
 	if (!image) {
 		auto imagesDir = ImagesDirectory();
 		if (imagesDir) {
-			auto imagePath = *imagesDir / "missing_texture2.png";
+			auto imagePath = *imagesDir / "missing_texture.png";
 			image = make_shared<Image>(imagePath.string());
 		}
 		else {

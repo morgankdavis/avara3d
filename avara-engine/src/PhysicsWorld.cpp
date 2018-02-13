@@ -63,16 +63,13 @@ PhysicsWorld::PhysicsWorld():
 		gravity(m_gravity);
 
 		// **** TEMPORARY ****
-		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb);
-		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_FastWireframe);
-		//m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-		m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb |
-									btIDebugDraw::DBG_DrawWireframe |
-									btIDebugDraw::DBG_DrawText |
-									btIDebugDraw::DBG_ProfileTimings |
-									btIDebugDraw::DBG_DrawContactPoints);
-		
-		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+//		m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb |
+//									btIDebugDraw::DBG_DrawWireframe |
+//									btIDebugDraw::DBG_DrawText |
+//									btIDebugDraw::DBG_ProfileTimings |
+//									btIDebugDraw::DBG_DrawContactPoints);
+//		
+//		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
 }
 
 /***************************************************************************************
