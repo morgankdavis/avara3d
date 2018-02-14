@@ -13,7 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
-		Geometry primitives default detail
+		Make MARK: shortcut
+
+		Switch ConeMesh to CappedConeMesh
+			CylinderMesh->CappedCylinderMesh
+
+		Add default detail levels for geometry primitives (+ box & plane!)
+			Add "GeometryPrimitive" superclass + factor vertex data creation
 			-> INITIALIZERS for other classes use defaults
 
 		Debug Scene/Geometry extent / default camera placement

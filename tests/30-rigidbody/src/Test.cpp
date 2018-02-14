@@ -125,6 +125,42 @@ void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	shared_ptr<Node> node = make_shared<Node>(make_shared<Cone>(0.5, 0.5, 16, 16));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
+void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	shared_ptr<Node> node = make_shared<Node>(make_shared<Cylinder>(0.5, 0.5, 16, 16));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
@@ -232,7 +268,9 @@ int Test::run(const vector<string>& args) {
 					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
 				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
-				AddCapsule(*scene, position, color);
+				//AddCapsule(*scene, position, color);
+				//AddCone(*scene, position, color);
+				AddCylinder(*scene, position, color);
 			}
 		}
 	}

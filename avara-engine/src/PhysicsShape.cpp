@@ -113,17 +113,26 @@ void PhysicsShape::createBTShape() {
 		m_btShape = make_shared<btSphereShape>(sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(m_sourceGeometry.get())) {
-		//AE_LOG->critical("Capsule physics shapes not yet supported.");
 		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", m_type);
 		
 		auto capsule = dynamic_cast<Capsule*>(m_sourceGeometry.get());
 		m_btShape = make_shared<btCapsuleShape>(capsule->radius(), capsule->height());
 	}
 	else if (dynamic_cast<Cone*>(m_sourceGeometry.get())) {
-		AE_LOG->critical("Cone physics shapes not yet supported.");
+		//AE_LOG->critical("Cone physics shapes not yet supported.");
+		AE_LOG->info("Ignoring physics shape type {}. Using cone.", m_type);
+		
+		auto cone = dynamic_cast<Cone*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btConeShape>(cone->radius(), cone->height());
 	}
 	else if (dynamic_cast<Cylinder*>(m_sourceGeometry.get())) {
-		AE_LOG->critical("Cylinder physics shapes not yet supported.");
+		//AE_LOG->critical("Cylinder physics shapes not yet supported.");
+		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", m_type);
+		
+		auto cylinder = dynamic_cast<Cylinder*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btCylinderShape>(btVector3(cylinder->radius(),
+														   cylinder->height()/2.0,
+														   cylinder->radius()));
 	}
 	else {
 		if (m_type == PhysicsShapeType_ConcavePolyhedron) {
