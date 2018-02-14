@@ -161,6 +161,33 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddFruit(Scene& scene, vec3 location) {
+	
+	unsigned random = Random(0, 6);
+	shared_ptr<Node> node = nullptr;
+	
+	switch (random) {
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 3: node = TestSceneNamed("pinapple/pinapple", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 4: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 5: node = TestSceneNamed("banana/banana", "obj")->rootNode()->childNodes(false)[0]; break;
+		default: return;
+	}
+	
+	node->position(location);
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
@@ -229,14 +256,14 @@ int Test::run(const vector<string>& args) {
 	
 	// added random boxes and spheres
 	
-//#define BOX_ARRAY_SIZE_X	2
-//#define BOX_ARRAY_SIZE_Y	4
-//#define BOX_ARRAY_SIZE_Z	2
+#define BOX_ARRAY_SIZE_X	2
+#define BOX_ARRAY_SIZE_Y	4
+#define BOX_ARRAY_SIZE_Z	2
 	// -> 16
 	
-#define BOX_ARRAY_SIZE_X	3
-#define BOX_ARRAY_SIZE_Y	4
-#define BOX_ARRAY_SIZE_Z	3
+//#define BOX_ARRAY_SIZE_X	3
+//#define BOX_ARRAY_SIZE_Y	4
+//#define BOX_ARRAY_SIZE_Z	3
 	// -> 36
 	
 //#define BOX_ARRAY_SIZE_X	4
@@ -269,8 +296,9 @@ int Test::run(const vector<string>& args) {
 				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
 				//AddCapsule(*scene, position, color);
-				AddCone(*scene, position, color);
+				//AddCone(*scene, position, color);
 				//AddCylinder(*scene, position, color);
+				AddFruit(*scene, position);
 			}
 		}
 	}

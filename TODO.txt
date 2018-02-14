@@ -13,10 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
+		Check btConvexHullShape construction size, stride
+
 		Make MARK: shortcut
 
-		Switch ConeMesh to CappedConeMesh
-			CylinderMesh->CappedCylinderMesh
+		Reconcile primitives sizing
 
 		Add default detail levels for geometry primitives (+ box & plane!)
 			Add "GeometryPrimitive" superclass + factor vertex data creation
@@ -24,9 +25,9 @@ Tests:
 
 		Debug Scene/Geometry extent / default camera placement
 
-		Generalized physics shapes
-			Study Scenekit
-		btConvexHullShape is fastest arbitrary. Reduce vertices to < 100
+		Add physics stats!
+
+		Reduce btConvexHullShape  vertices to < 100
 			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
 
 		Set node transform path from Bullet
