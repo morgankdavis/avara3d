@@ -59,7 +59,7 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		AE_LOG->trace("PhysicsDebugDrawer::draw()");
 		
-		Program program = *Program::Lines();
+		Program program = *Program::PhysicsDebugLine();
 		
 		loadLinesVertexData(program);
 		
@@ -81,7 +81,6 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 		
 		// uniforms
 		
-		program.setUniform("model", mat4(1.0));
 		program.setUniform("view", inverse(viewMat));
 		program.setUniform("projection", projectionMat);
 		

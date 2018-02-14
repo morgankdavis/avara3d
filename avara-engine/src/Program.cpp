@@ -62,10 +62,10 @@ shared_ptr<Program> Program::AABB() {
     return program;
 }
 
-shared_ptr<Program> Program::Lines() {
+shared_ptr<Program> Program::PhysicsDebugLine() {
 	static shared_ptr<Program> program = nullptr;
 	if (!program) {
-		program = make_shared<Program>("lines");
+		program = make_shared<Program>("physicsDebugLine");
 	}
 	return program;
 }
