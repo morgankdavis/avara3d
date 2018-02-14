@@ -13,6 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
+		Geometry primitives default detail
+			-> INITIALIZERS for other classes use defaults
+
 		Debug Scene/Geometry extent / default camera placement
 
 		Generalized physics shapes

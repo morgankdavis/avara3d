@@ -75,15 +75,13 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
-	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_BoundingBox);
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
-	//auto physicsBody = PhysicsBody::DynamicBody();
+//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_BoundingBox);
+//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.5);
-	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
-	//physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -104,8 +102,24 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
-	//physicsBody->velocity({(float)Random(-7, 7), (float)Random(-30, -10), (float)Random(-7, 7)});
-	//physicsBody->velocity({(float)Random(-7, 7), 0, (float)Random(-7, 7)});
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
+void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	shared_ptr<Node> node = make_shared<Node>(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -216,8 +230,9 @@ int Test::run(const vector<string>& args) {
 				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
 					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
 					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
-				AddObject(*scene, position, color);
+				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
+				AddCapsule(*scene, position, color);
 			}
 		}
 	}

@@ -113,7 +113,11 @@ void PhysicsShape::createBTShape() {
 		m_btShape = make_shared<btSphereShape>(sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(m_sourceGeometry.get())) {
-		AE_LOG->critical("Capsule physics shapes not yet supported.");
+		//AE_LOG->critical("Capsule physics shapes not yet supported.");
+		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", m_type);
+		
+		auto capsule = dynamic_cast<Capsule*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btCapsuleShape>(capsule->radius(), capsule->height());
 	}
 	else if (dynamic_cast<Cone*>(m_sourceGeometry.get())) {
 		AE_LOG->critical("Cone physics shapes not yet supported.");

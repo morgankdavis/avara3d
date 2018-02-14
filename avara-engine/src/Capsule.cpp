@@ -12,6 +12,8 @@
 #include <vector>
 
 #include <generator/generator.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
 
 #include "GeometryElement.h"
 #include "Types.h"
@@ -30,6 +32,9 @@ using namespace std;
 Capsule::Capsule(float radius, float height, int slices, int segments, int rings):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
+		m_radius = radius;
+		m_height = height;
+		
 //		double radius = 1.0,
 //		double size = 0.5,
 //		int slices = 32,
@@ -64,5 +69,21 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
 		
+		// this orientation is what bullet expects
+		auto xRotation = rotate(mat4(1.0), (float)radians(90.0), vec3(1.0, 0.0, 0.0));
+		hardTransform(xRotation, true);
+		
 		loadVertexData();
+}
+
+/***************************************************************************************
+    	 MARK:   Public
+ **************************************************************************************/
+
+float Capsule::radius() const {
+	return m_radius;
+}
+
+float Capsule::height() const {
+	return m_height;
 }
