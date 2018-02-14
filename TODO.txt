@@ -14,6 +14,10 @@ Tests:
 	30 - rigidbodies
 
 		Debug draw
+			DBG_ProfileTimings 
+			DBG_DrawFeaturesText 
+			DBG_DrawFrames 
+			DBG_EnableCCD 
 
 		Draw geometry:
 			If debug draw physics wireframe:
@@ -21,6 +25,7 @@ Tests:
 					draw nothing! (Will draw physics wireframe)
 				else if no physics object
 					draw normal wireframe
+		Physics bounding boxes orange?
 			
 
 
@@ -106,6 +111,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Bullet ALIGN 16 FOR SIMD
 
 	Switch generator to GLM + dynamic link
 

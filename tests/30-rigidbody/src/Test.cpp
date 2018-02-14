@@ -387,11 +387,18 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	
+	if (keysPressed.count(Key_N)) {
+		if (m_window->debugOptions() & DebugOption_ShowPhysicsContactPoints) {
+			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsNormals));
+		}
+		else {
+			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsNormals));
+		}
+	}
 	
 	
-//	DebugOption_ShowPhysicsBoundingBoxes = 		1 << 6,
-//	DebugOption_ShowPhysicsWireframes = 		1 << 7,
-//	DebugOption_ShowPhysicsContactPoints = 		1 << 8,
+	
+
 //	DebugOption_ShowPhysicsNormals = 			1 << 9,
 //	DebugOption_ShowPhysicsConstraints =		1 << 10,
 //	DebugOption_ShowPhysicsConstraintLimits	=	1 >> 11

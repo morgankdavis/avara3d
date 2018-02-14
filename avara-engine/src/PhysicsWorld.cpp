@@ -176,6 +176,24 @@ void PhysicsWorld::debugOptions(DebugOption options) {
 		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsConstraintLimits));
 	}
 	
+	/*
+	 what do these do?
+	
+	btModes = (btIDebugDraw::DebugDrawModes)
+	(btModes | btIDebugDraw::DBG_ProfileTimings);
+	
+	btModes = (btIDebugDraw::DebugDrawModes)
+	(btModes | btIDebugDraw::DBG_DrawFeaturesText);
+	
+	btModes = (btIDebugDraw::DebugDrawModes)
+	(btModes | btIDebugDraw::DBG_DrawFrames);
+	
+	btModes = (btIDebugDraw::DebugDrawModes)
+	(btModes | btIDebugDraw::DBG_EnableCCD);
+	 */
+	
+	AE_LOG->debug("Bullet debug modes: {}", btModes);
+	
 	m_debugDrawer->setDebugMode(btModes);
 }
 

@@ -55,9 +55,9 @@ void PhysicsDebugDrawer::clear() {
 
 void PhysicsDebugDrawer::draw(const mat4& viewMat,
 							  const mat4& projectionMat) {
-
+	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-
+		
 		Program program = *Program::Lines();
 		
 		loadLinesVertexData(program);
@@ -94,22 +94,16 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& color) {
+	//AE_LOG->debug("drawLine() - 1 color");
 	
-	btVector3 newColor = color;
-	
-	// if the line is white, change it to magenta
-	if (FloatEqual(newColor[0], 1.0) && FloatEqual(newColor[1], 1.0) && FloatEqual(newColor[2], 1.0)) {
-		newColor = btVector3(1.0, 0.25, 1.0);
-	}
-
-	drawLine(from, to, color, newColor);
+	drawLine(from, to, color, color);
 }
 
 void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& fromColor,
 								  const btVector3& toColor) {
-	//AE_LOG->debug(AE_FUNC);
+	//AE_LOG->debug("drawLine() - 2 colors");
 	
 	m_lines.emplace_back(GLMVec3FromBTVector3(from));
 	m_lines.emplace_back(GLMVec3FromBTVector3(fromColor));
@@ -117,25 +111,34 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 	m_lines.emplace_back(GLMVec3FromBTVector3(toColor));
 }
 
+/*
+void PhysicsDebugDrawer::drawSphere(btScalar radius,
+									const btTransform& transform,
+									const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
 void PhysicsDebugDrawer::drawSphere (const btVector3& p,
 									 btScalar radius,
 									 const btVector3& color) {
-	AE_LOG->debug(AE_FUNC);
+	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawTriangle(const btVector3& a,
-									  const btVector3& b,
-									  const btVector3& c,
+void PhysicsDebugDrawer::drawTriangle(const btVector3& v0,
+									  const btVector3& v1,
+									  const btVector3& v2,
 									  const btVector3& color,
 									  btScalar alpha) {
-	AE_LOG->debug(AE_FUNC);
+	//AE_LOG->debug(AE_FUNC);
 }
+*/
 
 void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										  const btVector3& normalOnB,
 										  btScalar distance,
 										  int lifeTime,
 										  const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
 	
 	const float DISTANCE_EXTENSION = 0.0;
 	btVector3 to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
@@ -151,6 +154,93 @@ void PhysicsDebugDrawer::draw3dText(const btVector3& location,
 	AE_LOG->debug(AE_FUNC);
 }
 
+/*
+void PhysicsDebugDrawer::drawAabb(const btVector3 &from,
+								  const btVector3 &to,
+								  const btVector3 &color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawTransform(const btTransform &transform,
+									   btScalar orthoLen) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawArc(const btVector3& center,
+								 const btVector3& normal,
+								 const btVector3& axis,
+								 btScalar radiusA,
+								 btScalar radiusB,
+								 btScalar minAngle,
+								 btScalar maxAngle,
+								 const btVector3& color,
+								 bool drawSect,
+								 btScalar stepDegrees) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawSpherePatch(const btVector3& center,
+										 const btVector3& up,
+										 const btVector3& axis,
+										 btScalar radius,
+										 btScalar minTh,
+										 btScalar maxTh,
+										 btScalar minPs,
+										 btScalar maxPs,
+										 const btVector3& color,
+										 btScalar stepDegrees,
+										 bool drawCenter) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawBox(const btVector3& bbMin,
+								 const btVector3& bbMax,
+								 const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawBox(const btVector3& bbMin,
+								 const btVector3& bbMax,
+								 const btTransform& trans,
+								 const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawCapsule(btScalar radius,
+									 btScalar halfHeight,
+									 int upAxis,
+									 const btTransform& transform,
+									 const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawCylinder(btScalar radius,
+									  btScalar halfHeight,
+									  int upAxis,
+									  const btTransform& transform,
+									  const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawCone(btScalar radius,
+								  btScalar height,
+								  int upAxis,
+								  const btTransform& transform,
+								  const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+
+void PhysicsDebugDrawer::drawPlane(const btVector3& planeNormal,
+								   btScalar planeConst,
+								   const btTransform& transform,
+								   const btVector3& color) {
+	//AE_LOG->debug(AE_FUNC);
+}
+*/
+
+//void PhysicsDebugDrawer::flushLines() {
+//}
+
 void PhysicsDebugDrawer::setDebugMode(int debugMode) {
 	m_debugMode = debugMode;
 }
@@ -165,7 +255,7 @@ int PhysicsDebugDrawer::getDebugMode() const {
 
 //void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 //	
-//	//AE_LOG->debug("loadLinesVertexData()");
+//	////AE_LOG->debug("loadLinesVertexData()");
 //	
 //	if (m_glLinesVBO == -1) {
 //		GLuint vbo;
@@ -203,7 +293,7 @@ int PhysicsDebugDrawer::getDebugMode() const {
 
 //void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 //	
-//	//AE_LOG->debug("loadLinesVertexData()");
+//	////AE_LOG->debug("loadLinesVertexData()");
 //	
 //	if (m_glLinesVBO == -1) {
 //		GLuint vbo;
@@ -232,8 +322,8 @@ int PhysicsDebugDrawer::getDebugMode() const {
 
 void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 	
-	//AE_LOG->debug("loadLinesVertexData()");
-
+	////AE_LOG->debug("loadLinesVertexData()");
+	
 	if (m_glLinesVBO == -1) {
 		GLuint vbo;
 		glGenBuffers(1, &vbo);
