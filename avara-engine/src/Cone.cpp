@@ -49,7 +49,7 @@ Cone::Cone(float radius, float height, int slices, int segments):
 		///@param start Counterclockwise angle around the z-axis relative to the x-axis.
 		///@param sweep Counterclockwise angle around the z-axis.
 		
-		ConeMesh cone{radius, height/2.0, slices, segments};
+		CappedConeMesh cone{radius, height/2.0, slices, segments};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : cone.vertices()) {

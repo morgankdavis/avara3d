@@ -269,8 +269,8 @@ int Test::run(const vector<string>& args) {
 				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
 				//AddCapsule(*scene, position, color);
-				//AddCone(*scene, position, color);
-				AddCylinder(*scene, position, color);
+				AddCone(*scene, position, color);
+				//AddCylinder(*scene, position, color);
 			}
 		}
 	}
