@@ -51,8 +51,9 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
-	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(300.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.0);
@@ -74,9 +75,9 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
-	//auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
-	//auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
-	auto physicsBody = PhysicsBody::DynamicBody();
+	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_BoundingBox);
+	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	//auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
@@ -96,8 +97,9 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
-	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.25);
@@ -160,8 +162,9 @@ int Test::run(const vector<string>& args) {
 		planeNode->position().z});
 	
 	
-	auto placePhysicsShape = make_shared<PhysicsShape>(planeNode->geometry(), PhysicsShapeType_ConvexHull);
-	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
+//	auto placePhysicsShape = make_shared<PhysicsShape>(planeNode->geometry(), PhysicsShapeType_ConvexHull);
+//	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
+	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
 	planePhysicsBody->restitution(0.25);
 	planePhysicsBody->friction(0.75);
@@ -221,9 +224,7 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
-	
-
+//	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
 //	vector<shared_ptr<Node>> crateNodes;
 //	for (auto n : crateScene->rootNode()->childNodes(true)) {
 //		if (n->geometry()) {

@@ -87,6 +87,7 @@ namespace ae {
 					  const glm::mat4& projectionMat);
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
+		glm::vec3 extent(bool worldSpace) const;
         void loadAABBVertexData(const Program& program);
 
 	protected:

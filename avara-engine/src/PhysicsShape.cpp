@@ -19,9 +19,11 @@
 #include "Logger.h"
 #include "Plane.h"
 #include "Sphere.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -88,13 +90,21 @@ void PhysicsShape::createBTShape() {
 	// - if arbitrary mesh, use whatever 'type' is
 	
 	if (m_type == PhysicsShapeType_BoundingBox) {
-		// get extents and create box
+		vec3 extent = m_sourceGeometry->extent(false);
+		float width = extent.x;
+		float height = extent.y;
+		float length = extent.z;
+		m_btShape = make_shared<btBoxShape>(btVector3(width/2.0,
+													  height/2.0,
+													  length/2.0));
 	}
 	else if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using box.", m_type);
 		
 		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
-		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0, box->height()/2.0, box->length()/2.0));
+		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0,
+													  box->height()/2.0,
+													  box->length()/2.0));
 	}
 	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", m_type);

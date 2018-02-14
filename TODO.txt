@@ -13,6 +13,8 @@ Tests:
 
 	30 - rigidbodies
 
+		Debug Scene/Geometry extent / default camera placement
+
 		Generalized physics shapes
 			Study Scenekit
 		btConvexHullShape is fastest arbitrary. Reduce vertices to < 100

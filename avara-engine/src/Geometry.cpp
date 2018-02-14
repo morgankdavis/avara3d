@@ -273,6 +273,13 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
 	return boundingPoints;
 }
 
+vec3 Geometry::extent(bool worldSpace) const {
+	auto bp = *boundingPoints(worldSpace);
+	return vec3(bp["xMax"].x - bp["xMin"].x,
+				bp["yMax"].y - bp["yMin"].y,
+				bp["zMax"].z - bp["zMin"].z);
+}
+
 void Geometry::loadAABBVertexData(const Program& program) {
     
     // TODO: release any existing buffers
