@@ -24,11 +24,27 @@ using namespace std;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<PhysicsBody> PhysicsBody::StaticBody() {
+	return make_shared<PhysicsBody>(PhysicsBodyType_Static);
+}
+
+shared_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
+	return make_shared<PhysicsBody>(PhysicsBodyType_Dynamic);
+}
+
+shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
+	return make_shared<PhysicsBody>(PhysicsBodyType_Kinematic);
+}
+
+/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
-PhysicsBody::PhysicsBody(PhysicsBodyType type):
-	m_type(type),
+PhysicsBody::PhysicsBody():
+	m_type(PhysicsBodyType_Static),
 	m_shape(nullptr),
 	m_velocityFactor({1.0, 1.0, 1.0}),
 	m_angularVelocityFactor({1.0, 1.0, 1.0}),
@@ -48,13 +64,25 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type):
 	m_node(nullptr),
 	m_btMotionState(nullptr),
 	m_btRigidBody(nullptr) {
+	
+}
 
+PhysicsBody::PhysicsBody(PhysicsBodyType type):
+	PhysicsBody() {
+	
+		this->type(type);
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
 	PhysicsBody(type) {
+		
+		this->type(type);
+		this->shape(shape);
+}
+
+PhysicsBody::PhysicsBody(shared_ptr<Node> node):
+	PhysicsBody() {
 	
-		m_shape = shape;
 }
 
 /***************************************************************************************
@@ -65,7 +93,8 @@ PhysicsBodyType PhysicsBody::type() const {
 	return m_type;
 }
 
-/* REMOVE? */ void PhysicsBody::type(PhysicsBodyType type) {
+void PhysicsBody::type(PhysicsBodyType type) {
+	// TODO: cahnge bt type
 	m_type = type;
 }
 
@@ -73,8 +102,9 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 	return m_shape;
 }
 
-/* REMOVE? */ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
+void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	m_shape = shape;
+	m_shape->attachedToBody(*this);
 }
 
 vec3 PhysicsBody::velocityFactor() const {
@@ -250,13 +280,13 @@ void PhysicsBody::resetTransform() {
 void PhysicsBody::attachedToNode(Node& node) {
 	m_node = &node;
 	
-//	if (!m_shape) {
-//		m_shape = make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull);
-//	}
-	
-	if (m_shape->btShape() == nullptr) {
-		m_shape->createBTShape();
+	if (!m_shape) {
+		shape(make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull));
 	}
+	
+//	if (m_shape->btShape() == nullptr) {
+//		m_shape->createBTShape();
+//	}
 	
 //	btTransform transform;
 //	transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));

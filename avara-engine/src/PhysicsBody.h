@@ -31,21 +31,31 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<PhysicsBody> StaticBody();
+		static std::shared_ptr<PhysicsBody> DynamicBody();
+		static std::shared_ptr<PhysicsBody> KinematicBody();
+		
+		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
+		PhysicsBody();
 		PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape);
+		PhysicsBody(std::shared_ptr<Node> node); // create compound shape body?
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
 		PhysicsBodyType type() const;
-		/* REMOVE? */ void type(PhysicsBodyType type);
+		void type(PhysicsBodyType type);
 		
 		std::shared_ptr<PhysicsShape> shape() const;
-		/* REMOVE? */ void shape(std::shared_ptr<PhysicsShape> shape);
+		void shape(std::shared_ptr<PhysicsShape> shape);
 		
 		glm::vec3 velocityFactor() const;
 		void velocityFactor(glm::vec3 factor);

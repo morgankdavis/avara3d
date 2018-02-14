@@ -11,6 +11,9 @@
 #include <glm/glm.hpp>
 
 #include "Box.h"
+#include "Capsule.h"
+#include "Cone.h"
+#include "Cylinder.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Logger.h"
@@ -56,57 +59,122 @@ PhysicsShapeType PhysicsShape::type() const {
      MARK:   Internal
  **************************************************************************************/
 
-void PhysicsShape::createBTShape() {
-	AE_LOG->debug("Creating bullet shape...");
-	
-	// *** CHECK ***
-//	PhysicsShapeType_BoundingBox =			0,
-//	PhysicsShapeType_ConcavePolyhedron =	1,
-//	PhysicsShapeType_ConvexHull =			2
-	
-	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
-		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
-		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0, box->height()/2.0, box->length()/2.0));
-	}
-	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
-		auto sphere = dynamic_cast<Sphere*>(m_sourceGeometry.get());
-		m_btShape = make_shared<btSphereShape>(sphere->radius());
-	}
-	
-	// cylinder
-	// capsule
-	// cone
-	
-//	else if (dynamic_cast<Plane*>(m_sourceGeometry.get())) {
-//		auto plane = dynamic_cast<Plane*>(m_sourceGeometry.get());
-//		float thickness = (plane->width()/2.0 + plane->height()/2.0) / 50.0;
-//		m_btShape = make_shared<btBoxShape>(btVector3(plane->width()/2.0, plane->height()/2.0, thickness));
-//	}
-	else {
-		// some other non-primitive shape
-		
-		unsigned numVerticies = 0;
-		for (auto element : m_sourceGeometry->elements()) {
-			numVerticies += element->vertices().size();
-		}
-		vector<Vertex> verticies;
-		verticies.reserve(numVerticies);
-		
-		for (auto element : m_sourceGeometry->elements()) {
-			auto elementVerts = element->vertices();
-			verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-		}
-		
-		m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-												   numVerticies,
-												   sizeof(Vertex));	
-	}
-	
-//	// *** TEMPORARY ***
-//	m_btShape->setMargin(0);
-//	AE_LOG->debug("m_btShape->getMargin(): {}", m_btShape->getMargin());
+void PhysicsShape::attachedToBody(PhysicsBody& body) {
+	m_physicsBody = &body;
+	createBTShape();
+}
+
+PhysicsBody* PhysicsShape::physicsBody() const {
+	return m_physicsBody;
+}
+
+void PhysicsShape::physicsBody(PhysicsBody* body) {
+	m_physicsBody = body;
 }
 
 shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
 	return m_btShape;
+}
+
+/***************************************************************************************
+     MARK:   Private
+ **************************************************************************************/
+
+void PhysicsShape::createBTShape() {
+	AE_LOG->debug("Creating bullet shape...");
+
+	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
+	// - if 'geometry' is a primitive, use matching primitive
+	// - if arbitrary mesh, use whatever 'type' is
+	
+	if (m_type == PhysicsShapeType_BoundingBox) {
+		// get extents and create box
+	}
+	else if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
+		AE_LOG->info("Ignoring physics shape type {}. Using box.", m_type);
+		
+		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0, box->height()/2.0, box->length()/2.0));
+	}
+	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
+		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", m_type);
+		
+		auto sphere = dynamic_cast<Sphere*>(m_sourceGeometry.get());
+		m_btShape = make_shared<btSphereShape>(sphere->radius());
+	}
+	else if (dynamic_cast<Capsule*>(m_sourceGeometry.get())) {
+		AE_LOG->critical("Capsule physics shapes not yet supported.");
+	}
+	else if (dynamic_cast<Cone*>(m_sourceGeometry.get())) {
+		AE_LOG->critical("Cone physics shapes not yet supported.");
+	}
+	else if (dynamic_cast<Cylinder*>(m_sourceGeometry.get())) {
+		AE_LOG->critical("Cylinder physics shapes not yet supported.");
+	}
+	else {
+		if (m_type == PhysicsShapeType_ConcavePolyhedron) {
+			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
+		}
+		else { // PhysicsShapeType_ConvexHull
+			unsigned numVerticies = 0;
+			for (auto element : m_sourceGeometry->elements()) {
+				numVerticies += element->vertices().size();
+			}
+			vector<Vertex> verticies;
+			verticies.reserve(numVerticies);
+			
+			for (auto element : m_sourceGeometry->elements()) {
+				auto elementVerts = element->vertices();
+				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+			}
+			
+			m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+													   numVerticies,
+													   sizeof(Vertex));	
+		}
+	}
+	
+	
+
+//	btCapsuleShape
+//		btConeShape 
+//	btCylinderShape
+//	
+//	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
+//		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
+//		m_btShape = make_shared<btBoxShape>(btVector3(box->width()/2.0, box->height()/2.0, box->length()/2.0));
+//	}
+//	else if (dynamic_cast<Sphere*>(m_sourceGeometry.get())) {
+//		auto sphere = dynamic_cast<Sphere*>(m_sourceGeometry.get());
+//		m_btShape = make_shared<btSphereShape>(sphere->radius());
+//	}
+//	
+//	// cylinder
+//	// capsule
+//	// cone
+//	
+//	//	else if (dynamic_cast<Plane*>(m_sourceGeometry.get())) {
+//	//		auto plane = dynamic_cast<Plane*>(m_sourceGeometry.get());
+//	//		float thickness = (plane->width()/2.0 + plane->height()/2.0) / 50.0;
+//	//		m_btShape = make_shared<btBoxShape>(btVector3(plane->width()/2.0, plane->height()/2.0, thickness));
+//	//	}
+//	else {
+//		// some other non-primitive shape
+//		
+//		unsigned numVerticies = 0;
+//		for (auto element : m_sourceGeometry->elements()) {
+//			numVerticies += element->vertices().size();
+//		}
+//		vector<Vertex> verticies;
+//		verticies.reserve(numVerticies);
+//		
+//		for (auto element : m_sourceGeometry->elements()) {
+//			auto elementVerts = element->vertices();
+//			verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//		}
+//		
+//		m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+//												   numVerticies,
+//												   sizeof(Vertex));	
+//	}
 }

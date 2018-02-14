@@ -23,6 +23,8 @@ namespace ae {
 	
 	
 	class Geometry;
+	class Node;
+	class PhysicsBody;
 	
 
 	class PhysicsShape {
@@ -34,6 +36,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
+		//PhysicsShape(std::shared_ptr<Node> geometry, PhysicsShapeType type);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -47,14 +50,20 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void createBTShape();
+		void attachedToBody(PhysicsBody& body);
+		
+		PhysicsBody* physicsBody() const;
+		void physicsBody(PhysicsBody* body);
+		
 		std::shared_ptr<btCollisionShape> btShape() const;
 		
 	private:
 		
 		/***************************************************************************************
-		     MARK:   Public
+		     MARK:   Private
 		 **************************************************************************************/
+		
+		void createBTShape();
 		
 		std::shared_ptr<Geometry> 			m_sourceGeometry;
 		PhysicsShapeType 					m_type;
@@ -62,6 +71,8 @@ namespace ae {
 		
 		std::shared_ptr<btCollisionShape>	m_btShape;
 		std::shared_ptr<btTriangleMesh>		m_btTriangleMesh;
+		
+		PhysicsBody*						m_physicsBody;
 	};
 }
 

@@ -74,8 +74,9 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
-	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	//auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	//auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);

@@ -19,53 +19,36 @@ Tests:
 			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
 
 		Set node transform path from Bullet
+		Physics scale +
+		Set motion state when setting node position or rotation
 
 		AE_LOG function to return __FILE__:__func__()
 
-		When setting node position, rotation, scale, set on physics body
-			SCALING
-		
-		Bullet book:
-			Bullet thinks COM is world position — can be moved with compound shapes
-
-			Check out SIMD & btAlignedObjectArray
-
-			Gaffer on games - fix your timestep
-
-		Add default constructors + initializer lists (Node, Material, ...)
-
-		Special cases for box shape, plane, sphere, etc
-			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Shapes
+		SIMD alignment
+		Gaffer on games - fix your timestep
 
 		Optimize statics
 			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
-		Optimize with btTriangleIndexVertexArray
-
-		Shut down & cleanup
-
-		attachedToNode() -> detachedFromNode()
-		attachedToScene() -> detachedFromScene()
-			SAME FOR GEOMETRIES, etc (back pointers)
-
-		SIMD alignment
 
 		Kinematic objects:
 			body->setCollisionFlags( body->getCollisionFlags() |
 			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
 
-		Notes:
-			SCNPhysicsBehavior
-			SCNPhysicsHingeJoint
-			SCNPhysicsBallSocketJoint
-			SCNPhysicsConeTwistJoint
-			SCNPhysicsSliderJoint
-			SCNPhysicsVehicle
-	
+		Shut down & cleanup
+
+		Add default constructors + initializer lists (Node, Material, ...)
+
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
 	33 - categories
 		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
 	34 - ik-constraints
+		SCNPhysicsBehavior
+		SCNPhysicsHingeJoint
+		SCNPhysicsBallSocketJoint
+		SCNPhysicsConeTwistJoint
+		SCNPhysicsSliderJoint
+		SCNPhysicsVehicle
 
 	40 - multithreading
 		#include <thread>
@@ -155,6 +138,7 @@ Laundry list:
 	Depth of field
 	Bloom
 	Motion blur
+		http://www.terathon.com/gdc07_lengyel.pdf
 
 UI
 	CEGUI2
@@ -204,6 +188,9 @@ Resources:
 
 Singleton:
 	https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+
+Lighting examples:
+	https://github.com/stackgl/glsl-lighting-walkthrough
 
 TOLM
 	https://github.com/toml-lang/toml

@@ -57,7 +57,12 @@ int Test::run(const vector<string>& args) {
 	
 	//m_debugOptions = DebugOption_ShowStatsOveray;
 	window.debugOptions(DebugOption_ShowStatsOveray);
+	
+	
 
+	//auto scene = TestSceneNamed("sponza/sponza", "obj");
+	
+	
 	
 	auto scene = make_shared<Scene>();
 	
