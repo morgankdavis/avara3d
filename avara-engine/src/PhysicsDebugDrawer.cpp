@@ -57,6 +57,7 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 							  const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+		AE_LOG->trace("PhysicsDebugDrawer::draw()");
 		
 		Program program = *Program::Lines();
 		
@@ -69,6 +70,11 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
 		glDepthMask(GL_TRUE);
 		glEnable(GL_LINE_SMOOTH);
 		
+		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
+		//glDepthRange(0.0, 0.9);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(0.0, 0.0);
+
 		// use shader program
 		
 		program.use();

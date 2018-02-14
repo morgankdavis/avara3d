@@ -13,34 +13,18 @@ Tests:
 
 	30 - rigidbodies
 
-		Debug draw
-			DBG_ProfileTimings 
-			DBG_DrawFeaturesText 
-			DBG_DrawFrames 
-			DBG_EnableCCD 
+		Generalized physics shapes
+			Study Scenekit
+		btConvexHullShape is fastest arbitrary. Reduce vertices to < 100
+			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
 
-		Draw geometry:
-			If debug draw physics wireframe:
-				If physics object:
-					draw nothing! (Will draw physics wireframe)
-				else if no physics object
-					draw normal wireframe
-		Physics bounding boxes orange?
-			
-
+		Set node transform path from Bullet
 
 		AE_LOG function to return __FILE__:__func__()
 
-		Generalized physics shapes
-
 		When setting node position, rotation, scale, set on physics body
 			SCALING
-
-		btConvexHullShape is fastest arbitrary. Reduce vertices to < 100
-			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
 		
-		Cmake "Found PythonLibs:" where is this coming from?
-
 		Bullet book:
 			Bullet thinks COM is world position — can be moved with compound shapes
 
@@ -52,8 +36,6 @@ Tests:
 
 		Special cases for box shape, plane, sphere, etc
 			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Shapes
-
-		
 
 		Optimize statics
 			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details

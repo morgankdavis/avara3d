@@ -59,6 +59,10 @@ PhysicsShapeType PhysicsShape::type() const {
 void PhysicsShape::createBTShape() {
 	AE_LOG->debug("Creating bullet shape...");
 	
+	// *** CHECK ***
+//	PhysicsShapeType_BoundingBox =			0,
+//	PhysicsShapeType_ConcavePolyhedron =	1,
+//	PhysicsShapeType_ConvexHull =			2
 	
 	if (dynamic_cast<Box*>(m_sourceGeometry.get())) {
 		auto box = dynamic_cast<Box*>(m_sourceGeometry.get());
