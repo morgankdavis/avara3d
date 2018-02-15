@@ -163,22 +163,24 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddFruit(Scene& scene, vec3 location) {
 	
-	unsigned random = Random(0, 6);
+	//unsigned random = Random(0, 6);
+	unsigned random = Random(2, 4);
 	shared_ptr<Node> node = nullptr;
 	
 	switch (random) {
 		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
 		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 3: node = TestSceneNamed("pinapple/pinapple", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 4: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 5: node = TestSceneNamed("banana/banana", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
 		default: return;
 	}
 	
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
+	//physicsBody->mass(100.0);
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
@@ -221,7 +223,7 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 	
 	
-	const float PLANE_DIM = 40.0;
+	const float PLANE_DIM = 10.0;
 	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, PLANE_DIM));
 	auto gridImage = TestImageNamed("grid10");
@@ -282,6 +284,8 @@ int Test::run(const vector<string>& args) {
 	// -> 288
 
 	
+	unsigned SPACING = 0.25;
+	unsigned DROP_HEIGHT = 5.0;
 	unsigned colorIndex = 0;
 	auto colors = Color::Rainbow();
 	for (int k=0; k<BOX_ARRAY_SIZE_Y; ++k) {
@@ -290,9 +294,9 @@ int Test::run(const vector<string>& args) {
 				auto color = make_shared<Color>(colors[colorIndex + 4]);
 				++colorIndex;
 				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
-					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
-					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
+				vec3 position = { SPACING * i - (BOX_ARRAY_SIZE_X / 2.0),
+					DROP_HEIGHT + SPACING * k - (BOX_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
 				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
 				//AddCapsule(*scene, position, color);
@@ -321,10 +325,15 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNodes(crateNodes);
 
 	
-//	auto pinappleScene = TestSceneNamed("pinapple/pinapple", "obj");
-//	scene->rootNode()->addChildNode(pinappleScene->rootNode());
+//	auto pineappleScene = TestSceneNamed("pineapple/pinapple", "obj");
+//	scene->rootNode()->addChildNode(pineappleScene->rootNode());
 	
-//	auto banana1Scene = TestSceneNamed("banana1/banana", "obj");
+//	auto pineappleScene = TestSceneNamed("pineapple_lod/pinapple_lod", "obj");
+//	auto pineappleNode = pineappleScene->rootNode()->childNodes(false)[0]; // NO GOOD
+//	scene->rootNode()->addChildNode(pineappleNode);
+
+	
+//	auto banana1Scene = TestSceneNamed("banana_lod/banana_lod", "obj");
 //	scene->rootNode()->addChildNode(banana1Scene->rootNode());
 
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
@@ -542,13 +551,14 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
 
 		auto keysDown = m_inputManager->keysDown();
+		auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
 		
 		float moveMultiplier = 1.0;
 		if (keysDown.count(Key_LeftShift)) {
 			moveMultiplier = 2.0;
 		}
 		
-		if (keysDown.count(Key_W)) {
+		if (keysDown.count(Key_W) || mouseButtonsDown.count(MouseButton_2)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}

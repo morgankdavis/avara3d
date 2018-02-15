@@ -60,9 +60,8 @@ int Test::run(const vector<string>& args) {
 	
 	
 
-	//auto scene = TestSceneNamed("sponza/sponza", "obj");
-	
-	
+//	auto scene = TestSceneNamed("sponza/sponza", "obj");
+//	AE_LOG->info("sponza extent: {}", StringFromGLMVec3(scene->extent()));
 	
 	auto scene = make_shared<Scene>();
 	

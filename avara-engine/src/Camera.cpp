@@ -23,8 +23,8 @@ using namespace glm;
 
 Camera::Camera():
 	m_fov(radians(45.0)),
-	m_zNear(0.01),
-	m_zFar(10000.0),
+	m_zNear(0.1),
+	m_zFar(5000.0),
 	m_aspectRatio(1.0) {
 
 		constructProjectionMat();
@@ -92,7 +92,7 @@ float Camera::aspectRatio() {
 
 void Camera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every draw
-	if (!utils::FloatEqual(ratio, m_aspectRatio, 0.01)) {
+	if (!utils::FloatEqual(ratio, m_aspectRatio, 0.001)) {
 		m_aspectRatio = ratio;
 		constructProjectionMat();
 	}

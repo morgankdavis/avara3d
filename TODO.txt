@@ -13,7 +13,19 @@ Tests:
 
 	30 - rigidbodies
 
+		Switch units from meters to centimeters
+
+		"Error importing scene" should throw
+
+		Check out OpenMesh & decimation algorithms
+			http://www.openmesh.org/Daily-Builds/Doc/index.html
+			http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
+
 		Check btConvexHullShape construction size, stride
+
+		Adjust fruit COM?
+
+		COMPOUND SHAPES
 
 		Make MARK: shortcut
 
@@ -49,6 +61,8 @@ Tests:
 		Shut down & cleanup
 
 		Add default constructors + initializer lists (Node, Material, ...)
+
+		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
@@ -92,6 +106,9 @@ Laundry list:
 	Bullet ALIGN 16 FOR SIMD
 
 	Switch generator to GLM + dynamic link
+
+	INFINATE FLAT GROUND (SCNFloor)
+		http://www.terathon.com/gdc07_lengyel.pdf
 
 	Anti-cheat. PunkBuster? https://en.wikipedia.org/wiki/PunkBuster
 
