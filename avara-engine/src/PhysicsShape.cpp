@@ -188,4 +188,6 @@ void PhysicsShape::createBTShape() {
 													   sizeof(btVector3));
 		}
 	}
+	
+	//m_btShape->setMargin(0);
 }

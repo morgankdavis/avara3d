@@ -224,8 +224,8 @@ void Material::prepareToRender(DebugOption debugOptions) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 		//glDepthRange(0.1, 1.0);
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(20.0, 0.0);
+//		glEnable(GL_POLYGON_OFFSET_FILL);
+//		glPolygonOffset(20.0, 0.0);
 	}
 
 	if (debugOptions & DebugOption_ShowWireframes) {

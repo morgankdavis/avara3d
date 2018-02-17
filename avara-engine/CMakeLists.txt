@@ -96,5 +96,3 @@ target_compile_options(ae PRIVATE
 	"-Wno-reorder"
 	"-Wno-address-of-packed-member"
 	"-Wno-unused-function")
-
-

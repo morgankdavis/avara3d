@@ -13,40 +13,37 @@ Tests:
 
 	30 - rigidbodies
 
-		Switch units from meters to centimeters
+		Fix:
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(20.0, 0.0);
 
-		"Error importing scene" should throw
-
-		Check out OpenMesh & decimation algorithms
-			http://www.openmesh.org/Daily-Builds/Doc/index.html
-			http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
-
-		Check btConvexHullShape construction size, stride
-
-		Adjust fruit COM?
-
-		COMPOUND SHAPES
 
 		Make MARK: shortcut
 
-		Reconcile primitives sizing
+		Try set margin 0 for static objects
 
-		Add default detail levels for geometry primitives (+ box & plane!)
-			Add "GeometryPrimitive" superclass + factor vertex data creation
-			-> INITIALIZERS for other classes use defaults
-
-		Debug Scene/Geometry extent / default camera placement
+		Compound shapes for multiple Elements
+			http://bulletphysics.com/Bullet/BulletFull/classbtCompoundShape.html
 
 		Add physics stats!
 
-		Reduce btConvexHullShape  vertices to < 100
-			http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+		Test geometry instancing!
+		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
+
+		Test bullet plane shape
+		Test bullet CPU?
+
+		friction -> rollingFriction?
+		damping -> linearDamping?
+
+		Reconcile primitives sizing
+			+ add default detail levels for geometry primitives (+ box & plane!)
+				Add "GeometryPrimitive" superclass + factor vertex data creation
+				-> INITIALIZERS for other classes use defaults
 
 		Set node transform path from Bullet
 		Physics scale +
-		Set motion state when setting node position or rotation
-
-		AE_LOG function to return __FILE__:__func__()
+			Set motion state when setting node position or rotation
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
@@ -58,11 +55,16 @@ Tests:
 			body->setCollisionFlags( body->getCollisionFlags() |
 			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
 
+		Disable/remove physics bodies when they get too far away
+
 		Shut down & cleanup
 
+		Add pause
+		"Error importing scene" should throw
+		Include cloc output in build
+		AE_LOG function to return __FILE__:__func__()
+		Debug Scene/Geometry extent / default camera placement
 		Add default constructors + initializer lists (Node, Material, ...)
-
-		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
@@ -102,6 +104,10 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Mesh decimation/simplification/reduction
+	http://www.openmesh.org/Daily-Builds/Doc/index.html
+	http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
 
 	Bullet ALIGN 16 FOR SIMD
 

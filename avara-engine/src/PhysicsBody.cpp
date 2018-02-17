@@ -80,11 +80,6 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
 		this->shape(shape);
 }
 
-PhysicsBody::PhysicsBody(shared_ptr<Node> node):
-	PhysicsBody() {
-	
-}
-
 /***************************************************************************************
      MARK:   Public
  **************************************************************************************/
