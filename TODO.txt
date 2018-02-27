@@ -86,6 +86,7 @@ Tests:
 	50 - audio
 
 	60 - network
+		"Entity"
 
 	70 - scripting
 
@@ -104,6 +105,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Localization
 
 	Mesh decimation/simplification/reduction
 	http://www.openmesh.org/Daily-Builds/Doc/index.html
@@ -220,6 +223,13 @@ BUGS:
 
 
 Resources:
+
+Make textures:
+	https://www.allegorithmic.com/products/substance-designer
+	https://www.poliigon.com/
+
+STAR/SKY TEXTURES
+	https://qeoo.tk/night-sky-texture-map.html
 
 Singleton:
 	https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
