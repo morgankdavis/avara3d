@@ -45,7 +45,6 @@ namespace ae {
 		PhysicsBody();
 		PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape);
-		PhysicsBody(std::shared_ptr<Node> node); // create compound shape body?
 		
 		/***************************************************************************************
 		     MARK:   Public

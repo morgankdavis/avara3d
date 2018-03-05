@@ -369,9 +369,9 @@ boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 #ifdef XCODE
-		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "testdata";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
 #else
-		return execDir->parent_path().parent_path().parent_path() / "tests" / "testdata";
+		return execDir->parent_path().parent_path().parent_path() / "tests" / "data";
 #endif
 	}
 	return boost::none;

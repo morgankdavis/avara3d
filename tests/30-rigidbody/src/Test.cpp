@@ -31,10 +31,12 @@ using namespace glm;
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
-#define PHYSICS_TIMESTEP		1.0/60.0
+//#define PHYSICS_TIMESTEP		1.0/60.0
 //#define PHYSICS_TIMESTEP		1.0/90.0
 //#define PHYSICS_TIMESTEP		1.0/120.0
+#define PHYSICS_TIMESTEP		1.0/180.0
 //#define PHYSICS_TIMESTEP		1.0/240.0
+//#define PHYSICS_TIMESTEP		1.0/480.0
 
 
 /***************************************************************************************
@@ -45,8 +47,8 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
 	cout << "location: " << location << endl;
 	
-	auto node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
-	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::White()));
+	auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
+	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
 	node->position(location);
@@ -54,11 +56,11 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(300.0);
+	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
-	physicsBody->velocity(direction * 150.0f);
+	physicsBody->velocity(direction * 50.0f);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -163,26 +165,28 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddFruit(Scene& scene, vec3 location) {
 	
-	unsigned random = Random(0, 6);
+	//unsigned random = Random(0, 6);
+	unsigned random = Random(2, 4);
 	shared_ptr<Node> node = nullptr;
 	
 	switch (random) {
 		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
 		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 3: node = TestSceneNamed("pinapple/pinapple", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 4: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 5: node = TestSceneNamed("banana/banana", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
 		default: return;
 	}
 	
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
+	//physicsBody->mass(100.0);
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
-	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->friction(0.75);
+	physicsBody->rollingFriction(0.75);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChildNode(node);
@@ -221,17 +225,18 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 	
 	
-	const float PLANE_DIM = 40.0;
-	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, PLANE_DIM));
-	auto gridImage = TestImageNamed("grid10");
+	const float PLANE_DIM = 10.0;
+	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
+	auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, 0.1));
+	//auto gridImage = TestImageNamed("grid10");
+	auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WrapMode_Repeat);
 	planeMaterialProperty->wrapT(WrapMode_Repeat);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-	//planeMaterial->uvScale(PLANE_DIM);
-	planeMaterial->uvScale(PLANE_DIM*0.1);
-	planeMaterial->doubleSided(true);
+	planeMaterial->uvScale(PLANE_DIM);
+//	planeMaterial->uvScale(PLANE_DIM*0.1);
+//	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0, radians(90.0)});
 	planeNode->position({planeNode->position().x,
@@ -256,43 +261,45 @@ int Test::run(const vector<string>& args) {
 	
 	// added random boxes and spheres
 	
-#define BOX_ARRAY_SIZE_X	2
-#define BOX_ARRAY_SIZE_Y	4
-#define BOX_ARRAY_SIZE_Z	2
+#define OBJECT_ARRAY_SIZE_X	2
+#define OBJECT_ARRAY_SIZE_Y	4
+#define OBJECT_ARRAY_SIZE_Z	2
 	// -> 16
 	
-//#define BOX_ARRAY_SIZE_X	3
-//#define BOX_ARRAY_SIZE_Y	4
-//#define BOX_ARRAY_SIZE_Z	3
+//#define OBJECT_ARRAY_SIZE_X	3
+//#define OBJECT_ARRAY_SIZE_Y	4
+//#define OBJECT_ARRAY_SIZE_Z	3
 	// -> 36
 	
-//#define BOX_ARRAY_SIZE_X	4
-//#define BOX_ARRAY_SIZE_Y	6
-//#define BOX_ARRAY_SIZE_Z	4
+//#define OBJECT_ARRAY_SIZE_X	4
+//#define OBJECT_ARRAY_SIZE_Y	6
+//#define OBJECT_ARRAY_SIZE_Z	4
 	// -> 96
 	
-//#define BOX_ARRAY_SIZE_X	5
-//#define BOX_ARRAY_SIZE_Y	7
-//#define BOX_ARRAY_SIZE_Z	5
+//#define OBJECT_ARRAY_SIZE_X	5
+//#define OBJECT_ARRAY_SIZE_Y	7
+//#define OBJECT_ARRAY_SIZE_Z	5
 	// -> 175
 	
-//#define BOX_ARRAY_SIZE_X	6
-//#define BOX_ARRAY_SIZE_Y	8
-//#define BOX_ARRAY_SIZE_Z	6
+//#define OBJECT_ARRAY_SIZE_X	6
+//#define OBJECT_ARRAY_SIZE_Y	8
+//#define OBJECT_ARRAY_SIZE_Z	6
 	// -> 288
 
 	
+	unsigned SPACING = 1.0;
+	unsigned DROP_HEIGHT = 5.0;
 	unsigned colorIndex = 0;
 	auto colors = Color::Rainbow();
-	for (int k=0; k<BOX_ARRAY_SIZE_Y; ++k) {
-		for (int i=0;i <BOX_ARRAY_SIZE_X; ++i) {
-			for(int j = 0; j<BOX_ARRAY_SIZE_Z; ++j) {
+	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
 				auto color = make_shared<Color>(colors[colorIndex + 4]);
 				++colorIndex;
 				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { 1.0 * i - (BOX_ARRAY_SIZE_X / 2.0),
-					10 + 1.0 * k - (BOX_ARRAY_SIZE_Y / 2.0),
-					1.0 * j  - (BOX_ARRAY_SIZE_Z / 2.0) };
+				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
 				//AddObject(*scene, position, color);
 				//AddBox(*scene, position, color);
 				//AddCapsule(*scene, position, color);
@@ -321,10 +328,15 @@ int Test::run(const vector<string>& args) {
 //	scene->rootNode()->addChildNodes(crateNodes);
 
 	
-//	auto pinappleScene = TestSceneNamed("pinapple/pinapple", "obj");
-//	scene->rootNode()->addChildNode(pinappleScene->rootNode());
+//	auto pineappleScene = TestSceneNamed("pineapple/pinapple", "obj");
+//	scene->rootNode()->addChildNode(pineappleScene->rootNode());
 	
-//	auto banana1Scene = TestSceneNamed("banana1/banana", "obj");
+//	auto pineappleScene = TestSceneNamed("pineapple_lod/pinapple_lod", "obj");
+//	auto pineappleNode = pineappleScene->rootNode()->childNodes(false)[0]; // NO GOOD
+//	scene->rootNode()->addChildNode(pineappleNode);
+
+	
+//	auto banana1Scene = TestSceneNamed("banana_lod/banana_lod", "obj");
 //	scene->rootNode()->addChildNode(banana1Scene->rootNode());
 
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
@@ -359,7 +371,7 @@ int Test::run(const vector<string>& args) {
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
 	scene->background(background);
 
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
 	auto ambientLightNode = make_shared<Node>(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
@@ -385,6 +397,7 @@ int Test::run(const vector<string>& args) {
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
+	AE_LOG->info("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 	
 	window.scene(scene);
 	m_inputManager = window.inputManager();
@@ -406,15 +419,20 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	// get input
 	
+	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
 	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
-	if (mouseButtonsPressed.count(MouseButton_1)) {
-		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
-	}
-	
 	auto keysPressed = m_inputManager->keysPressed();
 	
 	if (keysPressed.count(Key_Escape)) {
 		exit(0);
+	}
+	
+	if (mouseButtonsPressed.count(MouseButton_1)) {
+		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+	}
+	
+	if (mouseButtonsDown.count(MouseButton_2)) {
+		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
 	
 	DebugOption options = (DebugOption)m_window->debugOptions();
@@ -548,7 +566,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 			moveMultiplier = 2.0;
 		}
 		
-		if (keysDown.count(Key_W)) {
+		if (keysDown.count(Key_W) || mouseButtonsDown.count(MouseButton_4)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}

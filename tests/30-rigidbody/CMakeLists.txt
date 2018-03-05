@@ -46,4 +46,3 @@ target_compile_options(${EXECUTABLE_NAME} PRIVATE
 	"-Wno-reorder"
 	"-Wno-address-of-packed-member"
 	"-Wno-unused-function")
-
