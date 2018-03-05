@@ -50,6 +50,9 @@ Tests:
 
 		Add default constructors + initializer lists (Node, Material, ...)
 
+
+	SWITCH FONSTASH TO IMGUI
+
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
 	33 - categories
@@ -153,6 +156,9 @@ Laundry list:
 		http://www.terathon.com/gdc07_lengyel.pdf
 
 UI
+	ImGUI !!!
+		Syntax highlighting:
+		https://github.com/BalazsJako/ImGuiColorTextEdit
 	CEGUI2
 	NANOGUI: https://github.com/wjakob/nanogui
     https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
