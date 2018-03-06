@@ -36,7 +36,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
-		//PhysicsShape(std::shared_ptr<Node> geometry, PhysicsShapeType type);
+		//PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
 		
 		/***************************************************************************************
 		     MARK:   Public

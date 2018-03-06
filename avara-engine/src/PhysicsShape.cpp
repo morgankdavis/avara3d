@@ -10,6 +10,7 @@
 
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Box.h"
 #include "Capsule.h"
@@ -23,11 +24,142 @@
 #include "Utilities.h"
 
 
+#define SIMPLIFY_CONVEX_HULLS		true
+
+
 using namespace ae;
 using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
+
+/***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<btCollisionShape> BTConvexHullShapeFromGeometry(Geometry& geometry) {
+	
+	auto elements = geometry.elements();
+	
+	if (elements.size() > 0) {
+		
+		vector<btConvexHullShape> convexHullShapes;
+		convexHullShapes.resize(elements.size());
+		
+		for (auto element : elements) {
+//			vector<Vertex> verticies;
+//			auto elementVerts = element->vertices();
+//			//verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//			verticies.insert(verticies.end(), elementVerts.begin(), elementVerts.end());
+//			
+//			auto fullShape = btConvexHullShape((const btScalar*)&verticies[0],
+//											   element->vertices().size(),
+//											   sizeof(Vertex));
+			
+//			vector<Vertex> verticies;
+//			auto elementVerts = element->vertices();
+//			//verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//			verticies.insert(verticies.end(), elementVerts.begin(), elementVerts.end());
+			
+			auto fullShape = btConvexHullShape((const btScalar*)&element->vertices()[0],
+											   element->vertices().size(),
+											   sizeof(Vertex));
+			
+			if (SIMPLIFY_CONVEX_HULLS) {
+				// reduce number of verticies
+				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+				
+				auto hull = make_shared<btShapeHull>(&fullShape);
+				btScalar margin = fullShape.getMargin();
+				hull->buildHull((btScalar)margin);
+				
+				convexHullShapes.emplace_back((btScalar*)hull->getVertexPointer(),
+											  hull->numVertices(),
+											  sizeof(btVector3));
+				
+				//			return make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
+				//												  hull->numVertices(),
+				//												  sizeof(btVector3));
+			}
+			else {
+				//			return make_shared<btConvexHullShape>(fullShape);
+				
+				convexHullShapes.emplace_back(fullShape);
+			}
+		}
+		
+		if (elements.size() > 1) { // compound shape
+			btCompoundShape compoundShape;
+			
+			for (auto hullShape : convexHullShapes) {
+				btTransform localTransform;
+				localTransform.setFromOpenGLMatrix(value_ptr(mat4(1.0)));
+				compoundShape.addChildShape((const btTransform)localTransform, (btCollisionShape *)&hullShape);
+			}
+			
+			return make_shared<btCompoundShape>(&compoundShape);
+		}
+		else {
+			return make_shared<btConvexHullShape>(convexHullShapes[0]);
+		}
+	}
+	else {
+		return nullptr;
+	}
+	
+	
+	
+//	if (elements.size() > 1) { // compound shape
+//		
+//	}
+//	else {
+//		
+//	}
+//	
+//	//			unsigned numVerticies = 0;
+//	//			for (auto element : m_sourceGeometry->elements()) {
+//	//				numVerticies += element->vertices().size();
+//	//			}
+//	//			vector<Vertex> verticies;
+//	//			verticies.reserve(numVerticies);
+//	//			
+//	//			for (auto element : m_sourceGeometry->elements()) {
+//	//				auto elementVerts = element->vertices();
+//	//				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//	//			}
+//	//			
+//	//			m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+//	//													   numVerticies,
+//	//													   sizeof(Vertex));
+//	
+//	
+//	unsigned numVerticies = 0;
+//	for (auto element : elements) {
+//		numVerticies += element->vertices().size();
+//	}
+//	vector<Vertex> verticies;
+//	verticies.reserve(numVerticies);
+//	
+//	for (auto element : elements) {
+//		auto elementVerts = element->vertices();
+//		verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//	}
+//	
+//	auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+//														numVerticies,
+//														sizeof(Vertex));
+//	
+//	// reduce number of verticies
+//	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+//	
+//	auto hull = make_shared<btShapeHull>(originalShape.get());
+//	btScalar margin = originalShape->getMargin();
+//	hull->buildHull((btScalar)margin);
+//	
+//	return make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
+//										  hull->numVertices(),
+//										  sizeof(btVector3));
+}
 
 /***************************************************************************************
      MARK:   Lifecycle
@@ -138,26 +270,27 @@ void PhysicsShape::createBTShape() {
 														   (btScalar)cylinder->radius()));
 	}
 	else {
+		
 		if (m_type == PhysicsShapeType_ConcavePolyhedron) {
 			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
 		}
 		else { // PhysicsShapeType_ConvexHull
 			
-//			unsigned numVerticies = 0;
-//			for (auto element : m_sourceGeometry->elements()) {
-//				numVerticies += element->vertices().size();
-//			}
-//			vector<Vertex> verticies;
-//			verticies.reserve(numVerticies);
-//			
-//			for (auto element : m_sourceGeometry->elements()) {
-//				auto elementVerts = element->vertices();
-//				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-//			}
-//			
-//			m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-//													   numVerticies,
-//													   sizeof(Vertex));
+			//			unsigned numVerticies = 0;
+			//			for (auto element : m_sourceGeometry->elements()) {
+			//				numVerticies += element->vertices().size();
+			//			}
+			//			vector<Vertex> verticies;
+			//			verticies.reserve(numVerticies);
+			//			
+			//			for (auto element : m_sourceGeometry->elements()) {
+			//				auto elementVerts = element->vertices();
+			//				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+			//			}
+			//			
+			//			m_btShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+			//													   numVerticies,
+			//													   sizeof(Vertex));
 			
 			
 			unsigned numVerticies = 0;
@@ -173,8 +306,8 @@ void PhysicsShape::createBTShape() {
 			}
 			
 			auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-													   numVerticies,
-													   sizeof(Vertex));
+																numVerticies,
+																sizeof(Vertex));
 			
 			// reduce number of verticies
 			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
@@ -182,11 +315,19 @@ void PhysicsShape::createBTShape() {
 			auto hull = make_shared<btShapeHull>(originalShape.get());
 			btScalar margin = originalShape->getMargin();
 			hull->buildHull((btScalar)margin);
-
+			
 			m_btShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
 													   hull->numVertices(),
 													   sizeof(btVector3));
 		}
+		
+//		if (m_type == PhysicsShapeType_ConcavePolyhedron) {
+//			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
+//		}
+//		else { // PhysicsShapeType_ConvexHull
+//			
+//			m_btShape = BTConvexHullShapeFromGeometry(*m_sourceGeometry);
+//		}
 	}
 	
 	//m_btShape->setMargin(0);

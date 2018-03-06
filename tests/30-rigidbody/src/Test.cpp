@@ -163,6 +163,22 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddApple(Scene& scene, vec3 location) {
+	
+	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
+	node->position(location);
+
+	auto physicsBody = PhysicsBody::DynamicBody();
+	//physicsBody->mass(100.0);
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.75);
+	physicsBody->rollingFriction(0.75);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 void AddFruit(Scene& scene, vec3 location) {
 	
 	//unsigned random = Random(0, 6);
@@ -305,7 +321,8 @@ int Test::run(const vector<string>& args) {
 				//AddCapsule(*scene, position, color);
 				//AddCone(*scene, position, color);
 				//AddCylinder(*scene, position, color);
-				AddFruit(*scene, position);
+				AddApple(*scene, position);
+				//AddFruit(*scene, position);
 			}
 		}
 	}
