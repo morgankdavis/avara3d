@@ -179,6 +179,22 @@ void AddApple(Scene& scene, vec3 location) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddPineapple(Scene& scene, vec3 location) {
+	
+	shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+	node->position(location);
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	//physicsBody->mass(100.0);
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.75);
+	physicsBody->rollingFriction(0.75);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 void AddFruit(Scene& scene, vec3 location) {
 	
 	//unsigned random = Random(0, 6);

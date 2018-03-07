@@ -36,8 +36,6 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
-		
-		// constructs a compound shape based on geometries under this node
 		PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
 		
 		/***************************************************************************************
@@ -68,11 +66,11 @@ namespace ae {
 //		void createBTShape();
 		
 		std::shared_ptr<Geometry> 			m_sourceGeometry;
+		std::shared_ptr<Node> 				m_sourceNode;
 		PhysicsShapeType 					m_type;
 		std::vector<glm::mat4> 				m_transforms;
 		
 		std::shared_ptr<btCollisionShape>	m_btShape;
-		std::shared_ptr<btTriangleMesh>		m_btTriangleMesh;
 		
 		PhysicsBody*						m_physicsBody;
 	};

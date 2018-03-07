@@ -276,7 +276,12 @@ void PhysicsBody::attachedToNode(Node& node) {
 	m_node = &node;
 	
 	if (!m_shape) {
-		shape(make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull));
+//		if (m_node->geometry()) {
+			shape(make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull));
+//		}
+//		else {
+//			shape(make_shared<PhysicsShape>(m_node, PhysicsShapeType_ConvexHull));
+//		}
 	}
 	
 //	if (m_shape->btShape() == nullptr) {
