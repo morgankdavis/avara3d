@@ -133,19 +133,23 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 }
 
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PhysicsShapeType type) {
+													PhysicsShapeType type,
+													vector<shared_ptr<btCollisionShape>>& out_childShapes) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");
 	
-	auto compoundShape = shared_ptr<btCompoundShape>();
+	auto compoundShape = make_shared<btCompoundShape>(true);
 	
 	auto allNodes = node->childNodes(true);
 	for (auto n : allNodes) {
 		auto geometry = n->geometry();
 		if (geometry) {
 			auto collisionShape = BTCollisionShapeFromGeometry(geometry, type);
+			
+			out_childShapes.emplace_back(collisionShape); // *** TEMPORARY ***
+			
 			btTransform localTransform;
 			localTransform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
-			compoundShape->addChildShape((const btTransform)localTransform, collisionShape.get());
+			compoundShape->addChildShape(localTransform, collisionShape.get());
 		}
 	}
 	
@@ -198,7 +202,16 @@ PhysicsShapeType PhysicsShape::type() const {
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
 	m_physicsBody = &body;
 	//createBTShape();
-	m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
+	if (m_sourceGeometry) {
+		m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
+	}
+	else if (m_sourceNode) {
+		m_compoundChildShapes = vector<shared_ptr<btCollisionShape>>();
+		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_compoundChildShapes);
+	}
+	else {
+		AE_LOG->critical("Logic error: PhysicsShape has no source geometry or node.");
+	}
 }
 
 PhysicsBody* PhysicsShape::physicsBody() const {
@@ -207,6 +220,7 @@ PhysicsBody* PhysicsShape::physicsBody() const {
 
 void PhysicsShape::physicsBody(PhysicsBody* body) {
 	m_physicsBody = body;
+	attachedToBody(*body);
 }
 
 shared_ptr<btCollisionShape> PhysicsShape::btShape() const {

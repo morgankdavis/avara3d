@@ -73,6 +73,9 @@ namespace ae {
 		std::shared_ptr<btCollisionShape>	m_btShape;
 		
 		PhysicsBody*						m_physicsBody;
+		std::vector<std::shared_ptr<btCollisionShape>> 		m_compoundChildShapes;
+		// *** TEMPORARY ***
+		
 	};
 }
 

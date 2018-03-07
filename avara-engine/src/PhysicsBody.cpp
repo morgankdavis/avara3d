@@ -61,7 +61,7 @@ PhysicsBody::PhysicsBody():
 	m_angularVelocity({0, 0, 0}),
 	m_resting(false),
 	m_allowsResting(true),
-	m_node(nullptr),
+	m_node(weak_ptr<Node>()),
 	m_btMotionState(nullptr),
 	m_btRigidBody(nullptr) {
 	
@@ -261,10 +261,13 @@ void PhysicsBody::clearForces() {
 }
 
 void PhysicsBody::resetTransform() {
-	if (m_node) {
+	if (auto node = m_node.lock()) {
 		btTransform transform;
-		transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
+		transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
 		m_btMotionState = make_shared<btDefaultMotionState>(transform);
+	}
+	else {
+		AE_LOG->warn("PhysicsBody::resetTransform() called with no parent node.");
 	}
 }
 
@@ -272,16 +275,18 @@ void PhysicsBody::resetTransform() {
      MARK:   Internal
  **************************************************************************************/
 
-void PhysicsBody::attachedToNode(Node& node) {
-	m_node = &node;
+void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
+	m_node = node;
 	
 	if (!m_shape) {
-//		if (m_node->geometry()) {
-			shape(make_shared<PhysicsShape>(m_node->geometry(), PhysicsShapeType_ConvexHull));
-//		}
-//		else {
-//			shape(make_shared<PhysicsShape>(m_node, PhysicsShapeType_ConvexHull));
-//		}
+		if (node->geometry()) {
+			m_shape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+			m_shape->attachedToBody(*this);
+		}
+		else {
+			m_shape = make_shared<PhysicsShape>(node, PhysicsShapeType_ConvexHull);
+			m_shape->attachedToBody(*this);
+		}
 	}
 	
 //	if (m_shape->btShape() == nullptr) {
@@ -293,8 +298,9 @@ void PhysicsBody::attachedToNode(Node& node) {
 //	m_btMotionState = make_shared<btDefaultMotionState>(transform);
 	resetTransform();
 
-	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
-											   
+	//btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
+	btCollisionShape* collisionShape = m_shape->btShape().get();
+						 					   
 //	btBoxShape* colShape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 //	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(colShape);
 
@@ -338,12 +344,12 @@ void PhysicsBody::attachedToNode(Node& node) {
 	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
 	//m_btRigidBody->setGravity()
 	
-	m_node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+	node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
 	
-	AE_LOG->debug("Linear sleeping threshold: {}",
-				  m_btRigidBody->getLinearSleepingThreshold()); // default .8
-	AE_LOG->debug("Angular sleeping threshold: {}",
-				  m_btRigidBody->getAngularSleepingThreshold()); // default 1
+//	AE_LOG->debug("Linear sleeping threshold: {}",
+//				  m_btRigidBody->getLinearSleepingThreshold()); // default .8
+//	AE_LOG->debug("Angular sleeping threshold: {}",
+//				  m_btRigidBody->getAngularSleepingThreshold()); // default 1
 	
 	//m_btRigidBody->setSleepingThresholds(0.01, 0.01);
 	//m_btRigidBody->setSleepingThresholds(10.0, 10.0);

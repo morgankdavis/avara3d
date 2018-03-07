@@ -535,7 +535,7 @@ void Node::addChildNode(shared_ptr<Node> node) {
 	
 	auto physicsBody = node->physicsBody();
 	if (physicsBody) {
-		physicsBody->attachedToNode(*node);
+		physicsBody->attachedToNode(node);
 	}
 }
 

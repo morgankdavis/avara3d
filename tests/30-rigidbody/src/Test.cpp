@@ -169,7 +169,6 @@ void AddApple(Scene& scene, vec3 location) {
 	node->position(location);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-	//physicsBody->mass(100.0);
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
@@ -185,7 +184,6 @@ void AddPineapple(Scene& scene, vec3 location) {
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	//physicsBody->mass(100.0);
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
@@ -214,7 +212,6 @@ void AddFruit(Scene& scene, vec3 location) {
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	//physicsBody->mass(100.0);
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
@@ -319,29 +316,32 @@ int Test::run(const vector<string>& args) {
 	// -> 288
 
 	
-	unsigned SPACING = 1.0;
-	unsigned DROP_HEIGHT = 5.0;
-	unsigned colorIndex = 0;
-	auto colors = Color::Rainbow();
-	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				auto color = make_shared<Color>(colors[colorIndex + 4]);
-				++colorIndex;
-				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-				//AddObject(*scene, position, color);
-				//AddBox(*scene, position, color);
-				//AddCapsule(*scene, position, color);
-				//AddCone(*scene, position, color);
-				//AddCylinder(*scene, position, color);
-				AddApple(*scene, position);
-				//AddFruit(*scene, position);
-			}
-		}
-	}
+	vec3 position = { 0.0, 5.0, 0.0 };
+	AddPineapple(*scene, position);
+	
+//	unsigned SPACING = 1.0;
+//	unsigned DROP_HEIGHT = 5.0;
+//	unsigned colorIndex = 0;
+//	auto colors = Color::Rainbow();
+//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+//				auto color = make_shared<Color>(colors[colorIndex + 4]);
+//				++colorIndex;
+//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+//				//AddObject(*scene, position, color);
+//				//AddBox(*scene, position, color);
+//				//AddCapsule(*scene, position, color);
+//				//AddCone(*scene, position, color);
+//				//AddCylinder(*scene, position, color);
+//				AddApple(*scene, position);
+//				//AddFruit(*scene, position);
+//			}
+//		}
+//	}
 	
 	
 	
