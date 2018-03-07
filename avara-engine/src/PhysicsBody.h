@@ -122,7 +122,7 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void attachedToNode(Node& node);
+		void attachedToNode(std::shared_ptr<Node> node);
 		std::shared_ptr<btDefaultMotionState> btMotionState() const;
 		
 	private:
@@ -149,7 +149,7 @@ namespace ae {
 		bool 									m_resting;
 		bool 									m_allowsResting;
 		
-		Node*									m_node;
+		std::weak_ptr<Node>						m_node;
 		
 		std::shared_ptr<btDefaultMotionState>	m_btMotionState;
 		std::shared_ptr<btRigidBody>			m_btRigidBody;

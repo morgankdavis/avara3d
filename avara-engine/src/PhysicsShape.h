@@ -36,7 +36,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
-		//PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
+		PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -63,16 +63,19 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void createBTShape();
+//		void createBTShape();
 		
 		std::shared_ptr<Geometry> 			m_sourceGeometry;
+		std::shared_ptr<Node> 				m_sourceNode;
 		PhysicsShapeType 					m_type;
 		std::vector<glm::mat4> 				m_transforms;
 		
 		std::shared_ptr<btCollisionShape>	m_btShape;
-		std::shared_ptr<btTriangleMesh>		m_btTriangleMesh;
 		
 		PhysicsBody*						m_physicsBody;
+		std::vector<std::shared_ptr<btCollisionShape>> 		m_compoundChildShapes;
+		// *** TEMPORARY ***
+		
 	};
 }
 
