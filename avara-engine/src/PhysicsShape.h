@@ -36,7 +36,9 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
-		//PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
+		
+		// constructs a compound shape based on geometries under this node
+		PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -63,7 +65,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void createBTShape();
+//		void createBTShape();
 		
 		std::shared_ptr<Geometry> 			m_sourceGeometry;
 		PhysicsShapeType 					m_type;
