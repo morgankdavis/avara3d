@@ -165,7 +165,8 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddApple(Scene& scene, vec3 location) {
 	
-	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
+	//shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
+	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
 	node->position(location);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
@@ -179,6 +180,23 @@ void AddApple(Scene& scene, vec3 location) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddPineapple(Scene& scene, vec3 location) {
+	
+	//shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0];
+	shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+	node->position(location);
+	
+//	auto physicsBody = PhysicsBody::DynamicBody();
+//	//physicsBody->mass(100.0);
+//	physicsBody->mass(100.0);
+//	physicsBody->restitution(0.45);
+//	physicsBody->friction(0.75);
+//	physicsBody->rollingFriction(0.75);
+//	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 void AddFruit(Scene& scene, vec3 location) {
 	
 	//unsigned random = Random(0, 6);
@@ -186,12 +204,18 @@ void AddFruit(Scene& scene, vec3 location) {
 	shared_ptr<Node> node = nullptr;
 	
 	switch (random) {
-		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
 		default: return;
 	}
 	
@@ -322,6 +346,7 @@ int Test::run(const vector<string>& args) {
 				//AddCone(*scene, position, color);
 				//AddCylinder(*scene, position, color);
 				AddApple(*scene, position);
+				//AddPineapple(*scene, position);
 				//AddFruit(*scene, position);
 			}
 		}
