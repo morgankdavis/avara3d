@@ -45,53 +45,51 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
 	// - if 'geometry' is a primitive, use matching primitive
 	// - if arbitrary mesh, use whatever 'type' is
-	
-	shared_ptr<btCollisionShape> btShape = nullptr;
-	
+
 	if (type == PhysicsShapeType_BoundingBox) {
 		vec3 extent = geometry->extent(false);
 		float width = extent.x;
 		float height = extent.y;
 		float length = extent.z;
-		btShape = make_shared<btBoxShape>(btVector3((btScalar)width/2.0,
-										   (btScalar)height/2.0,
-										   (btScalar)length/2.0));
+		return make_shared<btBoxShape>(btVector3((btScalar)width/2.0,
+												 (btScalar)height/2.0,
+												 (btScalar)length/2.0));
 	}
 	else if (dynamic_cast<Box*>(geometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using box.", type);
 		
 		auto box = dynamic_cast<Box*>(geometry.get());
-		btShape = make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
-													  (btScalar)box->height()/2.0,
-													  (btScalar)box->length()/2.0));
+		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
+												 (btScalar)box->height()/2.0,
+												 (btScalar)box->length()/2.0));
 	}
 	else if (dynamic_cast<Sphere*>(geometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", type);
 		
 		auto sphere = dynamic_cast<Sphere*>(geometry.get());
-		btShape = make_shared<btSphereShape>((btScalar)sphere->radius());
+		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(geometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", type);
 		
 		auto capsule = dynamic_cast<Capsule*>(geometry.get());
-		btShape = make_shared<btCapsuleShape>((btScalar)capsule->radius(),
-												(btScalar)capsule->height());
+		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
+										   (btScalar)capsule->height());
 	}
 	else if (dynamic_cast<Cone*>(geometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using cone.", type);
 		
 		auto cone = dynamic_cast<Cone*>(geometry.get());
-		btShape = make_shared<btConeShape>((btScalar)cone->radius(),
-											 (btScalar)cone->height());
+		return make_shared<btConeShape>((btScalar)cone->radius(),
+										(btScalar)cone->height());
 	}
 	else if (dynamic_cast<Cylinder*>(geometry.get())) {
 		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", type);
 		
 		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
-		btShape = make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-														   (btScalar)cylinder->height()/2.0,
-														   (btScalar)cylinder->radius()));
+		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
+													  (btScalar)cylinder->height()/2.0,
+													  (btScalar)cylinder->radius()));
 	}
 	else {
 		
@@ -99,7 +97,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
 		}
 		else { // PhysicsShapeType_ConvexHull
-
+			
 			unsigned numVerticies = 0;
 			for (auto element : geometry->elements()) {
 				numVerticies += element->vertices().size();
@@ -116,20 +114,25 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 																numVerticies,
 																sizeof(Vertex));
 			
-			// reduce number of verticies
-			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-			
-			auto hull = make_shared<btShapeHull>(originalShape.get());
-			btScalar margin = originalShape->getMargin();
-			hull->buildHull((btScalar)margin);
-			
-			btShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
-													 hull->numVertices(),
-													 sizeof(btVector3));
+			if (SIMPLIFY_CONVEX_HULLS) {
+				// reduce number of verticies
+				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+				
+				auto hull = make_shared<btShapeHull>(originalShape.get());
+				btScalar margin = originalShape->getMargin();
+				hull->buildHull((btScalar)margin);
+				
+				return make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
+													  hull->numVertices(),
+													  sizeof(btVector3));
+			}
+			else {
+				return originalShape;
+			}
 		}
 	}
 	
-	return btShape;
+	return nullptr;
 }
 
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,

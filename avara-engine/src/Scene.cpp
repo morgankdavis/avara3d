@@ -397,12 +397,9 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 					btTransform transform;
 					motionState->getWorldTransform(transform);
 					transform.getOpenGLMatrix(value_ptr(modelMat));
-					
-					//t.getOpenGLMatrix(glm::value_ptr(WoodenCrateInstances.at(i).transform));
-					//modelMat = 
 				}
 				else {
-					modelMat= node->worldTransform();
+					modelMat = node->worldTransform();
 				}
 				geometry->draw(modelMat, viewMat, projectionMat,
 							   m_glEnvironmentUBO, debugOptions, stats);

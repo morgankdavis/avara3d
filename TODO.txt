@@ -13,6 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
+
+		Resume @ Scene::draw()
+
 		Should both be weak_ptr:
 
 		std::shared_ptr<Geometry> 			m_sourceGeometry;

@@ -194,23 +194,6 @@ void AddPineapple(Scene& scene, vec3 location) {
 	scene.rootNode()->addChildNode(node);
 }
 
-void AddPineapple(Scene& scene, vec3 location) {
-	
-	//shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0];
-	shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
-	node->position(location);
-	
-//	auto physicsBody = PhysicsBody::DynamicBody();
-//	//physicsBody->mass(100.0);
-//	physicsBody->mass(100.0);
-//	physicsBody->restitution(0.45);
-//	physicsBody->friction(0.75);
-//	physicsBody->rollingFriction(0.75);
-//	node->physicsBody(physicsBody);
-	
-	scene.rootNode()->addChildNode(node);
-}
-
 void AddFruit(Scene& scene, vec3 location) {
 	
 	//unsigned random = Random(0, 6);
@@ -278,22 +261,24 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 	
 	
-	const float PLANE_DIM = 10.0;
+	const float PLANE_LENGTH = 30.0;
+	const float PLANE_WIDTH = 30.0;
+	const float PLANE_HEIGHT = 0.5;
 	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_DIM, PLANE_DIM, 0.1));
+	auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 	//auto gridImage = TestImageNamed("grid10");
 	auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WrapMode_Repeat);
 	planeMaterialProperty->wrapT(WrapMode_Repeat);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-	planeMaterial->uvScale(PLANE_DIM);
+	planeMaterial->uvScale(PLANE_LENGTH);
 //	planeMaterial->uvScale(PLANE_DIM*0.1);
 //	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0, radians(90.0)});
 	planeNode->position({planeNode->position().x,
-		planeNode->position().y - PLANE_DIM,
+		planeNode->position().y - PLANE_LENGTH,
 		planeNode->position().z});
 	
 	
