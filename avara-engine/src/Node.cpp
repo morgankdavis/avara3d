@@ -42,114 +42,117 @@ using namespace glm;
 
 Node::Node():
 	m_name(boost::none),
-	m_parent(nullptr),
 	m_hidden(false),
 	m_camera(nullptr),
 	m_light(nullptr),
 	m_geometry(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_position({0.0f, 0.0f, 0.0f}),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-	m_scene(nullptr) {
+	m_parent(weak_ptr<Node>()),
+	m_scene(weak_ptr<Scene>()) {
 	
 }
 
 Node::Node(const string& name):
 	m_name(name),
-	m_parent(nullptr),
 	m_hidden(false),
 	m_camera(nullptr),
 	m_light(nullptr),
 	m_geometry(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
+	m_position({0.0f, 0.0f, 0.0f}),
 	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-	m_scene(nullptr) {
+	m_parent(weak_ptr<Node>()),
+	m_scene(weak_ptr<Scene>()) {
 		
 }
 
-Node::Node(const shared_ptr<Geometry> geometry):
-	m_name(boost::none),
-	m_parent(nullptr),
-	m_hidden(false),
-	m_camera(nullptr),
-	m_light(nullptr),
-	m_geometry(geometry),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
-	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr),
-	m_scene(nullptr) {
-
-		m_geometry->node(this);
-}
-
-Node::Node(const shared_ptr<Light> light):
-	m_name(boost::none),
-	m_parent(nullptr),
-	m_hidden(false),
-	m_camera(nullptr),
-	m_light(light),
-	m_geometry(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
-	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr),
-	m_scene(nullptr) {
-		
-		m_light->node(this);
-}
-
-Node::Node(const shared_ptr<Camera> camera):
-	m_name(boost::none),
-	m_parent(nullptr),
-	m_hidden(false),
-	m_camera(camera),
-	m_light(nullptr),
-	m_geometry(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
-	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr),
-	m_scene(nullptr) {
-		
-		m_camera->node(this);
-}
-
-Node::Node(const string& name, const mat4 t):
-	m_name(name),
-	m_parent(nullptr),
-	m_hidden(false),
-	m_camera(nullptr),
-	m_light(nullptr),
-	m_geometry(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
-	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_physicsBody(nullptr),
-	m_scene(nullptr) {
-		
-		transform(t);
-}
-
-Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
-	m_name(name),
-	m_hidden(false),
-	m_parent(nullptr),
-	m_position(vec3(0.0f, 0.0f, 0.0f)),
-	m_orientation(quat()),
-	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-	m_geometry(geometry),
-	m_physicsBody(nullptr),
-	m_scene(nullptr) {
-
-//		m_geometry = geometry;
-//		cout << "Creating node with geometry: " << geometry << endl;
-		transform(t);
-		m_geometry->node(this);
-}
+//Node::Node(const shared_ptr<Geometry> geometry):
+//	m_name(boost::none),
+//	m_hidden(false),
+//	m_camera(nullptr),
+//	m_light(nullptr),
+//	m_geometry(geometry),
+//	m_position(vec3(0.0f, 0.0f, 0.0f)),
+//	m_orientation(quat()),
+//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+//	m_physicsBody(nullptr),
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+//
+//		// MUST SET IN geometry() ACCESSOR
+//		//m_geometry->node(shared_from_this());
+//}
+//
+//Node::Node(const shared_ptr<Light> light):
+//	m_name(boost::none),
+//	m_hidden(false),
+//	m_camera(nullptr),
+//	m_light(light),
+//	m_geometry(nullptr),
+//	m_position(vec3(0.0f, 0.0f, 0.0f)),
+//	m_orientation(quat()),
+//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+//	m_physicsBody(nullptr),
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+//		
+//		// MUST SET IN light() ACCESSOR
+//		//m_light->node(shared_from_this());
+//}
+//
+//Node::Node(const shared_ptr<Camera> camera):
+//	m_name(boost::none),
+//	m_hidden(false),
+//	m_camera(camera),
+//	m_light(nullptr),
+//	m_geometry(nullptr),
+//	m_position(vec3(0.0f, 0.0f, 0.0f)),
+//	m_orientation(quat()),
+//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+//	m_physicsBody(nullptr),
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+//		
+//		// MUST SET IN camera() ACCESSOR
+//		//m_camera->node(shared_from_this());
+//}
+//
+//Node::Node(const string& name, const mat4 t):
+//	m_name(name),
+//	m_hidden(false),
+//	m_camera(nullptr),
+//	m_light(nullptr),
+//	m_geometry(nullptr),
+//	m_position(vec3(0.0f, 0.0f, 0.0f)),
+//	m_orientation(quat()),
+//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+//	m_physicsBody(nullptr),
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+//		
+//		transform(t);
+//}
+//
+//Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
+//	m_name(name),
+//	m_hidden(false),
+//	m_position(vec3(0.0f, 0.0f, 0.0f)),
+//	m_orientation(quat()),
+//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
+//	m_geometry(geometry),
+//	m_physicsBody(nullptr),
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+//
+//		transform(t);
+//		
+//		// MUST SET IN geometry() ACCESSOR
+//		//m_geometry->node(shared_from_this());
+//}
 
 /***************************************************************************************
      MARK:   Public
@@ -164,29 +167,45 @@ void Node::name(const string& name) {
 }
 
 shared_ptr<Light> Node::light() const {
+//	if (m_light) {
+//		// dirty work-around for calling non-const method from const method
+//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
+//		const_cast<Light*>(m_light.get())->node(((Node*)this)->shared_from_this());
+//	}
 	return m_light;
 }
 
 void Node::light(const shared_ptr<Light> light) {
+	light->node(shared_from_this());
 	m_light = light;
 }
 
 shared_ptr<Camera> Node::camera() const {
+//	if (m_camera) {
+//		// dirty work-around for calling non-const method from const method
+//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
+//		const_cast<Camera*>(m_camera.get())->node(((Node*)this)->shared_from_this());
+//	}
 	return m_camera;
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
-	camera->node(this);
+	camera->node(shared_from_this());
 	m_camera = camera;
 }
 
 shared_ptr<Geometry> Node::geometry() const {
+//	if (m_geometry) {
+//		// dirty work-around for calling non-const method from const method
+//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
+//		const_cast<Geometry*>(m_geometry.get())->node(((Node*)this)->shared_from_this());
+//	}
 	return m_geometry;
 }
 
 void Node::geometry(const shared_ptr<Geometry> geometry) {
+	geometry->node(shared_from_this());
 	m_geometry = geometry;
-	m_geometry->node(this);
 }
 
 bool Node::hidden() const {
@@ -530,7 +549,7 @@ void Node::addChildNode(shared_ptr<Node> node) {
 		throw Exception("Node already exists in tree.");
 	}
 	
-	node->m_parent = this;
+	node->m_parent = shared_from_this();
 	m_childNodes.push_back(node);
 	
 	auto physicsBody = node->physicsBody();
@@ -544,14 +563,14 @@ void Node::insertChildNode(const Node& node, int index) {
 }
 
 void Node::removeFromParentNode() {
-	if (m_parent != nullptr) {
+	if (auto parent = m_parent.lock()) {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-		auto vec = m_parent->m_childNodes;
+		auto vec = parent->m_childNodes;
 		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
 // TODO: can we avoid the copy?
-		m_parent->m_childNodes = vec;
+		parent->m_childNodes = vec;
 	}
 }
 
@@ -559,7 +578,7 @@ void Node::replaceChildNode(const Node& replace, const Node& with) {
 	
 }
 
-Node* Node::parent() const {
+weak_ptr<Node> Node::parent() const {
 	return m_parent;
 }
 
@@ -601,10 +620,6 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
      MARK:   Internal
  **************************************************************************************/
 
-void Node::parent(Node* parent) {
-	m_parent = parent;
-}
-
 shared_ptr<Node> Node::root() const {
 	auto path = pathToRoot();
 	if (path.size() > 0) {
@@ -613,29 +628,17 @@ shared_ptr<Node> Node::root() const {
 	return nullptr;
 }
 
-Scene* Node::scene() const {
-	if (m_parent) {
-		return root()->scene();
-	}
-	else {
-		return m_scene;
-	}
-}
-
-void Node::scene(Scene* scene) {
-	m_scene = scene;
-}
-
 vector<shared_ptr<Node>> Node::pathToRoot() const {
 	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
-	auto p = this->parent();
+	auto p = m_parent.lock();
 	if (p != nullptr) {
 		do {
-			parents.push_back(make_shared<Node>(*p));
-			p = p->parent();
+			//parents.push_back(make_shared<Node>(*p));
+			parents.push_back(p);
+			p = p->parent().lock();
 		} while (p != nullptr);
 	}
 	
@@ -650,6 +653,24 @@ bool Node::treeContainsNode(shared_ptr<Node> node) {
 		return true;
 	}
 	return false;
+}
+
+weak_ptr<Scene> Node::scene() const {
+	//if (auto parent = m_parent.lock()) {
+	if (root()) {
+		return root()->scene();
+	}
+	else {
+		return m_scene;
+	}
+}
+
+void Node::scene(shared_ptr<Scene> scene) {
+	m_scene = scene;
+}
+
+void Node::parent(shared_ptr<Node> parent) {
+	m_parent = parent;
 }
 
 /***************************************************************************************

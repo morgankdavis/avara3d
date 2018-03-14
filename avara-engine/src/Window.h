@@ -40,7 +40,7 @@ namespace ae {
 	using WindowDidRenderFuction = std::function<void(Scene& scene, float time)>;
 
 	
-	class Window {
+	class Window : public std::enable_shared_from_this<Window> {
 		
 	public:
 		

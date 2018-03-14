@@ -42,7 +42,8 @@ Geometry::Geometry():
 	m_name(boost::none),
 	m_elements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()),
-    m_glAABBVAO(-1) {
+    m_glAABBVAO(-1),
+	m_node(weak_ptr<Node>()) {
 
 }
 
@@ -51,7 +52,8 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 	m_name(boost::none),
 	m_elements(elements),
 	m_materials(materials),
-    m_glAABBVAO(-1) {
+    m_glAABBVAO(-1),
+	m_node(weak_ptr<Node>()) {
 		
 		loadVertexData();
 }
@@ -123,14 +125,6 @@ void Geometry::replaceMaterial(int index, const shared_ptr<Material> replacement
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
-
-Node* Geometry::node() const {
-	return m_node;
-}
-
-void Geometry::node(Node* node) {
-	m_node = node;
-}
 
 void Geometry::loadVertexData() {
 	for (int e=0; e < m_elements.size(); ++e) {
@@ -242,17 +236,14 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
 	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
-	//auto worldTransform = m_node->worldTransform();
-
-//	cout << "GEOMETRY '" << name() << "' " << "worldTransform: " << endl;
-//	cout << worldTransform << endl;
-//	cout << "Num elements: " << m_elements.size() << endl;
-
 	for (auto element : m_elements) {
 		for (auto v : element->vertices()) {
 			vec3 p = v.position;
-            if (worldSpace) p = vec3(m_node->worldTransform() * vec4(v.position, 1.0f));
-//            else p = vec3(m_node->transform() * vec4(v.position, 1.0f));
+			if (worldSpace) {
+				if (auto node = m_node.lock()) {
+					p = vec3(node->worldTransform() * vec4(v.position, 1.0f));
+				}
+			}
 
 			if (p.x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = p;
 			if (p.x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = p;
@@ -264,11 +255,6 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
 			if (p.z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = p;
 		}
 	}
-
-//	cout << "GEOMETRY '" << name() << "' " << "boundingPoints: " << endl;
-//	for (auto const& i : (*boundingPoints)) {
-//		cout << i.first << ": " << i.second << endl;
-//	}
 
 	return boundingPoints;
 }
@@ -346,4 +332,12 @@ void Geometry::loadAABBVertexData(const Program& program) {
 //		glBindVertexArray(0);
 //		glEnableVertexAttribArray(0);
     }
+}
+
+weak_ptr<Node> Geometry::node() const {
+	return m_node;
+}
+
+void Geometry::node(shared_ptr<Node> node) {
+	m_node = node;
 }

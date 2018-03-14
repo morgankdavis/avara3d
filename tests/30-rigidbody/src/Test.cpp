@@ -38,6 +38,8 @@ using namespace glm;
 //#define PHYSICS_TIMESTEP		1.0/240.0
 //#define PHYSICS_TIMESTEP		1.0/480.0
 
+#define USE_HIGH_DETAIL_MESHES
+
 
 /***************************************************************************************
      MARK:   Static
@@ -47,7 +49,9 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
 	cout << "location: " << location << endl;
 	
-	auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
+	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
+	auto node = make_shared<Node>("Sphere");
+	node->geometry(make_shared<Sphere>(0.5 * .1, 3));
 	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -70,8 +74,14 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	unsigned random = Random(0, 1);
 	shared_ptr<Node> node = nullptr;
-	if (random == 0) node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
-	else node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
+	if (random == 0) {
+		node = make_shared<Node>("Box");
+		node->geometry(make_shared<Box>(1.0, 1.0, 1.0));
+	}
+	else {
+		node = make_shared<Node>("Sphere");
+		node->geometry(make_shared<Sphere>(0.5, 3));
+	}
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -91,7 +101,9 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
-	shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
+	//shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
+	auto node = make_shared<Node>("Box");
+	node->geometry(make_shared<Box>(1.0, 1.0, 1.0));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -109,9 +121,33 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	scene.rootNode()->addChildNode(node);
 }
 
+void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
+	
+	//shared_ptr<Node> node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
+	shared_ptr<Node> node = make_shared<Node>("Sphere");
+	node->geometry(make_shared<Sphere>(0.5, 3));
+	auto materialProperty = make_shared<MaterialProperty>(color);
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(1.0);
+	physicsBody->restitution(0.25);
+	physicsBody->friction(0.25);
+	physicsBody->rollingFriction(0.025);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChildNode(node);
+}
+
 void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
-	shared_ptr<Node> node = make_shared<Node>(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
+	//shared_ptr<Node> node = make_shared<Node>(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
+	shared_ptr<Node> node = make_shared<Node>("Capsule");
+	node->geometry(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -129,7 +165,9 @@ void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
-	shared_ptr<Node> node = make_shared<Node>(make_shared<Cone>(0.5, 0.5, 16, 16));
+	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cone>(0.5, 0.5, 16, 16));
+	shared_ptr<Node> node = make_shared<Node>("Cone");
+	node->geometry(make_shared<Cone>(0.5, 0.5, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -147,7 +185,9 @@ void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
-	shared_ptr<Node> node = make_shared<Node>(make_shared<Cylinder>(0.5, 0.5, 16, 16));
+	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cylinder>(0.5, 0.5, 16, 16));
+	shared_ptr<Node> node = make_shared<Node>("Cylinder");
+	node->geometry(make_shared<Cylinder>(0.5, 0.5, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -165,8 +205,11 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 void AddApple(Scene& scene, vec3 location) {
 	
-	//shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
-	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+#ifdef USE_HIGH_DETAIL_MESHES
+	shared_ptr<Node> node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0];
+#else
+	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
+#endif
 	node->position(location);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
@@ -181,7 +224,11 @@ void AddApple(Scene& scene, vec3 location) {
 
 void AddPineapple(Scene& scene, vec3 location) {
 	
+#ifdef USE_HIGH_DETAIL_MESHES
+	shared_ptr<Node> node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode();
+#else
 	shared_ptr<Node> node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+#endif
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
@@ -201,18 +248,33 @@ void AddFruit(Scene& scene, vec3 location) {
 	shared_ptr<Node> node = nullptr;
 	
 	switch (random) {
-//		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
-//		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-//		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-//		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-//		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-//		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
-		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
-		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
-		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
-		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
-		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+#ifdef USE_HIGH_DETAIL_MESHES
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 4: node = TestSceneNamed("banana/banana", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode()->childNodes(false)[0]; break;
+//		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
+//		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
+//		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+//		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+//		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+//		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+#else
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+			//		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
+			//		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
+			//		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+			//		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+			//		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+			//		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();	
+#endif
 		default: return;
 	}
 	
@@ -240,17 +302,17 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	m_logger = make_shared<Logger>("test30", sinks);
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
+	auto window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
 	m_logger->info("Test::run()");
 	
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(CAPTURE_CURSOR);
-	window.enableVSync(ENABLE_VSYNC);
-	window.debugOptions(DebugOption_ShowStatsOveray);
-	m_window = &window;
+	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
+	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	window->captureCursor(CAPTURE_CURSOR);
+	window->enableVSync(ENABLE_VSYNC);
+	window->debugOptions(DebugOption_ShowStatsOveray);
+	m_window = window;
 
 	
 	auto scene = make_shared<Scene>();
@@ -265,7 +327,9 @@ int Test::run(const vector<string>& args) {
 	const float PLANE_WIDTH = 30.0;
 	const float PLANE_HEIGHT = 0.5;
 	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+	auto planeNode = make_shared<Node>("Box");
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 	//auto gridImage = TestImageNamed("grid10");
 	auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
@@ -325,32 +389,34 @@ int Test::run(const vector<string>& args) {
 	// -> 288
 
 	
-	vec3 position = { 0.0, 5.0, 0.0 };
-	AddPineapple(*scene, position);
+//	vec3 position = { 0.0, 5.0, 0.0 };
+//	AddPineapple(*scene, position);
+//	AddApple(*scene, position);
+//	AddSphere(*scene, position, make_shared<Color>(Color::Red()));
 	
-//	unsigned SPACING = 1.0;
-//	unsigned DROP_HEIGHT = 5.0;
-//	unsigned colorIndex = 0;
-//	auto colors = Color::Rainbow();
-//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-//				auto color = make_shared<Color>(colors[colorIndex + 4]);
-//				++colorIndex;
-//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-//				//AddObject(*scene, position, color);
-//				//AddBox(*scene, position, color);
-//				//AddCapsule(*scene, position, color);
-//				//AddCone(*scene, position, color);
-//				//AddCylinder(*scene, position, color);
-//				AddApple(*scene, position);
-//				//AddFruit(*scene, position);
-//			}
-//		}
-//	}
+	unsigned SPACING = 1.0;
+	unsigned DROP_HEIGHT = 5.0;
+	unsigned colorIndex = 0;
+	auto colors = Color::Rainbow();
+	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+				auto color = make_shared<Color>(colors[colorIndex + 4]);
+				++colorIndex;
+				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+				//AddObject(*scene, position, color);
+				AddBox(*scene, position, color);
+				//AddCapsule(*scene, position, color);
+				//AddCone(*scene, position, color);
+				//AddCylinder(*scene, position, color);
+				//AddApple(*scene, position);
+				//AddFruit(*scene, position);
+			}
+		}
+	}
 	
 	
 	
@@ -414,13 +480,17 @@ int Test::run(const vector<string>& args) {
 	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
-	auto ambientLightNode = make_shared<Node>(ambientLight);
+	//auto ambientLightNode = make_shared<Node>(ambientLight);
+	auto ambientLightNode = make_shared<Node>("Ambient light");
+	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::LightGray()));
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
-	auto pointLightNode = make_shared<Node>(pointLight);
+	//auto pointLightNode = make_shared<Node>(pointLight);
+	auto pointLightNode = make_shared<Node>("pointLight");
+	pointLightNode->light(pointLight);
 	scene->rootNode()->addChildNode(pointLightNode);
 
 	pointLightNode->position({25, 25, 25});
@@ -441,9 +511,9 @@ int Test::run(const vector<string>& args) {
 
 	AE_LOG->info("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 	
-	window.scene(scene);
-	m_inputManager = window.inputManager();
-	window.display();
+	window->scene(scene);
+	m_inputManager = window->inputManager();
+	window->display();
 	
 	return 0;
 }

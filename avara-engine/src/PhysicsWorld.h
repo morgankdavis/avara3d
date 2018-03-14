@@ -78,7 +78,7 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void attachedToScene(Scene& scene);
+		void attachedToScene(std::shared_ptr<Scene> scene);
 		
 		void debugOptions(DebugOption options);
 		
@@ -93,8 +93,6 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		Scene*													m_scene;
-		
 		std::shared_ptr<btDefaultCollisionConfiguration> 		m_btCollisionConfiguration;
 		std::shared_ptr<btCollisionDispatcher>					m_btDispatcher;
 		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
@@ -105,6 +103,8 @@ namespace ae {
 		glm::vec3 												m_gravity;
 		float 													m_speed;
 		float 													m_timestep;
+		
+		std::weak_ptr<Scene>									m_scene;
 	};
 }
 

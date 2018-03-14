@@ -25,9 +25,6 @@
 #include "Utilities.h"
 
 
-#define SIMPLIFY_CONVEX_HULLS		true
-
-
 using namespace ae;
 using namespace ae::utils;
 using namespace glm;
@@ -98,6 +95,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else { // PhysicsShapeType_ConvexHull
 			
+			// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+			
 			unsigned numVerticies = 0;
 			for (auto element : geometry->elements()) {
 				numVerticies += element->vertices().size();
@@ -114,21 +113,24 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 																numVerticies,
 																sizeof(Vertex));
 			
-			if (SIMPLIFY_CONVEX_HULLS) {
-				// reduce number of verticies
-				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-				
-				auto hull = make_shared<btShapeHull>(originalShape.get());
-				btScalar margin = originalShape->getMargin();
-				hull->buildHull((btScalar)margin);
-				
-				return make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
-													  hull->numVertices(),
-													  sizeof(btVector3));
+			// reduce number of verticies
+			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+			
+			auto hull = make_shared<btShapeHull>(originalShape.get());
+			btScalar margin = originalShape->getMargin();
+			hull->buildHull((btScalar)margin);
+			
+			auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
+															   hull->numVertices(),
+															   sizeof(btVector3));
+			
+			reducedShape->optimizeConvexHull();
+			
+			if (!reducedShape->initializePolyhedralFeatures()) {
+				AE_LOG->warn("Could not initialize polyhedral features for reduced ConvexHullShape");
 			}
-			else {
-				return originalShape;
-			}
+			
+			return reducedShape;
 		}
 	}
 	
@@ -137,7 +139,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													PhysicsShapeType type,
-													vector<shared_ptr<btCollisionShape>>& out_childShapes) {
+													vector<shared_ptr<btCollisionShape>>& childShapes) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");
 	
 	auto compoundShape = make_shared<btCompoundShape>(true);
@@ -148,7 +150,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 		if (geometry) {
 			auto collisionShape = BTCollisionShapeFromGeometry(geometry, type);
 			
-			out_childShapes.emplace_back(collisionShape); // *** TEMPORARY ***
+			childShapes.emplace_back(collisionShape);
 			
 			btTransform localTransform;
 			localTransform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
@@ -167,8 +169,10 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PhysicsShapeType type)
 	m_sourceGeometry(geometry),
 	m_sourceNode(nullptr),
 	m_type(type),
+	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
 	m_transforms(vector<mat4>()),
-	m_btShape(nullptr) {
+	m_btShape(nullptr),
+	m_physicsBody(weak_ptr<PhysicsBody>()) {
 		
 }
 
@@ -177,8 +181,10 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PhysicsShapeType type):
 	m_sourceGeometry(nullptr),
 	m_sourceNode(node),
 	m_type(type),
+	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
 	m_transforms(vector<mat4>()),
-	m_btShape(nullptr) {
+	m_btShape(nullptr),
+	m_physicsBody(weak_ptr<PhysicsBody>()) {
 		
 }
 
@@ -188,6 +194,10 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PhysicsShapeType type):
 
 shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
 	return m_sourceGeometry;
+}
+
+shared_ptr<Node> PhysicsShape::sourceNode() const {
+	return m_sourceNode;
 }
 
 PhysicsShapeType PhysicsShape::type() const {
@@ -202,28 +212,28 @@ PhysicsShapeType PhysicsShape::type() const {
      MARK:   Internal
  **************************************************************************************/
 
-void PhysicsShape::attachedToBody(PhysicsBody& body) {
-	m_physicsBody = &body;
-	//createBTShape();
+void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
+	m_physicsBody = body;
+
 	if (m_sourceGeometry) {
 		m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
 	}
 	else if (m_sourceNode) {
-		m_compoundChildShapes = vector<shared_ptr<btCollisionShape>>();
-		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_compoundChildShapes);
+		m_childShapes.clear();
+		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_childShapes);
 	}
 	else {
 		AE_LOG->critical("Logic error: PhysicsShape has no source geometry or node.");
 	}
 }
 
-PhysicsBody* PhysicsShape::physicsBody() const {
+weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
 	return m_physicsBody;
 }
 
-void PhysicsShape::physicsBody(PhysicsBody* body) {
+void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
-	attachedToBody(*body);
+	attachedToBody(body);
 }
 
 shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
@@ -234,9 +244,4 @@ shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
      MARK:   Private
  **************************************************************************************/
 
-//void PhysicsShape::createBTShape() {
-//	AE_LOG->debug("Creating bullet shape...");
-//
-//	m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
-//}
 

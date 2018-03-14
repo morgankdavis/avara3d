@@ -40,7 +40,8 @@ shared_ptr<Light> Light::DefaultPoint() {
 shared_ptr<Node> Light::DefaultAmbientNode() {
 	static shared_ptr<Node> node = nullptr;
 	if (!node) {
-		node = make_shared<Node>(DefaultAmbient());
+		node = make_shared<Node>();
+		node->light(DefaultAmbient());
 	}
 	return node;
 }
@@ -48,7 +49,8 @@ shared_ptr<Node> Light::DefaultAmbientNode() {
 shared_ptr<Node> Light::DefaultPointNode() {
 	static shared_ptr<Node> node = nullptr;
 	if (!node) {
-		node = make_shared<Node>(DefaultPoint());
+		node = make_shared<Node>();
+		node->light(DefaultPoint());
 	}
 	return node;
 }
@@ -66,7 +68,8 @@ Light::Light(LightType type, const shared_ptr<Color> color):
 	m_name(boost::none),
 	m_type(type),
 	m_color(color),
-	m_attenuationFactor(1.0f) {
+	m_attenuationFactor(1.0f),
+	m_node(weak_ptr<Node>()) {
 	
 }
 
@@ -110,10 +113,10 @@ void Light::attenuationFactor(float factor) {
      MARK:   Internal
  **************************************************************************************/
 
-Node* Light::node() const {
+weak_ptr<Node> Light::node() const {
 	return m_node;
 }
 
-void Light::node(Node* node) {
+void Light::node(shared_ptr<Node> node) {
 	m_node = node;
 }

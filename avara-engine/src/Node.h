@@ -38,11 +38,11 @@ namespace ae {
 		
 		Node();
 		Node(const std::string& name);
-		Node(const std::shared_ptr<Geometry> geometry);
-		Node(const std::shared_ptr<Light> light);
-		Node(const std::shared_ptr<Camera> camera);
-		Node(const std::string& name, const glm::mat4 transform);
-		Node(const std::string& name, const glm::mat4 transform, std::shared_ptr<Geometry> geometry);
+//		Node(const std::shared_ptr<Geometry> geometry);
+//		Node(const std::shared_ptr<Light> light);
+//		Node(const std::shared_ptr<Camera> camera);
+//		Node(const std::string& name, const glm::mat4 transform);
+//		Node(const std::string& name, const glm::mat4 transform, std::shared_ptr<Geometry> geometry);
 
 		/***************************************************************************************
      		MARK:   Public
@@ -108,7 +108,7 @@ namespace ae {
 		void removeFromParentNode();
 		void replaceChildNode(const Node& replace, const Node& with);
 		
-		Node* parent() const;
+		std::weak_ptr<Node> parent() const;
 		std::vector<std::shared_ptr<Node>> childNodes(bool resursive);
 		std::shared_ptr<Node> childNode(const std::string& name, bool resursive);
 		
@@ -124,15 +124,16 @@ namespace ae {
      		MARK:   Internal
  		 **************************************************************************************/
 		
-		void parent(Node* parent);
 		std::shared_ptr<Node> root() const;
-		
-		Scene* scene() const;
-		void scene(Scene* scene);
 		
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;
 		
 		bool treeContainsNode(std::shared_ptr<Node> node);
+		
+		std::weak_ptr<Scene> scene() const;
+		void scene(std::shared_ptr<Scene> scene);
+		
+		void parent(std::shared_ptr<Node> parent);
 		
 	private:
 
@@ -150,8 +151,6 @@ namespace ae {
 		
 		bool								m_hidden;
 
-		Node*								m_parent;
-		Scene* 								m_scene;
 		std::vector<std::shared_ptr<Node>>	m_childNodes;
 		
 		glm::vec3							m_position;
@@ -160,6 +159,9 @@ namespace ae {
 //		glm::mat4							m_pivot;
 		
 		std::shared_ptr<PhysicsBody>		m_physicsBody;
+		
+		std::weak_ptr<Scene> 				m_scene;
+		std::weak_ptr<Node>					m_parent;
 	};
 }
 

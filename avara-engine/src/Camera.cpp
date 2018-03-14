@@ -25,7 +25,8 @@ Camera::Camera():
 	m_fov(radians(45.0)),
 	m_zNear(0.1),
 	m_zFar(200.0),
-	m_aspectRatio(1.0) {
+	m_aspectRatio(1.0),
+	m_node(weak_ptr<Node>()) {
 
 		constructProjectionMat();
 }
@@ -34,7 +35,8 @@ Camera::Camera(float zNear, float zFar, float fov):
 	m_zNear(zNear),
 	m_zFar(zFar),
 	m_fov(radians(fov)),
-	m_aspectRatio(1.0) {
+	m_aspectRatio(1.0),
+	m_node(weak_ptr<Node>()) {
 
 		constructProjectionMat();
 }
@@ -119,11 +121,11 @@ void Camera::constructProjectionMat() {
 							   m_zFar);
 }
 
-Node* Camera::node() const {
+weak_ptr<Node> Camera::node() const {
 	return m_node;
 }
 
-void Camera::node(Node* node) {
+void Camera::node(shared_ptr<Node> node) {
 	m_node = node;
 }
 

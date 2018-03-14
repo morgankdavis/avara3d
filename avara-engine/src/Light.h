@@ -65,8 +65,8 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		Node* node() const;
-		void node(Node* node);
+		std::weak_ptr<Node> node() const;
+		void node(std::shared_ptr<Node> node);
 		
 	private:
 		
@@ -78,10 +78,10 @@ namespace ae {
 		
 		LightType							m_type;
 		std::shared_ptr<Color>				m_color;
-		
-		Node*								m_node;
 
 		float								m_attenuationFactor; // att = 1/(1-k(d^2))
+		
+		std::weak_ptr<Node>					m_node;
 
 //		float			attenuationStartDistance;
 //		float			attenuationEndDistance;

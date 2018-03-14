@@ -47,11 +47,11 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DebugOption option) {
  **************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
-	m_scene(nullptr),
 	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
 	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),
-	m_timestep(1.0/60.0) {
+	m_timestep(1.0/60.0),
+	m_scene(weak_ptr<Scene>()) {
 	
 		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
 		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
@@ -142,9 +142,9 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
      MARK:   Internal
  **************************************************************************************/
 
-void PhysicsWorld::attachedToScene(Scene& scene) {
-	if (scene.window()) {
-		debugOptions(scene.window()->debugOptions());
+void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
+	if (auto window = scene->window().lock()) {
+		debugOptions(window->debugOptions());
 	}
 }
 

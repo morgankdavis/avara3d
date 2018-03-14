@@ -9,11 +9,21 @@
 #ifndef Types_h
 #define Types_h
 
+//#include <memory>
 
 #include <glm/glm.hpp>
 
 
 namespace ae {
+	
+	
+	//class Node;
+	
+	
+//	using NodeRef = std::shared_ptr<Node>;
+//	using NodeWeakRef = std::weak_ptr<Node>;
+//	//using NodeUniqueRef = std::unique_ptr<Node>;
+	
 
 	typedef enum {
 		AntialiasingMode_None =	0,

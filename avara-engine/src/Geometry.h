@@ -66,9 +66,6 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		Node* node() const;
-		void node(Node* node);
-		
 		void loadVertexData();
 
 		void hardTransform(glm::mat4 t, bool norm);
@@ -89,6 +86,9 @@ namespace ae {
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
 		glm::vec3 extent(bool worldSpace) const;
         void loadAABBVertexData(const Program& program);
+		
+		std::weak_ptr<Node> node() const;
+		void node(std::shared_ptr<Node> node);
 
 	protected:
 
@@ -106,9 +106,9 @@ namespace ae {
 		 **************************************************************************************/
 
 		boost::optional<std::string>							m_name;
-		Node*													m_node;
 		unsigned												m_glAABBVBO;
         int                                                		m_glAABBVAO;
+		std::weak_ptr<Node>										m_node;
 	};
 }
 

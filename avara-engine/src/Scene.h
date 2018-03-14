@@ -35,7 +35,7 @@ namespace ae {
 	class Window;
 	
 	
-	class Scene {
+	class Scene : public std::enable_shared_from_this<Scene> {
 		
 	public:
 		
@@ -76,11 +76,6 @@ namespace ae {
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		Window* window() const;
-		void window(Window* window);
-		
-		void attachedToWindow(Window& window);
-		
 		void draw(std::shared_ptr<Node> pointOfView,
 				  DebugOption& debugOptions,
 				  DrawStats& stats);
@@ -88,6 +83,11 @@ namespace ae {
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		
 		glm::vec3 extent() const;
+		
+		void attachedToWindow(std::shared_ptr<Window> window);
+		
+		std::weak_ptr<Window> window() const;
+		void window(std::shared_ptr<Window> window);
 		
 	private:
 		
@@ -111,8 +111,6 @@ namespace ae {
 		std::shared_ptr<MaterialProperty>			m_background;
 		std::shared_ptr<SkyboxGeometry>				m_skyboxGeometry;
 		
-		Window* 									m_window;
-		
 		float										m_fogStartDistance;
 		float										m_fogEndDistance;
 		float										m_fogDensityExponent;
@@ -121,6 +119,8 @@ namespace ae {
 		int											m_glEnvironmentUBO;
 		
 		std::shared_ptr<PhysicsWorld> 				m_physicsWorld;
+		
+		std::weak_ptr<Window>						m_window;
 	};
 }
 

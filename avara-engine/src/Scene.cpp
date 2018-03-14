@@ -243,9 +243,10 @@ Scene::Scene():
 	m_fogDensityExponent(0.0),
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr),
-	m_window(nullptr) {
+	m_window(weak_ptr<Window>()) {
 		
-		m_rootNode->scene(this);
+		// MUST SET IN rootNode() ACCESSOR
+		//m_rootNode->scene(shared_from_this());
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -268,6 +269,11 @@ Scene::Scene(const boost::filesystem::path& path):
  **************************************************************************************/
 
 shared_ptr<Node> Scene::rootNode() const {
+//	if (m_rootNode) {
+//		// dirty work-around for calling non-const method from const method
+//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
+//		const_cast<Node*>(m_rootNode.get())->scene(((Scene*)this)->shared_from_this());
+//	}
 	return m_rootNode;
 }
 
@@ -334,28 +340,12 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	m_physicsWorld = world;
-	m_physicsWorld->attachedToScene(*this);
+	m_physicsWorld->attachedToScene(shared_from_this());
 }
 
 /***************************************************************************************
      MARK:   Internal
  **************************************************************************************/
-
-Window* Scene::window() const {
-	return m_window;
-}
-
-void Scene::window(Window* window) {
-	m_window = window;
-}
-
-void Scene::attachedToWindow(Window& window) {
-	if (m_physicsWorld) {
-		m_window = &window;
-		//m_physicsWorld->sc
-		m_physicsWorld->attachedToScene(*this);
-	}
-}
 
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DebugOption& debugOptions,
@@ -384,7 +374,8 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 
 	bindEnvironment(*pointOfView, stats);
 
-	for (auto node: m_rootNode->childNodes(true)) {
+//	for (auto node: m_rootNode->childNodes(true)) {
+	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		stats.nodes++;
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
@@ -426,7 +417,8 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : m_rootNode->childNodes(true)) {
+//	for (auto node : m_rootNode->childNodes(true)) {
+	for (auto node : rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -458,6 +450,22 @@ vec3 Scene::extent() const {
 	return vec3(bp["xMax"].x - bp["xMin"].x,
 				bp["yMax"].y - bp["yMin"].y,
 				bp["zMax"].z - bp["zMin"].z);
+}
+
+void Scene::attachedToWindow(shared_ptr<Window> window) {
+	m_window = window;
+	if (m_physicsWorld) {
+		//m_physicsWorld->sc
+		m_physicsWorld->attachedToScene(shared_from_this());
+	}
+}
+
+weak_ptr<Window> Scene::window() const {
+	return m_window;
+}
+
+void Scene::window(shared_ptr<Window> window) {
+	m_window = window;
 }
 
 /***************************************************************************************
@@ -584,7 +592,8 @@ void Scene::loadFile(const boost::filesystem::path& importPath) {
 		// in AI terminology, a "node" is what we call a "geometry"
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
 		
-		addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
+		//addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
+		addAIGeometryNodes(scene, rootNode(), importElements, importMaterials); // MUST USE rootNode() ACCESSOR
 
 		// ********** lights **********
 
@@ -711,13 +720,18 @@ void Scene::addAIGeometryNodeRec(const aiScene* aiScene,
 		auto geometry = make_shared<Geometry>(elements, materials);
 		geometry->name(name);
 
-		newNode = make_shared<Node>(name, transform, geometry);
+		//newNode = make_shared<Node>(name, transform, geometry);
+		newNode = make_shared<Node>(name);
+		newNode->transform(transform);
+		newNode->geometry(geometry);
 		aeParentNode->addChildNode(newNode);
 	}
 	else {
 		//cout << "Adding node WITHOUT geometry..." << endl;
 		AE_LOG->debug("Adding node WITHOUT geometry...");
-		newNode = make_shared<Node>(name, transform);
+		//newNode = make_shared<Node>(name, transform);
+		newNode = make_shared<Node>(name);
+		newNode->transform(transform);
 		aeParentNode->addChildNode(newNode);
 	}
 
@@ -736,7 +750,8 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 	shared_ptr<Node> ambientLight = nullptr;
 	
 	// find all lights in the scene
-	for (auto node: m_rootNode->childNodes(true)) {
+	//for (auto node: m_rootNode->childNodes(true)) {
+	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {

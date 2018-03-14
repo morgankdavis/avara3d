@@ -14,36 +14,62 @@ Tests:
 	30 - rigidbodies
 
 
-		Resume @ Scene::draw()
+		-------------------------------------------
 
-		Should both be weak_ptr:
+		WORK-AROUND FACTORY METHODS
+		(require anything with a back pointer to manually be created after owning object)
 
-		std::shared_ptr<Geometry> 			m_sourceGeometry;
-		std::shared_ptr<Node> 				m_sourceNode;
+		Window
+			-> scene
 
-		(check others)
+		Scene
+			-> rootNode
+
+			-> physicsWorld
+
+			static LoadFromFile()
+
+		Node
+			-> geometry
+			-> light
+			-> camera
+
+			-> physicsBody
+
+		PhysicsBody
+			-> physicsShape
+
+		Instead of geometry->node(shared_from_this) etc, add attachedToNode()
 
 
-		CONVERT ALL BACKREF POINTERS TO weak_ptr
+		Utility functions for primitives?
+			Box::Node()
+
+		-------------------------------------------
+
+
+		Fix GIF recording framerate
+
+		Try set margin 0 for static objects
+
+		Add physics stats!
+
 
 		Fix:
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(20.0, 0.0);
 
+		[Set node transform path from Bullet]
+			Set motion state when setting node position or rotation
 
-		Make MARK: shortcut
-
-		Try set margin 0 for static objects
-
-		Compound shapes for multiple Elements
-			http://bulletphysics.com/Bullet/BulletFull/classbtCompoundShape.html
-
-		Add physics stats!
+		
 
 		Test geometry instancing!
 		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 		Test bullet plane shape
+
+		Physics scale
 
 		friction -> rollingFriction?
 		damping -> linearDamping?
@@ -53,9 +79,6 @@ Tests:
 				Add "GeometryPrimitive" superclass + factor vertex data creation
 				-> INITIALIZERS for other classes use defaults
 
-		Set node transform path from Bullet
-		Physics scale +
-			Set motion state when setting node position or rotation
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
@@ -142,11 +165,7 @@ Laundry list:
 
 	Log level per log?
 
-	Fix GIF recording framerate
-
 	Wireframe MATERIAL?
-
-	weak_ptr
 
 	Proper scene graph unroll
 
@@ -240,6 +259,9 @@ BUGS:
 
 
 Resources:
+
+Factory Pattern:
+	https://stackoverflow.com/questions/8147027/how-do-i-call-stdmake-shared-on-a-class-with-only-protected-or-private-const/8147213#8147213
 
 Make textures:
 	https://www.allegorithmic.com/products/substance-designer

@@ -99,7 +99,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	m_shape = shape;
-	m_shape->attachedToBody(*this);
+	m_shape->attachedToBody(shared_from_this());
 }
 
 vec3 PhysicsBody::velocityFactor() const {
@@ -281,11 +281,11 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	if (!m_shape) {
 		if (node->geometry()) {
 			m_shape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
-			m_shape->attachedToBody(*this);
+			m_shape->attachedToBody(shared_from_this());
 		}
 		else {
 			m_shape = make_shared<PhysicsShape>(node, PhysicsShapeType_ConvexHull);
-			m_shape->attachedToBody(*this);
+			m_shape->attachedToBody(shared_from_this());
 		}
 	}
 	
@@ -344,7 +344,9 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
 	//m_btRigidBody->setGravity()
 	
-	node->scene()->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+	if (auto scene = node->scene().lock()) {
+		scene->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+	}
 	
 //	AE_LOG->debug("Linear sleeping threshold: {}",
 //				  m_btRigidBody->getLinearSleepingThreshold()); // default .8

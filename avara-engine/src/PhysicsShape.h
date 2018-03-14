@@ -43,17 +43,18 @@ namespace ae {
 		 **************************************************************************************/
 		
 		std::shared_ptr<Geometry> sourceGeometry() const;
+		std::shared_ptr<Node> sourceNode() const;
 		PhysicsShapeType type() const;
-		/* ? */ std::vector<glm::mat4> transforms() const;
+		std::vector<glm::mat4> transforms() const;
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
-		void attachedToBody(PhysicsBody& body);
+		void attachedToBody(std::shared_ptr<PhysicsBody> body);
 		
-		PhysicsBody* physicsBody() const;
-		void physicsBody(PhysicsBody* body);
+		std::weak_ptr<PhysicsBody> physicsBody() const;
+		void physicsBody(std::shared_ptr<PhysicsBody> body);
 		
 		std::shared_ptr<btCollisionShape> btShape() const;
 		
@@ -63,19 +64,16 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-//		void createBTShape();
+		std::shared_ptr<Geometry> 						m_sourceGeometry;
+		std::shared_ptr<Node> 							m_sourceNode;
+		PhysicsShapeType 								m_type;
+		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
+		// The array of transforms that was used to create a compound shape.
+		std::vector<glm::mat4> 							m_transforms;
 		
-		std::shared_ptr<Geometry> 			m_sourceGeometry;
-		std::shared_ptr<Node> 				m_sourceNode;
-		PhysicsShapeType 					m_type;
-		std::vector<glm::mat4> 				m_transforms;
+		std::shared_ptr<btCollisionShape>				m_btShape;
 		
-		std::shared_ptr<btCollisionShape>	m_btShape;
-		
-		PhysicsBody*						m_physicsBody;
-		std::vector<std::shared_ptr<btCollisionShape>> 		m_compoundChildShapes;
-		// *** TEMPORARY ***
-		
+		std::weak_ptr<PhysicsBody>						m_physicsBody;
 	};
 }
 

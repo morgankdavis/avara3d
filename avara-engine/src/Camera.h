@@ -63,8 +63,8 @@ namespace ae {
 		
 		void constructProjectionMat();
 		
-		Node* node() const;
-		void node(Node* node);
+		std::weak_ptr<Node> node() const;
+		void node(std::shared_ptr<Node> node);
 		
 	private:
 		
@@ -81,7 +81,7 @@ namespace ae {
 		
 		glm::mat4				m_projection;
 		
-		Node*					m_node;
+		std::weak_ptr<Node>		m_node;
 	};
 }
 
