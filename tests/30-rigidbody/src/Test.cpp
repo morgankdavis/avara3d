@@ -316,6 +316,7 @@ int Test::run(const vector<string>& args) {
 
 	
 	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
 	
 	
 	auto physicsWorld = make_shared<PhysicsWorld>();

@@ -51,6 +51,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		std::shared_ptr<Node> rootNode() const;
+		void rootNode(std::shared_ptr<Node> node);
 		
 		std::shared_ptr<MaterialProperty> background() const;
 		void background(std::shared_ptr<MaterialProperty> background);

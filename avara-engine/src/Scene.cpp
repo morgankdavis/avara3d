@@ -236,7 +236,8 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
  **************************************************************************************/
 
 Scene::Scene():
-	m_rootNode(make_shared<Node>("Root node")),
+	//m_rootNode(make_shared<Node>("Root node")),
+	m_rootNode(nullptr),
 	m_background(nullptr),
 	m_fogStartDistance(0.0),
 	m_fogEndDistance(0.0),
@@ -275,6 +276,11 @@ shared_ptr<Node> Scene::rootNode() const {
 //		const_cast<Node*>(m_rootNode.get())->scene(((Scene*)this)->shared_from_this());
 //	}
 	return m_rootNode;
+}
+
+void Scene::rootNode(shared_ptr<Node> node) {
+	node->attachedToScene(shared_from_this());
+	m_rootNode = node;
 }
 
 shared_ptr<MaterialProperty> Scene::background() const {
@@ -374,8 +380,8 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 
 	bindEnvironment(*pointOfView, stats);
 
-//	for (auto node: m_rootNode->childNodes(true)) {
-	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
+	for (auto node: m_rootNode->childNodes(true)) {
+//	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		stats.nodes++;
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
@@ -417,8 +423,8 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-//	for (auto node : m_rootNode->childNodes(true)) {
-	for (auto node : rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
+	for (auto node : m_rootNode->childNodes(true)) {
+//	for (auto node : rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -592,8 +598,8 @@ void Scene::loadFile(const boost::filesystem::path& importPath) {
 		// in AI terminology, a "node" is what we call a "geometry"
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
 		
-		//addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
-		addAIGeometryNodes(scene, rootNode(), importElements, importMaterials); // MUST USE rootNode() ACCESSOR
+		addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
+//		addAIGeometryNodes(scene, rootNode(), importElements, importMaterials); // MUST USE rootNode() ACCESSOR
 
 		// ********** lights **********
 
@@ -653,7 +659,11 @@ void Scene::loadFile(const boost::filesystem::path& importPath) {
 	}
 	else {
 		//cout << "Error importing scene: " << aiGetErrorString() << endl;
-		AE_LOG->error("Error importing scene: {}", aiGetErrorString());
+		//AE_LOG->error("Error importing scene: {}", aiGetErrorString());
+		
+		char errMsg[1024];
+		sprintf(errMsg, "Error importing scene: %s\n",  aiGetErrorString());
+		throw Exception(errMsg);
 	}
 	
 	aiReleaseImport(scene);
@@ -750,8 +760,8 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 	shared_ptr<Node> ambientLight = nullptr;
 	
 	// find all lights in the scene
-	//for (auto node: m_rootNode->childNodes(true)) {
-	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
+	for (auto node: m_rootNode->childNodes(true)) {
+//	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {

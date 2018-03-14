@@ -143,6 +143,7 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
  **************************************************************************************/
 
 void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
+	m_scene = scene;
 	if (auto window = scene->window().lock()) {
 		debugOptions(window->debugOptions());
 	}

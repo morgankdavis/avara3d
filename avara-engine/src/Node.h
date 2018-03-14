@@ -131,9 +131,13 @@ namespace ae {
 		bool treeContainsNode(std::shared_ptr<Node> node);
 		
 		std::weak_ptr<Scene> scene() const;
-		void scene(std::shared_ptr<Scene> scene);
+		//void scene(std::shared_ptr<Scene> scene);
 		
-		void parent(std::shared_ptr<Node> parent);
+		void attachedToScene(std::shared_ptr<Scene> scene);
+		
+		void attachedToParentNode(std::shared_ptr<Node> parentNode);
+		
+		//void parent(std::shared_ptr<Node> parent);
 		
 	private:
 

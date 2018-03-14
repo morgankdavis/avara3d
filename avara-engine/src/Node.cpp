@@ -549,7 +549,8 @@ void Node::addChildNode(shared_ptr<Node> node) {
 		throw Exception("Node already exists in tree.");
 	}
 	
-	node->m_parent = shared_from_this();
+	//node->m_parent = shared_from_this();
+	node->attachedToParentNode(shared_from_this());
 	m_childNodes.push_back(node);
 	
 	auto physicsBody = node->physicsBody();
@@ -633,13 +634,14 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
-	auto p = m_parent.lock();
-	if (p != nullptr) {
-		do {
-			//parents.push_back(make_shared<Node>(*p));
-			parents.push_back(p);
-			p = p->parent().lock();
-		} while (p != nullptr);
+	if (auto p = m_parent.lock() ) {
+		if (p != nullptr) {
+			do {
+				//parents.push_back(make_shared<Node>(*p));
+				parents.push_back(p);
+				p = p->parent().lock();
+			} while (p != nullptr);
+		}
 	}
 	
 	return parents;
@@ -665,13 +667,28 @@ weak_ptr<Scene> Node::scene() const {
 	}
 }
 
-void Node::scene(shared_ptr<Scene> scene) {
-	m_scene = scene;
+//void Node::scene(shared_ptr<Scene> scene) {
+//	m_scene = scene;
+//}
+
+void Node::attachedToScene(shared_ptr<Scene> scene) {
+	if (!root()) {
+		m_scene = scene;
+	}
+	else {
+		for (auto child : childNodes(true)) {
+			child->attachedToScene(scene); // just in case they want to do something with it
+		}
+	}
 }
 
-void Node::parent(shared_ptr<Node> parent) {
-	m_parent = parent;
+void Node::attachedToParentNode(shared_ptr<Node> parentNode) {
+	m_parent = parentNode;
 }
+
+//void Node::parent(shared_ptr<Node> parent) {
+//	m_parent = parent;
+//}
 
 /***************************************************************************************
      MARK:   Private

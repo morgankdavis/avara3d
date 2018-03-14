@@ -14,6 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
+		Scene check m_window and m_rootNode
+
 		-------------------------------------------
 
 		WORK-AROUND FACTORY METHODS
