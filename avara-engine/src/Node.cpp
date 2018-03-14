@@ -167,44 +167,29 @@ void Node::name(const string& name) {
 }
 
 shared_ptr<Light> Node::light() const {
-//	if (m_light) {
-//		// dirty work-around for calling non-const method from const method
-//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
-//		const_cast<Light*>(m_light.get())->node(((Node*)this)->shared_from_this());
-//	}
 	return m_light;
 }
 
 void Node::light(const shared_ptr<Light> light) {
-	light->node(shared_from_this());
+	light->attachedToNode(shared_from_this());
 	m_light = light;
 }
 
 shared_ptr<Camera> Node::camera() const {
-//	if (m_camera) {
-//		// dirty work-around for calling non-const method from const method
-//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
-//		const_cast<Camera*>(m_camera.get())->node(((Node*)this)->shared_from_this());
-//	}
 	return m_camera;
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
-	camera->node(shared_from_this());
+	camera->attachedToNode(shared_from_this());
 	m_camera = camera;
 }
 
 shared_ptr<Geometry> Node::geometry() const {
-//	if (m_geometry) {
-//		// dirty work-around for calling non-const method from const method
-//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
-//		const_cast<Geometry*>(m_geometry.get())->node(((Node*)this)->shared_from_this());
-//	}
 	return m_geometry;
 }
 
 void Node::geometry(const shared_ptr<Geometry> geometry) {
-	geometry->node(shared_from_this());
+	geometry->attachedToNode(shared_from_this());
 	m_geometry = geometry;
 }
 

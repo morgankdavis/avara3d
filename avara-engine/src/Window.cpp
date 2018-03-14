@@ -137,12 +137,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	i_window = this;
 
 	initFontstash();
-
-	// moved from initializer list
-	
-	//m_scene = make_shared<Scene>();
-	// *** MUST SET IN scene() ACCESSOR ***
-	//m_scene->window(shared_from_this());
 	
 	m_width = viewportWidth;
 	m_height = viewportHeight;
@@ -191,18 +185,11 @@ void Window::display() {
 		stopGIFRecording();
 	}
 	else {
-		//AE_LOG->error("Window has no scene.");
 		throw Exception("Window has no scene.");
 	}
 }
 
 shared_ptr<Scene> Window::scene() const {
-//	if (m_scene) {
-//		// m_scene->window(shared_from_this());
-//		// dirty work-around for calling non-const method from const method
-//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
-////		const_cast<Scene*>(m_scene.get())->window(((Window*)this)->shared_from_this());
-//	}
 	return m_scene;
 }
 
@@ -249,10 +236,6 @@ void Window::debugOptions(DebugOption options) {
 	if (m_scene && m_scene->physicsWorld()) {
 		m_scene->physicsWorld()->debugOptions(m_debugOptions);
 	}
-	
-//	if (scene() && scene()->physicsWorld()) { // MUST USE scene() ACCESSOR	
-//		scene()->physicsWorld()->debugOptions(m_debugOptions);
-//	}
 }
 
 AntialiasingMode Window::antialiasingMode() const {
@@ -267,7 +250,6 @@ shared_ptr<Node> Window::pointOfView() {
 	else {
 		// try to assign one from the scene
 		for (auto node: m_scene->rootNode()->childNodes(true)) {
-//		for (auto node: scene()->rootNode()->childNodes(true)) { // MUST USE scene() ACCESSOR	
 			if (node->camera()) {
 				m_pointOfView = node;
 				return m_pointOfView;
@@ -636,7 +618,6 @@ void Window::mainLoop() {
 	previousSeconds = time;
 
 	if (m_updateCallback) m_updateCallback(*m_scene, glfwGetTime());
-//	if (m_updateCallback) m_updateCallback(*scene(), glfwGetTime()); // MUST USE scene() ACCESSOR
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -648,13 +629,11 @@ void Window::mainLoop() {
 	
 	// sinulate physics
 	auto physicsWorld = m_scene->physicsWorld();
-//	auto physicsWorld = scene()->physicsWorld(); // MUST USE scene() ACCESSOR
 	if (physicsWorld) {
 		physicsWorld->step();
 		
 		if (m_didSimulatePhysicsCallback) {
 			m_didSimulatePhysicsCallback(*m_scene, glfwGetTime());
-//			m_didSimulatePhysicsCallback(*scene(), glfwGetTime()); // MUST USE scene() ACCESSOR
 		}
 	}
 	
@@ -670,10 +649,8 @@ void Window::mainLoop() {
 //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	if (m_willRenderCallback) m_willRenderCallback(*m_scene, glfwGetTime());
-//	if (m_willRenderCallback) m_willRenderCallback(*scene(), glfwGetTime()); // MUST USE scene() ACCESSOR
 	
 	m_scene->draw(pov, m_debugOptions, stats);
-//	scene()->draw(pov, m_debugOptions, stats); // MUST USE scene() ACCESSOR
 	
 	if (m_debugOptions & DebugOption_ShowStatsOveray) updateStatsOverlay(stats);
 
@@ -691,7 +668,6 @@ void Window::mainLoop() {
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
 	if (m_didRenderCallback) m_didRenderCallback(*m_scene, glfwGetTime());
-//	if (m_didRenderCallback) m_didRenderCallback(*scene(), glfwGetTime()); // MUST USE scene() ACCESSOR
 	
 	glfwPollEvents();
 	if (m_inputManager) m_inputManager->update();

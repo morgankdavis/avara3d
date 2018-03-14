@@ -86,7 +86,8 @@ typedef struct {
      MARK:   Static
  **************************************************************************************/
 
-static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename, const string& basePath) {
+static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
+																			const string& basePath) {
 
 	string textureName = filename;
 	if (textureName.substr(0,1) == "/") {
@@ -236,7 +237,6 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
  **************************************************************************************/
 
 Scene::Scene():
-	//m_rootNode(make_shared<Node>("Root node")),
 	m_rootNode(nullptr),
 	m_background(nullptr),
 	m_fogStartDistance(0.0),
@@ -245,9 +245,6 @@ Scene::Scene():
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr),
 	m_window(weak_ptr<Window>()) {
-		
-		// MUST SET IN rootNode() ACCESSOR
-		//m_rootNode->scene(shared_from_this());
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -270,11 +267,6 @@ Scene::Scene(const boost::filesystem::path& path):
  **************************************************************************************/
 
 shared_ptr<Node> Scene::rootNode() const {
-//	if (m_rootNode) {
-//		// dirty work-around for calling non-const method from const method
-//		// which is a hack for not being able to use shared_from_this() in the constructor. 😎
-//		const_cast<Node*>(m_rootNode.get())->scene(((Scene*)this)->shared_from_this());
-//	}
 	return m_rootNode;
 }
 
@@ -381,7 +373,6 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 	bindEnvironment(*pointOfView, stats);
 
 	for (auto node: m_rootNode->childNodes(true)) {
-//	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		stats.nodes++;
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
@@ -424,7 +415,6 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 
 	vector<shared_ptr<Geometry>> geometries;
 	for (auto node : m_rootNode->childNodes(true)) {
-//	for (auto node : rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -599,7 +589,6 @@ void Scene::loadFile(const boost::filesystem::path& importPath) {
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
 		
 		addAIGeometryNodes(scene, m_rootNode, importElements, importMaterials);
-//		addAIGeometryNodes(scene, rootNode(), importElements, importMaterials); // MUST USE rootNode() ACCESSOR
 
 		// ********** lights **********
 
@@ -761,7 +750,6 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 	
 	// find all lights in the scene
 	for (auto node: m_rootNode->childNodes(true)) {
-//	for (auto node: rootNode()->childNodes(true)) { // MUST USE rootNode() ACCESSOR
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {

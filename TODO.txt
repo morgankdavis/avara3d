@@ -13,36 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
+		static Scene::LoadFromFile()	
 
-		Scene check m_window and m_rootNode
-
-		-------------------------------------------
-
-		WORK-AROUND FACTORY METHODS
-		(require anything with a back pointer to manually be created after owning object)
-
-		Window
-			-> scene
-
-		Scene
-			-> rootNode
-
-			-> physicsWorld
-
-			static LoadFromFile()
-
-		Node
-			-> geometry
-			-> light
-			-> camera
-
-			-> physicsBody
-
-		PhysicsBody
-			-> physicsShape
-
-		Instead of geometry->node(shared_from_this) etc, add attachedToNode()
-
+		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Utility functions for primitives?
 			Box::Node()

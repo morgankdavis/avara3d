@@ -338,6 +338,10 @@ weak_ptr<Node> Geometry::node() const {
 	return m_node;
 }
 
-void Geometry::node(shared_ptr<Node> node) {
+//void Geometry::node(shared_ptr<Node> node) {
+//	m_node = node;
+//}
+
+void Geometry::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
 }
