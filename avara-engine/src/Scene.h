@@ -40,11 +40,17 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
+		
+		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
 		Scene(); // no want but Window is complaining about wanting a default contructor
-		Scene(const boost::filesystem::path& path);
+		//Scene(const boost::filesystem::path& path);
 		
 		/***************************************************************************************
 		     MARK:   Public

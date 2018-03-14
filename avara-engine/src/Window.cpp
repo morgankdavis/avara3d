@@ -194,9 +194,9 @@ shared_ptr<Scene> Window::scene() const {
 }
 
 void Window::scene(const shared_ptr<Scene> scene) {
+	scene->attachedToWindow(shared_from_this());
 	m_scene = scene;
-	//m_scene->window(shared_from_this());
-	m_scene->attachedToWindow(shared_from_this());
+	
 }
 
 bool Window::cursorCaptured() const {

@@ -20,6 +20,11 @@ Tests:
 		Utility functions for primitives?
 			Box::Node()
 
+		weak_ptr shouldn't use if(.lock()) but if(!.expired())
+
+		Window::inputManager should exist by default...
+		Color statics should return shared pointers (or they should be converted to structs!)
+
 		-------------------------------------------
 
 

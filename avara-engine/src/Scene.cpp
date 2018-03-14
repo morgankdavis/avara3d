@@ -86,6 +86,13 @@ typedef struct {
      MARK:   Static
  **************************************************************************************/
 
+shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
+	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
+	scene->loadFile(path);
+	return scene;
+}
+
 static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath) {
 
@@ -251,16 +258,16 @@ Scene::Scene():
 		m_glEnvironmentUBO = ubo;
 }
 
-Scene::Scene(const boost::filesystem::path& path):
-	Scene() {
-	//m_rootNode(make_shared<Node>("Root node")) {
-
-//		uint32 ubo;
-//		glGenBuffers(1, &ubo);
-//		m_glEnvironmentUBO = ubo;
-		
-		loadFile(path);
-}
+//Scene::Scene(const boost::filesystem::path& path):
+//	Scene() {
+//	//m_rootNode(make_shared<Node>("Root node")) {
+//
+////		uint32 ubo;
+////		glGenBuffers(1, &ubo);
+////		m_glEnvironmentUBO = ubo;
+//		
+//		loadFile(path);
+//}
 
 /***************************************************************************************
      MARK:   Public

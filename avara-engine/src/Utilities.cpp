@@ -386,7 +386,8 @@ shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
 		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
-		return make_shared<Scene>(fullPath.string());
+		//return make_shared<Scene>(fullPath.string());
+		return Scene::LoadFromFile(fullPath.string());
 	}
 	return nullptr;
 }

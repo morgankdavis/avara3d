@@ -619,7 +619,7 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
-	if (auto p = m_parent.lock() ) {
+	if (auto p = m_parent.lock()) {
 		if (p != nullptr) {
 			do {
 				//parents.push_back(make_shared<Node>(*p));

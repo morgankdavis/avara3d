@@ -302,17 +302,16 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	m_logger = make_shared<Logger>("test30", sinks);
 	
-	auto window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
+	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
 	m_logger->info("Test::run()");
 	
-	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
-	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window->captureCursor(CAPTURE_CURSOR);
-	window->enableVSync(ENABLE_VSYNC);
-	window->debugOptions(DebugOption_ShowStatsOveray);
-	m_window = window;
+	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	m_window->captureCursor(CAPTURE_CURSOR);
+	m_window->enableVSync(ENABLE_VSYNC);
+	m_window->debugOptions(DebugOption_ShowStatsOveray);
 
 	
 	auto scene = make_shared<Scene>();
@@ -512,9 +511,9 @@ int Test::run(const vector<string>& args) {
 
 	AE_LOG->info("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 	
-	window->scene(scene);
-	m_inputManager = window->inputManager();
-	window->display();
+	m_window->scene(scene);
+	m_inputManager = m_window->inputManager();
+	m_window->display();
 	
 	return 0;
 }

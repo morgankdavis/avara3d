@@ -44,19 +44,16 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	auto logger = make_shared<Logger>("test06", sinks);
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
+	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, 
+									  ENABLE_HIGH_DPI, ANTIALIASING_MODE);
 	logger->info("Test::run()");
 	
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(CAPTURE_CURSOR);
-	window.enableVSync(ENABLE_VSYNC);
-	//window.antialiasingMode(AntialiasingMode_None);
-	m_window = &window;
-	
-	//m_debugOptions = DebugOption_ShowStatsOveray;
-	window.debugOptions(DebugOption_ShowStatsOveray);
+	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	m_window->captureCursor(CAPTURE_CURSOR);
+	m_window->enableVSync(ENABLE_VSYNC);
+	m_window->debugOptions(DebugOption_ShowStatsOveray);
 	
 	
 
@@ -64,6 +61,7 @@ int Test::run(const vector<string>& args) {
 //	AE_LOG->info("sponza extent: {}", StringFromGLMVec3(scene->extent()));
 	
 	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
 	
 
 	auto teapotScene = TestSceneNamed("teapot");
@@ -93,12 +91,16 @@ int Test::run(const vector<string>& args) {
 	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
-	auto ambientLightNode = make_shared<Node>(ambientLight);
+	//auto ambientLightNode = make_shared<Node>(ambientLight);
+	auto ambientLightNode = make_shared<Node>("Ambient light");
+	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
 	pointLight->attenuationFactor(0.000015);
-	auto pointLightNode = make_shared<Node>(pointLight);
+	//auto pointLightNode = make_shared<Node>(pointLight);
+	auto pointLightNode = make_shared<Node>();
+	pointLightNode->light(pointLight);
 	scene->rootNode()->addChildNode(pointLightNode);
 
 	pointLightNode->position({200.0, 20.0, -20.0});
@@ -118,9 +120,9 @@ int Test::run(const vector<string>& args) {
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
 	
-	window.scene(scene);
-	m_inputManager = window.inputManager();
-	window.display();
+	m_window->scene(scene);
+	m_inputManager = m_window->inputManager();
+	m_window->display();
 	
 	return 0;
 }

@@ -24,8 +24,8 @@ using namespace glm;
 
 
 #define USE_HIGH_DPI            true
-#define WINDOW_WIDTH			1600
-#define WINDOW_HEIGHT			900
+#define WINDOW_WIDTH			1024
+#define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			AntialiasingMode_4X
 
@@ -81,17 +81,16 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
-	auto window = Window(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(true);
-	window.enableVSync(false);
-	//window.antialiasingMode(AntialiasingMode_None);
-	window.debugOptions(DebugOption_ShowStatsOveray);
-	m_window = &window;
+	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
+	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	m_window->captureCursor(true);
+	m_window->enableVSync(false);
+	m_window->debugOptions(DebugOption_ShowStatsOveray);
 	
 	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
 
 	auto siameseScene = TestSceneNamed("siamese");
 	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
@@ -160,14 +159,18 @@ int Test::run(const vector<string>& args) {
 //	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
 //	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
-	auto ambientLightNode = make_shared<Node>(ambientLight);
+	//auto ambientLightNode = make_shared<Node>(ambientLight);
+	auto ambientLightNode = make_shared<Node>("Ambient light");
+	ambientLightNode->light(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
 	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = make_shared<Node>(pointLight);
+	//auto pointLightNode = make_shared<Node>(pointLight);
+	auto pointLightNode = make_shared<Node>("pointLight");
+	pointLightNode->light(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
@@ -218,9 +221,9 @@ int Test::run(const vector<string>& args) {
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
 	
-	window.scene(scene);
-	m_inputManager = window.inputManager();
-	window.display();
+	m_window->scene(scene);
+	m_inputManager = m_window->inputManager();
+	m_window->display();
 	
 	
 	return 0;
