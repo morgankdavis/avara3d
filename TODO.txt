@@ -13,6 +13,10 @@ Tests:
 
 	30 - rigidbodies
 
+		Fix tests
+
+		Check weak_ptr references
+
 		static Scene::LoadFromFile()	
 
 		ADD "removedFromNode()" // attachedToNode(nullptr)

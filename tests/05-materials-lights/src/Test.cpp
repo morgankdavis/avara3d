@@ -96,11 +96,7 @@ int Test::run(const vector<string>& args) {
 	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
 	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
-	//siameseNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-15.0f)));
 	scene->rootNode()->addChildNode(siameseNode);
-//	for (auto m : siameseNode->geometry()->materials()) {
-//		m->fillMode(MaterialFillMode_Lines);
-//	}
 
 	auto islandScene = TestSceneNamed("Island", "obj");
 	auto islandNode = islandScene->rootNode()->childNodes(true)[0];
@@ -109,18 +105,8 @@ int Test::run(const vector<string>& args) {
 
 	auto palletScene = TestSceneNamed("Pallet_rot");
 	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
-	//palletNode->position(vec3(-35.0f, 35.0f, 0.0f));
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
-	//palletNode->eulerAngles(vec3(radians(-90.0f), radians(40.0f), radians(0.0f)));
-	
-	
-//	auto rotateX = quat_cast(rotate(mat4(1.0f), radians(90.0f), vec3(1.0f, 0.0f, 0.0f)));
-//	auto rotateY = quat_cast(rotate(mat4(1.0f), radians(-130.0f), vec3(0.0f, 1.0f, 0.0f)));
-//	auto rotateZ = quat_cast(rotate(mat4(1.0f), radians(40.0f), vec3(0.0f, 0.0f, 1.0f)));
-//	quat orientation = quat(1.0, 0.0, 0.0, 0.0);
-//	//palletNode->orientation(orientation * rotateZ * rotateY * rotateX);
-//	palletNode->orientation(orientation * rotateY * rotateX * rotateZ);
 	
 	auto palletSpecularProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::DarkGray()));
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
@@ -129,7 +115,6 @@ int Test::run(const vector<string>& args) {
 	auto tunaScene = TestSceneNamed("tuna_rot");
 	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
 	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
-	//tunaScene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-90.0f)));
 	scene->rootNode()->addChildNode(tunaScene->rootNode());
 
 	auto palm1Scene = TestSceneNamed("palm1", "obj");
@@ -146,18 +131,12 @@ int Test::run(const vector<string>& args) {
 		}
 	}
 
+	
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("yokohama", "jpg"));
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("fishermansBastion", "jpg"));
+//	auto background = make_shared<MaterialProperty>(make_shared<Color>(Color::Navy()));
 	scene->background(background);
-//	auto backgroundColor = make_shared<Color>(Color::Navy());
-//	auto background = make_shared<MaterialProperty>(backgroundColor);
-//	scene->background(background);
 
 
-//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.1, 0.1, 0.1, 1.0));
-//	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.2, 0.2, 0.2, 1.0));
 	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
 	auto ambientLightNode = make_shared<Node>("Ambient light");
@@ -176,7 +155,7 @@ int Test::run(const vector<string>& args) {
 
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
 	m_pointLightNode = pointLightNode;
-
+	
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
@@ -186,14 +165,15 @@ int Test::run(const vector<string>& args) {
 	pointLightNode->geometry(geometry);
 	
 	
-
 //	// random lights
 //	const int NUM_RANDOM_LIGHTS = 100;
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
 //		auto light = make_shared<Light>(LightType_Point);
 //		light->attenuationFactor(0.0001);
-//		auto lightNode = make_shared<Node>(light);
+//		//auto lightNode = make_shared<Node>(light);
+//		auto lightNode = make_shared<Node>("Light");
+//		lightNode->light(light);
 //		int randX = Random(-150, 150);
 //		int randY = Random(-150, 150);
 //		int randZ = Random(-150, 150);
@@ -220,11 +200,9 @@ int Test::run(const vector<string>& args) {
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(make_shared<Color>(Color::LightGray()));
 
-	
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();
 	m_window->display();
-	
 	
 	return 0;
 }
