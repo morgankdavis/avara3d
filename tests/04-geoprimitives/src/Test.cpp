@@ -36,15 +36,15 @@ int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 	
 	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
-	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(true);
-	window.enableVSync(false);
-	
-	
+	auto window = make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	window->captureCursor(true);
+	window->enableVSync(false);
+
 	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
 
 
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
@@ -96,7 +96,7 @@ int Test::run(const vector<string>& args) {
 	capsuleGeo->name("capsule");
 	capsuleNode->geometry(capsuleGeo);
 	scene->rootNode()->addChildNode(capsuleNode);
-	capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
 	
 	
@@ -105,7 +105,7 @@ int Test::run(const vector<string>& args) {
 	cylinderGeo->name("cylinder");
 	cylinderNode->geometry(cylinderGeo);
 	scene->rootNode()->addChildNode(cylinderNode);
-	cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
 	
 	
@@ -115,7 +115,7 @@ int Test::run(const vector<string>& args) {
 	coneGeo->name("cone");
 	coneNode->geometry(coneGeo);
 	scene->rootNode()->addChildNode(coneNode);
-	coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
+	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
 	
 
@@ -141,9 +141,9 @@ int Test::run(const vector<string>& args) {
 	
 	
 
-	window.scene(scene);
-	m_inputManager = window.inputManager();
-	window.display();
+	window->scene(scene);
+	m_inputManager = window->inputManager();
+	window->display();
 	
 	return 0;
 }

@@ -19,6 +19,8 @@ Tests:
 		Scene::CameraNode()
 		Scene::GeometryNode()
 
+		Check weak_ptr references
+
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Utility functions for primitives?

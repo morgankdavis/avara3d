@@ -36,15 +36,16 @@ using namespace glm;
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
-	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(true);
-	window.enableVSync(false);
+	auto window = make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	window->captureCursor(true);
+	window->enableVSync(false);
 
 	
 	auto scene = make_shared<Scene>();
+	scene->rootNode(make_shared<Node>("Root node"));
 	
 
 	
@@ -436,8 +437,8 @@ int Test::run(const vector<string>& args) {
 	// **************************************************************************
 	
 	
-	window.scene(scene);
-	window.display();
+	window->scene(scene);
+	window->display();
 	
 	return 0;
 }

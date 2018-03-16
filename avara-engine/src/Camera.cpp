@@ -24,7 +24,7 @@ using namespace glm;
 Camera::Camera():
 	m_fov(radians(45.0)),
 	m_zNear(0.1),
-	m_zFar(200.0),
+	m_zFar(1000.0),
 	m_aspectRatio(1.0),
 	m_node(weak_ptr<Node>()) {
 

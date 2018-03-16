@@ -35,12 +35,12 @@ using namespace glm;
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
-	auto window = Window(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window.updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window.willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window.didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window.captureCursor(true);
-	window.enableVSync(false);
+	m_window =  make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	m_window->captureCursor(true);
+	m_window->enableVSync(false);
 	
 	auto scene = TestSceneNamed("importTest");
 	//auto scene = TestSceneNamed("dragon", "obj");
@@ -87,9 +87,9 @@ int Test::run(const vector<string>& args) {
 	// **************************************************************************
 	
 
-	window.scene(scene);
-	m_inputManager = window.inputManager();
-	window.display();
+	m_window->scene(scene);
+	m_inputManager = m_window->inputManager();
+	m_window->display();
 	
 	return 0;
 }
