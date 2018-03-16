@@ -51,7 +51,7 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
 	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
 	auto node = make_shared<Node>("Sphere");
-	node->geometry(make_shared<Sphere>(0.5 * .1, 3));
+	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
 	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -60,7 +60,7 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
+	physicsBody->mass(5.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);

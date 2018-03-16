@@ -13,7 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
-		static Scene::LoadFromFile()	
+		static Scene::LoadFromFile()
+
+		Scene::LightNode()
+		Scene::CameraNode()
+		Scene::GeometryNode()
 
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
