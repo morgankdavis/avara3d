@@ -44,13 +44,12 @@ namespace ae {
 		 **************************************************************************************/
 		
 		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
-		
+
 		/***************************************************************************************
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Scene(); // no want but Window is complaining about wanting a default contructor
-		//Scene(const boost::filesystem::path& path);
+		Scene();
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -62,7 +61,7 @@ namespace ae {
 		std::shared_ptr<MaterialProperty> background() const;
 		void background(std::shared_ptr<MaterialProperty> background);
 		
-		//bool					isPaused;
+		//bool isPaused;
 
 		float fogStartDistance() const;
 		void fogStartDistance(float distance);
@@ -102,32 +101,22 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		void loadFile(const boost::filesystem::path& path);
-		void addAIGeometryNodes(const aiScene* aiScene,
-								std::shared_ptr<Node> aeRootNode,
-								const std::vector<std::shared_ptr<GeometryElement>>& elements,
-								const std::vector<std::shared_ptr<Material>>& materials);
-		void addAIGeometryNodeRec(const aiScene* aiScene,
-								  const aiNode* aiGeometryNode,
-								  std::shared_ptr<Node> aeParentNode,
-								  const std::vector<std::shared_ptr<GeometryElement>>& elements,
-								  const std::vector<std::shared_ptr<Material>>& materials);
 		void bindEnvironment(const Node& pointOfView, DrawStats& stats) const;
 		
-		std::shared_ptr<Node>						m_rootNode;
-		std::shared_ptr<MaterialProperty>			m_background;
-		std::shared_ptr<SkyboxGeometry>				m_skyboxGeometry;
+		std::shared_ptr<Node>					m_rootNode;
+		std::shared_ptr<MaterialProperty>		m_background;
+		std::shared_ptr<SkyboxGeometry>			m_skyboxGeometry;
 		
-		float										m_fogStartDistance;
-		float										m_fogEndDistance;
-		float										m_fogDensityExponent;
-		std::shared_ptr<Color>						m_fogColor;
+		float									m_fogStartDistance;
+		float									m_fogEndDistance;
+		float									m_fogDensityExponent;
+		std::shared_ptr<Color>					m_fogColor;
 		
-		int											m_glEnvironmentUBO;
+		int										m_glEnvironmentUBO;
 		
-		std::shared_ptr<PhysicsWorld> 				m_physicsWorld;
+		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
-		std::weak_ptr<Window>						m_window;
+		std::weak_ptr<Window>					m_window;
 	};
 }
 

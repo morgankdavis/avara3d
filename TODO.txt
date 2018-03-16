@@ -13,26 +13,18 @@ Tests:
 
 	30 - rigidbodies
 
-		static Scene::LoadFromFile()
+		Fix weak_ptr initialization/references
 
 		Scene::LightNode()
 		Scene::CameraNode()
 		Scene::GeometryNode()
 
-		Check weak_ptr references
+		Namespace enums
 
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
-		Utility functions for primitives?
-			Box::Node()
-
-		weak_ptr shouldn't use if(.lock()) but if(!.expired())
-
 		Window::inputManager should exist by default...
 		Color statics should return shared pointers (or they should be converted to structs!)
-
-		-------------------------------------------
-
 
 		Fix GIF recording framerate
 
@@ -40,18 +32,8 @@ Tests:
 
 		Add physics stats!
 
-
-		Fix:
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(20.0, 0.0);
-
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation
-
-		
-
-		Test geometry instancing!
-		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 		Test bullet plane shape
 
@@ -79,6 +61,13 @@ Tests:
 		Disable/remove physics bodies when they get too far away
 
 		Shut down & cleanup
+
+		Fix:
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(20.0, 0.0);
+
+		Test geometry instancing!
+		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 		Add pause
 		"Error importing scene" should throw
