@@ -24,7 +24,11 @@
 #include "Geometry.h"
 #include "Light.h"
 #include "PhysicsBody.h"
+#include "Scene.h"
 #include "Utilities.h"
+
+
+//#include "InitDummy.h"
 
 
 using namespace ae;
@@ -39,6 +43,13 @@ using namespace glm;
 /***************************************************************************************
      MARK:   Static
  **************************************************************************************/
+
+//shared_ptr<Node> Node::Create() {
+//	auto instance = make_shared<Node>();
+//	instance->m_parent = make_shared<Node>();
+//	instance->m_scene = make_shared<Scene>();
+//	return instance;
+//}
 
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
 	auto node = make_shared<Node>();
@@ -72,9 +83,14 @@ Node::Node():
 	m_orientation(quat()),
 	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-	m_parent(weak_ptr<Node>()),
-	m_scene(weak_ptr<Scene>()) {
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+	m_parent({}),
+	m_scene({}) {
 
+//		auto dummy = DummyInit();
+//		m_parent = make_shared<Node>(dummy);
+//		m_scene = make_shared<Scene>(dummy);
 }
 
 Node::Node(const string& name):
@@ -87,8 +103,14 @@ Node::Node(const string& name):
 	m_orientation(quat()),
 	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-	m_parent(weak_ptr<Node>()),
-	m_scene(weak_ptr<Scene>()) {
+//	m_parent(weak_ptr<Node>()),
+//	m_scene(weak_ptr<Scene>()) {
+	m_parent({}),
+	m_scene({}) {
+		
+//		auto dummy = DummyInit();
+//		m_parent = make_shared<Node>(dummy);
+//		m_scene = make_shared<Scene>(dummy);
 
 }
 
@@ -175,6 +197,15 @@ Node::Node(const string& name):
 //		// MUST SET IN geometry() ACCESSOR
 //		//m_geometry->node(shared_from_this());
 //}
+
+
+
+
+//Node::Node(DummyInit& dummy) {
+//	
+//}
+
+
 
 /***************************************************************************************
      MARK:   Public
@@ -641,8 +672,10 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
+//	if (!m_parent.expired()) {
 	if (auto p = m_parent.lock()) {
-		if (p != nullptr) {
+//		if (p != nullptr) {
+		if (auto p = m_parent.lock()) {
 			do {
 				//parents.push_back(make_shared<Node>(*p));
 				parents.push_back(p);
@@ -650,6 +683,9 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 			} while (p != nullptr);
 		}
 	}
+//	else {
+//		cout << "Aint no p." << endl;
+//	}
 	
 	return parents;
 }

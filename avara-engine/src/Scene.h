@@ -34,6 +34,8 @@ namespace ae {
 	class SkyboxGeometry;
 	class Window;
 	
+	//class DummyInit;
+	
 	
 	class Scene : public std::enable_shared_from_this<Scene> {
 		
@@ -50,6 +52,8 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Scene();
+		
+//		Scene(DummyInit& dummy);
 		
 		/***************************************************************************************
 		     MARK:   Public

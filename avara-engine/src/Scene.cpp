@@ -561,7 +561,8 @@ Scene::Scene():
 	m_fogDensityExponent(0.0),
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr),
-	m_window(weak_ptr<Window>()) {
+	//m_window(weak_ptr<Window>()) {
+	m_window({}) {
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -577,6 +578,10 @@ Scene::Scene():
 ////		m_glEnvironmentUBO = ubo;
 //		
 //		loadFile(path);
+//}
+
+//Scene::Scene(DummyInit& dummy) {
+//	
 //}
 
 /***************************************************************************************
@@ -665,7 +670,7 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DEBUG_OPTIONS& debugOptions,
 				 DrawStats& stats) {
-	
+
 	auto viewMat = pointOfView->worldTransform();
 	auto projectionMat = pointOfView->camera()->projection();
 	

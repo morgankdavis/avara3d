@@ -13,12 +13,21 @@ Tests:
 
 	30 - rigidbodies
 
+		Remove DummyInit
+
+		Test weak_ptr (remove an owner)
+
+
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...
 		Color statics should return shared pointers (or they should be converted to structs!)
 
 		Fix GIF recording framerate
+
+
+
+
 
 		Try set margin 0 for static objects
 

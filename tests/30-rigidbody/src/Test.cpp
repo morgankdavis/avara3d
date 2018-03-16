@@ -325,7 +325,7 @@ int Test::run(const vector<string>& args) {
 	auto physicsWorld = make_shared<PhysicsWorld>();
 	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
-	
+
 	
 	const float PLANE_LENGTH = 30.0;
 	const float PLANE_WIDTH = 30.0;
