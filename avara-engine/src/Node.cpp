@@ -37,6 +37,28 @@ using namespace glm;
 
 
 /***************************************************************************************
+     MARK:   Static
+ **************************************************************************************/
+
+shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
+	auto node = make_shared<Node>();
+	node->geometry(geometry);
+	return node;
+}
+
+shared_ptr<Node> Node::LightNode(shared_ptr<Light> light) {
+	auto node = make_shared<Node>();
+	node->light(light);
+	return node;
+}
+
+shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
+	auto node = make_shared<Node>();
+	node->camera(camera);
+	return node;
+}
+
+/***************************************************************************************
      MARK:   Lifecycle
  **************************************************************************************/
 
@@ -52,7 +74,7 @@ Node::Node():
 	m_physicsBody(nullptr),
 	m_parent(weak_ptr<Node>()),
 	m_scene(weak_ptr<Scene>()) {
-	
+
 }
 
 Node::Node(const string& name):
@@ -67,7 +89,7 @@ Node::Node(const string& name):
 	m_physicsBody(nullptr),
 	m_parent(weak_ptr<Node>()),
 	m_scene(weak_ptr<Scene>()) {
-		
+
 }
 
 //Node::Node(const shared_ptr<Geometry> geometry):

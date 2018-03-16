@@ -50,8 +50,9 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	cout << "location: " << location << endl;
 	
 	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
-	auto node = make_shared<Node>("Sphere");
-	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
+//	auto node = make_shared<Node>("Sphere");
+//	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
+	auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * .1, 3));
 	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -102,8 +103,9 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
-	auto node = make_shared<Node>("Box");
-	node->geometry(make_shared<Box>(1.0, 1.0, 1.0));
+//	auto node = make_shared<Node>("Box");
+//	node->geometry(make_shared<Box>(1.0, 1.0, 1.0));
+	auto node = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -124,8 +126,9 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
-	shared_ptr<Node> node = make_shared<Node>("Sphere");
-	node->geometry(make_shared<Sphere>(0.5, 3));
+//	shared_ptr<Node> node = make_shared<Node>("Sphere");
+//	node->geometry(make_shared<Sphere>(0.5, 3));
+	shared_ptr<Node> node = Node::GeometryNode(make_shared<Sphere>(0.5, 3));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -146,8 +149,9 @@ void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
 void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
-	shared_ptr<Node> node = make_shared<Node>("Capsule");
-	node->geometry(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
+//	shared_ptr<Node> node = make_shared<Node>("Capsule");
+//	node->geometry(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
+	shared_ptr<Node> node = Node::GeometryNode(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -166,8 +170,9 @@ void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cone>(0.5, 0.5, 16, 16));
-	shared_ptr<Node> node = make_shared<Node>("Cone");
-	node->geometry(make_shared<Cone>(0.5, 0.5, 16, 16));
+//	shared_ptr<Node> node = make_shared<Node>("Cone");
+//	node->geometry(make_shared<Cone>(0.5, 0.5, 16, 16));
+	shared_ptr<Node> node = Node::GeometryNode(make_shared<Cone>(0.5, 0.5, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -186,8 +191,9 @@ void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cylinder>(0.5, 0.5, 16, 16));
-	shared_ptr<Node> node = make_shared<Node>("Cylinder");
-	node->geometry(make_shared<Cylinder>(0.5, 0.5, 16, 16));
+//	shared_ptr<Node> node = make_shared<Node>("Cylinder");
+//	node->geometry(make_shared<Cylinder>(0.5, 0.5, 16, 16));
+	shared_ptr<Node> node = Node::GeometryNode(make_shared<Cylinder>(0.5, 0.5, 16, 16));
 	auto materialProperty = make_shared<MaterialProperty>(color);
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
@@ -479,16 +485,18 @@ int Test::run(const vector<string>& args) {
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
-	auto ambientLightNode = make_shared<Node>("Ambient light");
-	ambientLightNode->light(ambientLight);
+//	auto ambientLightNode = make_shared<Node>("Ambient light");
+//	ambientLightNode->light(ambientLight);
+	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::LightGray()));
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	//auto pointLightNode = make_shared<Node>(pointLight);
-	auto pointLightNode = make_shared<Node>("pointLight");
-	pointLightNode->light(pointLight);
+//	auto pointLightNode = make_shared<Node>("pointLight");
+//	pointLightNode->light(pointLight);
+	auto pointLightNode = Node::LightNode(pointLight);
 	scene->rootNode()->addChildNode(pointLightNode);
 
 	pointLightNode->position({25, 25, 25});

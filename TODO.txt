@@ -13,12 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		Fix weak_ptr initialization/references
-
-		Scene::LightNode()
-		Scene::CameraNode()
-		Scene::GeometryNode()
-
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...
@@ -154,6 +148,8 @@ Laundry list:
 			https://gafferongames.com/post/fix_your_timestep/
 
 	Read config from TOML file
+
+	Initialize weak_ptr back-pointer in constructor??
 
 	Property encapsulate logging.
 		Look at PLog? https://github.com/SergiusTheBest/plog

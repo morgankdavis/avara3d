@@ -139,8 +139,9 @@ int Test::run(const vector<string>& args) {
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
-	auto ambientLightNode = make_shared<Node>("Ambient light");
-	ambientLightNode->light(ambientLight);
+//	auto ambientLightNode = make_shared<Node>("Ambient light");
+//	ambientLightNode->light(ambientLight);
+	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
@@ -148,8 +149,9 @@ int Test::run(const vector<string>& args) {
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::White()));
 	pointLight->attenuationFactor(0.00005);
 	//auto pointLightNode = make_shared<Node>(pointLight);
-	auto pointLightNode = make_shared<Node>("pointLight");
-	pointLightNode->light(pointLight);
+//	auto pointLightNode = make_shared<Node>("pointLight");
+//	pointLightNode->light(pointLight);
+	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
@@ -169,11 +171,12 @@ int Test::run(const vector<string>& args) {
 //	const int NUM_RANDOM_LIGHTS = 100;
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-//		auto light = make_shared<Light>(LightType_Point);
+//		auto light = make_shared<Light>(LIGHT_TYPE::POINT);
 //		light->attenuationFactor(0.0001);
 //		//auto lightNode = make_shared<Node>(light);
-//		auto lightNode = make_shared<Node>("Light");
-//		lightNode->light(light);
+////		auto lightNode = make_shared<Node>("Light");
+////		lightNode->light(light);
+//		auto lightNode = Node::LightNode(light);
 //		int randX = Random(-150, 150);
 //		int randY = Random(-150, 150);
 //		int randZ = Random(-150, 150);

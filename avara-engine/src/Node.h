@@ -31,6 +31,14 @@ namespace ae {
 	class Node : public std::enable_shared_from_this<Node> {
 		
 	public:
+		
+		/***************************************************************************************
+		     MARK:   Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<Node> GeometryNode(std::shared_ptr<Geometry> geometry);
+		static std::shared_ptr<Node> LightNode(std::shared_ptr<Light> light);
+		static std::shared_ptr<Node> CameraNode(std::shared_ptr<Camera> camera);
 
 		/***************************************************************************************
 	    	 MARK:   Lifecycle
