@@ -95,7 +95,7 @@ namespace ae {
 		
 		void prepare();
 		
-		bool compileShaderFromString(const std::string& source, ShaderType type);
+		bool compileShaderFromString(const std::string& source, SHADER_TYPE type);
 		unsigned getUniformLocation(const char* name);
 		
 		void glID(unsigned glID);

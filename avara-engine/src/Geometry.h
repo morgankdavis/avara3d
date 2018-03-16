@@ -76,7 +76,7 @@ namespace ae {
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
 				  int glEnvironmentUBO,
-				  DebugOption debugOptions,
+				  DEBUG_OPTIONS debugOptions,
 				  DrawStats& stats);
 		
 		void drawAABB(const glm::mat4& modelMat,

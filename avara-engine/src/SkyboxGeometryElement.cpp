@@ -68,8 +68,8 @@ void SkyboxGeometryElement::draw(const mat4& viewMat,
 
 	// material
 	
-	material.cubeProperty()->bind(MaterialPropertyType_Ambient, *program); // property type is arbitrary...
-	material.prepareToRender((DebugOption)0);
+	material.cubeProperty()->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *program); // property type is arbitrary...
+	material.prepareToRender(DEBUG_OPTIONS::NONE);
 
 	// draw
 

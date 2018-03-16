@@ -31,7 +31,7 @@ std::shared_ptr<spdlog::sinks::stdout_sink_st>			i_spdlogSTDOUTSink;
      MARK:   Lifecycle
  **************************************************************************************/
 
-Logger::Logger(string name, LoggerSink sinks):
+Logger::Logger(string name, LOGGER_SINKS sinks):
 	m_name(name),
 	m_sinks(sinks) {
 		
@@ -60,13 +60,13 @@ Logger::Logger(string name, LoggerSink sinks):
 			
 			vector<sink_ptr> sinks;
 			
-			if (m_sinks & LoggerSink_STDOUT) {
+			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::STDOUT)) {
 				sinks.push_back(i_spdlogSTDOUTSink);
 			}
-			if (m_sinks & LoggerSink_MainFile) {
+			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::MAIN_FILE)) {
 				sinks.push_back(i_spdlogMainFileSink);
 			}
-			if (m_sinks & LoggerSink_NamedFile) {
+			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::NAMED_FILE)) {
 				// not that since we're not saving this, another sink could be created with the same file name!
 				sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(name + ".log",
 																		  LOG_FILE_SIZE,
@@ -97,7 +97,7 @@ string Logger::name() const {
 	return m_name;
 }
 
-LoggerSink Logger::sinks() const {
+LOGGER_SINKS Logger::sinks() const {
 	return m_sinks;
 }
 

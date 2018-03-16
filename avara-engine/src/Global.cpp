@@ -77,9 +77,9 @@ int ae::initLog() {
 //		// if (LOG_ENABLE_STDOUT)
 //
 //
-		LoggerSink sinks = (LoggerSink)0;
-		if (LOG_ENABLE_STDOUT) sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
-		sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
+		LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
+		if (LOG_ENABLE_STDOUT) sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::STDOUT);
+		sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::MAIN_FILE);
 		g_aeLogger = make_shared<Logger>("ae", sinks);
 		g_aeLogger->info("Init.");
 		

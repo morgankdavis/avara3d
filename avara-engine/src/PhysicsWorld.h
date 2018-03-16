@@ -80,7 +80,7 @@ namespace ae {
 		
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		
-		void debugOptions(DebugOption options);
+		void debugOptions(DEBUG_OPTIONS options);
 		
 		void step();
 		

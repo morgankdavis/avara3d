@@ -78,8 +78,8 @@ namespace ae {
 		bool doubleSided() const;
 		void doubleSided(bool flag);
 		
-		FillMode fillMode() const;
-		void fillMode(FillMode mode);
+		FILL_MODE fillMode() const;
+		void fillMode(FILL_MODE mode);
 		
 		float uvScale() const;
 		void uvScale(float scale);
@@ -92,8 +92,8 @@ namespace ae {
 		void program(std::shared_ptr<Program> program);
 		
 		//void loadShaderProgram(const std::string& shaderName);
-		std::shared_ptr<Program> selectProgram(DebugOption debugOptions);
-		void prepareToRender(DebugOption debugOptions);
+		std::shared_ptr<Program> selectProgram(DEBUG_OPTIONS debugOptions);
+		void prepareToRender(DEBUG_OPTIONS debugOptions);
 		
 	protected:
 		
@@ -119,7 +119,7 @@ namespace ae {
 		float 								m_specularExponent;
 		bool 								m_locksAmbientWithDiffuse;
 		bool 								m_doubleSided;
-		FillMode 							m_fillMode;
+		FILL_MODE 							m_fillMode;
 		float 								m_uvScale;
 	};
 }

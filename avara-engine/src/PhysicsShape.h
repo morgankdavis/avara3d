@@ -35,8 +35,8 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		PhysicsShape(std::shared_ptr<Geometry> geometry, PhysicsShapeType type);
-		PhysicsShape(std::shared_ptr<Node> node, PhysicsShapeType type);
+		PhysicsShape(std::shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(std::shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -44,7 +44,7 @@ namespace ae {
 		
 		std::shared_ptr<Geometry> sourceGeometry() const;
 		std::shared_ptr<Node> sourceNode() const;
-		PhysicsShapeType type() const;
+		PHYSICS_SHAPE_TYPE type() const;
 		std::vector<glm::mat4> transforms() const;
 		
 		/***************************************************************************************
@@ -66,7 +66,7 @@ namespace ae {
 		
 		std::shared_ptr<Geometry> 						m_sourceGeometry;
 		std::shared_ptr<Node> 							m_sourceNode;
-		PhysicsShapeType 								m_type;
+		PHYSICS_SHAPE_TYPE 								m_type;
 		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
 		// The array of transforms that was used to create a compound shape.
 		std::vector<glm::mat4> 							m_transforms;

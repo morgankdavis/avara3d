@@ -208,11 +208,11 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
-static LightType LightTypeForAILightType(aiLightSourceType aiType) {
+static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType) {
 	switch (aiType) {
-		case aiLightSource_DIRECTIONAL: return LightType_Directional;
-		case aiLightSource_SPOT: return LightType_Spot;
-		default: return LightType_Point;
+		case aiLightSource_DIRECTIONAL: return LIGHT_TYPE::DIRECTIONAL;
+		case aiLightSource_SPOT: return LIGHT_TYPE::SPOT;
+		default: return LIGHT_TYPE::POINT;
 	}
 }
 
@@ -663,7 +663,7 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
  **************************************************************************************/
 
 void Scene::draw(shared_ptr<Node> pointOfView,
-				 DebugOption& debugOptions,
+				 DEBUG_OPTIONS& debugOptions,
 				 DrawStats& stats) {
 	
 	auto viewMat = pointOfView->worldTransform();
@@ -797,10 +797,10 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {
-				if (light->type() == LightType_Point) {
+				if (light->type() == LIGHT_TYPE::POINT) {
 					lights.emplace_back(node);
 				}
-				else if (light->type() == LightType_Ambient) {
+				else if (light->type() == LIGHT_TYPE::AMBIENT) {
 					ambientLight = node;
 				}
 			}
@@ -855,7 +855,7 @@ void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 		auto node = lights[l];
 		auto light = node->light();
 		
-		lightStruct[l].type = light->type();
+		lightStruct[l].type = (unsigned)(light->type());
 		lightStruct[l].position_world = node->worldPosition();
 		lightStruct[l].attenuationFactor = light->attenuationFactor();
 		

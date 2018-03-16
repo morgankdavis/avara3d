@@ -83,7 +83,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		void draw(std::shared_ptr<Node> pointOfView,
-				  DebugOption& debugOptions,
+				  DEBUG_OPTIONS& debugOptions,
 				  DrawStats& stats);
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;

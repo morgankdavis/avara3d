@@ -138,11 +138,11 @@ Program::~Program() {
 bool Program::compile() {
 	
 	if (vertexShaderSource()) {
-		if (!compileShaderFromString(*vertexShaderSource(), ShaderType_Vertex)) return false;
+		if (!compileShaderFromString(*vertexShaderSource(), SHADER_TYPE::VERTEX)) return false;
 	}
 	
 	if (fragmentShaderSource()) {
-		if (!compileShaderFromString(*fragmentShaderSource(), ShaderType_Fragment)) return false;
+		if (!compileShaderFromString(*fragmentShaderSource(), SHADER_TYPE::FRAGMENT)) return false;
 	}
 	
 	return true;
@@ -461,7 +461,7 @@ void Program::prepare() {
 	}
 }
 
-bool Program::compileShaderFromString(const string& source, ShaderType type) {
+bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	
 //	if (m_glID <= 0) {
 //		glID(glCreateProgram());
@@ -474,10 +474,10 @@ bool Program::compileShaderFromString(const string& source, ShaderType type) {
 	GLuint shaderID = 0;
 	
 	switch (type) {
-		case ShaderType_Vertex:
+		case SHADER_TYPE::VERTEX:
 			shaderID = glCreateShader(GL_VERTEX_SHADER);
 			break;
-		case ShaderType_Fragment:
+		case SHADER_TYPE::FRAGMENT:
 			shaderID = glCreateShader(GL_FRAGMENT_SHADER);
 			break;
 		default:

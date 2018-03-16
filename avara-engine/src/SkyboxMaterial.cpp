@@ -44,7 +44,7 @@ void SkyboxMaterial::cubeProperty(std::shared_ptr<MaterialProperty> property) {
      MARK:   Material
  **************************************************************************************/
 
-void SkyboxMaterial::prepareToRender(DebugOption debugOptions) const {
+void SkyboxMaterial::prepareToRender(DEBUG_OPTIONS debugOptions) const {
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_CULL_FACE);

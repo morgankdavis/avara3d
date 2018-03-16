@@ -51,27 +51,27 @@ namespace ae {
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube() const; // +X, -X, +Y, -Y, +Z, -Z,
 		void cube(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		
-		FilterMode minificationFilter() const;
-		void minificationFilter(FilterMode mode);
+		FILTER_MODE minificationFilter() const;
+		void minificationFilter(FILTER_MODE mode);
 		
-		FilterMode magnificationFilter() const;
-		void magnificationFilter(FilterMode mode);
+		FILTER_MODE magnificationFilter() const;
+		void magnificationFilter(FILTER_MODE mode);
 
 		float maxAnisotropy() const;
 		void maxAnisotropy(float max);
 		
-		WrapMode wrapS() const;
-		void wrapS(WrapMode mode);
+		WRAP_MODE wrapS() const;
+		void wrapS(WRAP_MODE mode);
 		
-		WrapMode wrapT() const;
-		void wrapT(WrapMode mode);
+		WRAP_MODE wrapT() const;
+		void wrapT(WRAP_MODE mode);
 		
 		/***************************************************************************************
 		     MARK:   Internal
 		 **************************************************************************************/
 		
 		void loadTexture();
-		void bind(MaterialPropertyType type, Program& program);
+		void bind(MATERIAL_PROPERTY_TYPE type, Program& program);
 		
 	private:
 		
@@ -83,11 +83,11 @@ namespace ae {
 		std::shared_ptr<Color>									m_color;
 		std::shared_ptr<std::vector<std::shared_ptr<Image>>>	m_cube;
 		
-		FilterMode												m_minificationFilter;
-		FilterMode												m_magnificationFilter;
+		FILTER_MODE												m_minificationFilter;
+		FILTER_MODE												m_magnificationFilter;
 		float													m_maxAnisotropy;
-		WrapMode												m_wrapS;
-		WrapMode												m_wrapT;
+		WRAP_MODE												m_wrapS;
+		WRAP_MODE												m_wrapT;
 		
 		unsigned												m_glTextureID;
 	};

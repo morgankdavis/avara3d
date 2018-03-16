@@ -49,7 +49,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		Window(bool fullScreen, unsigned width, unsigned height,
-			   bool useHighDPI = true, AntialiasingMode antialiasingMode = AntialiasingMode_None);
+			   bool useHighDPI = true, ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 		~Window();
 		
 		/***************************************************************************************
@@ -70,10 +70,10 @@ namespace ae {
 		float maximumFramerate() const;
 		void maximumFramerate(float max);
 		
-		DebugOption debugOptions() const;
-		void debugOptions(DebugOption options);
+		DEBUG_OPTIONS debugOptions() const;
+		void debugOptions(DEBUG_OPTIONS options);
 		
-		AntialiasingMode antialiasingMode() const;
+		ANTIALIASING_MODE antialiasingMode() const;
 		
 		std::shared_ptr<Node> pointOfView();
 		void pointOfView(const std::shared_ptr<Node> camera);
@@ -161,8 +161,8 @@ namespace ae {
 		float								m_framebufferScale;
 		unsigned							m_framebufferWidth;
 		unsigned							m_framebufferHeight;
-		AntialiasingMode					m_antialiasingMode;
-		DebugOption							m_debugOptions;
+		ANTIALIASING_MODE					m_antialiasingMode;
+		DEBUG_OPTIONS						m_debugOptions;
 		std::shared_ptr<Color>				m_backgroundColor;
 		std::shared_ptr<Node>				m_pointOfView;
 		std::shared_ptr<InputManager> 		m_inputManager;

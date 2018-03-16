@@ -72,7 +72,7 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
  **************************************************************************************/
 
 Window::Window(bool fullScreen, unsigned width, unsigned height,
-			   bool useHighDPI, AntialiasingMode antialiasingMode) {
+			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode) {
 //	m_scene(make_shared<Scene>()),
 //	m_width(width),
 //	m_height(height),
@@ -94,7 +94,10 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
+	//glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
+	glfwWindowHint(GLFW_SAMPLES, (unsigned)antialiasingMode);
+				   //static_cast<underlying_type<ANTIALIASING_MODE>::type>(ANTIALIASING_MODE::NONE));
+	
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 //		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
@@ -148,7 +151,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	setupRenderBuffer(); // needs width and height!
 
 	m_antialiasingMode = antialiasingMode;
-	m_debugOptions = (DebugOption)0;
+	m_debugOptions = DEBUG_OPTIONS::NONE;
 	m_backgroundColor = nullptr;
 	m_pointOfView = nullptr;
 	m_inputManager = nullptr;
@@ -226,11 +229,11 @@ void Window::maximumFramerate(float max) {
 	m_maximumFramerate = max;
 }
 
-DebugOption Window::debugOptions() const {
+DEBUG_OPTIONS Window::debugOptions() const {
 	return m_debugOptions;
 }
 
-void Window::debugOptions(DebugOption options) {
+void Window::debugOptions(DEBUG_OPTIONS options) {
 	m_debugOptions = options;
 	
 	if (m_scene && m_scene->physicsWorld()) {
@@ -238,7 +241,7 @@ void Window::debugOptions(DebugOption options) {
 	}
 }
 
-AntialiasingMode Window::antialiasingMode() const {
+ANTIALIASING_MODE Window::antialiasingMode() const {
 	return m_antialiasingMode;
 }
 
@@ -652,7 +655,7 @@ void Window::mainLoop() {
 	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
-	if (m_debugOptions & DebugOption_ShowStatsOveray) updateStatsOverlay(stats);
+	if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
 
 //	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_renderFramebuffer);
 //	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

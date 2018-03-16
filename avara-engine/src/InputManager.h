@@ -44,19 +44,19 @@ namespace ae {
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		bool keyDown(Key key);
-		bool mouseButtonDown(MouseButton button);
+		bool keyDown(KEY key);
+		bool mouseButtonDown(MOUSE_BUTTON button);
 		
-		bool keyPressed(Key key);
-		bool mouseButtonPressed(MouseButton button);
+		bool keyPressed(KEY key);
+		bool mouseButtonPressed(MOUSE_BUTTON button);
 
-		std::set<Key> keysDown(); // keys currently down
-		std::set<MouseButton> mouseButtonsDown(); // mouse buttons currently down
+		std::set<KEY> keysDown(); // keys currently down
+		std::set<MOUSE_BUTTON> mouseButtonsDown(); // mouse buttons currently down
 		
 		// only reports keys down for one query until they are released
-		std::set<Key> keysPressed();
+		std::set<KEY> keysPressed();
 		// only reports mouse buttons down for one query until they are released
-		std::set<MouseButton> mouseButtonsPressed();
+		std::set<MOUSE_BUTTON> mouseButtonsPressed();
 		
 		glm::vec2 mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
@@ -68,12 +68,12 @@ namespace ae {
 		void update();
 		Window* window() const;
 		
-		std::set<Key> 				m_keysDown;
-		std::set<MouseButton> 		m_mouseButtonsDown;
-		std::set<Key> 				m_keysPressed;
-		std::set<Key> 				m_keysPressedCleared;
-		std::set<MouseButton> 		m_mouseButtonsPressed;
-		std::set<MouseButton> 		m_mouseButtonsPressedCleared;
+		std::set<KEY> 				m_keysDown;
+		std::set<MOUSE_BUTTON> 		m_mouseButtonsDown;
+		std::set<KEY> 				m_keysPressed;
+		std::set<KEY> 				m_keysPressedCleared;
+		std::set<MOUSE_BUTTON> 		m_mouseButtonsPressed;
+		std::set<MOUSE_BUTTON> 		m_mouseButtonsPressedCleared;
 		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
 		

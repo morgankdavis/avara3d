@@ -19,8 +19,6 @@ Tests:
 		Scene::CameraNode()
 		Scene::GeometryNode()
 
-		Namespace enums
-
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...

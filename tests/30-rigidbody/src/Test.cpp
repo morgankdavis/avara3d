@@ -27,7 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIASING_MODE		AntialiasingMode_None
+#define ANTIALIASING_MODE		ANTIALIASING_MODE::MSAA2X
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
@@ -296,10 +296,8 @@ void AddFruit(Scene& scene, vec3 location) {
 
 int Test::run(const vector<string>& args) {
 
-	LoggerSink sinks = (LoggerSink)0;
-	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
-	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
-	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
+	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
+	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::STDOUT);
 	m_logger = make_shared<Logger>("test30", sinks);
 	
 	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
@@ -311,7 +309,7 @@ int Test::run(const vector<string>& args) {
 	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	m_window->captureCursor(CAPTURE_CURSOR);
 	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->debugOptions(DebugOption_ShowStatsOveray);
+	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
 	
 	auto scene = make_shared<Scene>();
@@ -333,8 +331,8 @@ int Test::run(const vector<string>& args) {
 	//auto gridImage = TestImageNamed("grid10");
 	auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WrapMode_Repeat);
-	planeMaterialProperty->wrapT(WrapMode_Repeat);
+	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
 	planeMaterial->uvScale(PLANE_LENGTH);
 //	planeMaterial->uvScale(PLANE_DIM*0.1);
@@ -479,13 +477,13 @@ int Test::run(const vector<string>& args) {
 	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
 	scene->background(background);
 
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
 	auto ambientLightNode = make_shared<Node>("Ambient light");
 	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::LightGray()));
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::LightGray()));
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	//auto pointLightNode = make_shared<Node>(pointLight);
@@ -535,96 +533,86 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
 	auto keysPressed = m_inputManager->keysPressed();
 	
-	if (keysPressed.count(Key_Escape)) {
+	if (keysPressed.count(KEY::ESCAPE)) {
 		exit(0);
 	}
 	
-	if (mouseButtonsPressed.count(MouseButton_1)) {
+	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
 		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
 	
-	if (mouseButtonsDown.count(MouseButton_2)) {
+	if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
 		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
 	
-	DebugOption options = (DebugOption)m_window->debugOptions();
-	if (keysPressed.count(Key_F)) {
-		if (m_window->debugOptions() & DebugOption_ShowWireframes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframes));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframes));
-		}
-	}
-	if (keysPressed.count(Key_B)) {
-		if (m_window->debugOptions() & DebugOption_ShowBoundingBoxes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
-		}
-	}
-	if (keysPressed.count(Key_I)) {
-		if (m_window->debugOptions() & DebugOption_ShowStatsOveray) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
-		}
-	}
-	
-	if (keysPressed.count(Key_P)) {
-		if (m_window->debugOptions() & DebugOption_ShowPhysicsBoundingBoxes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsBoundingBoxes));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsBoundingBoxes));
-		}
-	}
-	
-	if (keysPressed.count(Key_G)) {
-		if (m_window->debugOptions() & DebugOption_ShowPhysicsWireframes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsWireframes));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsWireframes));
-		}
-	}
-	
-	if (keysPressed.count(Key_C)) {
-		if (m_window->debugOptions() & DebugOption_ShowPhysicsContactPoints) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsContactPoints));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsContactPoints));
-		}
-	}
-	
-	if (keysPressed.count(Key_N)) {
-		if (m_window->debugOptions() & DebugOption_ShowPhysicsContactPoints) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowPhysicsNormals));
-		}
-		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowPhysicsNormals));
-		}
-	}
-	
-	
-	
 
-//	DebugOption_ShowPhysicsNormals = 			1 << 9,
-//	DebugOption_ShowPhysicsConstraints =		1 << 10,
-//	DebugOption_ShowPhysicsConstraintLimits	=	1 >> 11
+	if (keysPressed.count(KEY::F)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+	}
+	if (keysPressed.count(KEY::B)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+	}
+	if (keysPressed.count(KEY::I)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+	}
+	if (keysPressed.count(KEY::P)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		}
+	}
+	if (keysPressed.count(KEY::G)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		}
+	}
+	if (keysPressed.count(KEY::C)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		}
+	}
+	if (keysPressed.count(KEY::N)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		}
+		else {
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		}
+	}
 
-	if (keysPressed.count(Key_V)) {
+
+	if (keysPressed.count(KEY::V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));
 	}
 	
-	if (keysPressed.count(Key_Backslash)) {
+	if (keysPressed.count(KEY::BACKSLASH)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysPressed.count(Key_R)) {
+	if (keysPressed.count(KEY::R)) {
 		if (!m_window->recordingGIF()) {
 			StartGIFRecording(*m_window, 240, 8);
 		}
@@ -674,29 +662,29 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		auto keysDown = m_inputManager->keysDown();
 		
 		float moveMultiplier = 1.0;
-		if (keysDown.count(Key_LeftShift)) {
+		if (keysDown.count(KEY::LEFT_SHIFT)) {
 			moveMultiplier = 2.0;
 		}
 		
-		if (keysDown.count(Key_W) || mouseButtonsDown.count(MouseButton_4)) {
+		if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if (keysDown.count(Key_S)) {
+		else if (keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if (keysDown.count(Key_A)) {
+		if (keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if (keysDown.count(Key_D)) {
+		else if (keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if (keysDown.count(Key_Space)) {
+		if (keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
