@@ -302,7 +302,8 @@ int Test::run(const vector<string>& args) {
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	m_logger = make_shared<Logger>("test30", sinks);
 	
-	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, ENABLE_HIGH_DPI, ANTIALIASING_MODE);
+	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, 
+								   ENABLE_HIGH_DPI, ANTIALIASING_MODE);
 	m_logger->info("Test::run()");
 	
 	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
@@ -315,7 +316,7 @@ int Test::run(const vector<string>& args) {
 
 	
 	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
+	//scene->rootNode(make_shared<Node>("Root node"));
 	
 	
 	auto physicsWorld = make_shared<PhysicsWorld>();
