@@ -13,6 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
+		Node::addChildNode()
+			m_physicsBody->attachedToNode()
+			SHOULD MOVE TO:
+			Node::physicsBody(<...>)
+
+		PhysicsBody:347 -> No scene yet!
+
 		Remove DummyInit
 
 		Test weak_ptr (remove an owner)
@@ -24,7 +31,7 @@ Tests:
 		Color statics should return shared pointers (or they should be converted to structs!)
 
 		Fix GIF recording framerate
-
+			+ Add to overlay
 
 
 

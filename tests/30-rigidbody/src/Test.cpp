@@ -38,7 +38,7 @@ using namespace glm;
 //#define PHYSICS_TIMESTEP		1.0/240.0
 //#define PHYSICS_TIMESTEP		1.0/480.0
 
-#define USE_HIGH_DETAIL_MESHES
+//#define USE_HIGH_DETAIL_MESHES
 
 
 /***************************************************************************************
@@ -320,7 +320,7 @@ int Test::run(const vector<string>& args) {
 
 	
 	auto scene = make_shared<Scene>();
-	//scene->rootNode(make_shared<Node>("Root node"));
+	scene->rootNode(make_shared<Node>("Root node"));
 	
 	
 	auto physicsWorld = make_shared<PhysicsWorld>();
@@ -399,29 +399,29 @@ int Test::run(const vector<string>& args) {
 //	AddApple(*scene, position);
 //	AddSphere(*scene, position, make_shared<Color>(Color::Red()));
 	
-	unsigned SPACING = 1.0;
-	unsigned DROP_HEIGHT = 5.0;
-	unsigned colorIndex = 0;
-	auto colors = Color::Rainbow();
-	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				auto color = make_shared<Color>(colors[colorIndex + 4]);
-				++colorIndex;
-				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-				//AddObject(*scene, position, color);
-				AddBox(*scene, position, color);
-				//AddCapsule(*scene, position, color);
-				//AddCone(*scene, position, color);
-				//AddCylinder(*scene, position, color);
-				//AddApple(*scene, position);
-				//AddFruit(*scene, position);
-			}
-		}
-	}
+//	unsigned SPACING = 1.0;
+//	unsigned DROP_HEIGHT = 5.0;
+//	unsigned colorIndex = 0;
+//	auto colors = Color::Rainbow();
+//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+//				auto color = make_shared<Color>(colors[colorIndex + 4]);
+//				++colorIndex;
+//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+//				//AddObject(*scene, position, color);
+//				AddBox(*scene, position, color);
+//				//AddCapsule(*scene, position, color);
+//				//AddCone(*scene, position, color);
+//				//AddCylinder(*scene, position, color);
+//				//AddApple(*scene, position);
+//				//AddFruit(*scene, position);
+//			}
+//		}
+//	}
 	
 	
 	
