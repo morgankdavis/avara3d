@@ -23,7 +23,7 @@ using namespace std;
 shared_ptr<Light> Light::DefaultAmbient() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
+		light = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
 	}
 	return light;
 }
@@ -31,7 +31,7 @@ shared_ptr<Light> Light::DefaultAmbient() {
 shared_ptr<Light> Light::DefaultPoint() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+		light = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::White()));
 		light->attenuationFactor(0.0);
 	}
 	return light;
@@ -59,12 +59,12 @@ shared_ptr<Node> Light::DefaultPointNode() {
      MARK:   Lifecycle
  **************************************************************************************/
 
-Light::Light(LightType type):
+Light::Light(LIGHT_TYPE type):
 	Light(type, make_shared<Color>(Color::White())) {
 	
 }
 
-Light::Light(LightType type, const shared_ptr<Color> color):
+Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
 	m_name(boost::none),
 	m_type(type),
 	m_color(color),
@@ -85,11 +85,11 @@ void Light::name(const string& name) {
 	m_name = name;
 }
 
-LightType Light::type() const {
+LIGHT_TYPE Light::type() const {
 	return m_type;
 }
 
-void Light::type(LightType type) {
+void Light::type(LIGHT_TYPE type) {
 	m_type = type;
 }
 

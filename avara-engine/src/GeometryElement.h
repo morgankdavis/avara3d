@@ -46,7 +46,7 @@ namespace ae {
 				  const glm::mat4& projectionMat,
 				  Material& material,
 				  unsigned glEnvironmentUBO,
-				  DebugOption debugOptions,
+				  DEBUG_OPTIONS debugOptions,
 				  DrawStats& stats);
 		
 		void hardTransform(const glm::mat4 t, bool norm);

@@ -164,7 +164,7 @@ void Geometry::draw(const mat4& modelMat,
 					const mat4& viewMat,
 					const mat4& projectionMat,
 					int glEnvironmentUBO,
-					DebugOption debugOptions,
+					DEBUG_OPTIONS debugOptions,
 					DrawStats& stats) {
 	
 	unsigned numElements = m_elements.size();
@@ -184,7 +184,7 @@ void Geometry::draw(const mat4& modelMat,
 					  *material, glEnvironmentUBO, debugOptions, stats);
 	}
 	
-    if (debugOptions & DebugOption_ShowBoundingBoxes) {
+	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {
 		drawAABB(modelMat, viewMat, projectionMat);
     }
 }
@@ -272,7 +272,7 @@ void Geometry::loadAABBVertexData(const Program& program) {
     
     if (m_glAABBVAO < 0) {
         
-        AE_LOG->debug("loadAABBVertexData()");
+        AE_LOG->trace("loadAABBVertexData()");
         
         map<string, vec3> bp = *boundingPoints(false);
  

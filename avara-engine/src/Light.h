@@ -42,8 +42,8 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Light(LightType type);
-		Light(LightType type, const std::shared_ptr<Color> color);
+		Light(LIGHT_TYPE type);
+		Light(LIGHT_TYPE type, const std::shared_ptr<Color> color);
 		
 		/***************************************************************************************
 		     MARK:   Public
@@ -52,8 +52,8 @@ namespace ae {
 		boost::optional<std::string> name() const;
 		void name(const std::string& name);
 		
-		LightType type() const;
-		void type(LightType type);
+		LIGHT_TYPE type() const;
+		void type(LIGHT_TYPE type);
 		
 		std::shared_ptr<Color> color() const;
 		void color(std::shared_ptr<Color> color);
@@ -78,7 +78,7 @@ namespace ae {
 		
 		boost::optional<std::string>		m_name;
 		
-		LightType							m_type;
+		LIGHT_TYPE							m_type;
 		std::shared_ptr<Color>				m_color;
 
 		float								m_attenuationFactor; // att = 1/(1-k(d^2))

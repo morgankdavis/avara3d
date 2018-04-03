@@ -27,40 +27,40 @@ using namespace std;
      MARK:   Static
  **************************************************************************************/
 
-static GLenum GLFilterModeForFilterMode(FilterMode mode) {
+static GLenum GLFilterModeForFilterMode(FILTER_MODE mode) {
 	switch (mode) {
-		case FilterMode_Nearest: 				return GL_NEAREST;
-		case FilterMode_Linear: 				return GL_LINEAR;
-		case FilterMode_NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FilterMode_LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FilterMode_NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FilterMode_LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
+		case FILTER_MODE::NEAREST: 					return GL_NEAREST;
+		case FILTER_MODE::LINEAR: 					return GL_LINEAR;
+		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:	return GL_NEAREST_MIPMAP_NEAREST;
+		case FILTER_MODE::LINEAR_MIPMAP_NEAREST: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case FILTER_MODE::NEAREST_MIPMAP_LINEAR: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case FILTER_MODE::LINEAR_MIPMAP_LINEAR: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-static FilterMode FilterModeForGLFilterMode(GLenum mode) {
+static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 					return FilterMode_Linear;
-		case GL_NEAREST_MIPMAP_NEAREST:		return FilterMode_NearestMipmapNearest;
-		case GL_LINEAR_MIPMAP_NEAREST: 		return FilterMode_LinearMipmapNearest;
-		case GL_NEAREST_MIPMAP_LINEAR: 		return FilterMode_NearestMipmapLinear;
-		case GL_LINEAR_MIPMAP_LINEAR: 		return FilterMode_LinearMipmapLinear;
-		default: /* GL_NEAREST */			return FilterMode_Nearest; }
+		case GL_LINEAR: 					return FILTER_MODE::LINEAR;
+		case GL_NEAREST_MIPMAP_NEAREST:		return FILTER_MODE::NEAREST_MIPMAP_NEAREST;
+		case GL_LINEAR_MIPMAP_NEAREST: 		return FILTER_MODE::LINEAR_MIPMAP_NEAREST;
+		case GL_NEAREST_MIPMAP_LINEAR: 		return FILTER_MODE::NEAREST_MIPMAP_LINEAR;
+		case GL_LINEAR_MIPMAP_LINEAR: 		return FILTER_MODE::LINEAR_MIPMAP_LINEAR;
+		default: /* GL_NEAREST */			return FILTER_MODE::NEAREST; }
 }
 
-static GLenum GLWrapModeForWrapMode(WrapMode mode) {
+static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
-		case WrapMode_ClampToEdge:		return GL_CLAMP_TO_EDGE;
-		case WrapMode_ClampToBorder:	return GL_CLAMP_TO_BORDER;
-		case WrapMode_Repeat:			return GL_REPEAT;
-		case WrapMode_MirroredRepeat: 	return GL_MIRRORED_REPEAT; }
+		case WRAP_MODE::CLAMP_TO_EDGE:		return GL_CLAMP_TO_EDGE;
+		case WRAP_MODE::CLAMP_TO_BORDER:	return GL_CLAMP_TO_BORDER;
+		case WRAP_MODE::REPEAT:				return GL_REPEAT;
+		case WRAP_MODE::MIRRORED_REPEAT: 	return GL_MIRRORED_REPEAT; }
 }
 
-static WrapMode WrapModeForGLWrapMode(GLenum mode) {
+static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-		case GL_CLAMP_TO_BORDER:			return WrapMode_ClampToEdge;
-		case GL_REPEAT:						return WrapMode_Repeat;
-		case GL_MIRRORED_REPEAT: 			return WrapMode_MirroredRepeat;
-		default: /* GL_CLAMP_TO_EDGE */		return WrapMode_ClampToBorder; }
+		case GL_CLAMP_TO_BORDER:			return WRAP_MODE::CLAMP_TO_EDGE;
+		case GL_REPEAT:						return WRAP_MODE::REPEAT;
+		case GL_MIRRORED_REPEAT: 			return WRAP_MODE::MIRRORED_REPEAT;
+		default: /* GL_CLAMP_TO_EDGE */		return WRAP_MODE::CLAMP_TO_BORDER; }
 }
 
 /***************************************************************************************
@@ -81,10 +81,10 @@ MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
 	m_image(nullptr),
 	m_color(nullptr),
 	m_cube(nullptr),
-	m_wrapS(WrapMode_Repeat),
-	m_wrapT(WrapMode_Repeat),
-	m_minificationFilter(FilterMode_LinearMipmapLinear),
-	m_magnificationFilter(FilterMode_Linear),
+m_wrapS(WRAP_MODE::REPEAT),
+	m_wrapT(WRAP_MODE::REPEAT),
+	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
+	m_magnificationFilter(FILTER_MODE::LINEAR),
 //	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(16),
 	m_glTextureID(0) {
@@ -96,10 +96,10 @@ MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
 	m_image(nullptr),
 	m_color(color),
 	m_cube(nullptr),
-	m_wrapS(WrapMode_Repeat),
-	m_wrapT(WrapMode_Repeat),
-	m_minificationFilter(FilterMode_LinearMipmapLinear),
-	m_magnificationFilter(FilterMode_Linear),
+	m_wrapS(WRAP_MODE::REPEAT),
+	m_wrapT(WRAP_MODE::REPEAT),
+	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
+	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
 	m_glTextureID(0) {
 	
@@ -109,10 +109,10 @@ MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<I
 	m_image(nullptr),
 	m_color(nullptr),
 	m_cube(nullptr),
-	m_wrapS(WrapMode_Repeat),
-	m_wrapT(WrapMode_Repeat),
-	m_minificationFilter(FilterMode_LinearMipmapLinear),
-	m_magnificationFilter(FilterMode_Linear),
+	m_wrapS(WRAP_MODE::REPEAT),
+	m_wrapT(WRAP_MODE::REPEAT),
+	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
+	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
 	m_glTextureID(0) {
 	
@@ -160,20 +160,20 @@ void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
 	loadTexture();
 }
 
-FilterMode MaterialProperty::minificationFilter() const {
+FILTER_MODE MaterialProperty::minificationFilter() const {
 	return m_minificationFilter;
 }
 
-void MaterialProperty::minificationFilter(FilterMode mode) {
+void MaterialProperty::minificationFilter(FILTER_MODE mode) {
 	m_minificationFilter = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
-		case FilterMode_NearestMipmapNearest:
-		case FilterMode_NearestMipmapLinear:
-		case FilterMode_LinearMipmapNearest:
-		case FilterMode_LinearMipmapLinear:
+		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:
+		case FILTER_MODE::NEAREST_MIPMAP_LINEAR:
+		case FILTER_MODE::LINEAR_MIPMAP_NEAREST:
+		case FILTER_MODE::LINEAR_MIPMAP_LINEAR:
 			glGenerateMipmap(texType);
 			break;
 		default:
@@ -184,25 +184,25 @@ void MaterialProperty::minificationFilter(FilterMode mode) {
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
 
-FilterMode MaterialProperty::magnificationFilter() const {
+FILTER_MODE MaterialProperty::magnificationFilter() const {
 	return m_magnificationFilter;
 }
 
-void MaterialProperty::magnificationFilter(FilterMode mode) {
+void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
 	m_magnificationFilter = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
-		case FilterMode_Nearest:
-		case FilterMode_Linear:
+		case FILTER_MODE::NEAREST:
+		case FILTER_MODE::LINEAR:
 			glBindTexture(texType, m_glTextureID);
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 			break;
 		default:
 			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
 			//cout << "Error: unsupported magnification filter mode: " << mode << endl;
-			AE_LOG->warn("Unsupported magnification filter mode: {}", mode);
+			AE_LOG->warn("Unsupported magnification filter mode: {}", (unsigned)mode);
 			break;
 	}
 }
@@ -225,11 +225,11 @@ void MaterialProperty::maxAnisotropy(float max) {
 	m_maxAnisotropy = anisotropy;
 }
 
-WrapMode MaterialProperty::wrapS() const {
+WRAP_MODE MaterialProperty::wrapS() const {
 	return m_wrapS;
 }
 
-void MaterialProperty::wrapS(WrapMode mode) {
+void MaterialProperty::wrapS(WRAP_MODE mode) {
 	m_wrapS = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -238,11 +238,11 @@ void MaterialProperty::wrapS(WrapMode mode) {
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
 }
 
-WrapMode MaterialProperty::wrapT() const {
+WRAP_MODE MaterialProperty::wrapT() const {
 	return m_wrapT;
 }
 
-void MaterialProperty::wrapT(WrapMode mode) {
+void MaterialProperty::wrapT(WRAP_MODE mode) {
 	m_wrapT = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -287,11 +287,11 @@ void MaterialProperty::loadTexture() {
 						 image.data());
 		}
 		
-		minificationFilter(FilterMode_LinearMipmapLinear);
-		magnificationFilter(FilterMode_Linear);
+		minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+		magnificationFilter(FILTER_MODE::LINEAR);
 		maxAnisotropy(16);
-		wrapS(WrapMode_ClampToEdge);
-		wrapT(WrapMode_ClampToEdge);
+		wrapS(WRAP_MODE::CLAMP_TO_EDGE);
+		wrapT(WRAP_MODE::CLAMP_TO_EDGE);
 		
 		AE_LOG->info("Done.");
 	}
@@ -322,7 +322,7 @@ void MaterialProperty::loadTexture() {
 	}
 }
 
-void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
+void MaterialProperty::bind(MATERIAL_PROPERTY_TYPE type, Program& program) {
 	
 	if (m_cube) { // currently only used for skybox
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, m_glTextureID, 0);
@@ -334,28 +334,28 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		GLint index;
 		
 		switch (type) {
-			case MaterialPropertyType_Ambient:
+			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 				modeUniformName = "ambientMode";
 				samplerUniformName = "samplers.ambient";
 				slot = GL_TEXTURE0; index = 0;
 				break;
-			case MaterialPropertyType_Diffuse:
+			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
 				modeUniformName = "diffuseMode";
 				samplerUniformName = "samplers.diffuse";
 				slot = GL_TEXTURE1; index = 1;
 				break;
-			case MaterialPropertyType_Specular:
+			case MATERIAL_PROPERTY_TYPE::SPECULAR:
 				modeUniformName = "specularMode";
 				samplerUniformName = "samplers.specular";
 				slot = GL_TEXTURE2; index = 2;
 				break;
-			case MaterialPropertyType_Emissive:
+			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
 				modeUniformName = "emissiveMode";
 				samplerUniformName = "samplers.emissive";
 				slot = GL_TEXTURE3; index = 3;
 				break;
 			default:
-				cout << "Invalid MaterialPropertyType: " << type << endl;
+				cout << "Invalid MaterialPropertyType: " << static_cast<int>(type) << endl;
 				return;
 		}
 
@@ -367,24 +367,24 @@ void MaterialProperty::bind(MaterialPropertyType type, Program& program) {
 		string colorUniformName = "";
 		
 		switch (type) {
-			case MaterialPropertyType_Ambient:
+			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
-			case MaterialPropertyType_Diffuse:
+			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
 				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
-			case MaterialPropertyType_Specular:
+			case MATERIAL_PROPERTY_TYPE::SPECULAR:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
-			case MaterialPropertyType_Emissive:
+			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
 				modeUniformName = "emissiveMode";
 				colorUniformName = "colors.emissive";
 				break;
 			default:
-				cout << "Invalid MaterialPropertyType: " << type << endl;
+				cout << "Invalid MaterialPropertyType: " << static_cast<int>(type) << endl;
 				return;
 		}
 		

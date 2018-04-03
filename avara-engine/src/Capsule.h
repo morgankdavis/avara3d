@@ -39,8 +39,8 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 		
-		float		m_radius;
-		float		m_height;
+		float	m_radius;
+		float	m_height;
 	};
 }
 

@@ -36,14 +36,14 @@ using namespace std;
  **************************************************************************************/
 
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-														  PhysicsShapeType type) {
+														  PHYSICS_SHAPE_TYPE type) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");
 	
 	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
 	// - if 'geometry' is a primitive, use matching primitive
 	// - if arbitrary mesh, use whatever 'type' is
 
-	if (type == PhysicsShapeType_BoundingBox) {
+	if (type == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 		vec3 extent = geometry->extent(false);
 		float width = extent.x;
 		float height = extent.y;
@@ -53,7 +53,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 												 (btScalar)length/2.0));
 	}
 	else if (dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using box.", type);
+		AE_LOG->info("Ignoring physics shape type {}. Using box.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto box = dynamic_cast<Box*>(geometry.get());
 		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
@@ -61,27 +61,27 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 												 (btScalar)box->length()/2.0));
 	}
 	else if (dynamic_cast<Sphere*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", type);
+		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto sphere = dynamic_cast<Sphere*>(geometry.get());
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", type);
+		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto capsule = dynamic_cast<Capsule*>(geometry.get());
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
 	else if (dynamic_cast<Cone*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cone.", type);
+		AE_LOG->info("Ignoring physics shape type {}. Using cone.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto cone = dynamic_cast<Cone*>(geometry.get());
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
 	else if (dynamic_cast<Cylinder*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", type);
+		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
@@ -90,7 +90,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	}
 	else {
 		
-		if (type == PhysicsShapeType_ConcavePolyhedron) {
+		if (type == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
 			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
 		}
 		else { // PhysicsShapeType_ConvexHull
@@ -138,7 +138,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 }
 
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PhysicsShapeType type,
+													PHYSICS_SHAPE_TYPE type,
 													vector<shared_ptr<btCollisionShape>>& childShapes) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");
 	
@@ -165,7 +165,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
      MARK:   Lifecycle
  **************************************************************************************/
 
-PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PhysicsShapeType type):
+PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(geometry),
 	m_sourceNode(nullptr),
 	m_type(type),
@@ -177,7 +177,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PhysicsShapeType type)
 }
 
 // will construct a compound shape based on geometries under this node
-PhysicsShape::PhysicsShape(shared_ptr<Node> node, PhysicsShapeType type):
+PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(nullptr),
 	m_sourceNode(node),
 	m_type(type),
@@ -200,7 +200,7 @@ shared_ptr<Node> PhysicsShape::sourceNode() const {
 	return m_sourceNode;
 }
 
-PhysicsShapeType PhysicsShape::type() const {
+PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 	return m_type;
 }
 

@@ -27,15 +27,15 @@ using namespace std;
      MARK:   Static
  **************************************************************************************/
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DebugOption option) {
+btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
 	
 	switch (option) {
-		case DebugOption_ShowPhysicsBoundingBoxes:		return btIDebugDraw::DBG_DrawAabb;
-		case DebugOption_ShowPhysicsWireframes:			return btIDebugDraw::DBG_DrawWireframe;
-		case DebugOption_ShowPhysicsContactPoints: 		return btIDebugDraw::DBG_DrawContactPoints;
-		case DebugOption_ShowPhysicsNormals: 			return btIDebugDraw::DBG_DrawNormals;
-		case DebugOption_ShowPhysicsConstraints: 		return btIDebugDraw::DBG_DrawConstraints;
-		case DebugOption_ShowPhysicsConstraintLimits:	return btIDebugDraw::DBG_DrawConstraintLimits;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
 		default:
 			AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
 			return btIDebugDraw::DBG_NoDebug;
@@ -149,32 +149,38 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 	}
 }
 
-void PhysicsWorld::debugOptions(DebugOption options) {
+void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-	if (options & DebugOption_ShowPhysicsBoundingBoxes) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsBoundingBoxes));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 	}
-	if (options & DebugOption_ShowPhysicsWireframes) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsWireframes));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 	}
-	if (options & DebugOption_ShowPhysicsContactPoints) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsContactPoints));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 	}
-	if (options & DebugOption_ShowPhysicsNormals) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsNormals));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 	}
-	if (options & DebugOption_ShowPhysicsConstraints) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsConstraints));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS));
 	}
-	if (options & DebugOption_ShowPhysicsConstraintLimits) {
+	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
+	if (DEBUG_OPTIONS_CONTAIN(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
 		btModes = (btIDebugDraw::DebugDrawModes)
-		(btModes | BTDebugDrawModeForDebugOption(DebugOption_ShowPhysicsConstraintLimits));
+		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS));
 	}
 	
 	/*

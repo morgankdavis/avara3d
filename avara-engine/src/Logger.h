@@ -36,14 +36,14 @@ namespace ae {
 		     MARK:   Lifecycle
 		 **************************************************************************************/
 		
-		Logger(std::string name, LoggerSink sinks);
+		Logger(std::string name, LOGGER_SINKS sinks);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
 		std::string name() const;
-		LoggerSink sinks() const;
+		LOGGER_SINKS sinks() const;
 		
 		
 		template<typename T>
@@ -184,7 +184,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		std::string							m_name;
-		LoggerSink							m_sinks;
+		LOGGER_SINKS						m_sinks;
 		std::shared_ptr<spdlog::logger>		m_logger;
 	};
 	

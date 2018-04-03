@@ -28,15 +28,15 @@ using namespace std;
  **************************************************************************************/
 
 shared_ptr<PhysicsBody> PhysicsBody::StaticBody() {
-	return make_shared<PhysicsBody>(PhysicsBodyType_Static);
+	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::STATIC);
 }
 
 shared_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
-	return make_shared<PhysicsBody>(PhysicsBodyType_Dynamic);
+	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC);
 }
 
 shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
-	return make_shared<PhysicsBody>(PhysicsBodyType_Kinematic);
+	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC);
 }
 
 /***************************************************************************************
@@ -44,7 +44,7 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
  **************************************************************************************/
 
 PhysicsBody::PhysicsBody():
-	m_type(PhysicsBodyType_Static),
+	m_type(PHYSICS_BODY_TYPE::STATIC),
 	m_shape(nullptr),
 	m_velocityFactor({1.0, 1.0, 1.0}),
 	m_angularVelocityFactor({1.0, 1.0, 1.0}),
@@ -67,13 +67,13 @@ PhysicsBody::PhysicsBody():
 	
 }
 
-PhysicsBody::PhysicsBody(PhysicsBodyType type):
+PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 	PhysicsBody() {
 	
 		this->type(type);
 }
 
-PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
+PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 	PhysicsBody(type) {
 		
 		this->type(type);
@@ -84,11 +84,11 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
      MARK:   Public
  **************************************************************************************/
 
-PhysicsBodyType PhysicsBody::type() const {
+PHYSICS_BODY_TYPE PhysicsBody::type() const {
 	return m_type;
 }
 
-void PhysicsBody::type(PhysicsBodyType type) {
+void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
 	// TODO: cahnge bt type
 	m_type = type;
 }
@@ -280,11 +280,11 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	
 	if (!m_shape) {
 		if (node->geometry()) {
-			m_shape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+			m_shape = make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 			m_shape->attachedToBody(shared_from_this());
 		}
 		else {
-			m_shape = make_shared<PhysicsShape>(node, PhysicsShapeType_ConvexHull);
+			m_shape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 			m_shape->attachedToBody(shared_from_this());
 		}
 	}
@@ -315,7 +315,7 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	btVector3 localInertia(0, 0, 0);
 	if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
 	
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PhysicsBodyType_Static ? 0 : m_mass),
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PHYSICS_BODY_TYPE::STATIC ? 0 : m_mass),
 														   m_btMotionState.get(),
 														   collisionShape,
 														   localInertia);

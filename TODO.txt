@@ -13,41 +13,28 @@ Tests:
 
 	30 - rigidbodies
 
-		Check weak_ptr references
+		Remove DummyInit
 
-		static Scene::LoadFromFile()	
+		Test weak_ptr (remove an owner)
+
 
 		ADD "removedFromNode()" // attachedToNode(nullptr)
-
-		Utility functions for primitives?
-			Box::Node()
-
-		weak_ptr shouldn't use if(.lock()) but if(!.expired())
 
 		Window::inputManager should exist by default...
 		Color statics should return shared pointers (or they should be converted to structs!)
 
-		-------------------------------------------
-
-
 		Fix GIF recording framerate
+
+
+
+
 
 		Try set margin 0 for static objects
 
 		Add physics stats!
 
-
-		Fix:
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(20.0, 0.0);
-
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation
-
-		
-
-		Test geometry instancing!
-		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 		Test bullet plane shape
 
@@ -75,6 +62,13 @@ Tests:
 		Disable/remove physics bodies when they get too far away
 
 		Shut down & cleanup
+
+		Fix:
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(20.0, 0.0);
+
+		Test geometry instancing!
+		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
 		Add pause
 		"Error importing scene" should throw
@@ -163,6 +157,8 @@ Laundry list:
 			https://gafferongames.com/post/fix_your_timestep/
 
 	Read config from TOML file
+
+	Initialize weak_ptr back-pointer in constructor??
 
 	Property encapsulate logging.
 		Look at PLog? https://github.com/SergiusTheBest/plog

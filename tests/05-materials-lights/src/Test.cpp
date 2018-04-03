@@ -27,16 +27,16 @@ using namespace glm;
 #define WINDOW_WIDTH			1024
 #define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			AntialiasingMode_4X
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA4X
 
 
 /***************************************************************************************
      MARK:   Static
  **************************************************************************************/
 
-void SetAllFilterModes(FilterMode mode, Scene& scene) {
+void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
 
-	cout << "SetAllFilterModes: " << mode << endl;
+	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
 	
 	for (auto node : scene.rootNode()->childNodes(true)) {
 		
@@ -87,7 +87,7 @@ int Test::run(const vector<string>& args) {
 	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
 	m_window->captureCursor(true);
 	m_window->enableVSync(false);
-	m_window->debugOptions(DebugOption_ShowStatsOveray);
+	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -137,19 +137,21 @@ int Test::run(const vector<string>& args) {
 	scene->background(background);
 
 
-	auto ambientLight = make_shared<Light>(LightType_Ambient, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
-	auto ambientLightNode = make_shared<Node>("Ambient light");
-	ambientLightNode->light(ambientLight);
+//	auto ambientLightNode = make_shared<Node>("Ambient light");
+//	ambientLightNode->light(ambientLight);
+	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
-	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::White()));
 	pointLight->attenuationFactor(0.00005);
 	//auto pointLightNode = make_shared<Node>(pointLight);
-	auto pointLightNode = make_shared<Node>("pointLight");
-	pointLightNode->light(pointLight);
+//	auto pointLightNode = make_shared<Node>("pointLight");
+//	pointLightNode->light(pointLight);
+	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
 
@@ -169,11 +171,12 @@ int Test::run(const vector<string>& args) {
 //	const int NUM_RANDOM_LIGHTS = 100;
 //	auto colors = Color::Rainbow();
 //	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-//		auto light = make_shared<Light>(LightType_Point);
+//		auto light = make_shared<Light>(LIGHT_TYPE::POINT);
 //		light->attenuationFactor(0.0001);
 //		//auto lightNode = make_shared<Node>(light);
-//		auto lightNode = make_shared<Node>("Light");
-//		lightNode->light(light);
+////		auto lightNode = make_shared<Node>("Light");
+////		lightNode->light(light);
+//		auto lightNode = Node::LightNode(light);
 //		int randX = Random(-150, 150);
 //		int randY = Random(-150, 150);
 //		int randZ = Random(-150, 150);
@@ -221,66 +224,66 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	auto keysPressed = m_inputManager->keysPressed();
 	
-	if (keysPressed.count(Key_Escape)) {
+	if (keysPressed.count(KEY::ESCAPE)) {
 		exit(0);
 	}
 	
-	if 		(keysPressed.count(Key_1))	SetAllFilterModes(FilterMode_Nearest, scene);
-	else if (keysPressed.count(Key_2))	SetAllFilterModes(FilterMode_Linear, scene);
-	else if (keysPressed.count(Key_3))	SetAllFilterModes(FilterMode_NearestMipmapNearest, scene);
-	else if (keysPressed.count(Key_4))	SetAllFilterModes(FilterMode_NearestMipmapLinear, scene);
-	else if (keysPressed.count(Key_5))	SetAllFilterModes(FilterMode_LinearMipmapNearest, scene);
-	else if (keysPressed.count(Key_6))	SetAllFilterModes(FilterMode_LinearMipmapLinear, scene);
+	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, scene);
+	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, scene);
+	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, scene);
+	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, scene);
+	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
+	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
 	
-	if 		(keysPressed.count(Key_LeftBracket))	SetAllMaxAnisotropy(1, scene);
-	else if (keysPressed.count(Key_RightBracket))	SetAllMaxAnisotropy(16, scene);
-	
-	
-	if 		(keysPressed.count(Key_F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
-	else if (keysPressed.count(Key_F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
-	else if (keysPressed.count(Key_F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
 	
 	
-	if 		(keysPressed.count(Key_F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysPressed.count(Key_F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysPressed.count(Key_F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+	if 		(keysPressed.count(KEY::F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
+	else if (keysPressed.count(KEY::F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
+	else if (keysPressed.count(KEY::F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
 	
 	
-	DebugOption options = (DebugOption)m_window->debugOptions();
-	if (keysPressed.count(Key_F)) {
-		if (m_window->debugOptions() & DebugOption_ShowWireframes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowWireframes));
+	if 		(keysPressed.count(KEY::F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysPressed.count(KEY::F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysPressed.count(KEY::F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
+
+	
+	if (keysPressed.count(KEY::F)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowWireframes));
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
-	if (keysPressed.count(Key_B)) {
-		if (m_window->debugOptions() & DebugOption_ShowBoundingBoxes) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowBoundingBoxes));
+	if (keysPressed.count(KEY::B)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowBoundingBoxes));
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
-	if (keysPressed.count(Key_I)) {
-		if (m_window->debugOptions() & DebugOption_ShowStatsOveray) {
-			m_window->debugOptions((DebugOption)(options & ~DebugOption_ShowStatsOveray));
+	if (keysPressed.count(KEY::I)) {
+		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			m_window->debugOptions((DebugOption)(options | DebugOption_ShowStatsOveray));
+			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
+
 	
-	if (keysPressed.count(Key_V)) {
+	if (keysPressed.count(KEY::V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));
 	}
 	
-	if (keysPressed.count(Key_Backslash)) {
+	if (keysPressed.count(KEY::BACKSLASH)) {
 		SaveSnapshot(*m_window);
 	}
 	
-	if (keysPressed.count(Key_R)) {
+	if (keysPressed.count(KEY::R)) {
 		if (!m_window->recordingGIF()) {
 			StartGIFRecording(*m_window, 240, 8);
 		}
@@ -337,25 +340,25 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
 		
-		if(keysDown.count(Key_W)) {
+		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_S)) {
+		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_A)) {
+		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_D)) {
+		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_Space)) {
+		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}

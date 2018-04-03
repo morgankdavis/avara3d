@@ -73,7 +73,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_specularExponent(150.0),
 	m_locksAmbientWithDiffuse(true),
 	m_doubleSided(false),
-	m_fillMode(FillMode_Fill),
+	m_fillMode(FILL_MODE::FILL),
 	m_uvScale(1.0f),
 	m_program(program) {
 	
@@ -154,11 +154,11 @@ void Material::doubleSided(bool flag) {
 	m_doubleSided = flag;
 }
 
-FillMode Material::fillMode() const {
+FILL_MODE Material::fillMode() const {
 	return m_fillMode;
 }
 
-void Material::fillMode(FillMode mode) {
+void Material::fillMode(FILL_MODE mode) {
 	m_fillMode = mode;
 }
 
@@ -205,8 +205,9 @@ void Material::program(shared_ptr<Program> program) {
 ////	}
 //}
 
-shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
-	if (debugOptions & DebugOption_ShowWireframes) {
+shared_ptr<Program> Material::selectProgram(DEBUG_OPTIONS debugOptions) {
+	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
+	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		m_program = Program::Wireframe();
 		glEnable(GL_LINE_SMOOTH);
 	}
@@ -217,10 +218,11 @@ shared_ptr<Program> Material::selectProgram(DebugOption debugOptions) {
 	return m_program;
 }
 
-void Material::prepareToRender(DebugOption debugOptions) {
+void Material::prepareToRender(DEBUG_OPTIONS debugOptions) {
 	AE_LOG->trace("prepareToRender()");
 	
-	if (debugOptions | DebugOption_ShowPhysicsWireframes) {
+	//if ((unsigned)debugOptions | (unsigned)DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES) {
+	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 		//glDepthRange(0.1, 1.0);
@@ -228,7 +230,8 @@ void Material::prepareToRender(DebugOption debugOptions) {
 //		glPolygonOffset(20.0, 0.0);
 	}
 
-	if (debugOptions & DebugOption_ShowWireframes) {
+	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
+	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//m_program = Program::Wireframe();
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -237,10 +240,10 @@ void Material::prepareToRender(DebugOption debugOptions) {
 		//m_program = Program::Default();
 		
 		//if ((debugOptions & DebugOption_ShowWireframes) || (m_fillMode == FillMode_Lines)) {
-		if (m_fillMode == FillMode_Lines) {
+		if (m_fillMode == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
-		else if (m_fillMode == FillMode_Points) {
+		else if (m_fillMode == FILL_MODE::POINTS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		}
 		else {
@@ -266,21 +269,21 @@ void Material::prepareToRender(DebugOption debugOptions) {
 		
 		// only lock for diffuse textures, not colors
 		if (m_locksAmbientWithDiffuse && m_diffuse && (m_diffuse->color() || m_diffuse->image())) {
-			m_diffuse->bind(MaterialPropertyType_Ambient, *m_program);
+			m_diffuse->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *m_program);
 		}
 		else {
 			if (m_ambient) {
-				m_ambient->bind(MaterialPropertyType_Ambient, *m_program);
+				m_ambient->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *m_program);
 			}
 		}
 		if (m_diffuse) {
-			m_diffuse->bind(MaterialPropertyType_Diffuse, *m_program);
+			m_diffuse->bind(MATERIAL_PROPERTY_TYPE::DIFFUSE, *m_program);
 		}
 		if (m_specular) {
-			m_specular->bind(MaterialPropertyType_Specular, *m_program);
+			m_specular->bind(MATERIAL_PROPERTY_TYPE::SPECULAR, *m_program);
 		}
 		if (m_emissive) {
-			m_emissive->bind(MaterialPropertyType_Emissive, *m_program);
+			m_emissive->bind(MATERIAL_PROPERTY_TYPE::EMISSIVE, *m_program);
 		}
 	}
 }

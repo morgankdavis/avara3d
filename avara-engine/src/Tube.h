@@ -26,7 +26,6 @@ namespace ae {
 		
 		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);
 	};
-	
 }
 
 

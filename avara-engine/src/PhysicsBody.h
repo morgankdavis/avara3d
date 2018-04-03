@@ -43,15 +43,15 @@ namespace ae {
 		 **************************************************************************************/
 		
 		PhysicsBody();
-		PhysicsBody(PhysicsBodyType type);
-		PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape);
+		PhysicsBody(PHYSICS_BODY_TYPE type);
+		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
 		
 		/***************************************************************************************
 		     MARK:   Public
 		 **************************************************************************************/
 		
-		PhysicsBodyType type() const;
-		void type(PhysicsBodyType type);
+		PHYSICS_BODY_TYPE type() const;
+		void type(PHYSICS_BODY_TYPE type);
 		
 		std::shared_ptr<PhysicsShape> shape() const;
 		void shape(std::shared_ptr<PhysicsShape> shape);
@@ -131,7 +131,7 @@ namespace ae {
 		     MARK:   Private
 		 **************************************************************************************/
 
-		PhysicsBodyType 						m_type;
+		PHYSICS_BODY_TYPE 						m_type;
 		std::shared_ptr<PhysicsShape> 			m_shape;
 		glm::vec3 								m_velocityFactor;
 		glm::vec3 								m_angularVelocityFactor;

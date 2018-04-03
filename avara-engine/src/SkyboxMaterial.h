@@ -42,7 +42,7 @@ namespace ae {
 		   	MARK:   Material
 		 **************************************************************************************/
 		
-		void prepareToRender(DebugOption debugOptions) const;
+		void prepareToRender(DEBUG_OPTIONS debugOptions) const;
 
 	private:
 		
