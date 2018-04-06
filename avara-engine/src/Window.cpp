@@ -114,7 +114,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 		viewportHeight = vmode->height;
 		
 		scaleFactor = GetScreenScaleFactor(monitor);
-		
 	}
 	else {
 		i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
@@ -162,6 +161,11 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	m_didRenderCallback = nullptr;
 	m_recordingGIF = false;
 	m_cursorCaptured = false;
+	m_recordingGIF = false;
+	m_gifRecordingWidth = 0;
+	m_gifRecordingHeight = 0;
+	m_gifRecordingMaxFramerate = 0;
+	m_gifRecordedFrames = 0;
 }
 
 Window::~Window() {
@@ -297,6 +301,7 @@ void Window::startGIFRecording(const boost::filesystem::path& path,
 		AE_LOG->info("Starting GIF recording...");
 		
 		m_gifRecordingMaxFramerate = maxFramerate;
+		m_gifRecordedFrames = 0;
 		
 		m_gifRecordingHeight = m_framebufferHeight;
 		m_gifRecordingWidth = m_framebufferWidth;
@@ -725,46 +730,54 @@ void Window::updateStatsOverlay(DrawStats& stats) {
 	
 	char tmpStr[256];
 	
-	sprintf(tmpStr, "%-14s %.1f%s" ,"framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
+	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %.1f" ,"frametime", ms);
+	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %.1f" ,"percent", percent);
+	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	dy += textSize; // skip a line
 
-	sprintf(tmpStr, "%-14s %d" ,"nodes", stats.nodes);
+	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"geometries", stats.geometries);
+	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"meshes", stats.meshes);
+	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"polygons", stats.polygons);
+	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %d" ,"lights", stats.lights);
+	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
 	
 	dy += textSize; // skip a line
 	
-	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f" ,"camera pos",
+	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
 			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	drawText(tmpStr, textSize, dx, dy);
 	dy += (textSize + hPadding);
+	
+	if (m_recordingGIF) {
+		dy += textSize; // skip a line
+		
+		sprintf(tmpStr, "%-14s %d" , "RECORDING", m_gifRecordedFrames);
+		drawText(tmpStr, textSize, dx, dy);
+		dy += (textSize + hPadding);
+	}
 }
 
 float Window::drawText(string text, float size, float dx, float dy) {
@@ -807,6 +820,8 @@ void Window::saveGIFFrame(float deltaSeconds) {
 		GifWriteFrame(i_gifWriter, resizedFrameData,
 					  m_gifRecordingWidth, m_gifRecordingHeight,
 					  (secondsAccum*1000.0)/10.0);
+		
+		++m_gifRecordedFrames;
 		
 		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		secondsAccum = 0;

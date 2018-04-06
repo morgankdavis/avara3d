@@ -773,7 +773,6 @@ vec3 Scene::extent() const {
 void Scene::attachedToWindow(shared_ptr<Window> window) {
 	m_window = window;
 	if (m_physicsWorld) {
-		//m_physicsWorld->sc
 		m_physicsWorld->attachedToScene(shared_from_this());
 	}
 }

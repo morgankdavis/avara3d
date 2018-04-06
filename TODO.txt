@@ -13,6 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
+		Switch "NONE" bitmasks to 0
+		Fix Window::captureCursor() to not accumulate mouse input when not captured
+		
 		Node::addChildNode()
 			m_physicsBody->attachedToNode()
 			SHOULD MOVE TO:
@@ -30,9 +33,6 @@ Tests:
 
 		ShaderLibrary class
 		AE_API defines?
-
-		Fix GIF recording framerate
-			+ Add to overlay
 
 		Try set margin 0 for static objects
 

@@ -154,7 +154,6 @@ namespace ae {
 		float drawText(std::string text, float size, float dx, float dy);
 		void saveGIFFrame(float deltaSeconds);
 		
-		
 		std::shared_ptr<Scene>				m_scene;
 		unsigned							m_width;
 		unsigned							m_height;
@@ -174,6 +173,7 @@ namespace ae {
 		unsigned							m_gifRecordingWidth;
 		unsigned							m_gifRecordingHeight;
 		unsigned							m_gifRecordingMaxFramerate;
+		unsigned							m_gifRecordedFrames;
 		unsigned							m_renderFramebuffer;
 		//unsigned							m_drawFramebuffer;
 		bool								m_cursorCaptured;
