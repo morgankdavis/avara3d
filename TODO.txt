@@ -16,14 +16,18 @@ Tests:
 		Remove DummyInit
 
 		Test weak_ptr (remove an owner)
-
-
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...
 		Color statics should return shared pointers (or they should be converted to structs!)
 
+		ShaderLibrary class
+		AE_API defines?
+
 		Fix GIF recording framerate
+
+		Rule of Three/Five
+			https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)
 
 
 
@@ -39,6 +43,7 @@ Tests:
 		Test bullet plane shape
 
 		Physics scale
+			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
 		friction -> rollingFriction?
 		damping -> linearDamping?

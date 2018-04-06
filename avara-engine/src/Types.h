@@ -35,10 +35,10 @@ namespace ae {
 	
 	enum class ANTIALIASING_MODE : unsigned {
 		NONE =		0,
-		MSAA2X =	2,
-		MSAA4X =	4,
-		MSAA8X =	8,
-		MSAA16X =	16
+		MSAA_2X =	2,
+		MSAA_4X =	4,
+		MSAA_8X =	8,
+		MSAA_16X =	16
 	};
 
 	

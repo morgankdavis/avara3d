@@ -27,7 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIASING_MODE		ANTIALIASING_MODE::MSAA2X
+#define ANTIALIASING_MODE		ANTIALIASING_MODE::MSAA_2X
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
@@ -61,7 +61,7 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(5.0);
+	physicsBody->mass(1.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
@@ -92,7 +92,7 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
-	physicsBody->restitution(0.45);
+	physicsBody->restitution(0.1);
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
@@ -115,7 +115,7 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);
-	physicsBody->restitution(0.25);
+	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
 	node->physicsBody(physicsBody);
@@ -354,7 +354,7 @@ int Test::run(const vector<string>& args) {
 //	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
-	planePhysicsBody->restitution(0.25);
+	planePhysicsBody->restitution(0.1);
 	planePhysicsBody->friction(0.75);
 	planePhysicsBody->rollingFriction(0.75);
 	planeNode->physicsBody(planePhysicsBody);
@@ -710,5 +710,3 @@ void Test::windowWillRenderCallback(Scene& scene, float time) {
 void Test::windowDidRenderCallback(Scene& scene, float time) {
 	
 }
-
-

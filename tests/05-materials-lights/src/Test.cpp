@@ -27,7 +27,7 @@ using namespace glm;
 #define WINDOW_WIDTH			1024
 #define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA4X
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA_4X
 
 
 /***************************************************************************************
