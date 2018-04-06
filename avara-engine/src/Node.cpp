@@ -591,10 +591,10 @@ void Node::addChildNode(shared_ptr<Node> node) {
 	node->attachedToParentNode(shared_from_this());
 	m_childNodes.push_back(node);
 	
-	auto physicsBody = node->physicsBody();
-	if (physicsBody) {
-		physicsBody->attachedToNode(node);
-	}
+//	auto physicsBody = node->physicsBody();
+//	if (physicsBody) {
+//		physicsBody->attachedToNode(node);
+//	}
 }
 
 void Node::insertChildNode(const Node& node, int index) {
@@ -652,6 +652,7 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
+	body->attachedToNode(shared_from_this());
 	m_physicsBody = body;
 }
 

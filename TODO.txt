@@ -13,6 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
+		Node::addChildNode()
+			m_physicsBody->attachedToNode()
+			SHOULD MOVE TO:
+			Node::physicsBody(<...>)
+
+		PhysicsBody:347 -> No scene yet!
+
 		Remove DummyInit
 
 		Test weak_ptr (remove an owner)
@@ -25,13 +32,7 @@ Tests:
 		AE_API defines?
 
 		Fix GIF recording framerate
-
-		Rule of Three/Five
-			https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)
-
-
-
-
+			+ Add to overlay
 
 		Try set margin 0 for static objects
 

@@ -362,4 +362,3 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
 	return m_btMotionState;
 }
-

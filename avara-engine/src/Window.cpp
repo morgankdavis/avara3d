@@ -306,11 +306,15 @@ void Window::startGIFRecording(const boost::filesystem::path& path,
 			m_gifRecordingWidth = m_framebufferWidth * scale;
 		}
 		
-		unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+		// -> ms/frame
+		unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 		
 		i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		// gif-h frame time is in 100ths of a second
-		GifBegin(i_gifWriter, path.string().c_str(), m_gifRecordingWidth, m_gifRecordingHeight, frameTime/10.0);
+		GifBegin(i_gifWriter, path.string().c_str(), 
+				 m_gifRecordingWidth, m_gifRecordingHeight, 
+				 frameTimeHS);
 		
 		m_recordingGIF = true;
 	}
@@ -630,7 +634,7 @@ void Window::mainLoop() {
 	//stats.cameraPosition = pov->worldPosition();
 	stats.cameraPosition = pov->position();
 	
-	// sinulate physics
+	// simulate physics
 	auto physicsWorld = m_scene->physicsWorld();
 	if (physicsWorld) {
 		physicsWorld->step();
@@ -785,9 +789,13 @@ void Window::saveGIFFrame(float deltaSeconds) {
 	static float secondsAccum = 0;
 	secondsAccum += deltaSeconds;
 	
-	unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+	// -> ms/frame
+	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 	
-	if (secondsAccum >= frameTime/1000.0) {
+	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	
+	if (secondsAccum >= frameTimeMS/1000.0) {
 		
 		auto frame = snapshot();
 		
@@ -797,9 +805,11 @@ void Window::saveGIFFrame(float deltaSeconds) {
 		
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(i_gifWriter, resizedFrameData,
-					  m_gifRecordingWidth, m_gifRecordingHeight, (secondsAccum*1000.0)/10.0);
+					  m_gifRecordingWidth, m_gifRecordingHeight,
+					  (secondsAccum*1000.0)/10.0);
 		
-		secondsAccum = secondsAccum - frameTime/1000.0;
+		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
+		secondsAccum = 0;
 	}
 }
 
