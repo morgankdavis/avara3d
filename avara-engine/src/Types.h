@@ -75,19 +75,19 @@ namespace ae {
 	};
 
 	enum DEBUG_OPTIONS : unsigned {
-		NONE =								1 << 0,
-		SHOW_STATS_OVERLAY = 				1 << 1,
-		SHOW_BOUNDING_BOXES = 				1 << 2,
-		SHOW_WIREFRAMES = 					1 << 3,
-		SHOW_CAMERAS = 						1 << 4,
-		SHOW_LIGHTS = 						1 << 5,
-		SHOW_LIGHT_EXTENTS = 				1 << 6,
-		SHOW_PHYSICS_BOUNDING_BOXES = 		1 << 7,
-		SHOW_PHYSICS_WIREFRAMES = 			1 << 8,
-		SHOW_PHYSICS_CONTACT_POINTS = 		1 << 9,
-		SHOW_PHYSICS_NORMALS = 				1 << 10,
-		SHOW_PHYSICS_CONSTRAINTS =			1 << 11,
-		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 12
+		NONE =								0,
+		SHOW_STATS_OVERLAY = 				1 << 0,
+		SHOW_BOUNDING_BOXES = 				1 << 1,
+		SHOW_WIREFRAMES = 					1 << 2,
+		SHOW_CAMERAS = 						1 << 3,
+		SHOW_LIGHTS = 						1 << 4,
+		SHOW_LIGHT_EXTENTS = 				1 << 5,
+		SHOW_PHYSICS_BOUNDING_BOXES = 		1 << 6,
+		SHOW_PHYSICS_WIREFRAMES = 			1 << 7,
+		SHOW_PHYSICS_CONTACT_POINTS = 		1 << 8,
+		SHOW_PHYSICS_NORMALS = 				1 << 9,
+		SHOW_PHYSICS_CONSTRAINTS =			1 << 10,
+		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
 	};
 	
 //#define DEBUG_OPTIONS_TO_RAW(option) (static_cast<unsigned>(option))
@@ -101,10 +101,10 @@ namespace ae {
 //	inline DEBUG_OPTIONS DEBUG_OPTIONS_REMOVE(DEBUG_OPTIONS options, DEBUG_OPTIONS option) { return static_cast<DEBUG_OPTIONS>(static_cast<int>(options) & ~ static_cast<int>(option)); }
 	
 	enum class LOGGER_SINKS : unsigned {
-		NONE =			1 << 0,
-		MAIN_FILE =		1 << 1,
-		NAMED_FILE =	1 << 2,
-		STDOUT = 		1 << 3
+		NONE =			0,
+		MAIN_FILE =		1 << 0,
+		NAMED_FILE =	1 << 1,
+		STDOUT = 		1 << 2
 	};
 	
 #define LOGGER_SINKS_CONTAIN(sinks, sink) (static_cast<unsigned>(sinks) & static_cast<unsigned>(sink))

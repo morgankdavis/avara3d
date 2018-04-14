@@ -292,75 +292,81 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	
+	if (keysPressed.count(KEY::SLASH)) {
+		m_window->captureCursor(!(m_window->cursorCaptured()));
+	}
+	
 //	if (keysPressed.count(Key_M)) {
 //		unsigned total = 0;
 //		unsigned used = 0;
 //		m_window->getVRAMStats(total, used);
 //	}
 
-	
-	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
-	
-	// move camera
-	
-	const static float mouseSensitivity = (1.0f / 0.5f);
-	
-	
-	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->childNodes(false)) {
-			if (n->camera()) {
-				m_cameraNode = n;
-				break;
+	if (m_window->cursorCaptured()) {
+		
+		vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+		
+		// move camera
+		
+		const static float mouseSensitivity = (1.0f / 0.5f);
+		
+		
+		if (!m_cameraNode) {
+			for (auto n : scene.rootNode()->childNodes(false)) {
+				if (n->camera()) {
+					m_cameraNode = n;
+					break;
+				}
 			}
 		}
-	}
-	
-	if (m_cameraNode) {
 		
-		
-		//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
-		
-		// look
-		
-		vec3 camForward = m_cameraNode->worldForward();
-		vec3 camRight = m_cameraNode->worldRight();
-		vec3 camUp = m_cameraNode->worldUp();
-		
-		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
-		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
-		
-		vec3 angles = m_cameraNode->eulerAngles();
-		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-		
-		// move
-		
-		auto keysDown = m_inputManager->keysDown();
-		
-		//		const static float MOVE_SPEED = 5.0f; // units/sec
-		static float MOVE_SPEED = 0;
-		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
-		
-		if(keysDown.count(KEY::W)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
-		}
-		else if(keysDown.count(KEY::S)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
-		}
-		
-		if(keysDown.count(KEY::A)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
-		}
-		else if(keysDown.count(KEY::D)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
-		}
-		
-		if(keysDown.count(KEY::SPACE)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+		if (m_cameraNode) {
+			
+			
+			//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
+			
+			// look
+			
+			vec3 camForward = m_cameraNode->worldForward();
+			vec3 camRight = m_cameraNode->worldRight();
+			vec3 camUp = m_cameraNode->worldUp();
+			
+			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
+			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+			
+			vec3 angles = m_cameraNode->eulerAngles();
+			m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			
+			// move
+			
+			auto keysDown = m_inputManager->keysDown();
+			
+			//		const static float MOVE_SPEED = 5.0f; // units/sec
+			static float MOVE_SPEED = 0;
+			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
+			
+			if(keysDown.count(KEY::W)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			}
+			else if(keysDown.count(KEY::S)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			}
+			
+			if(keysDown.count(KEY::A)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			}
+			else if(keysDown.count(KEY::D)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			}
+			
+			if(keysDown.count(KEY::SPACE)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			}
 		}
 	}
 	
