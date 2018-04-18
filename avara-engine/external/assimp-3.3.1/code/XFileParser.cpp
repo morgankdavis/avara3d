@@ -731,7 +731,7 @@ void XFileParser::ParseDataObjectMaterial( Material* pMaterial)
     std::string matName;
     readHeadOfDataObject( &matName);
     if( matName.empty())
-        matName = std::string( "material") + std::to_string( mLineNumber );
+        matName = std::string( "material") + to_string( mLineNumber ); // Morgan: removed "std::" from to_string() for Android
     pMaterial->mName = matName;
     pMaterial->mIsReference = false;
 

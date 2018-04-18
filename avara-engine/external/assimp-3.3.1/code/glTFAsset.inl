@@ -277,14 +277,14 @@ inline void Buffer::Read(Value& obj, Asset& r)
             this->mData.reset(data);
 
             if (statedLength > 0 && this->byteLength != statedLength) {
-                throw DeadlyImportError("GLTF: buffer \"" + id + "\", expected " + std::to_string(statedLength) +
-                    " bytes, but found " + std::to_string(dataURI.dataLength));
+                throw DeadlyImportError("GLTF: buffer \"" + id + "\", expected " + to_string(statedLength) + // Morgan: removed "std::" from to_string() for Android
+                    " bytes, but found " + to_string(dataURI.dataLength)); // Morgan: removed "std::" from to_string() for Android
             }
         }
         else { // assume raw data
             if (statedLength != dataURI.dataLength) {
-                throw DeadlyImportError("GLTF: buffer \"" + id + "\", expected " + std::to_string(statedLength) +
-                                        " bytes, but found " + std::to_string(dataURI.dataLength));
+                throw DeadlyImportError("GLTF: buffer \"" + id + "\", expected " + to_string(statedLength) + // Morgan: removed "std::" from to_string() for Android
+                                        " bytes, but found " + to_string(dataURI.dataLength)); // Morgan: removed "std::" from to_string() for Android
             }
 
             this->mData.reset(new uint8_t[dataURI.dataLength]);

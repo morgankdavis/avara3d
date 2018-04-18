@@ -19,37 +19,42 @@ project(avara-engine)
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 
-if(UNIX AND APPLE)
+if (ANDROID)
+    message("We think we're ANDROID")
+    set(ANDROID TRUE)
+endif()
+
+if (UNIX AND APPLE)
     message("We think we're APPLE")
     set(MACOS TRUE)
-    if(CMAKE_GENERATOR STREQUAL "Xcode")
+    if (CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
     endif()
 endif()
 
-if(UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT ANDROID)
     message("We think we're LINUX")
     set(LINUX TRUE)
 endif()
 
-if(WIN32)
+if (WIN32)
     message("We think we're WIN32")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
 endif()
 
-if(WIN64)
+if (WIN64)
     message("We think we're WIN64")
     set(WINDOWS TRUE)
     set(WIN64 TRUE)
 endif()
 
 
-if(MINGW)
+if (MINGW)
     message("We think we're MINGW")
     set(WINDOWS TRUE)
 
-    if(CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
+    if (CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
         message("*** MINGW32 ***")
         set(MINGW32 TRUE)
         set(WIN32 TRUE)
@@ -60,31 +65,33 @@ if(MINGW)
     endif()
 endif()
 
-if(MSVS)
+if (MSVS)
     message("We think we're MSVS")
 endif()
 
-if(MSYS)
+if (MSYS)
     message("We think we're MSYS")
 endif()
 
 
-if(XCODE)
+if (XCODE)
 	add_definitions("-DAPPLE" "-DMACOS" "-DXCODE")
-elseif(MACOS)
+elseif (MACOS)
 	add_definitions("-DAPPLE" "-DMACOS")
-elseif(LINUX)
+elseif (LINUX)
 	add_definitions("-DLINUX")
-elseif(WINDOWS)
+elseif (WINDOWS)
 	add_definitions("-DWINDOWS")
-    if(MINGW)
+    if (MINGW)
         add_definitions("-DMINGW")
-	if(MINGW32)
+	if (MINGW32)
         	add_definitions("-DMINGW32")
 	else()
 		add_definitions("-DMINGW64")
     	endif()
     endif()
+elseif (ANDROID)
+	add_definitions("-DANDROID")
 endif()
 
 
@@ -94,27 +101,34 @@ include_directories(avara-engine/external/glm-0.9.9-a2)
 
 # GLFW
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(avara-engine/external/glfw-3.2.1)
-if(WINDOWS) # donno
-	include_directories(avara-engine/external/glfw-3.2.1/include)
+if (NOT ANDROID)
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	add_subdirectory(avara-engine/external/glfw-3.2.1)
+	if (WINDOWS) # donno
+		include_directories(avara-engine/external/glfw-3.2.1/include)
+	endif()
 endif()
+
+
+
 
 # GLEW
 
-add_subdirectory(avara-engine/external/glew-2.1.0/build/cmake)
-include_directories(avara-engine/external/glew-2.1.0/include)
+if (NOT ANDROID)
+	add_subdirectory(avara-engine/external/glew-2.1.0/build/cmake)
+	include_directories(avara-engine/external/glew-2.1.0/include)
+endif()
 
-# assimp
+# # assimp
 
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-if(WINDOWS)
+if (WINDOWS)
 	set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
 endif()
 add_subdirectory(avara-engine/external/assimp-3.3.1)
@@ -144,5 +158,8 @@ include_directories(avara-engine/external/bullet3-2.87/src)
 add_subdirectory(avara-engine/external/bullet3-2.87)
 
 
-add_subdirectory(avara-engine)
-add_subdirectory(tests)
+if (NOT ANDROID) # temporary
+	add_subdirectory(avara-engine)
+	add_subdirectory(tests)
+endif()
+

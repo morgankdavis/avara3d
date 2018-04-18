@@ -637,7 +637,7 @@ void ColladaExporter::WriteMaterials()
     aiString name;
     if( mat->Get( AI_MATKEY_NAME, name) != aiReturn_SUCCESS )
       name = "mat";
-    materials[a].name = std::string( "m") + std::to_string(a) + name.C_Str();
+    materials[a].name = std::string( "m") + to_string(a) + name.C_Str(); // Morgan: removed "std::" from to_string() for Android
     for( std::string::iterator it = materials[a].name.begin(); it != materials[a].name.end(); ++it ) {
       if( !isalnum_C( *it ) ) {
         *it = '_';
@@ -813,7 +813,7 @@ void ColladaExporter::WriteGeometry( size_t pIndex)
     {
         if( mesh->HasTextureCoords( a) )
         {
-            WriteFloatArray( idstr + "-tex" + std::to_string(a), mesh->mNumUVComponents[a] == 3 ? FloatType_TexCoord3 : FloatType_TexCoord2,
+            WriteFloatArray( idstr + "-tex" + to_string(a), mesh->mNumUVComponents[a] == 3 ? FloatType_TexCoord3 : FloatType_TexCoord2, // Morgan: removed "std::" from to_string() for Android
                 (float*) mesh->mTextureCoords[a], mesh->mNumVertices);
         }
     }
@@ -822,7 +822,7 @@ void ColladaExporter::WriteGeometry( size_t pIndex)
     for( size_t a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a)
     {
         if( mesh->HasVertexColors( a) )
-            WriteFloatArray( idstr + "-color" + std::to_string(a), FloatType_Color, (float*) mesh->mColors[a], mesh->mNumVertices);
+            WriteFloatArray( idstr + "-color" + to_string(a), FloatType_Color, (float*) mesh->mColors[a], mesh->mNumVertices); // Morgan: removed "std::" from to_string() for Android
     }
 
     // assemble vertex structure

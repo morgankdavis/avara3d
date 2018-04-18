@@ -5,8 +5,10 @@ include_directories(external)
 
 #include_directories(external/fontstash)
 
-add_subdirectory(external/manymouse)
-include_directories(external/manymouse)
+if (NOT ANDROID)
+	add_subdirectory(external/manymouse)
+	include_directories(external/manymouse)
+endif()
 
 add_subdirectory(external/meshoptimizer)
 include_directories(external/meshoptimizer)
@@ -26,7 +28,11 @@ file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-add_library(ae ${HEADERS} ${SOURCES})
+if (NOT ANDROID)
+	add_library(ae STATIC ${HEADERS} ${SOURCES})
+else()
+	add_library(ae SHARED ${HEADERS} ${SOURCES})
+endif()
 
 
 target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
@@ -43,12 +49,16 @@ elseif(WINDOWS)
 		target_link_libraries(ae winpthreads)
 	endif()
 	target_link_libraries(ae ${OPENGL_LIBRARY})
+elseif(ANDROID)
+	# manymouse glfw glew_s
+	target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem)
+	#target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 endif()
 
 
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(OpenGL REQUIRED)
+#find_package(OpenGL REQUIRED)
 
 
 if(MACOS)

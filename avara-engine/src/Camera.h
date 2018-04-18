@@ -10,6 +10,7 @@
 #define Camera_h
 
 
+#include <memory>
 #include <string>
 
 #include <glm/gtc/matrix_transform.hpp>
