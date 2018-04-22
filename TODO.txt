@@ -13,6 +13,9 @@ Tests:
 
 	30 - rigidbodies
 
+		Switch Linux & Windows to clang
+			https://stackoverflow.com/questions/7031126/switching-between-gcc-and-clang-llvm-using-cmake?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
 		PhysicsBody:347 -> No scene yet!		
 
 		Node::addChildNode()

@@ -354,7 +354,7 @@ public:
         __m128 vT;
         
         v2 = _mm_and_ps(v2, btvFFF0fMask);  //  x2 y2 z2 0
-        
+//        
         vT = _mm_unpackhi_ps(v0, v1);	//	z0 z1 * *
         v0 = _mm_unpacklo_ps(v0, v1);	//	x0 x1 y0 y1
 
