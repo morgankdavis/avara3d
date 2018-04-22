@@ -15,15 +15,6 @@
 
 
 namespace ae {
-	
-	
-	//class Node;
-	
-	
-//	using NodeRef = std::shared_ptr<Node>;
-//	using NodeWeakRef = std::weak_ptr<Node>;
-//	using NodeUniqueRef = std::unique_ptr<Node>;
-	
 
 	enum class ANTIALIASING_MODE : unsigned {
 		NONE =		0,

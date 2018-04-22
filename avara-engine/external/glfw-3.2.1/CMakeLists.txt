@@ -132,7 +132,9 @@ endif()
 #--------------------------------------------------------------------
 # Detect and select backend APIs
 #--------------------------------------------------------------------
-if (WIN32)
+
+# Morgan: added MSYS
+if (WIN32 OR MSYS)
     set(_GLFW_WIN32 1)
     message(STATUS "Using Win32 for window creation")
 elseif (APPLE)

@@ -32,7 +32,7 @@ if (UNIX AND APPLE)
     endif()
 endif()
 
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
     message("We think we're LINUX")
     set(LINUX TRUE)
 endif()
@@ -49,7 +49,6 @@ if (WIN64)
     set(WIN64 TRUE)
 endif()
 
-
 if (MINGW)
     message("We think we're MINGW")
     set(WINDOWS TRUE)
@@ -65,12 +64,13 @@ if (MINGW)
     endif()
 endif()
 
-if (MSVS)
-    message("We think we're MSVS")
-endif()
-
 if (MSYS)
     message("We think we're MSYS")
+	set(MSYS TRUE)
+endif()
+
+if (MSVS)
+    message("We think we're MSVS")
 endif()
 
 
