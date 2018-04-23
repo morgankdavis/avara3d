@@ -31,8 +31,8 @@ using namespace glm;
 
 
 /***************************************************************************************
-     MARK:   Static
- **************************************************************************************/
+     Static
+ ***************************************************************************************/
 
 void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
 
@@ -75,16 +75,17 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 }
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
-	
+
 	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
-	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+	//m_window = make_shared<Window>(scene, WINDOW_WIDTH, WINDOW_HEIGHT, FULLSCREEN, USE_HIGH_DPI, ANTIALIAS_MODE);
+	m_window->updateCallback(bind(&Test::rendererUpdateCallback, this, _1, _2, _3));
+	m_window->willRenderCallback(bind(&Test::rendererWillRenderCallback, this, _1, _2, _3));
+	m_window->didRenderCallback(bind(&Test::rendererDidRenderCallback, this, _1, _2, _3));
 	m_window->captureCursor(true);
 	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
@@ -211,10 +212,10 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     MARK:   Window Callbacks
- **************************************************************************************/
+     Window Callbacks
+ ***************************************************************************************/
 
-void Test::windowUpdateCallback(Scene& scene, float time) {
+void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) {
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -250,27 +251,27 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 
 	
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			renderer.debugOptions(DEBUG_OPTIONS_ADD(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			renderer.debugOptions(DEBUG_OPTIONS_ADD(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			renderer.debugOptions(DEBUG_OPTIONS_ADD(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 
@@ -390,10 +391,10 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	}
 }
 
-void Test::windowWillRenderCallback(Scene& scene, float time) {
+void Test::rendererWillRenderCallback(Renderer& renderer, Scene& scene, float time) {
 
 }
 
-void Test::windowDidRenderCallback(Scene& scene, float time) {
+void Test::rendererDidRenderCallback(Renderer& renderer, Scene& scene, float time) {
 
 }

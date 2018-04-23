@@ -24,8 +24,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
-**************************************************************************************/
+	Lifecycle
+***************************************************************************************/
 
 Pyramid::Pyramid(float width, float height):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {

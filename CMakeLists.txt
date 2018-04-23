@@ -157,9 +157,11 @@ include_directories(avara-engine/external/fontstash)
 include_directories(avara-engine/external/bullet3-2.87/src)
 add_subdirectory(avara-engine/external/bullet3-2.87)
 
+# ae & tests
 
-if (NOT ANDROID) # temporary
-	add_subdirectory(avara-engine)
+add_subdirectory(avara-engine)
+
+if (NOT ANDROID)
 	add_subdirectory(tests)
 endif()
 

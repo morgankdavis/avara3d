@@ -27,8 +27,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
- **************************************************************************************/
+	Lifecycle
+ ***************************************************************************************/
 
 SkyboxGeometryElement::SkyboxGeometryElement(vector<Vertex>& verticies,
 											 vector<Face>& faces):
@@ -43,8 +43,8 @@ SkyboxGeometryElement::~SkyboxGeometryElement() {
 }
 
 /***************************************************************************************
-     MARK:   GeometryElement
- **************************************************************************************/
+     GeometryElement
+ ***************************************************************************************/
 
 void SkyboxGeometryElement::draw(const mat4& viewMat,
 								 const mat4& projectionMat,

@@ -49,8 +49,8 @@ using namespace std;
 
 
 /***************************************************************************************
-     MARK:   Types
- **************************************************************************************/
+     Types
+ ***************************************************************************************/
 
 typedef struct {
 	int32_t 	type;
@@ -83,8 +83,8 @@ typedef struct {
 } FogGLSLStruct;
 
 /***************************************************************************************
-     MARK:   Static
- **************************************************************************************/
+     Static
+ ***************************************************************************************/
 
 //shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 //	auto scene = make_shared<Scene>();
@@ -550,8 +550,8 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 }
 
 /***************************************************************************************
-     MARK:   Lifecycle
- **************************************************************************************/
+     Lifecycle
+ ***************************************************************************************/
 
 Scene::Scene():
 	m_rootNode(nullptr),
@@ -562,7 +562,8 @@ Scene::Scene():
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr),
 	//m_window(weak_ptr<Window>()) {
-	m_window({}) {
+	//m_window({}) {
+	m_renderer({}) {
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -585,8 +586,8 @@ Scene::Scene():
 //}
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 shared_ptr<Node> Scene::rootNode() const {
 	return m_rootNode;
@@ -664,8 +665,8 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 }
 
 /***************************************************************************************
-     MARK:   Internal
- **************************************************************************************/
+     Internal
+ ***************************************************************************************/
 
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DEBUG_OPTIONS& debugOptions,
@@ -770,24 +771,39 @@ vec3 Scene::extent() const {
 				bp["zMax"].z - bp["zMin"].z);
 }
 
-void Scene::attachedToWindow(shared_ptr<Window> window) {
-	m_window = window;
+//void Scene::attachedToWindow(shared_ptr<Window> window) {
+//	m_window = window;
+//	if (m_physicsWorld) {
+//		m_physicsWorld->attachedToScene(shared_from_this());
+//	}
+//}
+
+void Scene::attachedToRenderer(shared_ptr<Renderer> renderer) {
+	m_renderer = renderer;
 	if (m_physicsWorld) {
 		m_physicsWorld->attachedToScene(shared_from_this());
 	}
 }
 
-weak_ptr<Window> Scene::window() const {
-	return m_window;
+//weak_ptr<Window> Scene::window() const {
+//	return m_window;
+//}
+//
+//void Scene::window(shared_ptr<Window> window) {
+//	m_window = window;
+//}
+
+weak_ptr<Renderer> Scene::renderer() const {
+	return m_renderer;
 }
 
-void Scene::window(shared_ptr<Window> window) {
-	m_window = window;
+void Scene::renderer(shared_ptr<Renderer> renderer) {
+	m_renderer = renderer;
 }
 
 /***************************************************************************************
-     MARK:   Private
- **************************************************************************************/
+     Private
+ ***************************************************************************************/
 
 void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
 

@@ -24,8 +24,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
-**************************************************************************************/
+	Lifecycle
+***************************************************************************************/
 
 Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {

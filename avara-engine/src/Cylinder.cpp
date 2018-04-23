@@ -26,8 +26,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
-**************************************************************************************/
+	Lifecycle
+***************************************************************************************/
 
 Cylinder::Cylinder(float radius, float height, int slices, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
@@ -76,8 +76,8 @@ Cylinder::Cylinder(float radius, float height, int slices, int segments):
 }
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 float Cylinder::radius() const {
 	return m_radius;

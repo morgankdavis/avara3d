@@ -15,6 +15,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include "Renderer.h"
 #include "Types.h"
 
 
@@ -24,91 +25,49 @@ struct GLFWwindow;
 
 namespace ae {
 
-
-	class Scene;
+	
 	class Camera;
 	class Color;
-	class GIFRecording;
 	class Image;
 	class InputManager;
 	class Node;
-	
-	
-	using WindowUpdateFuction = std::function<void(Scene& scene, float time)>;
-	using WindowDidSimulatePhysicsFuction = std::function<void(Scene& scene, float time)>;
-	using WindowWillRenderFuction = std::function<void(Scene& scene, float time)>;
-	using WindowDidRenderFuction = std::function<void(Scene& scene, float time)>;
+	class Scene;
 
 	
-	class Window : public std::enable_shared_from_this<Window> {
+	class Window : public Renderer {
 		
 	public:
 		
 		/***************************************************************************************
-		     MARK:   Lifecycle
-		 **************************************************************************************/
+		     Lifecycle
+		 ***************************************************************************************/
+
+//		Window(std::shared_ptr<Scene> scene,
+//			   unsigned width, unsigned height,
+//			   bool fullScreen,
+//			   bool useHighDPI = true,
+//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 		
 		Window(bool fullScreen, unsigned width, unsigned height,
 			   bool useHighDPI = true, ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 		~Window();
 		
 		/***************************************************************************************
-		     MARK:   Public
-		 **************************************************************************************/
+		     Public
+		 ***************************************************************************************/
 
 		void display();
 
-		std::shared_ptr<Scene> scene() const;
-		void scene(const std::shared_ptr<Scene> scene);
-
 		bool cursorCaptured() const;
 		void captureCursor(bool captured);
-		
-		bool vSyncEnabled() const;
-		void enableVSync(bool enabled);
-		
-		float maximumFramerate() const;
-		void maximumFramerate(float max);
-		
-		DEBUG_OPTIONS debugOptions() const;
-		void debugOptions(DEBUG_OPTIONS options);
-		
+
 		ANTIALIASING_MODE antialiasingMode() const;
-		
-		std::shared_ptr<Node> pointOfView();
-		void pointOfView(const std::shared_ptr<Node> camera);
-		
+
 		std::shared_ptr<InputManager> inputManager();
-		
-		std::shared_ptr<Image> snapshot() const;
-		
-		bool recordingGIF() const;
-		void startGIFRecording(const boost::filesystem::path& path,
-							   unsigned maxHeight, unsigned maxFramerate);
-		void stopGIFRecording();
-		
-		//void getVRAMStats(unsigned& total, unsigned& used);
-		
-		/*
-		- hitTest:options:
-		Searches the renderer’s scene for objects corresponding to a point in the rendered image.
 
-		- isNodeInsideFrustum:withPointOfView:
-		Returns a Boolean value indicating whether a node might be visible from a specified point of view.
-
-		- nodesInsideFrustumWithPointOfView:
-		Returns all nodes that might be visible from a specified point of view.
-
-		- projectPoint:
-		Projects a point from the 3D world coordinate system of the scene to the 2D pixel coordinate system of the renderer.
-
-		- unprojectPoint:
-		Unprojects a point from the 2D pixel coordinate system of the renderer to the 3D world coordinate system of the scene.
-		*/
-		
 		/***************************************************************************************
-		     MARK:   Internal
-		 **************************************************************************************/
+		     Internal
+		 ***************************************************************************************/
 
 		unsigned width() const;
 		/* PROBABLY REMOVE */ void width(unsigned width);
@@ -124,64 +83,45 @@ namespace ae {
 		
 		unsigned framebufferHeight() const;
 		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
-
-		std::shared_ptr<Node> defaultPointOfView();
 		
 		GLFWwindow* glfwWindow() const;
 		
-		WindowUpdateFuction updateCallback();
-		void updateCallback(WindowUpdateFuction function);
+		/**************************************************************************************
+		     Renderer
+		 ***************************************************************************************/
 		
-		WindowDidSimulatePhysicsFuction didSimulatePhysicsCallback();
-		void didSimulatePhysicsCallback(WindowDidSimulatePhysicsFuction function);
-		
-		WindowWillRenderFuction willRenderCallback();
-		void willRenderCallback(WindowWillRenderFuction function);
-		
-		WindowDidRenderFuction didRenderCallback();
-		void didRenderCallback(WindowDidRenderFuction function);
+		void enableVSync(bool enabled) override;
+		void debugOptions(DEBUG_OPTIONS options) override;
+		std::shared_ptr<Node> defaultPointOfView() override;
+		std::shared_ptr<Image> snapshot() const override;
+		bool recordingGIF() const override;
+		void startGIFRecording(const boost::filesystem::path& path,
+							   unsigned maxHeight, unsigned maxFramerate) override;
+		void stopGIFRecording() override;
+		void saveGIFFrame(float deltaSeconds) override;
 
 	private:
 		
 		/***************************************************************************************
-		     MARK:   Private
-		 **************************************************************************************/
+		     Private
+		 ***************************************************************************************/
 
 		void initFontstash();
-		void setupRenderBuffer();
 		void mainLoop();
 		void updateStatsOverlay(DrawStats& stats);
 		float drawText(std::string text, float size, float dx, float dy);
-		void saveGIFFrame(float deltaSeconds);
-		
-		std::shared_ptr<Scene>				m_scene;
+
 		unsigned							m_width;
 		unsigned							m_height;
 		float								m_framebufferScale;
 		unsigned							m_framebufferWidth;
 		unsigned							m_framebufferHeight;
 		ANTIALIASING_MODE					m_antialiasingMode;
-		DEBUG_OPTIONS						m_debugOptions;
 		std::shared_ptr<Color>				m_backgroundColor;
-		std::shared_ptr<Node>				m_pointOfView;
 		std::shared_ptr<InputManager> 		m_inputManager;
-		bool								m_vSyncEnabled;
-		float 								m_maximumFramerate;
 		FONScontext* 						m_fonsContext;
 		int									m_fonsFont;
-		bool								m_recordingGIF;
-		unsigned							m_gifRecordingWidth;
-		unsigned							m_gifRecordingHeight;
-		unsigned							m_gifRecordingMaxFramerate;
-		unsigned							m_gifRecordedFrames;
-		unsigned							m_renderFramebuffer;
-		//unsigned							m_drawFramebuffer;
 		bool								m_cursorCaptured;
-		
-		WindowUpdateFuction					m_updateCallback;
-		WindowDidSimulatePhysicsFuction		m_didSimulatePhysicsCallback;
-		WindowWillRenderFuction 			m_willRenderCallback;
-		WindowDidRenderFuction 				m_didRenderCallback;
 	};
 }
 

@@ -13,13 +13,31 @@ Tests:
 
 	30 - rigidbodies
 
-		Switch Linux & Windows to clang
-			https://stackoverflow.com/questions/7031126/switching-between-gcc-and-clang-llvm-using-cmake?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-			http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt3/
+		Create Renderer and use visitor pattern
+			https://gamedev.stackexchange.com/questions/62980/separating-game-data-logic-from-rendering?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+			Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
+
+
+
+
+		NOTES:
+			Renderer::scene()
+				scene->attachedToWindow(shared_from_this());
+				scene->attachedToRenderer(shared_from_this());
+			AND Window::scene()
+
+
+			Renderer
+				Knows nothing about open GL, GLFW
+
+			Window
+	
+
+
 
 		ANDROID!
-			Create "Renderer"
-			https://developer.android.com/ndk/guides/stable_apis.html
+			Get android compiling
+				https://developer.android.com/ndk/guides/stable_apis.html
 
 		PhysicsBody:347 -> No scene yet!		
 

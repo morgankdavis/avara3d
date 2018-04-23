@@ -23,8 +23,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
- **************************************************************************************/
+	Lifecycle
+ ***************************************************************************************/
 
 SkyboxGeometry::SkyboxGeometry(const shared_ptr<SkyboxMaterial> material):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
@@ -106,8 +106,8 @@ SkyboxGeometry::SkyboxGeometry(const shared_ptr<SkyboxMaterial> material):
 }
 
 /***************************************************************************************
-   	MARK:   Internal
- **************************************************************************************/
+   	Internal
+ ***************************************************************************************/
 
 void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
 	m_materials.clear();
@@ -116,8 +116,8 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
 }
 
 /***************************************************************************************
-     MARK:   Geometry
- **************************************************************************************/
+     Geometry
+ ***************************************************************************************/
 
 void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, DrawStats& stats) {
 

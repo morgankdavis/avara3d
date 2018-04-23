@@ -31,10 +31,9 @@ namespace ae {
 	class MaterialProperty;
 	class Node;
 	class PhysicsWorld;
+	class Renderer;
 	class SkyboxGeometry;
-	class Window;
-	
-	//class DummyInit;
+	//class Window;
 	
 	
 	class Scene : public std::enable_shared_from_this<Scene> {
@@ -42,22 +41,20 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
-		     MARK:   Static
-		 **************************************************************************************/
+		     Static
+		 ***************************************************************************************/
 		
 		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
 
 		/***************************************************************************************
-		     MARK:   Lifecycle
-		 **************************************************************************************/
+		     Lifecycle
+		 ***************************************************************************************/
 		
 		Scene();
-		
-//		Scene(DummyInit& dummy);
-		
+
 		/***************************************************************************************
-		     MARK:   Public
-		 **************************************************************************************/
+		     Public
+		 ***************************************************************************************/
 		
 		std::shared_ptr<Node> rootNode() const;
 		void rootNode(std::shared_ptr<Node> node);
@@ -83,8 +80,8 @@ namespace ae {
 		void physicsWorld(std::shared_ptr<PhysicsWorld> world);
 		
 		/***************************************************************************************
-		     MARK:   Internal
-		 **************************************************************************************/
+		     Internal
+		 ***************************************************************************************/
 		
 		void draw(std::shared_ptr<Node> pointOfView,
 				  DEBUG_OPTIONS& debugOptions,
@@ -94,16 +91,19 @@ namespace ae {
 		
 		glm::vec3 extent() const;
 		
-		void attachedToWindow(std::shared_ptr<Window> window);
+		//void attachedToWindow(std::shared_ptr<Window> window);
+		void attachedToRenderer(std::shared_ptr<Renderer> renderer);
 		
-		std::weak_ptr<Window> window() const;
-		void window(std::shared_ptr<Window> window);
+//		std::weak_ptr<Window> window() const;
+//		void window(std::shared_ptr<Window> window);
+		std::weak_ptr<Renderer> renderer() const;
+		void renderer(std::shared_ptr<Renderer> renderer);
 		
 	private:
 		
 		/***************************************************************************************
-		     MARK:   Private
-		 **************************************************************************************/
+		     Private
+		 ***************************************************************************************/
 		
 		void bindEnvironment(const Node& pointOfView, DrawStats& stats) const;
 		
@@ -120,7 +120,8 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
-		std::weak_ptr<Window>					m_window;
+		//std::weak_ptr<Window>					m_window;
+		std::weak_ptr<Renderer>					m_renderer;
 	};
 }
 

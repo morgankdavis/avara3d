@@ -24,8 +24,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
-**************************************************************************************/
+	Lifecycle
+***************************************************************************************/
 
 Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {

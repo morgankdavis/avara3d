@@ -32,8 +32,8 @@ using namespace std;
 
 
 /***************************************************************************************
-     MARK:   Static
- **************************************************************************************/
+     Static
+ ***************************************************************************************/
 
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE type) {
@@ -162,8 +162,8 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 }
 
 /***************************************************************************************
-     MARK:   Lifecycle
- **************************************************************************************/
+     Lifecycle
+ ***************************************************************************************/
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(geometry),
@@ -189,8 +189,8 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 }
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
 	return m_sourceGeometry;
@@ -209,8 +209,8 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 }
 
 /***************************************************************************************
-     MARK:   Internal
- **************************************************************************************/
+     Internal
+ ***************************************************************************************/
 
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
@@ -241,7 +241,7 @@ shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
 }
 
 /***************************************************************************************
-     MARK:   Private
- **************************************************************************************/
+     Private
+ ***************************************************************************************/
 
 

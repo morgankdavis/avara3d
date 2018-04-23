@@ -26,8 +26,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
-**************************************************************************************/
+	Lifecycle
+***************************************************************************************/
 
 Capsule::Capsule(float radius, float height, int slices, int segments, int rings):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
@@ -77,8 +77,8 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 }
 
 /***************************************************************************************
-    	 MARK:   Public
- **************************************************************************************/
+    	 Public
+ ***************************************************************************************/
 
 float Capsule::radius() const {
 	return m_radius;

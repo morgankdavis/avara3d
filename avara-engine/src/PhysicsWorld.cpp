@@ -24,8 +24,8 @@ using namespace std;
 
 
 /***************************************************************************************
-     MARK:   Static
- **************************************************************************************/
+     Static
+ ***************************************************************************************/
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
 	
@@ -43,8 +43,8 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option)
 }
 
 /***************************************************************************************
-     MARK:   Lifecycle
- **************************************************************************************/
+     Lifecycle
+ ***************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
 	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
@@ -75,8 +75,8 @@ PhysicsWorld::PhysicsWorld():
 }
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 vec3 PhysicsWorld::gravity() const {
 	return m_gravity;
@@ -139,14 +139,18 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
 }
 
 /***************************************************************************************
-     MARK:   Internal
- **************************************************************************************/
+     Internal
+ ***************************************************************************************/
 
 void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 	m_scene = scene;
-	if (auto window = scene->window().lock()) {
-		debugOptions(window->debugOptions());
+//	if (auto window = scene->window().lock()) {
+//		debugOptions(window->debugOptions());
+//	}
+	if (auto renderer = scene->renderer().lock()) {
+		debugOptions(renderer->debugOptions());
 	}
+
 }
 
 void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {

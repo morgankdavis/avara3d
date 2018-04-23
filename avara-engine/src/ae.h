@@ -33,6 +33,7 @@
 #include "Plane.h"
 #include "Program.h"
 #include "Pyramid.h"
+#include "Renderer.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Torus.h"

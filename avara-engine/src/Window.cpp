@@ -42,16 +42,16 @@ using namespace utils;
 
 
 /***************************************************************************************
-     MARK:   Internal Members
- **************************************************************************************/
+     Internal Members
+ ***************************************************************************************/
 
 Window* 		i_window;
 GLFWwindow* 	i_glfwWindow;
 GifWriter* 		i_gifWriter;
 
 /***************************************************************************************
-     MARK:   GLFW Callbacks
- **************************************************************************************/
+     GLFW Callbacks
+ ***************************************************************************************/
 
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	AE_LOG->trace("glfwWindowSizeCallback()");
@@ -68,11 +68,18 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
 }
 
 /***************************************************************************************
-     MARK:   Lifescycle
- **************************************************************************************/
+     Lifescycle
+ ***************************************************************************************/
+
+//Window::Window(shared_ptr<Scene> scene,
+//			   unsigned width, unsigned height,
+//			   bool fullScreen,
+//			   bool useHighDPI,
+//			   ANTIALIASING_MODE antialiasingMode) {
 
 Window::Window(bool fullScreen, unsigned width, unsigned height,
-			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode) {
+			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
+	Renderer() {
 //	m_scene(make_shared<Scene>()),
 //	m_width(width),
 //	m_height(height),
@@ -147,18 +154,12 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	m_framebufferWidth = m_width * m_framebufferScale;
 	m_framebufferHeight = m_height * m_framebufferScale;
 
-	setupRenderBuffer(); // needs width and height!
-
 	m_antialiasingMode = antialiasingMode;
-	m_debugOptions = DEBUG_OPTIONS::NONE;
+	//m_debugOptions = DEBUG_OPTIONS::NONE;
 	m_backgroundColor = nullptr;
-	m_pointOfView = nullptr;
+	//m_pointOfView = nullptr;
 	m_inputManager = nullptr;
-	m_maximumFramerate = 60.0;
-	m_updateCallback = nullptr;
-	m_didSimulatePhysicsCallback = nullptr;
-	m_willRenderCallback = nullptr;
-	m_didRenderCallback = nullptr;
+
 	m_recordingGIF = false;
 	m_cursorCaptured = false;
 	m_recordingGIF = false;
@@ -166,6 +167,8 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	m_gifRecordingHeight = 0;
 	m_gifRecordingMaxFramerate = 0;
 	m_gifRecordedFrames = 0;
+	
+//	this->scene(scene);
 }
 
 Window::~Window() {
@@ -173,8 +176,8 @@ Window::~Window() {
 }
 
 /***************************************************************************************
-     MARK:   Public
- **************************************************************************************/
+     Public
+ ***************************************************************************************/
 
 void Window::display() {
 	AE_LOG->info("Window::display()");
@@ -196,16 +199,6 @@ void Window::display() {
 	}
 }
 
-shared_ptr<Scene> Window::scene() const {
-	return m_scene;
-}
-
-void Window::scene(const shared_ptr<Scene> scene) {
-	scene->attachedToWindow(shared_from_this());
-	m_scene = scene;
-	
-}
-
 bool Window::cursorCaptured() const {
 	return m_cursorCaptured;
 }
@@ -215,26 +208,76 @@ void Window::captureCursor(bool captured) {
 	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-bool Window::vSyncEnabled() const {
-	return m_vSyncEnabled;
+ANTIALIASING_MODE Window::antialiasingMode() const {
+	return m_antialiasingMode;
 }
+
+
+shared_ptr<InputManager> Window::inputManager() {
+	if (m_inputManager == nullptr) {
+		m_inputManager = make_shared<InputManager>(this);
+	}
+	return m_inputManager;
+}
+
+/***************************************************************************************
+     Internal
+ ***************************************************************************************/
+
+unsigned Window::width() const {
+	return m_width;
+}
+
+void Window::width(unsigned aWidth) {
+	m_width = aWidth;
+	framebufferWidth(m_width * m_framebufferScale);
+}
+
+unsigned Window::height() const {
+	return m_height;
+}
+
+void Window::height(unsigned aHeight) {
+	m_height = aHeight;
+	framebufferHeight(m_height * m_framebufferScale);
+}
+
+unsigned Window::framebufferScale() const {
+	return m_framebufferScale;
+}
+
+void Window::framebufferScale(unsigned aScale) {
+	m_framebufferScale = aScale;
+}
+
+unsigned Window::framebufferWidth() const {
+	return m_framebufferWidth;
+}
+
+void Window::framebufferWidth(unsigned aWidth) {
+	m_framebufferWidth = aWidth;
+}
+
+unsigned Window::framebufferHeight() const {
+	return m_framebufferHeight;
+}
+
+void Window::framebufferHeight(unsigned aHeight) {
+	m_framebufferHeight = aHeight;
+}
+
+GLFWwindow* Window::glfwWindow() const {
+	return i_glfwWindow;
+}
+
+/**************************************************************************************
+     Renderer
+ ***************************************************************************************/
 
 void Window::enableVSync(bool enabled) {
 	m_vSyncEnabled = enabled;
 	if (!enabled) glfwSwapInterval(0);
 	else glfwSwapInterval(1);
-}
-
-float Window::maximumFramerate() const {
-	return m_maximumFramerate;
-}
-
-void Window::maximumFramerate(float max) {
-	m_maximumFramerate = max;
-}
-
-DEBUG_OPTIONS Window::debugOptions() const {
-	return m_debugOptions;
 }
 
 void Window::debugOptions(DEBUG_OPTIONS options) {
@@ -245,41 +288,53 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 	}
 }
 
-ANTIALIASING_MODE Window::antialiasingMode() const {
-	return m_antialiasingMode;
-}
-
-shared_ptr<Node> Window::pointOfView() {
+shared_ptr<Node> Window::defaultPointOfView() {
 	
-	if (m_pointOfView) {
-		return m_pointOfView;
-	}
-	else {
-		// try to assign one from the scene
-		for (auto node: m_scene->rootNode()->childNodes(true)) {
-			if (node->camera()) {
-				m_pointOfView = node;
-				return m_pointOfView;
-			}
-		}
-	}
-	if (!m_pointOfView) {
-		// still no POV. add a default one.
-		m_pointOfView = defaultPointOfView();
-	}
+	auto cameraNode = make_shared<Node>();
+	//m_scene->rootNode()->addChildNode(cameraNode); // done below
+	auto camera = make_shared<Camera>();
+	camera->name("default camera");
+	cameraNode->camera(camera);
 	
-	return m_pointOfView;
-}
-
-void Window::pointOfView(const shared_ptr<Node> camera) {
-	m_pointOfView = camera;
-}
-
-shared_ptr<InputManager> Window::inputManager() {
-	if (m_inputManager == nullptr) {
-		m_inputManager = make_shared<InputManager>(this);
-	}
-	return m_inputManager;
+	auto boundingPoints = (*scene()->boundingPoints());
+	
+	float fovH = cameraNode->camera()->fov();
+	float w = width();
+	float h = height();
+	float aspectRatio = w/h;
+	float inverseAspectRatio = 1.0f/aspectRatio;
+	float fovV = fovH * inverseAspectRatio;
+	
+	// tan(angle) = x/z
+	// ztan(angle) = x
+	// z = x/tan(angle)
+	
+	float maxZ = abs(boundingPoints["zMax"].z);
+	
+	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
+	float angleH = fovH / 2.0;
+	float zH = xH / tan(angleH);
+	
+	float xV = abs(boundingPoints["yMin"].y) + abs(boundingPoints["yMax"].y) / 2.0f;
+	float angleV = fovV / 2.0;
+	float zV = xV / tan(angleV);
+	
+	zH += maxZ;
+	zV += maxZ;
+	
+	float z = fmax(zH, zV);
+	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
+	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
+	
+	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
+	
+	mat4 viewMat = translate(mat4(1.0f), eye);
+	cameraNode->transform(viewMat);
+	
+	scene()->rootNode()->addChildNode(cameraNode);
+	pointOfView(cameraNode);
+	
+	return cameraNode;
 }
 
 shared_ptr<Image> Window::snapshot() const {
@@ -338,197 +393,40 @@ void Window::stopGIFRecording() {
 	}
 }
 
-//void Window::getVRAMStats(unsigned& total, unsigned& used) {
-//	
-//#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
-//#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
-//
-//	GLint total_mem_kb = 0;
-//glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, 
-//			  &total_mem_kb);
-//
-//	GLint cur_avail_mem_kb = 0;
-//glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, 
-//			  &cur_avail_mem_kb);
-//	
-//	
-//	
-//	cout << "GL_NVX_gpu_memory_info: " << GL_NVX_gpu_memory_info << endl;
-//	cout << "GLEW_NVX_gpu_memory_info: " << GLEW_NVX_gpu_memory_info << endl;
-//	
-//	if (GL_NVX_gpu_memory_info) {
-//		cout << "1" << endl;
-//		
-//		int totalmem = 0;
-//		int freemem = 0;
-//		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
-//		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
-//		
-//		cout << "totalmem: " << totalmem << endl;
-//		cout << "freemem: " << freemem << endl;
-//	}
-//	else {
-//		cout << "2" << endl;
-//	}
-//	
-//	if (GLEW_NVX_gpu_memory_info) {
-//		cout << "3" << endl;
-//	}
-//	else {
-//		cout << "4" << endl;
-//		
-//		int totalmem = 0;
-//		int freemem = 0;
-//		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalmem);
-//		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
-//		
-//		cout << "totalmem: " << totalmem << endl;
-//		cout << "freemem: " << freemem << endl;
-//	}
-//	
-////	GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
-////	GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
-////	GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
-////	GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
-////	GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
-//
-//	
-//}
-
-/***************************************************************************************
-     MARK:   Internal
- **************************************************************************************/
-
-unsigned Window::width() const {
-	return m_width;
-}
-
-void Window::width(unsigned aWidth) {
-	m_width = aWidth;
-	framebufferWidth(m_width * m_framebufferScale);
-}
-
-unsigned Window::height() const {
-	return m_height;
-}
-
-void Window::height(unsigned aHeight) {
-	m_height = aHeight;
-	framebufferHeight(m_height * m_framebufferScale);
-}
-
-unsigned Window::framebufferScale() const {
-	return m_framebufferScale;
-}
-
-void Window::framebufferScale(unsigned aScale) {
-	m_framebufferScale = aScale;
-}
-
-unsigned Window::framebufferWidth() const {
-	return m_framebufferWidth;
-}
-
-void Window::framebufferWidth(unsigned aWidth) {
-	m_framebufferWidth = aWidth;
-}
-
-unsigned Window::framebufferHeight() const {
-	return m_framebufferHeight;
-}
-
-void Window::framebufferHeight(unsigned aHeight) {
-	m_framebufferHeight = aHeight;
-}
-
-shared_ptr<Node> Window::defaultPointOfView() {
+void Window::saveGIFFrame(float deltaSeconds) {
 	
-	auto cameraNode = make_shared<Node>();
-	//m_scene->rootNode()->addChildNode(cameraNode); // done below
-	auto camera = make_shared<Camera>();
-	camera->name("default camera");
-	cameraNode->camera(camera);
-
-	auto boundingPoints = (*scene()->boundingPoints());
-
-	float fovH = cameraNode->camera()->fov();
-	float w = width();
-	float h = height();
-	float aspectRatio = w/h;
-	float inverseAspectRatio = 1.0f/aspectRatio;
-	float fovV = fovH * inverseAspectRatio;
-
-	// tan(angle) = x/z
-	// ztan(angle) = x
-	// z = x/tan(angle)
-
-	float maxZ = abs(boundingPoints["zMax"].z);
-
-	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
-	float angleH = fovH / 2.0;
-	float zH = xH / tan(angleH);
-
-	float xV = abs(boundingPoints["yMin"].y) + abs(boundingPoints["yMax"].y) / 2.0f;
-	float angleV = fovV / 2.0;
-	float zV = xV / tan(angleV);
-
-	zH += maxZ;
-	zV += maxZ;
-
-	float z = fmax(zH, zV);
-	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
-	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
-
-	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
-
-	mat4 viewMat = translate(mat4(1.0f), eye);
-	cameraNode->transform(viewMat);
-
-	scene()->rootNode()->addChildNode(cameraNode);
-	pointOfView(cameraNode);
+	static float secondsAccum = 0;
+	secondsAccum += deltaSeconds;
 	
-	return cameraNode;
-}
-
-GLFWwindow* Window::glfwWindow() const {
-	return i_glfwWindow;
-}
-
-WindowUpdateFuction Window::updateCallback() {
-	return m_updateCallback;
-}
-
-void Window::updateCallback(WindowUpdateFuction function) {
-	m_updateCallback = function;
-}
-
-WindowDidSimulatePhysicsFuction Window::didSimulatePhysicsCallback() {
-	return m_didSimulatePhysicsCallback;
-}
-
-void Window::didSimulatePhysicsCallback(WindowDidSimulatePhysicsFuction function) {
-	m_didSimulatePhysicsCallback = function;
-}
-
-WindowWillRenderFuction Window::willRenderCallback() {
-	return m_willRenderCallback;
-}
-
-void Window::willRenderCallback(WindowWillRenderFuction function) {
-	m_willRenderCallback = function;
-}
-
-WindowDidRenderFuction Window::didRenderCallback() {
-	return m_didRenderCallback;
-}
-
-void Window::didRenderCallback(WindowDidRenderFuction function) {
-	m_didRenderCallback = function;
+	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+	// -> ms/frame
+	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
+	
+	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	
+	if (secondsAccum >= frameTimeMS/1000.0) {
+		
+		auto frame = snapshot();
+		
+		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
+		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
+						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
+		
+		// gif-h frame time is in 100ths of a second
+		GifWriteFrame(i_gifWriter, resizedFrameData,
+					  m_gifRecordingWidth, m_gifRecordingHeight,
+					  (secondsAccum*1000.0)/10.0);
+		
+		++m_gifRecordedFrames;
+		
+		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
+		secondsAccum = 0;
+	}
 }
 
 /***************************************************************************************
-     MARK:   Private
- **************************************************************************************/
+     Private
+ ***************************************************************************************/
 
 void Window::initFontstash() {
 
@@ -559,67 +457,6 @@ void Window::initFontstash() {
 	}
 }
 
-void Window::setupRenderBuffer() {
-	
-	return;
-	
-	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-
-	// render framebuffer
-	
-	glGenFramebuffers(1, &m_renderFramebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
-	
-	// render texture
-	
-	GLuint renderTexture;
-	glGenTextures(1, &renderTexture);
-	
-	glBindTexture(GL_TEXTURE_2D, renderTexture);
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
-	// new from antoin {
-//	glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
-//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture, 0);
-	// }
-	
-	// render depth buffer
-	
-	// ORIGINAL
-	GLuint depthRenderBuffer;
-	glGenRenderbuffers(1, &depthRenderBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
-
-	
-	
-	// setup draw buffer
-	
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture, 0);
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
-	
-	GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fbStatus == GL_FRAMEBUFFER_COMPLETE) {
-		AE_LOG->info("Render framebuffer created.");
-	}
-	else {
-		//char errMsg[1024];
-		//sprintf(errMsg, "Error creating render framebuffer: %s\n", fbStatus);
-		AE_LOG->critical("Error creating render framebuffer: {}", fbStatus);
-		//throw Exception(errMsg);
-	}
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void Window::mainLoop() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");
@@ -629,7 +466,7 @@ void Window::mainLoop() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	if (m_updateCallback) m_updateCallback(*m_scene, glfwGetTime());
+	if (m_updateCallback) m_updateCallback(*this, *m_scene, glfwGetTime());
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -645,41 +482,27 @@ void Window::mainLoop() {
 		physicsWorld->step();
 		
 		if (m_didSimulatePhysicsCallback) {
-			m_didSimulatePhysicsCallback(*m_scene, glfwGetTime());
+			m_didSimulatePhysicsCallback(*this, *m_scene, glfwGetTime());
 		}
 	}
 	
 	CheckGLError();
 	
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_renderFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glReadBuffer(GL_COLOR_ATTACHMENT0);
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
-//	glViewport(0, 0, m_width, m_height);
-//	glClearColor(1.0, 0, 0, 1.0);
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (m_willRenderCallback) m_willRenderCallback(*m_scene, glfwGetTime());
+	if (m_willRenderCallback) m_willRenderCallback(*this, *m_scene, glfwGetTime());
 	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
 	if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
-
-//	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_renderFramebuffer);
-//	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-//
-//	glBlitFramebuffer(0, 0, m_width, m_height,
-//					  0, 0, m_framebufferWidth, m_framebufferHeight,
-//					  GL_COLOR_BUFFER_BIT, GL_NEAREST); // must be GL_NEAREST for integer format data
-//
-//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	glfwSwapBuffers(i_glfwWindow);
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	if (m_didRenderCallback) m_didRenderCallback(*m_scene, glfwGetTime());
+	if (m_didRenderCallback) m_didRenderCallback(*this, *m_scene, glfwGetTime());
 	
 	glfwPollEvents();
 	if (m_inputManager) m_inputManager->update();
@@ -796,35 +619,3 @@ float Window::drawText(string text, float size, float dx, float dy) {
 	fonsSetBlur(m_fonsContext, 0);
 	return fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
 }
-
-void Window::saveGIFFrame(float deltaSeconds) {
-
-	static float secondsAccum = 0;
-	secondsAccum += deltaSeconds;
-	
-	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
-	// -> ms/frame
-	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-	
-	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
-	
-	if (secondsAccum >= frameTimeMS/1000.0) {
-		
-		auto frame = snapshot();
-		
-		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
-		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
-						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
-		
-		// gif-h frame time is in 100ths of a second
-		GifWriteFrame(i_gifWriter, resizedFrameData,
-					  m_gifRecordingWidth, m_gifRecordingHeight,
-					  (secondsAccum*1000.0)/10.0);
-		
-		++m_gifRecordedFrames;
-		
-		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
-		secondsAccum = 0;
-	}
-}
-

@@ -19,8 +19,8 @@ using namespace std;
 
 
 /***************************************************************************************
-	MARK:   Lifecycle
- **************************************************************************************/
+	Lifecycle
+ ***************************************************************************************/
 
 SkyboxMaterial::SkyboxMaterial(shared_ptr<MaterialProperty> cubeProperty):
 Material(nullptr, nullptr, nullptr, Program::Skybox()),
@@ -29,8 +29,8 @@ Material(nullptr, nullptr, nullptr, Program::Skybox()),
 }
 
 /***************************************************************************************
-   	MARK:   Internal
- **************************************************************************************/
+   	Internal
+ ***************************************************************************************/
 
 std::shared_ptr<MaterialProperty> SkyboxMaterial::cubeProperty() const {
 	return m_cubeProperty;
@@ -41,8 +41,8 @@ void SkyboxMaterial::cubeProperty(std::shared_ptr<MaterialProperty> property) {
 }
 
 /***************************************************************************************
-     MARK:   Material
- **************************************************************************************/
+     Material
+ ***************************************************************************************/
 
 void SkyboxMaterial::prepareToRender(DEBUG_OPTIONS debugOptions) const {
 	
