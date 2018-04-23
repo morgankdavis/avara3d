@@ -86,13 +86,6 @@ typedef struct {
      Static
  ***************************************************************************************/
 
-//shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
-//	auto scene = make_shared<Scene>();
-//	scene->rootNode(make_shared<Node>("Root node"));
-//	scene->loadFile(path);
-//	return scene;
-//}
-
 static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath) {
 
@@ -137,7 +130,6 @@ static shared_ptr<Image> MissingTextureImage() {
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath) {
-
 	// TODO: Clean up
 	// this is hacky...
 //#define AI_MATKEY_COLOR_DIFFUSE "$clr.diffuse",0,0
@@ -215,14 +207,6 @@ static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType) {
 		default: return LIGHT_TYPE::POINT;
 	}
 }
-
-
-
-
-
-
-
-
 
 static void AddAIGeometryNodeRec(Scene& scene,
 								 const aiScene* aiScene,
@@ -312,8 +296,7 @@ static void AddAIGeometryNodes(Scene& scene,
 
 
 
-static void LoadFile(Scene& scene,
-					 const boost::filesystem::path& importPath) {
+static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
 	///cout << "Loading scene: " << importPath << endl;
 	AE_LOG->info("Loading scene: {}", importPath.string());
@@ -506,10 +489,6 @@ static void LoadFile(Scene& scene,
 	aiReleaseImport(aiScene);
 }
 
-
-
-
-
 shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -517,14 +496,6 @@ shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	LoadFile(*scene, path);
 	return scene;
 }
-
-
-
-
-
-
-
-
 
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
 	
@@ -569,21 +540,6 @@ Scene::Scene():
 		glGenBuffers(1, &ubo);
 		m_glEnvironmentUBO = ubo;
 }
-
-//Scene::Scene(const boost::filesystem::path& path):
-//	Scene() {
-//	//m_rootNode(make_shared<Node>("Root node")) {
-//
-////		uint32 ubo;
-////		glGenBuffers(1, &ubo);
-////		m_glEnvironmentUBO = ubo;
-//		
-//		loadFile(path);
-//}
-
-//Scene::Scene(DummyInit& dummy) {
-//	
-//}
 
 /***************************************************************************************
      Public
@@ -771,27 +727,12 @@ vec3 Scene::extent() const {
 				bp["zMax"].z - bp["zMin"].z);
 }
 
-//void Scene::attachedToWindow(shared_ptr<Window> window) {
-//	m_window = window;
-//	if (m_physicsWorld) {
-//		m_physicsWorld->attachedToScene(shared_from_this());
-//	}
-//}
-
 void Scene::attachedToRenderer(shared_ptr<Renderer> renderer) {
 	m_renderer = renderer;
 	if (m_physicsWorld) {
 		m_physicsWorld->attachedToScene(shared_from_this());
 	}
 }
-
-//weak_ptr<Window> Scene::window() const {
-//	return m_window;
-//}
-//
-//void Scene::window(shared_ptr<Window> window) {
-//	m_window = window;
-//}
 
 weak_ptr<Renderer> Scene::renderer() const {
 	return m_renderer;

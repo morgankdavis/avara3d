@@ -91,11 +91,8 @@ namespace ae {
 		
 		glm::vec3 extent() const;
 		
-		//void attachedToWindow(std::shared_ptr<Window> window);
 		void attachedToRenderer(std::shared_ptr<Renderer> renderer);
 		
-//		std::weak_ptr<Window> window() const;
-//		void window(std::shared_ptr<Window> window);
 		std::weak_ptr<Renderer> renderer() const;
 		void renderer(std::shared_ptr<Renderer> renderer);
 		
@@ -120,7 +117,6 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
-		//std::weak_ptr<Window>					m_window;
 		std::weak_ptr<Renderer>					m_renderer;
 	};
 }

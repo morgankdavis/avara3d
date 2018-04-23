@@ -239,17 +239,14 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, *(renderer.scene()));
 	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, *(renderer.scene()));
 	
-	
 	if 		(keysPressed.count(KEY::F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
 	else if (keysPressed.count(KEY::F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
 	else if (keysPressed.count(KEY::F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
-	
 	
 	if 		(keysPressed.count(KEY::F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysPressed.count(KEY::F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);
 	else if (keysPressed.count(KEY::F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
 
-	
 	if (keysPressed.count(KEY::F)) {
 		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
@@ -274,7 +271,6 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 			renderer.debugOptions(DEBUG_OPTIONS_ADD(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
-
 	
 	if (keysPressed.count(KEY::V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));
@@ -311,7 +307,6 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 		
 		const static float mouseSensitivity = (1.0f / 0.5f);
 		
-		
 		if (!m_cameraNode) {
 			for (auto n : renderer.scene()->rootNode()->childNodes(false)) {
 				if (n->camera()) {
@@ -322,8 +317,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 		}
 		
 		if (m_cameraNode) {
-			
-			
+
 			//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
 			
 			// look

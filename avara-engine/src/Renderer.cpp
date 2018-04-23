@@ -51,7 +51,6 @@ shared_ptr<Scene> Renderer::scene() const {
 void Renderer::scene(const shared_ptr<Scene> scene) {
 	scene->attachedToRenderer(shared_from_this());
 	m_scene = scene;
-	
 }
 
 bool Renderer::vSyncEnabled() const {
