@@ -42,14 +42,9 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-//		Window(std::shared_ptr<Scene> scene,
-//			   unsigned width, unsigned height,
-//			   bool fullScreen,
-//			   bool useHighDPI = true,
-//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
-		
 		Window(bool fullScreen, unsigned width, unsigned height,
-			   bool useHighDPI = true, ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
+			   bool useHighDPI = true,
+			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 		~Window();
 		
 		/***************************************************************************************
@@ -122,6 +117,12 @@ namespace ae {
 		FONScontext* 						m_fonsContext;
 		int									m_fonsFont;
 		bool								m_cursorCaptured;
+		
+		bool								m_recordingGIF;
+		unsigned							m_gifRecordingWidth;
+		unsigned							m_gifRecordingHeight;
+		unsigned							m_gifRecordingMaxFramerate;
+		unsigned							m_gifRecordedFrames;
 	};
 }
 

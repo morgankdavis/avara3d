@@ -28,10 +28,10 @@ namespace ae {
 	class Scene;
 	
 	
-	using RendererUpdateFuction = std::function<void(Renderer& renderer, Scene& scene, float time)>;
-	using RendererDidSimulatePhysicsFuction = std::function<void(Renderer& renderer, Scene& scene, float time)>;
-	using RendererWillRenderFuction = std::function<void(Renderer& renderer, Scene& scene, float time)>;
-	using RendererDidRenderFuction = std::function<void(Renderer& renderer, Scene& scene, float time)>;
+	using RendererUpdateFuction = std::function<void(Renderer& renderer, float time)>;
+	using RendererDidSimulatePhysicsFuction = std::function<void(Renderer& renderer, float time)>;
+	using RendererWillRenderFuction = std::function<void(Renderer& renderer, float time)>;
+	using RendererDidRenderFuction = std::function<void(Renderer& renderer, float time)>;
 
 	
 	class Renderer : public std::enable_shared_from_this<Renderer> {
@@ -101,13 +101,7 @@ namespace ae {
 		std::shared_ptr<Node>				m_pointOfView;
 		bool								m_vSyncEnabled;
 		float 								m_maximumFramerate;
-		
-		bool								m_recordingGIF;
-		unsigned							m_gifRecordingWidth;
-		unsigned							m_gifRecordingHeight;
-		unsigned							m_gifRecordingMaxFramerate;
-		unsigned							m_gifRecordedFrames;
-		
+
 		RendererUpdateFuction				m_updateCallback;
 		RendererDidSimulatePhysicsFuction	m_didSimulatePhysicsCallback;
 		RendererWillRenderFuction 			m_willRenderCallback;

@@ -71,29 +71,10 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
      Lifescycle
  ***************************************************************************************/
 
-//Window::Window(shared_ptr<Scene> scene,
-//			   unsigned width, unsigned height,
-//			   bool fullScreen,
-//			   bool useHighDPI,
-//			   ANTIALIASING_MODE antialiasingMode) {
-
 Window::Window(bool fullScreen, unsigned width, unsigned height,
 			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
 	Renderer() {
-//	m_scene(make_shared<Scene>()),
-//	m_width(width),
-//	m_height(height),
-//	m_framebufferScale(framebufferScale),
-//	m_framebufferWidth(m_width * m_framebufferScale),
-//	m_framebufferHeight(m_height * m_framebufferScale),
-//	m_antialiasingMode(AntialiasingMode_None),
-//	m_backgroundColor(nullptr),
-//	m_pointOfView(nullptr),
-//	m_inputManager(nullptr),
-//	m_maximumFramerate(60.0),
-//	m_willUpdateCallback(nullptr),
-//	m_didUpdateCallback(nullptr) {
-	
+
 	if (initLog() != 0) { cout << "Error initializing log." << endl; }
 	if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
 	
@@ -155,9 +136,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	m_framebufferHeight = m_height * m_framebufferScale;
 
 	m_antialiasingMode = antialiasingMode;
-	//m_debugOptions = DEBUG_OPTIONS::NONE;
 	m_backgroundColor = nullptr;
-	//m_pointOfView = nullptr;
 	m_inputManager = nullptr;
 
 	m_recordingGIF = false;
@@ -167,8 +146,6 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 	m_gifRecordingHeight = 0;
 	m_gifRecordingMaxFramerate = 0;
 	m_gifRecordedFrames = 0;
-	
-//	this->scene(scene);
 }
 
 Window::~Window() {
@@ -466,7 +443,7 @@ void Window::mainLoop() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	if (m_updateCallback) m_updateCallback(*this, *m_scene, glfwGetTime());
+	if (m_updateCallback) m_updateCallback(*this, glfwGetTime());
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -482,7 +459,7 @@ void Window::mainLoop() {
 		physicsWorld->step();
 		
 		if (m_didSimulatePhysicsCallback) {
-			m_didSimulatePhysicsCallback(*this, *m_scene, glfwGetTime());
+			m_didSimulatePhysicsCallback(*this, glfwGetTime());
 		}
 	}
 	
@@ -492,7 +469,7 @@ void Window::mainLoop() {
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
-	if (m_willRenderCallback) m_willRenderCallback(*this, *m_scene, glfwGetTime());
+	if (m_willRenderCallback) m_willRenderCallback(*this, glfwGetTime());
 	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
@@ -502,7 +479,7 @@ void Window::mainLoop() {
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	if (m_didRenderCallback) m_didRenderCallback(*this, *m_scene, glfwGetTime());
+	if (m_didRenderCallback) m_didRenderCallback(*this, glfwGetTime());
 	
 	glfwPollEvents();
 	if (m_inputManager) m_inputManager->update();

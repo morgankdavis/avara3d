@@ -83,9 +83,9 @@ int Test::run(const vector<string>& args) {
 
 	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
 	//m_window = make_shared<Window>(scene, WINDOW_WIDTH, WINDOW_HEIGHT, FULLSCREEN, USE_HIGH_DPI, ANTIALIAS_MODE);
-	m_window->updateCallback(bind(&Test::rendererUpdateCallback, this, _1, _2, _3));
-	m_window->willRenderCallback(bind(&Test::rendererWillRenderCallback, this, _1, _2, _3));
-	m_window->didRenderCallback(bind(&Test::rendererDidRenderCallback, this, _1, _2, _3));
+	m_window->updateCallback(bind(&Test::rendererUpdateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::rendererWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::rendererDidRenderCallback, this, _1, _2));
 	m_window->captureCursor(true);
 	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
@@ -215,7 +215,7 @@ int Test::run(const vector<string>& args) {
      Window Callbacks
  ***************************************************************************************/
 
-void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) {
+void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -229,15 +229,15 @@ void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) 
 		exit(0);
 	}
 	
-	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, scene);
-	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, scene);
-	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, scene);
-	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
+	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderer.scene()));
+	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, *(renderer.scene()));
+	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, *(renderer.scene()));
+	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, *(renderer.scene()));
+	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, *(renderer.scene()));
+	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, *(renderer.scene()));
 	
-	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
-	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
+	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, *(renderer.scene()));
+	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, *(renderer.scene()));
 	
 	
 	if 		(keysPressed.count(KEY::F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
@@ -313,7 +313,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) 
 		
 		
 		if (!m_cameraNode) {
-			for (auto n : scene.rootNode()->childNodes(false)) {
+			for (auto n : renderer.scene()->rootNode()->childNodes(false)) {
 				if (n->camera()) {
 					m_cameraNode = n;
 					break;
@@ -344,7 +344,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) 
 			
 			//		const static float MOVE_SPEED = 5.0f; // units/sec
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
+			if (!MOVE_SPEED) MOVE_SPEED = Max(renderer.scene()->extent());
 			
 			if(keysDown.count(KEY::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
@@ -391,10 +391,10 @@ void Test::rendererUpdateCallback(Renderer& renderer, Scene& scene, float time) 
 	}
 }
 
-void Test::rendererWillRenderCallback(Renderer& renderer, Scene& scene, float time) {
+void Test::rendererWillRenderCallback(Renderer& renderer, float time) {
 
 }
 
-void Test::rendererDidRenderCallback(Renderer& renderer, Scene& scene, float time) {
+void Test::rendererDidRenderCallback(Renderer& renderer, float time) {
 
 }
