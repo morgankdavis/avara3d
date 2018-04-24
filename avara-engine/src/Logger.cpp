@@ -60,13 +60,13 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 			
 			vector<sink_ptr> sinks;
 			
-			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::STDOUT)) {
+			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::STDOUT)) {
 				sinks.push_back(i_spdlogSTDOUTSink);
 			}
-			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::MAIN_FILE)) {
+			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::MAIN_FILE)) {
 				sinks.push_back(i_spdlogMainFileSink);
 			}
-			if (LOGGER_SINKS_CONTAIN(m_sinks, LOGGER_SINKS::NAMED_FILE)) {
+			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::NAMED_FILE)) {
 				// not that since we're not saving this, another sink could be created with the same file name!
 				sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(name + ".log",
 																		  LOG_FILE_SIZE,

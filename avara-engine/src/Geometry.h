@@ -28,6 +28,7 @@ namespace ae {
 	class Material;
 	class Node;
     class Program;
+	class Renderer;
 
 
 	class Geometry {
@@ -72,6 +73,11 @@ namespace ae {
 		void generateSmoothNormals();
 		void generateFlatNormals();
 		
+		void draw(Renderer& renderer,
+				  const glm::mat4& modelMat,
+				  const glm::mat4& viewMat,
+				  const glm::mat4& projectionMat);
+		
 		void draw(const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
@@ -91,6 +97,11 @@ namespace ae {
 		//void node(std::shared_ptr<Node> node);
 		
 		void attachedToNode(std::shared_ptr<Node> node);
+		
+		// EXPERIMENTAL
+		
+		GEOMETRY_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
 
 	protected:
 
@@ -98,8 +109,8 @@ namespace ae {
 		     Protected
 		 ***************************************************************************************/
 
-		std::vector<std::shared_ptr<GeometryElement>>			m_elements;
-		std::vector<std::shared_ptr<Material>>					m_materials;
+		std::vector<std::shared_ptr<GeometryElement>>		m_elements;
+		std::vector<std::shared_ptr<Material>>				m_materials;
 
 	private:
 
@@ -107,10 +118,14 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 
-		boost::optional<std::string>							m_name;
-		unsigned												m_glAABBVBO;
-        int                                                		m_glAABBVAO;
-		std::weak_ptr<Node>										m_node;
+		boost::optional<std::string>						m_name;
+		unsigned											m_glAABBVBO;
+        int                                                	m_glAABBVAO;
+		std::weak_ptr<Node>									m_node;
+		
+		// EXPERIMENTAL
+		
+		GEOMETRY_DIRTY_BITS									m_dirtyBits;
 	};
 }
 

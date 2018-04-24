@@ -81,15 +81,9 @@ namespace ae {
 		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
 	};
 	
-//#define DEBUG_OPTIONS_TO_RAW(option) (static_cast<unsigned>(option))
-//#define DEBUG_OPTIONS_FROM_RAW(raw) (static_cast<DEBUG_OPTIONS>(raw))
-#define DEBUG_OPTIONS_CONTAIN(options, option) (static_cast<unsigned>(options) & static_cast<unsigned>(option))
+#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<unsigned>(options) & static_cast<unsigned>(option))
 #define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) | static_cast<unsigned>(option)))
 #define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) & ~ static_cast<unsigned>(option)))
-	
-//	inline bool DEBUG_OPTIONS_CONTAIN(DEBUG_OPTIONS options, DEBUG_OPTIONS option) { return (static_cast<int>(options) & static_cast<int>(option)); }
-//	inline DEBUG_OPTIONS DEBUG_OPTIONS_ADD(DEBUG_OPTIONS options, DEBUG_OPTIONS option) { return static_cast<DEBUG_OPTIONS>(static_cast<int>(options) | static_cast<int>(option)); }
-//	inline DEBUG_OPTIONS DEBUG_OPTIONS_REMOVE(DEBUG_OPTIONS options, DEBUG_OPTIONS option) { return static_cast<DEBUG_OPTIONS>(static_cast<int>(options) & ~ static_cast<int>(option)); }
 	
 	enum class LOGGER_SINKS : unsigned {
 		NONE =			0,
@@ -98,7 +92,7 @@ namespace ae {
 		STDOUT = 		1 << 2
 	};
 	
-#define LOGGER_SINKS_CONTAIN(sinks, sink) (static_cast<unsigned>(sinks) & static_cast<unsigned>(sink))
+#define LOGGER_SINKS_CONTAINS(sinks, sink) (static_cast<unsigned>(sinks) & static_cast<unsigned>(sink))
 #define LOGGER_SINKS_ADD(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) | static_cast<unsigned>(sink)))
 #define LOGGER_SINKS_REMOVE(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) & ~ static_cast<unsigned>(sink)))
 
@@ -126,6 +120,7 @@ namespace ae {
 		CONCAVE_POLYHEDRON =	2
 	};
 	
+// get rid of this? or make this patter universal...
 #define PHYSICS_SHAPE_TYPE_TO_RAW(type) (static_cast<unsigned>(type))
 #define PHYSICS_SHAPE_TYPE_FROM_RAW(raw) (static_cast<PHYSICS_SHAPE_TYPE>(raw))
 	
@@ -279,6 +274,51 @@ namespace ae {
 		unsigned lights;
 		glm::vec3 cameraPosition;
 	} DrawStats;
+		
+		
+		
+		
+		
+	/************* EXPERIMENTAL *************/
+		
+
+	enum class GEOMETRY_DIRTY_BITS : unsigned {
+		MODEL_MATRIX =		1 << 0, // can be optimized, but just send it every time
+		AABB_VERTEX_DATA =	1 << 1 // can be optimized, or just send it every time?
+	};
+		
+#define GEOMETRY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define GEOMETRY_DIRTY_BITS_ADD(bits, option) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define GEOMETRY_DIRTY_BITS_REMOVE(bits, option) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+
+	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
+		VERTEX_DATA =		1 << 0
+	};
+		
+#define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, option) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, option) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+	
+	enum class MATERIAL_DIRTY_BITS : unsigned {
+		
+	};
+		
+#define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define MATERIAL_DIRTY_BITS_ADD(bits, option) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define MATERIAL_DIRTY_BITS_REMOVE(bits, option) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+	
+	enum class MATERIAL_PROPERTY_DIRTY_BITS : unsigned {
+		CONTENTS = 				1 << 0,
+		MINIFICATION_FILTER = 	1 << 1,
+		MAGNIFICATION_FILTER = 	1 << 2,
+		WRAP_S = 				1 << 3,
+		WRAP_T = 				1 << 4,
+		MAX_ANISTROPY = 		1 << 5
+	};
+		
+#define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, option) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, option) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 }
 
 

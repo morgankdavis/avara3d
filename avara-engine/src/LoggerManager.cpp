@@ -47,13 +47,13 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 		vector<sink_ptr> sinks;
 		
 		LOGGER_SINKS sinksBitmask = logger->sinks();
-		if (LOGGER_SINKS_CONTAIN(sinksBitmask, LOGGER_SINKS::STDOUT)) {
+		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::STDOUT)) {
 			sinks.push_back(m_stdoutSink);
 		}
-		if (LOGGER_SINKS_CONTAIN(sinksBitmask, LOGGER_SINKS::MAIN_FILE)) {
+		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::MAIN_FILE)) {
 			sinks.push_back(m_mainFileSink);
 		}
-		if (LOGGER_SINKS_CONTAIN(sinksBitmask, LOGGER_SINKS::NAMED_FILE)) {
+		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::NAMED_FILE)) {
 			// not that since we're not saving this, another sink could be created with the same file name!
 			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(logger->name() + ".log",
 																	  LOG_FILE_SIZE,

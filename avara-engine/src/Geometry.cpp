@@ -20,6 +20,7 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "Program.h"
+#include "Renderer.h"
 #include "Utilities.h"
 
 
@@ -158,6 +159,13 @@ void Geometry::generateFlatNormals() {
 	for (auto element : elements()) {
 		element->generateFlatNormals();
 	}
+}
+
+void Geometry::draw(Renderer& renderer,
+					const mat4& modelMat,
+					const mat4& viewMat,
+					const mat4& projectionMat) {
+	
 }
 
 void Geometry::draw(const mat4& modelMat,
@@ -344,4 +352,14 @@ weak_ptr<Node> Geometry::node() const {
 
 void Geometry::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
+}
+
+// EXPERIMENTAL
+
+GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void Geometry::dirtyBits(GEOMETRY_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

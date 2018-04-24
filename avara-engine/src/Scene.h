@@ -82,6 +82,8 @@ namespace ae {
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
+
+		void draw(Renderer& renderer);		
 		
 		void draw(std::shared_ptr<Node> pointOfView,
 				  DEBUG_OPTIONS& debugOptions,

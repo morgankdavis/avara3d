@@ -13,26 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
+
 		Create Renderer and use visitor pattern
 			https://gamedev.stackexchange.com/questions/62980/separating-game-data-logic-from-rendering?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+				-> Vite Falcon's answer?
 			Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
-
-
-
-
-		NOTES:
-			Renderer::scene()
-				scene->attachedToWindow(shared_from_this());
-				scene->attachedToRenderer(shared_from_this());
-			AND Window::scene()
-
-
-			Renderer
-				Knows nothing about open GL, GLFW
-
-			Window
-	
-
 
 
 		ANDROID!

@@ -23,6 +23,7 @@ namespace ae {
 
 	class Material;
 	class Program;
+	class Renderer;
 	
 
 	class GeometryElement {
@@ -41,6 +42,12 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
+		void draw(Renderer& renderer,
+				  const glm::mat4& modelMat,
+				  const glm::mat4& viewMat,
+				  const glm::mat4& projectionMat,
+				  Material& material);
+		
 		void draw(const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
@@ -58,6 +65,11 @@ namespace ae {
 		std::vector<Vertex>& vertices();
 		std::vector<Face>& faces();
 		
+		// EXPERIMENTAL
+		
+		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
+		
 	protected:
 		
 		/***************************************************************************************
@@ -70,6 +82,9 @@ namespace ae {
 		unsigned								m_glVAO;
 		unsigned								m_glIBO;
 
+		// EXPERIMENTAL
+		
+		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
 	};
 }
 

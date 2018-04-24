@@ -10,6 +10,7 @@
 
 
 #include "Camera.h"
+#include "Geometry.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Node.h"
@@ -162,6 +163,10 @@ void Renderer::didRenderCallback(RendererDidRenderFuction function) {
 /**************************************************************************************
      Internal
  ***************************************************************************************/
+
+void Renderer::render(Geometry& geometry) {
+	
+}
 
 shared_ptr<Node> Renderer::defaultPointOfView() {
 	AE_LOG->critical("Renderer::defaultPointOfView() must be overidden in derived class.");

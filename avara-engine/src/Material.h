@@ -95,6 +95,11 @@ namespace ae {
 		std::shared_ptr<Program> selectProgram(DEBUG_OPTIONS debugOptions);
 		void prepareToRender(DEBUG_OPTIONS debugOptions);
 		
+		// EXPERIMENTAL
+		
+		MATERIAL_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(MATERIAL_DIRTY_BITS bits);
+		
 	protected:
 		
 		/***************************************************************************************
@@ -121,6 +126,10 @@ namespace ae {
 		bool 								m_doubleSided;
 		FILL_MODE 							m_fillMode;
 		float 								m_uvScale;
+		
+		// EXPERIMENTAL
+		
+		MATERIAL_DIRTY_BITS					m_dirtyBits;
 	};
 }
 

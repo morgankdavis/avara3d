@@ -17,6 +17,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Program.h"
+#include "Renderer.h"
 #include "Types.h"
 #include "Utilities.h"
 
@@ -51,6 +52,14 @@ GeometryElement::~GeometryElement() {
 /***************************************************************************************
      Internal
  ***************************************************************************************/
+
+void GeometryElement::draw(Renderer& renderer,
+						   const mat4& modelMat,
+						   const mat4& viewMat,
+						   const mat4& projectionMat,
+						   Material& material) {
+	
+}
 
 void GeometryElement::draw(const mat4& modelMat,
 						   const mat4& viewMat,
@@ -243,4 +252,14 @@ vector<Vertex>& GeometryElement::vertices() {
 
 vector<Face>& GeometryElement::faces() {
 	return m_faces;
+}
+
+// EXPERIMENTAL
+
+GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

@@ -22,6 +22,7 @@ namespace ae {
 
 	
 	class Camera;
+	class Geometry;
 	class Image;
 	class Node;
 	class Renderer;
@@ -48,7 +49,7 @@ namespace ae {
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
-
+			
 		virtual std::shared_ptr<Scene> scene() const;
 		virtual void scene(const std::shared_ptr<Scene> scene);
 		
@@ -87,6 +88,8 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
+		void render(Geometry& geometry);
+		
 		virtual std::shared_ptr<Node> defaultPointOfView();
 		virtual void saveGIFFrame(float deltaSeconds);
 		

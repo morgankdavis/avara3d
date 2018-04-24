@@ -73,6 +73,11 @@ namespace ae {
 		void loadTexture();
 		void bind(MATERIAL_PROPERTY_TYPE type, Program& program);
 		
+		// EXPERIMENTAL
+		
+		MATERIAL_PROPERTY_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
+		
 	private:
 		
 		/***************************************************************************************
@@ -90,6 +95,10 @@ namespace ae {
 		WRAP_MODE												m_wrapT;
 		
 		unsigned												m_glTextureID;
+		
+		// EXPERIMENTAL
+		
+		MATERIAL_PROPERTY_DIRTY_BITS							m_dirtyBits;
 	};
 }
 

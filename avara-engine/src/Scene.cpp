@@ -624,6 +624,10 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
      Internal
  ***************************************************************************************/
 
+void Scene::draw(Renderer& renderer) {
+	
+}
+
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DEBUG_OPTIONS& debugOptions,
 				 DrawStats& stats) {

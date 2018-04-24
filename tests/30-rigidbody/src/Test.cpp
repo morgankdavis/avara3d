@@ -556,7 +556,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
@@ -564,7 +564,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
@@ -572,7 +572,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
@@ -580,7 +580,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::P)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 		else {
@@ -588,7 +588,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::G)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 		else {
@@ -596,7 +596,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::C)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 		else {
@@ -604,7 +604,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::N)) {
-		if (DEBUG_OPTIONS_CONTAIN(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
 			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 		else {

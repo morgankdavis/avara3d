@@ -392,3 +392,13 @@ void MaterialProperty::bind(MATERIAL_PROPERTY_TYPE type, Program& program) {
 		program.setUniform(colorUniformName.c_str(), m_color->r, m_color->g, m_color->b);
 	}
 }
+
+// EXPERIMENTAL
+
+MATERIAL_PROPERTY_DIRTY_BITS MaterialProperty::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void MaterialProperty::dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
+}

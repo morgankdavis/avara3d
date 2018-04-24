@@ -207,7 +207,7 @@ void Material::program(shared_ptr<Program> program) {
 
 shared_ptr<Program> Material::selectProgram(DEBUG_OPTIONS debugOptions) {
 	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
-	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		m_program = Program::Wireframe();
 		glEnable(GL_LINE_SMOOTH);
 	}
@@ -222,7 +222,7 @@ void Material::prepareToRender(DEBUG_OPTIONS debugOptions) {
 	AE_LOG->trace("prepareToRender()");
 	
 	//if ((unsigned)debugOptions | (unsigned)DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES) {
-	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 		//glDepthRange(0.1, 1.0);
@@ -231,7 +231,7 @@ void Material::prepareToRender(DEBUG_OPTIONS debugOptions) {
 	}
 
 	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
-	if (DEBUG_OPTIONS_CONTAIN(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//m_program = Program::Wireframe();
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -286,4 +286,14 @@ void Material::prepareToRender(DEBUG_OPTIONS debugOptions) {
 			m_emissive->bind(MATERIAL_PROPERTY_TYPE::EMISSIVE, *m_program);
 		}
 	}
+}
+
+// EXPERIMENTAL
+
+MATERIAL_DIRTY_BITS Material::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void Material::dirtyBits(MATERIAL_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

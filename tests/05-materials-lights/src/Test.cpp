@@ -248,7 +248,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 	else if (keysPressed.count(KEY::F3)) 	m_pointLightNode->light()->attenuationFactor(0.00005);
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
@@ -256,7 +256,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
@@ -264,7 +264,7 @@ void Test::rendererUpdateCallback(Renderer& renderer, float time) {
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAIN(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 			renderer.debugOptions(DEBUG_OPTIONS_REMOVE(renderer.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
