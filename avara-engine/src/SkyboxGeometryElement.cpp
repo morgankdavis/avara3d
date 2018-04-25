@@ -49,7 +49,7 @@ SkyboxGeometryElement::~SkyboxGeometryElement() {
 void SkyboxGeometryElement::draw(const mat4& viewMat,
 								 const mat4& projectionMat,
 								 const SkyboxMaterial& material,
-								 DrawStats& stats) {
+								 RenderStats& stats) {
 	
 	auto program = material.program();
 	

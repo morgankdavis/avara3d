@@ -87,10 +87,11 @@ namespace ae {
 		
 		void draw(std::shared_ptr<Node> pointOfView,
 				  DEBUG_OPTIONS& debugOptions,
-				  DrawStats& stats);
+				  RenderStats& stats);
+		
+		std::shared_ptr<SkyboxGeometry>	skyboxGeometry() const;
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
-		
 		glm::vec3 extent() const;
 		
 		void attachedToRenderer(std::shared_ptr<Renderer> renderer);
@@ -104,7 +105,7 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		void bindEnvironment(const Node& pointOfView, DrawStats& stats) const;
+		void bindEnvironment(const Node& pointOfView, RenderStats& stats) const;
 		
 		std::shared_ptr<Node>					m_rootNode;
 		std::shared_ptr<MaterialProperty>		m_background;

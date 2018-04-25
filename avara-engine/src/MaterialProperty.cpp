@@ -87,7 +87,8 @@ m_wrapS(WRAP_MODE::REPEAT),
 	m_magnificationFilter(FILTER_MODE::LINEAR),
 //	m_mipFilter(WrapMode_Linear),
 	m_maxAnisotropy(16),
-	m_glTextureID(0) {
+	m_glTextureID(0),
+	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 
 		this->image(image);
 }
@@ -101,7 +102,8 @@ MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
 	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
 	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
-	m_glTextureID(0) {
+	m_glTextureID(0),
+	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
 }
 
@@ -114,7 +116,8 @@ MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<I
 	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
 	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
-	m_glTextureID(0) {
+	m_glTextureID(0),
+	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
 		this->cube(cube);
 }
@@ -135,6 +138,10 @@ shared_ptr<Image> MaterialProperty::image() const {
 }
 
 void MaterialProperty::image(const shared_ptr<Image> image) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+	
 	m_image = image;
 	//m_image->load(true);
 	loadTexture();
@@ -145,6 +152,10 @@ shared_ptr<Color> MaterialProperty::color() const {
 }
 
 void MaterialProperty::color(const shared_ptr<Color> color) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+	
 	m_color = color;
 }
 
@@ -153,6 +164,10 @@ shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
 }
 
 void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+	
 	m_cube = cube;
 //	for (auto image : *cube) {
 //		image->load(false);
@@ -165,6 +180,10 @@ FILTER_MODE MaterialProperty::minificationFilter() const {
 }
 
 void MaterialProperty::minificationFilter(FILTER_MODE mode) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER);
+	
 	m_minificationFilter = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -189,6 +208,10 @@ FILTER_MODE MaterialProperty::magnificationFilter() const {
 }
 
 void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER);
+	
 	m_magnificationFilter = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -212,6 +235,10 @@ float MaterialProperty::maxAnisotropy() const {
 }
 
 void MaterialProperty::maxAnisotropy(float max) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY);
+	
 	float anisotropy = max;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -230,6 +257,10 @@ WRAP_MODE MaterialProperty::wrapS() const {
 }
 
 void MaterialProperty::wrapS(WRAP_MODE mode) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S);
+	
 	m_wrapS = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -243,6 +274,10 @@ WRAP_MODE MaterialProperty::wrapT() const {
 }
 
 void MaterialProperty::wrapT(WRAP_MODE mode) {
+	// EXPERIMENTAL
+	MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+									 MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T);
+	
 	m_wrapT = mode;
 	
 	GLenum texType = (m_cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);

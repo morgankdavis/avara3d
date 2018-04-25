@@ -44,7 +44,8 @@ Geometry::Geometry():
 	m_elements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()),
     m_glAABBVAO(-1),
-	m_node(weak_ptr<Node>()) {
+	m_node(weak_ptr<Node>()),
+	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
 
@@ -54,7 +55,8 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 	m_elements(elements),
 	m_materials(materials),
     m_glAABBVAO(-1),
-	m_node(weak_ptr<Node>()) {
+	m_node(weak_ptr<Node>()),
+	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 		
 		loadVertexData();
 }
@@ -148,23 +150,50 @@ void Geometry::hardTransform(mat4 t, bool norm) {
 	}
 }
 
-void Geometry::generateSmoothNormals() {
-	for (auto element : elements()) {
-		element->generateSmoothNormals();
-	}
-}
+//void Geometry::generateSmoothNormals() {
+//	for (auto element : elements()) {
+//		element->generateSmoothNormals();
+//	}
+//}
 
-void Geometry::generateFlatNormals() {
-	
-	for (auto element : elements()) {
-		element->generateFlatNormals();
-	}
-}
+//void Geometry::generateFlatNormals() {
+//	
+//	for (auto element : elements()) {
+//		element->generateFlatNormals();
+//	}
+//}
 
 void Geometry::draw(Renderer& renderer,
 					const mat4& modelMat,
 					const mat4& viewMat,
 					const mat4& projectionMat) {
+	
+//	renderer.render(*this);
+	
+	unsigned numElements = m_elements.size();
+	renderer.renderStats().meshes += numElements;
+	
+	for (int e=0; e < numElements; ++e) {
+		
+		auto element = m_elements[e];
+		shared_ptr<Material> material = nullptr;
+		if (m_materials.size() > e) {
+			material = m_materials[e];
+		}
+		else {
+			material = Material::DefaultMaterial();
+		}
+		
+		//mat4 modelMat = node().lock()->worldTransform();
+		element->draw(renderer, *material, modelMat, viewMat, projectionMat);
+		
+//		element->draw(modelMat, viewMat, projectionMat,
+//					  *material, glEnvironmentUBO, debugOptions, stats);
+	}
+	
+//	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {
+//		drawAABB(modelMat, viewMat, projectionMat);
+//	}
 	
 }
 
@@ -173,7 +202,7 @@ void Geometry::draw(const mat4& modelMat,
 					const mat4& projectionMat,
 					int glEnvironmentUBO,
 					DEBUG_OPTIONS debugOptions,
-					DrawStats& stats) {
+					RenderStats& stats) {
 	
 	unsigned numElements = m_elements.size();
 	stats.meshes += numElements;

@@ -70,8 +70,8 @@ namespace ae {
 		void loadVertexData();
 
 		void hardTransform(glm::mat4 t, bool norm);
-		void generateSmoothNormals();
-		void generateFlatNormals();
+		//void generateSmoothNormals();
+		//void generateFlatNormals();
 		
 		void draw(Renderer& renderer,
 				  const glm::mat4& modelMat,
@@ -83,7 +83,7 @@ namespace ae {
 				  const glm::mat4& projectionMat,
 				  int glEnvironmentUBO,
 				  DEBUG_OPTIONS debugOptions,
-				  DrawStats& stats);
+				  RenderStats& stats);
 		
 		void drawAABB(const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,

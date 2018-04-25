@@ -15,10 +15,15 @@ Tests:
 
 
 		Create Renderer and use visitor pattern
-			https://gamedev.stackexchange.com/questions/62980/separating-game-data-logic-from-rendering?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-				-> Vite Falcon's answer?
-			Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
+			MOVE DRAW LOOP INTO RENDERER
+			Remove SkyboxGeometry, etc
+			bindEnvironment
+			How to be track resource destruction?
 
+		Renderer -> Presenter
+		Window -> WindowPresenter
+
+		Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
 
 		ANDROID!
 			Get android compiling

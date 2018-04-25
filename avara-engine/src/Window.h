@@ -83,7 +83,7 @@ namespace ae {
 		
 		/**************************************************************************************
 		     Renderer
-		 ***************************************************************************************/
+		 **************************************************************************************/
 		
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
@@ -103,7 +103,7 @@ namespace ae {
 
 		void initFontstash();
 		void mainLoop();
-		void updateStatsOverlay(DrawStats& stats);
+		void updateStatsOverlay(RenderStats& stats);
 		float drawText(std::string text, float size, float dx, float dy);
 
 		unsigned							m_width;

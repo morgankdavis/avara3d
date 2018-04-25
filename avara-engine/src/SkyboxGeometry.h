@@ -35,7 +35,7 @@ namespace ae {
 		   	Internal
 		 ***************************************************************************************/
 		
-		void draw(const glm::mat4& viewMat, const glm::mat4& projectionMat, DrawStats& stats);
+		void draw(const glm::mat4& viewMat, const glm::mat4& projectionMat, RenderStats& stats);
 		
 		void material(std::shared_ptr<SkyboxMaterial> material);
 		//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material);

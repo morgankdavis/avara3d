@@ -449,7 +449,7 @@ void Window::mainLoop() {
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
 	
-	DrawStats stats = {};
+	RenderStats stats = {};
 	//stats.cameraPosition = pov->worldPosition();
 	stats.cameraPosition = pov->position();
 	
@@ -485,7 +485,7 @@ void Window::mainLoop() {
 	if (m_inputManager) m_inputManager->update();
 }
 
-void Window::updateStatsOverlay(DrawStats& stats) {
+void Window::updateStatsOverlay(RenderStats& stats) {
 	
 	static float fps = 0.0;
 	static float ms = 0.0;

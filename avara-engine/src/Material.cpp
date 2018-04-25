@@ -75,7 +75,8 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 	m_doubleSided(false),
 	m_fillMode(FILL_MODE::FILL),
 	m_uvScale(1.0f),
-	m_program(program) {
+	m_program(program),
+	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
 		//loadShaderProgram(programName);
 }

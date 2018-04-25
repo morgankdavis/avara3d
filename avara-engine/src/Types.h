@@ -273,7 +273,7 @@ namespace ae {
 		unsigned polygons;
 		unsigned lights;
 		glm::vec3 cameraPosition;
-	} DrawStats;
+	} RenderStats;
 		
 		
 		
@@ -283,29 +283,31 @@ namespace ae {
 		
 
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
-		MODEL_MATRIX =		1 << 0, // can be optimized, but just send it every time
-		AABB_VERTEX_DATA =	1 << 1 // can be optimized, or just send it every time?
+		MODEL_MATRIX =			1 << 0, // not currently used
+		AABB_VERTEX_DATA =		1 << 1, // not currently used
+		ALL = 					UINT_MAX
 	};
 		
 #define GEOMETRY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define GEOMETRY_DIRTY_BITS_ADD(bits, option) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define GEOMETRY_DIRTY_BITS_REMOVE(bits, option) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define GEOMETRY_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 
 	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
-		VERTEX_DATA =		1 << 0
+		VERTEX_DATA =		1 << 0,
+		ALL = 				UINT_MAX
 	};
 		
 #define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, option) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, option) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
 	enum class MATERIAL_DIRTY_BITS : unsigned {
-		
+		ALL = 				UINT_MAX
 	};
 		
 #define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define MATERIAL_DIRTY_BITS_ADD(bits, option) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define MATERIAL_DIRTY_BITS_REMOVE(bits, option) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define MATERIAL_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define MATERIAL_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
 	enum class MATERIAL_PROPERTY_DIRTY_BITS : unsigned {
 		CONTENTS = 				1 << 0,
@@ -313,12 +315,13 @@ namespace ae {
 		MAGNIFICATION_FILTER = 	1 << 2,
 		WRAP_S = 				1 << 3,
 		WRAP_T = 				1 << 4,
-		MAX_ANISTROPY = 		1 << 5
+		MAX_ANISTROPY = 		1 << 5,
+		ALL = 					UINT_MAX
 	};
 		
 #define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, option) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, option) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 }
 
 

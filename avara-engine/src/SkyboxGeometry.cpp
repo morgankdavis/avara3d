@@ -119,7 +119,7 @@ void SkyboxGeometry::material(std::shared_ptr<SkyboxMaterial> material) {
      Geometry
  ***************************************************************************************/
 
-void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, DrawStats& stats) {
+void SkyboxGeometry::draw(const mat4& viewMat, const mat4& projectionMat, RenderStats& stats) {
 
 	GeometryElement geoElem = *(m_elements[0]);
 	SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);

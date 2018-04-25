@@ -99,10 +99,10 @@ namespace ae {
 		void resting(bool flag);
 		
 		float linearSleepingThreshold() const;
-		void setLinearSleepingThreshold(float threshold);
+		void linearSleepingThreshold(float threshold);
 		
 		float angularSleepingThreshold() const;
-		void setAngularSleepingThreshold(float threshold);
+		void angularSleepingThreshold(float threshold);
 		
 		bool allowsResting() const;
 		void allowsResting(bool flag);

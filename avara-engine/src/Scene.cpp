@@ -35,6 +35,7 @@
 #include "PhysicsBody.h"
 #include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
+#include "Renderer.h"
 #include "SkyboxGeometry.h"
 #include "SkyboxMaterial.h"
 #include "Utilities.h"
@@ -294,7 +295,28 @@ static void AddAIGeometryNodes(Scene& scene,
 	}
 }
 
-
+static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
+	
+	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
+	
+	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
+	
+	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
+		return elem1.second < elem2.second;
+	};
+	
+	set<pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
+																lights.end(),
+																compFunctor);
+	
+	auto sortedVector = vector<shared_ptr<Node>>();
+	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
+		//cout << element.first << " :: " << element.second << endl;
+		sortedVector.emplace_back(element.first);
+	}
+	
+	return sortedVector;
+}
 
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
@@ -497,28 +519,28 @@ shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	return scene;
 }
 
-static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
-	
-	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
-	
-	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
-	
-	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
-		return elem1.second < elem2.second;
-	};
-	
-	set<pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
-																lights.end(),
-																compFunctor);
-	
-	auto sortedVector = vector<shared_ptr<Node>>();
-	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
-		//cout << element.first << " :: " << element.second << endl;
-		sortedVector.emplace_back(element.first);
-	}
-	
-	return sortedVector;
-}
+//static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
+//	
+//	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
+//	
+//	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
+//	
+//	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
+//		return elem1.second < elem2.second;
+//	};
+//	
+//	set<pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
+//																lights.end(),
+//																compFunctor);
+//	
+//	auto sortedVector = vector<shared_ptr<Node>>();
+//	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
+//		//cout << element.first << " :: " << element.second << endl;
+//		sortedVector.emplace_back(element.first);
+//	}
+//	
+//	return sortedVector;
+//}
 
 /***************************************************************************************
      Lifecycle
@@ -626,11 +648,45 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 
 void Scene::draw(Renderer& renderer) {
 	
+	auto viewMat = renderer.pointOfView()->worldTransform();
+	auto projectionMat = renderer.pointOfView()->camera()->projection();
+	
+	for (auto node: m_rootNode->childNodes(true)) {
+		
+		renderer.renderStats().nodes++;
+		
+		if (!node->hidden()) {
+			auto geometry = node->geometry();
+			if (geometry != nullptr) {
+				
+				renderer.renderStats().geometries++;
+				
+				auto modelMat = mat4(1.0);
+				auto physicsBody = node->physicsBody();
+				if (physicsBody) {
+					auto motionState = physicsBody->btMotionState();
+					btTransform transform;
+					motionState->getWorldTransform(transform);
+					transform.getOpenGLMatrix(value_ptr(modelMat));
+				}
+				else {
+					modelMat = node->worldTransform();
+				}
+//				geometry->draw(modelMat, viewMat, projectionMat,
+//							   m_glEnvironmentUBO, debugOptions, stats);
+				geometry->draw(renderer, modelMat, viewMat, projectionMat);
+			}
+		}
+	}
+	
+//	if (m_physicsWorld) {
+//		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
+//	}
 }
 
 void Scene::draw(shared_ptr<Node> pointOfView,
 				 DEBUG_OPTIONS& debugOptions,
-				 DrawStats& stats) {
+				 RenderStats& stats) {
 
 	auto viewMat = pointOfView->worldTransform();
 	auto projectionMat = pointOfView->camera()->projection();
@@ -681,6 +737,10 @@ void Scene::draw(shared_ptr<Node> pointOfView,
 	if (m_physicsWorld) {
 		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
 	}
+}
+
+shared_ptr<SkyboxGeometry>	Scene::skyboxGeometry() const {
+	return m_skyboxGeometry;
 }
 
 shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
@@ -750,7 +810,7 @@ void Scene::renderer(shared_ptr<Renderer> renderer) {
      Private
  ***************************************************************************************/
 
-void Scene::bindEnvironment(const Node& pointOfView, DrawStats& stats) const {
+void Scene::bindEnvironment(const Node& pointOfView, RenderStats& stats) const {
 
 	// lights
 	

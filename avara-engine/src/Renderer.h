@@ -14,6 +14,7 @@
 #include <memory>
 
 #include <boost/filesystem.hpp>
+#include <glm/glm.hpp>
 
 #include "Types.h"
 
@@ -23,7 +24,9 @@ namespace ae {
 	
 	class Camera;
 	class Geometry;
+	class GeometryElement;
 	class Image;
+	class Material;
 	class Node;
 	class Renderer;
 	class Scene;
@@ -88,16 +91,24 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
-		void render(Geometry& geometry);
+		void render(const Scene& scene);
+//		void render(const Geometry& geometry);
+		void render(const GeometryElement& geometryElement,
+					const Material& material,
+					const glm::mat4& modelMat,
+					const glm::mat4& viewMat,
+					const glm::mat4& projectionMat);
 		
 		virtual std::shared_ptr<Node> defaultPointOfView();
 		virtual void saveGIFFrame(float deltaSeconds);
+		
+		RenderStats& renderStats();
 		
 	protected:
 		
 		/**************************************************************************************
 		     Protected
-		 ***************************************************************************************/
+		 **************************************************************************************/
 
 		std::shared_ptr<Scene>				m_scene;
 		DEBUG_OPTIONS						m_debugOptions;
@@ -109,6 +120,17 @@ namespace ae {
 		RendererDidSimulatePhysicsFuction	m_didSimulatePhysicsCallback;
 		RendererWillRenderFuction 			m_willRenderCallback;
 		RendererDidRenderFuction 			m_didRenderCallback;
+		
+	private:
+		
+		/**************************************************************************************
+		     Private
+		 **************************************************************************************/
+		
+		void bindEnvironment(const Scene& scene, RenderStats& stats) const;
+		
+		RenderStats							m_renderStats;
+		int									m_glEnvironmentUBO;
 	};
 }
 

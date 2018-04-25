@@ -43,10 +43,10 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		void draw(Renderer& renderer,
+				  const Material& material,
 				  const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
-				  const glm::mat4& projectionMat,
-				  Material& material);
+				  const glm::mat4& projectionMat);
 		
 		void draw(const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
@@ -54,21 +54,26 @@ namespace ae {
 				  Material& material,
 				  unsigned glEnvironmentUBO,
 				  DEBUG_OPTIONS debugOptions,
-				  DrawStats& stats);
+				  RenderStats& stats);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
-		void generateSmoothNormals();
-		void generateFlatNormals();
+		//void generateSmoothNormals();
+		//void generateFlatNormals();
 
 		void loadVertexData(const Program& program);
 
-		std::vector<Vertex>& vertices();
-		std::vector<Face>& faces();
+		std::vector<Vertex> vertices() const;
+		std::vector<Face> faces() const;
 		
 		// EXPERIMENTAL
 		
 		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
+		
+		// * TEMPORARY *
+
+		unsigned GLVAO() const;
+		unsigned GLIBO() const;
 		
 	protected:
 		

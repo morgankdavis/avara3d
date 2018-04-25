@@ -218,7 +218,7 @@ float PhysicsBody::linearSleepingThreshold() const {
 	
 }
 
-void PhysicsBody::setLinearSleepingThreshold(float threshold) {
+void PhysicsBody::linearSleepingThreshold(float threshold) {
 	
 }
 
@@ -226,7 +226,7 @@ float PhysicsBody::angularSleepingThreshold() const {
 	
 }
 
-void PhysicsBody::setAngularSleepingThreshold(float threshold) {
+void PhysicsBody::angularSleepingThreshold(float threshold) {
 	
 }
 
