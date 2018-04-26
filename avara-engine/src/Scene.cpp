@@ -36,6 +36,7 @@
 #include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
 #include "Renderer.h"
+#include "RenderContext.h"
 #include "SkyboxGeometry.h"
 #include "SkyboxMaterial.h"
 #include "Utilities.h"
@@ -556,7 +557,7 @@ Scene::Scene():
 	m_physicsWorld(nullptr),
 	//m_window(weak_ptr<Window>()) {
 	//m_window({}) {
-	m_renderer({}) {
+	m_renderContext({}) {
 		
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -646,20 +647,23 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
      Internal
  ***************************************************************************************/
 
-void Scene::draw(Renderer& renderer) {
+void Scene::draw(Renderer& renderer,
+				 const Node& pointOfView,
+				 DEBUG_OPTIONS& debugOptions,
+				 RenderStats& stats) {
 	
-	auto viewMat = renderer.pointOfView()->worldTransform();
-	auto projectionMat = renderer.pointOfView()->camera()->projection();
+	auto viewMat = pointOfView.worldTransform();
+	auto projectionMat = pointOfView.camera()->projection();
 	
 	for (auto node: m_rootNode->childNodes(true)) {
 		
-		renderer.renderStats().nodes++;
+		stats.nodes++;
 		
 		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				
-				renderer.renderStats().geometries++;
+				stats.geometries++;
 				
 				auto modelMat = mat4(1.0);
 				auto physicsBody = node->physicsBody();
@@ -674,7 +678,7 @@ void Scene::draw(Renderer& renderer) {
 				}
 //				geometry->draw(modelMat, viewMat, projectionMat,
 //							   m_glEnvironmentUBO, debugOptions, stats);
-				geometry->draw(renderer, modelMat, viewMat, projectionMat);
+				geometry->draw(renderer, modelMat, viewMat, projectionMat, debugOptions);
 			}
 		}
 	}
@@ -791,19 +795,19 @@ vec3 Scene::extent() const {
 				bp["zMax"].z - bp["zMin"].z);
 }
 
-void Scene::attachedToRenderer(shared_ptr<Renderer> renderer) {
-	m_renderer = renderer;
+void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
+	m_renderContext = renderContext;
 	if (m_physicsWorld) {
 		m_physicsWorld->attachedToScene(shared_from_this());
 	}
 }
 
-weak_ptr<Renderer> Scene::renderer() const {
-	return m_renderer;
+weak_ptr<RenderContext> Scene::renderContext() const {
+	return m_renderContext;
 }
 
-void Scene::renderer(shared_ptr<Renderer> renderer) {
-	m_renderer = renderer;
+void Scene::renderContext(shared_ptr<RenderContext> context) {
+	m_renderContext = context;
 }
 
 /***************************************************************************************

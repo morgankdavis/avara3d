@@ -16,12 +16,13 @@ Tests:
 
 		Create Renderer and use visitor pattern
 			MOVE DRAW LOOP INTO RENDERER
+			Implement "sceneTime"
 			Remove SkyboxGeometry, etc
 			bindEnvironment
 			How to be track resource destruction?
 
-		Renderer -> Presenter
-		Window -> WindowPresenter
+		Renderer -> RenderContext
+		Window: RenderContext
 
 		Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
 

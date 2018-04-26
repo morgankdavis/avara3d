@@ -20,7 +20,7 @@ namespace ae {
 
 	class InputManager;
 	class Node;
-	class Renderer;
+	class RenderContext;
 	class Scene;
 	class Window;
 
@@ -31,9 +31,9 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void rendererUpdateCallback(Renderer& renderer, float time);
-		void rendererWillRenderCallback(Renderer& renderer, float time);
-		void rendererDidRenderCallback(Renderer& renderer, float time);
+		void renderContextUpdateCallback(RenderContext& renderContext, float time);
+		void renderContextWillRenderCallback(RenderContext& renderContext, float time);
+		void renderContextDidRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 

@@ -32,6 +32,7 @@ namespace ae {
 	class Node;
 	class PhysicsWorld;
 	class Renderer;
+	class RenderContext;
 	class SkyboxGeometry;
 	//class Window;
 	
@@ -83,7 +84,10 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
-		void draw(Renderer& renderer);		
+		void draw(Renderer& renderer,
+				  const Node& pointOfView,
+				  DEBUG_OPTIONS& debugOptions,
+				  RenderStats& stats);		
 		
 		void draw(std::shared_ptr<Node> pointOfView,
 				  DEBUG_OPTIONS& debugOptions,
@@ -94,10 +98,10 @@ namespace ae {
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		glm::vec3 extent() const;
 		
-		void attachedToRenderer(std::shared_ptr<Renderer> renderer);
+		void attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);
 		
-		std::weak_ptr<Renderer> renderer() const;
-		void renderer(std::shared_ptr<Renderer> renderer);
+		std::weak_ptr<RenderContext> renderContext() const;
+		void renderContext(std::shared_ptr<RenderContext> renderContext);
 		
 	private:
 		
@@ -120,7 +124,7 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
-		std::weak_ptr<Renderer>					m_renderer;
+		std::weak_ptr<RenderContext>			m_renderContext;
 	};
 }
 

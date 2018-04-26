@@ -14,7 +14,7 @@
 
 #include <GL/glew.h> // include before anything that might include GL/gl.h...
 #include "fontstash.h"
-#include "gif.h"
+//#include "gif.h"
 #include "gl3fontstash.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,6 +35,9 @@
 #include "Utilities.h"
 
 
+//#include <chrono>
+
+
 using namespace std;
 using namespace ae;
 using namespace glm;
@@ -47,7 +50,7 @@ using namespace utils;
 
 Window* 		i_window;
 GLFWwindow* 	i_glfwWindow;
-GifWriter* 		i_gifWriter;
+//GifWriter* 		i_gifWriter;
 
 /***************************************************************************************
      GLFW Callbacks
@@ -73,7 +76,7 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
 
 Window::Window(bool fullScreen, unsigned width, unsigned height,
 			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
-	Renderer() {
+	RenderContext() {
 
 	if (initLog() != 0) { cout << "Error initializing log." << endl; }
 	if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
@@ -126,7 +129,7 @@ Window::Window(bool fullScreen, unsigned width, unsigned height,
 
 	i_window = this;
 
-	initFontstash();
+	//initFontstash();
 	
 	m_width = viewportWidth;
 	m_height = viewportHeight;
@@ -166,7 +169,7 @@ void Window::display() {
 		glfwSetFramebufferSizeCallback(i_glfwWindow, glfwFramebufferSizeCallback);
 		
 		while (!glfwWindowShouldClose(i_glfwWindow)) {
-			mainLoop();
+			drawLoop();
 		}
 		
 		stopGIFRecording();
@@ -185,12 +188,9 @@ void Window::captureCursor(bool captured) {
 	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-ANTIALIASING_MODE Window::antialiasingMode() const {
-	return m_antialiasingMode;
-}
-
-
 shared_ptr<InputManager> Window::inputManager() {
+#warning Refactor this (DesktopInputManager?)
+	
 	if (m_inputManager == nullptr) {
 		m_inputManager = make_shared<InputManager>(this);
 	}
@@ -201,48 +201,6 @@ shared_ptr<InputManager> Window::inputManager() {
      Internal
  ***************************************************************************************/
 
-unsigned Window::width() const {
-	return m_width;
-}
-
-void Window::width(unsigned aWidth) {
-	m_width = aWidth;
-	framebufferWidth(m_width * m_framebufferScale);
-}
-
-unsigned Window::height() const {
-	return m_height;
-}
-
-void Window::height(unsigned aHeight) {
-	m_height = aHeight;
-	framebufferHeight(m_height * m_framebufferScale);
-}
-
-unsigned Window::framebufferScale() const {
-	return m_framebufferScale;
-}
-
-void Window::framebufferScale(unsigned aScale) {
-	m_framebufferScale = aScale;
-}
-
-unsigned Window::framebufferWidth() const {
-	return m_framebufferWidth;
-}
-
-void Window::framebufferWidth(unsigned aWidth) {
-	m_framebufferWidth = aWidth;
-}
-
-unsigned Window::framebufferHeight() const {
-	return m_framebufferHeight;
-}
-
-void Window::framebufferHeight(unsigned aHeight) {
-	m_framebufferHeight = aHeight;
-}
-
 GLFWwindow* Window::glfwWindow() const {
 	return i_glfwWindow;
 }
@@ -252,152 +210,18 @@ GLFWwindow* Window::glfwWindow() const {
  ***************************************************************************************/
 
 void Window::enableVSync(bool enabled) {
-	m_vSyncEnabled = enabled;
+	RenderContext::enableVSync(enabled);
+	
 	if (!enabled) glfwSwapInterval(0);
 	else glfwSwapInterval(1);
 }
 
 void Window::debugOptions(DEBUG_OPTIONS options) {
-	m_debugOptions = options;
+	RenderContext::debugOptions(options);
 	
+#warning Refactor this
 	if (m_scene && m_scene->physicsWorld()) {
 		m_scene->physicsWorld()->debugOptions(m_debugOptions);
-	}
-}
-
-shared_ptr<Node> Window::defaultPointOfView() {
-	
-	auto cameraNode = make_shared<Node>();
-	//m_scene->rootNode()->addChildNode(cameraNode); // done below
-	auto camera = make_shared<Camera>();
-	camera->name("default camera");
-	cameraNode->camera(camera);
-	
-	auto boundingPoints = (*scene()->boundingPoints());
-	
-	float fovH = cameraNode->camera()->fov();
-	float w = width();
-	float h = height();
-	float aspectRatio = w/h;
-	float inverseAspectRatio = 1.0f/aspectRatio;
-	float fovV = fovH * inverseAspectRatio;
-	
-	// tan(angle) = x/z
-	// ztan(angle) = x
-	// z = x/tan(angle)
-	
-	float maxZ = abs(boundingPoints["zMax"].z);
-	
-	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
-	float angleH = fovH / 2.0;
-	float zH = xH / tan(angleH);
-	
-	float xV = abs(boundingPoints["yMin"].y) + abs(boundingPoints["yMax"].y) / 2.0f;
-	float angleV = fovV / 2.0;
-	float zV = xV / tan(angleV);
-	
-	zH += maxZ;
-	zV += maxZ;
-	
-	float z = fmax(zH, zV);
-	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
-	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
-	
-	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
-	
-	mat4 viewMat = translate(mat4(1.0f), eye);
-	cameraNode->transform(viewMat);
-	
-	scene()->rootNode()->addChildNode(cameraNode);
-	pointOfView(cameraNode);
-	
-	return cameraNode;
-}
-
-shared_ptr<Image> Window::snapshot() const {
-	
-	unsigned char *buf = (unsigned char*)malloc(m_framebufferWidth * m_framebufferHeight * 4);
-	glReadPixels(0, 0, m_framebufferWidth, m_framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-	auto image = make_shared<Image>(buf, m_framebufferWidth, m_framebufferHeight);
-	free(buf);
-	return image;
-}
-
-bool Window::recordingGIF() const {
-	return m_recordingGIF;
-}
-
-void Window::startGIFRecording(const boost::filesystem::path& path,
-							   unsigned maxHeight, unsigned maxFramerate) {
-	if (!m_recordingGIF) {
-		AE_LOG->info("Starting GIF recording...");
-		
-		m_gifRecordingMaxFramerate = maxFramerate;
-		m_gifRecordedFrames = 0;
-		
-		m_gifRecordingHeight = m_framebufferHeight;
-		m_gifRecordingWidth = m_framebufferWidth;
-		if (m_gifRecordingHeight > maxHeight) {
-			float scale = (float)maxHeight / (float)m_framebufferHeight;
-			m_gifRecordingHeight = m_framebufferHeight * scale;
-			m_gifRecordingWidth = m_framebufferWidth * scale;
-		}
-		
-		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
-		// -> ms/frame
-		unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-		
-		i_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
-		// gif-h frame time is in 100ths of a second
-		GifBegin(i_gifWriter, path.string().c_str(), 
-				 m_gifRecordingWidth, m_gifRecordingHeight, 
-				 frameTimeHS);
-		
-		m_recordingGIF = true;
-	}
-}
-
-void Window::stopGIFRecording() {
-	if (m_recordingGIF) {
-		m_recordingGIF = false;
-		
-		GifEnd(i_gifWriter);
-		// crashing... but it doesn't look like GifEnd() frees everything,
-		// just the main buffer.
-		//free(i_gifWriter);
-		
-		AE_LOG->info("Stopped GIF recording.");
-	}
-}
-
-void Window::saveGIFFrame(float deltaSeconds) {
-	
-	static float secondsAccum = 0;
-	secondsAccum += deltaSeconds;
-	
-	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
-	// -> ms/frame
-	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-	
-	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
-	
-	if (secondsAccum >= frameTimeMS/1000.0) {
-		
-		auto frame = snapshot();
-		
-		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
-		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
-						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
-		
-		// gif-h frame time is in 100ths of a second
-		GifWriteFrame(i_gifWriter, resizedFrameData,
-					  m_gifRecordingWidth, m_gifRecordingHeight,
-					  (secondsAccum*1000.0)/10.0);
-		
-		++m_gifRecordedFrames;
-		
-		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
-		secondsAccum = 0;
 	}
 }
 
@@ -405,45 +229,45 @@ void Window::saveGIFFrame(float deltaSeconds) {
      Private
  ***************************************************************************************/
 
-void Window::initFontstash() {
+//void Window::initFontstash() {
+//
+//	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+//	if (m_fonsContext == NULL) {
+//		//AE_LOG->error("Error creating Font Stash context.");
+//		throw Exception("Error creating Font Stash context.");
+//	}
+//	
+//	string fontName = "SourceCodePro-Semibold";
+//	string fontType = "otf";
+//	auto fontPath = FontPath(fontName, fontType);
+//	
+//	if (fontPath) {
+//		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
+//		if (m_fonsFont == FONS_INVALID) {
+//			char errStr[1024];
+//			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
+//			throw Exception(errStr);
+//			//AE_LOG->error("Could not load font: {}", fontPath);
+//			
+//		}
+//	}
+//	else {
+//		char errStr[1024];
+//		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
+//		throw Exception(errStr);
+//	}
+//}
 
-	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-	if (m_fonsContext == NULL) {
-		//AE_LOG->error("Error creating Font Stash context.");
-		throw Exception("Error creating Font Stash context.");
-	}
-	
-	string fontName = "SourceCodePro-Semibold";
-	string fontType = "otf";
-	auto fontPath = FontPath(fontName, fontType);
-	
-	if (fontPath) {
-		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
-		if (m_fonsFont == FONS_INVALID) {
-			char errStr[1024];
-			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
-			throw Exception(errStr);
-			//AE_LOG->error("Could not load font: {}", fontPath);
-			
-		}
-	}
-	else {
-		char errStr[1024];
-		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
-		throw Exception(errStr);
-	}
-}
-
-void Window::mainLoop() {
+void Window::drawLoop() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");
-
+	
 	float time = glfwGetTime();
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	if (m_updateCallback) m_updateCallback(*this, glfwGetTime());
+	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, glfwGetTime());
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -458,8 +282,8 @@ void Window::mainLoop() {
 	if (physicsWorld) {
 		physicsWorld->step();
 		
-		if (m_didSimulatePhysicsCallback) {
-			m_didSimulatePhysicsCallback(*this, glfwGetTime());
+		if (didSimulatePhysicsCallback()) {
+			didSimulatePhysicsCallback()(*this, glfwGetTime());
 		}
 	}
 	
@@ -469,130 +293,131 @@ void Window::mainLoop() {
 	
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
-	if (m_willRenderCallback) m_willRenderCallback(*this, glfwGetTime());
+	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, glfwGetTime());
 	
 	m_scene->draw(pov, m_debugOptions, stats);
 	
-	if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
+	//if (DEBUG_OPTIONS_CONTAINS(debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) updateStatsOverlay(stats);
+	//if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
 	
 	glfwSwapBuffers(i_glfwWindow);
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	if (m_didRenderCallback) m_didRenderCallback(*this, glfwGetTime());
+	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, glfwGetTime());
 	
 	glfwPollEvents();
-	if (m_inputManager) m_inputManager->update();
+	if (inputManager()) inputManager()->update();
 }
 
-void Window::updateStatsOverlay(RenderStats& stats) {
-	
-	static float fps = 0.0;
-	static float ms = 0.0;
-	static float percent = 0.0;
-
-	const float GOAL_TIME = 16.6666667f;
-
-	static unsigned elapsedFrames = 0; ++elapsedFrames;
-	static float previousSeconds = glfwGetTime();
-	float currentSeconds = glfwGetTime();
-	float elapsedSeconds = currentSeconds - previousSeconds;
-
-	if (elapsedSeconds > 0.5) {
-		// only update the framerate stats every so often so they're readable
-		
-		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-		fps = elapsedFrames/elapsedSeconds;
-		percent = (ms / GOAL_TIME) * 100.0f;
-
-		// reset framerate stats
-		previousSeconds = currentSeconds;
-		elapsedFrames = 0;
-	}
-
-	gl3fonsProjectionSize(m_fonsContext, m_framebufferWidth, m_framebufferHeight);
-	
-	glDisable(GL_DEPTH_TEST);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	
-	float dx = 12.0 * m_framebufferScale;
-	float dy = 20.0 * m_framebufferScale;
-	
-	fonsClearState(m_fonsContext);
-	
-	fonsSetFont(m_fonsContext, m_fonsFont);
-
-	static float textSize = 14.0 * m_framebufferScale;
-	static float hPadding = 0.0 * m_framebufferScale;
-	
-	char tmpStr[256];
-	
-	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	dy += textSize; // skip a line
-
-	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	dy += textSize; // skip a line
-	
-	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
-			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-	drawText(tmpStr, textSize, dx, dy);
-	dy += (textSize + hPadding);
-	
-	if (m_recordingGIF) {
-		dy += textSize; // skip a line
-		
-		sprintf(tmpStr, "%-14s %d" , "RECORDING", m_gifRecordedFrames);
-		drawText(tmpStr, textSize, dx, dy);
-		dy += (textSize + hPadding);
-	}
-}
-
-float Window::drawText(string text, float size, float dx, float dy) {
-	// must setup fons GL state first
-	
-	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
-	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
-	
-	fonsSetSize(m_fonsContext, size);
-	
-	fonsSetColor(m_fonsContext, black);
-	fonsSetBlur(m_fonsContext, 1);
-	fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
-	
-	fonsSetColor(m_fonsContext, white);
-	fonsSetBlur(m_fonsContext, 0);
-	return fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
-}
+//void Window::updateStatsOverlay(RenderStats& stats) {
+//	
+//	static float fps = 0.0;
+//	static float ms = 0.0;
+//	static float percent = 0.0;
+//
+//	const float GOAL_TIME = 16.6666667f;
+//
+//	static unsigned elapsedFrames = 0; ++elapsedFrames;
+//	static float previousSeconds = glfwGetTime();
+//	float currentSeconds = glfwGetTime();
+//	float elapsedSeconds = currentSeconds - previousSeconds;
+//
+//	if (elapsedSeconds > 0.5) {
+//		// only update the framerate stats every so often so they're readable
+//		
+//		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
+//		fps = elapsedFrames/elapsedSeconds;
+//		percent = (ms / GOAL_TIME) * 100.0f;
+//
+//		// reset framerate stats
+//		previousSeconds = currentSeconds;
+//		elapsedFrames = 0;
+//	}
+//
+//	gl3fonsProjectionSize(m_fonsContext, m_framebufferWidth, m_framebufferHeight);
+//	
+//	glDisable(GL_DEPTH_TEST);
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//	
+//	float dx = 12.0 * m_framebufferScale;
+//	float dy = 20.0 * m_framebufferScale;
+//	
+//	fonsClearState(m_fonsContext);
+//	
+//	fonsSetFont(m_fonsContext, m_fonsFont);
+//
+//	static float textSize = 14.0 * m_framebufferScale;
+//	static float hPadding = 0.0 * m_framebufferScale;
+//	
+//	char tmpStr[256];
+//	
+//	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	dy += textSize; // skip a line
+//
+//	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	dy += textSize; // skip a line
+//	
+//	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
+//			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+//	drawText(tmpStr, textSize, dx, dy);
+//	dy += (textSize + hPadding);
+//	
+//	if (m_recordingGIF) {
+//		dy += textSize; // skip a line
+//		
+//		sprintf(tmpStr, "%-14s %d" , "RECORDING", m_gifRecordedFrames);
+//		drawText(tmpStr, textSize, dx, dy);
+//		dy += (textSize + hPadding);
+//	}
+//}
+//
+//float Window::drawText(string text, float size, float dx, float dy) {
+//	// must setup fons GL state first
+//	
+//	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
+//	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
+//	
+//	fonsSetSize(m_fonsContext, size);
+//	
+//	fonsSetColor(m_fonsContext, black);
+//	fonsSetBlur(m_fonsContext, 1);
+//	fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
+//	
+//	fonsSetColor(m_fonsContext, white);
+//	fonsSetBlur(m_fonsContext, 0);
+//	return fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
+//}

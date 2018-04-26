@@ -147,7 +147,7 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 //	if (auto window = scene->window().lock()) {
 //		debugOptions(window->debugOptions());
 //	}
-	if (auto renderer = scene->renderer().lock()) {
+	if (auto renderer = scene->renderContext().lock()) {
 		debugOptions(renderer->debugOptions());
 	}
 

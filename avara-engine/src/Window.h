@@ -15,7 +15,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "Renderer.h"
+#include "RenderContext.h"
 #include "Types.h"
 
 
@@ -32,9 +32,12 @@ namespace ae {
 	class InputManager;
 	class Node;
 	class Scene;
+	
+//	struct FONScontext;
+//	struct GLFWwindow;
 
 	
-	class Window : public Renderer {
+	class Window : public RenderContext {
 		
 	public:
 		
@@ -56,44 +59,44 @@ namespace ae {
 		bool cursorCaptured() const;
 		void captureCursor(bool captured);
 
-		ANTIALIASING_MODE antialiasingMode() const;
-
-		std::shared_ptr<InputManager> inputManager();
-
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
 
-		unsigned width() const;
-		/* PROBABLY REMOVE */ void width(unsigned width);
-		
-		unsigned height() const;
-		/* PROBABLY REMOVE */ void height(unsigned height);
-		
-		unsigned framebufferScale() const;
-		/* PROBABLY REMOVE */ void framebufferScale(unsigned aScale);
-		
-		unsigned framebufferWidth() const;
-		/* PROBABLY REMOVE */ void framebufferWidth(unsigned width);
-		
-		unsigned framebufferHeight() const;
-		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
+//		unsigned width() const;
+//		/* PROBABLY REMOVE */ void width(unsigned width);
+//		
+//		unsigned height() const;
+//		/* PROBABLY REMOVE */ void height(unsigned height);
+//		
+//		unsigned framebufferScale() const;
+//		/* PROBABLY REMOVE */ void framebufferScale(unsigned aScale);
+//		
+//		unsigned framebufferWidth() const;
+//		/* PROBABLY REMOVE */ void framebufferWidth(unsigned width);
+//		
+//		unsigned framebufferHeight() const;
+//		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
 		
 		GLFWwindow* glfwWindow() const;
 		
 		/**************************************************************************************
-		     Renderer
+		     RenderContext
 		 **************************************************************************************/
 		
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<Node> defaultPointOfView() override;
-		std::shared_ptr<Image> snapshot() const override;
-		bool recordingGIF() const override;
-		void startGIFRecording(const boost::filesystem::path& path,
-							   unsigned maxHeight, unsigned maxFramerate) override;
-		void stopGIFRecording() override;
-		void saveGIFFrame(float deltaSeconds) override;
+		std::shared_ptr<InputManager> inputManager() override;
+		
+//		void enableVSync(bool enabled) override;
+//		void debugOptions(DEBUG_OPTIONS options) override;
+//		std::shared_ptr<Node> defaultPointOfView() override;
+//		std::shared_ptr<Image> snapshot() const override;
+//		bool recordingGIF() const override;
+//		void startGIFRecording(const boost::filesystem::path& path,
+//							   unsigned maxHeight, unsigned maxFramerate) override;
+//		void stopGIFRecording() override;
+//		void saveGIFFrame(float deltaSeconds) override;
 
 	private:
 		
@@ -101,28 +104,28 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 
-		void initFontstash();
-		void mainLoop();
-		void updateStatsOverlay(RenderStats& stats);
-		float drawText(std::string text, float size, float dx, float dy);
+//		void initFontstash();
+		void drawLoop();
+//		void updateStatsOverlay(RenderStats& stats);
+//		float drawText(std::string text, float size, float dx, float dy);
 
-		unsigned							m_width;
-		unsigned							m_height;
-		float								m_framebufferScale;
-		unsigned							m_framebufferWidth;
-		unsigned							m_framebufferHeight;
-		ANTIALIASING_MODE					m_antialiasingMode;
+//		unsigned							m_width;
+//		unsigned							m_height;
+//		float								m_framebufferScale;
+//		unsigned							m_framebufferWidth;
+//		unsigned							m_framebufferHeight;
+//		ANTIALIASING_MODE					m_antialiasingMode;
 		std::shared_ptr<Color>				m_backgroundColor;
 		std::shared_ptr<InputManager> 		m_inputManager;
-		FONScontext* 						m_fonsContext;
-		int									m_fonsFont;
+//		FONScontext* 						m_fonsContext;
+//		int									m_fonsFont;
 		bool								m_cursorCaptured;
 		
-		bool								m_recordingGIF;
-		unsigned							m_gifRecordingWidth;
-		unsigned							m_gifRecordingHeight;
-		unsigned							m_gifRecordingMaxFramerate;
-		unsigned							m_gifRecordedFrames;
+//		bool								m_recordingGIF;
+//		unsigned							m_gifRecordingWidth;
+//		unsigned							m_gifRecordingHeight;
+//		unsigned							m_gifRecordingMaxFramerate;
+//		unsigned							m_gifRecordedFrames;
 	};
 }
 

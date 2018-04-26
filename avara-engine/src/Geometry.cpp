@@ -166,7 +166,8 @@ void Geometry::hardTransform(mat4 t, bool norm) {
 void Geometry::draw(Renderer& renderer,
 					const mat4& modelMat,
 					const mat4& viewMat,
-					const mat4& projectionMat) {
+					const mat4& projectionMat,
+					const DEBUG_OPTIONS& debugOptions) {
 	
 //	renderer.render(*this);
 	
@@ -185,7 +186,7 @@ void Geometry::draw(Renderer& renderer,
 		}
 		
 		//mat4 modelMat = node().lock()->worldTransform();
-		element->draw(renderer, *material, modelMat, viewMat, projectionMat);
+		element->draw(renderer, *material, modelMat, viewMat, projectionMat, debugOptions);
 		
 //		element->draw(modelMat, viewMat, projectionMat,
 //					  *material, glEnvironmentUBO, debugOptions, stats);

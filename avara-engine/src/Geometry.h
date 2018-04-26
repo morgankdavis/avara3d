@@ -76,7 +76,8 @@ namespace ae {
 		void draw(Renderer& renderer,
 				  const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
-				  const glm::mat4& projectionMat);
+				  const glm::mat4& projectionMat,
+				  const DEBUG_OPTIONS& debugOptions);
 		
 		void draw(const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,

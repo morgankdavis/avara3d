@@ -58,9 +58,10 @@ void GeometryElement::draw(Renderer& renderer,
 						   const Material& material,
 						   const mat4& modelMat,
 						   const mat4& viewMat,
-						   const mat4& projectionMat) {
+						   const mat4& projectionMat,
+						   const DEBUG_OPTIONS& debugOptions) {
 	
-	renderer.render(*this, material, modelMat, viewMat, projectionMat);
+	renderer.render(*this, material, modelMat, viewMat, projectionMat, debugOptions);
 }
 
 void GeometryElement::draw(const mat4& modelMat,
