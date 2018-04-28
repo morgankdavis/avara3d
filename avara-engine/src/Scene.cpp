@@ -648,9 +648,13 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
  ***************************************************************************************/
 
 void Scene::draw(Renderer& renderer,
+				 unsigned framebufferWidth,
+				 unsigned framebufferHeight,
 				 const Node& pointOfView,
-				 DEBUG_OPTIONS& debugOptions,
+				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
+
+	renderer.render(*this, framebufferWidth, framebufferHeight, debugOptions);
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();

@@ -17,12 +17,12 @@ Tests:
 		Create Renderer and use visitor pattern
 			MOVE DRAW LOOP INTO RENDERER
 			Implement "sceneTime"
+			Implement copy, assignment, etc for Geometry, GeometryElement, Material, MaterialProperty, Scene
 			Remove SkyboxGeometry, etc
 			bindEnvironment
-			How to be track resource destruction?
+			Destroy unused resources
+			Renderer::prepareForNextFrame() ?
 
-		Renderer -> RenderContext
-		Window: RenderContext
 
 		Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
 

@@ -9,12 +9,14 @@
 #ifndef Types_h
 #define Types_h
 
-//#include <memory>
 
 #include <glm/glm.hpp>
 
 
 namespace ae {
+	
+	typedef unsigned VERTEX_DATA_ID;
+	typedef unsigned TEXTURE_ID;
 
 	enum class ANTIALIASING_MODE : unsigned {
 		NONE =		0,

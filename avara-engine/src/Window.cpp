@@ -12,7 +12,7 @@
 #include <iostream>
 
 
-#include <GL/glew.h> // include before anything that might include GL/gl.h...
+//#include <GL/glew.h> // include before anything that might include GL/gl.h...
 #include "fontstash.h"
 //#include "gif.h"
 #include "gl3fontstash.h"
@@ -31,6 +31,7 @@
 #include "Logger.h"
 #include "Node.h"
 #include "PhysicsWorld.h"
+#include "Renderer.h"
 #include "Scene.h"
 #include "Utilities.h"
 
@@ -74,9 +75,11 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
      Lifescycle
  ***************************************************************************************/
 
-Window::Window(bool fullScreen, unsigned width, unsigned height,
+Window::Window(shared_ptr<Renderer> renderer,
+			   bool fullScreen,
+			   unsigned width, unsigned height,
 			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
-	RenderContext() {
+	RenderContext(renderer) {
 
 	if (initLog() != 0) { cout << "Error initializing log." << endl; }
 	if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
@@ -188,15 +191,6 @@ void Window::captureCursor(bool captured) {
 	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-shared_ptr<InputManager> Window::inputManager() {
-#warning Refactor this (DesktopInputManager?)
-	
-	if (m_inputManager == nullptr) {
-		m_inputManager = make_shared<InputManager>(this);
-	}
-	return m_inputManager;
-}
-
 /***************************************************************************************
      Internal
  ***************************************************************************************/
@@ -223,6 +217,19 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 	if (m_scene && m_scene->physicsWorld()) {
 		m_scene->physicsWorld()->debugOptions(m_debugOptions);
 	}
+}
+
+shared_ptr<InputManager> Window::inputManager() {
+#warning Refactor this (DesktopInputManager?)
+	
+	if (m_inputManager == nullptr) {
+		m_inputManager = make_shared<InputManager>(this);
+	}
+	return m_inputManager;
+}
+
+float Window::sceneTime() {
+	return glfwGetTime();
 }
 
 /***************************************************************************************
@@ -262,12 +269,13 @@ void Window::drawLoop() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");
 	
-	float time = glfwGetTime();
+#warning move to saveGIFFrame()
+	float time = sceneTime();
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, glfwGetTime());
+	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -283,19 +291,19 @@ void Window::drawLoop() {
 		physicsWorld->step();
 		
 		if (didSimulatePhysicsCallback()) {
-			didSimulatePhysicsCallback()(*this, glfwGetTime());
+			didSimulatePhysicsCallback()(*this, sceneTime());
 		}
 	}
 	
 	CheckGLError();
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	
+//	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 	
-	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
+	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
 	
-	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, glfwGetTime());
-	
-	m_scene->draw(pov, m_debugOptions, stats);
+	m_scene->draw(*RenderContext::renderer(), m_framebufferWidth, m_framebufferHeight, *pov, m_debugOptions, stats);
 	
 	//if (DEBUG_OPTIONS_CONTAINS(debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) updateStatsOverlay(stats);
 	//if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
@@ -304,7 +312,7 @@ void Window::drawLoop() {
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, glfwGetTime());
+	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
 	
 	glfwPollEvents();
 	if (inputManager()) inputManager()->update();

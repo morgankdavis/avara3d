@@ -34,7 +34,6 @@ namespace ae {
 	class Renderer;
 	class RenderContext;
 	class SkyboxGeometry;
-	//class Window;
 	
 	
 	class Scene : public std::enable_shared_from_this<Scene> {
@@ -85,8 +84,10 @@ namespace ae {
 		 ***************************************************************************************/
 
 		void draw(Renderer& renderer,
+				  unsigned framebufferWidth,
+				  unsigned framebufferHeight,
 				  const Node& pointOfView,
-				  DEBUG_OPTIONS& debugOptions,
+				  const DEBUG_OPTIONS& debugOptions,
 				  RenderStats& stats);		
 		
 		void draw(std::shared_ptr<Node> pointOfView,

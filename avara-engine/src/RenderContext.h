@@ -47,9 +47,8 @@ namespace ae {
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
-		
-		//RenderContext(std::shared_ptr<Renderer> renderer);
-		RenderContext();
+
+		RenderContext(std::shared_ptr<Renderer> renderer);
 		virtual ~RenderContext();
 		
 		/***************************************************************************************
@@ -89,9 +88,9 @@ namespace ae {
 		ANTIALIASING_MODE antialiasingMode() const;
 		
 		virtual std::shared_ptr<InputManager> inputManager();
-//		
-//		float sceneTime();
-//		
+		
+		virtual float sceneTime();
+		
 		std::shared_ptr<Image> snapshot() const;
 		
 		virtual bool recordingGIF() const;

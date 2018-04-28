@@ -79,6 +79,65 @@ typedef struct {
      Static
  **************************************************************************************/
 
+static void LoadVertexData(const GeometryElement& geometryElement, const Program& program,
+						   GLuint& vbo, GLuint& vao, GLuint& ibo) {
+	
+	AE_LOG->info("Loading vertex data for geometry element {:p}...", (void*)&geometryElement);
+	
+	auto verticies = geometryElement.vertices();
+	auto faces = geometryElement.faces();
+	
+	//GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER,
+				 verticies.size() * sizeof(Vertex),
+				 &(verticies[0]),
+				 GL_STATIC_DRAW);
+	//m_glVBO = vbo;
+	
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	
+	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	glVertexAttribPointer(positionIndex, 			// attrib index
+						  3, 						// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 				// component type
+						  GL_FALSE, 				// normalize
+						  sizeof(Vertex), 			// stride
+						  0); 						// start offset
+	glEnableVertexAttribArray(positionIndex);
+	
+	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
+	glVertexAttribPointer(normalIndex, 				// attrib index
+						  3, 						// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 				// component type
+						  GL_FALSE, 				// normalize
+						  sizeof(Vertex), 			// stride
+						  (void *)sizeof(vec3)); 	// start offset
+	glEnableVertexAttribArray(normalIndex);
+	
+	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
+	glVertexAttribPointer(texCoordIndex, 							// attrib index
+						  2, 										// num components per attrib (2 float in vec2)
+						  GL_FLOAT, 								// component type
+						  GL_FALSE, 								// normalize
+						  sizeof(Vertex), 							// stride
+						  (void *)(sizeof(vec3) + sizeof(vec3))); 	// start offset
+	glEnableVertexAttribArray(texCoordIndex);
+	
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				 faces.size() * sizeof(Face),
+				 &(faces[0]),
+				 GL_STATIC_DRAW);
+	
+	AE_LOG->info("Done.");
+}
+
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
 	
 	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
@@ -173,25 +232,36 @@ static void PrepareMaterialForRender(const Material& material, Program& program,
 	}
 }
 
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
+
+OpenGLRenderer::OpenGLRenderer():
+	Renderer(),
+	m_vertexDataHandleGLMapping(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>()),
+	m_textureHandleGLMapping(map<TEXTURE_ID, unsigned>()),
+	m_vertexDataHandleCounter(0),
+	m_textureHandleCounter(0) {
+
+}
+
+OpenGLRenderer::~OpenGLRenderer() {
+	
+}
+
 /**************************************************************************************
      Internal
  **************************************************************************************/
 
-shared_ptr<Image> OpenGLRenderer::snapshot(unsigned framebufferWidth,
-										   unsigned framebufferHeight) const {
+void OpenGLRenderer::render(Scene& scene,
+							unsigned framebufferWidth,
+							unsigned framebufferHeight,
+							const DEBUG_OPTIONS& debugOptions) {
 	
-	unsigned char *buf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
-	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);
-	free(buf);
-	return image;
-}
-
-void OpenGLRenderer::render(const Scene& scene) {
+	Renderer::render(scene, framebufferWidth, framebufferHeight, debugOptions); // initializes m_renderStats
 	
-	//m_renderStats = (RenderStats){};
-	
-	Renderer::render(scene);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, framebufferWidth, framebufferHeight);
 	
 	//	auto viewMat = m_pointOfView->worldTransform();
 	//	auto projectionMat = m_pointOfView->camera()->projection();
@@ -224,24 +294,56 @@ void OpenGLRenderer::render(const Scene& scene) {
 		m_glEnvironmentUBO = ubo;
 	}
 	bindEnvironment(scene, renderStats());
-	
 }
 
-void OpenGLRenderer::render(const GeometryElement& geometryElement,
-							const Material& material,
+void OpenGLRenderer::render(Geometry& geometry,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions) {
 	
+}
+
+void OpenGLRenderer::render(GeometryElement& geometryElement,
+							Material& material,
+							const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat,
+							const DEBUG_OPTIONS& debugOptions) {
+	
+	GLuint vao = 0;
+	GLuint ibo = 0;
+	
+	// check and load vertex data if necessary
+	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(geometryElement.dirtyBits(),
+											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
+		
+#warning check remove any old data (hard transformed?)
+		
+		GLuint vbo = 0;
+		LoadVertexData(geometryElement, *Program::Default(), vbo, vao, ibo);
+		
+		m_vertexDataHandleGLMapping[++m_vertexDataHandleCounter] = make_tuple(vbo, vao, ibo);
+		geometryElement.vertexDataID(m_vertexDataHandleCounter);
+		
+		geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
+																	 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
+	}
+	else {
+		auto mapping = m_vertexDataHandleGLMapping[geometryElement.vertexDataID()];
+		vao = get<1>(mapping);
+		ibo = get<2>(mapping);
+	}
+	
+	
 	//auto program = material.program();
 	//auto program = material.selectProgram(m_debugOptions);
 	
 	auto program = Program::Default();
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		program = Program::Wireframe();
-		glEnable(GL_LINE_SMOOTH);
-	}
+//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+//		program = Program::Wireframe();
+//		glEnable(GL_LINE_SMOOTH);
+//	}
 	
 	// gl config
 	
@@ -272,13 +374,23 @@ void OpenGLRenderer::render(const GeometryElement& geometryElement,
 	
 	// draw
 	
-	glBindVertexArray(geometryElement.GLVAO());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometryElement.GLIBO());
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = geometryElement.faces().size();
 	renderStats().polygons += numFaces;
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	
 	program->unuse();
+}
+
+shared_ptr<Image> OpenGLRenderer::snapshot(unsigned framebufferWidth,
+										   unsigned framebufferHeight) const {
+	
+	unsigned char *buf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
+	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);
+	free(buf);
+	return image;
 }
 
 /**************************************************************************************
@@ -401,16 +513,4 @@ void OpenGLRenderer::bindEnvironment(const Scene& scene, RenderStats& stats) con
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, m_glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
-}
-
-/***************************************************************************************
-     Lifecycle
- ***************************************************************************************/
-
-OpenGLRenderer::OpenGLRenderer() {
-	
-}
-
-OpenGLRenderer::~OpenGLRenderer() {
-	
 }

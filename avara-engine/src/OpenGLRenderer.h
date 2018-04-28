@@ -10,12 +10,16 @@
 #define OpenGLRenderer_h
 
 
+#import <map>
+#import <utility>
+
 #include "Renderer.h"
+#include "Types.h"
 
 
 namespace ae {
 	
-	class OpenGLRenderer : Renderer {
+	class OpenGLRenderer : public Renderer {
 		
 	public:
 		
@@ -25,13 +29,7 @@ namespace ae {
 		
 		OpenGLRenderer();
 		~OpenGLRenderer();
-		
-		/***************************************************************************************
-		     Public
-		 ***************************************************************************************/
-			
 
-		
 		/***************************************************************************************
 		     Renderer
 		 ***************************************************************************************/
@@ -39,9 +37,17 @@ namespace ae {
 		std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
 										unsigned framebufferHeight) const override;
 		
-		void render(const Scene& scene) override;
-		void render(const GeometryElement& geometryElement,
-					const Material& material,
+		void render(Scene& scene,
+					unsigned framebufferWidth,
+					unsigned framebufferHeight,
+					const DEBUG_OPTIONS& debugOptions) override;
+		void render(Geometry& geometry,
+					const glm::mat4& modelMat,
+					const glm::mat4& viewMat,
+					const glm::mat4& projectionMat,
+					const DEBUG_OPTIONS& debugOptions) override;
+		void render(GeometryElement& geometryElement,
+					Material& material,
 					const glm::mat4& modelMat,
 					const glm::mat4& viewMat,
 					const glm::mat4& projectionMat,
@@ -63,7 +69,17 @@ namespace ae {
 		
 		void bindEnvironment(const Scene& scene, RenderStats& stats) const;
 		
-		int			m_glEnvironmentUBO;
+		// <ae_vertexDataID, <ogl_vboHandle, ogl_vaoHandle, ogl_iboHandle>>
+		std::map<VERTEX_DATA_ID,
+			std::tuple<unsigned, unsigned, unsigned>> 		m_vertexDataHandleGLMapping;
+		
+		// <ae_textureID, <ogl_textureHandle>
+		std::map<TEXTURE_ID, unsigned>						m_textureHandleGLMapping;
+		
+		VERTEX_DATA_ID 										m_vertexDataHandleCounter;
+		TEXTURE_ID 											m_textureHandleCounter;
+		
+		int													m_glEnvironmentUBO;
 	};
 }
 

@@ -26,7 +26,6 @@ namespace ae {
 		
 		Torus(float minorRadius, float majorRadius, int slices, int segments);
 	};
-	
 }
 
 

@@ -18,12 +18,14 @@
 
 
 namespace ae {
-
 	
+	
+	class Geometry;
 	class GeometryElement;
 	class Image;
 	class Material;
 	class Scene;
+	
 	
 	class Renderer : public std::enable_shared_from_this<Renderer> {
 		
@@ -37,33 +39,30 @@ namespace ae {
 		virtual ~Renderer();
 		
 		/***************************************************************************************
-		     Public
-		 ***************************************************************************************/
-			
-		virtual std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
-												unsigned framebufferHeight) const;
-		
-		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
 
-		virtual void render(const Scene& scene);
-		virtual void render(const GeometryElement& geometryElement,
-							const Material& material,
+		virtual void render(Scene& scene,
+							unsigned framebufferWidth,
+							unsigned framebufferHeight,
+							const DEBUG_OPTIONS& debugOptions);
+		virtual void render(Geometry& geometry,
+							const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat,
+							const DEBUG_OPTIONS& debugOptions);
+		virtual void render(GeometryElement& geometryElement,
+							Material& material,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions);
 		
+		virtual std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
+												unsigned framebufferHeight) const;
+		
 		RenderStats& renderStats();
 
-	protected:
-		
-		/**************************************************************************************
-		     Protected
-		 **************************************************************************************/
-
-		
 	private:
 		
 		/**************************************************************************************

@@ -81,7 +81,11 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 int Test::run(const vector<string>& args) {
 	cout << "Test::run()\n" << endl;
 
-	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, USE_HIGH_DPI, ANTIALIAS_MODE);
+	auto renderer = make_shared<OpenGLRenderer>();
+	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
+								   FULLSCREEN,
+								   WINDOW_WIDTH, WINDOW_HEIGHT,
+								   USE_HIGH_DPI, ANTIALIAS_MODE);
 	//m_window = make_shared<Window>(scene, WINDOW_WIDTH, WINDOW_HEIGHT, FULLSCREEN, USE_HIGH_DPI, ANTIALIAS_MODE);
 	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));

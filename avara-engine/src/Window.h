@@ -45,7 +45,9 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		Window(bool fullScreen, unsigned width, unsigned height,
+		Window(std::shared_ptr<Renderer> renderer,
+			   bool fullScreen,
+			   unsigned width, unsigned height,
 			   bool useHighDPI = true,
 			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 		~Window();
@@ -63,21 +65,6 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
-//		unsigned width() const;
-//		/* PROBABLY REMOVE */ void width(unsigned width);
-//		
-//		unsigned height() const;
-//		/* PROBABLY REMOVE */ void height(unsigned height);
-//		
-//		unsigned framebufferScale() const;
-//		/* PROBABLY REMOVE */ void framebufferScale(unsigned aScale);
-//		
-//		unsigned framebufferWidth() const;
-//		/* PROBABLY REMOVE */ void framebufferWidth(unsigned width);
-//		
-//		unsigned framebufferHeight() const;
-//		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
-		
 		GLFWwindow* glfwWindow() const;
 		
 		/**************************************************************************************
@@ -87,6 +74,7 @@ namespace ae {
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
 		std::shared_ptr<InputManager> inputManager() override;
+		float sceneTime() override;
 		
 //		void enableVSync(bool enabled) override;
 //		void debugOptions(DEBUG_OPTIONS options) override;
@@ -104,21 +92,10 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 
-//		void initFontstash();
 		void drawLoop();
-//		void updateStatsOverlay(RenderStats& stats);
-//		float drawText(std::string text, float size, float dx, float dy);
 
-//		unsigned							m_width;
-//		unsigned							m_height;
-//		float								m_framebufferScale;
-//		unsigned							m_framebufferWidth;
-//		unsigned							m_framebufferHeight;
-//		ANTIALIASING_MODE					m_antialiasingMode;
 		std::shared_ptr<Color>				m_backgroundColor;
 		std::shared_ptr<InputManager> 		m_inputManager;
-//		FONScontext* 						m_fonsContext;
-//		int									m_fonsFont;
 		bool								m_cursorCaptured;
 		
 //		bool								m_recordingGIF;

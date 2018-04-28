@@ -33,7 +33,7 @@
 //#include "MaterialProperty.h"
 #include "Node.h"
 #include "Renderer.h"
-#include "OpenGLRenderer.h"
+//#include "OpenGLRenderer.h"
 //#include "PhysicsWorld.h"
 //#include "Program.h"
 #include "Scene.h"
@@ -200,8 +200,8 @@ using namespace std;
  ***************************************************************************************/
 
 //RenderContext::RenderContext(shared_ptr<Renderer> renderer):
-RenderContext::RenderContext():
-	m_renderer(nullptr),
+RenderContext::RenderContext(shared_ptr<Renderer> renderer):
+	m_renderer(renderer),
 	m_scene(nullptr),
 	m_vSyncEnabled(false),
 	m_debugOptions(DEBUG_OPTIONS::NONE),
@@ -338,11 +338,12 @@ shared_ptr<InputManager> RenderContext::inputManager() {
 	return nullptr;
 }
 
-//float RenderContext::sceneTime() {
-//	static auto startDate = chrono::high_resolution_clock::now();
-//	auto nowDate = chrono::high_resolution_clock::now();
-//	return (chrono::duration<float>(nowDate - startDate)).count();
-//}
+float RenderContext::sceneTime() {
+	// should probably override in subclass to use library's time utilities (GLFW, for example)
+	static auto startDate = chrono::high_resolution_clock::now();
+	auto nowDate = chrono::high_resolution_clock::now();
+	return (chrono::duration<float>(nowDate - startDate)).count();
+}
 
 shared_ptr<Image> RenderContext::snapshot() const {
 	if (m_renderer) {

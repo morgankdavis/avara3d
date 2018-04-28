@@ -47,8 +47,7 @@ namespace ae {
 
 //		void generateIcosahedron(std::vector<Vertex>& verticies, int subdivision);
 //		void subdivideIcosahedron(std::vector<Vertex>& verticies, glm::vec3 const& A0, glm::vec3 const& B0, glm::vec3 const& C0, int subdivide);
-	};
-	
+	};	
 }
 
 

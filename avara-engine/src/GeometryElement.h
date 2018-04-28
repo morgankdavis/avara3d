@@ -43,7 +43,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		void draw(Renderer& renderer,
-				  const Material& material,
+				  Material& material,
 				  const glm::mat4& modelMat,
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
@@ -58,8 +58,6 @@ namespace ae {
 				  RenderStats& stats);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
-		//void generateSmoothNormals();
-		//void generateFlatNormals();
 
 		void loadVertexData(const Program& program);
 
@@ -71,10 +69,8 @@ namespace ae {
 		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
 		
-		// * TEMPORARY *
-
-		unsigned GLVAO() const;
-		unsigned GLIBO() const;
+		VERTEX_DATA_ID vertexDataID() const;
+		void vertexDataID(VERTEX_DATA_ID dataID);
 		
 	protected:
 		
@@ -91,6 +87,7 @@ namespace ae {
 		// EXPERIMENTAL
 		
 		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
+		VERTEX_DATA_ID							m_vertexDataID;
 	};
 }
 

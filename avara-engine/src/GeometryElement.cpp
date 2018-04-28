@@ -39,7 +39,8 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 	//m_vertexDataLoaded(false),
 	m_glVAO(0),
 	m_glIBO(0),
-	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {//,
+	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL),
+	m_vertexDataID(0) {//,
 	//m_glUBO(0) {
 
 }
@@ -55,7 +56,7 @@ GeometryElement::~GeometryElement() {
  ***************************************************************************************/
 
 void GeometryElement::draw(Renderer& renderer,
-						   const Material& material,
+						   Material& material,
 						   const mat4& modelMat,
 						   const mat4& viewMat,
 						   const mat4& projectionMat,
@@ -122,74 +123,9 @@ void GeometryElement::hardTransform(const mat4 t, bool norm) {
 			//vertex->normal = vec3(t * vec4(vertex->normal, 0.0f));
 		}
 	}
+	
+	GEOMETRY_ELEMENT_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA);
 }
-
-//void GeometryElement::generateSmoothNormals() {
-//	// https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm
-//	// https://stackoverflow.com/questions/6656358/calculating-normals-in-a-triangle-mesh/6661242#6661242
-//
-//	generateFlatNormals();
-//
-//	//cout << "m_vertices: " << m_vertices.size() << endl;
-//	//cout << "m_faces: " << m_faces.size() << endl;
-//
-//	auto newVerticies = vector<Vertex>();
-//	for (unsigned v=0 ; v<m_vertices.size() ; ++v) {
-//		auto sharedVerticies = vector<Vertex>();
-//
-//		for (auto face : m_faces) {
-//			if (face.a == v) {
-//				sharedVerticies.push_back(m_vertices[face.a]);
-//			}
-//			else if (face.b == v) {
-//				sharedVerticies.push_back(m_vertices[face.b]);
-//			}
-//			else if (face.c == v) {
-//				sharedVerticies.push_back(m_vertices[face.c]);
-//			}
-//		}
-//
-//		vec3 normal = vec3(0.0f, 0.0f, 0.0f);
-//
-//		//cout << "sharedVerticies: " << sharedVerticies.size() << endl;
-//		for (auto sharedVertex : sharedVerticies) {
-//			normal.x += sharedVertex.normal.x;
-//			normal.y += sharedVertex.normal.y;
-//			normal.z += sharedVertex.normal.z;
-//		}
-//		normal.x /= sharedVerticies.size();
-//		normal.y /= sharedVerticies.size();
-//		normal.z /= sharedVerticies.size();
-//		normal = normalize(normal);
-//
-//		Vertex newVertex;
-//		newVertex.position = m_vertices[v].position;
-//		newVertex.normal = normal;
-//		newVertex.textureCoordinate = m_vertices[v].textureCoordinate;
-//		//auto newVertex = (Vertex){ m_vertices[v].position, normal, m_vertices[v].textureCoordinate };
-//		newVerticies.push_back(newVertex);
-//	}
-//	m_vertices = newVerticies;
-//}
-
-//void GeometryElement::generateFlatNormals() {
-//	// https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
-//
-//	for (Face face : m_faces) {
-//		Vertex* v1 = &m_vertices[face.a];
-//		Vertex* v2 = &m_vertices[face.b];
-//		Vertex* v3 = &m_vertices[face.c];
-//
-//		vec3 u = v2->position - v1->position;
-//		vec3 v = v3->position - v1->position;
-//
-//		vec3 normal = normalize(cross(u, v));
-//
-//		v1->normal = normal;
-//		v2->normal = normal;
-//		v3->normal = normal;
-//	}
-//}
 
 void GeometryElement::loadVertexData(const Program& program) {
 	
@@ -245,7 +181,7 @@ void GeometryElement::loadVertexData(const Program& program) {
 				 m_faces.size() * sizeof(Face),
 				 &(m_faces[0]),
 				 GL_STATIC_DRAW);
-	
+
 	AE_LOG->info("Done.");
 }
 
@@ -267,12 +203,10 @@ void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
 	m_dirtyBits = bits;
 }
 
-// * TEMPORARY *
-
-unsigned GeometryElement::GLVAO() const {
-	return m_glVAO;
+VERTEX_DATA_ID GeometryElement::vertexDataID() const {
+	return m_vertexDataID;
 }
 
-unsigned GeometryElement::GLIBO() const {
-	return m_glIBO;
+void GeometryElement::vertexDataID(VERTEX_DATA_ID dataID) {
+	m_vertexDataID = dataID;
 }

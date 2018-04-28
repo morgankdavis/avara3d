@@ -211,6 +211,7 @@ void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 void PhysicsWorld::step() {
 	AE_LOG->trace("step()");
 	
+#warning this should use sceneTime
 	float time = glfwGetTime();
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
