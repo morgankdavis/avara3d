@@ -752,17 +752,11 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	// load material contents if necessary
 	// refactor to GetTextureHandle();
 	
-	int glTextureIDs[] = {0, 0, 0, 0};
+	unsigned glTextureIDs[] = {0, 0, 0, 0};
 
 	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
 	
-#warning lock ambient with diffuse
-	if (material.locksAmbientWithDiffuse()
-		&& material.diffuse()
-		&& (material.diffuse()->color() || material.diffuse()->image())) {
-		//materialProperties.re
-	}
 	
 	unsigned propertyIndex = 0;
 	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
@@ -777,13 +771,13 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 				AE_LOG->debug("tempTextureID: {}", tempTextureID);
 				if (tempTextureID > 0) {
 					glTextureIDs[propertyIndex] = tempTextureID;
+					
+					m_textureHandleGLMapping[++m_textureHandleCounter] = glTextureIDs[propertyIndex];
+					property->textureID(m_textureHandleCounter);
 				}
 				
 				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
 																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
-				
-				m_textureHandleGLMapping[++m_textureHandleCounter] = glTextureIDs[propertyIndex];
-				property->textureID(m_textureHandleCounter);
 			}
 			else {
 				if (property->textureID() > 0) {
@@ -804,12 +798,12 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 		auto property = materialProperties[propertyIndex];
 		if (property) {
 			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
-			}
+//			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
+//													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
+//				
+//				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
+//																			 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
+//			}
 			
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
@@ -853,9 +847,19 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 																			 MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
 			}
 			
+			// if locksAmbientWithDiffuse(), substitube the diffuse property for the ambient property
+			unsigned glTextureID = glTextureIDs[propertyIndex];
+			if (propertyIndex == 0) { // ambient
+				if (material.locksAmbientWithDiffuse() && material.diffuse()
+					&& (material.diffuse()->color() || material.diffuse()->image())) {
+					glTextureID = glTextureIDs[1];
+					property = materialProperties[1];
+				}
+			}
+
 			SendMaterialPropertyUniforms(*property,
 										 propertyTypes[propertyIndex],
-										 glTextureIDs[propertyIndex],
+										 glTextureID,
 										 debugOptions,
 										 *program);
 		}
@@ -881,7 +885,7 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	//PrepareMaterialForRender(material, *program, debugOptions);
 	
 //		if (!((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-//			program.bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
+//			program->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
 //		}
 	
 	// draw

@@ -17,7 +17,6 @@ Tests:
 		Create Renderer and use visitor pattern
 			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
 			Remove SkyboxGeometry, etc
-			bindEnvironment
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure
@@ -33,6 +32,8 @@ Tests:
 				VertexData
 				Texture
 				CubeTexture
+
+			Move locksAmbientWithDiffuse to shader?
 
 
 		Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)
