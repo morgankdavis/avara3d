@@ -66,5 +66,5 @@ Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int s
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
 		
-		loadVertexData();
+		//loadVertexData();
 }

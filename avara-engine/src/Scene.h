@@ -90,9 +90,9 @@ namespace ae {
 				  const DEBUG_OPTIONS& debugOptions,
 				  RenderStats& stats);		
 		
-		void draw(std::shared_ptr<Node> pointOfView,
-				  DEBUG_OPTIONS& debugOptions,
-				  RenderStats& stats);
+//		void draw(std::shared_ptr<Node> pointOfView,
+//				  DEBUG_OPTIONS& debugOptions,
+//				  RenderStats& stats);
 		
 		std::shared_ptr<SkyboxGeometry>	skyboxGeometry() const;
 		

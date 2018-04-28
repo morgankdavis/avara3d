@@ -317,7 +317,8 @@ namespace ae {
 		MAGNIFICATION_FILTER = 	1 << 2,
 		WRAP_S = 				1 << 3,
 		WRAP_T = 				1 << 4,
-		MAX_ANISTROPY = 		1 << 5,
+		WRAP_R = 				1 << 5,
+		MAX_ANISTROPY = 		1 << 6,
 		ALL = 					UINT_MAX
 	};
 		

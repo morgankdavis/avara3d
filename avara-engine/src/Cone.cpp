@@ -72,7 +72,7 @@ Cone::Cone(float radius, float height, int slices, int segments):
 		auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
 		hardTransform(xRotation, true);
 		
-		loadVertexData();
+		//loadVertexData();
 }
 
 /***************************************************************************************

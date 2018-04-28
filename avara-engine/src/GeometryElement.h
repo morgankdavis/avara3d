@@ -49,13 +49,13 @@ namespace ae {
 				  const glm::mat4& projectionMat,
 				  const DEBUG_OPTIONS& debugOptions);
 		
-		void draw(const glm::mat4& modelMat,
-				  const glm::mat4& viewMat,
-				  const glm::mat4& projectionMat,
-				  Material& material,
-				  unsigned glEnvironmentUBO,
-				  DEBUG_OPTIONS debugOptions,
-				  RenderStats& stats);
+//		void draw(const glm::mat4& modelMat,
+//				  const glm::mat4& viewMat,
+//				  const glm::mat4& projectionMat,
+//				  Material& material,
+//				  unsigned glEnvironmentUBO,
+//				  DEBUG_OPTIONS debugOptions,
+//				  RenderStats& stats);
 		
 		void hardTransform(const glm::mat4 t, bool norm);
 

@@ -65,52 +65,52 @@ void GeometryElement::draw(Renderer& renderer,
 	renderer.render(*this, material, modelMat, viewMat, projectionMat, debugOptions);
 }
 
-void GeometryElement::draw(const mat4& modelMat,
-						   const mat4& viewMat,
-						   const mat4& projectionMat,
-						   Material& material,
-						   unsigned glEnvironmentUBO,
-						   DEBUG_OPTIONS debugOptions,
-						   RenderStats& stats) {
-
-	//auto program = material.program();
-	auto program = material.selectProgram(debugOptions);
-	
-	// gl config
-	
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	// use shader program
-	
-	program->use();
-	
-	// uniforms
-
-	program->setUniform("model", modelMat);
-	program->setUniform("view", inverse(viewMat));
-	program->setUniform("projection", projectionMat);
-	
-	material.prepareToRender(debugOptions);
-	
-	if (!((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
-	}
-	
-	// draw
-	
-	glBindVertexArray(m_glVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
-	unsigned int numFaces = m_faces.size();
-	stats.polygons += numFaces;
-	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
-	
-	program->unuse();
-}
+//void GeometryElement::draw(const mat4& modelMat,
+//						   const mat4& viewMat,
+//						   const mat4& projectionMat,
+//						   Material& material,
+//						   unsigned glEnvironmentUBO,
+//						   DEBUG_OPTIONS debugOptions,
+//						   RenderStats& stats) {
+//
+//	//auto program = material.program();
+//	auto program = material.selectProgram(debugOptions);
+//	
+//	// gl config
+//	
+//	glEnable(GL_DEPTH_TEST);
+//	glDepthFunc(GL_LESS);
+//	glDepthMask(GL_TRUE);
+//	
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	
+//	// use shader program
+//	
+//	program->use();
+//	
+//	// uniforms
+//
+//	program->setUniform("model", modelMat);
+//	program->setUniform("view", inverse(viewMat));
+//	program->setUniform("projection", projectionMat);
+//	
+//	material.prepareToRender(debugOptions);
+//	
+//	if (!((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+//		program->bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
+//	}
+//	
+//	// draw
+//	
+//	glBindVertexArray(m_glVAO);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
+//	unsigned int numFaces = m_faces.size();
+//	stats.polygons += numFaces;
+//	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
+//	
+//	program->unuse();
+//}
 
 void GeometryElement::hardTransform(const mat4 t, bool norm) {
 

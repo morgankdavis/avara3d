@@ -102,7 +102,7 @@ SkyboxGeometry::SkyboxGeometry(const shared_ptr<SkyboxMaterial> material):
 		auto element = make_shared<SkyboxGeometryElement>(vertsVector, facesVector);
 		m_elements.push_back(element);
 		
-		element->loadVertexData(*material->program());
+		//element->loadVertexData(*material->program());
 }
 
 /***************************************************************************************

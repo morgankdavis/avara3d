@@ -22,7 +22,7 @@ namespace ae {
 
 	class Color;
 	class Image;
-	class Program;
+//	class Program;
 	
 	
 	class MaterialProperty {
@@ -33,6 +33,7 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
+		MaterialProperty();
 		MaterialProperty(std::shared_ptr<Image> image);
 		MaterialProperty(std::shared_ptr<Color> color);
 		MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
@@ -66,17 +67,26 @@ namespace ae {
 		WRAP_MODE wrapT() const;
 		void wrapT(WRAP_MODE mode);
 		
+		WRAP_MODE wrapR() const;
+		void wrapR(WRAP_MODE mode);
+		
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
 		
-		void loadTexture();
-		void bind(MATERIAL_PROPERTY_TYPE type, Program& program);
+		//void loadTexture();
+		//void bind(MATERIAL_PROPERTY_TYPE type, Program& program);
 		
 		// EXPERIMENTAL
 		
 		MATERIAL_PROPERTY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
+		
+		TEXTURE_ID textureID() const;
+		void textureID(TEXTURE_ID textureID);
+		
+		std::vector<TEXTURE_ID> replacedTextureIDs() const;
+		void replacedTextureIDs(std::vector<TEXTURE_ID> textureIDs);
 		
 	private:
 		
@@ -93,12 +103,15 @@ namespace ae {
 		float													m_maxAnisotropy;
 		WRAP_MODE												m_wrapS;
 		WRAP_MODE												m_wrapT;
+		WRAP_MODE												m_wrapR;
 		
-		unsigned												m_glTextureID;
+		//unsigned												m_glTextureID;
 		
 		// EXPERIMENTAL
 		
 		MATERIAL_PROPERTY_DIRTY_BITS							m_dirtyBits;
+		TEXTURE_ID 												m_textureID;
+		std::vector<TEXTURE_ID>									m_replacedTextureIDs;
 	};
 }
 

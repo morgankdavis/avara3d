@@ -33,9 +33,6 @@ namespace ae {
 		/***************************************************************************************
 		     Renderer
 		 ***************************************************************************************/
-
-		std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
-										unsigned framebufferHeight) const override;
 		
 		void render(Scene& scene,
 					unsigned framebufferWidth,
@@ -52,6 +49,9 @@ namespace ae {
 					const glm::mat4& viewMat,
 					const glm::mat4& projectionMat,
 					const DEBUG_OPTIONS& debugOptions) override;
+		
+		std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
+										unsigned framebufferHeight) const override;
 		
 	protected:
 		

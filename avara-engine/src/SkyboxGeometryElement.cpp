@@ -51,35 +51,35 @@ void SkyboxGeometryElement::draw(const mat4& viewMat,
 								 const SkyboxMaterial& material,
 								 RenderStats& stats) {
 	
-	auto program = material.program();
-	
-	// gl config
-	
-	glDepthMask(GL_FALSE);
-
-	// use shader program
-	
-	program->use();
-
-	// uniforms
-	
-	program->setUniform("view", viewMat);
-	program->setUniform("projection", projectionMat);
-
-	// material
-	
-	material.cubeProperty()->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *program); // property type is arbitrary...
-	material.prepareToRender(DEBUG_OPTIONS::NONE);
-
-	// draw
-
-	glBindVertexArray(m_glVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
-	unsigned int numFaces = m_faces.size();
-	stats.polygons += numFaces;
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
-	
-	program->unuse();
+//	auto program = material.program();
+//	
+//	// gl config
+//	
+//	glDepthMask(GL_FALSE);
+//
+//	// use shader program
+//	
+//	program->use();
+//
+//	// uniforms
+//	
+//	program->setUniform("view", viewMat);
+//	program->setUniform("projection", projectionMat);
+//
+//	// material
+//	
+//	material.cubeProperty()->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *program); // property type is arbitrary...
+//	material.prepareToRender(DEBUG_OPTIONS::NONE);
+//
+//	// draw
+//
+//	glBindVertexArray(m_glVAO);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIBO);
+//	unsigned int numFaces = m_faces.size();
+//	stats.polygons += numFaces;
+//	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+//	
+//	program->unuse();
 }
 
 void SkyboxGeometryElement::loadVertexData(const Program& program) {

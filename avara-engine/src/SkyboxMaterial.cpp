@@ -23,7 +23,8 @@ using namespace std;
  ***************************************************************************************/
 
 SkyboxMaterial::SkyboxMaterial(shared_ptr<MaterialProperty> cubeProperty):
-Material(nullptr, nullptr, nullptr, Program::Skybox()),
+//Material(nullptr, nullptr, nullptr, Program::Skybox()),
+Material(nullptr, nullptr, nullptr),
 	m_cubeProperty(cubeProperty) {
 
 }

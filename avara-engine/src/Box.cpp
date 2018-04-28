@@ -57,7 +57,7 @@ Box::Box(float width, float height, float length):
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
 		
-		loadVertexData();
+		//loadVertexData();
 }
 
 //Box::Box(float width, float height, float length):

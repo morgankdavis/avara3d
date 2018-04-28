@@ -58,7 +58,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 	m_node(weak_ptr<Node>()),
 	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 		
-		loadVertexData();
+		//loadVertexData();
 }
 
 Geometry::~Geometry() {
@@ -129,20 +129,20 @@ void Geometry::replaceMaterial(int index, const shared_ptr<Material> replacement
      Internal
  ***************************************************************************************/
 
-void Geometry::loadVertexData() {
-	for (int e=0; e < m_elements.size(); ++e) {
-		auto element = m_elements[e];
-		
-		if (m_materials.size() > e) {
-			auto element = m_elements[e];
-			auto material = m_materials[e];
-			element->loadVertexData(*(material->program()));
-		}
-		else {
-			element->loadVertexData(*(Material::DefaultMaterial()->program()));
-		}
-	}
-}
+//void Geometry::loadVertexData() {
+//	for (int e=0; e < m_elements.size(); ++e) {
+//		auto element = m_elements[e];
+//		
+//		if (m_materials.size() > e) {
+//			auto element = m_elements[e];
+//			auto material = m_materials[e];
+//			element->loadVertexData(*(material->program()));
+//		}
+//		else {
+//			element->loadVertexData(*(Material::DefaultMaterial()->program()));
+//		}
+//	}
+//}
 
 void Geometry::hardTransform(mat4 t, bool norm) {
 	for (auto element : elements()) {
@@ -198,34 +198,34 @@ void Geometry::draw(Renderer& renderer,
 	
 }
 
-void Geometry::draw(const mat4& modelMat,
-					const mat4& viewMat,
-					const mat4& projectionMat,
-					int glEnvironmentUBO,
-					DEBUG_OPTIONS debugOptions,
-					RenderStats& stats) {
-	
-	unsigned numElements = m_elements.size();
-	stats.meshes += numElements;
-	for (int e=0; e < numElements; ++e) {
-		
-		auto element = m_elements[e];
-		shared_ptr<Material> material = nullptr;
-		if (m_materials.size() > e) {
-			material = m_materials[e];
-		}
-		else {
-			material = Material::DefaultMaterial();
-		}
-		
-		element->draw(modelMat, viewMat, projectionMat,
-					  *material, glEnvironmentUBO, debugOptions, stats);
-	}
-	
-	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {
-		drawAABB(modelMat, viewMat, projectionMat);
-    }
-}
+//void Geometry::draw(const mat4& modelMat,
+//					const mat4& viewMat,
+//					const mat4& projectionMat,
+//					int glEnvironmentUBO,
+//					DEBUG_OPTIONS debugOptions,
+//					RenderStats& stats) {
+//	
+//	unsigned numElements = m_elements.size();
+//	stats.meshes += numElements;
+//	for (int e=0; e < numElements; ++e) {
+//		
+//		auto element = m_elements[e];
+//		shared_ptr<Material> material = nullptr;
+//		if (m_materials.size() > e) {
+//			material = m_materials[e];
+//		}
+//		else {
+//			material = Material::DefaultMaterial();
+//		}
+//		
+//		element->draw(modelMat, viewMat, projectionMat,
+//					  *material, glEnvironmentUBO, debugOptions, stats);
+//	}
+//	
+//	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {
+//		drawAABB(modelMat, viewMat, projectionMat);
+//    }
+//}
 
 void Geometry::drawAABB(const glm::mat4& modelMat,
 						const glm::mat4& viewMat,

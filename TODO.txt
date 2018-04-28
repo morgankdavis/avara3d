@@ -17,11 +17,23 @@ Tests:
 		Create Renderer and use visitor pattern
 			MOVE DRAW LOOP INTO RENDERER
 			Implement "sceneTime"
-			Implement copy, assignment, etc for Geometry, GeometryElement, Material, MaterialProperty, Scene
+			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
 			Remove SkyboxGeometry, etc
 			bindEnvironment
 			Destroy unused resources
+				For each render, keep a list of all vertexDataIDs & textureIDs
+				At the end, delete any that aren't in the renderer's mapping structure
 			Renderer::prepareForNextFrame() ?
+			Convert MaterialProperty to have a MaterialPropertyContent abstract class property
+				(CubeImage, Image, Color)
+
+			Material - set image or cube -> remove the other
+
+
+			ContainerObjects? -- contain AE rendering resource IDs?
+				VertexData
+				Texture
+				CubeTexture
 
 
 		Create Window -- must take a Scene. Create Scene -- must take a root Node (for file path)

@@ -58,7 +58,7 @@ Sphere::Sphere(float radius, int segments):
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
 		
-		loadVertexData();
+		//loadVertexData();
 }
 
 

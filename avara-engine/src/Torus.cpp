@@ -67,5 +67,5 @@ Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
 		auto element = make_shared<GeometryElement>(verts, faces);
 		m_elements.push_back(element);
 		
-		loadVertexData();
+		//loadVertexData();
 }

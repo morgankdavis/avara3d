@@ -86,7 +86,6 @@ int Test::run(const vector<string>& args) {
 								   FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
 								   USE_HIGH_DPI, ANTIALIAS_MODE);
-	//m_window = make_shared<Window>(scene, WINDOW_WIDTH, WINDOW_HEIGHT, FULLSCREEN, USE_HIGH_DPI, ANTIALIAS_MODE);
 	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::renderContextDidRenderCallback, this, _1, _2));
@@ -137,8 +136,8 @@ int Test::run(const vector<string>& args) {
 	}
 
 	
-	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
-//	auto background = make_shared<MaterialProperty>(make_shared<Color>(Color::Navy()));
+//	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
+	auto background = make_shared<MaterialProperty>(make_shared<Color>(Color::Navy()));
 	scene->background(background);
 
 

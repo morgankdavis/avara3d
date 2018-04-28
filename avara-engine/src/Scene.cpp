@@ -692,60 +692,60 @@ void Scene::draw(Renderer& renderer,
 //	}
 }
 
-void Scene::draw(shared_ptr<Node> pointOfView,
-				 DEBUG_OPTIONS& debugOptions,
-				 RenderStats& stats) {
-
-	auto viewMat = pointOfView->worldTransform();
-	auto projectionMat = pointOfView->camera()->projection();
-	
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	if (m_background) {
-		if (m_background->cube()) {
-			mat4 skyboxViewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
-										pointOfView->worldForward(), // center - look at
-										pointOfView->worldUp()); // up
-			
-			m_skyboxGeometry->draw(skyboxViewMat, projectionMat, stats);
-		}
-		else if (m_background->color()) {
-			auto color = *(m_background->color());
-			glClearColor(color.r, color.g, color.b, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-	}
-
-	bindEnvironment(*pointOfView, stats);
-
-	for (auto node: m_rootNode->childNodes(true)) {
-		stats.nodes++;
-		if (!node->hidden()) {
-			auto geometry = node->geometry();
-			if (geometry != nullptr) {
-				stats.geometries++;
-				auto modelMat = mat4(1.0);
-				auto physicsBody = node->physicsBody();
-				if (physicsBody) {
-					auto motionState = physicsBody->btMotionState();
-					btTransform transform;
-					motionState->getWorldTransform(transform);
-					transform.getOpenGLMatrix(value_ptr(modelMat));
-				}
-				else {
-					modelMat = node->worldTransform();
-				}
-				geometry->draw(modelMat, viewMat, projectionMat,
-							   m_glEnvironmentUBO, debugOptions, stats);
-			}
-		}
-	}
-	
-	if (m_physicsWorld) {
-		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
-	}
-}
+//void Scene::draw(shared_ptr<Node> pointOfView,
+//				 DEBUG_OPTIONS& debugOptions,
+//				 RenderStats& stats) {
+//
+//	auto viewMat = pointOfView->worldTransform();
+//	auto projectionMat = pointOfView->camera()->projection();
+//	
+//	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	
+//	if (m_background) {
+//		if (m_background->cube()) {
+//			mat4 skyboxViewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+//										pointOfView->worldForward(), // center - look at
+//										pointOfView->worldUp()); // up
+//			
+//			m_skyboxGeometry->draw(skyboxViewMat, projectionMat, stats);
+//		}
+//		else if (m_background->color()) {
+//			auto color = *(m_background->color());
+//			glClearColor(color.r, color.g, color.b, 1.0f);
+//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		}
+//	}
+//
+//	bindEnvironment(*pointOfView, stats);
+//
+//	for (auto node: m_rootNode->childNodes(true)) {
+//		stats.nodes++;
+//		if (!node->hidden()) {
+//			auto geometry = node->geometry();
+//			if (geometry != nullptr) {
+//				stats.geometries++;
+//				auto modelMat = mat4(1.0);
+//				auto physicsBody = node->physicsBody();
+//				if (physicsBody) {
+//					auto motionState = physicsBody->btMotionState();
+//					btTransform transform;
+//					motionState->getWorldTransform(transform);
+//					transform.getOpenGLMatrix(value_ptr(modelMat));
+//				}
+//				else {
+//					modelMat = node->worldTransform();
+//				}
+//				geometry->draw(modelMat, viewMat, projectionMat,
+//							   m_glEnvironmentUBO, debugOptions, stats);
+//			}
+//		}
+//	}
+//	
+//	if (m_physicsWorld) {
+//		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
+//	}
+//}
 
 shared_ptr<SkyboxGeometry>	Scene::skyboxGeometry() const {
 	return m_skyboxGeometry;
