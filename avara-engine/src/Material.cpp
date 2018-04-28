@@ -11,13 +11,13 @@
 #include <iostream>
 #include <memory>
 
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #include "Color.h"
 #include "Image.h"
 #include "Logger.h"
 #include "MaterialProperty.h"
-#include "Program.h"
+//#include "Program.h"
 #include "Utilities.h"
 
 

@@ -13,9 +13,9 @@
 
 
 //#include <GL/glew.h> // include before anything that might include GL/gl.h...
-#include "fontstash.h"
+//#include "fontstash.h"
 //#include "gif.h"
-#include "gl3fontstash.h"
+//#include "gl3fontstash.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -34,9 +34,6 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "Utilities.h"
-
-
-//#include <chrono>
 
 
 using namespace std;
@@ -128,7 +125,8 @@ Window::Window(shared_ptr<Renderer> renderer,
 	glfwMakeContextCurrent(i_glfwWindow);
 	enableVSync(false);
 
-	initGLEW();
+	//initGLEW();
+		RenderContext::renderer()->init();
 
 	i_window = this;
 

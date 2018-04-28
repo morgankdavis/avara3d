@@ -42,6 +42,8 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
+		virtual bool init();
+		
 		virtual void render(Scene& scene,
 							unsigned framebufferWidth,
 							unsigned framebufferHeight,

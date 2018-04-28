@@ -15,8 +15,6 @@ Tests:
 
 
 		Create Renderer and use visitor pattern
-			MOVE DRAW LOOP INTO RENDERER
-			Implement "sceneTime"
 			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
 			Remove SkyboxGeometry, etc
 			bindEnvironment
@@ -29,6 +27,7 @@ Tests:
 
 			Material - set image or cube -> remove the other
 
+			Global init stuff (GLFW, etc) should move to appropriate places
 
 			ContainerObjects? -- contain AE rendering resource IDs?
 				VertexData

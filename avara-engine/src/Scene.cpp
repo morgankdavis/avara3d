@@ -19,7 +19,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <btBulletDynamicsCommon.h>
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #include "Camera.h"
 #include "Color.h"
@@ -559,9 +559,9 @@ Scene::Scene():
 	//m_window({}) {
 	m_renderContext({}) {
 		
-		uint32 ubo;
-		glGenBuffers(1, &ubo);
-		m_glEnvironmentUBO = ubo;
+//		uint32 ubo;
+//		glGenBuffers(1, &ubo);
+//		m_glEnvironmentUBO = ubo;
 }
 
 /***************************************************************************************
@@ -818,110 +818,110 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
      Private
  ***************************************************************************************/
 
-void Scene::bindEnvironment(const Node& pointOfView, RenderStats& stats) const {
-
-	// lights
-	
-	auto lights = vector<shared_ptr<Node>>();
-	shared_ptr<Node> ambientLight = nullptr;
-	
-	// find all lights in the scene
-	for (auto node: m_rootNode->childNodes(true)) {
-		if (!node->hidden()) {
-			auto light = node->light();
-			if (light != nullptr) {
-				if (light->type() == LIGHT_TYPE::POINT) {
-					lights.emplace_back(node);
-				}
-				else if (light->type() == LIGHT_TYPE::AMBIENT) {
-					ambientLight = node;
-				}
-			}
-		}
-	}
-	
-	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
-		
-		// find all light distances from the camera
-		
-		auto lightsUnsorted = map<shared_ptr<Node>, float>();
-		vec3 cameraPos_world = pointOfView.worldPosition();
-		for (auto lightNode: lights) {
-			auto lightPos_world = lightNode->worldPosition();
-			auto lightToCamera = lightPos_world - cameraPos_world;
-			auto lightToCameraDistance = length(lightToCamera);
-			lightsUnsorted[lightNode] = lightToCameraDistance;
-			//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
-		}
-		
-		lights = SortedLights(lightsUnsorted);
-		
-		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
-		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
-		vector<shared_ptr<Node>> lightsSlice(first, last);
-		
-		lights = lightsSlice;
-	}
-	
-	// check for default lighting
-	
-	if (lights.size() == 0) {
-		auto detaultPoint = Light::DefaultPointNode();
-		// set position based on scene extent...
-		static vec3 sceneExtent = extent(); // only doing this once or it runs reallll slow
-		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
-			sceneExtent.y + sceneExtent.y/4.0,
-			sceneExtent.z + sceneExtent.z/4.0});
-		lights.emplace_back(detaultPoint);
-	}
-	if (!ambientLight) ambientLight = Light::DefaultAmbientNode();
-	
-	lights.emplace_back(ambientLight);
-	
-	unsigned numLights = lights.size();
-	LightGLSLStruct lightStruct[numLights];
-	
-	stats.lights = numLights - 1; // not counting ambient
-	
-	for (int l=0; l<numLights; ++l) {
-		auto node = lights[l];
-		auto light = node->light();
-		
-		lightStruct[l].type = (unsigned)(light->type());
-		lightStruct[l].position_world = node->worldPosition();
-		lightStruct[l].attenuationFactor = light->attenuationFactor();
-		
-		auto color = *light->color();
-		lightStruct[l].color = vec3(color.r, color.g, color.b);
-	}
-	
-	// fog
-	
-	FogGLSLStruct fogStruct;
-	fogStruct.startDistance = m_fogStartDistance;
-	fogStruct.endDistance = m_fogEndDistance;
-	fogStruct.densityExponent = m_fogDensityExponent;
-	fogStruct.startDistance = m_fogStartDistance;
-	if (m_fogColor) fogStruct.color = vec4(m_fogColor->r, m_fogColor->g, m_fogColor->b, m_fogColor->a);
-	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
-	
-	// block
-	
-	typedef struct {
-		int32_t 			numLights;
-		float32_t 			PADDING1;
-		float32_t 			PADDING2;
-		float32_t 			PADDING3;
-		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-		FogGLSLStruct		fog;
-	} EnvironmentBlock;
-	
-	EnvironmentBlock environmentBlock;
-	environmentBlock.numLights = numLights;
-	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
-	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
-	
-	glBindBuffer(GL_UNIFORM_BUFFER, m_glEnvironmentUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
-}
+//void Scene::bindEnvironment(const Node& pointOfView, RenderStats& stats) const {
+//
+//	// lights
+//	
+//	auto lights = vector<shared_ptr<Node>>();
+//	shared_ptr<Node> ambientLight = nullptr;
+//	
+//	// find all lights in the scene
+//	for (auto node: m_rootNode->childNodes(true)) {
+//		if (!node->hidden()) {
+//			auto light = node->light();
+//			if (light != nullptr) {
+//				if (light->type() == LIGHT_TYPE::POINT) {
+//					lights.emplace_back(node);
+//				}
+//				else if (light->type() == LIGHT_TYPE::AMBIENT) {
+//					ambientLight = node;
+//				}
+//			}
+//		}
+//	}
+//	
+//	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
+//		
+//		// find all light distances from the camera
+//		
+//		auto lightsUnsorted = map<shared_ptr<Node>, float>();
+//		vec3 cameraPos_world = pointOfView.worldPosition();
+//		for (auto lightNode: lights) {
+//			auto lightPos_world = lightNode->worldPosition();
+//			auto lightToCamera = lightPos_world - cameraPos_world;
+//			auto lightToCameraDistance = length(lightToCamera);
+//			lightsUnsorted[lightNode] = lightToCameraDistance;
+//			//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
+//		}
+//		
+//		lights = SortedLights(lightsUnsorted);
+//		
+//		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
+//		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
+//		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
+//		vector<shared_ptr<Node>> lightsSlice(first, last);
+//		
+//		lights = lightsSlice;
+//	}
+//	
+//	// check for default lighting
+//	
+//	if (lights.size() == 0) {
+//		auto detaultPoint = Light::DefaultPointNode();
+//		// set position based on scene extent...
+//		static vec3 sceneExtent = extent(); // only doing this once or it runs reallll slow
+//		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
+//			sceneExtent.y + sceneExtent.y/4.0,
+//			sceneExtent.z + sceneExtent.z/4.0});
+//		lights.emplace_back(detaultPoint);
+//	}
+//	if (!ambientLight) ambientLight = Light::DefaultAmbientNode();
+//	
+//	lights.emplace_back(ambientLight);
+//	
+//	unsigned numLights = lights.size();
+//	LightGLSLStruct lightStruct[numLights];
+//	
+//	stats.lights = numLights - 1; // not counting ambient
+//	
+//	for (int l=0; l<numLights; ++l) {
+//		auto node = lights[l];
+//		auto light = node->light();
+//		
+//		lightStruct[l].type = (unsigned)(light->type());
+//		lightStruct[l].position_world = node->worldPosition();
+//		lightStruct[l].attenuationFactor = light->attenuationFactor();
+//		
+//		auto color = *light->color();
+//		lightStruct[l].color = vec3(color.r, color.g, color.b);
+//	}
+//	
+//	// fog
+//	
+//	FogGLSLStruct fogStruct;
+//	fogStruct.startDistance = m_fogStartDistance;
+//	fogStruct.endDistance = m_fogEndDistance;
+//	fogStruct.densityExponent = m_fogDensityExponent;
+//	fogStruct.startDistance = m_fogStartDistance;
+//	if (m_fogColor) fogStruct.color = vec4(m_fogColor->r, m_fogColor->g, m_fogColor->b, m_fogColor->a);
+//	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
+//	
+//	// block
+//	
+//	typedef struct {
+//		int32_t 			numLights;
+//		float32_t 			PADDING1;
+//		float32_t 			PADDING2;
+//		float32_t 			PADDING3;
+//		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+//		FogGLSLStruct		fog;
+//	} EnvironmentBlock;
+//	
+//	EnvironmentBlock environmentBlock;
+//	environmentBlock.numLights = numLights;
+//	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
+//	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
+//	
+//	glBindBuffer(GL_UNIFORM_BUFFER, m_glEnvironmentUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
+//}

@@ -34,6 +34,10 @@ Renderer::~Renderer() {
      Internal
  **************************************************************************************/
 
+bool Renderer::init() {
+	
+}
+
 void Renderer::render(Scene& scene,
 					  unsigned framebufferWidth,
 					  unsigned framebufferHeight,

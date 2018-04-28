@@ -19,7 +19,7 @@
 #include "Types.h"
 
 
-struct FONScontext;
+//struct FONScontext;
 struct GLFWwindow;
 
 

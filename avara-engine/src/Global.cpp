@@ -11,17 +11,17 @@
 #include <iostream>
 #include <time.h>
 
-#define FONTSTASH_IMPLEMENTATION
-#include "fontstash.h"
+//#define FONTSTASH_IMPLEMENTATION
+//#include "fontstash.h"
 
 #include <assimp/version.h>
-#include <GL/glew.h>
+//#include <GL/glew.h>
 //#define GLFW_DLL
 #include <GLFW/glfw3.h>
 #include <LinearMath/btScalar.h> // for bullet version (!)
 
-#define GLFONTSTASH_IMPLEMENTATION
-#include "gl3fontstash.h"
+//#define GLFONTSTASH_IMPLEMENTATION
+//#include "gl3fontstash.h"
 
 #include "Logger.h"
 #include "LoggerManager.h"
@@ -135,7 +135,6 @@ int ae::initGLFW() {
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		//cout << "Starting GLFW version " << glfwMajVers << "." << glfwMinVers << "." << glfwRev << endl;
 		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 		
 		glfwSetErrorCallback(glfwErrorCallback);
@@ -148,6 +147,7 @@ int ae::initGLFW() {
 			return -1;
 		}
 
+#warning move these somewhere
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
 		
 		AE_LOG->info("Assimp version: {}.{}.{}",
@@ -161,23 +161,23 @@ int ae::initGLFW() {
 	return 0;
 }
 
-int ae::initGLEW() {
-	AE_LOG->trace("initGLEW()");
-	
-	// must set OpenGL context first
-	
-	static bool initialized = false;
-	if (!initialized) {
-		glewExperimental = GL_TRUE;
-		glewInit();
-		
-		const GLubyte *renderer = glGetString(GL_RENDERER);
-		const GLubyte *version = glGetString(GL_VERSION);
-		AE_LOG->info("Renderer: {}", renderer);
-		AE_LOG->info("Version: {}", version);
-		
-		initialized = true;
-	}
-	
-	return 0;
-}
+//int ae::initGLEW() {
+//	AE_LOG->trace("initGLEW()");
+//	
+//	// must set OpenGL context first
+//	
+//	static bool initialized = false;
+//	if (!initialized) {
+//		glewExperimental = GL_TRUE;
+//		glewInit();
+//		
+//		const GLubyte *renderer = glGetString(GL_RENDERER);
+//		const GLubyte *version = glGetString(GL_VERSION);
+//		AE_LOG->info("Renderer: {}", renderer);
+//		AE_LOG->info("Version: {}", version);
+//		
+//		initialized = true;
+//	}
+//	
+//	return 0;
+//}

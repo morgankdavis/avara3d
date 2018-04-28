@@ -110,7 +110,7 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		void bindEnvironment(const Node& pointOfView, RenderStats& stats) const;
+		//void bindEnvironment(const Node& pointOfView, RenderStats& stats) const;
 		
 		std::shared_ptr<Node>					m_rootNode;
 		std::shared_ptr<MaterialProperty>		m_background;
