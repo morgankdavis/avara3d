@@ -18,7 +18,6 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			Filtering options, etc
 			Info overlay
 			Gif recording
 

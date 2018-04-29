@@ -22,7 +22,6 @@ namespace ae {
 
 	class Color;
 	class Image;
-//	class Program;
 	
 	
 	class MaterialProperty {
@@ -74,11 +73,6 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		//void loadTexture();
-		//void bind(MATERIAL_PROPERTY_TYPE type, Program& program);
-		
-		// EXPERIMENTAL
-		
 		MATERIAL_PROPERTY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
 		
@@ -104,11 +98,7 @@ namespace ae {
 		WRAP_MODE												m_wrapS;
 		WRAP_MODE												m_wrapT;
 		WRAP_MODE												m_wrapR;
-		
-		//unsigned												m_glTextureID;
-		
-		// EXPERIMENTAL
-		
+
 		MATERIAL_PROPERTY_DIRTY_BITS							m_dirtyBits;
 		TEXTURE_ID 												m_textureID;
 		std::vector<TEXTURE_ID>									m_replacedTextureIDs;

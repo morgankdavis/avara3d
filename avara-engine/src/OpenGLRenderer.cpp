@@ -382,7 +382,7 @@ static void SendMaterialUniforms(const Material& material,
 	//program.unuse();
 }
 
-static void SendMaterialPropertyUniforms(const MaterialProperty& materialProperty,
+static void SendMaterialPropertyUniforms(MaterialProperty& property,
 										 MATERIAL_PROPERTY_TYPE type,
 										 GLuint glTextureHandle,
 										 const DEBUG_OPTIONS& debugOptions,
@@ -390,12 +390,56 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 	
 #warning probably should be refactored
 	
+	bool cube = (property.cube() != nullptr);
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
+		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER)) {
+		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S)) {
+		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T)) {
+		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
+		SetTextureWrapR(glTextureHandle, property.wrapR());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY)) {
+		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
+	}
+	
 	program.use();
 	
-	if (materialProperty.cube()) {
+	if (property.cube()) {
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
 	}
-	else if (materialProperty.image()) { // texture
+	else if (property.image()) { // texture
 		string modeUniformName = "";
 		string samplerUniformName = "";
 		GLenum slot;
@@ -457,10 +501,8 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 		}
 		
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::COLOR));
-		program.setUniform(colorUniformName.c_str(),
-						   materialProperty.color()->r,
-						   materialProperty.color()->g,
-						   materialProperty.color()->b);
+		auto color = property.color();
+		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	
 	//program.unuse();
@@ -961,54 +1003,7 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 		auto property = materialProperties[propertyIndex];
 		if (property) {
 			
-//			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-//													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
-//				
-//				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-//																			 MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
-//			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER));
-			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER));
-			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S));
-			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
-			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
-			}
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY)) {
-				
-				geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																			 MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
-			}
+
 			
 			SendMaterialPropertyUniforms(*property,
 										 propertyTypes[propertyIndex],
