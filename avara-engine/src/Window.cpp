@@ -286,7 +286,7 @@ shared_ptr<InputManager> Window::inputManager() {
 	return m_inputManager;
 }
 
-float Window::sceneTime() {
+float Window::sceneTime() const {
 	return glfwGetTime();
 }
 
@@ -362,6 +362,8 @@ void Window::drawLoop() {
 	//if (DEBUG_OPTIONS_CONTAINS(debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) updateStatsOverlay(stats);
 	//if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
 	
+	m_renderer->endFrame(*this);
+	
 	glfwSwapBuffers(i_glfwWindow);
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
@@ -370,8 +372,6 @@ void Window::drawLoop() {
 	
 	glfwPollEvents();
 	if (inputManager()) inputManager()->update();
-	
-	m_renderer->endFrame(*this);
 }
 
 //void Window::updateStatsOverlay(RenderStats& stats) {

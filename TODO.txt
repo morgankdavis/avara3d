@@ -18,7 +18,8 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			Info overlay
+			Wireframe
+			AABB
 			Gif recording
 
 			Material - set image or cube -> remove the other

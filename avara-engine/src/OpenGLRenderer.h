@@ -17,12 +17,15 @@
 #include "Types.h"
 
 
+struct FONScontext;
+
+
 namespace ae {
 	
 	class OpenGLRenderer : public Renderer {
 		
 	public:
-		
+
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
@@ -63,15 +66,18 @@ namespace ae {
 
 		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		std::map<VERTEX_DATA_ID,
-			std::tuple<unsigned, unsigned, unsigned>> 		m_vertexDataIDMapping;
+			std::tuple<unsigned, unsigned, unsigned>>	m_vertexDataIDMapping;
 		
 		/* <ae_textureID, <gl_textureHandle> */
-		std::map<TEXTURE_ID, unsigned>						m_textureIDMapping;
+		std::map<TEXTURE_ID, unsigned>					m_textureIDMapping;
 		
-		VERTEX_DATA_ID 										m_vertexDataIDCounter;
-		TEXTURE_ID 											m_textureIDCounter;
+		VERTEX_DATA_ID 									m_vertexDataIDCounter;
+		TEXTURE_ID 										m_textureIDCounter;
 		
-		unsigned											m_glEnvironmentUBO;
+		FONScontext* 									m_fonsContext;
+		int												m_fonsFont;
+		
+		unsigned										m_glEnvironmentUBO;
 	};
 }
 

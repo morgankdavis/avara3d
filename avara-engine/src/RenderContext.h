@@ -89,13 +89,14 @@ namespace ae {
 		
 		virtual std::shared_ptr<InputManager> inputManager();
 		
-		virtual float sceneTime();
+		virtual float sceneTime() const;
 		
 		std::shared_ptr<Image> snapshot() const;
 		
 		virtual bool recordingGIF() const;
 		virtual void startGIFRecording(const boost::filesystem::path& path,
 									   unsigned maxHeight, unsigned maxFramerate);
+		virtual unsigned recordedGIFFrames() const;
 		virtual void stopGIFRecording();
 		
 		RenderContextUpdateFuction updateCallback();

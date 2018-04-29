@@ -338,7 +338,7 @@ shared_ptr<InputManager> RenderContext::inputManager() {
 	return nullptr;
 }
 
-float RenderContext::sceneTime() {
+float RenderContext::sceneTime() const {
 	// should probably override in subclass to use library's time utilities (GLFW, for example)
 	static auto startDate = chrono::high_resolution_clock::now();
 	auto nowDate = chrono::high_resolution_clock::now();
@@ -387,6 +387,10 @@ void RenderContext::startGIFRecording(const boost::filesystem::path& path,
 //		
 //		m_recordingGIF = true;
 //	}
+}
+
+unsigned RenderContext::recordedGIFFrames() const {
+	return 0; 
 }
 
 void RenderContext::stopGIFRecording() {

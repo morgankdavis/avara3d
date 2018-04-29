@@ -14,7 +14,11 @@
 #include <set>
 #include <vector>
 
+#define FONTSTASH_IMPLEMENTATION
+#include "fontstash.h"
 #include <GL/glew.h>
+#define GLFONTSTASH_IMPLEMENTATION
+#include "gl3fontstash.h"
 
 #include "Camera.h"
 #include "Color.h"
@@ -30,9 +34,11 @@
 #include "Program.h"
 #include "RenderContext.h"
 #include "Scene.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -216,8 +222,6 @@ static void LoadGeometryElementVertexData(const GeometryElement& geometryElement
 	
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	
-#warning figure out how to set layout only when needed
-	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
@@ -378,14 +382,9 @@ static void SendMaterialUniforms(const Material& material,
 	
 	//program.unuse();
 }
-
-static void SendMaterialPropertyUniforms(MaterialProperty& property,
-										 MATERIAL_PROPERTY_TYPE type,
-										 GLuint glTextureHandle,
-										 const DEBUG_OPTIONS& debugOptions,
-										 Program& program) {
 	
-#warning probably should be refactored
+static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
+												GLuint glTextureHandle) {
 	
 	bool cube = (property.cube() != nullptr);
 	
@@ -417,11 +416,13 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
 	}
 	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
-		SetTextureWrapR(glTextureHandle, property.wrapR());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
+	if (cube) {
+		if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+												  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
+			SetTextureWrapR(glTextureHandle, property.wrapR());
+			property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+																   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
+		}
 	}
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
@@ -430,6 +431,13 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
 	}
+}
+
+static void SendMaterialPropertyUniforms(MaterialProperty& property,
+										 MATERIAL_PROPERTY_TYPE type,
+										 GLuint glTextureHandle,
+										 const DEBUG_OPTIONS& debugOptions,
+										 Program& program) {
 	
 	program.use();
 	
@@ -820,8 +828,11 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	glDepthMask(GL_FALSE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_CULL_FACE);
-
+	
 	auto property = material.emissive();
+	
+	SetMaterialPropertyFilteringOptions(*property,  glTextureHandles[3]);
+	
 	SendMaterialPropertyUniforms(*property,
 								 // EMISSIVE is currently ignored by SendMaterialPropertyUniforms()
 								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
@@ -843,6 +854,125 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	
 	//program->unuse();
+}
+	
+static float DrawString(string string, float size, float dx, float dy, FONScontext* fonsContext) {
+	// must setup fons GL state first
+	
+	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
+	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
+	
+	fonsSetSize(fonsContext, size);
+	
+	fonsSetColor(fonsContext, black);
+	fonsSetBlur(fonsContext, 1);
+	fonsDrawText(fonsContext, dx, dy, string.c_str(), NULL);
+	
+	fonsSetColor(fonsContext, white);
+	fonsSetBlur(fonsContext, 0);
+	return fonsDrawText(fonsContext, dx, dy, string.c_str(), NULL);
+}
+	
+static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
+							   FONScontext* fonsContext, int fonsFont) {
+
+	auto renderContext = scene.renderContext().lock();
+	
+	float framebufferWidth = renderContext->framebufferWidth();
+	float framebufferHeight = renderContext->framebufferHeight();
+	float framebufferScale = renderContext->framebufferScale();
+	
+	static float fps = 0.0;
+	static float ms = 0.0;
+	static float percent = 0.0;
+	
+	const float GOAL_TIME = 16.6666667f;
+	
+	static unsigned elapsedFrames = 0; ++elapsedFrames;
+	static float previousSeconds = time;
+	float currentSeconds = time;
+	float elapsedSeconds = currentSeconds - previousSeconds;
+	
+	if (elapsedSeconds > 0.5) {
+		// only update the framerate stats every so often so they're readable
+		
+		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
+		fps = elapsedFrames/elapsedSeconds;
+		percent = (ms / GOAL_TIME) * 100.0f;
+		
+		// reset framerate stats
+		previousSeconds = currentSeconds;
+		elapsedFrames = 0;
+	}
+	
+	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
+	
+	glDisable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	
+	float dx = 12.0 * framebufferScale;
+	float dy = 20.0 * framebufferScale;
+	
+	fonsClearState(fonsContext);
+	
+	fonsSetFont(fonsContext, fonsFont);
+	
+	static float textSize = 14.0 * framebufferScale;
+	static float hPadding = 0.0 * framebufferScale;
+	
+	char tmpStr[256];
+	
+	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""));
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	dy += textSize; // skip a line
+	
+	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	dy += textSize; // skip a line
+	
+	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
+			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+	dy += (textSize + hPadding);
+	
+	if (renderContext->recordingGIF()) {
+		dy += textSize; // skip a line
+		
+		sprintf(tmpStr, "%-14s %d" , "RECORDING", renderContext->recordedGIFFrames());
+		DrawString(tmpStr, textSize, dx, dy, fonsContext);
+		dy += (textSize + hPadding);
+	}
 }
 
 /***************************************************************************************
@@ -871,10 +1001,11 @@ bool OpenGLRenderer::initialize() {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
 	
-	// NOTE: must setup OpenGL context first
+	// initialize GLEW
+	// NOTE: OpenGL context must be setup first
 	
-	static bool initialized = false;
-	if (!initialized) {
+	static bool glewInitialized = false;
+	if (!glewInitialized) {
 		glewExperimental = GL_TRUE;
 		glewInit();
 		
@@ -883,9 +1014,35 @@ bool OpenGLRenderer::initialize() {
 		AE_LOG->info("Renderer: {}", renderer);
 		AE_LOG->info("Version: {}", version);
 		
-		initialized = true;
+		glewInitialized = true;
 	}
 	
+	// initialize FontStash
+	
+	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
+	if (m_fonsContext == NULL) {
+		//AE_LOG->error("Error creating Font Stash context.");
+		throw Exception("Error creating Font Stash context.");
+	}
+	
+	string fontName = "SourceCodePro-Semibold";
+	string fontType = "otf";
+	auto fontPath = FontPath(fontName, fontType);
+	
+	if (fontPath) {
+		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
+		if (m_fonsFont == FONS_INVALID) {
+			char errStr[1024];
+			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
+			throw Exception(errStr);
+		}
+	}
+	else {
+		char errStr[1024];
+		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
+		throw Exception(errStr);
+	}
+
 	return true;
 }
 	
@@ -894,6 +1051,15 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
+	auto debugOptions = context.debugOptions();
+	
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+		UpdateStatsOverlay(Renderer::renderStats(),
+						   context.sceneTime(),
+						   *context.scene(),
+						   m_fonsContext, m_fonsFont);
+	}
+	
 	CheckGLError();
 }
 
@@ -1000,11 +1166,13 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 		auto property = materialProperties[propertyIndex];
 		if (property) {
 			
-
+			GLuint glTextureHandle = glTextureHandles[propertyIndex];
+			
+			SetMaterialPropertyFilteringOptions(*property, glTextureHandle);
 			
 			SendMaterialPropertyUniforms(*property,
 										 propertyTypes[propertyIndex],
-										 glTextureHandles[propertyIndex],
+										 glTextureHandle,
 										 debugOptions,
 										 *program);
 		}

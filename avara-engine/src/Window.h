@@ -74,7 +74,7 @@ namespace ae {
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
 		std::shared_ptr<InputManager> inputManager() override;
-		float sceneTime() override;
+		float sceneTime() const override;
 		
 //		void enableVSync(bool enabled) override;
 //		void debugOptions(DEBUG_OPTIONS options) override;
@@ -83,6 +83,7 @@ namespace ae {
 //		bool recordingGIF() const override;
 //		void startGIFRecording(const boost::filesystem::path& path,
 //							   unsigned maxHeight, unsigned maxFramerate) override;
+//		unsigned recordedGIFFrames() const override;
 //		void stopGIFRecording() override;
 //		void saveGIFFrame(float deltaSeconds) override;
 
