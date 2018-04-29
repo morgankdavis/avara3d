@@ -11,12 +11,9 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <memory>
 #include <set>
 #include <vector>
 
-#include <glm/glm.hpp>
 #include <GL/glew.h>
 
 #include "Camera.h"
