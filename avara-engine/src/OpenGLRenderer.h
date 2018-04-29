@@ -36,9 +36,10 @@ namespace ae {
 		
 		bool init() override;
 		
+		void beginFrame(const RenderContext& context) override;
+		void endFrame(const RenderContext& context) override;
+		
 		void render(Scene& scene,
-					unsigned framebufferWidth,
-					unsigned framebufferHeight,
 					const DEBUG_OPTIONS& debugOptions) override;
 		void render(Geometry& geometry,
 					const glm::mat4& modelMat,
@@ -52,8 +53,7 @@ namespace ae {
 					const glm::mat4& projectionMat,
 					const DEBUG_OPTIONS& debugOptions) override;
 		
-		std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
-										unsigned framebufferHeight) const override;
+		std::shared_ptr<Image> snapshot(const RenderContext& context) const override;
 		
 	private:
 		
@@ -61,17 +61,17 @@ namespace ae {
 		     Private
 		 **************************************************************************************/
 
-		// <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>>
+		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		std::map<VERTEX_DATA_ID,
-			std::tuple<unsigned, unsigned, unsigned>> 		m_vertexDataHandleGLMapping;
+			std::tuple<unsigned, unsigned, unsigned>> 		m_vertexDataIDMapping;
 		
-		// <ae_textureID, <gl_textureHandle>
-		std::map<TEXTURE_ID, unsigned>						m_textureHandleGLMapping;
+		/* <ae_textureID, <gl_textureHandle> */
+		std::map<TEXTURE_ID, unsigned>						m_textureIDMapping;
 		
-		VERTEX_DATA_ID 										m_vertexDataHandleCounter;
-		TEXTURE_ID 											m_textureHandleCounter;
+		VERTEX_DATA_ID 										m_vertexDataIDCounter;
+		TEXTURE_ID 											m_textureIDCounter;
 		
-		int													m_glEnvironmentUBO;
+		unsigned											m_glEnvironmentUBO;
 	};
 }
 

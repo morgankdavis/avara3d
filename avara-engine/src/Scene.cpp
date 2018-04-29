@@ -19,7 +19,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <btBulletDynamicsCommon.h>
-//#include <GL/glew.h>
 
 #include "Camera.h"
 #include "Color.h"
@@ -37,8 +36,6 @@
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "RenderContext.h"
-#include "SkyboxGeometry.h"
-#include "SkyboxMaterial.h"
 #include "Utilities.h"
 
 
@@ -51,42 +48,78 @@ using namespace std;
 
 
 /***************************************************************************************
-     Types
- ***************************************************************************************/
-
-typedef struct {
-	int32_t 	type;
-	float32_t 	PADDING1;
-	float32_t 	PADDING2;
-	float32_t 	PADDING3;
-	vec3 		position_world;
-	float32_t 	PADDING4;
-	vec3 		color;
-	float32_t 	PADDING5;
-	float 		attenuationFactor;
-	float32_t 	PADDING6;
-	float32_t	PADDING7;
-	float32_t 	PADDING8;
-	//	vec3 direction_world;
-	//	float attenuationStart;
-	//	float attenuationEnd;
-	//	float attenuationExponent;
-	//	float innerAngle;
-	//	float outerAngle;
-} LightGLSLStruct;
-
-typedef struct {
-	float32_t 	startDistance;
-	float32_t 	endDistance;
-	float32_t 	densityExponent;
-	float32_t 	PADDING1;
-	vec4 		color;
-	//float32_t 	PADDING2;
-} FogGLSLStruct;
-
-/***************************************************************************************
      Static
  ***************************************************************************************/
+
+static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
+	
+	Vertex verts[] = {
+		{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(-0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(0.5f, 	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		
+		{ vec3(-0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(-0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+		{ vec3(0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) }
+	};
+	
+	// INWARD facing
+	Face faces[] = {
+		// front
+		{ 0, 1, 2 },
+		{ 2, 3, 0 },
+		// back
+		{ 7, 6, 5 },
+		{ 5, 4, 7 },
+		// left
+		{ 4, 5, 1 },
+		{ 1, 0, 4 },
+		// right
+		{ 3, 2, 6 },
+		{ 6, 7, 3 },
+		// top
+		{ 1, 5, 6 },
+		{ 6, 2, 1 },
+		// bottom
+		{ 4, 0, 3 },
+		{ 3, 7, 4 },
+	};
+	
+	//		// OUTWARD facing
+	//		Face faces[] = {
+	//			// front
+	//			{ 2, 1, 0 },
+	//			{ 0, 3, 2 },
+	//			// back
+	//			{ 5, 6, 7 },
+	//			{ 7, 4, 5 },
+	//			// left
+	//			{ 1, 5, 4 },
+	//			{ 4, 0, 1 },
+	//			// right
+	//			{ 6, 2, 3 },
+	//			{ 3, 7, 6 },
+	//			// top
+	//			{ 6, 5, 1 },
+	//			{ 1, 2, 6 },
+	//			// bottom
+	//			{ 3, 0, 4 },
+	//			{ 4, 7, 3 },
+	//		};
+	
+	auto vertsVector = vector<Vertex>();
+	vertsVector.assign(verts, verts+8);
+	
+	auto facesVector = vector<Face>();
+	facesVector.assign(faces, faces+12);
+	
+	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
+	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
+	
+	return make_shared<Geometry>(element, material);
+}
 
 static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath) {
@@ -515,33 +548,9 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	//scene->loadFile(path);
 	LoadFile(*scene, path);
 	return scene;
 }
-
-//static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
-//	
-//	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
-//	
-//	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
-//	
-//	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
-//		return elem1.second < elem2.second;
-//	};
-//	
-//	set<pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
-//																lights.end(),
-//																compFunctor);
-//	
-//	auto sortedVector = vector<shared_ptr<Node>>();
-//	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
-//		//cout << element.first << " :: " << element.second << endl;
-//		sortedVector.emplace_back(element.first);
-//	}
-//	
-//	return sortedVector;
-//}
 
 /***************************************************************************************
      Lifecycle
@@ -555,13 +564,8 @@ Scene::Scene():
 	m_fogDensityExponent(0.0),
 	m_fogColor(nullptr),
 	m_physicsWorld(nullptr),
-	//m_window(weak_ptr<Window>()) {
-	//m_window({}) {
 	m_renderContext({}) {
 		
-//		uint32 ubo;
-//		glGenBuffers(1, &ubo);
-//		m_glEnvironmentUBO = ubo;
 }
 
 /***************************************************************************************
@@ -584,18 +588,15 @@ shared_ptr<MaterialProperty> Scene::background() const {
 void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
 	if (backgroundProperty->cube()) {
-		//auto ambientProperty = make_shared<MaterialProperty>(background);
-		//auto material = make_shared<Material>(backgroundProperty, nullptr, nullptr, "skybox");
-		auto material = make_shared<SkyboxMaterial>(backgroundProperty);
-		//material->ambient(background); // this is a hack...
+		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
 
 		// generate the skybox geometry if it hasn't already been
 		if (!m_skyboxGeometry) {
-			m_skyboxGeometry = make_shared<SkyboxGeometry>(material);
+			m_skyboxGeometry = SkyboxGeometry(backgroundProperty);
 		}
 		else {
 			// we already have the geometry, just update its material
-			m_skyboxGeometry->material(material);
+			m_skyboxGeometry->replaceMaterial(0, material);
 		}
 	}
 
@@ -654,7 +655,7 @@ void Scene::draw(Renderer& renderer,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
 
-	renderer.render(*this, framebufferWidth, framebufferHeight, debugOptions);
+	renderer.render(*this, debugOptions);
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
@@ -680,8 +681,7 @@ void Scene::draw(Renderer& renderer,
 				else {
 					modelMat = node->worldTransform();
 				}
-//				geometry->draw(modelMat, viewMat, projectionMat,
-//							   m_glEnvironmentUBO, debugOptions, stats);
+
 				geometry->draw(renderer, modelMat, viewMat, projectionMat, debugOptions);
 			}
 		}
@@ -747,7 +747,11 @@ void Scene::draw(Renderer& renderer,
 //	}
 //}
 
-shared_ptr<SkyboxGeometry>	Scene::skyboxGeometry() const {
+//shared_ptr<SkyboxGeometry>	Scene::skyboxGeometry() const {
+//	return m_skyboxGeometry;
+//}
+
+shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return m_skyboxGeometry;
 }
 
@@ -784,11 +788,6 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 		if ((*points)["zMax"].z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = (*points)["zMax"];
 	}
 
-	//cout << "SCENE boundingPoints: " << endl;
-//	for (auto const& x : (*boundingPoints)) {
-//		cout << x.first << ": " << x.second << endl;
-//	}
-
 	return boundingPoints;
 }
 
@@ -813,115 +812,3 @@ weak_ptr<RenderContext> Scene::renderContext() const {
 void Scene::renderContext(shared_ptr<RenderContext> context) {
 	m_renderContext = context;
 }
-
-/***************************************************************************************
-     Private
- ***************************************************************************************/
-
-//void Scene::bindEnvironment(const Node& pointOfView, RenderStats& stats) const {
-//
-//	// lights
-//	
-//	auto lights = vector<shared_ptr<Node>>();
-//	shared_ptr<Node> ambientLight = nullptr;
-//	
-//	// find all lights in the scene
-//	for (auto node: m_rootNode->childNodes(true)) {
-//		if (!node->hidden()) {
-//			auto light = node->light();
-//			if (light != nullptr) {
-//				if (light->type() == LIGHT_TYPE::POINT) {
-//					lights.emplace_back(node);
-//				}
-//				else if (light->type() == LIGHT_TYPE::AMBIENT) {
-//					ambientLight = node;
-//				}
-//			}
-//		}
-//	}
-//	
-//	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
-//		
-//		// find all light distances from the camera
-//		
-//		auto lightsUnsorted = map<shared_ptr<Node>, float>();
-//		vec3 cameraPos_world = pointOfView.worldPosition();
-//		for (auto lightNode: lights) {
-//			auto lightPos_world = lightNode->worldPosition();
-//			auto lightToCamera = lightPos_world - cameraPos_world;
-//			auto lightToCameraDistance = length(lightToCamera);
-//			lightsUnsorted[lightNode] = lightToCameraDistance;
-//			//cout << "lightToCameraDistance: " << lightToCameraDistance << endl;
-//		}
-//		
-//		lights = SortedLights(lightsUnsorted);
-//		
-//		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-//		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
-//		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
-//		vector<shared_ptr<Node>> lightsSlice(first, last);
-//		
-//		lights = lightsSlice;
-//	}
-//	
-//	// check for default lighting
-//	
-//	if (lights.size() == 0) {
-//		auto detaultPoint = Light::DefaultPointNode();
-//		// set position based on scene extent...
-//		static vec3 sceneExtent = extent(); // only doing this once or it runs reallll slow
-//		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
-//			sceneExtent.y + sceneExtent.y/4.0,
-//			sceneExtent.z + sceneExtent.z/4.0});
-//		lights.emplace_back(detaultPoint);
-//	}
-//	if (!ambientLight) ambientLight = Light::DefaultAmbientNode();
-//	
-//	lights.emplace_back(ambientLight);
-//	
-//	unsigned numLights = lights.size();
-//	LightGLSLStruct lightStruct[numLights];
-//	
-//	stats.lights = numLights - 1; // not counting ambient
-//	
-//	for (int l=0; l<numLights; ++l) {
-//		auto node = lights[l];
-//		auto light = node->light();
-//		
-//		lightStruct[l].type = (unsigned)(light->type());
-//		lightStruct[l].position_world = node->worldPosition();
-//		lightStruct[l].attenuationFactor = light->attenuationFactor();
-//		
-//		auto color = *light->color();
-//		lightStruct[l].color = vec3(color.r, color.g, color.b);
-//	}
-//	
-//	// fog
-//	
-//	FogGLSLStruct fogStruct;
-//	fogStruct.startDistance = m_fogStartDistance;
-//	fogStruct.endDistance = m_fogEndDistance;
-//	fogStruct.densityExponent = m_fogDensityExponent;
-//	fogStruct.startDistance = m_fogStartDistance;
-//	if (m_fogColor) fogStruct.color = vec4(m_fogColor->r, m_fogColor->g, m_fogColor->b, m_fogColor->a);
-//	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
-//	
-//	// block
-//	
-//	typedef struct {
-//		int32_t 			numLights;
-//		float32_t 			PADDING1;
-//		float32_t 			PADDING2;
-//		float32_t 			PADDING3;
-//		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-//		FogGLSLStruct		fog;
-//	} EnvironmentBlock;
-//	
-//	EnvironmentBlock environmentBlock;
-//	environmentBlock.numLights = numLights;
-//	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
-//	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
-//	
-//	glBindBuffer(GL_UNIFORM_BUFFER, m_glEnvironmentUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
-//}

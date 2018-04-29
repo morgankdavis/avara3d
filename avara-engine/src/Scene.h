@@ -26,6 +26,7 @@ namespace ae {
 
 
 	class Color;
+	class Geometry;
 	class GeometryElement;
 	class Material;
 	class MaterialProperty;
@@ -33,7 +34,7 @@ namespace ae {
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
-	class SkyboxGeometry;
+	//class SkyboxGeometry;
 	
 	
 	class Scene : public std::enable_shared_from_this<Scene> {
@@ -62,8 +63,6 @@ namespace ae {
 		std::shared_ptr<MaterialProperty> background() const;
 		void background(std::shared_ptr<MaterialProperty> background);
 		
-		//bool isPaused;
-
 		float fogStartDistance() const;
 		void fogStartDistance(float distance);
 		float fogEndDistance() const;
@@ -90,11 +89,7 @@ namespace ae {
 				  const DEBUG_OPTIONS& debugOptions,
 				  RenderStats& stats);		
 		
-//		void draw(std::shared_ptr<Node> pointOfView,
-//				  DEBUG_OPTIONS& debugOptions,
-//				  RenderStats& stats);
-		
-		std::shared_ptr<SkyboxGeometry>	skyboxGeometry() const;
+		std::shared_ptr<Geometry> skyboxGeometry() const;
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints() const;
 		glm::vec3 extent() const;
@@ -109,20 +104,16 @@ namespace ae {
 		/***************************************************************************************
 		     Private
 		 ***************************************************************************************/
-		
-		//void bindEnvironment(const Node& pointOfView, RenderStats& stats) const;
-		
+
 		std::shared_ptr<Node>					m_rootNode;
 		std::shared_ptr<MaterialProperty>		m_background;
-		std::shared_ptr<SkyboxGeometry>			m_skyboxGeometry;
+		std::shared_ptr<Geometry>				m_skyboxGeometry;
 		
 		float									m_fogStartDistance;
 		float									m_fogEndDistance;
 		float									m_fogDensityExponent;
 		std::shared_ptr<Color>					m_fogColor;
-		
-		int										m_glEnvironmentUBO;
-		
+
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
 		std::weak_ptr<RenderContext>			m_renderContext;

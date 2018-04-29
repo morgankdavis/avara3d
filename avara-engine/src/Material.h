@@ -22,7 +22,6 @@ namespace ae {
 
 
 	class MaterialProperty;
-	//class Program;
 
 
 	class Material {
@@ -40,15 +39,13 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		Material();
-		//Material(std::shared_ptr<Program> program);
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular);
-//		Material(std::shared_ptr<MaterialProperty> ambient,
-//				 std::shared_ptr<MaterialProperty> diffuse,
-//				 std::shared_ptr<MaterialProperty> specular,
-//				 std::shared_ptr<Program> program);
-		Material(std::shared_ptr<MaterialProperty> emissive);
+		Material(std::shared_ptr<MaterialProperty> ambient,
+				 std::shared_ptr<MaterialProperty> diffuse,
+				 std::shared_ptr<MaterialProperty> specular,
+				 std::shared_ptr<MaterialProperty> emissive);
 		
 		/***************************************************************************************
 		     Public
@@ -87,27 +84,10 @@ namespace ae {
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
-		
-//		std::shared_ptr<Program> program() const;
-//		void program(std::shared_ptr<Program> program);
-		
-		//void loadShaderProgram(const std::string& shaderName);
-//		std::shared_ptr<Program> selectProgram(DEBUG_OPTIONS debugOptions);
-//		void prepareToRender(DEBUG_OPTIONS debugOptions);
-		
-		// EXPERIMENTAL
-		
+
 		MATERIAL_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(MATERIAL_DIRTY_BITS bits);
-		
-	protected:
-		
-		/***************************************************************************************
-		     Protected
-		 ***************************************************************************************/
-		
-		//std::shared_ptr<Program>			m_program;
-		
+
 	private:
 		
 		/***************************************************************************************
@@ -126,9 +106,7 @@ namespace ae {
 		bool 								m_doubleSided;
 		FILL_MODE 							m_fillMode;
 		float 								m_uvScale;
-		
-		// EXPERIMENTAL
-		
+
 		MATERIAL_DIRTY_BITS					m_dirtyBits;
 	};
 }

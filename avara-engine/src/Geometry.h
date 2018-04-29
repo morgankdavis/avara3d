@@ -35,16 +35,16 @@ namespace ae {
 		
 	public:
 		
-		virtual void thing();
-		
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
 
 		Geometry();
+		Geometry(const std::shared_ptr<GeometryElement> element,
+				 const std::shared_ptr<Material> material);
 		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
 				 const std::vector<std::shared_ptr<Material>> materials);
-		~Geometry();
+		virtual ~Geometry();
 		
 		/***************************************************************************************
 		     Public
@@ -67,11 +67,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		//void loadVertexData();
-
 		void hardTransform(glm::mat4 t, bool norm);
-		//void generateSmoothNormals();
-		//void generateFlatNormals();
 		
 		void draw(Renderer& renderer,
 				  const glm::mat4& modelMat,
@@ -79,30 +75,15 @@ namespace ae {
 				  const glm::mat4& projectionMat,
 				  const DEBUG_OPTIONS& debugOptions);
 		
-//		void draw(const glm::mat4& modelMat,
-//				  const glm::mat4& viewMat,
-//				  const glm::mat4& projectionMat,
-//				  int glEnvironmentUBO,
-//				  DEBUG_OPTIONS debugOptions,
-//				  RenderStats& stats);
-		
-		void drawAABB(const glm::mat4& modelMat,
-					  const glm::mat4& viewMat,
-					  const glm::mat4& projectionMat);
-		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
 		glm::vec3 extent(bool worldSpace) const;
-        void loadAABBVertexData(const Program& program);
-		
-		std::weak_ptr<Node> node() const;
-		//void node(std::shared_ptr<Node> node);
+
+		GEOMETRY_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
 		
 		void attachedToNode(std::shared_ptr<Node> node);
 		
-		// EXPERIMENTAL
-		
-		GEOMETRY_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
+		std::weak_ptr<Node> node() const;
 
 	protected:
 
@@ -120,12 +101,8 @@ namespace ae {
 		 ***************************************************************************************/
 
 		boost::optional<std::string>						m_name;
-		unsigned											m_glAABBVBO;
-        int                                                	m_glAABBVAO;
 		std::weak_ptr<Node>									m_node;
-		
-		// EXPERIMENTAL
-		
+
 		GEOMETRY_DIRTY_BITS									m_dirtyBits;
 	};
 }

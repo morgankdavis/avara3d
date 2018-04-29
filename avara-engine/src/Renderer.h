@@ -24,6 +24,7 @@ namespace ae {
 	class GeometryElement;
 	class Image;
 	class Material;
+	class RenderContext;
 	class Scene;
 	
 	
@@ -44,9 +45,10 @@ namespace ae {
 
 		virtual bool init();
 		
+		virtual void beginFrame(const RenderContext& context);
+		virtual void endFrame(const RenderContext& context);
+		
 		virtual void render(Scene& scene,
-							unsigned framebufferWidth,
-							unsigned framebufferHeight,
 							const DEBUG_OPTIONS& debugOptions);
 		virtual void render(Geometry& geometry,
 							const glm::mat4& modelMat,
@@ -60,8 +62,7 @@ namespace ae {
 							const glm::mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions);
 		
-		virtual std::shared_ptr<Image> snapshot(unsigned framebufferWidth,
-												unsigned framebufferHeight) const;
+		virtual std::shared_ptr<Image> snapshot(const RenderContext& context) const;
 		
 		RenderStats& renderStats();
 

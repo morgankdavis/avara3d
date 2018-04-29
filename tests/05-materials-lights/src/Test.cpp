@@ -134,10 +134,10 @@ int Test::run(const vector<string>& args) {
 			}
 		}
 	}
-
 	
-//	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
-	auto background = make_shared<MaterialProperty>(make_shared<Color>(Color::Navy()));
+	
+	auto background = make_shared<MaterialProperty>(TestCubeNamed("nebula1_blue", "png"));
+//	auto background = make_shared<MaterialProperty>(make_shared<Color>(Color::Navy()));
 	scene->background(background);
 
 

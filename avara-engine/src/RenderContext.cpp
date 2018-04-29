@@ -347,7 +347,7 @@ float RenderContext::sceneTime() {
 
 shared_ptr<Image> RenderContext::snapshot() const {
 	if (m_renderer) {
-		return m_renderer->snapshot(m_framebufferWidth, m_framebufferHeight);
+		return m_renderer->snapshot(*this);
 	}
 	return nullptr;
 }

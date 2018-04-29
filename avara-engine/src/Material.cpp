@@ -11,13 +11,10 @@
 #include <iostream>
 #include <memory>
 
-//#include <GL/glew.h>
-
 #include "Color.h"
 #include "Image.h"
 #include "Logger.h"
 #include "MaterialProperty.h"
-//#include "Program.h"
 #include "Utilities.h"
 
 
@@ -55,21 +52,13 @@ Material::Material():
 	m_doubleSided(false),
 	m_fillMode(FILL_MODE::FILL),
 	m_uvScale(1.0f),
-	//m_program(program),
 	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
-	//Material(nullptr, nullptr, nullptr, Program::Default()) {
 	
 }
-
-//Material::Material(shared_ptr<Program> program):
-//	Material(nullptr, nullptr, nullptr, program) {
-//	
-//}
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular):
-	//Material(ambient, diffuse, specular, Program::Default()) {
 	Material() {
 
 		m_ambient = ambient;
@@ -77,29 +66,15 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 		m_specular = specular;
 }
 
-////Material::Material(shared_ptr<MaterialProperty> ambient,
-////				   shared_ptr<MaterialProperty> diffuse,
-////				   shared_ptr<MaterialProperty> specular,
-////				   shared_ptr<Program> program):
-//	m_name(boost::none),
-//	m_ambient(ambient),
-//	m_diffuse(diffuse),
-//	m_specular(specular),
-//	m_emissive(nullptr),
-//	m_specularExponent(150.0),
-//	m_locksAmbientWithDiffuse(true),
-//	m_doubleSided(false),
-//	m_fillMode(FILL_MODE::FILL),
-//	m_uvScale(1.0f),
-//	//m_program(program),
-//	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
-//	
-//		//loadShaderProgram(programName);
-//}
-
-Material::Material(shared_ptr<MaterialProperty> emissive):
+Material::Material(shared_ptr<MaterialProperty> ambient,
+				   shared_ptr<MaterialProperty> diffuse,
+				   shared_ptr<MaterialProperty> specular,
+				   shared_ptr<MaterialProperty> emissive):
 	Material() {
 	
+		m_ambient = ambient;
+		m_diffuse = diffuse;
+		m_specular = specular;
 		m_emissive = emissive;
 }
 
@@ -304,8 +279,6 @@ void Material::uvScale(float scale) {
 //		}
 //	}
 //}
-
-// EXPERIMENTAL
 
 MATERIAL_DIRTY_BITS Material::dirtyBits() const {
 	return m_dirtyBits;

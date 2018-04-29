@@ -11,6 +11,7 @@
 #include "GeometryElement.h"
 #include "Logger.h"
 #include "Material.h"
+#include "RenderContext.h"
 #include "Scene.h"
 
 
@@ -38,9 +39,15 @@ bool Renderer::init() {
 	
 }
 
+void Renderer::beginFrame(const RenderContext& context) {
+	
+}
+
+void Renderer::endFrame(const RenderContext& context) {
+	
+}
+
 void Renderer::render(Scene& scene,
-					  unsigned framebufferWidth,
-					  unsigned framebufferHeight,
 					  const DEBUG_OPTIONS& debugOptions) {
 	
 	m_renderStats = (RenderStats){};
@@ -65,12 +72,10 @@ void Renderer::render(GeometryElement& geometryElement,
 	AE_LOG->critical("Renderer::render(<GeometryElement>) should be overidden in derived class.");
 }
 
-shared_ptr<Image> Renderer::snapshot(unsigned framebufferWidth,
-									 unsigned framebufferHeight) const {
+shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
 	AE_LOG->critical("Renderer::snapshot() should be overidden in derived class.");
 	return nullptr;
-	
 }
 
 RenderStats& Renderer::renderStats() {

@@ -17,12 +17,11 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 
-//#include "Camera.h"
+#include "Camera.h"
 #include "Color.h"
-//#include "Geometry.h"
+#include "Geometry.h"
 #include "GeometryElement.h"
 #include "Global.h"
 #include "Image.h"
@@ -31,11 +30,10 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
-//#include "PhysicsWorld.h"
 #include "Program.h"
 #include "RenderContext.h"
 #include "Scene.h"
-//#include "SkyboxGeometry.h"
+
 
 using namespace ae;
 using namespace glm;
@@ -65,12 +63,12 @@ typedef struct {
 	float32_t 	PADDING6;
 	float32_t	PADDING7;
 	float32_t 	PADDING8;
-	//	vec3 direction_world;
-	//	float attenuationStart;
-	//	float attenuationEnd;
-	//	float attenuationExponent;
-	//	float innerAngle;
-	//	float outerAngle;
+	/* vec3 direction_world;
+	float attenuationStart;
+	float attenuationEnd;
+	float attenuationExponent;
+	float innerAngle;
+	float outerAngle; */
 } LightGLSLStruct;
 
 typedef struct {
@@ -79,12 +77,19 @@ typedef struct {
 	float32_t 	densityExponent;
 	float32_t 	PADDING1;
 	vec4 		color;
-	//float32_t 	PADDING2;
+	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
 /**************************************************************************************
      Static
  **************************************************************************************/
+	
+static void CheckGLError() {
+	GLenum err = glGetError();
+	if (err != GL_NO_ERROR) {
+		AE_LOG->warn("*** GL error: 0x{:X} ***", err);
+	}
+}
 
 static GLenum GLFilterModeForFilterMode(FILTER_MODE mode) {
 	switch (mode) {
@@ -98,28 +103,28 @@ static GLenum GLFilterModeForFilterMode(FILTER_MODE mode) {
 
 static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 					return FILTER_MODE::LINEAR;
-		case GL_NEAREST_MIPMAP_NEAREST:		return FILTER_MODE::NEAREST_MIPMAP_NEAREST;
-		case GL_LINEAR_MIPMAP_NEAREST: 		return FILTER_MODE::LINEAR_MIPMAP_NEAREST;
-		case GL_NEAREST_MIPMAP_LINEAR: 		return FILTER_MODE::NEAREST_MIPMAP_LINEAR;
-		case GL_LINEAR_MIPMAP_LINEAR: 		return FILTER_MODE::LINEAR_MIPMAP_LINEAR;
-		default: /* GL_NEAREST */			return FILTER_MODE::NEAREST; }
+		case GL_LINEAR: 							return FILTER_MODE::LINEAR;
+		case GL_NEAREST_MIPMAP_NEAREST:				return FILTER_MODE::NEAREST_MIPMAP_NEAREST;
+		case GL_LINEAR_MIPMAP_NEAREST: 				return FILTER_MODE::LINEAR_MIPMAP_NEAREST;
+		case GL_NEAREST_MIPMAP_LINEAR: 				return FILTER_MODE::NEAREST_MIPMAP_LINEAR;
+		case GL_LINEAR_MIPMAP_LINEAR: 				return FILTER_MODE::LINEAR_MIPMAP_LINEAR;
+		default: /* GL_NEAREST */					return FILTER_MODE::NEAREST; }
 }
 
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
-		case WRAP_MODE::CLAMP_TO_EDGE:		return GL_CLAMP_TO_EDGE;
-		case WRAP_MODE::CLAMP_TO_BORDER:	return GL_CLAMP_TO_BORDER;
-		case WRAP_MODE::REPEAT:				return GL_REPEAT;
-		case WRAP_MODE::MIRRORED_REPEAT: 	return GL_MIRRORED_REPEAT; }
+		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
+		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+		case WRAP_MODE::REPEAT:						return GL_REPEAT;
+		case WRAP_MODE::MIRRORED_REPEAT: 			return GL_MIRRORED_REPEAT; }
 }
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-		case GL_CLAMP_TO_BORDER:			return WRAP_MODE::CLAMP_TO_EDGE;
-		case GL_REPEAT:						return WRAP_MODE::REPEAT;
-		case GL_MIRRORED_REPEAT: 			return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */		return WRAP_MODE::CLAMP_TO_BORDER; }
+		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
+		case GL_REPEAT:								return WRAP_MODE::REPEAT;
+		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
+		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_BORDER; }
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
@@ -166,7 +171,6 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 	float largest;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
-	//anisotropy = MIN(anisotropy, largest);
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 }
 
@@ -192,11 +196,13 @@ static void SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode) {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GLWrapModeForWrapMode(mode));
 }
 
-static void LoadVertexData(const GeometryElement& geometryElement,
-						   const Program& program,
+static void LoadGeometryElementVertexData(const GeometryElement& geometryElement,
+						   Program& program,
 						   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	AE_LOG->info("Loading vertex data for geometry element {:p}...", (void*)&geometryElement);
+	
+	program.use();
 	
 	auto verticies = geometryElement.vertices();
 	auto faces = geometryElement.faces();
@@ -251,8 +257,48 @@ static void LoadVertexData(const GeometryElement& geometryElement,
 	
 	AE_LOG->info("Done.");
 }
+	
+static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
+								 Program& program,
+								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+	
+	AE_LOG->info("Loading skybox vertex data...");
+	
+	program.use();
+	
+	auto element = skyboxGeometry.elements().front();
+	auto verts = element->vertices();
+	auto faces = element->faces();
+	
+	glGenBuffers(1, &glVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
+	
+	glGenVertexArrays(1, &glVAO);
+	glBindVertexArray(glVAO);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	
+	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	glVertexAttribPointer(positionIndex, // attrib index
+						  3, // num components per attrib (3 float in vec3)
+						  GL_FLOAT, // component type
+						  GL_FALSE, // normalize
+						  sizeof(Vertex), // stride
+						  0); // start offset
+	glEnableVertexAttribArray(positionIndex);
+	
+	glGenBuffers(1, &glIBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				 faces.size() * sizeof(Face),
+				 &(faces[0]),
+				 GL_STATIC_DRAW);
+	
+	AE_LOG->info("Done.");
+}
 
-static void LoadTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
+static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
 	
 	if (materialProperty.cube()) {
 		AE_LOG->info("Buffering cube texture...");
@@ -282,19 +328,12 @@ static void LoadTexture(const MaterialProperty& materialProperty, GLuint& glText
 						 GL_UNSIGNED_BYTE,
 						 image.data());
 		}
-		
-//		SetTextureMinificationFilter(textureID, true, FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-//		SetTextureMagnificationFilter(textureID, true, FILTER_MODE::LINEAR);
-//		SetTextureMaxAnisotropy(textureID, true, 16);
-//		SetTextureWrapS(textureID, true, WRAP_MODE::CLAMP_TO_EDGE);
-//		SetTextureWrapT(textureID, true, WRAP_MODE::CLAMP_TO_EDGE);
-//		SetTextureWrapR(textureID, WRAP_MODE::CLAMP_TO_EDGE);
-		
-		SetTextureMinificationFilter(glTextureHandle, false, materialProperty.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, false, materialProperty.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, false, materialProperty.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, false, materialProperty.wrapS());
-		SetTextureWrapT(glTextureHandle, false, materialProperty.wrapT());
+	
+		SetTextureMinificationFilter(glTextureHandle, true, materialProperty.minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, true, materialProperty.magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, true, materialProperty.maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, true, materialProperty.wrapS());
+		SetTextureWrapT(glTextureHandle, true, materialProperty.wrapT());
 		SetTextureWrapR(glTextureHandle, materialProperty.wrapR());
 		
 		AE_LOG->info("Done.");
@@ -346,16 +385,13 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 										 const DEBUG_OPTIONS& debugOptions,
 										 Program& program) {
 	
+#warning probably should be refactored
+	
 //	AE_LOG->trace("SendMaterialPropertyUniforms({:p}, {}, {}, {:p}, {:p})",
 //				  materialProperty, type, textureHandleGLMapping, debugOptions, program);
 	AE_LOG->trace("SendMaterialPropertyUniforms()");
 	
 	program.use();
-	
-//	GLuint glTextureHandle = 0;
-//	if (textureID > 0) {
-//		glTextureHandle = textureHandleGLMapping[textureID];
-//	}
 	
 	if (materialProperty.cube()) {
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
@@ -429,9 +465,8 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 	}
 }
 
-static void SetOpenGLState(const Material& material,
-						   const DEBUG_OPTIONS& debugOptions,
-						   Program& program) {
+static void SetMaterialOpenGLState(const Material& material, 
+								   const DEBUG_OPTIONS& debugOptions) {
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -441,7 +476,7 @@ static void SetOpenGLState(const Material& material,
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	//AE_LOG->trace("SetOpenGLState({:p}, {}, {:p})", material, debugOptions, program);
-	AE_LOG->trace("SetOpenGLState()");
+	AE_LOG->trace("SetMaterialOpenGLState()");
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		// can create zbuffer problems
@@ -503,6 +538,8 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 }
 	
 static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, RenderStats& stats) {
+	
+	// program "Default" must be active
 	
 	// lights
 	
@@ -609,6 +646,164 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }
+	
+static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
+								   map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
+								   VERTEX_DATA_ID& idCounter,
+								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+		
+	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+	
+	auto vertexDataID = element.vertexDataID();
+	
+	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element.dirtyBits(),
+											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
+		
+#warning check remove any old data (hard transformed?)
+		
+		GLuint vbo = 0;
+		LoadGeometryElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
+		
+		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
+		element.vertexDataID(idCounter);
+		
+		element.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element.dirtyBits(),
+																	 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
+	}
+	else {
+		auto mapping = idMapping[vertexDataID];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
+		glIBO = get<2>(mapping);
+	}
+}
+	
+static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
+										 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
+										 VERTEX_DATA_ID& idCounter,
+										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+	
+	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+	//
+	// NOTE: this is essentially exactly the same as GetGeometryElementGLVertexDataHandles()
+	// except if the data needs to be loaded, it uses LoadGeometryElementVertexData() as the
+	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
+
+	auto element = skyboxGeometry.elements().front();
+	
+	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
+											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
+
+		GLuint vbo = 0;
+		LoadSkyboxVertexData(skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
+		
+		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
+		element->vertexDataID(idCounter);
+		
+		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
+															 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
+	}
+	else {
+		auto mapping = idMapping[element->vertexDataID()];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
+		glIBO = get<2>(mapping);
+	}
+}
+
+static void GetMaterialGLTextureHandles(Material& material,
+								map<TEXTURE_ID, unsigned>& idMapping,
+								TEXTURE_ID& idCounter,
+								GLuint* glTextureHandles) {
+	
+	// looks up and populates glTextureHandle, loading the texture data if needed
+
+	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
+		material.diffuse(), material.specular(), material.emissive()};
+	
+	unsigned propertyIndex = 0;
+	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
+		auto property = materialProperties[propertyIndex];
+		if (property) {
+			
+			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
+													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
+				
+				GLuint tempTextureID = 0;
+				LoadMaterialPropertyTexture(*property, tempTextureID);
+				AE_LOG->debug("tempTextureID: {}", tempTextureID);
+				if (tempTextureID > 0) {
+					glTextureHandles[propertyIndex] = tempTextureID;
+					
+					idMapping[++idCounter] = glTextureHandles[propertyIndex];
+					property->textureID(idCounter);
+				}
+				
+				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
+																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
+			}
+			else {
+				if (property->textureID() > 0) {
+					glTextureHandles[propertyIndex] = idMapping[property->textureID()];
+				}
+			}
+		}
+	}
+}
+	
+static void RenderSkybox(Geometry& skyboxGeometry,
+						 const Node& pointOfView,
+						 const DEBUG_OPTIONS& debugOptions,
+						 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& vertexDataIDMapping,
+						 VERTEX_DATA_ID& vertexDataIDCounter,
+						 map<TEXTURE_ID, unsigned>& textureIDMapping,
+						 TEXTURE_ID& textureIDCounter) {
+
+	auto element = *(skyboxGeometry.elements().front());
+	auto material = *(skyboxGeometry.materials().front());
+	
+	GLuint vbo, vao, ibo;
+	GetSkyboxGLVertexDataHandles(skyboxGeometry, vertexDataIDMapping, vertexDataIDCounter, vbo, vao, ibo);
+	
+	GLuint glTextureHandles[] = {0, 0, 0, 0};
+	GetMaterialGLTextureHandles(material, textureIDMapping, textureIDCounter, glTextureHandles);
+
+	mat4 viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+						  pointOfView.worldForward(), // center - look at
+						  pointOfView.worldUp()); // up
+	
+	auto projectionMat = pointOfView.camera()->projection();
+	
+	auto program = Program::Skybox();
+	program->use();
+
+	glDepthMask(GL_FALSE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_CULL_FACE);
+
+	auto property = material.emissive();
+	SendMaterialPropertyUniforms(*property,
+								 // EMISSIVE is currently ignored by SendMaterialPropertyUniforms()
+								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
+								 glTextureHandles[3], // 3 = emissive
+								 debugOptions,
+								 *program);
+	
+	program->setUniform("view", viewMat);
+	program->setUniform("projection", projectionMat);
+
+	// draw
+	
+	auto faces = element.faces();
+	
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	unsigned int numFaces = faces.size();
+	//stats.polygons += numFaces;
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	
+	program->unuse();
+}
 
 /***************************************************************************************
      Lifecycle
@@ -616,10 +811,10 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 
 OpenGLRenderer::OpenGLRenderer():
 	Renderer(),
-	m_vertexDataHandleGLMapping(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>()),
-	m_textureHandleGLMapping(map<TEXTURE_ID, unsigned>()),
-	m_vertexDataHandleCounter(0),
-	m_textureHandleCounter(0),
+	m_vertexDataIDMapping(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>()),
+	m_textureIDMapping(map<TEXTURE_ID, unsigned>()),
+	m_vertexDataIDCounter(0),
+	m_textureIDCounter(0),
 	m_glEnvironmentUBO(0) {
 
 }
@@ -653,13 +848,24 @@ bool OpenGLRenderer::init() {
 	
 	return true;
 }
+	
+void OpenGLRenderer::beginFrame(const RenderContext& context) {
+	
+}
+
+void OpenGLRenderer::endFrame(const RenderContext& context) {
+	CheckGLError();
+}
 
 void OpenGLRenderer::render(Scene& scene,
-							unsigned framebufferWidth,
-							unsigned framebufferHeight,
 							const DEBUG_OPTIONS& debugOptions) {
 	
-	Renderer::render(scene, framebufferWidth, framebufferHeight, debugOptions); // initializes m_renderStats
+	Renderer::render(scene, debugOptions); // initializes m_renderStats
+	
+	auto renderContext = scene.renderContext().lock();
+	
+	float framebufferWidth = renderContext->framebufferWidth();
+	float framebufferHeight = renderContext->framebufferHeight();
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, framebufferWidth, framebufferHeight);
@@ -671,18 +877,17 @@ void OpenGLRenderer::render(Scene& scene,
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	if (scene.background()) {
-		/*if (scene.background()->cube()) {
-			mat4 skyboxViewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
-										m_pointOfView->worldForward(), // center - look at
-										m_pointOfView->worldUp()); // up
+		if (scene.background()->cube()) {
+			auto renderContext = scene.renderContext().lock();
+			auto pointOfView = renderContext->pointOfView();
 			
-			SkyboxGeometry skyboxGeometry = *(*(scene.skyboxGeometry()));
-			SkyboxGeometryElement& element = static_cast<SkyboxGeometryElement&>(geoElem);
-			
-			m_skyboxGeometry->draw(skyboxViewMat, projectionMat, stats);
-			render(*(scene.skyboxGeometry()));
+			RenderSkybox(*scene.skyboxGeometry(),
+						 *pointOfView,
+						 debugOptions,
+						 m_vertexDataIDMapping, m_vertexDataIDCounter,
+						 m_textureIDMapping, m_textureIDCounter);
 		}
-		else */if (scene.background()->color()) {
+		else if (scene.background()->color()) {
 			auto color = *(scene.background()->color());
 			glClearColor(color.r, color.g, color.b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -697,7 +902,7 @@ void OpenGLRenderer::render(Scene& scene,
 	
 	SendEnvironmentUniforms(m_glEnvironmentUBO, scene, renderStats());
 	
-	//if (!((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	//if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
 	//}
 }
@@ -708,7 +913,7 @@ void OpenGLRenderer::render(Geometry& geometry,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions) {
 	
-//	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {
+//	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 //		drawAABB(modelMat, viewMat, projectionMat);
 //	}
 }
@@ -723,77 +928,34 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	auto program = Program::Default();
 	
 	// check and load vertex data if necessary
-	// refactor to GetVertexDataHandles();
 	
-	GLuint vao = 0;
-	GLuint ibo = 0;
-	
-	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(geometryElement.dirtyBits(),
-											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
-		
-#warning check remove any old data (hard transformed?)
-		
-		GLuint vbo = 0;
-		LoadVertexData(geometryElement, *Program::Default(), vbo, vao, ibo);
-		
-		m_vertexDataHandleGLMapping[++m_vertexDataHandleCounter] = make_tuple(vbo, vao, ibo);
-		geometryElement.vertexDataID(m_vertexDataHandleCounter);
-		
-		geometryElement.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(geometryElement.dirtyBits(),
-																	 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
-	}
-	else {
-		auto mapping = m_vertexDataHandleGLMapping[geometryElement.vertexDataID()];
-		vao = get<1>(mapping);
-		ibo = get<2>(mapping);
-	}
-	
+	GLuint vbo, vao, ibo;
+	GetGeometryElementGLVertexDataHandles(geometryElement,
+										  m_vertexDataIDMapping, m_vertexDataIDCounter,
+										  vbo, vao, ibo);
 
 	// load material contents if necessary
-	// refactor to GetTextureHandle();
 	
-	unsigned glTextureIDs[] = {0, 0, 0, 0};
+	#warning use a map with MATERIAL_PROPERTY_TYPE instead of indicies
+	
+	GLuint glTextureHandles[] = {0, 0, 0, 0};
+	GetMaterialGLTextureHandles(material,
+								m_textureIDMapping, m_textureIDCounter,
+								glTextureHandles);
 
-	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emissive()};
-	
-	
-	unsigned propertyIndex = 0;
-	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
-		auto property = materialProperties[propertyIndex];
-		if (property) {
-			
-			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
-				
-				GLuint tempTextureID = 0;
-				LoadTexture(*property, tempTextureID);
-				AE_LOG->debug("tempTextureID: {}", tempTextureID);
-				if (tempTextureID > 0) {
-					glTextureIDs[propertyIndex] = tempTextureID;
-					
-					m_textureHandleGLMapping[++m_textureHandleCounter] = glTextureIDs[propertyIndex];
-					property->textureID(m_textureHandleCounter);
-				}
-				
-				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
-																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
-			}
-			else {
-				if (property->textureID() > 0) {
-					glTextureIDs[propertyIndex] = m_textureHandleGLMapping[property->textureID()];
-				}
-			}
-		}
-	}
 		
 	// send uniforms
+#warning REFACTOR
 	
 	SendMaterialUniforms(material, debugOptions, *program);
+	
+	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
+		material.diffuse(), material.specular(), material.emissive()};
 	
 	static const MATERIAL_PROPERTY_TYPE propertyTypes[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
 		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
 	
+	unsigned propertyIndex = 0;
 	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
 		auto property = materialProperties[propertyIndex];
 		if (property) {
@@ -848,29 +1010,33 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 			}
 			
 			// if locksAmbientWithDiffuse(), substitube the diffuse property for the ambient property
-			unsigned glTextureID = glTextureIDs[propertyIndex];
+			unsigned glTextureHandle = glTextureHandles[propertyIndex];
 			if (propertyIndex == 0) { // ambient
 				if (material.locksAmbientWithDiffuse() && material.diffuse()
 					&& (material.diffuse()->color() || material.diffuse()->image())) {
-					glTextureID = glTextureIDs[1];
+					glTextureHandle = glTextureHandles[1];
 					property = materialProperties[1];
 				}
 			}
 
 			SendMaterialPropertyUniforms(*property,
 										 propertyTypes[propertyIndex],
-										 glTextureID,
+										 glTextureHandle,
 										 debugOptions,
 										 *program);
 		}
 	}
 	
-	SetOpenGLState(material, debugOptions, *program);
+	//SetOpenGLState(material, debugOptions, *program);
+	SetMaterialOpenGLState(material, debugOptions);
 	
 //	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 //		program = Program::Wireframe();
 //		glEnable(GL_LINE_SMOOTH);
 //	}
+	
+
+	// refactor to RenderGeometryElement()
 	
 	program->use();
 
@@ -879,14 +1045,6 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	program->setUniform("model", modelMat);
 	program->setUniform("view", inverse(viewMat));
 	program->setUniform("projection", projectionMat);
-	
-	// * TEMPORARY *
-	//material.prepareToRender(m_debugOptions);
-	//PrepareMaterialForRender(material, *program, debugOptions);
-	
-//		if (!((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-//			program->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
-//		}
 	
 	// draw
 	
@@ -899,9 +1057,10 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	program->unuse();
 }
 
-shared_ptr<Image> OpenGLRenderer::snapshot(unsigned framebufferWidth,
-										   unsigned framebufferHeight) const {
+shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
+	unsigned framebufferWidth = context.framebufferWidth();
+	unsigned framebufferHeight = context.framebufferHeight();
 	unsigned char *buf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
 	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);

@@ -48,23 +48,11 @@ namespace ae {
 				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat,
 				  const DEBUG_OPTIONS& debugOptions);
-		
-//		void draw(const glm::mat4& modelMat,
-//				  const glm::mat4& viewMat,
-//				  const glm::mat4& projectionMat,
-//				  Material& material,
-//				  unsigned glEnvironmentUBO,
-//				  DEBUG_OPTIONS debugOptions,
-//				  RenderStats& stats);
-		
-		void hardTransform(const glm::mat4 t, bool norm);
 
-		void loadVertexData(const Program& program);
+		void hardTransform(const glm::mat4 t, bool norm);
 
 		std::vector<Vertex> vertices() const;
 		std::vector<Face> faces() const;
-		
-		// EXPERIMENTAL
 		
 		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
@@ -80,12 +68,7 @@ namespace ae {
 		
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
-		unsigned								m_glVBO;
-		unsigned								m_glVAO;
-		unsigned								m_glIBO;
 
-		// EXPERIMENTAL
-		
 		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
 		VERTEX_DATA_ID							m_vertexDataID;
 	};

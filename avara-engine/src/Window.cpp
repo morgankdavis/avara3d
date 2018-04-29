@@ -265,7 +265,9 @@ float Window::sceneTime() {
 
 void Window::drawLoop() {
 	
-	AE_LOG->trace("-------------------------------------------------------------------------------");
+	AE_LOG->trace("-------------------------------------------------------------------------------");\
+	
+	m_renderer->beginFrame(*this);
 	
 #warning move to saveGIFFrame()
 	float time = sceneTime();
@@ -292,13 +294,7 @@ void Window::drawLoop() {
 			didSimulatePhysicsCallback()(*this, sceneTime());
 		}
 	}
-	
-	CheckGLError();
-	
-//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//	
-//	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
-	
+
 	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
 	
 	m_scene->draw(*RenderContext::renderer(), m_framebufferWidth, m_framebufferHeight, *pov, m_debugOptions, stats);
@@ -314,6 +310,8 @@ void Window::drawLoop() {
 	
 	glfwPollEvents();
 	if (inputManager()) inputManager()->update();
+	
+	m_renderer->endFrame(*this);
 }
 
 //void Window::updateStatsOverlay(RenderStats& stats) {
