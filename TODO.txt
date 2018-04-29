@@ -18,7 +18,6 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			Wireframe
 			AABB
 			Gif recording
 

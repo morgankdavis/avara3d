@@ -441,10 +441,10 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	
 	program.use();
 	
-	if (property.cube()) {
+	if (property.cube()) { // cubemap
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
 	}
-	else if (property.image()) { // texture
+	else if (property.image()) { // 2d texture
 		string modeUniformName = "";
 		string samplerUniformName = "";
 		GLenum slot;
@@ -538,6 +538,7 @@ static void SetMaterialOpenGLState(const Material& material,
 		//m_program = Program::Wireframe();
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glEnable(GL_LINE_SMOOTH);
 	}
 	else {
 		//m_program = Program::Default();
@@ -1131,7 +1132,14 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions) {
 	
-	auto program = Program::Default();
+	shared_ptr<Program> program = nullptr;
+	
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		program = Program::Wireframe();
+	}
+	else {
+		 program = Program::Default();
+	}
 	
 	// check and load vertex data if necessary
 	
@@ -1150,42 +1158,37 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 								glTextureHandles);
 
 		
+	// REFACTOR
 	// send uniforms
-#warning REFACTOR
 	
-	SendMaterialUniforms(material, debugOptions, *program);
-	
-	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emissive()};
-	
-	static const MATERIAL_PROPERTY_TYPE propertyTypes[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
-	
-	unsigned propertyIndex = 0;
-	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
-		auto property = materialProperties[propertyIndex];
-		if (property) {
-			
-			GLuint glTextureHandle = glTextureHandles[propertyIndex];
-			
-			SetMaterialPropertyFilteringOptions(*property, glTextureHandle);
-			
-			SendMaterialPropertyUniforms(*property,
-										 propertyTypes[propertyIndex],
-										 glTextureHandle,
-										 debugOptions,
-										 *program);
+	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		SendMaterialUniforms(material, debugOptions, *program);
+		
+		shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
+			material.diffuse(), material.specular(), material.emissive()};
+		
+		static const MATERIAL_PROPERTY_TYPE propertyTypes[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
+			MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+		
+		unsigned propertyIndex = 0;
+		for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
+			auto property = materialProperties[propertyIndex];
+			if (property) {
+				
+				GLuint glTextureHandle = glTextureHandles[propertyIndex];
+				
+				SetMaterialPropertyFilteringOptions(*property, glTextureHandle);
+				
+				SendMaterialPropertyUniforms(*property,
+											 propertyTypes[propertyIndex],
+											 glTextureHandle,
+											 debugOptions,
+											 *program);
+			}
 		}
 	}
 	
-	//SetOpenGLState(material, debugOptions, *program);
 	SetMaterialOpenGLState(material, debugOptions);
-	
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-//		program = Program::Wireframe();
-//		glEnable(GL_LINE_SMOOTH);
-//	}
-	
 
 	// refactor to RenderGeometryElement()
 	
