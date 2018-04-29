@@ -51,8 +51,6 @@ namespace ae {
 
 
 	int initLog();
-	int initGLFW();
-	//int initGLEW();
 }
 
 #endif /* Global_h */

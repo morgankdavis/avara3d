@@ -14,12 +14,6 @@
 //#define FONTSTASH_IMPLEMENTATION
 //#include "fontstash.h"
 
-#include <assimp/version.h>
-//#include <GL/glew.h>
-//#define GLFW_DLL
-#include <GLFW/glfw3.h>
-#include <LinearMath/btScalar.h> // for bullet version (!)
-
 //#define GLFONTSTASH_IMPLEMENTATION
 //#include "gl3fontstash.h"
 
@@ -44,17 +38,6 @@ char* 					ae::g_glfwLastErrorDescription;
 /***************************************************************************************
      Internal
  ***************************************************************************************/
-
-void glfwErrorCallback(int error, const char* description) {
-	cout << "glfwErrorCallback(): error: " << error << ", description: "  << description << endl;
-	
-	g_glfwLastErrorCode = error;
-	if (g_glfwLastErrorDescription) {
-		free(g_glfwLastErrorDescription);
-	}
-	g_glfwLastErrorDescription = (char *)malloc(strlen(description));
-	strcpy(g_glfwLastErrorDescription, description);
-}
 
 int ae::initLog() {
 	
@@ -127,57 +110,3 @@ int ae::initLog() {
 	return 0;
 }
 
-int ae::initGLFW() {
-	static bool initialized = false;
-	
-	if (!initialized) {
-		AE_LOG->trace("initGLFW()");
-		
-		int glfwMajVers, glfwMinVers, glfwRev;
-		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
-		
-		glfwSetErrorCallback(glfwErrorCallback);
-		
-		if (glfwInit()) {
-			AE_LOG->info("GLFW Initialized.");
-		}
-		else {
-			AE_LOG->critical("Error initializing GLFW.");
-			return -1;
-		}
-
-#warning move these somewhere
-		AE_LOG->info("Bullet version: {}",  btGetVersion());
-		
-		AE_LOG->info("Assimp version: {}.{}.{}",
-					aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
-		
-		srand(time(NULL));
-		
-		initialized = true;
-	}
-	
-	return 0;
-}
-
-//int ae::initGLEW() {
-//	AE_LOG->trace("initGLEW()");
-//	
-//	// must set OpenGL context first
-//	
-//	static bool initialized = false;
-//	if (!initialized) {
-//		glewExperimental = GL_TRUE;
-//		glewInit();
-//		
-//		const GLubyte *renderer = glGetString(GL_RENDERER);
-//		const GLubyte *version = glGetString(GL_VERSION);
-//		AE_LOG->info("Renderer: {}", renderer);
-//		AE_LOG->info("Version: {}", version);
-//		
-//		initialized = true;
-//	}
-//	
-//	return 0;
-//}

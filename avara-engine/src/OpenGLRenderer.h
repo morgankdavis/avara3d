@@ -34,7 +34,7 @@ namespace ae {
 		     Renderer
 		 ***************************************************************************************/
 		
-		bool init() override;
+		bool initialize() override;
 		
 		void beginFrame(const RenderContext& context) override;
 		void endFrame(const RenderContext& context) override;

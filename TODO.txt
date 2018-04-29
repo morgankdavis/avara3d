@@ -13,7 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
-		
+		program.unuse()
+		Move program static methods into OpenGLRenderer
+		Global init stuff (GLFW, etc) should move to appropriate places
+
+		Info overlay
+		Gif recording
+
 		Setup DEBUG macro -- use CheckGLError() for every object / when loading
 			things and when setting GL options.  If there is an error print
 			the stack trace
@@ -30,17 +36,10 @@ Tests:
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure
-			
-			program.unuse()
-			Move program static methods into OpenGLRenderer
 
 			Material - set image or cube -> remove the other
 
-			Refactor OGL & GLFW things in Utilities
-
 			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
-
-			Global init stuff (GLFW, etc) should move to appropriate places
 
 			Convert MaterialProperty to have a MaterialPropertyContent abstract class property
 				(CubeImage, Image, Color)

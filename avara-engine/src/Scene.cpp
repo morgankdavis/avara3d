@@ -16,6 +16,7 @@
 
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
+#include <assimp/version.h>
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <btBulletDynamicsCommon.h>
@@ -354,7 +355,9 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
-	///cout << "Loading scene: " << importPath << endl;
+	AE_LOG->info("Assimp version: {}.{}.{}",
+				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
+	
 	AE_LOG->info("Loading scene: {}", importPath.string());
 	
 	unsigned int assimpFlags = aiProcess_Triangulate

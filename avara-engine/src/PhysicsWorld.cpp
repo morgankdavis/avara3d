@@ -8,6 +8,7 @@
 
 #include "PhysicsWorld.h"
 
+#include <LinearMath/btScalar.h> // btGetVersion() !
 #include <GLFW/glfw3.h>
 
 #include "Logger.h"
@@ -52,6 +53,8 @@ PhysicsWorld::PhysicsWorld():
 	m_speed(1.0),
 	m_timestep(1.0/60.0),
 	m_scene(weak_ptr<Scene>()) {
+		
+		AE_LOG->info("Bullet version: {}",  btGetVersion());
 	
 		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
 		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());

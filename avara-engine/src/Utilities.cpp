@@ -33,12 +33,6 @@
 #include <Windows.h>
 #endif
 
-#include <GLFW/glfw3.h>
-#ifdef MACOS
-#define GLFW_EXPOSE_NATIVE_COCOA
-#endif
-#include <GLFW/glfw3native.h>
-
 #include <glm/gtc/quaternion.hpp>
 
 #include "Color.h"
@@ -48,9 +42,9 @@
 #include "Window.h"
 
 
-using namespace std;
-using namespace glm;
 using namespace ae;
+using namespace glm;
+using namespace std;
 
 
 /***************************************************************************************
@@ -470,18 +464,4 @@ void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned m
 
 void ae::utils::StopGIFRecording(Window& window) {
 	window.stopGIFRecording();
-}
-
-float ae::utils::GetScreenScaleFactor(GLFWmonitor* monitor) {
-#ifdef MACOS
-	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-	
-	Size width = CGDisplayModeGetWidth(currentModeRef);
-	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-	return (float)pixelWidth / (float)width;
-#endif
-	return 1.0;
 }

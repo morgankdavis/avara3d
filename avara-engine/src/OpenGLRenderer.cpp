@@ -256,6 +256,8 @@ static void LoadGeometryElementVertexData(const GeometryElement& geometryElement
 				 GL_STATIC_DRAW);
 	
 	AE_LOG->info("Done.");
+	
+	//program.unuse();
 }
 	
 static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
@@ -296,6 +298,8 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 				 GL_STATIC_DRAW);
 	
 	AE_LOG->info("Done.");
+	
+	//program.unuse();
 }
 
 static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
@@ -368,15 +372,13 @@ static void SendMaterialUniforms(const Material& material,
 								 const DEBUG_OPTIONS& debugOptions,
 								 Program& program) {
 	
-//	AE_LOG->trace("SendMaterialUniforms({:p}, {:p}, {:p})",
-//				  material, debugOptions, program);
-	AE_LOG->trace("SendMaterialUniforms()");
-	
 	program.use();
 	
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("emissiveMode", 0); // 0 = MaterialMode_None -- why is this here?
+	
+	//program.unuse();
 }
 
 static void SendMaterialPropertyUniforms(const MaterialProperty& materialProperty,
@@ -386,10 +388,6 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 										 Program& program) {
 	
 #warning probably should be refactored
-	
-//	AE_LOG->trace("SendMaterialPropertyUniforms({:p}, {}, {}, {:p}, {:p})",
-//				  materialProperty, type, textureHandleGLMapping, debugOptions, program);
-	AE_LOG->trace("SendMaterialPropertyUniforms()");
 	
 	program.use();
 	
@@ -463,6 +461,8 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& materialPropert
 						   materialProperty.color()->g,
 						   materialProperty.color()->b);
 	}
+	
+	//program.unuse();
 }
 
 static void SetMaterialOpenGLState(const Material& material, 
@@ -802,7 +802,7 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	//stats.polygons += numFaces;
 	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 	
-	program->unuse();
+	//program->unuse();
 }
 
 /***************************************************************************************
@@ -827,11 +827,11 @@ OpenGLRenderer::~OpenGLRenderer() {
      Internal
  **************************************************************************************/
 
-bool OpenGLRenderer::init() {
+bool OpenGLRenderer::initialize() {
 	
-	AE_LOG->trace("OpenGLRenderer::init()");
+	AE_LOG->trace("OpenGLRenderer::initialize()");
 	
-	// must set OpenGL context first
+	// NOTE: must setup OpenGL context first
 	
 	static bool initialized = false;
 	if (!initialized) {
@@ -1054,7 +1054,7 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	renderStats().polygons += numFaces;
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	
-	program->unuse();
+	//program->unuse();
 }
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {

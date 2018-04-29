@@ -43,7 +43,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
-		virtual bool init();
+		virtual bool initialize();
 		
 		virtual void beginFrame(const RenderContext& context);
 		virtual void endFrame(const RenderContext& context);

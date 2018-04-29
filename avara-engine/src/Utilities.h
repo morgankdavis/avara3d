@@ -130,8 +130,6 @@ namespace ae {
 		
 		void StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate);
 		void StopGIFRecording(Window& window);
-		
-		float GetScreenScaleFactor(GLFWmonitor* monitor);
 	}
 }
 

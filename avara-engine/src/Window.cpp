@@ -17,6 +17,10 @@
 //#include "gif.h"
 //#include "gl3fontstash.h"
 #include <GLFW/glfw3.h>
+#ifdef MACOS
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+#include <GLFW/glfw3native.h>
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
@@ -54,6 +58,17 @@ GLFWwindow* 	i_glfwWindow;
      GLFW Callbacks
  ***************************************************************************************/
 
+void glfwErrorCallback(int error, const char* description) {
+	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
+	
+	g_glfwLastErrorCode = error;
+	if (g_glfwLastErrorDescription) {
+		free(g_glfwLastErrorDescription);
+	}
+	g_glfwLastErrorDescription = (char *)malloc(strlen(description));
+	strcpy(g_glfwLastErrorDescription, description);
+}
+
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	AE_LOG->trace("glfwWindowSizeCallback()");
 	
@@ -68,6 +83,52 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
 	i_window->framebufferHeight(i_window->height() * i_window->framebufferScale());
 }
 
+/**************************************************************************************
+     Static
+ **************************************************************************************/
+
+static bool InitializeGLFW() {
+	static bool initialized = false;
+	
+	if (!initialized) {
+		AE_LOG->trace("InitializeGLFW()");
+		
+		int glfwMajVers, glfwMinVers, glfwRev;
+		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
+		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
+		
+		glfwSetErrorCallback(glfwErrorCallback);
+		
+		if (glfwInit()) {
+			AE_LOG->info("GLFW Initialized.");
+		}
+		else {
+			AE_LOG->critical("Error initializing GLFW.");
+			return false;
+		}
+		
+		srand(time(NULL)); // where else can we put this?
+		
+		initialized = true;
+	}
+	
+	return true;
+}
+
+static float ScreenScaleFactor(GLFWmonitor* monitor) {
+#ifdef MACOS
+	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+	
+	Size width = CGDisplayModeGetWidth(currentModeRef);
+	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+	return (float)pixelWidth / (float)width;
+#endif
+	return 1.0;
+}
+
 /***************************************************************************************
      Lifescycle
  ***************************************************************************************/
@@ -79,7 +140,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 	RenderContext(renderer) {
 
 	if (initLog() != 0) { cout << "Error initializing log." << endl; }
-	if (initGLFW() != 0) { AE_LOG->critical("Error initializing GLFW."); }
+	if (!InitializeGLFW()) { AE_LOG->critical("Error initializing GLFW."); }
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -104,7 +165,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		viewportWidth = vmode->width;
 		viewportHeight = vmode->height;
 		
-		scaleFactor = GetScreenScaleFactor(monitor);
+		scaleFactor = ScreenScaleFactor(monitor);
 	}
 	else {
 		i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
@@ -112,7 +173,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
 		//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
-		scaleFactor = GetScreenScaleFactor(glfwGetPrimaryMonitor());
+		scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 	}
 
 	AE_LOG->info("scaleFactor: {}", scaleFactor);
@@ -125,8 +186,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 	glfwMakeContextCurrent(i_glfwWindow);
 	enableVSync(false);
 
-	//initGLEW();
-		RenderContext::renderer()->init();
+	RenderContext::renderer()->initialize();
 
 	i_window = this;
 

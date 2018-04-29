@@ -35,7 +35,7 @@ Renderer::~Renderer() {
      Internal
  **************************************************************************************/
 
-bool Renderer::init() {
+bool Renderer::initialize() {
 	
 }
 
