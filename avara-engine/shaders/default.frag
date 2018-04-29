@@ -69,6 +69,7 @@ uniform 	int 		specularMode;
 uniform 	int 		emissiveMode;
 uniform		float 		specularExponent;
 uniform		float 		uvScale;
+uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 layout(std140) uniform EnvironmentBlock {
@@ -126,6 +127,11 @@ void main () {
 			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);			break;
 			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
 														  tex_coord * uvScale));	break;
+		}
+		
+		if (locksAmbientWithDiffuse &&
+			(diffuseMode == MATERIAL_MODE_COLOR || diffuseMode == MATERIAL_MODE_SAMPLER)) {
+			Ka = Kd;
 		}
 		
 		// look at depth peeling or a-buffers for proper alpha blending

@@ -373,6 +373,7 @@ static void SendMaterialUniforms(const Material& material,
 	
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
+	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissiveMode", 0); // 0 = MaterialMode_None -- why is this here?
 	
 	//program.unuse();
@@ -1006,19 +1007,9 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 																			 MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
 			}
 			
-			// if locksAmbientWithDiffuse(), substitube the diffuse property for the ambient property
-			unsigned glTextureHandle = glTextureHandles[propertyIndex];
-			if (propertyIndex == 0) { // ambient
-				if (material.locksAmbientWithDiffuse() && material.diffuse()
-					&& (material.diffuse()->color() || material.diffuse()->image())) {
-					glTextureHandle = glTextureHandles[1];
-					property = materialProperties[1];
-				}
-			}
-
 			SendMaterialPropertyUniforms(*property,
 										 propertyTypes[propertyIndex],
-										 glTextureHandle,
+										 glTextureHandles[propertyIndex],
 										 debugOptions,
 										 *program);
 		}
