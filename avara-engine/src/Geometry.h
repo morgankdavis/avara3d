@@ -27,7 +27,6 @@ namespace ae {
 	class GeometryElement;
 	class Material;
 	class Node;
-    class Program;
 	class Renderer;
 
 
@@ -78,6 +77,7 @@ namespace ae {
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
 		glm::vec3 extent(bool worldSpace) const;
+		glm::mat4 extentScaleMatrix(bool worldSpace) const;
 
 		GEOMETRY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_DIRTY_BITS bits);

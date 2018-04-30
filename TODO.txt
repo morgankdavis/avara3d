@@ -25,6 +25,8 @@ Tests:
 
 			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
 
+			Move all static function UNDER class implementations, prototype at top
+
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure

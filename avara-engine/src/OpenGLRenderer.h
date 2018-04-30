@@ -81,6 +81,9 @@ namespace ae {
 		int												m_fonsFont;
 		
 		unsigned										m_glEnvironmentUBO;
+		
+		/*  <gl_vboHandle, gl_vaoHandle> */
+		std::tuple<unsigned, unsigned>					m_aabbVertexDataGLHandles;
 	};
 }
 

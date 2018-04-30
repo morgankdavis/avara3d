@@ -319,6 +319,16 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 			}
 		}
 		
+		vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+		if (mouseScrollWheelDelta.y) {
+			static float FOV_SPEED = 2.5; // degrees/roll
+			if (m_cameraNode) {
+				auto fov = m_cameraNode->camera()->fov();
+				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
+				m_cameraNode->camera()->fov(fov);
+			}
+		}
+		
 		if (m_cameraNode) {
 
 			//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;

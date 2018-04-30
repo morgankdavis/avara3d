@@ -277,16 +277,9 @@ namespace ae {
 		glm::vec3 cameraPosition;
 	} RenderStats;
 		
-		
-		
-		
-		
-	/************* EXPERIMENTAL *************/
-		
-
+	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
-		MODEL_MATRIX =			1 << 0, // not currently used
-		AABB_VERTEX_DATA =		1 << 1, // not currently used
+		WORLD_TRANSFORM =		1 << 0, // not currently used
 		ALL = 					UINT_MAX
 	};
 		

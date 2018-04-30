@@ -62,12 +62,14 @@ void Camera::rotate(vec3 rotation) {
 }
 
 float Camera::fov() {
-	return m_fov;
-	constructProjectionMat();
+	return m_fov;	
 }
 
 void Camera::fov(float fov) {
-	m_fov = fov;
+	//if (fov > 0 || fov < M_PI) {
+		m_fov = fov;
+		constructProjectionMat();
+	//}
 }
 
 float Camera::zNear() {

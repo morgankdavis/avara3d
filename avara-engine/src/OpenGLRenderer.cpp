@@ -302,6 +302,119 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 	
 	//program.unuse();
 }
+	
+static void LoadAABBVertexData(const Program& program,
+							   tuple<unsigned, unsigned>& vertexDataGLHandles,
+							   GLuint& glVBO, GLuint& glVAO) {
+
+	float xMin = -0.5f;
+	float xMax = 0.5f;
+	float yMin = -0.5f;
+	float yMax = 0.5f;
+	float zMin = -0.5f;
+	float zMax = 0.5f;
+	
+	vec3 one =      vec3(xMin, yMax, zMin);
+	vec3 two =      vec3(xMin, yMax, zMax);
+	vec3 three =    vec3(xMax, yMax, zMax);
+	vec3 four =     vec3(xMax, yMax, zMin);
+	vec3 five =     vec3(xMin, yMin, zMin);
+	vec3 six =      vec3(xMin, yMin, zMax);
+	vec3 seven =    vec3(xMax, yMin, zMax);
+	vec3 eight =    vec3(xMax, yMin, zMin);
+	
+	vec3 verts[] = {
+		one, 	two,
+		two, 	three,
+		three,	four,
+		four, 	one,
+		five, 	six,
+		six, 	seven,
+		seven, 	eight,
+		eight, 	five,
+		one, 	five,
+		two, 	six,
+		three, 	seven,
+		four, 	eight};
+	
+	glGenBuffers(1, &glVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(vec3), &(verts[0]), GL_STATIC_DRAW);
+	
+	glGenVertexArrays(1, &glVAO);
+	glBindVertexArray(glVAO);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	
+	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	glVertexAttribPointer(positionIndex, 	// attrib index
+						  3, 				// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 		// component type
+						  GL_FALSE, 		// normalize
+						  sizeof(vec3), 	// stride
+						  0); 				// start offset
+	glEnableVertexAttribArray(positionIndex);
+}
+	
+static void GetAABBGLVertexDataHandles(tuple<unsigned, unsigned>& vertexDataGLHandles,
+									   GLuint& glVBO, GLuint& glVAO) {
+	
+	GLuint vbo = get<0>(vertexDataGLHandles);
+	GLuint vao = get<1>(vertexDataGLHandles);
+	
+	if (vbo == 0 || vao == 0) {
+		LoadAABBVertexData(*Program::AABB(), vertexDataGLHandles, vbo, vao);
+		get<0>(vertexDataGLHandles) = vbo;
+		get<1>(vertexDataGLHandles) = vao;
+	}
+	else {
+		glVBO = vbo;
+		glVAO = vao;
+	}
+}
+	
+static void SetAABBOpenGLState() {
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_LINE_SMOOTH);
+}
+	
+static void DrawAABB(Geometry& geometry,
+					 glm::mat4 modelMat,
+					 glm::mat4 viewMat,
+					 glm::mat4 projectionMat,
+					 GLuint glVBO, GLuint glVAO) {
+
+	auto program = Program::AABB();
+	program->use();
+	
+	// uniforms
+	
+	program->setUniform("model", modelMat);
+	program->setUniform("view", inverse(viewMat));
+	program->setUniform("projection", projectionMat);
+	
+	// draw
+	
+	glBindVertexArray(glVAO);
+	glDrawArrays(GL_LINES, 0, 24);
+}
+	
+static void RenderAABB(Geometry& geometry,
+					   glm::mat4 modelMat,
+					   glm::mat4 viewMat,
+					   glm::mat4 projectionMat,
+					   tuple<unsigned, unsigned>& vertexDataGLHandles,
+					   RenderStats& stats) {
+	GLuint vbo = 0;
+	GLuint vao = 0;
+	GetAABBGLVertexDataHandles(vertexDataGLHandles, vbo, vao);
+	
+	SetAABBOpenGLState();
+
+	DrawAABB(geometry, modelMat, viewMat, projectionMat, vbo, vao);
+}
 
 static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
 	
@@ -897,6 +1010,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 static void RenderSkybox(Geometry& skyboxGeometry,
 						 const Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
+						 RenderStats& stats,
 						 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& vertexDataIDMapping,
 						 VERTEX_DATA_ID& vertexDataIDCounter,
 						 map<TEXTURE_ID, unsigned>& textureIDMapping,
@@ -942,6 +1056,10 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	// draw
 	
 	DrawSkyboxElement(element, *program, pointOfView, vao, ibo);
+	
+	stats.geometries++;
+	stats.polygons += element.faces().size();
+	stats.meshes++;
 }
 	
 static float DrawString(string string, float size, float dx, float dy,
@@ -1073,7 +1191,8 @@ OpenGLRenderer::OpenGLRenderer():
 	m_textureIDMapping(map<TEXTURE_ID, unsigned>()),
 	m_vertexDataIDCounter(0),
 	m_textureIDCounter(0),
-	m_glEnvironmentUBO(0) {
+	m_glEnvironmentUBO(0),
+	m_aabbVertexDataGLHandles(make_tuple<unsigned, unsigned>(0, 0)) {
 
 }
 
@@ -1175,12 +1294,9 @@ void OpenGLRenderer::render(Scene& scene,
 			RenderSkybox(*skyboxGeometry,
 						 *pointOfView,
 						 debugOptions,
+						 stats,
 						 m_vertexDataIDMapping, m_vertexDataIDCounter,
 						 m_textureIDMapping, m_textureIDCounter);
-			
-			stats.geometries++;
-			stats.polygons += skyboxGeometry->elements().front()->faces().size();
-			stats.meshes++;
 		}
 		else if (scene.background()->color()) {
 			auto color = *(scene.background()->color());
@@ -1207,9 +1323,13 @@ void OpenGLRenderer::render(Geometry& geometry,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
 	
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-//		drawAABB(modelMat, viewMat, projectionMat);
-//	}
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		auto aabbModelMat = modelMat * geometry.extentScaleMatrix(false);
+		RenderAABB(geometry,
+				   aabbModelMat, viewMat, projectionMat,
+				   m_aabbVertexDataGLHandles,
+				   stats);
+	}
 }
 
 void OpenGLRenderer::render(GeometryElement& element,
