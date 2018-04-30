@@ -545,9 +545,6 @@ static void SetMaterialFilteringOptions(const Material& material,
 	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
 		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
 	
-//	static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-//													GLuint glTextureHandle) {
-		
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
 		
@@ -575,9 +572,6 @@ static void SetMaterialOpenGLState(const Material& material,
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	//AE_LOG->trace("SetOpenGLState({:p}, {}, {:p})", material, debugOptions, program);
-	AE_LOG->trace("SetMaterialOpenGLState()");
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		// can create zbuffer problems
@@ -760,9 +754,7 @@ static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
 	
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element.dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
-		
-#warning check remove any old data (hard transformed?)
-		
+
 		GLuint vbo = 0;
 		LoadGeometryElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
 		
@@ -853,35 +845,6 @@ static void GetMaterialGLTextureHandles(Material& material,
 			}
 		}
 	}
-	
-//	unsigned propertyIndex = 0;
-//	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
-//		auto property = materialProperties[propertyIndex];
-//		if (property) {
-//			
-//			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
-//													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
-//				
-//				GLuint tempTextureID = 0;
-//				LoadMaterialPropertyTexture(*property, tempTextureID);
-//				AE_LOG->debug("tempTextureID: {}", tempTextureID);
-//				if (tempTextureID > 0) {
-//					glTextureHandles[propertyIndex] = tempTextureID;
-//					
-//					idMapping[++idCounter] = glTextureHandles[propertyIndex];
-//					property->textureID(idCounter);
-//				}
-//				
-//				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
-//																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
-//			}
-//			else {
-//				if (property->textureID() > 0) {
-//					glTextureHandles[propertyIndex] = idMapping[property->textureID()];
-//				}
-//			}
-//		}
-//	}
 }
 	
 static void DrawGeometryElement(GeometryElement& element,
@@ -928,7 +891,6 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = faces.size();
-	//stats.polygons += numFaces;
 	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 }
 	
@@ -1174,6 +1136,7 @@ bool OpenGLRenderer::initialize() {
 	
 void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	
+	Renderer::beginFrame(context);
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -1190,10 +1153,9 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 }
 
 void OpenGLRenderer::render(Scene& scene,
-							const DEBUG_OPTIONS& debugOptions) {
-	
-	Renderer::render(scene, debugOptions); // initializes m_renderStats
-	
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats) {
+
 	auto renderContext = scene.renderContext().lock();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
@@ -1207,14 +1169,18 @@ void OpenGLRenderer::render(Scene& scene,
 	
 	if (scene.background()) {
 		if (scene.background()->cube()) {
-			auto renderContext = scene.renderContext().lock();
+			auto skyboxGeometry = scene.skyboxGeometry();
 			auto pointOfView = renderContext->pointOfView();
 			
-			RenderSkybox(*scene.skyboxGeometry(),
+			RenderSkybox(*skyboxGeometry,
 						 *pointOfView,
 						 debugOptions,
 						 m_vertexDataIDMapping, m_vertexDataIDCounter,
 						 m_textureIDMapping, m_textureIDCounter);
+			
+			stats.geometries++;
+			stats.polygons += skyboxGeometry->elements().front()->faces().size();
+			stats.meshes++;
 		}
 		else if (scene.background()->color()) {
 			auto color = *(scene.background()->color());
@@ -1229,7 +1195,7 @@ void OpenGLRenderer::render(Scene& scene,
 		m_glEnvironmentUBO = ubo;
 	}
 	
-	SendEnvironmentUniforms(m_glEnvironmentUBO, scene, renderStats());
+	SendEnvironmentUniforms(m_glEnvironmentUBO, scene, stats);
 	
 	Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
 }
@@ -1238,26 +1204,28 @@ void OpenGLRenderer::render(Geometry& geometry,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions) {
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats) {
 	
 //	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 //		drawAABB(modelMat, viewMat, projectionMat);
 //	}
 }
 
-void OpenGLRenderer::render(GeometryElement& geometryElement,
+void OpenGLRenderer::render(GeometryElement& element,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions) {
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats) {
 	
 	shared_ptr<Program> program = nullptr;
 	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
-	GetGeometryElementGLVertexDataHandles(geometryElement,
+	GetGeometryElementGLVertexDataHandles(element,
 										  m_vertexDataIDMapping, m_vertexDataIDCounter,
 										  vbo, vao, ibo);
 
@@ -1289,8 +1257,8 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	
 	// draw
 	
-	DrawGeometryElement(geometryElement, *program, modelMat, viewMat, projectionMat, vao, ibo);
-	renderStats().polygons += geometryElement.faces().size();
+	DrawGeometryElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	stats.polygons += element.faces().size();
 }
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {

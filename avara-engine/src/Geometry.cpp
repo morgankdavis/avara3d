@@ -128,10 +128,11 @@ void Geometry::draw(Renderer& renderer,
 					const mat4& modelMat,
 					const mat4& viewMat,
 					const mat4& projectionMat,
-					const DEBUG_OPTIONS& debugOptions) {
+					const DEBUG_OPTIONS& debugOptions,
+					RenderStats& stats) {
 
 	unsigned numElements = m_elements.size();
-	renderer.renderStats().meshes += numElements;
+	stats.meshes += numElements;
 	
 	for (int e=0; e < numElements; ++e) {
 		
@@ -144,7 +145,10 @@ void Geometry::draw(Renderer& renderer,
 			material = Material::DefaultMaterial();
 		}
 		
-		element->draw(renderer, *material, modelMat, viewMat, projectionMat, debugOptions);
+		element->draw(renderer,
+					  *material,
+					  modelMat, viewMat, projectionMat,
+					  debugOptions, stats);
 	}
 	
 //	if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_BOUNDING_BOXES) {

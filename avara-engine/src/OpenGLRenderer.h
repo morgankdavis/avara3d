@@ -43,18 +43,21 @@ namespace ae {
 		void endFrame(const RenderContext& context) override;
 		
 		void render(Scene& scene,
-					const DEBUG_OPTIONS& debugOptions) override;
+					const DEBUG_OPTIONS& debugOptions,
+					RenderStats& stats) override;
 		void render(Geometry& geometry,
 					const glm::mat4& modelMat,
 					const glm::mat4& viewMat,
 					const glm::mat4& projectionMat,
-					const DEBUG_OPTIONS& debugOptions) override;
-		void render(GeometryElement& geometryElement,
+					const DEBUG_OPTIONS& debugOptions,
+					RenderStats& stats) override;
+		void render(GeometryElement& element,
 					Material& material,
 					const glm::mat4& modelMat,
 					const glm::mat4& viewMat,
 					const glm::mat4& projectionMat,
-					const DEBUG_OPTIONS& debugOptions) override;
+					const DEBUG_OPTIONS& debugOptions,
+					RenderStats& stats) override;
 		
 		std::shared_ptr<Image> snapshot(const RenderContext& context) const override;
 		

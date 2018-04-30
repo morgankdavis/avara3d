@@ -18,12 +18,6 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			Fix render stats:
-				Nodes
-				Geometries
-				Camer pos
-				Add skybox stats -- pass renderStats to helpers
-
 			AABB
 			Gif recording
 
@@ -42,6 +36,8 @@ Tests:
 				VertexData
 				Texture
 				CubeTexture
+
+			Remove "i_" properties!
 
 
 		Play with camera field of view with mouse wheel

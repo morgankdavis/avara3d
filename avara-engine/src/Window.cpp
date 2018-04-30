@@ -11,11 +11,6 @@
 #include <algorithm>
 #include <iostream>
 
-
-//#include <GL/glew.h> // include before anything that might include GL/gl.h...
-//#include "fontstash.h"
-//#include "gif.h"
-//#include "gl3fontstash.h"
 #include <GLFW/glfw3.h>
 #ifdef MACOS
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -190,8 +185,6 @@ Window::Window(shared_ptr<Renderer> renderer,
 
 	i_window = this;
 
-	//initFontstash();
-	
 	m_width = viewportWidth;
 	m_height = viewportHeight;
 
@@ -294,35 +287,6 @@ float Window::sceneTime() const {
      Private
  ***************************************************************************************/
 
-//void Window::initFontstash() {
-//
-//	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-//	if (m_fonsContext == NULL) {
-//		//AE_LOG->error("Error creating Font Stash context.");
-//		throw Exception("Error creating Font Stash context.");
-//	}
-//	
-//	string fontName = "SourceCodePro-Semibold";
-//	string fontType = "otf";
-//	auto fontPath = FontPath(fontName, fontType);
-//	
-//	if (fontPath) {
-//		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
-//		if (m_fonsFont == FONS_INVALID) {
-//			char errStr[1024];
-//			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
-//			throw Exception(errStr);
-//			//AE_LOG->error("Could not load font: {}", fontPath);
-//			
-//		}
-//	}
-//	else {
-//		char errStr[1024];
-//		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
-//		throw Exception(errStr);
-//	}
-//}
-
 void Window::drawLoop() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");\
@@ -341,9 +305,7 @@ void Window::drawLoop() {
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
 	
-	RenderStats stats = {};
-	//stats.cameraPosition = pov->worldPosition();
-	stats.cameraPosition = pov->position();
+	m_renderer->renderStats().cameraPosition = pov->position();
 	
 	// simulate physics
 	auto physicsWorld = m_scene->physicsWorld();
@@ -357,11 +319,11 @@ void Window::drawLoop() {
 
 	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
 	
-	m_scene->draw(*RenderContext::renderer(), m_framebufferWidth, m_framebufferHeight, *pov, m_debugOptions, stats);
-	
-	//if (DEBUG_OPTIONS_CONTAINS(debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) updateStatsOverlay(stats);
-	//if ((unsigned)m_debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_STATS_OVERLAY) updateStatsOverlay(stats);
-	
+	m_scene->draw(*RenderContext::renderer(),
+				  m_framebufferWidth, m_framebufferHeight,
+				  *pov,
+				  m_debugOptions, m_renderer->renderStats());
+
 	m_renderer->endFrame(*this);
 	
 	glfwSwapBuffers(i_glfwWindow);
@@ -373,115 +335,3 @@ void Window::drawLoop() {
 	glfwPollEvents();
 	if (inputManager()) inputManager()->update();
 }
-
-//void Window::updateStatsOverlay(RenderStats& stats) {
-//	
-//	static float fps = 0.0;
-//	static float ms = 0.0;
-//	static float percent = 0.0;
-//
-//	const float GOAL_TIME = 16.6666667f;
-//
-//	static unsigned elapsedFrames = 0; ++elapsedFrames;
-//	static float previousSeconds = glfwGetTime();
-//	float currentSeconds = glfwGetTime();
-//	float elapsedSeconds = currentSeconds - previousSeconds;
-//
-//	if (elapsedSeconds > 0.5) {
-//		// only update the framerate stats every so often so they're readable
-//		
-//		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-//		fps = elapsedFrames/elapsedSeconds;
-//		percent = (ms / GOAL_TIME) * 100.0f;
-//
-//		// reset framerate stats
-//		previousSeconds = currentSeconds;
-//		elapsedFrames = 0;
-//	}
-//
-//	gl3fonsProjectionSize(m_fonsContext, m_framebufferWidth, m_framebufferHeight);
-//	
-//	glDisable(GL_DEPTH_TEST);
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//	
-//	float dx = 12.0 * m_framebufferScale;
-//	float dy = 20.0 * m_framebufferScale;
-//	
-//	fonsClearState(m_fonsContext);
-//	
-//	fonsSetFont(m_fonsContext, m_fonsFont);
-//
-//	static float textSize = 14.0 * m_framebufferScale;
-//	static float hPadding = 0.0 * m_framebufferScale;
-//	
-//	char tmpStr[256];
-//	
-//	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (m_vSyncEnabled ? " [vsync]" : ""));
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	dy += textSize; // skip a line
-//
-//	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	dy += textSize; // skip a line
-//	
-//	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
-//			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-//	drawText(tmpStr, textSize, dx, dy);
-//	dy += (textSize + hPadding);
-//	
-//	if (m_recordingGIF) {
-//		dy += textSize; // skip a line
-//		
-//		sprintf(tmpStr, "%-14s %d" , "RECORDING", m_gifRecordedFrames);
-//		drawText(tmpStr, textSize, dx, dy);
-//		dy += (textSize + hPadding);
-//	}
-//}
-//
-//float Window::drawText(string text, float size, float dx, float dy) {
-//	// must setup fons GL state first
-//	
-//	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
-//	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
-//	
-//	fonsSetSize(m_fonsContext, size);
-//	
-//	fonsSetColor(m_fonsContext, black);
-//	fonsSetBlur(m_fonsContext, 1);
-//	fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
-//	
-//	fonsSetColor(m_fonsContext, white);
-//	fonsSetBlur(m_fonsContext, 0);
-//	return fonsDrawText(m_fonsContext, dx, dy, text.c_str(), NULL);
-//}

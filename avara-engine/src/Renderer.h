@@ -49,18 +49,21 @@ namespace ae {
 		virtual void endFrame(const RenderContext& context);
 		
 		virtual void render(Scene& scene,
-							const DEBUG_OPTIONS& debugOptions);
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats);
 		virtual void render(Geometry& geometry,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions);
-		virtual void render(GeometryElement& geometryElement,
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats);
+		virtual void render(GeometryElement& element,
 							Material& material,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions);
+							const DEBUG_OPTIONS& debugOptions,
+							RenderStats& stats);
 		
 		virtual std::shared_ptr<Image> snapshot(const RenderContext& context) const;
 		

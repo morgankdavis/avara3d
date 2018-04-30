@@ -19,7 +19,6 @@
 #include "Types.h"
 
 
-//struct FONScontext;
 struct GLFWwindow;
 
 
@@ -32,9 +31,6 @@ namespace ae {
 	class InputManager;
 	class Node;
 	class Scene;
-	
-//	struct FONScontext;
-//	struct GLFWwindow;
 
 	
 	class Window : public RenderContext {

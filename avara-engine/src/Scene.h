@@ -27,14 +27,11 @@ namespace ae {
 
 	class Color;
 	class Geometry;
-	class GeometryElement;
-	class Material;
 	class MaterialProperty;
 	class Node;
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
-	//class SkyboxGeometry;
 	
 	
 	class Scene : public std::enable_shared_from_this<Scene> {

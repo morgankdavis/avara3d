@@ -658,7 +658,7 @@ void Scene::draw(Renderer& renderer,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
 
-	renderer.render(*this, debugOptions);
+	renderer.render(*this, debugOptions, stats);
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
@@ -685,7 +685,9 @@ void Scene::draw(Renderer& renderer,
 					modelMat = node->worldTransform();
 				}
 
-				geometry->draw(renderer, modelMat, viewMat, projectionMat, debugOptions);
+				geometry->draw(renderer,
+							   modelMat, viewMat, projectionMat,
+							   debugOptions, stats);
 			}
 		}
 	}
