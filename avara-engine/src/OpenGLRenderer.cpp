@@ -368,71 +368,7 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 		AE_LOG->info("Done.");
 	}
 }
-
-static void SendMaterialUniforms(const Material& material,
-								 const DEBUG_OPTIONS& debugOptions,
-								 Program& program) {
 	
-	program.use();
-	
-	program.setUniform("specularExponent", material.specularExponent());
-	program.setUniform("uvScale", material.uvScale());
-	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissiveMode", 0); // 0 = MaterialMode_None -- why is this here?
-	
-	//program.unuse();
-}
-	
-static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-												GLuint glTextureHandle) {
-	
-	bool cube = (property.cube() != nullptr);
-	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
-		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER));
-	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER)) {
-		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER));
-	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S)) {
-		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S));
-	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T)) {
-		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
-	}
-	
-	if (cube) {
-		if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-												  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
-			SetTextureWrapR(glTextureHandle, property.wrapR());
-			property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-																   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
-		}
-	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
-											  MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY)) {
-		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
-		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
-															   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
-	}
-}
-
 static void SendMaterialPropertyUniforms(MaterialProperty& property,
 										 MATERIAL_PROPERTY_TYPE type,
 										 GLuint glTextureHandle,
@@ -511,6 +447,123 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	}
 	
 	//program.unuse();
+}
+
+static void SendMaterialUniforms(const Material& material,
+								 Program& program,
+								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
+								 const DEBUG_OPTIONS& debugOptions) {
+	
+	// sends uniforms for the Material, and and MaterialProperties it has
+	
+	program.use();
+	
+	program.setUniform("specularExponent", material.specularExponent());
+	program.setUniform("uvScale", material.uvScale());
+	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
+	program.setUniform("emissiveMode", 0); // 0 = MaterialMode_None -- why is this here?
+	
+	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
+		material.diffuse(), material.specular(), material.emissive()};
+	
+	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
+		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	
+	for (unsigned p = 0; p<4; ++p) {
+		auto property = properties[p];
+		
+		if (property) {
+			auto type = types[p];
+			
+			SendMaterialPropertyUniforms(*property,
+										 type,
+										 glTextureHandles[type],
+										 debugOptions,
+										 program);
+		}
+	}
+	
+	//program.unuse();
+}
+	
+static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
+												GLuint glTextureHandle) {
+	
+	bool cube = (property.cube() != nullptr);
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
+		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER)) {
+		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S)) {
+		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S));
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T)) {
+		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
+	}
+	
+	if (cube) {
+		if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+												  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
+			SetTextureWrapR(glTextureHandle, property.wrapR());
+			property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+																   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
+		}
+	}
+	
+	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
+											  MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY)) {
+		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
+		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
+															   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
+	}
+}
+	
+static void SetMaterialFilteringOptions(const Material& material,
+										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
+	
+	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
+		material.diffuse(), material.specular(), material.emissive()};
+	
+	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
+		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	
+//	static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
+//													GLuint glTextureHandle) {
+		
+	for (unsigned p = 0; p<4; ++p) {
+		auto property = properties[p];
+		
+		if (property) {
+			auto type = types[p];
+			
+			SetMaterialPropertyFilteringOptions(*property, glTextureHandles[type]);
+		}
+	}
+}
+	
+static void SetSkyboxOpenGLState() {
+	
+	glDepthMask(GL_FALSE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_CULL_FACE);
 }
 
 static void SetMaterialOpenGLState(const Material& material, 
@@ -761,30 +814,32 @@ static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
 }
 
 static void GetMaterialGLTextureHandles(Material& material,
-								map<TEXTURE_ID, unsigned>& idMapping,
-								TEXTURE_ID& idCounter,
-								GLuint* glTextureHandles) {
+										map<TEXTURE_ID, unsigned>& idMapping, TEXTURE_ID& idCounter,
+										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
-
-	shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
+	
+	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
 	
-	unsigned propertyIndex = 0;
-	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
-		auto property = materialProperties[propertyIndex];
+	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
+		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	
+	for (unsigned p = 0; p<4; ++p) {
+		auto property = properties[p];
+
 		if (property) {
+			auto type = types[p];
 			
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
 				
-				GLuint tempTextureID = 0;
-				LoadMaterialPropertyTexture(*property, tempTextureID);
-				AE_LOG->debug("tempTextureID: {}", tempTextureID);
-				if (tempTextureID > 0) {
-					glTextureHandles[propertyIndex] = tempTextureID;
+				GLuint textureID = 0;
+				LoadMaterialPropertyTexture(*property, textureID);
+				if (textureID > 0) {
+					glTextureHandles[type] = textureID;
 					
-					idMapping[++idCounter] = glTextureHandles[propertyIndex];
+					idMapping[++idCounter] = textureID;
 					property->textureID(idCounter);
 				}
 				
@@ -793,11 +848,88 @@ static void GetMaterialGLTextureHandles(Material& material,
 			}
 			else {
 				if (property->textureID() > 0) {
-					glTextureHandles[propertyIndex] = idMapping[property->textureID()];
+					glTextureHandles[type] = idMapping[property->textureID()];
 				}
 			}
 		}
 	}
+	
+//	unsigned propertyIndex = 0;
+//	for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
+//		auto property = materialProperties[propertyIndex];
+//		if (property) {
+//			
+//			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
+//													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
+//				
+//				GLuint tempTextureID = 0;
+//				LoadMaterialPropertyTexture(*property, tempTextureID);
+//				AE_LOG->debug("tempTextureID: {}", tempTextureID);
+//				if (tempTextureID > 0) {
+//					glTextureHandles[propertyIndex] = tempTextureID;
+//					
+//					idMapping[++idCounter] = glTextureHandles[propertyIndex];
+//					property->textureID(idCounter);
+//				}
+//				
+//				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
+//																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
+//			}
+//			else {
+//				if (property->textureID() > 0) {
+//					glTextureHandles[propertyIndex] = idMapping[property->textureID()];
+//				}
+//			}
+//		}
+//	}
+}
+	
+static void DrawGeometryElement(GeometryElement& element,
+								Program& program,
+								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+								GLuint vao, GLuint ibo) {
+	
+	program.use();
+	
+	// uniforms
+	
+	program.setUniform("model", modelMat);
+	program.setUniform("view", inverse(viewMat));
+	program.setUniform("projection", projectionMat);
+	
+	// draw
+	
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	unsigned int numFaces = element.faces().size();
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
+}
+	
+static void DrawSkyboxElement(GeometryElement& element,
+							  Program& program,
+							  const Node& pointOfView,
+							  GLuint vao, GLuint ibo) {
+	
+	program.use();
+	
+	mat4 viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+						  pointOfView.worldForward(), // center - look at
+						  pointOfView.worldUp()); // up
+	
+	auto projectionMat = pointOfView.camera()->projection();
+	
+	program.setUniform("view", viewMat);
+	program.setUniform("projection", projectionMat);
+	
+	// draw
+	
+	auto faces = element.faces();
+	
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	unsigned int numFaces = faces.size();
+	//stats.polygons += numFaces;
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
 }
 	
 static void RenderSkybox(Geometry& skyboxGeometry,
@@ -808,56 +940,50 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 						 map<TEXTURE_ID, unsigned>& textureIDMapping,
 						 TEXTURE_ID& textureIDCounter) {
 
+	auto program = Program::Skybox();
+	
 	auto element = *(skyboxGeometry.elements().front());
 	auto material = *(skyboxGeometry.materials().front());
+	auto emissiveProperty = *(material.emissive());
+	
+	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
-	GetSkyboxGLVertexDataHandles(skyboxGeometry, vertexDataIDMapping, vertexDataIDCounter, vbo, vao, ibo);
+	GetSkyboxGLVertexDataHandles(skyboxGeometry,
+								 vertexDataIDMapping, vertexDataIDCounter,
+								 vbo, vao, ibo);
 	
-	GLuint glTextureHandles[] = {0, 0, 0, 0};
-	GetMaterialGLTextureHandles(material, textureIDMapping, textureIDCounter, glTextureHandles);
+	// and load material contents if necessary
+	
+	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
+	GetMaterialGLTextureHandles(material,
+								textureIDMapping, textureIDCounter,
+								glTextureHandles);
+	auto emissiveGLTextureHandle = glTextureHandles[MATERIAL_PROPERTY_TYPE::EMISSIVE];
 
-	mat4 viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
-						  pointOfView.worldForward(), // center - look at
-						  pointOfView.worldUp()); // up
+	// send material property uniforms
 	
-	auto projectionMat = pointOfView.camera()->projection();
-	
-	auto program = Program::Skybox();
-	program->use();
-
-	glDepthMask(GL_FALSE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_CULL_FACE);
-	
-	auto property = material.emissive();
-	
-	SetMaterialPropertyFilteringOptions(*property,  glTextureHandles[3]);
-	
-	SendMaterialPropertyUniforms(*property,
-								 // EMISSIVE is currently ignored by SendMaterialPropertyUniforms()
+	SendMaterialPropertyUniforms(emissiveProperty,
 								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
-								 glTextureHandles[3], // 3 = emissive
+								 emissiveGLTextureHandle,
 								 debugOptions,
 								 *program);
 	
-	program->setUniform("view", viewMat);
-	program->setUniform("projection", projectionMat);
-
+	// update material property filtering options
+	
+	SetMaterialPropertyFilteringOptions(emissiveProperty, emissiveGLTextureHandle);
+	
+	// configure OpenGL state
+	
+	SetSkyboxOpenGLState();
+	
 	// draw
 	
-	auto faces = element.faces();
-	
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = faces.size();
-	//stats.polygons += numFaces;
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
-	
-	//program->unuse();
+	DrawSkyboxElement(element, *program, pointOfView, vao, ibo);
 }
 	
-static float DrawString(string string, float size, float dx, float dy, FONScontext* fonsContext) {
+static float DrawString(string string, float size, float dx, float dy,
+						FONScontext* fonsContext) {
 	// must setup fons GL state first
 	
 	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
@@ -912,7 +1038,6 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
 	
 	float dx = 12.0 * framebufferScale;
 	float dy = 20.0 * framebufferScale;
@@ -1076,10 +1201,7 @@ void OpenGLRenderer::render(Scene& scene,
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, framebufferWidth, framebufferHeight);
-	
-	//	auto viewMat = m_pointOfView->worldTransform();
-	//	auto projectionMat = m_pointOfView->camera()->projection();
-	
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -1109,9 +1231,7 @@ void OpenGLRenderer::render(Scene& scene,
 	
 	SendEnvironmentUniforms(m_glEnvironmentUBO, scene, renderStats());
 	
-	//if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
-	//}
+	Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
 }
 
 void OpenGLRenderer::render(Geometry& geometry,
@@ -1120,7 +1240,7 @@ void OpenGLRenderer::render(Geometry& geometry,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions) {
 	
-//	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 //		drawAABB(modelMat, viewMat, projectionMat);
 //	}
 }
@@ -1134,13 +1254,6 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 	
 	shared_ptr<Program> program = nullptr;
 	
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		program = Program::Wireframe();
-	}
-	else {
-		 program = Program::Default();
-	}
-	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
@@ -1148,67 +1261,36 @@ void OpenGLRenderer::render(GeometryElement& geometryElement,
 										  m_vertexDataIDMapping, m_vertexDataIDCounter,
 										  vbo, vao, ibo);
 
-	// load material contents if necessary
-	
-	#warning use a map with MATERIAL_PROPERTY_TYPE instead of indicies
-	
-	GLuint glTextureHandles[] = {0, 0, 0, 0};
-	GetMaterialGLTextureHandles(material,
-								m_textureIDMapping, m_textureIDCounter,
-								glTextureHandles);
-
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		program = Program::Wireframe();
+	}
+	else {
+		program = Program::Default();
 		
-	// REFACTOR
-	// send uniforms
-	
-	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		SendMaterialUniforms(material, debugOptions, *program);
+		// and load material contents if necessary
 		
-		shared_ptr<MaterialProperty> materialProperties[] = {material.ambient(),
-			material.diffuse(), material.specular(), material.emissive()};
+		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
+		GetMaterialGLTextureHandles(material,
+									m_textureIDMapping, m_textureIDCounter,
+									glTextureHandles);
 		
-		static const MATERIAL_PROPERTY_TYPE propertyTypes[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-			MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+		// send material and material property uniforms
 		
-		unsigned propertyIndex = 0;
-		for (propertyIndex = 0; propertyIndex<4; ++propertyIndex) {
-			auto property = materialProperties[propertyIndex];
-			if (property) {
-				
-				GLuint glTextureHandle = glTextureHandles[propertyIndex];
-				
-				SetMaterialPropertyFilteringOptions(*property, glTextureHandle);
-				
-				SendMaterialPropertyUniforms(*property,
-											 propertyTypes[propertyIndex],
-											 glTextureHandle,
-											 debugOptions,
-											 *program);
-			}
-		}
+		SendMaterialUniforms(material, *program, glTextureHandles, debugOptions);
+		
+		// update material property filtering options
+		
+		SetMaterialFilteringOptions(material, glTextureHandles);
 	}
 	
+	// configure OpenGL state
+	
 	SetMaterialOpenGLState(material, debugOptions);
-
-	// refactor to RenderGeometryElement()
-	
-	program->use();
-
-	// uniforms
-	
-	program->setUniform("model", modelMat);
-	program->setUniform("view", inverse(viewMat));
-	program->setUniform("projection", projectionMat);
 	
 	// draw
 	
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = geometryElement.faces().size();
-	renderStats().polygons += numFaces;
-	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
-	
-	//program->unuse();
+	DrawGeometryElement(geometryElement, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	renderStats().polygons += geometryElement.faces().size();
 }
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {

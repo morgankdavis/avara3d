@@ -18,6 +18,12 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
+			Fix render stats:
+				Nodes
+				Geometries
+				Camer pos
+				Add skybox stats -- pass renderStats to helpers
+
 			AABB
 			Gif recording
 
