@@ -29,8 +29,8 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 								 std::vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
-	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL),
-	m_vertexDataID(0) {
+	m_vertexDataID(0),
+	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
 
 }
 
@@ -83,18 +83,18 @@ vector<Face> GeometryElement::faces() const {
 	return m_faces;
 }
 
-GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
-	return m_dirtyBits;
-}
-
-void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
-}
-
 VERTEX_DATA_ID GeometryElement::vertexDataID() const {
 	return m_vertexDataID;
 }
 
 void GeometryElement::vertexDataID(VERTEX_DATA_ID dataID) {
 	m_vertexDataID = dataID;
+}
+
+GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

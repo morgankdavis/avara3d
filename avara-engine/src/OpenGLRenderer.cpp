@@ -303,16 +303,20 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 	//program.unuse();
 }
 	
-static void LoadAABBVertexData(const Program& program,
-							   tuple<unsigned, unsigned>& vertexDataGLHandles,
+static void LoadAABBVertexData(Geometry& geometry,
+							   const Program& program,
+//							   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
+//							   VERTEX_DATA_ID& idDCounter,
 							   GLuint& glVBO, GLuint& glVAO) {
 
-	float xMin = -0.5f;
-	float xMax = 0.5f;
-	float yMin = -0.5f;
-	float yMax = 0.5f;
-	float zMin = -0.5f;
-	float zMax = 0.5f;
+	map<string, vec3> bp = *(geometry.boundingPoints(false));
+	
+	float xMin = bp["xMin"].x;
+	float xMax = bp["xMax"].x;
+	float yMin = bp["yMin"].y;
+	float yMax = bp["yMax"].y;
+	float zMin = bp["zMin"].z;
+	float zMax = bp["zMax"].z;
 	
 	vec3 one =      vec3(xMin, yMax, zMin);
 	vec3 two =      vec3(xMin, yMax, zMax);
@@ -356,20 +360,30 @@ static void LoadAABBVertexData(const Program& program,
 	glEnableVertexAttribArray(positionIndex);
 }
 	
-static void GetAABBGLVertexDataHandles(tuple<unsigned, unsigned>& vertexDataGLHandles,
+static void GetAABBGLVertexDataHandles(Geometry& geometry,
+									   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
+									   VERTEX_DATA_ID& idCounter,
 									   GLuint& glVBO, GLuint& glVAO) {
+
+	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 	
-	GLuint vbo = get<0>(vertexDataGLHandles);
-	GLuint vao = get<1>(vertexDataGLHandles);
+	auto vertexDataID = geometry.aabbVertexDataID();
 	
-	if (vbo == 0 || vao == 0) {
-		LoadAABBVertexData(*Program::AABB(), vertexDataGLHandles, vbo, vao);
-		get<0>(vertexDataGLHandles) = vbo;
-		get<1>(vertexDataGLHandles) = vao;
+	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry.dirtyBits(),
+									 GEOMETRY_DIRTY_BITS::EXTENT)) {
+		
+		LoadAABBVertexData(geometry, *Program::AABB(), glVBO, glVAO);
+		
+		idMapping[++idCounter] = make_pair(glVBO, glVAO);
+		geometry.aabbVertexDataID(idCounter);
+		
+		geometry.dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry.dirtyBits(),
+													  GEOMETRY_DIRTY_BITS::EXTENT));
 	}
 	else {
-		glVBO = vbo;
-		glVAO = vao;
+		auto mapping = idMapping[vertexDataID];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
 	}
 }
 	
@@ -405,11 +419,14 @@ static void RenderAABB(Geometry& geometry,
 					   glm::mat4 modelMat,
 					   glm::mat4 viewMat,
 					   glm::mat4 projectionMat,
-					   tuple<unsigned, unsigned>& vertexDataGLHandles,
+					   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
+					   VERTEX_DATA_ID& idCounter,
 					   RenderStats& stats) {
 	GLuint vbo = 0;
 	GLuint vao = 0;
-	GetAABBGLVertexDataHandles(vertexDataGLHandles, vbo, vao);
+	GetAABBGLVertexDataHandles(geometry,
+							   idMapping, idCounter,
+							   vbo, vao);
 	
 	SetAABBOpenGLState();
 
@@ -1191,8 +1208,11 @@ OpenGLRenderer::OpenGLRenderer():
 	m_textureIDMapping(map<TEXTURE_ID, unsigned>()),
 	m_vertexDataIDCounter(0),
 	m_textureIDCounter(0),
+	m_aabbVertexDataIDMapping(map<VERTEX_DATA_ID, pair<unsigned, unsigned>>()),
+	m_aabbVertexDataIDCounter(0),
 	m_glEnvironmentUBO(0),
-	m_aabbVertexDataGLHandles(make_tuple<unsigned, unsigned>(0, 0)) {
+	m_fonsContext(nullptr),
+	m_fonsFont(-1) {
 
 }
 
@@ -1324,10 +1344,10 @@ void OpenGLRenderer::render(Geometry& geometry,
 							RenderStats& stats) {
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		auto aabbModelMat = modelMat * geometry.extentScaleMatrix(false);
 		RenderAABB(geometry,
-				   aabbModelMat, viewMat, projectionMat,
-				   m_aabbVertexDataGLHandles,
+				   modelMat, viewMat, projectionMat,
+				   m_aabbVertexDataIDMapping,
+				   m_aabbVertexDataIDCounter,
 				   stats);
 	}
 }

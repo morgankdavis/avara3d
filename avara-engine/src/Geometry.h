@@ -78,13 +78,16 @@ namespace ae {
 		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
 		glm::vec3 extent(bool worldSpace) const;
 		glm::mat4 extentScaleMatrix(bool worldSpace) const;
-
-		GEOMETRY_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
 		
 		void attachedToNode(std::shared_ptr<Node> node);
 		
 		std::weak_ptr<Node> node() const;
+		
+		VERTEX_DATA_ID aabbVertexDataID() const;
+		void aabbVertexDataID(VERTEX_DATA_ID dataID);
+		
+		GEOMETRY_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
 
 	protected:
 
@@ -103,6 +106,8 @@ namespace ae {
 
 		boost::optional<std::string>						m_name;
 		std::weak_ptr<Node>									m_node;
+		
+		VERTEX_DATA_ID										m_aabbVertexDataID;
 
 		GEOMETRY_DIRTY_BITS									m_dirtyBits;
 	};

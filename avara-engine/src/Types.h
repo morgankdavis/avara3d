@@ -280,6 +280,7 @@ namespace ae {
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
 		WORLD_TRANSFORM =		1 << 0, // not currently used
+		EXTENT =				1 << 1, // not currently used
 		ALL = 					UINT_MAX
 	};
 		

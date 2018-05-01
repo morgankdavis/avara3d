@@ -21,7 +21,8 @@ Tests:
 			AABB
 			Gif recording
 
-			Material - set image or cube -> remove the other
+			Convert MaterialProperty to have a MaterialPropertyContent abstract class property
+				(CubeImage, Image, Color)
 
 			Implement copy, assignment, etc for Image, Geometry, GeometryElement, Material, MaterialProperty, Scene
 
@@ -31,18 +32,12 @@ Tests:
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure
 
-			Convert MaterialProperty to have a MaterialPropertyContent abstract class property
-				(CubeImage, Image, Color)
-
 			ContainerObjects? -- contain AE rendering resource IDs?
 				VertexData
 				Texture
 				CubeTexture
 
 			Remove "i_" properties!
-
-
-		Play with camera field of view with mouse wheel
 
 		SceneImporter?
 

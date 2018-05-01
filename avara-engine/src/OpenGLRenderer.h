@@ -76,14 +76,17 @@ namespace ae {
 		
 		VERTEX_DATA_ID 									m_vertexDataIDCounter;
 		TEXTURE_ID 										m_textureIDCounter;
+
+		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle>> */
+		std::map<VERTEX_DATA_ID,
+			std::pair<unsigned, unsigned>>				m_aabbVertexDataIDMapping;
 		
-		FONScontext* 									m_fonsContext;
-		int												m_fonsFont;
+		VERTEX_DATA_ID 									m_aabbVertexDataIDCounter;
 		
 		unsigned										m_glEnvironmentUBO;
 		
-		/*  <gl_vboHandle, gl_vaoHandle> */
-		std::tuple<unsigned, unsigned>					m_aabbVertexDataGLHandles;
+		FONScontext* 									m_fonsContext;
+		int												m_fonsFont;
 	};
 }
 
