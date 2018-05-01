@@ -18,7 +18,6 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			AABB
 			Gif recording
 
 			Convert MaterialProperty to have a MaterialPropertyContent abstract class property

@@ -36,6 +36,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Color.h"
+#include "CubeImage.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Scene.h"
@@ -391,18 +392,15 @@ shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
 	return nullptr;
 }
 
-shared_ptr<vector<shared_ptr<Image>>> ae::utils::TestCubeNamed(const string& name,
-															   const string& type) {
-	auto cube = make_shared<vector<shared_ptr<Image>>>();
+shared_ptr<CubeImage> ae::utils::TestCubeImageNamed(const string& name,
+																	const string& type) {
 	
-	cube->push_back(TestImageNamed(name + "_posx", type, false));
-	cube->push_back(TestImageNamed(name + "_negx", type, false));
-	cube->push_back(TestImageNamed(name + "_posy", type, false));
-	cube->push_back(TestImageNamed(name + "_negy", type, false));
-	cube->push_back(TestImageNamed(name + "_posz", type, false));
-	cube->push_back(TestImageNamed(name + "_negz", type, false));
-	
-	return cube;
+	return make_shared<CubeImage>(TestImageNamed(name + "_posx", type, false),
+								  TestImageNamed(name + "_negx", type, false),
+								  TestImageNamed(name + "_posy", type, false),
+								  TestImageNamed(name + "_negy", type, false),
+								  TestImageNamed(name + "_posz", type, false),
+								  TestImageNamed(name + "_negz", type, false));
 }
 
 boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {

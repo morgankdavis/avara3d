@@ -14,9 +14,12 @@
 #include <vector>
 
 
+#include "MaterialPropertyContents.h"
+
+
 namespace ae {
 	
-	class Color {
+	class Color : public MaterialPropertyContents {
 		
 	public:
 		

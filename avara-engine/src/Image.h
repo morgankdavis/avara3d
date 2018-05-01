@@ -16,11 +16,13 @@
 
 #include <boost/filesystem.hpp>
 
+#include "MaterialPropertyContents.h"
+
 
 namespace ae {
 
 
-	class Image {
+	class Image : public MaterialPropertyContents {
 		
 	public:
 		

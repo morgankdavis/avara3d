@@ -23,6 +23,7 @@
 
 #include "Camera.h"
 #include "Color.h"
+#include "CubeImage.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Global.h"
@@ -590,7 +591,7 @@ shared_ptr<MaterialProperty> Scene::background() const {
 
 void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
-	if (backgroundProperty->cube()) {
+	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
 		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
 
 		// generate the skybox geometry if it hasn't already been

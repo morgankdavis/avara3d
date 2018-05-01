@@ -22,6 +22,7 @@
 
 #include "Camera.h"
 #include "Color.h"
+#include "CubeImage.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Global.h"
@@ -435,8 +436,18 @@ static void RenderAABB(Geometry& geometry,
 
 static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
 	
-	if (materialProperty.cube()) {
+	if (dynamic_pointer_cast<CubeImage>(materialProperty.contents())) {
 		AE_LOG->info("Buffering cube texture...");
+		
+		auto cubeImage = dynamic_pointer_cast<CubeImage>(materialProperty.contents());
+		
+		Image images[] = {
+			*(cubeImage->posX()),
+			*(cubeImage->negX()),
+			*(cubeImage->posY()),
+			*(cubeImage->negY()),
+			*(cubeImage->posZ()),
+			*(cubeImage->negZ()) };
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -451,7 +462,7 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 		
 		for (int s=0; s<6; ++s) {
 			GLenum side = sides[s];
-			Image image = *((*materialProperty.cube())[s]);
+			Image image = images[s];
 			
 			glTexImage2D(side,
 						 0,
@@ -463,7 +474,7 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 						 GL_UNSIGNED_BYTE,
 						 image.data());
 		}
-	
+		
 		SetTextureMinificationFilter(glTextureHandle, true, materialProperty.minificationFilter());
 		SetTextureMagnificationFilter(glTextureHandle, true, materialProperty.magnificationFilter());
 		SetTextureMaxAnisotropy(glTextureHandle, true, materialProperty.maxAnisotropy());
@@ -473,8 +484,10 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 		
 		AE_LOG->info("Done.");
 	}
-	else if (materialProperty.image()) {
+	else if (dynamic_pointer_cast<Image>(materialProperty.contents())) {
 		AE_LOG->info("Buffering 2D texture...");
+		
+		auto image = dynamic_pointer_cast<Image>(materialProperty.contents());
 		
 		glGenTextures(1, &glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
@@ -482,12 +495,12 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
 					 GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
-					 materialProperty.image()->width(),
-					 materialProperty.image()->height(),
+					 image->width(),
+					 image->height(),
 					 0,
 					 GL_RGBA,
 					 GL_UNSIGNED_BYTE,
-					 materialProperty.image()->data());
+					 image->data());
 		
 		SetTextureMinificationFilter(glTextureHandle, false, materialProperty.minificationFilter());
 		SetTextureMagnificationFilter(glTextureHandle, false, materialProperty.magnificationFilter());
@@ -507,10 +520,10 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	
 	program.use();
 	
-	if (property.cube()) { // cubemap
+	if (dynamic_pointer_cast<CubeImage>(property.contents())) { // cubemap
 		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
 	}
-	else if (property.image()) { // 2d texture
+	else if (dynamic_pointer_cast<Image>(property.contents())) { // 2d texture
 		string modeUniformName = "";
 		string samplerUniformName = "";
 		GLenum slot;
@@ -546,6 +559,8 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 	}
 	else { // color
+		auto color = dynamic_pointer_cast<Color>(property.contents());
+		
 		string modeUniformName = "";
 		string colorUniformName = "";
 		
@@ -572,7 +587,6 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		}
 		
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::COLOR));
-		auto color = property.color();
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	
@@ -619,7 +633,7 @@ static void SendMaterialUniforms(const Material& material,
 static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 												GLuint glTextureHandle) {
 	
-	bool cube = (property.cube() != nullptr);
+	bool cube = dynamic_pointer_cast<CubeImage>(property.contents()) != nullptr;
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
@@ -1307,7 +1321,7 @@ void OpenGLRenderer::render(Scene& scene,
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	if (scene.background()) {
-		if (scene.background()->cube()) {
+		if (dynamic_pointer_cast<CubeImage>(scene.background()->contents())) {
 			auto skyboxGeometry = scene.skyboxGeometry();
 			auto pointOfView = renderContext->pointOfView();
 			
@@ -1318,9 +1332,9 @@ void OpenGLRenderer::render(Scene& scene,
 						 m_vertexDataIDMapping, m_vertexDataIDCounter,
 						 m_textureIDMapping, m_textureIDCounter);
 		}
-		else if (scene.background()->color()) {
-			auto color = *(scene.background()->color());
-			glClearColor(color.r, color.g, color.b, 1.0f);
+		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
+			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
+			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}

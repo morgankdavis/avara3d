@@ -35,6 +35,7 @@ namespace ae {
 	
 	
 	class Color;
+	class CubeImage;
 	class Image;
 	class Scene;
 	class Window;
@@ -104,8 +105,8 @@ namespace ae {
 		boost::optional<boost::filesystem::path> ImagesDirectory();
 		boost::optional<boost::filesystem::path> ImagePath(const std::string& name, const std::string& type);
 		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
-		std::shared_ptr<std::vector<std::shared_ptr<Image>>> TestCubeNamed(const std::string& name,
-																		   const std::string& type);
+		std::shared_ptr<CubeImage> TestCubeImageNamed(const std::string& name,
+													  const std::string& type);
 		
 		boost::optional<boost::filesystem::path> FontsDirectory();
 		boost::optional<boost::filesystem::path> FontPath(const std::string& name, const std::string& type);

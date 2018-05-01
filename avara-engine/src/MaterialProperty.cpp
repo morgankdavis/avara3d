@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "Color.h"
+#include "CubeImage.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Utilities.h"
@@ -25,9 +26,10 @@ using namespace std;
  ***************************************************************************************/
 
 MaterialProperty::MaterialProperty():
-	m_image(nullptr),
-	m_color(nullptr),
-	m_cube(nullptr),
+	m_contents(nullptr),
+//	m_image(nullptr),
+//	m_color(nullptr),
+//	m_cube(nullptr),
 	m_wrapS(WRAP_MODE::REPEAT),
 	m_wrapT(WRAP_MODE::REPEAT),
 	m_wrapR(WRAP_MODE::REPEAT),
@@ -40,23 +42,29 @@ MaterialProperty::MaterialProperty():
 	
 }
 
-MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
+MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents):
 	MaterialProperty() {
 		
-		m_image = image;
+		m_contents = contents;
 }
 
-MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
-	MaterialProperty() {
-	
-		m_color = color;
-}
-
-MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
-	MaterialProperty() {
-
-		m_cube = cube;
-}
+//MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
+//	MaterialProperty() {
+//		
+//		m_image = image;
+//}
+//
+//MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
+//	MaterialProperty() {
+//	
+//		m_color = color;
+//}
+//
+//MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
+//	MaterialProperty() {
+//
+//		m_cube = cube;
+//}
 
 MaterialProperty::~MaterialProperty() {
 
@@ -66,48 +74,80 @@ MaterialProperty::~MaterialProperty() {
      Public
  ***************************************************************************************/
 
-shared_ptr<Image> MaterialProperty::image() const {
-	return m_image;
+shared_ptr<MaterialPropertyContents> MaterialProperty::contents() const {
+	return m_contents;
 }
 
-void MaterialProperty::image(const shared_ptr<Image> image) {
-	m_image = image;
+void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> contents) {
 	
-	if (m_textureID != 0) {
-		m_replacedTextureIDs.emplace_back(m_textureID);
-		m_textureID = 0;
+	m_contents = contents;
+	
+	if (dynamic_pointer_cast<Color>(contents)) {
+		
+	}
+	
+	if (dynamic_pointer_cast<Image>(contents)) {
+		if (m_textureID != 0) {
+			m_replacedTextureIDs.emplace_back(m_textureID);
+			m_textureID = 0;
+		}
+	}
+	
+	if (dynamic_pointer_cast<CubeImage>(contents)) {
+		if (m_textureID != 0) {
+			m_replacedTextureIDs.emplace_back(m_textureID);
+			m_textureID = 0;
+		}
 	}
 	
 	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
 }
 
-shared_ptr<Color> MaterialProperty::color() const {
-	return m_color;
-}
+//dynamic_pointer_cast
 
-void MaterialProperty::color(const shared_ptr<Color> color) {
-	m_color = color;
-	
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
-												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
-}
-
-shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
-	return m_cube;
-}
-
-void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
-	m_cube = cube;
-	
-	if (m_textureID != 0) {
-		m_replacedTextureIDs.emplace_back(m_textureID);
-		m_textureID = 0;
-	}
-	
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
-												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
-}
+//shared_ptr<Image> MaterialProperty::image() const {
+//	return m_image;
+//}
+//
+//void MaterialProperty::image(const shared_ptr<Image> image) {
+//	m_image = image;
+//	
+//	if (m_textureID != 0) {
+//		m_replacedTextureIDs.emplace_back(m_textureID);
+//		m_textureID = 0;
+//	}
+//	
+//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+//}
+//
+//shared_ptr<Color> MaterialProperty::color() const {
+//	return m_color;
+//}
+//
+//void MaterialProperty::color(const shared_ptr<Color> color) {
+//	m_color = color;
+//	
+//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+//}
+//
+//shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
+//	return m_cube;
+//}
+//
+//void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
+//	m_cube = cube;
+//	
+//	if (m_textureID != 0) {
+//		m_replacedTextureIDs.emplace_back(m_textureID);
+//		m_textureID = 0;
+//	}
+//	
+//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
+//}
 
 FILTER_MODE MaterialProperty::minificationFilter() const {
 	return m_minificationFilter;
