@@ -32,6 +32,95 @@ using namespace std;
 
 
 /***************************************************************************************
+     Static Prototypes
+ ***************************************************************************************/
+
+shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
+														  PHYSICS_SHAPE_TYPE type);
+shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
+													PHYSICS_SHAPE_TYPE type,
+													vector<shared_ptr<btCollisionShape>>& childShapes);
+
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
+
+PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
+	m_sourceGeometry(geometry),
+	m_sourceNode(nullptr),
+	m_type(type),
+	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
+	m_transforms(vector<mat4>()),
+	m_btShape(nullptr),
+	m_physicsBody(weak_ptr<PhysicsBody>()) {
+		
+}
+
+// will construct a compound shape based on geometries under this node
+PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
+	m_sourceGeometry(nullptr),
+	m_sourceNode(node),
+	m_type(type),
+	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
+	m_transforms(vector<mat4>()),
+	m_btShape(nullptr),
+	m_physicsBody(weak_ptr<PhysicsBody>()) {
+		
+}
+
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
+
+shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
+	return m_sourceGeometry;
+}
+
+shared_ptr<Node> PhysicsShape::sourceNode() const {
+	return m_sourceNode;
+}
+
+PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
+	return m_type;
+}
+
+/* ? */ vector<glm::mat4> PhysicsShape::transforms() const {
+	return m_transforms;
+}
+
+/***************************************************************************************
+     Internal
+ ***************************************************************************************/
+
+void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
+	m_physicsBody = body;
+
+	if (m_sourceGeometry) {
+		m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
+	}
+	else if (m_sourceNode) {
+		m_childShapes.clear();
+		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_childShapes);
+	}
+	else {
+		AE_LOG->critical("Logic error: PhysicsShape has no source geometry or node.");
+	}
+}
+
+weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
+	return m_physicsBody;
+}
+
+void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
+	m_physicsBody = body;
+	attachedToBody(body);
+}
+
+shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
+	return m_btShape;
+}
+
+/***************************************************************************************
      Static
  ***************************************************************************************/
 
@@ -42,7 +131,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
 	// - if 'geometry' is a primitive, use matching primitive
 	// - if arbitrary mesh, use whatever 'type' is
-
+	
 	if (type == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 		vec3 extent = geometry->extent(false);
 		float width = extent.x;
@@ -160,88 +249,3 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 	
 	return compoundShape;
 }
-
-/***************************************************************************************
-     Lifecycle
- ***************************************************************************************/
-
-PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry(geometry),
-	m_sourceNode(nullptr),
-	m_type(type),
-	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
-	m_transforms(vector<mat4>()),
-	m_btShape(nullptr),
-	m_physicsBody(weak_ptr<PhysicsBody>()) {
-		
-}
-
-// will construct a compound shape based on geometries under this node
-PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry(nullptr),
-	m_sourceNode(node),
-	m_type(type),
-	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
-	m_transforms(vector<mat4>()),
-	m_btShape(nullptr),
-	m_physicsBody(weak_ptr<PhysicsBody>()) {
-		
-}
-
-/***************************************************************************************
-     Public
- ***************************************************************************************/
-
-shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
-	return m_sourceGeometry;
-}
-
-shared_ptr<Node> PhysicsShape::sourceNode() const {
-	return m_sourceNode;
-}
-
-PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
-	return m_type;
-}
-
-/* ? */ vector<glm::mat4> PhysicsShape::transforms() const {
-	return m_transforms;
-}
-
-/***************************************************************************************
-     Internal
- ***************************************************************************************/
-
-void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-	m_physicsBody = body;
-
-	if (m_sourceGeometry) {
-		m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
-	}
-	else if (m_sourceNode) {
-		m_childShapes.clear();
-		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_childShapes);
-	}
-	else {
-		AE_LOG->critical("Logic error: PhysicsShape has no source geometry or node.");
-	}
-}
-
-weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
-	return m_physicsBody;
-}
-
-void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
-	m_physicsBody = body;
-	attachedToBody(body);
-}
-
-shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
-	return m_btShape;
-}
-
-/***************************************************************************************
-     Private
- ***************************************************************************************/
-
-

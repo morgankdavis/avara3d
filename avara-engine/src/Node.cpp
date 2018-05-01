@@ -28,9 +28,6 @@
 #include "Utilities.h"
 
 
-//#include "InitDummy.h"
-
-
 using namespace ae;
 using namespace ae::utils;
 using namespace std;
@@ -41,15 +38,8 @@ using namespace glm;
 
 
 /***************************************************************************************
-     Static
+     Public Static
  ***************************************************************************************/
-
-//shared_ptr<Node> Node::Create() {
-//	auto instance = make_shared<Node>();
-//	instance->m_parent = make_shared<Node>();
-//	instance->m_scene = make_shared<Scene>();
-//	return instance;
-//}
 
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
 	auto node = make_shared<Node>();
@@ -83,14 +73,9 @@ Node::Node():
 	m_orientation(quat()),
 	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
 	m_parent({}),
 	m_scene({}) {
 
-//		auto dummy = DummyInit();
-//		m_parent = make_shared<Node>(dummy);
-//		m_scene = make_shared<Scene>(dummy);
 }
 
 Node::Node(const string& name):
@@ -103,109 +88,10 @@ Node::Node(const string& name):
 	m_orientation(quat()),
 	m_scale({1.0f, 1.0f, 1.0f}),
 	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
 	m_parent({}),
 	m_scene({}) {
-		
-//		auto dummy = DummyInit();
-//		m_parent = make_shared<Node>(dummy);
-//		m_scene = make_shared<Scene>(dummy);
 
 }
-
-//Node::Node(const shared_ptr<Geometry> geometry):
-//	m_name(boost::none),
-//	m_hidden(false),
-//	m_camera(nullptr),
-//	m_light(nullptr),
-//	m_geometry(geometry),
-//	m_position(vec3(0.0f, 0.0f, 0.0f)),
-//	m_orientation(quat()),
-//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-//	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
-//
-//		// MUST SET IN geometry() ACCESSOR
-//		//m_geometry->node(shared_from_this());
-//}
-//
-//Node::Node(const shared_ptr<Light> light):
-//	m_name(boost::none),
-//	m_hidden(false),
-//	m_camera(nullptr),
-//	m_light(light),
-//	m_geometry(nullptr),
-//	m_position(vec3(0.0f, 0.0f, 0.0f)),
-//	m_orientation(quat()),
-//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-//	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
-//		
-//		// MUST SET IN light() ACCESSOR
-//		//m_light->node(shared_from_this());
-//}
-//
-//Node::Node(const shared_ptr<Camera> camera):
-//	m_name(boost::none),
-//	m_hidden(false),
-//	m_camera(camera),
-//	m_light(nullptr),
-//	m_geometry(nullptr),
-//	m_position(vec3(0.0f, 0.0f, 0.0f)),
-//	m_orientation(quat()),
-//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-//	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
-//		
-//		// MUST SET IN camera() ACCESSOR
-//		//m_camera->node(shared_from_this());
-//}
-//
-//Node::Node(const string& name, const mat4 t):
-//	m_name(name),
-//	m_hidden(false),
-//	m_camera(nullptr),
-//	m_light(nullptr),
-//	m_geometry(nullptr),
-//	m_position(vec3(0.0f, 0.0f, 0.0f)),
-//	m_orientation(quat()),
-//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-//	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
-//		
-//		transform(t);
-//}
-//
-//Node::Node(const string& name, const mat4 t, shared_ptr<Geometry> geometry):
-//	m_name(name),
-//	m_hidden(false),
-//	m_position(vec3(0.0f, 0.0f, 0.0f)),
-//	m_orientation(quat()),
-//	m_scale(vec3(1.0f, 1.0f, 1.0f)),
-//	m_geometry(geometry),
-//	m_physicsBody(nullptr),
-//	m_parent(weak_ptr<Node>()),
-//	m_scene(weak_ptr<Scene>()) {
-//
-//		transform(t);
-//		
-//		// MUST SET IN geometry() ACCESSOR
-//		//m_geometry->node(shared_from_this());
-//}
-
-
-
-
-//Node::Node(DummyInit& dummy) {
-//	
-//}
-
-
 
 /***************************************************************************************
      Public

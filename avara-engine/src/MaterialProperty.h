@@ -35,9 +35,6 @@ namespace ae {
 
 		MaterialProperty();
 		MaterialProperty(std::shared_ptr<MaterialPropertyContents> contents);
-//		MaterialProperty(std::shared_ptr<Image> image);
-//		MaterialProperty(std::shared_ptr<Color> color);
-//		MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
 		~MaterialProperty();
 		
 		/***************************************************************************************
@@ -47,15 +44,6 @@ namespace ae {
 		std::shared_ptr<MaterialPropertyContents> contents() const;
 		void contents(const std::shared_ptr<MaterialPropertyContents> contents);
 
-//		std::shared_ptr<Image> image() const;
-//		void image(const std::shared_ptr<Image> image);
-//		
-//		std::shared_ptr<Color> color() const;
-//		void color(const std::shared_ptr<Color> color);
-//		
-//		std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube() const; // +X, -X, +Y, -Y, +Z, -Z,
-//		void cube(const std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube);
-		
 		FILTER_MODE minificationFilter() const;
 		void minificationFilter(FILTER_MODE mode);
 		
@@ -94,10 +82,6 @@ namespace ae {
 		 ***************************************************************************************/
 
 		std::shared_ptr<MaterialPropertyContents>				m_contents;
-		
-//		std::shared_ptr<Image>									m_image;
-//		std::shared_ptr<Color>									m_color;
-//		std::shared_ptr<std::vector<std::shared_ptr<Image>>>	m_cube;
 		
 		FILTER_MODE												m_minificationFilter;
 		FILTER_MODE												m_magnificationFilter;

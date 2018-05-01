@@ -25,23 +25,10 @@ using namespace std;
 
 
 /***************************************************************************************
-     Static
+     Static Prototypes
  ***************************************************************************************/
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
-	
-	switch (option) {
-		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
-		default:
-			AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
-			return btIDebugDraw::DBG_NoDebug;
-	}
-}
+btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option);
 
 /***************************************************************************************
      Lifecycle
@@ -100,6 +87,25 @@ void PhysicsWorld::speed(float speed) {
 
 float PhysicsWorld::timestep() const {
 	return m_timestep;
+}
+
+/***************************************************************************************
+     Static
+ ***************************************************************************************/
+
+btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
+	
+	switch (option) {
+		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
+		default:
+		AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
+		return btIDebugDraw::DBG_NoDebug;
+	}
 }
 
 void PhysicsWorld::timestep(float timestep) {

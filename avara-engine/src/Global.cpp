@@ -11,12 +11,6 @@
 #include <iostream>
 #include <time.h>
 
-//#define FONTSTASH_IMPLEMENTATION
-//#include "fontstash.h"
-
-//#define GLFONTSTASH_IMPLEMENTATION
-//#include "gl3fontstash.h"
-
 #include "Logger.h"
 #include "LoggerManager.h"
 #include "Types.h"

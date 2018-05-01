@@ -27,9 +27,6 @@ using namespace std;
 
 MaterialProperty::MaterialProperty():
 	m_contents(nullptr),
-//	m_image(nullptr),
-//	m_color(nullptr),
-//	m_cube(nullptr),
 	m_wrapS(WRAP_MODE::REPEAT),
 	m_wrapT(WRAP_MODE::REPEAT),
 	m_wrapR(WRAP_MODE::REPEAT),
@@ -47,24 +44,6 @@ MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents
 		
 		m_contents = contents;
 }
-
-//MaterialProperty::MaterialProperty(std::shared_ptr<Image> image):
-//	MaterialProperty() {
-//		
-//		m_image = image;
-//}
-//
-//MaterialProperty::MaterialProperty(std::shared_ptr<Color> color):
-//	MaterialProperty() {
-//	
-//		m_color = color;
-//}
-//
-//MaterialProperty::MaterialProperty(std::shared_ptr<std::vector<std::shared_ptr<Image>>> cube):
-//	MaterialProperty() {
-//
-//		m_cube = cube;
-//}
 
 MaterialProperty::~MaterialProperty() {
 

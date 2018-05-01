@@ -79,50 +79,11 @@ void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight
 }
 
 /**************************************************************************************
-     Static
+     Static Prototypes
  **************************************************************************************/
 
-static bool InitializeGLFW() {
-	static bool initialized = false;
-	
-	if (!initialized) {
-		AE_LOG->trace("InitializeGLFW()");
-		
-		int glfwMajVers, glfwMinVers, glfwRev;
-		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
-		
-		glfwSetErrorCallback(glfwErrorCallback);
-		
-		if (glfwInit()) {
-			AE_LOG->info("GLFW Initialized.");
-		}
-		else {
-			AE_LOG->critical("Error initializing GLFW.");
-			return false;
-		}
-		
-		srand(time(NULL)); // where else can we put this?
-		
-		initialized = true;
-	}
-	
-	return true;
-}
-
-static float ScreenScaleFactor(GLFWmonitor* monitor) {
-#ifdef MACOS
-	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-	
-	Size width = CGDisplayModeGetWidth(currentModeRef);
-	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-	return (float)pixelWidth / (float)width;
-#endif
-	return 1.0;
-}
+static bool InitializeGLFW();
+static float ScreenScaleFactor(GLFWmonitor* monitor);
 
 /***************************************************************************************
      Lifescycle
@@ -334,4 +295,50 @@ void Window::drawLoop() {
 	
 	glfwPollEvents();
 	if (inputManager()) inputManager()->update();
+}
+
+/**************************************************************************************
+     Static
+ **************************************************************************************/
+
+static bool InitializeGLFW() {
+	static bool initialized = false;
+	
+	if (!initialized) {
+		AE_LOG->trace("InitializeGLFW()");
+		
+		int glfwMajVers, glfwMinVers, glfwRev;
+		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
+		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
+		
+		glfwSetErrorCallback(glfwErrorCallback);
+		
+		if (glfwInit()) {
+			AE_LOG->info("GLFW Initialized.");
+		}
+		else {
+			AE_LOG->critical("Error initializing GLFW.");
+			return false;
+		}
+		
+		srand(time(NULL)); // where else can we put this?
+		
+		initialized = true;
+	}
+	
+	return true;
+}
+
+static float ScreenScaleFactor(GLFWmonitor* monitor) {
+#ifdef MACOS
+	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+	
+	Size width = CGDisplayModeGetWidth(currentModeRef);
+	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+	return (float)pixelWidth / (float)width;
+#endif
+	return 1.0;
 }

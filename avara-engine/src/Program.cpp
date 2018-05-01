@@ -21,13 +21,12 @@
 
 using namespace ae;
 using namespace ae::utils;
-//using namespace boost;
 using namespace glm;
 using namespace std;
 
 
 /***************************************************************************************
-     Static
+     Public Static
  ***************************************************************************************/
 
 shared_ptr<Program> Program::Default() {

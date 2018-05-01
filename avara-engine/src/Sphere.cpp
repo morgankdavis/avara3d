@@ -14,8 +14,6 @@
 #include <generator/generator.hpp>
 
 #include "GeometryElement.h"
-//#include "Material.h" // TODO: REMOVE
-//#include "Program.h" // TODO: REMOVE
 #include "Utilities.h"
 #include "Types.h"
 
