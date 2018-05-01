@@ -32,6 +32,10 @@ namespace ae {
 		
 		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
 		Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal=true);
+		
+		Image(const Image& other); // copy constructor
+		Image& operator=(const Image& other); // copy assignment
+		
 		~Image();
 		
 		/***************************************************************************************
