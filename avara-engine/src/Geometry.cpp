@@ -142,7 +142,7 @@ void Geometry::draw(Renderer& renderer,
 	unsigned numElements = m_elements.size();
 	stats.meshes += numElements;
 	
-	for (int e=0; e < numElements; ++e) {
+	for (unsigned e=0; e < numElements; ++e) {
 		
 		auto element = m_elements[e];
 		shared_ptr<Material> material = nullptr;

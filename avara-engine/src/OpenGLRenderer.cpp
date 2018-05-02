@@ -254,6 +254,8 @@ bool OpenGLRenderer::initialize() {
 void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	
 	Renderer::beginFrame(context);
+	
+	m_frameVertexDataIDs = set<VERTEX_DATA_ID>();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -266,6 +268,7 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 						   m_fonsContext, m_fonsFont);
 	}
 	
+	cleanup();
 	CheckGLError();
 }
 
@@ -295,6 +298,12 @@ void OpenGLRenderer::render(Scene& scene,
 						 stats,
 						 m_vertexDataIDMapping, m_vertexDataIDCounter,
 						 m_textureIDMapping, m_textureIDCounter);
+			
+			// save its vertexDataID for housekeeping
+			auto vertexDataID = skyboxGeometry->elements().front()->vertexDataID();
+			if (vertexDataID > 0) {
+				m_frameVertexDataIDs.emplace(vertexDataID);
+			}
 		}
 		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
 			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
@@ -320,7 +329,7 @@ void OpenGLRenderer::render(Geometry& geometry,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
-	
+
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		RenderAABB(geometry,
 				   modelMat, viewMat, projectionMat,
@@ -337,7 +346,7 @@ void OpenGLRenderer::render(GeometryElement& element,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
-	
+
 	shared_ptr<Program> program = nullptr;
 	
 	// check and load vertex data if necessary
@@ -377,6 +386,12 @@ void OpenGLRenderer::render(GeometryElement& element,
 	
 	DrawGeometryElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	stats.polygons += element.faces().size();
+	
+	// save its vertexDataID for housekeeping
+	auto vertexDataID = element.vertexDataID();
+	if (vertexDataID > 0) {
+		m_frameVertexDataIDs.emplace(vertexDataID);
+	}
 }
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
@@ -388,6 +403,73 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);
 	free(buf);
 	return image;
+}
+	
+void OpenGLRenderer::cleanup() {
+
+	// gather sorted vector of IDs used this frame
+	auto usedVertexDataIDs = vector<VERTEX_DATA_ID>();
+	usedVertexDataIDs.reserve(m_frameVertexDataIDs.size());
+	copy(m_frameVertexDataIDs.begin(), m_frameVertexDataIDs.end(), back_inserter(usedVertexDataIDs));
+	sort(usedVertexDataIDs.begin(), usedVertexDataIDs.end());
+	
+	// gather sorted vector of IDs in the mapping
+	auto mappingVertexDataIDs = vector<VERTEX_DATA_ID>();
+	mappingVertexDataIDs.reserve(m_vertexDataIDMapping.size());
+	for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
+		it != m_vertexDataIDMapping.end();
+		++it ) {
+		mappingVertexDataIDs.emplace_back(it->first);
+	}
+	sort(mappingVertexDataIDs.begin(), mappingVertexDataIDs.end());
+
+	// find unused IDs
+	auto unused = vector<VERTEX_DATA_ID>(mappingVertexDataIDs.size());
+	vector<VERTEX_DATA_ID>::iterator it;
+	it = set_difference(mappingVertexDataIDs.begin(), mappingVertexDataIDs.end(),
+						usedVertexDataIDs.begin(), usedVertexDataIDs.end(),
+						unused.begin());
+	unused.resize(it - unused.begin());
+	
+	// deallocate unused IDs
+	if (unused.size()) {
+		AE_LOG->debug("[Deallocating vertex data for {} GeometryElements]");
+		
+		
+		
+//		AE_LOG->debug("Existing IDs:");
+//		for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
+//			it != m_vertexDataIDMapping.end();
+//			++it ) {
+//			AE_LOG->debug("ID: {}", it->first);
+//		}
+		
+		
+		
+		for (it=unused.begin(); it!=unused.end(); ++it) {
+			std::cout << *it << endl;
+			
+			auto glHandles = m_vertexDataIDMapping[*it];
+			
+			GLuint vbo = get<0>(glHandles);
+			GLuint vao = get<1>(glHandles);
+			GLuint ibo = get<2>(glHandles);
+
+			glDeleteBuffers(1, &vbo);
+			glDeleteVertexArrays(1, &vao);
+			glDeleteBuffers(1, &ibo);
+			
+			m_vertexDataIDMapping.erase(*it);
+		}
+		
+		
+//		AE_LOG->debug("Remaining IDs:");
+//		for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
+//			it != m_vertexDataIDMapping.end();
+//			++it ) {
+//			AE_LOG->debug("ID: {}", it->first);
+//		}
+	}
 }
 	
 /**************************************************************************************

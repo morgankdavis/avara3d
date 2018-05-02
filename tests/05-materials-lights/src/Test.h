@@ -42,6 +42,11 @@ namespace ae {
 		std::shared_ptr<Node>				m_cameraNode;
 		std::shared_ptr<Node>				m_ambientLightNode;
 		std::shared_ptr<Node>				m_pointLightNode;
+		
+		// temporary
+		std::shared_ptr<Node>				m_palletNode;
+		std::shared_ptr<Node>				m_siameseNode;
+		std::shared_ptr<Node>				m_palmsNode;
 	};
 }
 

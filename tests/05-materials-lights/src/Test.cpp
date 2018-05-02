@@ -98,6 +98,7 @@ int Test::run(const vector<string>& args) {
 
 	auto siameseScene = TestSceneNamed("siamese");
 	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+	m_siameseNode = siameseNode;
 	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChildNode(siameseNode);
@@ -109,9 +110,10 @@ int Test::run(const vector<string>& args) {
 
 	auto palletScene = TestSceneNamed("Pallet_rot");
 	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
+	palletNode->name("Pallet node");
+	m_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
-	
 	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChildNode(palletNode);
@@ -122,6 +124,7 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(tunaScene->rootNode());
 
 	auto palm1Scene = TestSceneNamed("palm1", "obj");
+	m_palmsNode = palm1Scene->rootNode();
 	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
 	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
 	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
@@ -141,26 +144,17 @@ int Test::run(const vector<string>& args) {
 
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
-	//auto ambientLightNode = make_shared<Node>(ambientLight);
-//	auto ambientLightNode = make_shared<Node>("Ambient light");
-//	ambientLightNode->light(ambientLight);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
-
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
 	pointLight->attenuationFactor(0.00005);
-	//auto pointLightNode = make_shared<Node>(pointLight);
-//	auto pointLightNode = make_shared<Node>("pointLight");
-//	pointLightNode->light(pointLight);
 	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChildNode(pointLightNode);
-
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
 	m_pointLightNode = pointLightNode;
-	
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
@@ -184,7 +178,7 @@ int Test::run(const vector<string>& args) {
 //		int randY = Random(-150, 150);
 //		int randZ = Random(-150, 150);
 //		lightNode->position(vec3(randX, randY, randZ));
-//		auto color = make_shared<Color>(colors[Random(4, colors.size()-1-4)]);
+//		auto color = colors[Random(4, colors.size()-1-4)];
 //		light->color(color);
 //		cout << "Adding random light with position: "
 //		<< lightNode->position()<< ", color: " << *light->color() << endl;
@@ -300,6 +294,28 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 //		unsigned used = 0;
 //		m_window->getVRAMStats(total, used);
 //	}
+	
+//	if (keysPressed.count(KEY::DEL)) {
+//		for (auto n : m_window->scene()->rootNode()->childNodes(true)) {
+//			n->geometry(nullptr);
+//		}
+//	}
+
+	
+	if (keysPressed.count(KEY::DEL)) {
+		m_palletNode->geometry(nullptr);
+	}
+	
+	if (keysPressed.count(KEY::END)) {
+		m_siameseNode->geometry(nullptr);
+	}
+	
+	if (keysPressed.count(KEY::PAGE_DOWN)) {
+		for (auto& n : m_palmsNode->childNodes(true)) {
+			n->geometry(nullptr);
+		}
+	}
+	
 
 	if (m_window->cursorCaptured()) {
 		

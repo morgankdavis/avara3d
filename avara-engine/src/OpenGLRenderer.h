@@ -12,6 +12,7 @@
 
 #import <map>
 #import <utility>
+#import <set>
 
 #include "Renderer.h"
 #include "Types.h"
@@ -25,6 +26,12 @@ namespace ae {
 	class OpenGLRenderer : public Renderer {
 		
 	public:
+		
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+		
+		//typedef std::map<VERTEX_DATA_ID, std::tuple<unsigned, unsigned, unsigned>> VertexIDMapping;
 
 		/***************************************************************************************
 		     Lifecycle
@@ -65,6 +72,8 @@ namespace ae {
 		
 		std::shared_ptr<Image> snapshot(const RenderContext& context) const override;
 		
+		void cleanup() override;
+		
 	private:
 		
 		/**************************************************************************************
@@ -72,8 +81,9 @@ namespace ae {
 		 **************************************************************************************/
 
 		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		//VertexIDMapping								m_vertexDataIDMapping;
 		std::map<VERTEX_DATA_ID,
-			std::tuple<unsigned, unsigned, unsigned>>	m_vertexDataIDMapping;
+			std::tuple<unsigned, unsigned, unsigned>> 	m_vertexDataIDMapping;
 		
 		/* <ae_textureID, <gl_textureHandle> */
 		std::map<TEXTURE_ID, unsigned>					m_textureIDMapping;
@@ -91,6 +101,12 @@ namespace ae {
 		
 		FONScontext* 									m_fonsContext;
 		int												m_fonsFont;
+		
+		
+		
+		// EXPERIMENTAL
+		
+		std::set<VERTEX_DATA_ID>						m_frameVertexDataIDs;
 	};
 }
 

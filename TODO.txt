@@ -15,12 +15,16 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
+			Node::geometry(nullptr) -> set dirty bits
+			Node::removeFromParent() -> set dirty bits
+			SET DIRTY BITS EVERYWHERE
+
+			Convert vertex attributes to "layout"
+			Add typedef VertexIDMapping
+
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure
-
-			Remove "i_" properties!
-				https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 		ANDROID!
 			Get android compiling
@@ -129,6 +133,9 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Remove "i_" properties!
+		https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 	Generate and store nip maps in AE texture/model file	
 

@@ -188,7 +188,7 @@ void Scene::draw(Renderer& renderer,
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	for (auto node: m_rootNode->childNodes(true)) {
+	for (auto& node: m_rootNode->childNodes(true)) {
 		
 		stats.nodes++;
 		
