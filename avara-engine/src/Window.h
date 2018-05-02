@@ -77,17 +77,6 @@ namespace ae {
 		void debugOptions(DEBUG_OPTIONS options) override;
 		std::shared_ptr<InputManager> inputManager() override;
 		float sceneTime() const override;
-		
-//		void enableVSync(bool enabled) override;
-//		void debugOptions(DEBUG_OPTIONS options) override;
-//		std::shared_ptr<Node> defaultPointOfView() override;
-//		std::shared_ptr<Image> snapshot() const override;
-//		bool recordingGIF() const override;
-//		void startGIFRecording(const boost::filesystem::path& path,
-//							   unsigned maxHeight, unsigned maxFramerate) override;
-//		unsigned recordedGIFFrames() const override;
-//		void stopGIFRecording() override;
-//		void saveGIFFrame(float deltaSeconds) override;
 
 	private:
 		
@@ -97,15 +86,9 @@ namespace ae {
 
 		void drawLoop();
 
-		std::shared_ptr<Color>				m_backgroundColor;
+		GLFWwindow*							m_glfwWindow;
 		std::shared_ptr<InputManager> 		m_inputManager;
 		bool								m_cursorCaptured;
-		
-//		bool								m_recordingGIF;
-//		unsigned							m_gifRecordingWidth;
-//		unsigned							m_gifRecordingHeight;
-//		unsigned							m_gifRecordingMaxFramerate;
-//		unsigned							m_gifRecordedFrames;
 	};
 }
 

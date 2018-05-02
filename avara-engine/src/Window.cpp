@@ -41,12 +41,12 @@ using namespace utils;
 
 
 /***************************************************************************************
-     Internal Members
+     Internal (Global!) Members
  ***************************************************************************************/
 
 Window* 		i_window;
-GLFWwindow* 	i_glfwWindow;
-//GifWriter* 		i_gifWriter;
+// remove this!
+// https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 /***************************************************************************************
      GLFW Callbacks
@@ -116,14 +116,15 @@ Window::Window(shared_ptr<Renderer> renderer,
 	if (fullScreen) {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-		i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+		m_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+		//i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
 		viewportWidth = vmode->width;
 		viewportHeight = vmode->height;
 		
 		scaleFactor = ScreenScaleFactor(monitor);
 	}
 	else {
-		i_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+		m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
 		
 		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
@@ -133,12 +134,12 @@ Window::Window(shared_ptr<Renderer> renderer,
 
 	AE_LOG->info("scaleFactor: {}", scaleFactor);
 
-	if (!i_glfwWindow) {
+	if (!m_glfwWindow) {
 		AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
 		glfwTerminate();
 	}
 	
-	glfwMakeContextCurrent(i_glfwWindow);
+	glfwMakeContextCurrent(m_glfwWindow);
 	enableVSync(false);
 
 	RenderContext::renderer()->initialize();
@@ -153,7 +154,6 @@ Window::Window(shared_ptr<Renderer> renderer,
 	m_framebufferHeight = m_height * m_framebufferScale;
 
 	m_antialiasingMode = antialiasingMode;
-	m_backgroundColor = nullptr;
 	m_inputManager = nullptr;
 
 	m_recordingGIF = false;
@@ -177,12 +177,12 @@ void Window::display() {
 	AE_LOG->info("Window::display()");
 	
 	if (m_scene) {
-		glfwMakeContextCurrent(i_glfwWindow);
+		glfwMakeContextCurrent(m_glfwWindow);
 		
-		glfwSetWindowSizeCallback(i_glfwWindow, glfwWindowSizeCallback);
-		glfwSetFramebufferSizeCallback(i_glfwWindow, glfwFramebufferSizeCallback);
+		glfwSetWindowSizeCallback(m_glfwWindow, glfwWindowSizeCallback);
+		glfwSetFramebufferSizeCallback(m_glfwWindow, glfwFramebufferSizeCallback);
 		
-		while (!glfwWindowShouldClose(i_glfwWindow)) {
+		while (!glfwWindowShouldClose(m_glfwWindow)) {
 			drawLoop();
 		}
 		
@@ -199,11 +199,11 @@ bool Window::cursorCaptured() const {
 
 void Window::captureCursor(bool captured) {
 	m_cursorCaptured = captured;
-	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+	glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
 void Window::setShouldClose() {
-	glfwSetWindowShouldClose(i_glfwWindow, true);
+	glfwSetWindowShouldClose(m_glfwWindow, true);
 }
 
 /***************************************************************************************
@@ -211,7 +211,7 @@ void Window::setShouldClose() {
  ***************************************************************************************/
 
 GLFWwindow* Window::glfwWindow() const {
-	return i_glfwWindow;
+	return m_glfwWindow;
 }
 
 /**************************************************************************************
@@ -290,7 +290,7 @@ void Window::drawLoop() {
 
 	m_renderer->endFrame(*this);
 	
-	glfwSwapBuffers(i_glfwWindow);
+	glfwSwapBuffers(m_glfwWindow);
 
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
