@@ -39,7 +39,7 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
-		     Static
+		     Public Static
 		 ***************************************************************************************/
 		
 		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);

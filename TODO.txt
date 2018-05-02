@@ -13,8 +13,20 @@ Tests:
 
 	30 - rigidbodies
 
-		Refactor PhysicsDebugDrawer
-		 + move Program static methods into OpenGLRenderer
+		Scene statics
+
+		Check weak ptr locks
+
+			Prevent copy:
+			Renderer
+			PhysicsSimultor
+			RenderContext?
+			Logger
+			InputManager?
+
+		Proper git submodule arrangement
+
+		Generate and store nip maps in AE texture/model file
 
 		Create Renderer and use visitor pattern
 
@@ -23,7 +35,6 @@ Tests:
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs
 				At the end, delete any that aren't in the renderer's mapping structure
-
 
 			Remove "i_" properties!
 
@@ -36,7 +47,9 @@ Tests:
 		PhysicsSimulator
 			BulletPhysicsSimulator
 
-		PhysicsBody:347 -> No scene yet!		
+		Refactor PhysicsDebugDrawer
+			 + move Program static methods into OpenGLRenderer
+
 
 		Node::addChildNode()
 			m_physicsBody->attachedToNode()
@@ -47,7 +60,7 @@ Tests:
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...
-		Color statics should return shared pointers (or they should be converted to structs!)
+		Color statics should return shared pointers
 
 		ShaderLibrary class
 
@@ -87,19 +100,12 @@ Tests:
 
 		Shut down & cleanup
 
-		Fix:
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(20.0, 0.0);
-
 		Test geometry instancing!
 		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
-		Add pause
 		"Error importing scene" should throw
-		Include cloc output in build
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
-		Add default constructors + initializer lists (Node, Material, ...)
 
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
