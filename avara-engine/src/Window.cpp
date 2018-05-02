@@ -17,7 +17,6 @@
 #endif
 #include <GLFW/glfw3native.h>
 #include <glm/gtc/matrix_transform.hpp>
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
 
 #include "Camera.h"
@@ -201,6 +200,10 @@ bool Window::cursorCaptured() const {
 void Window::captureCursor(bool captured) {
 	m_cursorCaptured = captured;
 	glfwSetInputMode(i_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+}
+
+void Window::setShouldClose() {
+	glfwSetWindowShouldClose(i_glfwWindow, true);
 }
 
 /***************************************************************************************

@@ -12,6 +12,8 @@
 #include <vector>
 
 #include "gif.h"
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
 
 #include "Camera.h"
 #include "Image.h"
@@ -33,10 +35,21 @@ using namespace std;
 RenderContext::RenderContext(shared_ptr<Renderer> renderer):
 	m_renderer(renderer),
 	m_scene(nullptr),
+	m_width(0),
+	m_height(0),
+	m_framebufferScale(1),
+	m_framebufferWidth(0),
+	m_framebufferHeight(0),
 	m_vSyncEnabled(false),
-	m_debugOptions(DEBUG_OPTIONS::NONE),
 	m_antialiasingMode(ANTIALIASING_MODE::NONE),
+	m_debugOptions(DEBUG_OPTIONS::NONE),
 	m_pointOfView(nullptr),
+	m_gifWriter(nullptr),
+	m_recordingGIF(false),
+	m_gifRecordingWidth(0),
+	m_gifRecordingHeight(0),
+	m_gifRecordingMaxFramerate(0),
+	m_gifRecordedFrames(0),
 	m_updateCallback(nullptr),
 	m_didSimulatePhysicsCallback(nullptr),
 	m_willRenderCallback(nullptr),
@@ -187,16 +200,53 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const boost::filesystem::path& path,
-							   unsigned maxHeight, unsigned maxFramerate) {
+									  unsigned maxHeight, unsigned maxFramerate) {
 	
+	if (!m_recordingGIF) {
+		AE_LOG->info("Starting GIF recording...");
+		
+		m_gifRecordingMaxFramerate = maxFramerate;
+		m_gifRecordedFrames = 0;
+		
+		m_gifRecordingHeight = m_framebufferHeight;
+		m_gifRecordingWidth = m_framebufferWidth;
+		if (m_gifRecordingHeight > maxHeight) {
+			float scale = (float)maxHeight / (float)m_framebufferHeight;
+			m_gifRecordingHeight = m_framebufferHeight * scale;
+			m_gifRecordingWidth = m_framebufferWidth * scale;
+		}
+		
+		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+		// -> ms/frame
+		unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
+		
+		//m_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
+		m_gifWriter = make_shared<GifWriter>();
+		// gif-h frame time is in 100ths of a second
+		GifBegin(m_gifWriter.get(), path.string().c_str(), 
+				 m_gifRecordingWidth, m_gifRecordingHeight, 
+				 frameTimeHS);
+		
+		m_recordingGIF = true;
+	}
 }
 
 unsigned RenderContext::recordedGIFFrames() const {
-	return 0; 
+	return m_gifRecordedFrames; 
 }
 
 void RenderContext::stopGIFRecording() {
-
+	if (m_recordingGIF) {
+		m_recordingGIF = false;
+		
+		GifEnd(m_gifWriter.get());
+		// crashing... but it doesn't look like GifEnd() frees everything,
+		// just the main buffer.
+		//free(m_gifWriter.get());
+		m_gifWriter = nullptr;
+		
+		AE_LOG->info("Stopped GIF recording.");
+	}
 }
 
 RenderContextUpdateFuction RenderContext::updateCallback() {
@@ -236,7 +286,33 @@ void RenderContext::didRenderCallback(RenderContextDidRenderFuction function) {
  **************************************************************************************/
 
 void RenderContext::saveGIFFrame(float deltaSeconds) {
+	static float secondsAccum = 0;
+	secondsAccum += deltaSeconds;
 	
+	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+	// -> ms/frame
+	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
+	
+	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	
+	if (secondsAccum >= frameTimeMS/1000.0) {
+		
+		auto frame = snapshot();
+		
+		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
+		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
+						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
+		
+		// gif-h frame time is in 100ths of a second
+		GifWriteFrame(m_gifWriter.get(), resizedFrameData,
+					  m_gifRecordingWidth, m_gifRecordingHeight,
+					  (secondsAccum*1000.0)/10.0);
+		
+		++m_gifRecordedFrames;
+		
+		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
+		secondsAccum = 0;
+	}
 }
 
 shared_ptr<Node> RenderContext::defaultPointOfView() {

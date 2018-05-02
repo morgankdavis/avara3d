@@ -136,6 +136,7 @@ namespace ae {
 		ANTIALIASING_MODE						m_antialiasingMode;
 		DEBUG_OPTIONS							m_debugOptions;
 		std::shared_ptr<Node>					m_pointOfView;
+		
 		std::shared_ptr<GifWriter> 				m_gifWriter;
 		bool									m_recordingGIF;
 		unsigned								m_gifRecordingWidth;

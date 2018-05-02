@@ -228,7 +228,7 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 	auto keysPressed = m_inputManager->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		exit(0);
+		m_window->setShouldClose();
 	}
 	
 	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderContext.scene()));

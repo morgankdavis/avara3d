@@ -13,21 +13,7 @@ Tests:
 
 	30 - rigidbodies
 
-		Prevent copy:
-			https://stackoverflow.com/questions/6077143/disable-copy-constructor
-			√ Renderer
-			√ OpenGLRenderer
-			PhysicsSimulator
-			BulletPhysicsSimulator
-			√ RenderContext
-			√ Window
-			X Logger
-			√ InputManager
-			
-
 		Create Renderer and use visitor pattern
-
-			Gif recording
 
 			Destroy unused resources
 				For each render, keep a list of all vertexDataIDs & textureIDs

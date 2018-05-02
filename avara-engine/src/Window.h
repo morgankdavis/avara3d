@@ -60,6 +60,8 @@ namespace ae {
 
 		bool cursorCaptured() const;
 		void captureCursor(bool captured);
+		
+		void setShouldClose();
 
 		/***************************************************************************************
 		     Internal
