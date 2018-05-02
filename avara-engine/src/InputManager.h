@@ -38,6 +38,10 @@ namespace ae {
 		 ***************************************************************************************/
 
 		InputManager(Window* window);
+		
+		InputManager(const InputManager& other) = delete; // copy constructor
+		InputManager& operator=(const InputManager& other) = delete; // copy assignment
+		
 		~InputManager();
 
 		/***************************************************************************************

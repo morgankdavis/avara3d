@@ -37,6 +37,10 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		Renderer();
+		
+		Renderer(const Renderer& other) = delete; // copy constructor
+		Renderer& operator=(const Renderer& other) = delete; // copy assignment
+		
 		virtual ~Renderer();
 		
 		/***************************************************************************************

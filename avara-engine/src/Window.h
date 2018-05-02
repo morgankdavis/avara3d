@@ -46,6 +46,10 @@ namespace ae {
 			   unsigned width, unsigned height,
 			   bool useHighDPI = true,
 			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
+		
+		Window(const Window& other) = delete; // copy constructor
+		Window& operator=(const Window& other) = delete; // copy assignment
+		
 		~Window();
 		
 		/***************************************************************************************

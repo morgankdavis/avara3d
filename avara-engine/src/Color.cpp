@@ -149,9 +149,9 @@ Color::Color(float black):
 	
 }
 
-Color::Color(const Color& color) {
-	r = color.r;
-	g = color.g;
-	b = color.b;
-	a = color.a;
-}
+//Color::Color(const Color& color) {
+//	r = color.r;
+//	g = color.g;
+//	b = color.b;
+//	a = color.a;
+//}

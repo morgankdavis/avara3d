@@ -19,6 +19,9 @@
 #include "Types.h"
 
 
+struct GifWriter;
+
+
 namespace ae {
 	
 	
@@ -30,9 +33,7 @@ namespace ae {
 	class Renderer;
 	class RenderContext;
 	class Scene;
-	
-	struct GifWriter;
-	
+
 	
 	using RenderContextUpdateFuction = std::function<void(RenderContext& renderContext, float time)>;
 	using RenderContextDidSimulatePhysicsFuction = std::function<void(RenderContext& renderContext, float time)>;
@@ -49,6 +50,10 @@ namespace ae {
 		 ***************************************************************************************/
 
 		RenderContext(std::shared_ptr<Renderer> renderer);
+		
+		RenderContext(const RenderContext& other) = delete; // copy constructor
+		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
+		
 		virtual ~RenderContext();
 		
 		/***************************************************************************************
@@ -142,13 +147,6 @@ namespace ae {
 		RenderContextDidSimulatePhysicsFuction	m_didSimulatePhysicsCallback;
 		RenderContextWillRenderFuction 			m_willRenderCallback;
 		RenderContextDidRenderFuction 			m_didRenderCallback;
-		
-	private:
-		
-		/**************************************************************************************
-		     Private
-		 **************************************************************************************/
-		
 	};
 }
 

@@ -24,7 +24,7 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
-		     Public Static
+		     Public Static 
 		 ***************************************************************************************/
 		
 		static std::shared_ptr<Color> Black();
@@ -57,7 +57,7 @@ namespace ae {
 		Color(float r, float g, float b);
 		Color(float r, float g, float b, float a);
 		Color(float black);
-		Color(const Color& color); // copy
+		//Color(const Color& color); // copy
 		
 		/***************************************************************************************
 		     Public

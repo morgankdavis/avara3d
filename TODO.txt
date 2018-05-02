@@ -15,11 +15,15 @@ Tests:
 
 		Prevent copy:
 			https://stackoverflow.com/questions/6077143/disable-copy-constructor
-			Renderer
-			PhysicsSimultor
-			RenderContext?
-			Logger
-			InputManager?
+			√ Renderer
+			√ OpenGLRenderer
+			PhysicsSimulator
+			BulletPhysicsSimulator
+			√ RenderContext
+			√ Window
+			X Logger
+			√ InputManager
+			
 
 		Create Renderer and use visitor pattern
 

@@ -31,6 +31,10 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		OpenGLRenderer();
+		
+		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
+		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
+		
 		~OpenGLRenderer();
 
 		/***************************************************************************************
