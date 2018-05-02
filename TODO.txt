@@ -13,20 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
-		Scene statics
-
-		Check weak ptr locks
-
-			Prevent copy:
+		Prevent copy:
+			https://stackoverflow.com/questions/6077143/disable-copy-constructor
 			Renderer
 			PhysicsSimultor
 			RenderContext?
 			Logger
 			InputManager?
-
-		Proper git submodule arrangement
-
-		Generate and store nip maps in AE texture/model file
 
 		Create Renderer and use visitor pattern
 
@@ -37,6 +30,7 @@ Tests:
 				At the end, delete any that aren't in the renderer's mapping structure
 
 			Remove "i_" properties!
+				https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 		ANDROID!
 			Get android compiling
@@ -60,9 +54,6 @@ Tests:
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...
-		Color statics should return shared pointers
-
-		ShaderLibrary class
 
 		Try set margin 0 for static objects
 
@@ -107,6 +98,8 @@ Tests:
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
 
+		Proper git submodule arrangement
+
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
 	33 - categories
@@ -146,6 +139,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Generate and store nip maps in AE texture/model file	
 
 	Use shared libs?
 		AE_API defines

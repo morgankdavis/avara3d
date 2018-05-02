@@ -112,7 +112,7 @@ int Test::run(const vector<string>& args) {
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
 	
-	auto palletSpecularProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::DarkGray()));
+	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChildNode(palletNode);
 	
@@ -149,7 +149,7 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChildNode(ambientLightNode);
 
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::White()));
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
 	pointLight->attenuationFactor(0.00005);
 	//auto pointLightNode = make_shared<Node>(pointLight);
 //	auto pointLightNode = make_shared<Node>("pointLight");
@@ -204,7 +204,7 @@ int Test::run(const vector<string>& args) {
 	scene->fogStartDistance(500.0);
 	scene->fogEndDistance(5000.0);
 	scene->fogDensityExponent(1.0);
-	scene->fogColor(make_shared<Color>(Color::LightGray()));
+	scene->fogColor(Color::LightGray());
 
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();

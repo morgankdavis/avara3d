@@ -17,104 +17,103 @@ using namespace std;
      Public Static
  ***************************************************************************************/
 
-Color Color::Black() {
-	return Color(0.0f, 0.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Black() {
+	return make_shared<Color>(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-Color Color::DarkGray() {
-	return Color(0.25f, 0.25f, 0.25f, 1.0f);
+shared_ptr<Color> Color::DarkGray() {
+	return make_shared<Color>(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
-Color Color::Gray() {
-	return Color(0.5f, 0.5, 0.5f, 1.0f);
+shared_ptr<Color> Color::Gray() {
+	return make_shared<Color>(0.5f, 0.5, 0.5f, 1.0f);
 }
 
-Color Color::LightGray() {
-	return Color(0.75f, 0.75f, 0.75f, 1.0f);
+shared_ptr<Color> Color::LightGray() {
+	return make_shared<Color>(0.75f, 0.75f, 0.75f, 1.0f);
 }
 
-Color Color::White() {
-	return Color(1.0f, 1.0f, 1.0f, 1.0f);
+shared_ptr<Color> Color::White() {
+	return make_shared<Color>(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-Color Color::Maroon() {
-	return Color(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Maroon() {
+	return make_shared<Color>(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
 }
 
-Color Color::Red() {
-	return Color(1.0f, 0.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Red() {
+	return make_shared<Color>(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
-Color Color::Orange() {
-	return Color(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Orange() {
+	return make_shared<Color>(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
 }
 
-Color Color::Yellow() {
-	return Color(1.0f, 1.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Yellow() {
+	return make_shared<Color>(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
-Color Color::Olive() {
-	return Color(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Olive() {
+	return make_shared<Color>(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-Color Color::Lime() {
-	return Color(0.0f, 1.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Lime() {
+	return make_shared<Color>(0.0f, 1.0f, 0.0f, 1.0f);
 }
 
-Color Color::Green() {
-	return Color(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
+shared_ptr<Color> Color::Green() {
+	return make_shared<Color>(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-Color Color::Cyan() {
-	return Color(0.0f, 1.0f, 1.0f, 1.0f);
+shared_ptr<Color> Color::Cyan() {
+	return make_shared<Color>(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
-Color Color::Blue() {
-	return Color(0.0f, 0.0f, 1.0f, 1.0f);
+shared_ptr<Color> Color::Blue() {
+	return make_shared<Color>(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
-Color Color::Navy() {
-	return Color(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
+shared_ptr<Color> Color::Navy() {
+	return make_shared<Color>(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-Color Color::Teal() {
-	return Color(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
+shared_ptr<Color> Color::Teal() {
+	return make_shared<Color>(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
 }
 
-Color Color::Magenta() {
-	return Color(1.0f, 0.0f, 1.0f, 1.0f);
+shared_ptr<Color> Color::Magenta() {
+	return make_shared<Color>(1.0f, 0.0f, 1.0f, 1.0f);
 }
 
-Color Color::Purple() {
-	return Color(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
+shared_ptr<Color> Color::Purple() {
+	return make_shared<Color>(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-Color Color::Brown() {
-	return Color(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
+shared_ptr<Color> Color::Brown() {
+	return make_shared<Color>(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
 }
 
-vector<Color> Color::Rainbow() {
-	auto colors = vector<Color>();
-	colors.emplace_back(Black());
-	colors.emplace_back(DarkGray());
-	colors.emplace_back(Gray());
-	colors.emplace_back(LightGray());
-	colors.emplace_back(White());
-	colors.emplace_back(Maroon());
-	colors.emplace_back(Red());
-	colors.emplace_back(Orange());
-	colors.emplace_back(Yellow());
-	colors.emplace_back(Olive());
-	colors.emplace_back(Lime());
-	colors.emplace_back(Green());
-	colors.emplace_back(Cyan());
-	colors.emplace_back(Blue());
-	colors.emplace_back(Navy());
-	colors.emplace_back(Teal());
-	colors.emplace_back(Magenta());
-	colors.emplace_back(Purple());
-	colors.emplace_back(Brown());
-	return colors;
+vector<shared_ptr<Color>> Color::Rainbow() {
+	return vector<shared_ptr<Color>>() = {
+		Black(),
+		DarkGray(),
+		Gray(),
+		LightGray(),
+		White(),
+		Maroon(),
+		Red(),
+		Orange(),
+		Yellow(),
+		Olive(),
+		Lime(),
+		Green(),
+		Cyan(),
+		Blue(),
+		Navy(),
+		Teal(),
+		Magenta(),
+		Purple(),
+		Brown() };
 }
 
 

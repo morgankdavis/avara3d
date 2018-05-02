@@ -31,7 +31,7 @@ shared_ptr<Light> Light::DefaultAmbient() {
 shared_ptr<Light> Light::DefaultPoint() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::White()));
+		light = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
 		light->attenuationFactor(0.0);
 	}
 	return light;
@@ -60,7 +60,7 @@ shared_ptr<Node> Light::DefaultPointNode() {
  ***************************************************************************************/
 
 Light::Light(LIGHT_TYPE type):
-	Light(type, make_shared<Color>(Color::White())) {
+	Light(type, Color::White()) {
 	
 }
 

@@ -27,27 +27,27 @@ namespace ae {
 		     Public Static
 		 ***************************************************************************************/
 		
-		static Color Black();
-		static Color DarkGray();
-		static Color Gray();
-		static Color LightGray();
-		static Color White();
-		static Color Maroon();
-		static Color Red();
-		static Color Orange();
-		static Color Yellow();
-		static Color Olive();
-		static Color Lime();
-		static Color Green();
-		static Color Cyan();
-		static Color Blue();
-		static Color Navy();
-		static Color Teal();
-		static Color Magenta();
-		static Color Purple();
-		static Color Brown();
+		static std::shared_ptr<Color> Black();
+		static std::shared_ptr<Color> DarkGray();
+		static std::shared_ptr<Color> Gray();
+		static std::shared_ptr<Color> LightGray();
+		static std::shared_ptr<Color> White();
+		static std::shared_ptr<Color> Maroon();
+		static std::shared_ptr<Color> Red();
+		static std::shared_ptr<Color> Orange();
+		static std::shared_ptr<Color> Yellow();
+		static std::shared_ptr<Color> Olive();
+		static std::shared_ptr<Color> Lime();
+		static std::shared_ptr<Color> Green();
+		static std::shared_ptr<Color> Cyan();
+		static std::shared_ptr<Color> Blue();
+		static std::shared_ptr<Color> Navy();
+		static std::shared_ptr<Color> Teal();
+		static std::shared_ptr<Color> Magenta();
+		static std::shared_ptr<Color> Purple();
+		static std::shared_ptr<Color> Brown();
 		
-		static std::vector<Color> Rainbow();
+		static std::vector<std::shared_ptr<Color>> Rainbow();
 		
 		/***************************************************************************************
 		     Lifecycle
