@@ -79,33 +79,29 @@ namespace ae {
 		
 		std::shared_ptr<Image> snapshot(const RenderContext& context) const override;
 		
-		void cleanup() override;
-		
 	private:
 		
 		/**************************************************************************************
 		     Private
 		 **************************************************************************************/
 
-		GeometryElementIDMapping 						m_elementIDMapping;
-		GEOMETRY_ELEMENT_ID 							m_elementIDCounter;
+		GeometryElementIDMapping 				m_elementIDMapping;
+		GEOMETRY_ELEMENT_ID 					m_elementIDCounter;
 		
-		MaterialPropertyIDMapping						m_materialPropertyIDMapping;
-		MATERIAL_PROPERTY_ID 							m_materialPropertyIDCounter;
+		MaterialPropertyIDMapping				m_materialPropertyIDMapping;
+		MATERIAL_PROPERTY_ID 					m_materialPropertyIDCounter;
 
-		AABBGeometryIDMapping							m_geometryAABBIDMapping;
-		GEOMETRY_ID 									m_geometryAABBIDCounter;
+		AABBGeometryIDMapping					m_geometryAABBIDMapping;
+		GEOMETRY_ID 							m_geometryAABBIDCounter;
 		
-		unsigned										m_glEnvironmentUBO;
+		unsigned								m_glEnvironmentUBO;
 		
-		FONScontext* 									m_fonsContext;
-		int												m_fonsFont;
-
-		// EXPERIMENTAL
+		std::set<GEOMETRY_ELEMENT_ID>			m_activeElementIDs;
+		std::set<MATERIAL_PROPERTY_ID>			m_activeMaterialPropertyIDs;
+		std::set<GEOMETRY_ID>					m_activeGeometryAABBIDs;
 		
-		std::set<GEOMETRY_ELEMENT_ID>					m_activeElementIDs;
-		std::set<MATERIAL_PROPERTY_ID>					m_activeMaterialPropertyIDs;
-		std::set<GEOMETRY_ID>							m_geometryAABBIDs;
+		FONScontext* 							m_fonsContext;
+		int										m_fonsFont;
 	};
 }
 

@@ -135,6 +135,11 @@ void Geometry::draw(Renderer& renderer,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) {
 	
+	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::AABB);
+		m_renderID = 0;
+	}
+	
 	renderer.render(*this,
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);

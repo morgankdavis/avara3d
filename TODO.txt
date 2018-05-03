@@ -13,21 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		Create Renderer and use visitor pattern
-
-			After deallocate resource.. mark source as DIRTY
-
-			Geometry, GeometryElement, Material, Material Property copy construction, copy assignment ->						Retset IDs & set dirty bits?
-
-			SYNC DIRTY BITS, etc
-
-			Convert vertex attributes to "layout"
-			Add typedef VertexIDMapping
-
-			Destroy unused resources
-				For each render, keep a list of all vertexDataIDs & textureIDs
-				At the end, delete any that aren't in the renderer's mapping structure
-
 		ANDROID!
 			Get android compiling
 				https://developer.android.com/ndk/guides/stable_apis.html

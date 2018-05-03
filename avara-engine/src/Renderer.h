@@ -71,8 +71,6 @@ namespace ae {
 		
 		virtual std::shared_ptr<Image> snapshot(const RenderContext& context) const;
 		
-		virtual void cleanup();
-		
 		RenderStats& renderStats();
 
 	private:

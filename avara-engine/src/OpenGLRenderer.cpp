@@ -199,7 +199,7 @@ OpenGLRenderer::OpenGLRenderer():
 	m_geometryAABBIDCounter(0),
 	m_activeElementIDs(set<GEOMETRY_ELEMENT_ID>()),
 	m_activeMaterialPropertyIDs(set<MATERIAL_PROPERTY_ID>()),
-	m_geometryAABBIDs(set<GEOMETRY_ID>()),
+	m_activeGeometryAABBIDs(set<GEOMETRY_ID>()),
 	m_glEnvironmentUBO(0),
 	m_fonsContext(nullptr),
 	m_fonsFont(-1) {
@@ -269,7 +269,7 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	
 	m_activeElementIDs.clear();
 	m_activeMaterialPropertyIDs.clear();
-	m_geometryAABBIDs.clear();
+	m_activeGeometryAABBIDs.clear();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -282,7 +282,10 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 						   m_fonsContext, m_fonsFont);
 	}
 	
-	cleanup();
+	CleanupGeometryElementResources(m_activeElementIDs, m_elementIDMapping);
+	CleanupMaterialPropertyResources(m_activeMaterialPropertyIDs, m_materialPropertyIDMapping);
+	CleanupGeometryAABBResources(m_activeGeometryAABBIDs, m_geometryAABBIDMapping);
+	
 	CheckGLError();
 }
 
@@ -355,7 +358,7 @@ void OpenGLRenderer::render(Geometry& geometry,
 		// save its renderID for housekeeping
 		auto renderID = geometry.renderID();
 		if (renderID > 0) {
-			m_geometryAABBIDs.emplace(renderID);
+			m_activeGeometryAABBIDs.emplace(renderID);
 		}
 	}
 }
@@ -425,13 +428,6 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);
 	free(buf);
 	return image;
-}
-	
-void OpenGLRenderer::cleanup() {
-
-	CleanupGeometryElementResources(m_activeElementIDs, m_elementIDMapping);
-	CleanupMaterialPropertyResources(m_activeMaterialPropertyIDs, m_materialPropertyIDMapping);
-	CleanupGeometryAABBResources(m_geometryAABBIDs, m_geometryAABBIDMapping);
 }
 	
 /**************************************************************************************
@@ -585,7 +581,7 @@ static void GetAABBGLVertexDataHandles(Geometry& geometry,
 	auto renderID = geometry.renderID();
 	
 	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry.dirtyBits(),
-									 GEOMETRY_DIRTY_BITS::EXTENT)) {
+									 GEOMETRY_DIRTY_BITS::AABB)) {
 		
 		LoadAABBVertexData(geometry, *Program::AABB(), glVBO, glVAO);
 		
@@ -593,7 +589,7 @@ static void GetAABBGLVertexDataHandles(Geometry& geometry,
 		geometry.renderID(idCounter);
 		
 		geometry.dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry.dirtyBits(),
-													  GEOMETRY_DIRTY_BITS::EXTENT));
+													  GEOMETRY_DIRTY_BITS::AABB));
 	}
 	else {
 		auto mapping = idMapping[renderID];

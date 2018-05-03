@@ -316,6 +316,25 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 		}
 	}
 	
+//	for (auto& key : keysPressed) {
+//		AE_LOG->debug("KEY: {}", static_cast<int>(key));
+//	}
+	
+	if (keysPressed.count(KEY::HOME)) {
+		auto squirrelImage = TestImageNamed("squirrel2");
+		m_siameseNode->geometry()->firstMaterial()->diffuse()->contents(squirrelImage);
+	}
+	
+	if (keysPressed.count(KEY::PAGE_UP)) {
+		m_siameseNode->geometry(m_palletNode->geometry());
+	}
+	
+	if (keysPressed.count(KEY::ZERO)) {
+		auto teapot = TestSceneNamed("teapot", "obj");
+		m_siameseNode->geometry(teapot->rootNode()->childNodes(false)[0]->geometry());
+	}
+	
+	
 
 	if (m_window->cursorCaptured()) {
 		

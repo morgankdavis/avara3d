@@ -81,10 +81,6 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	return nullptr;
 }
 
-void Renderer::cleanup() {
-	
-}
-
 RenderStats& Renderer::renderStats() {
 	return m_renderStats;
 }
