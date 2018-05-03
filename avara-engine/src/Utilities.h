@@ -37,8 +37,8 @@ namespace ae {
 	class Color;
 	class CubeImage;
 	class Image;
+	class RenderContext;
 	class Scene;
-	class Window;
 	
 	
 	namespace utils {
@@ -127,10 +127,10 @@ namespace ae {
 		 Misc Utilities
 		 ***************************************************************************************/
 		
-		void SaveSnapshot(Window& window);
+		void SaveSnapshot(RenderContext& context);
 		
-		void StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate);
-		void StopGIFRecording(Window& window);
+		void StartGIFRecording(RenderContext& context, unsigned maxHeight, unsigned maxFramerate);
+		void StopGIFRecording(RenderContext& context);
 	}
 }
 

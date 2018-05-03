@@ -9,6 +9,8 @@
 #ifndef PhysicsDebugDrawer_h
 #define PhysicsDebugDrawer_h
 
+#ifdef DESKTOP
+
 
 #include <tuple>
 #include <vector>
@@ -173,5 +175,7 @@ namespace ae {
 		std::vector<glm::vec3>		m_lines; // from, to, color
 	};
 }
+
+#endif // DESKTOP
 
 #endif /* PhysicsDebugDrawer_h */

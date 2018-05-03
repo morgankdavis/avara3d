@@ -10,8 +10,6 @@
 
 #include <iostream>
 
-#include <GL/glew.h>
-
 #include "Renderer.h"
 #include "Types.h"
 

@@ -16,7 +16,12 @@
 
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash.h"
+#ifdef DESKTOP
 #include <GL/glew.h>
+#else
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+#endif
 #define GLFONTSTASH_IMPLEMENTATION
 #include "gl3fontstash.h"
 
@@ -217,6 +222,8 @@ OpenGLRenderer::~OpenGLRenderer() {
 bool OpenGLRenderer::initialize() {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
+
+#ifdef DESKTOP
 	
 	// initialize GLEW
 	// NOTE: OpenGL context must be setup first
@@ -233,6 +240,8 @@ bool OpenGLRenderer::initialize() {
 		
 		glewInitialized = true;
 	}
+
+#endif // DESKTOP
 	
 	// initialize FontStash
 	
@@ -1204,12 +1213,15 @@ static void SetMaterialOpenGLState(const Material& material,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//m_program = Program::Wireframe();
 		
+#ifdef DESKTOP
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
+#endif
 	}
 	else {
 		//m_program = Program::Default();
 		
+#ifdef DESKTOP
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1219,6 +1231,7 @@ static void SetMaterialOpenGLState(const Material& material,
 		else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
+#endif
 		
 		if (material.doubleSided()) {
 			glDisable(GL_CULL_FACE);
@@ -1233,7 +1246,9 @@ static void SetMaterialOpenGLState(const Material& material,
 static void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
+#ifdef DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 	glDisable(GL_CULL_FACE);
 }
 
@@ -1241,7 +1256,9 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
+#ifdef DESKTOP
 	glEnable(GL_LINE_SMOOTH);
+#endif
 }
 
 static void DrawGeometryElement(GeometryElement& element,
@@ -1498,7 +1515,9 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
 	
 	glDisable(GL_DEPTH_TEST);
+#ifdef DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
@@ -1618,7 +1637,8 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 }
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
-	
+
+#ifdef DESKTOP
 	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
@@ -1627,6 +1647,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+#endif
 }
 
 static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
@@ -1674,14 +1695,18 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
+#ifdef DESKTOP
 		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+#endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
-		case WRAP_MODE::MIRRORED_REPEAT: 			return GL_MIRRORED_REPEAT; }
+        default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
 }
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
+#ifdef DESKTOP
 		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
+#endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;
 		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
 		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_BORDER; }

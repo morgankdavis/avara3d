@@ -9,6 +9,8 @@
 #ifndef InputManager_h
 #define InputManager_h
 
+#ifdef DESKTOP
+
 
 #include "InputManager.h"
 
@@ -108,6 +110,7 @@ namespace ae {
 	};
 }
 
+#endif // DESKTOP
 
 #endif /* InputManager_h */
 

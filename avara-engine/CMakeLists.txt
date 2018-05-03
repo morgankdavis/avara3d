@@ -51,7 +51,7 @@ elseif(WINDOWS)
 	target_link_libraries(ae ${OPENGL_LIBRARY})
 elseif(ANDROID)
 	# manymouse glfw glew_s
-	target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem)
+	target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
 	#target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 endif()
 
@@ -93,6 +93,10 @@ elseif(WINDOWS)
 	#else()
 		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
 	#endif()
+	
+elseif(ANDROID)
+
+	# things
 
 endif()
 

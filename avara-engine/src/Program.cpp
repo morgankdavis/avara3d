@@ -10,7 +10,12 @@
 
 #include <iostream>
 
+#ifdef DESKTOP
 #include <GL/glew.h>
+#else
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -229,9 +234,9 @@ void Program::bindAttribLocation(GLuint location, const char* name) {
 	glBindAttribLocation(m_glID, location, name);
 }
 
-void Program::bindFragDataLocation(GLuint location, const char* name) {
-	glBindFragDataLocation(m_glID, location, name);
-}
+//void Program::bindFragDataLocation(GLuint location, const char* name) {
+//	glBindFragDataLocation(m_glID, location, name);
+//}
 
 void Program::setUniform(const char* name, float x, float y, float z) {
 	

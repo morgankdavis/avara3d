@@ -6,6 +6,9 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
+#ifdef DESKTOP
+
+
 #include "Window.h"
 
 #include <algorithm>
@@ -345,3 +348,5 @@ static float ScreenScaleFactor(GLFWmonitor* monitor) {
 #endif
 	return 1.0;
 }
+
+#endif // DESKTOP

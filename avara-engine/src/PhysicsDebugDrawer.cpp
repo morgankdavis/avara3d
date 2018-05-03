@@ -6,6 +6,8 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
+#ifdef DESKTOP
+
 #include "PhysicsDebugDrawer.h"
 
 #include <GL/glew.h>
@@ -363,3 +365,4 @@ void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
 	glEnableVertexAttribArray(colorIndex);
 }
 
+#endif // DESKTOP

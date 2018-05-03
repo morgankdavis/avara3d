@@ -73,10 +73,15 @@ if (MSVS)
     message("We think we're MSVS")
 endif()
 
+if (MACOS OR WINODWS OR LINUX)
+    set(DESKTOP TRUE)
+endif()
+
 
 if (XCODE)
-	add_definitions("-DAPPLE" "-DMACOS" "-DXCODE")
-elseif (MACOS)
+	add_definitions("-DXCODE")
+endif()
+if (MACOS)
 	add_definitions("-DAPPLE" "-DMACOS")
 elseif (LINUX)
 	add_definitions("-DLINUX")
@@ -92,6 +97,9 @@ elseif (WINDOWS)
     endif()
 elseif (ANDROID)
 	add_definitions("-DANDROID")
+endif()
+if (DESKTOP)
+	add_definitions("-DDESKTOP")
 endif()
 
 
@@ -161,7 +169,7 @@ add_subdirectory(avara-engine/external/bullet3-2.87)
 
 add_subdirectory(avara-engine)
 
-if (NOT ANDROID)
+if (DESKTOP)
 	add_subdirectory(tests)
 endif()
 

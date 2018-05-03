@@ -1,5 +1,9 @@
 #include "generator/GridShape.hpp"
 
+// added by Morgan to make Android happy
+#include <cmath>
+#include <ctgmath>
+
 using namespace generator;
 
 GridShape::GridShape(
@@ -14,7 +18,9 @@ GridShape::GridShape(
 				segments[0] * subSegments[0]
 			},
 			segments[1] < 1 ? 0 : segments[1] + 1,
-			gml::dvec2{0.0, 2.0 * size[1] / std::fmax(segments[1], 1)}
+			//gml::dvec2{0.0, 2.0 * size[1] / std::fmax(segments[1], 1)}
+			// Morgan: removed "std::" from fmax to make Android happy
+			gml::dvec2{0.0, 2.0 * size[1] / fmax(segments[1], 1)}
 		},
 		// Vertical lines
 		RepeatShape<LineShape>{
@@ -23,7 +29,9 @@ GridShape::GridShape(
 				segments[1] * subSegments[1]
 			},
 			segments[0] < 1 ? 0 : segments[0] + 1,
-			gml::dvec2{2.0 * size[0] / std::fmax(segments[0], 1), 0.0}
+			//gml::dvec2{2.0 * size[0] / std::fmax(segments[0], 1), 0.0}
+			// Morgan: removed "std::" from fmax to make Android happy
+			gml::dvec2{2.0 * size[0] / fmax(segments[0], 1), 0.0}
 		},
 	}
 {

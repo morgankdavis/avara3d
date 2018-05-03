@@ -39,8 +39,8 @@
 #include "CubeImage.h"
 #include "Image.h"
 #include "Logger.h"
+#include "RenderContext.h"
 #include "Scene.h"
-#include "Window.h"
 
 
 using namespace ae;
@@ -250,7 +250,7 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
 }
 
 boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
-#if defined(MACOS) || defined(LINUX)
+#if defined(MACOS) || defined(LINUX) || defined(ANDROID)
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return boost::filesystem::path(cwd);
@@ -427,8 +427,8 @@ boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
  Misc Utilities
  ***************************************************************************************/
 
-void ae::utils::SaveSnapshot(Window& window) {
-	auto image = window.snapshot();
+void ae::utils::SaveSnapshot(RenderContext& context) {
+	auto image = context.snapshot();
 	
 	string dateTime = DateTimeString();
 	
@@ -447,19 +447,19 @@ void ae::utils::SaveSnapshot(Window& window) {
 	}
 }
 
-void ae::utils::StartGIFRecording(Window& window, unsigned maxHeight, unsigned maxFramerate) {
+void ae::utils::StartGIFRecording(RenderContext& context, unsigned maxHeight, unsigned maxFramerate) {
 	char filename[256] = "";
 	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto fullPath = *execDir / filename;
-		window.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
+		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
 	}
 	else {
 		AE_LOG->warn("Couldn't locate executable directory.");
 	}
 }
 
-void ae::utils::StopGIFRecording(Window& window) {
-	window.stopGIFRecording();
+void ae::utils::StopGIFRecording(RenderContext& context) {
+	context.stopGIFRecording();
 }

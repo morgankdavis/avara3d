@@ -25,13 +25,11 @@ Tests:
 		Refactor PhysicsDebugDrawer
 			 + move Program static methods into OpenGLRenderer
 
-
 		Node::addChildNode()
 			m_physicsBody->attachedToNode()
 			SHOULD MOVE TO:
 			Node::physicsBody(<...>)
 
-		Test weak_ptr (remove an owner)
 		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Window::inputManager should exist by default...

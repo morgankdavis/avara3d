@@ -9,6 +9,8 @@
 #ifndef Window_h
 #define Window_h
 
+#ifdef DESKTOP
+
 
 #include <functional>
 #include <memory>
@@ -92,5 +94,6 @@ namespace ae {
 	};
 }
 
+#endif // DESKTOP
 
 #endif /* Window_h */

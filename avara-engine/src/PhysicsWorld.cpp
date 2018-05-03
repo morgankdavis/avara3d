@@ -9,10 +9,10 @@
 #include "PhysicsWorld.h"
 
 #include <LinearMath/btScalar.h> // btGetVersion() !
-#include <GLFW/glfw3.h>
 
 #include "Logger.h"
 #include "PhysicsDebugDrawer.h"
+#include "RenderContext.h"
 #include "Scene.h"
 #include "Utilities.h"
 #include "Window.h"
@@ -35,7 +35,9 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option)
  ***************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
+#ifdef DESKTOP
 	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
+#endif
 	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),
 	m_timestep(1.0/60.0),
@@ -61,7 +63,9 @@ PhysicsWorld::PhysicsWorld():
 //									btIDebugDraw::DBG_ProfileTimings |
 //									btIDebugDraw::DBG_DrawContactPoints);
 //		
+#ifdef DESKTOP
 		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+#endif
 }
 
 /***************************************************************************************
@@ -156,10 +160,11 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 //	if (auto window = scene->window().lock()) {
 //		debugOptions(window->debugOptions());
 //	}
+#ifdef DESKTOP
 	if (auto renderer = scene->renderContext().lock()) {
 		debugOptions(renderer->debugOptions());
 	}
-
+#endif
 }
 
 void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
@@ -213,23 +218,27 @@ void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 	 */
 	
 	AE_LOG->debug("Bullet debug modes: {}", btModes);
-	
+
+#ifdef DESKTOP
 	m_debugDrawer->setDebugMode(btModes);
+#endif
 }
 
 void PhysicsWorld::step() {
 	AE_LOG->trace("step()");
 	
-#warning this should use sceneTime
-	float time = glfwGetTime();
+	//float time = glfwGetTime();
+	float time = m_scene.lock()->renderContext().lock()->sceneTime();
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
-	
+
+#ifdef DESKTOP
 	m_debugDrawer->clear();
+#endif
 	m_btWorld->debugDrawWorld();
 }
 
