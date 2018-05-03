@@ -31,7 +31,14 @@ namespace ae {
 		     Types
 		 **************************************************************************************/
 		
-		//typedef std::map<VERTEX_DATA_ID, std::tuple<unsigned, unsigned, unsigned>> VertexIDMapping;
+		/* <ae_renderID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		typedef std::map<GEOMETRY_ELEMENT_ID,
+			std::tuple<unsigned, unsigned, unsigned>> 		GeometryElementIDMapping;
+		/* <ae_renderID, <gl_textureHandle> */
+		typedef std::map<MATERIAL_PROPERTY_ID, unsigned> 	MaterialPropertyIDMapping;
+		/* <ae_renderID, <gl_vboHandle, gl_vaoHandle>> */
+		typedef std::map<GEOMETRY_ID,
+			std::pair<unsigned, unsigned>>					AABBGeometryIDMapping;
 
 		/***************************************************************************************
 		     Lifecycle
@@ -80,33 +87,23 @@ namespace ae {
 		     Private
 		 **************************************************************************************/
 
-		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
-		//VertexIDMapping								m_vertexDataIDMapping;
-		std::map<VERTEX_DATA_ID,
-			std::tuple<unsigned, unsigned, unsigned>> 	m_vertexDataIDMapping;
+		GeometryElementIDMapping 						m_elementIDMapping;
+		GEOMETRY_ELEMENT_ID 							m_elementIDCounter;
 		
-		/* <ae_textureID, <gl_textureHandle> */
-		std::map<TEXTURE_ID, unsigned>					m_textureIDMapping;
-		
-		VERTEX_DATA_ID 									m_vertexDataIDCounter;
-		TEXTURE_ID 										m_textureIDCounter;
+		MaterialPropertyIDMapping						m_materialPropertyIDMapping;
+		MATERIAL_PROPERTY_ID 							m_materialPropertyIDCounter;
 
-		/* <ae_vertexDataID, <gl_vboHandle, gl_vaoHandle>> */
-		std::map<VERTEX_DATA_ID,
-			std::pair<unsigned, unsigned>>				m_aabbVertexDataIDMapping;
-		
-		VERTEX_DATA_ID 									m_aabbVertexDataIDCounter;
+		AABBGeometryIDMapping							m_aabbElementIDMapping;
+		GEOMETRY_ID 									m_aabbElementIDCounter;
 		
 		unsigned										m_glEnvironmentUBO;
 		
 		FONScontext* 									m_fonsContext;
 		int												m_fonsFont;
-		
-		
-		
+
 		// EXPERIMENTAL
 		
-		std::set<VERTEX_DATA_ID>						m_frameVertexDataIDs;
+		std::set<GEOMETRY_ELEMENT_ID>					m_frameElementIDs;
 	};
 }
 

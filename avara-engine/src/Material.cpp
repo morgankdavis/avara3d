@@ -52,6 +52,7 @@ Material::Material():
 	m_doubleSided(false),
 	m_fillMode(FILL_MODE::FILL),
 	m_uvScale(1.0f),
+	m_renderID(0),
 	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
 }
@@ -166,119 +167,13 @@ void Material::uvScale(float scale) {
      Internal
  ***************************************************************************************/
 
-//shared_ptr<Program> Material::program() const {
-//	return m_program;
-//}
-//
-//void Material::program(shared_ptr<Program> program) {
-//	m_program = program;
-//	
-//	//loadShaderProgram(program);
-//}
+MATERIAL_ID Material::renderID() const {
+	return m_renderID;
+}
 
-//void Material::loadShaderProgram(const string& shaderName) {
-//
-//	m_program = make_shared<Program>(shaderName);
-//
-//	if (m_program->compile()) {
-//		//cout << "Shader program '" << shaderName << "' compiled." << endl;
-//		AE_LOG->info("Program '{}' compiled.", shaderName);
-//
-//		if (m_program->link()) {
-//			//cout << "Shader program '" << shaderName << "' linked." << endl;
-//			AE_LOG->info("Program '{}' linked.", shaderName);
-//		}
-////		else {
-////			cout << "Couldn't link '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-////		}
-//	}
-////	else {
-////		cout << "Couldn't compile '" << shaderName << "' shader:\n" << *(m_program->logString()) << endl;
-////	}
-//}
-
-//shared_ptr<Program> Material::selectProgram(DEBUG_OPTIONS debugOptions) {
-//	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-//		m_program = Program::Wireframe();
-//		glEnable(GL_LINE_SMOOTH);
-//	}
-//	else {
-//		m_program = Program::Default();
-//		//glDisable(GL_LINE_SMOOTH);
-//	}
-//	return m_program;
-//}
-
-//void Material::prepareToRender(DEBUG_OPTIONS debugOptions) {
-//	AE_LOG->trace("prepareToRender()");
-//	
-//	//if ((unsigned)debugOptions | (unsigned)DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES) {
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-//		// can create zbuffer problems
-//		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
-//		//glDepthRange(0.1, 1.0);
-////		glEnable(GL_POLYGON_OFFSET_FILL);
-////		glPolygonOffset(20.0, 0.0);
-//	}
-//
-//	//if ((unsigned)debugOptions & (unsigned)DEBUG_OPTIONS::SHOW_WIREFRAMES) {
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-//		//m_program = Program::Wireframe();
-//		
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	}
-//	else {
-//		//m_program = Program::Default();
-//		
-//		//if ((debugOptions & DebugOption_ShowWireframes) || (m_fillMode == FillMode_Lines)) {
-//		if (m_fillMode == FILL_MODE::LINES) {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//		}
-//		else if (m_fillMode == FILL_MODE::POINTS) {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-//		}
-//		else {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//		}
-//		
-//		if (m_doubleSided) {
-//			glDisable(GL_CULL_FACE);
-//		}
-//		else {
-//			glEnable(GL_CULL_FACE);
-//			glCullFace(GL_BACK);
-//		}
-//		
-//		m_program->setUniform("specularExponent", m_specularExponent);
-//		
-//		m_program->setUniform("uvScale", m_uvScale);
-////		m_program->setUniform("specularExponent", m_uvScale);
-//		
-//		// this is a bit of a hack, but since we're sharing programs now this needs to be reset...
-//		//MaterialPropertyType_Emissive
-//		m_program->setUniform("emissiveMode", 0); // 0 = MaterialMode_None
-//		
-//		// only lock for diffuse textures, not colors
-//		if (m_locksAmbientWithDiffuse && m_diffuse && (m_diffuse->color() || m_diffuse->image())) {
-//			m_diffuse->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *m_program);
-//		}
-//		else {
-//			if (m_ambient) {
-//				m_ambient->bind(MATERIAL_PROPERTY_TYPE::AMBIENT, *m_program);
-//			}
-//		}
-//		if (m_diffuse) {
-//			m_diffuse->bind(MATERIAL_PROPERTY_TYPE::DIFFUSE, *m_program);
-//		}
-//		if (m_specular) {
-//			m_specular->bind(MATERIAL_PROPERTY_TYPE::SPECULAR, *m_program);
-//		}
-//		if (m_emissive) {
-//			m_emissive->bind(MATERIAL_PROPERTY_TYPE::EMISSIVE, *m_program);
-//		}
-//	}
-//}
+void Material::renderID(MATERIAL_ID id) {
+	m_renderID = id;
+}
 
 MATERIAL_DIRTY_BITS Material::dirtyBits() const {
 	return m_dirtyBits;

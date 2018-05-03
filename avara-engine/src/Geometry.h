@@ -83,8 +83,8 @@ namespace ae {
 		
 		std::weak_ptr<Node> node() const;
 		
-		VERTEX_DATA_ID aabbVertexDataID() const;
-		void aabbVertexDataID(VERTEX_DATA_ID dataID);
+		GEOMETRY_ID renderID() const;
+		void renderID(GEOMETRY_ID dataID);
 		
 		GEOMETRY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
@@ -107,7 +107,7 @@ namespace ae {
 		boost::optional<std::string>						m_name;
 		std::weak_ptr<Node>									m_node;
 		
-		VERTEX_DATA_ID										m_aabbVertexDataID;
+		GEOMETRY_ID											m_renderID;
 
 		GEOMETRY_DIRTY_BITS									m_dirtyBits;
 	};

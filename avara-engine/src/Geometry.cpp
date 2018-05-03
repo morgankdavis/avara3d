@@ -33,7 +33,7 @@ Geometry::Geometry():
 	m_elements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()),
 	m_node(weak_ptr<Node>()),
-	m_aabbVertexDataID(0),
+	m_renderID(0),
 	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
@@ -207,12 +207,20 @@ mat4 Geometry::extentScaleMatrix(bool worldSpace) const {
 	return scale(extent(worldSpace));
 }
 
-VERTEX_DATA_ID Geometry::aabbVertexDataID() const {
-	return m_aabbVertexDataID;
+void Geometry::attachedToNode(shared_ptr<Node> node) {
+	m_node = node;
 }
 
-void Geometry::aabbVertexDataID(VERTEX_DATA_ID dataID) {
-	m_aabbVertexDataID = dataID;
+weak_ptr<Node> Geometry::node() const {
+	return m_node;
+}
+
+GEOMETRY_ID Geometry::renderID() const {
+	return m_renderID;
+}
+
+void Geometry::renderID(GEOMETRY_ID id) {
+	m_renderID = id;
 }
 
 GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
@@ -221,12 +229,4 @@ GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
 
 void Geometry::dirtyBits(GEOMETRY_DIRTY_BITS bits) {
 	m_dirtyBits = bits;
-}
-
-void Geometry::attachedToNode(shared_ptr<Node> node) {
-	m_node = node;
-}
-
-weak_ptr<Node> Geometry::node() const {
-	return m_node;
 }

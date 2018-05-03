@@ -33,9 +33,8 @@ MaterialProperty::MaterialProperty():
 	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
 	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
-	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL),
-	m_textureID(0),
-	m_replacedTextureIDs(vector<TEXTURE_ID>()) {
+	m_renderID(0),
+	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
 }
 
@@ -66,67 +65,24 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 	}
 	
 	if (dynamic_pointer_cast<Image>(contents)) {
-		if (m_textureID != 0) {
-			m_replacedTextureIDs.emplace_back(m_textureID);
-			m_textureID = 0;
-		}
+//		if (m_textureID != 0) {
+//			m_replacedTextureIDs.emplace_back(m_textureID);
+//			m_textureID = 0;
+//		}
+		m_renderID = 0;
 	}
 	
 	if (dynamic_pointer_cast<CubeImage>(contents)) {
-		if (m_textureID != 0) {
-			m_replacedTextureIDs.emplace_back(m_textureID);
-			m_textureID = 0;
-		}
+//		if (m_textureID != 0) {
+//			m_replacedTextureIDs.emplace_back(m_textureID);
+//			m_textureID = 0;
+//		}
+		m_renderID = 0;
 	}
 	
 	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
 }
-
-//dynamic_pointer_cast
-
-//shared_ptr<Image> MaterialProperty::image() const {
-//	return m_image;
-//}
-//
-//void MaterialProperty::image(const shared_ptr<Image> image) {
-//	m_image = image;
-//	
-//	if (m_textureID != 0) {
-//		m_replacedTextureIDs.emplace_back(m_textureID);
-//		m_textureID = 0;
-//	}
-//	
-//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
-//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
-//}
-//
-//shared_ptr<Color> MaterialProperty::color() const {
-//	return m_color;
-//}
-//
-//void MaterialProperty::color(const shared_ptr<Color> color) {
-//	m_color = color;
-//	
-//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
-//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
-//}
-//
-//shared_ptr<vector<shared_ptr<Image>>> MaterialProperty::cube() const {
-//	return m_cube;
-//}
-//
-//void MaterialProperty::cube(const shared_ptr<vector<shared_ptr<Image>>> cube) {
-//	m_cube = cube;
-//	
-//	if (m_textureID != 0) {
-//		m_replacedTextureIDs.emplace_back(m_textureID);
-//		m_textureID = 0;
-//	}
-//	
-//	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
-//												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
-//}
 
 FILTER_MODE MaterialProperty::minificationFilter() const {
 	return m_minificationFilter;
@@ -198,26 +154,18 @@ void MaterialProperty::wrapR(WRAP_MODE mode) {
      Internal
  ***************************************************************************************/
 
+MATERIAL_PROPERTY_ID MaterialProperty::renderID() const {
+	return m_renderID;
+}
+
+void MaterialProperty::renderID(MATERIAL_PROPERTY_ID id) {
+	m_renderID = id;
+}
+
 MATERIAL_PROPERTY_DIRTY_BITS MaterialProperty::dirtyBits() const {
 	return m_dirtyBits;
 }
 
 void MaterialProperty::dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits) {
 	m_dirtyBits = bits;
-}
-
-TEXTURE_ID MaterialProperty::textureID() const {
-	return m_textureID;
-}
-
-void MaterialProperty::textureID(TEXTURE_ID textureID) {
-	m_textureID = textureID;
-}
-
-std::vector<TEXTURE_ID> MaterialProperty::replacedTextureIDs() const {
-	return m_replacedTextureIDs;
-}
-
-void MaterialProperty::replacedTextureIDs(std::vector<TEXTURE_ID> textureIDs) {
-	m_replacedTextureIDs = textureIDs;
 }

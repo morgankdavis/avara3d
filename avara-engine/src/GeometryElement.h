@@ -55,8 +55,8 @@ namespace ae {
 		std::vector<Vertex> vertices() const;
 		std::vector<Face> faces() const;
 		
-		VERTEX_DATA_ID vertexDataID() const;
-		void vertexDataID(VERTEX_DATA_ID dataID);
+		GEOMETRY_ELEMENT_ID renderID() const;
+		void renderID(GEOMETRY_ELEMENT_ID id);
 		
 		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
@@ -70,7 +70,7 @@ namespace ae {
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
 
-		VERTEX_DATA_ID							m_vertexDataID;
+		GEOMETRY_ELEMENT_ID						m_renderID;
 		
 		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
 	};

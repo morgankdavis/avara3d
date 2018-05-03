@@ -15,8 +15,10 @@
 
 namespace ae {
 	
-	typedef unsigned VERTEX_DATA_ID;
-	typedef unsigned TEXTURE_ID;
+	typedef unsigned GEOMETRY_ID;
+	typedef unsigned GEOMETRY_ELEMENT_ID;
+	typedef unsigned MATERIAL_ID;
+	typedef unsigned MATERIAL_PROPERTY_ID;
 
 	enum class ANTIALIASING_MODE : unsigned {
 		NONE =		0,

@@ -52,33 +52,33 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 						 const Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
-						 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& vertexDataIDMapping,
-						 VERTEX_DATA_ID& vertexDataIDCounter,
-						 map<TEXTURE_ID, unsigned>& textureIDMapping,
-						 TEXTURE_ID& textureIDCounter);
+						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
+						 GEOMETRY_ELEMENT_ID& elementIDCounter,
+						 OpenGLRenderer::MaterialPropertyIDMapping& materialIDMapping,
+						 MATERIAL_PROPERTY_ID& materialIDCounter);
 static void RenderAABB(Geometry& geometry,
 					   mat4 modelMat,
 					   mat4 viewMat,
 					   mat4 projectionMat,
-					   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
-					   VERTEX_DATA_ID& idCounter,
+					   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
+					   GEOMETRY_ELEMENT_ID& idCounter,
 					   RenderStats& stats);
 static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
-												  map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
-												  VERTEX_DATA_ID& idCounter,
+												  OpenGLRenderer::GeometryElementIDMapping& idMapping,
+												  GEOMETRY_ELEMENT_ID& idCounter,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
-										 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
-										 VERTEX_DATA_ID& idCounter,
+										 OpenGLRenderer::GeometryElementIDMapping& idMapping,
+										 GEOMETRY_ELEMENT_ID& idCounter,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void GetAABBGLVertexDataHandles(Geometry& geometry,
-									   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
-									   VERTEX_DATA_ID& idCounter,
+									   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
+									   GEOMETRY_ELEMENT_ID& idCounter,
 									   GLuint& glVBO, GLuint& glVAO);
 static void GetMaterialGLTextureHandles(Material& material,
-										map<TEXTURE_ID, unsigned>& idMapping, TEXTURE_ID& idCounter,
+										OpenGLRenderer::MaterialPropertyIDMapping& idMapping, MATERIAL_PROPERTY_ID& idCounter,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
-static void LoadGeometryElementVertexData(const GeometryElement& geometryElement,
+static void LoadGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
@@ -87,7 +87,7 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 static void LoadAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO);
-static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle);	
+static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint& glTextureHandle);	
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
 								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
@@ -119,6 +119,11 @@ static void DrawAABB(Geometry& geometry,
 					 mat4 viewMat,
 					 mat4 projectionMat,
 					 GLuint glVBO, GLuint glVAO);
+
+static void CleanupVertexData();
+static void CleanupAABBVertexData();
+static void CleanupTextures();
+
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 							   FONScontext* fonsContext, int fonsFont);
@@ -182,12 +187,12 @@ typedef struct {
 
 OpenGLRenderer::OpenGLRenderer():
 	Renderer(),
-	m_vertexDataIDMapping(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>()),
-	m_textureIDMapping(map<TEXTURE_ID, unsigned>()),
-	m_vertexDataIDCounter(0),
-	m_textureIDCounter(0),
-	m_aabbVertexDataIDMapping(map<VERTEX_DATA_ID, pair<unsigned, unsigned>>()),
-	m_aabbVertexDataIDCounter(0),
+	m_elementIDMapping(map<GEOMETRY_ELEMENT_ID, tuple<unsigned, unsigned, unsigned>>()),
+	m_materialPropertyIDMapping(map<MATERIAL_PROPERTY_ID, unsigned>()),
+	m_elementIDCounter(0),
+	m_materialPropertyIDCounter(0),
+	m_aabbElementIDMapping(map<GEOMETRY_ELEMENT_ID, pair<unsigned, unsigned>>()),
+	m_aabbElementIDCounter(0),
 	m_glEnvironmentUBO(0),
 	m_fonsContext(nullptr),
 	m_fonsFont(-1) {
@@ -255,7 +260,7 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	
 	Renderer::beginFrame(context);
 	
-	m_frameVertexDataIDs = set<VERTEX_DATA_ID>();
+	m_frameElementIDs = set<GEOMETRY_ELEMENT_ID>();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -296,13 +301,13 @@ void OpenGLRenderer::render(Scene& scene,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
-						 m_vertexDataIDMapping, m_vertexDataIDCounter,
-						 m_textureIDMapping, m_textureIDCounter);
+						 m_elementIDMapping, m_elementIDCounter,
+						 m_materialPropertyIDMapping, m_materialPropertyIDCounter);
 			
 			// save its vertexDataID for housekeeping
-			auto vertexDataID = skyboxGeometry->elements().front()->vertexDataID();
+			auto vertexDataID = skyboxGeometry->elements().front()->renderID();
 			if (vertexDataID > 0) {
-				m_frameVertexDataIDs.emplace(vertexDataID);
+				m_frameElementIDs.emplace(vertexDataID);
 			}
 		}
 		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
@@ -333,8 +338,8 @@ void OpenGLRenderer::render(Geometry& geometry,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		RenderAABB(geometry,
 				   modelMat, viewMat, projectionMat,
-				   m_aabbVertexDataIDMapping,
-				   m_aabbVertexDataIDCounter,
+				   m_aabbElementIDMapping,
+				   m_aabbElementIDCounter,
 				   stats);
 	}
 }
@@ -353,7 +358,7 @@ void OpenGLRenderer::render(GeometryElement& element,
 	
 	GLuint vbo, vao, ibo;
 	GetGeometryElementGLVertexDataHandles(element,
-										  m_vertexDataIDMapping, m_vertexDataIDCounter,
+										  m_elementIDMapping, m_elementIDCounter,
 										  vbo, vao, ibo);
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
@@ -366,7 +371,7 @@ void OpenGLRenderer::render(GeometryElement& element,
 		
 		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 		GetMaterialGLTextureHandles(material,
-									m_textureIDMapping, m_textureIDCounter,
+									m_materialPropertyIDMapping, m_materialPropertyIDCounter,
 									glTextureHandles);
 		
 		// send material and material property uniforms
@@ -388,9 +393,9 @@ void OpenGLRenderer::render(GeometryElement& element,
 	stats.polygons += element.faces().size();
 	
 	// save its vertexDataID for housekeeping
-	auto vertexDataID = element.vertexDataID();
+	auto vertexDataID = element.renderID();
 	if (vertexDataID > 0) {
-		m_frameVertexDataIDs.emplace(vertexDataID);
+		m_frameElementIDs.emplace(vertexDataID);
 	}
 }
 
@@ -408,24 +413,24 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 void OpenGLRenderer::cleanup() {
 
 	// gather sorted vector of IDs used this frame
-	auto usedVertexDataIDs = vector<VERTEX_DATA_ID>();
-	usedVertexDataIDs.reserve(m_frameVertexDataIDs.size());
-	copy(m_frameVertexDataIDs.begin(), m_frameVertexDataIDs.end(), back_inserter(usedVertexDataIDs));
+	auto usedVertexDataIDs = vector<GEOMETRY_ELEMENT_ID>();
+	usedVertexDataIDs.reserve(m_frameElementIDs.size());
+	copy(m_frameElementIDs.begin(), m_frameElementIDs.end(), back_inserter(usedVertexDataIDs));
 	sort(usedVertexDataIDs.begin(), usedVertexDataIDs.end());
 	
 	// gather sorted vector of IDs in the mapping
-	auto mappingVertexDataIDs = vector<VERTEX_DATA_ID>();
-	mappingVertexDataIDs.reserve(m_vertexDataIDMapping.size());
-	for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
-		it != m_vertexDataIDMapping.end();
+	auto mappingVertexDataIDs = vector<GEOMETRY_ELEMENT_ID>();
+	mappingVertexDataIDs.reserve(m_elementIDMapping.size());
+	for(map<GEOMETRY_ELEMENT_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_elementIDMapping.begin();
+		it != m_elementIDMapping.end();
 		++it ) {
 		mappingVertexDataIDs.emplace_back(it->first);
 	}
 	sort(mappingVertexDataIDs.begin(), mappingVertexDataIDs.end());
 
 	// find unused IDs
-	auto unused = vector<VERTEX_DATA_ID>(mappingVertexDataIDs.size());
-	vector<VERTEX_DATA_ID>::iterator it;
+	auto unused = vector<GEOMETRY_ELEMENT_ID>(mappingVertexDataIDs.size());
+	vector<GEOMETRY_ELEMENT_ID>::iterator it;
 	it = set_difference(mappingVertexDataIDs.begin(), mappingVertexDataIDs.end(),
 						usedVertexDataIDs.begin(), usedVertexDataIDs.end(),
 						unused.begin());
@@ -434,22 +439,11 @@ void OpenGLRenderer::cleanup() {
 	// deallocate unused IDs
 	if (unused.size()) {
 		AE_LOG->debug("[Deallocating vertex data for {} GeometryElements]");
-		
-		
-		
-//		AE_LOG->debug("Existing IDs:");
-//		for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
-//			it != m_vertexDataIDMapping.end();
-//			++it ) {
-//			AE_LOG->debug("ID: {}", it->first);
-//		}
-		
-		
-		
+
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			std::cout << *it << endl;
 			
-			auto glHandles = m_vertexDataIDMapping[*it];
+			auto glHandles = m_elementIDMapping[*it];
 			
 			GLuint vbo = get<0>(glHandles);
 			GLuint vao = get<1>(glHandles);
@@ -459,16 +453,8 @@ void OpenGLRenderer::cleanup() {
 			glDeleteVertexArrays(1, &vao);
 			glDeleteBuffers(1, &ibo);
 			
-			m_vertexDataIDMapping.erase(*it);
+			m_elementIDMapping.erase(*it);
 		}
-		
-		
-//		AE_LOG->debug("Remaining IDs:");
-//		for(map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>::iterator it = m_vertexDataIDMapping.begin();
-//			it != m_vertexDataIDMapping.end();
-//			++it ) {
-//			AE_LOG->debug("ID: {}", it->first);
-//		}
 	}
 }
 	
@@ -480,10 +466,10 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 						 const Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
-						 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& vertexDataIDMapping,
-						 VERTEX_DATA_ID& vertexDataIDCounter,
-						 map<TEXTURE_ID, unsigned>& textureIDMapping,
-						 TEXTURE_ID& textureIDCounter) {
+						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
+						 GEOMETRY_ELEMENT_ID& elementIDCounter,
+						 OpenGLRenderer::MaterialPropertyIDMapping& materialIDMapping,
+						 MATERIAL_PROPERTY_ID& materialIDCounter) {
 	
 	auto program = Program::Skybox();
 	
@@ -495,14 +481,14 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	
 	GLuint vbo, vao, ibo;
 	GetSkyboxGLVertexDataHandles(skyboxGeometry,
-								 vertexDataIDMapping, vertexDataIDCounter,
+								 elementIDMapping, elementIDCounter,
 								 vbo, vao, ibo);
 	
 	// and load material contents if necessary
 	
 	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 	GetMaterialGLTextureHandles(material,
-								textureIDMapping, textureIDCounter,
+								materialIDMapping, materialIDCounter,
 								glTextureHandles);
 	auto emissiveGLTextureHandle = glTextureHandles[MATERIAL_PROPERTY_TYPE::EMISSIVE];
 	
@@ -535,8 +521,8 @@ static void RenderAABB(Geometry& geometry,
 					   mat4 modelMat,
 					   mat4 viewMat,
 					   mat4 projectionMat,
-					   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
-					   VERTEX_DATA_ID& idCounter,
+					   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
+					   GEOMETRY_ELEMENT_ID& idCounter,
 					   RenderStats& stats) {
 	GLuint vbo = 0;
 	GLuint vao = 0;
@@ -550,13 +536,13 @@ static void RenderAABB(Geometry& geometry,
 }
 	
 static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
-												  map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
-												  VERTEX_DATA_ID& idCounter,
+												  OpenGLRenderer::GeometryElementIDMapping& idMapping,
+												  GEOMETRY_ELEMENT_ID& idCounter,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 	
-	auto vertexDataID = element.vertexDataID();
+	auto vertexDataID = element.renderID();
 	
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element.dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
@@ -565,7 +551,7 @@ static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
 		LoadGeometryElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
-		element.vertexDataID(idCounter);
+		element.renderID(idCounter);
 		
 		element.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element.dirtyBits(),
 															 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
@@ -579,8 +565,8 @@ static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
 }
 	
 static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
-										 map<VERTEX_DATA_ID, tuple<unsigned, unsigned, unsigned>>& idMapping,
-										 VERTEX_DATA_ID& idCounter,
+										 OpenGLRenderer::GeometryElementIDMapping& idMapping,
+										 GEOMETRY_ELEMENT_ID& idCounter,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
@@ -598,13 +584,13 @@ static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
 		LoadSkyboxVertexData(skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
-		element->vertexDataID(idCounter);
+		element->renderID(idCounter);
 		
 		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
 															  GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
 	}
 	else {
-		auto mapping = idMapping[element->vertexDataID()];
+		auto mapping = idMapping[element->renderID()];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 		glIBO = get<2>(mapping);
@@ -612,13 +598,13 @@ static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
 }
 	
 static void GetAABBGLVertexDataHandles(Geometry& geometry,
-									   map<VERTEX_DATA_ID, pair<unsigned, unsigned>>& idMapping,
-									   VERTEX_DATA_ID& idCounter,
+									   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
+									   GEOMETRY_ELEMENT_ID& idCounter,
 									   GLuint& glVBO, GLuint& glVAO) {
 	
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 	
-	auto vertexDataID = geometry.aabbVertexDataID();
+	auto vertexDataID = geometry.renderID();
 	
 	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry.dirtyBits(),
 									 GEOMETRY_DIRTY_BITS::EXTENT)) {
@@ -626,7 +612,7 @@ static void GetAABBGLVertexDataHandles(Geometry& geometry,
 		LoadAABBVertexData(geometry, *Program::AABB(), glVBO, glVAO);
 		
 		idMapping[++idCounter] = make_pair(glVBO, glVAO);
-		geometry.aabbVertexDataID(idCounter);
+		geometry.renderID(idCounter);
 		
 		geometry.dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry.dirtyBits(),
 													  GEOMETRY_DIRTY_BITS::EXTENT));
@@ -639,7 +625,8 @@ static void GetAABBGLVertexDataHandles(Geometry& geometry,
 }
 	
 static void GetMaterialGLTextureHandles(Material& material,
-										map<TEXTURE_ID, unsigned>& idMapping, TEXTURE_ID& idCounter,
+										OpenGLRenderer::MaterialPropertyIDMapping& idMapping,
+										MATERIAL_PROPERTY_ID& idCounter,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -665,31 +652,31 @@ static void GetMaterialGLTextureHandles(Material& material,
 					glTextureHandles[type] = textureID;
 					
 					idMapping[++idCounter] = textureID;
-					property->textureID(idCounter);
+					property->renderID(idCounter);
 				}
 				
 				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
 																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
 			}
 			else {
-				if (property->textureID() > 0) {
-					glTextureHandles[type] = idMapping[property->textureID()];
+				if (property->renderID() > 0) {
+					glTextureHandles[type] = idMapping[property->renderID()];
 				}
 			}
 		}
 	}
 }
 	
-static void LoadGeometryElementVertexData(const GeometryElement& geometryElement,
+static void LoadGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG->info("Loading vertex data for geometry element {:p}...", (void*)&geometryElement);
+	AE_LOG->info("Loading vertex data for geometry element {:p}...", (void*)&element);
 	
 	program.use();
 	
-	auto verticies = geometryElement.vertices();
-	auto faces = geometryElement.faces();
+	auto verticies = element.vertices();
+	auto faces = element.faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -839,12 +826,12 @@ static void LoadAABBVertexData(Geometry& geometry,
 	glEnableVertexAttribArray(positionIndex);
 }
 	
-static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty, GLuint& glTextureHandle) {
+static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint& glTextureHandle) {
 	
-	if (dynamic_pointer_cast<CubeImage>(materialProperty.contents())) {
+	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
 		AE_LOG->info("Buffering cube texture...");
 		
-		auto cubeImage = dynamic_pointer_cast<CubeImage>(materialProperty.contents());
+		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
 		Image images[] = {
 			*(cubeImage->posX()),
@@ -880,19 +867,19 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 						 image.data());
 		}
 		
-		SetTextureMinificationFilter(glTextureHandle, true, materialProperty.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, true, materialProperty.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, true, materialProperty.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, true, materialProperty.wrapS());
-		SetTextureWrapT(glTextureHandle, true, materialProperty.wrapT());
-		SetTextureWrapR(glTextureHandle, materialProperty.wrapR());
+		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, true, property.magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, true, property.maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, true, property.wrapS());
+		SetTextureWrapT(glTextureHandle, true, property.wrapT());
+		SetTextureWrapR(glTextureHandle, property.wrapR());
 		
 		AE_LOG->info("Done.");
 	}
-	else if (dynamic_pointer_cast<Image>(materialProperty.contents())) {
+	else if (dynamic_pointer_cast<Image>(property.contents())) {
 		AE_LOG->info("Buffering 2D texture...");
 		
-		auto image = dynamic_pointer_cast<Image>(materialProperty.contents());
+		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
 		glGenTextures(1, &glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
@@ -907,11 +894,11 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& materialProperty
 					 GL_UNSIGNED_BYTE,
 					 image->data());
 		
-		SetTextureMinificationFilter(glTextureHandle, false, materialProperty.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, false, materialProperty.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, false, materialProperty.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, false, materialProperty.wrapS());
-		SetTextureWrapT(glTextureHandle, false, materialProperty.wrapT());
+		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, false, property.maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, false, property.wrapS());
+		SetTextureWrapT(glTextureHandle, false, property.wrapT());
 		
 		AE_LOG->info("Done.");
 	}

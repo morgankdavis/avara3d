@@ -85,6 +85,9 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
+		MATERIAL_ID renderID() const;
+		void renderID(MATERIAL_ID id);
+		
 		MATERIAL_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(MATERIAL_DIRTY_BITS bits);
 
@@ -107,6 +110,8 @@ namespace ae {
 		FILL_MODE 							m_fillMode;
 		float 								m_uvScale;
 
+		MATERIAL_ID							m_renderID;
+		
 		MATERIAL_DIRTY_BITS					m_dirtyBits;
 	};
 }

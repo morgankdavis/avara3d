@@ -15,9 +15,13 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			Node::geometry(nullptr) -> set dirty bits
-			Node::removeFromParent() -> set dirty bits
-			SET DIRTY BITS EVERYWHERE
+			VERTEX_DATA_ID -> GEOMETRY_ELEMENT_ID
+			TEXTURE_ID -> MATERIAL_PROPERTY_ID
+			GEOMETRY_ID
+
+			Geometry, GeometryElement, Material, Material Property copy construction, copy assignment ->						Retset IDs & set dirty bits?
+
+			SYNC DIRTY BITS, etc
 
 			Convert vertex attributes to "layout"
 			Add typedef VertexIDMapping
