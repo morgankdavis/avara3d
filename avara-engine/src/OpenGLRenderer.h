@@ -93,8 +93,8 @@ namespace ae {
 		MaterialPropertyIDMapping						m_materialPropertyIDMapping;
 		MATERIAL_PROPERTY_ID 							m_materialPropertyIDCounter;
 
-		AABBGeometryIDMapping							m_aabbElementIDMapping;
-		GEOMETRY_ID 									m_aabbElementIDCounter;
+		AABBGeometryIDMapping							m_geometryAABBIDMapping;
+		GEOMETRY_ID 									m_geometryAABBIDCounter;
 		
 		unsigned										m_glEnvironmentUBO;
 		
@@ -103,7 +103,9 @@ namespace ae {
 
 		// EXPERIMENTAL
 		
-		std::set<GEOMETRY_ELEMENT_ID>					m_frameElementIDs;
+		std::set<GEOMETRY_ELEMENT_ID>					m_activeElementIDs;
+		std::set<MATERIAL_PROPERTY_ID>					m_activeMaterialPropertyIDs;
+		std::set<GEOMETRY_ID>							m_geometryAABBIDs;
 	};
 }
 

@@ -15,9 +15,7 @@ Tests:
 
 		Create Renderer and use visitor pattern
 
-			VERTEX_DATA_ID -> GEOMETRY_ELEMENT_ID
-			TEXTURE_ID -> MATERIAL_PROPERTY_ID
-			GEOMETRY_ID
+			After deallocate resource.. mark source as DIRTY
 
 			Geometry, GeometryElement, Material, Material Property copy construction, copy assignment ->						Retset IDs & set dirty bits?
 
