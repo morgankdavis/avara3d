@@ -12,10 +12,7 @@
 #ifdef DESKTOP
 
 
-#include <functional>
 #include <memory>
-
-#include <boost/filesystem.hpp>
 
 #include "RenderContext.h"
 #include "Types.h"

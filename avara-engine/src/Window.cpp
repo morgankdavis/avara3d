@@ -11,7 +11,6 @@
 
 #include "Window.h"
 
-#include <algorithm>
 #include <iostream>
 
 #include <GLFW/glfw3.h>
@@ -23,24 +22,17 @@
 #include "stb_image_resize.h"
 
 #include "Camera.h"
-#include "Color.h"
-#include "Exception.h"
-#include "Geometry.h"
 #include "Global.h"
-#include "Image.h"
 #include "InputManager.h"
 #include "Logger.h"
 #include "Node.h"
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "Scene.h"
-#include "Utilities.h"
 
 
 using namespace std;
 using namespace ae;
-using namespace glm;
-using namespace utils;
 
 
 /***************************************************************************************
