@@ -16,11 +16,13 @@
 
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash.h"
-#ifdef DESKTOP
-#include <GL/glew.h>
-#else
+#ifdef ANDROID
+#include <android/log.h>
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
+#include "NDKHelper.h"
+#else
+#include <GL/glew.h>
 #endif
 #define GLFONTSTASH_IMPLEMENTATION
 #include "gl3fontstash.h"
@@ -223,6 +225,7 @@ bool OpenGLRenderer::initialize() {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
 
+#warning MOVE THIS
 #ifdef DESKTOP
 	
 	// initialize GLEW
@@ -240,24 +243,49 @@ bool OpenGLRenderer::initialize() {
 		
 		glewInitialized = true;
 	}
-
-#endif // DESKTOP
 	
+#endif // DESKTOP
+
 	// initialize FontStash
 	
 	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
 	if (m_fonsContext == NULL) {
 		//AE_LOG->error("Error creating Font Stash context.");
 		throw Exception("Error creating Font Stash context.");
+		LOGW("Error creating Font Stash context.");
 	}
 	
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
-	auto fontPath = FontPath(fontName, fontType);
 	
+	#if ANDROID
+
+	auto fontData = LoadBinaryAsset("fonts/" + fontName + "." + fontType);
+	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
+	memcpy(dataBuf, &fontData[0], fontData.size());
+	m_fonsFont = fonsAddFontMem(m_fonsContext,
+								fontName.c_str(),
+								dataBuf,
+								fontData.size(),
+								1);
+
+	if (m_fonsFont == FONS_INVALID) {
+		LOGW("Could not load font");
+		char errStr[1024];
+		sprintf(errStr, "Could not load font: %s\n", (fontName + "." + fontType).c_str());
+		throw Exception(errStr);
+	}
+
+	#else
+
+	auto fontPath = FontPath(fontName, fontType);
+
 	if (fontPath) {
+
 		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
+
 		if (m_fonsFont == FONS_INVALID) {
+			LOGW("Could not load font");
 			char errStr[1024];
 			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
 			throw Exception(errStr);
@@ -268,6 +296,8 @@ bool OpenGLRenderer::initialize() {
 		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
 		throw Exception(errStr);
 	}
+
+	#endif
 
 	return true;
 }
@@ -394,7 +424,7 @@ void OpenGLRenderer::render(GeometryElement& element,
 	}
 	else {
 		program = Program::Default();
-		
+
 		// and load material contents if necessary
 		
 		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
@@ -950,28 +980,28 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		
 		switch (type) {
 			case MATERIAL_PROPERTY_TYPE::AMBIENT:
-			modeUniformName = "ambientMode";
-			samplerUniformName = "samplers.ambient";
-			slot = GL_TEXTURE0; index = 0;
-			break;
+				modeUniformName = "ambientMode";
+				samplerUniformName = "samplers.ambient";
+				slot = GL_TEXTURE0; index = 0;
+				break;
 			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
-			modeUniformName = "diffuseMode";
-			samplerUniformName = "samplers.diffuse";
-			slot = GL_TEXTURE1; index = 1;
-			break;
+				modeUniformName = "diffuseMode";
+				samplerUniformName = "samplers.diffuse";
+				slot = GL_TEXTURE1; index = 1;
+				break;
 			case MATERIAL_PROPERTY_TYPE::SPECULAR:
-			modeUniformName = "specularMode";
-			samplerUniformName = "samplers.specular";
-			slot = GL_TEXTURE2; index = 2;
-			break;
+				modeUniformName = "specularMode";
+				samplerUniformName = "samplers.specular";
+				slot = GL_TEXTURE2; index = 2;
+				break;
 			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
-			modeUniformName = "emissiveMode";
-			samplerUniformName = "samplers.emissive";
-			slot = GL_TEXTURE3; index = 3;
-			break;
+				modeUniformName = "emissiveMode";
+				samplerUniformName = "samplers.emissive";
+				slot = GL_TEXTURE3; index = 3;
+				break;
 			default:
-			cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
-			return;
+				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
+				return;
 		}
 		
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::SAMPLER));
@@ -985,24 +1015,24 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		
 		switch (type) {
 			case MATERIAL_PROPERTY_TYPE::AMBIENT:
-			modeUniformName = "ambientMode";
-			colorUniformName = "colors.ambient";
-			break;
+				modeUniformName = "ambientMode";
+				colorUniformName = "colors.ambient";
+				break;
 			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
-			modeUniformName = "diffuseMode";
-			colorUniformName = "colors.diffuse";
-			break;
+				modeUniformName = "diffuseMode";
+				colorUniformName = "colors.diffuse";
+				break;
 			case MATERIAL_PROPERTY_TYPE::SPECULAR:
-			modeUniformName = "specularMode";
-			colorUniformName = "colors.specular";
-			break;
+				modeUniformName = "specularMode";
+				colorUniformName = "colors.specular";
+				break;
 			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
-			modeUniformName = "emissiveMode";
-			colorUniformName = "colors.emissive";
-			break;
+				modeUniformName = "emissiveMode";
+				colorUniformName = "colors.emissive";
+				break;
 			default:
-			cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
-			return;
+				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
+				return;
 		}
 		
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::COLOR));
@@ -1482,7 +1512,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 							   FONScontext* fonsContext, int fonsFont) {
-	
+
 	auto renderContext = scene.renderContext().lock();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
@@ -1511,6 +1541,8 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 		previousSeconds = currentSeconds;
 		elapsedFrames = 0;
 	}
+
+	LOGW("fps: %f", fps);
 	
 	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
 	

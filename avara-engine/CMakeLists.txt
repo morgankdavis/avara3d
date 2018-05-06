@@ -28,7 +28,7 @@ file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-if (NOT ANDROID)
+if (DESKTOP)
 	add_library(ae STATIC ${HEADERS} ${SOURCES})
 else()
 	add_library(ae SHARED ${HEADERS} ${SOURCES})
@@ -37,22 +37,23 @@ endif()
 
 target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
 
-if(MACOS)
+if (MACOS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
 	target_link_libraries(ae ${FRAMEWORKS})
-elseif(LINUX)
+elseif (LINUX)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
-elseif(WINDOWS)
+elseif (WINDOWS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp boost_system boost_filesystem)
 	if(MINGW64)
 		target_link_libraries(ae winpthreads)
 	endif()
 	target_link_libraries(ae ${OPENGL_LIBRARY})
-elseif(ANDROID)
+elseif (ANDROID)
 	# manymouse glfw glew_s
-	target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
-	#target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
+	#target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
+	# removed assimp
+	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
 endif()
 
 
@@ -61,7 +62,7 @@ set(CMAKE_CXX_STANDARD 14)
 #find_package(OpenGL REQUIRED)
 
 
-if(MACOS)
+if (MACOS)
 	
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
@@ -75,13 +76,13 @@ if(MACOS)
 	
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 	
-elseif(LINUX)
+elseif (LINUX)
 
 	include_directories("/usr/include" "/usr/local/include")
 	
 	set(CMAKE_CXX_FLAGS "-std=c++14")
 
-elseif(WINDOWS)
+elseif (WINDOWS)
 
 	if(MINGW64)
 		add_subdirectory(external/winpthreads)
@@ -94,9 +95,48 @@ elseif(WINDOWS)
 		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
 	#endif()
 	
-elseif(ANDROID)
+elseif (ANDROID)
 
 	# things
+	
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -android -native_app_glue")
+	
+	# target_link_libraries(ae
+	#   PUBLIC
+	#     native_app_glue
+	#     android
+	# )
+	
+	#target_link_libraries(ae NDKHelper)
+	
+	#target_link_libraries(ae -landroid android)
+	
+	#target_link_libraries(TeapotNativeActivity NDKHelper ae android)
+	#target_link_libraries(ae android NDKHelper TeapotNativeActivity)
+	
+	# target_link_libraries(ae
+	#     native_app_glue
+	#     GLESv3
+	#     EGL
+	#     log
+	#     android
+	#     atomic
+	# )
+	
+	add_subdirectory(external/NDKHelper)
+	
+	# Export ANativeActivity_onCreate(),
+	# Refer to: https://github.com/android-ndk/ndk/issues/381.
+	# set_target_properties(${PROJECT_NAME}
+	set_target_properties(ae
+	  PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
+
+	# add lib dependencies
+	#target_link_libraries(${PROJECT_NAME}
+	target_link_libraries(ae
+	    NDKHelper
+	)
+	
 
 endif()
 

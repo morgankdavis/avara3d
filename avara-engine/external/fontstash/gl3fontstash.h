@@ -53,8 +53,12 @@ struct GLFONScontext {
 };
 typedef struct GLFONScontext GLFONScontext;
 
+#ifdef ANDROID
 // Our shaders...
-char vertexShaderText[] ="#version 330\r\n\
+char vertexShaderText[] ="#version 320 es\r\n\
+\r\n\
+precision mediump int;\r\n\
+precision mediump float;\r\n\
 \r\n\
 uniform mat4 projMat;\r\n\
 \r\n\
@@ -72,7 +76,10 @@ void main() {\r\n\
 	C = color;\r\n\
 }";
 
-char fragmentShaderText[] = "#version 330\r\n\
+char fragmentShaderText[] = "#version 320 es\r\n\
+\r\n\
+precision mediump int;\r\n\
+precision mediump float;\r\n\
 \r\n\
 out vec4 Color;\r\n\
 \r\n\
@@ -85,6 +92,40 @@ void main() {\r\n\
 	Color = C;\r\n\
 	Color.a = texture(texture0, T).r;\r\n\
 }";
+#else
+// Our shaders...
+char vertexShaderText[] ="#version 330\r\n\
+\r\n\
+uniform mat4 projMat;\r\n\
+\r\n\
+layout(location = 0) in vec2 vert;\r\n\
+layout(location = 1) in vec2 coord;\r\n\
+layout(location = 2) in vec4 color;\r\n\
+\r\n\
+out vec2 T;\r\n\
+out vec4 C;\r\n\
+\r\n\
+void main() {\r\n\
+gl_Position = projMat * vec4(vert.x,vert.y, 1.0, 1.0);\r\n\
+//	gl_Position = vec4((vert.x / 512.0) - 1.0, 1.0 - (vert.y / 386.0), 0.0, 1.0);\r\n\
+T = coord;\r\n\
+C = color;\r\n\
+}";
+
+char fragmentShaderText[] = "#version 330\r\n\
+\r\n\
+out vec4 Color;\r\n\
+\r\n\
+in vec2 T;\r\n\
+in vec4 C;\r\n\
+\r\n\
+uniform sampler2D texture0;\r\n\
+\r\n\
+void main() {\r\n\
+Color = C;\r\n\
+Color.a = texture(texture0, T).r;\r\n\
+}";
+#endif
 
 static GLuint shader() {
 	GLint			compiled = 0;

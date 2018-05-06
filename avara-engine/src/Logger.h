@@ -48,102 +48,134 @@ namespace ae {
 		
 		template<typename T>
 		inline void trace(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::trace, msg);
+#endif
 		}
 		
 		template <typename... Args>
 		inline void trace(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::trace, fmt, args...);
+#endif
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void trace(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::trace, fmt, arg1, args...);
+#endif
 		}
 
 		template<typename T>
 		inline void debug(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::debug, msg);
+#endif
 		}
 		
 		template <typename... Args>
 		inline void debug(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::debug, fmt, args...);
+#endif
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void debug(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::debug, fmt, arg1, args...);
+#endif
 		}
 
 		template<typename T>
 		inline void info(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::info, msg);
+#endif
 		}
 
 		template <typename... Args>
 		inline void info(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::info, fmt, args...);
+#endif
 		}
 
 		template <typename Arg1, typename... Args>
 		inline void info(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::info, fmt, arg1, args...);
+#endif
 		}
-		
-		
 		
 		template<typename T>
 		inline void warn(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::warn, msg);
+#endif
 		}
 		
 		template <typename... Args>
 		inline void warn(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::warn, fmt, args...);
+#endif
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void warn(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::warn, fmt, arg1, args...);
+#endif
 		}
-		
 		
 		template<typename T>
 		inline void error(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::err, msg);
+#endif
 		}
 		
 		template <typename... Args>
 		inline void error(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::err, fmt, args...);
+#endif
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void error(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::err, fmt, arg1, args...);
+#endif
 		}
-		
 		
 		template<typename T>
 		inline void critical(const T& msg) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::critical, msg);
 			m_logger->flush();
 			std::abort();
+#endif
 		}
 		
 		template <typename... Args>
 		inline void critical(const wchar_t* fmt, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::critical, fmt, args...);
 			m_logger->flush();
 			std::abort();
+#endif
 		}
 		
 		template <typename Arg1, typename... Args>
 		inline void critical(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#ifndef ANDROID
 			m_logger->log(spdlog::level::critical, fmt, arg1, args...);
 			m_logger->flush();
 			std::abort();
+#endif
 		}
 		
 		

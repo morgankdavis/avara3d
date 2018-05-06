@@ -9,9 +9,12 @@
 #include "Scene.h"
 
 
+#ifndef ANDROID
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <assimp/version.h>
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <btBulletDynamicsCommon.h>
@@ -38,7 +41,9 @@
 
 using namespace ae;
 using namespace ae::utils;
+#ifndef ANDROID
 using namespace Assimp;
+#endif
 using namespace boost::filesystem;
 using namespace glm;
 using namespace std;
@@ -50,6 +55,7 @@ using namespace std;
 
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> MissingTextureImage();
+#ifndef ANDROID
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath);
 static void AddAIGeometryNodes(Scene& scene,
 							   const aiScene* aiScene,
@@ -68,17 +74,20 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath);
 static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType);
+#endif // !ANDROID
 
 /**************************************************************************************
      Public Static
  **************************************************************************************/
 
+#ifndef ANDROID
 shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 	LoadFile(*scene, path);
 	return scene;
 }
+#endif
 
 /***************************************************************************************
      Lifecycle
@@ -373,6 +382,7 @@ static shared_ptr<Image> MissingTextureImage() {
 	return image;
 }
 
+#ifndef ANDROID
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
 	AE_LOG->info("Assimp version: {}.{}.{}",
@@ -759,4 +769,5 @@ static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType) {
 		default: return LIGHT_TYPE::POINT;
 	}
 }
+#endif // !ANDROID
 

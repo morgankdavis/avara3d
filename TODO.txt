@@ -13,11 +13,55 @@ Tests:
 
 	30 - rigidbodies
 
-		ANDROID!
-			Get android compiling
-				https://developer.android.com/ndk/guides/stable_apis.html
 
-		SceneImporter?
+		Refactoring and renaming
+		Logging (stdout + android log?)
+		Input
+		Assimp/importing
+		Re-arrange Android Studio project to have "common" for java components
+
+
+		Move OpenGLRenderer::initialize (GLEW) into RenderContext
+		Move InputManager to RenderContext
+
+
+		ANDROID!
+
+			Pin VSync enabled
+
+			Make shim for ES shaders
+
+			OpenGLRenderer: open init FontStash when its needed! (Info overlay)
+
+			Why aren't Program exceptions being caught??
+
+			LoadBinaryFile() should return boost::optional
+				Utilites check const in function parameters
+
+
+			bool Engine::IsReady() {
+			if (has_focus_) return true;
+
+				return false;
+			}
+
+			********
+			// On some devices, ANativeWindow is re-created when the app is resumed
+			********
+
+			avara-engine should probably be its own "Module" residing in its own project.
+				Android test apps will link to it.
+
+			Get stdout:
+				https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+				https://developer.android.com/studio/command-line/adb
+
+			Move things from top-level CMakeLists into avara-engine
+			Identify external public headers and link to to avara-engine/include
+
+		Re-enable Window initializer list items (and AndroidActivity)
+
+		SceneImporter/.aes
 		
 		PhysicsSimulator
 			BulletPhysicsSimulator

@@ -10,11 +10,16 @@
 
 //--------------------------------------------------------------------------------------// 
 
+// added by Morgan to fix Android:
+// https://github.com/boostorg/filesystem/issues/65
+#ifndef ANDROID
+
 //  define 64-bit offset macros BEFORE including boost/config.hpp (see ticket #5355) 
 #if !(defined(__HP_aCC) && defined(_ILP32) && !defined(_STATVFS_ACPP_PROBLEMS_FIXED))
 #define _FILE_OFFSET_BITS 64 // at worst, these defines may have no effect,
 #endif
 #if !defined(__PGI)
+
 #define __USE_FILE_OFFSET64 // but that is harmless on Windows and on POSIX
       // 64-bit systems or on 32-bit systems which don't have files larger 
       // than can be represented by a traditional POSIX/UNIX off_t type. 
@@ -28,6 +33,8 @@
 #else
 #define _FILE_OFFSET_BITS 64
 #endif
+
+#endif // ANDROID
 
 // define BOOST_FILESYSTEM_SOURCE so that <boost/filesystem/config.hpp> knows
 // the library is being built (possibly exporting rather than importing code)

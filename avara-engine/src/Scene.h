@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 
-#include <assimp/scene.h>
 #include <boost/filesystem.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -42,7 +41,9 @@ namespace ae {
 		     Public Static
 		 ***************************************************************************************/
 		
+#ifndef ANDROID
 		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
+#endif
 
 		/***************************************************************************************
 		     Lifecycle

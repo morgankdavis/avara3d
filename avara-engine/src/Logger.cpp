@@ -35,6 +35,8 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 	m_name(name),
 	m_sinks(sinks) {
 		
+#ifndef ANDROID
+		
 		//initLog(); // THIS IS A HACK. THIS WHOLE LOG THING IS A HACK!!!
 		
 		static bool initialized = false;
@@ -87,6 +89,8 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 			
 			cout << "Log initialization failed: " << ex.what() << endl;
 		}
+		
+#endif
 }
 
 /***************************************************************************************

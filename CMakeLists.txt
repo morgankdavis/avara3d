@@ -25,7 +25,7 @@ if (ANDROID)
 endif()
 
 if (UNIX AND APPLE)
-    message("We think we're APPLE")
+    message("We think we're MACOS")
     set(MACOS TRUE)
     if (CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
@@ -74,6 +74,7 @@ if (MSVS)
 endif()
 
 if (MACOS OR WINODWS OR LINUX)
+	message("We think we're DESKTOP")
     set(DESKTOP TRUE)
 endif()
 
@@ -119,9 +120,6 @@ if (NOT ANDROID)
 	endif()
 endif()
 
-
-
-
 # GLEW
 
 if (NOT ANDROID)
@@ -131,16 +129,18 @@ endif()
 
 # # assimp
 
-set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-if (WINDOWS)
-	set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
+if (NOT ANDROID)
+	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+	if (WINDOWS)
+		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
+	endif()
+	add_subdirectory(avara-engine/external/assimp-3.3.1)
+	include_directories(avara-engine/external/assimp-3.3.1/include)
 endif()
-add_subdirectory(avara-engine/external/assimp-3.3.1)
-include_directories(avara-engine/external/assimp-3.3.1/include)
 
 # boost
 
@@ -164,6 +164,12 @@ include_directories(avara-engine/external/fontstash)
 
 include_directories(avara-engine/external/bullet3-2.87/src)
 add_subdirectory(avara-engine/external/bullet3-2.87)
+
+
+
+if (ANDROID)
+	add_subdirectory(android)
+endif()
 
 # ae & tests
 

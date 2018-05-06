@@ -33,6 +33,13 @@
 #include <Windows.h>
 #endif
 
+#ifdef ANDROID
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#include "NDKHelper.h"
+#endif
+
 #include <glm/gtc/quaternion.hpp>
 
 #include "Color.h"
@@ -117,10 +124,6 @@ string ae::utils::StringFromColor(const Color& c) {
 	return stringStream.str();
 }
 
-/***************************************************************************************
- Conversion Utilities
- ***************************************************************************************/
-
 string ae::utils::DateTimeString() {
 	char buffer[256];
 #ifdef WINDOWS
@@ -138,6 +141,12 @@ string ae::utils::DateTimeString() {
 #endif
 	return string(buffer);
 }
+
+/***************************************************************************************
+ Conversion Utilities
+ ***************************************************************************************/
+
+#ifndef ANDROID
 
 vec2 ae::utils::GLMVec2FromAIVector3D(const aiVector2D& from) {
 	return vec2(from.x, from.y);
@@ -169,6 +178,8 @@ Color ae::utils::ColorFromAIColor3D(const aiColor3D& from) {
 Color ae::utils::ColorFromAIColor4D(const aiColor4D& from) {
 	return Color(from.r, from.g, from.b, from.a);
 }
+
+#endif // !ANDROID
 
 vec3 ae::utils::GLMVec3FromBTVector3(const btVector3& from) {
 	return vec3(from.x(), from.y(), from.z());
@@ -264,6 +275,35 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 	return boost::none;
 }
 
+#ifdef ANDROID
+
+boost::optional<string> ae::utils::LoadTextAsset(const std::string& name) {
+	LOGW("LoadTextAsset() name: %s", name.c_str());
+
+	auto helper = ndk_helper::JNIHelper::GetInstance();
+
+	vector<unsigned char> buffer = LoadBinaryAsset(name);
+	if (buffer.size()) {
+		return string(buffer.begin(), buffer.end());
+	}
+
+
+	LOGW("boost::none");
+	return boost::none;
+}
+std::vector<unsigned char> ae::utils::LoadBinaryAsset(const std::string& name) {
+
+	LOGW("LoadBinaryAsset() name: %s", name.c_str());
+
+	auto helper = ndk_helper::JNIHelper::GetInstance();
+
+	auto buffer = vector<unsigned char>();
+	helper->ReadFile(name.c_str(), &buffer);
+	return buffer;
+}
+
+#else
+
 boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 	AE_LOG->debug("Loading text file at path: {}...", path.string());
 
@@ -285,7 +325,25 @@ boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 
 
 std::vector<unsigned char> ae::utils::LoadBinaryFile(boost::filesystem::path& path) {
-    ifstream ifs(path.string(), ios::binary|ios::ate);
+#ifdef ANDROID
+	auto helper = ndk_helper::JNIHelper::GetInstance();
+
+	AAssetManager* manager = AAssetManager_fromJava();
+	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
+	const char* filename = (const char*)NULL;
+	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+		AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
+		char buf[BUFSIZ];
+		int nb_read = 0;
+		FILE* out = fopen(filename, "w");
+		while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+			fwrite(buf, nb_read, 1, out);
+		fclose(out);
+		AAsset_close(asset);
+	}
+	AAssetDir_close(assetDir);
+#else
+	ifstream ifs(path.string(), ios::binary|ios::ate);
     ifstream::pos_type pos = ifs.tellg();
 
     std::vector<unsigned char> result(pos);
@@ -294,7 +352,10 @@ std::vector<unsigned char> ae::utils::LoadBinaryFile(boost::filesystem::path& pa
     ifs.read((char*)&result[0], pos);
 
     return result;
+#endif
 }
+
+#endif // ANDROID
 
 boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 	auto execDir = ExecutableDirectory();
@@ -361,6 +422,7 @@ boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 	return boost::none;
 }
 
+#ifndef ANDROID
 shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
 	return TestSceneNamed(name, "dae");
 }
@@ -375,6 +437,7 @@ shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 	}
 	return nullptr;
 }
+#endif // !ANDROID
 
 shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
 											bool flipHorizontal) {

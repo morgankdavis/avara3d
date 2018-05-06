@@ -1,0 +1,142 @@
+{
+  "buildFiles": [
+    "/Users/mkd/avara-engine/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/libs/filesystem/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/libs/system/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/spdlog-0.16.2/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3OpenCL/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Serialize/Bullet2FileLoader/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Dynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Collision/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Geometry/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletInverseDynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletCollision/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletDynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/LinearMath/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Common/CMakeLists.txt",
+    "/Users/mkd/avara-engine/android/CMakeLists.txt",
+    "/Users/mkd/avara-engine/android/test01/src/main/cpp/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/meshoptimizer/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/generator/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/generator/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/NDKHelper/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target clean"
+  ],
+  "libraries": {
+    "Bullet3Geometry-Debug-armeabi-v7a": {
+      "artifactName": "Bullet3Geometry",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet3Geometry",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3Geometry/libBullet3Geometry.a"
+    },
+    "generator-Debug-armeabi-v7a": {
+      "artifactName": "generator",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target generator",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/generator/src/libgenerator.a"
+    },
+    "native_app_glue-Debug-armeabi-v7a": {
+      "artifactName": "native_app_glue",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target native_app_glue",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/NDKHelper/libnative_app_glue.a"
+    },
+    "boost_filesystem-Debug-armeabi-v7a": {
+      "artifactName": "boost_filesystem",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target boost_filesystem",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/boost-1.66.0/libs/filesystem/libboost_filesystem.a"
+    },
+    "NDKHelper-Debug-armeabi-v7a": {
+      "artifactName": "NDKHelper",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target NDKHelper",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/NDKHelper/libNDKHelper.a"
+    },
+    "Bullet3Dynamics-Debug-armeabi-v7a": {
+      "artifactName": "Bullet3Dynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet3Dynamics",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3Dynamics/libBullet3Dynamics.a"
+    },
+    "Bullet3Common-Debug-armeabi-v7a": {
+      "artifactName": "Bullet3Common",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet3Common",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3Common/libBullet3Common.a"
+    },
+    "BulletDynamics-Debug-armeabi-v7a": {
+      "artifactName": "BulletDynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target BulletDynamics",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/BulletDynamics/libBulletDynamics.a"
+    },
+    "Bullet3Collision-Debug-armeabi-v7a": {
+      "artifactName": "Bullet3Collision",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet3Collision",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3Collision/libBullet3Collision.a"
+    },
+    "BulletInverseDynamics-Debug-armeabi-v7a": {
+      "artifactName": "BulletInverseDynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target BulletInverseDynamics",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/BulletInverseDynamics/libBulletInverseDynamics.a"
+    },
+    "boost_system-Debug-armeabi-v7a": {
+      "artifactName": "boost_system",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target boost_system",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/boost-1.66.0/libs/system/libboost_system.a"
+    },
+    "Bullet2FileLoader-Debug-armeabi-v7a": {
+      "artifactName": "Bullet2FileLoader",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet2FileLoader",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3Serialize/Bullet2FileLoader/libBullet2FileLoader.a"
+    },
+    "LinearMath-Debug-armeabi-v7a": {
+      "artifactName": "LinearMath",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target LinearMath",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/LinearMath/libLinearMath.a"
+    },
+    "meshoptimizer-Debug-armeabi-v7a": {
+      "artifactName": "meshoptimizer",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target meshoptimizer",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/meshoptimizer/libmeshoptimizer.a"
+    },
+    "BulletCollision-Debug-armeabi-v7a": {
+      "artifactName": "BulletCollision",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target BulletCollision",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/BulletCollision/libBulletCollision.a"
+    },
+    "ae-Debug-armeabi-v7a": {
+      "artifactName": "ae",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target ae",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/build/intermediates/cmake/debug/obj/armeabi-v7a/libae.so"
+    },
+    "Bullet3OpenCL_clew-Debug-armeabi-v7a": {
+      "artifactName": "Bullet3OpenCL_clew",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target Bullet3OpenCL_clew",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a/avara-engine/external/bullet3-2.87/src/Bullet3OpenCL/libBullet3OpenCL_clew.a"
+    },
+    "test_main-Debug-armeabi-v7a": {
+      "artifactName": "test_main",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/armeabi-v7a --target test_main",
+      "abi": "armeabi-v7a",
+      "output": "/Users/mkd/avara-engine/android/test01/build/intermediates/cmake/debug/obj/armeabi-v7a/libtest_main.so"
+    }
+  }
+}

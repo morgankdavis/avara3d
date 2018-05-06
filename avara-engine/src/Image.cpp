@@ -111,7 +111,8 @@ unsigned char* Image::data() const {
  ***************************************************************************************/
 
 void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
-	
+
+#ifndef ANDROID
 	AE_LOG->info("Loading image at path {}...", path.string());
 	
 	int width, height, num_byte_pix;
@@ -136,6 +137,7 @@ void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	}
 	
 	AE_LOG->info("Done.");
+#endif
 }
 
 void Image::flip() {

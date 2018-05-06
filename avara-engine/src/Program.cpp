@@ -10,12 +10,15 @@
 
 #include <iostream>
 
-#ifdef DESKTOP
-#include <GL/glew.h>
-#else
+#ifdef ANDROID
+#include <android/log.h>
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
+#include "NDKHelper.h"
+#else
+#include <GL/glew.h>
 #endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -74,9 +77,15 @@ shared_ptr<Program> Program::PhysicsDebugLine() {
 	return program;
 }
 
-/*******************************************************************************
+/**************************************************************************************
+     Static Prorotypes
+ **************************************************************************************/
+
+boost::optional<string> ShaderSourceNamed(const string& name, const string& type);
+
+/**************************************************************************************
      Lifecycle
- ******************************************************************************/
+ **************************************************************************************/
 
 Program::Program(const string& name):
 	m_name(name),
@@ -101,17 +110,15 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			auto vsPath = ShaderPath(name, "vert");
-			auto fsPath = ShaderPath(name, "frag");
-			
-			if (vsPath && fsPath) {
+			// ANDROID
 
-				auto vsSource = LoadTextFile(*vsPath);
-				auto fsSource = LoadTextFile(*fsPath);
 				
-//                cout << "vs: " << *vs << endl;
-//                cout << "fs: " << *fs << endl;
-
+				auto vsSource = ShaderSourceNamed(name, "vert");
+				auto fsSource = ShaderSourceNamed(name, "frag");
+				
+				//                cout << "vs: " << *vs << endl;
+				//                cout << "fs: " << *fs << endl;
+				
 				if (vsSource && fsSource) {
 					vertexShaderSource(*vsSource);
 					fragmentShaderSource(*fsSource);
@@ -121,10 +128,33 @@ Program::Program(const string& name):
 				else {
 					throw Exception("Couldn't load shader sources.");
 				}
-			}
-			else {
-				throw Exception("Couldn't locate shader sources.");
-			}
+
+
+//			// ORIGINAL			
+//			auto vsPath = ShaderPath(name, "vert");
+//			auto fsPath = ShaderPath(name, "frag");
+//			
+//			if (vsPath && fsPath) {
+//
+//				auto vsSource = LoadTextFile(*vsPath);
+//				auto fsSource = LoadTextFile(*fsPath);
+//				
+////                cout << "vs: " << *vs << endl;
+////                cout << "fs: " << *fs << endl;
+//
+//				if (vsSource && fsSource) {
+//					vertexShaderSource(*vsSource);
+//					fragmentShaderSource(*fsSource);
+//					
+//					prepare();
+//				}
+//				else {
+//					throw Exception("Couldn't load shader sources.");
+//				}
+//			}
+//			else {
+//				throw Exception("Couldn't locate shader sources.");
+//			}
 		}
 }
 
@@ -135,9 +165,9 @@ Program::~Program() {
 //	}
 }
 
-/*******************************************************************************
+/**************************************************************************************
      Internal
- ******************************************************************************/
+ **************************************************************************************/
 
 bool Program::compile() {
 	
@@ -439,9 +469,9 @@ void Program::fragmentShaderSource(string source) {
 	m_fragmentShaderSource = source;
 }
 
-/*******************************************************************************
+/**************************************************************************************
      Private
- ******************************************************************************/
+ **************************************************************************************/
 
 void Program::prepare() {
 	AE_LOG->trace("Program::prepare()");
@@ -450,17 +480,21 @@ void Program::prepare() {
 		if (compile()) {
 			//cout << "Shader program '" << shaderName << "' compiled." << endl;
 			AE_LOG->info("Program '{}' compiled.", m_name);
+			LOGW("compiled");
 			
 			if (link()) {
 				//cout << "Shader program '" << shaderName << "' linked." << endl;
 				AE_LOG->info("Program '{}' linked.", m_name);
+				LOGW("linked");
 			}
 			else {
 				AE_LOG->critical("Couldn't link {} shaders:\n{}", m_name, *m_logString);
+				LOGW("Couldn't link");
 			}
 		}
 		else {
 			AE_LOG->critical("Couldn't compile {} shader:\n{}", m_name, *m_logString);
+			LOGW("Couldn't compile");
 		}
 	}
 }
@@ -506,6 +540,7 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
 			m_logString = string(c_log);
 			AE_LOG->warn("Compile log:\n{}", c_log);
+			LOGW("Compile log: %s", c_log);
 			delete[] c_log;
 		}
 		
@@ -542,4 +577,20 @@ void Program::isLinked(bool isLinked) {
 //void Program::logString(boost::optional<string> logString) {
 //	m_logString = logString;
 //}
+
+/**************************************************************************************
+     Static
+ **************************************************************************************/
+
+boost::optional<string> ShaderSourceNamed(const string& name, const string& type) {
+#ifdef ANDROID
+	return LoadTextAsset("shaders/" + name + "_es." + type);
+#else
+	auto path = ShaderPath(name, type);
+	if (path) {
+		return LoadTextFile(*path);
+	}
+	return boost::none;
+#endif
+}
 

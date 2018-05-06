@@ -16,10 +16,12 @@
 #include <string>
 #include <vector>
 
+#ifndef ANDROID
 #include <assimp/color4.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/types.h>
 #include <assimp/vector2.h>
+#endif
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <btBulletDynamicsCommon.h>
@@ -65,11 +67,13 @@ namespace ae {
 		 Conversion Utilities
 		 ***************************************************************************************/
 		
+#ifndef ANDROID
 		glm::vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
 		glm::vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
 		glm::mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
 		Color ColorFromAIColor3D(const aiColor3D& from);
 		Color ColorFromAIColor4D(const aiColor4D& from);
+#endif
 		
 		glm::vec3 GLMVec3FromBTVector3(const btVector3& from);
 		glm::vec4 GLMVec4FromBTVector4(const btVector4& from);
@@ -95,9 +99,14 @@ namespace ae {
 		boost::optional<boost::filesystem::path> ExecutablePath();
 		boost::optional<boost::filesystem::path> ExecutableDirectory();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
-		
+
+#ifdef ANDROID
+		boost::optional<std::string> LoadTextAsset(const std::string& name);
+		std::vector<unsigned char> LoadBinaryAsset(const std::string& name);
+#else
 		boost::optional<std::string> LoadTextFile(boost::filesystem::path& path);
 		std::vector<unsigned char> LoadBinaryFile(boost::filesystem::path& path);
+#endif
 		
 		boost::optional<boost::filesystem::path> ShadersDirectory();
 		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name, const std::string& type);
@@ -113,9 +122,11 @@ namespace ae {
 		
 		boost::optional<boost::filesystem::path> TestDataDirectory();
 		
+#ifndef ANDROID
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
 		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
 											  const std::string& type);
+#endif
 		
 		std::shared_ptr<Image> TestImageNamed(const std::string& name,
 											  bool flipHorizontal=true);

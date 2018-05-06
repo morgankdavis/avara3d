@@ -1,0 +1,142 @@
+{
+  "buildFiles": [
+    "/Users/mkd/avara-engine/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/libs/filesystem/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/boost-1.66.0/libs/system/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/spdlog-0.16.2/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3OpenCL/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Serialize/Bullet2FileLoader/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Dynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Collision/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Geometry/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletInverseDynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletCollision/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/BulletDynamics/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/LinearMath/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/bullet3-2.87/src/Bullet3Common/CMakeLists.txt",
+    "/Users/mkd/avara-engine/android/CMakeLists.txt",
+    "/Users/mkd/avara-engine/android/test01/src/main/cpp/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/meshoptimizer/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/generator/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/generator/src/CMakeLists.txt",
+    "/Users/mkd/avara-engine/avara-engine/external/NDKHelper/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target clean"
+  ],
+  "libraries": {
+    "Bullet3Geometry-Debug-x86": {
+      "artifactName": "Bullet3Geometry",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet3Geometry",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3Geometry/libBullet3Geometry.a"
+    },
+    "BulletCollision-Debug-x86": {
+      "artifactName": "BulletCollision",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target BulletCollision",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/BulletCollision/libBulletCollision.a"
+    },
+    "Bullet2FileLoader-Debug-x86": {
+      "artifactName": "Bullet2FileLoader",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet2FileLoader",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3Serialize/Bullet2FileLoader/libBullet2FileLoader.a"
+    },
+    "BulletDynamics-Debug-x86": {
+      "artifactName": "BulletDynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target BulletDynamics",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/BulletDynamics/libBulletDynamics.a"
+    },
+    "meshoptimizer-Debug-x86": {
+      "artifactName": "meshoptimizer",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target meshoptimizer",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/meshoptimizer/libmeshoptimizer.a"
+    },
+    "Bullet3Common-Debug-x86": {
+      "artifactName": "Bullet3Common",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet3Common",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3Common/libBullet3Common.a"
+    },
+    "LinearMath-Debug-x86": {
+      "artifactName": "LinearMath",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target LinearMath",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/LinearMath/libLinearMath.a"
+    },
+    "ae-Debug-x86": {
+      "artifactName": "ae",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target ae",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/build/intermediates/cmake/debug/obj/x86/libae.so"
+    },
+    "native_app_glue-Debug-x86": {
+      "artifactName": "native_app_glue",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target native_app_glue",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/NDKHelper/libnative_app_glue.a"
+    },
+    "test_main-Debug-x86": {
+      "artifactName": "test_main",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target test_main",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/build/intermediates/cmake/debug/obj/x86/libtest_main.so"
+    },
+    "boost_system-Debug-x86": {
+      "artifactName": "boost_system",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target boost_system",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/boost-1.66.0/libs/system/libboost_system.a"
+    },
+    "Bullet3OpenCL_clew-Debug-x86": {
+      "artifactName": "Bullet3OpenCL_clew",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet3OpenCL_clew",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3OpenCL/libBullet3OpenCL_clew.a"
+    },
+    "boost_filesystem-Debug-x86": {
+      "artifactName": "boost_filesystem",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target boost_filesystem",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/boost-1.66.0/libs/filesystem/libboost_filesystem.a"
+    },
+    "Bullet3Dynamics-Debug-x86": {
+      "artifactName": "Bullet3Dynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet3Dynamics",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3Dynamics/libBullet3Dynamics.a"
+    },
+    "generator-Debug-x86": {
+      "artifactName": "generator",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target generator",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/generator/src/libgenerator.a"
+    },
+    "Bullet3Collision-Debug-x86": {
+      "artifactName": "Bullet3Collision",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target Bullet3Collision",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/Bullet3Collision/libBullet3Collision.a"
+    },
+    "NDKHelper-Debug-x86": {
+      "artifactName": "NDKHelper",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target NDKHelper",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/NDKHelper/libNDKHelper.a"
+    },
+    "BulletInverseDynamics-Debug-x86": {
+      "artifactName": "BulletInverseDynamics",
+      "buildCommand": "/Users/mkd/Library/Android/sdk/cmake/3.6.4111459/bin/cmake --build /Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86 --target BulletInverseDynamics",
+      "abi": "x86",
+      "output": "/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/x86/avara-engine/external/bullet3-2.87/src/BulletInverseDynamics/libBulletInverseDynamics.a"
+    }
+  }
+}
