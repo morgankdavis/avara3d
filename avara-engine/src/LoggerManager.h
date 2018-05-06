@@ -51,7 +51,9 @@ namespace ae {
 		
 		std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	m_mainFileSink;
 		std::shared_ptr<spdlog::sinks::stdout_sink_st>			m_stdoutSink;
-		
+#ifdef ANDROID
+		std::shared_ptr<spdlog::sinks::android_sink>			m_androidSink;
+#endif
 	};
 }
 

@@ -11,7 +11,6 @@
 
 #include "Activity.h"
 
-#include <android/log.h>
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
@@ -49,6 +48,7 @@ Activity::Activity(shared_ptr<Renderer> renderer):
 		m_context(EGL_NO_CONTEXT),
 		m_initialized(false) {
 
+			Logger::Init();
 }
 
 Activity::~Activity() {
@@ -60,6 +60,8 @@ Activity::~Activity() {
  ***************************************************************************************/
 
 void Activity::display(android_app* app) {
+	
+	AE_LOG->trace("Activity::display()");
 
 	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
@@ -70,8 +72,7 @@ void Activity::display(android_app* app) {
 //#ifdef USE_NDK_PROFILER
 //	monstartup("libTeapotNativeActivity.so");
 //#endif
-
-	LOGW("TestNativeActivity: android_main()!");
+	
 	while (true) {
 
 		int id;
@@ -152,8 +153,6 @@ void Activity::appCommandCallback(struct android_app* app, int32_t cmd) {
 }
 
 int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
-	//LOGI("AndroidActivity::handleAppInput()");
-	
 	Activity* activity = (Activity*)app->userData;
 	int32_t eventType = AInputEvent_getType(event);
 	
@@ -161,15 +160,15 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 		
 		float xPos = AMotionEvent_getX(event, 0);
 		float yPos = AMotionEvent_getY(event, 0);
-		
-		LOGW("xPos: %f, yPos: %f", xPos, yPos);
+
+		AE_LOG->info("xPos: {}, yPos: {}", xPos, yPos);
 	}
 	else if (eventType == AINPUT_EVENT_TYPE_KEY) {
 		
 		int32_t key_val = AKeyEvent_getKeyCode(event);
 		
 		if((key_val >= AKEYCODE_A && key_val <= AKEYCODE_Z)) {
-			LOGW("LETTER");
+			AE_LOG->info("LETTER KET");
 		}
 		return 0;
 	}
@@ -214,8 +213,9 @@ void Activity::debugOptions(DEBUG_OPTIONS options) {
  **************************************************************************************/
 
 bool Activity::initialize(ANativeWindow* window) {
-	LOGW("initialize()");
 	
+	AE_LOG->debug("Activity::initialize()");
+
 	if (!m_initialized) {
 		m_nativeWindow = window;
 		initEGLSurface();
@@ -234,8 +234,9 @@ bool Activity::initialize(ANativeWindow* window) {
 }
 
 void Activity::initGLES() {
-	LOGW("initGLES()");
 	
+	AE_LOG->debug("Activity::initGLES()");
+
 	if (m_initialized) return;
 	//
 	// init OpenGL ES 3 if available
@@ -254,8 +255,8 @@ void Activity::initGLES() {
 
 int Activity::initDisplay(android_app* app) {
 	
-	LOGW("initDisplay()");
-	
+	AE_LOG->debug("Activity::initDisplay()");
+
 	static bool displayInitialized = false;
 	
 	if (!displayInitialized) {
@@ -299,7 +300,7 @@ int Activity::initDisplay(android_app* app) {
 
 bool Activity::initEGLSurface() {
 	
-	LOGW("initEGLSurface()");
+	AE_LOG->debug("Activity::initEGLSurface()");
 
 	m_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 	eglInitialize(m_display, 0, 0);
@@ -325,7 +326,7 @@ bool Activity::initEGLSurface() {
 	eglChooseConfig(m_display, attribs, &m_config, 1, &num_configs);
 	
 	if (!num_configs) {
-		LOGW("Fall back to 16bit depth buffer");
+		AE_LOG->info("Falling back to 16-bit depth buffer.");
 
 		// Fall back to 16bit depth buffer
 		const EGLint attribs[] = {
@@ -347,7 +348,7 @@ bool Activity::initEGLSurface() {
 	}
 	
 	if (!num_configs) {
-		LOGW("Unable to retrieve EGL config");
+		AE_LOG->critical("Unable to retrieve EGL config.");
 		return false;
 	}
 
@@ -366,7 +367,7 @@ bool Activity::initEGLSurface() {
 
 bool Activity::initEGLContext() {
 	
-	LOGW("initEGLContext()");
+	AE_LOG->debug("Activity::initEGLContext()");
 	
 	const EGLint context_attribs[] = {
 			EGL_CONTEXT_CLIENT_VERSION,
@@ -376,7 +377,7 @@ bool Activity::initEGLContext() {
 	m_context = eglCreateContext(m_display, m_config, NULL, context_attribs);
 	
 	if (eglMakeCurrent(m_display, m_surface, m_surface, m_context) == EGL_FALSE) {
-		LOGW("Unable to eglMakeCurrent");
+		AE_LOG->critical("Unable to make EGL context current.");
 		return false;
 	}
 	
@@ -386,6 +387,8 @@ bool Activity::initEGLContext() {
 
 void Activity::suspend() {
 	
+	AE_LOG->debug("Activity::suspend()");
+	
 	if (m_surface != EGL_NO_SURFACE) {
 		eglDestroySurface(m_display, m_surface);
 		m_surface = EGL_NO_SURFACE;
@@ -394,7 +397,7 @@ void Activity::suspend() {
 
 EGLint Activity::resume(ANativeWindow* window) {
 	
-	LOGW("resume()");
+	AE_LOG->debug("Activity::resume()");
 	
 	if (m_initialized == false) {
 		initialize(window);
@@ -416,18 +419,17 @@ EGLint Activity::resume(ANativeWindow* window) {
 		
 		if (m_width != originalWidth || m_height != originalHeight) {
 			// Screen resized
-			LOGW("Screen resized");
+			AE_LOG->debug("Screen resized: ({}, {}) -> ({}, {})",
+						  originalWidth, originalHeight, m_width, m_height);
 		}
 		
 		if (eglMakeCurrent(m_display, m_surface, m_surface, m_context) == EGL_TRUE)
 			return EGL_SUCCESS;
 		
 		EGLint err = eglGetError();
-		//LOGW("Unable to eglMakeCurrent %d", err);
-		
 		if (err == EGL_CONTEXT_LOST) {
 			// Recreate context
-			LOGW("Re-creating egl context");
+			AE_LOG->info("Re-creating EGL context...");
 			initEGLContext();
 		}
 		else {
@@ -443,6 +445,8 @@ EGLint Activity::resume(ANativeWindow* window) {
 
 bool Activity::invalidate() {
 	
+	AE_LOG->debug("Activity::invalidate()");
+	
 	terminate();
 	m_initialized = false;
 	
@@ -450,6 +454,8 @@ bool Activity::invalidate() {
 }
 
 void Activity::terminate() {
+	
+	AE_LOG->debug("Activity::terminate()");
 	
 	if (m_display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

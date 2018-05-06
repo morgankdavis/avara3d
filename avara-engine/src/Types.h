@@ -93,7 +93,7 @@ namespace ae {
 		NONE =			0,
 		MAIN_FILE =		1 << 0,
 		NAMED_FILE =	1 << 1,
-		STDOUT = 		1 << 2
+		NATIVE = 		1 << 2 // stdout, android console, ...
 	};
 	
 #define LOGGER_SINKS_CONTAINS(sinks, sink) (static_cast<unsigned>(sinks) & static_cast<unsigned>(sink))

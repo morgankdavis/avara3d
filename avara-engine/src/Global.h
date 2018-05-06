@@ -22,9 +22,9 @@
 #define LOG_QUEUE_SIZE	    	12
 #define LOG_FILE_SIZE 			1024 * 1024 * 5
 #define LOG_FILE_ROTATIONS		3
-#define LOG_ENABLE_STDOUT		true
+#define LOG_ENABLE_NATIVE		true
 #define LOG_LEVEL				level::debug
-#define LOG_FLUSH_LEVEL			level::warn
+#define LOG_FLUSH_LEVEL			LOG_LEVEL
 
 #define MAX_PATH_LEN  			1024
 

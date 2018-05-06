@@ -89,61 +89,62 @@ Window::Window(shared_ptr<Renderer> renderer,
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {
 
-	if (initLog() != 0) { cout << "Error initializing log." << endl; }
-	if (!InitializeGLFW()) { AE_LOG->critical("Error initializing GLFW."); }
-	
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, static_cast<unsigned>(antialiasingMode));
-//		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-
-	int viewportWidth = width;
-	int viewportHeight = height;
-
-	float scaleFactor = 1.0;
-	
-	if (fullScreen) {
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-		m_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-		//i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-		viewportWidth = vmode->width;
-		viewportHeight = vmode->height;
+		//if (initLog() != 0) { cout << "Error initializing log." << endl; }
+		Logger::Init();
+		if (!InitializeGLFW()) { AE_LOG->critical("Error initializing GLFW."); }
 		
-		scaleFactor = ScreenScaleFactor(monitor);
-	}
-	else {
-		m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_SAMPLES, static_cast<unsigned>(antialiasingMode));
+	//		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+	//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+
+		int viewportWidth = width;
+		int viewportHeight = height;
+
+		float scaleFactor = 1.0;
 		
-		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-		//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
-		scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
-	}
+		if (fullScreen) {
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+			m_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+			//i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+			viewportWidth = vmode->width;
+			viewportHeight = vmode->height;
+			
+			scaleFactor = ScreenScaleFactor(monitor);
+		}
+		else {
+			m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+			
+			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
+			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
+			//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
+			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
+		}
 
-	AE_LOG->info("scaleFactor: {}", scaleFactor);
+		AE_LOG->info("scaleFactor: {}", scaleFactor);
 
-	if (!m_glfwWindow) {
-		AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
-		glfwTerminate();
-	}
-	
-	glfwMakeContextCurrent(m_glfwWindow);
-	enableVSync(false);
+		if (!m_glfwWindow) {
+			AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
+			glfwTerminate();
+		}
+		
+		glfwMakeContextCurrent(m_glfwWindow);
+		enableVSync(false);
 
-	RenderContext::renderer()->initialize();
+		RenderContext::renderer()->initialize();
 
-	i_window = this;
+		i_window = this;
 
-	m_width = viewportWidth;
-	m_height = viewportHeight;
+		m_width = viewportWidth;
+		m_height = viewportHeight;
 
-	m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
-	m_framebufferWidth = m_width * m_framebufferScale;
-	m_framebufferHeight = m_height * m_framebufferScale;
+		m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
+		m_framebufferWidth = m_width * m_framebufferScale;
+		m_framebufferHeight = m_height * m_framebufferScale;
 }
 
 Window::~Window() {

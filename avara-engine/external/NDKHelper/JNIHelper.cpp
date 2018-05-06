@@ -194,6 +194,30 @@ bool JNIHelper::ReadFile(const char* fileName,
   }
 }
 
+// added by Morgan -- gets INTERNAL files dir
+std::string JNIHelper::GetFilesDir() {
+  if (activity_ == NULL) {
+    LOGI(
+        "JNIHelper has not been initialized. Call init() to initialize the "
+        "helper");
+    return std::string("");
+  }
+
+  // Lock mutex
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  // First, try reading from externalFileDir;
+  JNIEnv* env = AttachCurrentThread();
+
+  jstring strPath = GetFilesDirJString(env);
+  const char* path = env->GetStringUTFChars(strPath, NULL);
+  std::string s(path);
+
+  env->ReleaseStringUTFChars(strPath, path);
+  env->DeleteLocalRef(strPath);
+  return s;
+}
+
 std::string JNIHelper::GetExternalFilesDir() {
   if (activity_ == NULL) {
     LOGI(
@@ -514,6 +538,30 @@ jclass JNIHelper::RetrieveClass(JNIEnv* jni, const char* class_name) {
   jni->DeleteLocalRef(activity_class);
   jni->DeleteLocalRef(class_loader);
   return class_retrieved;
+}
+
+// added by Morgan -- supports GetFilesDir()
+jstring JNIHelper::GetFilesDirJString(JNIEnv* env) {
+  if (activity_ == NULL) {
+    LOGI(
+        "JNIHelper has not been initialized. Call init() to initialize the "
+        "helper");
+    return NULL;
+  }
+
+  jstring obj_Path = nullptr;
+  // Invoking getFilesDir() java API
+  jclass cls_Env = env->FindClass(NATIVEACTIVITY_CLASS_NAME);
+  jmethodID mid = env->GetMethodID(cls_Env, "getFilesDir",
+                                   "()Ljava/io/File;");
+  jobject obj_File = env->CallObjectMethod(activity_->clazz, mid, NULL);
+  if (obj_File) {
+    jclass cls_File = env->FindClass("java/io/File");
+    jmethodID mid_getPath =
+        env->GetMethodID(cls_File, "getPath", "()Ljava/lang/String;");
+    obj_Path = (jstring)env->CallObjectMethod(obj_File, mid_getPath);
+  }
+  return obj_Path;
 }
 
 jstring JNIHelper::GetExternalFilesDirJString(JNIEnv* env) {

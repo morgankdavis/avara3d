@@ -27,10 +27,14 @@ LoggerManager::LoggerManager() {
 	
 	m_loggers = map<string, shared_ptr<spdlog::logger>>();
 			  
+#ifdef ANDROID
+	m_androidSink = make_shared<sinks::android_sink>("avara-engine", "");
+#else
 	m_mainFileSink = make_shared<sinks::rotating_file_sink_mt>(string(LOG_MAIN_FILE_NAME) + ".log",
 															   LOG_FILE_SIZE,
 															   LOG_FILE_ROTATIONS);
 	m_stdoutSink = make_shared<sinks::stdout_sink_st>();
+#endif
 }
 
 /***************************************************************************************
@@ -47,9 +51,14 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 		vector<sink_ptr> sinks;
 		
 		LOGGER_SINKS sinksBitmask = logger->sinks();
-		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::STDOUT)) {
+		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::NATIVE)) {
+#ifdef ANDROID
+			sinks.push_back(m_androidSink);
+#else
 			sinks.push_back(m_stdoutSink);
+#endif
 		}
+#ifndef ANDROID
 		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::MAIN_FILE)) {
 			sinks.push_back(m_mainFileSink);
 		}
@@ -59,6 +68,7 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 																	  LOG_FILE_SIZE,
 																	  LOG_FILE_ROTATIONS));
 		}
+#endif
 		
 		auto newLogger = make_shared<spdlog::logger>(logger->name(), begin(sinks), end(sinks));
 		

@@ -99,6 +99,10 @@ namespace ae {
 		boost::optional<boost::filesystem::path> ExecutablePath();
 		boost::optional<boost::filesystem::path> ExecutableDirectory();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
+		
+#ifdef ANDROID
+		boost::optional<boost::filesystem::path> InternalFilesDirectory();
+#endif
 
 #ifdef ANDROID
 		boost::optional<std::string> LoadTextAsset(const std::string& name);

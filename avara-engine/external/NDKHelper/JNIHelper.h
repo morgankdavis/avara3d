@@ -65,6 +65,7 @@ class JNIHelper {
   jobject jni_helper_java_ref_;
   jclass jni_helper_java_class_;
 
+	jstring GetFilesDirJString(JNIEnv* env); // added by Morgan
   jstring GetExternalFilesDirJString(JNIEnv* env);
   jclass RetrieveClass(JNIEnv* jni, const char* class_name);
 
@@ -228,6 +229,12 @@ class JNIHelper {
    * return: std::string containing external file diretory
    */
   std::string GetExternalFilesDir();
+  
+  /*
+  Added by Morgan
+  Gets INTERNAL files dir
+  */
+  std::string GetFilesDir();
 
   /*
    * Retrieve string resource with a given name

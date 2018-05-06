@@ -36,7 +36,6 @@
 #ifdef ANDROID
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
-#include <android/log.h>
 #include <NDKHelper.h>
 #endif
 
@@ -277,26 +276,26 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 #ifdef ANDROID
 
-boost::optional<string> ae::utils::LoadTextAsset(const std::string& name) {
-	LOGW("LoadTextAsset() name: %s", name.c_str());
-
+boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
+	string filesDir = helper->GetFilesDir();
+	if (filesDir.length()) return boost::filesystem::path(filesDir);
+	return boost::none;
+}
 
+#endif
+
+#ifdef ANDROID
+
+boost::optional<string> ae::utils::LoadTextAsset(const std::string& name) {
 	vector<unsigned char> buffer = LoadBinaryAsset(name);
 	if (buffer.size()) {
 		return string(buffer.begin(), buffer.end());
 	}
-
-
-	LOGW("boost::none");
 	return boost::none;
 }
 std::vector<unsigned char> ae::utils::LoadBinaryAsset(const std::string& name) {
-
-	LOGW("LoadBinaryAsset() name: %s", name.c_str());
-
 	auto helper = ndk_helper::JNIHelper::GetInstance();
-
 	auto buffer = vector<unsigned char>();
 	helper->ReadFile(name.c_str(), &buffer);
 	return buffer;

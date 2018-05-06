@@ -19,7 +19,6 @@ Tests:
 		Assimp/importing
 		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
 
-
 		Move OpenGLRenderer::initialize (GLEW) into RenderContext
 		Move InputManager to RenderContext
 
