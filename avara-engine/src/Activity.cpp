@@ -64,8 +64,8 @@ void Activity::display(android_app* app) {
 	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
 	app->userData = this;
-	app->onAppCmd = Activity::HandleAppCommand;
-	app->onInputEvent = Activity::HandleAppInput;
+	app->onAppCmd = Activity::appCommandCallback;
+	app->onInputEvent = Activity::appInputCallback;
 
 //#ifdef USE_NDK_PROFILER
 //	monstartup("libTeapotNativeActivity.so");
@@ -112,7 +112,7 @@ void Activity::display(android_app* app) {
      Internal
  ***************************************************************************************/
 
-void Activity::HandleAppCommand(struct android_app* app, int32_t cmd) {
+void Activity::appCommandCallback(struct android_app* app, int32_t cmd) {
 	
 	Activity* activity = (Activity*)app->userData;
 	
@@ -151,7 +151,7 @@ void Activity::HandleAppCommand(struct android_app* app, int32_t cmd) {
 	}
 }
 
-int32_t Activity::HandleAppInput(android_app* app, AInputEvent* event) {
+int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 	//LOGI("AndroidActivity::handleAppInput()");
 	
 	Activity* activity = (Activity*)app->userData;

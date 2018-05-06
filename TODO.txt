@@ -17,7 +17,7 @@ Tests:
 		Logging (stdout + android log?)
 		Input
 		Assimp/importing
-		Re-arrange Android Studio project to have "common" for java components
+		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
 
 
 		Move OpenGLRenderer::initialize (GLEW) into RenderContext
@@ -49,8 +49,6 @@ Tests:
 				-> WORK ON ANDROID ACTIVITY LIFECYCLE
 			********
 
-			avara-engine should probably be its own "Module" residing in its own project.
-				Android test apps will link to it.
 
 			Get stdout:
 				https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa

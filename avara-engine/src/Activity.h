@@ -58,8 +58,8 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		static void HandleAppCommand(struct android_app* app, int32_t cmd);
-		static int32_t HandleAppInput(android_app* app, AInputEvent* event);
+		static void appCommandCallback(struct android_app* app, int32_t cmd);
+		static int32_t appInputCallback(android_app* app, AInputEvent* event);
 		
 		/**************************************************************************************
 		     RenderContext
