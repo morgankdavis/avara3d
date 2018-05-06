@@ -11,10 +11,8 @@
 #include <iostream>
 
 #ifdef ANDROID
-#include <android/log.h>
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
-#include "NDKHelper.h"
 #else
 #include <GL/glew.h>
 #endif
@@ -480,21 +478,17 @@ void Program::prepare() {
 		if (compile()) {
 			//cout << "Shader program '" << shaderName << "' compiled." << endl;
 			AE_LOG->info("Program '{}' compiled.", m_name);
-			LOGW("compiled");
 			
 			if (link()) {
 				//cout << "Shader program '" << shaderName << "' linked." << endl;
 				AE_LOG->info("Program '{}' linked.", m_name);
-				LOGW("linked");
 			}
 			else {
 				AE_LOG->critical("Couldn't link {} shaders:\n{}", m_name, *m_logString);
-				LOGW("Couldn't link");
 			}
 		}
 		else {
 			AE_LOG->critical("Couldn't compile {} shader:\n{}", m_name, *m_logString);
-			LOGW("Couldn't compile");
 		}
 	}
 }
@@ -540,7 +534,6 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
 			m_logString = string(c_log);
 			AE_LOG->warn("Compile log:\n{}", c_log);
-			LOGW("Compile log: %s", c_log);
 			delete[] c_log;
 		}
 		

@@ -23,7 +23,7 @@ struct android_app;
 void android_main(android_app* app) {
 
 	auto renderer = make_shared<OpenGLRenderer>();
-	auto activity = make_shared<AndroidActivity>(static_pointer_cast<Renderer>(renderer));
+	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));

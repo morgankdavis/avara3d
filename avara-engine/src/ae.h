@@ -9,7 +9,7 @@
 #ifndef ae_h
 #define ae_h
 
-#include "AndroidActivity.h"
+#include "Activity.h"
 #include "Box.h"
 #include "BulletPhysicsSimulator.h"
 #include "Camera.h"

@@ -1,5 +1,5 @@
 
-//  AndroidActivity.cpp
+//  Activity.cpp
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/3/18.
@@ -11,7 +11,7 @@
 #ifdef ANDROID
 
 
-#include "AndroidActivity.h"
+#include "Activity.h"
 
 //#include <iostream>
 
@@ -101,7 +101,7 @@ using namespace ae;
 //	
 //}
 
-AndroidActivity::AndroidActivity(shared_ptr<Renderer> renderer):
+Activity::Activity(shared_ptr<Renderer> renderer):
 		RenderContext(renderer),
 		m_window(nullptr),
 		m_display(EGL_NO_DISPLAY),
@@ -142,7 +142,7 @@ AndroidActivity::AndroidActivity(shared_ptr<Renderer> renderer):
 			
 }
 
-AndroidActivity::~AndroidActivity() {
+Activity::~Activity() {
 	terminate();
 }
 
@@ -150,7 +150,7 @@ AndroidActivity::~AndroidActivity() {
     		Public
  ***************************************************************************************/
 
-void AndroidActivity::display(android_app* app) {
+void Activity::display(android_app* app) {
 	// *** Move all this stuff into a function in AndroidActivity...
 	// say "start()" that takes a handle to the android_app...
 
@@ -160,8 +160,8 @@ void AndroidActivity::display(android_app* app) {
 
 	//app->userData = activity.get();
 	app->userData = this;
-	app->onAppCmd = AndroidActivity::HandleAppCommand;
-	app->onInputEvent = AndroidActivity::HandleAppInput;
+	app->onAppCmd = Activity::HandleAppCommand;
+	app->onInputEvent = Activity::HandleAppInput;
 
 //#ifdef USE_NDK_PROFILER
 //	monstartup("libTeapotNativeActivity.so");
@@ -208,7 +208,7 @@ void AndroidActivity::display(android_app* app) {
      Internal
  ***************************************************************************************/
 
-int AndroidActivity::initializeDisplay(android_app* app) {
+int Activity::initializeDisplay(android_app* app) {
 
 	LOGW("initializeDisplay()");
 	
@@ -268,7 +268,7 @@ int AndroidActivity::initializeDisplay(android_app* app) {
 	return 0;
 }
 
-void AndroidActivity::drawFrame() {
+void Activity::drawFrame() {
 
 	if (m_eglContextInitialized) {
 	
@@ -321,7 +321,7 @@ void AndroidActivity::drawFrame() {
 	}
 }
 
-EGLint AndroidActivity::swap() {
+EGLint Activity::swap() {
 	bool b = eglSwapBuffers(m_display, m_surface);
 	if (!b) {
 		EGLint err = eglGetError();
@@ -341,7 +341,7 @@ EGLint AndroidActivity::swap() {
 	return EGL_SUCCESS;
 }
 
-void AndroidActivity::terminate() {
+void Activity::terminate() {
 
 	if (m_display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -362,7 +362,7 @@ void AndroidActivity::terminate() {
 	m_contextValid = false;
 }
 
-EGLint AndroidActivity::resume(ANativeWindow* window) {
+EGLint Activity::resume(ANativeWindow* window) {
 
 	LOGW("resume()");
 	
@@ -407,7 +407,7 @@ EGLint AndroidActivity::resume(ANativeWindow* window) {
 	}
 }
 
-void AndroidActivity::suspend() {
+void Activity::suspend() {
 
 	if (m_surface != EGL_NO_SURFACE) {
 		eglDestroySurface(m_display, m_surface);
@@ -415,7 +415,7 @@ void AndroidActivity::suspend() {
 	}
 }
 
-bool AndroidActivity::invalidate() {
+bool Activity::invalidate() {
 
 	terminate();
 	m_eglContextInitialized = false;
@@ -423,39 +423,39 @@ bool AndroidActivity::invalidate() {
 	return true;
 }
 
-ANativeWindow* AndroidActivity::nativeWindow(void) const {
+ANativeWindow* Activity::nativeWindow(void) const {
 	return m_window;
 }
 
-int32_t AndroidActivity::screenWidth() const {
+int32_t Activity::screenWidth() const {
 	return m_screenWidth;
 }
 
-int32_t AndroidActivity::screenHeight() const {
+int32_t Activity::screenHeight() const {
 	return m_screenHeight;
 }
 
-int32_t AndroidActivity::bufferColorSize() const {
+int32_t Activity::bufferColorSize() const {
 	return m_colorSize;
 }
 
-int32_t AndroidActivity::bufferDepthSize() const {
+int32_t Activity::bufferDepthSize() const {
 	return m_depthSize;
 }
 
-EGLDisplay AndroidActivity::display() const {
+EGLDisplay Activity::display() const {
 	return m_display;
 }
 
-EGLSurface AndroidActivity::surface() const {
+EGLSurface Activity::surface() const {
 	return m_surface;
 }
 
-void AndroidActivity::HandleAppCommand(struct android_app* app, int32_t cmd) {
+void Activity::HandleAppCommand(struct android_app* app, int32_t cmd) {
 	//LOGI("AndroidActivity::handleAppCommand()");
 
 	
-	AndroidActivity* activity = (AndroidActivity*)app->userData;
+	Activity* activity = (Activity*)app->userData;
 
 //	Engine* eng = (Engine*)app->userData;
 //	switch (cmd) {
@@ -528,10 +528,10 @@ void AndroidActivity::HandleAppCommand(struct android_app* app, int32_t cmd) {
 	}
 }
 
-int32_t AndroidActivity::HandleAppInput(android_app* app, AInputEvent* event) {
+int32_t Activity::HandleAppInput(android_app* app, AInputEvent* event) {
 	//LOGI("AndroidActivity::handleAppInput()");
 
-	AndroidActivity* activity = (AndroidActivity*)app->userData;
+	Activity* activity = (Activity*)app->userData;
 
 //	Engine* eng = (Engine*)app->userData;
 	int32_t eventType = AInputEvent_getType(event);
@@ -570,7 +570,7 @@ int32_t AndroidActivity::HandleAppInput(android_app* app, AInputEvent* event) {
 //	else glfwSwapInterval(1);
 //}
 
-void AndroidActivity::debugOptions(DEBUG_OPTIONS options) {
+void Activity::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
 //#warning Refactor this
@@ -604,7 +604,7 @@ void AndroidActivity::debugOptions(DEBUG_OPTIONS options) {
      Private
  ***************************************************************************************/
 
-void AndroidActivity::initializeGLES() {
+void Activity::initializeGLES() {
 	LOGW("initializeGLES()");
 	
 	if (m_eglContextInitialized) return;
@@ -623,7 +623,7 @@ void AndroidActivity::initializeGLES() {
 	m_eglContextInitialized = true;
 }
 
-bool AndroidActivity::initialize(ANativeWindow* window) {
+bool Activity::initialize(ANativeWindow* window) {
 	LOGW("initialize()");
 	
 	if (!m_eglContextInitialized) {
@@ -652,7 +652,7 @@ bool AndroidActivity::initialize(ANativeWindow* window) {
 	return true;
 }
 
-bool AndroidActivity::initializeEGLSurface() {
+bool Activity::initializeEGLSurface() {
 	
 	LOGW("initializeEGLSurface()");
 
@@ -724,7 +724,7 @@ bool AndroidActivity::initializeEGLSurface() {
 	return true;
 }
 
-bool AndroidActivity::initializeEGLContext() {
+bool Activity::initializeEGLContext() {
 	
 	LOGW("initializeEGLContext()");
 	

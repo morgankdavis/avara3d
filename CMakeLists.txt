@@ -19,13 +19,8 @@ project(avara-engine)
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 
-if (ANDROID)
-    message("We think we're ANDROID")
-    set(ANDROID TRUE)
-endif()
-
 if (UNIX AND APPLE)
-    message("We think we're MACOS")
+    message("We're MACOS")
     set(MACOS TRUE)
     if (CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
@@ -33,24 +28,24 @@ if (UNIX AND APPLE)
 endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
-    message("We think we're LINUX")
+    message("We're LINUX")
     set(LINUX TRUE)
 endif()
 
 if (WIN32)
-    message("We think we're WIN32")
+    message("We're WIN32")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
 endif()
 
 if (WIN64)
-    message("We think we're WIN64")
+    message("We're WIN64")
     set(WINDOWS TRUE)
     set(WIN64 TRUE)
 endif()
 
 if (MINGW)
-    message("We think we're MINGW")
+    message("We're MINGW")
     set(WINDOWS TRUE)
 
     if (CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
@@ -64,22 +59,28 @@ if (MINGW)
     endif()
 endif()
 
+if (ANDROID)
+    message("We're ANDROID")
+    set(ANDROID TRUE)
+endif()
+
 if (MSYS)
-    message("We think we're MSYS")
+    message("We're MSYS")
 	set(MSYS TRUE)
 endif()
 
 if (MSVS)
-    message("We think we're MSVS")
+    message("We're MSVS")
 endif()
 
 if (MACOS OR WINODWS OR LINUX)
-	message("We think we're DESKTOP")
+	message("We're DESKTOP")
     set(DESKTOP TRUE)
 endif()
 
 
 if (XCODE)
+	message("We're XCODE")
 	add_definitions("-DXCODE")
 endif()
 if (MACOS)
@@ -170,6 +171,7 @@ add_subdirectory(avara-engine/external/bullet3-2.87)
 if (ANDROID)
 	add_subdirectory(android)
 endif()
+
 
 # ae & tests
 

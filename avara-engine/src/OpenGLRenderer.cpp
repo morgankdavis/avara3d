@@ -17,10 +17,8 @@
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash.h"
 #ifdef ANDROID
-#include <android/log.h>
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
-#include "NDKHelper.h"
 #else
 #include <GL/glew.h>
 #endif
@@ -252,7 +250,6 @@ bool OpenGLRenderer::initialize() {
 	if (m_fonsContext == NULL) {
 		//AE_LOG->error("Error creating Font Stash context.");
 		throw Exception("Error creating Font Stash context.");
-		LOGW("Error creating Font Stash context.");
 	}
 	
 	string fontName = "SourceCodePro-Semibold";
@@ -270,7 +267,6 @@ bool OpenGLRenderer::initialize() {
 								1);
 
 	if (m_fonsFont == FONS_INVALID) {
-		LOGW("Could not load font");
 		char errStr[1024];
 		sprintf(errStr, "Could not load font: %s\n", (fontName + "." + fontType).c_str());
 		throw Exception(errStr);
@@ -285,7 +281,6 @@ bool OpenGLRenderer::initialize() {
 		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
 
 		if (m_fonsFont == FONS_INVALID) {
-			LOGW("Could not load font");
 			char errStr[1024];
 			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
 			throw Exception(errStr);
@@ -1542,8 +1537,6 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 		elapsedFrames = 0;
 	}
 
-	LOGW("fps: %f", fps);
-	
 	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
 	
 	glDisable(GL_DEPTH_TEST);

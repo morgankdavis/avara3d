@@ -27,6 +27,8 @@ Tests:
 
 		ANDROID!
 
+			Clean up utilities (LoadFont, etc)
+
 			Pin VSync enabled
 
 			Make shim for ES shaders

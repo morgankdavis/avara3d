@@ -1,13 +1,13 @@
 //
-//  AndroidActivity.h
+//  Activity.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/3/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AndroidActivity_h
-#define AndroidActivity_h
+#ifndef Activity_h
+#define Activity_h
 
 #ifdef ANDROID
 
@@ -36,7 +36,7 @@ namespace ae {
 //	class Scene;
 
 	
-	class AndroidActivity : public RenderContext {
+	class Activity : public RenderContext {
 		
 	public:
 		
@@ -44,12 +44,12 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		AndroidActivity(std::shared_ptr<Renderer> renderer);
+		Activity(std::shared_ptr<Renderer> renderer);
 		
-		AndroidActivity(const AndroidActivity& other) = delete; // copy constructor
-		AndroidActivity& operator=(const AndroidActivity& other) = delete; // copy assignment
+		Activity(const Activity& other) = delete; // copy constructor
+		Activity& operator=(const Activity& other) = delete; // copy assignment
 		
-		~AndroidActivity();
+		~Activity();
 
 		/***************************************************************************************
      		Public
@@ -128,4 +128,4 @@ namespace ae {
 
 #endif // ANDROID
 
-#endif /* AndroidActivity_h */
+#endif /* Activity_h */
