@@ -18,8 +18,6 @@
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #include <GLFW/glfw3native.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include "stb_image_resize.h"
 
 #include "Camera.h"
 #include "Global.h"
@@ -87,7 +85,9 @@ Window::Window(shared_ptr<Renderer> renderer,
 			   bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
-	RenderContext(renderer) {
+	RenderContext(renderer),
+	m_inputManager(nullptr),
+	m_cursorCaptured(false) {
 
 	if (initLog() != 0) { cout << "Error initializing log." << endl; }
 	if (!InitializeGLFW()) { AE_LOG->critical("Error initializing GLFW."); }
@@ -96,10 +96,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_SAMPLES, antialiasingMode);
-	glfwWindowHint(GLFW_SAMPLES, (unsigned)antialiasingMode);
-				   //static_cast<underlying_type<ANTIALIASING_MODE>::type>(ANTIALIASING_MODE::NONE));
-	
+	glfwWindowHint(GLFW_SAMPLES, static_cast<unsigned>(antialiasingMode));
 //		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 //		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
@@ -147,17 +144,6 @@ Window::Window(shared_ptr<Renderer> renderer,
 	m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
 	m_framebufferWidth = m_width * m_framebufferScale;
 	m_framebufferHeight = m_height * m_framebufferScale;
-
-	m_antialiasingMode = antialiasingMode;
-	m_inputManager = nullptr;
-
-	m_recordingGIF = false;
-	m_cursorCaptured = false;
-	m_recordingGIF = false;
-	m_gifRecordingWidth = 0;
-	m_gifRecordingHeight = 0;
-	m_gifRecordingMaxFramerate = 0;
-	m_gifRecordedFrames = 0;
 }
 
 Window::~Window() {
@@ -210,7 +196,7 @@ GLFWwindow* Window::glfwWindow() const {
 }
 
 /**************************************************************************************
-     Renderer
+     RenderContext
  ***************************************************************************************/
 
 void Window::enableVSync(bool enabled) {

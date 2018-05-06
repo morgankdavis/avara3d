@@ -14,6 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
+		Strip unused code from NDKHelper
+
 		Refactoring and renaming
 		Logging (stdout + android log?)
 		Input
@@ -49,6 +51,7 @@ Tests:
 
 			********
 			// On some devices, ANativeWindow is re-created when the app is resumed
+				-> WORK ON ANDROID ACTIVITY LIFECYCLE
 			********
 
 			avara-engine should probably be its own "Module" residing in its own project.

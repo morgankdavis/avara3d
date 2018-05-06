@@ -37,7 +37,7 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
-#include "NDKHelper.h"
+#include <NDKHelper.h>
 #endif
 
 #include <glm/gtc/quaternion.hpp>

@@ -67,19 +67,12 @@ namespace ae {
 		void scene(const std::shared_ptr<Scene> scene);
 		
 		unsigned width() const;
-		/* PROBABLY REMOVE */ void width(unsigned width);
-		
 		unsigned height() const;
-		/* PROBABLY REMOVE */ void height(unsigned height);
 		
 		unsigned framebufferScale() const;
-		/* PROBABLY REMOVE */ void framebufferScale(unsigned scale);
 		
 		unsigned framebufferWidth() const;
-		/* PROBABLY REMOVE */ void framebufferWidth(unsigned width);
-		
 		unsigned framebufferHeight() const;
-		/* PROBABLY REMOVE */ void framebufferHeight(unsigned height);
 		
 		virtual bool vSyncEnabled() const;
 		virtual void enableVSync(bool enabled);
@@ -115,6 +108,18 @@ namespace ae {
 		
 		RenderContextDidRenderFuction didRenderCallback();
 		void didRenderCallback(RenderContextDidRenderFuction function);
+		
+		/**************************************************************************************
+		     Internal
+		 **************************************************************************************/
+		
+		void width(unsigned width);
+		void height(unsigned height);
+		
+		void framebufferScale(unsigned scale);
+		
+		void framebufferWidth(unsigned width);
+		void framebufferHeight(unsigned height);
 		
 	protected:
 		

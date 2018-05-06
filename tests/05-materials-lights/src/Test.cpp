@@ -86,9 +86,9 @@ int Test::run(const vector<string>& args) {
 								   FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
 								   USE_HIGH_DPI, ANTIALIAS_MODE);
-//	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
-//	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));
-//	m_window->didRenderCallback(bind(&Test::renderContextDidRenderCallback, this, _1, _2));
+	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::renderContextDidRenderCallback, this, _1, _2));
 	m_window->captureCursor(true);
 	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);

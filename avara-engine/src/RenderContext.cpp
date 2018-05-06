@@ -88,42 +88,20 @@ unsigned RenderContext::width() const {
 	return m_width;
 }
 
-void RenderContext::width(unsigned width) {
-	m_width = width;
-	framebufferWidth(m_width * m_framebufferScale);
-}
-
 unsigned RenderContext::height() const {
 	return m_height;
-}
-
-void RenderContext::height(unsigned height) {
-	m_height = height;
-	framebufferHeight(m_height * m_framebufferScale);
 }
 
 unsigned RenderContext::framebufferScale() const {
 	return m_framebufferScale;
 }
 
-void RenderContext::framebufferScale(unsigned scale) {
-	m_framebufferScale = scale;
-}
-
 unsigned RenderContext::framebufferWidth() const {
 	return m_framebufferWidth;
 }
 
-void RenderContext::framebufferWidth(unsigned width) {
-	m_framebufferWidth = width;
-}
-
 unsigned RenderContext::framebufferHeight() const {
 	return m_framebufferHeight;
-}
-
-void RenderContext::framebufferHeight(unsigned height) {
-	m_framebufferHeight = height;
 }
 
 bool RenderContext::vSyncEnabled() const {
@@ -279,6 +257,32 @@ RenderContextDidRenderFuction RenderContext::didRenderCallback() {
 
 void RenderContext::didRenderCallback(RenderContextDidRenderFuction function) {
 	m_didRenderCallback = function;
+}
+
+/**************************************************************************************
+     Internal
+ **************************************************************************************/
+
+void RenderContext::width(unsigned width) {
+	m_width = width;
+	framebufferWidth(m_width * m_framebufferScale);
+}
+
+void RenderContext::height(unsigned height) {
+	m_height = height;
+	framebufferHeight(m_height * m_framebufferScale);
+}
+
+void RenderContext::framebufferScale(unsigned scale) {
+	m_framebufferScale = scale;
+}
+
+void RenderContext::framebufferWidth(unsigned width) {
+	m_framebufferWidth = width;
+}
+
+void RenderContext::framebufferHeight(unsigned height) {
+	m_framebufferHeight = height;
 }
 
 /**************************************************************************************
