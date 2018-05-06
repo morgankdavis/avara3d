@@ -30,9 +30,5 @@
  * - Provide handy utility functions for NDK development
  * - Make NDK samples more simpler and readable
  */
-#include "AndroidOpenGLES3Context.h"  // EGL & OpenGL manager
-#include "shader.h"     // Shader compiler support
-#include "vecmath.h"  // Vector math support, C++ implementation n current version
-#include "tapCamera.h"        // Tap/Pinch camera control
 #include "JNIHelper.h"        // JNI support
 #endif

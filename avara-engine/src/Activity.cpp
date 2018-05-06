@@ -182,12 +182,12 @@ int32_t Activity::HandleAppInput(android_app* app, AInputEvent* event) {
  ***************************************************************************************/
 
 bool Activity::vSyncEnabled() const {
-	return false;
+	return true;
 }
 
 void Activity::enableVSync(bool enabled) {
-	if (enabled) {
-		throw Exception("V-Sync is not supported on this platform.");
+	if (!enabled) {
+		throw Exception("Disabling V-Sync is not supported on this platform.");
 	}
 }
 

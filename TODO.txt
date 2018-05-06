@@ -14,9 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-		Strip unused code from NDKHelper
-
-		Refactoring and renaming
 		Logging (stdout + android log?)
 		Input
 		Assimp/importing
@@ -30,8 +27,6 @@ Tests:
 		ANDROID!
 
 			Clean up utilities (LoadFont, etc)
-
-			Pin VSync enabled
 
 			Make shim for ES shaders
 

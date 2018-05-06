@@ -6,11 +6,7 @@ android_ndk_import_module_native_app_glue()
 
 add_library(NDKHelper
   STATIC
-    AndroidOpenGLES3Context.cpp
     JNIHelper.cpp
-    shader.cpp
-    tapCamera.cpp
-    vecmath.cpp
 )
 set_target_properties(NDKHelper
   PROPERTIES
