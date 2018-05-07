@@ -24,6 +24,7 @@
 
 #include <NDKHelper.h>
 
+#include "AndroidInputManager.h"
 #include "Camera.h"
 #include "Global.h"
 #include "Logger.h"
@@ -381,14 +382,14 @@ void Activity::debugOptions(DEBUG_OPTIONS options) {
 	//	}
 }
 
-//shared_ptr<InputManager> Window::inputManager() {
-//#warning Refactor this (DesktopInputManager?)
-//	
-//	if (m_inputManager == nullptr) {
-//		m_inputManager = make_shared<InputManager>(this);
-//	}
-//	return m_inputManager;
-//}
+shared_ptr<InputManager> Activity::inputManager() {
+	if (m_inputManager == nullptr) {
+		shared_ptr<Activity> activity = static_pointer_cast<Activity>(shared_from_this());
+		auto inputManager = make_shared<AndroidInputManager>(activity);
+		m_inputManager = static_pointer_cast<InputManager>(inputManager);
+	}
+	return m_inputManager;
+}
 
 /**************************************************************************************
      Private

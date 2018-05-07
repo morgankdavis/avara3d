@@ -20,8 +20,8 @@
 #include <GLFW/glfw3native.h>
 
 #include "Camera.h"
+#include "DesktopInputManager.h"
 #include "Global.h"
-#include "InputManager.h"
 #include "Logger.h"
 #include "Node.h"
 #include "PhysicsWorld.h"
@@ -32,14 +32,6 @@
 using namespace std;
 using namespace ae;
 
-
-/***************************************************************************************
-     Internal (Global!) Members
- ***************************************************************************************/
-
-Window* 		i_window;
-// remove this!
-// https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 /***************************************************************************************
      GLFW Callbacks
@@ -59,15 +51,19 @@ void glfwErrorCallback(int error, const char* description) {
 void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	AE_LOG->trace("glfwWindowSizeCallback()");
 	
-	i_window->width(aWidth);
-	i_window->height(aHeight);
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	
+	window->width(aWidth);
+	window->height(aHeight);
 }
 
 void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	AE_LOG->trace("glfwFramebufferSizeCallback()");
 	
-	i_window->framebufferWidth(i_window->width() * i_window->framebufferScale());
-	i_window->framebufferHeight(i_window->height() * i_window->framebufferScale());
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	
+	window->framebufferWidth(window->width() * window->framebufferScale());
+	window->framebufferHeight(window->height() * window->framebufferScale());
 }
 
 /**************************************************************************************
@@ -132,12 +128,12 @@ Window::Window(shared_ptr<Renderer> renderer,
 			glfwTerminate();
 		}
 		
+		glfwSetWindowUserPointer(m_glfwWindow, (void*)this);
+		
 		glfwMakeContextCurrent(m_glfwWindow);
 		enableVSync(false);
 
 		RenderContext::renderer()->initialize();
-
-		i_window = this;
 
 		m_width = viewportWidth;
 		m_height = viewportHeight;
@@ -217,10 +213,10 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 }
 
 shared_ptr<InputManager> Window::inputManager() {
-#warning Refactor this (DesktopInputManager?)
-	
 	if (m_inputManager == nullptr) {
-		m_inputManager = make_shared<InputManager>(this);
+		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
+		auto inputManager = make_shared<DesktopInputManager>(window);
+		m_inputManager = static_pointer_cast<InputManager>(inputManager);
 	}
 	return m_inputManager;
 }
@@ -279,7 +275,10 @@ void Window::drawLoop() {
 	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
 	
 	glfwPollEvents();
-	if (inputManager()) inputManager()->update();
+	if (inputManager()) {
+		static_pointer_cast<DesktopInputManager>(inputManager())->update();
+		//inputManager()->update();
+	}
 }
 
 /**************************************************************************************

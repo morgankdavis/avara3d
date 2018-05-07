@@ -9,8 +9,8 @@
 #ifndef InputManager_h
 #define InputManager_h
 
-#if 0
-#include <memory>
+
+//#include <memory>
 #include <set>
 
 #include <glm/vec2.hpp>
@@ -18,13 +18,7 @@
 #include "Types.h"
 
 
-struct GLFWwindow;
-
-
 namespace ae {
-
-
-	class Window;
 
 	
 	class InputManager: public std::enable_shared_from_this<InputManager> {
@@ -35,7 +29,7 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		InputManager(Window* window);
+		InputManager();
 		
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
@@ -63,12 +57,11 @@ namespace ae {
 		glm::vec2 mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 		
+	protected:
+		
 		/***************************************************************************************
-		     Internal
+		     Protexted
 		 ***************************************************************************************/
-
-		void update();
-		Window* window() const;
 		
 		std::set<KEY> 				m_keysDown;
 		std::set<MOUSE_BUTTON> 		m_mouseButtonsDown;
@@ -78,35 +71,11 @@ namespace ae {
 		std::set<MOUSE_BUTTON> 		m_mouseButtonsPressedCleared;
 		glm::vec2  					m_mousePositionDelta;
 		glm::vec2  					m_mouseScrollWheelDelta;
-		
-		/***************************************************************************************
-		     GLFW Callbacks
-		 ***************************************************************************************/
-		
-		static void glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
-		static void glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
-		static void glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
-		static void glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods);
 
-	private:
-
-		/***************************************************************************************
-     		Private
-		 ***************************************************************************************/
-
-		void initManyMouse();
-		void quitManyMouse();
-		void registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
-		
 		void clearMousePositionDelta(); // called after mouseMoveDelta()
 		void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
-
-		Window*					m_window;
 	};
 }
 
 #endif /* InputManager_h */
-
-#endif // 0
 
