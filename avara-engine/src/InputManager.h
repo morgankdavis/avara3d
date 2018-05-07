@@ -9,11 +9,7 @@
 #ifndef InputManager_h
 #define InputManager_h
 
-#ifdef DESKTOP
-
-
-#include "InputManager.h"
-
+#if 0
 #include <memory>
 #include <set>
 
@@ -31,7 +27,7 @@ namespace ae {
 	class Window;
 
 	
-	class InputManager {
+	class InputManager: public std::enable_shared_from_this<InputManager> {
 
 	public:
 		
@@ -110,7 +106,7 @@ namespace ae {
 	};
 }
 
-#endif // DESKTOP
-
 #endif /* InputManager_h */
+
+#endif // 0
 

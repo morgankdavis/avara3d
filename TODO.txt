@@ -14,7 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-		Logging (stdout + android log?)
 		Input
 		Assimp/importing
 		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
@@ -24,6 +23,8 @@ Tests:
 
 
 		ANDROID!
+
+			InputManger constructor should take a weak_ptr
 
 			Clean up utilities (LoadFont, etc)
 
@@ -159,6 +160,9 @@ QUESTIONS:
 
 
 Laundry list:
+
+	ANDROID RAW MOUSE
+		http://newandroidbook.com/Book/Input.html?r
 
 	Remove "i_" properties!
 		https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks

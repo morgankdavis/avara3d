@@ -30,10 +30,12 @@
 #include "Node.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "Utilities.h"
 
 
 using namespace std;
 using namespace ae;
+using namespace ae::utils;
 
 
 /***************************************************************************************
@@ -158,18 +160,198 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 	
 	if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 		
-		float xPos = AMotionEvent_getX(event, 0);
-		float yPos = AMotionEvent_getY(event, 0);
+		
+		
+		
+//		float xPos = AMotionEvent_getX(event, 0);
+//		float yPos = AMotionEvent_getY(event, 0);
+//
+//		AE_LOG->info("xPos: {}, yPos: {}", xPos, yPos);
+//
+//
+//		float rawX = AMotionEvent_getRawX(event, 0);
+//		float rawY = AMotionEvent_getRawY(event, 0);
+//
+//		AE_LOG->info("rawX: {}, rawY: {}", rawX, rawY);
+//
+//
+//		float xOffset = AMotionEvent_getXOffset(event);
+//		float yOffset = AMotionEvent_getYOffset(event);
+//
+//		AE_LOG->info("xOffset: {}, yOffset: {}", xOffset, yOffset);
 
-		AE_LOG->info("xPos: {}, yPos: {}", xPos, yPos);
+
+		int32_t action = AMotionEvent_getAction(event);
+		AE_LOG->info("action: {}", action);
+		
+		switch (action) {
+				
+			case AMOTION_EVENT_ACTION_BUTTON_PRESS: {
+				AE_LOG->info("AMOTION_EVENT_ACTION_BUTTON_PRESS");
+				
+				
+				int32_t keyCode = AKeyEvent_getKeyCode(event);
+				AE_LOG->info("keyCode: {}", keyCode);
+				
+				//				AMOTION_EVENT_BUTTON_PRIMARY = 1 << 0,
+				//				AMOTION_EVENT_BUTTON_SECONDARY = 1 << 1,
+				//				AMOTION_EVENT_BUTTON_TERTIARY = 1 << 2,
+				//				AMOTION_EVENT_BUTTON_BACK = 1 << 3,
+				//				AMOTION_EVENT_BUTTON_FORWARD = 1 << 4,
+				//				AMOTION_EVENT_BUTTON_STYLUS_PRIMARY = 1 << 5,
+				//				AMOTION_EVENT_BUTTON_STYLUS_SECONDARY = 1 << 6
+				
+				int32_t keyAction = AKeyEvent_getAction(event);
+				AE_LOG->info("keyAction: {}", keyAction);
+				
+				
+				int32_t metaState = AKeyEvent_getMetaState(event);
+				AE_LOG->info("MOUSE metaState: {}", metaState);
+				
+				
+				
+//				int32_t flags = AKeyEvent_getFlags(event);
+//				AE_LOG->info("flags: {}", flags);
+//				if (flags & AMOTION_EVENT_BUTTON_SECONDARY) {
+//					AE_LOG->info("AMOTION_EVENT_BUTTON_SECONDARY");
+//				}
+//				else if (flags & AMOTION_EVENT_BUTTON_PRIMARY) {
+//					AE_LOG->info("AMOTION_EVENT_BUTTON_PRIMARY");
+//				}
+				
+				int32_t buttonStates = AMotionEvent_getButtonState(event);
+				AE_LOG->info("buttonStates: {}", buttonStates);
+				if (buttonStates & AMOTION_EVENT_BUTTON_SECONDARY) {
+					AE_LOG->info("AMOTION_EVENT_BUTTON_SECONDARY");
+				}
+				else if (buttonStates & AMOTION_EVENT_BUTTON_PRIMARY) {
+					AE_LOG->info("AMOTION_EVENT_BUTTON_PRIMARY");
+				}
+				else if (buttonStates & AMOTION_EVENT_BUTTON_TERTIARY) {
+					AE_LOG->info("AMOTION_EVENT_BUTTON_TERTIARY");
+				}
+				else if (buttonStates & AMOTION_EVENT_BUTTON_FORWARD) {
+					AE_LOG->info("AMOTION_EVENT_BUTTON_FORWARD");
+				}
+				else if (buttonStates & AMOTION_EVENT_BUTTON_BACK) {
+					AE_LOG->info("AMOTION_EVENT_BUTTON_BACK");
+				}
+				
+				
+				
+				
+				
+				//AMOTION_EVENT_AXIS_PRESSURE // 1 for primary, 0 otherwise
+				
+//				float pressure = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_PRESSURE, 0);
+//				AE_LOG->info("pressure: {}", pressure);
+				
+				break; }
+				
+			case AMOTION_EVENT_ACTION_BUTTON_RELEASE:
+				AE_LOG->info("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
+				break;
+				
+			case AMOTION_EVENT_ACTION_DOWN: {
+				AE_LOG->info("AMOTION_EVENT_ACTION_DOWN");
+				
+				float pressure = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_PRESSURE, 0);
+				AE_LOG->info("pressure: {}", pressure);
+				
+				break; }
+				
+			case AMOTION_EVENT_ACTION_UP:
+				AE_LOG->info("AMOTION_EVENT_ACTION_UP");
+				break;
+				
+			case AMOTION_EVENT_ACTION_HOVER_MOVE: {
+			case AMOTION_EVENT_ACTION_MOVE:
+				AE_LOG->info("AMOTION_EVENT_ACTION_MOVE");
+				
+				
+				// relative motion?
+//				float AMotionEvent_getHistoricalAxisValue(
+//														  const AInputEvent *motion_event,
+//														  int32_t axis,
+//														  size_t pointer_index,
+//														  size_t history_index
+//														  )
+				
+				//AMotionEvent_getHistoricalRawX(const AInputEvent *motion_event, size_t pointer_index, size_t history_index)
+				
+//				float histRawX = AMotionEvent_getHistoricalRawX(event, 0, 0);
+//				float histRawY = AMotionEvent_getHistoricalRawY(event, 0, 0);
+//				
+//				AE_LOG->info("histRawX: {}, histRawY: {}", histRawX, histRawY);
+				
+				
+				break; }
+				
+			case AMOTION_EVENT_ACTION_SCROLL: {
+				AE_LOG->info("AMOTION_EVENT_ACTION_SCROLL");
+				
+				float scrollAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_SCROLL, 0);
+				float relXAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_X, 0);
+				float relYAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_Y, 0);
+				float hScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
+				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
+				AE_LOG->info("scrollAxis: {}, relXAxis: {}, relYAxis: {}, hScroll: {}, vScroll: {}",
+							 scrollAxis, relXAxis, relYAxis, hScroll, vScroll);
+				
+				// vScroll: pos = click up, neg = click down
+				
+				if (!FloatEqual(vScroll, 0.0)) {
+					if (vScroll > 0.0) {
+						AE_LOG->info("scroll UP");
+					}
+					else {
+						AE_LOG->info("scroll DOWN");
+					}
+				}
+				
+				break; }
+				
+			default:
+				//AE_LOG->info("[unknown]");
+				break;
+		}
+
+
+
+//		AMOTION_EVENT_ACTION_BUTTON_PRESS
+//				AMOTION_EVENT_ACTION_BUTTON_RELEASE
+//		AMOTION_EVENT_ACTION_DOWN
+//				AMOTION_EVENT_ACTION_UP
+//				AMOTION_EVENT_ACTION_MOVE
+//		AMOTION_EVENT_ACTION_SCROLL
+//
+//		AMOTION_EVENT_AXIS_RELATIVE_X
+//				AMOTION_EVENT_AXIS_RELATIVE_Y
+//		AMOTION_EVENT_AXIS_SCROLL
+
+
+
+//		float AMotionEvent_getAxisValue(
+//				const AInputEvent *motion_event,
+//				int32_t axis,
+//				size_t pointer_index
+//		)
 	}
 	else if (eventType == AINPUT_EVENT_TYPE_KEY) {
 		
-		int32_t key_val = AKeyEvent_getKeyCode(event);
+		int32_t keyCode = AKeyEvent_getKeyCode(event);
 		
-		if((key_val >= AKEYCODE_A && key_val <= AKEYCODE_Z)) {
-			AE_LOG->info("LETTER KET");
+		AE_LOG->info("keyCode: {}", keyCode);
+		
+		if((keyCode >= AKEYCODE_A && keyCode <= AKEYCODE_Z)) {
+			AE_LOG->info("LETTER");
 		}
+		
+		
+		int32_t metaState = AKeyEvent_getMetaState(event);
+		AE_LOG->info("KEY metaState: {}", metaState);
+		
+		
 		return 0;
 	}
 	

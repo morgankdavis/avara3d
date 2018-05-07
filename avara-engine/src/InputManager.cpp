@@ -6,15 +6,13 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifdef DESKTOP
-
-
+#if 0
 #include "InputManager.h"
 
 #include <iostream>
 
 #include <GLFW/glfw3.h>
-#include "manymouse/manymouse.h"
+#include <manymouse/manymouse.h>
 
 #include "Exception.h"
 #include "Logger.h"
@@ -326,5 +324,4 @@ void InputManager::clearMouseScrollWheelDelta() {
 	m_mouseScrollWheelDelta.x = 0.0f;
 	m_mouseScrollWheelDelta.y = 0.0f;
 }
-
-#endif // DESKTOP
+#endif // 0
