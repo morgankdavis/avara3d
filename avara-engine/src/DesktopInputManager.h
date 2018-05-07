@@ -31,7 +31,7 @@ namespace ae {
 	class Window;
 
 	
-	class DesktopInputManager: public InputManager {
+	class DesktopInputManager : public InputManager {
 
 	public:
 		
@@ -51,9 +51,6 @@ namespace ae {
 		 ***************************************************************************************/
 
 		void update();
-		
-//		void window(std::shared_ptr<Window> window) const;
-//		std::weak_ptr<Window> window() const;
 
 		/***************************************************************************************
 		     GLFW Callbacks

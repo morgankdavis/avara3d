@@ -31,7 +31,7 @@ namespace ae {
 	class Activity;
 
 	
-	class AndroidInputManager: public InputManager {
+	class AndroidInputManager : public InputManager {
 
 	public:
 		

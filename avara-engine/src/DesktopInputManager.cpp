@@ -44,7 +44,10 @@ DesktopInputManager::DesktopInputManager(shared_ptr<Window> window):
 
 DesktopInputManager::~DesktopInputManager() {
 	quitManyMouse();
-	unregisterGLFWCallbacks(m_window.lock()->glfwWindow());
+	auto window = m_window.lock();
+	if (window) {
+		unregisterGLFWCallbacks(window->glfwWindow());
+	}
 }
 
 /***************************************************************************************
@@ -53,63 +56,31 @@ DesktopInputManager::~DesktopInputManager() {
 
 void DesktopInputManager::update() {
 	
-//	cout << "update()" << endl;
-
 	static ManyMouseEvent event;
 	
-//	vec2 accumMousePosition = {0, 0};
-//	int xEvents = 0;
-//	int yEvents = 0;
-
 	while (ManyMouse_PollEvent(&event)) {
 		switch(event.type) {
 				
 			case MANYMOUSE_EVENT_RELMOTION:
-				//cout << "pollCount: " << pollCount << endl;
-				//cout << "Mouse moved " << event.value << " on " << (event.item == 0 ? "X" : "Y") << " axis." << endl;
 
-				//AE_LOG->debug("min: {}, max: {}", event.minval, event.maxval);
-				
-				// we used to ACCUMULATE the delta.
-				// it turns out manymouse is doing that for us, and the most recent even has the accumulation...
-				// update: actually that doesn't look to be the case... wtf??
 				if (event.item == 0) {
-//					++xEvents;
-//					accumMousePosition.x += (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
-//					cout << "X value: " << event.value << endl;
 					m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 				}
 				else {
-//					++yEvents;
-//					accumMousePosition.y += (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
-//					cout << "Y value: " << event.value << endl;
 					m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 				}
 				break;
 
-				/*case MANYMOUSE_EVENT_BUTTON:
-				 if (event.value) { // down
-				 cout << "Mouse button " << event.item << " down." << endl;
-				 }
-				 else { // up
-				 cout << "Mouse button " << event.item << " up." << endl;
-				 }
-				 break;*/
-
 			case MANYMOUSE_EVENT_SCROLL:
 				if (event.item == 0) {
-					//cout << "Mouse scroll: " << (event.value > 0 ? "up" : "down") << endl;
 					m_mouseScrollWheelDelta.y += event.value;
 				}
 				else {
-					//cout << "Mouse scroll: " << (event.value > 0 ? "right" : "left") << endl;
 					m_mouseScrollWheelDelta.x += event.value;
 				}
 				break;
 
 			case MANYMOUSE_EVENT_DISCONNECT:
-				// TODO: Handle this
-				//cout << "Mouse " << event.device << " disconnected." << endl;
 				AE_LOG->warn("Mouse {} disconnected.", event.device);
 				break;
 
@@ -126,22 +97,7 @@ void DesktopInputManager::update() {
  ***************************************************************************************/
 
 void DesktopInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
-	//cout << "glfwMouseButtonCallback()" << endl;
-	
-//	if (action == GLFW_PRESS) {
-//		inputManager->m_mouseButtonsDown.insert(MOUSE_BUTTON_FROM_RAW(button));
-//		
-//		// if button is in "cleared" it means the client already read it, so don't add it again until
-//		// we get button up, and then back down again
-//		if (inputManager->m_mouseButtonsPressedCleared.count(MOUSE_BUTTON_FROM_RAW(button)) == 0) {
-//			inputManager->m_mouseButtonsPressed.insert(MOUSE_BUTTON_FROM_RAW(button));
-//		}
-//	}
-//	else if (action == GLFW_RELEASE) {
-//		inputManager->m_mouseButtonsDown.erase(MOUSE_BUTTON_FROM_RAW(button));
-//		inputManager->m_mouseButtonsPressedCleared.erase(MOUSE_BUTTON_FROM_RAW(button));
-//	}
-	
+
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	auto inputManager = static_pointer_cast<DesktopInputManager>(window->inputManager());
 	
@@ -161,12 +117,10 @@ void DesktopInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int bu
 }
 
 void DesktopInputManager::glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
-	//cout << "glfwCursorPositionCallback()" << endl;
 	// ignoring in favor of ManyMouse
 }
 
 void DesktopInputManager::glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
-	//cout << "glfwScrollWheelCallback()" << endl;
 	// ignoring in favor of ManyMouse
 }
 
@@ -177,17 +131,17 @@ void DesktopInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int s
 	auto inputManager = static_pointer_cast<DesktopInputManager>(window->inputManager());
 	
 	if (action == GLFW_PRESS) {
-		inputManager->m_keysDown.insert((KEY)key);
+		inputManager->m_keysDown.insert(static_cast<KEY>(key));
 		
 		// if key is in "cleared" it means the client already read it, so don't add it again until
 		// we get key up, and then back down again
-		if (inputManager->m_keysPressedCleared.count((KEY)key) == 0) {
-			inputManager->m_keysPressed.insert((KEY)key);
+		if (inputManager->m_keysPressedCleared.count(static_cast<KEY>(key)) == 0) {
+			inputManager->m_keysPressed.insert(static_cast<KEY>(key));
 		}
 	}
 	else if (action == GLFW_RELEASE) {
-		inputManager->m_keysDown.erase((KEY)key);
-		inputManager->m_keysPressedCleared.erase((KEY)key);
+		inputManager->m_keysDown.erase(static_cast<KEY>(key));
+		inputManager->m_keysPressedCleared.erase(static_cast<KEY>(key));
 	}
 }
 
@@ -217,11 +171,7 @@ void DesktopInputManager::quitManyMouse() {
 }
 
 void DesktopInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
-	// register GLFW callbacks
-	
 	glfwSetMouseButtonCallback(glfwWindow, DesktopInputManager::glfwMouseButtonCallback);
-	//	glfwSetCursorPosCallback(glfwWindow, glfwCursorPositionCallback);
-	//	glfwSetScrollCallback(glfwWindow, glfwScrollWheelCallback);
 	glfwSetKeyCallback(glfwWindow, DesktopInputManager::glfwKeyCallback);
 }
 

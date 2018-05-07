@@ -129,6 +129,7 @@ namespace ae {
 #define PHYSICS_SHAPE_TYPE_FROM_RAW(raw) (static_cast<PHYSICS_SHAPE_TYPE>(raw))
 	
 	enum class KEY : int {
+		UNKNOWN = 0,
 		SPACE = 32,
 		APOSTROPHE = 39,  /* ' */
 		COMMA = 44,  /* , */
@@ -176,7 +177,7 @@ namespace ae {
 		LEFT_BRACKET = 91,  /* [ */
 		BACKSLASH = 92,  /* \ */
 		RIGHT_BRACKET = 93,  /* ] */
-		GRACE_ACCENT = 96,  /* ` */
+		GRAVE_ACCENT = 96,  /* ` */
 		WORLD_1 = 161, /* non-US #1 */
 		WORLD_2 = 162, /* non-US #2 */
 		
@@ -186,7 +187,7 @@ namespace ae {
 		TAB = 258,
 		BACKSPACE = 259,
 		INSERT = 260,
-		DEL = 261,
+		FORWARD_DELETE = 261,
 		RIGHT = 262,
 		LEFT = 263,
 		DOWN = 264,
@@ -243,7 +244,7 @@ namespace ae {
 		KEYPAD_ENTER = 335,
 		KEYPAD_EQUAL = 336,
 		LEFT_SHIFT = 340,
-		KEFT_CONTROL = 341,
+		LEFT_CONTROL = 341,
 		LEFT_ALT = 342,
 		LEFT_SUPER = 343,
 		RIGHT_SHIFT = 344,

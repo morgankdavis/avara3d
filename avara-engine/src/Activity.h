@@ -30,6 +30,7 @@ typedef void *EGLSurface;
 namespace ae {
 
 
+	class InputManager;
 	class Renderer;
 
 	
@@ -68,7 +69,7 @@ namespace ae {
 		bool vSyncEnabled() const override;
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
-//		std::shared_ptr<InputManager> inputManager() override;
+		std::shared_ptr<InputManager> inputManager() override;
 
 	private:
 		
@@ -88,15 +89,16 @@ namespace ae {
 		void drawFrame();
 		int swap();
 
-		ANativeWindow* 			m_nativeWindow;
-		EGLDisplay 				m_display;
-		EGLSurface 				m_surface;
-		EGLContext 				m_context;
-		EGLConfig 				m_config;
-		int 					m_colorSize;
-		int 					m_depthSize;
-		bool 					m_initialized;
-		bool 					m_contextValid;
+		ANativeWindow* 					m_nativeWindow;
+		EGLDisplay 						m_display;
+		EGLSurface 						m_surface;
+		EGLContext 						m_context;
+		EGLConfig 						m_config;
+		int 							m_colorSize;
+		int 							m_depthSize;
+		bool 							m_initialized;
+		bool 							m_contextValid;
+		std::shared_ptr<InputManager>	m_inputManager;
 	};
 }
 

@@ -25,7 +25,6 @@ Tests:
 
 		ANDROID!
 
-			InputManger constructor should take a weak_ptr
 
 			Clean up utilities (LoadFont, etc)
 
@@ -55,8 +54,12 @@ Tests:
 				https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 				https://developer.android.com/studio/command-line/adb
 
-			Move things from top-level CMakeLists into avara-engine
-			Identify external public headers and link to to avara-engine/include
+
+
+		Move things from top-level CMakeLists into avara-engine
+		Identify external public headers and link to to avara-engine/include
+
+		Check yo lock()s
 
 		WindowInputManager / ActivityInputManager?
 

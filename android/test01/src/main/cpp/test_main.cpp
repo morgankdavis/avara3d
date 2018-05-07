@@ -44,6 +44,8 @@ void android_main(android_app* app) {
 
 	activity->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
+	auto inputManager = activity->inputManager(); // enable it
+
 	activity->scene(scene);
 	activity->display(app);
 }

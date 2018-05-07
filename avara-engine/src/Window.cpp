@@ -275,9 +275,12 @@ void Window::drawLoop() {
 	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
 	
 	glfwPollEvents();
-	if (inputManager()) {
-		static_pointer_cast<DesktopInputManager>(inputManager())->update();
-		//inputManager()->update();
+//	if (inputManager()) {
+//		static_pointer_cast<DesktopInputManager>(inputManager())->update();
+//	}
+	
+	if (m_inputManager) {
+		static_pointer_cast<DesktopInputManager>(m_inputManager)->update();
 	}
 }
 
