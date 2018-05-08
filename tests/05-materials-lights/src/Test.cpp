@@ -302,7 +302,7 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 //	}
 
 	
-	if (keysPressed.count(KEY::DEL)) {
+	if (keysPressed.count(KEY::FORWARD_DELETE)) {
 		m_palletNode->geometry(nullptr);
 	}
 	

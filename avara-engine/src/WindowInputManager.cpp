@@ -1,5 +1,5 @@
 //
-//  DesktopInputManager.cpp
+//  WindowInputManager.cpp
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/6/18.
@@ -9,7 +9,7 @@
 #ifdef DESKTOP
 
 
-#include "DesktopInputManager.h"
+#include "WindowInputManager.h"
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ using namespace glm;
      Lifecycle
  ***************************************************************************************/
 
-DesktopInputManager::DesktopInputManager(shared_ptr<Window> window):
+WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	InputManager(),
 	m_window(window) {
 
@@ -42,7 +42,7 @@ DesktopInputManager::DesktopInputManager(shared_ptr<Window> window):
 		initManyMouse();
 }
 
-DesktopInputManager::~DesktopInputManager() {
+WindowInputManager::~WindowInputManager() {
 	quitManyMouse();
 	auto window = m_window.lock();
 	if (window) {
@@ -54,7 +54,7 @@ DesktopInputManager::~DesktopInputManager() {
      Internal
  ***************************************************************************************/
 
-void DesktopInputManager::update() {
+void WindowInputManager::update() {
 	
 	static ManyMouseEvent event;
 	
@@ -96,10 +96,10 @@ void DesktopInputManager::update() {
      GLFW Callbacks
  ***************************************************************************************/
 
-void DesktopInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
+void WindowInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	auto inputManager = static_pointer_cast<DesktopInputManager>(window->inputManager());
+	auto inputManager = static_pointer_cast<WindowInputManager>(window->inputManager());
 	
 	if (action == GLFW_PRESS) {
 		inputManager->m_mouseButtonsDown.insert((MOUSE_BUTTON)button);
@@ -116,19 +116,19 @@ void DesktopInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int bu
 	}
 }
 
-void DesktopInputManager::glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
+void WindowInputManager::glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
 	// ignoring in favor of ManyMouse
 }
 
-void DesktopInputManager::glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
+void WindowInputManager::glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
 	// ignoring in favor of ManyMouse
 }
 
-void DesktopInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
+void WindowInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
 	//cout << "glfwKeyCallback()" << endl;
 	
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	auto inputManager = static_pointer_cast<DesktopInputManager>(window->inputManager());
+	auto inputManager = static_pointer_cast<WindowInputManager>(window->inputManager());
 	
 	if (action == GLFW_PRESS) {
 		inputManager->m_keysDown.insert(static_cast<KEY>(key));
@@ -149,7 +149,7 @@ void DesktopInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int s
      Private
  ***************************************************************************************/
 
-void DesktopInputManager::initManyMouse() {
+void WindowInputManager::initManyMouse() {
 	int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
@@ -166,16 +166,16 @@ void DesktopInputManager::initManyMouse() {
 	}
 }
 
-void DesktopInputManager::quitManyMouse() {
+void WindowInputManager::quitManyMouse() {
 	ManyMouse_Quit();
 }
 
-void DesktopInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
-	glfwSetMouseButtonCallback(glfwWindow, DesktopInputManager::glfwMouseButtonCallback);
-	glfwSetKeyCallback(glfwWindow, DesktopInputManager::glfwKeyCallback);
+void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
+	glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::glfwMouseButtonCallback);
+	glfwSetKeyCallback(glfwWindow, WindowInputManager::glfwKeyCallback);
 }
 
-void DesktopInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
+void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 	glfwSetMouseButtonCallback(glfwWindow, NULL);
 	glfwSetCursorPosCallback(glfwWindow, NULL);

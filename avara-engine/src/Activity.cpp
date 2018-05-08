@@ -23,7 +23,7 @@
 
 #include <NDKHelper.h>
 
-#include "AndroidInputManager.h"
+#include "ActivityInputManager.h"
 #include "Camera.h"
 #include "Global.h"
 #include "Logger.h"
@@ -157,7 +157,7 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 	Activity* activity = (Activity*)app->userData;
 	
 	if (activity->m_inputManager) {
-		return static_pointer_cast<AndroidInputManager>(activity->m_inputManager)->update(event);
+		return static_pointer_cast<ActivityInputManager>(activity->m_inputManager)->update(event);
 	}
 	
 	return 0;
@@ -189,7 +189,7 @@ void Activity::debugOptions(DEBUG_OPTIONS options) {
 shared_ptr<InputManager> Activity::inputManager() {
 	if (m_inputManager == nullptr) {
 		shared_ptr<Activity> activity = static_pointer_cast<Activity>(shared_from_this());
-		auto inputManager = make_shared<AndroidInputManager>(activity);
+		auto inputManager = make_shared<ActivityInputManager>(activity);
 		m_inputManager = static_pointer_cast<InputManager>(inputManager);
 	}
 	return m_inputManager;

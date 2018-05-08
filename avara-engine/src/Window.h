@@ -67,6 +67,14 @@ namespace ae {
 		 ***************************************************************************************/
 
 		GLFWwindow* glfwWindow() const;
+		
+		/***************************************************************************************
+		     GLFW Callbacks
+		 ***************************************************************************************/
+		
+		static void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
+		static void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
+		static void glfwErrorCallback(int error, const char* description);
 
 		/**************************************************************************************
 		     RenderContext

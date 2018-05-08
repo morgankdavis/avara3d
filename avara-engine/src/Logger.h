@@ -231,8 +231,8 @@ namespace ae {
 		std::shared_ptr<spdlog::logger>		m_logger;
 	};
 	
-	extern std::shared_ptr<ae::Logger>		g_aeLogger;
-	#define AE_LOG							g_aeLogger
+	extern std::shared_ptr<ae::Logger>		g_logger;
+	#define AE_LOG							g_logger
 	
 	#define AE_FILE							__FILE__
 	#define AE_FUNC							__func__

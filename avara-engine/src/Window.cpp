@@ -20,7 +20,7 @@
 #include <GLFW/glfw3native.h>
 
 #include "Camera.h"
-#include "DesktopInputManager.h"
+#include "WindowInputManager.h"
 #include "Global.h"
 #include "Logger.h"
 #include "Node.h"
@@ -32,39 +32,6 @@
 using namespace std;
 using namespace ae;
 
-
-/***************************************************************************************
-     GLFW Callbacks
- ***************************************************************************************/
-
-void glfwErrorCallback(int error, const char* description) {
-	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
-	
-	g_glfwLastErrorCode = error;
-	if (g_glfwLastErrorDescription) {
-		free(g_glfwLastErrorDescription);
-	}
-	g_glfwLastErrorDescription = (char *)malloc(strlen(description));
-	strcpy(g_glfwLastErrorDescription, description);
-}
-
-void glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwWindowSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->width(aWidth);
-	window->height(aHeight);
-}
-
-void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwFramebufferSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
-}
 
 /**************************************************************************************
      Static Prototypes
@@ -124,7 +91,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		AE_LOG->info("scaleFactor: {}", scaleFactor);
 
 		if (!m_glfwWindow) {
-			AE_LOG->critical("Error creating glfwWindow: {}, {}", g_glfwLastErrorCode, g_glfwLastErrorDescription);
+			AE_LOG->critical("Couldn't create GLFW Window.");
 			glfwTerminate();
 		}
 		
@@ -157,8 +124,8 @@ void Window::display() {
 	if (m_scene) {
 		glfwMakeContextCurrent(m_glfwWindow);
 		
-		glfwSetWindowSizeCallback(m_glfwWindow, glfwWindowSizeCallback);
-		glfwSetFramebufferSizeCallback(m_glfwWindow, glfwFramebufferSizeCallback);
+		glfwSetWindowSizeCallback(m_glfwWindow, Window::glfwWindowSizeCallback);
+		glfwSetFramebufferSizeCallback(m_glfwWindow, Window::glfwFramebufferSizeCallback);
 		
 		while (!glfwWindowShouldClose(m_glfwWindow)) {
 			drawLoop();
@@ -192,6 +159,32 @@ GLFWwindow* Window::glfwWindow() const {
 	return m_glfwWindow;
 }
 
+/***************************************************************************************
+     GLFW Callbacks
+ ***************************************************************************************/
+
+void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
+	AE_LOG->trace("glfwWindowSizeCallback()");
+	
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	
+	window->width(aWidth);
+	window->height(aHeight);
+}
+
+void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
+	AE_LOG->trace("glfwFramebufferSizeCallback()");
+	
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	
+	window->framebufferWidth(window->width() * window->framebufferScale());
+	window->framebufferHeight(window->height() * window->framebufferScale());
+}
+
+void Window::glfwErrorCallback(int error, const char* description) {
+	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
+}
+
 /**************************************************************************************
      RenderContext
  ***************************************************************************************/
@@ -215,7 +208,7 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 shared_ptr<InputManager> Window::inputManager() {
 	if (m_inputManager == nullptr) {
 		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
-		auto inputManager = make_shared<DesktopInputManager>(window);
+		auto inputManager = make_shared<WindowInputManager>(window);
 		m_inputManager = static_pointer_cast<InputManager>(inputManager);
 	}
 	return m_inputManager;
@@ -276,11 +269,11 @@ void Window::drawLoop() {
 	
 	glfwPollEvents();
 //	if (inputManager()) {
-//		static_pointer_cast<DesktopInputManager>(inputManager())->update();
+//		static_pointer_cast<WindowInputManager>(inputManager())->update();
 //	}
 	
 	if (m_inputManager) {
-		static_pointer_cast<DesktopInputManager>(m_inputManager)->update();
+		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
 	}
 }
 
@@ -298,7 +291,7 @@ static bool InitializeGLFW() {
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 		
-		glfwSetErrorCallback(glfwErrorCallback);
+		glfwSetErrorCallback(Window::glfwErrorCallback);
 		
 		if (glfwInit()) {
 			AE_LOG->info("GLFW Initialized.");

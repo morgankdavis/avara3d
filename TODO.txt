@@ -13,9 +13,11 @@ Tests:
 
 	30 - rigidbodies
 
-		Switch Window to use static member GLFW callbacks
 
 		Input
+			Capture cursor: https://developer.android.com/training/gestures/movement
+			Android 8+, API 26-27
+
 		Assimp/importing
 		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
 
@@ -24,7 +26,6 @@ Tests:
 
 
 		ANDROID!
-
 
 			Clean up utilities (LoadFont, etc)
 
@@ -60,8 +61,6 @@ Tests:
 		Identify external public headers and link to to avara-engine/include
 
 		Check yo lock()s
-
-		WindowInputManager / ActivityInputManager?
 
 		Re-enable Window initializer list items (and AndroidActivity)
 

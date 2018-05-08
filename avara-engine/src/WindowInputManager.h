@@ -1,13 +1,13 @@
 //
-//  DesktopInputManager.h
+//  WindowInputManager.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef DesktopInputManager_h
-#define DesktopInputManager_h
+#ifndef WindowInputManager_h
+#define WindowInputManager_h
 
 #ifdef DESKTOP
 
@@ -31,7 +31,7 @@ namespace ae {
 	class Window;
 
 	
-	class DesktopInputManager : public InputManager {
+	class WindowInputManager : public InputManager {
 
 	public:
 		
@@ -39,12 +39,12 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		DesktopInputManager(std::shared_ptr<Window> window);
+		WindowInputManager(std::shared_ptr<Window> window);
 		
-		DesktopInputManager(const InputManager& other) = delete; // copy constructor
-		DesktopInputManager& operator=(const InputManager& other) = delete; // copy assignment
+		WindowInputManager(const InputManager& other) = delete; // copy constructor
+		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		
-		~DesktopInputManager();
+		~WindowInputManager();
 
 		/***************************************************************************************
 		     Internal
@@ -78,5 +78,5 @@ namespace ae {
 
 #endif // DESKTOP
 
-#endif /* DesktopInputManager_h */
+#endif /* WindowInputManager_h */
 

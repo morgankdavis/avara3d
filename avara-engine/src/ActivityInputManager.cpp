@@ -1,5 +1,5 @@
 //
-//  AndroidInputManager.cpp
+//  ActivityInputManager.cpp
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/6/18.
@@ -9,7 +9,7 @@
 #ifdef ANDROID
 
 
-#include "AndroidInputManager.h"
+#include "ActivityInputManager.h"
 
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
@@ -40,13 +40,13 @@ static KEY AEKeyForChromeOSKeyCode(int32_t code);
      Lifecycle
  ***************************************************************************************/
 
-AndroidInputManager::AndroidInputManager(shared_ptr<Activity> activity):
+ActivityInputManager::ActivityInputManager(shared_ptr<Activity> activity):
 	InputManager(),
 	m_activity(activity) {
 
 }
 
-AndroidInputManager::~AndroidInputManager() {
+ActivityInputManager::~ActivityInputManager() {
 
 }
 
@@ -54,7 +54,7 @@ AndroidInputManager::~AndroidInputManager() {
      Internal
  ***************************************************************************************/
 
-int AndroidInputManager::update(AInputEvent* event) {
+int ActivityInputManager::update(AInputEvent* event) {
 	
 	int32_t eventType = AInputEvent_getType(event);
 	

@@ -1,13 +1,13 @@
 //
-//  AndroidInputManager.h
+//  ActivityInputManager.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 5/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AndroidInputManager_h
-#define AndroidInputManager_h
+#ifndef ActivityInputManager_h
+#define ActivityInputManager_h
 
 #ifdef ANDROID
 
@@ -31,7 +31,7 @@ namespace ae {
 	class Activity;
 
 	
-	class AndroidInputManager: public InputManager {
+	class ActivityInputManager: public InputManager {
 
 	public:
 		
@@ -39,12 +39,12 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		AndroidInputManager(std::shared_ptr<Activity> activity);
+		ActivityInputManager(std::shared_ptr<Activity> activity);
 		
-		AndroidInputManager(const InputManager& other) = delete; // copy constructor
-		AndroidInputManager& operator=(const InputManager& other) = delete; // copy assignment
+		ActivityInputManager(const InputManager& other) = delete; // copy constructor
+		ActivityInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		
-		~AndroidInputManager();
+		~ActivityInputManager();
 
 		/***************************************************************************************
 		     Internal
@@ -64,5 +64,5 @@ namespace ae {
 
 #endif // ANDROID
 
-#endif /* AndroidInputManager_h */
+#endif /* ActivityInputManager_h */
 

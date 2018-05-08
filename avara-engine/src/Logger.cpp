@@ -23,6 +23,9 @@ using namespace spdlog;
 using namespace std;
 
 
+shared_ptr<Logger>		ae::g_logger;
+
+
 #ifdef ANDROID
 std::shared_ptr<spdlog::sinks::android_sink>			i_spdlogAndroidSink;
 #else
@@ -62,8 +65,8 @@ void Logger::Init() {
 #ifndef ANDROID
 		sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::MAIN_FILE);
 #endif
-		g_aeLogger = make_shared<Logger>("ae", sinks);
-		g_aeLogger->info("Init.");
+		g_logger = make_shared<Logger>("ae", sinks);
+		g_logger->info("Init.");
 
 
 		//		try {
