@@ -75,8 +75,8 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 		register_logger(newLogger);
 		
 		set_pattern("[%Y-%d-%m %H:%M:%S.%e] [%n] [%l]\t%v");
-		set_level(LOG_LEVEL);
-		newLogger->flush_on(LOG_FLUSH_LEVEL);
+		set_level(static_cast<level::level_enum>(LOG_START_LEVEL));
+		newLogger->flush_on(static_cast<level::level_enum>(LOG_FLUSH_LEVEL));
 
 		m_loggers[logger->name()] = newLogger;
 		

@@ -111,8 +111,8 @@ void Logger::Init() {
 	}
 }
 
-void Logger::Level(level::level_enum level) {
-	set_level(level);
+void Logger::Level(LOG_LEVEL level) {
+	set_level(static_cast<level::level_enum>(level));
 }
 
 /***************************************************************************************
@@ -175,8 +175,8 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 			register_logger(logger);
 			
 			set_pattern("%Y-%d-%m %H:%M:%S.%e [%n] [%l] %v");
-			set_level(LOG_LEVEL);
-			logger->flush_on(LOG_FLUSH_LEVEL);
+			set_level(static_cast<level::level_enum>(LOG_START_LEVEL));
+			logger->flush_on(static_cast<level::level_enum>(LOG_FLUSH_LEVEL));
 			
 			m_logger = logger;
 		}

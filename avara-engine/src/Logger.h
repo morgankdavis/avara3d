@@ -42,7 +42,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		static void Init();
-		static void Level(spdlog::level::level_enum level);
+		static void Level(LOG_LEVEL level);
 		
 		/***************************************************************************************
 		     Lifecycle

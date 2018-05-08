@@ -17,8 +17,8 @@
 #define LOG_FILE_SIZE 			1024 * 1024 * 5
 #define LOG_FILE_ROTATIONS		3
 #define LOG_ENABLE_NATIVE		true
-#define LOG_LEVEL				level::debug
-#define LOG_FLUSH_LEVEL			LOG_LEVEL
+#define LOG_START_LEVEL			LOG_LEVEL::DEBUG
+#define LOG_FLUSH_LEVEL			LOG_START_LEVEL
 
 #define MAX_PATH_LEN  			1024
 

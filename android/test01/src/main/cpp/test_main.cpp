@@ -25,9 +25,7 @@ struct android_app;
 void android_main(android_app* app) {
 
 	Logger::Init();
-	Logger::Level(spdlog::level::trace);
-
-
+	Logger::Level(LOG_LEVEL::TRACE);
 	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
 
@@ -58,10 +56,8 @@ void android_main(android_app* app) {
 	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
 	sphereNode->geometry()->addMaterial(sphereMaterial);
 
-//	auto background = make_shared<MaterialProperty>(Color::Lime());
-//	scene->background(background);
-
 	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
+//	auto background = make_shared<MaterialProperty>(Color::Lime());
 	scene->background(background);
 
 

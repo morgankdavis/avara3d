@@ -19,6 +19,16 @@ namespace ae {
 	typedef unsigned GEOMETRY_ELEMENT_ID;
 	typedef unsigned MATERIAL_ID;
 	typedef unsigned MATERIAL_PROPERTY_ID;
+	
+	enum class LOG_LEVEL : unsigned {
+		TRACE =		0,
+		DEBUG =		1,
+		INFO =		2,
+		WARN =		3,
+		ERROR =		4,
+		CRITICAL = 	5,
+		OFF = 		6
+	};
 
 	enum class ANTIALIASING_MODE : unsigned {
 		NONE =		0,
