@@ -13,6 +13,7 @@
 
 #include <iostream>
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #ifdef MACOS
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -38,6 +39,7 @@ using namespace ae;
  **************************************************************************************/
 
 static bool InitializeGLFW();
+static bool InitializeGLEW();
 static float ScreenScaleFactor(GLFWmonitor* monitor);
 
 /***************************************************************************************
@@ -54,7 +56,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 
 		//if (initLog() != 0) { cout << "Error initializing log." << endl; }
 		Logger::Init();
-		if (!InitializeGLFW()) { AE_LOG->critical("Error initializing GLFW."); }
+		if (!InitializeGLFW()) { AE_LOG->critical("Failed to initializing GLFW."); }
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -100,6 +102,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		glfwMakeContextCurrent(m_glfwWindow);
 		enableVSync(false);
 
+		if (!InitializeGLEW()) { AE_LOG->critical("Failed to initialize GLEW."); }
 		RenderContext::renderer()->initialize();
 
 		m_width = viewportWidth;
@@ -282,8 +285,8 @@ void Window::drawLoop() {
  **************************************************************************************/
 
 static bool InitializeGLFW() {
-	static bool initialized = false;
 	
+	static bool initialized = false;
 	if (!initialized) {
 		AE_LOG->trace("InitializeGLFW()");
 		
@@ -305,7 +308,25 @@ static bool InitializeGLFW() {
 		
 		initialized = true;
 	}
+	return true;
+}
+
+static bool InitializeGLEW() {
+
+	// NOTE: OpenGL context must be setup first
 	
+	static bool initialized = false;
+	if (!initialized) {
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK) return false;
+		
+		const GLubyte *renderer = glGetString(GL_RENDERER);
+		const GLubyte *version = glGetString(GL_VERSION);
+		AE_LOG->info("Renderer: {}", renderer);
+		AE_LOG->info("Version: {}", version);
+		
+		initialized = true;
+	}
 	return true;
 }
 

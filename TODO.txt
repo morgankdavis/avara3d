@@ -18,11 +18,9 @@ Tests:
 			Capture cursor: https://developer.android.com/training/gestures/movement
 			Android 8+, API 26-27
 
+
 		Assimp/importing
 		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
-
-		Move OpenGLRenderer::initialize (GLEW) into RenderContext
-		Move InputManager to RenderContext
 
 
 		ANDROID!
@@ -61,8 +59,6 @@ Tests:
 		Identify external public headers and link to to avara-engine/include
 
 		Check yo lock()s
-
-		Re-enable Window initializer list items (and AndroidActivity)
 
 		SceneImporter/.aes
 		

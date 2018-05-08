@@ -223,32 +223,10 @@ bool OpenGLRenderer::initialize() {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
 
-#warning MOVE THIS
-#ifdef DESKTOP
-	
-	// initialize GLEW
-	// NOTE: OpenGL context must be setup first
-	
-	static bool glewInitialized = false;
-	if (!glewInitialized) {
-		glewExperimental = GL_TRUE;
-		glewInit();
-		
-		const GLubyte *renderer = glGetString(GL_RENDERER);
-		const GLubyte *version = glGetString(GL_VERSION);
-		AE_LOG->info("Renderer: {}", renderer);
-		AE_LOG->info("Version: {}", version);
-		
-		glewInitialized = true;
-	}
-	
-#endif // DESKTOP
-
 	// initialize FontStash
 	
 	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
 	if (m_fonsContext == NULL) {
-		//AE_LOG->error("Error creating Font Stash context.");
 		throw Exception("Error creating Font Stash context.");
 	}
 	
