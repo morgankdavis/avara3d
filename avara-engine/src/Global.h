@@ -23,4 +23,19 @@
 #define MAX_PATH_LEN  			1024
 
 
+#ifdef ANDROID
+struct android_app;
+#endif
+
+
+namespace ae {
+	
+#ifdef ANDROID
+	void AE_INIT(android_app* app);
+#else
+	void AE_INIT();
+#endif
+}
+
+
 #endif /* Global_h */

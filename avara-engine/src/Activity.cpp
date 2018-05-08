@@ -48,7 +48,7 @@ Activity::Activity(shared_ptr<Renderer> renderer):
 		m_context(EGL_NO_CONTEXT),
 		m_initialized(false) {
 
-			Logger::Init();
+			//Logger::Init();
 }
 
 Activity::~Activity() {

@@ -13,9 +13,7 @@ Tests:
 
 	30 - rigidbodies
 
-		Consider adding AE_INIT()
-			-> JNI Helper
-			-> Log, anything else
+
 
 		ANDROID!
 
@@ -62,8 +60,6 @@ Tests:
 			Node::physicsBody(<...>)
 
 		ADD "removedFromNode()" // attachedToNode(nullptr)
-
-		Window::inputManager should exist by default...
 
 		Try set margin 0 for static objects
 
@@ -127,10 +123,10 @@ Tests:
 		unsigned int n = std::thread::hardware_concurrency();
 		std::cout << n << " concurrent threads are supported.\n";
 
-	50 - audio
-
-	60 - network
+	50 - network
 		"Entity"
+
+	60 - audio
 
 	70 - scripting
 

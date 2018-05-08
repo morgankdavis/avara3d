@@ -21,6 +21,7 @@
 #include "Exception.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
+#include "Global.h"
 #include "HitTestResult.h"
 #include "Image.h"
 #include "InputManager.h"

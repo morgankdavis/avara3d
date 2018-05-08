@@ -7,7 +7,6 @@
 #include <memory>
 
 #include <glm/glm.hpp>
-#include <NDKHelper.h>
 
 #include "ae.h"
 #include "Utilities.h"
@@ -24,12 +23,7 @@ struct android_app;
 
 void android_main(android_app* app) {
 
-	Logger::Init();
-	Logger::Level(LOG_LEVEL::TRACE);
-	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
-
-
-
+	AE_INIT(app);
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));

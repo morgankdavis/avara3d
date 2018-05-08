@@ -54,8 +54,6 @@ Window::Window(shared_ptr<Renderer> renderer,
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {
 
-		//if (initLog() != 0) { cout << "Error initializing log." << endl; }
-		Logger::Init();
 		if (!InitializeGLFW()) { AE_LOG->critical("Failed to initializing GLFW."); }
 		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -89,8 +87,6 @@ Window::Window(shared_ptr<Renderer> renderer,
 			//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
 			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
-
-		AE_LOG->info("scaleFactor: {}", scaleFactor);
 
 		if (!m_glfwWindow) {
 			AE_LOG->critical("Couldn't create GLFW Window.");
