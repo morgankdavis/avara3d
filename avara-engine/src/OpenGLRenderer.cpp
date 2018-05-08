@@ -233,9 +233,7 @@ bool OpenGLRenderer::initialize() {
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	
-	#if ANDROID
-
-	auto fontData = LoadBinaryAsset("fonts/" + fontName + "." + fontType);
+	auto fontData = FontData(fontName, fontType);
 	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
 	memcpy(dataBuf, &fontData[0], fontData.size());
 	m_fonsFont = fonsAddFontMem(m_fonsContext,
@@ -243,42 +241,20 @@ bool OpenGLRenderer::initialize() {
 								dataBuf,
 								fontData.size(),
 								1);
-
+	
 	if (m_fonsFont == FONS_INVALID) {
 		char errStr[1024];
 		sprintf(errStr, "Could not load font: %s\n", (fontName + "." + fontType).c_str());
 		throw Exception(errStr);
 	}
-
-	#else
-
-	auto fontPath = FontPath(fontName, fontType);
-
-	if (fontPath) {
-
-		m_fonsFont = fonsAddFont(m_fonsContext, fontName.c_str(), fontPath->string().c_str());
-
-		if (m_fonsFont == FONS_INVALID) {
-			char errStr[1024];
-			sprintf(errStr, "Could not load font: %s\n", fontPath->string().c_str());
-			throw Exception(errStr);
-		}
-	}
-	else {
-		char errStr[1024];
-		sprintf(errStr, "Could not find font: %s\n", fontPath->string().c_str());
-		throw Exception(errStr);
-	}
-
-	#endif
-
+	
 	return true;
 }
 	
 void OpenGLRenderer::beginFrame(const RenderContext& context) {
-	
+
 	Renderer::beginFrame(context);
-	
+
 	m_activeElementIDs.clear();
 	m_activeMaterialPropertyIDs.clear();
 	m_activeGeometryAABBIDs.clear();
@@ -384,9 +360,9 @@ void OpenGLRenderer::render(GeometryElement& element,
 							RenderStats& stats) {
 
 	shared_ptr<Program> program = nullptr;
-	
+
 	// check and load vertex data if necessary
-	
+
 	GLuint vbo, vao, ibo;
 	GetGeometryElementGLVertexDataHandles(element,
 										  m_elementIDMapping, m_elementIDCounter,
@@ -399,31 +375,31 @@ void OpenGLRenderer::render(GeometryElement& element,
 		program = Program::Default();
 
 		// and load material contents if necessary
-		
+
 		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 		GetMaterialGLTextureHandles(material,
 									m_materialPropertyIDMapping, m_materialPropertyIDCounter,
 									m_activeMaterialPropertyIDs,
 									glTextureHandles);
-		
+
 		// send material and material property uniforms
-		
+
 		SendMaterialUniforms(material, *program, glTextureHandles, debugOptions);
-		
+
 		// update material property filtering options
-		
+
 		SetMaterialFilteringOptions(material, glTextureHandles);
 	}
-	
+
 	// configure OpenGL state
-	
+
 	SetMaterialOpenGLState(material, debugOptions);
-	
+
 	// draw
-	
+
 	DrawGeometryElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	stats.polygons += element.faces().size();
-	
+
 	// save its renderID for housekeeping
 	auto renderID = element.renderID();
 	if (renderID > 0) {
@@ -913,16 +889,16 @@ static void SendMaterialUniforms(const Material& material,
 	
 	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
-	
+
 	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
 		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
-	
+
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
-		
+
 		if (property) {
 			auto type = types[p];
-			
+
 			SendMaterialPropertyUniforms(*property,
 										 type,
 										 glTextureHandles[type],
@@ -950,7 +926,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		string samplerUniformName = "";
 		GLenum slot;
 		GLint index;
-		
+
 		switch (type) {
 			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 				modeUniformName = "ambientMode";
@@ -976,16 +952,16 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
 				return;
 		}
-		
+
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::SAMPLER));
 		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 	}
-	else { // color
+	else if (dynamic_pointer_cast<Color>(property.contents()) ){ // color
 		auto color = dynamic_pointer_cast<Color>(property.contents());
-		
+
 		string modeUniformName = "";
 		string colorUniformName = "";
-		
+
 		switch (type) {
 			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 				modeUniformName = "ambientMode";
@@ -1007,9 +983,12 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
 				return;
 		}
-		
+
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::COLOR));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
+	}
+	else {
+		AE_LOG->warn("NULL material property contents.");
 	}
 	
 	//program.unuse();

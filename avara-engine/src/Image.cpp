@@ -29,12 +29,23 @@ using namespace std;
      Lifecycle
  ***************************************************************************************/
 
+#ifndef ANDROID
 Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
 	m_data(nullptr),
 	m_width(0),
 	m_height(0) {
 		
-		loadFile(path, flipHorizontal);
+		auto data = BinaryFile(path);
+		loadBinary(data, flipHorizontal);
+}
+#endif
+
+Image::Image(vector<unsigned char>& data, bool flipHorizontal):
+	m_data(nullptr),
+	m_width(0),
+	m_height(0) {
+		
+		loadBinary(data, flipHorizontal);
 }
 
 Image::Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal):
@@ -110,23 +121,19 @@ unsigned char* Image::data() const {
      Private
  ***************************************************************************************/
 
-void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
-
-#ifndef ANDROID
-	AE_LOG->info("Loading image at path {}...", path.string());
+void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	
-	int width, height, num_byte_pix;
-
-    // work-around for path.string().c_str() encoding error in Win7
-	auto fileBuf = LoadBinaryFile(path);
-
-    m_data = stbi_load_from_memory(&fileBuf[0], fileBuf.size(), &width, &height, &num_byte_pix, 4);
+	int width;
+	int height;
+	int num_byte_pix;
+	
+	m_data = stbi_load_from_memory(&data[0], data.size(), &width, &height, &num_byte_pix, 4);
 	
 	if (!m_data) {
-		char errMsg[1024];
-		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string().c_str());
-		throw Exception(errMsg);
-		return;
+//		char errMsg[1024];
+//		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string().c_str());
+//		throw Exception(errMsg);
+		throw Exception("Failed to load image data.");
 	}
 	
 	m_width = width;
@@ -135,10 +142,37 @@ void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
 	if (flipHorizontal) {
 		flip();
 	}
-	
-	AE_LOG->info("Done.");
-#endif
 }
+
+//void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
+//
+//#ifndef ANDROID
+//	AE_LOG->info("Loading image at path {}...", path.string());
+//	
+//	int width, height, num_byte_pix;
+//
+//    // work-around for path.string().c_str() encoding error in Win7
+//	auto fileBuf = BinaryFile(path);
+//
+//    m_data = stbi_load_from_memory(&fileBuf[0], fileBuf.size(), &width, &height, &num_byte_pix, 4);
+//	
+//	if (!m_data) {
+//		char errMsg[1024];
+//		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string().c_str());
+//		throw Exception(errMsg);
+//		return;
+//	}
+//	
+//	m_width = width;
+//	m_height = height;
+//	
+//	if (flipHorizontal) {
+//		flip();
+//	}
+//	
+//	AE_LOG->info("Done.");
+//#endif
+//}
 
 void Image::flip() {
 	// this is not needed for cube maps (?)

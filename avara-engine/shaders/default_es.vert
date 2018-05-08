@@ -3,9 +3,6 @@
 
 precision mediump int;
 precision mediump float;
-//precision mediump vec2;
-//precision mediump vec3;
-//precision mediump mat4;
 
 
 layout (location = 0) in vec3 vertex_position;

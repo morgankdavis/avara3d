@@ -95,73 +95,94 @@ int Test::run(const vector<string>& args) {
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-
-	auto siameseScene = TestSceneNamed("siamese");
-	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
-	m_siameseNode = siameseNode;
-	siameseNode->scale(siameseNode->scale() * 0.070f);
-	siameseNode->position(vec3(-13.5, -64.5, 0));
-	scene->rootNode()->addChildNode(siameseNode);
-
-	auto islandScene = TestSceneNamed("Island", "obj");
-	auto islandNode = islandScene->rootNode()->childNodes(true)[0];
-	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
-	scene->rootNode()->addChildNode(islandNode);
-
-	auto palletScene = TestSceneNamed("Pallet_rot");
-	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
-	palletNode->name("Pallet node");
-	m_palletNode = palletNode;
-	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
-	palletNode->scale(palletNode->scale() * 20.0f);
-	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
-	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
-	scene->rootNode()->addChildNode(palletNode);
 	
-	auto tunaScene = TestSceneNamed("tuna_rot");
-	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
-	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
-	scene->rootNode()->addChildNode(tunaScene->rootNode());
-
-	auto palm1Scene = TestSceneNamed("palm1", "obj");
-	m_palmsNode = palm1Scene->rootNode();
-	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
-	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
-	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
-	scene->rootNode()->addChildNode(palm1Scene->rootNode());
 	
-	for (auto n : palm1Scene->rootNode()->childNodes(true)) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
 	
-	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
-//	auto background = make_shared<MaterialProperty>(Color::Navy());
-	scene->background(background);
+	auto sphereGeo = make_shared<Sphere>(0.5, 24);
+	auto sphereNode = make_shared<Node>();
+	sphereGeo->name("sphere");
+	sphereNode->geometry(sphereGeo);
+	scene->rootNode()->addChildNode(sphereNode);
+	sphereNode->position({0.0f, 0.0f, 0.0f});
+	
+	
+	
+	auto gridImage = TestImageNamed("grid10_512");
+	auto sphereMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	sphereMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	sphereMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
+	sphereNode->geometry()->addMaterial(sphereMaterial);
+	
+	
+	
+
+//	auto siameseScene = TestSceneNamed("siamese");
+//	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+//	m_siameseNode = siameseNode;
+//	siameseNode->scale(siameseNode->scale() * 0.070f);
+//	siameseNode->position(vec3(-13.5, -64.5, 0));
+//	scene->rootNode()->addChildNode(siameseNode);
+//
+//	auto islandScene = TestSceneNamed("Island", "obj");
+//	auto islandNode = islandScene->rootNode()->childNodes(true)[0];
+//	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
+//	scene->rootNode()->addChildNode(islandNode);
+//
+//	auto palletScene = TestSceneNamed("Pallet_rot");
+//	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
+//	palletNode->name("Pallet node");
+//	m_palletNode = palletNode;
+//	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
+//	palletNode->scale(palletNode->scale() * 20.0f);
+//	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
+//	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
+//	scene->rootNode()->addChildNode(palletNode);
+//	
+//	auto tunaScene = TestSceneNamed("tuna_rot");
+//	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
+//	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
+//	scene->rootNode()->addChildNode(tunaScene->rootNode());
+//
+//	auto palm1Scene = TestSceneNamed("palm1", "obj");
+//	m_palmsNode = palm1Scene->rootNode();
+//	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
+//	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
+//	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
+//	scene->rootNode()->addChildNode(palm1Scene->rootNode());
+//	
+//	for (auto n : palm1Scene->rootNode()->childNodes(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
+//	
+//	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
+////	auto background = make_shared<MaterialProperty>(Color::Navy());
+//	scene->background(background);
 
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChildNode(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
-	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(50.0, 50.0, 50.0));
-	scene->rootNode()->addChildNode(pointLightNode);
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	m_pointLightNode = pointLightNode;
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+//	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+//	pointLight->attenuationFactor(0.00005);
+//	auto pointLightNode = Node::LightNode(pointLight);
+//	pointLightNode->position(vec3(50.0, 50.0, 50.0));
+//	scene->rootNode()->addChildNode(pointLightNode);
+//	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+//	m_pointLightNode = pointLightNode;
+//	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+//	auto material = make_shared<Material>();
+//	material->name("LIGHT material");
+//	material->emissive(materialProperty);
+//	auto geometry = make_shared<Sphere>(3.5, 16);
+//	geometry->addMaterial(material);
+//	pointLightNode->geometry(geometry);
 	
 	
 //	// random lights
@@ -195,10 +216,10 @@ int Test::run(const vector<string>& args) {
 //	}
 	
 	
-	scene->fogStartDistance(500.0);
-	scene->fogEndDistance(5000.0);
-	scene->fogDensityExponent(1.0);
-	scene->fogColor(Color::LightGray());
+//	scene->fogStartDistance(500.0);
+//	scene->fogEndDistance(5000.0);
+//	scene->fogDensityExponent(1.0);
+//	scene->fogColor(Color::LightGray());
 
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();

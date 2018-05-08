@@ -46,7 +46,7 @@ namespace ae {
 	namespace utils {
 		
 		/***************************************************************************************
-		 Output Utilities
+		 	Output Utilities
 		 ***************************************************************************************/
 		
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
@@ -64,7 +64,7 @@ namespace ae {
 		std::string DateTimeString();
 		
 		/***************************************************************************************
-		 Conversion Utilities
+		 	Conversion Utilities
 		 ***************************************************************************************/
 		
 #ifndef ANDROID
@@ -81,7 +81,7 @@ namespace ae {
 		btVector4 BTVector4FromGLMVec4(const glm::vec4& from);
 		
 		/***************************************************************************************
-		 Numeric Utilities
+		 	Numeric Utilities
 		 ***************************************************************************************/
 		
 		int Random(int min, int max);
@@ -93,58 +93,88 @@ namespace ae {
 		bool FloatEqual(float a, float b, float tolerance = 0.0001);
 		
 		/***************************************************************************************
-		 File Utilities
+		 	File Utilities
 		 ***************************************************************************************/
 		
+		// *** executable and working directories ***
+		
+#ifndef ANDROID
 		boost::optional<boost::filesystem::path> ExecutablePath();
 		boost::optional<boost::filesystem::path> ExecutableDirectory();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
+#endif
+		
+		// *** binary and text files ***
 		
 #ifdef ANDROID
 		boost::optional<boost::filesystem::path> InternalFilesDirectory();
-#endif
-
-#ifdef ANDROID
-		boost::optional<std::string> LoadTextAsset(const std::string& name);
-		std::vector<unsigned char> LoadBinaryAsset(const std::string& name);
+		boost::optional<std::string> TextAsset(const std::string& relPath);
+		std::vector<unsigned char> BinaryAsset(const std::string& relPath);
 #else
-		boost::optional<std::string> LoadTextFile(boost::filesystem::path& path);
-		std::vector<unsigned char> LoadBinaryFile(boost::filesystem::path& path);
+		boost::optional<std::string> TextFile(const boost::filesystem::path& path);
+		std::vector<unsigned char> BinaryFile(const boost::filesystem::path& path);
 #endif
 		
-		boost::optional<boost::filesystem::path> ShadersDirectory();
-		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name, const std::string& type);
+		// *** engine shaders ***
 		
-		boost::optional<boost::filesystem::path> ImagesDirectory();
-		boost::optional<boost::filesystem::path> ImagePath(const std::string& name, const std::string& type);
-		std::shared_ptr<Image> ImageNamed(const std::string& name, const std::string& type);
-		std::shared_ptr<CubeImage> TestCubeImageNamed(const std::string& name,
-													  const std::string& type);
-		
-		boost::optional<boost::filesystem::path> FontsDirectory();
-		boost::optional<boost::filesystem::path> FontPath(const std::string& name, const std::string& type);
-		
-		boost::optional<boost::filesystem::path> TestDataDirectory();
-		
+		boost::optional<std::string> ShaderSource(const std::string& name,
+												  const std::string& type);
 #ifndef ANDROID
-		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
-		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
-											  const std::string& type);
+		boost::optional<boost::filesystem::path> ShadersDirectory();
+		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name,
+															const std::string& type);
 #endif
+		
+		// *** engine fonts ***
+		
+		std::vector<unsigned char> FontData(const std::string& name,
+											const std::string& type);
+#ifndef ANDROID
+		boost::optional<boost::filesystem::path> FontsDirectory();
+		boost::optional<boost::filesystem::path> FontPath(const std::string& name,
+														  const std::string& type);
+#endif
+		
+		// *** test directory ***
+#ifndef ANDROID
+		boost::optional<boost::filesystem::path> TestDataDirectory();
+#endif
+		
+		// *** engine images ***
+		
+		std::shared_ptr<Image> ImageNamed(const std::string& name,
+										  const std::string& type);
+#ifndef ANDROID
+		boost::optional<boost::filesystem::path> ImagesDirectory();
+		boost::optional<boost::filesystem::path> ImagePath(const std::string& name,
+														   const std::string& type);
+#endif
+		
+		// *** test images ***
 		
 		std::shared_ptr<Image> TestImageNamed(const std::string& name,
 											  bool flipHorizontal=true);
 		std::shared_ptr<Image> TestImageNamed(const std::string& name,
 											  const std::string& type,
 											  bool flipHorizontal=true);
+		std::shared_ptr<CubeImage> TestCubeImageNamed(const std::string& name,
+													  const std::string& type);
 		
+		// *** test scenes ***
+
+#ifndef ANDROID
+		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
+		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
+											  const std::string& type);
+#endif
+
 		/***************************************************************************************
-		 Misc Utilities
+		 	Misc Utilities
 		 ***************************************************************************************/
 		
 		void SaveSnapshot(RenderContext& context);
-		
-		void StartGIFRecording(RenderContext& context, unsigned maxHeight, unsigned maxFramerate);
+		void StartGIFRecording(RenderContext& context,
+							   unsigned maxHeight, unsigned maxFramerate);
 		void StopGIFRecording(RenderContext& context);
 	}
 }

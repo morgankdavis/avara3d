@@ -14,6 +14,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "GeometryElement.h"
+#include "Logger.h"
 #include "Material.h"
 #include "Node.h"
 #include "Renderer.h"

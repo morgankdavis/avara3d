@@ -88,7 +88,7 @@ protected:
     /** Loads a binary .stl file
      * @return true if the default vertex color must be used as material color
     */
-    bool LoadBinaryFile();
+    bool BinaryFile();
 
     // -------------------------------------------------------------------
     /** Loads a ASCII text .stl file

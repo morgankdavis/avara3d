@@ -44,6 +44,7 @@ namespace ae {
 #ifndef ANDROID
 		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
 #endif
+//		static std::shared_ptr<Scene> LoadFromData(const std::vector<unsigned char>& data);
 
 		/***************************************************************************************
 		     Lifecycle

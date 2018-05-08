@@ -57,6 +57,7 @@ static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> material
 static shared_ptr<Image> MissingTextureImage();
 #ifndef ANDROID
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath);
+//static void LoadData(Scene& scene, const vector<unsigned char>& data);
 static void AddAIGeometryNodes(Scene& scene,
 							   const aiScene* aiScene,
 							   shared_ptr<Node> aeRootNode,
@@ -88,6 +89,13 @@ shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 	return scene;
 }
 #endif
+
+//shared_ptr<Scene> Scene::LoadFromData(const vector<unsigned char>& data) {
+//	auto scene = make_shared<Scene>();
+//	scene->rootNode(make_shared<Node>("Root node"));
+//	LoadData(*scene, data);
+//	return scene;
+//}
 
 /***************************************************************************************
      Lifecycle
@@ -370,14 +378,15 @@ static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> material
 static shared_ptr<Image> MissingTextureImage() {
 	static shared_ptr<Image> image = nullptr;
 	if (!image) {
-		auto imagesDir = ImagesDirectory();
-		if (imagesDir) {
-			auto imagePath = *imagesDir / "missing_texture.png";
-			image = make_shared<Image>(imagePath.string());
-		}
-		else {
-			AE_LOG->warn("Couldn't locate images directory.");
-		}
+		image = ImageNamed("missing_texture", "png");
+//		auto imagesDir = ImagesDirectory();
+//		if (imagesDir) {
+//			auto imagePath = *imagesDir / "missing_texture.png";
+//			image = make_shared<Image>(imagePath.string());
+//		}
+//		else {
+//			AE_LOG->warn("Couldn't locate images directory.");
+//		}
 	}
 	return image;
 }
@@ -577,6 +586,204 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
 	aiReleaseImport(aiScene);
 }
+
+//static void LoadData(Scene& scene, const vector<unsigned char>& data) {
+//	
+//	AE_LOG->info("Assimp version: {}.{}.{}",
+//				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
+//	
+//	AE_LOG->info("Loading scene data...");
+//	
+//	unsigned int assimpFlags = aiProcess_Triangulate
+//	| aiProcess_SortByPType
+//	| aiProcess_GenSmoothNormals
+//	// "This will, in fact, reduce the number of draw calls."
+//	// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410af5fe0d6ee720c91359dc61cb849f2ebf
+//	| aiProcess_OptimizeMeshes
+//	// "If this flag is not specified, no vertices are referenced by more than one face and no index buffer is required for rendering."
+//	// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410a444a6c9d8b63e6dc9e1e2e1edd3cbcd4
+//	| aiProcess_JoinIdenticalVertices
+//	| aiProcess_ImproveCacheLocality
+//	| aiProcess_ValidateDataStructure;
+//	
+//	//const aiScene* aiScene = aiImportFile(importPath.string().c_str(), assimpFlags);
+//	
+//	//aiImportFileFromMemory (const char *pBuffer, unsigned int pLength, unsigned int pFlags, const char *pHint)
+//	const aiScene* aiScene = aiImportFileFromMemory((const char *)&data[0], data.size(), assimpFlags, " ");
+//	
+//	if (aiScene) {
+//		
+//		// copy all the meshes and materials out of the aiScene
+//		// use them to construct our GeometryElements
+//		// (we are not keeping a master list)
+//		auto importElements = vector<shared_ptr<GeometryElement>>();
+//		auto importMaterials = vector<shared_ptr<Material>>();
+//		
+//		// ********** meshes (ae::GeometryElement) **********
+//		
+//		int numMeshes = aiScene->mNumMeshes;
+//		for (int m=0; m<numMeshes; ++m) {
+//			aiMesh *mesh = aiScene->mMeshes[m];
+//			
+//			// should be set for parent Geometry
+//			aiString name = mesh->mName;
+//			if (strcmp(name.C_Str(), "") != 0) {
+//				//cout << "mName: " << name.C_Str() << endl;
+//				AE_LOG->debug("Mesh name: {}", name.C_Str());
+//			}
+//			
+//			auto verts = vector<Vertex>();
+//			
+//			bool hasNormals = mesh->HasNormals();
+//			bool hasTextureCoordinates = mesh->HasTextureCoords(0);
+//			
+//			unsigned int numVerts = mesh->mNumVertices;
+//			for (unsigned int v=0; v<numVerts; ++v) {
+//				aiVector3D position = mesh->mVertices[v];
+//				aiVector3D normal = aiVector3D(0, 0, 0);
+//				aiVector3D texCoord = aiVector3D(0, 0, 0);
+//				
+//				if (hasNormals) normal = mesh->mNormals[v];
+//				if (hasTextureCoordinates) texCoord = mesh->mTextureCoords[0][v];
+//				
+//				Vertex vert = {GLMVec3FromAIVector3D(position),
+//					GLMVec3FromAIVector3D(normal),
+//					vec2(texCoord.x, texCoord.y)};
+//				verts.push_back(vert);
+//			}
+//			
+//			auto faces = vector<Face>();
+//			unsigned int numFaces = mesh->mNumFaces;
+//			for (unsigned int f=0; f<numFaces; ++f) {
+//				aiFace face = mesh->mFaces[f];
+//				faces.push_back({face.mIndices[0], face.mIndices[1], face.mIndices[2]});
+//			}
+//			
+//			auto element = make_shared<GeometryElement>(verts, faces);
+//			//geometryElements().push_back(element);
+//			importElements.push_back(element);
+//		}
+//		
+//		
+//		// ********** materials **********
+//		
+//		//cout << "mNumMaterials: " << scene->mNumMaterials << endl;
+//		AE_LOG->debug("Number of materials: {}", aiScene->mNumMaterials);
+//		for (unsigned int m=0; m<aiScene->mNumMaterials; ++m) {
+//			//printf("material[%d]\n", m);
+//			AE_LOG->debug("[material {}]:", m);
+//			aiMaterial* aiMaterial = aiScene->mMaterials[m];
+//			
+//			string basePath = path(importPath).parent_path().string();
+//			
+//			auto ambientProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_AMBIENT, basePath);
+//			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
+//			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
+//			// not sure why, but some models have emissive colors that are messing everything up...
+//			//auto emissiveProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_EMISSIVE, basePath);
+//			
+//			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+//			//material->emissive(emissiveProperty);
+//			
+//			aiString name;
+//			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
+//				if (strcmp(name.C_Str(), "") != 0) {
+//					//cout << "Name: " << name.C_Str() << endl;
+//					AE_LOG->debug("Name: {}", name.C_Str());
+//					material->name(name.C_Str());
+//				}
+//			}
+//			
+//			// specular exponent
+//			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
+//			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
+//			float shininess = 0;
+//			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+//				//cout << "Specular exponent: " << shininess << endl;
+//				AE_LOG->debug("Specular exponent: {}", shininess);
+//			}
+//			material->specularExponent(shininess);
+//			
+//			importMaterials.push_back(material);
+//		}
+//		
+//		// ********** nodes (ae::Geometry) **********
+//		
+//		// in AI terminology, a "node" is what we call a "geometry"
+//		// also in AI terminology, a "mesh" is what we call a "geometry element"
+//		
+//		//AddAIGeometryNodes(scene, aiScene, m_rootNode, importElements, importMaterials);
+//		AddAIGeometryNodes(scene, aiScene, scene.rootNode(), importElements, importMaterials);
+//		
+//		// ********** lights **********
+//		
+//		for (unsigned int l=0; l<aiScene->mNumLights; --l) {
+//			break; // disabling for now...
+//			
+//			aiLight* aiLight = aiScene->mLights[l];
+//			
+//			Color color = ColorFromAIColor3D(aiLight->mColorDiffuse);
+//			
+//			auto light = make_shared<Light>(LightTypeForAILightType(aiLight->mType),
+//											make_shared<Color>(color));
+//			
+//			aiString name = aiLight->mName;
+//			if (strcmp(name.C_Str(), "") != 0) {
+//				//cout << "Name: " << name.C_Str() << endl;
+//				light->name(name.C_Str());
+//			}
+//			
+//			//cout << "Adding light: " << light << endl;
+//			
+//			auto lightNode = make_shared<Node>("Light");
+//			lightNode->light(light);
+//			//rootNode()->addChildNode(lightNode);
+//			scene.rootNode()->addChildNode(lightNode);
+//		}
+//		
+//		// ********** cameras **********
+//		
+//		for (unsigned int c=0; c<aiScene->mNumCameras; --c) {
+//			break; // disabling for now...
+//			
+//			aiCamera* aiCamera = aiScene->mCameras[c];
+//			
+//			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
+//											  aiCamera->mClipPlaneFar,
+//											  aiCamera->mHorizontalFOV);
+//			
+//			aiString name = aiCamera->mName;
+//			if (strcmp(name.C_Str(), "") != 0) {
+//				//cout << "Name: " << name.C_Str() << endl;
+//				camera->name(name.C_Str());
+//			}
+//			
+//			//cout << "Adding camera: " << camera << endl;
+//			
+//			auto cameraNode = make_shared<Node>("Camera");
+//			cameraNode->camera(camera);
+//			
+//			aiNode* aiCamNode = aiScene->mRootNode->FindNode(aiCamera->mName);
+//			
+//			auto viewMat = GLMMat4FromAIMaxtrix4x4(aiCamNode->mTransformation);
+//			
+//			cameraNode->transform(viewMat);
+//			
+//			//rootNode()->addChildNode(cameraNode);
+//			scene.rootNode()->addChildNode(cameraNode);
+//		}
+//	}
+//	else {
+//		//cout << "Error importing scene: " << aiGetErrorString() << endl;
+//		//AE_LOG->error("Error importing scene: {}", aiGetErrorString());
+//		
+//		char errMsg[1024];
+//		sprintf(errMsg, "Error importing scene: %s\n",  aiGetErrorString());
+//		throw Exception(errMsg);
+//	}
+//	
+//	aiReleaseImport(aiScene);
+//}
 
 static void AddAIGeometryNodes(Scene& scene,
 							   const aiScene* aiScene,

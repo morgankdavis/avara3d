@@ -63,7 +63,7 @@ void Activity::display(android_app* app) {
 	
 	AE_LOG->trace("Activity::display()");
 
-	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
+	//ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
 	app->userData = this;
 	app->onAppCmd = Activity::appCommandCallback;

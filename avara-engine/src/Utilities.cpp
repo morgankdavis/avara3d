@@ -55,7 +55,7 @@ using namespace std;
 
 
 /***************************************************************************************
- Output Utilities
+ 	Output Utilities
  ***************************************************************************************/
 
 ostream& ae::utils::operator<<(ostream& os, const glm::vec3& v) {
@@ -142,7 +142,7 @@ string ae::utils::DateTimeString() {
 }
 
 /***************************************************************************************
- Conversion Utilities
+ 	Conversion Utilities
  ***************************************************************************************/
 
 #ifndef ANDROID
@@ -197,7 +197,7 @@ btVector4 ae::utils::BTVector4FromGLMVec4(const vec4& from) {
 }
 
 /***************************************************************************************
- Numeric Utilities
+ 	Numeric Utilities
  ***************************************************************************************/
 
 int ae::utils::Random(int min, int max) {
@@ -225,8 +225,12 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 }
 
 /***************************************************************************************
- File Utilities
+ 	File Utilities
  ***************************************************************************************/
+
+// *** executable and working directories ***
+
+#ifndef ANDROID
 
 boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 #if defined(MACOS)
@@ -274,7 +278,11 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 	return boost::none;
 }
 
+#endif // !ANDROID
+
 #ifdef ANDROID
+
+// *** binary and text files ***
 
 boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
@@ -287,24 +295,25 @@ boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 
 #ifdef ANDROID
 
-boost::optional<string> ae::utils::LoadTextAsset(const std::string& name) {
-	vector<unsigned char> buffer = LoadBinaryAsset(name);
+boost::optional<string> ae::utils::TextAsset(const string& relPath) {
+	vector<unsigned char> buffer = BinaryAsset(relPath);
 	if (buffer.size()) {
 		return string(buffer.begin(), buffer.end());
 	}
 	return boost::none;
 }
-std::vector<unsigned char> ae::utils::LoadBinaryAsset(const std::string& name) {
+
+vector<unsigned char> ae::utils::BinaryAsset(const string& relPath) {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
 	auto buffer = vector<unsigned char>();
-	helper->ReadFile(name.c_str(), &buffer);
+	helper->ReadFile(relPath.c_str(), &buffer);
 	return buffer;
 }
 
 #else
 
-boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
-	AE_LOG->debug("Loading text file at path: {}...", path.string());
+boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path) {
+	//AE_LOG->debug("Loading text file at path: {}...", path.string());
 
 	string line;
 	string source = "";
@@ -322,39 +331,56 @@ boost::optional<string> ae::utils::LoadTextFile(boost::filesystem::path& path) {
 	return boost::none;
 }
 
-
-std::vector<unsigned char> ae::utils::LoadBinaryFile(boost::filesystem::path& path) {
-#ifdef ANDROID
-	auto helper = ndk_helper::JNIHelper::GetInstance();
-
-	AAssetManager* manager = AAssetManager_fromJava();
-	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-	const char* filename = (const char*)NULL;
-	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-		AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-		char buf[BUFSIZ];
-		int nb_read = 0;
-		FILE* out = fopen(filename, "w");
-		while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-			fwrite(buf, nb_read, 1, out);
-		fclose(out);
-		AAsset_close(asset);
-	}
-	AAssetDir_close(assetDir);
-#else
+vector<unsigned char> ae::utils::BinaryFile(const boost::filesystem::path& path) {
+//#ifdef ANDROID
+//	auto helper = ndk_helper::JNIHelper::GetInstance();
+//
+//	AAssetManager* manager = AAssetManager_fromJava();
+//	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
+//	const char* filename = (const char*)NULL;
+//	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+//		AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
+//		char buf[BUFSIZ];
+//		int nb_read = 0;
+//		FILE* out = fopen(filename, "w");
+//		while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+//			fwrite(buf, nb_read, 1, out);
+//		fclose(out);
+//		AAsset_close(asset);
+//	}
+//	AAssetDir_close(assetDir);
+//#else
 	ifstream ifs(path.string(), ios::binary|ios::ate);
     ifstream::pos_type pos = ifs.tellg();
 
-    std::vector<unsigned char> result(pos);
+    vector<unsigned char> result(pos);
 
     ifs.seekg(0, ios::beg);
     ifs.read((char*)&result[0], pos);
 
     return result;
-#endif
+//#endif
 }
 
 #endif // ANDROID
+
+// *** engine shaders ***
+
+boost::optional<std::string> ae::utils::ShaderSource(const string& name,
+													 const string& type) {
+#ifdef ANDROID
+#warning _es temporary
+	return TextAsset("shaders/" + name + "_es." + type);
+#else
+	auto path = ShaderPath(name, type);
+	if (path) {
+		return TextFile(*path);
+	}
+	return boost::none;
+#endif
+}
+
+#ifndef ANDROID
 
 boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 	auto execDir = ExecutableDirectory();
@@ -368,7 +394,8 @@ boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 	return boost::none;
 }
 
-boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& name, const string& type) {
+boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& name,
+															   const string& type) {
 	auto shadersDir = ShadersDirectory();
 	if (shadersDir) {
 		return *shadersDir / (name + "." + type);
@@ -376,94 +403,24 @@ boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& nam
 	return boost::none;
 }
 
-boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-#ifdef XCODE
-		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
+#endif // !ANDROID
+
+// *** engine fonts ***
+
+vector<unsigned char> ae::utils::FontData(const string& name,
+										  const string& type) {
+#ifdef ANDROID
+	return BinaryAsset("fonts/" + name + "." + type);
 #else
-		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "images";
+	auto fontPath = FontPath(name, type);
+	if (fontPath) {
+		return BinaryFile(*fontPath);
+	}
+	return vector<unsigned char>();
 #endif
-	}
-	return boost::none;
-}
-
-shared_ptr<Image> ae::utils::ImageNamed(const string& name, const string& type) {
-	auto imagesDir = ImagesDirectory();
-	if (imagesDir) {
-		auto fullPath = *imagesDir / (name + "." + type);
-		return make_shared<Image>(fullPath.string());
-	}
-	return nullptr;
-	
-	//	string fullPath = ImagePath(name, type);
-	//	
-	//	return make_shared<Image>(fullPath);
-}
-
-boost::optional<boost::filesystem::path> ae::utils::ImagePath(const string& name, const string& type) {
-	auto imagesDir = ImagesDirectory();
-	if (imagesDir) {
-		return *imagesDir / (name + "." + type);
-	}
-	return boost::none;
-}
-
-boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-#ifdef XCODE
-		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-#else
-		return execDir->parent_path().parent_path().parent_path() / "tests" / "data";
-#endif
-	}
-	return boost::none;
 }
 
 #ifndef ANDROID
-shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
-	return TestSceneNamed(name, "dae");
-}
-
-shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
-											const string& type) {
-	auto testDataDir = TestDataDirectory();
-	if (testDataDir) {
-		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
-		//return make_shared<Scene>(fullPath.string());
-		return Scene::LoadFromFile(fullPath.string());
-	}
-	return nullptr;
-}
-#endif // !ANDROID
-
-shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-											bool flipHorizontal) {
-	return TestImageNamed(name, "png", flipHorizontal);
-}
-
-shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-											const string& type,
-											bool flipHorizontal) {
-	auto testDataDir = TestDataDirectory();
-	if (testDataDir) {
-		auto fullPath = *testDataDir / "images" / (name + "." + type);
-		return make_shared<Image>(fullPath.string(), flipHorizontal);
-	}
-	return nullptr;
-}
-
-shared_ptr<CubeImage> ae::utils::TestCubeImageNamed(const string& name,
-																	const string& type) {
-	
-	return make_shared<CubeImage>(TestImageNamed(name + "_posx", type, false),
-								  TestImageNamed(name + "_negx", type, false),
-								  TestImageNamed(name + "_posy", type, false),
-								  TestImageNamed(name + "_negy", type, false),
-								  TestImageNamed(name + "_posz", type, false),
-								  TestImageNamed(name + "_negz", type, false));
-}
 
 boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 	auto execDir = ExecutableDirectory();
@@ -477,7 +434,8 @@ boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 	return boost::none;
 }
 
-boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name, const string& type) {
+boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
+															 const string& type) {
 	auto fontsDir = FontsDirectory();
 	if (fontsDir) {
 		return *fontsDir / (name + "." + type);
@@ -485,11 +443,148 @@ boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
 	return boost::none;
 }
 
+#endif // !ANDROID
+
+// *** test directory ***
+
+#ifndef ANDROID
+boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+#ifdef XCODE
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
+#else
+		return execDir->parent_path().parent_path().parent_path() / "tests" / "data";
+#endif
+	}
+	return boost::none;
+}
+#endif // !ANDROID
+
+// *** engine images ***
+
+shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+										const string& type) {
+#ifdef ANDROID
+	auto data = BinaryAsset("images/" + name + "." + type);
+	//auto data = BinaryAsset("images/" + (name + "." + type));
+	if (data.size()) {
+		return make_shared<Image>(data);
+	}
+#else
+	auto imagesDir = ImagesDirectory();
+	if (imagesDir) {
+		auto fullPath = *imagesDir / (name + "." + type);
+		return make_shared<Image>(fullPath.string());
+	}
+#endif
+	return nullptr;
+}
+
+#ifndef ANDROID
+
+boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+#ifdef XCODE
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
+#else
+		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "images";
+#endif
+	}
+	return boost::none;
+}
+
+boost::optional<boost::filesystem::path> ae::utils::ImagePath(const string& name,
+															  const string& type) {
+	auto imagesDir = ImagesDirectory();
+	if (imagesDir) {
+		return *imagesDir / (name + "." + type);
+	}
+	return boost::none;
+}
+
+#endif // !ANDROID
+
+// *** test images ***
+
+shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
+											bool flipHorizontal) {
+	return TestImageNamed(name, "png", flipHorizontal);
+}
+
+shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
+											const string& type,
+											bool flipHorizontal) {
+#ifdef ANDROID
+	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
+	return make_shared<Image>(data);
+#else
+	auto testDataDir = TestDataDirectory();
+	if (testDataDir) {
+		auto fullPath = *testDataDir / "images" / (name + "." + type);
+		return make_shared<Image>(fullPath.string(), flipHorizontal);		
+	}
+#endif
+	return nullptr;
+}
+
+shared_ptr<CubeImage> ae::utils::TestCubeImageNamed(const string& name,
+													const string& type) {
+	
+	return make_shared<CubeImage>(TestImageNamed(name + "_posx", type, false),
+								  TestImageNamed(name + "_negx", type, false),
+								  TestImageNamed(name + "_posy", type, false),
+								  TestImageNamed(name + "_negy", type, false),
+								  TestImageNamed(name + "_posz", type, false),
+								  TestImageNamed(name + "_negz", type, false));
+}
+
+// *** test scenes ***
+
+#ifndef ANDROID
+
+shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
+	return TestSceneNamed(name, "dae");
+}
+
+shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
+											const string& type) {
+//#ifdef ANDROID
+//	auto data = BinaryAsset("testdata/scenes/" + (name + "." + type));
+//	if (data.size()) {
+//		return Scene::LoadFromData(data);
+//	}
+//#else
+//	auto testDataDir = TestDataDirectory();
+//	if (testDataDir) {
+//		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
+//		auto data = BinaryFile(fullPath);
+//		if (data.size()) {
+//			return Scene::LoadFromData(data);
+//		}
+//	}
+//#endif
+	
+	auto testDataDir = TestDataDirectory();
+	if (testDataDir) {
+		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
+		return Scene::LoadFromFile(fullPath.string());
+	}
+
+	return nullptr;
+}
+
+#endif // !ANDROID
+
 /***************************************************************************************
- Misc Utilities
+ 	Misc Utilities
  ***************************************************************************************/
 
 void ae::utils::SaveSnapshot(RenderContext& context) {
+#ifdef ANDROID
+	throw Exception("SaveSnapshot() not supported on Android.");
+#else
 	auto image = context.snapshot();
 	
 	string dateTime = DateTimeString();
@@ -507,9 +602,14 @@ void ae::utils::SaveSnapshot(RenderContext& context) {
 	else {
 		AE_LOG->warn("Couldn't locate executable directory.");
 	}
+#endif
 }
 
-void ae::utils::StartGIFRecording(RenderContext& context, unsigned maxHeight, unsigned maxFramerate) {
+void ae::utils::StartGIFRecording(RenderContext& context,
+								  unsigned maxHeight, unsigned maxFramerate) {
+#ifdef ANDROID
+	throw Exception("StartGIFRecording() not supported on Android.");
+#else
 	char filename[256] = "";
 	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
 	auto execDir = ExecutableDirectory();
@@ -520,8 +620,13 @@ void ae::utils::StartGIFRecording(RenderContext& context, unsigned maxHeight, un
 	else {
 		AE_LOG->warn("Couldn't locate executable directory.");
 	}
+#endif
 }
 
 void ae::utils::StopGIFRecording(RenderContext& context) {
+#ifdef ANDROID
+	throw Exception("StopGIFRecording() not supported on Android.");
+#else
 	context.stopGIFRecording();
+#endif
 }

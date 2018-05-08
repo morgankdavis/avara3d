@@ -7,12 +7,14 @@
 #include <memory>
 
 #include <glm/glm.hpp>
+#include <NDKHelper.h>
 
 #include "ae.h"
-#include "NDKHelper.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -22,13 +24,22 @@ struct android_app;
 
 void android_main(android_app* app) {
 
+	Logger::Init();
+	Logger::Level(spdlog::level::trace);
+
+
+	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
+
+
+
+
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
@@ -39,8 +50,20 @@ void android_main(android_app* app) {
 	scene->rootNode()->addChildNode(sphereNode);
 	sphereNode->position({0.0f, 0.0f, 0.0f});
 
-	auto background = make_shared<MaterialProperty>(Color::Lime());
+	//auto gridImage = TestImageNamed("grid10_512");
+	auto gridImage = TestImageNamed("plant", string("jpg"));
+	auto sphereMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	sphereMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	sphereMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
+	sphereNode->geometry()->addMaterial(sphereMaterial);
+
+//	auto background = make_shared<MaterialProperty>(Color::Lime());
+//	scene->background(background);
+
+	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
 	scene->background(background);
+
 
 	activity->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 

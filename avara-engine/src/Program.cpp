@@ -76,12 +76,6 @@ shared_ptr<Program> Program::PhysicsDebugLine() {
 }
 
 /**************************************************************************************
-     Static Prorotypes
- **************************************************************************************/
-
-boost::optional<string> ShaderSourceNamed(const string& name, const string& type);
-
-/**************************************************************************************
      Lifecycle
  **************************************************************************************/
 
@@ -94,10 +88,6 @@ Program::Program(const string& name):
 	m_fragmentShaderSource(boost::optional<string>(boost::none)),
 	m_uniformLocations(map<string, int>() ){
 		
-//		m_logString = {};
-//		m_vertexShaderSource = {};
-//		m_fragmentShaderSource = {};
-		
 		m_glID = glCreateProgram();
 		
 		if (m_glID == 0) {
@@ -108,59 +98,23 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			// ANDROID
-
+			auto vsSource = ShaderSource(name, "vert");
+			auto fsSource = ShaderSource(name, "frag");
+			
+			if (vsSource && fsSource) {
+				vertexShaderSource(*vsSource);
+				fragmentShaderSource(*fsSource);
 				
-				auto vsSource = ShaderSourceNamed(name, "vert");
-				auto fsSource = ShaderSourceNamed(name, "frag");
-				
-				//                cout << "vs: " << *vs << endl;
-				//                cout << "fs: " << *fs << endl;
-				
-				if (vsSource && fsSource) {
-					vertexShaderSource(*vsSource);
-					fragmentShaderSource(*fsSource);
-					
-					prepare();
-				}
-				else {
-					throw Exception("Couldn't load shader sources.");
-				}
-
-
-//			// ORIGINAL			
-//			auto vsPath = ShaderPath(name, "vert");
-//			auto fsPath = ShaderPath(name, "frag");
-//			
-//			if (vsPath && fsPath) {
-//
-//				auto vsSource = LoadTextFile(*vsPath);
-//				auto fsSource = LoadTextFile(*fsPath);
-//				
-////                cout << "vs: " << *vs << endl;
-////                cout << "fs: " << *fs << endl;
-//
-//				if (vsSource && fsSource) {
-//					vertexShaderSource(*vsSource);
-//					fragmentShaderSource(*fsSource);
-//					
-//					prepare();
-//				}
-//				else {
-//					throw Exception("Couldn't load shader sources.");
-//				}
-//			}
-//			else {
-//				throw Exception("Couldn't locate shader sources.");
-//			}
+				prepare();
+			}
+			else {
+				throw Exception("Couldn't load shader sources.");
+			}
 		}
 }
 
 Program::~Program() {
-//	if (m_glID > 0) {
-//		AE_LOG->debug("Deleting '{}' GL program...", m_name);
-//		glDeleteProgram(m_glID);
-//	}
+	
 }
 
 /**************************************************************************************
@@ -566,24 +520,3 @@ void Program::glID(GLuint glID) {
 void Program::isLinked(bool isLinked) {
 	m_isLinked = isLinked;
 }
-
-//void Program::logString(boost::optional<string> logString) {
-//	m_logString = logString;
-//}
-
-/**************************************************************************************
-     Static
- **************************************************************************************/
-
-boost::optional<string> ShaderSourceNamed(const string& name, const string& type) {
-#ifdef ANDROID
-	return LoadTextAsset("shaders/" + name + "_es." + type);
-#else
-	auto path = ShaderPath(name, type);
-	if (path) {
-		return LoadTextFile(*path);
-	}
-	return boost::none;
-#endif
-}
-

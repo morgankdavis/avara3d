@@ -81,10 +81,8 @@ namespace ae {
 		unsigned glID();
 		bool isLinked() const;
 		boost::optional<std::string> vertexShaderSource() const;
-		//void vertexShaderSource(boost::optional<std::string> source);
 		void vertexShaderSource(std::string source);
 		boost::optional<std::string> fragmentShaderSource() const;
-		//void fragmentShaderSource(boost::optional<std::string> source);
 		void fragmentShaderSource(std::string source);
 		
 	private:

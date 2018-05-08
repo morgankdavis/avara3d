@@ -29,8 +29,11 @@ namespace ae {
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
-		
+
+#ifndef ANDROID
 		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
+#endif
+		Image(std::vector<unsigned char>& data, bool flipHorizontal=true);
 		Image(unsigned char* data, unsigned width, unsigned height, bool flipHorizontal=true);
 		
 		Image(const Image& other); // copy constructor
@@ -46,7 +49,6 @@ namespace ae {
 		unsigned height() const;
 		bool writePNG(boost::filesystem::path path) const;
 		
-		
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
@@ -59,7 +61,8 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		void loadFile(boost::filesystem::path path, bool flipHorizontal);
+		//void loadFile(boost::filesystem::path path, bool flipHorizontal);
+		void loadBinary(std::vector<unsigned char>& data, bool flipHorizontal);
 		void flip();
 		
 		unsigned			m_width;

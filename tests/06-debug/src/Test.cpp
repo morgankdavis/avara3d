@@ -39,7 +39,7 @@ using namespace glm;
 
 int Test::run(const vector<string>& args) {
 	LoggerSink sinks = (LoggerSink)0;
-	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_STDOUT);
+	sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NATIVE);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_MainFile);
 	//sinks = (LoggerSink)(sinks | (LoggerSink)LoggerSink_NamedFile);
 	auto logger = make_shared<Logger>("test06", sinks);

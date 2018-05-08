@@ -13,46 +13,34 @@ Tests:
 
 	30 - rigidbodies
 
-
-		Input
-			Capture cursor: https://developer.android.com/training/gestures/movement
-			Android 8+, API 26-27
-
-
-		Assimp/importing
-		Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
-
+		Consider adding AE_INIT()
+			-> JNI Helper
+			-> Log, anything else
 
 		ANDROID!
 
-			Clean up utilities (LoadFont, etc)
+			Throw if material property constructor is null?
+
+			Record GIF into buffer?
+			
+			Assimp/importing
+
+			Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
 
 			Make shim for ES shaders
 
-			OpenGLRenderer: open init FontStash when its needed! (Info overlay)
-
-			Why aren't Program exceptions being caught??
-
-			LoadBinaryFile() should return boost::optional
-				Utilites check const in function parameters
+			Input
+				Cursor movement
+				Capture cursor: https://developer.android.com/training/gestures/movement
+				Android 8+, API 26-27
 
 
-			bool Engine::IsReady() {
-			if (has_focus_) return true;
-
-				return false;
-			}
-
-			********
-			// On some devices, ANativeWindow is re-created when the app is resumed
-				-> WORK ON ANDROID ACTIVITY LIFECYCLE
-			********
+			WORK ON ANDROID ACTIVITY LIFECYCLE
+				"// On some devices, ANativeWindow is re-created when the app is resumed"
+				bool Engine::IsReady() (from Teapots sample)
 
 
-			Get stdout:
-				https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-				https://developer.android.com/studio/command-line/adb
-
+		Restore tests. Use flat main.cpp files.		
 
 
 		Move things from top-level CMakeLists into avara-engine
