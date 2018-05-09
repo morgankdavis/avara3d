@@ -19,9 +19,6 @@ Tests:
 
 			Input
 				Cursor movement
-				Capture cursor: https://developer.android.com/training/gestures/movement
-				Android 8+, API 26-27
-
 
 			WORK ON ANDROID ACTIVITY LIFECYCLE
 				"// On some devices, ANativeWindow is re-created when the app is resumed"
@@ -134,6 +131,9 @@ QUESTIONS:
 
 
 Laundry list:
+
+	Android capture cursor: https://developer.android.com/training/gestures/movement
+					Android 8+, API 26-27
 
 	ANDROID RAW MOUSE
 		http://newandroidbook.com/Book/Input.html?r

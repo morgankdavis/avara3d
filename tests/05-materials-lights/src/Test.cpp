@@ -81,6 +81,8 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
+	Logger::Level(LOG_LEVEL::DEBUG);
+	
 	AE_LOG->info("Test::run()");
 
 	auto renderer = make_shared<OpenGLRenderer>();

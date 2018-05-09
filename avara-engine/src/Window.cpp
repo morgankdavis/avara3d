@@ -318,8 +318,16 @@ static bool InitializeGLEW() {
 		
 		const GLubyte *renderer = glGetString(GL_RENDERER);
 		const GLubyte *version = glGetString(GL_VERSION);
+		
 		AE_LOG->info("Renderer: {}", renderer);
 		AE_LOG->info("Version: {}", version);
+		
+		GLint numExtensions;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+		AE_LOG->info("Extensions:\n");
+		for (GLint e=0 ; e<numExtensions ; ++e) {
+			AE_LOG->info("{}", glGetStringi(GL_EXTENSIONS, e));
+		}
 		
 		initialized = true;
 	}

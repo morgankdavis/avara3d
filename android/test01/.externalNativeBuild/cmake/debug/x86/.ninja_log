@@ -610,3 +610,10 @@
 2173	2569	0	../../../../build/intermediates/cmake/debug/obj/x86/libae.so	54457df460b87ca3
 12	2508	0	android/test01/src/main/cpp/CMakeFiles/test_main.dir/test_main.cpp.o	9c5a8244c4a99d77
 2508	2554	0	../../../../build/intermediates/cmake/debug/obj/x86/libtest_main.so	88b11a827636ce24
+12	112	0	avara-engine/CMakeFiles/ae.dir/src/Window.cpp.o	6f08731ebb189d88
+12	2188	0	avara-engine/CMakeFiles/ae.dir/src/Activity.cpp.o	c4e84549aa6d8bb5
+12	31	0	avara-engine/CMakeFiles/ae.dir/src/Window.cpp.o	6f08731ebb189d88
+12	2048	0	avara-engine/CMakeFiles/ae.dir/src/Activity.cpp.o	c4e84549aa6d8bb5
+12	2223	0	avara-engine/CMakeFiles/ae.dir/src/RenderContext.cpp.o	c7b8c2d248f0a869
+2223	2995	0	../../../../build/intermediates/cmake/debug/obj/x86/libae.so	54457df460b87ca3
+2996	3061	0	../../../../build/intermediates/cmake/debug/obj/x86/libtest_main.so	88b11a827636ce24

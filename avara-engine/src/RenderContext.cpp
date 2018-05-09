@@ -120,7 +120,7 @@ DEBUG_OPTIONS RenderContext::debugOptions() const {
 void RenderContext::debugOptions(DEBUG_OPTIONS options) {
 	
 #ifdef ANDROID
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
 	}
 	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
