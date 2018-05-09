@@ -17,7 +17,7 @@ Tests:
 
 		ANDROID!
 
-			Make shim for ES shaders
+			Check scene set debug options (wireframe, aabb, points)
 
 			Input
 				Cursor movement

@@ -109,10 +109,10 @@ void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
 
 float MaterialProperty::maxAnisotropy() const {
 #ifdef ANDROID
-	throw Exception("Anisotropy is not supported on this platform.");
-#endif
-	
+	return 0;
+#else
 	return m_maxAnisotropy;
+#endif
 }
 
 void MaterialProperty::maxAnisotropy(float max) {

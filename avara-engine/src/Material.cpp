@@ -149,7 +149,11 @@ void Material::doubleSided(bool flag) {
 }
 
 FILL_MODE Material::fillMode() const {
+#ifdef ANDROID
+	return FILL_MODE::FILL;
+#else
 	return m_fillMode;
+#endif
 }
 
 void Material::fillMode(FILL_MODE mode) {

@@ -224,6 +224,20 @@ bool ae::utils::FloatEqual(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
 }
 
+/**************************************************************************************
+     String Utilities
+ **************************************************************************************/
+
+void ae::utils::StringReplace(string& str,
+							  const string& oldStr,
+							  const string& newStr) {
+	string::size_type pos = 0u;
+	while ((pos = str.find(oldStr, pos)) != string::npos) {
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
 /***************************************************************************************
  	File Utilities
  ***************************************************************************************/
@@ -368,16 +382,33 @@ vector<unsigned char> ae::utils::BinaryFile(const boost::filesystem::path& path)
 
 boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 													 const string& type) {
+	boost::optional<string> rawSource = boost::none;
 #ifdef ANDROID
 #warning _es temporary
-	return TextAsset("shaders/" + name + "_es." + type);
+	//return TextAsset("shaders/" + name + "_es." + type);
+	rawSource = TextAsset("shaders/" + name + "." + type);
 #else
 	auto path = ShaderPath(name, type);
 	if (path) {
-		return TextFile(*path);
+		//return TextFile(*path);
+		rawSource = TextFile(*path);
 	}
-	return boost::none;
+	//return boost::none;
 #endif
+	
+	if (rawSource) {
+		static const string HEADER_PLACEHOLDER = "<#HEADER#>";
+#ifdef ANDROID
+		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
+#else
+		static const string PLATFORM_HEADER = "#version 330";
+#endif
+		auto replaced = *rawSource;
+		StringReplace(replaced, HEADER_PLACEHOLDER, PLATFORM_HEADER);
+		return replaced;
+	}
+	
+	return boost::none;
 }
 
 #ifndef ANDROID

@@ -1,4 +1,4 @@
-#version 330
+<#HEADER#>
 
 
 #define GAMMA		2.2

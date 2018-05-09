@@ -1,4 +1,4 @@
-#version 330
+<#HEADER#>
 
 
 #define GAMMA 	                    2.2
@@ -42,12 +42,12 @@ struct Light {
 	float 	PADDING6;
 	float 	PADDING7;
 	float 	PADDING8;
-//	float 	attenuationStart;
-//	float 	attenuationEnd;
-//	float 	attenuationExponent;
-//	vec3 	direction_world;
-//	float 	innerAngle;
-//	float 	outerAngle;
+	//	float 	attenuationStart;
+	//	float 	attenuationEnd;
+	//	float 	attenuationExponent;
+	//	vec3 	direction_world;
+	//	float 	innerAngle;
+	//	float 	outerAngle;
 };
 
 struct Fog {
@@ -94,7 +94,7 @@ void main () {
 	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ke = vec4(0.0, 0.0, 0.0, 1.0);
-
+	
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	
 	switch (emissiveMode) {
@@ -104,11 +104,11 @@ void main () {
 	}
 	
 	if (emissiveMode != MATERIAL_MODE_NONE) {
-
-	    // *** emissive intensity ***
-
-        fragColor = vec4(vec3(Ke), 1.0);
-        // (no other lighting calculations)
+		
+		// *** emissive intensity ***
+		
+		fragColor = vec4(vec3(Ke), 1.0);
+		// (no other lighting calculations)
 	}
 	else {
 		switch (ambientMode) {
@@ -164,18 +164,18 @@ void main () {
 				vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 				vec3 direction_to_light_eye = normalize(light_position_eye - vertex_position_eye);
 				float dot_prod_diffuse = max(dot(direction_to_light_eye, vertex_normal_eye), 0.0);
-
+				
 				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
-
-                float distanceToLight = distance(light_position_eye, vertex_position_eye);
-				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2));
-
+				
+				float distanceToLight = distance(light_position_eye, vertex_position_eye);
+				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
+				
 				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity w/attenuation
 				
 				// *** specular intensity ***
 				
 				Is = vec3(0.0, 0.0, 0.0);
-				if (Ks.x != 0 || Ks.y != 0 || Ks.z != 0) {
+				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 					
 					vec3 surface_to_viewer_eye = normalize(-vertex_position_eye); // viewer is at 0,0,0
 					
@@ -189,8 +189,8 @@ void main () {
 					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
 					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 					float specular_factor = pow(dot_prod_specular, specularExponent);
-
-                    Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity w/attenuation
+					
+					Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity w/attenuation
 				}
 				
 				fragColor += vec4(Is + Id + Ia, 0.0);
@@ -203,9 +203,9 @@ void main () {
 			}
 		}
 		
-	    fragColor = vec4(vec3(fragColor), Kd.a);
+		fragColor = vec4(vec3(fragColor), Kd.a);
 	}
-
+	
 	
 	// fog
 	
