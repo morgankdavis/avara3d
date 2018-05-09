@@ -17,8 +17,6 @@ Tests:
 
 		ANDROID!
 
-			Check scene set debug options (wireframe, aabb, points)
-
 			Input
 				Cursor movement
 				Capture cursor: https://developer.android.com/training/gestures/movement

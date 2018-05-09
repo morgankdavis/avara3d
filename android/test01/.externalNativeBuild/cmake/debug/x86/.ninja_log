@@ -605,3 +605,8 @@
 12	2165	0	avara-engine/CMakeFiles/ae.dir/src/Material.cpp.o	b020f18ee9888820
 2166	2557	0	../../../../build/intermediates/cmake/debug/obj/x86/libae.so	54457df460b87ca3
 2557	2605	0	../../../../build/intermediates/cmake/debug/obj/x86/libtest_main.so	88b11a827636ce24
+12	2139	0	avara-engine/CMakeFiles/ae.dir/src/Material.cpp.o	b020f18ee9888820
+12	2173	0	avara-engine/CMakeFiles/ae.dir/src/RenderContext.cpp.o	c7b8c2d248f0a869
+2173	2569	0	../../../../build/intermediates/cmake/debug/obj/x86/libae.so	54457df460b87ca3
+12	2508	0	android/test01/src/main/cpp/CMakeFiles/test_main.dir/test_main.cpp.o	9c5a8244c4a99d77
+2508	2554	0	../../../../build/intermediates/cmake/debug/obj/x86/libtest_main.so	88b11a827636ce24

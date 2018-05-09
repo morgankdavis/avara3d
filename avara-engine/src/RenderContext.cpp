@@ -16,6 +16,7 @@
 #include "stb_image_resize.h"
 
 #include "Camera.h"
+#include "Exception.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Node.h"
@@ -117,6 +118,16 @@ DEBUG_OPTIONS RenderContext::debugOptions() const {
 }
 
 void RenderContext::debugOptions(DEBUG_OPTIONS options) {
+	
+#ifdef ANDROID
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES) {
+		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
+	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		throw Exception("DEBUG_OPTIONS::SHOW_BOUNDING_BOXES not supported on this platform.");
+	}
+#endif
+	
 	m_debugOptions = options;
 	
 //	if (m_scene && m_scene->physicsWorld()) {

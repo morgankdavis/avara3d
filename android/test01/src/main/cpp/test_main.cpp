@@ -76,6 +76,43 @@ void android_main(android_app* app) {
 
 void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 	AE_LOG->trace("renderContextUpdateCallback({})", time);
+
+	static float previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+
+	//auto activity = static_cast<Activity&>(renderContext);
+
+	// get input
+
+	//auto keysPressed = activity.inputManager()->keysPressed();
+	auto keysPressed = renderContext.inputManager()->keysPressed();
+
+
+	if (keysPressed.count(KEY::F)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+		else {
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+	}
+	if (keysPressed.count(KEY::B)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+		else {
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+	}
+	if (keysPressed.count(KEY::I)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+		else {
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+	}
 }
 
 void renderContextWillRenderCallback(RenderContext& renderContext, float time) {

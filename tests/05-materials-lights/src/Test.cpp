@@ -233,7 +233,7 @@ int Test::run(const vector<string>& args) {
 
 void Test::renderContextUpdateCallback(RenderContext& renderContext, float time) {
 	
-	static double previousSeconds = time;
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
