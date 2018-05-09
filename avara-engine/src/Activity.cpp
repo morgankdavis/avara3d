@@ -548,8 +548,8 @@ EGLint Activity::swap() {
 	return EGL_SUCCESS;
 }
 
-/* NEEDS to be somewhere in AE to make the linker happy.
- * If a child class defines their own it will be used instead... */
-void android_main(android_app* app) {}
+/* If we DYNAMICALLY link into Android, this has to be here.
+ If we STATICALLY link it cannot be!  For dynamic, mayabe we can try 'extern'?
+//void android_main(android_app* app) {}
 
 #endif // ANDROID

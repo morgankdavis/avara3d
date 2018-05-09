@@ -28,14 +28,10 @@ file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
 
-if (DESKTOP)
-	add_library(ae STATIC ${HEADERS} ${SOURCES})
-else()
-	add_library(ae SHARED ${HEADERS} ${SOURCES})
-endif()
+add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 
-target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
+target_link_libraries(aeBullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
 
 if (MACOS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)

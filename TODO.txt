@@ -14,14 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-
-		ANDROID!
-
-			WORK ON ANDROID ACTIVITY LIFECYCLE
-				"// On some devices, ANativeWindow is re-created when the app is resumed"
-				bool Engine::IsReady() (from Teapots sample)
-
-
 		Restore tests. Use flat main.cpp files.		
 
 		Move things from top-level CMakeLists into avara-engine
@@ -129,14 +121,13 @@ QUESTIONS:
 
 Laundry list:
 
+	ANDROID ACTIVITY LIFECYCLE
+
 	Android capture cursor: https://developer.android.com/training/gestures/movement
 					Android 8+, API 26-27
 
 	ANDROID RAW MOUSE
 		http://newandroidbook.com/Book/Input.html?r
-
-	Remove "i_" properties!
-		https://embeddedartistry.com/blog/2017/7/10/using-a-c-objects-member-function-with-c-style-callbacks
 
 	Generate and store nip maps in AE texture/model file	
 
