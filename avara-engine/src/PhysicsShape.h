@@ -58,6 +58,12 @@ namespace ae {
 		
 		std::shared_ptr<btCollisionShape> btShape() const;
 		
+		PHYSICS_SHAPE_ID simulationID() const;
+		void simulationID(PHYSICS_SHAPE_ID simID);
+		
+		PHYSICS_SHAPE_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
+		
 	private:
 		
 		/***************************************************************************************
@@ -74,6 +80,9 @@ namespace ae {
 		std::shared_ptr<btCollisionShape>				m_btShape;
 		
 		std::weak_ptr<PhysicsBody>						m_physicsBody;
+		
+		PHYSICS_SHAPE_ID 								m_simulationID;
+		PHYSICS_SHAPE_DIRTY_BITS 						m_dirtyBits;
 	};
 }
 

@@ -12,8 +12,14 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 
 namespace ae {
+	
+	
+	class PhysicsWorld;
+	
 
 	class PhysicsSimulator : public std::enable_shared_from_this<PhysicsSimulator> {
 		
@@ -29,6 +35,23 @@ namespace ae {
 		PhysicsSimulator& operator=(const PhysicsSimulator& other) = delete; // copy assignment
 		
 		virtual ~PhysicsSimulator();
+		
+		/**************************************************************************************
+		     Internal
+		 **************************************************************************************/
+		
+		virtual void initialize(const PhysicsWorld& world);
+		virtual void step(float time);
+		
+	protected:
+		
+		/**************************************************************************************
+		     Protected
+		 **************************************************************************************/
+		
+		glm::vec3 												m_gravity;
+		float 													m_speed;
+		float 													m_timestep;
 	};
 }
 

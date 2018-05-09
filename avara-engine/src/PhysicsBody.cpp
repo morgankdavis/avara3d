@@ -244,15 +244,19 @@ void PhysicsBody::applyForce(vec3 force, bool impulse) {
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 	if (m_btRigidBody) {
+		/**********
 		if (impulse) m_btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
 		else m_btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+		 *********/
 	}
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 	if (m_btRigidBody) {
+		/**********
 		if (impulse) m_btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
 		else  m_btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
+		 *********/
 	}
 }
 
@@ -361,4 +365,20 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
 	return m_btMotionState;
+}
+
+PHYSICS_BODY_ID PhysicsBody::simulationID() const {
+	return m_simulationID;
+}
+
+void PhysicsBody::simulationID(PHYSICS_BODY_ID simID) {
+	m_simulationID = simID;
+}
+
+PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

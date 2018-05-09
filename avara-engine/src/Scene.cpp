@@ -75,6 +75,13 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath);
 static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType);
+
+static vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
+static vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
+static mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
+static Color ColorFromAIColor3D(const aiColor3D& from);
+static Color ColorFromAIColor4D(const aiColor4D& from);
+
 #endif // !ANDROID
 
 /**************************************************************************************
@@ -299,6 +306,14 @@ weak_ptr<RenderContext> Scene::renderContext() const {
 
 void Scene::renderContext(shared_ptr<RenderContext> context) {
 	m_renderContext = context;
+}
+
+shared_ptr<PhysicsSimulator> Scene::physicsSimulator() const {
+	
+}
+
+void Scene::physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator) {
+	
 }
 
 /**************************************************************************************
@@ -976,5 +991,34 @@ static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType) {
 		default: return LIGHT_TYPE::POINT;
 	}
 }
-#endif // !ANDROID
 
+vec2 GLMVec2FromAIVector3D(const aiVector2D& from) {
+	return vec2(from.x, from.y);
+}
+
+vec3 GLMVec3FromAIVector3D(const aiVector3D& from) {
+	return vec3(from.x, from.y, from.z);
+}
+
+mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from) {
+	mat4 to;
+	to[0][0] = from.a1; to[1][0] = from.a2;
+	to[2][0] = from.a3; to[3][0] = from.a4;
+	to[0][1] = from.b1; to[1][1] = from.b2;
+	to[2][1] = from.b3; to[3][1] = from.b4;
+	to[0][2] = from.c1; to[1][2] = from.c2;
+	to[2][2] = from.c3; to[3][2] = from.c4;
+	to[0][3] = from.d1; to[1][3] = from.d2;
+	to[2][3] = from.d3; to[3][3] = from.d4;
+	return to;
+}
+
+Color ColorFromAIColor3D(const aiColor3D& from) {
+	return Color(from.r, from.g, from.b, 1.0f);
+}
+
+Color ColorFromAIColor4D(const aiColor4D& from) {
+	return Color(from.r, from.g, from.b, from.a);
+}
+
+#endif // !ANDROID

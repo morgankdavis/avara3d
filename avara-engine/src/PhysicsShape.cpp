@@ -120,6 +120,22 @@ shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
 	return m_btShape;
 }
 
+PHYSICS_SHAPE_ID PhysicsShape::simulationID() const {
+	return m_simulationID;
+}
+
+void PhysicsShape::simulationID(PHYSICS_SHAPE_ID simID) {
+	m_simulationID = simID;
+}
+
+PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void PhysicsShape::dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
+}
+
 /***************************************************************************************
      Static
  ***************************************************************************************/
@@ -229,7 +245,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													PHYSICS_SHAPE_TYPE type,
 													vector<shared_ptr<btCollisionShape>>& childShapes) {
-	AE_LOG->trace("BTCollisionShapeFromGeometry()");
+	AE_LOG->trace("BTCompoundShapeFromNode()");
 	
 	auto compoundShape = make_shared<btCompoundShape>(true);
 	

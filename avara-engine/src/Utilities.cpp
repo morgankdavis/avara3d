@@ -142,61 +142,6 @@ string ae::utils::DateTimeString() {
 }
 
 /***************************************************************************************
- 	Conversion Utilities
- ***************************************************************************************/
-
-#ifndef ANDROID
-
-vec2 ae::utils::GLMVec2FromAIVector3D(const aiVector2D& from) {
-	return vec2(from.x, from.y);
-}
-
-vec3 ae::utils::GLMVec3FromAIVector3D(const aiVector3D& from) {
-	return vec3(from.x, from.y, from.z);
-}
-
-mat4 ae::utils::GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from) {
-	mat4 to;
-	
-	to[0][0] = from.a1; to[1][0] = from.a2;
-	to[2][0] = from.a3; to[3][0] = from.a4;
-	to[0][1] = from.b1; to[1][1] = from.b2;
-	to[2][1] = from.b3; to[3][1] = from.b4;
-	to[0][2] = from.c1; to[1][2] = from.c2;
-	to[2][2] = from.c3; to[3][2] = from.c4;
-	to[0][3] = from.d1; to[1][3] = from.d2;
-	to[2][3] = from.d3; to[3][3] = from.d4;
-	
-	return to;
-}
-
-Color ae::utils::ColorFromAIColor3D(const aiColor3D& from) {
-	return Color(from.r, from.g, from.b, 1.0f);
-}
-
-Color ae::utils::ColorFromAIColor4D(const aiColor4D& from) {
-	return Color(from.r, from.g, from.b, from.a);
-}
-
-#endif // !ANDROID
-
-vec3 ae::utils::GLMVec3FromBTVector3(const btVector3& from) {
-	return vec3(from.x(), from.y(), from.z());
-}
-
-vec4 ae::utils::GLMVec4FromBTVector4(const btVector4& from) {
-	return vec4(from.x(), from.y(), from.z(), from.w());
-}
-
-btVector3 ae::utils::BTVector3FromGLMVec3(const vec3& from) {
-	return btVector3(from.x, from.y, from.z);
-}
-
-btVector4 ae::utils::BTVector4FromGLMVec4(const vec4& from) {
-	return btVector4(from.x, from.y, from.z, from.w);
-}
-
-/***************************************************************************************
  	Numeric Utilities
  ***************************************************************************************/
 

@@ -9,17 +9,102 @@
 #include "BulletPhysicsSimulator.h"
 
 
-using namespace ae;
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <LinearMath/btScalar.h> // btGetVersion() !
 
+
+#include "Logger.h"
+#include "PhysicsDebugDrawer.h"
+#include "PhysicsBody.h"
+#include "PhysicsShape.h"
+#include "PhysicsWorld.h"
+
+
+using namespace ae;
+using namespace glm;
+using namespace std;
+
+
+/**************************************************************************************
+     Static Prototypes
+ **************************************************************************************/
+
+static btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option);
+static vec3 GLMVec3FromBTVector3(const btVector3& from);
+static vec4 GLMVec4FromBTVector4(const btVector4& from);
+static btVector3 BTVector3FromGLMVec3(const vec3& from);
+static btVector4 BTVector4FromGLMVec4(const vec4& from);
 
 /***************************************************************************************
      Lifescycle
  ***************************************************************************************/
 
-BulletPhysicsSimulator::BulletPhysicsSimulator() {
+BulletPhysicsSimulator::BulletPhysicsSimulator():
+	PhysicsSimulator() {
 	
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	
+}
+
+/**************************************************************************************
+     Physics Simulator
+ **************************************************************************************/
+
+void BulletPhysicsSimulator::initialize(const PhysicsWorld& world) {
+	AE_LOG->trace("initialize()");
+	
+	AE_LOG->info("Bullet version: {}",  btGetVersion());
+	
+	m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
+	m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
+	m_btBroadphase = make_shared<btDbvtBroadphase>();
+	m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
+	m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
+													 m_btBroadphase.get(),
+													 m_btSolver.get(),
+													 m_btCollisionConfiguration.get());
+	
+	m_btWorld->setGravity(BTVector3FromGLMVec3(world.gravity()));
+}
+
+void BulletPhysicsSimulator::step(float time) {
+	
+}
+						  
+/**************************************************************************************
+     Static
+ **************************************************************************************/
+	
+btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
+	
+	switch (option) {
+		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
+		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
+		default:
+			AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
+			return btIDebugDraw::DBG_NoDebug;
+	}
+}
+
+vec3 GLMVec3FromBTVector3(const btVector3& from) {
+	return vec3(from.x(), from.y(), from.z());
+}
+
+vec4 GLMVec4FromBTVector4(const btVector4& from) {
+	return vec4(from.x(), from.y(), from.z(), from.w());
+}
+
+btVector3 BTVector3FromGLMVec3(const vec3& from) {
+	return btVector3(from.x, from.y, from.z);
+}
+
+btVector4 BTVector4FromGLMVec4(const vec4& from) {
+	return btVector4(from.x, from.y, from.z, from.w);
 }

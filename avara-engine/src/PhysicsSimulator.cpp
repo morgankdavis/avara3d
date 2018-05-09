@@ -16,10 +16,27 @@ using namespace ae;
      Lifescycle
  ***************************************************************************************/
 
-PhysicsSimulator::PhysicsSimulator() {
+PhysicsSimulator::PhysicsSimulator()
+//	m_gravity({0, -9.807, 0}),
+//	m_speed(1.0),
+//	m_timestep(1.0/60.0) {
+	{
 		
 }
 
 PhysicsSimulator::~PhysicsSimulator() {
 	
 }
+
+/**************************************************************************************
+     Internal
+ **************************************************************************************/
+
+void PhysicsSimulator::initialize(const PhysicsWorld& world) {
+	
+}
+
+void PhysicsSimulator::step(float time) {
+	
+}
+

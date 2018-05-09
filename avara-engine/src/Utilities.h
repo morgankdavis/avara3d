@@ -62,24 +62,7 @@ namespace ae {
 		std::string StringFromColor(const Color& c);
 		
 		std::string DateTimeString();
-		
-		/***************************************************************************************
-		 	Conversion Utilities
-		 ***************************************************************************************/
-		
-#ifndef ANDROID
-		glm::vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
-		glm::vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
-		glm::mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
-		Color ColorFromAIColor3D(const aiColor3D& from);
-		Color ColorFromAIColor4D(const aiColor4D& from);
-#endif
-		
-		glm::vec3 GLMVec3FromBTVector3(const btVector3& from);
-		glm::vec4 GLMVec4FromBTVector4(const btVector4& from);
-		btVector3 BTVector3FromGLMVec3(const glm::vec3& from);
-		btVector4 BTVector4FromGLMVec4(const glm::vec4& from);
-		
+
 		/***************************************************************************************
 		 	Numeric Utilities
 		 ***************************************************************************************/

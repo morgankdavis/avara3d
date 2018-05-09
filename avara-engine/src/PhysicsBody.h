@@ -125,6 +125,12 @@ namespace ae {
 		void attachedToNode(std::shared_ptr<Node> node);
 		std::shared_ptr<btDefaultMotionState> btMotionState() const;
 		
+		PHYSICS_BODY_ID simulationID() const;
+		void simulationID(PHYSICS_BODY_ID simID);
+		
+		PHYSICS_BODY_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
+		
 	private:
 		
 		/***************************************************************************************
@@ -153,6 +159,9 @@ namespace ae {
 		
 		std::shared_ptr<btDefaultMotionState>	m_btMotionState;
 		std::shared_ptr<btRigidBody>			m_btRigidBody;
+		
+		PHYSICS_BODY_ID 						m_simulationID;
+		PHYSICS_BODY_DIRTY_BITS 				m_dirtyBits;
 	};
 }
 

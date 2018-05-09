@@ -19,6 +19,9 @@ namespace ae {
 	typedef unsigned GEOMETRY_ELEMENT_ID;
 	typedef unsigned MATERIAL_ID;
 	typedef unsigned MATERIAL_PROPERTY_ID;
+	typedef unsigned PHYSICS_BODY_ID;
+	typedef unsigned PHYSICS_SHAPE_ID;
+	
 	
 	enum class LOG_LEVEL : unsigned {
 		TRACE =		0,
@@ -290,6 +293,9 @@ namespace ae {
 		glm::vec3 cameraPosition;
 	} RenderStats;
 		
+		
+		
+
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
 		WORLD_TRANSFORM =		1 << 0, // not currently used
@@ -302,8 +308,8 @@ namespace ae {
 #define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 
 	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
-		VERTEX_DATA =		1 << 0,
-		ALL = 				UINT_MAX
+		VERTEX_DATA =			1 << 0,
+		ALL = 					UINT_MAX
 	};
 		
 #define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
@@ -311,7 +317,7 @@ namespace ae {
 #define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
 	enum class MATERIAL_DIRTY_BITS : unsigned {
-		ALL = 				UINT_MAX
+		ALL = 					UINT_MAX
 	};
 		
 #define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
@@ -332,6 +338,34 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
 #define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+	
+	enum class PHYSICS_WORLD_DIRTY_BITS : unsigned {
+		TIMESTEP = 				1 << 0,
+		GRAVITY = 				1 << 1,
+		ALL = 					UINT_MAX
+	};
+			
+#define PHYSICS_WORLD_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define PHYSICS_WORLD_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+
+	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
+		FORCES =				1 << 0,
+		TORQUES =				1 << 1,
+		ALL = 					UINT_MAX
+	};
+			
+#define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS_CONTAINS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS_CONTAINS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+
+	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
+		ALL = 					UINT_MAX
+	};
+			
+#define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 }
 
 

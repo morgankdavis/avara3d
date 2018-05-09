@@ -549,7 +549,7 @@ EGLint Activity::swap() {
 }
 
 /* If we DYNAMICALLY link into Android, this has to be here.
- If we STATICALLY link it cannot be!  For dynamic, mayabe we can try 'extern'?
+ If we STATICALLY link it cannot be!  For dynamic, mayabe we can try 'extern'? */
 //void android_main(android_app* app) {}
 
 #endif // ANDROID

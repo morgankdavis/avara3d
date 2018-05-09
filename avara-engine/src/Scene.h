@@ -28,6 +28,7 @@ namespace ae {
 	class Geometry;
 	class MaterialProperty;
 	class Node;
+	class PhysicsSimulator;
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
@@ -96,7 +97,10 @@ namespace ae {
 		void attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);
 		
 		std::weak_ptr<RenderContext> renderContext() const;
-		void renderContext(std::shared_ptr<RenderContext> renderContext);
+		void renderContext(std::shared_ptr<RenderContext> context);
+		
+		std::shared_ptr<PhysicsSimulator> physicsSimulator() const;
+		void physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator);
 		
 	private:
 		
@@ -116,6 +120,7 @@ namespace ae {
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
 		std::weak_ptr<RenderContext>			m_renderContext;
+		std::shared_ptr<PhysicsSimulator> 		m_physicsSimulator;
 	};
 }
 

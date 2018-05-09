@@ -13,21 +13,17 @@ Tests:
 
 	30 - rigidbodies
 
+		Set something (node->geometry, scene->background)
+			-> if there's an old one, call "detached..." to set its dirty bits
+			(ex: remove scene's cube background property, re-add it, it thinks it still has good texture data)
 
-		Restore tests. Use flat main.cpp files.		
 
-		Move things from top-level CMakeLists into avara-engine
-		Identify external public headers and link to to avara-engine/include
+		BulletPhysicsSimulator
 
-		Check yo lock()s
-
-		SceneImporter/.aes
+			Make Types_Internal.h ?
 		
-		PhysicsSimulator
-			BulletPhysicsSimulator
 
 		Refactor PhysicsDebugDrawer
-			 + move Program static methods into OpenGLRenderer
 
 		Node::addChildNode()
 			m_physicsBody->attachedToNode()
@@ -45,18 +41,11 @@ Tests:
 
 		Test bullet plane shape
 
-		Physics scale
+		Scale
 			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
 		friction -> rollingFriction?
 		damping -> linearDamping?
-
-		Reconcile primitives sizing
-			+ add default detail levels for geometry primitives (+ box & plane!)
-				Add "GeometryPrimitive" superclass + factor vertex data creation
-				-> INITIALIZERS for other classes use defaults
-
-		GPU & CPU stats in overlay?
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
@@ -68,9 +57,16 @@ Tests:
 			body->setCollisionFlags( body->getCollisionFlags() |
 			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
 
-		Disable/remove physics bodies when they get too far away
+		Disable/remove physics bodies when they get too far away?
 
-		Shut down & cleanup
+
+		------ Other things (non-physics) ------	
+
+
+		Reconcile primitives sizing
+			+ add default detail levels for geometry primitives (+ box & plane!)
+				Add "GeometryPrimitive" superclass + factor vertex data creation
+				-> INITIALIZERS for other classes use defaults
 
 		Test geometry instancing!
 		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
@@ -80,6 +76,18 @@ Tests:
 		Debug Scene/Geometry extent / default camera placement
 
 		Proper git submodule arrangement
+
+		Restore tests. Use flat main.cpp files.		
+
+		Move things from top-level CMakeLists into avara-engine
+			Identify external public headers and link to to avara-engine/include
+
+		Check yo lock()s
+
+		Move Program static constructors into OpenGLRenderer
+
+		GPU & CPU stats in overlay?
+
 
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
@@ -120,6 +128,8 @@ QUESTIONS:
 
 
 Laundry list:
+
+	SceneImporter/.aes
 
 	ANDROID ACTIVITY LIFECYCLE
 
