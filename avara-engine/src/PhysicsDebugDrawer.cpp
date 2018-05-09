@@ -112,10 +112,14 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& toColor) {
 	//AE_LOG->debug("drawLine() - 2 colors");
 	
+#if 0
+	
 	m_lines.emplace_back(GLMVec3FromBTVector3(from));
 	m_lines.emplace_back(GLMVec3FromBTVector3(fromColor));
 	m_lines.emplace_back(GLMVec3FromBTVector3(to));
 	m_lines.emplace_back(GLMVec3FromBTVector3(toColor));
+	
+#endif
 }
 
 /*

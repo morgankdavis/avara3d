@@ -342,11 +342,15 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 
 	m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
 	
+#if 0
+	
 	m_btRigidBody->setLinearFactor(BTVector3FromGLMVec3(m_velocityFactor));
 	m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
 	m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
 	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
 	//m_btRigidBody->setGravity()
+	
+#endif
 	
 	if (auto scene = node->scene().lock()) {
 		scene->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());

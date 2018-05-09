@@ -31,7 +31,7 @@ file(GLOB SOURCES src/*.c*)
 add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 
-target_link_libraries(aeBullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
+target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
 
 if (MACOS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
@@ -49,7 +49,7 @@ elseif (ANDROID)
 	# manymouse glfw glew_s
 	#target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
 	# removed assimp
-	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
+	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem android EGL GLESv3)
 endif()
 
 
@@ -93,48 +93,16 @@ elseif (WINDOWS)
 	
 elseif (ANDROID)
 
-	# things
-	
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -android -native_app_glue")
-	
-	# target_link_libraries(ae
-	#   PUBLIC
-	#     native_app_glue
-	#     android
-	# )
-	
-	#target_link_libraries(ae NDKHelper)
-	
-	#target_link_libraries(ae -landroid android)
-	
-	#target_link_libraries(TeapotNativeActivity NDKHelper ae android)
-	#target_link_libraries(ae android NDKHelper TeapotNativeActivity)
-	
-	# target_link_libraries(ae
-	#     native_app_glue
-	#     GLESv3
-	#     EGL
-	#     log
-	#     android
-	#     atomic
-	# )
-	
 	add_subdirectory(external/NDKHelper)
 	
 	# Export ANativeActivity_onCreate(),
 	# Refer to: https://github.com/android-ndk/ndk/issues/381.
 	# set_target_properties(${PROJECT_NAME}
-	set_target_properties(ae
-	  PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
+	set_target_properties(ae PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
 
-	# add lib dependencies
-	#target_link_libraries(${PROJECT_NAME}
-	target_link_libraries(ae
-	    NDKHelper
-	)
+	target_link_libraries(ae NDKHelper)
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 endif()
 

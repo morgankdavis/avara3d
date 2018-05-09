@@ -161,6 +161,8 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 
 void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
+	
+#if 0
 
 	//if (static_cast<int>(options) & static_cast<int>(DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
 	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
@@ -192,6 +194,8 @@ void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 		btModes = (btIDebugDraw::DebugDrawModes)
 		(btModes | BTDebugDrawModeForDebugOption(DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS));
 	}
+	
+#endif
 	
 	/*
 	 what do these do?

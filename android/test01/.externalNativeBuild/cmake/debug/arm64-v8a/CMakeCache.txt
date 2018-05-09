@@ -360,7 +360,7 @@ USE_MSVC_RUNTIME_LIBRARY_DLL:BOOL=OFF
 USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD:BOOL=OFF
 
 //Dependencies for the target
-ae_LIB_DEPENDS:STATIC=general;Bullet3Common;general;BulletCollision;general;Bullet3Collision;general;BulletDynamics;general;Bullet3Dynamics;general;BulletInverseDynamics;general;Bullet3Geometry;general;Bullet3OpenCL_clew;general;LinearMath;general;Bullet2FileLoader;general;generator;general;meshoptimizer;general;z;general;boost_system;general;boost_filesystem;general;-landroid;general;-lEGL;general;-lGLESv3;general;NDKHelper;
+ae_LIB_DEPENDS:STATIC=general;Bullet3Common;general;BulletCollision;general;Bullet3Collision;general;BulletDynamics;general;Bullet3Dynamics;general;BulletInverseDynamics;general;Bullet3Geometry;general;Bullet3OpenCL_clew;general;LinearMath;general;Bullet2FileLoader;general;generator;general;meshoptimizer;general;z;general;boost_system;general;boost_filesystem;general;android;general;EGL;general;GLESv3;general;NDKHelper;
 
 //Value Computed by CMake
 avara-engine_BINARY_DIR:STATIC=/Users/mkd/avara-engine/android/test01/.externalNativeBuild/cmake/debug/arm64-v8a
