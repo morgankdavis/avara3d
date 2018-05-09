@@ -17,12 +17,6 @@ Tests:
 
 		ANDROID!
 
-			Throw if material property constructor is null?
-
-			Record GIF into buffer?
-	
-			Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
-
 			Make shim for ES shaders
 
 			Input

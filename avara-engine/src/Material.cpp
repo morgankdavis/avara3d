@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "Color.h"
+#include "Exception.h"
 #include "Image.h"
 #include "Logger.h"
 #include "MaterialProperty.h"
@@ -152,6 +153,12 @@ FILL_MODE Material::fillMode() const {
 }
 
 void Material::fillMode(FILL_MODE mode) {
+#ifdef ANDROID
+	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
+		throw Exception("Fill mode not supported on this platform.");
+	}
+#endif
+	
 	m_fillMode = mode;
 }
 

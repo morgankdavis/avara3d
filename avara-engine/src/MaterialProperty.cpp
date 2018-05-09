@@ -12,6 +12,7 @@
 
 #include "Color.h"
 #include "CubeImage.h"
+#include "Exception.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Utilities.h"
@@ -107,10 +108,18 @@ void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
 }
 
 float MaterialProperty::maxAnisotropy() const {
+#ifdef ANDROID
+	throw Exception("Anisotropy is not supported on this platform.");
+#endif
+	
 	return m_maxAnisotropy;
 }
 
 void MaterialProperty::maxAnisotropy(float max) {
+#ifdef ANDROID
+	throw Exception("Anisotropy is not supported on this platform.");
+#endif
+	
 	m_maxAnisotropy = max;
 
 	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
