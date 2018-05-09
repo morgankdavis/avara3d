@@ -58,6 +58,8 @@ namespace ae {
      		Private
 		 ***************************************************************************************/
 
+		void mouseButton(MOUSE_BUTTON button, bool down);
+
 		std::weak_ptr<Activity> 		m_activity;
 	};
 }

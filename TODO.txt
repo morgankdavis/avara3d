@@ -17,9 +17,6 @@ Tests:
 
 		ANDROID!
 
-			Input
-				Cursor movement
-
 			WORK ON ANDROID ACTIVITY LIFECYCLE
 				"// On some devices, ANativeWindow is re-created when the app is resumed"
 				bool Engine::IsReady() (from Teapots sample)

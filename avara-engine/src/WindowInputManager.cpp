@@ -101,18 +101,20 @@ void WindowInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int but
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	auto inputManager = static_pointer_cast<WindowInputManager>(window->inputManager());
 	
+	auto aeButton = static_cast<MOUSE_BUTTON>(button);
+	
 	if (action == GLFW_PRESS) {
-		inputManager->m_mouseButtonsDown.insert((MOUSE_BUTTON)button);
+		inputManager->m_mouseButtonsDown.insert(aeButton);
 		
 		// if button is in "cleared" it means the client already read it, so don't add it again until
 		// we get button up, and then back down again
-		if (inputManager->m_mouseButtonsPressedCleared.count((MOUSE_BUTTON)button) == 0) {
-			inputManager->m_mouseButtonsPressed.insert((MOUSE_BUTTON)button);
+		if (inputManager->m_mouseButtonsPressedCleared.count(aeButton) == 0) {
+			inputManager->m_mouseButtonsPressed.insert(aeButton);
 		}
 	}
 	else if (action == GLFW_RELEASE) {
-		inputManager->m_mouseButtonsDown.erase((MOUSE_BUTTON)button);
-		inputManager->m_mouseButtonsPressedCleared.erase((MOUSE_BUTTON)button);
+		inputManager->m_mouseButtonsDown.erase(aeButton);
+		inputManager->m_mouseButtonsPressedCleared.erase(aeButton);
 	}
 }
 

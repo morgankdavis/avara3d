@@ -42,6 +42,7 @@ static KEY AEKeyForChromeOSKeyCode(int32_t code);
 
 ActivityInputManager::ActivityInputManager(shared_ptr<Activity> activity):
 	InputManager(),
+	//m_previousMouseButtonsDown(set<MOUSE_BUTTON>()),
 	m_activity(activity) {
 
 }
@@ -55,158 +56,112 @@ ActivityInputManager::~ActivityInputManager() {
  ***************************************************************************************/
 
 int ActivityInputManager::update(AInputEvent* event) {
-	
 	int32_t eventType = AInputEvent_getType(event);
 	
 	if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-		
-		
-		
-		
-		//		float xPos = AMotionEvent_getX(event, 0);
-		//		float yPos = AMotionEvent_getY(event, 0);
-		//
-		//		AE_LOG->info("xPos: {}, yPos: {}", xPos, yPos);
-		//
-		//
-		//		float rawX = AMotionEvent_getRawX(event, 0);
-		//		float rawY = AMotionEvent_getRawY(event, 0);
-		//
-		//		AE_LOG->info("rawX: {}, rawY: {}", rawX, rawY);
-		//
-		//
-		//		float xOffset = AMotionEvent_getXOffset(event);
-		//		float yOffset = AMotionEvent_getYOffset(event);
-		//
-		//		AE_LOG->info("xOffset: {}, yOffset: {}", xOffset, yOffset);
-		
-		
 		int32_t action = AMotionEvent_getAction(event);
-		AE_LOG->info("action: {}", action);
 		
 		switch (action) {
 				
 			case AMOTION_EVENT_ACTION_BUTTON_PRESS: {
-				AE_LOG->info("AMOTION_EVENT_ACTION_BUTTON_PRESS");
-				
-				
-				int32_t keyCode = AKeyEvent_getKeyCode(event);
-				AE_LOG->info("keyCode: {}", keyCode);
-				
-				//				AMOTION_EVENT_BUTTON_PRIMARY = 1 << 0,
-				//				AMOTION_EVENT_BUTTON_SECONDARY = 1 << 1,
-				//				AMOTION_EVENT_BUTTON_TERTIARY = 1 << 2,
-				//				AMOTION_EVENT_BUTTON_BACK = 1 << 3,
-				//				AMOTION_EVENT_BUTTON_FORWARD = 1 << 4,
-				//				AMOTION_EVENT_BUTTON_STYLUS_PRIMARY = 1 << 5,
-				//				AMOTION_EVENT_BUTTON_STYLUS_SECONDARY = 1 << 6
-				
-				int32_t keyAction = AKeyEvent_getAction(event);
-				AE_LOG->info("keyAction: {}", keyAction);
-				
-				
-				int32_t metaState = AKeyEvent_getMetaState(event);
-				AE_LOG->info("MOUSE metaState: {}", metaState);
-				
-				
-				
-				//				int32_t flags = AKeyEvent_getFlags(event);
-				//				AE_LOG->info("flags: {}", flags);
-				//				if (flags & AMOTION_EVENT_BUTTON_SECONDARY) {
-				//					AE_LOG->info("AMOTION_EVENT_BUTTON_SECONDARY");
-				//				}
-				//				else if (flags & AMOTION_EVENT_BUTTON_PRIMARY) {
-				//					AE_LOG->info("AMOTION_EVENT_BUTTON_PRIMARY");
-				//				}
+				AE_LOG->trace("AMOTION_EVENT_ACTION_BUTTON_PRESS");
 				
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
-				AE_LOG->info("buttonStates: {}", buttonStates);
+				
+				if (buttonStates & AMOTION_EVENT_BUTTON_PRIMARY) {
+					mouseButton(MOUSE_BUTTON::ONE, true);
+				}
+				
 				if (buttonStates & AMOTION_EVENT_BUTTON_SECONDARY) {
-					AE_LOG->info("AMOTION_EVENT_BUTTON_SECONDARY");
-				}
-				else if (buttonStates & AMOTION_EVENT_BUTTON_PRIMARY) {
-					AE_LOG->info("AMOTION_EVENT_BUTTON_PRIMARY");
-				}
-				else if (buttonStates & AMOTION_EVENT_BUTTON_TERTIARY) {
-					AE_LOG->info("AMOTION_EVENT_BUTTON_TERTIARY");
-				}
-				else if (buttonStates & AMOTION_EVENT_BUTTON_FORWARD) {
-					AE_LOG->info("AMOTION_EVENT_BUTTON_FORWARD");
-				}
-				else if (buttonStates & AMOTION_EVENT_BUTTON_BACK) {
-					AE_LOG->info("AMOTION_EVENT_BUTTON_BACK");
+					mouseButton(MOUSE_BUTTON::TWO, true);
 				}
 				
-				
-				
-				
-				
-				//AMOTION_EVENT_AXIS_PRESSURE // 1 for primary, 0 otherwise
-				
-				//				float pressure = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_PRESSURE, 0);
-				//				AE_LOG->info("pressure: {}", pressure);
-				
+				if (buttonStates & AMOTION_EVENT_BUTTON_TERTIARY) {
+					mouseButton(MOUSE_BUTTON::THREE, true);
+				}
+
 				break; }
 				
-			case AMOTION_EVENT_ACTION_BUTTON_RELEASE:
-				AE_LOG->info("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
-				break;
+			case AMOTION_EVENT_ACTION_BUTTON_RELEASE: {
+				AE_LOG->trace("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
+
+				int32_t buttonStates = AMotionEvent_getButtonState(event);
+
+				if (m_mouseButtonsDown.count(MOUSE_BUTTON::ONE)
+					&& !(buttonStates & AMOTION_EVENT_BUTTON_PRIMARY)) {
+					mouseButton(MOUSE_BUTTON::ONE, false);
+				}
 				
+				if (m_mouseButtonsDown.count(MOUSE_BUTTON::TWO)
+					&& !(buttonStates & AMOTION_EVENT_BUTTON_SECONDARY)) {
+					mouseButton(MOUSE_BUTTON::TWO, false);
+				}
+				
+				if (m_mouseButtonsDown.count(MOUSE_BUTTON::THREE)
+					&& !(buttonStates & AMOTION_EVENT_BUTTON_TERTIARY)) {
+					mouseButton(MOUSE_BUTTON::THREE, false);
+				}
+				
+				break; }
+
 			case AMOTION_EVENT_ACTION_DOWN: {
-				AE_LOG->info("AMOTION_EVENT_ACTION_DOWN");
-				
-				float pressure = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_PRESSURE, 0);
-				AE_LOG->info("pressure: {}", pressure);
-				
+				AE_LOG->trace("AMOTION_EVENT_ACTION_DOWN");
 				break; }
 				
 			case AMOTION_EVENT_ACTION_UP:
-				AE_LOG->info("AMOTION_EVENT_ACTION_UP");
+				AE_LOG->trace("AMOTION_EVENT_ACTION_UP");
 				break;
 				
 			case AMOTION_EVENT_ACTION_HOVER_MOVE: {
 			case AMOTION_EVENT_ACTION_MOVE:
-				AE_LOG->info("AMOTION_EVENT_ACTION_MOVE");
+				AE_LOG->trace("AMOTION_EVENT_ACTION_MOVE");
 				
+//				float rawX = AMotionEvent_getRawX(event, 0);
+//				float rawY = AMotionEvent_getRawY(event, 0);
+//				float xOffset = AMotionEvent_getXOffset(event);
+//				float yOffset = AMotionEvent_getYOffset(event);
+				float xPos = AMotionEvent_getX(event, 0);
+				float yPos = AMotionEvent_getY(event, 0);
+				float xDelta = 0;
+				float yDelta = 0;
+				static float oldXPos = numeric_limits<float>::max();
+				static float oldYPos = numeric_limits<float>::max();
 				
-				// relative motion?
-				//				float AMotionEvent_getHistoricalAxisValue(
-				//														  const AInputEvent *motion_event,
-				//														  int32_t axis,
-				//														  size_t pointer_index,
-				//														  size_t history_index
-				//														  )
+				if (oldXPos == numeric_limits<float>::max()) {
+					oldXPos = xPos;
+				}
+				else {
+					xDelta = xPos - oldXPos;
+				}
+				if (oldYPos == numeric_limits<float>::max()) {
+					oldYPos = yPos;
+				}
+				else {
+					yDelta = yPos - oldYPos;
+				}
 				
-				//AMotionEvent_getHistoricalRawX(const AInputEvent *motion_event, size_t pointer_index, size_t history_index)
+				oldXPos = xPos;
+				oldYPos = yPos;
 				
-				//				float histRawX = AMotionEvent_getHistoricalRawX(event, 0, 0);
-				//				float histRawY = AMotionEvent_getHistoricalRawY(event, 0, 0);
-				//				
-				//				AE_LOG->info("histRawX: {}, histRawY: {}", histRawX, histRawY);
-				
+				m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -xDelta : xDelta);
+				m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -yDelta : yDelta);
 				
 				break; }
 				
 			case AMOTION_EVENT_ACTION_SCROLL: {
-				AE_LOG->info("AMOTION_EVENT_ACTION_SCROLL");
+				AE_LOG->trace("AMOTION_EVENT_ACTION_SCROLL");
 				
-				float scrollAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_SCROLL, 0);
-				float relXAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_X, 0);
-				float relYAxis = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_Y, 0);
 				float hScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
 				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
-				AE_LOG->info("scrollAxis: {}, relXAxis: {}, relYAxis: {}, hScroll: {}, vScroll: {}",
-							 scrollAxis, relXAxis, relYAxis, hScroll, vScroll);
-				
-				// vScroll: pos = click up, neg = click down
-				
+
 				if (!FloatEqual(vScroll, 0.0)) {
-					if (vScroll > 0.0) {
-						AE_LOG->info("scroll UP");
-					}
-					else {
-						AE_LOG->info("scroll DOWN");
-					}
+					if (vScroll > 0.0) m_mouseScrollWheelDelta.y += 1;
+					else m_mouseScrollWheelDelta.y -= 1;
+				}
+				
+				if (!FloatEqual(hScroll, 0.0)) {
+					if (vScroll > 0.0) m_mouseScrollWheelDelta.x += 1;
+					else m_mouseScrollWheelDelta.x -= 1;
 				}
 				
 				break; }
@@ -215,27 +170,6 @@ int ActivityInputManager::update(AInputEvent* event) {
 				//AE_LOG->info("[unknown]");
 				break;
 		}
-		
-		
-		
-		//		AMOTION_EVENT_ACTION_BUTTON_PRESS
-		//				AMOTION_EVENT_ACTION_BUTTON_RELEASE
-		//		AMOTION_EVENT_ACTION_DOWN
-		//				AMOTION_EVENT_ACTION_UP
-		//				AMOTION_EVENT_ACTION_MOVE
-		//		AMOTION_EVENT_ACTION_SCROLL
-		//
-		//		AMOTION_EVENT_AXIS_RELATIVE_X
-		//				AMOTION_EVENT_AXIS_RELATIVE_Y
-		//		AMOTION_EVENT_AXIS_SCROLL
-		
-		
-		
-		//		float AMotionEvent_getAxisValue(
-		//				const AInputEvent *motion_event,
-		//				int32_t axis,
-		//				size_t pointer_index
-		//		)
 	}
 	else if (eventType == AINPUT_EVENT_TYPE_KEY) {
 		
@@ -259,6 +193,27 @@ int ActivityInputManager::update(AInputEvent* event) {
 	}
 	
 	return 0;
+}
+
+/**************************************************************************************
+     Private
+ **************************************************************************************/
+
+void ActivityInputManager::mouseButton(MOUSE_BUTTON button, bool down) {
+
+	if (down) {
+		m_mouseButtonsDown.insert(button);
+		
+		// if button is in "cleared" it means the client already read it, so don't add it again until
+		// we get button up, and then back down again
+		if (m_mouseButtonsPressedCleared.count(button) == 0) {
+			m_mouseButtonsPressed.insert(button);
+		}
+	}
+	else {
+		m_mouseButtonsDown.erase(button);
+		m_mouseButtonsPressedCleared.erase(button);
+	}
 }
 
 /**************************************************************************************
