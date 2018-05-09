@@ -16,17 +16,29 @@ using namespace ae;
 using namespace ae::utils;
 using namespace glm;
 using namespace std;
+using namespace std::placeholders;
 
 
 struct android_app;
+
+
+static void renderContextUpdateCallback(RenderContext& renderContext, float time);
+static void renderContextWillRenderCallback(RenderContext& renderContext, float time);
+static void renderContextDidRenderCallback(RenderContext& renderContext, float time);
 
 
 void android_main(android_app* app) {
 
 	AE_INIT(app);
 
+	Logger::Level(LOG_LEVEL::TRACE);
+
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
+
+	activity->updateCallback(renderContextUpdateCallback);
+	activity->willRenderCallback(renderContextWillRenderCallback);
+	activity->didRenderCallback(renderContextDidRenderCallback);
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -42,7 +54,6 @@ void android_main(android_app* app) {
 	scene->rootNode()->addChildNode(sphereNode);
 	sphereNode->position({0.0f, 0.0f, 0.0f});
 
-	//auto gridImage = TestImageNamed("grid10_512");
 	auto gridImage = TestImageNamed("plant", string("jpg"));
 	auto sphereMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	sphereMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -61,4 +72,16 @@ void android_main(android_app* app) {
 
 	activity->scene(scene);
 	activity->display(app);
+}
+
+void renderContextUpdateCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("renderContextUpdateCallback({})", time);
+}
+
+void renderContextWillRenderCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("renderContextWillRenderCallback({})", time);
+}
+
+void renderContextDidRenderCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("renderContextDidRenderCallback({})", time);
 }

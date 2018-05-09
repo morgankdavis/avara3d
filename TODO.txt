@@ -20,9 +20,7 @@ Tests:
 			Throw if material property constructor is null?
 
 			Record GIF into buffer?
-			
-			Assimp/importing
-
+	
 			Throw for unsupported fill options -- check Ann #ifdef DESKTOP in OpenGLRenderer
 
 			Make shim for ES shaders
@@ -39,7 +37,6 @@ Tests:
 
 
 		Restore tests. Use flat main.cpp files.		
-
 
 		Move things from top-level CMakeLists into avara-engine
 		Identify external public headers and link to to avara-engine/include
