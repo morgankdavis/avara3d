@@ -14,10 +14,13 @@
 
 #include <glm/glm.hpp>
 
+#include "Types.h"
+
 
 namespace ae {
 	
 	
+	class PhysicsBody;
 	class PhysicsWorld;
 	
 
@@ -40,7 +43,11 @@ namespace ae {
 		     Internal
 		 **************************************************************************************/
 		
-		virtual void initialize(const PhysicsWorld& world);
+		//virtual void initialize();
+		virtual void update(PhysicsWorld& physicsWorld,
+							const DEBUG_OPTIONS& debugOptions);
+		virtual void update(PhysicsBody& physicsBody,
+							const DEBUG_OPTIONS& debugOptions);
 		virtual void step(float time);
 		
 	protected:

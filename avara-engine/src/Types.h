@@ -350,14 +350,16 @@ namespace ae {
 #define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
-		FORCES =				1 << 0,
-		TORQUES =				1 << 1,
+		TYPE =					1 << 0,
+		SHAPE =					1 << 1,
+		FORCES =				1 << 2,
+		TORQUES =				1 << 3,
 		ALL = 					UINT_MAX
 	};
 			
 #define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS_CONTAINS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS_CONTAINS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 
 	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
 		ALL = 					UINT_MAX

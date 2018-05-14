@@ -30,6 +30,7 @@ namespace ae {
 	class InputManager;
 	class Material;
 	class Node;
+	class PhysicsSimulator;
 	class Renderer;
 	class RenderContext;
 	class Scene;
@@ -61,7 +62,7 @@ namespace ae {
 		 ***************************************************************************************/
 			
 		std::shared_ptr<Renderer> renderer() const;
-		void renderer(std::shared_ptr<Renderer> renderer);
+		/* REMOVE? */ void renderer(std::shared_ptr<Renderer> renderer);
 		
 		std::shared_ptr<Scene> scene() const;
 		void scene(const std::shared_ptr<Scene> scene);
@@ -113,6 +114,11 @@ namespace ae {
 		     Internal
 		 **************************************************************************************/
 		
+		virtual void update();
+		
+		std::shared_ptr<PhysicsSimulator> physicsSimulator() const;
+		/* REMOVE? */ void physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
+		
 		void width(unsigned width);
 		void height(unsigned height);
 		
@@ -131,6 +137,7 @@ namespace ae {
 		virtual void saveGIFFrame(float deltaSeconds);
 
 		std::shared_ptr<Renderer>				m_renderer;
+		std::shared_ptr<PhysicsSimulator>		m_physicsSimulator;
 		std::shared_ptr<Scene>					m_scene;
 		unsigned								m_width;
 		unsigned								m_height;

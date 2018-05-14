@@ -15,6 +15,7 @@
 
 
 #include "Logger.h"
+#include "Node.h"
 #include "PhysicsDebugDrawer.h"
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
@@ -41,8 +42,31 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
  ***************************************************************************************/
 
 BulletPhysicsSimulator::BulletPhysicsSimulator():
-	PhysicsSimulator() {
-	
+	PhysicsSimulator(),
+	m_btCollisionConfiguration(make_shared<btDefaultCollisionConfiguration>()),
+	m_btDispatcher(make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get())),
+	m_btBroadphase(make_shared<btDbvtBroadphase>()),
+	m_btSolver(make_shared<btSequentialImpulseConstraintSolver>()),
+	m_btWorld(make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
+												   m_btBroadphase.get(),
+												   m_btSolver.get(),
+												   m_btCollisionConfiguration.get())),
+	m_bodyMotionStateIDMapping(PhysicsBodyMotionStateIDMapping()),
+	m_bodyIDCounter(0),
+	m_shapeIDMapping(PhysicsShapeIDMapping()),
+	m_shapeIDCounter(0) {
+
+							   
+		AE_LOG->info("Bullet version: {}",  btGetVersion());
+		
+//		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
+//		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
+//		m_btBroadphase = make_shared<btDbvtBroadphase>();
+//		m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
+//		m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
+//														 m_btBroadphase.get(),
+//														 m_btSolver.get(),
+//														 m_btCollisionConfiguration.get());
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
@@ -53,21 +77,96 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
      Physics Simulator
  **************************************************************************************/
 
-void BulletPhysicsSimulator::initialize(const PhysicsWorld& world) {
-	AE_LOG->trace("initialize()");
+//void BulletPhysicsSimulator::initialize() {
+//	AE_LOG->trace("initialize()");
+//}
+
+void BulletPhysicsSimulator::update(PhysicsWorld& physicsWorld,
+									const DEBUG_OPTIONS& debugOptions) {
+
+#warning check dirty bit
+	m_btWorld->setGravity(BTVector3FromGLMVec3(physicsWorld.gravity()));
+}
+
+void BulletPhysicsSimulator::update(PhysicsBody& physicsBody,
+									const DEBUG_OPTIONS& debugOptions) {
 	
-	AE_LOG->info("Bullet version: {}",  btGetVersion());
+	auto node = physicsBody.node().lock();
 	
-	m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
-	m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
-	m_btBroadphase = make_shared<btDbvtBroadphase>();
-	m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
-	m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
-													 m_btBroadphase.get(),
-													 m_btSolver.get(),
-													 m_btCollisionConfiguration.get());
-	
-	m_btWorld->setGravity(BTVector3FromGLMVec3(world.gravity()));
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(physicsBody.dirtyBits(),
+										 PHYSICS_BODY_DIRTY_BITS::TYPE) ||
+		PHYSICS_BODY_DIRTY_BITS_CONTAINS(physicsBody.dirtyBits(),
+										 PHYSICS_BODY_DIRTY_BITS::SHAPE)) {
+		
+		// 'type' indicates that the type has changed, or that the
+		// internal body hasn't been initialized yet
+
+		if (!physicsBody.shape()) {
+			if (node->geometry()) {
+				physicsBody.shape(make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+			}
+			else {
+				physicsBody.shape(make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+			}
+			physicsBody.shape()->attachedToBody(node->physicsBody());
+		}
+			
+			
+		btTransform transform;
+		transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
+		auto motionState = make_shared<btDefaultMotionState>(transform);
+		
+//
+//		resetTransform();
+//		
+//
+//		btCollisionShape* collisionShape = m_shape->btShape().get();
+//		
+//
+//		btVector3 localInertia(0, 0, 0);
+//		if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
+//		
+//		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PHYSICS_BODY_TYPE::STATIC ? 0 : m_mass),
+//															   m_btMotionState.get(),
+//															   collisionShape,
+//															   localInertia);
+//		
+//		// √ velocity factor
+//		// √ angular velocity factor
+//		// afected by gravity
+//		rigidBodyInfo.m_mass = m_mass;
+//		// charge
+//		rigidBodyInfo.m_friction = m_friction;
+//		rigidBodyInfo.m_rollingFriction = m_rollingFriction;
+//		rigidBodyInfo.m_restitution = m_restitution;
+//		rigidBodyInfo.m_linearDamping = m_damping;
+//		rigidBodyInfo.m_angularDamping = m_angularDamping;
+//		// moment of inertia
+//		// √ velocity
+//		// √ angular velocity
+//		// resting
+//		// allows resting
+//		
+//		m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
+//		
+//#if 0
+//		
+//		m_btRigidBody->setLinearFactor(BTVector3FromGLMVec3(m_velocityFactor));
+//		m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
+//		m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
+//		m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
+//		//m_btRigidBody->setGravity()
+//		
+//#endif
+//		
+//		if (auto scene = node->scene().lock()) {
+//			scene->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
+//		}
+		
+		
+		physicsBody.dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(physicsBody.dirtyBits(),
+															 PHYSICS_BODY_DIRTY_BITS::TYPE));
+	}
 }
 
 void BulletPhysicsSimulator::step(float time) {

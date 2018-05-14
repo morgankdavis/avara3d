@@ -104,7 +104,8 @@ void Activity::display(android_app* app) {
 //		}
 
 		//activity->drawFrame();
-		drawFrame();
+		//drawFrame();
+		update();
 	}
 }
 
@@ -123,7 +124,8 @@ void Activity::appCommandCallback(struct android_app* app, int32_t cmd) {
 			// The window is being shown, get it ready.
 			//if (activity->window != NULL) {
 			activity->initDisplay(app);
-			activity->drawFrame();
+			//activity->drawFrame();
+			activity->update();
 			//}
 			break;
 		case APP_CMD_TERM_WINDOW:
@@ -142,7 +144,8 @@ void Activity::appCommandCallback(struct android_app* app, int32_t cmd) {
 			//eng->SuspendSensors();
 			// Also stop animating.
 			//eng->has_focus_ = false;
-			activity->drawFrame();
+			//activity->drawFrame();
+			activity->update();
 			break;
 		case APP_CMD_LOW_MEMORY:
 			// Free up GL resources
@@ -165,6 +168,59 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 /**************************************************************************************
      RenderContext
  ***************************************************************************************/
+
+void Activity::update() override {
+	RenderContext::update();
+	
+	if (m_initialized) {
+		
+		AE_LOG->trace("-------------------------------------------------------------------------------");
+		
+		m_renderer->beginFrame(*this);
+		
+#warning move to saveGIFFrame()
+		float time = sceneTime();
+		static double previousSeconds = time;
+		float deltaSeconds = time - previousSeconds;
+		previousSeconds = time;
+		
+		if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
+		
+		auto pov = pointOfView();
+		float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+		pov->camera()->aspectRatio(aspectRatio);
+		
+		m_renderer->renderStats().cameraPosition = pov->position();
+		
+		// simulate physics
+		//	auto physicsWorld = m_scene->physicsWorld();
+		//	if (physicsWorld) {
+		//		physicsWorld->step();
+		//		
+		//		if (didSimulatePhysicsCallback()) {
+		//			didSimulatePhysicsCallback()(*this, sceneTime());
+		//		}
+		//	}
+		
+		if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
+		
+		m_scene->draw(*RenderContext::renderer(),
+					  m_framebufferWidth, m_framebufferHeight,
+					  *pov,
+					  m_debugOptions, m_renderer->renderStats());
+		
+		m_renderer->endFrame(*this);
+		
+		swap();
+		
+		//if (m_recordingGIF) saveGIFFrame(deltaSeconds);
+		
+		if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
+		
+		//glfwPollEvents();
+		//if (inputManager()) inputManager()->update();
+	}
+}
 
 bool Activity::vSyncEnabled() const {
 	return true;
@@ -473,59 +529,6 @@ void Activity::terminate() {
 	m_surface = EGL_NO_SURFACE;
 	m_nativeWindow = nullptr;
 	m_contextValid = false;
-}
-
-void Activity::drawFrame() {
-	
-	if (m_initialized) {
-		
-		AE_LOG->trace("-------------------------------------------------------------------------------");
-		
-		m_renderer->beginFrame(*this);
-		
-#warning move to saveGIFFrame()
-		float time = sceneTime();
-		static double previousSeconds = time;
-		float deltaSeconds = time - previousSeconds;
-		previousSeconds = time;
-		
-		if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
-		
-		auto pov = pointOfView();
-		float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
-		pov->camera()->aspectRatio(aspectRatio);
-		
-		m_renderer->renderStats().cameraPosition = pov->position();
-		
-		// simulate physics
-		//	auto physicsWorld = m_scene->physicsWorld();
-		//	if (physicsWorld) {
-		//		physicsWorld->step();
-		//		
-		//		if (didSimulatePhysicsCallback()) {
-		//			didSimulatePhysicsCallback()(*this, sceneTime());
-		//		}
-		//	}
-		
-		if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
-		
-		m_scene->draw(*RenderContext::renderer(),
-					  m_framebufferWidth, m_framebufferHeight,
-					  *pov,
-					  m_debugOptions, m_renderer->renderStats());
-		
-		m_renderer->endFrame(*this);
-		
-		//glfwSwapBuffers(m_glfwWindow);
-		swap();
-		
-		//if (m_recordingGIF) saveGIFFrame(deltaSeconds);
-		
-		if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
-		
-		//glfwPollEvents();
-		//if (inputManager()) inputManager()->update();
-	}
 }
 
 EGLint Activity::swap() {

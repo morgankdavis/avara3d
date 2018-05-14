@@ -127,7 +127,7 @@ void Window::display() {
 		glfwSetFramebufferSizeCallback(m_glfwWindow, Window::glfwFramebufferSizeCallback);
 		
 		while (!glfwWindowShouldClose(m_glfwWindow)) {
-			drawLoop();
+			update();
 		}
 		
 		stopGIFRecording();
@@ -158,35 +158,65 @@ GLFWwindow* Window::glfwWindow() const {
 	return m_glfwWindow;
 }
 
-/***************************************************************************************
-     GLFW Callbacks
- ***************************************************************************************/
-
-void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwWindowSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->width(aWidth);
-	window->height(aHeight);
-}
-
-void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwFramebufferSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
-}
-
-void Window::glfwErrorCallback(int error, const char* description) {
-	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
-}
-
 /**************************************************************************************
      RenderContext
  ***************************************************************************************/
+
+void Window::update() {
+	RenderContext::update();
+	
+	AE_LOG->trace("-------------------------------------------------------------------------------");\
+	
+	m_renderer->beginFrame(*this);
+	
+#warning move to saveGIFFrame()
+	float time = sceneTime();
+	static double previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+	
+	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
+	
+	auto pov = pointOfView();
+	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+	pov->camera()->aspectRatio(aspectRatio);
+	
+	m_renderer->renderStats().cameraPosition = pov->position();
+	
+	// simulate physics
+	auto physicsWorld = m_scene->physicsWorld();
+	if (physicsWorld) {
+		physicsWorld->step();
+		
+		if (didSimulatePhysicsCallback()) {
+			didSimulatePhysicsCallback()(*this, sceneTime());
+		}
+	}
+	
+	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
+	
+	m_scene->draw(*RenderContext::renderer(),
+				  m_framebufferWidth, m_framebufferHeight,
+				  *pov,
+				  m_debugOptions, m_renderer->renderStats());
+	
+	m_renderer->endFrame(*this);
+	
+	glfwSwapBuffers(m_glfwWindow);
+	
+	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
+	
+	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
+	
+	glfwPollEvents();
+	//	if (inputManager()) {
+	//		static_pointer_cast<WindowInputManager>(inputManager())->update();
+	//	}
+	
+	if (m_inputManager) {
+		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
+	}
+}
 
 void Window::enableVSync(bool enabled) {
 	RenderContext::enableVSync(enabled);
@@ -218,62 +248,29 @@ float Window::sceneTime() const {
 }
 
 /***************************************************************************************
-     Private
+     GLFW Callbacks
  ***************************************************************************************/
 
-void Window::drawLoop() {
+void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
+	AE_LOG->trace("glfwWindowSizeCallback()");
 	
-	AE_LOG->trace("-------------------------------------------------------------------------------");\
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	
-	m_renderer->beginFrame(*this);
-	
-#warning move to saveGIFFrame()
-	float time = sceneTime();
-	static double previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+	window->width(aWidth);
+	window->height(aHeight);
+}
 
-	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
+void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
+	AE_LOG->trace("glfwFramebufferSizeCallback()");
+	
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	
+	window->framebufferWidth(window->width() * window->framebufferScale());
+	window->framebufferHeight(window->height() * window->framebufferScale());
+}
 
-	auto pov = pointOfView();
-	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
-	pov->camera()->aspectRatio(aspectRatio);
-	
-	m_renderer->renderStats().cameraPosition = pov->position();
-	
-	// simulate physics
-	auto physicsWorld = m_scene->physicsWorld();
-	if (physicsWorld) {
-		physicsWorld->step();
-		
-		if (didSimulatePhysicsCallback()) {
-			didSimulatePhysicsCallback()(*this, sceneTime());
-		}
-	}
-
-	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
-	
-	m_scene->draw(*RenderContext::renderer(),
-				  m_framebufferWidth, m_framebufferHeight,
-				  *pov,
-				  m_debugOptions, m_renderer->renderStats());
-
-	m_renderer->endFrame(*this);
-	
-	glfwSwapBuffers(m_glfwWindow);
-
-	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
-	
-	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
-	
-	glfwPollEvents();
-//	if (inputManager()) {
-//		static_pointer_cast<WindowInputManager>(inputManager())->update();
-//	}
-	
-	if (m_inputManager) {
-		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
-	}
+void Window::glfwErrorCallback(int error, const char* description) {
+	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
 }
 
 /**************************************************************************************

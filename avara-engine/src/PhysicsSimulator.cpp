@@ -8,6 +8,9 @@
 
 #include "PhysicsSimulator.h"
 
+#include "Geometry.h"
+#include "Scene.h"
+
 
 using namespace ae;
 
@@ -32,7 +35,17 @@ PhysicsSimulator::~PhysicsSimulator() {
      Internal
  **************************************************************************************/
 
-void PhysicsSimulator::initialize(const PhysicsWorld& world) {
+//void PhysicsSimulator::initialize() {
+//	
+//}
+
+void PhysicsSimulator::update(PhysicsWorld& physicsWorld,
+							  const DEBUG_OPTIONS& debugOptions) {
+	
+}
+
+void PhysicsSimulator::update(PhysicsBody& physicsBody,
+							  const DEBUG_OPTIONS& debugOptions) {
 	
 }
 

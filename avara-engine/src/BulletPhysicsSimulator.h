@@ -10,15 +10,20 @@
 #define BulletPhysicsSimulator_h
 
 
+#include <map>
 #include <memory>
 
 #include "PhysicsSimulator.h"
 
 
+struct btDbvtBroadphase;
+
 class btCollisionDispatcher;
-class btDbvtBroadphase;
+class btCollisionShape;
 class btDefaultCollisionConfiguration;
+class btDefaultMotionState;
 class btDiscreteDynamicsWorld;
+class btRigidBody;
 class btSequentialImpulseConstraintSolver;
 
 
@@ -31,6 +36,17 @@ namespace ae {
 	class BulletPhysicsSimulator : public PhysicsSimulator {
 		
 	public:
+		
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+		
+		typedef std::map<PHYSICS_BODY_ID,
+			std::pair<std::shared_ptr<btRigidBody>, std::shared_ptr<btDefaultMotionState>>>
+																PhysicsBodyMotionStateIDMapping;
+		
+		typedef std::map<PHYSICS_SHAPE_ID, std::shared_ptr<btCollisionShape>>
+																PhysicsShapeIDMapping;
 		
 		/***************************************************************************************
 		     Lifecycle
@@ -55,7 +71,11 @@ namespace ae {
 		     Physics Simulator
 		 **************************************************************************************/
 		
-		void initialize(const PhysicsWorld& world) override;
+//		void initialize() override;
+		void update(PhysicsWorld& physicsWorld,
+					const DEBUG_OPTIONS& debugOptions) override;
+		void update(PhysicsBody& physicsBody,
+					const DEBUG_OPTIONS& debugOptions) override;
 		void step(float time) override;
 		
 	private:
@@ -70,6 +90,12 @@ namespace ae {
 		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
 		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
+		
+		PhysicsBodyMotionStateIDMapping							m_bodyMotionStateIDMapping;
+		PHYSICS_BODY_ID											m_bodyIDCounter;
+		
+		PhysicsShapeIDMapping									m_shapeIDMapping;
+		PHYSICS_SHAPE_ID										m_shapeIDCounter;
 	};
 }
 

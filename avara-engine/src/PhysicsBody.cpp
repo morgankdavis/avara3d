@@ -367,6 +367,10 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	//m_btRigidBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
+weak_ptr<Node> PhysicsBody::node() const {
+	return m_node;
+}
+
 shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
 	return m_btMotionState;
 }

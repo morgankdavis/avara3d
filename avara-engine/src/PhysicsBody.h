@@ -116,13 +116,16 @@ namespace ae {
 		void applyTorque(glm::vec3 torque, bool impulse);
 		void clearForces();
 		
-		void resetTransform();
+		/* REMOVE? */ void resetTransform();
 		
 		/***************************************************************************************
 		     Internal
 		 ***************************************************************************************/
 		
 		void attachedToNode(std::shared_ptr<Node> node);
+		
+		std::weak_ptr<Node> node() const;
+		
 		std::shared_ptr<btDefaultMotionState> btMotionState() const;
 		
 		PHYSICS_BODY_ID simulationID() const;

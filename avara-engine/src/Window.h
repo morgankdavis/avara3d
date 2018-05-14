@@ -67,6 +67,16 @@ namespace ae {
 		 ***************************************************************************************/
 
 		GLFWwindow* glfwWindow() const;
+
+		/**************************************************************************************
+		     RenderContext
+		 **************************************************************************************/
+		
+		void update() override;
+		void enableVSync(bool enabled) override;
+		void debugOptions(DEBUG_OPTIONS options) override;
+		std::shared_ptr<InputManager> inputManager() override;;
+		float sceneTime() const override;
 		
 		/***************************************************************************************
 		     GLFW Callbacks
@@ -76,22 +86,11 @@ namespace ae {
 		static void glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
 		static void glfwErrorCallback(int error, const char* description);
 
-		/**************************************************************************************
-		     RenderContext
-		 **************************************************************************************/
-		
-		void enableVSync(bool enabled) override;
-		void debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<InputManager> inputManager() override;;
-		float sceneTime() const override;
-
 	private:
 		
 		/***************************************************************************************
 		     Private
 		 ***************************************************************************************/
-
-		void drawLoop();
 
 		GLFWwindow*							m_glfwWindow;
 		std::shared_ptr<InputManager> 		m_inputManager;

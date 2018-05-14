@@ -15,6 +15,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
 
+#include "BulletPhysicsSimulator.h"
 #include "Camera.h"
 #include "Exception.h"
 #include "Image.h"
@@ -35,6 +36,7 @@ using namespace std;
 
 RenderContext::RenderContext(shared_ptr<Renderer> renderer):
 	m_renderer(renderer),
+	m_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
 	m_scene(nullptr),
 	m_width(0),
 	m_height(0),
@@ -273,6 +275,27 @@ void RenderContext::didRenderCallback(RenderContextDidRenderFuction function) {
 /**************************************************************************************
      Internal
  **************************************************************************************/
+
+void RenderContext::update() {
+	
+//	// at some point, we will probably want to check if an e
+//	if (m_scene) {
+//		auto physicsWorld = m_scene->physicsWorld();
+//		if (physicsWorld) {
+//			if (!m_physicsSimuator) {
+//				m_physicsSimuator = make_shared<BulletPhysicsSimulator>(physicsWorld);
+//			}
+//		}
+//	}
+}
+
+shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {
+	return m_physicsSimulator;
+}
+
+void RenderContext::physicsSimulator(shared_ptr<PhysicsSimulator> physicsSimulator) {
+	m_physicsSimulator = physicsSimulator;
+}
 
 void RenderContext::width(unsigned width) {
 	m_width = width;

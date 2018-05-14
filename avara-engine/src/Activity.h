@@ -66,6 +66,7 @@ namespace ae {
 		     RenderContext
 		 **************************************************************************************/
 		
+		void update() override;
 		bool vSyncEnabled() const override;
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
@@ -86,7 +87,6 @@ namespace ae {
 		int resume(ANativeWindow* window);
 		bool invalidate();
 		void terminate();
-		void drawFrame();
 		int swap();
 
 		ANativeWindow* 					m_nativeWindow;

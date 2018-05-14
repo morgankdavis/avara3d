@@ -19,6 +19,7 @@
 #include <boost/optional.hpp>
 #include <btBulletDynamicsCommon.h>
 
+#include "BulletPhysicsSimulator.h"
 #include "Camera.h"
 #include "Color.h"
 #include "CubeImage.h"
@@ -193,6 +194,10 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	m_physicsWorld = world;
+//	if (m_renderContext.lock()) {
+//		auto simulator = make_shared<BulletPhysicsSimulator>();
+//		m_renderContext.lock()->physicsSimulator(simulator);
+//	}
 	m_physicsWorld->attachedToScene(shared_from_this());
 }
 
