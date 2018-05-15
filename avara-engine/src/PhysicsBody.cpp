@@ -62,8 +62,8 @@ PhysicsBody::PhysicsBody():
 	m_resting(false),
 	m_allowsResting(true),
 	m_node(weak_ptr<Node>()),
-	m_btMotionState(nullptr),
-	m_btRigidBody(nullptr) {
+	m_simulationID(0),
+	m_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 	
 }
 
@@ -89,8 +89,9 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 }
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
-	// TODO: cahnge bt type
 	m_type = type;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MODEL);
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
@@ -243,36 +244,39 @@ void PhysicsBody::applyForce(vec3 force, bool impulse) {
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
-	if (m_btRigidBody) {
-		/**********
-		if (impulse) m_btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-		else m_btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-		 *********/
-	}
+	
+#warning save list of applied forces
+	
+//	if (m_btRigidBody) {
+//		/**********
+//		if (impulse) m_btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+//		else m_btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+//		 *********/
+//	}
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES);
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
-	if (m_btRigidBody) {
-		/**********
-		if (impulse) m_btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
-		else  m_btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
-		 *********/
-	}
+	
+#warning save list of applied torques
+	
+//	if (m_btRigidBody) {
+//		/**********
+//		if (impulse) m_btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
+//		else  m_btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
+//		 *********/
+//	}
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES);
 }
 
 void PhysicsBody::clearForces() {
-	if (m_btRigidBody) m_btRigidBody->clearForces();
+	//if (m_btRigidBody) m_btRigidBody->clearForces();
 }
 
 void PhysicsBody::resetTransform() {
-	if (auto node = m_node.lock()) {
-		btTransform transform;
-		transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
-		m_btMotionState = make_shared<btDefaultMotionState>(transform);
-	}
-	else {
-		AE_LOG->warn("PhysicsBody::resetTransform() called with no parent node.");
-	}
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
 }
 
 /***************************************************************************************
@@ -281,98 +285,10 @@ void PhysicsBody::resetTransform() {
 
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
-	
-	if (!m_shape) {
-		if (node->geometry()) {
-			m_shape = make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-			m_shape->attachedToBody(shared_from_this());
-		}
-		else {
-			m_shape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-			m_shape->attachedToBody(shared_from_this());
-		}
-	}
-	
-//	if (m_shape->btShape() == nullptr) {
-//		m_shape->createBTShape();
-//	}
-	
-//	btTransform transform;
-//	transform.setFromOpenGLMatrix(value_ptr(m_node->worldTransform()));
-//	m_btMotionState = make_shared<btDefaultMotionState>(transform);
-	resetTransform();
-
-	//btCollisionShape* collisionShape = static_cast<btCollisionShape*>(m_shape->btShape().get());
-	btCollisionShape* collisionShape = m_shape->btShape().get();
-						 					   
-//	btBoxShape* colShape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-//	btCollisionShape* collisionShape = static_cast<btCollisionShape*>(colShape);
-
-//	bool isDynamic = (m_mass != 0.0);
-//	btVector3 localInertia(0, 0, 0);
-//	if (isDynamic) {
-//		localInertia = btVector3(50, 50, 50);
-//		collisionShape->calculateLocalInertia(m_mass, localInertia);
-//	}
-	
-	
-	btVector3 localInertia(0, 0, 0);
-	if (m_mass != 0) collisionShape->calculateLocalInertia(m_mass, localInertia);
-	
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((m_type == PHYSICS_BODY_TYPE::STATIC ? 0 : m_mass),
-														   m_btMotionState.get(),
-														   collisionShape,
-														   localInertia);
-	
-	// √ velocity factor
-	// √ angular velocity factor
-	// afected by gravity
-	rigidBodyInfo.m_mass = m_mass;
-	// charge
-	rigidBodyInfo.m_friction = m_friction;
-	rigidBodyInfo.m_rollingFriction = m_rollingFriction;
-	rigidBodyInfo.m_restitution = m_restitution;
-	rigidBodyInfo.m_linearDamping = m_damping;
-	rigidBodyInfo.m_angularDamping = m_angularDamping;
-	// moment of inertia
-	// √ velocity
-	// √ angular velocity
-	// resting
-	// allows resting
-
-	m_btRigidBody = make_shared<btRigidBody>(rigidBodyInfo);
-	
-#if 0
-	
-	m_btRigidBody->setLinearFactor(BTVector3FromGLMVec3(m_velocityFactor));
-	m_btRigidBody->setAngularFactor(BTVector3FromGLMVec3(m_angularVelocityFactor));
-	m_btRigidBody->setLinearVelocity(BTVector3FromGLMVec3(m_velocity));
-	m_btRigidBody->setAngularVelocity(BTVector3FromGLMVec3(m_angularVelocity));
-	//m_btRigidBody->setGravity()
-	
-#endif
-	
-	if (auto scene = node->scene().lock()) {
-		scene->physicsWorld()->btWorld()->addRigidBody(m_btRigidBody.get());
-	}
-	
-//	AE_LOG->debug("Linear sleeping threshold: {}",
-//				  m_btRigidBody->getLinearSleepingThreshold()); // default .8
-//	AE_LOG->debug("Angular sleeping threshold: {}",
-//				  m_btRigidBody->getAngularSleepingThreshold()); // default 1
-	
-	//m_btRigidBody->setSleepingThresholds(0.01, 0.01);
-	//m_btRigidBody->setSleepingThresholds(10.0, 10.0);
-	
-	//m_btRigidBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
 weak_ptr<Node> PhysicsBody::node() const {
 	return m_node;
-}
-
-shared_ptr<btDefaultMotionState> PhysicsBody::btMotionState() const {
-	return m_btMotionState;
 }
 
 PHYSICS_BODY_ID PhysicsBody::simulationID() const {

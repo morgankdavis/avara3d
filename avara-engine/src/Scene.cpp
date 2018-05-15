@@ -214,14 +214,44 @@ void Scene::draw(Renderer& renderer,
 
 	renderer.render(*this, debugOptions, stats);
 	
+	auto physicsSimulator = m_renderContext.lock()->physicsSimulator();
+	
+	if (m_physicsWorld) {
+		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+								 *m_physicsWorld,
+								 debugOptions);
+	}
+	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	for (auto& node: m_rootNode->childNodes(true)) {
+#warning TOPILOGICAL SORT THIS
+	auto allNodes = m_rootNode->childNodes(true);
+	
+	if (m_physicsWorld) {
+		for (auto& node: allNodes) {
+			auto geometry = node->geometry();
+			if (geometry != nullptr) {
+				auto physicsBody = node->physicsBody();
+				if (physicsBody) {
+					physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+											 *physicsBody,
+											 debugOptions);
+				}
+			}
+		}
+		
+		physicsSimulator->step(m_renderContext.lock()->sceneTime());
+	}
+	
+	
+	
+	for (auto& node: allNodes) {
 		
 		stats.nodes++;
 		
-		if (!node->hidden()) {
+#warning move hidden check to renderer
+//		if (!node->hidden()) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				
@@ -230,10 +260,18 @@ void Scene::draw(Renderer& renderer,
 				auto modelMat = mat4(1.0);
 				auto physicsBody = node->physicsBody();
 				if (physicsBody) {
-					auto motionState = physicsBody->btMotionState();
-					btTransform transform;
-					motionState->getWorldTransform(transform);
-					transform.getOpenGLMatrix(value_ptr(modelMat));
+					
+					// * temporary side effect *
+					// updates node's local transform to bt world transform
+					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+											 *physicsBody,
+											 debugOptions);
+					
+					modelMat = node->transform();
+//					auto motionState = physicsBody->btMotionState();
+//					btTransform transform;
+//					motionState->getWorldTransform(transform);
+//					transform.getOpenGLMatrix(value_ptr(modelMat));
 				}
 				else {
 					modelMat = node->worldTransform();
@@ -243,7 +281,7 @@ void Scene::draw(Renderer& renderer,
 							   modelMat, viewMat, projectionMat,
 							   debugOptions, stats);
 			}
-		}
+//		}
 	}
 	
 //	if (m_physicsWorld) {
@@ -313,13 +351,13 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 	m_renderContext = context;
 }
 
-shared_ptr<PhysicsSimulator> Scene::physicsSimulator() const {
-	
-}
-
-void Scene::physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator) {
-	
-}
+//shared_ptr<PhysicsSimulator> Scene::physicsSimulator() const {
+//	
+//}
+//
+//void Scene::physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator) {
+//	
+//}
 
 /**************************************************************************************
      Static

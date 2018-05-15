@@ -8,8 +8,6 @@
 
 #include "PhysicsWorld.h"
 
-#include <LinearMath/btScalar.h> // btGetVersion() !
-
 #include "Logger.h"
 #include "PhysicsDebugDrawer.h"
 #include "RenderContext.h"
@@ -25,47 +23,15 @@ using namespace std;
 
 
 /***************************************************************************************
-     Static Prototypes
- ***************************************************************************************/
-
-//btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option);
-
-/***************************************************************************************
      Lifecycle
  ***************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
-#ifdef DESKTOP
-	m_debugDrawer(make_shared<PhysicsDebugDrawer>()),
-#endif
 	m_gravity({0, -9.807, 0}),
 	m_speed(1.0),
 	m_timestep(1.0/60.0),
 	m_scene(weak_ptr<Scene>()) {
-		
-		AE_LOG->info("Bullet version: {}",  btGetVersion());
-	
-		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
-		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
-		m_btBroadphase = make_shared<btDbvtBroadphase>();
-		m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
-		m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
-														 m_btBroadphase.get(),
-														 m_btSolver.get(),
-														 m_btCollisionConfiguration.get());
-		
-		gravity(m_gravity);
 
-		// **** TEMPORARY ****
-//		m_debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawAabb |
-//									btIDebugDraw::DBG_DrawWireframe |
-//									btIDebugDraw::DBG_DrawText |
-//									btIDebugDraw::DBG_ProfileTimings |
-//									btIDebugDraw::DBG_DrawContactPoints);
-//		
-#ifdef DESKTOP
-		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
-#endif
 }
 
 /***************************************************************************************
@@ -85,31 +51,12 @@ float PhysicsWorld::timestep() const {
 	return m_timestep;
 }
 
-/***************************************************************************************
-     Static
- ***************************************************************************************/
-
-//btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
-//	
-//	switch (option) {
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
-//		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
-//		default:
-//		AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
-//		return btIDebugDraw::DBG_NoDebug;
-//	}
-//}
-
 void PhysicsWorld::timestep(float timestep) {
 	m_timestep = timestep;
 }
 
 void PhysicsWorld::updateCollisionPairs() {
-	m_btWorld->getCollisionWorld()->computeOverlappingPairs();
+	//m_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
 shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
@@ -215,33 +162,7 @@ void PhysicsWorld::debugOptions(DEBUG_OPTIONS options) {
 	
 	AE_LOG->debug("Bullet debug modes: {}", btModes);
 
-#ifdef DESKTOP
-	m_debugDrawer->setDebugMode(btModes);
-#endif
-}
-
-void PhysicsWorld::step() {
-	AE_LOG->trace("step()");
-	
-	//float time = glfwGetTime();
-	float time = m_scene.lock()->renderContext().lock()->sceneTime();
-	static double previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-	
-	unsigned maxSubSteps = lroundf(1.0/m_timestep);
-	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
-
-#ifdef DESKTOP
-	m_debugDrawer->clear();
-#endif
-	m_btWorld->debugDrawWorld();
-}
-
-shared_ptr<PhysicsDebugDrawer> PhysicsWorld::debugDrawer() const {
-	return m_debugDrawer;
-}
-
-shared_ptr<btDiscreteDynamicsWorld> PhysicsWorld::btWorld() const {
-	return m_btWorld;
+//#ifdef DESKTOP
+//	m_debugDrawer->setDebugMode(btModes);
+//#endif
 }

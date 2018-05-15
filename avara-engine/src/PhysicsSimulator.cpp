@@ -39,12 +39,14 @@ PhysicsSimulator::~PhysicsSimulator() {
 //	
 //}
 
-void PhysicsSimulator::update(PhysicsWorld& physicsWorld,
+void PhysicsSimulator::update(PASS pass,
+							  PhysicsWorld& physicsWorld,
 							  const DEBUG_OPTIONS& debugOptions) {
 	
 }
 
-void PhysicsSimulator::update(PhysicsBody& physicsBody,
+void PhysicsSimulator::update(PASS pass,
+							  PhysicsBody& physicsBody,
 							  const DEBUG_OPTIONS& debugOptions) {
 	
 }

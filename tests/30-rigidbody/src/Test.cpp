@@ -23,11 +23,11 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define ENABLE_HIGH_DPI        	true
+#define USE_HIGH_DPI        	true
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIASING_MODE		ANTIALIASING_MODE::MSAA_2X
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA_2X
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
@@ -52,8 +52,8 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
 //	auto node = make_shared<Node>("Sphere");
 //	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
-	auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * .1, 3));
-	auto materialProperty = make_shared<MaterialProperty>(make_shared<Color>(Color::Red()));
+	auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * 1.0, 3));
+	auto materialProperty = make_shared<MaterialProperty>(Color::Red());
 	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 	node->geometry()->addMaterial(material);
 	node->position(location);
@@ -301,28 +301,34 @@ void AddFruit(Scene& scene, vec3 location) {
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-
+	AE_INIT();
+	
+	Logger::Level(LOG_LEVEL::DEBUG);
+	
+	AE_LOG->info("Test::run()");
+	
 	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
-	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::STDOUT);
+	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
 	m_logger = make_shared<Logger>("test30", sinks);
 	
-	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, 
-								   ENABLE_HIGH_DPI, ANTIALIASING_MODE);
-	m_logger->info("Test::run()");
 	
-	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+	auto renderer = make_shared<OpenGLRenderer>();
+	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
+								   FULLSCREEN,
+								   WINDOW_WIDTH, WINDOW_HEIGHT,
+								   USE_HIGH_DPI, ANTIALIAS_MODE);
+	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
 	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	m_window->captureCursor(CAPTURE_CURSOR);
-	m_window->enableVSync(ENABLE_VSYNC);
+	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::renderContextDidRenderCallback, this, _1, _2));
+	m_window->captureCursor(true);
+	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 	
-	
+
 	auto physicsWorld = make_shared<PhysicsWorld>();
 	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
@@ -397,31 +403,31 @@ int Test::run(const vector<string>& args) {
 //	vec3 position = { 0.0, 5.0, 0.0 };
 //	AddPineapple(*scene, position);
 //	AddApple(*scene, position);
-//	AddSphere(*scene, position, make_shared<Color>(Color::Red()));
+//	AddSphere(*scene, position, Color::Red());
 	
-//	unsigned SPACING = 1.0;
-//	unsigned DROP_HEIGHT = 5.0;
-//	unsigned colorIndex = 0;
-//	auto colors = Color::Rainbow();
-//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-//				auto color = make_shared<Color>(colors[colorIndex + 4]);
-//				++colorIndex;
-//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-//				//AddObject(*scene, position, color);
-//				AddBox(*scene, position, color);
-//				//AddCapsule(*scene, position, color);
-//				//AddCone(*scene, position, color);
-//				//AddCylinder(*scene, position, color);
-//				//AddApple(*scene, position);
-//				//AddFruit(*scene, position);
-//			}
-//		}
-//	}
+	unsigned SPACING = 1.0;
+	unsigned DROP_HEIGHT = 5.0;
+	unsigned colorIndex = 0;
+	auto colors = Color::Rainbow();
+	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+				auto color = colors[colorIndex + 4];
+				++colorIndex;
+				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+				//AddObject(*scene, position, color);
+				AddBox(*scene, position, color);
+				//AddCapsule(*scene, position, color);
+				//AddCone(*scene, position, color);
+				//AddCylinder(*scene, position, color);
+				//AddApple(*scene, position);
+				//AddFruit(*scene, position);
+			}
+		}
+	}
 	
 	
 	
@@ -481,7 +487,7 @@ int Test::run(const vector<string>& args) {
 	
 	
 
-	auto background = make_shared<MaterialProperty>(TestCubeNamed("sky1", "png"));
+	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
 	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
@@ -491,7 +497,7 @@ int Test::run(const vector<string>& args) {
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChildNode(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, make_shared<Color>(Color::LightGray()));
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	//auto pointLightNode = make_shared<Node>(pointLight);
@@ -514,7 +520,7 @@ int Test::run(const vector<string>& args) {
 	scene->fogStartDistance(100.0);
 	scene->fogEndDistance(600.0);
 	scene->fogDensityExponent(1.0);
-	scene->fogColor(make_shared<Color>(Color::LightGray()));
+	scene->fogColor(Color::LightGray());
 
 	AE_LOG->info("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 	
@@ -529,12 +535,14 @@ int Test::run(const vector<string>& args) {
      Window Callbacks
  ***************************************************************************************/
 
-void Test::windowUpdateCallback(Scene& scene, float time) {
-	m_logger->trace("windowUpdateCallback()");
+void Test::renderContextUpdateCallback(RenderContext& renderContext, float time) {
+	m_logger->trace("renderContextUpdateCallback()");
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
+	
+	auto scene = *renderContext.scene();
 	
 	// get input
 	
@@ -556,59 +564,59 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 	if (keysPressed.count(KEY::P)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::G)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::C)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 	}
 	if (keysPressed.count(KEY::N)) {
-		if (DEBUG_OPTIONS_CONTAINS(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-			m_window->debugOptions(DEBUG_OPTIONS_REMOVE(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 		else {
-			m_window->debugOptions(DEBUG_OPTIONS_ADD(m_window->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 	}
 
@@ -619,6 +627,10 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
 		SaveSnapshot(*m_window);
+	}
+	
+	if (keysPressed.count(KEY::SLASH)) {
+		m_window->captureCursor(!(m_window->cursorCaptured()));
 	}
 	
 	if (keysPressed.count(KEY::R)) {
@@ -703,14 +715,14 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	}
 }
 
-void Test::didSimulatePhysicsCallback(Scene& scene, float time) {
+void Test::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
 	m_logger->trace("didSimulatePhysicsCallback()");
 }
 
-void Test::windowWillRenderCallback(Scene& scene, float time) {
+void Test::renderContextWillRenderCallback(RenderContext& renderContext, float time) {
 	
 }
 
-void Test::windowDidRenderCallback(Scene& scene, float time) {
+void Test::renderContextDidRenderCallback(RenderContext& renderContext, float time) {
 	
 }

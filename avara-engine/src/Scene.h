@@ -99,8 +99,8 @@ namespace ae {
 		std::weak_ptr<RenderContext> renderContext() const;
 		void renderContext(std::shared_ptr<RenderContext> context);
 		
-		std::shared_ptr<PhysicsSimulator> physicsSimulator() const;
-		void physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator);
+//		std::shared_ptr<PhysicsSimulator> physicsSimulator() const;
+//		void physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator);
 		
 	private:
 		
@@ -120,7 +120,7 @@ namespace ae {
 		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
 		
 		std::weak_ptr<RenderContext>			m_renderContext;
-		std::shared_ptr<PhysicsSimulator> 		m_physicsSimulator;
+//		std::shared_ptr<PhysicsSimulator> 		m_physicsSimulator;
 	};
 }
 

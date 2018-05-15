@@ -8,7 +8,7 @@
 
 #include "PhysicsShape.h"
 
-#include <BulletCollision/CollisionShapes/btShapeHull.h>
+//#include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -32,40 +32,34 @@ using namespace std;
 
 
 /***************************************************************************************
-     Static Prototypes
- ***************************************************************************************/
-
-shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-														  PHYSICS_SHAPE_TYPE type);
-shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PHYSICS_SHAPE_TYPE type,
-													vector<shared_ptr<btCollisionShape>>& childShapes);
-
-/***************************************************************************************
      Lifecycle
  ***************************************************************************************/
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry(geometry),
+	m_sourceGeometry(nullptr),
 	m_sourceNode(nullptr),
-	m_type(type),
-	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
+	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
-	m_btShape(nullptr),
-	m_physicsBody(weak_ptr<PhysicsBody>()) {
+	m_physicsBody(weak_ptr<PhysicsBody>()),
+	m_simulationID(0),
+	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
+		m_sourceGeometry = geometry;
+		m_type = type;
 }
 
-// will construct a compound shape based on geometries under this node
+// construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(nullptr),
-	m_sourceNode(node),
-	m_type(type),
-	m_childShapes(vector<shared_ptr<btCollisionShape>>()),
+	m_sourceNode(nullptr),
+	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
-	m_btShape(nullptr),
-	m_physicsBody(weak_ptr<PhysicsBody>()) {
+	m_physicsBody(weak_ptr<PhysicsBody>()),
+	m_simulationID(0),
+	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
+		m_sourceNode = node;
+		m_type = type;
 }
 
 /***************************************************************************************
@@ -94,18 +88,11 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
-
-	if (m_sourceGeometry) {
-		m_btShape = BTCollisionShapeFromGeometry(m_sourceGeometry, m_type);
-	}
-	else if (m_sourceNode) {
-		m_childShapes.clear();
-		m_btShape = BTCompoundShapeFromNode(m_sourceNode, m_type, m_childShapes);
-	}
-	else {
-		AE_LOG->critical("Logic error: PhysicsShape has no source geometry or node.");
-	}
 }
+
+//vector<shared_ptr<btCollisionShape>>& PhysicsShape::childShapes() {
+//	return m_childShapes;
+//}
 
 weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
 	return m_physicsBody;
@@ -116,9 +103,9 @@ void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
 	attachedToBody(body);
 }
 
-shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
-	return m_btShape;
-}
+//shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
+//	return m_btShape;
+//}
 
 PHYSICS_SHAPE_ID PhysicsShape::simulationID() const {
 	return m_simulationID;
@@ -134,134 +121,4 @@ PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
 
 void PhysicsShape::dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits) {
 	m_dirtyBits = bits;
-}
-
-/***************************************************************************************
-     Static
- ***************************************************************************************/
-
-shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-														  PHYSICS_SHAPE_TYPE type) {
-	AE_LOG->trace("BTCollisionShapeFromGeometry()");
-	
-	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
-	// - if 'geometry' is a primitive, use matching primitive
-	// - if arbitrary mesh, use whatever 'type' is
-	
-	if (type == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
-		vec3 extent = geometry->extent(false);
-		float width = extent.x;
-		float height = extent.y;
-		float length = extent.z;
-		return make_shared<btBoxShape>(btVector3((btScalar)width/2.0,
-												 (btScalar)height/2.0,
-												 (btScalar)length/2.0));
-	}
-	else if (dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using box.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
-		
-		auto box = dynamic_cast<Box*>(geometry.get());
-		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
-												 (btScalar)box->height()/2.0,
-												 (btScalar)box->length()/2.0));
-	}
-	else if (dynamic_cast<Sphere*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
-		
-		auto sphere = dynamic_cast<Sphere*>(geometry.get());
-		return make_shared<btSphereShape>((btScalar)sphere->radius());
-	}
-	else if (dynamic_cast<Capsule*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
-		
-		auto capsule = dynamic_cast<Capsule*>(geometry.get());
-		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
-										   (btScalar)capsule->height());
-	}
-	else if (dynamic_cast<Cone*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cone.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
-		
-		auto cone = dynamic_cast<Cone*>(geometry.get());
-		return make_shared<btConeShape>((btScalar)cone->radius(),
-										(btScalar)cone->height());
-	}
-	else if (dynamic_cast<Cylinder*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
-		
-		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
-		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)cylinder->height()/2.0,
-													  (btScalar)cylinder->radius()));
-	}
-	else {
-		
-		if (type == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
-		}
-		else { // PhysicsShapeType_ConvexHull
-			
-			// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
-			
-			unsigned numVerticies = 0;
-			for (auto element : geometry->elements()) {
-				numVerticies += element->vertices().size();
-			}
-			vector<Vertex> verticies;
-			verticies.reserve(numVerticies);
-			
-			for (auto element : geometry->elements()) {
-				auto elementVerts = element->vertices();
-				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-			}
-			
-			auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-																numVerticies,
-																sizeof(Vertex));
-			
-			// reduce number of verticies
-			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-			
-			auto hull = make_shared<btShapeHull>(originalShape.get());
-			btScalar margin = originalShape->getMargin();
-			hull->buildHull((btScalar)margin);
-			
-			auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
-															   hull->numVertices(),
-															   sizeof(btVector3));
-			
-			reducedShape->optimizeConvexHull();
-			
-			if (!reducedShape->initializePolyhedralFeatures()) {
-				AE_LOG->warn("Could not initialize polyhedral features for reduced ConvexHullShape");
-			}
-			
-			return reducedShape;
-		}
-	}
-	
-	return nullptr;
-}
-
-shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PHYSICS_SHAPE_TYPE type,
-													vector<shared_ptr<btCollisionShape>>& childShapes) {
-	AE_LOG->trace("BTCompoundShapeFromNode()");
-	
-	auto compoundShape = make_shared<btCompoundShape>(true);
-	
-	auto allNodes = node->childNodes(true);
-	for (auto n : allNodes) {
-		auto geometry = n->geometry();
-		if (geometry) {
-			auto collisionShape = BTCollisionShapeFromGeometry(geometry, type);
-			
-			childShapes.emplace_back(collisionShape);
-			
-			btTransform localTransform;
-			localTransform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
-			compoundShape->addChildShape(localTransform, collisionShape.get());
-		}
-	}
-	
-	return compoundShape;
 }

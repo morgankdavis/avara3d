@@ -21,6 +21,7 @@ namespace ae {
 	class InputManager;
 	class Logger;
 	class Node;
+	class RenderContext;
 	class Scene;
 	class Window;
 
@@ -31,10 +32,15 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowUpdateCallback(Scene& scene, float time);
-		void didSimulatePhysicsCallback(Scene& scene, float time);
-		void windowWillRenderCallback(Scene& scene, float time);
-		void windowDidRenderCallback(Scene& scene, float time);
+//		void windowUpdateCallback(Scene& scene, float time);
+//		void didSimulatePhysicsCallback(Scene& scene, float time);
+//		void windowWillRenderCallback(Scene& scene, float time);
+//		void windowDidRenderCallback(Scene& scene, float time);
+		
+		void renderContextUpdateCallback(RenderContext& renderContext, float time);
+		void didSimulatePhysicsCallback(RenderContext& renderContext, float time);
+		void renderContextWillRenderCallback(RenderContext& renderContext, float time);
+		void renderContextDidRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 

@@ -13,8 +13,6 @@
 #include <memory>
 #include <vector>
 
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
 
 #include "Types.h"
 
@@ -53,11 +51,12 @@ namespace ae {
 		
 		void attachedToBody(std::shared_ptr<PhysicsBody> body);
 		
+#warning may want this
+//		std::vector<std::shared_ptr<btCollisionShape>>& childShapes();
+		
 		std::weak_ptr<PhysicsBody> physicsBody() const;
 		void physicsBody(std::shared_ptr<PhysicsBody> body);
-		
-		std::shared_ptr<btCollisionShape> btShape() const;
-		
+
 		PHYSICS_SHAPE_ID simulationID() const;
 		void simulationID(PHYSICS_SHAPE_ID simID);
 		
@@ -73,12 +72,10 @@ namespace ae {
 		std::shared_ptr<Geometry> 						m_sourceGeometry;
 		std::shared_ptr<Node> 							m_sourceNode;
 		PHYSICS_SHAPE_TYPE 								m_type;
-		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
+//		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
 		// The array of transforms that was used to create a compound shape.
 		std::vector<glm::mat4> 							m_transforms;
-		
-		std::shared_ptr<btCollisionShape>				m_btShape;
-		
+
 		std::weak_ptr<PhysicsBody>						m_physicsBody;
 		
 		PHYSICS_SHAPE_ID 								m_simulationID;

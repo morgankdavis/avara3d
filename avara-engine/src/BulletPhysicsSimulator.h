@@ -41,11 +41,14 @@ namespace ae {
 		     Types
 		 **************************************************************************************/
 		
+		/* <ae_ID : <rigidBody, motionState>> */
 		typedef std::map<PHYSICS_BODY_ID,
 			std::pair<std::shared_ptr<btRigidBody>, std::shared_ptr<btDefaultMotionState>>>
-																PhysicsBodyMotionStateIDMapping;
+																PhysicsBodyIDMapping;
 		
-		typedef std::map<PHYSICS_SHAPE_ID, std::shared_ptr<btCollisionShape>>
+		/* <ae_ID : <collisionShape, childShapes>> */
+		typedef std::map<PHYSICS_SHAPE_ID,
+			std::pair<std::shared_ptr<btCollisionShape>, std::vector<std::shared_ptr<btCollisionShape>>>>
 																PhysicsShapeIDMapping;
 		
 		/***************************************************************************************
@@ -72,9 +75,11 @@ namespace ae {
 		 **************************************************************************************/
 		
 //		void initialize() override;
-		void update(PhysicsWorld& physicsWorld,
+		void update(PASS pass,
+					PhysicsWorld& physicsWorld,
 					const DEBUG_OPTIONS& debugOptions) override;
-		void update(PhysicsBody& physicsBody,
+		void update(PASS pass,
+					PhysicsBody& physicsBody,
 					const DEBUG_OPTIONS& debugOptions) override;
 		void step(float time) override;
 		
@@ -91,7 +96,7 @@ namespace ae {
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
 		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
 		
-		PhysicsBodyMotionStateIDMapping							m_bodyMotionStateIDMapping;
+		PhysicsBodyIDMapping									m_bodyIDMapping;
 		PHYSICS_BODY_ID											m_bodyIDCounter;
 		
 		PhysicsShapeIDMapping									m_shapeIDMapping;

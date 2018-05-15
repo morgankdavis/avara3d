@@ -28,6 +28,15 @@ namespace ae {
 		
 	public:
 		
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+
+		enum class PASS {
+			UPDATE_MODEL, // update internal model
+			SYNC_GRAPH // sync scene graph after simulation step
+		};
+		
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
@@ -44,9 +53,11 @@ namespace ae {
 		 **************************************************************************************/
 		
 		//virtual void initialize();
-		virtual void update(PhysicsWorld& physicsWorld,
+		virtual void update(PASS pass,
+							PhysicsWorld& physicsWorld,
 							const DEBUG_OPTIONS& debugOptions);
-		virtual void update(PhysicsBody& physicsBody,
+		virtual void update(PASS pass,
+							PhysicsBody& physicsBody,
 							const DEBUG_OPTIONS& debugOptions);
 		virtual void step(float time);
 		

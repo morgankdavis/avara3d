@@ -13,14 +13,41 @@ Tests:
 
 	30 - rigidbodies
 
+
+
+		FIX SKYBOX CLAMPING
+		Fix filtering options for floor grid
+
+		Fix didSimulatePhysicsCallback
+
+		Do something about PhysicsBody::shape()
+
+
+		Unroll scene ->
+		update(PASS::UPDATE_MODEL)
+		step()
+		update(PASS::SYNC_GRAPH)
+			-> set transforms
+
+		move Node::hidden() check to Renderer
+		
+
 		Add Node dirty bits: worldTransform
 
 		Each frame:
-			Topological sort scene graph -> Update world transforms
-				https://www.geeksforgeeks.org/topological-sorting/
-			Walk graph and update physics state
-			Walk graph and render
+			- Topological sort scene graph [https://www.geeksforgeeks.org/topological-sorting/]
+			- Update all worldTransforms
+			[
+				- Check bt physics objects exist, and have appropriate properties
+				- Step simulation
+				- Update physics nodes transforms
+			]
+
+
+		Check RenderContext callbacks
 			
+		PhysicsShape::sourceNode should be a weak_ptr
+
 		For back references, move lock() check into accessor?
 
 		Set something (node->geometry, scene->background)

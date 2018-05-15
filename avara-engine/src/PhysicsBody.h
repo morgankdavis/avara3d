@@ -12,8 +12,8 @@
 
 #include <memory>
 
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
+//#include <btBulletCollisionCommon.h>
+//#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -126,8 +126,6 @@ namespace ae {
 		
 		std::weak_ptr<Node> node() const;
 		
-		std::shared_ptr<btDefaultMotionState> btMotionState() const;
-		
 		PHYSICS_BODY_ID simulationID() const;
 		void simulationID(PHYSICS_BODY_ID simID);
 		
@@ -159,9 +157,6 @@ namespace ae {
 		bool 									m_allowsResting;
 		
 		std::weak_ptr<Node>						m_node;
-		
-		std::shared_ptr<btDefaultMotionState>	m_btMotionState;
-		std::shared_ptr<btRigidBody>			m_btRigidBody;
 		
 		PHYSICS_BODY_ID 						m_simulationID;
 		PHYSICS_BODY_DIRTY_BITS 				m_dirtyBits;

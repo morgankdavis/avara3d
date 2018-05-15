@@ -31,12 +31,14 @@ namespace ae {
 		     Types
 		 **************************************************************************************/
 		
-		/* <ae_renderID, <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		/* <ae_ID : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		typedef std::map<GEOMETRY_ELEMENT_ID,
 			std::tuple<unsigned, unsigned, unsigned>> 		GeometryElementIDMapping;
-		/* <ae_renderID, <gl_textureHandle> */
+		
+		/* <ae_ID : <gl_textureHandle> */
 		typedef std::map<MATERIAL_PROPERTY_ID, unsigned> 	MaterialPropertyIDMapping;
-		/* <ae_renderID, <gl_vboHandle, gl_vaoHandle>> */
+		
+		/* <ae_ID : <gl_vboHandle, gl_vaoHandle>> */
 		typedef std::map<GEOMETRY_ID,
 			std::pair<unsigned, unsigned>>					AABBGeometryIDMapping;
 

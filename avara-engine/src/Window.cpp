@@ -184,14 +184,14 @@ void Window::update() {
 	m_renderer->renderStats().cameraPosition = pov->position();
 	
 	// simulate physics
-	auto physicsWorld = m_scene->physicsWorld();
-	if (physicsWorld) {
-		physicsWorld->step();
-		
+//	auto physicsWorld = m_scene->physicsWorld();
+//	if (physicsWorld) {
+//		physicsWorld->step();
+//		
 		if (didSimulatePhysicsCallback()) {
 			didSimulatePhysicsCallback()(*this, sceneTime());
 		}
-	}
+//	}
 	
 	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
 	
