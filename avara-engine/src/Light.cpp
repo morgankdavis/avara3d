@@ -117,10 +117,6 @@ weak_ptr<Node> Light::node() const {
 	return m_node;
 }
 
-//void Light::node(shared_ptr<Node> node) {
-//	m_node = node;
-//}
-
 void Light::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
 }

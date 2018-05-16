@@ -24,7 +24,6 @@
 #endif
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
-#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
 #include "Types.h"

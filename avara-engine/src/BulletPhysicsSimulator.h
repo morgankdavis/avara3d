@@ -74,7 +74,6 @@ namespace ae {
 		     Physics Simulator
 		 **************************************************************************************/
 		
-//		void initialize() override;
 		void update(PASS pass,
 					PhysicsWorld& physicsWorld,
 					const DEBUG_OPTIONS& debugOptions) override;

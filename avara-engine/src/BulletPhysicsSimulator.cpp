@@ -11,6 +11,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <LinearMath/btScalar.h> // btGetVersion() !
 
 #include "Box.h"
@@ -105,10 +106,6 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 /**************************************************************************************
      Physics Simulator
  **************************************************************************************/
-
-//void BulletPhysicsSimulator::initialize() {
-//	AE_LOG->trace("initialize()");
-//}
 
 void BulletPhysicsSimulator::update(PASS pass,
 									PhysicsWorld& world,
@@ -211,7 +208,6 @@ void GetPhysicsBodyBTModels(PhysicsBody& body,
 							BulletPhysicsSimulator::PhysicsShapeIDMapping& shapeIDMapping,
 							PHYSICS_SHAPE_ID& shapeIDCounter) {
 	
-
 	bool shapeWasDirty = false;
 	
 	GetPhysicsShapeBTModels(*body.shape(),
@@ -219,88 +215,80 @@ void GetPhysicsBodyBTModels(PhysicsBody& body,
 							btWorld,
 							shapeIDMapping, shapeIDCounter,
 							shapeWasDirty);
-	
-//	if (btShape) {
-		
-		auto node = body.node().lock();
-		auto type = body.type();
-		
-		// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
-		// we also re-create the body
-		
-		if (shapeWasDirty || PHYSICS_BODY_DIRTY_BITS_CONTAINS(body.dirtyBits(),
-															  PHYSICS_BODY_DIRTY_BITS::MODEL)) {
-			
 
-			btTransform transform;
-			transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
-			auto motionState_shared = make_shared<btDefaultMotionState>(transform);
-			
-			
-			
-			btCollisionShape* collisionShape = *btShape;
-			
-			btVector3 localInertia(0, 0, 0);
-			auto mass = body.mass();
-			if (mass != 0) {
-				collisionShape->calculateLocalInertia(mass, localInertia);
-			}
-			
-			btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
-																   motionState_shared.get(),
-																   collisionShape,
-																   localInertia);
-			
-			// √ velocity factor
-			// √ angular velocity factor
-			// afected by gravity
-			rigidBodyInfo.m_mass = body.mass();
-			// charge
-			rigidBodyInfo.m_friction = body.friction();
-			rigidBodyInfo.m_rollingFriction = body.rollingFriction();
-			rigidBodyInfo.m_restitution = body.restitution();
-			rigidBodyInfo.m_linearDamping = body.damping();
-			rigidBodyInfo.m_angularDamping = body.angularDamping();
-			// moment of inertia
-			// √ velocity
-			// √ angular velocity
-			// resting
-			// allows resting
-			
-			
-			
-			shared_ptr<btRigidBody> body_shared = make_shared<btRigidBody>(rigidBodyInfo);
-			
-			body_shared->setLinearFactor(BTVector3FromGLMVec3(body.velocityFactor()));
-			body_shared->setAngularFactor(BTVector3FromGLMVec3(body.angularVelocityFactor()));
-			body_shared->setLinearVelocity(BTVector3FromGLMVec3(body.velocity()));
-			body_shared->setAngularVelocity(BTVector3FromGLMVec3(body.angularVelocity()));
-			//body_shared->setGravity()
-			
-//			if (auto scene = node->scene().lock()) {
-//				scene->physicsWorld()->btWorld()->addRigidBody(body_shared.get());
-//			}
-			btWorld.addRigidBody(body_shared.get());
-			
-			// out parameters
-			*btBody = body_shared.get();
-			*btMotionState = motionState_shared.get();
-			
-			bodyIDMapping[++bodyIDCounter] = make_pair(body_shared, motionState_shared);
-			body.simulationID(bodyIDCounter);
-			
-			body.dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body.dirtyBits(),
-														  PHYSICS_BODY_DIRTY_BITS::MODEL));
+	auto node = body.node().lock();
+	auto type = body.type();
+	
+	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
+	// we also re-create the body
+	
+	if (shapeWasDirty || PHYSICS_BODY_DIRTY_BITS_CONTAINS(body.dirtyBits(),
+														  PHYSICS_BODY_DIRTY_BITS::MODEL)) {
+		
+		AE_LOG->info("Creating rigid body for physics body {:p}...", (void*)&body);
+		
+
+		btTransform transform;
+		transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
+		auto motionState_shared = make_shared<btDefaultMotionState>(transform);
+		
+		
+		
+		btCollisionShape* collisionShape = *btShape;
+		
+		btVector3 localInertia(0, 0, 0);
+		auto mass = body.mass();
+		if (mass != 0) {
+			collisionShape->calculateLocalInertia(mass, localInertia);
 		}
-		else {
-			*btBody = (get<0>(bodyIDMapping[body.simulationID()])).get();
-			*btMotionState = (get<1>(bodyIDMapping[body.simulationID()])).get();
-		}
-//	}
-//	else {
-//		// node has a physics body but isn't complete
-//		btBody = nullptr;
-//	}
+		
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
+															   motionState_shared.get(),
+															   collisionShape,
+															   localInertia);
+		
+		// √ velocity factor
+		// √ angular velocity factor
+		// afected by gravity
+		rigidBodyInfo.m_mass = body.mass();
+		// charge
+		rigidBodyInfo.m_friction = body.friction();
+		rigidBodyInfo.m_rollingFriction = body.rollingFriction();
+		rigidBodyInfo.m_restitution = body.restitution();
+		rigidBodyInfo.m_linearDamping = body.damping();
+		rigidBodyInfo.m_angularDamping = body.angularDamping();
+		// moment of inertia
+		// √ velocity
+		// √ angular velocity
+		// resting
+		// allows resting
+		
+
+		
+		shared_ptr<btRigidBody> body_shared = make_shared<btRigidBody>(rigidBodyInfo);
+		
+		body_shared->setLinearFactor(BTVector3FromGLMVec3(body.velocityFactor()));
+		body_shared->setAngularFactor(BTVector3FromGLMVec3(body.angularVelocityFactor()));
+		body_shared->setLinearVelocity(BTVector3FromGLMVec3(body.velocity()));
+		body_shared->setAngularVelocity(BTVector3FromGLMVec3(body.angularVelocity()));
+		//body_shared->setGravity()
+		
+		btWorld.addRigidBody(body_shared.get());
+		
+		// out parameters
+		*btBody = body_shared.get();
+		*btMotionState = motionState_shared.get();
+		
+		bodyIDMapping[++bodyIDCounter] = make_pair(body_shared, motionState_shared);
+		body.simulationID(bodyIDCounter);
+		
+		body.dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body.dirtyBits(),
+													  PHYSICS_BODY_DIRTY_BITS::MODEL));
+	}
+	else {
+		*btBody = (get<0>(bodyIDMapping[body.simulationID()])).get();
+		*btMotionState = (get<1>(bodyIDMapping[body.simulationID()])).get();
+	}
 }
 
 void GetPhysicsShapeBTModels(PhysicsShape& shape,
@@ -315,10 +303,7 @@ void GetPhysicsShapeBTModels(PhysicsShape& shape,
 										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
 		
 		if (shape.sourceGeometry()) {
-			
-			AE_LOG->debug("sourceGeometry");
-			
-			
+
 			auto shape_shared = BTCollisionShapeFromGeometry(shape.sourceGeometry(), shape.type());
 			
 			
@@ -328,9 +313,7 @@ void GetPhysicsShapeBTModels(PhysicsShape& shape,
 			shape.simulationID(idCounter);
 		}
 		else if (auto sourceNode = shape.sourceNode().lock()) {
-			
-			AE_LOG->debug("sourceNode");
-			
+
 			auto childShapes = vector<shared_ptr<btCollisionShape>>();
 			
 			
@@ -381,6 +364,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	// - if arbitrary mesh, use whatever 'type' is
 	
 	if (type == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
+		AE_LOG->info("Creating box physics shape for geometry {:p}...", (void*)&geometry);
+					 
 		vec3 extent = geometry->extent(false);
 		float width = extent.x;
 		float height = extent.y;
@@ -390,7 +375,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 												 (btScalar)length/2.0));
 	}
 	else if (dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using box.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
+		AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto box = dynamic_cast<Box*>(geometry.get());
 		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
@@ -398,27 +384,31 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 												 (btScalar)box->length()/2.0));
 	}
 	else if (dynamic_cast<Sphere*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using sphere.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
+		AE_LOG->info("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto sphere = dynamic_cast<Sphere*>(geometry.get());
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using capsule.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
+		AE_LOG->info("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto capsule = dynamic_cast<Capsule*>(geometry.get());
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
 	else if (dynamic_cast<Cone*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cone.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
+		AE_LOG->info("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto cone = dynamic_cast<Cone*>(geometry.get());
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
 	else if (dynamic_cast<Cylinder*>(geometry.get())) {
-		AE_LOG->info("Ignoring physics shape type {}. Using cylinder.", PHYSICS_SHAPE_TYPE_TO_RAW(type));
+		AE_LOG->info("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
 		
 		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
@@ -428,9 +418,11 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	else {
 		
 		if (type == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-			AE_LOG->critical("Concave polyhedron physics shapes not yet supported.");
+			AE_LOG->critical("Concave polyhedron physics shapes not supported.");
 		}
 		else { // PhysicsShapeType_ConvexHull
+			
+			AE_LOG->info("Creating convex hull physics shape for geometry {:p}...", (void*)&geometry);
 			
 			// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 			
@@ -464,7 +456,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 			reducedShape->optimizeConvexHull();
 			
 			if (!reducedShape->initializePolyhedralFeatures()) {
-				AE_LOG->warn("Could not initialize polyhedral features for reduced ConvexHullShape");
+				AE_LOG->warn("Could not initialize polyhedral features for reduced ConvexHullShape.");
 			}
 			
 			return reducedShape;

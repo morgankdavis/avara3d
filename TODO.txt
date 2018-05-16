@@ -14,37 +14,18 @@ Tests:
 	30 - rigidbodies
 
 
-		BT object creation logging
+		Too sort + world transform dirty bits
 
-		FIX SKYBOX CLAMPING
+		
 		Fix filtering options for floor grid
 
-		Fix didSimulatePhysicsCallback
-
-		Set skybox properties
 
 		Do something about PhysicsBody::shape()
 
-
-		Unroll scene ->
-		update(PASS::UPDATE_MODEL)
-		step()
-		update(PASS::SYNC_GRAPH)
-			-> set transforms
+		Remove remaining header includes where struct forward declarations will work
 
 		move Node::hidden() check to Renderer
-		
 
-		Add Node dirty bits: worldTransform
-
-		Each frame:
-			- Topological sort scene graph [https://www.geeksforgeeks.org/topological-sorting/]
-			- Update all worldTransforms
-			[
-				- Check bt physics objects exist, and have appropriate properties
-				- Step simulation
-				- Update physics nodes transforms
-			]
 
 			
 		For back references, move lock() check into accessor?
@@ -57,19 +38,12 @@ Tests:
 			Create at each frame, pass around. frameStartTime, frameEndTime
 
 
-		BulletPhysicsSimulator
-
-			Make Types_Internal.h ?
+		Make Types_Internal.h ?
+		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
 		
 
 		Refactor PhysicsDebugDrawer
 
-		Node::addChildNode()
-			m_physicsBody->attachedToNode()
-			SHOULD MOVE TO:
-			Node::physicsBody(<...>)
-
-		ADD "removedFromNode()" // attachedToNode(nullptr)
 
 		Try set margin 0 for static objects
 

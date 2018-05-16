@@ -693,8 +693,6 @@ static void LoadGeometryElementVertexData(const GeometryElement& element,
 				 &(faces[0]),
 				 GL_STATIC_DRAW);
 	
-	AE_LOG->info("Done.");
-	
 	//program.unuse();
 }
 
@@ -734,8 +732,6 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 				 faces.size() * sizeof(Face),
 				 &(faces[0]),
 				 GL_STATIC_DRAW);
-	
-	AE_LOG->info("Done.");
 	
 	//program.unuse();
 }
@@ -842,8 +838,6 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint
 		SetTextureWrapS(glTextureHandle, true, property.wrapS());
 		SetTextureWrapT(glTextureHandle, true, property.wrapT());
 		SetTextureWrapR(glTextureHandle, property.wrapR());
-		
-		AE_LOG->info("Done.");
 	}
 	else if (dynamic_pointer_cast<Image>(property.contents())) {
 		AE_LOG->info("Buffering 2D texture...");
@@ -868,8 +862,6 @@ static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint
 		SetTextureMaxAnisotropy(glTextureHandle, false, property.maxAnisotropy());
 		SetTextureWrapS(glTextureHandle, false, property.wrapS());
 		SetTextureWrapT(glTextureHandle, false, property.wrapT());
-		
-		AE_LOG->info("Done.");
 	}
 }
 	

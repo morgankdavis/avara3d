@@ -36,19 +36,6 @@ namespace ae {
 	class Scene;
 
 	
-//	using RenderContextUpdateFuction =
-//		std::function<void(RenderContext& renderContext, float time)>;
-//	
-//	using RenderContextDidSimulatePhysicsFuction =
-//		std::function<void(RenderContext& renderContext, float time)>;
-//	
-//	using RenderContextWillRenderFuction =
-//		std::function<void(RenderContext& renderContext, float time)>;
-//	
-//	using RenderContextDidRenderFuction =
-//		std::function<void(RenderContext& renderContext, float time)>;
-
-	
 	class RenderContext : public std::enable_shared_from_this<RenderContext> {
 		
 	public:

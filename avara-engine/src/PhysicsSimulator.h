@@ -52,7 +52,6 @@ namespace ae {
 		     Internal
 		 **************************************************************************************/
 		
-		//virtual void initialize();
 		virtual void update(PASS pass,
 							PhysicsWorld& physicsWorld,
 							const DEBUG_OPTIONS& debugOptions);

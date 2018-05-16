@@ -17,7 +17,6 @@
 #endif
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
-#include <btBulletDynamicsCommon.h>
 
 #include "BulletPhysicsSimulator.h"
 #include "Camera.h"
@@ -142,6 +141,10 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
 	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
 		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
+		
+		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
+		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
+		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
 
 		// generate the skybox geometry if it hasn't already been
 		if (!m_skyboxGeometry) {
