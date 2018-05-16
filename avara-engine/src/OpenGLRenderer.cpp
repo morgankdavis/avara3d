@@ -996,7 +996,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	shared_ptr<Node> ambientLight = nullptr;
 	
 	// find all lights in the scene
-	for (auto node: scene.rootNode()->childNodes(true)) {
+	for (auto node: scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
 			auto light = node->light();
 			if (light != nullptr) {

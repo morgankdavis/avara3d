@@ -65,22 +65,22 @@ int Test::run(const vector<string>& args) {
 	
 
 	auto teapotScene = TestSceneNamed("teapot");
-	auto teapotNode = teapotScene->rootNode()->childNodes(true)[1];
+	auto teapotNode = teapotScene->rootNode()->children(true)[1];
     teapotNode->rotation({1, 0, 0, radians(30.0)});
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Lines);
 //	teapotNode->geometry()->firstMaterial()->fillMode(FillMode_Points);
-	scene->rootNode()->addChildNode(teapotNode);
+	scene->rootNode()->addChild(teapotNode);
 
 	auto dragonScene = TestSceneNamed("dragon", "obj");
-	auto dragonNode = dragonScene->rootNode()->childNodes(true)[0];
+	auto dragonNode = dragonScene->rootNode()->children(true)[0];
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
-	scene->rootNode()->addChildNode(dragonNode);
+	scene->rootNode()->addChild(dragonNode);
 	
 	
 	// test exception
 	try {
-		scene->rootNode()->addChildNode(teapotNode);
+		scene->rootNode()->addChild(teapotNode);
 	}
 	catch (Exception& e) {
 		logger->error(e.what());
@@ -94,14 +94,14 @@ int Test::run(const vector<string>& args) {
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
 	auto ambientLightNode = make_shared<Node>("Ambient light");
 	ambientLightNode->light(ambientLight);
-	scene->rootNode()->addChildNode(ambientLightNode);
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LightType_Point, make_shared<Color>(Color::White()));
 	pointLight->attenuationFactor(0.000015);
 	//auto pointLightNode = make_shared<Node>(pointLight);
 	auto pointLightNode = make_shared<Node>();
 	pointLightNode->light(pointLight);
-	scene->rootNode()->addChildNode(pointLightNode);
+	scene->rootNode()->addChild(pointLightNode);
 
 	pointLightNode->position({200.0, 20.0, -20.0});
 
@@ -195,7 +195,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->childNodes(false)) {
+		for (auto n : scene.rootNode()->children(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

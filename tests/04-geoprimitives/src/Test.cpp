@@ -51,7 +51,7 @@ int Test::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>();
 	planeGeo->name("plane");
 	planeNode->geometry(planeGeo);
-	scene->rootNode()->addChildNode(planeNode);
+	scene->rootNode()->addChild(planeNode);
 	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
@@ -60,7 +60,7 @@ int Test::run(const vector<string>& args) {
 	auto boxNode = make_shared<Node>();
 	boxGeo->name("box");
 	boxNode->geometry(boxGeo);
-	scene->rootNode()->addChildNode(boxNode);
+	scene->rootNode()->addChild(boxNode);
 	boxNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-70.0f)));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
 
@@ -69,7 +69,7 @@ int Test::run(const vector<string>& args) {
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);
-	scene->rootNode()->addChildNode(sphereNode);
+	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 	
 	
@@ -77,7 +77,7 @@ int Test::run(const vector<string>& args) {
 	auto torusNode = make_shared<Node>();
 	torusGeo->name("torus");
 	torusNode->geometry(torusGeo);
-	scene->rootNode()->addChildNode(torusNode);
+	scene->rootNode()->addChild(torusNode);
 	torusNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(45.0f)));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
 	
@@ -86,7 +86,7 @@ int Test::run(const vector<string>& args) {
 	auto tubeNode = make_shared<Node>();
 	tubeGeo->name("tube");
 	tubeNode->geometry(tubeGeo);
-	scene->rootNode()->addChildNode(tubeNode);
+	scene->rootNode()->addChild(tubeNode);
 	tubeNode->rotation(vec4(1.0f, -1.0f, 0.0f, radians(-45.0f)));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
 	
@@ -95,7 +95,7 @@ int Test::run(const vector<string>& args) {
 	auto capsuleNode = make_shared<Node>();
 	capsuleGeo->name("capsule");
 	capsuleNode->geometry(capsuleGeo);
-	scene->rootNode()->addChildNode(capsuleNode);
+	scene->rootNode()->addChild(capsuleNode);
 	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
 	
@@ -104,7 +104,7 @@ int Test::run(const vector<string>& args) {
 	auto cylinderNode = make_shared<Node>();
 	cylinderGeo->name("cylinder");
 	cylinderNode->geometry(cylinderGeo);
-	scene->rootNode()->addChildNode(cylinderNode);
+	scene->rootNode()->addChild(cylinderNode);
 	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
 	
@@ -114,7 +114,7 @@ int Test::run(const vector<string>& args) {
 	auto coneNode = make_shared<Node>();
 	coneGeo->name("cone");
 	coneNode->geometry(coneGeo);
-	scene->rootNode()->addChildNode(coneNode);
+	scene->rootNode()->addChild(coneNode);
 	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
 	
@@ -126,7 +126,7 @@ int Test::run(const vector<string>& args) {
 	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	material->doubleSided(true);
 	
-	for (auto n : scene->rootNode()->childNodes(true)) {
+	for (auto n : scene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			n->geometry()->replaceMaterial(0, material);
 		}
@@ -186,7 +186,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	const static float mouseSensitivity = (1.0f / 0.5f);
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->childNodes(false)) {
+		for (auto n : scene.rootNode()->children(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

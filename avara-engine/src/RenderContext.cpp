@@ -144,7 +144,7 @@ shared_ptr<Node> RenderContext::pointOfView() {
 	}
 	else {
 		// try to assign one from the scene
-		for (auto node: m_scene->rootNode()->childNodes(true)) {
+		for (auto node: m_scene->rootNode()->children(true)) {
 			if (node->camera()) {
 				m_pointOfView = node;
 				return m_pointOfView;
@@ -347,7 +347,7 @@ void RenderContext::saveGIFFrame(float deltaSeconds) {
 shared_ptr<Node> RenderContext::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
-	//m_scene->rootNode()->addChildNode(cameraNode); // done below
+	//m_scene->rootNode()->addChild(cameraNode); // done below
 	auto camera = make_shared<Camera>();
 	camera->name("default camera");
 	cameraNode->camera(camera);
@@ -387,7 +387,7 @@ shared_ptr<Node> RenderContext::defaultPointOfView() {
 	mat4 viewMat = translate(mat4(1.0f), eye);
 	cameraNode->transform(viewMat);
 	
-	scene()->rootNode()->addChildNode(cameraNode);
+	scene()->rootNode()->addChild(cameraNode);
 	pointOfView(cameraNode);
 	
 	return cameraNode;

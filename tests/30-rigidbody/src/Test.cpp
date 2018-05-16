@@ -63,7 +63,7 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	physicsBody->velocity(direction * 50.0f);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -92,7 +92,7 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -115,7 +115,7 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.025);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -138,7 +138,7 @@ void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.025);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -159,7 +159,7 @@ void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -180,7 +180,7 @@ void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
@@ -201,15 +201,15 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddApple(Scene& scene, vec3 location) {
 	
 #ifdef USE_HIGH_DETAIL_MESHES
-	shared_ptr<Node> node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0];
+	shared_ptr<Node> node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->children(false)[0];
 #else
-	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0];
+	shared_ptr<Node> node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->children(false)[0];
 #endif
 	node->position(location);
 
@@ -220,7 +220,7 @@ void AddApple(Scene& scene, vec3 location) {
 	physicsBody->rollingFriction(0.75);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddPineapple(Scene& scene, vec3 location) {
@@ -239,7 +239,7 @@ void AddPineapple(Scene& scene, vec3 location) {
 	physicsBody->rollingFriction(0.75);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 void AddFruit(Scene& scene, vec3 location) {
@@ -250,12 +250,12 @@ void AddFruit(Scene& scene, vec3 location) {
 	
 	switch (random) {
 #ifdef USE_HIGH_DETAIL_MESHES
-		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 3: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 4: node = TestSceneNamed("banana/banana", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 5: node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->children(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->children(false)[0]; break;
+		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->children(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->children(false)[0]; break;
+		case 4: node = TestSceneNamed("banana/banana", "obj")->rootNode()->children(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode()->children(false)[0]; break;
 //		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
 //		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
 //		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
@@ -263,12 +263,12 @@ void AddFruit(Scene& scene, vec3 location) {
 //		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
 //		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
 #else
-		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->childNodes(false)[0]; break;
-		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->childNodes(false)[0]; break;
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->children(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->children(false)[0]; break;
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->children(false)[0]; break;
 			//		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode();
 			//		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode();
 			//		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
@@ -288,7 +288,7 @@ void AddFruit(Scene& scene, vec3 location) {
 	physicsBody->rollingFriction(0.75);
 	node->physicsBody(physicsBody);
 	
-	scene.rootNode()->addChildNode(node);
+	scene.rootNode()->addChild(node);
 }
 
 /***************************************************************************************
@@ -362,7 +362,7 @@ int Test::run(const vector<string>& args) {
 	planeNode->physicsBody(planePhysicsBody);
 	
 	
-	scene->rootNode()->addChildNode(planeNode);
+	scene->rootNode()->addChild(planeNode);
 	
 	
 	
@@ -428,7 +428,7 @@ int Test::run(const vector<string>& args) {
 	
 //	auto crateScene = TestSceneNamed("crate2/crate2", "obj");
 //	vector<shared_ptr<Node>> crateNodes;
-//	for (auto n : crateScene->rootNode()->childNodes(true)) {
+//	for (auto n : crateScene->rootNode()->children(true)) {
 //		if (n->geometry()) {
 //			auto physicsShape = make_shared<PhysicsShape>(n->geometry(), PhysicsShapeType_ConvexHull);
 //			auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, physicsShape);
@@ -439,46 +439,46 @@ int Test::run(const vector<string>& args) {
 //		n->position(n->position() + vec3(0, -20, 0));
 //		crateNodes.emplace_back(n);
 //	}
-//	scene->rootNode()->addChildNodes(crateNodes);
+//	scene->rootNode()->addChilds(crateNodes);
 
 	
 //	auto pineappleScene = TestSceneNamed("pineapple/pinapple", "obj");
-//	scene->rootNode()->addChildNode(pineappleScene->rootNode());
+//	scene->rootNode()->addChild(pineappleScene->rootNode());
 	
 //	auto pineappleScene = TestSceneNamed("pineapple_lod/pinapple_lod", "obj");
-//	auto pineappleNode = pineappleScene->rootNode()->childNodes(false)[0]; // NO GOOD
-//	scene->rootNode()->addChildNode(pineappleNode);
+//	auto pineappleNode = pineappleScene->rootNode()->children(false)[0]; // NO GOOD
+//	scene->rootNode()->addChild(pineappleNode);
 
 	
 //	auto banana1Scene = TestSceneNamed("banana_lod/banana_lod", "obj");
-//	scene->rootNode()->addChildNode(banana1Scene->rootNode());
+//	scene->rootNode()->addChild(banana1Scene->rootNode());
 
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
-//	scene->rootNode()->addChildNode(pearScene->rootNode());
+//	scene->rootNode()->addChild(pearScene->rootNode());
 	
 //	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
-//	scene->rootNode()->addChildNode(apple1Scene->rootNode());
+//	scene->rootNode()->addChild(apple1Scene->rootNode());
 
 //	auto apple2Scene = TestSceneNamed("apple2/apple2", "obj");
-//	scene->rootNode()->addChildNode(apple2Scene->rootNode());
+//	scene->rootNode()->addChild(apple2Scene->rootNode());
 	
 //	auto orange1Scene = TestSceneNamed("orange1/orange1", "obj");
-//	scene->rootNode()->addChildNode(orange1Scene->rootNode());
+//	scene->rootNode()->addChild(orange1Scene->rootNode());
 	
 //	auto cherry1Scene = TestSceneNamed("cherry1/cherry1", "obj");
-//	scene->rootNode()->addChildNode(cherry1Scene->rootNode());
+//	scene->rootNode()->addChild(cherry1Scene->rootNode());
 	
 //	auto cherry2Scene = TestSceneNamed("cherry2/cherry2", "obj");
-//	scene->rootNode()->addChildNode(cherry2Scene->rootNode());
+//	scene->rootNode()->addChild(cherry2Scene->rootNode());
 	
 //	auto coke1Scene = TestSceneNamed("coke1/coke1", "obj");
-//	scene->rootNode()->addChildNode(coke1Scene->rootNode());
+//	scene->rootNode()->addChild(coke1Scene->rootNode());
 	
 //	auto slurmScene = TestSceneNamed("slurm/slurm", "obj");
-//	scene->rootNode()->addChildNode(slurmScene->rootNode());
+//	scene->rootNode()->addChild(slurmScene->rootNode());
 
 //	auto picnictableScene = TestSceneNamed("picnictable/picnictable", "obj");
-//	scene->rootNode()->addChildNode(picnictableScene->rootNode());
+//	scene->rootNode()->addChild(picnictableScene->rootNode());
 	
 	
 
@@ -490,7 +490,7 @@ int Test::run(const vector<string>& args) {
 //	auto ambientLightNode = make_shared<Node>("Ambient light");
 //	ambientLightNode->light(ambientLight);
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChildNode(ambientLightNode);
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
 	//pointLight->attenuationFactor(0.000000015);
@@ -499,7 +499,7 @@ int Test::run(const vector<string>& args) {
 //	auto pointLightNode = make_shared<Node>("pointLight");
 //	pointLightNode->light(pointLight);
 	auto pointLightNode = Node::LightNode(pointLight);
-	scene->rootNode()->addChildNode(pointLightNode);
+	scene->rootNode()->addChild(pointLightNode);
 
 	pointLightNode->position({25, 25, 25});
 
@@ -646,7 +646,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 		
 		if (!m_cameraNode) {
-			for (auto n : scene.rootNode()->childNodes(false)) {
+			for (auto n : scene.rootNode()->children(false)) {
 				if (n->camera()) {
 					m_cameraNode = n;
 					break;

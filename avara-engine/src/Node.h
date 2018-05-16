@@ -78,7 +78,7 @@ namespace ae {
 		glm::vec3 position() const;
 		void position(const glm::vec3 position);
 
-		glm::vec4 rotation() const; // angle == 4th component
+		glm::vec4 rotation() const; // axis-angle
 		void rotation(const glm::vec4 rotation);
 		
 		glm::vec3 eulerAngles() const; // pitch, yaw, roll
@@ -94,7 +94,7 @@ namespace ae {
 		void transform(const glm::mat4 transform);
 		
 		glm::vec3 worldPosition() const;
-		glm::vec4 worldRotation() const; // angle == 4th component
+		glm::vec4 worldRotation() const; // axis-angle
 		glm::vec3 worldEulerAngles() const; // pitch, yaw, roll
 		glm::quat worldOrientation() const; // angle == 1st component
 		glm::vec3 worldScale() const;
@@ -105,15 +105,15 @@ namespace ae {
 		
 		glm::mat4 worldTransform() const;
 		
-		void addChildNodes(std::vector<std::shared_ptr<Node>> nodes);
-		void addChildNode(std::shared_ptr<Node> node);
-		void insertChildNode(const Node& node, int index);
-		void removeFromParentNode();
-		void replaceChildNode(const Node& replace, const Node& with);
+		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
+		void addChild(std::shared_ptr<Node> node);
+		void insertChild(const Node& node, int index);
+		void removeFromParent();
+		void replaceChild(const Node& replace, const Node& with);
 		
 		std::weak_ptr<Node> parent() const;
-		std::vector<std::shared_ptr<Node>> childNodes(bool resursive);
-		std::shared_ptr<Node> childNode(const std::string& name, bool resursive);
+		std::vector<std::shared_ptr<Node>> children(bool resursive);
+		std::shared_ptr<Node> child(const std::string& name, bool resursive);
 		
 		std::shared_ptr<PhysicsBody> physicsBody() const;
 		void physicsBody(std::shared_ptr<PhysicsBody> body);
@@ -131,16 +131,15 @@ namespace ae {
 		
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;
 		
-		bool treeContainsNode(std::shared_ptr<Node> node);
+		bool containsChild(std::shared_ptr<Node> node);
+		
+		//std::vector<std::shared_ptr<Node>> sortedChildren() const;
 		
 		std::weak_ptr<Scene> scene() const;
-		//void scene(std::shared_ptr<Scene> scene);
 		
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		
-		void attachedToParentNode(std::shared_ptr<Node> parentNode);
-		
-		//void parent(std::shared_ptr<Node> parent);
+		void attachedToParent(std::shared_ptr<Node> parentNode);
 		
 	private:
 

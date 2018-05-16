@@ -473,7 +473,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 	
 	auto compoundShape = make_shared<btCompoundShape>(true);
 	
-	auto allNodes = node->childNodes(true);
+	auto allNodes = node->children(true);
 	for (auto n : allNodes) {
 		auto geometry = n->geometry();
 		if (geometry) {

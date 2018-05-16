@@ -46,15 +46,15 @@ int Test::run(const vector<string>& args) {
 	
 	
 	auto scene = TestSceneNamed("importTest");
-	auto rootImmediateChildren = scene->rootNode()->childNodes(false);
+	auto rootImmediateChildren = scene->rootNode()->children(false);
 	
 	for (auto c : rootImmediateChildren) {
 		c->removeFromParentNode();
 	}
 	
 	parentNode = make_shared<Node>();
-	parentNode->addChildNodes(rootImmediateChildren);
-	scene->rootNode()->addChildNode(parentNode);
+	parentNode->addChilds(rootImmediateChildren);
+	scene->rootNode()->addChild(parentNode);
 	
 //	mat4 parentScale = scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.0f) * 25.0f);
 //	parentNode->transform(parentScale);
@@ -62,24 +62,24 @@ int Test::run(const vector<string>& args) {
 
 //	cout << "Loading siamese scene..." << endl;
 //	auto siameseScene = TestSceneNamed("siamese");
-//	siameseNode = siameseScene->rootNode()->childNodes(false)[3];
+//	siameseNode = siameseScene->rootNode()->children(false)[3];
 //	siameseNode->name("Siamese");
 //	cout << "siameseNode: " << *siameseNode->name() << endl;
 //	//siameseNode->transform(scale(siameseNode->transform(), vec3(1.0f) * 0.001f));
 //	siameseNode->scale(siameseNode->scale() * 0.1f);
 //	siameseNode->hidden(false);
-//	parentNode->addChildNode(siameseNode);
+//	parentNode->addChild(siameseNode);
 
 	
-	torusNode = scene->rootNode()->childNodes(true)[6];
+	torusNode = scene->rootNode()->children(true)[6];
 	torusNode->name("torus");
 	
 	
-	coneNode = scene->rootNode()->childNodes(true)[8];
+	coneNode = scene->rootNode()->children(true)[8];
 	coneNode->name("cone");
 	
 	
-	ballNode = scene->rootNode()->childNodes(true)[4];
+	ballNode = scene->rootNode()->children(true)[4];
 	ballNode->name("ball");
 
 	
@@ -90,19 +90,19 @@ int Test::run(const vector<string>& args) {
 	//palmNode->transform(scale(mat4(1.0f), vec3(1.0f) * 0.025f));
 	palmNode->scale(vec3(1.0f) * 2.0f);
 	palmNode->hidden(false);
-	parentNode->addChildNode(palmNode);
+	parentNode->addChild(palmNode);
 	
 	
 //	auto teapotScene = TestSceneNamed("teapot");
 //	teapotNode = teapotScene->rootNode();
-//	//teapotNode = teapotScene->rootNode()->childNodes(false)[1];
+//	//teapotNode = teapotScene->rootNode()->children(false)[1];
 //	teapotNode->name("teapot");
 //	cout << "teapotNode: " << *teapotNode->name() << endl;
 //	auto teapotTranslate = translate(mat4(1.0f), vec3(0.5f, -0.5f, 0.0f));
 //	auto teapotScale = scale(mat4(1.0f), vec3(1.0f) * 0.005f);
 //	teapotNode->transform(teapotTranslate * teapotScale);
 //	teapotNode->hidden(false);
-//	parentNode->addChildNode(teapotNode);
+//	parentNode->addChild(teapotNode);
 	
 	
 	
@@ -112,7 +112,7 @@ int Test::run(const vector<string>& args) {
 	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
 	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	
-	for (auto n : scene->rootNode()->childNodes(true)) {
+	for (auto n : scene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			n->geometry()->replaceMaterial(0, material);
 		}

@@ -463,33 +463,27 @@ mat4 Node::worldTransform() const {
 	return t;
 }
 
-void Node::addChildNodes(vector<shared_ptr<Node>> nodes) {
+void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {
-		addChildNode(node);
+		addChild(node);
 	}
 }
 
-void Node::addChildNode(shared_ptr<Node> node) {
+void Node::addChild(shared_ptr<Node> node) {
 
-	if (treeContainsNode(node)) {
+	if (containsChild(node)) {
 		throw Exception("Node already exists in tree.");
 	}
 	
-	//node->m_parent = shared_from_this();
-	node->attachedToParentNode(shared_from_this());
+	node->attachedToParent(shared_from_this());
 	m_childNodes.push_back(node);
-	
-//	auto physicsBody = node->physicsBody();
-//	if (physicsBody) {
-//		physicsBody->attachedToNode(node);
-//	}
 }
 
-void Node::insertChildNode(const Node& node, int index) {
+void Node::insertChild(const Node& node, int index) {
 	// see notes about Node already existing here/elsewhere in addChildNode()
 }
 
-void Node::removeFromParentNode() {
+void Node::removeFromParent() {
 	if (auto parent = m_parent.lock()) {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
@@ -501,7 +495,7 @@ void Node::removeFromParentNode() {
 	}
 }
 
-void Node::replaceChildNode(const Node& replace, const Node& with) {
+void Node::replaceChild(const Node& replace, const Node& with) {
 	
 }
 
@@ -509,7 +503,7 @@ weak_ptr<Node> Node::parent() const {
 	return m_parent;
 }
 
-vector<shared_ptr<Node>> Node::childNodes(bool resursive) { // why no const?
+vector<shared_ptr<Node>> Node::children(bool resursive) { // why no const?
 	// returns all decendants in BFS order
 	
 	if (resursive) {
@@ -522,13 +516,11 @@ vector<shared_ptr<Node>> Node::childNodes(bool resursive) { // why no const?
 	}
 }
 
-shared_ptr<Node> Node::childNode(const string& name, bool resursive) {
+shared_ptr<Node> Node::child(const string& name, bool resursive) {
 
-	//auto children = vector<shared_ptr<Node>>();
-	auto children = childNodes(resursive);
-	//else children = m_childNodes;
+	auto childs = children(resursive);
 	
-	for (auto child : children) {
+	for (auto child : childs) {
 		if (child->name() == name) return child;
 	}
 	
@@ -561,28 +553,22 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
-//	if (!m_parent.expired()) {
 	if (auto p = m_parent.lock()) {
-//		if (p != nullptr) {
 		if (auto p = m_parent.lock()) {
 			do {
-				//parents.push_back(make_shared<Node>(*p));
 				parents.push_back(p);
 				p = p->parent().lock();
 			} while (p != nullptr);
 		}
 	}
-//	else {
-//		cout << "Aint no p." << endl;
-//	}
 	
 	return parents;
 }
 
-bool Node::treeContainsNode(shared_ptr<Node> node) {
+bool Node::containsChild(shared_ptr<Node> node) {
 	auto top = root();
 	if (!top) top = shared_from_this();
-	auto sceneNodes = top->childNodes(true);
+	auto sceneNodes = top->children(true);
 	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
 		return true;
 	}
@@ -599,28 +585,20 @@ weak_ptr<Scene> Node::scene() const {
 	}
 }
 
-//void Node::scene(shared_ptr<Scene> scene) {
-//	m_scene = scene;
-//}
-
 void Node::attachedToScene(shared_ptr<Scene> scene) {
 	if (!root()) {
 		m_scene = scene;
 	}
 	else {
-		for (auto child : childNodes(true)) {
+		for (auto child : children(true)) {
 			child->attachedToScene(scene); // just in case they want to do something with it
 		}
 	}
 }
 
-void Node::attachedToParentNode(shared_ptr<Node> parentNode) {
+void Node::attachedToParent(shared_ptr<Node> parentNode) {
 	m_parent = parentNode;
 }
-
-//void Node::parent(shared_ptr<Node> parent) {
-//	m_parent = parent;
-//}
 
 /***************************************************************************************
      Private

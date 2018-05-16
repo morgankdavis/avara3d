@@ -45,7 +45,7 @@ int Test::run(const vector<string>& args) {
 	auto scene = TestSceneNamed("importTest");
 	//auto scene = TestSceneNamed("dragon", "obj");
 	
-//	auto node = scene->rootNode()->childNodes(false)[4];
+//	auto node = scene->rootNode()->children(false)[4];
 //	node->position();
 
 	
@@ -56,15 +56,15 @@ int Test::run(const vector<string>& args) {
 //	window.enableCursor(false);
 
 
-//	for (auto n : scene->rootNode()->childNodes(false)) {
+//	for (auto n : scene->rootNode()->children(false)) {
 //		if (n->camera()) {
 //			m_cameraNode = n;
 //			break;
 //		}
 //	}
 
-	m_suzanneNode = scene->rootNode()->childNode("Suzanne", true);
-	//m_suzanneNode = scene->rootNode()->childNodes(true)[0];
+	m_suzanneNode = scene->rootNode()->child("Suzanne", true);
+	//m_suzanneNode = scene->rootNode()->children(true)[0];
 
 
 	
@@ -74,7 +74,7 @@ int Test::run(const vector<string>& args) {
 	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
 	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	
-	for (auto n : scene->rootNode()->childNodes(true)) {
+	for (auto n : scene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			n->geometry()->replaceMaterial(0, material);
 		}
@@ -138,7 +138,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->childNodes(false)) {
+		for (auto n : scene.rootNode()->children(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;

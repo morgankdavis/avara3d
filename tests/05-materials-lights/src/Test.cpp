@@ -38,7 +38,7 @@ void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
 
 	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
 	
-	for (auto node : scene.rootNode()->childNodes(true)) {
+	for (auto node : scene.rootNode()->children(true)) {
 		
 		auto geometry = node->geometry();
 		if (geometry) {
@@ -61,7 +61,7 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
 	
-	for (auto node : scene.rootNode()->childNodes(true)) {
+	for (auto node : scene.rootNode()->children(true)) {
 		
 		auto geometry = node->geometry();
 		if (geometry) {
@@ -106,7 +106,7 @@ int Test::run(const vector<string>& args) {
 //	auto sphereNode = make_shared<Node>();
 //	sphereGeo->name("sphere");
 //	sphereNode->geometry(sphereGeo);
-//	scene->rootNode()->addChildNode(sphereNode);
+//	scene->rootNode()->addChild(sphereNode);
 //	sphereNode->position({0.0f, 0.0f, 0.0f});
 //	
 //	auto gridImage = TestImageNamed("grid10_512");
@@ -119,40 +119,40 @@ int Test::run(const vector<string>& args) {
 	
 
 	auto siameseScene = TestSceneNamed("siamese");
-	auto siameseNode = siameseScene->rootNode()->childNode("Siamese", true);
+	auto siameseNode = siameseScene->rootNode()->child("Siamese", true);
 	m_siameseNode = siameseNode;
 	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
-	scene->rootNode()->addChildNode(siameseNode);
+	scene->rootNode()->addChild(siameseNode);
 
 	auto islandScene = TestSceneNamed("Island", "obj");
-	auto islandNode = islandScene->rootNode()->childNodes(true)[0];
+	auto islandNode = islandScene->rootNode()->children(true)[0];
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
-	scene->rootNode()->addChildNode(islandNode);
+	scene->rootNode()->addChild(islandNode);
 
 	auto palletScene = TestSceneNamed("Pallet_rot");
-	auto palletNode = palletScene->rootNode()->childNodes(true)[2];
+	auto palletNode = palletScene->rootNode()->children(true)[2];
 	palletNode->name("Pallet node");
 	m_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
 	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
-	scene->rootNode()->addChildNode(palletNode);
+	scene->rootNode()->addChild(palletNode);
 	
 	auto tunaScene = TestSceneNamed("tuna_rot");
 	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
 	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
-	scene->rootNode()->addChildNode(tunaScene->rootNode());
+	scene->rootNode()->addChild(tunaScene->rootNode());
 
 	auto palm1Scene = TestSceneNamed("palm1", "obj");
 	m_palmsNode = palm1Scene->rootNode();
 	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
 	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
 	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
-	scene->rootNode()->addChildNode(palm1Scene->rootNode());
+	scene->rootNode()->addChild(palm1Scene->rootNode());
 	
-	for (auto n : palm1Scene->rootNode()->childNodes(true)) {
+	for (auto n : palm1Scene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
 				m->doubleSided(true);
@@ -168,13 +168,13 @@ int Test::run(const vector<string>& args) {
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
-	scene->rootNode()->addChildNode(ambientLightNode);
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
 	pointLight->attenuationFactor(0.00005);
 	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
-	scene->rootNode()->addChildNode(pointLightNode);
+	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
 	m_pointLightNode = pointLightNode;
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
@@ -213,7 +213,7 @@ int Test::run(const vector<string>& args) {
 //		geometry->addMaterial(material);
 //		lightNode->geometry(geometry);
 //
-//		scene->rootNode()->addChildNode(lightNode);
+//		scene->rootNode()->addChild(lightNode);
 //	}
 	
 	
@@ -318,7 +318,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 //	}
 	
 //	if (keysPressed.count(KEY::DEL)) {
-//		for (auto n : m_window->scene()->rootNode()->childNodes(true)) {
+//		for (auto n : m_window->scene()->rootNode()->children(true)) {
 //			n->geometry(nullptr);
 //		}
 //	}
@@ -333,7 +333,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::PAGE_DOWN)) {
-		for (auto& n : m_palmsNode->childNodes(true)) {
+		for (auto& n : m_palmsNode->children(true)) {
 			n->geometry(nullptr);
 		}
 	}
@@ -353,7 +353,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	if (keysPressed.count(KEY::ZERO)) {
 		auto teapot = TestSceneNamed("teapot", "obj");
-		m_siameseNode->geometry(teapot->rootNode()->childNodes(false)[0]->geometry());
+		m_siameseNode->geometry(teapot->rootNode()->children(false)[0]->geometry());
 	}
 	
 	
@@ -367,7 +367,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		const static float mouseSensitivity = (1.0f / 0.5f);
 		
 		if (!m_cameraNode) {
-			for (auto n : renderContext.scene()->rootNode()->childNodes(false)) {
+			for (auto n : renderContext.scene()->rootNode()->children(false)) {
 				if (n->camera()) {
 					m_cameraNode = n;
 					break;

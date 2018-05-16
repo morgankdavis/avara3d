@@ -228,7 +228,7 @@ void Scene::draw(Renderer& renderer,
 	}
 	
 #warning TOPILOGICAL SORT THIS
-	auto allNodes = m_rootNode->childNodes(true);
+	auto allNodes = m_rootNode->children(true);
 	
 	if (m_physicsWorld) {
 		for (auto& node: allNodes) {
@@ -314,7 +314,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : m_rootNode->childNodes(true)) {
+	for (auto node : m_rootNode->children(true)) {
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -604,8 +604,8 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			
 			auto lightNode = make_shared<Node>("Light");
 			lightNode->light(light);
-			//rootNode()->addChildNode(lightNode);
-			scene.rootNode()->addChildNode(lightNode);
+			//rootNode()->addChild(lightNode);
+			scene.rootNode()->addChild(lightNode);
 		}
 		
 		// ********** cameras **********
@@ -636,8 +636,8 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			
 			cameraNode->transform(viewMat);
 			
-			//rootNode()->addChildNode(cameraNode);
-			scene.rootNode()->addChildNode(cameraNode);
+			//rootNode()->addChild(cameraNode);
+			scene.rootNode()->addChild(cameraNode);
 		}
 	}
 	else {
@@ -802,8 +802,8 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 //			
 //			auto lightNode = make_shared<Node>("Light");
 //			lightNode->light(light);
-//			//rootNode()->addChildNode(lightNode);
-//			scene.rootNode()->addChildNode(lightNode);
+//			//rootNode()->addChild(lightNode);
+//			scene.rootNode()->addChild(lightNode);
 //		}
 //		
 //		// ********** cameras **********
@@ -834,8 +834,8 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 //			
 //			cameraNode->transform(viewMat);
 //			
-//			//rootNode()->addChildNode(cameraNode);
-//			scene.rootNode()->addChildNode(cameraNode);
+//			//rootNode()->addChild(cameraNode);
+//			scene.rootNode()->addChild(cameraNode);
 //		}
 //	}
 //	else {
@@ -917,7 +917,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 		newNode = make_shared<Node>(name);
 		newNode->transform(transform);
 		newNode->geometry(geometry);
-		aeParentNode->addChildNode(newNode);
+		aeParentNode->addChild(newNode);
 	}
 	else {
 		//cout << "Adding node WITHOUT geometry..." << endl;
@@ -925,7 +925,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 		//newNode = make_shared<Node>(name, transform);
 		newNode = make_shared<Node>(name);
 		newNode->transform(transform);
-		aeParentNode->addChildNode(newNode);
+		aeParentNode->addChild(newNode);
 	}
 	
 	unsigned int nChildren = aiGeometryNode->mNumChildren;

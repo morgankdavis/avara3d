@@ -59,7 +59,7 @@ int Test::run(const vector<string>& args) {
 	// test using raw matrix manipulation
 		
 		auto aScene = TestSceneNamed("dragon", "obj");
-		auto aNode = aScene->rootNode()->childNodes(false)[0];
+		auto aNode = aScene->rootNode()->children(false)[0];
 		aNode->name("A");
 		auto aTranslate = 	translate(mat4(1.0f), vec3(10.0f, 0.0f, 0.0f));
 		auto aScale = 		scale(mat4(1.0f), vec3(2.0f, 2.0f, 2.0f));
@@ -75,7 +75,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto bScene = TestSceneNamed("dragon", "obj");
-		auto bNode = bScene->rootNode()->childNodes(false)[0];
+		auto bNode = bScene->rootNode()->children(false)[0];
 		bNode->name("B");
 		auto bTranslate = 	translate(mat4(1.0f), vec3(0.0f, -20.0f, -7.0f));
 		auto bScale = 		scale(mat4(1.0f), vec3(1.0f, 1.0f, 1.5f));
@@ -87,13 +87,13 @@ int Test::run(const vector<string>& args) {
 		cout << "bNode orientation: " << bNode->orientation() << endl;
 		cout << "bNode rotation: " << bNode->rotation() << endl;
 		cout << "bNode eulerAngles: " << bNode->eulerAngles() << endl;
-		aNode->addChildNode(bNode);
+		aNode->addChild(bNode);
 		
 		
 		
 		
 		auto fScene = TestSceneNamed("dragon", "obj");
-		auto fNode = fScene->rootNode()->childNodes(false)[0];
+		auto fNode = fScene->rootNode()->children(false)[0];
 		fNode->name("F");
 		auto fTranslate = 	translate(mat4(1.0f), vec3(-16.0f, 0.0f, -60.0f));
 		auto fScale = 		scale(mat4(1.0f), vec3(2.0f, 5.0f, 3.0f));
@@ -105,7 +105,7 @@ int Test::run(const vector<string>& args) {
 		cout << "fNode orientation: " << fNode->orientation() << endl;
 		cout << "fNode rotation: " << fNode->rotation() << endl;
 		cout << "fNode eulerAngles: " << fNode->eulerAngles() << endl;
-		bNode->addChildNode(fNode);
+		bNode->addChild(fNode);
 		
 		
 		
@@ -123,7 +123,7 @@ int Test::run(const vector<string>& args) {
 		cout << "pNode orientation: " << pNode->orientation() << endl;
 		cout << "pNode rotation: " << pNode->rotation() << endl;
 		cout << "pNode eulerAngles: " << pNode->eulerAngles() << endl;
-		fNode->addChildNode(pNode);
+		fNode->addChild(pNode);
 		
 		
 		
@@ -141,12 +141,12 @@ int Test::run(const vector<string>& args) {
 		cout << "gNode orientation: " << gNode->orientation() << endl;
 		cout << "gNode rotation: " << gNode->rotation() << endl;
 		cout << "gNode eulerAngles: " << gNode->eulerAngles() << endl;
-		aNode->addChildNode(gNode);
+		aNode->addChild(gNode);
 		
 		
 		
 		
-		scene->rootNode()->addChildNode(aNode);
+		scene->rootNode()->addChild(aNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
@@ -158,7 +158,7 @@ int Test::run(const vector<string>& args) {
 		camNode->camera(camera);
 		camNode->name("Camera node");
 		camNode->position(vec3(0.0f, 5.0f, 100.0f));
-		scene->rootNode()->addChildNode(camNode);
+		scene->rootNode()->addChild(camNode);
 		
 //		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 //		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -176,12 +176,12 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto aScene = TestSceneNamed("dragon", "obj");
-		auto aNode = aScene->rootNode()->childNodes(false)[0];
+		auto aNode = aScene->rootNode()->children(false)[0];
 		aNode->name("A");
 		aNode->position(vec3(20.0f, 0.0f, 0.0f));
 		aNode->scale(vec3(2.0f, 3.0f, 2.0f));
 		aNode->rotation(vec4(0.0f, 1.0f, 3.0f, (float)radians(45.0f)));
-		xNode->addChildNode(aNode);
+		xNode->addChild(aNode);
 		
 		
 		
@@ -191,7 +191,7 @@ int Test::run(const vector<string>& args) {
 		bNode->position(vec3(0.0f, -3.0f, 0.0f));
 		bNode->rotation(vec4(3.0f, 1.0f, 2.0f, (float)radians(574.0f)));
 		bNode->scale(vec3(15.0f, 1.0f, 1.0f));
-		aNode->addChildNode(bNode);
+		aNode->addChild(bNode);
 		cout << "bNode->rotation(): " << bNode->rotation() << endl;
 
 
@@ -202,7 +202,7 @@ int Test::run(const vector<string>& args) {
 		cNode->rotation(vec4(3.0f, 13.0f, 3.0f, (float)radians(-110.0f)));
 		cNode->scale(vec3(0.5f, 0.5f, -2.0f));
 		cNode->position(vec3(-2.0f, 1.0f, -2.0f));
-		bNode->addChildNode(cNode);
+		bNode->addChild(cNode);
 
 
 		auto dScene = TestSceneNamed("dragon", "obj");
@@ -210,12 +210,12 @@ int Test::run(const vector<string>& args) {
 		dNode->name("D");
 		dNode->position(vec3(-15.0f, 10.0f, 20.0f));
 		dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(60.0f), (float)radians(30.0f)));
-		xNode->addChildNode(dNode);
+		xNode->addChild(dNode);
 		
 		
 		
 		//auto scene = make_shared<Scene>();
-		scene->rootNode()->addChildNode(xNode);
+		scene->rootNode()->addChild(xNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 //		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
@@ -227,7 +227,7 @@ int Test::run(const vector<string>& args) {
 		camNode->camera(camera);
 		camNode->name("Camera node");
 		camNode->position(vec3(0.0f, 5.0f, 100.0f));
-		scene->rootNode()->addChildNode(camNode);
+		scene->rootNode()->addChild(camNode);
 		
 //		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 //		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -240,51 +240,51 @@ int Test::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = TestSceneNamed("teapot");
-		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
 		aNode->eulerAngles(vec3((float)radians(45.0f), 0, 0));
 		
 		
 		auto bScene = TestSceneNamed("teapot");
-		auto bNode = bScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->eulerAngles(vec3(0, (float)radians(45.0f), 0));
 		
 		
 		auto cScene = TestSceneNamed("teapot");
-		auto cNode = cScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
 		cNode->eulerAngles(vec3(0, 0, (float)radians(45.0f)));
 		
 		
 		auto dScene = TestSceneNamed("teapot");
-		auto dNode = dScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
 		dNode->eulerAngles(vec3((float)radians(30.0f), (float)radians(45.0f), (float)radians(60.0f)));
 		
 		
 		auto eScene = TestSceneNamed("teapot");
-		auto eNode = eScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto eNode = eScene->rootNode()->child("ID20564224", true); // teapot
 		eNode->name("E");
 		eNode->position(vec3(0.0f, 0.0f, 0.0f));
 		eNode->eulerAngles(vec3((float)radians(-130.0f), (float)radians(70.0f), (float)radians(20.0f)));
 		
 		
 		
-		rootNode->addChildNode(aNode);
-		rootNode->addChildNode(bNode);
-		rootNode->addChildNode(cNode);
-		rootNode->addChildNode(dNode);
-		rootNode->addChildNode(eNode);
+		rootNode->addChild(aNode);
+		rootNode->addChild(bNode);
+		rootNode->addChild(cNode);
+		rootNode->addChild(dNode);
+		rootNode->addChild(eNode);
 		
 		
 		
 		//auto scene = make_shared<Scene>();
-		scene->rootNode()->addChildNode(rootNode);
+		scene->rootNode()->addChild(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
@@ -297,7 +297,7 @@ int Test::run(const vector<string>& args) {
 		camNode->camera(camera);
 		camNode->name("Camera node");
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
-		scene->rootNode()->addChildNode(camNode);
+		scene->rootNode()->addChild(camNode);
 		
 //		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 //		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -309,7 +309,7 @@ int Test::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = TestSceneNamed("teapot");
-		auto aNode = aScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
 		aNode->orientation(quat((float)radians(45.0f), 1.0f, 0.0f, 0.0f));
@@ -317,7 +317,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto bScene = TestSceneNamed("teapot");
-		auto bNode = bScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->orientation(quat((float)radians(45.0f), 0.0f, 1.0f, 0.0f));
@@ -326,7 +326,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto cScene = TestSceneNamed("teapot");
-		auto cNode = cScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
 		cNode->orientation(quat((float)radians(45.0f), 0.0f, 0.0f, 1.0f));
@@ -335,7 +335,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		auto dScene = TestSceneNamed("teapot");
-		auto dNode = dScene->rootNode()->childNode("ID20564224", true); // teapot
+		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
 		dNode->orientation(quat((float)radians(45.0f), 0.5f, 0.25f, 0.35f));
@@ -354,16 +354,16 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		rootNode->addChildNode(aNode);
-		rootNode->addChildNode(bNode);
-		rootNode->addChildNode(cNode);
-		rootNode->addChildNode(dNode);
-		//rootNode->addChildNode(eNode);
+		rootNode->addChild(aNode);
+		rootNode->addChild(bNode);
+		rootNode->addChild(cNode);
+		rootNode->addChild(dNode);
+		//rootNode->addChild(eNode);
 		
 		
 		
 		//auto scene = make_shared<Scene>();
-		scene->rootNode()->addChildNode(rootNode);
+		scene->rootNode()->addChild(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 		cout << "bNode worldTransform:\n" << bNode->worldTransform() << endl;
@@ -376,7 +376,7 @@ int Test::run(const vector<string>& args) {
 		camNode->camera(camera);
 		camNode->name("Camera node");
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
-		scene->rootNode()->addChildNode(camNode);
+		scene->rootNode()->addChild(camNode);
 		
 //		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 //		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -388,18 +388,18 @@ int Test::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = TestSceneNamed("teapot");
-		auto aNode = aScene->rootNode()->childNode("teapot", true); // teapot
+		auto aNode = aScene->rootNode()->child("teapot", true); // teapot
 		aNode->name("A");
 
 		
 		
 		
-		rootNode->addChildNode(aNode);
+		rootNode->addChild(aNode);
 		
 		
 		
 		//auto scene = make_shared<Scene>();
-		scene->rootNode()->addChildNode(rootNode);
+		scene->rootNode()->addChild(rootNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 		
@@ -408,7 +408,7 @@ int Test::run(const vector<string>& args) {
 		camNode->camera(camera);
 		camNode->name("Camera node");
 		camNode->position(vec3(0.0f, 10.0f, 150.0f));
-		scene->rootNode()->addChildNode(camNode);
+		scene->rootNode()->addChild(camNode);
 		
 //		Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, FRAMEBUFFER_SCALE);
 //		window.willUpdateCallback(bind(&Test::windowWillUpdateCallback, this, _1, _2));
@@ -424,7 +424,7 @@ int Test::run(const vector<string>& args) {
 	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
 	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	
-	for (auto n : scene->rootNode()->childNodes(true)) {
+	for (auto n : scene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			n->geometry()->replaceMaterial(0, material);
 		}
@@ -456,7 +456,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
 	if (TEST == RotationAnimationTestCase) {
-		auto node = scene.rootNode()->childNode("A", true);
+		auto node = scene.rootNode()->child("A", true);
 		
 		// we WANT this to work (this is how scene kit works)
 		// but it locks after 2PI rotation
