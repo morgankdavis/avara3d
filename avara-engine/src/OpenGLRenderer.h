@@ -32,15 +32,19 @@ namespace ae {
 		 **************************************************************************************/
 		
 		/* <ae_ID : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
-		typedef std::map<GEOMETRY_ELEMENT_ID,
-			std::tuple<unsigned, unsigned, unsigned>> 		GeometryElementIDMapping;
+		using GeometryElementIDMapping =
+			std::map<GEOMETRY_ELEMENT_ID, std::tuple<unsigned,
+													 unsigned,
+													 unsigned>>;
 		
 		/* <ae_ID : <gl_textureHandle> */
-		typedef std::map<MATERIAL_PROPERTY_ID, unsigned> 	MaterialPropertyIDMapping;
-		
+		using MaterialPropertyIDMapping =
+			std::map<MATERIAL_PROPERTY_ID, unsigned>;
+
 		/* <ae_ID : <gl_vboHandle, gl_vaoHandle>> */
-		typedef std::map<GEOMETRY_ID,
-			std::pair<unsigned, unsigned>>					AABBGeometryIDMapping;
+		using AABBGeometryIDMapping =
+			std::map<GEOMETRY_ID, std::pair<unsigned,
+											unsigned>>;
 
 		/***************************************************************************************
 		     Lifecycle

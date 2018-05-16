@@ -95,9 +95,6 @@ namespace ae {
 		glm::vec3 angularVelocity() const;
 		void angularVelocity(glm::vec3 velocity);
 
-		bool resting() const;
-		void resting(bool flag);
-		
 		float linearSleepingThreshold() const;
 		void linearSleepingThreshold(float threshold);
 		
@@ -106,6 +103,9 @@ namespace ae {
 		
 		bool allowsResting() const;
 		void allowsResting(bool flag);
+		
+		bool resting() const;
+		void resting(bool flag);
 		
 		// categoryBitmask
 		// contactTestBitmask
@@ -153,8 +153,10 @@ namespace ae {
 		glm::vec3 								m_momentOfInertia;
 		glm::vec3 								m_velocity;
 		glm::vec3 								m_angularVelocity;
-		bool 									m_resting;
+		float									m_linearSleepingThreshold;
+		float									m_angularSleepingThreshold;
 		bool 									m_allowsResting;
+		bool 									m_resting;
 		
 		std::weak_ptr<Node>						m_node;
 		

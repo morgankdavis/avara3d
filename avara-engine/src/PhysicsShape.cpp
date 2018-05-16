@@ -37,7 +37,7 @@ using namespace std;
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(nullptr),
-	m_sourceNode(nullptr),
+	m_sourceNode(weak_ptr<Node>()),
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
 	m_physicsBody(weak_ptr<PhysicsBody>()),
@@ -51,7 +51,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE typ
 // construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	m_sourceGeometry(nullptr),
-	m_sourceNode(nullptr),
+	m_sourceNode(weak_ptr<Node>()),
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
 	m_physicsBody(weak_ptr<PhysicsBody>()),
@@ -70,7 +70,7 @@ shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
 	return m_sourceGeometry;
 }
 
-shared_ptr<Node> PhysicsShape::sourceNode() const {
+weak_ptr<Node> PhysicsShape::sourceNode() const {
 	return m_sourceNode;
 }
 
@@ -102,10 +102,6 @@ void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
 	attachedToBody(body);
 }
-
-//shared_ptr<btCollisionShape> PhysicsShape::btShape() const {
-//	return m_btShape;
-//}
 
 PHYSICS_SHAPE_ID PhysicsShape::simulationID() const {
 	return m_simulationID;

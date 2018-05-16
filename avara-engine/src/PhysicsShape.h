@@ -41,7 +41,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		std::shared_ptr<Geometry> sourceGeometry() const;
-		std::shared_ptr<Node> sourceNode() const;
+		std::weak_ptr<Node> sourceNode() const;
 		PHYSICS_SHAPE_TYPE type() const;
 		std::vector<glm::mat4> transforms() const;
 		
@@ -70,7 +70,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		std::shared_ptr<Geometry> 						m_sourceGeometry;
-		std::shared_ptr<Node> 							m_sourceNode;
+		std::weak_ptr<Node> 							m_sourceNode;
 		PHYSICS_SHAPE_TYPE 								m_type;
 //		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
 		// The array of transforms that was used to create a compound shape.

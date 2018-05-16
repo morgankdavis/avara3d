@@ -36,15 +36,31 @@ namespace ae {
 	class Scene;
 
 	
-	using RenderContextUpdateFuction = std::function<void(RenderContext& renderContext, float time)>;
-	using RenderContextDidSimulatePhysicsFuction = std::function<void(RenderContext& renderContext, float time)>;
-	using RenderContextWillRenderFuction = std::function<void(RenderContext& renderContext, float time)>;
-	using RenderContextDidRenderFuction = std::function<void(RenderContext& renderContext, float time)>;
+//	using RenderContextUpdateFuction =
+//		std::function<void(RenderContext& renderContext, float time)>;
+//	
+//	using RenderContextDidSimulatePhysicsFuction =
+//		std::function<void(RenderContext& renderContext, float time)>;
+//	
+//	using RenderContextWillRenderFuction =
+//		std::function<void(RenderContext& renderContext, float time)>;
+//	
+//	using RenderContextDidRenderFuction =
+//		std::function<void(RenderContext& renderContext, float time)>;
 
 	
 	class RenderContext : public std::enable_shared_from_this<RenderContext> {
 		
 	public:
+		
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+		
+		using UpdateFunction = std::function<void(RenderContext& renderContext, float time)>;
+		using DidSimulatePhysicsFunction = std::function<void(RenderContext& renderContext, float time)>;
+		using WillRenderFunction = std::function<void(RenderContext& renderContext, float time)>;
+		using DidRenderFunction = std::function<void(RenderContext& renderContext, float time)>;
 		
 		/***************************************************************************************
 		     Lifecycle
@@ -98,17 +114,17 @@ namespace ae {
 		virtual unsigned recordedGIFFrames() const;
 		virtual void stopGIFRecording();
 		
-		RenderContextUpdateFuction updateCallback();
-		void updateCallback(RenderContextUpdateFuction function);
+		UpdateFunction updateCallback() const;
+		void updateCallback(UpdateFunction function);
 		
-		RenderContextDidSimulatePhysicsFuction didSimulatePhysicsCallback();
-		void didSimulatePhysicsCallback(RenderContextDidSimulatePhysicsFuction function);
+		DidSimulatePhysicsFunction didSimulatePhysicsCallback() const;
+		void didSimulatePhysicsCallback(DidSimulatePhysicsFunction function);
 		
-		RenderContextWillRenderFuction willRenderCallback();
-		void willRenderCallback(RenderContextWillRenderFuction function);
+		WillRenderFunction willRenderCallback() const;
+		void willRenderCallback(WillRenderFunction function);
 		
-		RenderContextDidRenderFuction didRenderCallback();
-		void didRenderCallback(RenderContextDidRenderFuction function);
+		DidRenderFunction didRenderCallback() const;
+		void didRenderCallback(DidRenderFunction function);
 		
 		/**************************************************************************************
 		     Internal
@@ -156,10 +172,10 @@ namespace ae {
 		unsigned								m_gifRecordingMaxFramerate;
 		unsigned								m_gifRecordedFrames;
 		
-		RenderContextUpdateFuction				m_updateCallback;
-		RenderContextDidSimulatePhysicsFuction	m_didSimulatePhysicsCallback;
-		RenderContextWillRenderFuction 			m_willRenderCallback;
-		RenderContextDidRenderFuction 			m_didRenderCallback;
+		UpdateFunction							m_updateCallback;
+		DidSimulatePhysicsFunction				m_didSimulatePhysicsCallback;
+		WillRenderFunction 						m_willRenderCallback;
+		DidRenderFunction 						m_didRenderCallback;
 	};
 }
 

@@ -175,7 +175,9 @@ void Window::update() {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
+	if (updateCallback()) {
+		(updateCallback())(*this, sceneTime());
+	}
 	
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
@@ -183,17 +185,19 @@ void Window::update() {
 	
 	m_renderer->renderStats().cameraPosition = pov->position();
 	
-	// simulate physics
-//	auto physicsWorld = m_scene->physicsWorld();
-//	if (physicsWorld) {
-//		physicsWorld->step();
-//		
-		if (didSimulatePhysicsCallback()) {
-			didSimulatePhysicsCallback()(*this, sceneTime());
-		}
-//	}
+//	// simulate physics
+////	auto physicsWorld = m_scene->physicsWorld();
+////	if (physicsWorld) {
+////		physicsWorld->step();
+////		
+//		if (didSimulatePhysicsCallback()) {
+//			didSimulatePhysicsCallback()(*this, sceneTime());
+//		}
+////	}
 	
-	if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
+	if (willRenderCallback()) {
+		(willRenderCallback())(*this, sceneTime());
+	}
 	
 	m_scene->draw(*RenderContext::renderer(),
 				  m_framebufferWidth, m_framebufferHeight,
@@ -206,7 +210,9 @@ void Window::update() {
 	
 	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
 	
-	if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
+	if (didRenderCallback()) {
+		(didRenderCallback())(*this, sceneTime());
+	}
 	
 	glfwPollEvents();
 	//	if (inputManager()) {

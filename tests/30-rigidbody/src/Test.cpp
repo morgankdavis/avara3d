@@ -31,12 +31,7 @@ using namespace glm;
 #define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
-//#define PHYSICS_TIMESTEP		1.0/60.0
-//#define PHYSICS_TIMESTEP		1.0/90.0
-//#define PHYSICS_TIMESTEP		1.0/120.0
 #define PHYSICS_TIMESTEP		1.0/180.0
-//#define PHYSICS_TIMESTEP		1.0/240.0
-//#define PHYSICS_TIMESTEP		1.0/480.0
 
 //#define USE_HIGH_DETAIL_MESHES
 
@@ -62,7 +57,7 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);
-	physicsBody->restitution(0.45);
+	physicsBody->restitution(0.65);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
 	physicsBody->velocity(direction * 50.0f);
@@ -307,9 +302,9 @@ int Test::run(const vector<string>& args) {
 	
 	AE_LOG->info("Test::run()");
 	
-	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
-	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
-	m_logger = make_shared<Logger>("test30", sinks);
+//	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
+//	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
+//	m_logger = make_shared<Logger>("test30", sinks);
 	
 	
 	auto renderer = make_shared<OpenGLRenderer>();
@@ -317,10 +312,10 @@ int Test::run(const vector<string>& args) {
 								   FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
 								   USE_HIGH_DPI, ANTIALIAS_MODE);
-	m_window->updateCallback(bind(&Test::renderContextUpdateCallback, this, _1, _2));
+	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Test::renderContextWillRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Test::renderContextDidRenderCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
 	m_window->captureCursor(true);
 	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
@@ -535,8 +530,8 @@ int Test::run(const vector<string>& args) {
      Window Callbacks
  ***************************************************************************************/
 
-void Test::renderContextUpdateCallback(RenderContext& renderContext, float time) {
-	m_logger->trace("renderContextUpdateCallback()");
+void Test::updateCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("renderContextUpdateCallback()");
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -716,13 +711,13 @@ void Test::renderContextUpdateCallback(RenderContext& renderContext, float time)
 }
 
 void Test::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
-	m_logger->trace("didSimulatePhysicsCallback()");
+	AE_LOG->trace("didSimulatePhysicsCallback()");
 }
 
-void Test::renderContextWillRenderCallback(RenderContext& renderContext, float time) {
-	
+void Test::willRenderCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("willRenderCallback()");
 }
 
-void Test::renderContextDidRenderCallback(RenderContext& renderContext, float time) {
-	
+void Test::didRenderCallback(RenderContext& renderContext, float time) {
+	AE_LOG->trace("didRenderCallback()");
 }

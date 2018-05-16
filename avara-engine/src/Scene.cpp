@@ -214,16 +214,15 @@ void Scene::draw(Renderer& renderer,
 
 	renderer.render(*this, debugOptions, stats);
 	
-	auto physicsSimulator = m_renderContext.lock()->physicsSimulator();
+	auto renderContext = m_renderContext.lock();
+	
+	auto physicsSimulator = renderContext->physicsSimulator();
 	
 	if (m_physicsWorld) {
 		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
 								 *m_physicsWorld,
 								 debugOptions);
 	}
-	
-	auto viewMat = pointOfView.worldTransform();
-	auto projectionMat = pointOfView.camera()->projection();
 	
 #warning TOPILOGICAL SORT THIS
 	auto allNodes = m_rootNode->childNodes(true);
@@ -244,7 +243,12 @@ void Scene::draw(Renderer& renderer,
 		physicsSimulator->step(m_renderContext.lock()->sceneTime());
 	}
 	
+	if (renderContext->didSimulatePhysicsCallback()) {
+		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+	}
 	
+	auto viewMat = pointOfView.worldTransform();
+	auto projectionMat = pointOfView.camera()->projection();
 	
 	for (auto& node: allNodes) {
 		

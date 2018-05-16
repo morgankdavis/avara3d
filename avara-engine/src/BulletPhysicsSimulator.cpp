@@ -327,7 +327,7 @@ void GetPhysicsShapeBTModels(PhysicsShape& shape,
 			idMapping[++idCounter] = make_pair(shape_shared, vector<std::shared_ptr<btCollisionShape>>());
 			shape.simulationID(idCounter);
 		}
-		else if (shape.sourceNode()) {
+		else if (auto sourceNode = shape.sourceNode().lock()) {
 			
 			AE_LOG->debug("sourceNode");
 			
@@ -339,7 +339,7 @@ void GetPhysicsShapeBTModels(PhysicsShape& shape,
 //																vector<shared_ptr<btCollisionShape>>& childShapes) {
 			
 			
-			auto shape_shared = BTCompoundShapeFromNode(shape.sourceNode(), shape.type(), childShapes);
+			auto shape_shared = BTCompoundShapeFromNode(sourceNode, shape.type(), childShapes);
 			
 			// out parameters
 			*btShape = shape_shared.get();

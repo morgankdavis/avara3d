@@ -30,17 +30,17 @@ namespace ae {
 	
 	
 	class PhysicsWorld {
-		
-		using PhysicsWorldDidBeginContactFunction = std::function<void(PhysicsWorld& world,
-																	   PhysicsContact& contact)>;
-		using PhysicsWorldDidUpdateContactFunction = std::function<void(PhysicsWorld& world,
-																		PhysicsContact& contact)>;
-		using PhysicsWorldDidEndContactFunction = std::function<void(PhysicsWorld& world,
-																	 PhysicsContact& contact)>;
+	
 																		 
 	public:
 		
-		// callbacks
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+		
+		using DidBeginContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using DidUpdateContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using DidEndContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
 		
 		/***************************************************************************************
 		     Lifecycle

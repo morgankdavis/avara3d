@@ -207,28 +207,20 @@ void PhysicsBody::angularVelocity(vec3 velocity) {
 	m_angularVelocity = velocity;
 }
 
-bool PhysicsBody::resting() const {
-	return m_resting;
-}
-
-void PhysicsBody::resting(bool flag) {
-	m_resting = flag;
-}
-
 float PhysicsBody::linearSleepingThreshold() const {
-	
+	return m_linearSleepingThreshold;
 }
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
-	
+	m_linearSleepingThreshold = threshold;
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
-	
+	return m_angularSleepingThreshold;
 }
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
-	
+	m_angularSleepingThreshold = threshold;
 }
 
 bool PhysicsBody::allowsResting() const {
@@ -237,6 +229,14 @@ bool PhysicsBody::allowsResting() const {
 
 void PhysicsBody::allowsResting(bool flag) {
 	m_allowsResting = flag;
+}
+
+bool PhysicsBody::resting() const {
+	return m_resting;
+}
+
+void PhysicsBody::resting(bool flag) {
+	m_resting = flag;
 }
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {

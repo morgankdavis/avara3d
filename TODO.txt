@@ -14,11 +14,14 @@ Tests:
 	30 - rigidbodies
 
 
+		BT object creation logging
 
 		FIX SKYBOX CLAMPING
 		Fix filtering options for floor grid
 
 		Fix didSimulatePhysicsCallback
+
+		Set skybox properties
 
 		Do something about PhysicsBody::shape()
 
@@ -43,11 +46,7 @@ Tests:
 				- Update physics nodes transforms
 			]
 
-
-		Check RenderContext callbacks
 			
-		PhysicsShape::sourceNode should be a weak_ptr
-
 		For back references, move lock() check into accessor?
 
 		Set something (node->geometry, scene->background)

@@ -240,35 +240,35 @@ void RenderContext::stopGIFRecording() {
 	}
 }
 
-RenderContextUpdateFuction RenderContext::updateCallback() {
+RenderContext::UpdateFunction RenderContext::updateCallback() const {
 	return m_updateCallback;
 }
 
-void RenderContext::updateCallback(RenderContextUpdateFuction function) {
+void RenderContext::updateCallback(RenderContext::UpdateFunction function) {
 	m_updateCallback = function;
 }
 
-RenderContextDidSimulatePhysicsFuction RenderContext::didSimulatePhysicsCallback() {
+RenderContext::DidSimulatePhysicsFunction RenderContext::didSimulatePhysicsCallback() const {
 	return m_didSimulatePhysicsCallback;
 }
 
-void RenderContext::didSimulatePhysicsCallback(RenderContextDidSimulatePhysicsFuction function) {
+void RenderContext::didSimulatePhysicsCallback(RenderContext::DidSimulatePhysicsFunction function) {
 	m_didSimulatePhysicsCallback = function;
 }
 
-RenderContextWillRenderFuction RenderContext::willRenderCallback() {
+RenderContext::WillRenderFunction RenderContext::willRenderCallback() const {
 	return m_willRenderCallback;
 }
 
-void RenderContext::willRenderCallback(RenderContextWillRenderFuction function) {
+void RenderContext::willRenderCallback(RenderContext::WillRenderFunction function) {
 	m_willRenderCallback = function;
 }
 
-RenderContextDidRenderFuction RenderContext::didRenderCallback() {
+RenderContext::DidRenderFunction RenderContext::didRenderCallback() const {
 	return m_didRenderCallback;
 }
 
-void RenderContext::didRenderCallback(RenderContextDidRenderFuction function) {
+void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function) {
 	m_didRenderCallback = function;
 }
 
@@ -277,16 +277,7 @@ void RenderContext::didRenderCallback(RenderContextDidRenderFuction function) {
  **************************************************************************************/
 
 void RenderContext::update() {
-	
-//	// at some point, we will probably want to check if an e
-//	if (m_scene) {
-//		auto physicsWorld = m_scene->physicsWorld();
-//		if (physicsWorld) {
-//			if (!m_physicsSimuator) {
-//				m_physicsSimuator = make_shared<BulletPhysicsSimulator>(physicsWorld);
-//			}
-//		}
-//	}
+
 }
 
 shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {

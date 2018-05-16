@@ -31,9 +31,9 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void renderContextUpdateCallback(RenderContext& renderContext, float time);
-		void renderContextWillRenderCallback(RenderContext& renderContext, float time);
-		void renderContextDidRenderCallback(RenderContext& renderContext, float time);
+		void updateCallback(RenderContext& renderContext, float time);
+		void willRenderCallback(RenderContext& renderContext, float time);
+		void didRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 

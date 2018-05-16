@@ -42,14 +42,14 @@ namespace ae {
 		 **************************************************************************************/
 		
 		/* <ae_ID : <rigidBody, motionState>> */
-		typedef std::map<PHYSICS_BODY_ID,
-			std::pair<std::shared_ptr<btRigidBody>, std::shared_ptr<btDefaultMotionState>>>
-																PhysicsBodyIDMapping;
+		using PhysicsBodyIDMapping =
+			std::map<PHYSICS_BODY_ID, std::pair<std::shared_ptr<btRigidBody>, 
+												std::shared_ptr<btDefaultMotionState>>>;
 		
 		/* <ae_ID : <collisionShape, childShapes>> */
-		typedef std::map<PHYSICS_SHAPE_ID,
-			std::pair<std::shared_ptr<btCollisionShape>, std::vector<std::shared_ptr<btCollisionShape>>>>
-																PhysicsShapeIDMapping;
+		using PhysicsShapeIDMapping =
+			std::map<PHYSICS_SHAPE_ID, std::pair<std::shared_ptr<btCollisionShape>,
+									   			 std::vector<std::shared_ptr<btCollisionShape>>>>;
 		
 		/***************************************************************************************
 		     Lifecycle
