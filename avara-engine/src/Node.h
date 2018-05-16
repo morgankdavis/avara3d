@@ -140,6 +140,8 @@ namespace ae {
 
 		std::weak_ptr<Scene> scene() const;
 		
+		void updateWorldTransformForDraw();
+		
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		
 		void attachedToParent(std::shared_ptr<Node> parentNode);

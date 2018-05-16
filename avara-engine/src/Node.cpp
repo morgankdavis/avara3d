@@ -452,7 +452,7 @@ vec3 Node::worldRight() {
 }
 
 mat4 Node::worldTransform() {
-	
+
 	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		
 		auto t = mat4(1.0f);
@@ -590,6 +590,21 @@ weak_ptr<Scene> Node::scene() const {
 	}
 	else {
 		return m_scene;
+	}
+}
+
+void Node::updateWorldTransformForDraw() {
+	// special function gets called by Scene each frame.
+	// before being called a topological sort if done on the scene, and each node's 
+	// updateWorldTransformForDraw() is called in order, guaranteeing that its parent's
+	// world tranform is indeed a good world transform
+	
+	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+		if (auto p = parent().lock()) {
+			m_worldTransform = p->worldTransform() * transform();
+		}
+		
+		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 	}
 }
 

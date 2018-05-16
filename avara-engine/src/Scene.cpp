@@ -256,6 +256,8 @@ void Scene::draw(Renderer& renderer,
 		
 		stats.nodes++;
 		
+		node->updateWorldTransformForDraw();
+		
 #warning move hidden check to renderer
 		//		if (!node->hidden()) {
 		auto geometry = node->geometry();
