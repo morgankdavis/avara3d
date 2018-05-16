@@ -36,11 +36,11 @@ using namespace std;
  ***************************************************************************************/
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry(nullptr),
-	m_sourceNode(weak_ptr<Node>()),
+	m_sourceGeometry({}),
+	m_sourceNode({}),
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
-	m_physicsBody(weak_ptr<PhysicsBody>()),
+	m_physicsBody({}),
 	m_simulationID(0),
 	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
@@ -50,11 +50,11 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE typ
 
 // construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry(nullptr),
-	m_sourceNode(weak_ptr<Node>()),
+	m_sourceGeometry({}),
+	m_sourceNode({}),
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
-	m_physicsBody(weak_ptr<PhysicsBody>()),
+	m_physicsBody({}),
 	m_simulationID(0),
 	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
@@ -66,7 +66,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
      Public
  ***************************************************************************************/
 
-shared_ptr<Geometry> PhysicsShape::sourceGeometry() const {
+weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
 	return m_sourceGeometry;
 }
 

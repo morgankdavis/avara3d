@@ -61,7 +61,7 @@ PhysicsBody::PhysicsBody():
 	m_angularVelocity({0, 0, 0}),
 	m_resting(false),
 	m_allowsResting(true),
-	m_node(weak_ptr<Node>()),
+	m_node({}),
 	m_simulationID(0),
 	m_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 	

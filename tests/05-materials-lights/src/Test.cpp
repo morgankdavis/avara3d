@@ -222,7 +222,6 @@ int Test::run(const vector<string>& args) {
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(Color::LightGray());
 	
-	auto children = scene->rootNode()->children(true);
 
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();

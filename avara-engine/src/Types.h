@@ -295,11 +295,17 @@ namespace ae {
 		
 		
 		
-
+	enum class NODE_DIRTY_BITS : unsigned {
+		WORLD_TRANSFORM =		1 << 0,
+		ALL = 					UINT_MAX
+	};
+			
+#define NODE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
+#define NODE_DIRTY_BITS_ADD(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
+#define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
-		WORLD_TRANSFORM =		1 << 0, // not currently used
-		AABB =					1 << 1,
+		AABB =					1 << 0,
 		ALL = 					UINT_MAX
 	};
 		

@@ -72,25 +72,18 @@ Node::Node():
 	m_position({0.0f, 0.0f, 0.0f}),
 	m_orientation(quat()),
 	m_scale({1.0f, 1.0f, 1.0f}),
+	m_worldTransform(mat4(1.0f)),
 	m_physicsBody(nullptr),
 	m_parent({}),
-	m_scene({}) {
+	m_scene({}),
+	m_dirtyBits(NODE_DIRTY_BITS::ALL) {
 
 }
 
 Node::Node(const string& name):
-	m_name(name),
-	m_hidden(false),
-	m_camera(nullptr),
-	m_light(nullptr),
-	m_geometry(nullptr),
-	m_position({0.0f, 0.0f, 0.0f}),
-	m_orientation(quat()),
-	m_scale({1.0f, 1.0f, 1.0f}),
-	m_physicsBody(nullptr),
-	m_parent({}),
-	m_scene({}) {
+	Node() {
 
+		m_name = name;
 }
 
 /***************************************************************************************
@@ -148,6 +141,8 @@ vec3 Node::position() const {
 
 void Node::position(const vec3 position) {
 	m_position = position;
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
@@ -208,6 +203,8 @@ void Node::rotation(const vec4 rotation) {
 	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 	float angle = rotation.w;
 	m_orientation = angleAxis(angle, axisNormalized);
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -321,6 +318,8 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	//m_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
 	m_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
@@ -329,6 +328,8 @@ quat Node::orientation() const {
 
 void Node::orientation(const quat orientation) {
 	m_orientation = orientation;
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
@@ -337,6 +338,8 @@ vec3 Node::scale() const {
 
 void Node::scale(const glm::vec3 scale) {
 	m_scale = scale;
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
@@ -366,30 +369,32 @@ void Node::transform(const mat4 transform) {
 	m_position = translation;
 	m_scale = scale;
 	m_orientation = orientation;
+	
+	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
-vec3 Node::worldPosition() const {
+vec3 Node::worldPosition() {
 	auto world = worldTransform();	
 	return vec3(world[3][0], world[3][1], world[3][2]);
 }
 
-vec4 Node::worldRotation() const {
+vec4 Node::worldRotation() {
 	return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
-vec3 Node::worldEulerAngles() const {
+vec3 Node::worldEulerAngles() {
 	return vec3(0.0, 0.0, 0.0);
 }
 
-quat Node::worldOrientation() const {
+quat Node::worldOrientation() {
 	return quat(1.0, 0.0, 0.0, 0.0);
 }
 
-vec3 Node::worldScale() const {
+vec3 Node::worldScale() {
 	return vec3(0.0, 0.0, 0.0);
 }
 
-vec3 Node::worldForward() const {
+vec3 Node::worldForward() {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -408,7 +413,7 @@ vec3 Node::worldForward() const {
 	return normalize(rotationMat * vec4(0, 0, -1, 1));
 }
 
-vec3 Node::worldUp() const {
+vec3 Node::worldUp() {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -427,7 +432,7 @@ vec3 Node::worldUp() const {
 	return normalize(rotationMat * vec4(0, 1, 0, 1));
 }
 
-vec3 Node::worldRight() const {
+vec3 Node::worldRight() {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -446,21 +451,26 @@ vec3 Node::worldRight() const {
 	return normalize(rotationMat * vec4(1, 0, 0, 1));
 }
 
-mat4 Node::worldTransform() const {
+mat4 Node::worldTransform() {
 	
-	auto t = mat4(1.0f);
-	auto path = pathToRoot();
-	
-	auto iter = path.end();
-	while (iter != path.begin()) {
-		--iter;
-		shared_ptr<Node> node = *iter;
-		t = t * node->transform();
+	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+		
+		auto t = mat4(1.0f);
+		auto path = pathToRoot();
+		
+		auto iter = path.end();
+		while (iter != path.begin()) {
+			--iter;
+			shared_ptr<Node> node = *iter;
+			t = t * node->transform();
+		}
+		
+		m_worldTransform = t * transform();
+		
+		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 	}
 	
-	t = t * transform();
-	
-	return t;
+	return m_worldTransform;
 }
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
@@ -602,6 +612,15 @@ void Node::attachedToParent(shared_ptr<Node> parentNode) {
      Private
  ***************************************************************************************/
 
+void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
+	
+	m_dirtyBits = NODE_DIRTY_BITS_ADD(m_dirtyBits, bits);
+	
+	for (auto& c : children(true)) {
+		c->m_dirtyBits = NODE_DIRTY_BITS_ADD(c->m_dirtyBits, bits);
+	}
+}
+
 vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> top) {
 	
 	auto visited = std::map<shared_ptr<Node>, bool>();
@@ -634,3 +653,10 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 	stack.push(node);
 }
 
+NODE_DIRTY_BITS Node::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void Node::dirtyBits(NODE_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
+}

@@ -38,7 +38,7 @@ Tests:
 			Create at each frame, pass around. frameStartTime, frameEndTime
 
 
-		Make Types_Internal.h ?
+		Types_Internal.h ?
 		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
 		
 

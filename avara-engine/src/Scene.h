@@ -85,7 +85,7 @@ namespace ae {
 		void draw(Renderer& renderer,
 				  unsigned framebufferWidth,
 				  unsigned framebufferHeight,
-				  const Node& pointOfView,
+				  Node& pointOfView,
 				  const DEBUG_OPTIONS& debugOptions,
 				  RenderStats& stats);		
 		

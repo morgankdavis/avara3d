@@ -22,13 +22,8 @@ using namespace glm;
  ***************************************************************************************/
 
 Camera::Camera():
-	m_fov(radians(45.0)),
-	m_zNear(0.1),
-	m_zFar(1000.0),
-	m_aspectRatio(1.0),
-	m_node(weak_ptr<Node>()) {
+	Camera(0.1, 1000.0, 45.0) { 
 
-		constructProjectionMat();
 }
 
 Camera::Camera(float zNear, float zFar, float fov):
@@ -36,7 +31,7 @@ Camera::Camera(float zNear, float zFar, float fov):
 	m_zFar(zFar),
 	m_fov(radians(fov)),
 	m_aspectRatio(1.0),
-	m_node(weak_ptr<Node>()) {
+	m_node({}) {
 
 		constructProjectionMat();
 }

@@ -20,6 +20,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Types.h"
+
 
 namespace ae {
 
@@ -30,6 +32,7 @@ namespace ae {
 	class PhysicsBody;
 	class Scene;
 
+	
 	class Node : public std::enable_shared_from_this<Node> {
 		
 	public:
@@ -95,17 +98,17 @@ namespace ae {
 		glm::mat4 transform() const;
 		void transform(const glm::mat4 transform);
 		
-		glm::vec3 worldPosition() const;
-		glm::vec4 worldRotation() const; // axis-angle
-		glm::vec3 worldEulerAngles() const; // pitch, yaw, roll
-		glm::quat worldOrientation() const; // angle == 1st component
-		glm::vec3 worldScale() const;
+		glm::vec3 worldPosition();
+		glm::vec4 worldRotation(); // axis-angle
+		glm::vec3 worldEulerAngles(); // pitch, yaw, roll
+		glm::quat worldOrientation(); // angle == 1st component
+		glm::vec3 worldScale();
 		
-		glm::vec3 worldForward() const;
-		glm::vec3 worldUp() const;
-		glm::vec3 worldRight() const;
+		glm::vec3 worldForward();
+		glm::vec3 worldUp();
+		glm::vec3 worldRight();
 		
-		glm::mat4 worldTransform() const;
+		glm::mat4 worldTransform();
 		
 		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void addChild(std::shared_ptr<Node> node);
@@ -147,10 +150,14 @@ namespace ae {
      		Private
  		 ***************************************************************************************/
 		
+		void addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
 		std::vector<std::shared_ptr<Node>> topologicalChildren(std::shared_ptr<Node> top);
 		void topologicalChildrenRec(std::shared_ptr<Node> node,
 									std::map<std::shared_ptr<Node>, bool>& visited,
 									std::stack<std::shared_ptr<Node>>& stack);
+		
+		NODE_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(NODE_DIRTY_BITS bits);
 		
 		boost::optional<std::string>		m_name;
 		
@@ -166,11 +173,14 @@ namespace ae {
 		glm::quat							m_orientation;
 		glm::vec3							m_scale;
 //		glm::mat4							m_pivot;
+		glm::mat4							m_worldTransform;
 		
 		std::shared_ptr<PhysicsBody>		m_physicsBody;
 		
 		std::weak_ptr<Scene> 				m_scene;
 		std::weak_ptr<Node>					m_parent;
+		
+		NODE_DIRTY_BITS						m_dirtyBits;
 	};
 }
 

@@ -214,7 +214,7 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 void Scene::draw(Renderer& renderer,
 				 unsigned framebufferWidth,
 				 unsigned framebufferHeight,
-				 const Node& pointOfView,
+				 Node& pointOfView,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
 	

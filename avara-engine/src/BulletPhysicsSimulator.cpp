@@ -302,9 +302,9 @@ void GetPhysicsShapeBTModels(PhysicsShape& shape,
 	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape.dirtyBits(),
 										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
 		
-		if (shape.sourceGeometry()) {
+		if (auto sourceGeometry = shape.sourceGeometry().lock()) {
 
-			auto shape_shared = BTCollisionShapeFromGeometry(shape.sourceGeometry(), shape.type());
+			auto shape_shared = BTCollisionShapeFromGeometry(sourceGeometry, shape.type());
 			
 			
 			*btShape = shape_shared.get();

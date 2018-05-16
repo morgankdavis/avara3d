@@ -69,7 +69,7 @@ Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
 	m_type(type),
 	m_color(color),
 	m_attenuationFactor(1.0f),
-	m_node(weak_ptr<Node>()) {
+	m_node({}) {
 	
 }
 

@@ -33,7 +33,7 @@ Geometry::Geometry():
 	m_name(boost::none),
 	m_elements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()),
-	m_node(weak_ptr<Node>()),
+	m_node({}),
 	m_renderID(0),
 	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 

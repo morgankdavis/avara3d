@@ -54,7 +54,7 @@ using namespace std;
  **************************************************************************************/
 
 static void RenderSkybox(Geometry& skyboxGeometry,
-						 const Node& pointOfView,
+						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
 						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
@@ -120,7 +120,7 @@ static void DrawGeometryElement(GeometryElement& element,
 								GLuint vao, GLuint ibo);	
 static void DrawSkyboxElement(GeometryElement& element,
 							  Program& program,
-							  const Node& pointOfView,
+							  Node& pointOfView,
 							  GLuint vao, GLuint ibo);
 static void DrawAABB(Geometry& geometry,
 					 mat4 modelMat,
@@ -423,7 +423,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
  **************************************************************************************/
 
 static void RenderSkybox(Geometry& skyboxGeometry,
-						 const Node& pointOfView,
+						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
 						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
@@ -1258,7 +1258,7 @@ static void DrawGeometryElement(GeometryElement& element,
 
 static void DrawSkyboxElement(GeometryElement& element,
 							  Program& program,
-							  const Node& pointOfView,
+							  Node& pointOfView,
 							  GLuint vao, GLuint ibo) {
 	
 	program.use();

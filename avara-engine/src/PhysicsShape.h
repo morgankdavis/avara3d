@@ -40,7 +40,7 @@ namespace ae {
 		     Public
 		 ***************************************************************************************/
 		
-		std::shared_ptr<Geometry> sourceGeometry() const;
+		std::weak_ptr<Geometry> sourceGeometry() const;
 		std::weak_ptr<Node> sourceNode() const;
 		PHYSICS_SHAPE_TYPE type() const;
 		std::vector<glm::mat4> transforms() const;
@@ -69,7 +69,7 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		std::shared_ptr<Geometry> 						m_sourceGeometry;
+		std::weak_ptr<Geometry> 						m_sourceGeometry;
 		std::weak_ptr<Node> 							m_sourceNode;
 		PHYSICS_SHAPE_TYPE 								m_type;
 //		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
