@@ -131,7 +131,7 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode()->addChild(islandNode);
 
 	auto palletScene = TestSceneNamed("Pallet_rot");
-	auto palletNode = palletScene->rootNode()->children(true)[2];
+	auto palletNode = palletScene->rootNode()->children(true)[1];
 	palletNode->name("Pallet node");
 	m_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
@@ -217,10 +217,12 @@ int Test::run(const vector<string>& args) {
 //	}
 	
 	
-//	scene->fogStartDistance(500.0);
-//	scene->fogEndDistance(5000.0);
-//	scene->fogDensityExponent(1.0);
-//	scene->fogColor(Color::LightGray());
+	scene->fogStartDistance(500.0);
+	scene->fogEndDistance(5000.0);
+	scene->fogDensityExponent(1.0);
+	scene->fogColor(Color::LightGray());
+	
+	auto children = scene->rootNode()->children(true);
 
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();

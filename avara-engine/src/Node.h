@@ -10,7 +10,9 @@
 #define Node_h
 
 
+#include <map>
 #include <memory>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -132,9 +134,7 @@ namespace ae {
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;
 		
 		bool containsChild(std::shared_ptr<Node> node);
-		
-		//std::vector<std::shared_ptr<Node>> sortedChildren() const;
-		
+
 		std::weak_ptr<Scene> scene() const;
 		
 		void attachedToScene(std::shared_ptr<Scene> scene);
@@ -147,7 +147,10 @@ namespace ae {
      		Private
  		 ***************************************************************************************/
 		
-		std::vector<std::shared_ptr<Node>>	childNodesRec();
+		std::vector<std::shared_ptr<Node>> topologicalChildren(std::shared_ptr<Node> top);
+		void topologicalChildrenRec(std::shared_ptr<Node> node,
+									std::map<std::shared_ptr<Node>, bool>& visited,
+									std::stack<std::shared_ptr<Node>>& stack);
 		
 		boost::optional<std::string>		m_name;
 		
@@ -157,7 +160,7 @@ namespace ae {
 		
 		bool								m_hidden;
 
-		std::vector<std::shared_ptr<Node>>	m_childNodes;
+		std::vector<std::shared_ptr<Node>>	m_children;
 		
 		glm::vec3							m_position;
 		glm::quat							m_orientation;

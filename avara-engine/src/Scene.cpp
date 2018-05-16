@@ -208,30 +208,29 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
      Internal
  ***************************************************************************************/
 
+
+
+
 void Scene::draw(Renderer& renderer,
 				 unsigned framebufferWidth,
 				 unsigned framebufferHeight,
 				 const Node& pointOfView,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
-
+	
 	renderer.render(*this, debugOptions, stats);
 	
 	auto renderContext = m_renderContext.lock();
-	
 	auto physicsSimulator = renderContext->physicsSimulator();
+	
+	auto sortedNodes = m_rootNode->children(true);
 	
 	if (m_physicsWorld) {
 		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
 								 *m_physicsWorld,
 								 debugOptions);
-	}
-	
-#warning TOPILOGICAL SORT THIS
-	auto allNodes = m_rootNode->children(true);
-	
-	if (m_physicsWorld) {
-		for (auto& node: allNodes) {
+
+		for (auto& node: sortedNodes) {
 			auto geometry = node->geometry();
 			if (geometry != nullptr) {
 				auto physicsBody = node->physicsBody();
@@ -244,57 +243,149 @@ void Scene::draw(Renderer& renderer,
 		}
 		
 		physicsSimulator->step(m_renderContext.lock()->sceneTime());
-	}
 	
-	if (renderContext->didSimulatePhysicsCallback()) {
-		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		if (renderContext->didSimulatePhysicsCallback()) {
+			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		}
 	}
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	for (auto& node: allNodes) {
+	for (auto& node: sortedNodes) {
 		
 		stats.nodes++;
 		
 #warning move hidden check to renderer
-//		if (!node->hidden()) {
-			auto geometry = node->geometry();
-			if (geometry != nullptr) {
+		//		if (!node->hidden()) {
+		auto geometry = node->geometry();
+		if (geometry != nullptr) {
+			
+			stats.geometries++;
+			
+			auto modelMat = mat4(1.0);
+			auto physicsBody = node->physicsBody();
+			if (physicsBody) {
 				
-				stats.geometries++;
+				// * temporary side effect *
+				// updates node's local transform to bt world transform
+				physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+										 *physicsBody,
+										 debugOptions);
 				
-				auto modelMat = mat4(1.0);
-				auto physicsBody = node->physicsBody();
-				if (physicsBody) {
-					
-					// * temporary side effect *
-					// updates node's local transform to bt world transform
-					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
-											 *physicsBody,
-											 debugOptions);
-					
-					modelMat = node->transform();
-//					auto motionState = physicsBody->btMotionState();
-//					btTransform transform;
-//					motionState->getWorldTransform(transform);
-//					transform.getOpenGLMatrix(value_ptr(modelMat));
-				}
-				else {
-					modelMat = node->worldTransform();
-				}
-
-				geometry->draw(renderer,
-							   modelMat, viewMat, projectionMat,
-							   debugOptions, stats);
+				modelMat = node->transform();
+				//					auto motionState = physicsBody->btMotionState();
+				//					btTransform transform;
+				//					motionState->getWorldTransform(transform);
+				//					transform.getOpenGLMatrix(value_ptr(modelMat));
 			}
-//		}
+			else {
+				modelMat = node->worldTransform();
+			}
+			
+			geometry->draw(renderer,
+						   modelMat, viewMat, projectionMat,
+						   debugOptions, stats);
+		}
+		//		}
 	}
 	
-//	if (m_physicsWorld) {
-//		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
-//	}
+	//	if (m_physicsWorld) {
+	//		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
+	//	}
 }
+
+
+
+
+
+//void Scene::draw(Renderer& renderer,
+//				 unsigned framebufferWidth,
+//				 unsigned framebufferHeight,
+//				 const Node& pointOfView,
+//				 const DEBUG_OPTIONS& debugOptions,
+//				 RenderStats& stats) {
+//
+//	renderer.render(*this, debugOptions, stats);
+//	
+//	auto renderContext = m_renderContext.lock();
+//	
+//	auto physicsSimulator = renderContext->physicsSimulator();
+//	
+//	if (m_physicsWorld) {
+//		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+//								 *m_physicsWorld,
+//								 debugOptions);
+//	}
+//	
+//#warning TOPILOGICAL SORT THIS
+//	auto allNodes = m_rootNode->children(true);
+//	
+//	if (m_physicsWorld) {
+//		for (auto& node: allNodes) {
+//			auto geometry = node->geometry();
+//			if (geometry != nullptr) {
+//				auto physicsBody = node->physicsBody();
+//				if (physicsBody) {
+//					physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+//											 *physicsBody,
+//											 debugOptions);
+//				}
+//			}
+//		}
+//		
+//		physicsSimulator->step(m_renderContext.lock()->sceneTime());
+//	}
+//	
+//	if (renderContext->didSimulatePhysicsCallback()) {
+//		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+//	}
+//	
+//	auto viewMat = pointOfView.worldTransform();
+//	auto projectionMat = pointOfView.camera()->projection();
+//	
+//	for (auto& node: allNodes) {
+//		
+//		stats.nodes++;
+//		
+//#warning move hidden check to renderer
+////		if (!node->hidden()) {
+//			auto geometry = node->geometry();
+//			if (geometry != nullptr) {
+//				
+//				stats.geometries++;
+//				
+//				auto modelMat = mat4(1.0);
+//				auto physicsBody = node->physicsBody();
+//				if (physicsBody) {
+//					
+//					// * temporary side effect *
+//					// updates node's local transform to bt world transform
+//					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+//											 *physicsBody,
+//											 debugOptions);
+//					
+//					modelMat = node->transform();
+////					auto motionState = physicsBody->btMotionState();
+////					btTransform transform;
+////					motionState->getWorldTransform(transform);
+////					transform.getOpenGLMatrix(value_ptr(modelMat));
+//				}
+//				else {
+//					modelMat = node->worldTransform();
+//				}
+//
+//				geometry->draw(renderer,
+//							   modelMat, viewMat, projectionMat,
+//							   debugOptions, stats);
+//			}
+////		}
+//	}
+//	
+////	if (m_physicsWorld) {
+////		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
+////	}
+//}
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return m_skyboxGeometry;

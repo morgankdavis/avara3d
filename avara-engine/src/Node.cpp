@@ -476,7 +476,7 @@ void Node::addChild(shared_ptr<Node> node) {
 	}
 	
 	node->attachedToParent(shared_from_this());
-	m_childNodes.push_back(node);
+	m_children.push_back(node);
 }
 
 void Node::insertChild(const Node& node, int index) {
@@ -488,10 +488,10 @@ void Node::removeFromParent() {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-		auto vec = parent->m_childNodes;
+		auto vec = parent->m_children;
 		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
 // TODO: can we avoid the copy?
-		parent->m_childNodes = vec;
+		parent->m_children = vec;
 	}
 }
 
@@ -503,16 +503,15 @@ weak_ptr<Node> Node::parent() const {
 	return m_parent;
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) { // why no const?
-	// returns all decendants in BFS order
-	
+vector<shared_ptr<Node>> Node::children(bool resursive) {
+	// if !resursive, returns immediate children in no particular order
+	// if resursive, returns all descendants in topological order
+
 	if (resursive) {
-		auto children = childNodesRec();
-		children.erase(children.begin());
-		return children;
+		return topologicalChildren(shared_from_this());
 	}
 	else {
-		return m_childNodes;
+		return m_children;
 	}
 }
 
@@ -576,7 +575,6 @@ bool Node::containsChild(shared_ptr<Node> node) {
 }
 
 weak_ptr<Scene> Node::scene() const {
-	//if (auto parent = m_parent.lock()) {
 	if (root()) {
 		return root()->scene();
 	}
@@ -604,18 +602,35 @@ void Node::attachedToParent(shared_ptr<Node> parentNode) {
      Private
  ***************************************************************************************/
 
-vector<shared_ptr<Node>> Node::childNodesRec() { // why no const?
-	// recursive algorithm to do BFS, returning all children as well as this node
+vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> top) {
+	
+	auto visited = std::map<shared_ptr<Node>, bool>();
+	auto stack = std::stack<shared_ptr<Node>>();
+	
+	topologicalChildrenRec(top, visited, stack);
+	
+	// probably a better way to do this
+	auto vec = vector<shared_ptr<Node>>();
+	vec.reserve(stack.size());
+	while (!stack.empty()) {
+		vec.emplace_back(stack.top());
+		stack.pop();
+	}
+	return vec;
+}
 
-	auto children = vector<shared_ptr<Node>>();
+void Node::topologicalChildrenRec(shared_ptr<Node> node,
+								  map<shared_ptr<Node>, bool>& visited,
+								  stack<shared_ptr<Node>>& stack) {
 	
-	auto thisShared = shared_from_this();
-	children.push_back(thisShared);
+	visited[node] = true;
 	
-	for (auto child : m_childNodes) {
-		auto allChildCNodes = child->childNodesRec();
-		children.insert(children.end(), allChildCNodes.begin(), allChildCNodes.end());
+	for (auto child : node->m_children) {
+		if (!visited[child]) {
+			topologicalChildrenRec(child, visited, stack);
+		}
 	}
 
-	return children;
+	stack.push(node);
 }
+

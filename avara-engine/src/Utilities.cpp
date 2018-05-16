@@ -526,22 +526,6 @@ shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
 
 shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
 											const string& type) {
-//#ifdef ANDROID
-//	auto data = BinaryAsset("testdata/scenes/" + (name + "." + type));
-//	if (data.size()) {
-//		return Scene::LoadFromData(data);
-//	}
-//#else
-//	auto testDataDir = TestDataDirectory();
-//	if (testDataDir) {
-//		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
-//		auto data = BinaryFile(fullPath);
-//		if (data.size()) {
-//			return Scene::LoadFromData(data);
-//		}
-//	}
-//#endif
-	
 	auto testDataDir = TestDataDirectory();
 	if (testDataDir) {
 		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
