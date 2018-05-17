@@ -14,7 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
-		Too sort + world transform dirty bits
+		Add back-pointers to OGLRenderer & BTSimulator resource management
+		Remove wireframe resource work-around
 
 		
 		Fix filtering options for floor grid
@@ -28,8 +29,6 @@ Tests:
 
 
 			
-		For back references, move lock() check into accessor?
-
 		Set something (node->geometry, scene->background)
 			-> if there's an old one, call "detached..." to set its dirty bits
 			(ex: remove scene's cube background property, re-add it, it thinks it still has good texture data)
@@ -45,7 +44,7 @@ Tests:
 		Refactor PhysicsDebugDrawer
 
 
-		Try set margin 0 for static objects
+		Try margin 0 for static objects
 
 		Add physics stats!
 

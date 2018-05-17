@@ -28,7 +28,7 @@ using namespace glm;
 #define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
-//#define VSYNC					true
+#define ENABLE_VSYNC			true
 
 
 /***************************************************************************************
@@ -94,8 +94,8 @@ int Test::run(const vector<string>& args) {
 	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
+	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(true);
-	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
 	auto scene = make_shared<Scene>();

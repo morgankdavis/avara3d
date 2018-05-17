@@ -370,6 +370,31 @@ void OpenGLRenderer::render(GeometryElement& element,
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		program = Program::Wireframe();
+		
+		
+//		#warning temporary work-around
+//		
+//		auto ambient = material.ambient();
+//		auto diffuse = material.diffuse();
+//		auto specular = material.specular();
+//		auto emissive = material.emissive();
+//		
+//		if (ambient) {
+//			ambient->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(ambient->dirtyBits(),
+//																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+//		}
+//		if (diffuse) {
+//			diffuse->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(diffuse->dirtyBits(),
+//																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+//		}
+//		if (specular) {
+//			specular->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(specular->dirtyBits(),
+//																 MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+//		}
+//		if (emissive) {
+//			emissive->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(emissive->dirtyBits(),
+//																 MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+//		}
 	}
 	else {
 		program = Program::Default();
@@ -1463,7 +1488,7 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	
 	static float fps = 0.0;
 	static float ms = 0.0;
-	static float percent = 0.0;
+	//static float percent = 0.0;
 	
 	const float GOAL_TIME = 16.6666667f;
 	
@@ -1477,7 +1502,7 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 		
 		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
 		fps = elapsedFrames/elapsedSeconds;
-		percent = (ms / GOAL_TIME) * 100.0f;
+		//percent = (ms / GOAL_TIME) * 100.0f;
 		
 		// reset framerate stats
 		previousSeconds = currentSeconds;
@@ -1513,9 +1538,9 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	DrawString(tmpStr, textSize, dx, dy, fonsContext);
 	dy += (textSize + hPadding);
 	
-	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
+//	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
+//	DrawString(tmpStr, textSize, dx, dy, fonsContext);
+//	dy += (textSize + hPadding);
 	
 	dy += textSize; // skip a line
 	

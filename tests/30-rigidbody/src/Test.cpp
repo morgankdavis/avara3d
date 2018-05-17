@@ -27,8 +27,8 @@ using namespace glm;
 #define WINDOW_WIDTH			800
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA_2X
-#define ENABLE_VSYNC			false
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
+#define ENABLE_VSYNC			true
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
 #define PHYSICS_TIMESTEP		1.0/180.0
@@ -316,8 +316,8 @@ int Test::run(const vector<string>& args) {
 	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
+	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(true);
-	m_window->enableVSync(false);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
 	auto scene = make_shared<Scene>();
@@ -336,14 +336,16 @@ int Test::run(const vector<string>& args) {
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 	auto planeNode = make_shared<Node>("Box");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-	//auto gridImage = TestImageNamed("grid10");
-	auto gridImage = TestImageNamed("grid10_512");
+	auto gridImage = TestImageNamed("grid10");
+	//auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	planeMaterialProperty->maxAnisotropy(16);
+	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-	planeMaterial->uvScale(PLANE_LENGTH);
-//	planeMaterial->uvScale(PLANE_DIM*0.1);
+	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 //	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0, radians(90.0)});
@@ -485,14 +487,14 @@ int Test::run(const vector<string>& args) {
 	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
 	scene->background(background);
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.5, 0.5, 0.5, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
 	//auto ambientLightNode = make_shared<Node>(ambientLight);
 //	auto ambientLightNode = make_shared<Node>("Ambient light");
 //	ambientLightNode->light(ambientLight);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::DarkGray());
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	//auto pointLightNode = make_shared<Node>(pointLight);
