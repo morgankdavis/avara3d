@@ -16,12 +16,12 @@
 #include "PhysicsSimulator.h"
 
 
+struct btDefaultMotionState;
 struct btDbvtBroadphase;
 
 class btCollisionDispatcher;
 class btCollisionShape;
 class btDefaultCollisionConfiguration;
-class btDefaultMotionState;
 class btDiscreteDynamicsWorld;
 class btRigidBody;
 class btSequentialImpulseConstraintSolver;

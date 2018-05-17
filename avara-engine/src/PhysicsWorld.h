@@ -84,9 +84,7 @@ namespace ae {
 		 ***************************************************************************************/
 
 		glm::vec3 												m_gravity;
-		float 													m_speed;
 		float 													m_timestep;
-		
 		std::weak_ptr<Scene>									m_scene;
 	};
 }

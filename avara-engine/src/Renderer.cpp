@@ -36,7 +36,7 @@ Renderer::~Renderer() {
  **************************************************************************************/
 
 bool Renderer::initialize() {
-	
+	return true;
 }
 
 void Renderer::beginFrame(const RenderContext& context) {

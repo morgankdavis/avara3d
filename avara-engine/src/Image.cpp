@@ -84,6 +84,8 @@ Image& Image::operator=(const Image& other) { // copy assignment
 	
 	m_width = other.m_width;
 	m_height = other.m_height;
+	
+	return *this;
 }
 
 Image::~Image() {

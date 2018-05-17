@@ -509,7 +509,6 @@ static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element.dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		GLuint vbo = 0;
 		LoadGeometryElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
@@ -542,7 +541,6 @@ static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		GLuint vbo = 0;
 		LoadSkyboxVertexData(skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
