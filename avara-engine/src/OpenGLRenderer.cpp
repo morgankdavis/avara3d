@@ -14,8 +14,9 @@
 #include <set>
 #include <vector>
 
+#include <boost/circular_buffer.hpp>
 #define FONTSTASH_IMPLEMENTATION
-#include "fontstash.h"
+#include <fontstash.h>
 #ifdef ANDROID
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
@@ -1486,26 +1487,58 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	
 	static float fps = 0.0;
 	static float ms = 0.0;
-	//static float percent = 0.0;
 	
-	const float GOAL_TIME = 16.6666667f;
+	// sample frametime for last FRAME_SAMPLE_SIZE frames
+	// average them and print it every FRAME_UPDATE_INTERVAL so it's readable
 	
-	static unsigned elapsedFrames = 0; ++elapsedFrames;
-	static float previousSeconds = time;
-	float currentSeconds = time;
-	float elapsedSeconds = currentSeconds - previousSeconds;
+	const unsigned FRAME_SAMPLE_SIZE = 60;
+	const float FRAME_UPDATE_INTERVAL = 0.5;
 	
-	if (elapsedSeconds > 0.5) {
-		// only update the framerate stats every so often so they're readable
+	static boost::circular_buffer<float> fpsBuf(FRAME_SAMPLE_SIZE);
+
+	static float previousFrameTime = time;
+	float deltaSecondsFromLastFrame = 0;
+	static float elapsedSecondsSinceUpdate = 0;
+	float currentFrameTime = time;
+	static unsigned elapsedFramesSinceUpdate = 0;
+	++elapsedFramesSinceUpdate;
+
+	deltaSecondsFromLastFrame = currentFrameTime - previousFrameTime;
+	elapsedSecondsSinceUpdate += deltaSecondsFromLastFrame;
+	previousFrameTime = currentFrameTime;
+	fpsBuf.push_back(deltaSecondsFromLastFrame);
+
+	if (elapsedSecondsSinceUpdate > FRAME_UPDATE_INTERVAL) {
+		ms = (elapsedSecondsSinceUpdate * 1000.0) / elapsedFramesSinceUpdate;
 		
-		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-		fps = elapsedFrames/elapsedSeconds;
-		//percent = (ms / GOAL_TIME) * 100.0f;
+		float bufFrameTime = 0;
+		for (float t : fpsBuf) bufFrameTime += t;
+		fps = ((float)FRAME_SAMPLE_SIZE)/bufFrameTime;
 		
 		// reset framerate stats
-		previousSeconds = currentSeconds;
-		elapsedFrames = 0;
+		
+		elapsedFramesSinceUpdate = 0;
+		elapsedSecondsSinceUpdate = 0;
 	}
+	
+// old implementation
+//	static unsigned elapsedFrames = 0;
+//	++elapsedFrames;
+//	static float previousSeconds = time;
+//	float currentSeconds = time;
+//	float elapsedSeconds = currentSeconds - previousSeconds;
+//	
+//
+//	if (elapsedSeconds > 0.5) {
+//		// only update the framerate stats every so often so they're readable
+//		
+//		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
+//		fps = elapsedFrames/elapsedSeconds;
+//		
+//		// reset framerate stats
+//		previousSeconds = currentSeconds;
+//		elapsedFrames = 0;
+//	}
 
 	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
 	
@@ -1535,11 +1568,7 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
 	DrawString(tmpStr, textSize, dx, dy, fonsContext);
 	dy += (textSize + hPadding);
-	
-//	sprintf(tmpStr, "%-14s %.1f", "percent", percent);
-//	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-//	dy += (textSize + hPadding);
-	
+
 	dy += textSize; // skip a line
 	
 	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
