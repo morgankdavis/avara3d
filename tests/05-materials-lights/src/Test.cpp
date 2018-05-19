@@ -28,7 +28,7 @@ using namespace glm;
 #define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
-#define ENABLE_VSYNC			true
+#define ENABLE_VSYNC			false
 
 
 /***************************************************************************************
@@ -100,23 +100,6 @@ int Test::run(const vector<string>& args) {
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	
-	
-	
-//	auto sphereGeo = make_shared<Sphere>(0.5, 24);
-//	auto sphereNode = make_shared<Node>();
-//	sphereGeo->name("sphere");
-//	sphereNode->geometry(sphereGeo);
-//	scene->rootNode()->addChild(sphereNode);
-//	sphereNode->position({0.0f, 0.0f, 0.0f});
-//	
-//	auto gridImage = TestImageNamed("grid10_512");
-//	auto sphereMaterialProperty = make_shared<MaterialProperty>(gridImage);
-//	sphereMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-//	sphereMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-//	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
-//	sphereNode->geometry()->addMaterial(sphereMaterial);
-	
 	
 
 	auto siameseScene = TestSceneNamed("siamese");

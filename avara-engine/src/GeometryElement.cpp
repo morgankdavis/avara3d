@@ -73,11 +73,11 @@ void GeometryElement::hardTransform(const mat4 t, bool norm) {
 	GEOMETRY_ELEMENT_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA);
 }
 
-vector<Vertex> GeometryElement::vertices() const {
+const vector<Vertex>& GeometryElement::vertices() const {
 	return m_vertices;
 }
 
-vector<Face> GeometryElement::faces() const {
+const vector<Face>& GeometryElement::faces() const {
 	return m_faces;
 }
 

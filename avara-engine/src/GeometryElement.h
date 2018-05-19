@@ -52,8 +52,8 @@ namespace ae {
 
 		void hardTransform(const glm::mat4 t, bool norm);
 
-		std::vector<Vertex> vertices() const;
-		std::vector<Face> faces() const;
+		const std::vector<Vertex>& vertices() const;
+		const std::vector<Face>& faces() const;
 		
 		GEOMETRY_ELEMENT_ID renderID() const;
 		void renderID(GEOMETRY_ELEMENT_ID id);
