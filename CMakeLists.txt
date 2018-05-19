@@ -145,8 +145,10 @@ endif()
 
 # boost
 
-include_directories(avara-engine/external/boost-1.66.0)
-add_subdirectory(avara-engine/external/boost-1.66.0)
+# include_directories(avara-engine/external/boost-1.66.0)
+# add_subdirectory(avara-engine/external/boost-1.66.0)
+include_directories(avara-engine/external/boost-1.67.0)
+add_subdirectory(avara-engine/external/boost-1.67.0)
 
 # spdlog
 
