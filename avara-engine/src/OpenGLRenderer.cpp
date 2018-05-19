@@ -459,9 +459,9 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	
 	auto program = Program::Skybox();
 	
-	auto element = *(skyboxGeometry.elements().front());
-	auto material = *(skyboxGeometry.materials().front());
-	auto emissiveProperty = *(material.emissive());
+	auto element = skyboxGeometry.elements().front();
+	auto material = skyboxGeometry.materials().front();
+	auto emissiveProperty = material->emissive();
 	
 	// check and load vertex data if necessary
 	
@@ -473,7 +473,7 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	// and load material contents if necessary
 	
 	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
-	GetMaterialGLTextureHandles(material,
+	GetMaterialGLTextureHandles(*material,
 								materialIDMapping, materialIDCounter,
 								activePropertyIDsSet,
 								glTextureHandles);
@@ -481,7 +481,7 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	
 	// send material property uniforms
 	
-	SendMaterialPropertyUniforms(emissiveProperty,
+	SendMaterialPropertyUniforms(*emissiveProperty,
 								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
 								 emissiveGLTextureHandle,
 								 debugOptions,
@@ -489,7 +489,7 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	
 	// update material property filtering options
 	
-	SetMaterialPropertyFilteringOptions(emissiveProperty, emissiveGLTextureHandle);
+	SetMaterialPropertyFilteringOptions(*emissiveProperty, emissiveGLTextureHandle);
 	
 	// configure OpenGL state
 	
@@ -497,10 +497,10 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	
 	// draw
 	
-	DrawSkyboxElement(element, *program, pointOfView, vao, ibo);
+	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
 	
 	stats.geometries++;
-	stats.polygons += element.faces().size();
+	stats.polygons += element->faces().size();
 	stats.meshes++;
 }
 	
@@ -1121,14 +1121,11 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	
 static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 												GLuint glTextureHandle) {
-	
-	return;
-	
+
 	bool cube = dynamic_pointer_cast<CubeImage>(property.contents()) != nullptr;
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER)) {
-		AE_LOG->debug("MINIFICATION_FILTER");
 		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER));
@@ -1136,7 +1133,6 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER)) {
-		AE_LOG->debug("MAGNIFICATION_FILTER");
 		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER));
@@ -1144,7 +1140,6 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S)) {
-		AE_LOG->debug("WRAP_S");
 		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S));
@@ -1152,7 +1147,6 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T)) {
-		AE_LOG->debug("WRAP_T");
 		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T));
@@ -1161,7 +1155,6 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	if (cube) {
 		if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 												  MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R)) {
-			AE_LOG->debug("WRAP_R");
 			SetTextureWrapR(glTextureHandle, property.wrapR());
 			property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 																   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R));
@@ -1170,7 +1163,6 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	
 	if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property.dirtyBits(),
 											  MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY)) {
-		AE_LOG->debug("MAX_ANISTROPY");
 		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
 		property.dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property.dirtyBits(),
 															   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY));
@@ -1188,10 +1180,8 @@ static void SetMaterialFilteringOptions(const Material& material,
 	
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
-		
 		if (property) {
 			auto type = types[p];
-			
 			SetMaterialPropertyFilteringOptions(*property, glTextureHandles[type]);
 		}
 	}

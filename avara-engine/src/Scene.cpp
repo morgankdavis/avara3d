@@ -208,9 +208,6 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
      Internal
  ***************************************************************************************/
 
-
-
-
 void Scene::draw(Renderer& renderer,
 				 unsigned framebufferWidth,
 				 unsigned framebufferHeight,

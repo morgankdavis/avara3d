@@ -14,11 +14,13 @@ Tests:
 	30 - rigidbodies
 
 
+		Framerate rolling average
+
+		bindUniformBlock ... should this be a dirty bit?
+
+
 		Add back-pointers to OGLRenderer & BTSimulator resource management
 		Remove wireframe resource work-around
-
-		
-		Fix filtering options for floor grid
 
 
 		Do something about PhysicsBody::shape()
