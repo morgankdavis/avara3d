@@ -23,10 +23,9 @@ Tests:
 			If Body assatched to node, check geometry
 			If geometry set on Node, check physics body/shape
 
+		Add physics stats!
 
 		Try margin 0 for static objects
-
-		Add physics stats!
 
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation

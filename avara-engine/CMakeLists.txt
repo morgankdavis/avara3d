@@ -3,33 +3,76 @@ add_subdirectory(src)
 
 include_directories(external)
 
-#include_directories(external/fontstash)
-
 if (NOT ANDROID)
+	# GLFW
+	
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	add_subdirectory(external/glfw-3.2.1)
+	if (WINDOWS) # donno
+		include_directories(external/glfw-3.2.1/include)
+	endif()
+	
+	# GLEW
+	
+	add_subdirectory(external/glew-2.1.0/build/cmake)
+	include_directories(external/glew-2.1.0/include)
+	
+	# assimp
+	
+	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+	if (WINDOWS)
+		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
+	endif()
+	add_subdirectory(external/assimp-3.3.1)
+	include_directories(external/assimp-3.3.1/include)
+	
+	# many mouse
+	
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse)
-endif()
+endif() # NOT ANDROID
+
+# mesh optimizer
 
 add_subdirectory(external/meshoptimizer)
 include_directories(external/meshoptimizer)
+
+# generator
 
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
 
 include_directories(external/stb)
 
+# gif-h
+
 include_directories(external/gif-h)
 
-# add_subdirectory(external/bullet3-2.87)
-# include_directories(external/bullet3-2.87/src)
+# stb
+
+include_directories(external/stb)
+
+# fontstash
+
+include_directories(external/fontstash)
+
+# bullet
+
+include_directories(external/bullet3-2.87/src)
+add_subdirectory(external/bullet3-2.87)
+
 
 
 file(GLOB HEADERS src/*.h)
 file(GLOB SOURCES src/*.c*)
 
-
 add_library(ae STATIC ${HEADERS} ${SOURCES})
-
 
 target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
 target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_exception boost_filesystem boost_regex boost_system boost_test boost_thread boost_timer)
@@ -57,8 +100,6 @@ endif()
 
 
 set(CMAKE_CXX_STANDARD 14)
-
-#find_package(OpenGL REQUIRED)
 
 
 if (MACOS)
@@ -88,11 +129,7 @@ elseif (WINDOWS)
 		include_directories(external/winpthreads/include)
 	endif()
 
-	#if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
-	#else()
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
-	#endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
 	
 elseif (ANDROID)
 
@@ -104,8 +141,6 @@ elseif (ANDROID)
 	set_target_properties(ae PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
 
 	target_link_libraries(ae NDKHelper)
-	
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 endif()
 

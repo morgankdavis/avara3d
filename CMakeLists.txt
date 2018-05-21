@@ -109,44 +109,8 @@ endif()
 
 include_directories(avara-engine/external/glm-0.9.9-a2)
 
-# GLFW
-
-if (NOT ANDROID)
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(avara-engine/external/glfw-3.2.1)
-	if (WINDOWS) # donno
-		include_directories(avara-engine/external/glfw-3.2.1/include)
-	endif()
-endif()
-
-# GLEW
-
-if (NOT ANDROID)
-	add_subdirectory(avara-engine/external/glew-2.1.0/build/cmake)
-	include_directories(avara-engine/external/glew-2.1.0/include)
-endif()
-
-# # assimp
-
-if (NOT ANDROID)
-	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-	if (WINDOWS)
-		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
-	endif()
-	add_subdirectory(avara-engine/external/assimp-3.3.1)
-	include_directories(avara-engine/external/assimp-3.3.1/include)
-endif()
-
 # boost
 
-# include_directories(avara-engine/external/boost-1.66.0)
-# add_subdirectory(avara-engine/external/boost-1.66.0)
 include_directories(avara-engine/external/boost-1.67.0)
 add_subdirectory(avara-engine/external/boost-1.67.0)
 
@@ -155,20 +119,7 @@ add_subdirectory(avara-engine/external/boost-1.67.0)
 add_subdirectory(avara-engine/external/spdlog-0.16.2)
 include_directories(avara-engine/external/spdlog-0.16.2/include)
 
-# stb
-
-include_directories(avara-engine/external/stb)
-
-# fontstash
-
-include_directories(avara-engine/external/fontstash)
-
-# bullet
-
-include_directories(avara-engine/external/bullet3-2.87/src)
-add_subdirectory(avara-engine/external/bullet3-2.87)
-
-
+# android things
 
 if (ANDROID)
 	add_subdirectory(android)

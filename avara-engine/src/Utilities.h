@@ -16,12 +16,6 @@
 #include <string>
 #include <vector>
 
-#ifndef ANDROID
-#include <assimp/color4.h>
-#include <assimp/matrix4x4.h>
-#include <assimp/types.h>
-#include <assimp/vector2.h>
-#endif
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <glm/glm.hpp>

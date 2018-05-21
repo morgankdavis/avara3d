@@ -222,19 +222,21 @@ void Scene::draw(Renderer& renderer,
 	
 	auto sortedNodes = m_rootNode->children(true);
 	
-	physicsSimulator->beginUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
-	physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
-							 shared_from_this(),
-							 debugOptions);
-	
-	for (auto& node: sortedNodes) {
+	if (m_physicsWorld) {
+		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
 		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
-								 node,
+								 shared_from_this(),
 								 debugOptions);
+		
+		for (auto& node: sortedNodes) {
+			physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+									 node,
+									 debugOptions);
+		}
+		physicsSimulator->endUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
+		
+		physicsSimulator->step(m_renderContext.lock()->sceneTime());
 	}
-	physicsSimulator->endUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
-	
-	physicsSimulator->step(m_renderContext.lock()->sceneTime());
 	
 	if (renderContext->didSimulatePhysicsCallback()) {
 		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
@@ -253,17 +255,15 @@ void Scene::draw(Renderer& renderer,
 			node->updateWorldTransformForDraw();
 		}
 		
+		if (m_physicsWorld) {
+			// * temporary side effect *
+			// updates node's local transform to bt world transform
+			physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+									 node,
+									 debugOptions);
+		}
 		
-		
-		auto modelMat = mat4(1.0);
-		
-		// * temporary side effect *
-		// updates node's local transform to bt world transform
-		physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
-								 node,
-								 debugOptions);
-		
-		modelMat = node->worldTransform();
+		auto modelMat = node->worldTransform();
 		
 		auto geometry = node->geometry();
 		stats.geometries++;
@@ -277,15 +277,14 @@ void Scene::draw(Renderer& renderer,
 		}
 	}
 	
-	physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
-	
-	//if (m_physicsWorld) {
-		//m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
-	auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-	if (bulletSimulator) {
-		bulletSimulator->drawDebug(viewMat, projectionMat, debugOptions);
+	if (m_physicsWorld) {
+		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
+		
+		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+		if (bulletSimulator) {
+			bulletSimulator->drawDebug(viewMat, projectionMat, debugOptions);
+		}
 	}
-	//}
 }
 
 

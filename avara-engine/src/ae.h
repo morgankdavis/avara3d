@@ -11,7 +11,7 @@
 
 #include "Activity.h"
 #include "Box.h"
-#include "BulletPhysicsSimulator.h"
+//#include "BulletPhysicsSimulator.h"
 #include "Camera.h"
 #include "Capsule.h"
 #include "Color.h"
@@ -34,7 +34,7 @@
 #include "OpenGLRenderer.h"
 #include "PhysicsBody.h"
 #include "PhysicsContact.h"
-#include "PhysicsSimulator.h"
+//#include "PhysicsSimulator.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
 #include "Plane.h"
