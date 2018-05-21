@@ -14,6 +14,8 @@
 #import <utility>
 #import <set>
 
+#include <glm/glm.hpp>
+
 #include "Renderer.h"
 #include "Types.h"
 
@@ -24,8 +26,10 @@ struct FONScontext;
 namespace ae {
 	
 	
+	class Color;
 	class Geometry;
 	class GeometryElement;
+	class Line;
 	class MaterialProperty;
 	
 	
@@ -36,21 +40,31 @@ namespace ae {
 		/**************************************************************************************
 		     Types
 		 **************************************************************************************/
-		
-		/* <ae_obj : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+
+		/* <ae_GeometryElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		using GeometryElementGLMapping =
 			std::map<std::shared_ptr<GeometryElement>, std::tuple<unsigned,
 																  unsigned,
 																  unsigned>>;
 		
-		/* <ae_obj : <gl_textureHandle> */
+		/* <ae_MaterialProperty : <gl_textureHandle> */
 		using MaterialPropertyGLMapping =
 			std::map<std::shared_ptr<MaterialProperty>, unsigned>;
 
-		/* <ae_obj : <gl_vboHandle, gl_vaoHandle>> */
+		/* <ae_Geometry : <gl_vboHandle, gl_vaoHandle>> */
 		using AABBGeometryGLMapping =
 			std::map<std::shared_ptr<Geometry>, std::pair<unsigned,
 														  unsigned>>;
+		
+		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
+		using LineSetGLMapping =
+			std::map<std::shared_ptr<LineSet>, std::pair<unsigned,
+														 unsigned>>;
+		
+		/* <set<ae_Point> : <gl_vboHandle, gl_vaoHandle>> */
+		using PointSetGLMapping =
+			std::map<std::shared_ptr<PointSet>, std::pair<unsigned,
+										 				  unsigned>>;
 
 		/***************************************************************************************
 		     Lifecycle
@@ -88,6 +102,14 @@ namespace ae {
 					const glm::mat4& projectionMat,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) override;
+		void render(std::shared_ptr<LineSet>,
+					const glm::mat4& modelMat,
+					const glm::mat4& viewMat,
+					const glm::mat4& projectionMat) override;
+		void render(std::shared_ptr<PointSet>,
+					const glm::mat4& modelMat,
+					const glm::mat4& viewMat,
+					const glm::mat4& projectionMat) override;
 		
 		std::shared_ptr<Image> snapshot(const RenderContext& context) const override;
 		
@@ -100,12 +122,16 @@ namespace ae {
 		GeometryElementGLMapping 					m_geometryElementGLMapping;
 		MaterialPropertyGLMapping					m_materialPropertyGLMapping;
 		AABBGeometryGLMapping						m_aabbGeometryGLMapping;
-		
-		unsigned									m_glEnvironmentUBO;
+		LineSetGLMapping							m_lineSetGLMapping;
+		PointSetGLMapping							m_pointSetGLMapping;
 		
 		std::set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
 		std::set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
 		std::set<std::shared_ptr<Geometry>>			m_activeAABBGeometries;
+		std::set<std::shared_ptr<LineSet>>			m_activeLineSets;
+		std::set<std::shared_ptr<PointSet>>			m_activePointSets;
+
+		unsigned									m_glEnvironmentUBO;
 		
 		FONScontext* 								m_fonsContext;
 		int											m_fonsFont;

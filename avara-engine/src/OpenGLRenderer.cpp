@@ -76,20 +76,32 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
 									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
 									   GLuint& glVBO, GLuint& glVAO);
+static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+										OpenGLRenderer::LineSetGLMapping& glMapping,
+										GLuint& glVBO, GLuint& glVAO);
+static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+										 OpenGLRenderer::PointSetGLMapping& glMapping,
+										 GLuint& glVBO, GLuint& glVAO);
+static void GetLinesVertexDataHandles();
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
 										set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
-static void LoadGeometryElementVertexData(const GeometryElement& element,
-										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
-								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void LoadAABBVertexData(Geometry& geometry,
-							   const Program& program,
-							   GLuint& glVBO, GLuint& glVAO);
-static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint& glTextureHandle);	
+static void BufferGeometryElementVertexData(const GeometryElement& element,
+											Program& program,
+											GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
+								   Program& program,
+								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void BufferAABBVertexData(Geometry& geometry,
+								 const Program& program,
+								 GLuint& glVBO, GLuint& glVAO);
+static void BufferLineSetVertexData(shared_ptr<Renderer::LineSet> lineSet,
+									GLuint& glVBO, GLuint& glVAO);
+static void BufferPointSetVertexData(shared_ptr<Renderer::PointSet> pointSet,
+									 GLuint& glVBO, GLuint& glVAO);
+static void BufferMaterialPropertyTexture(const MaterialProperty& property,
+										  GLuint& glTextureHandle);	
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
 								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
@@ -108,6 +120,8 @@ static void SetMaterialOpenGLState(const Material& material,
 								   const DEBUG_OPTIONS& debugOptions);
 static void SetSkyboxOpenGLState();
 static void SetAABBOpenGLState();
+static void SetPointSetGLState();
+static void SetLineSetGLState();
 static void DrawGeometryElement(GeometryElement& element,
 								Program& program,
 								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
@@ -121,12 +135,26 @@ static void DrawAABB(Geometry& geometry,
 					 mat4 viewMat,
 					 mat4 projectionMat,
 					 GLuint glVBO, GLuint glVAO);
+static void DrawLineSet(Renderer::LineSet& lineSet,
+						mat4 modelMat,
+						mat4 viewMat,
+						mat4 projectionMat,
+						GLuint glVBO, GLuint glVAO);
+static void DrawPointSet(Renderer::PointSet& pointSet,
+						 mat4 modelMat,
+						 mat4 viewMat,
+						 mat4 projectionMat,
+						 GLuint glVBO, GLuint glVAO);
 static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
 											OpenGLRenderer::GeometryElementGLMapping& glMapping);
 static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
 											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
 static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
 										 OpenGLRenderer::AABBGeometryGLMapping& glMapping);
+static void CleanupLineSetResources(set<shared_ptr<Renderer::LineSet>>& active,
+									OpenGLRenderer::LineSetGLMapping& glMapping);
+static void CleanupPointSetResources(set<shared_ptr<Renderer::PointSet>>& active,
+									 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 							   FONScontext* fonsContext, int fonsFont);
@@ -193,9 +221,13 @@ OpenGLRenderer::OpenGLRenderer():
 	m_geometryElementGLMapping(GeometryElementGLMapping()),
 	m_materialPropertyGLMapping(MaterialPropertyGLMapping()),
 	m_aabbGeometryGLMapping(AABBGeometryGLMapping()),
+	m_lineSetGLMapping(LineSetGLMapping()),
+	m_pointSetGLMapping(PointSetGLMapping()),
 	m_activeGeometryElements(set<shared_ptr<GeometryElement>>()),
 	m_activeMaterialProperties(set<shared_ptr<MaterialProperty>>()),
 	m_activeAABBGeometries(set<shared_ptr<Geometry>>()),
+	m_activeLineSets(set<shared_ptr<LineSet>>()),
+	m_activePointSets(set<shared_ptr<PointSet>>()),
 	m_glEnvironmentUBO(0),
 	m_fonsContext(nullptr),
 	m_fonsFont(-1) {
@@ -396,6 +428,20 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// save reference for housekeeping
 	m_activeGeometryElements.emplace(element);
 }
+	
+void OpenGLRenderer::render(std::shared_ptr<LineSet>,
+							const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat) {
+	
+}
+
+void OpenGLRenderer::render(std::shared_ptr<PointSet>,
+							const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat) {
+	
+}
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
@@ -493,7 +539,7 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		LoadGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
+		BufferGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 		
@@ -515,7 +561,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 	//
 	// NOTE: this is essentially exactly the same as GetGeometryElementGLVertexDataHandles()
-	// except if the data needs to be loaded, it uses LoadGeometryElementVertexData() as the
+	// except if the data needs to be loaded, it uses BufferGeometryElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
 	auto element = skyboxGeometry->elements().front();
@@ -523,7 +569,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		LoadSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 		
@@ -547,7 +593,7 @@ static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
 	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry->dirtyBits(),
 									 GEOMETRY_DIRTY_BITS::AABB)) {
 		
-		LoadAABBVertexData(*geometry, *Program::AABB(), glVBO, glVAO);
+		BufferAABBVertexData(*geometry, *Program::AABB(), glVBO, glVAO);
 
 		glMapping[geometry] = make_pair(glVBO, glVAO);
 		
@@ -559,6 +605,18 @@ static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 	}
+}
+	
+static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+										OpenGLRenderer::LineSetGLMapping& glMapping,
+										GLuint& glVBO, GLuint& glVAO) {
+	
+}
+
+static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+										 OpenGLRenderer::PointSetGLMapping& glMapping,
+										 GLuint& glVBO, GLuint& glVAO) {
+	
 }
 	
 static void GetMaterialGLTextureHandles(Material& material,
@@ -584,7 +642,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
 				
 				GLuint textureID = 0;
-				LoadMaterialPropertyTexture(*property, textureID);
+				BufferMaterialPropertyTexture(*property, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
 					
@@ -608,7 +666,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 	}
 }
 	
-static void LoadGeometryElementVertexData(const GeometryElement& element,
+static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
@@ -668,7 +726,7 @@ static void LoadGeometryElementVertexData(const GeometryElement& element,
 	//program.unuse();
 }
 
-static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
+static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
@@ -708,7 +766,7 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 	//program.unuse();
 }
 
-static void LoadAABBVertexData(Geometry& geometry,
+static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
@@ -765,7 +823,18 @@ static void LoadAABBVertexData(Geometry& geometry,
 	glEnableVertexAttribArray(positionIndex);
 }
 	
-static void LoadMaterialPropertyTexture(const MaterialProperty& property, GLuint& glTextureHandle) {
+static void BufferLineSetVertexData(shared_ptr<Renderer::LineSet> lineSet,
+									GLuint& glVBO, GLuint& glVAO) {
+	
+}
+
+static void BufferPointSetVertexData(shared_ptr<Renderer::PointSet> pointSet,
+									 GLuint& glVBO, GLuint& glVAO) {
+	
+}
+	
+static void BufferMaterialPropertyTexture(const MaterialProperty& property,
+										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
 		AE_LOG->info("Buffering cube texture...");
@@ -1206,6 +1275,14 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
+	
+static void SetPointSetGLState() {
+	
+}
+
+static void SetLineSetGLState() {
+	
+}
 
 static void DrawGeometryElement(GeometryElement& element,
 								Program& program,
@@ -1273,6 +1350,22 @@ static void DrawAABB(Geometry& geometry,
 	
 	glBindVertexArray(glVAO);
 	glDrawArrays(GL_LINES, 0, 24);
+}
+	
+static void DrawLineSet(Renderer::LineSet& lineSet,
+						mat4 modelMat,
+						mat4 viewMat,
+						mat4 projectionMat,
+						GLuint glVBO, GLuint glVAO) {
+	
+}
+
+static void DrawPointSet(Renderer::PointSet& pointSet,
+						 mat4 modelMat,
+						 mat4 viewMat,
+						 mat4 projectionMat,
+						 GLuint glVBO, GLuint glVAO) {
+	
 }
 	
 static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
@@ -1412,6 +1505,16 @@ static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
 															   GEOMETRY_DIRTY_BITS::ALL));
 		}
 	}
+}
+	
+static void CleanupLineSetResources(set<shared_ptr<Renderer::LineSet>>& active,
+									OpenGLRenderer::LineSetGLMapping& glMapping) {
+	
+}
+
+static void CleanupPointSetResources(set<shared_ptr<Renderer::PointSet>>& active,
+									 OpenGLRenderer::PointSetGLMapping& glMapping) {
+	
 }
 	
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {

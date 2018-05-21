@@ -147,9 +147,7 @@ namespace ae {
 							   const btTransform& transform,
 							   const btVector3& color) override;
 		 */
-		
-		//		virtual void flushLines() override;
-		
+
 		virtual void setDebugMode(int debugMode) override;
 		virtual int getDebugMode() const override;
 		
@@ -171,8 +169,7 @@ namespace ae {
 		
 		int							m_glLinesVBO;
 		int							m_glLinesVAO;
-		//std::vector<DebugLine>		m_lines;
-		std::vector<glm::vec3>		m_lines; // from, to, color
+		std::vector<glm::vec3>		m_lines; // from, from color, to, to color
 	};
 }
 

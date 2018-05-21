@@ -17,6 +17,13 @@ Tests:
 		Move PhysicsDebugDrawer drawLine() to Renderer/OpenGLRenderer (addLine?)
 			Add copy and assignment operators
 
+		Convert AABB to use "drawLine()"
+
+		Add width and diameter to Line/Point
+
+		Make Line & Point shaders use model matrixes?
+
+
 		Check/fill in PhysicsBody properties
 
 		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
@@ -24,6 +31,9 @@ Tests:
 			If geometry set on Node, check physics body/shape
 
 		Add physics stats!
+
+
+
 
 		Try margin 0 for static objects
 

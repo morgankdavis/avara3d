@@ -219,15 +219,15 @@ void Scene::draw(Renderer& renderer,
 	
 	auto renderContext = m_renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
-	
 	auto sortedNodes = m_rootNode->children(true);
+	
+	// update physics model and step
 	
 	if (m_physicsWorld) {
 		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
 		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
 								 shared_from_this(),
 								 debugOptions);
-		
 		for (auto& node: sortedNodes) {
 			physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
 									 node,
@@ -236,40 +236,46 @@ void Scene::draw(Renderer& renderer,
 		physicsSimulator->endUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
 		
 		physicsSimulator->step(m_renderContext.lock()->sceneTime());
-	}
-	
-	if (renderContext->didSimulatePhysicsCallback()) {
-		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		
+		if (renderContext->didSimulatePhysicsCallback()) {
+			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		}
 	}
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
+	if (m_physicsWorld) {
+		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
+	}
+	
 	for (auto& node: sortedNodes) {
 		
 		stats.nodes++;
 		
 #warning TEMPORARY before physics unroll
 		if (!node->physicsBody()) {
+			// update all non-physics nodes world transforms
 			node->updateWorldTransformForDraw();
 		}
-		
-		if (m_physicsWorld) {
-			// * temporary side effect *
-			// updates node's local transform to bt world transform
-			physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
-									 node,
-									 debugOptions);
-		}
-		
+
 		auto modelMat = node->worldTransform();
 		
 		auto geometry = node->geometry();
-		stats.geometries++;
 		if (geometry != nullptr) {
 			if (!node->hidden()) {
 				stats.geometries++;
+				
+				if (m_physicsWorld) {
+					// * temporary side effect *
+					// updates node's local transform from physics simulation
+					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+											 node,
+											 debugOptions);
+				}
+				
+				// render
+				
 				geometry->draw(renderer,
 							   modelMat, viewMat, projectionMat,
 							   debugOptions, stats);
@@ -278,106 +284,14 @@ void Scene::draw(Renderer& renderer,
 	}
 	
 	if (m_physicsWorld) {
-		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
-		
 		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
 		if (bulletSimulator) {
 			bulletSimulator->drawDebug(viewMat, projectionMat, debugOptions);
 		}
+		
+		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
 	}
 }
-
-
-
-
-
-//void Scene::draw(Renderer& renderer,
-//				 unsigned framebufferWidth,
-//				 unsigned framebufferHeight,
-//				 const Node& pointOfView,
-//				 const DEBUG_OPTIONS& debugOptions,
-//				 RenderStats& stats) {
-//
-//	renderer.render(*this, debugOptions, stats);
-//	
-//	auto renderContext = m_renderContext.lock();
-//	
-//	auto physicsSimulator = renderContext->physicsSimulator();
-//	
-//	if (m_physicsWorld) {
-//		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
-//								 *m_physicsWorld,
-//								 debugOptions);
-//	}
-//	
-//#warning TOPILOGICAL SORT THIS
-//	auto allNodes = m_rootNode->children(true);
-//	
-//	if (m_physicsWorld) {
-//		for (auto& node: allNodes) {
-//			auto geometry = node->geometry();
-//			if (geometry != nullptr) {
-//				auto physicsBody = node->physicsBody();
-//				if (physicsBody) {
-//					physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
-//											 *physicsBody,
-//											 debugOptions);
-//				}
-//			}
-//		}
-//		
-//		physicsSimulator->step(m_renderContext.lock()->sceneTime());
-//	}
-//	
-//	if (renderContext->didSimulatePhysicsCallback()) {
-//		(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
-//	}
-//	
-//	auto viewMat = pointOfView.worldTransform();
-//	auto projectionMat = pointOfView.camera()->projection();
-//	
-//	for (auto& node: allNodes) {
-//		
-//		stats.nodes++;
-//		
-//#warning move hidden check to renderer
-////		if (!node->hidden()) {
-//			auto geometry = node->geometry();
-//			if (geometry != nullptr) {
-//				
-//				stats.geometries++;
-//				
-//				auto modelMat = mat4(1.0);
-//				auto physicsBody = node->physicsBody();
-//				if (physicsBody) {
-//					
-//					// * temporary side effect *
-//					// updates node's local transform to bt world transform
-//					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
-//											 *physicsBody,
-//											 debugOptions);
-//					
-//					modelMat = node->transform();
-////					auto motionState = physicsBody->btMotionState();
-////					btTransform transform;
-////					motionState->getWorldTransform(transform);
-////					transform.getOpenGLMatrix(value_ptr(modelMat));
-//				}
-//				else {
-//					modelMat = node->worldTransform();
-//				}
-//
-//				geometry->draw(renderer,
-//							   modelMat, viewMat, projectionMat,
-//							   debugOptions, stats);
-//			}
-////		}
-//	}
-//	
-////	if (m_physicsWorld) {
-////		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
-////	}
-//}
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return m_skyboxGeometry;

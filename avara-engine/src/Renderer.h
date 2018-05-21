@@ -11,6 +11,7 @@
 
 
 #include <memory>
+#include <set>
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,9 @@ namespace ae {
 	class Geometry;
 	class GeometryElement;
 	class Image;
+	class Line;
 	class Material;
+	class Point;
 	class RenderContext;
 	class Scene;
 	
@@ -31,6 +34,16 @@ namespace ae {
 	class Renderer : public std::enable_shared_from_this<Renderer> {
 		
 	public:
+		
+		/**************************************************************************************
+		     Types
+		 **************************************************************************************/
+		
+		using LineSet = 
+			std::set<std::shared_ptr<Line>>;
+		
+		using PointSet = 
+			std::set<std::shared_ptr<Point>>;
 		
 		/***************************************************************************************
 		     Lifecycle
@@ -68,6 +81,14 @@ namespace ae {
 							const glm::mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats);
+		virtual void render(std::shared_ptr<LineSet>,
+							const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat);
+		virtual void render(std::shared_ptr<PointSet>,
+							const glm::mat4& modelMat,
+							const glm::mat4& viewMat,
+							const glm::mat4& projectionMat);
 		
 		virtual std::shared_ptr<Image> snapshot(const RenderContext& context) const;
 		
