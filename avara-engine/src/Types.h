@@ -14,15 +14,7 @@
 
 
 namespace ae {
-	
-	typedef unsigned GEOMETRY_ID;
-	typedef unsigned GEOMETRY_ELEMENT_ID;
-	typedef unsigned MATERIAL_ID;
-	typedef unsigned MATERIAL_PROPERTY_ID;
-	typedef unsigned PHYSICS_BODY_ID;
-	typedef unsigned PHYSICS_SHAPE_ID;
-	
-	
+
 	enum class LOG_LEVEL : unsigned {
 		TRACE =		0,
 		DEBUG =		1,
@@ -345,16 +337,6 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
-//	enum class PHYSICS_WORLD_DIRTY_BITS : unsigned {
-////		TIMESTEP = 				1 << 0,
-////		GRAVITY = 				1 << 1,
-//		ALL = 					UINT_MAX
-//	};
-//			
-//#define PHYSICS_WORLD_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-//#define PHYSICS_WORLD_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-//#define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
-
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
 		MODEL =					1 << 0,
 		TRANSFORM =				1 << 1,

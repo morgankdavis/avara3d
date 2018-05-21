@@ -12,6 +12,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 
 #include "PhysicsSimulator.h"
 
@@ -30,7 +31,11 @@ class btSequentialImpulseConstraintSolver;
 namespace ae {
 	
 	
+	class Node;
+	class PhysicsBody;
 	class PhysicsDebugDrawer;
+	class PhysicsShape;
+	class Scene;
 	
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
@@ -41,15 +46,15 @@ namespace ae {
 		     Types
 		 **************************************************************************************/
 		
-		/* <ae_ID : <rigidBody, motionState>> */
-		using PhysicsBodyIDMapping =
-			std::map<PHYSICS_BODY_ID, std::pair<std::shared_ptr<btRigidBody>, 
-												std::shared_ptr<btDefaultMotionState>>>;
+		/* <ae_obj : <bt_rigidBody, bt_motionState>> */
+		using PhysicsBodyBTMapping =
+			std::map<std::shared_ptr<PhysicsBody>, std::pair<std::shared_ptr<btRigidBody>, 
+												   			 std::shared_ptr<btDefaultMotionState>>>;
 		
-		/* <ae_ID : <collisionShape, childShapes>> */
-		using PhysicsShapeIDMapping =
-			std::map<PHYSICS_SHAPE_ID, std::pair<std::shared_ptr<btCollisionShape>,
-									   			 std::vector<std::shared_ptr<btCollisionShape>>>>;
+		/* <ae_obj : <bt_collisionShape, bt_childShapes>> */
+		using PhysicsShapeBTMapping =
+			std::map<std::shared_ptr<PhysicsShape>, std::pair<std::shared_ptr<btCollisionShape>,
+															  std::vector<std::shared_ptr<btCollisionShape>>>>;
 		
 		/***************************************************************************************
 		     Lifecycle
@@ -63,23 +68,21 @@ namespace ae {
 		virtual ~BulletPhysicsSimulator();
 		
 		/**************************************************************************************
-		     Public
-		 **************************************************************************************/
-		
-		/**************************************************************************************
-		     Internal
-		 **************************************************************************************/
-		
-		/**************************************************************************************
 		     Physics Simulator
 		 **************************************************************************************/
 		
+		void beginUpdate(PASS pass,
+						 const Scene& scene) override;
+		void endUpdate(PASS pass,
+					   const Scene& scene) override;
+
 		void update(PASS pass,
-					PhysicsWorld& physicsWorld,
+					std::shared_ptr<Scene> scene,
 					const DEBUG_OPTIONS& debugOptions) override;
 		void update(PASS pass,
-					PhysicsBody& physicsBody,
+					std::shared_ptr<Node> node,
 					const DEBUG_OPTIONS& debugOptions) override;
+		
 		void step(float time) override;
 		
 	private:
@@ -95,11 +98,11 @@ namespace ae {
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
 		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
 		
-		PhysicsBodyIDMapping									m_bodyIDMapping;
-		PHYSICS_BODY_ID											m_bodyIDCounter;
+		PhysicsBodyBTMapping									m_bodyBTMapping;
+		PhysicsShapeBTMapping									m_shapeBTMapping;
 		
-		PhysicsShapeIDMapping									m_shapeIDMapping;
-		PHYSICS_SHAPE_ID										m_shapeIDCounter;
+		std::set<std::shared_ptr<PhysicsBody>>					m_activeBodies;
+		std::set<std::shared_ptr<PhysicsShape>>					m_activeShapes;
 	};
 }
 

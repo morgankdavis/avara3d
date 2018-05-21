@@ -41,7 +41,6 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE typ
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
 	m_physicsBody({}),
-	m_simulationID(0),
 	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
 		m_sourceGeometry = geometry;
@@ -55,11 +54,14 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
 	m_transforms(vector<mat4>()),
 	m_physicsBody({}),
-	m_simulationID(0),
 	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
 		m_sourceNode = node;
 		m_type = type;
+}
+
+PhysicsShape::~PhysicsShape() {
+	AE_LOG->debug("Destroying PhysicsShape {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -101,14 +103,6 @@ weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
 void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
 	attachedToBody(body);
-}
-
-PHYSICS_SHAPE_ID PhysicsShape::simulationID() const {
-	return m_simulationID;
-}
-
-void PhysicsShape::simulationID(PHYSICS_SHAPE_ID simID) {
-	m_simulationID = simID;
 }
 
 PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {

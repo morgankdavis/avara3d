@@ -34,7 +34,6 @@ MaterialProperty::MaterialProperty():
 	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
 	m_magnificationFilter(FILTER_MODE::LINEAR),
 	m_maxAnisotropy(16),
-	m_renderID(0),
 	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
 }
@@ -46,7 +45,7 @@ MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents
 }
 
 MaterialProperty::~MaterialProperty() {
-
+	AE_LOG->debug("Destroying MaterialProperty {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -70,7 +69,7 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 //			m_replacedTextureIDs.emplace_back(m_textureID);
 //			m_textureID = 0;
 //		}
-		m_renderID = 0;
+		//m_renderID = 0;
 	}
 	
 	if (dynamic_pointer_cast<CubeImage>(contents)) {
@@ -78,7 +77,7 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 //			m_replacedTextureIDs.emplace_back(m_textureID);
 //			m_textureID = 0;
 //		}
-		m_renderID = 0;
+		//m_renderID = 0;
 	}
 	
 	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
@@ -162,14 +161,6 @@ void MaterialProperty::wrapR(WRAP_MODE mode) {
 /***************************************************************************************
      Internal
  ***************************************************************************************/
-
-MATERIAL_PROPERTY_ID MaterialProperty::renderID() const {
-	return m_renderID;
-}
-
-void MaterialProperty::renderID(MATERIAL_PROPERTY_ID id) {
-	m_renderID = id;
-}
 
 MATERIAL_PROPERTY_DIRTY_BITS MaterialProperty::dirtyBits() const {
 	return m_dirtyBits;

@@ -68,13 +68,7 @@ namespace ae {
 		
 		MATERIAL_PROPERTY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
-		
-		MATERIAL_PROPERTY_ID renderID() const;
-		void renderID(MATERIAL_PROPERTY_ID id);
-		
-		std::vector<MATERIAL_PROPERTY_ID> replacedTextureIDs() const;
-		void replacedTextureIDs(std::vector<MATERIAL_PROPERTY_ID> textureIDs);
-		
+
 	private:
 		
 		/***************************************************************************************
@@ -90,8 +84,6 @@ namespace ae {
 		WRAP_MODE												m_wrapT;
 		WRAP_MODE												m_wrapR;
 
-		MATERIAL_PROPERTY_ID									m_renderID;
-		
 		MATERIAL_PROPERTY_DIRTY_BITS							m_dirtyBits;
 	};
 }

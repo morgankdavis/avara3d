@@ -23,6 +23,12 @@ struct FONScontext;
 
 namespace ae {
 	
+	
+	class Geometry;
+	class GeometryElement;
+	class MaterialProperty;
+	
+	
 	class OpenGLRenderer : public Renderer {
 		
 	public:
@@ -31,20 +37,20 @@ namespace ae {
 		     Types
 		 **************************************************************************************/
 		
-		/* <ae_ID : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
-		using GeometryElementIDMapping =
-			std::map<GEOMETRY_ELEMENT_ID, std::tuple<unsigned,
-													 unsigned,
-													 unsigned>>;
+		/* <ae_obj : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		using GeometryElementGLMapping =
+			std::map<std::shared_ptr<GeometryElement>, std::tuple<unsigned,
+																  unsigned,
+																  unsigned>>;
 		
-		/* <ae_ID : <gl_textureHandle> */
-		using MaterialPropertyIDMapping =
-			std::map<MATERIAL_PROPERTY_ID, unsigned>;
+		/* <ae_obj : <gl_textureHandle> */
+		using MaterialPropertyGLMapping =
+			std::map<std::shared_ptr<MaterialProperty>, unsigned>;
 
-		/* <ae_ID : <gl_vboHandle, gl_vaoHandle>> */
-		using AABBGeometryIDMapping =
-			std::map<GEOMETRY_ID, std::pair<unsigned,
-											unsigned>>;
+		/* <ae_obj : <gl_vboHandle, gl_vaoHandle>> */
+		using AABBGeometryGLMapping =
+			std::map<std::shared_ptr<Geometry>, std::pair<unsigned,
+														  unsigned>>;
 
 		/***************************************************************************************
 		     Lifecycle
@@ -66,16 +72,16 @@ namespace ae {
 		void beginFrame(const RenderContext& context) override;
 		void endFrame(const RenderContext& context) override;
 		
-		void render(Scene& scene,
+		void render(std::shared_ptr<Scene> scene,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) override;
-		void render(Geometry& geometry,
+		void render(std::shared_ptr<Geometry> geometry,
 					const glm::mat4& modelMat,
 					const glm::mat4& viewMat,
 					const glm::mat4& projectionMat,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) override;
-		void render(GeometryElement& element,
+		void render(std::shared_ptr<GeometryElement> element,
 					Material& material,
 					const glm::mat4& modelMat,
 					const glm::mat4& viewMat,
@@ -91,23 +97,18 @@ namespace ae {
 		     Private
 		 **************************************************************************************/
 
-		GeometryElementIDMapping 				m_elementIDMapping;
-		GEOMETRY_ELEMENT_ID 					m_elementIDCounter;
+		GeometryElementGLMapping 					m_geometryElementGLMapping;
+		MaterialPropertyGLMapping					m_materialPropertyGLMapping;
+		AABBGeometryGLMapping						m_aabbGeometryGLMapping;
 		
-		MaterialPropertyIDMapping				m_materialPropertyIDMapping;
-		MATERIAL_PROPERTY_ID 					m_materialPropertyIDCounter;
-
-		AABBGeometryIDMapping					m_geometryAABBIDMapping;
-		GEOMETRY_ID 							m_geometryAABBIDCounter;
+		unsigned									m_glEnvironmentUBO;
 		
-		unsigned								m_glEnvironmentUBO;
+		std::set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
+		std::set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
+		std::set<std::shared_ptr<Geometry>>			m_activeAABBGeometries;
 		
-		std::set<GEOMETRY_ELEMENT_ID>			m_activeElementIDs;
-		std::set<MATERIAL_PROPERTY_ID>			m_activeMaterialPropertyIDs;
-		std::set<GEOMETRY_ID>					m_activeGeometryAABBIDs;
-		
-		FONScontext* 							m_fonsContext;
-		int										m_fonsFont;
+		FONScontext* 								m_fonsContext;
+		int											m_fonsFont;
 	};
 }
 

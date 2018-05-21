@@ -26,7 +26,7 @@ namespace ae {
 	class Renderer;
 	
 
-	class GeometryElement {
+	class GeometryElement : public std::enable_shared_from_this<GeometryElement> {
 		
 	public:
 		
@@ -54,10 +54,7 @@ namespace ae {
 
 		const std::vector<Vertex>& vertices() const;
 		const std::vector<Face>& faces() const;
-		
-		GEOMETRY_ELEMENT_ID renderID() const;
-		void renderID(GEOMETRY_ELEMENT_ID id);
-		
+
 		GEOMETRY_ELEMENT_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
 		
@@ -70,8 +67,6 @@ namespace ae {
 		std::vector<Vertex>						m_vertices;
 		std::vector<Face>						m_faces;
 
-		GEOMETRY_ELEMENT_ID						m_renderID;
-		
 		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
 	};
 }

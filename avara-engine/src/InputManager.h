@@ -10,7 +10,7 @@
 #define InputManager_h
 
 
-//#include <memory>
+#include <memory>
 #include <set>
 
 #include <glm/vec2.hpp>

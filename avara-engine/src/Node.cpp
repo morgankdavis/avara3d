@@ -23,6 +23,7 @@
 #include "Exception.h"
 #include "Geometry.h"
 #include "Light.h"
+#include "Logger.h"
 #include "PhysicsBody.h"
 #include "Scene.h"
 #include "Utilities.h"
@@ -84,6 +85,10 @@ Node::Node(const string& name):
 	Node() {
 
 		m_name = name;
+}
+
+Node::~Node() {
+	AE_LOG->debug("Destroying Node {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -471,6 +476,12 @@ mat4 Node::worldTransform() {
 	}
 	
 	return m_worldTransform;
+}
+
+#warning TEMPORARY before physics unroll
+void Node::worldTransform(mat4 transform) {
+	m_worldTransform = transform;
+	m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {

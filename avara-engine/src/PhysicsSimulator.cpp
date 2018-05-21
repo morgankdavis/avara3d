@@ -8,12 +8,10 @@
 
 #include "PhysicsSimulator.h"
 
-#include "Geometry.h"
-#include "Scene.h"
-
 
 using namespace ae;
 using namespace glm;
+using namespace std;
 
 
 /***************************************************************************************
@@ -35,14 +33,24 @@ PhysicsSimulator::~PhysicsSimulator() {
      Internal
  **************************************************************************************/
 
+void PhysicsSimulator::beginUpdate(PASS pass,
+								   const Scene& scene) {
+	
+}
+
+void PhysicsSimulator::endUpdate(PASS pass,
+								 const Scene& scene) {
+	
+}
+
 void PhysicsSimulator::update(PASS pass,
-							  PhysicsWorld& physicsWorld,
+							  shared_ptr<Scene> scene,
 							  const DEBUG_OPTIONS& debugOptions) {
 	
 }
 
 void PhysicsSimulator::update(PASS pass,
-							  PhysicsBody& physicsBody,
+							  shared_ptr<Node> node,
 							  const DEBUG_OPTIONS& debugOptions) {
 	
 }

@@ -34,7 +34,6 @@ Geometry::Geometry():
 	m_elements(vector<shared_ptr<GeometryElement>>()),
 	m_materials(vector<shared_ptr<Material>>()),
 	m_node({}),
-	m_renderID(0),
 	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
@@ -56,7 +55,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 }
 
 Geometry::~Geometry() {
-
+	AE_LOG->debug("Destroying Geometry {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -138,10 +137,10 @@ void Geometry::draw(Renderer& renderer,
 	
 	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::AABB);
-		m_renderID = 0;
+		//m_renderID = 0;
 	}
 	
-	renderer.render(*this,
+	renderer.render(shared_from_this(),
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
 
@@ -219,14 +218,6 @@ void Geometry::attachedToNode(shared_ptr<Node> node) {
 
 weak_ptr<Node> Geometry::node() const {
 	return m_node;
-}
-
-GEOMETRY_ID Geometry::renderID() const {
-	return m_renderID;
-}
-
-void Geometry::renderID(GEOMETRY_ID id) {
-	m_renderID = id;
 }
 
 GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {

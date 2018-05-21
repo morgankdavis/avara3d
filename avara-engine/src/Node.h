@@ -51,6 +51,7 @@ namespace ae {
 		
 		Node();
 		Node(const std::string& name);
+		~Node();
 
 		/***************************************************************************************
      		Public
@@ -109,6 +110,8 @@ namespace ae {
 		glm::vec3 worldRight();
 		
 		glm::mat4 worldTransform();
+#warning TEMPORARY before physics unroll
+		void worldTransform(glm::mat4 transform);
 		
 		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void addChild(std::shared_ptr<Node> node);

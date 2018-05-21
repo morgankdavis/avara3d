@@ -14,37 +14,7 @@ Tests:
 	30 - rigidbodies
 
 
-		Framerate rolling average
-
-		bindUniformBlock ... should this be a dirty bit?
-
-
-		Add back-pointers to OGLRenderer & BTSimulator resource management
-		Remove wireframe resource work-around
-
-
-		Do something about PhysicsBody::shape()
-
-		Remove remaining header includes where struct forward declarations will work
-
-		move Node::hidden() check to Renderer
-
-
-			
-		Set something (node->geometry, scene->background)
-			-> if there's an old one, call "detached..." to set its dirty bits
-			(ex: remove scene's cube background property, re-add it, it thinks it still has good texture data)
-
-		RenderContext should own "Stats" object
-			Create at each frame, pass around. frameStartTime, frameEndTime
-
-
-		Types_Internal.h ?
-		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
-		
-
-		Refactor PhysicsDebugDrawer
-
+		Restore/refactor? PhysicsDebugDrawer
 
 		Try margin 0 for static objects
 
@@ -60,6 +30,28 @@ Tests:
 
 		friction -> rollingFriction?
 		damping -> linearDamping?
+
+
+
+		Test GENERATOR_USE_GLM
+
+
+		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
+			If Body assatched to node, check geometry
+			If geometry set on Node, check physics body/shape
+
+
+		Remove remaining header includes where struct forward declarations will work
+
+		move Node::hidden() check to Renderer
+
+
+		RenderContext should own "Stats" object
+			Create at each frame, pass around. frameStartTime, frameEndTime
+
+
+		Types_Internal.h ?
+		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
@@ -105,6 +97,7 @@ Tests:
 
 	31 - contact
 	32 - utilities (ray cast, sweep, etc)
+		test applyForce() and applyTorque() with raycasting
 	33 - categories
 		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
 	34 - ik-constraints

@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+#include "Logger.h"
 #include "Renderer.h"
 #include "Types.h"
 
@@ -27,13 +28,12 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 								 std::vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
-	m_renderID(0),
 	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
 
 }
 
 GeometryElement::~GeometryElement() {
-
+	AE_LOG->debug("Destroying GeometryElement {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -48,7 +48,7 @@ void GeometryElement::draw(Renderer& renderer,
 						   const DEBUG_OPTIONS& debugOptions,
 						   RenderStats& stats) {
 	
-	renderer.render(*this,
+	renderer.render(shared_from_this(),
 					material,
 					modelMat, viewMat, projectionMat,
 					debugOptions,
@@ -79,14 +79,6 @@ const vector<Vertex>& GeometryElement::vertices() const {
 
 const vector<Face>& GeometryElement::faces() const {
 	return m_faces;
-}
-
-GEOMETRY_ELEMENT_ID GeometryElement::renderID() const {
-	return m_renderID;
-}
-
-void GeometryElement::renderID(GEOMETRY_ELEMENT_ID id) {
-	m_renderID = id;
 }
 
 GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {

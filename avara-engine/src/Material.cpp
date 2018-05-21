@@ -53,7 +53,6 @@ Material::Material():
 	m_doubleSided(false),
 	m_fillMode(FILL_MODE::FILL),
 	m_uvScale(1.0f),
-	m_renderID(0),
 	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
 }
@@ -78,6 +77,10 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 		m_diffuse = diffuse;
 		m_specular = specular;
 		m_emissive = emissive;
+}
+
+Material::~Material() {
+	AE_LOG->debug("Destroying Material {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -177,14 +180,6 @@ void Material::uvScale(float scale) {
 /***************************************************************************************
      Internal
  ***************************************************************************************/
-
-MATERIAL_ID Material::renderID() const {
-	return m_renderID;
-}
-
-void Material::renderID(MATERIAL_ID id) {
-	m_renderID = id;
-}
 
 MATERIAL_DIRTY_BITS Material::dirtyBits() const {
 	return m_dirtyBits;

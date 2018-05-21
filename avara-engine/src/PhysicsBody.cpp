@@ -62,7 +62,6 @@ PhysicsBody::PhysicsBody():
 	m_resting(false),
 	m_allowsResting(true),
 	m_node({}),
-	m_simulationID(0),
 	m_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 	
 }
@@ -78,6 +77,10 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape)
 		
 		this->type(type);
 		this->shape(shape);
+}
+
+PhysicsBody::~PhysicsBody() {
+	AE_LOG->debug("Destroying PhysicsBody {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -289,14 +292,6 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 
 weak_ptr<Node> PhysicsBody::node() const {
 	return m_node;
-}
-
-PHYSICS_BODY_ID PhysicsBody::simulationID() const {
-	return m_simulationID;
-}
-
-void PhysicsBody::simulationID(PHYSICS_BODY_ID simID) {
-	m_simulationID = simID;
 }
 
 PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {

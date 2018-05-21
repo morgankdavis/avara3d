@@ -108,6 +108,8 @@ int Test::run(const vector<string>& args) {
 	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChild(siameseNode);
+	siameseScene = nullptr;
+	siameseNode = nullptr;
 
 	auto islandScene = TestSceneNamed("Island", "obj");
 	auto islandNode = islandScene->rootNode()->children(true)[0];
@@ -294,6 +296,13 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	if (keysPressed.count(KEY::SLASH)) {
 		m_window->captureCursor(!(m_window->cursorCaptured()));
+	}
+	
+	if (keysPressed.count(KEY::U)) {
+		m_siameseNode->removeFromParent();
+	}
+	if (keysPressed.count(KEY::O)) {
+		m_siameseNode = nullptr;
 	}
 	
 //	if (keysPressed.count(Key_M)) {

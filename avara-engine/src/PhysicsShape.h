@@ -35,6 +35,7 @@ namespace ae {
 		
 		PhysicsShape(std::shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type);
 		PhysicsShape(std::shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type);
+		~PhysicsShape();
 		
 		/***************************************************************************************
 		     Public
@@ -57,9 +58,6 @@ namespace ae {
 		std::weak_ptr<PhysicsBody> physicsBody() const;
 		void physicsBody(std::shared_ptr<PhysicsBody> body);
 
-		PHYSICS_SHAPE_ID simulationID() const;
-		void simulationID(PHYSICS_SHAPE_ID simID);
-		
 		PHYSICS_SHAPE_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
 		
@@ -78,7 +76,6 @@ namespace ae {
 
 		std::weak_ptr<PhysicsBody>						m_physicsBody;
 		
-		PHYSICS_SHAPE_ID 								m_simulationID;
 		PHYSICS_SHAPE_DIRTY_BITS 						m_dirtyBits;
 	};
 }

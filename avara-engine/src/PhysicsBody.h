@@ -43,6 +43,7 @@ namespace ae {
 		PhysicsBody();
 		PhysicsBody(PHYSICS_BODY_TYPE type);
 		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
+		~PhysicsBody();
 		
 		/***************************************************************************************
 		     Public
@@ -124,9 +125,6 @@ namespace ae {
 		
 		std::weak_ptr<Node> node() const;
 		
-		PHYSICS_BODY_ID simulationID() const;
-		void simulationID(PHYSICS_BODY_ID simID);
-		
 		PHYSICS_BODY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
 		
@@ -157,8 +155,7 @@ namespace ae {
 		bool 									m_resting;
 		
 		std::weak_ptr<Node>						m_node;
-		
-		PHYSICS_BODY_ID 						m_simulationID;
+
 		PHYSICS_BODY_DIRTY_BITS 				m_dirtyBits;
 	};
 }

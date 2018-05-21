@@ -184,17 +184,7 @@ void Window::update() {
 	pov->camera()->aspectRatio(aspectRatio);
 	
 	m_renderer->renderStats().cameraPosition = pov->position();
-	
-//	// simulate physics
-////	auto physicsWorld = m_scene->physicsWorld();
-////	if (physicsWorld) {
-////		physicsWorld->step();
-////		
-//		if (didSimulatePhysicsCallback()) {
-//			didSimulatePhysicsCallback()(*this, sceneTime());
-//		}
-////	}
-	
+
 	if (willRenderCallback()) {
 		(willRenderCallback())(*this, sceneTime());
 	}
@@ -215,10 +205,7 @@ void Window::update() {
 	}
 	
 	glfwPollEvents();
-	//	if (inputManager()) {
-	//		static_pointer_cast<WindowInputManager>(inputManager())->update();
-	//	}
-	
+
 	if (m_inputManager) {
 		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
 	}

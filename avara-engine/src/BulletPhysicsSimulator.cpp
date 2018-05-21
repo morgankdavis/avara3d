@@ -39,28 +39,31 @@ using namespace std;
      Static Prototypes
  **************************************************************************************/
 
-void GetPhysicsBodyBTModels(PhysicsBody& body,
-							btRigidBody** btBody,
-							btDefaultMotionState** btMotionState,
-							btCollisionShape** btShape,
-							vector<btCollisionShape*>& btShapes,
+void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
+							shared_ptr<btRigidBody>* btBody,
+							shared_ptr<btDefaultMotionState>* btMotionState,
+							shared_ptr<btCollisionShape>* btShape,
+							vector<shared_ptr<btCollisionShape>>& btShapes,
 							btDiscreteDynamicsWorld& btWorld,
-							BulletPhysicsSimulator::PhysicsBodyIDMapping& bodyIDMapping,
-							PHYSICS_BODY_ID& bodyIDCounter,
-							BulletPhysicsSimulator::PhysicsShapeIDMapping& shapeIDMapping,
-							PHYSICS_SHAPE_ID& shapeIDCounter);
-void GetPhysicsShapeBTModels(PhysicsShape& shape,
-							 btCollisionShape** btShape,
-							 vector<btCollisionShape*>& btShapes,
+							BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
+							BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping);
+void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
+							 shared_ptr<btCollisionShape>* btShape,
+							 vector<shared_ptr<btCollisionShape>>& btShapes,
 							 btDiscreteDynamicsWorld& btWorld,
-							 BulletPhysicsSimulator::PhysicsShapeIDMapping& idMapping,
-							 PHYSICS_SHAPE_ID& idCounter,
+							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
 							 bool& wasDirty);
-shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-														  PHYSICS_SHAPE_TYPE type);
-shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PHYSICS_SHAPE_TYPE type,
-													vector<shared_ptr<btCollisionShape>>& childShapes);
+static void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
+										BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping,
+										btDiscreteDynamicsWorld& btWorld);
+static void CleanupPhysicsShapeResources(set<shared_ptr<PhysicsShape>>& active,
+										 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
+										 btDiscreteDynamicsWorld& btWorld);
+static shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
+																 PHYSICS_SHAPE_TYPE type);
+static shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
+														   PHYSICS_SHAPE_TYPE type,
+														   vector<shared_ptr<btCollisionShape>>& childShapes);
 static btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option);
 static vec3 GLMVec3FromBTVector3(const btVector3& from);
 static vec4 GLMVec4FromBTVector4(const btVector4& from);
@@ -81,105 +84,128 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 												   m_btBroadphase.get(),
 												   m_btSolver.get(),
 												   m_btCollisionConfiguration.get())),
-	m_bodyIDMapping(PhysicsBodyIDMapping()),
-	m_bodyIDCounter(0),
-	m_shapeIDMapping(PhysicsShapeIDMapping()),
-	m_shapeIDCounter(0) {
+	m_bodyBTMapping(PhysicsBodyBTMapping()),
+	m_shapeBTMapping(PhysicsShapeBTMapping()),
+	m_activeBodies(set<shared_ptr<PhysicsBody>>()),
+	m_activeShapes(set<shared_ptr<PhysicsShape>>()) {
 
-							   
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
-		
-		m_btCollisionConfiguration = make_shared<btDefaultCollisionConfiguration>();
-		m_btDispatcher = make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get());
-		m_btBroadphase = make_shared<btDbvtBroadphase>();
-		m_btSolver = make_shared<btSequentialImpulseConstraintSolver>();
-		m_btWorld = make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
-														 m_btBroadphase.get(),
-														 m_btSolver.get(),
-														 m_btCollisionConfiguration.get());
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
+	AE_LOG->debug("Destroying BulletPhysicsSimulator {:p}", (void*)this);
 	
+	m_activeBodies.clear();
+	m_activeShapes.clear();
+	
+	CleanupPhysicsBodyResources(m_activeBodies, m_bodyBTMapping, *m_btWorld);
+	CleanupPhysicsShapeResources(m_activeShapes, m_shapeBTMapping, *m_btWorld);
 }
 
 /**************************************************************************************
      Physics Simulator
  **************************************************************************************/
 
+void BulletPhysicsSimulator::beginUpdate(PASS pass,
+										 const Scene& scene) {
+	PhysicsSimulator::beginUpdate(pass, scene);
+	
+	if (pass == PASS::UPDATE_MODEL) {
+		m_activeBodies.clear();
+		m_activeShapes.clear();
+	}
+}
+
+void BulletPhysicsSimulator::endUpdate(PASS pass,
+									   const Scene& scene) {
+	PhysicsSimulator::endUpdate(pass, scene);
+	
+	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
+	if (pass == PASS::UPDATE_MODEL) {
+		CleanupPhysicsBodyResources(m_activeBodies, m_bodyBTMapping, *m_btWorld);
+		CleanupPhysicsShapeResources(m_activeShapes, m_shapeBTMapping, *m_btWorld);
+	}
+}
+
 void BulletPhysicsSimulator::update(PASS pass,
-									PhysicsWorld& world,
+									shared_ptr<Scene> scene,
 									const DEBUG_OPTIONS& debugOptions) {
 
 	if (pass == BulletPhysicsSimulator::PASS::UPDATE_MODEL) {
-		m_btWorld->setGravity(BTVector3FromGLMVec3(world.gravity()));
-		m_timestep = world.timestep();
+		auto world = scene->physicsWorld();
+		m_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
+		m_timestep = world->timestep();
 	}
 }
 
 void BulletPhysicsSimulator::update(PASS pass, 
-									PhysicsBody& body,
+									shared_ptr<Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
 	
-	// creates and updates bullet models as needed
-	// for PASS::UPDATE_MODEL this checks everything gets ready for the simulation step
-	// for PASS::SYNC_GRAPH, it simple gets the handles for the BT models we're driving our graph from
-	
+	auto body = node->physicsBody();
+	if (body) {
+		
+		// creates and updates bullet models as needed
+		// for PASS::UPDATE_MODEL this checks everything gets ready for the simulation step
+		// for PASS::SYNC_GRAPH, it simple gets the handles for the BT models we're driving our graph from
+		
 #warning TEMPORARY
-	// quick cheat to get this working
-	
-	if (!body.shape()) {
+		// quick cheat to get this working
 		
-		auto geometry = body.node().lock()->geometry();
-		if (geometry) {
-			auto shape = make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-			body.shape(shape);
+		if (!body->shape()) {
+			
+			auto geometry = body->node().lock()->geometry();
+			if (geometry) {
+				auto shape = make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+				body->shape(shape);
+			}
 		}
-	}
+		
+		//AE_LOG->debug("update()");
+		
+		if (body->shape()) {
+			
+			shared_ptr<btRigidBody> btBody = nullptr;
+			shared_ptr<btDefaultMotionState> btMotionState = nullptr;
+			shared_ptr<btCollisionShape> btShape = nullptr;
+			auto btShapes = vector<shared_ptr<btCollisionShape>>();
+			
+			GetPhysicsBodyBTModels(body,
+								   &btBody, &btMotionState, &btShape, btShapes,
+								   *m_btWorld,
+								   m_bodyBTMapping,
+								   m_shapeBTMapping);
+			
+			// if the body isn't complete (doesn't have a source geometry or source node?)
+			// we can't make a BT model for it
 
-	
-	
-	if (body.shape()) {
-		
-		btRigidBody* btBody = nullptr;
-		btDefaultMotionState* btMotionState = nullptr;
-		btCollisionShape* btShape = nullptr;
-		auto btShapes = vector<btCollisionShape*>();
-		
-		GetPhysicsBodyBTModels(body,
-							   &btBody, &btMotionState, &btShape, btShapes,
-							   *(m_btWorld.get()),
-							   m_bodyIDMapping, m_bodyIDCounter,
-							   m_shapeIDMapping, m_shapeIDCounter);
-		
-		// if the body isn't complete (doesn't have a source geometry or source node?)
-		// we can't make a BT model for it
-		if (btBody) {
-
-			if (pass == BulletPhysicsSimulator::PASS::SYNC_GRAPH) {
+			if (pass == PASS::SYNC_GRAPH && btBody) {
 				
 				auto modelMat = mat4(1.0);
 				btTransform transform;
 				btMotionState->getWorldTransform(transform);
-
-				transform.getOpenGLMatrix(value_ptr(modelMat));
 				
+				transform.getOpenGLMatrix(value_ptr(modelMat));
+
 #warning WILL DECOMPOSE IN FUTURE
-				auto node = body.node().lock();
 				// this is a specuial case for now
 				// if a node has a physics body, its local transform (actually a physics world transform)
 				// will be used as its worldMatrix
-				node->transform(modelMat);
+				node->worldTransform(modelMat);
 			}
+			
+			// save reference for housekeeping
+			m_activeShapes.emplace(body->shape());
 		}
+		
+		// save reference for housekeeping
+		m_activeBodies.emplace(body);
 	}
 }
 
 void BulletPhysicsSimulator::step(float time) {
 	AE_LOG->trace("step()");
 	
-	//float time = glfwGetTime();
-	//float time = m_scene.lock()->renderContext().lock()->sceneTime();
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
@@ -197,164 +223,238 @@ void BulletPhysicsSimulator::step(float time) {
      Static
  **************************************************************************************/
 
-void GetPhysicsBodyBTModels(PhysicsBody& body,
-							btRigidBody** btBody,
-							btDefaultMotionState** btMotionState,
-							btCollisionShape** btShape,
-							vector<btCollisionShape*>& btShapes,
+void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
+							shared_ptr<btRigidBody>* btBody,
+							shared_ptr<btDefaultMotionState>* btMotionState,
+							shared_ptr<btCollisionShape>* btShape,
+							vector<shared_ptr<btCollisionShape>>& btShapes,
 							btDiscreteDynamicsWorld& btWorld,
-							BulletPhysicsSimulator::PhysicsBodyIDMapping& bodyIDMapping,
-							PHYSICS_BODY_ID& bodyIDCounter,
-							BulletPhysicsSimulator::PhysicsShapeIDMapping& shapeIDMapping,
-							PHYSICS_SHAPE_ID& shapeIDCounter) {
+							BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
+							BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping) {
 	
 	bool shapeWasDirty = false;
 	
-	GetPhysicsShapeBTModels(*body.shape(),
+	GetPhysicsShapeBTModels(body->shape(),
 							btShape, btShapes,
 							btWorld,
-							shapeIDMapping, shapeIDCounter,
+							shapeBTMapping, //shapeIDCounter,
 							shapeWasDirty);
 
-	auto node = body.node().lock();
-	auto type = body.type();
+	auto node = body->node().lock();
+	auto type = body->type();
 	
 	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
 	// we also re-create the body
 	
-	if (shapeWasDirty || PHYSICS_BODY_DIRTY_BITS_CONTAINS(body.dirtyBits(),
+	if (shapeWasDirty || PHYSICS_BODY_DIRTY_BITS_CONTAINS(body->dirtyBits(),
 														  PHYSICS_BODY_DIRTY_BITS::MODEL)) {
 		
 		AE_LOG->info("Creating rigid body for physics body {:p}...", (void*)&body);
-		
 
 		btTransform transform;
 		transform.setFromOpenGLMatrix(value_ptr(node->worldTransform()));
-		auto motionState_shared = make_shared<btDefaultMotionState>(transform);
+		auto newMotionState = make_shared<btDefaultMotionState>(transform);
 		
-		
-		
-		btCollisionShape* collisionShape = *btShape;
+		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 		
 		btVector3 localInertia(0, 0, 0);
-		auto mass = body.mass();
+		auto mass = body->mass();
 		if (mass != 0) {
 			collisionShape->calculateLocalInertia(mass, localInertia);
 		}
 		
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
-															   motionState_shared.get(),
-															   collisionShape,
+															   newMotionState.get(),
+															   collisionShape.get(),
 															   localInertia);
 		
 		// √ velocity factor
 		// √ angular velocity factor
 		// afected by gravity
-		rigidBodyInfo.m_mass = body.mass();
+		rigidBodyInfo.m_mass = body->mass();
 		// charge
-		rigidBodyInfo.m_friction = body.friction();
-		rigidBodyInfo.m_rollingFriction = body.rollingFriction();
-		rigidBodyInfo.m_restitution = body.restitution();
-		rigidBodyInfo.m_linearDamping = body.damping();
-		rigidBodyInfo.m_angularDamping = body.angularDamping();
+		rigidBodyInfo.m_friction = body->friction();
+		rigidBodyInfo.m_rollingFriction = body->rollingFriction();
+		rigidBodyInfo.m_restitution = body->restitution();
+		rigidBodyInfo.m_linearDamping = body->damping();
+		rigidBodyInfo.m_angularDamping = body->angularDamping();
 		// moment of inertia
 		// √ velocity
 		// √ angular velocity
 		// resting
 		// allows resting
 		
-
+		auto newBody = make_shared<btRigidBody>(rigidBodyInfo);
 		
-		shared_ptr<btRigidBody> body_shared = make_shared<btRigidBody>(rigidBodyInfo);
+		newBody->setLinearFactor(BTVector3FromGLMVec3(body->velocityFactor()));
+		newBody->setAngularFactor(BTVector3FromGLMVec3(body->angularVelocityFactor()));
+		newBody->setLinearVelocity(BTVector3FromGLMVec3(body->velocity()));
+		newBody->setAngularVelocity(BTVector3FromGLMVec3(body->angularVelocity()));
+		//newBody->setGravity()
 		
-		body_shared->setLinearFactor(BTVector3FromGLMVec3(body.velocityFactor()));
-		body_shared->setAngularFactor(BTVector3FromGLMVec3(body.angularVelocityFactor()));
-		body_shared->setLinearVelocity(BTVector3FromGLMVec3(body.velocity()));
-		body_shared->setAngularVelocity(BTVector3FromGLMVec3(body.angularVelocity()));
-		//body_shared->setGravity()
-		
-		btWorld.addRigidBody(body_shared.get());
+		btWorld.addRigidBody(newBody.get());
 		
 		// out parameters
-		*btBody = body_shared.get();
-		*btMotionState = motionState_shared.get();
+		*btBody = newBody;
+		*btMotionState = newMotionState;
 		
-		bodyIDMapping[++bodyIDCounter] = make_pair(body_shared, motionState_shared);
-		body.simulationID(bodyIDCounter);
+		bodyBTMapping[body] = make_pair(newBody, newMotionState);
 		
-		body.dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body.dirtyBits(),
-													  PHYSICS_BODY_DIRTY_BITS::MODEL));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::MODEL));
 	}
 	else {
-		*btBody = (get<0>(bodyIDMapping[body.simulationID()])).get();
-		*btMotionState = (get<1>(bodyIDMapping[body.simulationID()])).get();
+		auto mapping = bodyBTMapping[body];
+		*btBody = get<0>(mapping);
+		*btMotionState = get<1>(mapping);
 	}
 }
 
-void GetPhysicsShapeBTModels(PhysicsShape& shape,
-							 btCollisionShape** btShape,
-							 vector<btCollisionShape*>& btShapes,
+void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
+							 shared_ptr<btCollisionShape>* btShape,
+							 vector<shared_ptr<btCollisionShape>>& btShapes,
 							 btDiscreteDynamicsWorld& btWorld,
-							 BulletPhysicsSimulator::PhysicsShapeIDMapping& idMapping,
-							 PHYSICS_SHAPE_ID& idCounter,
+							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
 							 bool& wasDirty) {
 
-	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape.dirtyBits(),
+	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
 										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
 		
-		if (auto sourceGeometry = shape.sourceGeometry().lock()) {
+		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
 
-			auto shape_shared = BTCollisionShapeFromGeometry(sourceGeometry, shape.type());
-			
-			
-			*btShape = shape_shared.get();
-
-			idMapping[++idCounter] = make_pair(shape_shared, vector<std::shared_ptr<btCollisionShape>>());
-			shape.simulationID(idCounter);
-		}
-		else if (auto sourceNode = shape.sourceNode().lock()) {
-
-			auto childShapes = vector<shared_ptr<btCollisionShape>>();
-			
-			
-//			shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-//																PHYSICS_SHAPE_TYPE type,
-//																vector<shared_ptr<btCollisionShape>>& childShapes) {
-			
-			
-			auto shape_shared = BTCompoundShapeFromNode(sourceNode, shape.type(), childShapes);
+			auto newShape = BTCollisionShapeFromGeometry(sourceGeometry, shape->type());
 			
 			// out parameters
-			*btShape = shape_shared.get();
-			for (auto& s : childShapes) {
-				btShapes.emplace_back(s.get());
+			*btShape = newShape;
+
+			btMapping[shape] = make_pair(newShape, vector<std::shared_ptr<btCollisionShape>>());
+		}
+		else if (auto sourceNode = shape->sourceNode().lock()) {
+
+			auto newChildShapes = vector<shared_ptr<btCollisionShape>>();
+			auto newShape = BTCompoundShapeFromNode(sourceNode, shape->type(), newChildShapes);
+			
+			// out parameters
+			*btShape = newShape;
+			for (auto& c : newChildShapes) {
+				btShapes.emplace_back(c);
 			}
 			
-			idMapping[++idCounter] = make_pair(dynamic_pointer_cast<btCollisionShape>(shape_shared), childShapes);
-			shape.simulationID(idCounter);
+			btMapping[shape] = make_pair(dynamic_pointer_cast<btCollisionShape>(newShape), newChildShapes);
 		}
 		else {
 			// this might better be an assertation where nodes are checked before submitted to the PhysicsSimulator
-			//throw Exception("PhysicsBody with no geometry or source node.");
+			throw Exception("PhysicsBody with no geometry or source node.");
 			btShape = nullptr;
 		}
 		
-		shape.dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape.dirtyBits(),
-														PHYSICS_SHAPE_DIRTY_BITS::MODEL));
+		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
+														 PHYSICS_SHAPE_DIRTY_BITS::MODEL));
 		
 		wasDirty = true;
 	}
 	else {
-		*btShape = (get<0>(idMapping[shape.simulationID()])).get();
-		auto shapes_shared = get<1>(idMapping[shape.simulationID()]);
-		for (auto& s : shapes_shared) {
-			btShapes.emplace_back(s.get());
+		auto mapping = btMapping[shape];
+		*btShape = get<0>(mapping);
+		auto childShapes = get<1>(mapping);
+		for (auto& c : childShapes) {
+			btShapes.emplace_back(c);
 		}
-		
+
 		wasDirty = false;
 	}
 }
+
+void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
+								 BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping,
+								 btDiscreteDynamicsWorld& btWorld) {
 	
+	// gather sorted vector of bodies used this frame
+	auto activeBodiesSorted = vector<shared_ptr<PhysicsBody>>();
+	activeBodiesSorted.reserve(active.size());
+	copy(active.begin(), active.end(), back_inserter(activeBodiesSorted));
+	sort(activeBodiesSorted.begin(), activeBodiesSorted.end());
+	
+	// gather sorted vector of bodies in the mapping
+	auto storedBodiesSorted = vector<shared_ptr<PhysicsBody>>();
+	storedBodiesSorted.reserve(btMapping.size());
+	for(BulletPhysicsSimulator::PhysicsBodyBTMapping::iterator it = btMapping.begin(); it != btMapping.end(); ++it ) {
+		storedBodiesSorted.emplace_back(it->first);
+	}
+	sort(storedBodiesSorted.begin(), storedBodiesSorted.end());
+	
+	// find unused bodies
+	auto unused = vector<shared_ptr<PhysicsBody>>(storedBodiesSorted.size());
+	vector<shared_ptr<PhysicsBody>>::iterator it;
+	it = set_difference(storedBodiesSorted.begin(), storedBodiesSorted.end(),
+						activeBodiesSorted.begin(), activeBodiesSorted.end(),
+						unused.begin());
+	unused.resize(it - unused.begin());
+	
+	// deallocate unused bodies
+	if (unused.size()) {
+		AE_LOG->debug("Deallocating bullet body for {} physics bodies...", unused.size());
+		
+		for (it=unused.begin(); it!=unused.end(); ++it) {
+			shared_ptr<PhysicsBody> body = *it;
+			auto btHandles = btMapping[body];
+			
+			shared_ptr<btRigidBody> btRigidBody = get<0>(btHandles);
+			btWorld.removeRigidBody(btRigidBody.get());
+			
+			btMapping.erase(body);
+			
+			body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+														   PHYSICS_BODY_DIRTY_BITS::ALL));
+		}
+	}
+}
+
+void CleanupPhysicsShapeResources(set<shared_ptr<PhysicsShape>>& active,
+								  BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
+								  btDiscreteDynamicsWorld& btWorld) {
+	
+	// gather sorted vector of shapes used this frame
+	auto activeShapesSorted = vector<shared_ptr<PhysicsShape>>();
+	activeShapesSorted.reserve(active.size());
+	copy(active.begin(), active.end(), back_inserter(activeShapesSorted));
+	sort(activeShapesSorted.begin(), activeShapesSorted.end());
+	
+	// gather sorted vector of shapes in the mapping
+	auto storedShapesSorted = vector<shared_ptr<PhysicsShape>>();
+	storedShapesSorted.reserve(btMapping.size());
+	for(BulletPhysicsSimulator::PhysicsShapeBTMapping::iterator it = btMapping.begin();it != btMapping.end(); ++it ) {
+		storedShapesSorted.emplace_back(it->first);
+	}
+	sort(storedShapesSorted.begin(), storedShapesSorted.end());
+	
+	// find unused shapes
+	auto unused = vector<shared_ptr<PhysicsShape>>(storedShapesSorted.size());
+	vector<shared_ptr<PhysicsShape>>::iterator it;
+	it = set_difference(storedShapesSorted.begin(), storedShapesSorted.end(),
+						activeShapesSorted.begin(), activeShapesSorted.end(),
+						unused.begin());
+	unused.resize(it - unused.begin());
+	
+	// deallocate unused shapes
+	if (unused.size()) {
+		AE_LOG->debug("Deallocating bullet shape for {} physics shape...", unused.size());
+		
+		for (it=unused.begin(); it!=unused.end(); ++it) {
+			shared_ptr<PhysicsShape> shape = *it;
+			//auto btHandles = btMapping[shape];
+			
+			//shared_ptr<btRigidBody> btRigidBody = get<0>(btHandles);
+			//btWorld.removeRigidBody(btRigidBody.get());
+			
+			btMapping.erase(shape);
+			
+			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
+															 PHYSICS_SHAPE_DIRTY_BITS::ALL));
+		}
+	}
+}
+
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE type) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");

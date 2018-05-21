@@ -52,16 +52,16 @@ namespace ae {
 		virtual void beginFrame(const RenderContext& context);
 		virtual void endFrame(const RenderContext& context);
 		
-		virtual void render(Scene& scene,
+		virtual void render(std::shared_ptr<Scene> scene,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats);
-		virtual void render(Geometry& geometry,
+		virtual void render(std::shared_ptr<Geometry> geometry,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats);
-		virtual void render(GeometryElement& element,
+		virtual void render(std::shared_ptr<GeometryElement> element,
 							Material& material,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,

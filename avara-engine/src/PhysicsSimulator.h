@@ -20,8 +20,8 @@
 namespace ae {
 	
 	
-	class PhysicsBody;
-	class PhysicsWorld;
+	class Node;
+	class Scene;
 	
 
 	class PhysicsSimulator : public std::enable_shared_from_this<PhysicsSimulator> {
@@ -52,11 +52,16 @@ namespace ae {
 		     Internal
 		 **************************************************************************************/
 		
+		virtual void beginUpdate(PASS pass,
+								 const Scene& scene);
+		virtual void endUpdate(PASS pass,
+							   const Scene& scene);
+
 		virtual void update(PASS pass,
-							PhysicsWorld& physicsWorld,
+							std::shared_ptr<Scene> scene,
 							const DEBUG_OPTIONS& debugOptions);
 		virtual void update(PASS pass,
-							PhysicsBody& physicsBody,
+							std::shared_ptr<Node> node,
 							const DEBUG_OPTIONS& debugOptions);
 		virtual void step(float time);
 		

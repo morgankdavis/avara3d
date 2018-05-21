@@ -54,38 +54,31 @@ using namespace std;
      Static Prorotypes
  **************************************************************************************/
 
-static void RenderSkybox(Geometry& skyboxGeometry,
+static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
-						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
-						 GEOMETRY_ELEMENT_ID& elementIDCounter,
-						 OpenGLRenderer::MaterialPropertyIDMapping& materialIDMapping,
-						 MATERIAL_PROPERTY_ID& materialIDCounter,
-						 set<MATERIAL_PROPERTY_ID>& activePropertyIDsSet);
-static void RenderAABB(Geometry& geometry,
+						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
+						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
+						 set<shared_ptr<MaterialProperty>>& activeProperties);
+static void RenderAABB(shared_ptr<Geometry> geometry,
 					   mat4 modelMat,
 					   mat4 viewMat,
 					   mat4 projectionMat,
-					   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
-					   GEOMETRY_ELEMENT_ID& idCounter,
+					   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
 					   RenderStats& stats);
-static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
-												  OpenGLRenderer::GeometryElementIDMapping& idMapping,
-												  GEOMETRY_ELEMENT_ID& idCounter,
+static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
+												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
-										 OpenGLRenderer::GeometryElementIDMapping& idMapping,
-										 GEOMETRY_ELEMENT_ID& idCounter,
+static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
+										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void GetAABBGLVertexDataHandles(Geometry& geometry,
-									   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
-									   GEOMETRY_ELEMENT_ID& idCounter,
+static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
+									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
 									   GLuint& glVBO, GLuint& glVAO);
 static void GetMaterialGLTextureHandles(Material& material,
-										OpenGLRenderer::MaterialPropertyIDMapping& idMapping,
-										MATERIAL_PROPERTY_ID& idCounter,
-										set<MATERIAL_PROPERTY_ID>& activeIDSet,
+										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
+										set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
 static void LoadGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
@@ -128,12 +121,12 @@ static void DrawAABB(Geometry& geometry,
 					 mat4 viewMat,
 					 mat4 projectionMat,
 					 GLuint glVBO, GLuint glVAO);
-static void CleanupGeometryElementResources(set<GEOMETRY_ELEMENT_ID>& activeIDs,
-											OpenGLRenderer::GeometryElementIDMapping& idMapping);
-static void CleanupMaterialPropertyResources(set<MATERIAL_PROPERTY_ID>& activeIDs,
-											 OpenGLRenderer::MaterialPropertyIDMapping& idMapping);
-static void CleanupGeometryAABBResources(set<GEOMETRY_ID>& activeIDs,
-										 OpenGLRenderer::AABBGeometryIDMapping& idMapping);
+static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
+											OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
+											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
+										 OpenGLRenderer::AABBGeometryGLMapping& glMapping);
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 							   FONScontext* fonsContext, int fonsFont);
@@ -197,15 +190,12 @@ typedef struct {
 
 OpenGLRenderer::OpenGLRenderer():
 	Renderer(),
-	m_elementIDMapping(GeometryElementIDMapping()),
-	m_elementIDCounter(0),
-	m_materialPropertyIDMapping(MaterialPropertyIDMapping()),
-	m_materialPropertyIDCounter(0),
-	m_geometryAABBIDMapping(AABBGeometryIDMapping()),
-	m_geometryAABBIDCounter(0),
-	m_activeElementIDs(set<GEOMETRY_ELEMENT_ID>()),
-	m_activeMaterialPropertyIDs(set<MATERIAL_PROPERTY_ID>()),
-	m_activeGeometryAABBIDs(set<GEOMETRY_ID>()),
+	m_geometryElementGLMapping(GeometryElementGLMapping()),
+	m_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+	m_aabbGeometryGLMapping(AABBGeometryGLMapping()),
+	m_activeGeometryElements(set<shared_ptr<GeometryElement>>()),
+	m_activeMaterialProperties(set<shared_ptr<MaterialProperty>>()),
+	m_activeAABBGeometries(set<shared_ptr<Geometry>>()),
 	m_glEnvironmentUBO(0),
 	m_fonsContext(nullptr),
 	m_fonsFont(-1) {
@@ -213,7 +203,15 @@ OpenGLRenderer::OpenGLRenderer():
 }
 
 OpenGLRenderer::~OpenGLRenderer() {
+	AE_LOG->debug("Destroying OpenGLRenderer {:p}", (void*)this);
 	
+	m_activeGeometryElements.clear();
+	m_activeMaterialProperties.clear();
+	m_activeAABBGeometries.clear();
+	
+	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
+	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
+	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
 }
 
 /**************************************************************************************
@@ -253,15 +251,16 @@ bool OpenGLRenderer::initialize() {
 }
 	
 void OpenGLRenderer::beginFrame(const RenderContext& context) {
-
 	Renderer::beginFrame(context);
 
-	m_activeElementIDs.clear();
-	m_activeMaterialPropertyIDs.clear();
-	m_activeGeometryAABBIDs.clear();
+	m_activeGeometryElements.clear();
+	m_activeMaterialProperties.clear();
+	m_activeAABBGeometries.clear();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
+	Renderer::endFrame(context);
+	
 	auto debugOptions = context.debugOptions();
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
@@ -271,18 +270,18 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 						   m_fonsContext, m_fonsFont);
 	}
 	
-	CleanupGeometryElementResources(m_activeElementIDs, m_elementIDMapping);
-	CleanupMaterialPropertyResources(m_activeMaterialPropertyIDs, m_materialPropertyIDMapping);
-	CleanupGeometryAABBResources(m_activeGeometryAABBIDs, m_geometryAABBIDMapping);
+	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
+	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
+	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
 	
 	CheckGLError();
 }
 
-void OpenGLRenderer::render(Scene& scene,
+void OpenGLRenderer::render(shared_ptr<Scene> scene,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
 
-	auto renderContext = scene.renderContext().lock();
+	auto renderContext = scene->renderContext().lock();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
@@ -293,27 +292,24 @@ void OpenGLRenderer::render(Scene& scene,
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (scene.background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene.background()->contents())) {
-			auto skyboxGeometry = scene.skyboxGeometry();
+	if (scene->background()) {
+		if (dynamic_pointer_cast<CubeImage>(scene->background()->contents())) {
+			auto skyboxGeometry = scene->skyboxGeometry();
 			auto pointOfView = renderContext->pointOfView();
-			
-			RenderSkybox(*skyboxGeometry,
+
+			RenderSkybox(skyboxGeometry,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
-						 m_elementIDMapping, m_elementIDCounter,
-						 m_materialPropertyIDMapping, m_materialPropertyIDCounter,
-						 m_activeMaterialPropertyIDs);
+						 m_geometryElementGLMapping,
+						 m_materialPropertyGLMapping,
+						 m_activeMaterialProperties);
 			
-			// save its renderID for housekeeping
-			auto renderID = skyboxGeometry->elements().front()->renderID();
-			if (renderID > 0) {
-				m_activeElementIDs.emplace(renderID);
-			}
+			// save reference for housekeeping
+			m_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}
-		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
+		else if (dynamic_pointer_cast<Color>(scene->background()->contents())) {
+			auto color = dynamic_pointer_cast<Color>(scene->background()->contents());
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
@@ -325,12 +321,12 @@ void OpenGLRenderer::render(Scene& scene,
 		m_glEnvironmentUBO = ubo;
 	}
 	
-	SendEnvironmentUniforms(m_glEnvironmentUBO, scene, stats);
+	SendEnvironmentUniforms(m_glEnvironmentUBO, *scene, stats);
 	
 	Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
 }
 
-void OpenGLRenderer::render(Geometry& geometry,
+void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
@@ -340,19 +336,15 @@ void OpenGLRenderer::render(Geometry& geometry,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		RenderAABB(geometry,
 				   modelMat, viewMat, projectionMat,
-				   m_geometryAABBIDMapping,
-				   m_geometryAABBIDCounter,
+				   m_aabbGeometryGLMapping,
 				   stats);
 		
-		// save its renderID for housekeeping
-		auto renderID = geometry.renderID();
-		if (renderID > 0) {
-			m_activeGeometryAABBIDs.emplace(renderID);
-		}
+		// save reference for housekeeping
+		m_activeAABBGeometries.emplace(geometry);
 	}
 }
 
-void OpenGLRenderer::render(GeometryElement& element,
+void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -366,36 +358,11 @@ void OpenGLRenderer::render(GeometryElement& element,
 
 	GLuint vbo, vao, ibo;
 	GetGeometryElementGLVertexDataHandles(element,
-										  m_elementIDMapping, m_elementIDCounter,
+										  m_geometryElementGLMapping,
 										  vbo, vao, ibo);
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		program = Program::Wireframe();
-		
-		
-//		#warning temporary work-around
-//		
-//		auto ambient = material.ambient();
-//		auto diffuse = material.diffuse();
-//		auto specular = material.specular();
-//		auto emissive = material.emissive();
-//		
-//		if (ambient) {
-//			ambient->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(ambient->dirtyBits(),
-//																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
-//		}
-//		if (diffuse) {
-//			diffuse->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(diffuse->dirtyBits(),
-//																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
-//		}
-//		if (specular) {
-//			specular->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(specular->dirtyBits(),
-//																 MATERIAL_PROPERTY_DIRTY_BITS::ALL));
-//		}
-//		if (emissive) {
-//			emissive->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_ADD(emissive->dirtyBits(),
-//																 MATERIAL_PROPERTY_DIRTY_BITS::ALL));
-//		}
 	}
 	else {
 		program = Program::Default();
@@ -404,8 +371,8 @@ void OpenGLRenderer::render(GeometryElement& element,
 
 		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 		GetMaterialGLTextureHandles(material,
-									m_materialPropertyIDMapping, m_materialPropertyIDCounter,
-									m_activeMaterialPropertyIDs,
+									m_materialPropertyGLMapping,
+									m_activeMaterialProperties,
 									glTextureHandles);
 
 		// send material and material property uniforms
@@ -423,14 +390,11 @@ void OpenGLRenderer::render(GeometryElement& element,
 
 	// draw
 
-	DrawGeometryElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
-	stats.polygons += element.faces().size();
+	DrawGeometryElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	stats.polygons += element->faces().size();
 
-	// save its renderID for housekeeping
-	auto renderID = element.renderID();
-	if (renderID > 0) {
-		m_activeElementIDs.emplace(renderID);
-	}
+	// save reference for housekeeping
+	m_activeGeometryElements.emplace(element);
 }
 
 shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
@@ -448,35 +412,33 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
      Static
  **************************************************************************************/
 
-static void RenderSkybox(Geometry& skyboxGeometry,
+static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
 						 RenderStats& stats,
-						 OpenGLRenderer::GeometryElementIDMapping& elementIDMapping,
-						 GEOMETRY_ELEMENT_ID& elementIDCounter,
-						 OpenGLRenderer::MaterialPropertyIDMapping& materialIDMapping,
-						 MATERIAL_PROPERTY_ID& materialIDCounter,
-						 set<MATERIAL_PROPERTY_ID>& activePropertyIDsSet) {
+						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
+						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
+						 set<shared_ptr<MaterialProperty>>& activeProperties) {
 	
 	auto program = Program::Skybox();
 	
-	auto element = skyboxGeometry.elements().front();
-	auto material = skyboxGeometry.materials().front();
+	auto element = skyboxGeometry->elements().front();
+	auto material = skyboxGeometry->materials().front();
 	auto emissiveProperty = material->emissive();
 	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
 	GetSkyboxGLVertexDataHandles(skyboxGeometry,
-								 elementIDMapping, elementIDCounter,
+								 elementGLMapping,
 								 vbo, vao, ibo);
 	
 	// and load material contents if necessary
 	
 	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 	GetMaterialGLTextureHandles(*material,
-								materialIDMapping, materialIDCounter,
-								activePropertyIDsSet,
+								materialGLMapping,
+								activeProperties,
 								glTextureHandles);
 	auto emissiveGLTextureHandle = glTextureHandles[MATERIAL_PROPERTY_TYPE::EMISSIVE];
 	
@@ -505,55 +467,49 @@ static void RenderSkybox(Geometry& skyboxGeometry,
 	stats.meshes++;
 }
 	
-static void RenderAABB(Geometry& geometry,
+static void RenderAABB(shared_ptr<Geometry> geometry,
 					   mat4 modelMat,
 					   mat4 viewMat,
 					   mat4 projectionMat,
-					   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
-					   GEOMETRY_ELEMENT_ID& idCounter,
+					   OpenGLRenderer::AABBGeometryGLMapping& geometryMapping,
 					   RenderStats& stats) {
 	GLuint vbo = 0;
 	GLuint vao = 0;
 	GetAABBGLVertexDataHandles(geometry,
-							   idMapping, idCounter,
+							   geometryMapping,
 							   vbo, vao);
 	
 	SetAABBOpenGLState();
 	
-	DrawAABB(geometry, modelMat, viewMat, projectionMat, vbo, vao);
+	DrawAABB(*geometry, modelMat, viewMat, projectionMat, vbo, vao);
 }
 	
-static void GetGeometryElementGLVertexDataHandles(GeometryElement& element,
-												  OpenGLRenderer::GeometryElementIDMapping& idMapping,
-												  GEOMETRY_ELEMENT_ID& idCounter,
+static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
+												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
-	
-	auto renderID = element.renderID();
-	
-	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element.dirtyBits(),
+
+	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		LoadGeometryElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
+		LoadGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
 		
-		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
-		element.renderID(idCounter);
+		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 		
-		element.dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element.dirtyBits(),
-															 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
+		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
+															  GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
 	}
 	else {
-		auto mapping = idMapping[renderID];
+		auto mapping = glMapping[element];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 		glIBO = get<2>(mapping);
 	}
 }
 	
-static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
-										 OpenGLRenderer::GeometryElementIDMapping& idMapping,
-										 GEOMETRY_ELEMENT_ID& idCounter,
+static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
+										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
@@ -562,58 +518,52 @@ static void GetSkyboxGLVertexDataHandles(Geometry& skyboxGeometry,
 	// except if the data needs to be loaded, it uses LoadGeometryElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
-	auto element = skyboxGeometry.elements().front();
+	auto element = skyboxGeometry->elements().front();
 	
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
-		LoadSkyboxVertexData(skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
+		LoadSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
-		idMapping[++idCounter] = make_tuple(glVBO, glVAO, glIBO);
-		element->renderID(idCounter);
+		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 		
 		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
 															  GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
 	}
 	else {
-		auto mapping = idMapping[element->renderID()];
+		auto mapping = glMapping[element];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 		glIBO = get<2>(mapping);
 	}
 }
 	
-static void GetAABBGLVertexDataHandles(Geometry& geometry,
-									   OpenGLRenderer::AABBGeometryIDMapping& idMapping,
-									   GEOMETRY_ELEMENT_ID& idCounter,
+static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
+									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
 									   GLuint& glVBO, GLuint& glVAO) {
 	
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
-	
-	auto renderID = geometry.renderID();
-	
-	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry.dirtyBits(),
+
+	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry->dirtyBits(),
 									 GEOMETRY_DIRTY_BITS::AABB)) {
 		
-		LoadAABBVertexData(geometry, *Program::AABB(), glVBO, glVAO);
+		LoadAABBVertexData(*geometry, *Program::AABB(), glVBO, glVAO);
+
+		glMapping[geometry] = make_pair(glVBO, glVAO);
 		
-		idMapping[++idCounter] = make_pair(glVBO, glVAO);
-		geometry.renderID(idCounter);
-		
-		geometry.dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry.dirtyBits(),
-													  GEOMETRY_DIRTY_BITS::AABB));
+		geometry->dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry->dirtyBits(),
+													   GEOMETRY_DIRTY_BITS::AABB));
 	}
 	else {
-		auto mapping = idMapping[renderID];
+		auto mapping = glMapping[geometry];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 	}
 }
 	
 static void GetMaterialGLTextureHandles(Material& material,
-										OpenGLRenderer::MaterialPropertyIDMapping& idMapping,
-										MATERIAL_PROPERTY_ID& idCounter,
-										set<MATERIAL_PROPERTY_ID>& activeIDSet,
+										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
+										set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -638,24 +588,22 @@ static void GetMaterialGLTextureHandles(Material& material,
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
 					
-					idMapping[++idCounter] = textureID;
-					property->renderID(idCounter);
+					glMapping[property] = textureID;
 				}
 				
 				property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
 																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
 			}
 			else {
-				if (property->renderID() > 0) {
-					glTextureHandles[type] = idMapping[property->renderID()];
-				}
+//				if (property->renderID() > 0) {
+//					glTextureHandles[type] = idMapping[property->renderID()];
+//				}
+				auto textureHandle = glMapping[property];
+				glTextureHandles[type] = textureHandle;
 			}
 			
-			// save its renderID for housekeeping
-			auto renderID = property->renderID();
-			if (renderID > 0) {
-				activeIDSet.emplace(renderID);
-			}
+			// save reference for housekeeping
+			activeProperties.emplace(property);
 		}
 	}
 }
@@ -763,6 +711,8 @@ static void LoadSkyboxVertexData(Geometry& skyboxGeometry,
 static void LoadAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
+	
+	AE_LOG->info("Loading vertex data for AABB {:p}...", (void*)&geometry);
 	
 	map<string, vec3> bp = *(geometry.boundingPoints(false));
 	
@@ -1325,37 +1275,38 @@ static void DrawAABB(Geometry& geometry,
 	glDrawArrays(GL_LINES, 0, 24);
 }
 	
-static void CleanupGeometryElementResources(set<GEOMETRY_ELEMENT_ID>& activeIDs,
-											OpenGLRenderer::GeometryElementIDMapping& idMapping) {
+static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
+											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
 	
-	// gather sorted vector of IDs used this frame
-	auto activeIDsSorted = vector<GEOMETRY_ELEMENT_ID>();
-	activeIDsSorted.reserve(activeIDs.size());
-	copy(activeIDs.begin(), activeIDs.end(), back_inserter(activeIDsSorted));
-	sort(activeIDsSorted.begin(), activeIDsSorted.end());
+	// gather sorted vector of elements used this frame
+	auto activeElementsSorted = vector<shared_ptr<GeometryElement>>();
+	activeElementsSorted.reserve(active.size());
+	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
+	sort(activeElementsSorted.begin(), activeElementsSorted.end());
 	
-	// gather sorted vector of IDs in the mapping
-	auto storedIDsSorted = vector<GEOMETRY_ELEMENT_ID>();
-	storedIDsSorted.reserve(idMapping.size());
-	for(OpenGLRenderer::GeometryElementIDMapping::iterator it = idMapping.begin(); it != idMapping.end(); ++it ) {
-		storedIDsSorted.emplace_back(it->first);
+	// gather sorted vector of elements in the mapping
+	auto storedElementsSorted = vector<shared_ptr<GeometryElement>>();
+	storedElementsSorted.reserve(glMapping.size());
+	for(OpenGLRenderer::GeometryElementGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+		storedElementsSorted.emplace_back(it->first);
 	}
-	sort(storedIDsSorted.begin(), storedIDsSorted.end());
+	sort(storedElementsSorted.begin(), storedElementsSorted.end());
 	
-	// find unused IDs
-	auto unused = vector<GEOMETRY_ELEMENT_ID>(storedIDsSorted.size());
-	vector<GEOMETRY_ELEMENT_ID>::iterator it;
-	it = set_difference(storedIDsSorted.begin(), storedIDsSorted.end(),
-						activeIDsSorted.begin(), activeIDsSorted.end(),
+	// find unused elements
+	auto unused = vector<shared_ptr<GeometryElement>>(storedElementsSorted.size());
+	vector<shared_ptr<GeometryElement>>::iterator it;
+	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
+						activeElementsSorted.begin(), activeElementsSorted.end(),
 						unused.begin());
 	unused.resize(it - unused.begin());
 	
-	// deallocate unused IDs
+	// deallocate unused elements
 	if (unused.size()) {
-		AE_LOG->debug("Deallocating vertex data for {} GeometryElements...", unused.size());
+		AE_LOG->debug("Deallocating vertex data for {} geometry elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			auto glHandles = idMapping[*it];
+			shared_ptr<GeometryElement> element = *it;
+			auto glHandles = glMapping[element];
 			
 			GLuint vbo = get<0>(glHandles);
 			GLuint vao = get<1>(glHandles);
@@ -1365,82 +1316,89 @@ static void CleanupGeometryElementResources(set<GEOMETRY_ELEMENT_ID>& activeIDs,
 			glDeleteVertexArrays(1, &vao);
 			glDeleteBuffers(1, &ibo);
 			
-			idMapping.erase(*it);
+			glMapping.erase(element);
+			
+			element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
+																  GEOMETRY_ELEMENT_DIRTY_BITS::ALL));
 		}
 	}
 }
 	
-static void CleanupMaterialPropertyResources(set<MATERIAL_PROPERTY_ID>& activeIDs,
-											 OpenGLRenderer::MaterialPropertyIDMapping& idMapping) {
+static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
+											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
 	
-	// gather sorted vector of IDs used this frame
-	auto activeIDsSorted = vector<MATERIAL_PROPERTY_ID>();
-	activeIDsSorted.reserve(activeIDs.size());
-	copy(activeIDs.begin(), activeIDs.end(), back_inserter(activeIDsSorted));
-	sort(activeIDsSorted.begin(), activeIDsSorted.end());
+	// gather sorted vector of properties used this frame
+	auto activePropertiesSorted = vector<shared_ptr<MaterialProperty>>();
+	activePropertiesSorted.reserve(glMapping.size());
+	copy(active.begin(), active.end(), back_inserter(activePropertiesSorted));
+	sort(activePropertiesSorted.begin(), activePropertiesSorted.end());
 	
-	// gather sorted vector of IDs in the mapping
-	auto storedIDsSorted = vector<MATERIAL_PROPERTY_ID>();
-	storedIDsSorted.reserve(idMapping.size());
-	for(OpenGLRenderer::MaterialPropertyIDMapping::iterator it = idMapping.begin(); it != idMapping.end(); ++it ) {
-		storedIDsSorted.emplace_back(it->first);
+	// gather sorted vector of properties in the mapping
+	auto storedPropertiesSorted = vector<shared_ptr<MaterialProperty>>();
+	storedPropertiesSorted.reserve(glMapping.size());
+	for(OpenGLRenderer::MaterialPropertyGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+		storedPropertiesSorted.emplace_back(it->first);
 	}
-	sort(storedIDsSorted.begin(), storedIDsSorted.end());
+	sort(storedPropertiesSorted.begin(), storedPropertiesSorted.end());
 	
-	// find unused IDs
-	auto unused = vector<MATERIAL_PROPERTY_ID>(storedIDsSorted.size());
-	vector<MATERIAL_PROPERTY_ID>::iterator it;
-	it = set_difference(storedIDsSorted.begin(), storedIDsSorted.end(),
-						activeIDsSorted.begin(), activeIDsSorted.end(),
+	// find unused properties
+	auto unused = vector<shared_ptr<MaterialProperty>>(storedPropertiesSorted.size());
+	vector<shared_ptr<MaterialProperty>>::iterator it;
+	it = set_difference(storedPropertiesSorted.begin(), storedPropertiesSorted.end(),
+						activePropertiesSorted.begin(), activePropertiesSorted.end(),
 						unused.begin());
 	unused.resize(it - unused.begin());
 	
-	// deallocate unused IDs
+	// deallocate unused properties
 	if (unused.size()) {
 		AE_LOG->debug("Deallocating data for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-
-			GLuint handle = idMapping[*it];
+			shared_ptr<MaterialProperty> property = *it;
+			GLuint handle = glMapping[property];
 			
 			glDeleteTextures(1, &handle);
 			
-			idMapping.erase(*it);
+			glMapping.erase(property);
+			
+			property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
+																	MATERIAL_PROPERTY_DIRTY_BITS::ALL));
 		}
 	}
 }
 	
-static void CleanupGeometryAABBResources(set<GEOMETRY_ID>& activeIDs,
-										 OpenGLRenderer::AABBGeometryIDMapping& idMapping) {
+static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
+										 OpenGLRenderer::AABBGeometryGLMapping& glMapping) {
 	
-	// gather sorted vector of IDs used this frame
-	auto activeIDsSorted = vector<GEOMETRY_ID>();
-	activeIDsSorted.reserve(activeIDs.size());
-	copy(activeIDs.begin(), activeIDs.end(), back_inserter(activeIDsSorted));
-	sort(activeIDsSorted.begin(), activeIDsSorted.end());
+	// gather sorted vector of aabb geometries used this frame
+	auto activeAABBGeometriesSorted = vector<shared_ptr<Geometry>>();
+	activeAABBGeometriesSorted.reserve(active.size());
+	copy(active.begin(), active.end(), back_inserter(activeAABBGeometriesSorted));
+	sort(activeAABBGeometriesSorted.begin(), activeAABBGeometriesSorted.end());
 	
-	// gather sorted vector of IDs in the mapping
-	auto storedIDsSorted = vector<GEOMETRY_ID>();
-	storedIDsSorted.reserve(idMapping.size());
-	for(OpenGLRenderer::AABBGeometryIDMapping::iterator it = idMapping.begin(); it != idMapping.end(); ++it ) {
-		storedIDsSorted.emplace_back(it->first);
+	// gather sorted vector of aabb geometries in the mapping
+	auto storedGeometryAABBsSorted = vector<shared_ptr<Geometry>>();
+	storedGeometryAABBsSorted.reserve(active.size());
+	for(OpenGLRenderer::AABBGeometryGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+		storedGeometryAABBsSorted.emplace_back(it->first);
 	}
-	sort(storedIDsSorted.begin(), storedIDsSorted.end());
+	sort(storedGeometryAABBsSorted.begin(), storedGeometryAABBsSorted.end());
 	
-	// find unused IDs
-	auto unused = vector<GEOMETRY_ID>(storedIDsSorted.size());
-	vector<GEOMETRY_ID>::iterator it;
-	it = set_difference(storedIDsSorted.begin(), storedIDsSorted.end(),
-						activeIDsSorted.begin(), activeIDsSorted.end(),
+	// find unused aabb geometries
+	auto unused = vector<shared_ptr<Geometry>>(storedGeometryAABBsSorted.size());
+	vector<shared_ptr<Geometry>>::iterator it;
+	it = set_difference(storedGeometryAABBsSorted.begin(), storedGeometryAABBsSorted.end(),
+						activeAABBGeometriesSorted.begin(), activeAABBGeometriesSorted.end(),
 						unused.begin());
 	unused.resize(it - unused.begin());
 	
-	// deallocate unused IDs
+	// deallocate unused aabb geometries
 	if (unused.size()) {
 		AE_LOG->debug("Deallocating vertex data for {} AABBs...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			auto glHandles = idMapping[*it];
+			shared_ptr<Geometry> aabbGeometry = *it;
+			auto glHandles = glMapping[aabbGeometry];
 			
 			GLuint vbo = get<0>(glHandles);
 			GLuint vao = get<1>(glHandles);
@@ -1448,7 +1406,10 @@ static void CleanupGeometryAABBResources(set<GEOMETRY_ID>& activeIDs,
 			glDeleteBuffers(1, &vbo);
 			glDeleteVertexArrays(1, &vao);
 			
-			idMapping.erase(*it);
+			glMapping.erase(aabbGeometry);
+			
+			aabbGeometry->dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(aabbGeometry->dirtyBits(),
+															   GEOMETRY_DIRTY_BITS::ALL));
 		}
 	}
 }

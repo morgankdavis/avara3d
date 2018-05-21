@@ -28,7 +28,7 @@ using namespace glm;
 #define WINDOW_HEIGHT			600
 #define FULLSCREEN 				false
 #define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
-#define ENABLE_VSYNC			true
+#define ENABLE_VSYNC			false
 #define CAPTURE_CURSOR			true
 #define MOUSE_SENSITIVITY		0.5
 #define PHYSICS_TIMESTEP		1.0/180.0
@@ -539,7 +539,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	auto scene = *renderContext.scene();
+	auto scene = renderContext.scene();
 	
 	// get input
 	
@@ -548,17 +548,16 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	auto keysPressed = m_inputManager->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		exit(0);
+		m_window->setShouldClose();
 	}
 	
 	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
-		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
 	
 	if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
-		ShootBall(scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 	}
-	
 
 	if (keysPressed.count(KEY::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
@@ -617,7 +616,6 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		}
 	}
 
-
 	if (keysPressed.count(KEY::V)) {
 		m_window->enableVSync(!(m_window->vSyncEnabled()));
 	}
@@ -639,6 +637,21 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		}
 	}
 	
+	if (keysPressed.count(KEY::U)) {
+		for (auto& n : scene->rootNode()->children(true)) {
+			auto geometry = n->geometry();
+			if (geometry) {
+				auto physicsBody = n->physicsBody();
+				if (physicsBody && physicsBody->type() != PHYSICS_BODY_TYPE::STATIC) {
+					bool coin = Random(0, 1) == 1;
+					if (coin) {
+						n->removeFromParent();
+					}
+				}
+			}
+		}
+	}
+	
 	if (m_window->cursorCaptured()) {
 		
 		// mouselook
@@ -648,7 +661,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 		
 		if (!m_cameraNode) {
-			for (auto n : scene.rootNode()->children(false)) {
+			for (auto n : scene->rootNode()->children(false)) {
 				if (n->camera()) {
 					m_cameraNode = n;
 					break;
@@ -677,7 +690,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 			
 			//		const static float MOVE_SPEED = 5.0f; // units/sec
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
+			if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
 			
 			auto keysDown = m_inputManager->keysDown();
 			

@@ -30,7 +30,7 @@ namespace ae {
 	class Renderer;
 
 
-	class Geometry {
+	class Geometry : public std::enable_shared_from_this<Geometry> {
 		
 	public:
 		
@@ -82,10 +82,7 @@ namespace ae {
 		void attachedToNode(std::shared_ptr<Node> node);
 		
 		std::weak_ptr<Node> node() const;
-		
-		GEOMETRY_ID renderID() const;
-		void renderID(GEOMETRY_ID dataID);
-		
+
 		GEOMETRY_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
 
@@ -106,8 +103,6 @@ namespace ae {
 
 		boost::optional<std::string>						m_name;
 		std::weak_ptr<Node>									m_node;
-		
-		GEOMETRY_ID											m_renderID;
 
 		GEOMETRY_DIRTY_BITS									m_dirtyBits;
 	};
