@@ -237,7 +237,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	GetPhysicsShapeBTModels(body->shape(),
 							btShape, btShapes,
 							btWorld,
-							shapeBTMapping, //shapeIDCounter,
+							shapeBTMapping,
 							shapeWasDirty);
 
 	auto node = body->node().lock();
@@ -378,7 +378,7 @@ void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
 	// gather sorted vector of bodies in the mapping
 	auto storedBodiesSorted = vector<shared_ptr<PhysicsBody>>();
 	storedBodiesSorted.reserve(btMapping.size());
-	for(BulletPhysicsSimulator::PhysicsBodyBTMapping::iterator it = btMapping.begin(); it != btMapping.end(); ++it ) {
+	for (auto it = btMapping.begin(); it != btMapping.end(); ++it) {
 		storedBodiesSorted.emplace_back(it->first);
 	}
 	sort(storedBodiesSorted.begin(), storedBodiesSorted.end());
@@ -423,7 +423,7 @@ void CleanupPhysicsShapeResources(set<shared_ptr<PhysicsShape>>& active,
 	// gather sorted vector of shapes in the mapping
 	auto storedShapesSorted = vector<shared_ptr<PhysicsShape>>();
 	storedShapesSorted.reserve(btMapping.size());
-	for(BulletPhysicsSimulator::PhysicsShapeBTMapping::iterator it = btMapping.begin();it != btMapping.end(); ++it ) {
+	for (auto it = btMapping.begin(); it != btMapping.end(); ++it) {
 		storedShapesSorted.emplace_back(it->first);
 	}
 	sort(storedShapesSorted.begin(), storedShapesSorted.end());

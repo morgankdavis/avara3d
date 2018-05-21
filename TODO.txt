@@ -15,6 +15,12 @@ Tests:
 
 
 		Restore/refactor? PhysicsDebugDrawer
+			Add copy and assignment operators
+
+		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
+			If Body assatched to node, check geometry
+			If geometry set on Node, check physics body/shape
+
 
 		Try margin 0 for static objects
 
@@ -32,13 +38,7 @@ Tests:
 		damping -> linearDamping?
 
 
-
 		Test GENERATOR_USE_GLM
-
-
-		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
-			If Body assatched to node, check geometry
-			If geometry set on Node, check physics body/shape
 
 
 		Remove remaining header includes where struct forward declarations will work

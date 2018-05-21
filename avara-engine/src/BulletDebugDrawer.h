@@ -1,13 +1,13 @@
 //
-//  PhysicsDebugDrawer.h
+//  BulletDebugDrawer.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 2/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsDebugDrawer_h
-#define PhysicsDebugDrawer_h
+#ifndef BulletDebugDrawer_h
+#define BulletDebugDrawer_h
 
 #ifdef DESKTOP
 
@@ -25,7 +25,7 @@ namespace ae {
 	class Program;
 	
 	
-	class PhysicsDebugDrawer : public btIDebugDraw {
+	class BulletDebugDrawer : public btIDebugDraw {
 
 	public:
 		
@@ -33,8 +33,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		PhysicsDebugDrawer();
-		~PhysicsDebugDrawer();
+		BulletDebugDrawer();
+		~BulletDebugDrawer();
 		
 		/***************************************************************************************
 		     Internal
@@ -178,4 +178,4 @@ namespace ae {
 
 #endif // DESKTOP
 
-#endif /* PhysicsDebugDrawer_h */
+#endif /* BulletDebugDrawer_h */

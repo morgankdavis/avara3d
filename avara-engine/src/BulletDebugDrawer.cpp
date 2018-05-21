@@ -1,5 +1,5 @@
 //
-//  PhysicsDebugDrawer.cpp
+//  BulletDebugDrawer.cpp
 //	avara-engine
 //
 //  Created by Morgan Davis on 2/6/18.
@@ -8,7 +8,7 @@
 
 #ifdef DESKTOP
 
-#include "PhysicsDebugDrawer.h"
+#include "BulletDebugDrawer.h"
 
 #include <GL/glew.h>
 
@@ -27,7 +27,7 @@ using namespace std;
      Lifecycle
  ***************************************************************************************/
 
-PhysicsDebugDrawer::PhysicsDebugDrawer():
+BulletDebugDrawer::BulletDebugDrawer():
 	m_debugMode(0),
 	//m_lines(vector<DebugLine>()),
 	m_lines(vector<vec3>()),
@@ -36,7 +36,7 @@ PhysicsDebugDrawer::PhysicsDebugDrawer():
 
 }
 
-PhysicsDebugDrawer::~PhysicsDebugDrawer() {
+BulletDebugDrawer::~BulletDebugDrawer() {
 	if (m_glLinesVBO >=0) {
 		GLuint vbo = m_glLinesVBO;
 		glDeleteBuffers(1, &vbo);
@@ -51,15 +51,15 @@ PhysicsDebugDrawer::~PhysicsDebugDrawer() {
      Internal
  ***************************************************************************************/
 
-void PhysicsDebugDrawer::clear() {
+void BulletDebugDrawer::clear() {
 	m_lines.clear();
 }
 
-void PhysicsDebugDrawer::draw(const mat4& viewMat,
-							  const mat4& projectionMat) {
+void BulletDebugDrawer::draw(const mat4& viewMat,
+							 const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		AE_LOG->trace("PhysicsDebugDrawer::draw()");
+		AE_LOG->trace("BulletDebugDrawer::draw()");
 		
 		Program program = *Program::PhysicsDebugLine();
 		
@@ -98,7 +98,7 @@ void PhysicsDebugDrawer::draw(const mat4& viewMat,
      btIDebugDraw
  ***************************************************************************************/
 
-void PhysicsDebugDrawer::drawLine(const btVector3& from,
+void BulletDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& color) {
 	//AE_LOG->debug("drawLine() - 1 color");
@@ -106,7 +106,7 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 	drawLine(from, to, color, color);
 }
 
-void PhysicsDebugDrawer::drawLine(const btVector3& from,
+void BulletDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& to,
 								  const btVector3& fromColor,
 								  const btVector3& toColor) {
@@ -123,19 +123,19 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from,
 }
 
 /*
-void PhysicsDebugDrawer::drawSphere(btScalar radius,
+void BulletDebugDrawer::drawSphere(btScalar radius,
 									const btTransform& transform,
 									const btVector3& color) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawSphere (const btVector3& p,
+void BulletDebugDrawer::drawSphere (const btVector3& p,
 									 btScalar radius,
 									 const btVector3& color) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawTriangle(const btVector3& v0,
+void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 									  const btVector3& v1,
 									  const btVector3& v2,
 									  const btVector3& color,
@@ -144,7 +144,7 @@ void PhysicsDebugDrawer::drawTriangle(const btVector3& v0,
 }
 */
 
-void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
+void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										  const btVector3& normalOnB,
 										  btScalar distance,
 										  int lifeTime,
@@ -156,28 +156,28 @@ void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 	drawLine(pointOnB, to, color, color);
 }
 
-void PhysicsDebugDrawer::reportErrorWarning(const char* warningString) {
+void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 	AE_LOG->warn("Bullet warning: {}", warningString);
 }
 
-void PhysicsDebugDrawer::draw3dText(const btVector3& location,
+void BulletDebugDrawer::draw3dText(const btVector3& location,
 									const char* textString) {
 	AE_LOG->debug(AE_FUNC);
 }
 
 /*
-void PhysicsDebugDrawer::drawAabb(const btVector3 &from,
+void BulletDebugDrawer::drawAabb(const btVector3 &from,
 								  const btVector3 &to,
 								  const btVector3 &color) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawTransform(const btTransform &transform,
+void BulletDebugDrawer::drawTransform(const btTransform &transform,
 									   btScalar orthoLen) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawArc(const btVector3& center,
+void BulletDebugDrawer::drawArc(const btVector3& center,
 								 const btVector3& normal,
 								 const btVector3& axis,
 								 btScalar radiusA,
@@ -190,7 +190,7 @@ void PhysicsDebugDrawer::drawArc(const btVector3& center,
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawSpherePatch(const btVector3& center,
+void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
 										 const btVector3& up,
 										 const btVector3& axis,
 										 btScalar radius,
@@ -204,20 +204,20 @@ void PhysicsDebugDrawer::drawSpherePatch(const btVector3& center,
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawBox(const btVector3& bbMin,
+void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								 const btVector3& bbMax,
 								 const btVector3& color) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawBox(const btVector3& bbMin,
+void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								 const btVector3& bbMax,
 								 const btTransform& trans,
 								 const btVector3& color) {
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawCapsule(btScalar radius,
+void BulletDebugDrawer::drawCapsule(btScalar radius,
 									 btScalar halfHeight,
 									 int upAxis,
 									 const btTransform& transform,
@@ -225,7 +225,7 @@ void PhysicsDebugDrawer::drawCapsule(btScalar radius,
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawCylinder(btScalar radius,
+void BulletDebugDrawer::drawCylinder(btScalar radius,
 									  btScalar halfHeight,
 									  int upAxis,
 									  const btTransform& transform,
@@ -233,7 +233,7 @@ void PhysicsDebugDrawer::drawCylinder(btScalar radius,
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawCone(btScalar radius,
+void BulletDebugDrawer::drawCone(btScalar radius,
 								  btScalar height,
 								  int upAxis,
 								  const btTransform& transform,
@@ -241,7 +241,7 @@ void PhysicsDebugDrawer::drawCone(btScalar radius,
 	//AE_LOG->debug(AE_FUNC);
 }
 
-void PhysicsDebugDrawer::drawPlane(const btVector3& planeNormal,
+void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 								   btScalar planeConst,
 								   const btTransform& transform,
 								   const btVector3& color) {
@@ -249,14 +249,14 @@ void PhysicsDebugDrawer::drawPlane(const btVector3& planeNormal,
 }
 */
 
-//void PhysicsDebugDrawer::flushLines() {
+//void BulletDebugDrawer::flushLines() {
 //}
 
-void PhysicsDebugDrawer::setDebugMode(int debugMode) {
+void BulletDebugDrawer::setDebugMode(int debugMode) {
 	m_debugMode = debugMode;
 }
 
-int PhysicsDebugDrawer::getDebugMode() const {
+int BulletDebugDrawer::getDebugMode() const {
 	return m_debugMode;
 }
 
@@ -264,7 +264,7 @@ int PhysicsDebugDrawer::getDebugMode() const {
      Private
  ***************************************************************************************/
 
-//void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
+//void BulletDebugDrawer::loadLinesVertexData(const Program& program) {
 //	
 //	////AE_LOG->debug("loadLinesVertexData()");
 //	
@@ -302,7 +302,7 @@ int PhysicsDebugDrawer::getDebugMode() const {
 //	glEnableVertexAttribArray(colorIndex);
 //}
 
-//void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
+//void BulletDebugDrawer::loadLinesVertexData(const Program& program) {
 //	
 //	////AE_LOG->debug("loadLinesVertexData()");
 //	
@@ -331,7 +331,7 @@ int PhysicsDebugDrawer::getDebugMode() const {
 //	glEnableVertexAttribArray(positionIndex);
 //}
 
-void PhysicsDebugDrawer::loadLinesVertexData(const Program& program) {
+void BulletDebugDrawer::loadLinesVertexData(const Program& program) {
 	
 	////AE_LOG->debug("loadLinesVertexData()");
 	

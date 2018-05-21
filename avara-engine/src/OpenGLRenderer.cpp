@@ -1287,7 +1287,7 @@ static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& ac
 	// gather sorted vector of elements in the mapping
 	auto storedElementsSorted = vector<shared_ptr<GeometryElement>>();
 	storedElementsSorted.reserve(glMapping.size());
-	for(OpenGLRenderer::GeometryElementGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 		storedElementsSorted.emplace_back(it->first);
 	}
 	sort(storedElementsSorted.begin(), storedElementsSorted.end());
@@ -1336,7 +1336,7 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 	// gather sorted vector of properties in the mapping
 	auto storedPropertiesSorted = vector<shared_ptr<MaterialProperty>>();
 	storedPropertiesSorted.reserve(glMapping.size());
-	for(OpenGLRenderer::MaterialPropertyGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 		storedPropertiesSorted.emplace_back(it->first);
 	}
 	sort(storedPropertiesSorted.begin(), storedPropertiesSorted.end());
@@ -1379,7 +1379,7 @@ static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
 	// gather sorted vector of aabb geometries in the mapping
 	auto storedGeometryAABBsSorted = vector<shared_ptr<Geometry>>();
 	storedGeometryAABBsSorted.reserve(active.size());
-	for(OpenGLRenderer::AABBGeometryGLMapping::iterator it = glMapping.begin(); it != glMapping.end(); ++it ) {
+	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 		storedGeometryAABBsSorted.emplace_back(it->first);
 	}
 	sort(storedGeometryAABBsSorted.begin(), storedGeometryAABBsSorted.end());
