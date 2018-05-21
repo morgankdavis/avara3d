@@ -23,6 +23,15 @@ using namespace glm;
 using namespace std;
 
 
+/**************************************************************************************
+     Static Prototypes
+ **************************************************************************************/
+
+static vec3 GLMVec3FromBTVector3(const btVector3& from);
+static vec4 GLMVec4FromBTVector4(const btVector4& from);
+static btVector3 BTVector3FromGLMVec3(const vec3& from);
+static btVector4 BTVector4FromGLMVec4(const vec4& from);
+
 /***************************************************************************************
      Lifecycle
  ***************************************************************************************/
@@ -111,15 +120,12 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& fromColor,
 								  const btVector3& toColor) {
 	//AE_LOG->debug("drawLine() - 2 colors");
-	
-#if 0
-	
+
 	m_lines.emplace_back(GLMVec3FromBTVector3(from));
 	m_lines.emplace_back(GLMVec3FromBTVector3(fromColor));
 	m_lines.emplace_back(GLMVec3FromBTVector3(to));
 	m_lines.emplace_back(GLMVec3FromBTVector3(toColor));
-	
-#endif
+
 }
 
 /*
@@ -367,6 +373,26 @@ void BulletDebugDrawer::loadLinesVertexData(const Program& program) {
 						  sizeof(vec3)*2, 		// stride
 						  (void*)sizeof(vec3));	// start offset
 	glEnableVertexAttribArray(colorIndex);
+}
+
+/**************************************************************************************
+     Static
+ **************************************************************************************/
+
+vec3 GLMVec3FromBTVector3(const btVector3& from) {
+	return vec3(from.x(), from.y(), from.z());
+}
+
+vec4 GLMVec4FromBTVector4(const btVector4& from) {
+	return vec4(from.x(), from.y(), from.z(), from.w());
+}
+
+btVector3 BTVector3FromGLMVec3(const vec3& from) {
+	return btVector3(from.x, from.y, from.z);
+}
+
+btVector4 BTVector4FromGLMVec4(const vec4& from) {
+	return btVector4(from.x, from.y, from.z, from.w);
 }
 
 #endif // DESKTOP

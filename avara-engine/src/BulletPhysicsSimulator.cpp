@@ -15,6 +15,7 @@
 #include <LinearMath/btScalar.h> // btGetVersion() !
 
 #include "Box.h"
+#include "BulletDebugDrawer.h"
 #include "Capsule.h"
 #include "Cone.h"
 #include "Cylinder.h"
@@ -22,7 +23,6 @@
 #include "GeometryElement.h"
 #include "Logger.h"
 #include "Node.h"
-#include "PhysicsDebugDrawer.h"
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
@@ -64,7 +64,7 @@ static shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geom
 static shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 														   PHYSICS_SHAPE_TYPE type,
 														   vector<shared_ptr<btCollisionShape>>& childShapes);
-static btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option);
+static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
 static vec3 GLMVec3FromBTVector3(const btVector3& from);
 static vec4 GLMVec4FromBTVector4(const btVector4& from);
 static btVector3 BTVector3FromGLMVec3(const vec3& from);
@@ -84,12 +84,15 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 												   m_btBroadphase.get(),
 												   m_btSolver.get(),
 												   m_btCollisionConfiguration.get())),
+	m_debugDrawer(make_shared<BulletDebugDrawer>()),
 	m_bodyBTMapping(PhysicsBodyBTMapping()),
 	m_shapeBTMapping(PhysicsShapeBTMapping()),
 	m_activeBodies(set<shared_ptr<PhysicsBody>>()),
 	m_activeShapes(set<shared_ptr<PhysicsShape>>()) {
 
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
+		
+		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
@@ -103,7 +106,23 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 }
 
 /**************************************************************************************
-     Physics Simulator
+     Internal
+ **************************************************************************************/
+
+void BulletPhysicsSimulator::drawDebug(const glm::mat4& viewMat,
+									   const glm::mat4& projectionMat,
+									   const DEBUG_OPTIONS& debugOptions) {
+#ifdef DESKTOP
+	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+	m_debugDrawer->setDebugMode(btDebugModes);
+	m_debugDrawer->clear();
+	m_btWorld->debugDrawWorld();
+	m_debugDrawer->draw(viewMat, projectionMat);
+#endif
+}
+
+/**************************************************************************************
+     PhysicsSimulator
  **************************************************************************************/
 
 void BulletPhysicsSimulator::beginUpdate(PASS pass,
@@ -161,8 +180,6 @@ void BulletPhysicsSimulator::update(PASS pass,
 			}
 		}
 		
-		//AE_LOG->debug("update()");
-		
 		if (body->shape()) {
 			
 			shared_ptr<btRigidBody> btBody = nullptr;
@@ -212,11 +229,6 @@ void BulletPhysicsSimulator::step(float time) {
 	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
-	
-//#ifdef DESKTOP
-//	m_debugDrawer->clear();
-//#endif
-//	m_btWorld->debugDrawWorld();
 }
 						  
 /**************************************************************************************
@@ -590,19 +602,49 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 	return compoundShape;
 }
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModeForDebugOption(DEBUG_OPTIONS option) {
-	
-	switch (option) {
-		case DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES:	return btIDebugDraw::DBG_DrawAabb;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES:		return btIDebugDraw::DBG_DrawWireframe;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS:	return btIDebugDraw::DBG_DrawContactPoints;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS: 			return btIDebugDraw::DBG_DrawNormals;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS: 		return btIDebugDraw::DBG_DrawConstraints;
-		case DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS:	return btIDebugDraw::DBG_DrawConstraintLimits;
-		default:
-			AE_LOG->warn("No corresponding BT debug draw mode for debug option: {}", option);
-			return btIDebugDraw::DBG_NoDebug;
+btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
+	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
+
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
 	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
+	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
+	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
+	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
+	}
+	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
+		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
+	}
+
+	/* what do these do?
+	 
+	 btModes = (btIDebugDraw::DebugDrawModes)
+	 (btModes | btIDebugDraw::DBG_ProfileTimings);
+	 
+	 btModes = (btIDebugDraw::DebugDrawModes)
+	 (btModes | btIDebugDraw::DBG_DrawFeaturesText);
+	 
+	 btModes = (btIDebugDraw::DebugDrawModes)
+	 (btModes | btIDebugDraw::DBG_DrawFrames);
+	 
+	 btModes = (btIDebugDraw::DebugDrawModes)
+	 (btModes | btIDebugDraw::DBG_EnableCCD); */
+	
+	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
+	if (btModes != previousModes) {
+		AE_LOG->debug("Bullet debug modes: {}", btModes);
+	}
+	previousModes = btModes;
+	
+	return btModes;
 }
 
 vec3 GLMVec3FromBTVector3(const btVector3& from) {

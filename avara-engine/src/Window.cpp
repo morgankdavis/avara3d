@@ -221,10 +221,10 @@ void Window::enableVSync(bool enabled) {
 void Window::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
-#warning Refactor this
-	if (m_scene && m_scene->physicsWorld()) {
-		m_scene->physicsWorld()->debugOptions(m_debugOptions);
-	}
+//#warning Refactor this
+//	if (m_scene && m_scene->physicsWorld()) {
+//		m_scene->physicsWorld()->debugOptions(m_debugOptions);
+//	}
 }
 
 shared_ptr<InputManager> Window::inputManager() {

@@ -32,7 +32,7 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "PhysicsBody.h"
-#include "PhysicsDebugDrawer.h"
+//#include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "RenderContext.h"
@@ -279,9 +279,13 @@ void Scene::draw(Renderer& renderer,
 	
 	physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
 	
-	//	if (m_physicsWorld) {
-	//		m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
-	//	}
+	//if (m_physicsWorld) {
+		//m_physicsWorld->debugDrawer()->draw(viewMat, projectionMat);
+	auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+	if (bulletSimulator) {
+		bulletSimulator->drawDebug(viewMat, projectionMat, debugOptions);
+	}
+	//}
 }
 
 
@@ -716,7 +720,6 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			
 			cameraNode->transform(viewMat);
 			
-			//rootNode()->addChild(cameraNode);
 			scene.rootNode()->addChild(cameraNode);
 		}
 	}

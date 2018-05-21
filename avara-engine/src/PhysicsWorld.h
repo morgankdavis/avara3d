@@ -75,8 +75,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		void attachedToScene(std::shared_ptr<Scene> scene);
-		
-		void debugOptions(DEBUG_OPTIONS options);
+		//void debugOptions(DEBUG_OPTIONS options);
 
 	private:
 		

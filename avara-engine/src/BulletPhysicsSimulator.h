@@ -31,9 +31,9 @@ class btSequentialImpulseConstraintSolver;
 namespace ae {
 	
 	
+	class BulletDebugDrawer;
 	class Node;
 	class PhysicsBody;
-	class PhysicsDebugDrawer;
 	class PhysicsShape;
 	class Scene;
 	
@@ -68,7 +68,15 @@ namespace ae {
 		virtual ~BulletPhysicsSimulator();
 		
 		/**************************************************************************************
-		     Physics Simulator
+		     Internal
+		 **************************************************************************************/
+		
+		void drawDebug(const glm::mat4& viewMat,
+					   const glm::mat4& projectionMat,
+					   const DEBUG_OPTIONS& debugOptions);
+		
+		/**************************************************************************************
+		     PhysicsSimulator
 		 **************************************************************************************/
 		
 		void beginUpdate(PASS pass,
@@ -96,7 +104,7 @@ namespace ae {
 		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
 		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
-		std::shared_ptr<PhysicsDebugDrawer>						m_debugDrawer;
+		std::shared_ptr<BulletDebugDrawer>						m_debugDrawer;
 		
 		PhysicsBodyBTMapping									m_bodyBTMapping;
 		PhysicsShapeBTMapping									m_shapeBTMapping;

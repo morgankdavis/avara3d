@@ -275,6 +275,7 @@ void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 }
 
 void PhysicsBody::clearForces() {
+	#warning FIX
 	//if (m_btRigidBody) m_btRigidBody->clearForces();
 }
 

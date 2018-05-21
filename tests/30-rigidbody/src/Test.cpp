@@ -561,58 +561,72 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 
 	if (keysPressed.count(KEY::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 	if (keysPressed.count(KEY::P)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::G)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::C)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 	}
 	if (keysPressed.count(KEY::N)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
+															DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
+														 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 	}
 

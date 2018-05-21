@@ -14,8 +14,10 @@ Tests:
 	30 - rigidbodies
 
 
-		Restore/refactor? PhysicsDebugDrawer
+		Move PhysicsDebugDrawer drawLine() to Renderer/OpenGLRenderer (addLine?)
 			Add copy and assignment operators
+
+		Check/fill in PhysicsBody properties
 
 		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
 			If Body assatched to node, check geometry
