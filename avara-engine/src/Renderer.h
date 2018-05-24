@@ -81,11 +81,11 @@ namespace ae {
 							const glm::mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats);
-		virtual void render(std::shared_ptr<LineSet>,
+		virtual void render(std::shared_ptr<LineSet> lines,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat);
-		virtual void render(std::shared_ptr<PointSet>,
+		virtual void render(std::shared_ptr<PointSet> points,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat);

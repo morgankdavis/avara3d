@@ -34,10 +34,12 @@
 #include "Global.h"
 #include "Image.h"
 #include "Light.h"
+#include "Line.h"
 #include "Logger.h"
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
+#include "Point.h"
 #include "Program.h"
 #include "RenderContext.h"
 #include "Scene.h"
@@ -77,12 +79,13 @@ static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
 									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
 									   GLuint& glVBO, GLuint& glVAO);
 static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO);
 static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO);
-static void GetLinesVertexDataHandles();
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
 										set<shared_ptr<MaterialProperty>>& activeProperties,
@@ -96,9 +99,11 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 static void BufferAABBVertexData(Geometry& geometry,
 								 const Program& program,
 								 GLuint& glVBO, GLuint& glVAO);
-static void BufferLineSetVertexData(shared_ptr<Renderer::LineSet> lineSet,
+static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
+									Program& program,
 									GLuint& glVBO, GLuint& glVAO);
-static void BufferPointSetVertexData(shared_ptr<Renderer::PointSet> pointSet,
+static void BufferPointSetVertexData(Renderer::PointSet& pointSet,
+									 Program& program,
 									 GLuint& glVBO, GLuint& glVAO);
 static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle);	
@@ -120,8 +125,8 @@ static void SetMaterialOpenGLState(const Material& material,
 								   const DEBUG_OPTIONS& debugOptions);
 static void SetSkyboxOpenGLState();
 static void SetAABBOpenGLState();
-static void SetPointSetGLState();
 static void SetLineSetGLState();
+static void SetPointSetGLState();
 static void DrawGeometryElement(GeometryElement& element,
 								Program& program,
 								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
@@ -131,16 +136,19 @@ static void DrawSkyboxElement(GeometryElement& element,
 							  Node& pointOfView,
 							  GLuint vao, GLuint ibo);
 static void DrawAABB(Geometry& geometry,
+					 Program& program,
 					 mat4 modelMat,
 					 mat4 viewMat,
 					 mat4 projectionMat,
 					 GLuint glVBO, GLuint glVAO);
 static void DrawLineSet(Renderer::LineSet& lineSet,
+						Program& program,
 						mat4 modelMat,
 						mat4 viewMat,
 						mat4 projectionMat,
 						GLuint glVBO, GLuint glVAO);
 static void DrawPointSet(Renderer::PointSet& pointSet,
+						 Program& program,
 						 mat4 modelMat,
 						 mat4 viewMat,
 						 mat4 projectionMat,
@@ -240,10 +248,14 @@ OpenGLRenderer::~OpenGLRenderer() {
 	m_activeGeometryElements.clear();
 	m_activeMaterialProperties.clear();
 	m_activeAABBGeometries.clear();
+	m_activeLineSets.clear();
+	m_activePointSets.clear();
 	
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
 	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
+	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
+	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 }
 
 /**************************************************************************************
@@ -288,6 +300,8 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	m_activeGeometryElements.clear();
 	m_activeMaterialProperties.clear();
 	m_activeAABBGeometries.clear();
+	m_activeLineSets.clear();
+	m_activePointSets.clear();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -305,6 +319,8 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
 	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
+	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
+	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 	
 	CheckGLError();
 }
@@ -429,14 +445,38 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	m_activeGeometryElements.emplace(element);
 }
 	
-void OpenGLRenderer::render(std::shared_ptr<LineSet>,
+void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
 	
+	shared_ptr<Program> program = Program::Lines();
+	
+	// check and load vertex data if necessary
+	
+	GLuint vbo, vao;
+	GetLineSetVertexDataHandles(lines,
+								*program,
+								m_lineSetGLMapping,
+								vbo, vao);
+
+	// configure OpenGL state
+	
+	SetLineSetGLState();
+	
+	// draw
+		
+	DrawLineSet(*lines,
+				*program,
+				modelMat, viewMat, projectionMat,
+				vbo, vao);
+	//stats.polygons += element->faces().size();
+	
+	// save reference for housekeeping
+	m_activeLineSets.emplace(lines);
 }
 
-void OpenGLRenderer::render(std::shared_ptr<PointSet>,
+void OpenGLRenderer::render(std::shared_ptr<PointSet> points,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -527,7 +567,7 @@ static void RenderAABB(shared_ptr<Geometry> geometry,
 	
 	SetAABBOpenGLState();
 	
-	DrawAABB(*geometry, modelMat, viewMat, projectionMat, vbo, vao);
+	DrawAABB(*geometry, *Program::AABB(), modelMat, viewMat, projectionMat, vbo, vao);
 }
 	
 static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
@@ -608,15 +648,37 @@ static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
 }
 	
 static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
 	
+	if (!glMapping.count(lineSet)) {
+		BufferLineSetVertexData(*lineSet, program, glVBO, glVAO);
+		
+		glMapping[lineSet] = make_pair(glVBO, glVAO);
+	}
+	else {
+		auto mapping = glMapping[lineSet];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
+	}
 }
 
 static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO) {
 	
+	if (!glMapping.count(pointSet)) {
+		BufferPointSetVertexData(*pointSet, program, glVBO, glVAO);
+		
+		glMapping[pointSet] = make_pair(glVBO, glVAO);
+	}
+	else {
+		auto mapping = glMapping[pointSet];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
+	}
 }
 	
 static void GetMaterialGLTextureHandles(Material& material,
@@ -670,7 +732,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG->info("Loading vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG->info("Buffering vertex data for geometry element {:p}...", (void*)&element);
 	
 	program.use();
 	
@@ -687,7 +749,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 			// attrib index
@@ -730,7 +792,7 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG->info("Loading skybox vertex data...");
+	AE_LOG->info("Buffering skybox vertex data...");
 	
 	program.use();
 	
@@ -745,7 +807,7 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
@@ -770,7 +832,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
-	AE_LOG->info("Loading vertex data for AABB {:p}...", (void*)&geometry);
+	AE_LOG->info("Buffering vertex data for AABB {:p}...", (void*)&geometry);
 	
 	map<string, vec3> bp = *(geometry.boundingPoints(false));
 	
@@ -811,7 +873,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 	// attrib index
@@ -823,12 +885,56 @@ static void BufferAABBVertexData(Geometry& geometry,
 	glEnableVertexAttribArray(positionIndex);
 }
 	
-static void BufferLineSetVertexData(shared_ptr<Renderer::LineSet> lineSet,
+static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
+									Program& program,
 									GLuint& glVBO, GLuint& glVAO) {
 	
+	// back each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
+	
+	auto massagedBuffer = vector<vec3>();
+	massagedBuffer.reserve(lineSet.size()*4);
+
+	for (auto l : lineSet) {
+		auto fromLocation = l->fromLocation();
+		auto fromColor = l->fromColor();
+		auto toLocation = l->toLocation();
+		auto toColor = l->toColor();
+		massagedBuffer.emplace_back(fromLocation);
+		massagedBuffer.emplace_back(vec3(fromColor->r, fromColor->g, fromColor->b));
+		massagedBuffer.emplace_back(toLocation);
+		massagedBuffer.emplace_back(vec3(toColor->r, toColor->g, toColor->b));
+	}
+	
+	glGenBuffers(1, &glVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	glBufferData(GL_ARRAY_BUFFER, massagedBuffer.size() * sizeof(vec3), &(massagedBuffer[0]), GL_STATIC_DRAW);
+	
+	glGenVertexArrays(1, &glVAO);
+	glBindVertexArray(glVAO);
+	
+	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+	
+	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	glVertexAttribPointer(positionIndex, 		// attrib index
+						  3, 					// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 			// component type
+						  GL_FALSE, 			// normalize
+						  sizeof(vec3)*2, 		// stride
+						  0); 					// start offset
+	glEnableVertexAttribArray(positionIndex);
+	
+	GLuint colorIndex = program.getAttributeLocation("vertex_color");
+	glVertexAttribPointer(colorIndex, 			// attrib index
+						  3, 					// num components per attrib (3 float in vec3)
+						  GL_FLOAT, 			// component type
+						  GL_FALSE, 			// normalize
+						  sizeof(vec3)*2, 		// stride
+						  (void*)sizeof(vec3));	// start offset
+	glEnableVertexAttribArray(colorIndex);
 }
 
-static void BufferPointSetVertexData(shared_ptr<Renderer::PointSet> pointSet,
+static void BufferPointSetVertexData(Renderer::PointSet& pointSet,
+									 Program& program,
 									 GLuint& glVBO, GLuint& glVAO) {
 	
 }
@@ -1275,12 +1381,20 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
-	
-static void SetPointSetGLState() {
-	
-}
 
 static void SetLineSetGLState() {
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_LINE_SMOOTH);
+	
+	// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
+	//glDepthRange(0.0, 0.9);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(0.0, 0.0);
+}
+	
+static void SetPointSetGLState() {
 	
 }
 
@@ -1332,42 +1446,56 @@ static void DrawSkyboxElement(GeometryElement& element,
 }
 	
 static void DrawAABB(Geometry& geometry,
+					 Program& program,
 					 mat4 modelMat,
 					 mat4 viewMat,
 					 mat4 projectionMat,
 					 GLuint glVBO, GLuint glVAO) {
 	
-	auto program = Program::AABB();
-	program->use();
+	//auto program = Program::AABB();
+	program.use();
 	
 	// uniforms
 	
-	program->setUniform("model", modelMat);
-	program->setUniform("view", inverse(viewMat));
-	program->setUniform("projection", projectionMat);
+	program.setUniform("model", modelMat);
+	program.setUniform("view", inverse(viewMat));
+	program.setUniform("projection", projectionMat);
 	
 	// draw
 	
 	glBindVertexArray(glVAO);
 	glDrawArrays(GL_LINES, 0, 24);
 }
-	
+
 static void DrawLineSet(Renderer::LineSet& lineSet,
+						Program& program,
 						mat4 modelMat,
 						mat4 viewMat,
 						mat4 projectionMat,
 						GLuint glVBO, GLuint glVAO) {
 	
+	program.use();
+	
+	// uniforms
+	
+	program.setUniform("view", inverse(viewMat));
+	program.setUniform("projection", projectionMat);
+	
+	// draw
+	
+	glBindVertexArray(glVAO);
+	glDrawArrays(GL_LINES, 0, lineSet.size() * 4);
 }
 
 static void DrawPointSet(Renderer::PointSet& pointSet,
+						 Program& program,
 						 mat4 modelMat,
 						 mat4 viewMat,
 						 mat4 projectionMat,
 						 GLuint glVBO, GLuint glVAO) {
 	
 }
-	
+
 static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
 											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
 	

@@ -14,6 +14,9 @@ Tests:
 	30 - rigidbodies
 
 
+		BufferLineSetVertexData()
+			&(lineSet)	<-- probably not right (might need to switch to Vector)
+
 		Move PhysicsDebugDrawer drawLine() to Renderer/OpenGLRenderer (addLine?)
 			Add copy and assignment operators
 
@@ -22,6 +25,16 @@ Tests:
 		Add width and diameter to Line/Point
 
 		Make Line & Point shaders use model matrixes?
+
+
+
+		GetGeometryElementGLVertexDataHandles, etc -> if old data dirty, DEALLOCATE IT
+
+
+		Try glViewport() with screen points width and height...
+
+		Move Program static functions to instance variables in OpenGLRenderer
+
 
 
 		Check/fill in PhysicsBody properties

@@ -75,7 +75,7 @@ void Renderer::render(shared_ptr<GeometryElement> element,
 	AE_LOG->critical("Renderer::render(<GeometryElement>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<LineSet>,
+void Renderer::render(shared_ptr<LineSet> lines,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
@@ -83,7 +83,7 @@ void Renderer::render(shared_ptr<LineSet>,
 	AE_LOG->critical("Renderer::render(<LineSet>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<PointSet>,
+void Renderer::render(shared_ptr<PointSet> points,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
