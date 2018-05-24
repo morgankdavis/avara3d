@@ -137,14 +137,21 @@ Tests:
 		unsigned int n = std::thread::hardware_concurrency();
 		std::cout << n << " concurrent threads are supported.\n";
 
-	50 - network
-		"Entity"
+	50 - animation
+		http://guillaumeblanc.github.io/ozz-animation/
 
-	60 - audio
+	60 - GUI
 
 	70 - scripting
 
-	80 - vulkan? metal? deferred shading?
+	80 - audio
+
+	90 - network
+		"Entity"
+
+	100 - vulkan? metal? deferred shading?
+
+	120 - world editor
 
 ——————————————————————————————————
 
