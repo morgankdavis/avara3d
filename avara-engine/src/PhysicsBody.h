@@ -115,6 +115,8 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
+		void resting(bool resting);
+		
 		void attachedToNode(std::shared_ptr<Node> node);
 		void geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 		

@@ -308,6 +308,10 @@ void PhysicsBody::resetTransform() {
      Internal
  ***************************************************************************************/
 
+void PhysicsBody::resting(bool resting) {
+	m_resting = resting;
+}
+
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
 	if (node) {

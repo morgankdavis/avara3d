@@ -14,8 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-		Back-fill PhysicsBody properties
-
 		Add physics stats!
 
 		Try margin 0 for static objects
