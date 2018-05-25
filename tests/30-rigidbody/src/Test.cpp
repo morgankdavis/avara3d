@@ -57,10 +57,10 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);
-	physicsBody->restitution(0.65);
+	physicsBody->restitution(1.0);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
-	physicsBody->velocity(direction * 50.0f);
+	physicsBody->linearVelocity(direction * 50.0f);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -358,7 +358,7 @@ int Test::run(const vector<string>& args) {
 //	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
-	planePhysicsBody->restitution(0.1);
+	planePhysicsBody->restitution(0.0);
 	planePhysicsBody->friction(0.75);
 	planePhysicsBody->rollingFriction(0.75);
 	planeNode->physicsBody(planePhysicsBody);

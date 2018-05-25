@@ -342,12 +342,37 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
+//	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
+//		MODEL =					1 << 0,
+//		TRANSFORM =				1 << 1,
+//		INERTIAL_STATE =		1 << 2, // linear velocity, angular velocity
+//		DAMPING =				1 << 3,
+//		FORCES =				1 << 4,
+//		TORQUES =				1 << 5,
+//		ALL = 					UINT_MAX
+//	};
+		
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
-		MODEL =					1 << 0,
-		TRANSFORM =				1 << 1,
-		FORCES =				1 << 2,
-		TORQUES =				1 << 3,
-		ALL = 					UINT_MAX
+		TYPE =							1 << 0,
+		SHAPE =							1 << 1,
+		GRAVITY =						1 << 2,
+		MASS =							1 << 3,
+		LOCAL_INERTIA =				1 << 4,
+		FRICTION =						1 << 5,
+		ROLLING_FRICTION =				1 << 6,
+		RESTITUTION =					1 << 7,
+		LINEAR_VELOCITY =				1 << 8,
+		ANGULAR_VELOCITY =				1 << 9,
+		LINEAR_FACTOR =					1 << 10,
+		ANGULAR_FACTOR =				1 << 11,
+		LINEAR_DAMPING =				1 << 12,
+		ANGULAR_DAMPING =				1 << 13,
+		LINEAR_SLEEPING_THRESHOLD =		1 << 14,
+		ANGULAR_SLEEPING_THRESHOLD =	1 << 15,
+		ALLOWS_RESTING =				1 << 16,
+		FORCES =						1 << 17,
+		TORQUES =						1 << 18,
+		ALL = 							UINT_MAX
 	};
 			
 #define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))

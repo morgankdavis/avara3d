@@ -54,22 +54,16 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsShape> shape() const;
 		void shape(std::shared_ptr<PhysicsShape> shape);
-		
-		glm::vec3 velocityFactor() const;
-		void velocityFactor(glm::vec3 factor);
-		
-		glm::vec3 angularVelocityFactor() const;
-		void angularVelocityFactor(glm::vec3 factor);
-		
+
 		bool affectedByGravity() const;
 		void affectedByGravity(bool flag);
 		
 		float mass() const;
 		void mass(float mass);
 		
-		/* REMOVE? */ float charge() const;
-		/* REMOVE? */ void charge(float charge);
-		
+		glm::vec3 localInertia() const;
+		void localInertia(glm::vec3 moment);
+
 		float friction() const;
 		void friction(float friction);
 		
@@ -79,20 +73,23 @@ namespace ae {
 		float restitution() const;
 		void restitution(float restitution);
 		
-		float damping() const;
-		void damping(float damping);
-		
-		float angularDamping() const;
-		void angularDamping(float damping);
-		
-		glm::vec3 momentOfInertia() const;
-		void momentOfInertia(glm::vec3 moment);
-		
-		glm::vec3 velocity() const;
-		void velocity(glm::vec3 velocity);
+		glm::vec3 linearVelocity() const;
+		void linearVelocity(glm::vec3 velocity);
 		
 		glm::vec3 angularVelocity() const;
 		void angularVelocity(glm::vec3 velocity);
+		
+		glm::vec3 linearFactor() const;
+		void linearFactor(glm::vec3 factor);
+		
+		glm::vec3 angularFactor() const;
+		void angularFactor(glm::vec3 factor);
+		
+		float linearDamping() const;
+		void linearDamping(float damping);
+		
+		float angularDamping() const;
+		void angularDamping(float damping);
 
 		float linearSleepingThreshold() const;
 		void linearSleepingThreshold(float threshold);
@@ -104,7 +101,6 @@ namespace ae {
 		void allowsResting(bool flag);
 		
 		bool resting() const;
-		void resting(bool flag);
 		
 		// categoryBitmask
 		// contactTestBitmask
@@ -136,19 +132,18 @@ namespace ae {
 
 		PHYSICS_BODY_TYPE 						m_type;
 		std::shared_ptr<PhysicsShape> 			m_shape;
-		glm::vec3 								m_velocityFactor;
-		glm::vec3 								m_angularVelocityFactor;
 		bool 									m_affectedByGravity;
 		float 									m_mass;
-		float 									m_charge;
+		glm::vec3 								m_localInertia;
 		float 									m_friction;
 		float 									m_rollingFriction;
 		float 									m_restitution;
-		float 									m_damping;
-		float 									m_angularDamping;
-		glm::vec3 								m_momentOfInertia;
-		glm::vec3 								m_velocity;
+		glm::vec3 								m_linearVelocity;
 		glm::vec3 								m_angularVelocity;
+		glm::vec3 								m_linearFactor;
+		glm::vec3 								m_angularFactor;
+		float 									m_linearDamping;
+		float 									m_angularDamping;
 		float									m_linearSleepingThreshold;
 		float									m_angularSleepingThreshold;
 		bool 									m_allowsResting;

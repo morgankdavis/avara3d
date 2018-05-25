@@ -46,18 +46,17 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 PhysicsBody::PhysicsBody():
 	m_type(PHYSICS_BODY_TYPE::STATIC),
 	m_shape(nullptr),
-	m_velocityFactor({1.0, 1.0, 1.0}),
-	m_angularVelocityFactor({1.0, 1.0, 1.0}),
+	m_linearFactor({1.0, 1.0, 1.0}),
+	m_angularFactor({1.0, 1.0, 1.0}),
 	m_affectedByGravity(true),
 	m_mass(1.0),
-	m_charge(0.0),
-	m_friction(0.0),
-	m_rollingFriction(0.0),
-	m_restitution(0.0),
-	m_damping(0.0),
+	m_friction(0.5),
+	m_rollingFriction(0.5),
+	m_restitution(0.5),
+	m_linearDamping(0.0),
 	m_angularDamping(0.0),
-	m_momentOfInertia({0, 0, 0}),
-	m_velocity({0, 0, 0}),
+	m_localInertia({0, 0, 0}),
+	m_linearVelocity({0, 0, 0}),
 	m_angularVelocity({0, 0, 0}),
 	m_resting(false),
 	m_allowsResting(true),
@@ -94,7 +93,7 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
 	m_type = type;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MODEL);
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE);
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
@@ -104,22 +103,8 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	m_shape = shape;
 	m_shape->attachedToBody(shared_from_this());
-}
-
-vec3 PhysicsBody::velocityFactor() const {
-	return m_velocityFactor;
-}
-
-void PhysicsBody::velocityFactor(vec3 factor) {
-	m_velocityFactor = factor;
-}
-
-vec3 PhysicsBody::angularVelocityFactor() const {
-	return m_angularVelocityFactor;
-}
-
-void PhysicsBody::angularVelocityFactor(vec3 factor) {
-	m_angularVelocityFactor = factor;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
 }
 
 bool PhysicsBody::affectedByGravity() const {
@@ -128,6 +113,8 @@ bool PhysicsBody::affectedByGravity() const {
 
 void PhysicsBody::affectedByGravity(bool flag) {
 	m_affectedByGravity = flag;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::GRAVITY);
 }
 
 float PhysicsBody::mass() const {
@@ -136,14 +123,18 @@ float PhysicsBody::mass() const {
 
 void PhysicsBody::mass(float mass) {
 	m_mass = mass;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MASS);
 }
 
-float PhysicsBody::charge() const {
-	return m_charge;
+vec3 PhysicsBody::localInertia() const {
+	return m_localInertia;
 }
 
-void PhysicsBody::charge(float charge) {
-	m_charge = charge;
+void PhysicsBody::localInertia(vec3 moment) {
+	m_localInertia = moment;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LOCAL_INERTIA);
 }
 
 float PhysicsBody::friction() const {
@@ -152,6 +143,8 @@ float PhysicsBody::friction() const {
 
 void PhysicsBody::friction(float friction) {
 	m_friction = friction;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION);
 }
 
 float PhysicsBody::rollingFriction() const {
@@ -160,6 +153,8 @@ float PhysicsBody::rollingFriction() const {
 
 void PhysicsBody::rollingFriction(float friction) {
 	m_rollingFriction = friction;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION);
 }
 
 float PhysicsBody::restitution() const {
@@ -168,38 +163,18 @@ float PhysicsBody::restitution() const {
 
 void PhysicsBody::restitution(float restitution) {
 	m_restitution = restitution;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION);
 }
 
-float PhysicsBody::damping() const {
-	return m_damping;
+vec3 PhysicsBody::linearVelocity() const {
+	return m_linearVelocity;
 }
 
-void PhysicsBody::damping(float damping) {
-	m_damping = damping;
-}
-
-float PhysicsBody::angularDamping() const {
-	return m_angularDamping;
-}
-
-void PhysicsBody::angularDamping(float damping) {
-	m_angularDamping = damping;
-}
-
-vec3 PhysicsBody::momentOfInertia() const {
-	return m_momentOfInertia;
-}
-
-void PhysicsBody::momentOfInertia(vec3 moment) {
-	m_momentOfInertia = moment;
-}
-
-vec3 PhysicsBody::velocity() const {
-	return m_velocity;
-}
-
-void PhysicsBody::velocity(vec3 velocity) {
-	m_velocity = velocity;
+void PhysicsBody::linearVelocity(vec3 velocity) {
+	m_linearVelocity = velocity;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
 }
 
 vec3 PhysicsBody::angularVelocity() const {
@@ -208,6 +183,48 @@ vec3 PhysicsBody::angularVelocity() const {
 
 void PhysicsBody::angularVelocity(vec3 velocity) {
 	m_angularVelocity = velocity;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
+}
+
+vec3 PhysicsBody::linearFactor() const {
+	return m_linearFactor;
+}
+
+void PhysicsBody::linearFactor(vec3 factor) {
+	m_linearFactor = factor;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR);
+}
+
+vec3 PhysicsBody::angularFactor() const {
+	return m_angularFactor;
+}
+
+void PhysicsBody::angularFactor(vec3 factor) {
+	m_angularFactor = factor;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR);
+}
+
+float PhysicsBody::linearDamping() const {
+	return m_linearDamping;
+}
+
+void PhysicsBody::linearDamping(float damping) {
+	m_linearDamping = damping;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING);
+}
+
+float PhysicsBody::angularDamping() const {
+	return m_angularDamping;
+}
+
+void PhysicsBody::angularDamping(float damping) {
+	m_angularDamping = damping;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
@@ -216,6 +233,8 @@ float PhysicsBody::linearSleepingThreshold() const {
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
 	m_linearSleepingThreshold = threshold;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
@@ -224,6 +243,8 @@ float PhysicsBody::angularSleepingThreshold() const {
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
 	m_angularSleepingThreshold = threshold;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD);
 }
 
 bool PhysicsBody::allowsResting() const {
@@ -232,18 +253,31 @@ bool PhysicsBody::allowsResting() const {
 
 void PhysicsBody::allowsResting(bool flag) {
 	m_allowsResting = flag;
+	
+	//setActiovationState() ?
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING);
 }
 
 bool PhysicsBody::resting() const {
+	
+	// setActivationState 	( 	i
+	// void 	forceActivationState (int newState) const
+	// void 	activate (bool forceActivation=false) const 
+	// bool 	isActive () const 
+	
 	return m_resting;
 }
 
-void PhysicsBody::resting(bool flag) {
-	m_resting = flag;
-}
-
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
-	applyForce(force, {0, 0, 0}, impulse);
+	#warning fix
+	
+	//applyForce(force, {0, 0, 0}, impulse);
+//	void 	applyCentralImpulse (const btVector3 &impulse)
+//	
+//	void 	applyTorqueImpulse (const btVector3 &torque)
+	
+	
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
@@ -280,7 +314,8 @@ void PhysicsBody::clearForces() {
 }
 
 void PhysicsBody::resetTransform() {
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
+	#warning FIX
+	//m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
 }
 
 /***************************************************************************************

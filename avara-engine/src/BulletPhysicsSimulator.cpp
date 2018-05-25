@@ -256,11 +256,20 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	auto node = body->node().lock();
 	auto type = body->type();
 	
+	auto dirtyBits = body->dirtyBits();
+	
 	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
 	// we also re-create the body
+	// additionally, since some physical properties have to be passed via btRigidBodyConstructionInfo,
+	// they require re-creating the rigid body
 	
-	if (shapeWasDirty || PHYSICS_BODY_DIRTY_BITS_CONTAINS(body->dirtyBits(),
-														  PHYSICS_BODY_DIRTY_BITS::MODEL)) {
+	if (shapeWasDirty
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LOCAL_INERTIA)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION)) {
 		
 		AE_LOG->info("Creating rigid body for physics body {:p}...", (void*)&body);
 
@@ -270,7 +279,8 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 		
-		btVector3 localInertia(0, 0, 0);
+		//btVector3 localInertia(0, 0, 0);
+		btVector3 localInertia = BTVector3FromGLMVec3(body->localInertia());
 		auto mass = body->mass();
 		if (mass != 0) {
 			collisionShape->calculateLocalInertia(mass, localInertia);
@@ -281,30 +291,16 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 															   collisionShape.get(),
 															   localInertia);
 		
-		// √ velocity factor
-		// √ angular velocity factor
-		// afected by gravity
 		rigidBodyInfo.m_mass = body->mass();
-		// charge
+		rigidBodyInfo.m_linearDamping = body->linearDamping();
+		rigidBodyInfo.m_angularDamping = body->angularDamping();
 		rigidBodyInfo.m_friction = body->friction();
 		rigidBodyInfo.m_rollingFriction = body->rollingFriction();
 		rigidBodyInfo.m_restitution = body->restitution();
-		rigidBodyInfo.m_linearDamping = body->damping();
-		rigidBodyInfo.m_angularDamping = body->angularDamping();
-		// moment of inertia
-		// √ velocity
-		// √ angular velocity
-		// resting
-		// allows resting
+		rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
+		rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
 		
 		auto newBody = make_shared<btRigidBody>(rigidBodyInfo);
-		
-		newBody->setLinearFactor(BTVector3FromGLMVec3(body->velocityFactor()));
-		newBody->setAngularFactor(BTVector3FromGLMVec3(body->angularVelocityFactor()));
-		newBody->setLinearVelocity(BTVector3FromGLMVec3(body->velocity()));
-		newBody->setAngularVelocity(BTVector3FromGLMVec3(body->angularVelocity()));
-		//newBody->setGravity()
-		
 		btWorld.addRigidBody(newBody.get());
 		
 		// out parameters
@@ -314,12 +310,102 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		bodyBTMapping[body] = make_pair(newBody, newMotionState);
 		
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::MODEL));
+													   PHYSICS_BODY_DIRTY_BITS::TYPE));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::SHAPE));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::LOCAL_INERTIA));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::FRICTION));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::RESTITUTION));
 	}
 	else {
 		auto mapping = bodyBTMapping[body];
 		*btBody = get<0>(mapping);
 		*btMotionState = get<1>(mapping);
+	}
+	
+	// check and set the rest of the properties
+	
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::GRAVITY)) {
+		if (body->affectedByGravity()) {
+#warning this might be wrong!
+			(*btBody)->setGravity((btVector3){1.0, 1.0, 1.0});
+		}
+		else {
+			(*btBody)->setGravity((btVector3){0.0, 0.0, 0.0});
+		}
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::GRAVITY));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR)) {
+		(*btBody)->setLinearFactor(BTVector3FromGLMVec3(body->linearFactor()));
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR)) {
+		(*btBody)->setAngularFactor(BTVector3FromGLMVec3(body->angularFactor()));
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING)) {
+		(*btBody)->setDamping(body->linearDamping(), body->angularDamping());
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD)
+		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD)) {
+		(*btBody)->setSleepingThresholds(body->linearSleepingThreshold(), body->angularSleepingThreshold());
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD));
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING)) {
+		if (body->allowsResting()) {
+			(*btBody)->setActivationState(ACTIVE_TAG);
+		}
+		else {
+			(*btBody)->setActivationState(DISABLE_DEACTIVATION);
+		}
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES)) {
+#warning TODO
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::FORCES));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES)) {
+#warning TODO
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::TORQUES));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY)) {
+		(*btBody)->setLinearVelocity(BTVector3FromGLMVec3(body->linearVelocity()));
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY));
+	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY)) {
+		(*btBody)->setAngularVelocity(BTVector3FromGLMVec3(body->angularVelocity()));
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY));
 	}
 }
 
