@@ -34,8 +34,6 @@ namespace ae {
 		static std::shared_ptr<Program> Default();
 		static std::shared_ptr<Program> Skybox();
 		static std::shared_ptr<Program> Wireframe();
-        static std::shared_ptr<Program> AABB();
-		static std::shared_ptr<Program> PhysicsDebugLine();
 		static std::shared_ptr<Program> Lines();
 		static std::shared_ptr<Program> Points();
 		

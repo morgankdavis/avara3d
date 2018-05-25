@@ -59,22 +59,6 @@ shared_ptr<Program> Program::Wireframe() {
 	return program;
 }
 
-shared_ptr<Program> Program::AABB() {
-    static shared_ptr<Program> program = nullptr;
-    if (!program) {
-        program = make_shared<Program>("aabb");
-    }
-    return program;
-}
-
-shared_ptr<Program> Program::PhysicsDebugLine() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("physicsDebugLine");
-	}
-	return program;
-}
-
 shared_ptr<Program> Program::Lines() {
 	static shared_ptr<Program> program = nullptr;
 	if (!program) {

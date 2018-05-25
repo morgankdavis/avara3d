@@ -14,20 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
-		Add width and diameter to Line/Point
-
-		Make Line & Point shaders use model matrixes?
-
-		CLEAN POINT AND LINE SETS
-
-		
 		Turn on wireframe -> materials properties get deallocated
 			-> either set dirty, or make them active anyway
-
-
-
-		GetGeometryElementGLVertexDataHandles, etc -> if old data dirty, DEALLOCATE IT
-
 
 		Try glViewport() with screen points width and height...
 

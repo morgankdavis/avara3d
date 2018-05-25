@@ -146,6 +146,14 @@ static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping);
 static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping);
+static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
+											 OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
+											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
+									 OpenGLRenderer::LineSetGLMapping& glMapping);
+static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
+									  OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 							   FONScontext* fonsContext, int fonsFont);
@@ -550,6 +558,8 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
+		DeleteGeometryElementGLResources(element, glMapping);
+		
 		BufferGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
@@ -580,6 +590,8 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	if (GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(element->dirtyBits(),
 											 GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA)) {
 		
+		DeleteGeometryElementGLResources(element, glMapping);
+		
 		BufferSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
@@ -606,6 +618,8 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 	
 	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry->dirtyBits(),
 									 GEOMETRY_DIRTY_BITS::EXTENT)) {
+		
+		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
 		
 		// construct a new lineset matching the geometry's extent
 		
@@ -712,6 +726,8 @@ static void GetMaterialGLTextureHandles(Material& material,
 			
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
+				
+				DeleteMaterialPropertyGLResources(property, glMapping);
 				
 				GLuint textureID = 0;
 				BufferMaterialPropertyTexture(*property, textureID);
@@ -1525,24 +1541,11 @@ static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& ac
 	
 	// deallocate unused elements
 	if (unused.size()) {
-		AE_LOG->debug("Deallocating vertex data for {} geometry elements...", unused.size());
+		//AE_LOG->debug("Deleting GL resources for {} geometry elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<GeometryElement> element = *it;
-			auto glHandles = glMapping[element];
-			
-			GLuint vbo = get<0>(glHandles);
-			GLuint vao = get<1>(glHandles);
-			GLuint ibo = get<2>(glHandles);
-			
-			glDeleteBuffers(1, &vbo);
-			glDeleteVertexArrays(1, &vao);
-			glDeleteBuffers(1, &ibo);
-			
-			glMapping.erase(element);
-			
-			element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
-																  GEOMETRY_ELEMENT_DIRTY_BITS::ALL));
+			DeleteGeometryElementGLResources(element, glMapping);
 		}
 	}
 }
@@ -1574,18 +1577,11 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 	
 	// deallocate unused properties
 	if (unused.size()) {
-		AE_LOG->debug("Deallocating data for {} textures...", unused.size());
+		//AE_LOG->debug("Deleting GL resources for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<MaterialProperty> property = *it;
-			GLuint handle = glMapping[property];
-			
-			glDeleteTextures(1, &handle);
-			
-			glMapping.erase(property);
-			
-			property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
-																	MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+			DeleteMaterialPropertyGLResources(property, glMapping);
 		}
 	}
 }
@@ -1593,10 +1589,107 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
 	
+	// gather sorted vector of LineSets used this frame
+	auto activeLineSetsSorted = vector<shared_ptr<LineSet>>();
+	activeLineSetsSorted.reserve(glMapping.size());
+	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
+	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
+	
+	// gather sorted vector of LineSets in the mapping
+	auto storedLineSetsSorted = vector<shared_ptr<LineSet>>();
+	storedLineSetsSorted.reserve(glMapping.size());
+	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
+		storedLineSetsSorted.emplace_back(it->first);
+	}
+	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
+	
+	// find unused LineSets
+	auto unused = vector<shared_ptr<LineSet>>(storedLineSetsSorted.size());
+	vector<shared_ptr<LineSet>>::iterator it;
+	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
+						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
+						unused.begin());
+	unused.resize(it - unused.begin());
+	
+	// deallocate unused LineSets
+	if (unused.size()) {
+		//AE_LOG->debug("Deleting GL resources for {} line sets...", unused.size());
+		
+		for (it=unused.begin(); it!=unused.end(); ++it) {
+			shared_ptr<LineSet> lineSet = *it;
+			DeleteLineSetGLResources(lineSet, glMapping);
+		}
+	}
 }
 
 static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping) {
+	
+}
+
+static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
+											 OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+	
+	if (glMapping.count(element)) {
+		
+		AE_LOG->debug("Deleting GL resources for geometry element {:p}...", (void*)element.get());
+		
+		auto glHandles = glMapping[element];
+		
+		GLuint vbo = get<0>(glHandles);
+		GLuint vao = get<1>(glHandles);
+		GLuint ibo = get<2>(glHandles);
+		
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(1, &ibo);
+		
+		glMapping.erase(element);
+		
+		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
+															  GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
+	}
+}
+
+static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
+											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+	
+	if (glMapping.count(property)) {
+		
+		AE_LOG->debug("Deleting GL resources for material property {:p}...", (void*)property.get());
+		
+		GLuint handle = glMapping[property];
+		
+		glDeleteTextures(1, &handle);
+		
+		glMapping.erase(property);
+		
+		property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
+																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
+	}
+}
+
+static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
+									 OpenGLRenderer::LineSetGLMapping& glMapping) {
+	
+	if (glMapping.count(lineSet)) {
+		
+		AE_LOG->debug("Deleting GL resources for line set {:p}..", (void*)lineSet.get());
+		
+		auto glHandles = glMapping[lineSet];
+		
+		GLuint vbo = get<0>(glHandles);
+		GLuint vao = get<1>(glHandles);
+		
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+		
+		glMapping.erase(lineSet);
+	}
+}
+
+static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
+									  OpenGLRenderer::PointSetGLMapping& glMapping) {
 	
 }
 	
