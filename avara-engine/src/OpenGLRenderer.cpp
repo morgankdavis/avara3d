@@ -1674,7 +1674,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG->debug("Deleting GL resources for line set {:p}..", (void*)lineSet.get());
+		AE_LOG->trace("Deleting GL resources for line set {:p}..", (void*)lineSet.get());
 		
 		auto glHandles = glMapping[lineSet];
 		

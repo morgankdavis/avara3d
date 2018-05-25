@@ -18,11 +18,16 @@
 
 namespace ae {
 	
+	/**************************************************************************************
+	     Public
+	 **************************************************************************************/
 	
 	class Line;
 	class Point;
 	
-
+	using LineSet = std::set<std::shared_ptr<Line>>;
+	using PointSet = std::set<std::shared_ptr<Point>>;
+	
 	enum class LOG_LEVEL : unsigned {
 		TRACE =		0,
 		DEBUG =		1,
@@ -97,12 +102,6 @@ namespace ae {
 		SHOW_PHYSICS_CONSTRAINTS =			1 << 10,
 		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
 	};
-		
-	using LineSet = 
-		std::set<std::shared_ptr<Line>>;
-	
-	using PointSet = 
-		std::set<std::shared_ptr<Point>>;
 	
 #define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<unsigned>(options) & static_cast<unsigned>(option))
 #define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) | static_cast<unsigned>(option)))
@@ -119,18 +118,6 @@ namespace ae {
 #define LOGGER_SINKS_ADD(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) | static_cast<unsigned>(sink)))
 #define LOGGER_SINKS_REMOVE(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) & ~ static_cast<unsigned>(sink)))
 
-	typedef struct {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 textureCoordinate;
-	} Vertex;
-	
-	typedef struct {
-		unsigned a;
-		unsigned b;
-		unsigned c;
-	} Face;
-	
 	enum class PHYSICS_BODY_TYPE : unsigned {
 		STATIC =	0,
 		DYNAMIC =	1,
@@ -142,11 +129,7 @@ namespace ae {
 		CONVEX_HULL = 			1,
 		CONCAVE_POLYHEDRON =	2
 	};
-	
-// get rid of this? or make this patter universal...
-#define PHYSICS_SHAPE_TYPE_TO_RAW(type) (static_cast<unsigned>(type))
-#define PHYSICS_SHAPE_TYPE_FROM_RAW(raw) (static_cast<PHYSICS_SHAPE_TYPE>(raw))
-	
+
 	enum class KEY : int {
 		UNKNOWN = 0,
 		SPACE = 32,
@@ -273,9 +256,6 @@ namespace ae {
 		MENU = 348
 	};
 		
-//#define KEY_TO_RAW(key) (static_cast<int>(key))
-//#define KEY_FROM_RAW(raw) (static_cast<KEY>(raw))
-
 	enum class MOUSE_BUTTON : int {
 		ONE = 	0,
 		TWO = 	1,
@@ -285,11 +265,24 @@ namespace ae {
 		SIX = 	5,
 		SEVEN = 6,
 		EIGHT = 7
-		};
+	};
+		
+	/**************************************************************************************
+	     Internal
+	 **************************************************************************************/
+
+	typedef struct {
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 textureCoordinate;
+	} Vertex;
 	
-//#define MOUSE_BUTTON_TO_RAW(button) (static_cast<int>(button))
-//#define MOUSE_BUTTON_FROM_RAW(raw) (static_cast<MOUSE_BUTTON>(raw))
-	
+	typedef struct {
+		unsigned a;
+		unsigned b;
+		unsigned c;
+	} Face;
+
 	typedef struct {
 		unsigned nodes;
 		unsigned geometries;
@@ -298,8 +291,6 @@ namespace ae {
 		unsigned lights;
 		glm::vec3 cameraPosition;
 	} RenderStats;
-		
-		
 		
 	enum class NODE_DIRTY_BITS : unsigned {
 		WORLD_TRANSFORM =		1 << 0,

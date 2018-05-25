@@ -489,7 +489,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	}
 	else if (dynamic_cast<Box*>(geometry.get())) {
 		AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
+					 (void*)&geometry, static_cast<unsigned>(type));
 		
 		auto box = dynamic_cast<Box*>(geometry.get());
 		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
@@ -498,14 +498,14 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	}
 	else if (dynamic_cast<Sphere*>(geometry.get())) {
 		AE_LOG->info("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
+					 (void*)&geometry, static_cast<unsigned>(type));
 		
 		auto sphere = dynamic_cast<Sphere*>(geometry.get());
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
 	else if (dynamic_cast<Capsule*>(geometry.get())) {
 		AE_LOG->info("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
+					 (void*)&geometry, static_cast<unsigned>(type));
 		
 		auto capsule = dynamic_cast<Capsule*>(geometry.get());
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
@@ -513,7 +513,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	}
 	else if (dynamic_cast<Cone*>(geometry.get())) {
 		AE_LOG->info("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
+					 (void*)&geometry, static_cast<unsigned>(type));
 		
 		auto cone = dynamic_cast<Cone*>(geometry.get());
 		return make_shared<btConeShape>((btScalar)cone->radius(),
@@ -521,7 +521,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	}
 	else if (dynamic_cast<Cylinder*>(geometry.get())) {
 		AE_LOG->info("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)&geometry, PHYSICS_SHAPE_TYPE_TO_RAW(type));
+					 (void*)&geometry, static_cast<unsigned>(type));
 		
 		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
