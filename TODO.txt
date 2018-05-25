@@ -21,8 +21,6 @@ Tests:
 
 		Move Program static functions to instance variables in OpenGLRenderer
 
-
-
 		Check/fill in PhysicsBody properties
 
 		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
@@ -30,9 +28,6 @@ Tests:
 			If geometry set on Node, check physics body/shape
 
 		Add physics stats!
-
-
-
 
 		Try margin 0 for static objects
 
@@ -47,6 +42,23 @@ Tests:
 		friction -> rollingFriction?
 		damping -> linearDamping?
 
+
+
+
+		SIMD alignment
+		Gaffer on games - fix your timestep
+
+		Optimize statics
+			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
+
+		Kinematic objects:
+			body->setCollisionFlags( body->getCollisionFlags() |
+			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
+
+		Disable/remove physics bodies when they get too far away?
+
+
+		------ Other things (non-physics) ------	
 
 		Test GENERATOR_USE_GLM
 
@@ -66,22 +78,6 @@ Tests:
 		Types_Internal.h ?
 		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
 
-		SIMD alignment
-		Gaffer on games - fix your timestep
-
-		Optimize statics
-			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
-
-		Kinematic objects:
-			body->setCollisionFlags( body->getCollisionFlags() |
-			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
-
-		Disable/remove physics bodies when they get too far away?
-
-
-		------ Other things (non-physics) ------	
-
-
 		Reconcile primitives sizing
 			+ add default detail levels for geometry primitives (+ box & plane!)
 				Add "GeometryPrimitive" superclass + factor vertex data creation
@@ -94,16 +90,7 @@ Tests:
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
 
-		Proper git submodule arrangement
-
 		Restore tests. Use flat main.cpp files.		
-
-		Move things from top-level CMakeLists into avara-engine
-			Identify external public headers and link to to avara-engine/include
-
-		Check yo lock()s
-
-		Move Program static constructors into OpenGLRenderer
 
 		GPU & CPU stats in overlay?
 
