@@ -14,9 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-		Turn on wireframe -> materials properties get deallocated
-			-> either set dirty, or make them active anyway
-
 		Try glViewport() with screen points width and height...
 
 		Move Program static functions to instance variables in OpenGLRenderer

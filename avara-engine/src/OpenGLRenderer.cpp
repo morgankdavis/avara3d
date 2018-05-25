@@ -404,32 +404,33 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	GetGeometryElementGLVertexDataHandles(element,
 										  m_geometryElementGLMapping,
 										  vbo, vao, ibo);
+	
+	bool wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	if (wireframe) {
 		program = Program::Wireframe();
 	}
 	else {
 		program = Program::Default();
+	}
+	
+	// and load material contents if necessary
 
-		// and load material contents if necessary
+	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
+	GetMaterialGLTextureHandles(material,
+								m_materialPropertyGLMapping,
+								m_activeMaterialProperties,
+								glTextureHandles);
 
-		auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
-		GetMaterialGLTextureHandles(material,
-									m_materialPropertyGLMapping,
-									m_activeMaterialProperties,
-									glTextureHandles);
-
+	if (!wireframe) {
 		// send material and material property uniforms
-
 		SendMaterialUniforms(material, *program, glTextureHandles, debugOptions);
-
+		
 		// update material property filtering options
-
 		SetMaterialFilteringOptions(material, glTextureHandles);
 	}
-
+	
 	// configure OpenGL state
-
 	SetMaterialOpenGLState(material, debugOptions);
 
 	// draw
