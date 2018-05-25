@@ -113,6 +113,7 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
+	
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);

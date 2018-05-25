@@ -20,6 +20,7 @@
 namespace ae {
 	
 	
+	class Geometry;
 	class Node;
 	class PhysicsShape;
 	
@@ -55,9 +56,6 @@ namespace ae {
 		std::shared_ptr<PhysicsShape> shape() const;
 		void shape(std::shared_ptr<PhysicsShape> shape);
 
-		bool affectedByGravity() const;
-		void affectedByGravity(bool flag);
-		
 		float mass() const;
 		void mass(float mass);
 		
@@ -118,6 +116,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		void attachedToNode(std::shared_ptr<Node> node);
+		void geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 		
 		std::weak_ptr<Node> node() const;
 		
@@ -130,9 +129,10 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 
+		void checkShape();
+		
 		PHYSICS_BODY_TYPE 						m_type;
 		std::shared_ptr<PhysicsShape> 			m_shape;
-		bool 									m_affectedByGravity;
 		float 									m_mass;
 		glm::vec3 								m_localInertia;
 		float 									m_friction;

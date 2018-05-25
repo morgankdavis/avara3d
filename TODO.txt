@@ -14,15 +14,7 @@ Tests:
 	30 - rigidbodies
 
 
-		Try glViewport() with screen points width and height...
-
-		Move Program static functions to instance variables in OpenGLRenderer
-
-		Check/fill in PhysicsBody properties
-
-		Do something about PhysicsBody::shape() override in BulletPhysicsSimulator
-			If Body assatched to node, check geometry
-			If geometry set on Node, check physics body/shape
+		Back-fill PhysicsBody properties
 
 		Add physics stats!
 
@@ -39,9 +31,6 @@ Tests:
 		friction -> rollingFriction?
 		damping -> linearDamping?
 
-
-
-
 		SIMD alignment
 		Gaffer on games - fix your timestep
 
@@ -55,10 +44,13 @@ Tests:
 		Disable/remove physics bodies when they get too far away?
 
 
-		------ Other things (non-physics) ------	
+		------ Other things (non-physics) ------
+
+		Try glViewport() with screen points width and height...
+
+		Move Program static functions to instance variables in OpenGLRenderer	
 
 		Test GENERATOR_USE_GLM
-
 
 		Remove remaining header includes where struct forward declarations will work
 

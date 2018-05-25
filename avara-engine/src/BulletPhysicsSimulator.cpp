@@ -168,19 +168,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		// creates and updates bullet models as needed
 		// for PASS::UPDATE_MODEL this checks everything gets ready for the simulation step
 		// for PASS::SYNC_GRAPH, it simple gets the handles for the BT models we're driving our graph from
-		
-#warning TEMPORARY
-		// quick cheat to get this working
-		
-		if (!body->shape()) {
-			
-			auto geometry = body->node().lock()->geometry();
-			if (geometry) {
-				auto shape = make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-				body->shape(shape);
-			}
-		}
-		
+
 		if (body->shape()) {
 			
 			shared_ptr<btRigidBody> btBody = nullptr;
@@ -214,6 +202,11 @@ void BulletPhysicsSimulator::update(PASS pass,
 			
 			// save reference for housekeeping
 			m_activeShapes.emplace(body->shape());
+		}
+		else {
+			// *** EITHER OF THESE ARE CAUSING A CRASH ??? ***
+			//AE_LOG->warn("No PhysicsShape attached to PhysicsBody.");
+			//throw Exception("No PhysicsShape attached to PhysicsBody.");
 		}
 		
 		// save reference for housekeeping
@@ -330,18 +323,6 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	// check and set the rest of the properties
 	
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::GRAVITY)) {
-		if (body->affectedByGravity()) {
-#warning this might be wrong!
-			(*btBody)->setGravity((btVector3){1.0, 1.0, 1.0});
-		}
-		else {
-			(*btBody)->setGravity((btVector3){0.0, 0.0, 0.0});
-		}
-		
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::GRAVITY));
-	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR)) {
 		(*btBody)->setLinearFactor(BTVector3FromGLMVec3(body->linearFactor()));
 		
@@ -407,6 +388,10 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY));
 	}
+	
+	// back-fill PhysicsBody properties
+	
+#warning TODO
 }
 
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,

@@ -11,14 +11,11 @@
 
 #include "Logger.h"
 #include "Node.h"
-#include "Scene.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
-#include "Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -48,7 +45,6 @@ PhysicsBody::PhysicsBody():
 	m_shape(nullptr),
 	m_linearFactor({1.0, 1.0, 1.0}),
 	m_angularFactor({1.0, 1.0, 1.0}),
-	m_affectedByGravity(true),
 	m_mass(1.0),
 	m_friction(0.5),
 	m_rollingFriction(0.5),
@@ -105,16 +101,6 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	m_shape->attachedToBody(shared_from_this());
 	
 	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
-}
-
-bool PhysicsBody::affectedByGravity() const {
-	return m_affectedByGravity;
-}
-
-void PhysicsBody::affectedByGravity(bool flag) {
-	m_affectedByGravity = flag;
-	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::GRAVITY);
 }
 
 float PhysicsBody::mass() const {
@@ -324,6 +310,15 @@ void PhysicsBody::resetTransform() {
 
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
+	if (node) {
+		checkShape();
+	}
+}
+
+void PhysicsBody::geometryAttachedToNode(std::shared_ptr<Geometry> geometry) {
+	if (geometry) {
+		checkShape();
+	}
 }
 
 weak_ptr<Node> PhysicsBody::node() const {
@@ -336,4 +331,19 @@ PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {
 
 void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
 	m_dirtyBits = bits;
+}
+
+/**************************************************************************************
+     Private
+ **************************************************************************************/
+
+void PhysicsBody::checkShape() {
+	if (!shape()) {
+		if (auto node = m_node.lock()) {
+			auto geometry = node->geometry();
+			if (geometry) {
+				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+			}
+		}
+	}
 }

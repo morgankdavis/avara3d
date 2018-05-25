@@ -269,6 +269,17 @@ void Scene::draw(Renderer& renderer,
 				if (m_physicsWorld) {
 					// * temporary side effect *
 					// updates node's local transform from physics simulation
+					
+//					if (node->physicsBody()) {
+//						AE_LOG->debug("BODY");
+//						if (node->physicsBody()->shape()) {
+//							AE_LOG->debug("SHAPE");
+//						}
+//						else {
+//							AE_LOG->debug("NO SHAPE");
+//						}
+//					}
+					
 					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
 											 node,
 											 debugOptions);

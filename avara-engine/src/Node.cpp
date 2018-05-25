@@ -128,6 +128,9 @@ shared_ptr<Geometry> Node::geometry() const {
 void Node::geometry(const shared_ptr<Geometry> geometry) {
 	if (geometry) {
 		geometry->attachedToNode(shared_from_this());
+		if (m_physicsBody) {
+			m_physicsBody->geometryAttachedToNode(geometry);
+		}
 	}
 	m_geometry = geometry;
 }
