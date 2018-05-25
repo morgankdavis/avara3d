@@ -109,7 +109,8 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
      Internal
  **************************************************************************************/
 
-void BulletPhysicsSimulator::drawDebug(const glm::mat4& viewMat,
+void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
+									   const glm::mat4& viewMat,
 									   const glm::mat4& projectionMat,
 									   const DEBUG_OPTIONS& debugOptions) {
 #ifdef DESKTOP
@@ -117,7 +118,7 @@ void BulletPhysicsSimulator::drawDebug(const glm::mat4& viewMat,
 	m_debugDrawer->setDebugMode(btDebugModes);
 	m_debugDrawer->clear();
 	m_btWorld->debugDrawWorld();
-	m_debugDrawer->draw(viewMat, projectionMat);
+	m_debugDrawer->draw(renderer, viewMat, projectionMat);
 #endif
 }
 

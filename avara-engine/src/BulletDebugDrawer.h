@@ -12,11 +12,14 @@
 #ifdef DESKTOP
 
 
+#include <memory>
 #include <tuple>
 #include <vector>
 
 #include <glm/glm.hpp>
 #include <LinearMath/btIDebugDraw.h>
+
+#include "Renderer.h"
 
 
 namespace ae {
@@ -32,7 +35,7 @@ namespace ae {
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
-		
+
 		BulletDebugDrawer();
 		~BulletDebugDrawer();
 		
@@ -41,7 +44,8 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		void clear();
-		void draw(const glm::mat4& viewMat,
+		void draw(Renderer& renderer,
+				  const glm::mat4& viewMat,
 				  const glm::mat4& projectionMat);
 
 		/***************************************************************************************
@@ -157,19 +161,15 @@ namespace ae {
 		     Protected
 		 ***************************************************************************************/
 		
-		int 						m_debugMode;
+		int 									m_debugMode;
 		
 	private:
 		
 		/***************************************************************************************
 		     Private
 		 ***************************************************************************************/
-		
-		void loadLinesVertexData(const Program& program);
-		
-		int							m_glLinesVBO;
-		int							m_glLinesVAO;
-		std::vector<glm::vec3>		m_lines; // from, from color, to, to color
+	
+		std::shared_ptr<Renderer::LineSet>		m_lineSet;
 	};
 }
 

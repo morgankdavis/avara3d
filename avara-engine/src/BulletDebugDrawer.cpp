@@ -10,10 +10,15 @@
 
 #include "BulletDebugDrawer.h"
 
+#include <set>
+
 #include <GL/glew.h>
 
+#include "Color.h"
+#include "Line.h"
 #include "Logger.h"
 #include "Program.h"
+#include "Renderer.h"
 #include "Utilities.h"
 
 
@@ -38,21 +43,12 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
 
 BulletDebugDrawer::BulletDebugDrawer():
 	m_debugMode(btIDebugDraw::DBG_NoDebug),
-	m_lines(vector<vec3>()),
-	m_glLinesVBO(-1),
-	m_glLinesVAO(-1) {
+	m_lineSet(make_shared<Renderer::LineSet>()) {
 
 }
 
 BulletDebugDrawer::~BulletDebugDrawer() {
-	if (m_glLinesVBO >=0) {
-		GLuint vbo = m_glLinesVBO;
-		glDeleteBuffers(1, &vbo);
-	}
-	if (m_glLinesVAO >=0) {
-		GLuint vao = m_glLinesVAO;
-		glDeleteVertexArrays(1, &vao);
-	}
+
 }
 
 /***************************************************************************************
@@ -60,45 +56,18 @@ BulletDebugDrawer::~BulletDebugDrawer() {
  ***************************************************************************************/
 
 void BulletDebugDrawer::clear() {
-	m_lines.clear();
+	// have to replace shared_ptr for Renderer to reload the data
+	m_lineSet = make_shared<Renderer::LineSet>();
 }
 
-void BulletDebugDrawer::draw(const mat4& viewMat,
+void BulletDebugDrawer::draw(Renderer& renderer,
+							 const mat4& viewMat,
 							 const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		AE_LOG->trace("BulletDebugDrawer::draw()");
-		
-		Program program = *Program::PhysicsDebugLine();
-		
-		loadLinesVertexData(program);
-		
-		// gl config
-		
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_LINE_SMOOTH);
-		
-		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
-		//glDepthRange(0.0, 0.9);
-		glDisable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(0.0, 0.0);
 
-		// use shader program
-		
-		program.use();
-		
-		// uniforms
-		
-		program.setUniform("view", inverse(viewMat));
-		program.setUniform("projection", projectionMat);
-		
-		// draw
-		
-		glBindVertexArray(m_glLinesVAO);
-		glDrawArrays(GL_LINES, 0, m_lines.size());
-		//glBindVertexArray(0);
+		renderer.render(m_lineSet, mat4(1.0), viewMat, projectionMat);
 	}
 }
 
@@ -120,10 +89,10 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& toColor) {
 	//AE_LOG->debug("drawLine() - 2 colors");
 
-	m_lines.emplace_back(GLMVec3FromBTVector3(from));
-	m_lines.emplace_back(GLMVec3FromBTVector3(fromColor));
-	m_lines.emplace_back(GLMVec3FromBTVector3(to));
-	m_lines.emplace_back(GLMVec3FromBTVector3(toColor));
+	m_lineSet->emplace(make_shared<Line>(GLMVec3FromBTVector3(from),
+										 GLMVec3FromBTVector3(to),
+										 make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
+										 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
 }
 
 /*
@@ -259,48 +228,6 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
 
 int BulletDebugDrawer::getDebugMode() const {
 	return m_debugMode;
-}
-
-/***************************************************************************************
-     Private
- ***************************************************************************************/
-
-void BulletDebugDrawer::loadLinesVertexData(const Program& program) {
-	
-	////AE_LOG->debug("loadLinesVertexData()");
-	
-	if (m_glLinesVBO == -1) {
-		GLuint vbo;
-		glGenBuffers(1, &vbo);
-		m_glLinesVBO = vbo;
-	}
-	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_glLinesVBO);
-	glBufferData(GL_ARRAY_BUFFER, m_lines.size() * sizeof(vec3), &(m_lines[0]), GL_DYNAMIC_DRAW);
-	
-	if (m_glLinesVAO == -1) {
-		GLuint vao;
-		glGenVertexArrays(1, &vao);
-		m_glLinesVAO = vao;
-	}
-	glBindVertexArray((GLuint)m_glLinesVAO);
-	
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
-	glVertexAttribPointer(positionIndex, 		// attrib index
-						  3, 					// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 			// component type
-						  GL_FALSE, 			// normalize
-						  sizeof(vec3)*2, 		// stride
-						  0); 					// start offset
-	glEnableVertexAttribArray(positionIndex);
-	
-	GLuint colorIndex = program.getAttributeLocation("vertex_color");
-	glVertexAttribPointer(colorIndex, 			// attrib index
-						  3, 					// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 			// component type
-						  GL_FALSE, 			// normalize
-						  sizeof(vec3)*2, 		// stride
-						  (void*)sizeof(vec3));	// start offset
-	glEnableVertexAttribArray(colorIndex);
 }
 
 /**************************************************************************************

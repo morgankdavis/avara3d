@@ -286,7 +286,7 @@ void Scene::draw(Renderer& renderer,
 	if (m_physicsWorld) {
 		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
 		if (bulletSimulator) {
-			bulletSimulator->drawDebug(viewMat, projectionMat, debugOptions);
+			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
 		}
 		
 		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);

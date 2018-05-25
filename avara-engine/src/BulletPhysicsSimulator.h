@@ -35,6 +35,7 @@ namespace ae {
 	class Node;
 	class PhysicsBody;
 	class PhysicsShape;
+	class Renderer;
 	class Scene;
 	
 	
@@ -71,7 +72,8 @@ namespace ae {
 		     Internal
 		 **************************************************************************************/
 		
-		void drawDebug(const glm::mat4& viewMat,
+		void drawDebug(Renderer& renderer,
+					   const glm::mat4& viewMat,
 					   const glm::mat4& projectionMat,
 					   const DEBUG_OPTIONS& debugOptions);
 		

@@ -1478,6 +1478,7 @@ static void DrawLineSet(Renderer::LineSet& lineSet,
 	
 	// uniforms
 	
+	program.setUniform("model", modelMat);
 	program.setUniform("view", inverse(viewMat));
 	program.setUniform("projection", projectionMat);
 	
