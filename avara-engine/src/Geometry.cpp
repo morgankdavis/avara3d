@@ -135,9 +135,9 @@ void Geometry::draw(Renderer& renderer,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) {
 	
+#warning may be unneccesary
 	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::AABB);
-		//m_renderID = 0;
+		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::EXTENT);
 	}
 	
 	renderer.render(shared_from_this(),

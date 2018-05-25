@@ -63,26 +63,21 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 						 set<shared_ptr<MaterialProperty>>& activeProperties);
-static void RenderAABB(shared_ptr<Geometry> geometry,
-					   mat4 modelMat,
-					   mat4 viewMat,
-					   mat4 projectionMat,
-					   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
-					   RenderStats& stats);
 static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
 												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
-									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
-									   GLuint& glVBO, GLuint& glVAO);
-static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
+													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
+													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+													GLuint& glVBO, GLuint& glVAO);
+static void GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
 										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO);
-static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO);
@@ -96,13 +91,10 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 								   Program& program,
 								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void BufferAABBVertexData(Geometry& geometry,
-								 const Program& program,
-								 GLuint& glVBO, GLuint& glVAO);
-static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
+static void BufferLineSetVertexData(LineSet& lineSet,
 									Program& program,
 									GLuint& glVBO, GLuint& glVAO);
-static void BufferPointSetVertexData(Renderer::PointSet& pointSet,
+static void BufferPointSetVertexData(PointSet& pointSet,
 									 Program& program,
 									 GLuint& glVBO, GLuint& glVAO);
 static void BufferMaterialPropertyTexture(const MaterialProperty& property,
@@ -124,7 +116,6 @@ static void SetMaterialFilteringOptions(const Material& material,
 static void SetMaterialOpenGLState(const Material& material, 
 								   const DEBUG_OPTIONS& debugOptions);
 static void SetSkyboxOpenGLState();
-static void SetAABBOpenGLState();
 static void SetLineSetGLState();
 static void SetPointSetGLState();
 static void DrawGeometryElement(GeometryElement& element,
@@ -135,19 +126,13 @@ static void DrawSkyboxElement(GeometryElement& element,
 							  Program& program,
 							  Node& pointOfView,
 							  GLuint vao, GLuint ibo);
-static void DrawAABB(Geometry& geometry,
-					 Program& program,
-					 mat4 modelMat,
-					 mat4 viewMat,
-					 mat4 projectionMat,
-					 GLuint glVBO, GLuint glVAO);
-static void DrawLineSet(Renderer::LineSet& lineSet,
+static void DrawLineSet(LineSet& lineSet,
 						Program& program,
 						mat4 modelMat,
 						mat4 viewMat,
 						mat4 projectionMat,
 						GLuint glVBO, GLuint glVAO);
-static void DrawPointSet(Renderer::PointSet& pointSet,
+static void DrawPointSet(PointSet& pointSet,
 						 Program& program,
 						 mat4 modelMat,
 						 mat4 viewMat,
@@ -157,11 +142,9 @@ static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& ac
 											OpenGLRenderer::GeometryElementGLMapping& glMapping);
 static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
 											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
-static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
-										 OpenGLRenderer::AABBGeometryGLMapping& glMapping);
-static void CleanupLineSetResources(set<shared_ptr<Renderer::LineSet>>& active,
+static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping);
-static void CleanupPointSetResources(set<shared_ptr<Renderer::PointSet>>& active,
+static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
 static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
@@ -228,12 +211,10 @@ OpenGLRenderer::OpenGLRenderer():
 	Renderer(),
 	m_geometryElementGLMapping(GeometryElementGLMapping()),
 	m_materialPropertyGLMapping(MaterialPropertyGLMapping()),
-	m_aabbGeometryGLMapping(AABBGeometryGLMapping()),
 	m_lineSetGLMapping(LineSetGLMapping()),
 	m_pointSetGLMapping(PointSetGLMapping()),
 	m_activeGeometryElements(set<shared_ptr<GeometryElement>>()),
 	m_activeMaterialProperties(set<shared_ptr<MaterialProperty>>()),
-	m_activeAABBGeometries(set<shared_ptr<Geometry>>()),
 	m_activeLineSets(set<shared_ptr<LineSet>>()),
 	m_activePointSets(set<shared_ptr<PointSet>>()),
 	m_glEnvironmentUBO(0),
@@ -247,13 +228,11 @@ OpenGLRenderer::~OpenGLRenderer() {
 	
 	m_activeGeometryElements.clear();
 	m_activeMaterialProperties.clear();
-	m_activeAABBGeometries.clear();
 	m_activeLineSets.clear();
 	m_activePointSets.clear();
 	
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
-	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 }
@@ -299,7 +278,6 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 
 	m_activeGeometryElements.clear();
 	m_activeMaterialProperties.clear();
-	m_activeAABBGeometries.clear();
 	m_activeLineSets.clear();
 	m_activePointSets.clear();
 }
@@ -318,7 +296,6 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
-	CleanupAABBGeometryResources(m_activeAABBGeometries, m_aabbGeometryGLMapping);
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 	
@@ -381,14 +358,25 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
 
+	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		RenderAABB(geometry,
-				   modelMat, viewMat, projectionMat,
-				   m_aabbGeometryGLMapping,
-				   stats);
+
+		// will check dirt but, and create an AABB lineset if necessary,
+		// and insert into m_geometryAABBLineSetMapping
 		
-		// save reference for housekeeping
-		m_activeAABBGeometries.emplace(geometry);
+		GLuint vbo, vao;
+		GetGeometryAABBLineSetVertexDataHandles(geometry,
+												m_geometryAABBLineSetMapping,
+												m_lineSetGLMapping,
+												vbo, vao);
+		
+		render(m_geometryAABBLineSetMapping[geometry],
+			   modelMat, viewMat, projectionMat);
+		
+	}
+	else {
+		// if there was an AABB lineset, just remove it
+		m_geometryAABBLineSetMapping.erase(geometry);
 	}
 }
 
@@ -553,23 +541,6 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	stats.meshes++;
 }
 	
-static void RenderAABB(shared_ptr<Geometry> geometry,
-					   mat4 modelMat,
-					   mat4 viewMat,
-					   mat4 projectionMat,
-					   OpenGLRenderer::AABBGeometryGLMapping& geometryMapping,
-					   RenderStats& stats) {
-	GLuint vbo = 0;
-	GLuint vao = 0;
-	GetAABBGLVertexDataHandles(geometry,
-							   geometryMapping,
-							   vbo, vao);
-	
-	SetAABBOpenGLState();
-	
-	DrawAABB(*geometry, *Program::AABB(), modelMat, viewMat, projectionMat, vbo, vao);
-}
-	
 static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
 												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
@@ -624,30 +595,69 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	}
 }
 	
-static void GetAABBGLVertexDataHandles(shared_ptr<Geometry> geometry,
-									   OpenGLRenderer::AABBGeometryGLMapping& glMapping,
-									   GLuint& glVBO, GLuint& glVAO) {
+static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
+													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
+													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+													GLuint& glVBO, GLuint& glVAO) {
+	
+	auto program = Program::Lines();
 	
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
-
+	
 	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry->dirtyBits(),
-									 GEOMETRY_DIRTY_BITS::AABB)) {
+									 GEOMETRY_DIRTY_BITS::EXTENT)) {
 		
-		BufferAABBVertexData(*geometry, *Program::AABB(), glVBO, glVAO);
-
-		glMapping[geometry] = make_pair(glVBO, glVAO);
+		// construct a new lineset matching the geometry's extent
+		
+		AE_LOG->debug("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		
+		map<string, vec3> bp = *(geometry->boundingPoints(false));
+		
+		float xMin = bp["xMin"].x;
+		float xMax = bp["xMax"].x;
+		float yMin = bp["yMin"].y;
+		float yMax = bp["yMax"].y;
+		float zMin = bp["zMin"].z;
+		float zMax = bp["zMax"].z;
+		
+		vec3 one =      vec3(xMin, yMax, zMin);
+		vec3 two =      vec3(xMin, yMax, zMax);
+		vec3 three =    vec3(xMax, yMax, zMax);
+		vec3 four =     vec3(xMax, yMax, zMin);
+		vec3 five =     vec3(xMin, yMin, zMin);
+		vec3 six =      vec3(xMin, yMin, zMax);
+		vec3 seven =    vec3(xMax, yMin, zMax);
+		vec3 eight =    vec3(xMax, yMin, zMin);
+		
+		auto aabbLineSet = make_shared<LineSet>();
+		auto red = Color::Red();
+		
+		aabbLineSet->emplace(make_shared<Line>(one, two, red));
+		aabbLineSet->emplace(make_shared<Line>(two, three, red));
+		aabbLineSet->emplace(make_shared<Line>(three, four, red));
+		aabbLineSet->emplace(make_shared<Line>(four, one, red));
+		aabbLineSet->emplace(make_shared<Line>(five, six, red));
+		aabbLineSet->emplace(make_shared<Line>(six, seven, red));
+		aabbLineSet->emplace(make_shared<Line>(seven, eight, red));
+		aabbLineSet->emplace(make_shared<Line>(eight, five, red));
+		aabbLineSet->emplace(make_shared<Line>(one, five, red));
+		aabbLineSet->emplace(make_shared<Line>(two, six, red));
+		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
+		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
+		
+		aabbLineSetMapping[geometry] = aabbLineSet;
 		
 		geometry->dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry->dirtyBits(),
-													   GEOMETRY_DIRTY_BITS::AABB));
+													   GEOMETRY_DIRTY_BITS::EXTENT));
 	}
-	else {
-		auto mapping = glMapping[geometry];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-	}
-}
 	
-static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
+	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
+								*program,
+								lineSetGLMapping,
+								glVBO, glVAO);
+}
+
+static void GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
 										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
@@ -664,7 +674,7 @@ static void GetLineSetVertexDataHandles(shared_ptr<Renderer::LineSet> lineSet,
 	}
 }
 
-static void GetPointSetVertexDataHandles(shared_ptr<Renderer::PointSet> pointSet,
+static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO) {
@@ -715,9 +725,6 @@ static void GetMaterialGLTextureHandles(Material& material,
 																		MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS));
 			}
 			else {
-//				if (property->renderID() > 0) {
-//					glTextureHandles[type] = idMapping[property->renderID()];
-//				}
 				auto textureHandle = glMapping[property];
 				glTextureHandles[type] = textureHandle;
 			}
@@ -748,8 +755,6 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 			// attrib index
@@ -806,9 +811,7 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	
+
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
@@ -872,9 +875,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	
+
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 	// attrib index
 						  3, 				// num components per attrib (3 float in vec3)
@@ -885,7 +886,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 	glEnableVertexAttribArray(positionIndex);
 }
 	
-static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
+static void BufferLineSetVertexData(LineSet& lineSet,
 									Program& program,
 									GLuint& glVBO, GLuint& glVAO) {
 	
@@ -911,9 +912,7 @@ static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	
+
 	GLuint positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
@@ -933,7 +932,7 @@ static void BufferLineSetVertexData(Renderer::LineSet& lineSet,
 	glEnableVertexAttribArray(colorIndex);
 }
 
-static void BufferPointSetVertexData(Renderer::PointSet& pointSet,
+static void BufferPointSetVertexData(PointSet& pointSet,
 									 Program& program,
 									 GLuint& glVBO, GLuint& glVAO) {
 	
@@ -1386,12 +1385,14 @@ static void SetLineSetGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
+#ifdef DESKTOP
 	glEnable(GL_LINE_SMOOTH);
+#endif
 	
 	// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 	//glDepthRange(0.0, 0.9);
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.0, 0.0);
+//	glDisable(GL_POLYGON_OFFSET_FILL);
+//	glPolygonOffset(0.0, 0.0);
 }
 	
 static void SetPointSetGLState() {
@@ -1467,7 +1468,7 @@ static void DrawAABB(Geometry& geometry,
 	glDrawArrays(GL_LINES, 0, 24);
 }
 
-static void DrawLineSet(Renderer::LineSet& lineSet,
+static void DrawLineSet(LineSet& lineSet,
 						Program& program,
 						mat4 modelMat,
 						mat4 viewMat,
@@ -1488,7 +1489,7 @@ static void DrawLineSet(Renderer::LineSet& lineSet,
 	glDrawArrays(GL_LINES, 0, lineSet.size() * 4);
 }
 
-static void DrawPointSet(Renderer::PointSet& pointSet,
+static void DrawPointSet(PointSet& pointSet,
 						 Program& program,
 						 mat4 modelMat,
 						 mat4 viewMat,
@@ -1589,59 +1590,12 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 	}
 }
 	
-static void CleanupAABBGeometryResources(set<shared_ptr<Geometry>>& active,
-										 OpenGLRenderer::AABBGeometryGLMapping& glMapping) {
-	
-	// gather sorted vector of aabb geometries used this frame
-	auto activeAABBGeometriesSorted = vector<shared_ptr<Geometry>>();
-	activeAABBGeometriesSorted.reserve(active.size());
-	copy(active.begin(), active.end(), back_inserter(activeAABBGeometriesSorted));
-	sort(activeAABBGeometriesSorted.begin(), activeAABBGeometriesSorted.end());
-	
-	// gather sorted vector of aabb geometries in the mapping
-	auto storedGeometryAABBsSorted = vector<shared_ptr<Geometry>>();
-	storedGeometryAABBsSorted.reserve(active.size());
-	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedGeometryAABBsSorted.emplace_back(it->first);
-	}
-	sort(storedGeometryAABBsSorted.begin(), storedGeometryAABBsSorted.end());
-	
-	// find unused aabb geometries
-	auto unused = vector<shared_ptr<Geometry>>(storedGeometryAABBsSorted.size());
-	vector<shared_ptr<Geometry>>::iterator it;
-	it = set_difference(storedGeometryAABBsSorted.begin(), storedGeometryAABBsSorted.end(),
-						activeAABBGeometriesSorted.begin(), activeAABBGeometriesSorted.end(),
-						unused.begin());
-	unused.resize(it - unused.begin());
-	
-	// deallocate unused aabb geometries
-	if (unused.size()) {
-		AE_LOG->debug("Deallocating vertex data for {} AABBs...", unused.size());
-		
-		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<Geometry> aabbGeometry = *it;
-			auto glHandles = glMapping[aabbGeometry];
-			
-			GLuint vbo = get<0>(glHandles);
-			GLuint vao = get<1>(glHandles);
-			
-			glDeleteBuffers(1, &vbo);
-			glDeleteVertexArrays(1, &vao);
-			
-			glMapping.erase(aabbGeometry);
-			
-			aabbGeometry->dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(aabbGeometry->dirtyBits(),
-															   GEOMETRY_DIRTY_BITS::ALL));
-		}
-	}
-}
-	
-static void CleanupLineSetResources(set<shared_ptr<Renderer::LineSet>>& active,
+static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
 	
 }
 
-static void CleanupPointSetResources(set<shared_ptr<Renderer::PointSet>>& active,
+static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping) {
 	
 }

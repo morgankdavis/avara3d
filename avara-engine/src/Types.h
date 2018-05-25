@@ -10,10 +10,18 @@
 #define Types_h
 
 
+#include <memory>
+#include <set>
+
 #include <glm/glm.hpp>
 
 
 namespace ae {
+	
+	
+	class Line;
+	class Point;
+	
 
 	enum class LOG_LEVEL : unsigned {
 		TRACE =		0,
@@ -89,6 +97,12 @@ namespace ae {
 		SHOW_PHYSICS_CONSTRAINTS =			1 << 10,
 		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
 	};
+		
+	using LineSet = 
+		std::set<std::shared_ptr<Line>>;
+	
+	using PointSet = 
+		std::set<std::shared_ptr<Point>>;
 	
 #define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<unsigned>(options) & static_cast<unsigned>(option))
 #define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) | static_cast<unsigned>(option)))
@@ -297,7 +311,7 @@ namespace ae {
 #define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
-		AABB =					1 << 0,
+		EXTENT =				1 << 0,
 		ALL = 					UINT_MAX
 	};
 		

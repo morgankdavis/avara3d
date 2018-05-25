@@ -19,13 +19,13 @@
 #include <glm/glm.hpp>
 #include <LinearMath/btIDebugDraw.h>
 
-#include "Renderer.h"
+#include "Types.h"
 
 
 namespace ae {
 	
 
-	class Program;
+	class Renderer;
 	
 	
 	class BulletDebugDrawer : public btIDebugDraw {
@@ -161,7 +161,7 @@ namespace ae {
 		     Protected
 		 ***************************************************************************************/
 		
-		int 									m_debugMode;
+		int							m_debugMode;
 		
 	private:
 		
@@ -169,7 +169,7 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 	
-		std::shared_ptr<Renderer::LineSet>		m_lineSet;
+		std::shared_ptr<LineSet>	m_lineSet;
 	};
 }
 

@@ -43,7 +43,7 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
 
 BulletDebugDrawer::BulletDebugDrawer():
 	m_debugMode(btIDebugDraw::DBG_NoDebug),
-	m_lineSet(make_shared<Renderer::LineSet>()) {
+	m_lineSet(make_shared<LineSet>()) {
 
 }
 
@@ -57,7 +57,7 @@ BulletDebugDrawer::~BulletDebugDrawer() {
 
 void BulletDebugDrawer::clear() {
 	// have to replace shared_ptr for Renderer to reload the data
-	m_lineSet = make_shared<Renderer::LineSet>();
+	m_lineSet = make_shared<LineSet>();
 }
 
 void BulletDebugDrawer::draw(Renderer& renderer,

@@ -14,17 +14,15 @@ Tests:
 	30 - rigidbodies
 
 
-		BufferLineSetVertexData()
-			&(lineSet)	<-- probably not right (might need to switch to Vector)
-
-		Move PhysicsDebugDrawer drawLine() to Renderer/OpenGLRenderer (addLine?)
-			Add copy and assignment operators
-
-		Convert AABB to use "drawLine()"
-
 		Add width and diameter to Line/Point
 
 		Make Line & Point shaders use model matrixes?
+
+		CLEAN POINT AND LINE SETS
+
+		
+		Turn on wireframe -> materials properties get deallocated
+			-> either set dirty, or make them active anyway
 
 
 

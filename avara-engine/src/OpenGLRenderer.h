@@ -52,9 +52,9 @@ namespace ae {
 			std::map<std::shared_ptr<MaterialProperty>, unsigned>;
 
 		/* <ae_Geometry : <gl_vboHandle, gl_vaoHandle>> */
-		using AABBGeometryGLMapping =
-			std::map<std::shared_ptr<Geometry>, std::pair<unsigned,
-														  unsigned>>;
+//		/* REMOVE */ using AABBGeometryGLMapping =
+//			std::map<std::shared_ptr<Geometry>, std::pair<unsigned,
+//														  unsigned>>;
 		
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
@@ -65,6 +65,10 @@ namespace ae {
 		using PointSetGLMapping =
 			std::map<std::shared_ptr<PointSet>, std::pair<unsigned,
 										 				  unsigned>>;
+		
+		/* <ae_Geometry : set<ae_Line>> */
+		using GeometryAABBLineSetMapping =
+			std::map<std::shared_ptr<Geometry>, std::shared_ptr<LineSet>>;
 
 		/***************************************************************************************
 		     Lifecycle
@@ -121,13 +125,13 @@ namespace ae {
 
 		GeometryElementGLMapping 					m_geometryElementGLMapping;
 		MaterialPropertyGLMapping					m_materialPropertyGLMapping;
-		AABBGeometryGLMapping						m_aabbGeometryGLMapping;
+//		/* REMOVE */ AABBGeometryGLMapping						m_aabbGeometryGLMapping;
 		LineSetGLMapping							m_lineSetGLMapping;
 		PointSetGLMapping							m_pointSetGLMapping;
 		
 		std::set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
 		std::set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
-		std::set<std::shared_ptr<Geometry>>			m_activeAABBGeometries;
+//		/* REMOVE */ std::set<std::shared_ptr<Geometry>>			m_activeAABBGeometries;
 		std::set<std::shared_ptr<LineSet>>			m_activeLineSets;
 		std::set<std::shared_ptr<PointSet>>			m_activePointSets;
 
@@ -135,6 +139,11 @@ namespace ae {
 		
 		FONScontext* 								m_fonsContext;
 		int											m_fonsFont;
+		
+		
+		
+		
+		GeometryAABBLineSetMapping					m_geometryAABBLineSetMapping;
 	};
 }
 
