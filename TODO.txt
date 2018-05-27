@@ -14,20 +14,31 @@ Tests:
 	30 - rigidbodies
 
 
-		Add physics stats!
-
-		Try margin 0 for static objects
-
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation
 
+		
+		[SCENEKIT]
+			PRESENTATION NODE?
+				- Reflects RENDERED state of dynamic bodies
+				- Nodes currently in animation
+
+			For notes without dynamic bodies and not animating:
+				- Reflects its local transform
+			Pres
+
+				
+
+
+		Add physics stats!
+
+		Try margin 0 for static objects
 		Test bullet plane shape
+
 
 		Scale
 			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
-		friction -> rollingFriction?
-		damping -> linearDamping?
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
