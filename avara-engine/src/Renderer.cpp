@@ -28,7 +28,7 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-	
+	AE_LOG->debug("Destroying Renderer {:p}", (void*)this);
 }
 
 /**************************************************************************************

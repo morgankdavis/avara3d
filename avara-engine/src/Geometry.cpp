@@ -208,10 +208,6 @@ vec3 Geometry::extent(bool worldSpace) const {
 				bp["zMax"].z - bp["zMin"].z);
 }
 
-mat4 Geometry::extentScaleMatrix(bool worldSpace) const {
-	return scale(extent(worldSpace));
-}
-
 void Geometry::attachedToNode(shared_ptr<Node> node) {
 	m_node = node;
 }

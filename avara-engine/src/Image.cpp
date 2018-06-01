@@ -146,36 +146,6 @@ void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	}
 }
 
-//void Image::loadFile(boost::filesystem::path path, bool flipHorizontal) {
-//
-//#ifndef ANDROID
-//	AE_LOG->info("Loading image at path {}...", path.string());
-//	
-//	int width, height, num_byte_pix;
-//
-//    // work-around for path.string().c_str() encoding error in Win7
-//	auto fileBuf = BinaryFile(path);
-//
-//    m_data = stbi_load_from_memory(&fileBuf[0], fileBuf.size(), &width, &height, &num_byte_pix, 4);
-//	
-//	if (!m_data) {
-//		char errMsg[1024];
-//		sprintf(errMsg, "Couldn't load image at path: %s\n",  path.string().c_str());
-//		throw Exception(errMsg);
-//		return;
-//	}
-//	
-//	m_width = width;
-//	m_height = height;
-//	
-//	if (flipHorizontal) {
-//		flip();
-//	}
-//	
-//	AE_LOG->info("Done.");
-//#endif
-//}
-
 void Image::flip() {
 	// this is not needed for cube maps (?)
 	int width_in_bytes = m_width * 4;

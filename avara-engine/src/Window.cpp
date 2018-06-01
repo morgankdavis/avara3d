@@ -110,6 +110,8 @@ Window::Window(shared_ptr<Renderer> renderer,
 }
 
 Window::~Window() {
+	AE_LOG->debug("Destroying Window {:p}", (void*)this);
+	
 	glfwTerminate();
 }
 

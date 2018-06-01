@@ -51,6 +51,8 @@ Activity::Activity(shared_ptr<Renderer> renderer):
 }
 
 Activity::~Activity() {
+	AE_LOG->debug("Destroying Activity {:p}", (void*)this);
+	
 	terminate();
 }
 

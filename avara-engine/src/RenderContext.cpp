@@ -61,7 +61,7 @@ RenderContext::RenderContext(shared_ptr<Renderer> renderer):
 }
 
 RenderContext::~RenderContext() {
-	
+	AE_LOG->debug("Destroying RenderContext {:p}", (void*)this);
 }
 
 /**************************************************************************************

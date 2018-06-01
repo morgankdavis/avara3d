@@ -60,26 +60,6 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 	
 	m_contents = contents;
 	
-	if (dynamic_pointer_cast<Color>(contents)) {
-		
-	}
-	
-	if (dynamic_pointer_cast<Image>(contents)) {
-//		if (m_textureID != 0) {
-//			m_replacedTextureIDs.emplace_back(m_textureID);
-//			m_textureID = 0;
-//		}
-		//m_renderID = 0;
-	}
-	
-	if (dynamic_pointer_cast<CubeImage>(contents)) {
-//		if (m_textureID != 0) {
-//			m_replacedTextureIDs.emplace_back(m_textureID);
-//			m_textureID = 0;
-//		}
-		//m_renderID = 0;
-	}
-	
 	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
 }

@@ -101,11 +101,6 @@ mat4 Camera::projection() {
 	return m_projection;
 }
 
-//void Camera::projection(mat4 projection) {
-//	m_projection = projection;
-//	// compute constituent properties??
-//}
-
 /***************************************************************************************
      Internal
  ***************************************************************************************/

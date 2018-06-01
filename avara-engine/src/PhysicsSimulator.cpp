@@ -8,6 +8,8 @@
 
 #include "PhysicsSimulator.h"
 
+#include "Logger.h"
+
 
 using namespace ae;
 using namespace glm;
@@ -26,7 +28,7 @@ PhysicsSimulator::PhysicsSimulator():
 }
 
 PhysicsSimulator::~PhysicsSimulator() {
-	
+	AE_LOG->debug("Destroying PhysicsSimulator {:p}", (void*)this);
 }
 
 /**************************************************************************************
