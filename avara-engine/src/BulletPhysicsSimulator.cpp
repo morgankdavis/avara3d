@@ -220,7 +220,7 @@ void BulletPhysicsSimulator::step(float time) {
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-	
+
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 }
