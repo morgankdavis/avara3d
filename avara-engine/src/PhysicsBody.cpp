@@ -302,6 +302,8 @@ void PhysicsBody::clearForces() {
 void PhysicsBody::resetTransform() {
 	#warning FIX
 	//m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
+	
+	//proceedToTransform (const btTransform &newTrans)
 }
 
 /***************************************************************************************

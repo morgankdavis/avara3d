@@ -75,11 +75,11 @@ namespace ae {
 		float opacity() const;
 		void opacity(const float opacity);
 		
-		int renderOrder() const;
-		void renderOrder(const int renderOrder);
+		/* REMOVE? */ int renderOrder() const;
+		/* REMOVE? */ void renderOrder(const int renderOrder);
 		
-		bool castsShadow() const;
-		void castsShadow(const bool castsShadow);
+		/* REMOVE? */ bool castsShadow() const;
+		/* REMOVE? */ void castsShadow(const bool castsShadow);
 		
 		glm::vec3 position() const;
 		void position(const glm::vec3 position);
@@ -136,17 +136,10 @@ namespace ae {
  		 ***************************************************************************************/
 		
 		std::shared_ptr<Node> root() const;
-		
-		std::vector<std::shared_ptr<Node>> pathToRoot() const;
-		
-		bool containsChild(std::shared_ptr<Node> node);
-
 		std::weak_ptr<Scene> scene() const;
-		
-		void updateWorldTransformForDraw();
-		
+		void updateWorldTransform();
+		bool containsChild(std::shared_ptr<Node> node);
 		void attachedToScene(std::shared_ptr<Scene> scene);
-		
 		void attachedToParent(std::shared_ptr<Node> parentNode);
 		
 	private:
@@ -155,6 +148,7 @@ namespace ae {
      		Private
  		 ***************************************************************************************/
 		
+		std::vector<std::shared_ptr<Node>> pathToRoot() const;
 		void addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
 		std::vector<std::shared_ptr<Node>> topologicalChildren(std::shared_ptr<Node> top);
 		void topologicalChildrenRec(std::shared_ptr<Node> node,

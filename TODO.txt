@@ -14,6 +14,8 @@ Tests:
 	30 - rigidbodies
 
 
+		Rename .cpp -> .cc, .h -> .hh
+
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation
 
@@ -26,8 +28,6 @@ Tests:
 			For notes without dynamic bodies and not animating:
 				- Reflects its local transform
 			Pres
-
-				
 
 
 		Add physics stats!
@@ -107,13 +107,13 @@ Tests:
 		SCNPhysicsSliderJoint
 		SCNPhysicsVehicle
 
-	40 - multithreading
+	40 - animation
+		http://guillaumeblanc.github.io/ozz-animation/
+
+	50 - multithreading
 		#include <thread>
 		unsigned int n = std::thread::hardware_concurrency();
 		std::cout << n << " concurrent threads are supported.\n";
-
-	50 - animation
-		http://guillaumeblanc.github.io/ozz-animation/
 
 	60 - GUI
 

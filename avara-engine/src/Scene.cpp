@@ -256,7 +256,7 @@ void Scene::draw(Renderer& renderer,
 #warning TEMPORARY before physics unroll
 		if (!node->physicsBody()) {
 			// update all non-physics nodes world transforms
-			node->updateWorldTransformForDraw();
+			node->updateWorldTransform();
 		}
 
 		auto modelMat = node->worldTransform();

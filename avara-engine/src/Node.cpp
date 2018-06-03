@@ -571,21 +571,28 @@ shared_ptr<Node> Node::root() const {
 	return nullptr;
 }
 
-vector<shared_ptr<Node>> Node::pathToRoot() const {
-	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
-	
-	auto parents = vector<shared_ptr<Node>>();
-	
-	if (auto p = m_parent.lock()) {
-		if (auto p = m_parent.lock()) {
-			do {
-				parents.push_back(p);
-				p = p->parent().lock();
-			} while (p != nullptr);
-		}
+weak_ptr<Scene> Node::scene() const {
+	if (root()) {
+		return root()->scene();
 	}
+	else {
+		return m_scene;
+	}
+}
+
+void Node::updateWorldTransform() {
+	// special function gets called by Scene each frame.
+	// before being called a topological sort if done on the scene, and each node's 
+	// updateWorldTransform() is called in order, guaranteeing that its parent's
+	// world tranform is indeed a good world transform
 	
-	return parents;
+	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+		if (auto p = parent().lock()) {
+			m_worldTransform = p->worldTransform() * transform();
+		}
+		
+		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+	}
 }
 
 bool Node::containsChild(shared_ptr<Node> node) {
@@ -596,30 +603,6 @@ bool Node::containsChild(shared_ptr<Node> node) {
 		return true;
 	}
 	return false;
-}
-
-weak_ptr<Scene> Node::scene() const {
-	if (root()) {
-		return root()->scene();
-	}
-	else {
-		return m_scene;
-	}
-}
-
-void Node::updateWorldTransformForDraw() {
-	// special function gets called by Scene each frame.
-	// before being called a topological sort if done on the scene, and each node's 
-	// updateWorldTransformForDraw() is called in order, guaranteeing that its parent's
-	// world tranform is indeed a good world transform
-	
-	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
-		if (auto p = parent().lock()) {
-			m_worldTransform = p->worldTransform() * transform();
-		}
-		
-		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
-	}
 }
 
 void Node::attachedToScene(shared_ptr<Scene> scene) {
@@ -640,6 +623,23 @@ void Node::attachedToParent(shared_ptr<Node> parentNode) {
 /***************************************************************************************
      Private
  ***************************************************************************************/
+
+vector<shared_ptr<Node>> Node::pathToRoot() const {
+	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
+	
+	auto parents = vector<shared_ptr<Node>>();
+	
+	if (auto p = m_parent.lock()) {
+		if (auto p = m_parent.lock()) {
+			do {
+				parents.push_back(p);
+				p = p->parent().lock();
+			} while (p != nullptr);
+		}
+	}
+	
+	return parents;
+}
 
 void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
 	

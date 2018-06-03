@@ -109,7 +109,7 @@ namespace ae {
 		void applyTorque(glm::vec3 torque, bool impulse);
 		void clearForces();
 		
-		/* REMOVE? */ void resetTransform();
+		void resetTransform();
 		
 		/***************************************************************************************
 		     Internal
