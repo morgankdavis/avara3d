@@ -220,7 +220,7 @@ void BulletPhysicsSimulator::step(float time) {
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-
+	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 }
@@ -391,9 +391,11 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	// back-fill PhysicsBody properties
 	
-	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()));
-	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()));
-	body->resting((*btBody)->getActivationState() == ISLAND_SLEEPING ? true : false);
+#warning this is causing a loop canceling out any dynamic movement
+	
+//	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()));
+//	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()));
+//	body->resting((*btBody)->getActivationState() == ISLAND_SLEEPING ? true : false);
 }
 
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
