@@ -15,8 +15,6 @@ Tests:
 
 		Fix geometry backfill
 
-		Rename .cpp -> .cc, .h -> .hh
-
 		Switch using to typedef
 
 		[Use presentationNode for dynamic bodies]
