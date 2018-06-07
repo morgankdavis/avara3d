@@ -13,10 +13,13 @@ Tests:
 
 	30 - rigidbodies
 
+		Fix geometry backfill
 
 		Rename .cpp -> .cc, .h -> .hh
 
-		[Set node transform path from Bullet]
+		Switch using to typedef
+
+		[Use presentationNode for dynamic bodies]
 			Set motion state when setting node position or rotation
 
 		
