@@ -4,4 +4,6 @@ xcode-select --install
 
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-brew install git cmake 
+brew install git cmake
+
+xcode-select --reset

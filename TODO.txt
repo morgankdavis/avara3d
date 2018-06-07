@@ -14,8 +14,6 @@ Tests:
 	30 - rigidbodies
 
 
-		Rename .cpp -> .cc, .h -> .hh
-
 		[Set node transform path from Bullet]
 			Set motion state when setting node position or rotation
 
