@@ -10,9 +10,9 @@
 #define OpenGLRenderer_h
 
 
-#import <map>
-#import <utility>
-#import <set>
+#include <map>
+#include <utility>
+#include <set>
 
 #include <glm/glm.hpp>
 

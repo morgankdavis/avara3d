@@ -29,6 +29,13 @@ extern "C" {
 #else
 #define FONS_DEF extern
 #endif
+
+
+// Added by Morgan to make MinGW-w64 happy (did this used to be in global?)
+#ifdef WINDOWS
+#include <windows.h>
+#define MAX_PATH 1024
+#endif
 	
 
 #define FONS_INVALID -1

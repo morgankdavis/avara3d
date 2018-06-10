@@ -299,7 +299,7 @@ void AddFruit(Scene& scene, vec3 location) {
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	Logger::Level(LOG_LEVEL::DEBUG);
+	Logger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
 	
