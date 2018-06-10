@@ -49,15 +49,13 @@ static float ScreenScaleFactor(GLFWmonitor* monitor);
 Window::Window(shared_ptr<Renderer> renderer,
 			   bool fullScreen,
 			   unsigned width, unsigned height,
-			   bool useHighDPI, ANTIALIASING_MODE antialiasingMode):
+			   bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
 	RenderContext(renderer),
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {
 
 		if (!InitializeGLFW()) { AE_LOG->critical("Failed to initializing GLFW."); }
-		
-        AE_LOG->info("1");
-        
+
 //        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 //        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 //        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
@@ -74,17 +72,15 @@ Window::Window(shared_ptr<Renderer> renderer,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_SAMPLES, static_cast<unsigned>(antialiasingMode));
-        
-//        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
-//        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-//
-//        glfwWindowHint(GLFW_STENCIL_BITS, 8);
-//        glfwWindowHint(GLFW_DEPTH_BITS, 24);
-	//		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-        
-        
+		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
+        glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
+		
+//		glfwWindowHint(GLFW_STENCIL_BITS, 8);
+//		glfwWindowHint(GLFW_DEPTH_BITS, 24);
+//		
+//		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
 		int viewportWidth = width;
 		int viewportHeight = height;
@@ -126,7 +122,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		m_width = viewportWidth;
 		m_height = viewportHeight;
 
-		m_framebufferScale = (useHighDPI ? scaleFactor : 1.0);
+		m_framebufferScale = (enableHighDPI ? scaleFactor : 1.0);
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
 }

@@ -56,16 +56,19 @@ Tests:
 
 		------ Other things (non-physics) ------
 
+		Check out std::unorderd_set for OpenGLRenderer and BulletPhysicsSimulator resource management (O(1) vs O(log(n))
+
 		Try glViewport() with screen points width and height...
 
 		Move Program static functions to instance variables in OpenGLRenderer	
 
 		Test GENERATOR_USE_GLM
+		Rename GLM?
+		Create Externals.h?
 
 		Remove remaining header includes where struct forward declarations will work
 
 		move Node::hidden() check to Renderer
-
 
 		RenderContext should own "Stats" object
 			Create at each frame, pass around. frameStartTime, frameEndTime
@@ -126,6 +129,7 @@ Tests:
 		"Entity"
 
 	100 - vulkan? metal? deferred shading?
+		realtime GLSL editing with Imgui
 
 	120 - world editor
 
