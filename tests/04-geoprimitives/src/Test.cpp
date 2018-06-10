@@ -28,7 +28,7 @@ using namespace glm;
 #define WINDOW_WIDTH			1024
 #define WINDOW_HEIGHT			768
 #define FULLSCREEN 				false
-#define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::MSAA_4X
 #define ENABLE_VSYNC			false
 
 
@@ -57,20 +57,6 @@ int Test::run(const vector<string>& args) {
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	
-	
-	
-//	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
-//	auto window = make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-//	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-//	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-//	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-//	window->captureCursor(true);
-//	window->enableVSync(false);
-//
-//	auto scene = make_shared<Scene>();
-//	scene->rootNode(make_shared<Node>("Root node"));
-
 
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
 	auto planeNode = make_shared<Node>();
@@ -202,10 +188,31 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
 	//	}
 	
-	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
-	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
-		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
+//	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+//	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
+//		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
+//	}
+	
+	
+	auto keysPressed = m_inputManager->keysPressed();
+	if (keysPressed.count(KEY::F)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+		else {
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
 	}
+	if (keysPressed.count(KEY::B)) {
+		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+		else {
+			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+	}
+	
+	
 	
 	// move camera
 	

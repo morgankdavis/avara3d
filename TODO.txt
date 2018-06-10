@@ -62,7 +62,6 @@ Tests:
 
 		Move Program static functions to instance variables in OpenGLRenderer	
 
-		Test GENERATOR_USE_GLM
 		Rename GLM?
 		Create Externals.h?
 
