@@ -73,7 +73,7 @@ if (MSVS)
     message("We're MSVS")
 endif()
 
-if (MACOS OR WINODWS OR LINUX)
+if (MACOS OR WINDOWS OR LINUX)
 	message("We're DESKTOP")
     set(DESKTOP TRUE)
 endif()

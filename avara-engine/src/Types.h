@@ -29,13 +29,13 @@ namespace ae {
 	using PointSet = std::set<std::shared_ptr<Point>>;
 	
 	enum class LOG_LEVEL : unsigned {
-		TRACE =		0,
-		DEBUG =		1,
-		INFO =		2,
-		WARN =		3,
-		ERROR =		4,
-		CRITICAL = 	5,
-		OFF = 		6
+		TRACE_ =		0,
+		DEBUG_ =		1,
+		INFO_ =		2,
+		WARN_ =		3,
+		ERROR_ =		4,
+		CRITICAL_ = 	5,
+		OFF_ = 		6
 	};
 
 	enum class ANTIALIASING_MODE : unsigned {
@@ -386,7 +386,8 @@ namespace ae {
 #define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
 #define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
-}
+
+} // namespace ae
 
 
 #endif /* Types_h */

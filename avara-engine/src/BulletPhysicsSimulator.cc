@@ -12,6 +12,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <LinearMath/btIDebugDraw.h>
 #include <LinearMath/btScalar.h> // btGetVersion() !
 
 #include "Box.h"
@@ -92,7 +93,8 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
 		
-		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+		//m_btWorld.get()->setDebugDrawer((btIDebugDraw*)(m_debugDrawer.get());
+	m_btWorld.get()->setDebugDrawer(static_pointer_cast<btIDebugDraw>(m_debugDrawer).get());
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
