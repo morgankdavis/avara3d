@@ -24,8 +24,12 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
+#define ENABLE_HIGH_DPI			true
+#define WINDOW_WIDTH			1024
+#define WINDOW_HEIGHT			768
+#define FULLSCREEN 				false
+#define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
+#define ENABLE_VSYNC			false
 
 
 /***************************************************************************************
@@ -33,18 +37,39 @@ using namespace glm;
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-	cout << "Test::run()\n" << endl;
+	AE_INIT();
 	
-	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
-	auto window = make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
-	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
-	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
-	window->captureCursor(true);
-	window->enableVSync(false);
-
+	Logger::Level(LOG_LEVEL::DEBUG);
+	
+	AE_LOG->info("Test::run()");
+	
+	auto renderer = make_shared<OpenGLRenderer>();
+	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
+								   FULLSCREEN,
+								   WINDOW_WIDTH, WINDOW_HEIGHT,
+								   ENABLE_HIGH_DPI, ANTIALIAS_MODE);
+	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
+	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
+	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
+	m_window->enableVSync(ENABLE_VSYNC);
+	m_window->captureCursor(true);
+	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
+	
+	
+	
+//	//if (init() != 0) { cout << "Init error!" << endl; return -1; }
+//	auto window = make_shared<Window>(false, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+//	window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));
+//	window->willRenderCallback(bind(&Test::windowWillRenderCallback, this, _1, _2));
+//	window->didRenderCallback(bind(&Test::windowDidRenderCallback, this, _1, _2));
+//	window->captureCursor(true);
+//	window->enableVSync(false);
+//
+//	auto scene = make_shared<Scene>();
+//	scene->rootNode(make_shared<Node>("Root node"));
 
 
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
@@ -141,9 +166,9 @@ int Test::run(const vector<string>& args) {
 	
 	
 
-	window->scene(scene);
-	m_inputManager = window->inputManager();
-	window->display();
+	m_window->scene(scene);
+	m_inputManager = m_window->inputManager();
+	m_window->display();
 	
 	return 0;
 }
@@ -152,23 +177,25 @@ int Test::run(const vector<string>& args) {
      Window Callbacks
  ***************************************************************************************/
 
-void Test::windowUpdateCallback(Scene& scene, float time) {
+void Test::updateCallback(RenderContext& renderContext, float time) {
 	
-	static double previousSeconds = time;
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
+	
+	auto scene = renderContext.scene();
 	
 	// get input
 	
 	auto keysDown = m_inputManager->keysDown();
 	
-	if (keysDown.count(Key_Escape)) {
+	if (keysDown.count(KEY::ESCAPE)) {
 		exit(0);
 	}
 	
-	for (auto mb : m_inputManager->mouseButtonsDown()) {
-		cout << "Mouse button: " << mb << endl;
-	}
+//	for (auto mb : m_inputManager->mouseButtonsDown()) {
+//		cout << "Mouse button: " << mb << endl;
+//	}
 	
 	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
 	//	if (mousePositionDelta.x || mousePositionDelta.y) {
@@ -186,7 +213,7 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 	const static float mouseSensitivity = (1.0f / 0.5f);
 	
 	if (!m_cameraNode) {
-		for (auto n : scene.rootNode()->children(false)) {
+		for (auto n : scene->rootNode()->children(false)) {
 			if (n->camera()) {
 				m_cameraNode = n;
 				break;
@@ -222,37 +249,37 @@ void Test::windowUpdateCallback(Scene& scene, float time) {
 		// move
 		
 		static float MOVE_SPEED = 0;
-		if (!MOVE_SPEED) MOVE_SPEED = Max(scene.extent());
+		if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
 		
-		if(keysDown.count(Key_W)) {
+		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_S)) {
+		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_A)) {
+		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
-		else if(keysDown.count(Key_D)) {
+		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 		
-		if(keysDown.count(Key_Space)) {
+		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			m_cameraNode->position(m_cameraNode->position() + positionDelta);
 		}
 	}
 }
 
-void Test::windowWillRenderCallback(Scene& scene, float time) {
+void Test::willRenderCallback(RenderContext& renderContext, float time) {
 
 }
 
-void Test::windowDidRenderCallback(Scene& scene, float time) {
+void Test::didRenderCallback(RenderContext& renderContext, float time) {
 
 }

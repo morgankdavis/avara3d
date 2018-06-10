@@ -7,7 +7,13 @@
 #ifndef GENERATOR_MATH_HPP
 #define GENERATOR_MATH_HPP
 
+// Morgan: why isn't this being set by CMAKE??
+#define GENERATOR_USE_GLM
+
 #ifdef GENERATOR_USE_GLM
+
+// Added by Morgan
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <stdexcept>
 #include <limits>
