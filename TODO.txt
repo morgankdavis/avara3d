@@ -28,7 +28,6 @@ Tests:
 
 			For notes without dynamic bodies and not animating:
 				- Reflects its local transform
-			Pres
 
 
 		Add physics stats!
@@ -92,7 +91,9 @@ Tests:
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
 
-		Restore tests. Use flat main.cpp files.		
+		Restore tests. Use flat main.cpp files.
+
+		Silence/fix all build warnings	
 
 		GPU & CPU stats in overlay?
 
