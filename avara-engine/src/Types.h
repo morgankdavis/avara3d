@@ -30,7 +30,7 @@ namespace ae {
 	
 	enum class LOG_LEVEL : unsigned {
 		TRACE =		0,
-		DEBUG =		1,
+		DEBUG_ =		1,
 		INFO =		2,
 		WARN =		3,
 		ERROR =		4,
@@ -386,7 +386,7 @@ namespace ae {
 #define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
 #define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
-}
+//}
 
 
 #endif /* Types_h */
