@@ -23,12 +23,12 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define ENABLE_HIGH_DPI			true
-#define WINDOW_WIDTH			1024
-#define WINDOW_HEIGHT			768
-#define FULLSCREEN 				false
-#define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
-#define ENABLE_VSYNC			false
+constexpr bool					USE_HIGH_DPI =			true;
+constexpr unsigned				WINDOW_WIDTH =			1024;
+constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr bool					ENABLE_VSYNC =			false;
 
 
 /***************************************************************************************
@@ -90,7 +90,7 @@ int Test::run(const vector<string>& args) {
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
 								   FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   ENABLE_HIGH_DPI, ANTIALIAS_MODE);
+								   USE_HIGH_DPI, ANTIALIAS_MODE);
 	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));

@@ -397,7 +397,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()), false);
 	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()), false);
-	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false), false);
+	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false));
 }
 
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,

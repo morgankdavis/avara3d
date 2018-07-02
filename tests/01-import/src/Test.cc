@@ -26,8 +26,8 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
+constexpr unsigned				WINDOW_WIDTH =			800;
+constexpr unsigned				WINDOW_HEIGHT =			600;
 
 
 /***************************************************************************************

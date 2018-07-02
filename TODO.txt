@@ -13,9 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		Switch using to typedef (TYPE ALIAS? - READ)
-		Switch define to constexpr (READ)
-
 
 		[Use presentationNode for dynamic bodies]
 			All physics things are carried out on presentation, start at their "owner" nodes's WORLD transform

@@ -243,18 +243,11 @@ bool PhysicsBody::allowsResting() const {
 
 void PhysicsBody::allowsResting(bool flag) {
 	m_allowsResting = flag;
-	
-	//setActiovationState() ?
-	
+
 	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING);
 }
 
 bool PhysicsBody::resting() const {
-	
-	// setActivationState 	( 	i
-	// void 	forceActivationState (int newState) const
-	// void 	activate (bool forceActivation=false) const 
-	// bool 	isActive () const 
 	
 	return m_resting;
 }
@@ -266,8 +259,6 @@ void PhysicsBody::applyForce(vec3 force, bool impulse) {
 //	void 	applyCentralImpulse (const btVector3 &impulse)
 //	
 //	void 	applyTorqueImpulse (const btVector3 &torque)
-	
-	
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
@@ -314,7 +305,7 @@ void PhysicsBody::resetTransform() {
      Internal
  ***************************************************************************************/
 
-void PhysicsBody::resting(bool resting, bool setDirty) {
+void PhysicsBody::resting(bool resting) {
 	m_resting = resting;
 	
 #warning need to update BT motion state?

@@ -8,7 +8,6 @@
 
 #include "PhysicsShape.h"
 
-//#include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 

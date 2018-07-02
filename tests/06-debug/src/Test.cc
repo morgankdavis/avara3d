@@ -23,14 +23,14 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define ENABLE_HIGH_DPI        	true
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
-#define FULLSCREEN 				false
-#define ANTIALIASING_MODE		AntialiasingMode_None
-#define ENABLE_VSYNC			false
-#define CAPTURE_CURSOR			true
-#define MOUSE_SENSITIVITY		0.5f
+constexpr bool					USE_HIGH_DPI =			true;
+constexpr unsigned				WINDOW_WIDTH =			800;
+constexpr unsigned				WINDOW_HEIGHT =			600;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					CAPTURE_CURSOR =		true;
+constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
 /***************************************************************************************
@@ -45,7 +45,7 @@ int Test::run(const vector<string>& args) {
 	auto logger = make_shared<Logger>("test06", sinks);
 	
 	m_window = make_shared<Window>(FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, 
-									  ENABLE_HIGH_DPI, ANTIALIASING_MODE);
+									  USE_HIGH_DPI, ANTIALIASING_MODE);
 	logger->info("Test::run()");
 	
 	m_window->updateCallback(bind(&Test::windowUpdateCallback, this, _1, _2));

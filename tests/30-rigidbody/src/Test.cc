@@ -23,15 +23,15 @@ using namespace std::placeholders;
 using namespace glm;
 
 
-#define USE_HIGH_DPI        	true
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			600
-#define FULLSCREEN 				false
-#define ANTIALIAS_MODE			ANTIALIASING_MODE::NONE
-#define ENABLE_VSYNC			false
-#define CAPTURE_CURSOR			true
-#define MOUSE_SENSITIVITY		0.5
-#define PHYSICS_TIMESTEP		1.0/180.0
+constexpr bool					USE_HIGH_DPI =			true;
+constexpr unsigned				WINDOW_WIDTH =			800;
+constexpr unsigned				WINDOW_HEIGHT =			600;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					CAPTURE_CURSOR =		true;
+constexpr float					MOUSE_SENSITIVITY =		0.5;
+constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
 
 //#define USE_HIGH_DETAIL_MESHES
 

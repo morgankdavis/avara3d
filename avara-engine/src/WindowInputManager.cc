@@ -26,8 +26,8 @@ using namespace std;
 using namespace glm;
 
 
-#define FLIP_MOUSE_VERTICAL		true
-#define FLIP_MOUSE_HORIZONTAL	false
+constexpr bool	FLIP_MOUSE_VERTICAL =		true;
+constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 
 /***************************************************************************************
