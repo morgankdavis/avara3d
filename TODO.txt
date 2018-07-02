@@ -13,12 +13,6 @@ Tests:
 
 	30 - rigidbodies
 
-		PHYSICS WORLD IS ALWAYS PRESENT
-
-		Rename test .cpp
-
-		Fix geometry backfill
-
 		Switch using to typedef (TYPE ALIAS? - READ)
 		Switch define to constexpr (READ)
 

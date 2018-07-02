@@ -157,20 +157,24 @@ vec3 PhysicsBody::linearVelocity() const {
 	return m_linearVelocity;
 }
 
-void PhysicsBody::linearVelocity(vec3 velocity) {
+void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
 	m_linearVelocity = velocity;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
+	if (setDirty) {
+		m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
+	}
 }
 
 vec3 PhysicsBody::angularVelocity() const {
 	return m_angularVelocity;
 }
 
-void PhysicsBody::angularVelocity(vec3 velocity) {
+void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
 	m_angularVelocity = velocity;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
+	if (setDirty) {
+		m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
+	}
 }
 
 vec3 PhysicsBody::linearFactor() const {
@@ -310,8 +314,10 @@ void PhysicsBody::resetTransform() {
      Internal
  ***************************************************************************************/
 
-void PhysicsBody::resting(bool resting) {
+void PhysicsBody::resting(bool resting, bool setDirty) {
 	m_resting = resting;
+	
+#warning need to update BT motion state?
 }
 
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {

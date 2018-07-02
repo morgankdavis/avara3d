@@ -395,9 +395,9 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 #warning this is causing a loop canceling out any dynamic movement
 	
-//	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()));
-//	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()));
-//	body->resting((*btBody)->getActivationState() == ISLAND_SLEEPING ? true : false);
+	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()), false);
+	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()), false);
+	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false), false);
 }
 
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,

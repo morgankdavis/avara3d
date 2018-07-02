@@ -72,10 +72,10 @@ namespace ae {
 		void restitution(float restitution);
 		
 		glm::vec3 linearVelocity() const;
-		void linearVelocity(glm::vec3 velocity);
+		void linearVelocity(glm::vec3 velocity, bool setDirty=true);
 		
 		glm::vec3 angularVelocity() const;
-		void angularVelocity(glm::vec3 velocity);
+		void angularVelocity(glm::vec3 velocity, bool setDirty=true);
 		
 		glm::vec3 linearFactor() const;
 		void linearFactor(glm::vec3 factor);
@@ -115,7 +115,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		void resting(bool resting);
+		void resting(bool resting, bool setDirty=true);
 		
 		void attachedToNode(std::shared_ptr<Node> node);
 		void geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
