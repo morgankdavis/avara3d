@@ -13,12 +13,28 @@ Tests:
 
 	30 - rigidbodies
 
+		PHYSICS WORLD IS ALWAYS PRESENT
+
+		Rename test .cpp
+
 		Fix geometry backfill
 
-		Switch using to typedef
+		Switch using to typedef (TYPE ALIAS? - READ)
+		Switch define to constexpr (READ)
+
 
 		[Use presentationNode for dynamic bodies]
+			All physics things are carried out on presentation, start at their "owner" nodes's WORLD transform
+			Setting property on physics node sets its property relative to the owner's WORLD transform, then detaches again to presentation
+				-> When you ask a presentation for its info, it unwinds against its presentationOrigin
 			Set motion state when setting node position or rotation
+
+
+		Node
+			presentation (being managed automatically - dynamic body, animation) -- ALWAYS RELATIVE TO MODEL NODE
+			modelNode
+				* this is going to need a back-pointer. Its position in SCN is still being computed in part to the owner node
+					(Detach the sphere and then move the cube -x -- the sphere's presentation changes
 
 		
 		[SCENEKIT]
@@ -39,6 +55,12 @@ Tests:
 		Scale
 			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
+
+		Add node ttl?
+			- time
+			- distance from camera
+			- distance from origin
+			- distance from center or another node
 
 		SIMD alignment
 		Gaffer on games - fix your timestep
@@ -91,11 +113,9 @@ Tests:
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
 
-		Restore tests. Use flat main.cpp files.
-
 		Silence/fix all build warnings	
 
-		GPU & CPU stats in overlay?
+		PIMPL?
 
 
 	31 - contact

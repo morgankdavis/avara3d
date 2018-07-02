@@ -19,6 +19,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         
         // create a new scene
         let scene = SCNScene(named: "art.scnassets/ship.scn")!
+		scene.physicsWorld.speed = 0.25
         
         // create and add a camera to the scene
         let cameraNode = SCNNode()
@@ -43,6 +44,9 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         ambientLightNode.light!.color = NSColor.darkGray
         scene.rootNode.addChildNode(ambientLightNode)
         
+		
+		
+		
         // retrieve the ship node
         let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
         
@@ -51,10 +55,13 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		
 		
+		
+		
 		let sphere = SCNSphere(radius: 0.5);
 		sphereNode = SCNNode(geometry: sphere)
 		sphereNode.physicsBody = SCNPhysicsBody.dynamic()
 		sphereNode.physicsBody?.isAffectedByGravity = false
+		
 		
 		let box = SCNBox(width: 0.5, height: 0.5, length: 2.0, chamferRadius: 0)
 		boxNode = SCNNode(geometry: box)
@@ -62,8 +69,10 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 		
 		boxNode.addChildNode(sphereNode)
-		
 		ship.addChildNode(boxNode)
+		
+		
+		//ship.addChildNode(sphereNode)
 		
 		
 		
@@ -84,10 +93,20 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         scnView.backgroundColor = NSColor.black
         
         // Add a click gesture recognizer
-        let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(handleClick(_:)))
-        var gestureRecognizers = scnView.gestureRecognizers
-        gestureRecognizers.insert(clickGesture, at: 0)
-        scnView.gestureRecognizers = gestureRecognizers
+        let click1Gesture = NSClickGestureRecognizer(target: self, action: #selector(mouse1Click(_:)))
+		click1Gesture.buttonMask = 1 << 0;
+//        var gestureRecognizers = scnView.gestureRecognizers
+//        gestureRecognizers.insert(clickGesture, at: 0)
+//        scnView.gestureRecognizers = gestureRecognizers
+		
+		let click2Gesture = NSClickGestureRecognizer(target: self, action: #selector(mouse2Click(_:)))
+		click2Gesture.buttonMask = 1 << 1;
+		
+		
+		var gestureRecognizers = scnView.gestureRecognizers
+		gestureRecognizers.insert(click1Gesture, at: 0)
+		gestureRecognizers.insert(click2Gesture, at: 1)
+		scnView.gestureRecognizers = gestureRecognizers
 		
 		
 		
@@ -109,12 +128,14 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	}
     
     @objc
-    func handleClick(_ gestureRecognizer: NSGestureRecognizer) {
-		
+    func mouse1Click(_ gestureRecognizer: NSGestureRecognizer) {
+		NSLog("mouse1Click")
 		
 		//sphereNode!.position = SCNVector3(sphereNode!.position.x, sphereNode!.position.y + 0.25, sphereNode!.position.z)
 		
+		sphereNode!.physicsBody!.velocity = SCNVector3(0, 0, 0)
 		sphereNode!.position = SCNVector3(0, 0, 0)
+		
 		
 //        // retrieve the SCNView
 //        let scnView = self.view as! SCNView
@@ -149,4 +170,15 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 //            SCNTransaction.commit()
 //        }
     }
+	
+	@objc
+	func mouse2Click(_ gestureRecognizer: NSGestureRecognizer) {
+		
+		NSLog("mouse2Click")
+		
+		
+		boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
+		
+		//NSLog("BOX.pivot.position: {\(boxNode!.pivot.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
+	}
 }

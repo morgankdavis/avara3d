@@ -93,8 +93,8 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
 		
-		//m_btWorld.get()->setDebugDrawer((btIDebugDraw*)(m_debugDrawer.get());
-	m_btWorld.get()->setDebugDrawer(static_pointer_cast<btIDebugDraw>(m_debugDrawer).get());
+	m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+	//m_btWorld.get()->setDebugDrawer(static_pointer_cast<btIDebugDraw>(m_debugDrawer).get());
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
@@ -440,7 +440,7 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		
 		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
 														 PHYSICS_SHAPE_DIRTY_BITS::MODEL));
-		
+
 		wasDirty = true;
 	}
 	else {
@@ -473,7 +473,7 @@ void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
 	}
 	sort(storedBodiesSorted.begin(), storedBodiesSorted.end());
 	
-	// find unused bodies
+	// find unused bodies 
 	auto unused = vector<shared_ptr<PhysicsBody>>(storedBodiesSorted.size());
 	vector<shared_ptr<PhysicsBody>>::iterator it;
 	it = set_difference(storedBodiesSorted.begin(), storedBodiesSorted.end(),
