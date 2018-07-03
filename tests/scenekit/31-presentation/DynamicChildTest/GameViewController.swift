@@ -75,16 +75,25 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		let box = SCNBox(width: 0.5, height: 0.5, length: 2.0, chamferRadius: 0)
 		boxNode = SCNNode(geometry: box)
+		boxNode.physicsBody = SCNPhysicsBody.dynamic()
 //		boxNode.physicsBody = SCNPhysicsBody.kinematic()
+//		boxNode.physicsBody = SCNPhysicsBody.static()
 		boxNode.position = SCNVector3(10, 0, 0)
 		
 		
 		
 		let sphere = SCNSphere(radius: 0.5);
 		sphereNode = SCNNode(geometry: sphere)
+		
+		// dynamic
 		sphereNode.physicsBody = SCNPhysicsBody.dynamic()
+//		sphereNode.physicsBody?.isAffectedByGravity = false
+		
+		// kinematic & static
 //		sphereNode.physicsBody = SCNPhysicsBody.kinematic()
-		sphereNode.physicsBody?.isAffectedByGravity = true
+//		sphereNode.physicsBody = SCNPhysicsBody.static()
+		sphereNode.position = SCNVector3(0, -5, 0)
+		
 		
 		
 		
@@ -138,20 +147,26 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 	@objc
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-		NSLog("sphereNode!.position: {\(sphereNode.position.x), \(sphereNode.position.y), \(sphereNode.position.z)}")
-		let spherePresentation = sphereNode.presentation
-		NSLog("sphereNode!.presentation: {\(spherePresentation.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
+//		NSLog("sphereNode!.position: {\(sphereNode.position.x), \(sphereNode.position.y), \(sphereNode.position.z)}")
+//		let spherePresentation = sphereNode.presentation
+//		NSLog("sphereNode!.presentation: {\(spherePresentation.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
 		
-//		NSLog("boxNode!.position: {\(boxNode.position.x), \(boxNode.position.y), \(boxNode.position.z)}")
-//		let boxPresentation = boxNode.presentation
-//		NSLog("boxPresentation!.presentation: {\(boxPresentation.position.x), \(boxPresentation.position.y), \(boxPresentation.position.z)}")
+		NSLog("boxNode!.position: {\(boxNode.position.x), \(boxNode.position.y), \(boxNode.position.z)}")
+		let boxPresentation = boxNode.presentation
+		NSLog("boxPresentation!.presentation: {\(boxPresentation.position.x), \(boxPresentation.position.y), \(boxPresentation.position.z)}")
 	}
     
     @objc
     func mouse1Click(_ gestureRecognizer: NSGestureRecognizer) {
 		NSLog("mouse1Click")
 
-		sphereNode!.physicsBody!.velocity = SCNVector3(0, 0, 0)
+		// dynamic
+		//sphereNode.physicsBody!.velocity = SCNVector3(0, 0, 0)
+		
+		
+		// kimematic & static
+		sphereNode.position = SCNVector3(0, -sphereNode.position.y, 0)
+		
 
     }
 	
@@ -160,6 +175,23 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		NSLog("mouse2Click")
 		
-		boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
+		// dynamic
+		//boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
+		
+		
+		// kinematic & static
+//		boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
+		
+		
+		//boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
+		
+//		let v = boxNode.physicsBody?.velocity as! SCNVector3
+//		boxNode.physicsBody?.velocity = SCNVector3(v.x, 20, v.z)
+		
+		//let av = boxNode.physicsBody?.angularVelocity as! SCNVector4
+		//boxNode.physicsBody?.angularVelocity = SCNVector4(av.x, av.y, av.z)
+		
+		 boxNode.physicsBody!.applyTorque(SCNVector4(1, -1, 0, 3.1415), asImpulse: false)
+		
 	}
 }

@@ -157,7 +157,7 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     Window Callbacks
+     RenderContext Callbacks
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
@@ -203,14 +203,11 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		}
 	}
 	
-//	if (keysPressed.count(KEY::LEFT_BRACKET)) {
-//		if (m_thingBNode) {
-//			m_thingBNode->position({
-//				m_thingBNode->position().x + 10,
-//				m_thingBNode->position().y,
-//				m_thingBNode->position().z});
-//		}
-//	}
+	if (keysPressed.count(KEY::LEFT_BRACKET)) {
+		if (m_sphereNode) {
+			m_sphereNode->physicsBody()->linearVelocity({0, 0, 0});
+		}
+	}
 	
 	
 	if (keysPressed.count(KEY::ESCAPE)) {

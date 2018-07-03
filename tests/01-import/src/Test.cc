@@ -136,7 +136,7 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     Window Callbacks
+     RenderContext Callbacks
  ***************************************************************************************/
 
 void Test::windowUpdateCallback(Scene& scene, float time) {
