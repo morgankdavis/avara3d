@@ -34,6 +34,7 @@
 #include "PhysicsBody.h"
 //#include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
+#include "PresentationNode.h"
 #include "Renderer.h"
 #include "RenderContext.h"
 #include "Utilities.h"
@@ -220,7 +221,7 @@ void Scene::draw(Renderer& renderer,
 	auto renderContext = m_renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
 	auto sortedNodes = m_rootNode->children(true);
-	
+
 	// update physics model and step
 	
 	if (m_physicsWorld) {
@@ -259,37 +260,30 @@ void Scene::draw(Renderer& renderer,
 			node->updateWorldTransform();
 		}
 
-		auto modelMat = node->worldTransform();
-		
 		auto geometry = node->geometry();
 		if (geometry != nullptr) {
 			if (!node->hidden()) {
 				stats.geometries++;
-				
+
 				if (m_physicsWorld) {
-					// * temporary side effect *
-					// updates node's local transform from physics simulation
-					
-//					if (node->physicsBody()) {
-//						AE_LOG->debug("BODY");
-//						if (node->physicsBody()->shape()) {
-//							AE_LOG->debug("SHAPE");
-//						}
-//						else {
-//							AE_LOG->debug("NO SHAPE");
-//						}
-//					}
-					
 					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
 											 node,
 											 debugOptions);
 				}
-				
-				// render
-				
-				geometry->draw(renderer,
-							   modelMat, viewMat, projectionMat,
-							   debugOptions, stats);
+	
+				if (m_physicsWorld
+					&& node->physicsBody()
+					&& node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+
+					geometry->draw(renderer,
+								   node->presentation()->worldTransform(), viewMat, projectionMat,
+								   debugOptions, stats);
+				}
+				else {
+					geometry->draw(renderer,
+								   node->worldTransform(), viewMat, projectionMat,
+								   debugOptions, stats);
+				}
 			}
 		}
 	}

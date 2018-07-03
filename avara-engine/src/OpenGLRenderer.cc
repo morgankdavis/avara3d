@@ -307,6 +307,10 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 	
+//	for (auto& e : m_activeGeometryElements) {
+//		AE_LOG->debug("Active element: {:p}", (void*)(e.get()));
+//	}
+	
 	CheckGLError();
 }
 

@@ -25,6 +25,7 @@
 #include "Light.h"
 #include "Logger.h"
 #include "PhysicsBody.h"
+#include "PresentationNode.h"
 #include "Scene.h"
 #include "Utilities.h"
 
@@ -77,7 +78,8 @@ Node::Node():
 	m_physicsBody(nullptr),
 	m_parent({}),
 	m_scene({}),
-	m_dirtyBits(NODE_DIRTY_BITS::ALL) {
+	m_dirtyBits(NODE_DIRTY_BITS::ALL),
+	m_presentation(nullptr) {
 
 }
 
@@ -481,12 +483,6 @@ mat4 Node::worldTransform() {
 	return m_worldTransform;
 }
 
-#warning TEMPORARY before physics unroll
-void Node::worldTransform(mat4 transform) {
-	m_worldTransform = transform;
-	m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
-}
-
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {
 		addChild(node);
@@ -540,13 +536,9 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 }
 
 shared_ptr<Node> Node::child(const string& name, bool resursive) {
-
-	auto childs = children(resursive);
-	
-	for (auto child : childs) {
+	for (auto child : children(resursive)) {
 		if (child->name() == name) return child;
 	}
-	
 	return nullptr;
 }
 
@@ -555,29 +547,33 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
+	// will want to do this for animations, too
+	
+	if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+		m_presentation = make_shared<PresentationNode>(shared_from_this());
+	}
+	
 	body->attachedToNode(shared_from_this());
 	m_physicsBody = body;
+}
+
+shared_ptr<PresentationNode> Node::presentation() {
+
+//	if (m_presentation == nullptr) {
+//		m_presentation = make_shared<Node>();
+//		m_presentation->attachedToModel(shared_from_this());
+//	}
+	return m_presentation;
 }
 
 /***************************************************************************************
      Internal
  ***************************************************************************************/
 
-shared_ptr<Node> Node::root() const {
-	auto path = pathToRoot();
-	if (path.size() > 0) {
-		return path.back();
-	}
-	return nullptr;
-}
-
-weak_ptr<Scene> Node::scene() const {
-	if (root()) {
-		return root()->scene();
-	}
-	else {
-		return m_scene;
-	}
+#warning TEMPORARY before physics unroll
+void Node::worldTransform(mat4 transform) {
+	m_worldTransform = transform;
+	m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 void Node::updateWorldTransform() {
@@ -619,6 +615,31 @@ void Node::attachedToScene(shared_ptr<Scene> scene) {
 void Node::attachedToParent(shared_ptr<Node> parentNode) {
 	m_parent = parentNode;
 }
+
+shared_ptr<Node> Node::root() const {
+	auto path = pathToRoot();
+	if (path.size() > 0) {
+		return path.back();
+	}
+	return nullptr;
+}
+
+weak_ptr<Scene> Node::scene() const {
+	if (root()) {
+		return root()->scene();
+	}
+	else {
+		return m_scene;
+	}
+}
+
+//weak_ptr<Node> Node::model() const {
+//	return m_model;
+//}
+//
+//void Node::attachedToModel(shared_ptr<Node> model) {
+//	m_model = model;
+//}
 
 /***************************************************************************************
      Private

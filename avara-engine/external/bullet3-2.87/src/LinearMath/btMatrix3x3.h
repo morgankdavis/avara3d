@@ -346,40 +346,41 @@ public:
 	* @param m The array to be filled */
 	void getOpenGLSubMatrix(btScalar *m) const 
 	{
-#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-        __m128 v0 = m_el[0].mVec128;
-        __m128 v1 = m_el[1].mVec128;
-        __m128 v2 = m_el[2].mVec128;    //  x2 y2 z2 w2
-        __m128 *vm = (__m128 *)m;
-        __m128 vT;
-        
-        v2 = _mm_and_ps(v2, btvFFF0fMask);  //  x2 y2 z2 0
+		// disabled by Morgan due to crashing issues (?? -- alignment looks fine!)
+//#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+//        __m128 v0 = m_el[0].mVec128;
+//        __m128 v1 = m_el[1].mVec128;
+//        __m128 v2 = m_el[2].mVec128;    //  x2 y2 z2 w2
+//        __m128 *vm = (__m128 *)m;
+//        __m128 vT;
 //        
-        vT = _mm_unpackhi_ps(v0, v1);	//	z0 z1 * *
-        v0 = _mm_unpacklo_ps(v0, v1);	//	x0 x1 y0 y1
-
-        v1 = _mm_shuffle_ps(v0, v2, BT_SHUFFLE(2, 3, 1, 3) );	// y0 y1 y2 0
-        v0 = _mm_shuffle_ps(v0, v2, BT_SHUFFLE(0, 1, 0, 3) );	// x0 x1 x2 0
-        v2 = btCastdTo128f(_mm_move_sd(btCastfTo128d(v2), btCastfTo128d(vT)));	// z0 z1 z2 0
-
-        vm[0] = v0;
-        vm[1] = v1;
-        vm[2] = v2;
-#elif defined(BT_USE_NEON)
-        // note: zeros the w channel. We can preserve it at the cost of two more vtrn instructions.
-        static const uint32x2_t zMask = (const uint32x2_t) {static_cast<uint32_t>(-1), 0 };
-        float32x4_t *vm = (float32x4_t *)m;
-        float32x4x2_t top = vtrnq_f32( m_el[0].mVec128, m_el[1].mVec128 );  // {x0 x1 z0 z1}, {y0 y1 w0 w1}
-        float32x2x2_t bl = vtrn_f32( vget_low_f32(m_el[2].mVec128), vdup_n_f32(0.0f) );       // {x2  0 }, {y2 0}
-        float32x4_t v0 = vcombine_f32( vget_low_f32(top.val[0]), bl.val[0] );
-        float32x4_t v1 = vcombine_f32( vget_low_f32(top.val[1]), bl.val[1] );
-        float32x2_t q = (float32x2_t) vand_u32( (uint32x2_t) vget_high_f32( m_el[2].mVec128), zMask );
-        float32x4_t v2 = vcombine_f32( vget_high_f32(top.val[0]), q );       // z0 z1 z2  0
-
-        vm[0] = v0;
-        vm[1] = v1;
-        vm[2] = v2;
-#else
+//        v2 = _mm_and_ps(v2, btvFFF0fMask);  //  x2 y2 z2 0
+////        
+//        vT = _mm_unpackhi_ps(v0, v1);	//	z0 z1 * *
+//        v0 = _mm_unpacklo_ps(v0, v1);	//	x0 x1 y0 y1
+//
+//        v1 = _mm_shuffle_ps(v0, v2, BT_SHUFFLE(2, 3, 1, 3) );	// y0 y1 y2 0
+//        v0 = _mm_shuffle_ps(v0, v2, BT_SHUFFLE(0, 1, 0, 3) );	// x0 x1 x2 0
+//        v2 = btCastdTo128f(_mm_move_sd(btCastfTo128d(v2), btCastfTo128d(vT)));	// z0 z1 z2 0
+//
+//        vm[0] = v0;
+//        vm[1] = v1;
+//        vm[2] = v2;
+//#elif defined(BT_USE_NEON)
+//        // note: zeros the w channel. We can preserve it at the cost of two more vtrn instructions.
+//        static const uint32x2_t zMask = (const uint32x2_t) {static_cast<uint32_t>(-1), 0 };
+//        float32x4_t *vm = (float32x4_t *)m;
+//        float32x4x2_t top = vtrnq_f32( m_el[0].mVec128, m_el[1].mVec128 );  // {x0 x1 z0 z1}, {y0 y1 w0 w1}
+//        float32x2x2_t bl = vtrn_f32( vget_low_f32(m_el[2].mVec128), vdup_n_f32(0.0f) );       // {x2  0 }, {y2 0}
+//        float32x4_t v0 = vcombine_f32( vget_low_f32(top.val[0]), bl.val[0] );
+//        float32x4_t v1 = vcombine_f32( vget_low_f32(top.val[1]), bl.val[1] );
+//        float32x2_t q = (float32x2_t) vand_u32( (uint32x2_t) vget_high_f32( m_el[2].mVec128), zMask );
+//        float32x4_t v2 = vcombine_f32( vget_high_f32(top.val[0]), q );       // z0 z1 z2  0
+//
+//        vm[0] = v0;
+//        vm[1] = v1;
+//        vm[2] = v2;
+//#else
 		m[0]  = btScalar(m_el[0].x()); 
 		m[1]  = btScalar(m_el[1].x());
 		m[2]  = btScalar(m_el[2].x());
@@ -392,7 +393,7 @@ public:
 		m[9]  = btScalar(m_el[1].z());
 		m[10] = btScalar(m_el[2].z());
 		m[11] = btScalar(0.0); 
-#endif
+//#endif
 	}
 
 	/**@brief Get the matrix represented as a quaternion 

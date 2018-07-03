@@ -40,7 +40,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
      Static
  ***************************************************************************************/
 
-void ShootBall(Scene& scene, vec3 location, vec3 direction) {
+shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
 	cout << "location: " << location << endl;
 	
@@ -64,9 +64,11 @@ void ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	unsigned random = Random(0, 1);
 	shared_ptr<Node> node = nullptr;
@@ -93,9 +95,11 @@ void AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Box>(1.0, 1.0, 1.0));
 //	auto node = make_shared<Node>("Box");
@@ -117,9 +121,11 @@ void AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Sphere>(0.5, 3));
 //	shared_ptr<Node> node = make_shared<Node>("Sphere");
@@ -140,9 +146,11 @@ void AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Capsule>(0.5, 0.5, 16, 16, 16));
 //	shared_ptr<Node> node = make_shared<Node>("Capsule");
@@ -161,9 +169,11 @@ void AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cone>(0.5, 0.5, 16, 16));
 //	shared_ptr<Node> node = make_shared<Node>("Cone");
@@ -182,9 +192,11 @@ void AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	
 	//shared_ptr<Node> node = make_shared<Node>(make_shared<Cylinder>(0.5, 0.5, 16, 16));
 //	shared_ptr<Node> node = make_shared<Node>("Cylinder");
@@ -203,9 +215,11 @@ void AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddApple(Scene& scene, vec3 location) {
+shared_ptr<Node> AddApple(Scene& scene, vec3 location) {
 	
 #ifdef USE_HIGH_DETAIL_MESHES
 	shared_ptr<Node> node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->children(false)[0];
@@ -222,9 +236,11 @@ void AddApple(Scene& scene, vec3 location) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddPineapple(Scene& scene, vec3 location) {
+shared_ptr<Node> AddPineapple(Scene& scene, vec3 location) {
 	
 #ifdef USE_HIGH_DETAIL_MESHES
 	shared_ptr<Node> node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode();
@@ -241,9 +257,11 @@ void AddPineapple(Scene& scene, vec3 location) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
-void AddFruit(Scene& scene, vec3 location) {
+shared_ptr<Node> AddFruit(Scene& scene, vec3 location) {
 	
 	//unsigned random = Random(0, 6);
 	unsigned random = Random(2, 4);
@@ -277,7 +295,7 @@ void AddFruit(Scene& scene, vec3 location) {
 			//		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
 			//		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();	
 #endif
-		default: return;
+		default: return nullptr;
 	}
 	
 	node->position(location);
@@ -290,6 +308,8 @@ void AddFruit(Scene& scene, vec3 location) {
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
+	
+	return node;
 }
 
 /***************************************************************************************
@@ -302,7 +322,7 @@ int Test::run(const vector<string>& args) {
 	Logger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
-	
+
 //	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
 //	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
 //	m_logger = make_shared<Logger>("test30", sinks);
@@ -320,6 +340,10 @@ int Test::run(const vector<string>& args) {
 	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(true);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	
+//	auto renderContext = static_pointer_cast<RenderContext>(m_window);
+//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -402,6 +426,7 @@ int Test::run(const vector<string>& args) {
 //	AddPineapple(*scene, position);
 //	AddApple(*scene, position);
 //	AddSphere(*scene, position, Color::Red());
+	
 	
 	unsigned SPACING = 1.0;
 	unsigned DROP_HEIGHT = 5.0;
@@ -534,12 +559,12 @@ int Test::run(const vector<string>& args) {
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("renderContextUpdateCallback()");
+	AE_LOG->trace("updateCallback(RenderContext&, float)");
 	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-	
+
 	auto scene = renderContext.scene();
 	
 	// get input
@@ -741,13 +766,13 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 }
 
 void Test::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("didSimulatePhysicsCallback()");
+	AE_LOG->trace("didSimulatePhysicsCallback(RenderContext&, float)");
 }
 
 void Test::willRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("willRenderCallback()");
+	AE_LOG->trace("willRenderCallback(RenderContext&, float)");
 }
 
 void Test::didRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("didRenderCallback()");
+	AE_LOG->trace("didRenderCallback(RenderContext&, float)");
 }

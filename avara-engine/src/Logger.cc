@@ -58,6 +58,7 @@ void Logger::Init() {
 		//		// if (LOG_ENABLE_STDOUT)
 		//
 		//
+		
 		LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
 		
 		if (LOG_ENABLE_NATIVE) sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);

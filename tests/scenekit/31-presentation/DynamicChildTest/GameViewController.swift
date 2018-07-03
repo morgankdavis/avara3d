@@ -9,17 +9,20 @@
 import SceneKit
 import QuartzCore
 
+
 class GameViewController: NSViewController, SCNSceneRendererDelegate {
+	
 	
 	var sphereNode: SCNNode!
 	var boxNode: SCNNode!
     
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // create a new scene
         let scene = SCNScene(named: "art.scnassets/ship.scn")!
-		scene.physicsWorld.speed = 0.25
+		//scene.physicsWorld.speed = 0.25
         
         // create and add a camera to the scene
         let cameraNode = SCNNode()
@@ -28,7 +31,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         scene.rootNode.addChildNode(cameraNode)
         
         // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
+        cameraNode.position = SCNVector3(x: 0, y: -10, z: 30)
         
         // create and add a light to the scene
         let lightNode = SCNNode()
@@ -43,8 +46,8 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         ambientLightNode.light!.type = .ambient
         ambientLightNode.light!.color = NSColor.darkGray
         scene.rootNode.addChildNode(ambientLightNode)
-        
 		
+
 		
 		
         // retrieve the ship node
@@ -54,25 +57,42 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 5)))
 		
 		
+		let PLANE_LENGTH: CGFloat = 30.0;
+		let PLANE_WIDTH: CGFloat = 30.0;
+		let PLANE_HEIGHT: CGFloat = 0.5;
+		let planeBox = SCNBox(width: PLANE_WIDTH, height: PLANE_HEIGHT, length: PLANE_LENGTH, chamferRadius: 0)
+		var planeNode = SCNNode(geometry: planeBox)
+		planeNode.physicsBody = SCNPhysicsBody.static()
+		
+		//planeNode.rotation = SCNVector4(x: 1.0, y: 0, z: 0, w: 0); // 3.1415/2.0
+		planeNode.position = SCNVector3(x: 0, y: -PLANE_LENGTH, z: 0);
+		
+		scene.rootNode.addChildNode(planeNode)
+		
+		
+		
+		
+		
+		let box = SCNBox(width: 0.5, height: 0.5, length: 2.0, chamferRadius: 0)
+		boxNode = SCNNode(geometry: box)
+//		boxNode.physicsBody = SCNPhysicsBody.kinematic()
+		boxNode.position = SCNVector3(10, 0, 0)
 		
 		
 		
 		let sphere = SCNSphere(radius: 0.5);
 		sphereNode = SCNNode(geometry: sphere)
 		sphereNode.physicsBody = SCNPhysicsBody.dynamic()
-		sphereNode.physicsBody?.isAffectedByGravity = false
+//		sphereNode.physicsBody = SCNPhysicsBody.kinematic()
+		sphereNode.physicsBody?.isAffectedByGravity = true
 		
 		
-		let box = SCNBox(width: 0.5, height: 0.5, length: 2.0, chamferRadius: 0)
-		boxNode = SCNNode(geometry: box)
-		boxNode.position = SCNVector3(10, 0, 0)
+		
 	
 		
 		boxNode.addChildNode(sphereNode)
+		//scene.rootNode.addChildNode(boxNode)
 		ship.addChildNode(boxNode)
-		
-		
-		//ship.addChildNode(sphereNode)
 		
 		
 		
@@ -119,56 +139,20 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	@objc
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
 		NSLog("sphereNode!.position: {\(sphereNode.position.x), \(sphereNode.position.y), \(sphereNode.position.z)}")
-		var spherePresentation = sphereNode.presentation
+		let spherePresentation = sphereNode.presentation
 		NSLog("sphereNode!.presentation: {\(spherePresentation.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
 		
 //		NSLog("boxNode!.position: {\(boxNode.position.x), \(boxNode.position.y), \(boxNode.position.z)}")
-//		var boxPresentation = boxNode.presentation
+//		let boxPresentation = boxNode.presentation
 //		NSLog("boxPresentation!.presentation: {\(boxPresentation.position.x), \(boxPresentation.position.y), \(boxPresentation.position.z)}")
 	}
     
     @objc
     func mouse1Click(_ gestureRecognizer: NSGestureRecognizer) {
 		NSLog("mouse1Click")
-		
-		//sphereNode!.position = SCNVector3(sphereNode!.position.x, sphereNode!.position.y + 0.25, sphereNode!.position.z)
-		
+
 		sphereNode!.physicsBody!.velocity = SCNVector3(0, 0, 0)
-		sphereNode!.position = SCNVector3(0, 0, 0)
-		
-		
-//        // retrieve the SCNView
-//        let scnView = self.view as! SCNView
-//        
-//        // check what nodes are clicked
-//        let p = gestureRecognizer.location(in: scnView)
-//        let hitResults = scnView.hitTest(p, options: [:])
-//        // check that we clicked on at least one object
-//        if hitResults.count > 0 {
-//            // retrieved the first clicked object
-//            let result = hitResults[0]
-//            
-//            // get its material
-//            let material = result.node.geometry!.firstMaterial!
-//            
-//            // highlight it
-//            SCNTransaction.begin()
-//            SCNTransaction.animationDuration = 0.5
-//            
-//            // on completion - unhighlight
-//            SCNTransaction.completionBlock = {
-//                SCNTransaction.begin()
-//                SCNTransaction.animationDuration = 0.5
-//                
-//                material.emission.contents = NSColor.black
-//                
-//                SCNTransaction.commit()
-//            }
-//            
-//            material.emission.contents = NSColor.red
-//            
-//            SCNTransaction.commit()
-//        }
+
     }
 	
 	@objc
@@ -176,9 +160,6 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		NSLog("mouse2Click")
 		
-		
 		boxNode.position = SCNVector3(-boxNode.position.x, 0, 0)
-		
-		//NSLog("BOX.pivot.position: {\(boxNode!.pivot.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
 	}
 }

@@ -27,6 +27,7 @@
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
+#include "PresentationNode.h"
 #include "Scene.h"
 #include "Sphere.h"
 
@@ -189,17 +190,24 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 			if (pass == PASS::SYNC_GRAPH && btBody) {
 				
-				auto modelMat = mat4(1.0);
+				mat4 worldMat = mat4(1.0);
 				btTransform transform;
 				btMotionState->getWorldTransform(transform);
 				
-				transform.getOpenGLMatrix(value_ptr(modelMat));
+				transform.getOpenGLMatrix(value_ptr(worldMat));
 
 #warning WILL DECOMPOSE IN FUTURE
 				// this is a specuial case for now
 				// if a node has a physics body, its local transform (actually a physics world transform)
 				// will be used as its worldMatrix
-				node->worldTransform(modelMat);
+				//node->worldTransform(modelMat);
+				
+				if (node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+					node->presentation()->worldTransform(worldMat);
+				}
+				else {
+					node->worldTransform(worldMat);
+				}
 			}
 			
 			// save reference for housekeeping

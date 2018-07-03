@@ -30,6 +30,7 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
+	class PresentationNode;
 	class Scene;
 
 	
@@ -81,23 +82,23 @@ namespace ae {
 		/* REMOVE? */ bool castsShadow() const;
 		/* REMOVE? */ void castsShadow(const bool castsShadow);
 		
-		glm::vec3 position() const;
+		virtual glm::vec3 position() const;
 		void position(const glm::vec3 position);
 
-		glm::vec4 rotation() const; // axis-angle
+		virtual glm::vec4 rotation() const; // axis-angle
 		void rotation(const glm::vec4 rotation);
 		
-		glm::vec3 eulerAngles() const; // pitch, yaw, roll
+		virtual glm::vec3 eulerAngles() const; // pitch, yaw, roll
 		void eulerAngles(const glm::vec3 eulerAngles);
 		
-		glm::quat orientation() const; // angle == 1st component
+		virtual glm::quat orientation() const; // angle == 1st component
 		void orientation(const glm::quat orientation);
 		
-		glm::vec3 scale() const;
+		virtual glm::vec3 scale() const;
 		void scale(const glm::vec3 scale);
 		
-		glm::mat4 transform() const;
-		void transform(const glm::mat4 transform);
+		virtual glm::mat4 transform() const;
+		virtual void transform(const glm::mat4 transform);
 		
 		glm::vec3 worldPosition();
 		glm::vec4 worldRotation(); // axis-angle
@@ -109,9 +110,7 @@ namespace ae {
 		glm::vec3 worldUp();
 		glm::vec3 worldRight();
 		
-		glm::mat4 worldTransform();
-#warning TEMPORARY before physics unroll
-		void worldTransform(glm::mat4 transform);
+		virtual glm::mat4 worldTransform();
 		
 		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void addChild(std::shared_ptr<Node> node);
@@ -130,17 +129,26 @@ namespace ae {
 //		glm::vec3 convertPositionToNode(const glm::vec3& position, const Node& toNode);
 //		glm::mat4 convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
 //		glm::mat4 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
+		
+		std::shared_ptr<PresentationNode> presentation();
 
 		/***************************************************************************************
      		Internal
  		 ***************************************************************************************/
 		
-		std::shared_ptr<Node> root() const;
-		std::weak_ptr<Scene> scene() const;
+#warning TEMPORARY before physics unroll
+		virtual void worldTransform(glm::mat4 transform);
+		
 		void updateWorldTransform();
 		bool containsChild(std::shared_ptr<Node> node);
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		void attachedToParent(std::shared_ptr<Node> parentNode);
+		
+		std::shared_ptr<Node> root() const;
+		std::weak_ptr<Scene> scene() const;
+
+//		std::weak_ptr<Node> model() const;
+//		void attachedToModel(std::shared_ptr<Node> model);
 		
 	private:
 
@@ -180,6 +188,9 @@ namespace ae {
 		std::weak_ptr<Node>					m_parent;
 		
 		NODE_DIRTY_BITS						m_dirtyBits;
+		
+		std::shared_ptr<PresentationNode>	m_presentation;
+//		std::weak_ptr<Node> 				m_model;
 	};
 }
 

@@ -37,6 +37,14 @@ Tests:
 				- Reflects its local transform
 
 
+
+		IN BulletPhysicsSimulator::update(PASS, shared_ptr<Node>, const DEBUG_OPTIONS&):
+			transform.getOpenGLMatrix(value_ptr(worldMat)); CRASH AT:
+			btMatrix3x3:365 -> SIMD/SSE is causing issues.
+			Figure out what's going on! Do we need to align on application side?
+
+
+
 		Add physics stats!
 
 		Try margin 0 for static objects
@@ -54,6 +62,7 @@ Tests:
 			- distance from center or another node
 
 		SIMD alignment
+			http://www.songho.ca/misc/alignment/dataalign.html
 		Gaffer on games - fix your timestep
 
 		Optimize statics
