@@ -11,16 +11,14 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-	30 - rigidbodies
+	30 - static-dynamic
 
 
-		Kinematic presentation always follows owner -- same for static
-		
-		Plane geo attached as a child of a DYNAMIC body follow its presentation (!)
-		Kinematic does the same
-		Static does weird shit
-		Dynamic does its own thing
+		Node with static bodies disallow transform setting
 
+
+		PhysicsBody::localInertia -> momentOfInertia
+		Calculate automatically based on volume distribution? -- usesDefaultMomentOfInertia?
 
 
 		Add physics stats!
@@ -28,32 +26,20 @@ Tests:
 		Try margin 0 for static objects
 		Test bullet plane shape
 
-
 		Scale
 			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
-
-		Add node ttl?
-			- time
-			- distance from camera
-			- distance from origin
-			- distance from center or another node
+		Optimize statics
+			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
 
 		SIMD alignment
 			http://www.songho.ca/misc/alignment/dataalign.html
 		Gaffer on games - fix your timestep
 
-		Optimize statics
-			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
-
-		Kinematic objects:
-			body->setCollisionFlags( body->getCollisionFlags() |
-			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
-
-		Disable/remove physics bodies when they get too far away?
-
 
 		------ Other things (non-physics) ------
+
+		separate source and headers
 
 		Check out std::unorderd_set for OpenGLRenderer and BulletPhysicsSimulator resource management (O(1) vs O(log(n))
 
@@ -71,10 +57,6 @@ Tests:
 		RenderContext should own "Stats" object
 			Create at each frame, pass around. frameStartTime, frameEndTime
 
-		Switch #defines to constexpr
-			https://stackoverflow.com/questions/42388077/constexpr-vs-macros?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-
-		
 		static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type)
 
 		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
@@ -96,12 +78,19 @@ Tests:
 		PIMPL?
 
 
-	31 - contact
-	32 - utilities (ray cast, sweep, etc)
+	
+	31 - kinematic
+
+	32 - contact
+		Kinematic objects:
+			body->setCollisionFlags( body->getCollisionFlags() |
+			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
+
+	33 - utilities (ray cast, sweep, etc)
 		test applyForce() and applyTorque() with raycasting
-	33 - categories
+	34 - categories
 		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
-	34 - ik-constraints
+	35 - ik-constraints
 		SCNPhysicsBehavior
 		SCNPhysicsHingeJoint
 		SCNPhysicsBallSocketJoint
@@ -111,11 +100,9 @@ Tests:
 
 	40 - animation
 		http://guillaumeblanc.github.io/ozz-animation/
+		TargetNode / AnimationTarget, etc
 
 	50 - multithreading
-		#include <thread>
-		unsigned int n = std::thread::hardware_concurrency();
-		std::cout << n << " concurrent threads are supported.\n";
 
 	60 - GUI
 

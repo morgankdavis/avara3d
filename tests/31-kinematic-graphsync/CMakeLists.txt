@@ -1,5 +1,5 @@
 
-set(EXECUTABLE_NAME "test30-rigidbody")
+set(EXECUTABLE_NAME "test31-kinematic-graphsync")
 MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
 
 

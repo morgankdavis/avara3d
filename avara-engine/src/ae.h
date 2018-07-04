@@ -40,7 +40,6 @@
 #include "PhysicsWorld.h"
 #include "Plane.h"
 #include "Point.h"
-#include "PresentationNode.h"
 #include "Program.h"
 #include "Pyramid.h"
 #include "Renderer.h"

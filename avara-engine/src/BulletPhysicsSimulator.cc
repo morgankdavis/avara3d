@@ -27,7 +27,6 @@
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
-#include "PresentationNode.h"
 #include "Scene.h"
 #include "Sphere.h"
 
@@ -187,26 +186,32 @@ void BulletPhysicsSimulator::update(PASS pass,
 			
 			// if the body isn't complete (doesn't have a source geometry or source node?)
 			// we can't make a BT model for it
-
-			if (pass == PASS::SYNC_GRAPH && btBody) {
+			
+			if (btBody) {
 				
-				mat4 worldMat = mat4(1.0);
-				btTransform transform;
-				btMotionState->getWorldTransform(transform);
-				
-				transform.getOpenGLMatrix(value_ptr(worldMat));
-
-#warning WILL DECOMPOSE IN FUTURE
-				// this is a specuial case for now
-				// if a node has a physics body, its local transform (actually a physics world transform)
-				// will be used as its worldMatrix
-				//node->worldTransform(modelMat);
-				
-				if (node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-					node->presentation()->worldTransform(worldMat);
+				if (pass == PASS::UPDATE_MODEL) {
+					
 				}
-				else {
-					node->worldTransform(worldMat);
+				else if (pass == PASS::SYNC_GRAPH) {
+					
+					mat4 worldMat = mat4(1.0);
+					btTransform transform;
+					btMotionState->getWorldTransform(transform);
+					
+					transform.getOpenGLMatrix(value_ptr(worldMat));
+					
+#warning WILL DECOMPOSE IN FUTURE
+					// this is a specuial case for now
+					// if a node has a physics body, its local transform (actually a physics world transform)
+					// will be used as its worldMatrix
+					//node->worldTransform(modelMat);
+					
+//					if (node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//						node->presentation()->worldTransform(worldMat);
+//					}
+//					else {
+						node->unrollWorldTransform(worldMat);
+//					}
 				}
 			}
 			
@@ -214,8 +219,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 			m_activeShapes.emplace(body->shape());
 		}
 		else {
-			// *** EITHER OF THESE ARE CAUSING A CRASH ??? ***
-			//AE_LOG->warn("No PhysicsShape attached to PhysicsBody.");
+			AE_LOG->warn("No PhysicsShape attached to PhysicsBody.");
 			//throw Exception("No PhysicsShape attached to PhysicsBody.");
 		}
 		
@@ -285,7 +289,8 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		//btVector3 localInertia(0, 0, 0);
 		btVector3 localInertia = BTVector3FromGLMVec3(body->localInertia());
 		auto mass = body->mass();
-		if (mass != 0) {
+		//if (mass != 0) {
+		if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
 			collisionShape->calculateLocalInertia(mass, localInertia);
 		}
 		

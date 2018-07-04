@@ -79,11 +79,13 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 //		boxNode.physicsBody = SCNPhysicsBody.kinematic()
 //		boxNode.physicsBody = SCNPhysicsBody.static()
 		boxNode.position = SCNVector3(10, 0, 0)
+		//boxNode.physicsBody?.allowsResting = false
 		
 		
 		
 		let sphere = SCNSphere(radius: 0.5);
 		sphereNode = SCNNode(geometry: sphere)
+		//sphereNode.position = SCNVector3(50, 50, 0)
 		
 		// dynamic
 		sphereNode.physicsBody = SCNPhysicsBody.dynamic()
@@ -92,14 +94,17 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		// kinematic & static
 //		sphereNode.physicsBody = SCNPhysicsBody.kinematic()
 //		sphereNode.physicsBody = SCNPhysicsBody.static()
-		sphereNode.position = SCNVector3(0, -5, 0)
+		//sphereNode.position = SCNVector3(0, -5, 0)
+//		sphereNode.position = SCNVector3(-5, -5, 0)
+		//sphereNode.physicsBody?.allowsResting = false
 		
+		scene.rootNode.addChildNode(sphereNode)
 		
 		
 		
 	
 		
-		boxNode.addChildNode(sphereNode)
+		//boxNode.addChildNode(sphereNode)
 		//scene.rootNode.addChildNode(boxNode)
 		ship.addChildNode(boxNode)
 		
@@ -147,13 +152,23 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 	@objc
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+		NSLog("- render -");
+		
 //		NSLog("sphereNode!.position: {\(sphereNode.position.x), \(sphereNode.position.y), \(sphereNode.position.z)}")
 //		let spherePresentation = sphereNode.presentation
 //		NSLog("sphereNode!.presentation: {\(spherePresentation.position.x), \(spherePresentation.position.y), \(spherePresentation.position.z)}")
+//		NSLog("sphere resting? \(sphereNode.physicsBody!.isResting ? "true" : "false")")
 		
-		NSLog("boxNode!.position: {\(boxNode.position.x), \(boxNode.position.y), \(boxNode.position.z)}")
-		let boxPresentation = boxNode.presentation
-		NSLog("boxPresentation!.presentation: {\(boxPresentation.position.x), \(boxPresentation.position.y), \(boxPresentation.position.z)}")
+
+//		NSLog("boxNode!.position: {\(boxNode.position.x), \(boxNode.position.y), \(boxNode.position.z)}")
+//		let boxPresentation = boxNode.presentation
+//		NSLog("boxPresentation!.presentation: {\(boxPresentation.position.x), \(boxPresentation.position.y), \(boxPresentation.position.z)}")
+//		NSLog("bos resting? \(boxNode.physicsBody!.isResting ? "true" : "false")")
+	}
+	
+	@objc
+	func renderer(_ renderer: SCNSceneRenderer, didSimulatePhysicsAtTime time: TimeInterval) {
+		NSLog("- physics -");
 	}
     
     @objc

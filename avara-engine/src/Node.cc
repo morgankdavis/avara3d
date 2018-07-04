@@ -25,7 +25,6 @@
 #include "Light.h"
 #include "Logger.h"
 #include "PhysicsBody.h"
-#include "PresentationNode.h"
 #include "Scene.h"
 #include "Utilities.h"
 
@@ -78,8 +77,7 @@ Node::Node():
 	m_physicsBody(nullptr),
 	m_parent({}),
 	m_scene({}),
-	m_dirtyBits(NODE_DIRTY_BITS::ALL),
-	m_presentation(nullptr) {
+	m_dirtyBits(NODE_DIRTY_BITS::ALL) {
 
 }
 
@@ -547,40 +545,26 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
-	// will want to do this for animations, too
-	
-	if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-		m_presentation = make_shared<PresentationNode>(shared_from_this());
-	}
-	
 	body->attachedToNode(shared_from_this());
 	m_physicsBody = body;
-}
-
-shared_ptr<PresentationNode> Node::presentation() {
-
-//	if (m_presentation == nullptr) {
-//		m_presentation = make_shared<Node>();
-//		m_presentation->attachedToModel(shared_from_this());
-//	}
-	return m_presentation;
 }
 
 /***************************************************************************************
      Internal
  ***************************************************************************************/
 
-#warning TEMPORARY before physics unroll
-void Node::worldTransform(mat4 transform) {
-	m_worldTransform = transform;
-	m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+void Node::unrollWorldTransform(mat4 transform) {
+	// used for physics simulation to update local transform relative to parent
+	
+	//this->transform(transform * inverse(m_parent.lock()->worldTransform()));
+	this->transform(inverse(m_parent.lock()->worldTransform()) * transform);
 }
 
 void Node::updateWorldTransform() {
-	// special function gets called by Scene each frame.
+	// gets called by Scene each frame.
 	// before being called a topological sort if done on the scene, and each node's 
 	// updateWorldTransform() is called in order, guaranteeing that its parent's
-	// world tranform is indeed a good world transform
+	// world tranform is indeed a valid world transform
 	
 	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		if (auto p = parent().lock()) {

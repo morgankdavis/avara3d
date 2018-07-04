@@ -34,7 +34,6 @@
 #include "PhysicsBody.h"
 //#include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
-#include "PresentationNode.h"
 #include "Renderer.h"
 #include "RenderContext.h"
 #include "Utilities.h"
@@ -271,19 +270,19 @@ void Scene::draw(Renderer& renderer,
 											 debugOptions);
 				}
 	
-				if (m_physicsWorld
-					&& node->physicsBody()
-					&& node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-
-					geometry->draw(renderer,
-								   node->presentation()->worldTransform(), viewMat, projectionMat,
-								   debugOptions, stats);
-				}
-				else {
+//				if (m_physicsWorld
+//					&& node->physicsBody()
+//					&& node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//
+//					geometry->draw(renderer,
+//								   node->presentation()->worldTransform(), viewMat, projectionMat,
+//								   debugOptions, stats);
+//				}
+//				else {
 					geometry->draw(renderer,
 								   node->worldTransform(), viewMat, projectionMat,
 								   debugOptions, stats);
-				}
+//				}
 			}
 		}
 	}

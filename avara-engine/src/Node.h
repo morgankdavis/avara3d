@@ -30,7 +30,6 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
-	class PresentationNode;
 	class Scene;
 
 	
@@ -82,23 +81,23 @@ namespace ae {
 		/* REMOVE? */ bool castsShadow() const;
 		/* REMOVE? */ void castsShadow(const bool castsShadow);
 		
-		virtual glm::vec3 position() const;
+		glm::vec3 position() const;
 		void position(const glm::vec3 position);
 
-		virtual glm::vec4 rotation() const; // axis-angle
+		glm::vec4 rotation() const; // axis-angle
 		void rotation(const glm::vec4 rotation);
 		
-		virtual glm::vec3 eulerAngles() const; // pitch, yaw, roll
+		glm::vec3 eulerAngles() const; // pitch, yaw, roll
 		void eulerAngles(const glm::vec3 eulerAngles);
 		
-		virtual glm::quat orientation() const; // angle == 1st component
+		glm::quat orientation() const; // angle == 1st component
 		void orientation(const glm::quat orientation);
 		
-		virtual glm::vec3 scale() const;
+		glm::vec3 scale() const;
 		void scale(const glm::vec3 scale);
 		
-		virtual glm::mat4 transform() const;
-		virtual void transform(const glm::mat4 transform);
+		glm::mat4 transform() const;
+		void transform(const glm::mat4 transform);
 		
 		glm::vec3 worldPosition();
 		glm::vec4 worldRotation(); // axis-angle
@@ -110,7 +109,7 @@ namespace ae {
 		glm::vec3 worldUp();
 		glm::vec3 worldRight();
 		
-		virtual glm::mat4 worldTransform();
+		glm::mat4 worldTransform();
 		
 		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void addChild(std::shared_ptr<Node> node);
@@ -129,15 +128,12 @@ namespace ae {
 //		glm::vec3 convertPositionToNode(const glm::vec3& position, const Node& toNode);
 //		glm::mat4 convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
 //		glm::mat4 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
-		
-		std::shared_ptr<PresentationNode> presentation();
 
 		/***************************************************************************************
      		Internal
  		 ***************************************************************************************/
 		
-#warning TEMPORARY before physics unroll
-		virtual void worldTransform(glm::mat4 transform);
+		void unrollWorldTransform(glm::mat4 transform);
 		
 		void updateWorldTransform();
 		bool containsChild(std::shared_ptr<Node> node);
@@ -188,9 +184,6 @@ namespace ae {
 		std::weak_ptr<Node>					m_parent;
 		
 		NODE_DIRTY_BITS						m_dirtyBits;
-		
-		std::shared_ptr<PresentationNode>	m_presentation;
-//		std::weak_ptr<Node> 				m_model;
 	};
 }
 

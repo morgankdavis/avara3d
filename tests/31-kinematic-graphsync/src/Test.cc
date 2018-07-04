@@ -59,8 +59,10 @@ int Test::run(const vector<string>& args) {
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
 	auto renderContext = static_pointer_cast<RenderContext>(m_window);
-	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
-	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+												  DEBUG_OPTIONS::SHOW_WIREFRAMES));
+	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -178,10 +180,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	
 	
-	if (m_sphereNode) {
-		AE_LOG->info("sphere position: {}", StringFromGLMVec3(m_sphereNode->position()));
-		AE_LOG->info("sphere presentation position: {}", StringFromGLMVec3(m_sphereNode->presentation()->position()));
-	}
+//	if (m_sphereNode) {
+//		AE_LOG->info("sphere position: {}", StringFromGLMVec3(m_sphereNode->position()));
+//		AE_LOG->info("sphere presentation position: {}", StringFromGLMVec3(m_sphereNode->presentation()->position()));
+//	}
 
 	
 	
