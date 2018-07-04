@@ -46,6 +46,8 @@ namespace ae {
 		std::shared_ptr<Node>				m_pinappleNode;
 		std::shared_ptr<Node>				m_boxNode;
 		std::shared_ptr<Node>				m_sphereNode;
+		
+		std::shared_ptr<Node>				m_paddleNode;
 	};
 }
 

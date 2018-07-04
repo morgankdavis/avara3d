@@ -127,6 +127,10 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
+	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 5));
+	m_paddleNode->position({15, -30 + 2.5, 0});
+	m_paddleNode->physicsBody(PhysicsBody::KinematicBody());
+	scene->rootNode()->addChild(m_paddleNode);
 	
 
 //	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
@@ -210,6 +214,22 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 			m_sphereNode->physicsBody()->linearVelocity({0, 0, 0});
 		}
 	}
+	
+	if (keysPressed.count(KEY::EQUAL)) {
+		if (m_sphereNode) {
+			AE_LOG->debug("MOVING DYNAMIC OBJECT");
+			m_sphereNode->position({0, 10, 0});
+		}
+	}
+	
+	if (m_inputManager->keysDown().count(KEY::MINUS)) {
+		if (m_paddleNode) {
+			AE_LOG->debug("MOVING KINEMATIC OBJECT");
+			auto p = m_paddleNode->position();
+			m_paddleNode->position({p.x - deltaSeconds * 2.5, p.y, p.z});
+		}
+	}
+	
 	
 	
 	if (keysPressed.count(KEY::ESCAPE)) {

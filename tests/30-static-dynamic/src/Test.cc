@@ -24,8 +24,8 @@ using namespace glm;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
-constexpr unsigned				WINDOW_WIDTH =			800;
-constexpr unsigned				WINDOW_HEIGHT =			600;
+constexpr unsigned				WINDOW_WIDTH =			1280;
+constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
@@ -53,10 +53,27 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	node->geometry()->addMaterial(material);
 	node->position(location);
 	
+	
+	
+	
+//	auto beachballImage = TestImageNamed("beachball", "jpg");
+//	auto materialProperty = make_shared<MaterialProperty>(beachballImage);
+////	materialProperty->wrapS(WRAP_MODE::REPEAT);
+////	materialProperty->wrapT(WRAP_MODE::REPEAT);
+////	materialProperty->maxAnisotropy(16);
+////	materialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+////	materialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+//	node->geometry()->addMaterial(material);
+	
+	
+	
+	
+	
 //	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(1.0);
+	physicsBody->mass(35.0);
 	physicsBody->restitution(1.0);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
@@ -89,9 +106,9 @@ shared_ptr<Node> AddObject(Scene& scene, vec3 location, shared_ptr<Color> color)
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
-	physicsBody->restitution(0.1);
+	physicsBody->restitution(0.001);
 	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -113,7 +130,7 @@ shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 //	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(1.0);
+	physicsBody->mass(100.0);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
@@ -139,7 +156,7 @@ shared_ptr<Node> AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color)
 	//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
 	//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(1.0);
+	physicsBody->mass(100.0);
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
@@ -249,6 +266,21 @@ shared_ptr<Node> AddPineapple(Scene& scene, vec3 location) {
 #endif
 	node->position(location);
 	
+//	auto c = node->children(false)[0];
+//	AE_LOG->debug("pineapple {}: {}",
+//				  *(c->name()),
+//				  StringFromGLMVec3(c->geometry()->extent(false)));
+//	
+//	c = node->children(false)[1];
+//	AE_LOG->debug("pineapple {}: {}",
+//				   *(c->name()),
+//				  StringFromGLMVec3(c->geometry()->extent(false)));
+//	c = node->children(false)[2];
+//	
+//	AE_LOG->debug("pineapple {}: {}",
+//				   *(c->name()),
+//				  StringFromGLMVec3(c->geometry()->extent(false)));
+	
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
@@ -312,6 +344,32 @@ shared_ptr<Node> AddFruit(Scene& scene, vec3 location) {
 	return node;
 }
 
+shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location) {
+	
+	shared_ptr<Node> node = TestSceneNamed("cardboardBox2/cardboardBox2", "obj")->rootNode();
+	node->position(location);
+	
+//	for (auto n : node->children(false)) {
+//		auto name = n->name();
+//		if (name) {
+//			AE_LOG->debug("child: {}", *name);
+//		}
+//	}
+	
+//	AE_LOG->debug("cardboard extent: {}", StringFromGLMVec3(node->child("g box", false)->geometry()->extent(false)));
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.45);
+	physicsBody->friction(0.65);
+	physicsBody->rollingFriction(0.35);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChild(node);
+	
+	return node;
+}
+
 /***************************************************************************************
      Public
  ***************************************************************************************/
@@ -341,6 +399,14 @@ int Test::run(const vector<string>& args) {
 	m_window->captureCursor(true);
 	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
+	auto renderContext = static_pointer_cast<RenderContext>(m_window);
+//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+//												  DEBUG_OPTIONS::SHOW_WIREFRAMES));
+	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+	
 //	auto renderContext = static_pointer_cast<RenderContext>(m_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
@@ -354,8 +420,8 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 
 	
-	const float PLANE_LENGTH = 30.0;
-	const float PLANE_WIDTH = 30.0;
+	const float PLANE_LENGTH = 20.0;
+	const float PLANE_WIDTH = 20.0;
 	const float PLANE_HEIGHT = 0.5;
 	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
@@ -427,6 +493,9 @@ int Test::run(const vector<string>& args) {
 //	AddApple(*scene, position);
 //	AddSphere(*scene, position, Color::Red());
 	
+//	auto pineappleNode = AddPineapple(*scene, {0.0, 0.0, 0.0 });
+//	auto pineappleNode1 = AddPineapple(*scene, {-4.0, 0.0, 0.0 });
+//	auto pineappleNode2 = AddPineapple(*scene, {4.0, 0.0, 0.0 });
 	
 	unsigned SPACING = 1.0;
 	unsigned DROP_HEIGHT = 5.0;
@@ -442,12 +511,14 @@ int Test::run(const vector<string>& args) {
 					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
 					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
 				//AddObject(*scene, position, color);
-				AddBox(*scene, position, color);
+				//AddBox(*scene, position, color);
 				//AddCapsule(*scene, position, color);
 				//AddCone(*scene, position, color);
 				//AddCylinder(*scene, position, color);
 				//AddApple(*scene, position);
 				//AddFruit(*scene, position);
+				//AddCardboardBox(*scene, position);
+				AddPineapple(*scene, position);
 			}
 		}
 	}

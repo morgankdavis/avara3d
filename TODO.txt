@@ -14,12 +14,15 @@ Tests:
 	30 - static-dynamic
 
 
-		Node with static bodies disallow transform setting
+		Should be able to override where dynamic objects are
+			Feedback loop seems to take into account node's PARENT location...
 
 
-		PhysicsBody::localInertia -> momentOfInertia
+		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
+
+
 		Calculate automatically based on volume distribution? -- usesDefaultMomentOfInertia?
-
+			collisionShape->calculateLocalInertia IS DOING THIS
 
 		Add physics stats!
 
@@ -32,14 +35,44 @@ Tests:
 		Optimize statics
 			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
 
-		SIMD alignment
-			http://www.songho.ca/misc/alignment/dataalign.html
 		Gaffer on games - fix your timestep
 
 
 		------ Other things (non-physics) ------
 
+		Node::geometryExtent()
+
+		Fit add this: (void*)&element
+			That prints the SHARED POINTER INSTANCE ADDRESS
+			We want to use: (void*)(element.get() which prints the underlying object
+
+		Add pause -- pause physics, animation? We still want to move the camera... do no more render callbacks..?
+
+		When importing a scene, set root node to <file_name_without_extension>_ROOT
+
+		Utilities: PrintChildNodeNames(Node& node, bool recursive)
+		Utilities: DescendentsDescription()
+			returns a string with a visual tree showing what's going on
+
+		- [NODE] (0x00000000, "pineapple_lod ROOT")
+			- PHYSICS BODY (0x00000000, DYNAMIC, COMPOUND)
+			- [NODE] (0x00000000, "top")
+				- GEOMETRY (0x00000000)
+					- ELEMENT (0x00000000)
+				- MATERIALS (0x00000000)
+			- [NODE] (0x00000000, "middle")
+				- GEOMETRY (0x00000000)
+					- ELEMENT (0x00000000)
+				- MATERIALS (0x00000000)
+			- [NODE] (0x00000000, "bottom")
+				- GEOMETRY (0x00000000)
+					- ELEMENT (0x00000000)
+				- MATERIALS (0x00000000)
+
+
 		separate source and headers
+
+		Switch GLM setters to static references
 
 		Check out std::unorderd_set for OpenGLRenderer and BulletPhysicsSimulator resource management (O(1) vs O(log(n))
 
@@ -65,6 +98,7 @@ Tests:
 			+ add default detail levels for geometry primitives (+ box & plane!)
 				Add "GeometryPrimitive" superclass + factor vertex data creation
 				-> INITIALIZERS for other classes use defaults
+			+ Generate disk shape?
 
 		Test geometry instancing!
 		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
@@ -79,7 +113,7 @@ Tests:
 
 
 	
-	31 - kinematic
+	31 - kinematic-graphsync
 
 	32 - contact
 		Kinematic objects:

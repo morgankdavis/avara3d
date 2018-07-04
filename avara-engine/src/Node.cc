@@ -182,6 +182,11 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec4 rotation) {
+	
+//	if (m_physicsBody && m_physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
+//		throw Exception("Can't manipulate )
+//	}
+//	else {
 
 	// these methods produce the same results. perhaps GLM is faster...
 	
@@ -213,6 +218,7 @@ void Node::rotation(const vec4 rotation) {
 	m_orientation = angleAxis(angle, axisNormalized);
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+//	}
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -366,7 +372,6 @@ void Node::transform(const mat4 transform) {
 	vec3 skew;
 	vec4 perspective;
 	
-	// use GLM 0.9.9 or later. 0.9.8.5 has a bug in orientation calculation
 	decompose(transform,
 			  scale,
 			  orientation,

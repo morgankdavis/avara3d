@@ -59,8 +59,8 @@ namespace ae {
 		float mass() const;
 		void mass(float mass);
 		
-		glm::vec3 localInertia() const;
-		void localInertia(glm::vec3 moment);
+		glm::vec3 momentOfInertia() const;
+		void momentOfInertia(glm::vec3 moment);
 
 		float friction() const;
 		void friction(float friction);
@@ -136,7 +136,7 @@ namespace ae {
 		PHYSICS_BODY_TYPE 						m_type;
 		std::shared_ptr<PhysicsShape> 			m_shape;
 		float 									m_mass;
-		glm::vec3 								m_localInertia;
+		glm::vec3 								m_momentOfInertia;
 		float 									m_friction;
 		float 									m_rollingFriction;
 		float 									m_restitution;

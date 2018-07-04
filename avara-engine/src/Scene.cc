@@ -253,36 +253,28 @@ void Scene::draw(Renderer& renderer,
 		
 		stats.nodes++;
 		
-#warning TEMPORARY before physics unroll
-		if (!node->physicsBody()) {
+		// disabled by morgan during compound physics shapes debugging -- seems unnecessary
+		//if (!node->physicsBody()) {
 			// update all non-physics nodes world transforms
 			node->updateWorldTransform();
+		//}
+
+		// nodes may not have geometries, but may have compound physics bodies
+		// (probably with child geometry nodes)
+		if (m_physicsWorld) {
+			physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+									 node,
+									 debugOptions);
 		}
 
 		auto geometry = node->geometry();
 		if (geometry != nullptr) {
 			if (!node->hidden()) {
 				stats.geometries++;
-
-				if (m_physicsWorld) {
-					physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
-											 node,
-											 debugOptions);
-				}
-	
-//				if (m_physicsWorld
-//					&& node->physicsBody()
-//					&& node->physicsBody()->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-//
-//					geometry->draw(renderer,
-//								   node->presentation()->worldTransform(), viewMat, projectionMat,
-//								   debugOptions, stats);
-//				}
-//				else {
-					geometry->draw(renderer,
-								   node->worldTransform(), viewMat, projectionMat,
-								   debugOptions, stats);
-//				}
+				
+				geometry->draw(renderer,
+							   node->worldTransform(), viewMat, projectionMat,
+							   debugOptions, stats);
 			}
 		}
 	}

@@ -45,13 +45,13 @@ PhysicsBody::PhysicsBody():
 	m_shape(nullptr),
 	m_linearFactor({1.0, 1.0, 1.0}),
 	m_angularFactor({1.0, 1.0, 1.0}),
-	m_mass(1.0),
+	m_mass(100.0),
 	m_friction(0.5),
-	m_rollingFriction(0.5),
+	m_rollingFriction(0.25),
 	m_restitution(0.5),
 	m_linearDamping(0.0),
 	m_angularDamping(0.0),
-	m_localInertia({0, 0, 0}),
+	m_momentOfInertia({0, 0, 0}),
 	m_linearVelocity({0, 0, 0}),
 	m_angularVelocity({0, 0, 0}),
 	m_resting(false),
@@ -113,14 +113,14 @@ void PhysicsBody::mass(float mass) {
 	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MASS);
 }
 
-vec3 PhysicsBody::localInertia() const {
-	return m_localInertia;
+vec3 PhysicsBody::momentOfInertia() const {
+	return m_momentOfInertia;
 }
 
-void PhysicsBody::localInertia(vec3 moment) {
-	m_localInertia = moment;
+void PhysicsBody::momentOfInertia(vec3 moment) {
+	m_momentOfInertia = moment;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LOCAL_INERTIA);
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA);
 }
 
 float PhysicsBody::friction() const {
@@ -341,11 +341,14 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
  **************************************************************************************/
 
 void PhysicsBody::checkShape() {
-	if (!shape()) {
+	if (!m_shape) {
 		if (auto node = m_node.lock()) {
 			auto geometry = node->geometry();
 			if (geometry) {
 				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+			}
+			else {
+				shape(make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
 			}
 		}
 	}

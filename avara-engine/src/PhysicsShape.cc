@@ -55,6 +55,11 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	m_physicsBody({}),
 	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
+		auto name = node->name();
+		if (name) {
+			AE_LOG->debug("Creating PhysicsShape for source node: {}...", *name);
+		}
+		
 		m_sourceNode = node;
 		m_type = type;
 }

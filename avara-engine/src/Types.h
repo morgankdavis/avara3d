@@ -356,7 +356,7 @@ namespace ae {
 		TYPE =							1 << 0,
 		SHAPE =							1 << 1,
 		MASS =							1 << 2,
-		LOCAL_INERTIA =					1 << 3,
+		MOMENT_OF_INERTIA =				1 << 3,
 		FRICTION =						1 << 4,
 		ROLLING_FRICTION =				1 << 5,
 		RESTITUTION =					1 << 6,
