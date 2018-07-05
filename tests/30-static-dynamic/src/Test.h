@@ -20,6 +20,7 @@ namespace ae {
 
 	class InputManager;
 	class Logger;
+	class Material;
 	class Node;
 	class RenderContext;
 	class Scene;
@@ -49,6 +50,8 @@ namespace ae {
 		
 		
 		std::shared_ptr<Node>				m_paddleNode;
+		
+		std::shared_ptr<Material>			m_appleMaterial;
 
 	};
 }

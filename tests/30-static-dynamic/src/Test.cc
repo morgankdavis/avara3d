@@ -93,14 +93,17 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 	
 }
 
-void DropApple(Scene& scene) {
+shared_ptr<Node> DropApple(Scene& scene, shared_ptr<Material> appleMaterial) {
 	
 	auto apple1Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
 	auto apple1Node = apple1Scene->rootNode();
+	apple1Node->children(true)[1]->geometry()->replaceMaterial(0, appleMaterial);
 	static float x = .1;
 	apple1Node->position({x, 0, 0});
 	x += .1;
 	scene.rootNode()->addChild(apple1Node);
+	
+	return apple1Node;
 }
 
 shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
@@ -482,21 +485,27 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
+
+	
 	
 	auto apple1Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
 	auto apple1Node = apple1Scene->rootNode();
 	apple1Node->position({0, 0, 0});
 	scene->rootNode()->addChild(apple1Node);
-	
-	auto apple2Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
-	auto apple2Node = apple2Scene->rootNode();
-	apple2Node->position({-.1, 0, 0});
-	scene->rootNode()->addChild(apple2Node);
-	
-	auto apple3Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
-	auto apple3Node = apple3Scene->rootNode();
-	apple3Node->position({-.2, 0, 0});
-	scene->rootNode()->addChild(apple3Node);
+	m_appleMaterial = apple1Node->children(true)[1]->geometry()->firstMaterial();
+
+//	auto apple2Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+//	auto apple2Node = apple2Scene->rootNode();
+//	apple2Node->position({-.1, 0, 0});
+//	scene->rootNode()->addChild(apple2Node);
+//	
+//	auto apple3Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+//	auto apple3Node = apple3Scene->rootNode();
+//	apple3Node->position({-.2, 0, 0});
+//	scene->rootNode()->addChild(apple3Node);
+
+
+
 	
 	
 //	auto duckScene = TestSceneNamed("duck");
@@ -741,7 +750,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 			SpawnDuckFruit(*scene, m_duckNode);
 		}
 		else {
-			DropApple(*scene);
+			DropApple(*scene, m_appleMaterial);
 		}
 	}
 	
