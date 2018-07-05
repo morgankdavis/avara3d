@@ -149,7 +149,7 @@ int ae::utils::Random(int min, int max) {
 	return (min + (rand() % static_cast<int>(max - min + 1)));
 }
 
-float ae::utils::Random(float min, int max) {
+float ae::utils::Uniform(float min, int max) {
 	float random = ((float) rand()) / (float) RAND_MAX;
 	float diff = max - min;
 	float r = random * diff;

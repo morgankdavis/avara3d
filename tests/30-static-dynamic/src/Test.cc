@@ -40,10 +40,71 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
      Static
  ***************************************************************************************/
 
+shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
+	
+	
+	
+	//unsigned fruitNum = Random(0, 6);
+	unsigned fruitNum = Random(2, 4);
+	shared_ptr<Node> node = nullptr;
+	
+	switch (fruitNum) {
+#ifdef USE_HIGH_DETAIL_MESHES
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->children(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->children(false)[0]; break;
+		case 2: node = TestSceneNamed("pear/pear", "obj")->rootNode()->children(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1/apple1", "obj")->rootNode()->children(false)[0]; break;
+		case 4: node = TestSceneNamed("banana/banana", "obj")->rootNode()->children(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode()->children(false)[0]; break;
+#else
+		case 0: node = TestSceneNamed("cherry1/cherry1", "obj")->rootNode()->children(false)[0]; break;
+		case 1: node = TestSceneNamed("orange1/orange1", "obj")->rootNode()->children(false)[0]; break;
+		case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode()->children(false)[0]; break;
+		case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode()->children(false)[0]; break;
+#endif
+		default: return nullptr;
+	}
+	
+	node->position(duckNode->worldPosition());
+	
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(100.0);
+	physicsBody->restitution(0.25);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.75);
+	
+	// add random factor
+	
+	float linearVelocityY = Uniform(10, 25);	
+	float linearVelocityX = Uniform(-1, 1);
+	float linearVelocityZ = Uniform(-1, 1);
+	
+	physicsBody->linearVelocity({linearVelocityX, linearVelocityY, linearVelocityZ});
+	
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChild(node);
+	
+	return node;
+	
+	
+	
+}
+
+void DropApple(Scene& scene) {
+	
+	auto apple1Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+	auto apple1Node = apple1Scene->rootNode();
+	static float x = .1;
+	apple1Node->position({x, 0, 0});
+	x += .1;
+	scene.rootNode()->addChild(apple1Node);
+}
+
 shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
-	
-	cout << "location: " << location << endl;
-	
+
 	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
 //	auto node = make_shared<Node>("Sphere");
 //	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
@@ -56,13 +117,13 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
 	
 	
-//	auto beachballImage = TestImageNamed("beachball", "jpg");
+//	auto beachballImage = TestImageNamed("beachball");
 //	auto materialProperty = make_shared<MaterialProperty>(beachballImage);
-////	materialProperty->wrapS(WRAP_MODE::REPEAT);
-////	materialProperty->wrapT(WRAP_MODE::REPEAT);
-////	materialProperty->maxAnisotropy(16);
-////	materialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-////	materialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	materialProperty->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
+//	materialProperty->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
+//	materialProperty->maxAnisotropy(16);
+//	materialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+//	materialProperty->magnificationFilter(FILTER_MODE::LINEAR);
 //	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 //	node->geometry()->addMaterial(material);
 	
@@ -74,41 +135,10 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 //	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(35.0);
-	physicsBody->restitution(1.0);
+	physicsBody->restitution(5);
 	physicsBody->friction(0.0);
 	physicsBody->rollingFriction(0.0);
 	physicsBody->linearVelocity(direction * 50.0f);
-	node->physicsBody(physicsBody);
-	
-	scene.rootNode()->addChild(node);
-	
-	return node;
-}
-
-shared_ptr<Node> AddObject(Scene& scene, vec3 location, shared_ptr<Color> color) {
-	
-	unsigned random = Random(0, 1);
-	shared_ptr<Node> node = nullptr;
-	if (random == 0) {
-		node = make_shared<Node>("Box");
-		node->geometry(make_shared<Box>(1.0, 1.0, 1.0));
-	}
-	else {
-		node = make_shared<Node>("Sphere");
-		node->geometry(make_shared<Sphere>(0.5, 3));
-	}
-	auto materialProperty = make_shared<MaterialProperty>(color);
-	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
-	node->geometry()->addMaterial(material);
-	node->position(location);
-	
-//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_BoundingBox);
-//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
-	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
-	physicsBody->restitution(0.001);
-	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -377,7 +407,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location) {
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	Logger::Level(LOG_LEVEL::DEBUG_);
+	Logger::Level(LOG_LEVEL::TRACE_);
 	
 	AE_LOG->info("Test::run()");
 
@@ -402,10 +432,10 @@ int Test::run(const vector<string>& args) {
 	auto renderContext = static_pointer_cast<RenderContext>(m_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
 //												  DEBUG_OPTIONS::SHOW_WIREFRAMES));
-	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
-	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+//												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
+//												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 	
 //	auto renderContext = static_pointer_cast<RenderContext>(m_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
@@ -420,42 +450,80 @@ int Test::run(const vector<string>& args) {
 	scene->physicsWorld(physicsWorld);
 
 	
-	const float PLANE_LENGTH = 20.0;
-	const float PLANE_WIDTH = 20.0;
-	const float PLANE_HEIGHT = 0.5;
-	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
-	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-	auto planeNode = make_shared<Node>("Box");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-	auto gridImage = TestImageNamed("grid10");
-	//auto gridImage = TestImageNamed("grid10_512");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-	planeMaterialProperty->maxAnisotropy(16);
-	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-//	planeMaterial->doubleSided(true);
-	planeNode->geometry()->addMaterial(planeMaterial);
-	planeNode->rotation({1, 0, 0, radians(90.0)});
-	planeNode->position({planeNode->position().x,
-		planeNode->position().y - PLANE_LENGTH,
-		planeNode->position().z});
+//	const float PLANE_LENGTH = 20.0;
+//	const float PLANE_WIDTH = 20.0;
+//	const float PLANE_HEIGHT = 0.25;
+//	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
+//	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+//	auto planeNode = make_shared<Node>("Box");
+//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+//	auto gridImage = TestImageNamed("grid10");
+//	//auto gridImage = TestImageNamed("grid10_512");
+//	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+//	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+//	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+//	planeMaterialProperty->maxAnisotropy(16);
+//	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+//	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
+//	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+////	planeMaterial->doubleSided(true);
+//	planeNode->geometry()->addMaterial(planeMaterial);
+//	planeNode->rotation({1, 0, 0, radians(90.0)});
+//	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+//	
+//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	planePhysicsBody->mass(0);
+//	planePhysicsBody->friction(0.75);
+//	planePhysicsBody->rollingFriction(0.75);
+//	planeNode->physicsBody(planePhysicsBody);
+//	
+//	scene->rootNode()->addChild(planeNode);
 	
 	
-//	auto placePhysicsShape = make_shared<PhysicsShape>(planeNode->geometry(), PhysicsShapeType_ConvexHull);
-//	auto planePhysicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Static, placePhysicsShape);
-	auto planePhysicsBody = PhysicsBody::StaticBody();
-	planePhysicsBody->mass(0);
-	planePhysicsBody->restitution(0.0);
-	planePhysicsBody->friction(0.75);
-	planePhysicsBody->rollingFriction(0.75);
-	planeNode->physicsBody(planePhysicsBody);
 	
 	
-	scene->rootNode()->addChild(planeNode);
+	auto apple1Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+	auto apple1Node = apple1Scene->rootNode();
+	apple1Node->position({0, 0, 0});
+	scene->rootNode()->addChild(apple1Node);
+	
+	auto apple2Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+	auto apple2Node = apple2Scene->rootNode();
+	apple2Node->position({-.1, 0, 0});
+	scene->rootNode()->addChild(apple2Node);
+	
+	auto apple3Scene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
+	auto apple3Node = apple3Scene->rootNode();
+	apple3Node->position({-.2, 0, 0});
+	scene->rootNode()->addChild(apple3Node);
+	
+	
+//	auto duckScene = TestSceneNamed("duck");
+//	auto duckNode = duckScene->rootNode();
+//	duckNode->position({5, 10, 0});
+//	scene->rootNode()->addChild(duckNode);
+	
+	
+	
+//	// add the duck
+//	
+//	m_duckNode = TestSceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+//	m_duckNode->position({6, 15, 0});
+//	m_duckNode->scale({0.25, 0.25, 0.25});
+//	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	m_duckSpinnerNode = make_shared<Node>("duck spinner");
+//	m_duckSpinnerNode->addChild(m_duckNode);
+//	scene->rootNode()->addChild(m_duckSpinnerNode);
+//	
+//	
+//	
+//	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 10));
+//	m_paddleNode->position({10-.25, 2.5+.25, 0});
+//	m_paddleNode->physicsBody(PhysicsBody::KinematicBody());
+//	scene->rootNode()->addChild(m_paddleNode);
+	
+	
 	
 	
 	
@@ -497,31 +565,31 @@ int Test::run(const vector<string>& args) {
 //	auto pineappleNode1 = AddPineapple(*scene, {-4.0, 0.0, 0.0 });
 //	auto pineappleNode2 = AddPineapple(*scene, {4.0, 0.0, 0.0 });
 	
-	unsigned SPACING = 1.0;
-	unsigned DROP_HEIGHT = 5.0;
-	unsigned colorIndex = 0;
-	auto colors = Color::Rainbow();
-	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				auto color = colors[colorIndex + 4];
-				++colorIndex;
-				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-				//AddObject(*scene, position, color);
-				//AddBox(*scene, position, color);
-				//AddCapsule(*scene, position, color);
-				//AddCone(*scene, position, color);
-				//AddCylinder(*scene, position, color);
-				//AddApple(*scene, position);
-				//AddFruit(*scene, position);
-				//AddCardboardBox(*scene, position);
-				AddPineapple(*scene, position);
-			}
-		}
-	}
+//	unsigned SPACING = 1.0;
+//	unsigned DROP_HEIGHT = 5.0;
+//	unsigned colorIndex = 0;
+//	auto colors = Color::Rainbow();
+//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+//				auto color = colors[colorIndex + 4];
+//				++colorIndex;
+//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+//				//AddObject(*scene, position, color);
+//				//AddBox(*scene, position, color);
+//				//AddCapsule(*scene, position, color);
+//				//AddCone(*scene, position, color);
+//				//AddCylinder(*scene, position, color);
+//				//AddApple(*scene, position);
+//				//AddFruit(*scene, position);
+//				//AddCardboardBox(*scene, position);
+//				AddPineapple(*scene, position);
+//			}
+//		}
+//	}
 	
 	
 	
@@ -555,8 +623,9 @@ int Test::run(const vector<string>& args) {
 //	auto pearScene = TestSceneNamed("pear/pear", "obj");
 //	scene->rootNode()->addChild(pearScene->rootNode());
 	
-//	auto apple1Scene = TestSceneNamed("apple1/apple1", "obj");
-//	scene->rootNode()->addChild(apple1Scene->rootNode());
+//	auto apple1SNode = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode()->children(false)[0];
+//	apple1SNode->position({0, 10, 0});
+//	scene->rootNode()->addChild(apple1SNode);
 
 //	auto apple2Scene = TestSceneNamed("apple2/apple2", "obj");
 //	scene->rootNode()->addChild(apple2Scene->rootNode());
@@ -600,7 +669,7 @@ int Test::run(const vector<string>& args) {
 	auto pointLightNode = Node::LightNode(pointLight);
 	scene->rootNode()->addChild(pointLightNode);
 
-	pointLightNode->position({25, 25, 25});
+	pointLightNode->position({35, 25, 5});
 
 //	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 //	auto material = make_shared<Material>();
@@ -638,6 +707,21 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 
 	auto scene = renderContext.scene();
 	
+	
+	// rotate the duck
+	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
+	
+	if (m_duckSpinnerNode) {
+		//auto duckRotation = m_duckSpinnerNode->rotation();
+		//m_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
+		auto duckSpinnerEuler = m_duckSpinnerNode->eulerAngles();
+		m_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+	}
+	
+
+	
+	
+	
 	// get input
 	
 	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
@@ -647,6 +731,38 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	if (keysPressed.count(KEY::ESCAPE)) {
 		m_window->setShouldClose();
 	}
+	
+	
+	// spawn duck fruit
+	
+	
+	if (keysPressed.count(KEY::TAB)) {
+		if (m_duckNode) {
+			SpawnDuckFruit(*scene, m_duckNode);
+		}
+		else {
+			DropApple(*scene);
+		}
+	}
+	
+	// move paddle
+	
+	static const float PADDLE_SPEED = 5.0; // m/s
+	if (m_inputManager->keysDown().count(KEY::EQUAL)) {
+		if (m_paddleNode) {
+			auto p = m_paddleNode->position();
+			m_paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
+		}
+	}
+	if (m_inputManager->keysDown().count(KEY::MINUS)) {
+		if (m_paddleNode) {
+			auto p = m_paddleNode->position();
+			m_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
+		}
+	}
+	
+	
+	
 	
 	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
 		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());

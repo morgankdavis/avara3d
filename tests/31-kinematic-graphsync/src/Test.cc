@@ -34,6 +34,55 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
 
 
+/**************************************************************************************
+     Startic
+ **************************************************************************************/
+
+shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
+	
+	cout << "location: " << location << endl;
+	
+	//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
+	//	auto node = make_shared<Node>("Sphere");
+	//	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
+	auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * 1.0, 3));
+	auto materialProperty = make_shared<MaterialProperty>(Color::Red());
+	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
+	node->position(location);
+	
+	
+	
+	
+	//	auto beachballImage = TestImageNamed("beachball", "jpg");
+	//	auto materialProperty = make_shared<MaterialProperty>(beachballImage);
+	////	materialProperty->wrapS(WRAP_MODE::REPEAT);
+	////	materialProperty->wrapT(WRAP_MODE::REPEAT);
+	////	materialProperty->maxAnisotropy(16);
+	////	materialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+	////	materialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	//	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	//	node->geometry()->addMaterial(material);
+	
+	
+	
+	
+	
+	//	auto physicsShape = make_shared<PhysicsShape>(node->geometry(), PhysicsShapeType_ConvexHull);
+	//	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType_Dynamic, physicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(35.0);
+	physicsBody->restitution(1.0);
+	physicsBody->friction(0.0);
+	physicsBody->rollingFriction(0.0);
+	physicsBody->linearVelocity(direction * 50.0f);
+	node->physicsBody(physicsBody);
+	
+	scene.rootNode()->addChild(node);
+	
+	return node;
+}
+
 /***************************************************************************************
      Public
  ***************************************************************************************/
@@ -169,15 +218,31 @@ int Test::run(const vector<string>& args) {
 void Test::updateCallback(RenderContext& renderContext, float time) {
 	AE_LOG->trace("updateCallback(RenderContext&, float)");
 	
+	auto scene = renderContext.scene();
+	
 	static double previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
+	
+	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
+	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
+	auto keysPressed = m_inputManager->keysPressed();
+	
+	
 	
 	float rotationDeg = deltaSeconds * 15.0; // 30deg/sec
 	
 	m_pinappleNode->transform(rotate(m_pinappleNode->transform(),
 								 radians(rotationDeg),
 								 vec3(0.0f, 1.0f, 0.0f)));
+	
+	
+	
+	
+
+	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
+		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+	}
 
 	
 	
@@ -191,13 +256,11 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 
 	
 	
-	auto scene = renderContext.scene();
+	
 	
 	// get input
 	
-	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
-	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
-	auto keysPressed = m_inputManager->keysPressed();
+	
 	
 	
 	if (keysPressed.count(KEY::RIGHT_BRACKET)) {

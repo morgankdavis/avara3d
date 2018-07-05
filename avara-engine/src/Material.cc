@@ -55,6 +55,7 @@ Material::Material():
 	m_uvScale(1.0f),
 	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
+		AE_LOG->debug("Creating Material {:p}", (void*)this);
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,

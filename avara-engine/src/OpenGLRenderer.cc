@@ -490,7 +490,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	unsigned framebufferHeight = context.framebufferHeight();
 	unsigned char *buf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
 	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight);
+	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight, 4);
 	free(buf);
 	return image;
 }
@@ -963,17 +963,17 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG->info("Buffering cube texture...");
+		AE_LOG->info("Buffering cube texture {:p}...", (void*)&property);
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
-		Image images[] = {
-			*(cubeImage->posX()),
-			*(cubeImage->negX()),
-			*(cubeImage->posY()),
-			*(cubeImage->negY()),
-			*(cubeImage->posZ()),
-			*(cubeImage->negZ()) };
+		shared_ptr<Image> images[] = {
+			cubeImage->posX(),
+			cubeImage->negX(),
+			cubeImage->posY(),
+			cubeImage->negY(),
+			cubeImage->posZ(),
+			cubeImage->negZ() };
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -988,17 +988,22 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		for (int s=0; s<6; ++s) {
 			GLenum side = sides[s];
-			Image image = images[s];
+			auto image = images[s];
+			
+			unsigned bytesPerPixel = image->bytesPerPixel();
+			GLint glInternalFormat = GL_RGBA;
+			if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+			else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 			
 			glTexImage2D(side,
 						 0,
-						 GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
-						 image.width(),
-						 image.height(),
+						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,//GL_RGBA,
+						 image->width(),
+						 image->height(),
 						 0,
-						 GL_RGBA,
+						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),//GL_RGBA,
 						 GL_UNSIGNED_BYTE,
-						 image.data());
+						 image->data());
 		}
 		
 		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
@@ -1009,20 +1014,29 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		SetTextureWrapR(glTextureHandle, property.wrapR());
 	}
 	else if (dynamic_pointer_cast<Image>(property.contents())) {
-		AE_LOG->info("Buffering 2D texture...");
+		AE_LOG->info("Buffering 2D texture {:p}...", (void*)&property);
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
 		glGenTextures(1, &glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
+
+		unsigned bytesPerPixel = image->bytesPerPixel();
+		GLint glInternalFormat = GL_RGBA;
+		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+		
+		AE_LOG->debug("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
+					  image->width() * image->height() * image->bytesPerPixel());
 		
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
-					 GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
+					 glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
 					 image->width(),
 					 image->height(),
 					 0,
-					 GL_RGBA,
+					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),//GL_RGBA,
 					 GL_UNSIGNED_BYTE,
 					 image->data());
 		

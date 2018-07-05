@@ -48,7 +48,7 @@ PhysicsBody::PhysicsBody():
 	m_mass(100.0),
 	m_friction(0.5),
 	m_rollingFriction(0.25),
-	m_restitution(0.5),
+	m_restitution(0.1),
 	m_linearDamping(0.0),
 	m_angularDamping(0.0),
 	m_momentOfInertia({0, 0, 0}),

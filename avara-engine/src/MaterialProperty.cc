@@ -36,6 +36,7 @@ MaterialProperty::MaterialProperty():
 	m_maxAnisotropy(16),
 	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
+		AE_LOG->debug("Creating MaterialProperty {:p}", (void*)this);
 }
 
 MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents):

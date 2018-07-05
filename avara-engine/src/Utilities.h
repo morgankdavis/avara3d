@@ -61,7 +61,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		int Random(int min, int max);
-		float Random(float min, int max);
+		float Uniform(float min, int max);
 		
 		bool Zero(const glm::vec3& v);
 		float Max(const glm::vec3& v);

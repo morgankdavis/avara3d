@@ -12,10 +12,16 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - static-dynamic
-
+	
+		Texture corruption/crashing
+			- Is OpenGLRenderer mangling something on the first frame?
 
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
+
+		Rubber duck kinematic/dynamic collisions
+
+		Make beachball model use sphere physics shape
 
 
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
@@ -41,10 +47,6 @@ Tests:
 		------ Other things (non-physics) ------
 
 		Node::geometryExtent()
-
-		Fit add this: (void*)&element
-			That prints the SHARED POINTER INSTANCE ADDRESS
-			We want to use: (void*)(element.get() which prints the underlying object
 
 		Add pause -- pause physics, animation? We still want to move the camera... do no more render callbacks..?
 
