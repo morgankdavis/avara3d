@@ -60,10 +60,10 @@ namespace ae {
 		 	Numeric Utilities
 		 ***************************************************************************************/
 		
-		int Random(int min, int max);
+		int Uniform(int min, int max);
 		float Uniform(float min, int max);
 		
-		bool Zero(const glm::vec3& v);
+		bool Zero(const glm::vec3& v, float tolerance = 0.0001);
 		float Max(const glm::vec3& v);
 		
 		bool FloatEqual(float a, float b, float tolerance = 0.0001);
@@ -90,6 +90,9 @@ namespace ae {
 		
 		// *** binary and text files ***
 		
+		std::vector<unsigned char> Buffer(unsigned char* buf, unsigned len);
+		unsigned Buffer(std::vector<unsigned char>& inBuf, unsigned char* outBuf);
+		
 #ifdef ANDROID
 		boost::optional<boost::filesystem::path> InternalFilesDirectory();
 		boost::optional<std::string> TextAsset(const std::string& relPath);
@@ -97,6 +100,7 @@ namespace ae {
 #else
 		boost::optional<std::string> TextFile(const boost::filesystem::path& path);
 		std::vector<unsigned char> BinaryFile(const boost::filesystem::path& path);
+		unsigned BinaryFile(const boost::filesystem::path& path, std::vector<unsigned char> buffer);
 #endif
 		
 		// *** engine shaders ***

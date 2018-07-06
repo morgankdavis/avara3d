@@ -13,6 +13,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <random>
 
 #if defined(MACOS) || defined(LINUX)
 #include <sys/time.h>
@@ -145,19 +146,21 @@ string ae::utils::DateTimeString() {
  	Numeric Utilities
  ***************************************************************************************/
 
-int ae::utils::Random(int min, int max) {
-	return (min + (rand() % static_cast<int>(max - min + 1)));
+int ae::utils::Uniform(int min, int max) {
+	static random_device rd;
+	static mt19937 gen(rd());
+	uniform_int_distribution<> dis(min, max);
+	return dis(gen);
 }
 
 float ae::utils::Uniform(float min, int max) {
-	float random = ((float) rand()) / (float) RAND_MAX;
-	float diff = max - min;
-	float r = random * diff;
-	return (min + r);
+	static random_device rd;
+	static mt19937 gen(rd());
+	uniform_real_distribution<> dis(min, max);
+	return dis(gen);
 }
 
-bool ae::utils::Zero(const vec3& v) {
-	static float tolerance = 0.00001f;
+bool ae::utils::Zero(const vec3& v, float tolerance) {
 	return FloatEqual(v.x, 0, tolerance) && FloatEqual(v.y, 0, tolerance) && FloatEqual(v.z, 0, tolerance);
 }
 
@@ -239,9 +242,28 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 #endif // !ANDROID
 
-#ifdef ANDROID
-
 // *** binary and text files ***
+
+vector<unsigned char> ae::utils::Buffer(unsigned char* buf, unsigned len) {
+	auto ret = vector<unsigned char>();
+	ret.resize(len);
+	for (int i=0; i<len; ++i) {
+		ret.push_back(buf[i]);
+	}
+	return ret;
+}
+
+unsigned ae::utils::Buffer(vector<unsigned char>& inBuf, unsigned char* outBuf) {
+	// outBuf = pre-allocated
+	unsigned index = 0;
+	for (unsigned char b : inBuf) {
+		outBuf[index] = b;
+		++index;
+	}
+	return index;
+}
+
+#ifdef ANDROID
 
 boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
@@ -249,10 +271,6 @@ boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 	if (filesDir.length()) return boost::filesystem::path(filesDir);
 	return boost::none;
 }
-
-#endif
-
-#ifdef ANDROID
 
 boost::optional<string> ae::utils::TextAsset(const string& relPath) {
 	vector<unsigned char> buffer = BinaryAsset(relPath);
@@ -272,8 +290,6 @@ vector<unsigned char> ae::utils::BinaryAsset(const string& relPath) {
 #else
 
 boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path) {
-	//AE_LOG->debug("Loading text file at path: {}...", path.string());
-
 	string line;
 	string source = "";
 	ifstream infile;
@@ -291,34 +307,22 @@ boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path)
 }
 
 vector<unsigned char> ae::utils::BinaryFile(const boost::filesystem::path& path) {
-//#ifdef ANDROID
-//	auto helper = ndk_helper::JNIHelper::GetInstance();
-//
-//	AAssetManager* manager = AAssetManager_fromJava();
-//	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-//	const char* filename = (const char*)NULL;
-//	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-//		AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-//		char buf[BUFSIZ];
-//		int nb_read = 0;
-//		FILE* out = fopen(filename, "w");
-//		while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-//			fwrite(buf, nb_read, 1, out);
-//		fclose(out);
-//		AAsset_close(asset);
-//	}
-//	AAssetDir_close(assetDir);
-//#else
-	ifstream ifs(path.string(), ios::binary|ios::ate);
-    ifstream::pos_type pos = ifs.tellg();
-
+	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
+    ifstream::pos_type pos = inStream.tellg();
     vector<unsigned char> result(pos);
-
-    ifs.seekg(0, ios::beg);
-    ifs.read((char*)&result[0], pos);
-
+    inStream.seekg(0, ios::beg);
+    inStream.read((char*)&result[0], pos);
     return result;
-//#endif
+}
+
+unsigned ae::utils::BinaryFile(const boost::filesystem::path& path, std::vector<unsigned char> buffer) {
+	ofstream outStrearm(path.string(), ios::out | ios::binary | ios::app); // app = all ops happed at oef
+	unsigned written = 0;
+	for (unsigned char byte : buffer) {
+		outStrearm.write((char*)&byte, sizeof(unsigned char));
+		++written;
+	}
+	return written;
 }
 
 #endif // ANDROID
@@ -330,7 +334,6 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 	boost::optional<string> rawSource = boost::none;
 #ifdef ANDROID
 #warning _es temporary
-	//return TextAsset("shaders/" + name + "_es." + type);
 	rawSource = TextAsset("shaders/" + name + "." + type);
 #else
 	auto path = ShaderPath(name, type);

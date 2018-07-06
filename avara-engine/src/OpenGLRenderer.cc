@@ -52,6 +52,9 @@ using namespace glm;
 using namespace std;
 
 
+//#define DISABLE_RESOURCE_MANAGEMENT
+
+
 /**************************************************************************************
      Static Prorotypes
  **************************************************************************************/
@@ -98,6 +101,7 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 									 Program& program,
 									 GLuint& glVBO, GLuint& glVAO);
 static void BufferMaterialPropertyTexture(const MaterialProperty& property,
+										  MATERIAL_PROPERTY_TYPE type,
 										  GLuint& glTextureHandle);	
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
@@ -306,11 +310,7 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
-	
-//	for (auto& e : m_activeGeometryElements) {
-//		AE_LOG->debug("Active element: {:p}", (void*)(e.get()));
-//	}
-	
+
 	CheckGLError();
 }
 
@@ -351,7 +351,8 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
-	
+
+#warning move to Initialize?
 	if (m_glEnvironmentUBO == 0) {
 		uint32 ubo;
 		glGenBuffers(1, &ubo);
@@ -370,7 +371,6 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
 
-	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
 		// will check dirt but, and create an AABB lineset if necessary,
@@ -732,13 +732,14 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
 				
+				AE_LOG->info("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
 				GLuint textureID = 0;
-				BufferMaterialPropertyTexture(*property, textureID);
+				BufferMaterialPropertyTexture(*property, type, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					
 					glMapping[property] = textureID;
 				}
 				
@@ -960,6 +961,7 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 }
 	
 static void BufferMaterialPropertyTexture(const MaterialProperty& property,
+										  MATERIAL_PROPERTY_TYPE type,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
@@ -997,11 +999,11 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 			
 			glTexImage2D(side,
 						 0,
-						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,//GL_RGBA,
+						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
 						 image->width(),
 						 image->height(),
 						 0,
-						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),//GL_RGBA,
+						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
 						 image->data());
 		}
@@ -1014,11 +1016,35 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		SetTextureWrapR(glTextureHandle, property.wrapR());
 	}
 	else if (dynamic_pointer_cast<Image>(property.contents())) {
+		
+		
+//		switch (type) {
+//			case MATERIAL_PROPERTY_TYPE::AMBIENT:
+//				glActiveTexture(GL_TEXTURE0);
+//				break;
+//			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
+//				glActiveTexture(GL_TEXTURE1);
+//				break;
+//			case MATERIAL_PROPERTY_TYPE::SPECULAR:
+//				glActiveTexture(GL_TEXTURE2);
+//				break;
+//			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
+//				glActiveTexture(GL_TEXTURE3);
+//				break;
+//			default:
+//				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
+//				return;
+//		}
+		
+		
+		
+		
 		AE_LOG->info("Buffering 2D texture {:p}...", (void*)&property);
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
 		glGenTextures(1, &glTextureHandle);
+		AE_LOG->info("Binding new texture handle: {}", glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 		unsigned bytesPerPixel = image->bytesPerPixel();
@@ -1030,13 +1056,37 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
 					  image->width() * image->height() * image->bytesPerPixel());
 		
+	
+		
+		
+		
+//		// DEBUG: write texture data to file
+//		
+//		AE_LOG->debug("Saving property {:p}...", (void*)&property);
+//	
+//		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
+//		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
+//		
+//		static unsigned index = 0;
+//		string filePath = "./" + to_string(index) + ".buf			";
+//		unsigned written = BinaryFile(boost::filesystem::path(filePath), imageBuf);
+//		AE_LOG->debug("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
+//		++index;
+		
+		
+//		unsigned char* thing = (unsigned char*)malloc(1024 * sizeof(unsigned char));
+//		AE_LOG->debug("THING SIZE: {}", sizeof(thing));
+//		
+//		AE_LOG->debug("DATA SIZE: {}", sizeof(image->data()));
+		
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
-					 glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,//GL_RGBA,
+					 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
 					 image->width(),
 					 image->height(),
 					 0,
-					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),//GL_RGBA,
+					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
 					 image->data());
 		
@@ -1127,6 +1177,8 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
 				return;
 		}
+		
+//		glActiveTexture(slot);
 
 		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::SAMPLER));
 		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
@@ -1374,8 +1426,6 @@ static void SetMaterialOpenGLState(const Material& material,
 #endif
 	}
 	else {
-		//m_program = Program::Default();
-		
 #ifdef DESKTOP
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1535,6 +1585,7 @@ static void DrawPointSet(PointSet& pointSet,
 
 static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
 											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of elements used this frame
 	auto activeElementsSorted = vector<shared_ptr<GeometryElement>>();
@@ -1567,10 +1618,13 @@ static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& ac
 			DeleteGeometryElementGLResources(element, glMapping);
 		}
 	}
+	
+#endif
 }
 	
 static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
 											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of properties used this frame
 	auto activePropertiesSorted = vector<shared_ptr<MaterialProperty>>();
@@ -1603,10 +1657,13 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 			DeleteMaterialPropertyGLResources(property, glMapping);
 		}
 	}
+	
+#endif
 }
 	
 static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of LineSets used this frame
 	auto activeLineSetsSorted = vector<shared_ptr<LineSet>>();
@@ -1639,15 +1696,20 @@ static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 			DeleteLineSetGLResources(lineSet, glMapping);
 		}
 	}
+	
+#endif
 }
 
 static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
+#endif
 }
 
 static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
 											 OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
 		
@@ -1668,10 +1730,13 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 		element->dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(element->dirtyBits(),
 															  GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA));
 	}
+	
+#endif
 }
 
 static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
 											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(property)) {
 		
@@ -1686,10 +1751,13 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 		property->dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(property->dirtyBits(),
 																MATERIAL_PROPERTY_DIRTY_BITS::ALL));
 	}
+	
+#endif
 }
 
 static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 									 OpenGLRenderer::LineSetGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(lineSet)) {
 		
@@ -1705,11 +1773,15 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 		
 		glMapping.erase(lineSet);
 	}
+	
+#endif
 }
 
 static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 									  OpenGLRenderer::PointSetGLMapping& glMapping) {
+#ifndef DISABLE_RESOURCE_MANAGEMENT
 	
+#endif
 }
 	
 static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
@@ -1779,25 +1851,6 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 		elapsedFramesSinceUpdate = 0;
 		elapsedSecondsSinceUpdate = 0;
 	}
-	
-// old implementation
-//	static unsigned elapsedFrames = 0;
-//	++elapsedFrames;
-//	static float previousSeconds = time;
-//	float currentSeconds = time;
-//	float elapsedSeconds = currentSeconds - previousSeconds;
-//	
-//
-//	if (elapsedSeconds > 0.5) {
-//		// only update the framerate stats every so often so they're readable
-//		
-//		ms = ((elapsedSeconds*1000.0) / elapsedFrames);
-//		fps = elapsedFrames/elapsedSeconds;
-//		
-//		// reset framerate stats
-//		previousSeconds = currentSeconds;
-//		elapsedFrames = 0;
-//	}
 
 	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
 	

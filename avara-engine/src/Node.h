@@ -140,8 +140,8 @@ namespace ae {
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		void attachedToParent(std::shared_ptr<Node> parentNode);
 		
-		std::shared_ptr<Node> root() const;
-		std::weak_ptr<Scene> scene() const;
+//		std::shared_ptr<Node> root() const;
+//		std::weak_ptr<Scene> scene() const;
 
 //		std::weak_ptr<Node> model() const;
 //		void attachedToModel(std::shared_ptr<Node> model);
@@ -180,7 +180,7 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsBody>		m_physicsBody;
 		
-		std::weak_ptr<Scene> 				m_scene;
+//		std::weak_ptr<Scene> 				m_scene;
 		std::weak_ptr<Node>					m_parent;
 		
 		NODE_DIRTY_BITS						m_dirtyBits;

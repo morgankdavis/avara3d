@@ -38,6 +38,7 @@ Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
 		
 		auto data = BinaryFile(path);
 		loadBinary(data, flipHorizontal);
+//		loadFile(path, flipHorizontal);
 }
 #endif
 
@@ -60,7 +61,9 @@ Image::Image(unsigned char* data, unsigned width, unsigned height,
 		m_data = (unsigned char*)malloc(width * height * bytesPerPixel);
 		memcpy(m_data, data, width * height * bytesPerPixel);
 		
-		flip();
+		if (flipHorizontal) {
+			flip();
+		}
 }
 
 Image::Image(const Image& other) { // copy constructor
@@ -98,7 +101,7 @@ Image::~Image() {
 	AE_LOG->debug("Destroying Image {:p}", (void*)this);
 	
 	if (m_data) {
-		free(m_data);
+		stbi_image_free(m_data);
 	}
 }
 
@@ -136,13 +139,58 @@ unsigned char* Image::data() const {
      Private
  ***************************************************************************************/
 
+//void Image::loadFile(const boost::filesystem::path& path, bool flipHorizontal) {
+//
+//	cout << "Loading image at path: " << path.string() << endl;
+//	
+//	int width, height, num_byte_pix;
+//	const char *path_cstr = path.string().c_str();
+//	m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
+//	num_byte_pix = 4;
+//
+//	if (!m_data) {
+//		throw Exception("Failed to load image file.");
+//	}
+//	
+//	m_width = width;
+//	m_height = height;
+//	m_bytesPerPixel = num_byte_pix;
+//	
+//		if (flipHorizontal) {
+//			// this is not needed for cube maps (?)
+//			int width_in_bytes = width * 4;
+//			unsigned char *top = NULL;
+//			unsigned char *bottom = NULL;
+//			unsigned char temp = 0;
+//			int half_height = height / 2;
+//			for (int row = 0; row < half_height; ++row) {
+//				top = m_data + row * width_in_bytes;
+//				bottom = m_data + (height - row - 1) * width_in_bytes;
+//				for (int col = 0; col < width_in_bytes; col++) {
+//					temp = *top;
+//					*top = *bottom;
+//					*bottom = temp;
+//					++top;
+//					++bottom;
+//				}
+//			}
+//		}
+//}
+
 void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	
 	int width;
 	int height;
 	int bytesPerPixel;
 	
-	m_data = stbi_load_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel, 4);
+	
+	AE_LOG->debug("IN DATA LEN: {}", data.size());
+	
+	
+	int thing = stbi_info_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel);
+	AE_LOG->debug("thing: {}", thing);
+	
+	m_data = stbi_load_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
 	// force bytesPerPixel = 4 since we told STB to pad it
 	// (STB fills this with the ACTUAL BPP in the file, but pads to what we ask)
 	bytesPerPixel = 4;

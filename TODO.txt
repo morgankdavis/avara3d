@@ -13,19 +13,13 @@ Tests:
 
 	30 - static-dynamic
 	
-		Texture corruption/crashing
-			- Is OpenGLRenderer mangling something on the first frame?
 
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
 
-		Rubber duck kinematic/dynamic collisions
-
 		Make beachball model use sphere physics shape
 
-
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
-
 
 		Calculate automatically based on volume distribution? -- usesDefaultMomentOfInertia?
 			collisionShape->calculateLocalInertia IS DOING THIS
@@ -45,6 +39,12 @@ Tests:
 
 
 		------ Other things (non-physics) ------
+
+		Clean environment UBO on ~Renderer
+
+		Re: cube map not flipped -- are we viewing it from the wrong side? is it double-sided?
+
+		Revise boundingPoints - at least make map keys an enum
 
 		Node::geometryExtent()
 
@@ -87,7 +87,7 @@ Tests:
 
 		Remove remaining header includes where struct forward declarations will work
 
-		move Node::hidden() check to Renderer
+		move Node::hidden() check to Renderer -- (KEEP ALIVE)
 
 		RenderContext should own "Stats" object
 			Create at each frame, pass around. frameStartTime, frameEndTime
@@ -301,6 +301,7 @@ OPTIMIZATION
 BUGS:
 	Looks like default camera isn’t respecting transform correctly
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
+	Fontstash string drawing is causing texture corruption elsewhere
 
 
 

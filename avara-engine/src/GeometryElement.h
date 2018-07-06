@@ -34,8 +34,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		GeometryElement(std::vector<Vertex>& verticies,
-						std::vector<Face>& faces);
+		GeometryElement(std::vector<Vertex> verticies,
+						std::vector<Face> faces);
 		~GeometryElement();
 
 		/***************************************************************************************

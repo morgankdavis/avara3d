@@ -76,7 +76,7 @@ Node::Node():
 	m_worldTransform(mat4(1.0f)),
 	m_physicsBody(nullptr),
 	m_parent({}),
-	m_scene({}),
+//	m_scene({}),
 	m_dirtyBits(NODE_DIRTY_BITS::ALL) {
 
 }
@@ -581,46 +581,52 @@ void Node::updateWorldTransform() {
 }
 
 bool Node::containsChild(shared_ptr<Node> node) {
-	auto top = root();
-	if (!top) top = shared_from_this();
-	auto sceneNodes = top->children(true);
-	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
+//	auto top = root();
+//	if (!top) top = shared_from_this();
+//	auto sceneNodes = top->children(true);
+//	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
+//		return true;
+//	}
+//	return false;
+	
+	auto nodes = children(true);
+	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
 		return true;
 	}
 	return false;
 }
 
 void Node::attachedToScene(shared_ptr<Scene> scene) {
-	if (!root()) {
-		m_scene = scene;
-	}
-	else {
-		for (auto child : children(true)) {
-			child->attachedToScene(scene); // just in case they want to do something with it
-		}
-	}
+//	if (!root()) {
+//		m_scene = scene;
+//	}
+//	else {
+//		for (auto child : children(true)) {
+//			child->attachedToScene(scene); // just in case they want to do something with it
+//		}
+//	}
 }
 
 void Node::attachedToParent(shared_ptr<Node> parentNode) {
 	m_parent = parentNode;
 }
 
-shared_ptr<Node> Node::root() const {
-	auto path = pathToRoot();
-	if (path.size() > 0) {
-		return path.back();
-	}
-	return nullptr;
-}
+//shared_ptr<Node> Node::root() const {
+//	auto path = pathToRoot();
+//	if (path.size() > 0) {
+//		return path.back();
+//	}
+//	return nullptr;
+//}
 
-weak_ptr<Scene> Node::scene() const {
-	if (root()) {
-		return root()->scene();
-	}
-	else {
-		return m_scene;
-	}
-}
+//weak_ptr<Scene> Node::scene() const {
+//	if (root()) {
+//		return root()->scene();
+//	}
+//	else {
+//		return m_scene;
+//	}
+//}
 
 //weak_ptr<Node> Node::model() const {
 //	return m_model;

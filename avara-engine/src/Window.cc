@@ -72,8 +72,8 @@ Window::Window(shared_ptr<Renderer> renderer,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
+//		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+//		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
         glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
 		
 //		glfwWindowHint(GLFW_STENCIL_BITS, 8);
@@ -187,8 +187,6 @@ void Window::update() {
 	
 	AE_LOG->trace("-------------------------------------------------------------------------------");\
 	
-	m_renderer->beginFrame(*this);
-	
 #warning move to saveGIFFrame()
 	float time = sceneTime();
 	static double previousSeconds = time;
@@ -198,6 +196,8 @@ void Window::update() {
 	if (updateCallback()) {
 		(updateCallback())(*this, sceneTime());
 	}
+	
+	m_renderer->beginFrame(*this);
 	
 	auto pov = pointOfView();
 	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;

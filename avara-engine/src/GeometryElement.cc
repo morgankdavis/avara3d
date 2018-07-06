@@ -24,12 +24,12 @@ using namespace glm;
      Lifecycle
  ***************************************************************************************/
 
-GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
-								 std::vector<Face>& faces):
+GeometryElement::GeometryElement(std::vector<Vertex> verticies,
+								 std::vector<Face> faces):
 	m_vertices(verticies),
 	m_faces(faces),
 	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
-
+		
 }
 
 GeometryElement::~GeometryElement() {

@@ -47,12 +47,7 @@ namespace ae {
 		
 		std::shared_ptr<Node>				m_duckSpinnerNode;
 		std::shared_ptr<Node>				m_duckNode;
-		
-		
 		std::shared_ptr<Node>				m_paddleNode;
-		
-		std::shared_ptr<Material>			m_appleMaterial;
-
 	};
 }
 
