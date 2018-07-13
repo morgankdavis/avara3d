@@ -71,7 +71,7 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 		
 		// this orientation is what bullet expects
 		auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
-		hardTransform(xRotation, true);
+		burnTransform(xRotation, true);
 		
 		//loadVertexData();
 }

@@ -11,13 +11,31 @@ Tests:
 	05 - materials-lights
 	06 - debugging & cleanup
 
-	30 - static-dynamic
+	30 - rigidbody
 	
+		Rename test 30 & 31
+		
+		Scale
+			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
+			Strip scale from btBody world transform?
+
+		Explore:
+			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
+
+			btMultiSphereShape
+			btBvhTriangleMeshShape
+			btHeightfieldTerrainShape
+
+			ConvexDecomposition demo to programmatically break a shape down into a compound shape
 
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
 
+		Forces & torques -- check all over Body & Shape methods
+			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
+
 		Make beachball model use sphere physics shape
+			-> UV coords: https://www.mvps.org/directx/articles/spheremap.htm
 
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
@@ -28,9 +46,6 @@ Tests:
 
 		Try margin 0 for static objects
 		Test bullet plane shape
-
-		Scale
-			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
 
 		Optimize statics
 			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
@@ -114,19 +129,15 @@ Tests:
 		PIMPL?
 
 
-	
-	31 - kinematic-graphsync
-
-	32 - contact
+	31 - contact
 		Kinematic objects:
 			body->setCollisionFlags( body->getCollisionFlags() |
 			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
-
-	33 - utilities (ray cast, sweep, etc)
+	32 - utilities (ray cast, sweep, etc)
 		test applyForce() and applyTorque() with raycasting
-	34 - categories
+	33 - categories
 		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
-	35 - ik-constraints
+	34 - ik-constraints
 		SCNPhysicsBehavior
 		SCNPhysicsHingeJoint
 		SCNPhysicsBallSocketJoint

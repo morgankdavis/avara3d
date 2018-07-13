@@ -24,8 +24,8 @@ using namespace glm;
      Lifecycle
  ***************************************************************************************/
 
-GeometryElement::GeometryElement(std::vector<Vertex> verticies,
-								 std::vector<Face> faces):
+GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
+								 std::vector<Face>& faces):
 	m_vertices(verticies),
 	m_faces(faces),
 	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
@@ -57,16 +57,13 @@ void GeometryElement::draw(Renderer& renderer,
 	stats.meshes++;
 }
 
-void GeometryElement::hardTransform(const mat4 t, bool norm) {
-
-#warning factor into statis function
-	
+void GeometryElement::burnTransform(const mat4& transform, bool normals) {
 	for (int v=0; v<m_vertices.size(); ++v) {
 		Vertex* vertex = &m_vertices[v];
-		vertex->position = vec3(t * vec4(vertex->position, 1.0f));
+		vertex->position = vec3(transform * vec4(vertex->position, 1.0f));
 
-		if (norm) {
-			vertex->normal = normalize(vec3(t * vec4(vertex->normal, 0.0f)));
+		if (normals) {
+			vertex->normal = normalize(vec3(transform * vec4(vertex->normal, 0.0f)));
 		}
 	}
 	

@@ -161,15 +161,30 @@ float ae::utils::Uniform(float min, int max) {
 }
 
 bool ae::utils::Zero(const vec3& v, float tolerance) {
-	return FloatEqual(v.x, 0, tolerance) && FloatEqual(v.y, 0, tolerance) && FloatEqual(v.z, 0, tolerance);
+	return Equal(v.x, 0, tolerance) 
+	&& Equal(v.y, 0, tolerance) 
+	&& Equal(v.z, 0, tolerance);
 }
 
 float ae::utils::Max(const vec3& v) {
 	return std::max(std::max(v.x, v.y), v.z);
 }
 
-bool ae::utils::FloatEqual(float a, float b, float tolerance) {
+bool ae::utils::Equal(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
+}
+
+bool ae::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
+	return Equal(a.x, b.x, tolerance) 
+	&& Equal(a.y, b.y, tolerance) 
+	&& Equal(a.z, b.z, tolerance);
+}
+
+bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
+	return Equal(a.x, b.x, tolerance) 
+	&& Equal(a.y, b.y, tolerance) 
+	&& Equal(a.z, b.z, tolerance) 
+	&& Equal(a.w, b.w, tolerance);
 }
 
 /**************************************************************************************

@@ -154,12 +154,12 @@ int ActivityInputManager::update(AInputEvent* event) {
 				float hScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
 				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
 
-				if (!FloatEqual(vScroll, 0.0)) {
+				if (!Equal(vScroll, 0.0)) {
 					if (vScroll > 0.0) m_mouseScrollWheelDelta.y += 1;
 					else m_mouseScrollWheelDelta.y -= 1;
 				}
 				
-				if (!FloatEqual(hScroll, 0.0)) {
+				if (!Equal(hScroll, 0.0)) {
 					if (vScroll > 0.0) m_mouseScrollWheelDelta.x += 1;
 					else m_mouseScrollWheelDelta.x -= 1;
 				}

@@ -66,7 +66,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		void hardTransform(glm::mat4 t, bool norm);
+		void burnTransform(const glm::mat4& transform, bool normals);
 		
 		void draw(Renderer& renderer,
 				  const glm::mat4& modelMat,

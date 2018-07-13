@@ -79,7 +79,7 @@ int Test::run(const vector<string>& args) {
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
 	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(true);
+	m_window->captureCursor(CAPTURE_CURSOR);
 //	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 //	
 //	auto renderContext = static_pointer_cast<RenderContext>(m_window);
@@ -125,7 +125,7 @@ int Test::run(const vector<string>& args) {
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
 	planePhysicsBody->friction(0.75);
-	planePhysicsBody->rollingFriction(0.75);
+	planePhysicsBody->rollingFriction(0.5);
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
@@ -137,7 +137,13 @@ int Test::run(const vector<string>& args) {
 	
 	m_duckNode = TestSceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
 	m_duckNode->position({6, 15, 0});
-	//m_duckNode->scale({0.25, 0.25, 0.25});
+	m_duckNode->scale({0.25, 0.25, 0.25});
+//#warning TEMPORARY workaround for physics scaling
+//	for (auto& c : m_duckNode->children(true)) {
+//		AE_LOG->debug("c tr: {}", StringFromGLMMat4(c->transform()));
+//		c->geometry()->burnTransform(m_duckNode->transform(), true);
+//		m_duckNode->transform(mat4(1.0));
+//	}
 	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
@@ -247,6 +253,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
 	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
+	auto keysDown = m_inputManager->keysDown();
 	auto keysPressed = m_inputManager->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
@@ -259,6 +266,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	if (keysPressed.count(KEY::TAB)) {
 		SpawnDuckFruit(*scene, m_duckNode);
 	}
+	
+//	if (keysDown.count(KEY::TAB)) {
+//		SpawnDuckFruit(*scene, m_duckNode);
+//	}
 	
 	// move paddle
 	
@@ -510,8 +521,16 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 	
 	node->position(duckNode->worldPosition());
 	
+	node->scale({3.0, 3.0, 3.0});
+//#warning TEMPORARY workaround for physics scaling
+//	for (auto& c : node->children(true)) {
+//		AE_LOG->debug("c tr: {}", StringFromGLMMat4(c->transform()));
+//		c->geometry()->burnTransform(node->transform(), true);
+//		node->transform(mat4(1.0));
+//	}
+	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
+	physicsBody->mass(1.0);
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.5);
 	physicsBody->rollingFriction(0.75);

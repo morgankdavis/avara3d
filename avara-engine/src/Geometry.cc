@@ -120,12 +120,11 @@ void Geometry::replaceMaterial(int index, const shared_ptr<Material> replacement
      Internal
  ***************************************************************************************/
 
-void Geometry::hardTransform(mat4 t, bool norm) {
-#warning factor into static function
-	
+void Geometry::burnTransform(const mat4& transform, bool normals) {
 	for (auto element : elements()) {
-		element->hardTransform(t, norm);
+		element->burnTransform(transform, normals);
 	}
+	//node()->lock()->transform(mat4(1.0));
 }
 
 void Geometry::draw(Renderer& renderer,

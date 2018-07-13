@@ -342,16 +342,6 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
 	
-//	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
-//		MODEL =					1 << 0,
-//		TRANSFORM =				1 << 1,
-//		INERTIAL_STATE =		1 << 2, // linear velocity, angular velocity
-//		DAMPING =				1 << 3,
-//		FORCES =				1 << 4,
-//		TORQUES =				1 << 5,
-//		ALL = 					UINT_MAX
-//	};
-		
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
 		TYPE =							1 << 0,
 		SHAPE =							1 << 1,
@@ -380,6 +370,7 @@ namespace ae {
 
 	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
 		MODEL =					1 << 0,
+		SCALE =					1 << 1,
 		ALL = 					UINT_MAX
 	};
 			

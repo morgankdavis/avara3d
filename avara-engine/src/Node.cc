@@ -25,6 +25,7 @@
 #include "Light.h"
 #include "Logger.h"
 #include "PhysicsBody.h"
+#include "PhysicsShape.h"
 #include "Scene.h"
 #include "Utilities.h"
 
@@ -351,6 +352,9 @@ vec3 Node::scale() const {
 }
 
 void Node::scale(const glm::vec3 scale) {
+	
+	checkPhysicsScale(m_scale, scale);
+	
 	m_scale = scale;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
@@ -378,6 +382,8 @@ void Node::transform(const mat4 transform) {
 			  translation,
 			  skew,
 			  perspective);
+	
+	checkPhysicsScale(m_scale, scale);
 
 	m_position = translation;
 	m_scale = scale;
@@ -392,19 +398,51 @@ vec3 Node::worldPosition() {
 }
 
 vec4 Node::worldRotation() {
+	throw Exception("worldRotation() not implemented.");
 	return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 vec3 Node::worldEulerAngles() {
+	throw Exception("worldEulerAngles() not implemented.");
 	return vec3(0.0, 0.0, 0.0);
 }
 
 quat Node::worldOrientation() {
-	return quat(1.0, 0.0, 0.0, 0.0);
+	auto world = worldTransform();
+	
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+	
+	decompose(world,
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+	
+	return orientation;
 }
 
 vec3 Node::worldScale() {
-	return vec3(0.0, 0.0, 0.0);
+	auto world = worldTransform();
+	
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+	
+	decompose(world,
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+	
+	return scale;
 }
 
 vec3 Node::worldForward() {
@@ -573,7 +611,10 @@ void Node::updateWorldTransform() {
 	
 	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		if (auto p = parent().lock()) {
+			auto oldScale = scale();
 			m_worldTransform = p->worldTransform() * transform();
+			auto newScale = scale();
+			checkPhysicsScale(oldScale, newScale);
 		}
 		
 		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
@@ -696,6 +737,18 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 	}
 
 	stack.push(node);
+}
+
+void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
+	// check if the physics shape needs to be scaled
+	
+	if (m_physicsBody && m_physicsBody->shape()) {
+		if (!Equal(oldScale, newScale)) {
+			auto shape = m_physicsBody->shape();
+			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_ADD(shape->dirtyBits(),
+														  PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+		}
+	}
 }
 
 NODE_DIRTY_BITS Node::dirtyBits() const {

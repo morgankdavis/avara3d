@@ -34,8 +34,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		GeometryElement(std::vector<Vertex> verticies,
-						std::vector<Face> faces);
+		GeometryElement(std::vector<Vertex>& verticies,
+						std::vector<Face>& faces);
 		~GeometryElement();
 
 		/***************************************************************************************
@@ -50,7 +50,7 @@ namespace ae {
 				  const DEBUG_OPTIONS& debugOptions,
 				  RenderStats& stats);
 
-		void hardTransform(const glm::mat4 t, bool norm);
+		void burnTransform(const glm::mat4& transform, bool normals);
 
 		const std::vector<Vertex>& vertices() const;
 		const std::vector<Face>& faces() const;

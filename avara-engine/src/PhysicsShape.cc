@@ -19,6 +19,7 @@
 #include "GeometryElement.h"
 #include "Logger.h"
 #include "Node.h"
+#include "PhysicsBody.h"
 #include "Plane.h"
 #include "Sphere.h"
 #include "Utilities.h"
@@ -94,6 +95,7 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
+	m_sourceNode = body->node();
 }
 
 //vector<shared_ptr<btCollisionShape>>& PhysicsShape::childShapes() {

@@ -91,7 +91,7 @@ float Camera::aspectRatio() {
 
 void Camera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every draw
-	if (!utils::FloatEqual(ratio, m_aspectRatio, 0.001)) {
+	if (!utils::Equal(ratio, m_aspectRatio, 0.001)) {
 		m_aspectRatio = ratio;
 		constructProjectionMat();
 	}
