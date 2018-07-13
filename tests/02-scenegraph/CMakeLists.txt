@@ -4,7 +4,7 @@ MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
 
 
 # add headers from avara-engine
-include_directories(${CMAKE_SOURCE_DIR}/avara-engine/src)
+include_directories(${CMAKE_SOURCE_DIR}/avara-engine/include)
 
 
 file(GLOB HEADERS src/*.h)
