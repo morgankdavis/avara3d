@@ -1,6 +1,4 @@
 
-add_subdirectory(src)
-
 include_directories(external)
 
 if (NOT ANDROID)
@@ -69,7 +67,7 @@ add_subdirectory(external/bullet3-2.87)
 
 
 
-file(GLOB HEADERS src/*.h)
+file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES})
