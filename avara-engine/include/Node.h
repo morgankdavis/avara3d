@@ -159,7 +159,7 @@ namespace ae {
 									std::map<std::shared_ptr<Node>, bool>& visited,
 									std::stack<std::shared_ptr<Node>>& stack);
 		
-		void checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
+		//void checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
 		
 		NODE_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(NODE_DIRTY_BITS bits);

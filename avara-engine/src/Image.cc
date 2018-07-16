@@ -68,9 +68,7 @@ Image::Image(unsigned char* data, unsigned width, unsigned height,
 
 Image::Image(const Image& other) { // copy constructor
 	// allotate our new memory and copy 'other' data into ours
-	
-	AE_LOG->debug("### IMAGE {:p} COPY CONSTRUCTOR - OTHER: {:p}", (void*)this, (void*)&other);
-	
+
 	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
 	m_data = (unsigned char *)malloc(dataSize);
 	memcpy(m_data, other.m_data, dataSize);
@@ -81,9 +79,7 @@ Image::Image(const Image& other) { // copy constructor
 
 Image& Image::operator=(const Image& other) { // copy assignment
 	// make a copy of 'other's data, delete ours, and move their data into ours
-	
-	AE_LOG->debug("### IMAGE {:p} COPY ASSIGNMENT - OTHER: {:p}", (void*)this, (void*)&other);
-	
+
 	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
 	
 	unsigned char* tempData = (unsigned char *)malloc(dataSize);
@@ -182,14 +178,7 @@ void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	int width;
 	int height;
 	int bytesPerPixel;
-	
-	
-	AE_LOG->debug("IN DATA LEN: {}", data.size());
-	
-	
-	int thing = stbi_info_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel);
-	AE_LOG->debug("thing: {}", thing);
-	
+
 	m_data = stbi_load_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
 	// force bytesPerPixel = 4 since we told STB to pad it
 	// (STB fills this with the ACTUAL BPP in the file, but pads to what we ask)
@@ -205,11 +194,7 @@ void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	m_width = width;
 	m_height = height;
 	m_bytesPerPixel = bytesPerPixel;
-	
-	AE_LOG->debug("image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-				  (void*)this, m_width, m_height, m_bytesPerPixel,
-				  m_width * m_height * m_bytesPerPixel);
-	
+
 	if (flipHorizontal) {
 		flip();
 	}

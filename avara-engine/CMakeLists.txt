@@ -70,6 +70,8 @@ add_subdirectory(external/bullet3-2.87)
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
 
+include_directories(include)
+
 add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)

@@ -85,7 +85,7 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
 static btTransform BTTransformFromGLMMat4(const mat4& from);
 
 #warning experimental
-static mat4 TransformByRemovingScale(const mat4& scaled);
+static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
 
 /***************************************************************************************
      Lifescycle
@@ -309,24 +309,24 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		
 		
-		#warning experimental
-		if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-											  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
-			
-			auto worldScale = shape->sourceNode().lock()->worldScale();
-			AE_LOG->debug("worldScale: {}", StringFromGLMVec3(worldScale));
-			auto btScale = BTVector3FromGLMVec3(worldScale);
-			(*btShape)->setLocalScaling(btScale);
-			
-//			for (auto& c : btChildShapes) {
-//				c->setLocalScaling(btScale);
-//			}
-			
-			//btWorld.updateSingleAabb((*btBody).get());
-			
-//			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-//															 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
-		}
+//		#warning experimental
+//		if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
+//											  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
+//			
+//			auto worldScale = shape->sourceNode().lock()->worldScale();
+//			AE_LOG->debug("worldScale: {}", StringFromGLMVec3(worldScale));
+//			auto btScale = BTVector3FromGLMVec3(worldScale);
+//			(*btShape)->setLocalScaling(btScale);
+//			
+////			for (auto& c : btChildShapes) {
+////				c->setLocalScaling(btScale);
+////			}
+//			
+//			//btWorld.updateSingleAabb((*btBody).get());
+//			
+////			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
+////															 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+//		}
 		
 		
 		
@@ -334,7 +334,12 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 
 #warning experimental
 		//btTransform transform = BTTransformFromGLMMat4(node->worldTransform());
-		btTransform transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform()));
+		bool wasScaled = false;
+		btTransform transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(), wasScaled));
+		if (wasScaled) {
+			AE_LOG->warn("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+						 (void*)node.get(), (void*)body.get());
+		}
 		
 		auto newMotionState = make_shared<btDefaultMotionState>(transform);
 		
@@ -473,23 +478,23 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	// update shape scale. done here instead of GetPhysicsShapeBTModels() because we need the rigidbody
 	
 	
-	#warning experimental
-//	auto shape = body->shape();
-	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-										  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
-		
-//		auto btScale = BTVector3FromGLMVec3(shape->sourceNode().lock()->worldScale());
-//		(*btShape)->setLocalScaling(btScale);
+//	#warning experimental
+////	auto shape = body->shape();
+//	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
+//										  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
 //		
-//		for (auto& c : btChildShapes) {
-//			c->setLocalScaling(btScale);
-//		}
-		
-		btWorld.updateSingleAabb((*btBody).get());
-		
-		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-														 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
-	}
+////		auto btScale = BTVector3FromGLMVec3(shape->sourceNode().lock()->worldScale());
+////		(*btShape)->setLocalScaling(btScale);
+////		
+////		for (auto& c : btChildShapes) {
+////			c->setLocalScaling(btScale);
+////		}
+//		
+//		btWorld.updateSingleAabb((*btBody).get());
+//		
+//		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
+//														 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+//	}
 	
 	// back-fill PhysicsBody properties
 	
@@ -506,15 +511,11 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 							 btDiscreteDynamicsWorld& btWorld,
 							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
 							 bool& created) {
-	
-	AE_LOG->trace("GetPhysicsShapeBTModels SHAPE: {:p}", (void*)shape.get());
 
 	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
 										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
 		
 		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
-			
-			AE_LOG->debug("(geometry)");
 
 			auto newShape = BTCollisionShapeFromGeometry(sourceGeometry, shape->type());
 			
@@ -525,8 +526,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		}
 		else if (auto sourceNode = shape->sourceNode().lock()) {
 
-			AE_LOG->debug("(node - compound)");
-			
 			auto newChildShapes = vector<shared_ptr<btCollisionShape>>();
 			auto newShape = BTCompoundShapeFromNode(sourceNode, shape->type(), newChildShapes);
 			
@@ -869,19 +868,26 @@ btTransform BTTransformFromGLMMat4(const mat4& from) {
 	return bulletTransform;
 }
 
-mat4 TransformByRemovingScale(const mat4& scaled) {
+mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
 	vec3 skew;
 	vec4 perspective;
 	
-	decompose(scaled,
+	decompose(m,
 			  scale,
 			  orientation,
 			  translation,
 			  skew,
 			  perspective);
+	
+	if (Equal(scale, {1, 1, 1})) {
+		scaled = false;
+	}
+	else {
+		scaled = true;
+	}
 	
 	return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
 }

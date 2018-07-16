@@ -13,11 +13,6 @@ Tests:
 
 	30 - rigidbody
 	
-		Rename test 30 & 31
-		
-		Scale
-			https://gamedev.stackexchange.com/questions/90767/bullet-physics-scaling
-			Strip scale from btBody world transform?
 
 		Explore:
 			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
@@ -298,21 +293,13 @@ NEW LOGGING SYSTEM
 Wish list:
     	Camera lookAt constraint
 	Geometry subdivision
-	Ray/path tracing with https://embree.github.io/
-
-
-
-OPTIMIZATION
-	Cache scene graph unrolls
-	Vector:
-		reserve
-		emplace_back
 
 
 BUGS:
 	Looks like default camera isn’t respecting transform correctly
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
-	Fontstash string drawing is causing texture corruption elsewhere
+	Fontstash string drawing is causing corruption for future loaded textures
+	Would be nice to support Physics shape scaling.
 
 
 

@@ -353,7 +353,7 @@ vec3 Node::scale() const {
 
 void Node::scale(const glm::vec3 scale) {
 	
-	checkPhysicsScale(m_scale, scale);
+	//checkPhysicsScale(m_scale, scale);
 	
 	m_scale = scale;
 	
@@ -383,7 +383,7 @@ void Node::transform(const mat4 transform) {
 			  skew,
 			  perspective);
 	
-	checkPhysicsScale(m_scale, scale);
+	//checkPhysicsScale(m_scale, scale);
 
 	m_position = translation;
 	m_scale = scale;
@@ -611,10 +611,10 @@ void Node::updateWorldTransform() {
 	
 	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		if (auto p = parent().lock()) {
-			auto oldScale = scale();
+			//auto oldScale = scale();
 			m_worldTransform = p->worldTransform() * transform();
-			auto newScale = scale();
-			checkPhysicsScale(oldScale, newScale);
+			//auto newScale = scale();
+			//checkPhysicsScale(oldScale, newScale);
 		}
 		
 		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
@@ -739,17 +739,17 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 	stack.push(node);
 }
 
-void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
-	// check if the physics shape needs to be scaled
-	
-	if (m_physicsBody && m_physicsBody->shape()) {
-		if (!Equal(oldScale, newScale)) {
-			auto shape = m_physicsBody->shape();
-			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_ADD(shape->dirtyBits(),
-														  PHYSICS_SHAPE_DIRTY_BITS::SCALE));
-		}
-	}
-}
+//void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
+//	// check if the physics shape needs to be scaled
+//	
+//	if (m_physicsBody && m_physicsBody->shape()) {
+//		if (!Equal(oldScale, newScale)) {
+//			auto shape = m_physicsBody->shape();
+//			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_ADD(shape->dirtyBits(),
+//														  PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+//		}
+//	}
+//}
 
 NODE_DIRTY_BITS Node::dirtyBits() const {
 	return m_dirtyBits;

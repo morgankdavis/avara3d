@@ -1,5 +1,5 @@
 
-set(EXECUTABLE_NAME "test30-static-dynamic")
+set(EXECUTABLE_NAME "test30-rigidbody")
 MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
 
 

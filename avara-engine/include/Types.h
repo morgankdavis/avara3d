@@ -370,7 +370,6 @@ namespace ae {
 
 	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
 		MODEL =					1 << 0,
-		SCALE =					1 << 1,
 		ALL = 					UINT_MAX
 	};
 			
