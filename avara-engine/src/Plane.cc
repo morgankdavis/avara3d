@@ -36,7 +36,7 @@ Plane::Plane(float width, float height):
 		/// @param size Half of the side length in x (0) and y (1) direction.
 		/// @param segments Number of subdivisions in the x (0) and y (1) direction.
 
-		// subdivisions are good for Bullet
+		// subdivisions are good for Bullet (so they say...)
 		PlaneMesh plane{{width/2.0, height/2.0}, {(int)lround(width), (int)lround(height)}};
 
 		auto verts = vector<Vertex>();

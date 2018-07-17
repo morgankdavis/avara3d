@@ -57,6 +57,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 							BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
 							BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping);
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
+							 PHYSICS_BODY_TYPE bodyType,
 							 shared_ptr<btCollisionShape>* btShape,
 							 vector<shared_ptr<btCollisionShape>>& btChildShapes,
 							 btDiscreteDynamicsWorld& btWorld,
@@ -73,9 +74,11 @@ static void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
 static void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
 										  BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
 static shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-																 PHYSICS_SHAPE_TYPE type);
+																 PHYSICS_SHAPE_TYPE shapeType,
+																 PHYSICS_BODY_TYPE bodyType);
 static shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-														   PHYSICS_SHAPE_TYPE type,
+														   PHYSICS_SHAPE_TYPE shapeType,
+														   PHYSICS_BODY_TYPE bodyType,
 														   vector<shared_ptr<btCollisionShape>>& childShapes);
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
 static vec3 GLMVec3FromBTVector3(const btVector3& from);
@@ -258,6 +261,7 @@ void BulletPhysicsSimulator::step(float time) {
 	previousSeconds = time;
 	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
+	//unsigned maxSubSteps = lroundf(m_timestep * 10.0); // 1/10th as fast as timestep
 	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 }
 						  
@@ -277,6 +281,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	bool shapeNewlyCreated = false;
 	
 	GetPhysicsShapeBTModels(body->shape(),
+							body->type(),
 							btShape, btChildShapes,
 							btWorld,
 							shapeBTMapping,
@@ -514,6 +519,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 }
 
 void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
+							 PHYSICS_BODY_TYPE bodyType,
 							 shared_ptr<btCollisionShape>* btShape,
 							 vector<shared_ptr<btCollisionShape>>& btChildShapes,
 							 btDiscreteDynamicsWorld& btWorld,
@@ -525,7 +531,7 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		
 		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
 
-			auto newShape = BTCollisionShapeFromGeometry(sourceGeometry, shape->type());
+			auto newShape = BTCollisionShapeFromGeometry(sourceGeometry, shape->type(), bodyType);
 			
 			// out parameters
 			*btShape = newShape;
@@ -535,7 +541,7 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		else if (auto sourceNode = shape->sourceNode().lock()) {
 
 			auto newChildShapes = vector<shared_ptr<btCollisionShape>>();
-			auto newShape = BTCompoundShapeFromNode(sourceNode, shape->type(), newChildShapes);
+			auto newShape = BTCompoundShapeFromNode(sourceNode, shape->type(), bodyType, newChildShapes);
 			
 			// out parameters
 			*btShape = newShape;
@@ -668,146 +674,167 @@ void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
 }
 
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-														  PHYSICS_SHAPE_TYPE type) {
+														  PHYSICS_SHAPE_TYPE shapeType,
+														  PHYSICS_BODY_TYPE bodyType) {
 	AE_LOG->trace("BTCollisionShapeFromGeometry()");
 	
-	// - if 'type' is PhysicsShapeType_BoundingBox, use box shape
-	// - if 'geometry' is a primitive, use matching primitive
-	// - if arbitrary mesh, use whatever 'type' is
-	
-	if (type == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
-		AE_LOG->info("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
-					 
-		vec3 extent = geometry->extent(false);
-		float width = extent.x;
-		float height = extent.y;
-		float length = extent.z;
-		return make_shared<btBoxShape>(btVector3((btScalar)width/2.0,
-												 (btScalar)height/2.0,
-												 (btScalar)length/2.0));
-	}
-//	else if (dynamic_cast<Plane*>(geometry.get())) {
-//		AE_LOG->info("Creating plane physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-//					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
-//		
-//		auto box = dynamic_cast<Plane*>(geometry.get());
-//		return make_shared<btPlaneShape>(btVector3((btScalar)box->width()/2.0,
-//												 (btScalar)box->height()/2.0,
-//												 (btScalar)box->length()/2.0));
-//	}
-	else if (dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
+	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
+		// static objects ALWAYS use btBvhTriangleMeshShape
+		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 		
-		auto box = dynamic_cast<Box*>(geometry.get());
-		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
-												 (btScalar)box->height()/2.0,
-												 (btScalar)box->length()/2.0));
-	}
-	else if (dynamic_cast<Sphere*>(geometry.get())) {
-		AE_LOG->info("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
+		AE_LOG->info("Static body, using btBvhTriangleMeshShape.");
 		
-		auto sphere = dynamic_cast<Sphere*>(geometry.get());
-		return make_shared<btSphereShape>((btScalar)sphere->radius());
-	}
-	else if (dynamic_cast<Capsule*>(geometry.get())) {
-		AE_LOG->info("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
+#warning: Use btStridingMeshInterface
+		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=2401
 		
-		auto capsule = dynamic_cast<Capsule*>(geometry.get());
-		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
-										   (btScalar)capsule->height());
-	}
-	else if (dynamic_cast<Cone*>(geometry.get())) {
-		AE_LOG->info("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
-		
-		auto cone = dynamic_cast<Cone*>(geometry.get());
-		return make_shared<btConeShape>((btScalar)cone->radius(),
-										(btScalar)cone->height());
-	}
-	else if (dynamic_cast<Cylinder*>(geometry.get())) {
-		AE_LOG->info("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
-		
-		auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
-		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)cylinder->height()/2.0,
-													  (btScalar)cylinder->radius()));
+#warning TOTAL HACK
+		static btTriangleMesh triMesh = btTriangleMesh(true, true);
+
+		for (auto& element : geometry->elements()) {
+			auto verts = element->vertices();
+			auto faces = element->faces();
+			
+			for (auto& face : faces) {
+				auto v1 = verts[face.a].position;
+				auto v2 = verts[face.b].position;
+				auto v3 = verts[face.c].position;
+				
+				triMesh.addTriangle(BTVector3FromGLMVec3(v1),
+									BTVector3FromGLMVec3(v2),
+									BTVector3FromGLMVec3(v3),
+									false);
+			}
+		}
+
+		return make_shared<btBvhTriangleMeshShape>(&triMesh, false);
 	}
 	else {
-		
-		if (type == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-			AE_LOG->critical("Concave polyhedron physics shapes not supported.");
+
+		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
+			AE_LOG->info("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
 			
-//			btMultiSphereShape
-			
-			
-			
-//			unsigned numVerticies = 0;
-//			for (auto element : geometry->elements()) {
-//				numVerticies += element->vertices().size();
-//			}
-//			//vector<Vertex> verticies;
-//			//verticies.reserve(numVerticies);
-//			vector<btVector3> positions;
-//			vector<btScalar> radi;
-//			
-//			for (auto& element : geometry->elements()) {
-//				auto verts = element->vertices();
-//				//verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
-//				for (auto& vert : verts) {
-//					positions.emplace_back(BTVector3FromGLMVec3(vert.position));
-//					radi.emplace_back(btScalar(0.1));
-//				}
-//			}
-//			
-//			auto multiSphereShape = make_shared<btMultiSphereShape>(&positions[0], &radi[0], positions.size());
-//			return multiSphereShape;
-			
+			vec3 extent = geometry->extent(false);
+			float width = extent.x;
+			float height = extent.y;
+			float length = extent.z;
+			return make_shared<btBoxShape>(btVector3((btScalar)width/2.0,
+													 (btScalar)height/2.0,
+													 (btScalar)length/2.0));
 		}
-		else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
+		else if (dynamic_cast<Box*>(geometry.get())) {
+			AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
-			AE_LOG->info("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
+			auto box = dynamic_cast<Box*>(geometry.get());
+			return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0,
+													 (btScalar)box->height()/2.0,
+													 (btScalar)box->length()/2.0));
+		}
+		else if (dynamic_cast<Sphere*>(geometry.get())) {
+			AE_LOG->info("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
-			// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+			auto sphere = dynamic_cast<Sphere*>(geometry.get());
+			return make_shared<btSphereShape>((btScalar)sphere->radius());
+		}
+		else if (dynamic_cast<Capsule*>(geometry.get())) {
+			AE_LOG->info("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
-			unsigned numVerticies = 0;
-			for (auto element : geometry->elements()) {
-				numVerticies += element->vertices().size();
+			auto capsule = dynamic_cast<Capsule*>(geometry.get());
+			return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
+											   (btScalar)capsule->height());
+		}
+		else if (dynamic_cast<Cone*>(geometry.get())) {
+			AE_LOG->info("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+			
+			auto cone = dynamic_cast<Cone*>(geometry.get());
+			return make_shared<btConeShape>((btScalar)cone->radius(),
+											(btScalar)cone->height());
+		}
+		else if (dynamic_cast<Cylinder*>(geometry.get())) {
+			AE_LOG->info("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+			
+			auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
+			return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
+														  (btScalar)cylinder->height()/2.0,
+														  (btScalar)cylinder->radius()));
+		}
+		else {
+			
+			if (shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
+				AE_LOG->critical("Concave polyhedron physics shapes not supported.");
+				
+				//			btMultiSphereShape?
+				
+				
+				
+				//			unsigned numVerticies = 0;
+				//			for (auto element : geometry->elements()) {
+				//				numVerticies += element->vertices().size();
+				//			}
+				//			//vector<Vertex> verticies;
+				//			//verticies.reserve(numVerticies);
+				//			vector<btVector3> positions;
+				//			vector<btScalar> radi;
+				//			
+				//			for (auto& element : geometry->elements()) {
+				//				auto verts = element->vertices();
+				//				//verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+				//				for (auto& vert : verts) {
+				//					positions.emplace_back(BTVector3FromGLMVec3(vert.position));
+				//					radi.emplace_back(btScalar(0.1));
+				//				}
+				//			}
+				//			
+				//			auto multiSphereShape = make_shared<btMultiSphereShape>(&positions[0], &radi[0], positions.size());
+				//			return multiSphereShape;
+				
 			}
-			vector<Vertex> verticies;
-			verticies.reserve(numVerticies);
-			
-			for (auto element : geometry->elements()) {
-				auto elementVerts = element->vertices();
-				verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
+				
+				AE_LOG->info("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
+				
+				// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+				
+				unsigned numVerticies = 0;
+				for (auto& element : geometry->elements()) {
+					numVerticies += element->vertices().size();
+				}
+				vector<Vertex> verticies;
+				verticies.reserve(numVerticies);
+				
+				for (auto& element : geometry->elements()) {
+					auto verts = element->vertices();
+					verticies.insert(verticies.end(), &verts[0], &verts[0] + verts.size());
+				}
+				
+				auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
+																	numVerticies,
+																	sizeof(Vertex));
+				
+				// reduce number of verticies
+				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+				
+				auto hull = make_shared<btShapeHull>(originalShape.get());
+				btScalar margin = originalShape->getMargin();
+				hull->buildHull((btScalar)margin);
+				
+				auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
+																   hull->numVertices(),
+																   sizeof(btVector3));
+				
+				reducedShape->optimizeConvexHull();
+				
+				// for debug drawing
+				if (!reducedShape->initializePolyhedralFeatures()) {
+					AE_LOG->warn("Could not initialize polyhedral features for reduced btConvexHullShape.");
+				}
+				
+				return reducedShape;
 			}
-			
-			auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-																numVerticies,
-																sizeof(Vertex));
-			
-			// reduce number of verticies
-			// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-			
-			auto hull = make_shared<btShapeHull>(originalShape.get());
-			btScalar margin = originalShape->getMargin();
-			hull->buildHull((btScalar)margin);
-			
-			auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull->getVertexPointer(),
-															   hull->numVertices(),
-															   sizeof(btVector3));
-			
-			reducedShape->optimizeConvexHull();
-			
-			// for debug drawing
-			if (!reducedShape->initializePolyhedralFeatures()) {
-				AE_LOG->warn("Could not initialize polyhedral features for reduced btConvexHullShape.");
-			}
-			
-			return reducedShape;
 		}
 	}
 	
@@ -815,7 +842,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 }
 
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													PHYSICS_SHAPE_TYPE type,
+													PHYSICS_SHAPE_TYPE shapeType,
+													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes) {
 	AE_LOG->trace("BTCompoundShapeFromNode()");
 
@@ -826,7 +854,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 		auto geometry = n->geometry();
 		if (geometry) {
 
-			auto collisionShape = BTCollisionShapeFromGeometry(geometry, type);
+			auto collisionShape = BTCollisionShapeFromGeometry(geometry, shapeType, bodyType);
 			
 			childShapes.emplace_back(collisionShape);
 

@@ -31,7 +31,7 @@ constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		true;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
 //#define USE_HIGH_DETAIL_MESHES
 
@@ -591,7 +591,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		
 		physicsBody->mass(2.0);
-		physicsBody->restitution(0.25);
+		physicsBody->restitution(1);
 		physicsBody->friction(1);
 		physicsBody->rollingFriction(1);
 		
