@@ -32,6 +32,7 @@
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
+#include "Plane.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Utilities.h"
@@ -330,8 +331,6 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		
 		
-		
-
 #warning experimental
 		//btTransform transform = BTTransformFromGLMMat4(node->worldTransform());
 		bool wasScaled = false;
@@ -382,9 +381,15 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		btWorld.addRigidBody(newBody.get());
 		
+	
+		
+		
 		// out parameters
 		*btBody = newBody;
 		*btMotionState = newMotionState;
+		
+		
+		
 		
 		bodyBTMapping[body] = make_pair(newBody, newMotionState);
 		
@@ -433,6 +438,9 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD)) {
 		(*btBody)->setSleepingThresholds(body->linearSleepingThreshold(), body->angularSleepingThreshold());
+		
+//		AE_LOG->debug("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
+//		AE_LOG->debug("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
 		
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD));
@@ -678,6 +686,15 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 												 (btScalar)height/2.0,
 												 (btScalar)length/2.0));
 	}
+//	else if (dynamic_cast<Plane*>(geometry.get())) {
+//		AE_LOG->info("Creating plane physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+//					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
+//		
+//		auto box = dynamic_cast<Plane*>(geometry.get());
+//		return make_shared<btPlaneShape>(btVector3((btScalar)box->width()/2.0,
+//												 (btScalar)box->height()/2.0,
+//												 (btScalar)box->length()/2.0));
+//	}
 	else if (dynamic_cast<Box*>(geometry.get())) {
 		AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type));
@@ -723,8 +740,34 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		
 		if (type == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
 			AE_LOG->critical("Concave polyhedron physics shapes not supported.");
+			
+//			btMultiSphereShape
+			
+			
+			
+//			unsigned numVerticies = 0;
+//			for (auto element : geometry->elements()) {
+//				numVerticies += element->vertices().size();
+//			}
+//			//vector<Vertex> verticies;
+//			//verticies.reserve(numVerticies);
+//			vector<btVector3> positions;
+//			vector<btScalar> radi;
+//			
+//			for (auto& element : geometry->elements()) {
+//				auto verts = element->vertices();
+//				//verticies.insert(verticies.end(), &elementVerts[0], &elementVerts[0] + elementVerts.size());
+//				for (auto& vert : verts) {
+//					positions.emplace_back(BTVector3FromGLMVec3(vert.position));
+//					radi.emplace_back(btScalar(0.1));
+//				}
+//			}
+//			
+//			auto multiSphereShape = make_shared<btMultiSphereShape>(&positions[0], &radi[0], positions.size());
+//			return multiSphereShape;
+			
 		}
-		else { // PhysicsShapeType_ConvexHull
+		else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
 			
 			AE_LOG->info("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
 			

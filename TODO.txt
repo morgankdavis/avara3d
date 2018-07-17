@@ -12,7 +12,13 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - rigidbody
-	
+
+
+		Play with tuning fruit physics sim + sleeping thresholds
+		PhysicsBody::collisionMargin() ?
+		Add a bunch of cans of slurm + cardboard boxes
+
+		Add Geometry::extent() / extent(bool recursive)
 
 		Explore:
 			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
@@ -22,6 +28,12 @@ Tests:
 			btHeightfieldTerrainShape
 
 			ConvexDecomposition demo to programmatically break a shape down into a compound shape
+				https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7159
+
+			Geometry PhysicsBodies can be compound, too!
+
+			multiSphereShape is CONVEX! Add PHYSICS_SHAPE_TYPE::MULTI_SPHERE
+
 
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...

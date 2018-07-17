@@ -43,7 +43,7 @@ namespace ae {
 		
 		PhysicsBody();
 		PhysicsBody(PHYSICS_BODY_TYPE type);
-		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
+//		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
 		~PhysicsBody();
 		
 		/***************************************************************************************

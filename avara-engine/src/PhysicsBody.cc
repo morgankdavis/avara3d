@@ -54,6 +54,8 @@ PhysicsBody::PhysicsBody():
 	m_momentOfInertia({0, 0, 0}),
 	m_linearVelocity({0, 0, 0}),
 	m_angularVelocity({0, 0, 0}),
+	m_linearSleepingThreshold(1.0),
+	m_angularSleepingThreshold(1.0),
 	m_resting(false),
 	m_allowsResting(true),
 	m_node({}),
@@ -67,12 +69,12 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		this->type(type);
 }
 
-PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
-	PhysicsBody(type) {
-		
-		this->type(type);
-		this->shape(shape);
-}
+//PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
+//	PhysicsBody(type) {
+//		
+//		this->type(type);
+//		this->shape(shape);
+//}
 
 PhysicsBody::~PhysicsBody() {
 	AE_LOG->debug("Destroying PhysicsBody {:p}", (void*)this);
@@ -341,14 +343,36 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
  **************************************************************************************/
 
 void PhysicsBody::checkShape() {
-	if (!m_shape) {
-		if (auto node = m_node.lock()) {
-			auto geometry = node->geometry();
+//	if (!m_shape) {
+//		if (auto node = m_node.lock()) {
+//			auto geometry = node->geometry();
+//			if (geometry) {
+//				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+//			}
+//			else {
+//				shape(make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+//			}
+//		}
+//	}
+	
+	
+	
+	if (auto node = m_node.lock()) {
+		auto geometry = node->geometry();
+		if (!m_shape) {
 			if (geometry) {
 				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
 			}
 			else {
 				shape(make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
+			}
+		}
+		else {
+			if (geometry) {
+				m_shape->sourceGeometry(geometry);
+			}
+			else {
+				m_shape->sourceNode(node);
 			}
 		}
 	}

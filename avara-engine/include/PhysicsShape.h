@@ -50,6 +50,9 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
+		void sourceGeometry(std::weak_ptr<Geometry> geometry);
+		void sourceNode(std::weak_ptr<Node> node);
+		
 		void attachedToBody(std::shared_ptr<PhysicsBody> body);
 		
 #warning may want this

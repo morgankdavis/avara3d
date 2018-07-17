@@ -93,6 +93,18 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
      Internal
  ***************************************************************************************/
 
+void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
+	m_sourceGeometry = geometry;
+	
+	m_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+}
+
+void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
+	m_sourceNode = node;
+	
+	m_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+}
+
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 	m_physicsBody = body;
 	m_sourceNode = body->node();

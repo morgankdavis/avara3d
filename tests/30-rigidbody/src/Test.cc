@@ -99,14 +99,52 @@ int Test::run(const vector<string>& args) {
 	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
 
+//	// GROUND BOX
+//	
+//	const float PLANE_LENGTH = 40.0;
+//	const float PLANE_WIDTH = 40.0;
+//	const float PLANE_HEIGHT = 0.25;
+////	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_WIDTH, PLANE_HEIGHT));
+//	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+//	auto planeNode = make_shared<Node>("Box");
+//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+////	planeNode->geometry(make_shared<Plane>(10, 10));
+//	auto gridImage = TestImageNamed("grid10");
+//	//auto gridImage = TestImageNamed("grid10_512");
+//	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+//	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+//	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+//	planeMaterialProperty->maxAnisotropy(16);
+//	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+//	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
+//	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+////	planeMaterial->doubleSided(true);
+//	planeNode->geometry()->addMaterial(planeMaterial);
+//	planeNode->rotation({1, 0, 0, radians(90.0)});
+//	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+//	
+//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	planePhysicsBody->mass(0);
+//	planePhysicsBody->friction(100);
+//	planePhysicsBody->rollingFriction(100);
+//	planeNode->physicsBody(planePhysicsBody);
+//	
+//	scene->rootNode()->addChild(planeNode);
+	
+	
+	
+	
+	// GROUND PLANE
 	
 	const float PLANE_LENGTH = 40.0;
 	const float PLANE_WIDTH = 40.0;
 	const float PLANE_HEIGHT = 0.25;
-	//auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_DIM, PLANE_DIM));
+	//	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_WIDTH, PLANE_HEIGHT));
 	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 	auto planeNode = make_shared<Node>("Box");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = TestImageNamed("grid10");
 	//auto gridImage = TestImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
@@ -117,15 +155,15 @@ int Test::run(const vector<string>& args) {
 	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
 	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-//	planeMaterial->doubleSided(true);
+	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
-	planeNode->rotation({1, 0, 0, radians(90.0)});
+	planeNode->rotation({1, 0, 0, radians(3*90.0)});
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
-	planePhysicsBody->friction(0.75);
-	planePhysicsBody->rollingFriction(0.5);
+	planePhysicsBody->friction(1);
+	planePhysicsBody->rollingFriction(1);
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
@@ -544,11 +582,25 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//		node->transform(mat4(1.0));
 		//	}
 		
+//		auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+		auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+		
 		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->mass(1.0);
+		physicsBody->shape(phyicsShape);
+		
+		
+		
+		physicsBody->mass(2.0);
 		physicsBody->restitution(0.25);
-		physicsBody->friction(0.5);
-		physicsBody->rollingFriction(0.75);
+		physicsBody->friction(1);
+		physicsBody->rollingFriction(1);
+		
+		
+		//physicsBody->angularDamping(0.1);
+		//physicsBody->angularFactor({.1, .1, .1});
+		
+//		physicsBody->linearSleepingThreshold(0.1);
+//		physicsBody->angularSleepingThreshold(.01);
 		
 		// add random factor
 		
@@ -558,9 +610,10 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		physicsBody->linearVelocity({linearVelocityX, linearVelocityY, linearVelocityZ});
 		
-		float angularVelocityX = Uniform(radians(-30.0f), radians(30.0f));	
-		float angularVelocityY = Uniform(radians(-30.0f), radians(30.0f));	
-		float angularVelocityZ = Uniform(radians(-30.0f), radians(30.0f));	
+		constexpr float ANGULAR_VARIANCE = 45.0; // deg/sec
+		float angularVelocityX = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));	
+		float angularVelocityY = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));	
+		float angularVelocityZ = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));	
 		
 		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
 		
