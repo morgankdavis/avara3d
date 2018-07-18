@@ -14,12 +14,13 @@ Tests:
 	30 - rigidbody
 
 
-		Static objects always be btBvhTriangleMeshShape?
+		PhysicsBody::affectedByGravity() + PhysicsWorld dirty bits!
 
-		PhysicsBody::affectedByGravity() or gravity()
+		Convex hulls for statics should always use btBvhTriangleMeshShape
 
-		Play with tuning fruit physics sim + sleeping thresholds
-		PhysicsBody::collisionMargin() ?
+		Concave, non-static meshes:
+			convex decomposition using HACD, see Bullet/Demos/ConvexDecompositionDemo. Alternatively, you can use btGimpactMeshShape
+
 		Add a bunch of cans of slurm + cardboard boxes
 
 		Add Geometry::extent() / extent(bool recursive)
@@ -42,7 +43,7 @@ Tests:
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
 
-		Forces & torques -- check all over Body & Shape methods
+		Forces & torques -- check all other Body & Shape methods
 			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
 		Make beachball model use sphere physics shape
@@ -54,12 +55,6 @@ Tests:
 			collisionShape->calculateLocalInertia IS DOING THIS
 
 		Add physics stats!
-
-		Try margin 0 for static objects
-		Test bullet plane shape
-
-		Optimize statics
-			http://bulletphysics.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html#details
 
 		Gaffer on games - fix your timestep
 
@@ -145,6 +140,8 @@ Tests:
 			body->setCollisionFlags( body->getCollisionFlags() |
 			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
 	32 - utilities (ray cast, sweep, etc)
+		Raycasting non-physics objects:
+			http://codesuppository.blogspot.com/2011/08/raycasting-using-aabb-axis-aligned.html
 		test applyForce() and applyTorque() with raycasting
 	33 - categories
 		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering

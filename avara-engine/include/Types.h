@@ -358,9 +358,10 @@ namespace ae {
 		ANGULAR_DAMPING =				1 << 12,
 		LINEAR_SLEEPING_THRESHOLD =		1 << 13,
 		ANGULAR_SLEEPING_THRESHOLD =	1 << 14,
-		ALLOWS_RESTING =				1 << 15,
-		FORCES =						1 << 16,
-		TORQUES =						1 << 17,
+		AFFECTED_BY_GRAVITY =			1 << 15,
+		ALLOWS_RESTING =				1 << 16,
+		FORCES =						1 << 17,
+		TORQUES =						1 << 18,
 		ALL = 							UINT_MAX
 	};
 			

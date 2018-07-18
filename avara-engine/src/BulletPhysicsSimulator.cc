@@ -175,6 +175,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 	if (pass == BulletPhysicsSimulator::PASS::UPDATE_MODEL) {
 		auto world = scene->physicsWorld();
+#warning set this gravity for all physics objects, too...
 		m_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
 		m_timestep = world->timestep();
 	}
@@ -453,6 +454,18 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD));
 	}
+	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY)) {
+		if (body->affectedByGravity()) {
+			(*btBody)->setGravity(btWorld.getGravity());
+		}
+		else {
+			// NOTE: setting world gravity resets this
+			(*btBody)->setGravity({0, 0, 0});
+		}
+		
+		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
+													   PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY));
+	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING)) {
 		if (body->allowsResting()) {
 			(*btBody)->setActivationState(ACTIVE_TAG);
@@ -700,6 +713,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		
 #warning: Use btStridingMeshInterface
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=2401
+		// [[[http://bulletphysics.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html]]]
 		
 #warning TOTAL HACK
 		static btTriangleMesh triMesh = btTriangleMesh(true, true);

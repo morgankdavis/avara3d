@@ -95,6 +95,9 @@ namespace ae {
 		float angularSleepingThreshold() const;
 		void angularSleepingThreshold(float threshold);
 		
+		bool affectedByGravity() const;
+		void affectedByGravity(bool flag);
+		
 		bool allowsResting() const;
 		void allowsResting(bool flag);
 		
@@ -148,6 +151,7 @@ namespace ae {
 		float 									m_angularDamping;
 		float									m_linearSleepingThreshold;
 		float									m_angularSleepingThreshold;
+		bool									m_affectedByGravity;
 		bool 									m_allowsResting;
 		bool 									m_resting;
 		

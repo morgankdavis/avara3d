@@ -28,6 +28,7 @@ class btDefaultCollisionConfiguration;
 class btDiscreteDynamicsWorld;
 class btRigidBody;
 class btSequentialImpulseConstraintSolver;
+class btTriangleMesh;
 
 
 namespace ae {
@@ -56,8 +57,13 @@ namespace ae {
 		
 		/* <ae_obj : <bt_collisionShape, bt_childShapes>> */
 		using PhysicsShapeBTMapping =
-			std::map<std::shared_ptr<PhysicsShape>, std::pair<std::shared_ptr<btCollisionShape>,
-															  std::vector<std::shared_ptr<btCollisionShape>>>>;
+		std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
+		std::vector<std::shared_ptr<btCollisionShape>>>>;
+		
+//		using PhysicsShapeBTMapping =
+//			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
+//															   std::vector<std::shared_ptr<btCollisionShape>>,
+//															   std::shared_ptr<btTriangleMesh>>>;
 		
 		/***************************************************************************************
 		     Lifecycle

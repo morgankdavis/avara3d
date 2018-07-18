@@ -57,8 +57,9 @@ PhysicsBody::PhysicsBody():
 	m_angularVelocity({0, 0, 0}),
 	m_linearSleepingThreshold(1.0),
 	m_angularSleepingThreshold(1.0),
-	m_resting(false),
 	m_allowsResting(true),
+	m_affectedByGravity(true),
+	m_resting(false),
 	m_node({}),
 	m_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 	
@@ -238,6 +239,16 @@ void PhysicsBody::angularSleepingThreshold(float threshold) {
 	m_angularSleepingThreshold = threshold;
 	
 	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD);
+}
+
+bool PhysicsBody::affectedByGravity() const {
+	return m_affectedByGravity;
+}
+
+void PhysicsBody::affectedByGravity(bool flag) {
+	m_affectedByGravity = flag;
+	
+	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY);
 }
 
 bool PhysicsBody::allowsResting() const {

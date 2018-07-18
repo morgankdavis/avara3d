@@ -343,7 +343,16 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	// spawn duck fruit
 	
 	if (keysDown.count(KEY::TAB)) {
-		SpawnDuckFruit(*scene, m_duckNode);
+		auto fruitNode = SpawnDuckFruit(*scene, m_duckNode);
+		if (!m_fruit1Node) {
+			m_fruit1Node = fruitNode;
+		}
+	}
+	
+	if (keysPressed.count(KEY::J)) {
+		if (m_fruit1Node) {
+			m_fruit1Node->physicsBody()->affectedByGravity(!(m_fruit1Node->physicsBody()->affectedByGravity()));
+		}
 	}
 	
 //	if (keysDown.count(KEY::TAB)) {
