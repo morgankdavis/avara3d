@@ -135,6 +135,40 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
+//	// GROUND BOX UNROTATED
+//	
+//	const float PLANE_EXTENT_X = 40.0;
+//	const float PLANE_EXTENT_Y = 0.25;
+//	const float PLANE_EXTENT_Z = 40.0;
+//	auto boxNode = Node::GeometryNode(make_shared<Box>(PLANE_EXTENT_X, PLANE_EXTENT_Y, PLANE_EXTENT_Z));
+////	auto boxGeometry = make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT);
+////	auto boxNode = make_shared<Node>();
+//	//	planeNode->geometry(make_shared<Plane>(10, 10));
+//	auto gridImage = TestImageNamed("grid10");
+//	//auto gridImage = TestImageNamed("grid10_512");
+//	auto boxMaterialProperty = make_shared<MaterialProperty>(gridImage);
+//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+//	boxMaterialProperty->maxAnisotropy(16);
+//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
+//	boxMaterial->uvScale(PLANE_EXTENT_X/10.0);
+//	//	planeMaterial->doubleSided(true);
+//	boxNode->geometry()->addMaterial(boxMaterial);
+//	
+//	auto boxPhysicsBody = PhysicsBody::StaticBody();
+//	boxPhysicsBody->mass(0);
+//	boxPhysicsBody->friction(100);
+//	boxPhysicsBody->rollingFriction(100);
+//	boxNode->physicsBody(boxPhysicsBody);
+//	
+//	scene->rootNode()->addChild(boxNode);
+
+	
+	
+	
+	
 	// GROUND PLANE
 	
 	const float PLANE_LENGTH = 40.0;

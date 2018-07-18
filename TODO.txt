@@ -14,7 +14,9 @@ Tests:
 	30 - rigidbody
 
 
-		Static objects should always be btBvhTriangleMeshShape?
+		Static objects always be btBvhTriangleMeshShape?
+
+		PhysicsBody::affectedByGravity() or gravity()
 
 		Play with tuning fruit physics sim + sleeping thresholds
 		PhysicsBody::collisionMargin() ?

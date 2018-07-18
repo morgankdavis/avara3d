@@ -336,7 +336,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		
 		
-#warning experimental
+//#warning experimental
 		//btTransform transform = BTTransformFromGLMMat4(node->worldTransform());
 		bool wasScaled = false;
 		btTransform transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(), wasScaled));
@@ -358,6 +358,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		}
 		else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
 #warning this is GENERATING momentOfInertia
+			AE_LOG->debug("momentOfInertia: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
 			collisionShape->calculateLocalInertia(mass, momentOfInertia);
 		}
 		
@@ -488,6 +489,19 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY));
 	}
 	
+	
+//	if (body->type() == PHYSICS_BODY_TYPE::STATIC) {
+//		AE_LOG->debug("STATIC");
+//	}
+//	else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//		AE_LOG->debug("DYNAMIC");
+//		(*btBody)->setGravity((btVector3){0, 0, 0});
+//	}
+//	else if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//		AE_LOG->debug("KINEMATIC");
+//	}
+//	AE_LOG->debug("Gravity: {}", StringFromGLMVec3(GLMVec3FromBTVector3((*btBody)->getGravity())));
+	
 	// update shape scale. done here instead of GetPhysicsShapeBTModels() because we need the rigidbody
 	
 	
@@ -511,7 +525,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	// back-fill PhysicsBody properties
 	
-#warning this is causing a loop canceling out any dynamic movement
+#warning this is causing a loop canceling out any manual dynamic movement
 	
 	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()), false);
 	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()), false);

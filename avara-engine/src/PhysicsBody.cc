@@ -52,6 +52,7 @@ PhysicsBody::PhysicsBody():
 	m_linearDamping(0.0),
 	m_angularDamping(0.0),
 	m_momentOfInertia({0, 0, 0}),
+	//m_momentOfInertia({1000, 1000, 1000}),
 	m_linearVelocity({0, 0, 0}),
 	m_angularVelocity({0, 0, 0}),
 	m_linearSleepingThreshold(1.0),
