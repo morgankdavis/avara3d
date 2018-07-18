@@ -18,6 +18,8 @@ Tests:
 
 		Convex hulls for statics should always use btBvhTriangleMeshShape
 
+		Strip scale from compound body local transforms
+
 		Concave, non-static meshes:
 			convex decomposition using HACD, see Bullet/Demos/ConvexDecompositionDemo. Alternatively, you can use btGimpactMeshShape
 

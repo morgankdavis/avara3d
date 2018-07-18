@@ -594,6 +594,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		unsigned fruitNum = Uniform(0, 5);
 		shared_ptr<Node> node = nullptr;
+		float mass = 1;
 		
 		switch (fruitNum) {
 #ifdef USE_HIGH_DETAIL_MESHES
@@ -604,12 +605,36 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 			case 4: node = TestSceneNamed("banana/banana", "obj")->rootNode(); break;
 			case 5: node = TestSceneNamed("pineapple/pinapple", "obj")->rootNode(); break;
 #else
-			case 0: node = TestSceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode(); break;
-			case 1: node = TestSceneNamed("orange1_lod/orange1_lod", "obj")->rootNode(); break;
-			case 2: node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode(); break;
-			case 3: node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode(); break;
-			case 4: node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode(); break;
-			case 5: node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode(); break;
+			case 0: {
+				node = TestSceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
+				mass = 0.05;
+				break;
+			}
+			case 1: {
+				node = TestSceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
+				mass = 0.185;
+				break;
+			}
+			case 2: {
+				node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+				mass = 0.24;
+				break;
+			}
+			case 3: {
+				node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+				mass = 0.225;
+				break;
+			}
+			case 4: {
+				node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+				mass = 0.14;
+				break;
+			}
+			case 5: {
+				node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+				mass = 0.9;
+				break;
+			}
 #endif
 			default: return nullptr;
 		}
@@ -633,7 +658,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		
 		
-		physicsBody->mass(2.0);
+		physicsBody->mass(mass);
 		physicsBody->restitution(1);
 		physicsBody->friction(1);
 		physicsBody->rollingFriction(1);
@@ -710,8 +735,7 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	static float lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
-//		static auto colors = Color::Rainbow();
-//		auto color = colors[Uniform(4, colors.size()-5)];
+
 		static shared_ptr<Color> colors[] = {
 			Color::White(),
 			Color::Red(),
@@ -722,37 +746,35 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		};
 		auto color = colors[Uniform(0, 5)];
 		
-		//auto node = make_shared<Node>(make_shared<Sphere>(0.5 * .1, 3));
-		//	auto node = make_shared<Node>("Sphere");
-		//	node->geometry(make_shared<Sphere>(0.5 * .5, 3));
 		auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * 1.0, 3));
-		//auto materialProperty = make_shared<MaterialProperty>(Color::Red());
 		auto materialProperty = make_shared<MaterialProperty>(color);
 		auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
 		node->geometry()->addMaterial(material);
 		node->position(location);
 		
 		
-		//	auto beachballImage = TestImageNamed("beachball");
-		//	auto materialProperty = make_shared<MaterialProperty>(beachballImage);
-		//	materialProperty->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
-		//	materialProperty->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
-		//	materialProperty->maxAnisotropy(16);
-		//	materialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-		//	materialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-		//	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
-		//	node->geometry()->addMaterial(material);
+//		auto node = TestSceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
+//		node->position(location);
 		
 		
 		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->mass(35.0);
+		physicsBody->mass(0.2); // vollyball
 		physicsBody->restitution(2.5);
-		physicsBody->friction(0.0);
-		physicsBody->rollingFriction(0.0);
+		physicsBody->friction(0.025);
+		physicsBody->rollingFriction(0.025);
 		
 		constexpr float dv = 0.05f;
 		auto variedDirection = direction + vec3(Uniform(-dv, dv), Uniform(-dv, dv), Uniform(-dv, dv));
 		physicsBody->linearVelocity(variedDirection * 50.0f);
+//		constexpr float velocityVariation = 0.05f;
+//		physicsBody->linearVelocity(direction + vec3(Uniform(-velocityVariation, velocityVariation),
+//													 Uniform(-velocityVariation, velocityVariation),
+//													 Uniform(-velocityVariation, velocityVariation)));
+		constexpr float angularVelocityVariation = radians(45.0f); // deg/sec
+		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
+										  Uniform(-angularVelocityVariation, angularVelocityVariation),
+										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
+		
 		node->physicsBody(physicsBody);
 		
 		scene.rootNode()->addChild(node);

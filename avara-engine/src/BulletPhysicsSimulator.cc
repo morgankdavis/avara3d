@@ -44,6 +44,10 @@ using namespace glm;
 using namespace std;
 
 
+// Bullet claims its mass unit is kg... However this appears to be too small for a stable simulation.
+constexpr float MASS_SCALE =	10000.0;
+
+
 /**************************************************************************************
      Static Prototypes
  **************************************************************************************/
@@ -351,7 +355,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 		
 		btVector3 momentOfInertia = BTVector3FromGLMVec3(body->momentOfInertia());
-		auto mass = body->mass();
+		auto mass = body->mass() * MASS_SCALE;
 		
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC
 			|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
@@ -368,7 +372,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 															   collisionShape.get(),
 															   momentOfInertia);
 		
-		rigidBodyInfo.m_mass = body->mass();
+		rigidBodyInfo.m_mass = mass;
 		rigidBodyInfo.m_linearDamping = body->linearDamping();
 		rigidBodyInfo.m_angularDamping = body->angularDamping();
 		rigidBodyInfo.m_friction = body->friction();
