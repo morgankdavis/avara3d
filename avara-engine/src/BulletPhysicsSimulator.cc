@@ -92,8 +92,6 @@ static mat4 GLMMat4FromBTTransform(const btTransform& from);
 static btVector3 BTVector3FromGLMVec3(const vec3& from);
 static btVector4 BTVector4FromGLMVec4(const vec4& from);
 static btTransform BTTransformFromGLMMat4(const mat4& from);
-
-#warning experimental
 static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
 
 /***************************************************************************************
@@ -938,7 +936,13 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 			
 			childShapes.emplace_back(collisionShape);
 
-			btTransform localTransform = BTTransformFromGLMMat4(n->transform());
+			//btTransform localTransform = BTTransformFromGLMMat4(n->transform());
+			bool wasScaled = false;
+			btTransform localTransform = BTTransformFromGLMMat4(TransformByRemovingScale(n->transform(), wasScaled));
+//			if (wasScaled) {
+//				AE_LOG->warn("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//							 (void*)node.get(), (void*)body.get());
+//			}
 			compoundShape->addChildShape(localTransform, collisionShape.get());
 		}
 	}

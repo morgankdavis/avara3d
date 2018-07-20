@@ -28,8 +28,6 @@ Tests:
 
 		Convex hulls for statics should always use btBvhTriangleMeshShape
 
-		Strip scale from compound body local transforms
-
 		DropBoxes() random location
 
 		MARGIN AND STABILITY:
@@ -93,11 +91,6 @@ Tests:
 		Try glViewport() with screen points width and height...
 
 		Move Program static functions to instance variables in OpenGLRenderer	
-
-		Rename GLM?
-		Create Externals.h?
-
-		move Node::hidden() check to Renderer -- (KEEP ALIVE)
 
 		RenderContext should own "Stats" object
 			Create at each frame, pass around. frameStartTime, frameEndTime
@@ -293,6 +286,7 @@ BUGS:
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
 	Fontstash string drawing is causing corruption for future loaded textures
 	Would be nice to support Physics shape scaling.
+	Node::hidden() check should be in Renderer // need a keep-alive mechanism
 
 
 
