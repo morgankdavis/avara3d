@@ -46,7 +46,7 @@ using namespace std;
 
 // Bullet claims its mass unit is kg... however this appears to be too small for a stable simulation.
 // issue posted here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=12161
-constexpr float MASS_MULTIPLIER =	1.0;
+constexpr float MASS_MULTIPLIER =	10000.0;
 
 
 /**************************************************************************************

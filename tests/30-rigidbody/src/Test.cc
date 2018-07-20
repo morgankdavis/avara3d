@@ -42,7 +42,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
 static shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
 //static shared_ptr<Node> DropApple(Scene& scene);
-static shared_ptr<Node> DropSlurm(Scene& scene, shared_ptr<Material> material);
+static shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation);
 static shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction);
 static shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color);
 static shared_ptr<Node> AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color);
@@ -52,7 +52,9 @@ static shared_ptr<Node> AddCylinder(Scene& scene, vec3 location, shared_ptr<Colo
 static shared_ptr<Node> AddApple(Scene& scene, vec3 location);
 static shared_ptr<Node> AddPineapple(Scene& scene, vec3 location);
 static shared_ptr<Node> AddFruit(Scene& scene, vec3 location);
-static shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location);
+static shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation);
+static void AddCardboardBoxes(Scene& scene);
+static void AddSlurms(Scene& scene);
 
 /***************************************************************************************
      Public
@@ -231,10 +233,18 @@ int Test::run(const vector<string>& args) {
 	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
 	m_paddleNode->geometry()->addMaterial(paddleMaterial);
 	m_paddleNode->position({10-.25, 2.5, 0});
-	m_paddleNode->physicsBody(PhysicsBody::KinematicBody());
+	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+//	paddlePhysicsBody->friction(100);
+//	paddlePhysicsBody->rollingFriction(100);
+	m_paddleNode->physicsBody(paddlePhysicsBody);
 	scene->rootNode()->addChild(m_paddleNode);
 	
 	
+	// add cardboard boxes
+	AddCardboardBoxes(*scene);
+	
+	// add slurms
+	AddSlurms(*scene);
 	
 	
 	
@@ -711,21 +721,19 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 //	return node;
 //}
 
-shared_ptr<Node> DropSlurm(Scene& scene, shared_ptr<Material> material) {
+shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 	
-	auto fileScene = TestSceneNamed("slurm/slurm", "obj");
-	auto node = fileScene->rootNode();
-	if (material) {
-		node->children(true)[1]->geometry()->replaceMaterial(0, material);
-	}
-	static float x = .1;
-	node->position({x, 0, 0});
-	x += .1;
+	auto node = TestSceneNamed("slurm/slurm", "obj")->rootNode();
+	node->position(location);
+	node->rotation(rotation);
+	auto physicsBody = PhysicsBody::DynamicBody();
+	physicsBody->mass(.025);
+//	physicsBody->friction(5);
+	node->physicsBody(physicsBody);
 	scene.rootNode()->addChild(node);
 	
 	return node;
 }
-
 
 shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	
@@ -980,19 +988,96 @@ shared_ptr<Node> AddFruit(Scene& scene, vec3 location) {
 	return node;
 }
 
-shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location) {
+shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	
 	shared_ptr<Node> node = TestSceneNamed("cardboardBox2/cardboardBox2", "obj")->rootNode();
 	node->position(location);
+	node->rotation(rotation);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
-	physicsBody->restitution(0.45);
-	physicsBody->friction(0.65);
-	physicsBody->rollingFriction(0.35);
+	physicsBody->mass(0.1);
+	physicsBody->restitution(0.1);
+	physicsBody->friction(0.5);
+	physicsBody->rollingFriction(0.25);
+	//physicsBody->angularFactor({2.0, 2.0, 2.0});
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
 	
 	return node;
+}
+
+void AddCardboardBoxes(Scene& scene) {
+	
+	vec4 rotation = {0, 1, 0, radians(25.0)};
+	
+	// 1st row
+	
+	float x = -15 + .75 * 0;
+	float y = 0.5 + 1.0 * 0;
+	float z = -10 - .37 * 0;
+	
+	for (unsigned i=0; i<5; ++i) {
+		AddCardboardBox(scene, {x, y, z}, rotation);
+		x += 1.5; z -= 0.75;
+	}
+
+	// 2nd row
+	
+	x = -15 + .75 * 1;
+	y = 0.5 + 0.9 * 1;
+	z = -10 - .37 * 1;
+	
+	for (unsigned i=0; i<4; ++i) {
+		AddCardboardBox(scene, {x, y, z}, rotation);
+		x += 1.5; z -= 0.75;
+	}
+	
+	// 3rd row
+	
+	x = -15 + .75 * 2;
+	y = 0.5 + 0.9 * 2;
+	z = -10 - .37 * 2;
+	
+	for (unsigned i=0; i<3; ++i) {
+		AddCardboardBox(scene, {x, y, z}, rotation);
+		x += 1.5; z -= 0.75;
+	}
+	
+	// 4th row
+	
+	x = -15 + .75 * 3;
+	y = 0.5 + 0.9 * 3;
+	z = -10 - .37 * 3;
+	
+	for (unsigned i=0; i<2; ++i) {
+		AddCardboardBox(scene, {x, y, z}, rotation);
+		x += 1.5; z -= 0.75;
+	}
+	
+	// 5th row
+	
+	x = -15 + .75 * 4;
+	y = 0.5 + 0.9 * 4;
+	z = -10 - .37 * 4;
+	
+	for (unsigned i=0; i<1; ++i) {
+		AddCardboardBox(scene, {x, y, z}, rotation);
+		x += 1.5; z -= 0.75;
+	}	
+}
+
+void AddSlurms(Scene& scene) {
+	
+	//m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 10));
+	//m_paddleNode->position({10-.25, 2.5, 0});
+	
+	float x = 10 - .25;
+	float y = 5;
+	float z = -4;
+	
+	for (unsigned i=0; i<9; ++i) {
+		AddSlurm(scene, {x, y, z}, {0, 1, 0, radians((float)Uniform(0, 359))});
+		z += 1;
+	}
 }

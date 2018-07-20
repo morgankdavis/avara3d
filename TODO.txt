@@ -20,9 +20,6 @@ Tests:
 		btUniformScalingShape (btConvexShape *convexChildShape, btScalar uniformScalingFactor)
 			make a btConvexShape, then a convex hull..?
 
-		Ball inconsistent bouncing -- play with subdivisions
-
-		PhysicsBody::setMargin()?
 
 		PhysicsBody::affectedByGravity() + PhysicsWorld dirty bits!
 
@@ -35,8 +32,6 @@ Tests:
 
 		Concave, non-static meshes:
 			convex decomposition using HACD, see Bullet/Demos/ConvexDecompositionDemo. Alternatively, you can use btGimpactMeshShape
-
-		Add a bunch of cans of slurm + cardboard boxes
 
 		Explore:
 			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
