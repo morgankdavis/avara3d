@@ -65,7 +65,7 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 RenderStats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 set<shared_ptr<MaterialProperty>>& activeProperties);
+						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
 static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
 												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
 												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -86,7 +86,7 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 										 GLuint& glVBO, GLuint& glVAO);
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										set<shared_ptr<MaterialProperty>>& activeProperties,
+										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
 static void BufferGeometryElementVertexData(const GeometryElement& element,
 											Program& program,
@@ -142,13 +142,13 @@ static void DrawPointSet(PointSet& pointSet,
 						 mat4 viewMat,
 						 mat4 projectionMat,
 						 GLuint glVBO, GLuint glVAO);
-static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
+static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
 											OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
+static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
 											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
-static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
+static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping);
-static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
+static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping);
 static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
 											 OpenGLRenderer::GeometryElementGLMapping& glMapping);
@@ -225,10 +225,10 @@ OpenGLRenderer::OpenGLRenderer():
 	m_materialPropertyGLMapping(MaterialPropertyGLMapping()),
 	m_lineSetGLMapping(LineSetGLMapping()),
 	m_pointSetGLMapping(PointSetGLMapping()),
-	m_activeGeometryElements(set<shared_ptr<GeometryElement>>()),
-	m_activeMaterialProperties(set<shared_ptr<MaterialProperty>>()),
-	m_activeLineSets(set<shared_ptr<LineSet>>()),
-	m_activePointSets(set<shared_ptr<PointSet>>()),
+	m_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
+	m_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+	m_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
+	m_activePointSets(unordered_set<shared_ptr<PointSet>>()),
 	m_glEnvironmentUBO(0),
 	m_fonsContext(nullptr),
 	m_fonsFont(-1) {
@@ -243,6 +243,8 @@ OpenGLRenderer::~OpenGLRenderer() {
 	m_activeLineSets.clear();
 	m_activePointSets.clear();
 	
+	glDeleteBuffers(1, &m_glEnvironmentUBO);
+	
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
@@ -256,6 +258,12 @@ OpenGLRenderer::~OpenGLRenderer() {
 bool OpenGLRenderer::initialize() {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
+	
+	// create environment UBO
+	
+	uint32 ubo;
+	glGenBuffers(1, &ubo);
+	m_glEnvironmentUBO = ubo;
 
 	// initialize FontStash
 	
@@ -350,13 +358,6 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-	}
-
-#warning move to Initialize?
-	if (m_glEnvironmentUBO == 0) {
-		uint32 ubo;
-		glGenBuffers(1, &ubo);
-		m_glEnvironmentUBO = ubo;
 	}
 	
 	SendEnvironmentUniforms(m_glEnvironmentUBO, *scene, stats);
@@ -505,7 +506,7 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 RenderStats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 set<shared_ptr<MaterialProperty>>& activeProperties) {
+						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
 	
 	auto program = Program::Skybox();
 	
@@ -712,7 +713,7 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 	
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										set<shared_ptr<MaterialProperty>>& activeProperties,
+										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -1174,13 +1175,15 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 				slot = GL_TEXTURE3; index = 3;
 				break;
 			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
+				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
+				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
 				return;
 		}
 		
 //		glActiveTexture(slot);
 
-		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::SAMPLER));
+		program.setUniform(modeUniformName.c_str(),
+						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
 		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 	}
 	else if (dynamic_pointer_cast<Color>(property.contents()) ){ // color
@@ -1207,11 +1210,13 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 				colorUniformName = "colors.emissive";
 				break;
 			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
+				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
+				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
 				return;
 		}
 
-		program.setUniform(modeUniformName.c_str(), static_cast<int>(MATERIAL_MODE::COLOR));
+		program.setUniform(modeUniformName.c_str(),
+						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::COLOR));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
@@ -1583,7 +1588,7 @@ static void DrawPointSet(PointSet& pointSet,
 	
 }
 
-static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& active,
+static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
 											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
@@ -1622,7 +1627,7 @@ static void CleanupGeometryElementResources(set<shared_ptr<GeometryElement>>& ac
 #endif
 }
 	
-static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& active,
+static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
 											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
@@ -1661,7 +1666,7 @@ static void CleanupMaterialPropertyResources(set<shared_ptr<MaterialProperty>>& 
 #endif
 }
 	
-static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
+static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
@@ -1700,7 +1705,7 @@ static void CleanupLineSetResources(set<shared_ptr<LineSet>>& active,
 #endif
 }
 
-static void CleanupPointSetResources(set<shared_ptr<PointSet>>& active,
+static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
@@ -1713,7 +1718,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG->debug("Deleting GL resources for geometry element {:p}...", (void*)element.get());
+		AE_LOG->debug("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
 		
 		auto glHandles = glMapping[element];
 		
@@ -1740,7 +1745,7 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	
 	if (glMapping.count(property)) {
 		
-		AE_LOG->debug("Deleting GL resources for material property {:p}...", (void*)property.get());
+		AE_LOG->debug("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
 		
 		GLuint handle = glMapping[property];
 		
@@ -1761,7 +1766,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG->trace("Deleting GL resources for line set {:p}..", (void*)lineSet.get());
+		AE_LOG->trace("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
 		
 		auto glHandles = glMapping[lineSet];
 		

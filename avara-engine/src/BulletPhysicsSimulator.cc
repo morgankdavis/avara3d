@@ -44,8 +44,9 @@ using namespace glm;
 using namespace std;
 
 
-// Bullet claims its mass unit is kg... However this appears to be too small for a stable simulation.
-constexpr float MASS_SCALE =	10000.0;
+// Bullet claims its mass unit is kg... however this appears to be too small for a stable simulation.
+// issue posted here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=12161
+constexpr float MASS_MULTIPLIER =	1.0;
 
 
 /**************************************************************************************
@@ -67,10 +68,10 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 							 btDiscreteDynamicsWorld& btWorld,
 							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
 							 bool& wasDirty);
-static void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
+static void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 										btDiscreteDynamicsWorld& btWorld,
 										BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping);
-static void CleanupPhysicsShapeResources(set<shared_ptr<PhysicsShape>>& active,
+static void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
 										 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
 static void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
 										 btDiscreteDynamicsWorld& btWorld,
@@ -112,13 +113,48 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 	m_debugDrawer(make_shared<BulletDebugDrawer>()),
 	m_bodyBTMapping(PhysicsBodyBTMapping()),
 	m_shapeBTMapping(PhysicsShapeBTMapping()),
-	m_activeBodies(set<shared_ptr<PhysicsBody>>()),
-	m_activeShapes(set<shared_ptr<PhysicsShape>>()) {
+	m_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
+	m_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
 
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
 		
-	m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
-	//m_btWorld.get()->setDebugDrawer(static_pointer_cast<btIDebugDraw>(m_debugDrawer).get());
+		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+		
+		
+		AE_LOG->info("m_numIterations: {}",  m_btWorld.get()->getSolverInfo().m_numIterations);
+		AE_LOG->info("m_solverMode: {}",  m_btWorld.get()->getSolverInfo().m_solverMode);
+		AE_LOG->info("m_restingContactRestitutionThreshold: {}",  m_btWorld.get()->getSolverInfo().m_restingContactRestitutionThreshold);
+		AE_LOG->info("m_minimumSolverBatchSize: {}",  m_btWorld.get()->getSolverInfo().m_minimumSolverBatchSize);
+		
+		
+//		enum    btSolverMode
+//		22 {
+//			23         SOLVER_RANDMIZE_ORDER = 1,
+//			24         SOLVER_FRICTION_SEPARATE = 2,
+//			25         SOLVER_USE_WARMSTARTING = 4,
+//			26         SOLVER_USE_2_FRICTION_DIRECTIONS = 16,
+//			27         SOLVER_ENABLE_FRICTION_DIRECTION_CACHING = 32,
+//			28         SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64,
+//			29         SOLVER_CACHE_FRIENDLY = 128,
+//			30         SOLVER_SIMD = 256,
+//			31         SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
+//			32         SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
+//			33 };
+//		34 
+		
+//		m_btWorld.get()->getSolverInfo().m_solverMode = 0
+//		| SOLVER_ENABLE_FRICTION_DIRECTION_CACHING
+//		| SOLVER_CACHE_FRIENDLY
+//		| SOLVER_FRICTION_SEPARATE
+//		| SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS;
+		
+//		m_btWorld.get()->getSolverInfo().m_restingContactRestitutionThreshold = 12;
+//		
+//		m_btWorld.get()->getSolverInfo().m_minimumSolverBatchSize = 1024;
+		
+		
+//		m_btWorld.get()->getSolverInfo().m_numIterations = 100;
+//		m_btWorld.get()->getSolverInfo().m_timeStep = 1.0/240.0;
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
@@ -355,16 +391,23 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 		
 		btVector3 momentOfInertia = BTVector3FromGLMVec3(body->momentOfInertia());
-		auto mass = body->mass() * MASS_SCALE;
+//		btVector3 momentOfInertia = {1, 1, 1};
+		auto mass = body->mass() * MASS_MULTIPLIER;
 		
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC
 			|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
 			mass = 0;
 		}
 		else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-#warning this is GENERATING momentOfInertia
-			AE_LOG->debug("momentOfInertia: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
+//#warning this is GENERATING momentOfInertia
+			AE_LOG->debug("momentOfInertia1: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
 			collisionShape->calculateLocalInertia(mass, momentOfInertia);
+			AE_LOG->debug("momentOfInertia2: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
+			
+//			btVector3 fallInertia((rand() % 4)-1, (rand() % 3)-2, (rand() % 6)-3);
+//			collisionShape->calculateLocalInertia(mass, fallInertia);
+			
+			
 		}
 		
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
@@ -605,7 +648,7 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 	}
 }
 
-void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
+void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 								 btDiscreteDynamicsWorld& btWorld,
 								 BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping) {
 	
@@ -646,7 +689,7 @@ void CleanupPhysicsBodyResources(set<shared_ptr<PhysicsBody>>& active,
 	}
 }
 
-void CleanupPhysicsShapeResources(set<shared_ptr<PhysicsShape>>& active,
+void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
 								  BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping) {
 	
 	// gather sorted vector of shapes used this frame
@@ -737,8 +780,11 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 									false);
 			}
 		}
-
-		return make_shared<btBvhTriangleMeshShape>(&triMesh, false);
+		
+		auto shape = make_shared<btBvhTriangleMeshShape>(&triMesh, true);
+//		shape.get()->setMargin(0);
+		
+		return shape;
 	}
 	else {
 
@@ -864,6 +910,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 				if (!reducedShape->initializePolyhedralFeatures()) {
 					AE_LOG->warn("Could not initialize polyhedral features for reduced btConvexHullShape.");
 				}
+				
+//				reducedShape.get()->setMargin(0);
 				
 				return reducedShape;
 			}

@@ -10,10 +10,10 @@
 
 #include <algorithm>
 #include <ctime>
-#include <sstream>
 #include <fstream>
 #include <memory>
 #include <random>
+#include <sstream>
 
 #if defined(MACOS) || defined(LINUX)
 #include <sys/time.h>
@@ -42,10 +42,17 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "Camera.h"
 #include "Color.h"
 #include "CubeImage.h"
+#include "Geometry.h"
+#include "GeometryElement.h"
 #include "Image.h"
+#include "Light.h"
 #include "Logger.h"
+#include "Material.h"
+#include "MaterialProperty.h"
+#include "Node.h"
 #include "RenderContext.h"
 #include "Scene.h"
 
@@ -54,6 +61,12 @@ using namespace ae;
 using namespace glm;
 using namespace std;
 
+
+/***************************************************************************************
+ Private Static Prototypes
+ ***************************************************************************************/
+
+static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
 /***************************************************************************************
  	Output Utilities
@@ -122,6 +135,21 @@ string ae::utils::StringFromColor(const Color& c) {
 	ostringstream stringStream;
 	stringStream << c;
 	return stringStream.str();
+}
+
+string ae::utils::StringFromTree(Node& root) {
+
+	std::stringstream ss;
+	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
+	ss << "[NODE] (" << static_cast<const void*>(&root) << ", " << name << ")" << endl;
+	 
+	unsigned depth = 0;
+
+	for (auto& c : root.children(false)) {
+		 StringFromTreeRec(*c, ss, depth+1);
+	}
+	
+	return ss.str();
 }
 
 string ae::utils::DateTimeString() {
@@ -607,4 +635,82 @@ void ae::utils::StopGIFRecording(RenderContext& context) {
 #else
 	context.stopGIFRecording();
 #endif
+}
+
+/***************************************************************************************
+ Private Static
+ ***************************************************************************************/
+
+void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
+	
+	string padding = "";
+	for (unsigned d=0; d<depth; ++d) {
+		padding += "\t";
+	}
+	string nodeName = (n.name() ? "\"" + *(n.name()) + "\"" : "null");
+	ss << padding << "[NODE] (" << static_cast<const void*>(&n)
+	<< ", " << nodeName << ")" << endl;
+	
+	auto geometry = n.geometry();
+	if (geometry) {
+		string geometryName = (geometry->name() ? "\"" + *(geometry->name()) + "\"" : "null");
+		ss << padding << "\t[GEOMETRY] (" << static_cast<const void*>(geometry.get())
+		<< ", " << geometryName << ")" << endl;
+		
+		for (auto& element : geometry->elements()) {
+			ss << padding << "\t\t[ELEMENT] (" << static_cast<const void*>(element.get())<< ")" << endl;
+		}
+		
+		for (auto& material : geometry->materials()) {
+			
+			string properties = "";
+			if (material->ambient()) properties += "a";
+			if (material->diffuse()) properties += "d";
+			if (material->specular()) properties += "s";
+			if (material->emissive()) properties += "e";
+			
+			string materialName = (material->name() ? "\"" + *(material->name()) + "\"" : "null");
+			ss << padding << "\t\t[MATERIAL] (" << static_cast<const void*>(material.get())
+			<< ", " << materialName
+			<< ", " << properties << ")" << endl;
+			
+//			auto ambient = material->ambient();
+//			if (ambient) {
+//				ss << padding << "\t\t\tambient (" << static_cast<const void*>(ambient.get()) << ")" << endl;
+//			}
+//			
+//			auto diffuse = material->diffuse();
+//			if (diffuse) {
+//				ss << padding << "\t\t\tdiffuse (" << static_cast<const void*>(diffuse.get()) << ")" << endl;
+//			}
+//			
+//			auto specular = material->specular();
+//			if (specular) {
+//				ss << padding << "\t\t\tspecular (" << static_cast<const void*>(specular.get()) << ")" << endl;
+//			}
+//			
+//			auto emissive = material->emissive();
+//			if (emissive) {
+//				ss << padding << "\t\t\temissive (" << static_cast<const void*>(emissive.get()) << ")" << endl;
+//			}
+		}
+	}
+	
+	auto light = n.light();
+	if (light) {
+		string lightName = (light->name() ? "\"" + *(light->name()) + "\"" : "null");
+		ss << padding << "\t[LIGHT] (" << static_cast<const void*>(light.get())
+		<< ", " << lightName << ")" << endl;
+	}
+	
+	auto camera = n.camera();
+	if (camera) {
+		string cameraName = (camera->name() ? "\"" + *(camera->name()) + "\"" : "null");
+		ss << padding << "\t[CAMERA] (" << static_cast<const void*>(camera.get())
+		<< ", " << cameraName << ")" << endl;
+	}
+
+	for (auto& c : n.children(false)) {
+		StringFromTreeRec(*c, ss, depth+1);
+	}
 }

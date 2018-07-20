@@ -32,6 +32,7 @@ namespace ae {
 	class Color;
 	class CubeImage;
 	class Image;
+	class Node;
 	class RenderContext;
 	class Scene;
 	
@@ -53,6 +54,8 @@ namespace ae {
 		std::string StringFromGLMQuat(const glm::quat& q);
 		std::string StringFromGLMMat4(const glm::mat4& m);
 		std::string StringFromColor(const Color& c);
+		
+		std::string StringFromTree(Node& root);
 		
 		std::string DateTimeString();
 

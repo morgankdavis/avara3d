@@ -103,9 +103,9 @@ namespace ae {
 		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
 	};
 	
-#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<unsigned>(options) & static_cast<unsigned>(option))
-#define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) | static_cast<unsigned>(option)))
-#define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<unsigned>(options) & ~ static_cast<unsigned>(option)))
+#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) & static_cast<underlying_type<DEBUG_OPTIONS>::type>(option))
+#define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) | static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
+#define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) & ~ static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
 	
 	enum class LOGGER_SINKS : unsigned {
 		NONE =			0,
@@ -114,9 +114,9 @@ namespace ae {
 		NATIVE = 		1 << 2 // stdout, android console, ...
 	};
 	
-#define LOGGER_SINKS_CONTAINS(sinks, sink) (static_cast<unsigned>(sinks) & static_cast<unsigned>(sink))
-#define LOGGER_SINKS_ADD(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) | static_cast<unsigned>(sink)))
-#define LOGGER_SINKS_REMOVE(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<unsigned>(sinks) & ~ static_cast<unsigned>(sink)))
+#define LOGGER_SINKS_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) & static_cast<underlying_type<LOGGER_SINKS>::type>(sink))
+#define LOGGER_SINKS_ADD(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) | static_cast<underlying_type<LOGGER_SINKS>::type>(sink)))
+#define LOGGER_SINKS_REMOVE(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINKS>::type>(sink)))
 
 	enum class PHYSICS_BODY_TYPE : unsigned {
 		STATIC =	0,
@@ -297,35 +297,35 @@ namespace ae {
 		ALL = 					UINT_MAX
 	};
 			
-#define NODE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define NODE_DIRTY_BITS_ADD(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define NODE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit))
+#define NODE_DIRTY_BITS_ADD(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit)))
+#define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit)))
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
 		EXTENT =				1 << 0,
 		ALL = 					UINT_MAX
 	};
 		
-#define GEOMETRY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define GEOMETRY_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define GEOMETRY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit))
+#define GEOMETRY_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit)))
+#define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit)))
 
 	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
 		VERTEX_DATA =			1 << 0,
 		ALL = 					UINT_MAX
 	};
 		
-#define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit)))
 	
 	enum class MATERIAL_DIRTY_BITS : unsigned {
 		ALL = 					UINT_MAX
 	};
 		
-#define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define MATERIAL_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define MATERIAL_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit))
+#define MATERIAL_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit)))
+#define MATERIAL_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit)))
 	
 	enum class MATERIAL_PROPERTY_DIRTY_BITS : unsigned {
 		CONTENTS = 				1 << 0,
@@ -338,9 +338,9 @@ namespace ae {
 		ALL = 					UINT_MAX
 	};
 		
-#define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit))
+#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
 	
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
 		TYPE =							1 << 0,
@@ -365,18 +365,18 @@ namespace ae {
 		ALL = 							UINT_MAX
 	};
 			
-#define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit))
+#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit)))
 
 	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
 		MODEL =					1 << 0,
 		ALL = 					UINT_MAX
 	};
 			
-#define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<unsigned>(bits) & static_cast<unsigned>(bit))
-#define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) | static_cast<unsigned>(bit)))
-#define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<unsigned>(bits) & ~ static_cast<unsigned>(bit)))
+#define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit))
+#define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit)))
 
 } // namespace ae
 

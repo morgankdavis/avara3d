@@ -32,11 +32,14 @@
 #include "MaterialProperty.h"
 #include "Node.h"
 #include "PhysicsBody.h"
-//#include "PhysicsDebugDrawer.h"
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "RenderContext.h"
 #include "Utilities.h"
+
+
+
+#include "Box.h"
 
 
 using namespace ae;
@@ -365,72 +368,79 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 	
-	Vertex verts[] = {
-		{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(-0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(0.5f, 	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		
-		{ vec3(-0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(-0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-		{ vec3(0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) }
-	};
+//	Vertex verts[] = {
+//		{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(-0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(0.5f, 	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		
+//		{ vec3(-0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(-0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
+//		{ vec3(0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) }
+//	};
+//	
+//	// INWARD facing
+//	Face faces[] = {
+//		// front
+//		{ 0, 1, 2 },
+//		{ 2, 3, 0 },
+//		// back
+//		{ 7, 6, 5 },
+//		{ 5, 4, 7 },
+//		// left
+//		{ 4, 5, 1 },
+//		{ 1, 0, 4 },
+//		// right
+//		{ 3, 2, 6 },
+//		{ 6, 7, 3 },
+//		// top
+//		{ 1, 5, 6 },
+//		{ 6, 2, 1 },
+//		// bottom
+//		{ 4, 0, 3 },
+//		{ 3, 7, 4 },
+//	};
+//	
+////	// OUTWARD facing
+////	Face faces[] = {
+////		// front
+////		{ 2, 1, 0 },
+////		{ 0, 3, 2 },
+////		// back
+////		{ 5, 6, 7 },
+////		{ 7, 4, 5 },
+////		// left
+////		{ 1, 5, 4 },
+////		{ 4, 0, 1 },
+////		// right
+////		{ 6, 2, 3 },
+////		{ 3, 7, 6 },
+////		// top
+////		{ 6, 5, 1 },
+////		{ 1, 2, 6 },
+////		// bottom
+////		{ 3, 0, 4 },
+////		{ 4, 7, 3 },
+////	};
+//	
+//	auto vertsVector = vector<Vertex>();
+//	vertsVector.assign(verts, verts+8);
+//	
+//	auto facesVector = vector<Face>();
+//	facesVector.assign(faces, faces+12);
+//	
+//	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
+//	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
+//	material->doubleSided(false);
+//	
+//	return make_shared<Geometry>(element, material);
 	
-	// INWARD facing
-	Face faces[] = {
-		// front
-		{ 0, 1, 2 },
-		{ 2, 3, 0 },
-		// back
-		{ 7, 6, 5 },
-		{ 5, 4, 7 },
-		// left
-		{ 4, 5, 1 },
-		{ 1, 0, 4 },
-		// right
-		{ 3, 2, 6 },
-		{ 6, 7, 3 },
-		// top
-		{ 1, 5, 6 },
-		{ 6, 2, 1 },
-		// bottom
-		{ 4, 0, 3 },
-		{ 3, 7, 4 },
-	};
-	
-	//		// OUTWARD facing
-	//		Face faces[] = {
-	//			// front
-	//			{ 2, 1, 0 },
-	//			{ 0, 3, 2 },
-	//			// back
-	//			{ 5, 6, 7 },
-	//			{ 7, 4, 5 },
-	//			// left
-	//			{ 1, 5, 4 },
-	//			{ 4, 0, 1 },
-	//			// right
-	//			{ 6, 2, 3 },
-	//			{ 3, 7, 6 },
-	//			// top
-	//			{ 6, 5, 1 },
-	//			{ 1, 2, 6 },
-	//			// bottom
-	//			{ 3, 0, 4 },
-	//			{ 4, 7, 3 },
-	//		};
-	
-	auto vertsVector = vector<Vertex>();
-	vertsVector.assign(verts, verts+8);
-	
-	auto facesVector = vector<Face>();
-	facesVector.assign(faces, faces+12);
-	
-	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
+	auto geometry = make_shared<Box>(1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
+	geometry->insertMaterial(material, 0);
 	
-	return make_shared<Geometry>(element, material);
+	return geometry;
 }
 
 static shared_ptr<Image> MissingTextureImage() {
@@ -580,6 +590,9 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 		
 		// in AI terminology, a "node" is what we call a "geometry"
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
+		
+		auto filename = importPath.filename().string();
+		scene.rootNode()->name(filename + " ROOT");
 		
 		AddAIGeometryNodes(scene, aiScene, scene.rootNode(), importElements, importMaterials);
 		

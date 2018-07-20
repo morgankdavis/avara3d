@@ -241,36 +241,36 @@ int Test::run(const vector<string>& args) {
 	
 	// added random things
 	
-//	// 16 items
-//#define OBJECT_ARRAY_SIZE_X	2
-//#define OBJECT_ARRAY_SIZE_Y	4
-//#define OBJECT_ARRAY_SIZE_Z	2
-//	
-//	unsigned SPACING = 1.0;
-//	unsigned DROP_HEIGHT = 5.0;
-//	unsigned colorIndex = 0;
-//	auto colors = Color::Rainbow();
-//	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-//		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-//			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-//				auto color = colors[colorIndex + 4];
-//				++colorIndex;
-//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-//				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-//					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-//					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-//				//AddObject(*scene, position, color);
-//				//AddBox(*scene, position, color);
-//				//AddCapsule(*scene, position, color);
-//				//AddCone(*scene, position, color);
-//				//AddCylinder(*scene, position, color);
-//				//AddApple(*scene, position);
-//				//AddFruit(*scene, position);
-//				//AddCardboardBox(*scene, position);
-//				AddPineapple(*scene, position);
-//			}
-//		}
-//	}
+	// 16 items
+#define OBJECT_ARRAY_SIZE_X	2
+#define OBJECT_ARRAY_SIZE_Y	4
+#define OBJECT_ARRAY_SIZE_Z	2
+	
+	unsigned SPACING = 1.0;
+	unsigned DROP_HEIGHT = 40.0;
+	unsigned colorIndex = 0;
+	auto colors = Color::Rainbow();
+	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+				auto color = colors[colorIndex + 4];
+				++colorIndex;
+				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
+					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
+				//AddObject(*scene, position, color);
+				AddBox(*scene, position, color);
+				//AddCapsule(*scene, position, color);
+				//AddCone(*scene, position, color);
+				//AddCylinder(*scene, position, color);
+				//AddApple(*scene, position);
+				//AddFruit(*scene, position);
+				//AddCardboardBox(*scene, position);
+				//AddPineapple(*scene, position);
+			}
+		}
+	}
 
 
 	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
@@ -339,6 +339,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		m_window->setShouldClose();
 	}
 	
+	if (keysPressed.count(KEY::T)) {
+		AE_LOG->info("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+	}
+	
 	
 	// spawn duck fruit
 	
@@ -354,10 +358,6 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 			m_fruit1Node->physicsBody()->affectedByGravity(!(m_fruit1Node->physicsBody()->affectedByGravity()));
 		}
 	}
-	
-//	if (keysDown.count(KEY::TAB)) {
-//		SpawnDuckFruit(*scene, m_duckNode);
-//	}
 	
 	// move paddle
 	
@@ -746,9 +746,13 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		};
 		auto color = colors[Uniform(0, 5)];
 		
-		auto node = Node::GeometryNode(make_shared<Sphere>(0.5 * 1.0, 3));
-		auto materialProperty = make_shared<MaterialProperty>(color);
-		auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+		
+		constexpr float BALL_RADIUS = 0.55;
+		auto node = Node::GeometryNode(make_shared<Sphere>(BALL_RADIUS, 3));
+		auto diffuseProperty = make_shared<MaterialProperty>(color);
+		auto specularProperty = make_shared<MaterialProperty>(Color::White());
+		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+		material->specularExponent(125.0);
 		node->geometry()->addMaterial(material);
 		node->position(location);
 		
@@ -760,20 +764,28 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(0.2); // vollyball
 		physicsBody->restitution(2.5);
-		physicsBody->friction(0.025);
-		physicsBody->rollingFriction(0.025);
+		physicsBody->friction(0.015);
+		physicsBody->rollingFriction(0.015);
+//		physicsBody->friction(0);
+//		physicsBody->rollingFriction(0);
 		
-		constexpr float dv = 0.05f;
-		auto variedDirection = direction + vec3(Uniform(-dv, dv), Uniform(-dv, dv), Uniform(-dv, dv));
-		physicsBody->linearVelocity(variedDirection * 50.0f);
+		constexpr float BALL_VELOCITY = 45.0;
+		constexpr float DIRECTION_VARIATION = 0.035f;
+		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
+												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
+												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
+		physicsBody->linearVelocity(normalize(variedDirection) * BALL_VELOCITY);
+		
+//		physicsBody->linearVelocity(normalize(direction) * BALL_VELOCITY);
+
 //		constexpr float velocityVariation = 0.05f;
 //		physicsBody->linearVelocity(direction + vec3(Uniform(-velocityVariation, velocityVariation),
 //													 Uniform(-velocityVariation, velocityVariation),
 //													 Uniform(-velocityVariation, velocityVariation)));
-		constexpr float angularVelocityVariation = radians(45.0f); // deg/sec
-		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
-										  Uniform(-angularVelocityVariation, angularVelocityVariation),
-										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
+//		constexpr float angularVelocityVariation = radians(15.0f); // deg/sec
+//		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
+//										  Uniform(-angularVelocityVariation, angularVelocityVariation),
+//										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
 		
 		node->physicsBody(physicsBody);
 		
@@ -796,7 +808,7 @@ shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
+	physicsBody->mass(1.0);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);
@@ -817,7 +829,7 @@ shared_ptr<Node> AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color)
 	node->position(location);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(100.0);
+	physicsBody->mass(1.0);
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.25);
 	physicsBody->rollingFriction(0.025);

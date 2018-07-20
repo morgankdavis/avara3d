@@ -13,6 +13,16 @@ Tests:
 
 	30 - rigidbody
 
+		btAlignedObjectArray
+
+		btSequentialImpulseConstraintSolver::debugDraw()
+
+		btUniformScalingShape (btConvexShape *convexChildShape, btScalar uniformScalingFactor)
+			make a btConvexShape, then a convex hull..?
+
+		Ball inconsistent bouncing -- play with subdivisions
+
+		PhysicsBody::setMargin()?
 
 		PhysicsBody::affectedByGravity() + PhysicsWorld dirty bits!
 
@@ -20,12 +30,15 @@ Tests:
 
 		Strip scale from compound body local transforms
 
+		DropBoxes() random location
+
+		MARGIN AND STABILITY:
+			https://blender.stackexchange.com/questions/1811/tips-for-making-mesh-rigid-body-collision-shapes-more-stable
+
 		Concave, non-static meshes:
 			convex decomposition using HACD, see Bullet/Demos/ConvexDecompositionDemo. Alternatively, you can use btGimpactMeshShape
 
 		Add a bunch of cans of slurm + cardboard boxes
-
-		Add Geometry::extent() / extent(bool recursive)
 
 		Explore:
 			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
@@ -63,43 +76,19 @@ Tests:
 
 		------ Other things (non-physics) ------
 
-		Clean environment UBO on ~Renderer
 
-		Re: cube map not flipped -- are we viewing it from the wrong side? is it double-sided?
-
-		Revise boundingPoints - at least make map keys an enum
-
-		Node::geometryExtent()
-
-		Add pause -- pause physics, animation? We still want to move the camera... do no more render callbacks..?
-
-		When importing a scene, set root node to <file_name_without_extension>_ROOT
-
-		Utilities: PrintChildNodeNames(Node& node, bool recursive)
-		Utilities: DescendentsDescription()
-			returns a string with a visual tree showing what's going on
-
-		- [NODE] (0x00000000, "pineapple_lod ROOT")
-			- PHYSICS BODY (0x00000000, DYNAMIC, COMPOUND)
-			- [NODE] (0x00000000, "top")
-				- GEOMETRY (0x00000000)
-					- ELEMENT (0x00000000)
-				- MATERIALS (0x00000000)
-			- [NODE] (0x00000000, "middle")
-				- GEOMETRY (0x00000000)
-					- ELEMENT (0x00000000)
-				- MATERIALS (0x00000000)
-			- [NODE] (0x00000000, "bottom")
-				- GEOMETRY (0x00000000)
-					- ELEMENT (0x00000000)
-				- MATERIALS (0x00000000)
+		Rename StringFromXXXYYY -> String(XXXYYY)
+		ae::Object
+		AE objs -> description() + operator<<
 
 
-		separate source and headers
+		Switch AABB to min, max vec3s
+
+		Objects with textures are black on first frame
+
+		Add Geometry::extent() / extent(bool recursive)
 
 		Switch GLM setters to static references
-
-		Check out std::unorderd_set for OpenGLRenderer and BulletPhysicsSimulator resource management (O(1) vs O(log(n))
 
 		Try glViewport() with screen points width and height...
 
@@ -108,16 +97,10 @@ Tests:
 		Rename GLM?
 		Create Externals.h?
 
-		Remove remaining header includes where struct forward declarations will work
-
 		move Node::hidden() check to Renderer -- (KEEP ALIVE)
 
 		RenderContext should own "Stats" object
 			Create at each frame, pass around. frameStartTime, frameEndTime
-
-		static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(type)
-
-		Use more verbose section naming "Private Types" "Public Functions" "Private Instance Variables"
 
 		Reconcile primitives sizing
 			+ add default detail levels for geometry primitives (+ box & plane!)
@@ -128,13 +111,8 @@ Tests:
 		Test geometry instancing!
 		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
 
-		"Error importing scene" should throw
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
-
-		Silence/fix all build warnings	
-
-		PIMPL?
 
 
 	31 - contact

@@ -32,48 +32,11 @@ constexpr bool					ENABLE_VSYNC =			false;
 
 
 /***************************************************************************************
-     Static
+     Static Prototypes
  ***************************************************************************************/
 
-void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
-
-	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
-	
-	for (auto node : scene.rootNode()->children(true)) {
-		
-		auto geometry = node->geometry();
-		if (geometry) {
-			
-			for (auto material : geometry->materials()) {
-				if (material->diffuse()) {
-					material->diffuse()->minificationFilter(mode);
-					material->diffuse()->magnificationFilter(mode);
-				}
-				if (material->specular()) {
-					material->specular()->minificationFilter(mode);
-					material->specular()->magnificationFilter(mode);
-				}
-			}
-		}
-	}
-}
-
-void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
-
-	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
-	
-	for (auto node : scene.rootNode()->children(true)) {
-		
-		auto geometry = node->geometry();
-		if (geometry) {
-			
-			for (auto material : geometry->materials()) {
-				if (material->diffuse()) material->diffuse()->maxAnisotropy(anisotropy);
-				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
-			}
-		}
-	}
-}
+static void SetAllFilterModes(FILTER_MODE mode, Scene& scene);
+static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 
 /***************************************************************************************
      Public
@@ -152,11 +115,13 @@ int Test::run(const vector<string>& args) {
 
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
+	ambientLight->name("ambient");
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
 	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
@@ -232,6 +197,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
 		m_window->setShouldClose();
+	}
+	
+	if (keysPressed.count(KEY::T)) {
+		AE_LOG->info("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
 	}
 	
 	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderContext.scene()));
@@ -454,4 +423,48 @@ void Test::willRenderCallback(RenderContext& renderContext, float time) {
 
 void Test::didRenderCallback(RenderContext& renderContext, float time) {
 
+}
+
+/***************************************************************************************
+     Static
+ ***************************************************************************************/
+
+void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
+	
+	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
+	
+	for (auto node : scene.rootNode()->children(true)) {
+		
+		auto geometry = node->geometry();
+		if (geometry) {
+			
+			for (auto material : geometry->materials()) {
+				if (material->diffuse()) {
+					material->diffuse()->minificationFilter(mode);
+					material->diffuse()->magnificationFilter(mode);
+				}
+				if (material->specular()) {
+					material->specular()->minificationFilter(mode);
+					material->specular()->magnificationFilter(mode);
+				}
+			}
+		}
+	}
+}
+
+void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
+	
+	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
+	
+	for (auto node : scene.rootNode()->children(true)) {
+		
+		auto geometry = node->geometry();
+		if (geometry) {
+			
+			for (auto material : geometry->materials()) {
+				if (material->diffuse()) material->diffuse()->maxAnisotropy(anisotropy);
+				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
+			}
+		}
+	}
 }

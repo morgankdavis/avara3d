@@ -11,8 +11,8 @@
 
 
 #include <map>
+#include <unordered_set>
 #include <utility>
-#include <set>
 
 #include <glm/glm.hpp>
 
@@ -116,22 +116,22 @@ namespace ae {
 		     Private
 		 **************************************************************************************/
 
-		GeometryElementGLMapping 					m_geometryElementGLMapping;
-		MaterialPropertyGLMapping					m_materialPropertyGLMapping;
-		LineSetGLMapping							m_lineSetGLMapping;
-		PointSetGLMapping							m_pointSetGLMapping;
+		GeometryElementGLMapping 								m_geometryElementGLMapping;
+		MaterialPropertyGLMapping								m_materialPropertyGLMapping;
+		LineSetGLMapping										m_lineSetGLMapping;
+		PointSetGLMapping										m_pointSetGLMapping;
 		
-		GeometryAABBLineSetMapping					m_geometryAABBLineSetMapping;
+		GeometryAABBLineSetMapping								m_geometryAABBLineSetMapping;
 		
-		std::set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
-		std::set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
-		std::set<std::shared_ptr<LineSet>>			m_activeLineSets;
-		std::set<std::shared_ptr<PointSet>>			m_activePointSets;
+		std::unordered_set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
+		std::unordered_set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
+		std::unordered_set<std::shared_ptr<LineSet>>			m_activeLineSets;
+		std::unordered_set<std::shared_ptr<PointSet>>			m_activePointSets;
 
-		unsigned									m_glEnvironmentUBO;
+		unsigned												m_glEnvironmentUBO;
 		
-		FONScontext* 								m_fonsContext;
-		int											m_fonsFont;
+		FONScontext* 											m_fonsContext;
+		int														m_fonsFont;
 	};
 }
 

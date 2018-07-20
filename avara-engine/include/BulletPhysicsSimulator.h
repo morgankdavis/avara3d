@@ -12,7 +12,7 @@
 
 #include <map>
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -119,8 +119,8 @@ namespace ae {
 		PhysicsBodyBTMapping									m_bodyBTMapping;
 		PhysicsShapeBTMapping									m_shapeBTMapping;
 		
-		std::set<std::shared_ptr<PhysicsBody>>					m_activeBodies;
-		std::set<std::shared_ptr<PhysicsShape>>					m_activeShapes;
+		std::unordered_set<std::shared_ptr<PhysicsBody>>		m_activeBodies;
+		std::unordered_set<std::shared_ptr<PhysicsShape>>		m_activeShapes;
 	};
 }
 

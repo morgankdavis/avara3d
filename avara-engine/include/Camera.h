@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 
+#include <boost/optional.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 
@@ -37,7 +38,7 @@ namespace ae {
 		     Public
 		 ***************************************************************************************/
 		
-		std::string name();
+		boost::optional<std::string> name();
 		void name(std::string name);
 
 		void translate(glm::vec3 translation);
@@ -75,16 +76,16 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		std::string				m_name;
+		boost::optional<std::string>	m_name;
 		
-		float					m_fov;
-		float					m_zNear;
-		float					m_zFar;
-		float					m_aspectRatio;
+		float							m_fov;
+		float							m_zNear;
+		float							m_zFar;
+		float							m_aspectRatio;
 		
-		glm::mat4				m_projection;
+		glm::mat4						m_projection;
 		
-		std::weak_ptr<Node>		m_node;
+		std::weak_ptr<Node>				m_node;
 	};
 }
 
