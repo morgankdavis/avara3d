@@ -21,7 +21,7 @@ Tests:
 			make a btConvexShape, then a convex hull..?
 
 
-		PhysicsBody::affectedByGravity() + PhysicsWorld dirty bits!
+		PhysicsBody::affectedByGravity()
 
 		Convex hulls for statics should always use btBvhTriangleMeshShape
 

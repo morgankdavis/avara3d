@@ -77,6 +77,9 @@ namespace ae {
 		void attachedToScene(std::shared_ptr<Scene> scene);
 		//void debugOptions(DEBUG_OPTIONS options);
 
+		PHYSICS_WORLD_DIRTY_BITS dirtyBits() const;
+		void dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits);
+
 	private:
 		
 		/***************************************************************************************
@@ -86,6 +89,7 @@ namespace ae {
 		glm::vec3 												m_gravity;
 		float 													m_timestep;
 		std::weak_ptr<Scene>									m_scene;
+		PHYSICS_WORLD_DIRTY_BITS								m_dirtyBits;
 	};
 }
 

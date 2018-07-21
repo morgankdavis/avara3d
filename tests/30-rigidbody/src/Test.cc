@@ -296,10 +296,10 @@ int Test::run(const vector<string>& args) {
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = Node::LightNode(pointLight);
 	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position({35, 25, 5});
+	pointLightNode->position(vec3(35, 20, 7) * vec3(2.5, 2.5, 2.5));
 
-	scene->fogStartDistance(100.0);
-	scene->fogEndDistance(600.0);
+	scene->fogStartDistance(50.0);
+	scene->fogEndDistance(400.0);
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(Color::LightGray());
 	
@@ -318,8 +318,8 @@ int Test::run(const vector<string>& args) {
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
 	AE_LOG->trace("updateCallback(RenderContext&, float)");
-	
-	static double previousSeconds = time;
+
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 

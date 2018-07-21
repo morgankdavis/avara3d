@@ -449,7 +449,7 @@ int Test::run(const vector<string>& args) {
 
 void Test::windowUpdateCallback(Scene& scene, float time) {
 	
-	static double previousSeconds = time;
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	

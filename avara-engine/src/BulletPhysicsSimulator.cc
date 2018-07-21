@@ -46,7 +46,8 @@ using namespace std;
 
 // Bullet claims its mass unit is kg... however this appears to be too small for a stable simulation.
 // issue posted here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=12161
-constexpr float MASS_MULTIPLIER =	10000.0;
+constexpr float MASS_MULTIPLIER =	1.0;
+constexpr unsigned MAX_SUBSTEPS =	10;
 
 
 /**************************************************************************************
@@ -91,6 +92,7 @@ static vec4 GLMVec4FromBTVector4(const btVector4& from);
 static mat4 GLMMat4FromBTTransform(const btTransform& from);
 static btVector3 BTVector3FromGLMVec3(const vec3& from);
 static btVector4 BTVector4FromGLMVec4(const vec4& from);
+static btQuaternion BTQuaternionFromGLMQuat(const quat& from);
 static btTransform BTTransformFromGLMMat4(const mat4& from);
 static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
 
@@ -213,9 +215,21 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 	if (pass == BulletPhysicsSimulator::PASS::UPDATE_MODEL) {
 		auto world = scene->physicsWorld();
-#warning set this gravity for all physics objects, too...
-		m_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
-		m_timestep = world->timestep();
+		
+		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
+			m_timestep = world->timestep();
+			
+			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
+															 PHYSICS_WORLD_DIRTY_BITS::TIMESTEP));
+		}
+
+		#warning set this gravity for all physics objects, too...
+		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::GRAVITY)) {
+			m_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
+			
+			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
+															 PHYSICS_WORLD_DIRTY_BITS::GRAVITY));
+		}
 	}
 }
 
@@ -272,6 +286,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 					// get body transforms and apply back to scene graph
 					
 					btTransform btWorldTransform;
+					btWorldTransform.setIdentity();
 					btMotionState->getWorldTransform(btWorldTransform);
 
 					auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
@@ -295,13 +310,14 @@ void BulletPhysicsSimulator::update(PASS pass,
 void BulletPhysicsSimulator::step(float time) {
 	AE_LOG->trace("step()");
 	
-	static double previousSeconds = time;
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
 	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	//unsigned maxSubSteps = lroundf(m_timestep * 10.0); // 1/10th as fast as timestep
-	m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
+	//m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
+	m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
 }
 						  
 /**************************************************************************************
@@ -1017,10 +1033,44 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
+static btQuaternion BTQuaternionFromGLMQuat(const quat& from) {
+	
+	return btQuaternion(from.x, from.y, from.z, from.w);
+	
+}
+
 btTransform BTTransformFromGLMMat4(const mat4& from) {
+	
+	// this version (probably) does not strip scale & sheer
+	
 	btTransform bulletTransform;
+	bulletTransform.setIdentity();
 	bulletTransform.setFromOpenGLMatrix(value_ptr(from));
 	return bulletTransform;
+	
+	
+//	// THIS VERSION STRIPS (hopefully!) scale & sheer
+//	
+//	btTransform bulletTransform;
+//	bulletTransform.setIdentity();
+//	
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(from,
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//	
+//	bulletTransform.setOrigin(BTVector3FromGLMVec3(translation));
+//	bulletTransform.setRotation(BTQuaternionFromGLMQuat(orientation));
+//	
+//	return bulletTransform;
 }
 
 mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {

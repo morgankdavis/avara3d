@@ -28,7 +28,8 @@ using namespace std;
 PhysicsWorld::PhysicsWorld():
 	m_gravity({0, -9.807, 0}),
 	m_timestep(1.0/60.0),
-	m_scene({}) {
+	m_scene({}),
+	m_dirtyBits(PHYSICS_WORLD_DIRTY_BITS::ALL) {
 
 }
 
@@ -46,6 +47,8 @@ vec3 PhysicsWorld::gravity() const {
 
 void PhysicsWorld::gravity(vec3 gravity) {
 	m_gravity = gravity;
+	
+	m_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::GRAVITY);
 }
 
 float PhysicsWorld::timestep() const {
@@ -54,6 +57,8 @@ float PhysicsWorld::timestep() const {
 
 void PhysicsWorld::timestep(float timestep) {
 	m_timestep = timestep;
+	
+	m_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::TIMESTEP);
 }
 
 void PhysicsWorld::updateCollisionPairs() {
@@ -106,4 +111,12 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 //		debugOptions(renderer->debugOptions());
 //	}
 //#endif
+}
+
+PHYSICS_WORLD_DIRTY_BITS PhysicsWorld::dirtyBits() const {
+	return m_dirtyBits;
+}
+
+void PhysicsWorld::dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits) {
+	m_dirtyBits = bits;
 }

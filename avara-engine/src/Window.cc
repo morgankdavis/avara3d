@@ -189,7 +189,7 @@ void Window::update() {
 	
 #warning move to saveGIFFrame()
 	float time = sceneTime();
-	static double previousSeconds = time;
+	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	

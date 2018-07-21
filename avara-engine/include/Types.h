@@ -341,7 +341,17 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit))
 #define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
-	
+		
+	enum class PHYSICS_WORLD_DIRTY_BITS : unsigned {
+		TIMESTEP =				1 << 0,
+		GRAVITY =				1 << 1,
+		ALL = 					UINT_MAX
+	};
+			
+#define PHYSICS_WORLD_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit))
+#define PHYSICS_WORLD_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit)))
+			
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
 		TYPE =							1 << 0,
 		SHAPE =							1 << 1,
