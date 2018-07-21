@@ -13,49 +13,18 @@ Tests:
 
 	30 - rigidbody
 
-		btAlignedObjectArray
+		Convex hulls for statics should always use btBvhTriangleMeshShape
 
-		btSequentialImpulseConstraintSolver::debugDraw()
-
-		btUniformScalingShape (btConvexShape *convexChildShape, btScalar uniformScalingFactor)
-			make a btConvexShape, then a convex hull..?
+		btAlignedObjectArray?
 
 
 		PhysicsBody::affectedByGravity()
-
-		Convex hulls for statics should always use btBvhTriangleMeshShape
-
-		DropBoxes() random location
-
-		MARGIN AND STABILITY:
-			https://blender.stackexchange.com/questions/1811/tips-for-making-mesh-rigid-body-collision-shapes-more-stable
-
-		Concave, non-static meshes:
-			convex decomposition using HACD, see Bullet/Demos/ConvexDecompositionDemo. Alternatively, you can use btGimpactMeshShape
-
-		Explore:
-			[PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON]
-
-			btMultiSphereShape
-			btBvhTriangleMeshShape
-			btHeightfieldTerrainShape
-
-			ConvexDecomposition demo to programmatically break a shape down into a compound shape
-				https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7159
-
-			Geometry PhysicsBodies can be compound, too!
-
-			multiSphereShape is CONVEX! Add PHYSICS_SHAPE_TYPE::MULTI_SPHERE
-
-
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
 
 		Forces & torques -- check all other Body & Shape methods
 			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
-		Make beachball model use sphere physics shape
-			-> UV coords: https://www.mvps.org/directx/articles/spheremap.htm
 
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
