@@ -95,6 +95,7 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
 static btQuaternion BTQuaternionFromGLMQuat(const quat& from);
 static btTransform BTTransformFromGLMMat4(const mat4& from);
 static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
+//glm::mat4 BulletToGlm(const btTransform& t);
 
 /***************************************************************************************
      Lifescycle
@@ -314,10 +315,14 @@ void BulletPhysicsSimulator::step(float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	unsigned maxSubSteps = lroundf(1.0/m_timestep);
+//	unsigned maxSubSteps = lroundf(1.0/m_timestep);
 	//unsigned maxSubSteps = lroundf(m_timestep * 10.0); // 1/10th as fast as timestep
 	//m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
-	m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
+	int result = m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
+	
+	if (result == MAX_SUBSTEPS) {
+		AE_LOG->warn("Physics simulation substeps maxed out at {}", result);
+	}
 }
 						  
 /**************************************************************************************
@@ -1020,9 +1025,11 @@ vec4 GLMVec4FromBTVector4(const btVector4& from) {
 }
 
 mat4 GLMMat4FromBTTransform(const btTransform& from) {
-	mat4 gldMat;
-	from.getOpenGLMatrix(value_ptr(gldMat));
-	return gldMat;
+	mat4 glmMat;
+	from.getOpenGLMatrix(value_ptr(glmMat));
+	return glmMat;
+	
+//	return BulletToGlm(from);
 }
 
 btVector3 BTVector3FromGLMVec3(const vec3& from) {
@@ -1096,3 +1103,31 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 	
 	return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
 }
+
+//glm::mat4 BulletToGlm(const btTransform& t)
+//{
+//	// from here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=12161&p=41084#p41084
+//	
+//	glm::mat4 m(0);
+//	const btMatrix3x3& basis = t.getBasis();
+//	// rotation
+//	for (int r = 0; r < 3; r++)
+//	{
+//		for (int c = 0; c < 3; c++)
+//		{
+//			m[c][r] = basis[r][c];
+//		}
+//	}
+//	// traslation
+//	btVector3 origin = t.getOrigin();
+//	m[3][0] = origin.getX();
+//	m[3][1] = origin.getY();
+//	m[3][2] = origin.getZ();
+//	// unit scale
+//	m[0][3] = 0.0f;
+//	m[1][3] = 0.0f;
+//	m[2][3] = 0.0f;
+//	m[3][3] = 1.0f;
+//	return m;
+//}
+

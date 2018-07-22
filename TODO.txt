@@ -16,6 +16,8 @@ Tests:
 		Convex hulls for statics should always use btBvhTriangleMeshShape
 
 		btAlignedObjectArray?
+		COMPILE WITHOUT SSE?
+			BT_USE_SSE and BT_USE_SSE_IN_API defined
 
 
 		PhysicsBody::affectedByGravity()

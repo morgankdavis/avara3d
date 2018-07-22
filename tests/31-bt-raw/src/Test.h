@@ -15,11 +15,21 @@
 #include <vector>
 
 
+
+
+// cheating
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionShapes/btShapeHull.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <LinearMath/btIDebugDraw.h>
+#include <LinearMath/btScalar.h> // btGetVersion() !
+
+
 namespace ae {
 
 
 	class InputManager;
-	class Logger;
 	class Node;
 	class RenderContext;
 	class Scene;
@@ -42,13 +52,19 @@ namespace ae {
 		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
-		//std::shared_ptr<Logger>				m_logger;
 		
-		std::shared_ptr<Node>				m_duckSpinnerNode;
-		std::shared_ptr<Node>				m_duckNode;
-		std::shared_ptr<Node>				m_paddleNode;
 		
-		std::shared_ptr<Node>				m_fruit1Node;
+		
+		btBroadphaseInterface* m_broadphase;
+		btCollisionConfiguration* m_collisionConfiguration;
+		btCollisionDispatcher* m_dispatcher;
+		btConstraintSolver* m_solver;
+		btDynamicsWorld* m_world;
+		
+		
+		std::vector<btDefaultMotionState*>	m_motionStates;
+		std::vector<std::shared_ptr<Node>>	m_boxNodes;
+
 	};
 }
 
