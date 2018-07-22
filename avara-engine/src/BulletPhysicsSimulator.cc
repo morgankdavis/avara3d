@@ -44,9 +44,6 @@ using namespace glm;
 using namespace std;
 
 
-// Bullet claims its mass unit is kg... however this appears to be too small for a stable simulation.
-// issue posted here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=12161
-constexpr float MASS_MULTIPLIER =	1.0;
 constexpr unsigned MAX_SUBSTEPS =	10;
 
 
@@ -411,7 +408,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		
 		btVector3 momentOfInertia = BTVector3FromGLMVec3(body->momentOfInertia());
 //		btVector3 momentOfInertia = {1, 1, 1};
-		auto mass = body->mass() * MASS_MULTIPLIER;
+		auto mass = body->mass();
 		
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC
 			|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {

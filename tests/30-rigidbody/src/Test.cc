@@ -198,8 +198,7 @@ int Test::run(const vector<string>& args) {
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
-	planePhysicsBody->friction(1);
-	planePhysicsBody->rollingFriction(1);
+	planePhysicsBody->friction(1);\
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
@@ -235,7 +234,6 @@ int Test::run(const vector<string>& args) {
 	m_paddleNode->position({10-.25, 2.5, 0});
 	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
 //	paddlePhysicsBody->friction(100);
-//	paddlePhysicsBody->rollingFriction(100);
 	m_paddleNode->physicsBody(paddlePhysicsBody);
 	scene->rootNode()->addChild(m_paddleNode);
 	
@@ -671,7 +669,6 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		physicsBody->mass(mass);
 		physicsBody->restitution(1);
 		physicsBody->friction(1);
-		physicsBody->rollingFriction(1);
 		
 		
 		//physicsBody->angularDamping(0.1);
@@ -773,7 +770,7 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		physicsBody->mass(0.2); // vollyball
 		physicsBody->restitution(2.5);
 		physicsBody->friction(0.015);
-		physicsBody->rollingFriction(0.015);
+		physicsBody->rollingFriction(0.15);
 //		physicsBody->friction(0);
 //		physicsBody->rollingFriction(0);
 		
@@ -819,7 +816,6 @@ shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->mass(1.0);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
-	physicsBody->rollingFriction(0.025);
 	
 	node->physicsBody(physicsBody);
 	
@@ -840,7 +836,7 @@ shared_ptr<Node> AddSphere(Scene& scene, vec3 location, shared_ptr<Color> color)
 	physicsBody->mass(1.0);
 	physicsBody->restitution(0.25);
 	physicsBody->friction(0.25);
-	physicsBody->rollingFriction(0.025);
+	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -860,7 +856,7 @@ shared_ptr<Node> AddCapsule(Scene& scene, vec3 location, shared_ptr<Color> color
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -880,7 +876,7 @@ shared_ptr<Node> AddCone(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -900,7 +896,7 @@ shared_ptr<Node> AddCylinder(Scene& scene, vec3 location, shared_ptr<Color> colo
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.5);
+	physicsBody->rollingFriction(0.25);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -921,7 +917,7 @@ shared_ptr<Node> AddApple(Scene& scene, vec3 location) {
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
-	physicsBody->rollingFriction(0.75);
+	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -942,7 +938,7 @@ shared_ptr<Node> AddPineapple(Scene& scene, vec3 location) {
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
-	physicsBody->rollingFriction(0.75);
+	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -980,7 +976,7 @@ shared_ptr<Node> AddFruit(Scene& scene, vec3 location) {
 	physicsBody->mass(100.0);
 	physicsBody->restitution(0.45);
 	physicsBody->friction(0.75);
-	physicsBody->rollingFriction(0.75);
+	physicsBody->rollingFriction(0.5);
 	node->physicsBody(physicsBody);
 	
 	scene.rootNode()->addChild(node);
@@ -998,7 +994,6 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	physicsBody->mass(0.1);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.5);
-	physicsBody->rollingFriction(0.25);
 	//physicsBody->angularFactor({2.0, 2.0, 2.0});
 	node->physicsBody(physicsBody);
 	
