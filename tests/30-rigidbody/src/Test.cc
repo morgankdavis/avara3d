@@ -41,7 +41,6 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
  ***************************************************************************************/
 
 static shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
-//static shared_ptr<Node> DropApple(Scene& scene);
 static shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation);
 static shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction);
 static shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color);
@@ -53,6 +52,7 @@ static shared_ptr<Node> AddApple(Scene& scene, vec3 location);
 static shared_ptr<Node> AddPineapple(Scene& scene, vec3 location);
 static shared_ptr<Node> AddFruit(Scene& scene, vec3 location);
 static shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation);
+static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
 
@@ -198,7 +198,8 @@ int Test::run(const vector<string>& args) {
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planePhysicsBody->mass(0);
-	planePhysicsBody->friction(1);\
+	planePhysicsBody->friction(1);
+	planePhysicsBody->restitution(0.25);
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
@@ -227,13 +228,14 @@ int Test::run(const vector<string>& args) {
 	
 	// add the paddle
 	
-	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 10));
+	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
 	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
 	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
 	m_paddleNode->geometry()->addMaterial(paddleMaterial);
-	m_paddleNode->position({10-.25, 2.5, 0});
+	m_paddleNode->position({15-.25, 2.5, 0});
 	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
 //	paddlePhysicsBody->friction(100);
+	paddlePhysicsBody->restitution(0.25);
 	m_paddleNode->physicsBody(paddlePhysicsBody);
 	scene->rootNode()->addChild(m_paddleNode);
 	
@@ -244,42 +246,6 @@ int Test::run(const vector<string>& args) {
 	// add slurms
 	AddSlurms(*scene);
 	
-	
-	
-	
-	// added random things
-	
-	// 16 items
-#define OBJECT_ARRAY_SIZE_X	2
-#define OBJECT_ARRAY_SIZE_Y	4
-#define OBJECT_ARRAY_SIZE_Z	2
-	
-	unsigned SPACING = 1.0;
-	unsigned DROP_HEIGHT = 40.0;
-	unsigned colorIndex = 0;
-	auto colors = Color::Rainbow();
-	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
-		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
-			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				auto color = colors[colorIndex + 4];
-				++colorIndex;
-				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0),
-					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) };
-				//AddObject(*scene, position, color);
-				AddBox(*scene, position, color);
-				//AddCapsule(*scene, position, color);
-				//AddCone(*scene, position, color);
-				//AddCylinder(*scene, position, color);
-				//AddApple(*scene, position);
-				//AddFruit(*scene, position);
-				//AddCardboardBox(*scene, position);
-				//AddPineapple(*scene, position);
-			}
-		}
-	}
-
 
 	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
 	scene->background(background);
@@ -357,6 +323,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	
 	
 	// spawn duck fruit
+	
+	if (keysPressed.count(KEY::GRAVE_ACCENT)) {
+		AddBoxes(*scene);
+	}
 	
 	if (keysDown.count(KEY::TAB)) {
 		auto fruitNode = SpawnDuckFruit(*scene, m_duckNode);
@@ -671,7 +641,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		
 		physicsBody->mass(mass);
-		physicsBody->restitution(1);
+		physicsBody->restitution(0.25);
 		physicsBody->friction(1);
 		
 		
@@ -708,27 +678,25 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 	return nullptr;
 }
 
-//shared_ptr<Node> DropApple(Scene& scene) {
-//	
-//	auto fileScene = TestSceneNamed("apple1_lod/apple1_lod", "obj");
-//	auto node = fileScene->rootNode();
-//	node->children(true)[1]->geometry()->firstMaterial()->ambient(nullptr);
-//	node->children(true)[1]->geometry()->firstMaterial()->specular(nullptr);
-//	static float x = .1;
-//	node->position({x, 0, 0});
-//	x += .1;
-//	scene.rootNode()->addChild(node);
-//	
-//	return node;
-//}
-
 shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 	
-	auto node = TestSceneNamed("slurm/slurm", "obj")->rootNode();
+	static auto fileScene = TestSceneNamed("slurm/slurm", "obj");
+	static auto fileNode = fileScene->rootNode();
+	static auto fileCanNode = fileNode->child("g slurm", false);
+	static auto fileMaterials = fileCanNode->geometry()->materials();
+	
+	auto canNode = Node::GeometryNode(fileCanNode->geometry());
+	for (auto& m : fileMaterials) {
+		canNode->geometry()->addMaterial(m);
+	}
+
+	auto node = make_shared<Node>("Slurm");
+	node->addChild(canNode);
+
 	node->position(location);
 	node->rotation(rotation);
 	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(.025);
+	physicsBody->mass(.4);
 //	physicsBody->friction(5);
 	node->physicsBody(physicsBody);
 	scene.rootNode()->addChild(node);
@@ -743,7 +711,6 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	float time = scene.renderContext().lock()->sceneTime();
 	static float lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
-
 
 		static shared_ptr<Color> colors[] = {
 			Color::White(),
@@ -773,7 +740,7 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		
 		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(0.2); // vollyball
-		physicsBody->restitution(2.5);
+		physicsBody->restitution(1.0);
 		physicsBody->friction(0.015);
 		physicsBody->rollingFriction(0.15);
 //		physicsBody->friction(0);
@@ -991,7 +958,20 @@ shared_ptr<Node> AddFruit(Scene& scene, vec3 location) {
 
 shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	
-	shared_ptr<Node> node = TestSceneNamed("cardboardBox2/cardboardBox2", "obj")->rootNode();
+	static auto fileScene = TestSceneNamed("cardboardBox2/cardboardBox2", "obj");
+	static auto fileNode = fileScene->rootNode();
+	static auto fileTapeNode = fileNode->child("g tape", false);
+	static auto fileBoxNode = fileNode->child("g box", false);
+	
+	auto tapeNode = Node::GeometryNode(fileTapeNode->geometry());
+	tapeNode->geometry()->addMaterial(fileTapeNode->geometry()->firstMaterial());
+	auto boxNode = Node::GeometryNode(fileBoxNode->geometry());
+	boxNode->geometry()->addMaterial(fileBoxNode->geometry()->firstMaterial());
+	
+	auto node = make_shared<Node>("Cardboard box");
+	node->addChild(tapeNode);
+	node->addChild(boxNode);
+
 	node->position(location);
 	node->rotation(rotation);
 	
@@ -1007,76 +987,67 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	return node;
 }
 
+void AddBoxes(Scene& scene) {
+	
+	// 16 items
+	constexpr unsigned OBJECT_ARRAY_SIZE_X = 2;
+	constexpr unsigned OBJECT_ARRAY_SIZE_Y = 4;
+	constexpr unsigned OBJECT_ARRAY_SIZE_Z = 2;
+	constexpr float X_OFFSET = -10.0;
+	constexpr float Z_OFFSET = 10.0;
+	
+	unsigned SPACING = 1.0;
+	unsigned DROP_HEIGHT = 40.0;
+	unsigned colorIndex = 0;
+	auto colors = Color::Rainbow();
+	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
+		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
+			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
+				auto color = colors[colorIndex + 4];
+				++colorIndex;
+				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
+					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET};
+				AddBox(scene, position, color);
+			}
+		}
+	}
+}
+
 void AddCardboardBoxes(Scene& scene) {
 	
-	vec4 rotation = {0, 1, 0, radians(25.0)};
+	constexpr unsigned HEIGHT = 8;
 	
-	// 1st row
+	const vec4 ROTATION = {0, 1, 0, radians(25.0)};
 	
-	float x = -15 + .75 * 0;
-	float y = 0.5 + 1.0 * 0;
-	float z = -10 - .37 * 0;
+	constexpr float X_BASE = -15.0;
+	constexpr float Y_BASE = 0.5;
+	constexpr float Z_BASE = -10.0;
 	
-	for (unsigned i=0; i<5; ++i) {
-		AddCardboardBox(scene, {x, y, z}, rotation);
-		x += 1.5; z -= 0.75;
+	constexpr float X_OFFSET = 0.75;
+	constexpr float Y_OFFSET = 1.5;
+	constexpr float Z_OFFSET = -0.36;
+	
+	for (unsigned r=0; r<HEIGHT; ++r) {
+		float x = X_BASE + (X_OFFSET * r);
+		float y = Y_BASE + (Y_OFFSET * r);
+		float z = Z_BASE + (Z_OFFSET * r);
+		
+		for (unsigned i=0; i<HEIGHT-r; ++i) {
+			AddCardboardBox(scene, {x, y, z}, ROTATION);
+			x += 1.5; z -= 0.75;
+		}
 	}
-
-	// 2nd row
-	
-	x = -15 + .75 * 1;
-	y = 0.5 + 0.9 * 1;
-	z = -10 - .37 * 1;
-	
-	for (unsigned i=0; i<4; ++i) {
-		AddCardboardBox(scene, {x, y, z}, rotation);
-		x += 1.5; z -= 0.75;
-	}
-	
-	// 3rd row
-	
-	x = -15 + .75 * 2;
-	y = 0.5 + 0.9 * 2;
-	z = -10 - .37 * 2;
-	
-	for (unsigned i=0; i<3; ++i) {
-		AddCardboardBox(scene, {x, y, z}, rotation);
-		x += 1.5; z -= 0.75;
-	}
-	
-	// 4th row
-	
-	x = -15 + .75 * 3;
-	y = 0.5 + 0.9 * 3;
-	z = -10 - .37 * 3;
-	
-	for (unsigned i=0; i<2; ++i) {
-		AddCardboardBox(scene, {x, y, z}, rotation);
-		x += 1.5; z -= 0.75;
-	}
-	
-	// 5th row
-	
-	x = -15 + .75 * 4;
-	y = 0.5 + 0.9 * 4;
-	z = -10 - .37 * 4;
-	
-	for (unsigned i=0; i<1; ++i) {
-		AddCardboardBox(scene, {x, y, z}, rotation);
-		x += 1.5; z -= 0.75;
-	}	
 }
 
 void AddSlurms(Scene& scene) {
+
+	float x = 15 - .25;
+	float y = 5.5;
+	float z = -9;
 	
-	//m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 10));
-	//m_paddleNode->position({10-.25, 2.5, 0});
-	
-	float x = 10 - .25;
-	float y = 5;
-	float z = -4;
-	
-	for (unsigned i=0; i<9; ++i) {
+	for (unsigned i=0; i<19; ++i) {
 		AddSlurm(scene, {x, y, z}, {0, 1, 0, radians((float)Uniform(0, 359))});
 		z += 1;
 	}

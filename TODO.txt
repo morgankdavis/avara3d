@@ -27,6 +27,7 @@ Tests:
 		Forces & torques -- check all other Body & Shape methods
 			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
+		Fix margins + add to PhysicsBody/Shape
 
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
@@ -36,6 +37,15 @@ Tests:
 
 		------ Other things (non-physics) ------
 
+		Create a generalize caching interface for creating new geometries?
+			Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
+			nodes that have referenced to all the cached stuff.
+			Interface to invalidate some/all contents
+
+		test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
+		Test sharing physics shapes!
+
+		Why are textures empty on first frame?
 
 		Rename StringFromXXXYYY -> String(XXXYYY)
 		ae::Object
@@ -63,13 +73,8 @@ Tests:
 				-> INITIALIZERS for other classes use defaults
 			+ Generate disk shape?
 
-		Test geometry instancing!
-		GLOBAL IMAGE AND/OR TEXTURE CACHE!!!!!!!!!!!
-
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
-
-		Text overlay... http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-11-2d-text/
 
 
 	31 - contact
@@ -248,7 +253,6 @@ Wish list:
 BUGS:
 	Looks like default camera isn’t respecting transform correctly
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
-	Fontstash string drawing is causing corruption for future loaded textures
 	Would be nice to support Physics shape scaling.
 	Node::hidden() check should be in Renderer // need a keep-alive mechanism
 

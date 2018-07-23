@@ -407,7 +407,6 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 		
 		btVector3 momentOfInertia = BTVector3FromGLMVec3(body->momentOfInertia());
-//		btVector3 momentOfInertia = {1, 1, 1};
 		auto mass = body->mass();
 		
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC
@@ -416,14 +415,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		}
 		else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
 //#warning this is GENERATING momentOfInertia
-			AE_LOG->debug("momentOfInertia1: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
 			collisionShape->calculateLocalInertia(mass, momentOfInertia);
-			AE_LOG->debug("momentOfInertia2: {}", StringFromGLMVec3(GLMVec3FromBTVector3(momentOfInertia)));
-			
-//			btVector3 fallInertia((rand() % 4)-1, (rand() % 3)-2, (rand() % 6)-3);
-//			collisionShape->calculateLocalInertia(mass, fallInertia);
-			
-			
 		}
 		
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
