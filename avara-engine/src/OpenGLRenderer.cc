@@ -15,16 +15,15 @@
 #include <vector>
 
 #include <boost/circular_buffer.hpp>
-#define FONTSTASH_IMPLEMENTATION
-#include <fontstash.h>
 #ifdef ANDROID
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include <GL/glew.h>
 #endif
-#define GLFONTSTASH_IMPLEMENTATION
-#include "gl3fontstash.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include "Camera.h"
 #include "Color.h"
@@ -44,6 +43,7 @@
 #include "RenderContext.h"
 #include "Scene.h"
 #include "Utilities.h"
+#include "Window.h"
 
 
 using namespace ae;
@@ -158,11 +158,8 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 									 OpenGLRenderer::LineSetGLMapping& glMapping);
 static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 									  OpenGLRenderer::PointSetGLMapping& glMapping);
-static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);	
-static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
-							   FONScontext* fonsContext, int fonsFont);
-static float DrawString(string string, float size, float dx, float dy,
-						FONScontext* fonsContext);
+static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);
+static void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene);
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -229,9 +226,7 @@ OpenGLRenderer::OpenGLRenderer():
 	m_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
 	m_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 	m_activePointSets(unordered_set<shared_ptr<PointSet>>()),
-	m_glEnvironmentUBO(0),
-	m_fonsContext(nullptr),
-	m_fonsFont(-1) {
+	m_glEnvironmentUBO(0) {
 
 }
 
@@ -249,13 +244,19 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
+	
+#ifdef DESKTOP
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+#endif
 }
 
 /**************************************************************************************
      Internal
  **************************************************************************************/
 
-bool OpenGLRenderer::initialize() {
+bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	AE_LOG->trace("OpenGLRenderer::initialize()");
 	
@@ -265,30 +266,39 @@ bool OpenGLRenderer::initialize() {
 	glGenBuffers(1, &ubo);
 	m_glEnvironmentUBO = ubo;
 
-	// initialize FontStash
+#ifdef DESKTOP
 	
-	m_fonsContext = gl3fonsCreate(512, 512, FONS_ZERO_TOPLEFT);
-	if (m_fonsContext == NULL) {
-		throw Exception("Error creating Font Stash context.");
-	}
+	// setup Imgui for stats overlay
 	
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
+	
+	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+	ImGui_ImplOpenGL3_Init();
+
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	
-	auto fontData = FontData(fontName, fontType);
-	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
-	memcpy(dataBuf, &fontData[0], fontData.size());
-	m_fonsFont = fonsAddFontMem(m_fonsContext,
-								fontName.c_str(),
-								dataBuf,
-								fontData.size(),
-								1);
+	auto fontPath = FontPath(fontName, fontType);
+	if (fontPath) {
 	
-	if (m_fonsFont == FONS_INVALID) {
-		char errStr[1024];
-		sprintf(errStr, "Could not load font: %s\n", (fontName + "." + fontType).c_str());
-		throw Exception(errStr);
+	ImFont* scp = io.Fonts->AddFontFromFileTTF((*fontPath).c_str(), 14.0f);
+#warning switch to exception
+	IM_ASSERT(scp != NULL);
+		
 	}
+	
+//	auto fontData = FontData(fontName, fontType);
+//	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
+//	memcpy(dataBuf, &fontData[0], fontData.size());
+//	IMGUI_API ImFont* AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels,
+//	const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer
+
+#endif
+	
 	
 	return true;
 }
@@ -308,10 +318,9 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	auto debugOptions = context.debugOptions();
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-		UpdateStatsOverlay(Renderer::renderStats(),
+		DrawStatsOverlay(Renderer::renderStats(),
 						   context.sceneTime(),
-						   *context.scene(),
-						   m_fonsContext, m_fonsFont);
+						   *context.scene());
 	}
 	
 	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
@@ -1811,16 +1820,11 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 	return sortedVector;
 }
-
-static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
-							   FONScontext* fonsContext, int fonsFont) {
+	
+void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 
 	auto renderContext = scene.renderContext().lock();
-	
-	float framebufferWidth = renderContext->framebufferWidth();
-	float framebufferHeight = renderContext->framebufferHeight();
-	float framebufferScale = renderContext->framebufferScale();
-	
+
 	static float fps = 0.0;
 	static float ms = 0.0;
 	
@@ -1831,19 +1835,19 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 	const float FRAME_UPDATE_INTERVAL = 0.5;
 	
 	static boost::circular_buffer<float> fpsBuf(FRAME_SAMPLE_SIZE);
-
+	
 	static float previousFrameTime = time;
 	float deltaSecondsFromLastFrame = 0;
 	static float elapsedSecondsSinceUpdate = 0;
 	float currentFrameTime = time;
 	static unsigned elapsedFramesSinceUpdate = 0;
 	++elapsedFramesSinceUpdate;
-
+	
 	deltaSecondsFromLastFrame = currentFrameTime - previousFrameTime;
 	elapsedSecondsSinceUpdate += deltaSecondsFromLastFrame;
 	previousFrameTime = currentFrameTime;
 	fpsBuf.push_back(deltaSecondsFromLastFrame);
-
+	
 	if (elapsedSecondsSinceUpdate > FRAME_UPDATE_INTERVAL) {
 		ms = (elapsedSecondsSinceUpdate * 1000.0) / elapsedFramesSinceUpdate;
 		
@@ -1857,91 +1861,84 @@ static void UpdateStatsOverlay(RenderStats& stats, float time, Scene& scene,
 		elapsedSecondsSinceUpdate = 0;
 	}
 
-	gl3fonsProjectionSize(fonsContext, framebufferWidth, framebufferHeight);
-	
-	glDisable(GL_DEPTH_TEST);
-#ifdef DESKTOP
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	float dx = 12.0 * framebufferScale;
-	float dy = 20.0 * framebufferScale;
-	
-	fonsClearState(fonsContext);
-	
-	fonsSetFont(fonsContext, fonsFont);
-	
-	static float textSize = 14.0 * framebufferScale;
-	static float hPadding = 0.0 * framebufferScale;
-	
-	char tmpStr[256];
-	
-	sprintf(tmpStr, "%-14s %.1f%s", "framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""));
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %.1f", "frametime", ms);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-	dy += textSize; // skip a line
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoScrollbar;
+//	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoNav;
+	window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+
+	ImGui::SetNextWindowBgAlpha(0);  
+	bool* p_open = nullptr;
+	ImGui::Begin("Stats", p_open, window_flags);
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowBorderSize = 0;
 	
-	sprintf(tmpStr, "%-14s %d", "nodes", stats.nodes);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "geometries", stats.geometries);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "meshes", stats.meshes);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "polygons", stats.polygons);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	sprintf(tmpStr, "%-14s %d", "lights", stats.lights);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
-	
-	dy += textSize; // skip a line
-	
-	sprintf(tmpStr, "%-14s %.1f, %.1f, %.1f", "camera pos",
-			stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-	DrawString(tmpStr, textSize, dx, dy, fonsContext);
-	dy += (textSize + hPadding);
+	static bool setInitialPosition = false;
+	if (!setInitialPosition) {
+		ImGui::SetWindowPos((ImVec2){10.0, 10.0});
+		setInitialPosition = true;
+	}
 	
 	if (renderContext->recordingGIF()) {
-		dy += textSize; // skip a line
-		
-		sprintf(tmpStr, "%-14s %d" , "RECORDING", renderContext->recordedGIFFrames());
-		DrawString(tmpStr, textSize, dx, dy, fonsContext);
-		dy += (textSize + hPadding);
+		auto numFrames = renderContext->recordedGIFFrames();
+		ImGui::Text("%-14s %.1f%s fps\n" \
+					"%-14s %.1f ms\n" \
+					"\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"\n" \
+					"%-14s %.1f, %.1f, %.1f\n" \
+					"\n" \
+					"%-14s %d %s\n",
+					
+					"framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""),
+					"frametime", ms,
+					"nodes", stats.nodes,
+					"geometries", stats.geometries,
+					"meshes", stats.meshes,
+					"polygons", stats.polygons,
+					"lights", stats.lights,
+					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
+	else {
+		ImGui::Text("%-14s %.1f%s fps\n" \
+					"%-14s %.1f ms\n" \
+					"\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"\n" \
+					"%-14s %.1f, %.1f, %.1f\n",
+					
+					"framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""),
+					"frametime", ms,
+					"nodes", stats.nodes,
+					"geometries", stats.geometries,
+					"meshes", stats.meshes,
+					"polygons", stats.polygons,
+					"lights", stats.lights,
+					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+	}
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-	
-static float DrawString(string string, float size, float dx, float dy,
-						FONScontext* fonsContext) {
-	// must setup fons GL state first
-	
-	static unsigned black = gl3fonsRGBA(0, 0, 0, 255);
-	static unsigned white = gl3fonsRGBA(255, 255, 255, 255);
-	
-	fonsSetSize(fonsContext, size);
-	
-	fonsSetColor(fonsContext, black);
-	fonsSetBlur(fonsContext, 1);
-	fonsDrawText(fonsContext, dx, dy, string.c_str(), NULL);
-	
-	fonsSetColor(fonsContext, white);
-	fonsSetBlur(fonsContext, 0);
-	return fonsDrawText(fonsContext, dx, dy, string.c_str(), NULL);
-}
-	
+
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
 	
 	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);

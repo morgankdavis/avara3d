@@ -117,7 +117,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		enableVSync(false);
 
 		if (!InitializeGLEW()) { AE_LOG->critical("Failed to initialize GLEW."); }
-		RenderContext::renderer()->initialize();
+		RenderContext::renderer()->initialize(*this);
 
 		m_width = viewportWidth;
 		m_height = viewportHeight;

@@ -35,7 +35,7 @@ Renderer::~Renderer() {
      Internal
  **************************************************************************************/
 
-bool Renderer::initialize() {
+bool Renderer::initialize(const RenderContext& context) {
 	return true;
 }
 

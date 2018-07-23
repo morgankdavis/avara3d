@@ -30,13 +30,9 @@ Tests:
 
 		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
-		Calculate automatically based on volume distribution? -- usesDefaultMomentOfInertia?
-			collisionShape->calculateLocalInertia IS DOING THIS
+		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
 
-		Add physics stats!
-
-		Gaffer on games - fix your timestep
-
+		Add physics stats?
 
 		------ Other things (non-physics) ------
 
@@ -72,6 +68,8 @@ Tests:
 
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
+
+		Text overlay... http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-11-2d-text/
 
 
 	31 - contact

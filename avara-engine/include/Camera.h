@@ -66,7 +66,6 @@ namespace ae {
 		void constructProjectionMat();
 		
 		std::weak_ptr<Node> node() const;
-		//void node(std::shared_ptr<Node> node);
 		
 		void attachedToNode(std::shared_ptr<Node> node);
 		

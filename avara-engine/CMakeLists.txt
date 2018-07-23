@@ -65,6 +65,11 @@ include_directories(external/fontstash)
 include_directories(external/bullet3-2.87/src)
 add_subdirectory(external/bullet3-2.87)
 
+# imgui
+
+include_directories(external/imgui-1.62/include)
+add_subdirectory(external/imgui-1.62)
+
 
 
 file(GLOB HEADERS include/*.h)
@@ -80,13 +85,13 @@ target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_excepti
 
 if (MACOS)
 	#target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z)
 	target_link_libraries(ae ${FRAMEWORKS})
 elseif (LINUX)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif (WINDOWS)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp boost_system boost_filesystem)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem)
 	if(MINGW64)
 		target_link_libraries(ae winpthreads)
 	endif()
@@ -95,7 +100,7 @@ elseif (ANDROID)
 	# manymouse glfw glew_s
 	#target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
 	# removed assimp
-	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem android EGL GLESv3)
+	target_link_libraries(ae generator meshoptimizer imgui z boost_system boost_filesystem android EGL GLESv3)
 endif()
 
 

@@ -50,7 +50,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 
-		virtual bool initialize();
+		virtual bool initialize(const RenderContext& context);
 		
 		virtual void beginFrame(const RenderContext& context);
 		virtual void endFrame(const RenderContext& context);

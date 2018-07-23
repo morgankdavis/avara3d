@@ -82,8 +82,8 @@ int Test::run(const vector<string>& args) {
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
 	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(CAPTURE_CURSOR);
-//	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-//	
+	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	
 //	auto renderContext = static_pointer_cast<RenderContext>(m_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
 //												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
@@ -342,6 +342,10 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
 	auto keysDown = m_inputManager->keysDown();
 	auto keysPressed = m_inputManager->keysPressed();
+	auto cursorCaptured = true;
+	if (dynamic_cast<Window*>(&renderContext)) {
+		cursorCaptured = dynamic_cast<Window*>(&renderContext)->cursorCaptured();
+	}
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
 		m_window->setShouldClose();
@@ -384,15 +388,15 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	
-	
-	
-	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
-		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
-	}
-	
-	if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
+	if (cursorCaptured) {
+		if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
+			ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+		}
 		
-		ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+		if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
+			
+			ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+		}
 	}
 
 	if (keysPressed.count(KEY::F)) {
@@ -502,7 +506,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		}
 	}
 	
-	if (m_window->cursorCaptured()) {
+	if (cursorCaptured) {
 		
 		// mouselook
 		
@@ -753,7 +757,8 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		
 		
 		constexpr float BALL_RADIUS = 0.55;
-		auto node = Node::GeometryNode(make_shared<Sphere>(BALL_RADIUS, 3));
+		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+		auto node = Node::GeometryNode(sphereGrometry);
 		auto diffuseProperty = make_shared<MaterialProperty>(color);
 		auto specularProperty = make_shared<MaterialProperty>(Color::White());
 		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);

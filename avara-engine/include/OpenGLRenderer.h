@@ -20,9 +20,6 @@
 #include "Types.h"
 
 
-struct FONScontext;
-
-
 namespace ae {
 	
 	
@@ -78,7 +75,7 @@ namespace ae {
 		     Renderer
 		 ***************************************************************************************/
 		
-		bool initialize() override;
+		bool initialize(const RenderContext& context) override;
 		
 		void beginFrame(const RenderContext& context) override;
 		void endFrame(const RenderContext& context) override;
@@ -129,9 +126,6 @@ namespace ae {
 		std::unordered_set<std::shared_ptr<PointSet>>			m_activePointSets;
 
 		unsigned												m_glEnvironmentUBO;
-		
-		FONScontext* 											m_fonsContext;
-		int														m_fonsFont;
 	};
 }
 
