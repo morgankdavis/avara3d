@@ -190,7 +190,7 @@ void BulletPhysicsSimulator::beginUpdate(PASS pass,
 										 const Scene& scene) {
 	PhysicsSimulator::beginUpdate(pass, scene);
 	
-	if (pass == PASS::UPDATE_MODEL) {
+	if (pass == PASS::STEP) {
 		m_activeBodies.clear();
 		m_activeShapes.clear();
 	}
@@ -201,7 +201,7 @@ void BulletPhysicsSimulator::endUpdate(PASS pass,
 	PhysicsSimulator::endUpdate(pass, scene);
 	
 	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
-	if (pass == PASS::UPDATE_MODEL) {
+	if (pass == PASS::STEP) {
 		CleanupPhysicsBodyResources(m_activeBodies, *m_btWorld, m_bodyBTMapping);
 		CleanupPhysicsShapeResources(m_activeShapes, m_shapeBTMapping);
 	}
@@ -211,7 +211,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 									shared_ptr<Scene> scene,
 									const DEBUG_OPTIONS& debugOptions) {
 
-	if (pass == BulletPhysicsSimulator::PASS::UPDATE_MODEL) {
+	if (pass == BulletPhysicsSimulator::PASS::STEP) {
 		auto world = scene->physicsWorld();
 		
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
@@ -239,8 +239,8 @@ void BulletPhysicsSimulator::update(PASS pass,
 	if (body) {
 		
 		// creates and updates bullet models as needed
-		// for PASS::UPDATE_MODEL this checks everything gets ready for the simulation step
-		// for PASS::SYNC_GRAPH, it simple gets the handles for the BT models we're driving our graph from
+		// for PASS::STEP this checks everything gets ready for the simulation step
+		// for PASS::SYNC, it simple gets the handles for the BT models we're driving our graph from
 
 		if (body->shape()) {
 			
@@ -260,7 +260,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 			
 			if (btBody) {
 				
-				if (pass == PASS::UPDATE_MODEL) {
+				if (pass == PASS::STEP) {
 					
 					// if dynamic or kinematic, put their scene graph transforms into bullet model
 					
@@ -279,7 +279,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 //						btBody->forceActivationState(ACTIVE_TAG);
 					}
 				}
-				else if (pass == PASS::SYNC_GRAPH) {
+				else if (pass == PASS::SYNC) {
 					
 					// get body transforms and apply back to scene graph
 					
@@ -312,13 +312,10 @@ void BulletPhysicsSimulator::step(float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-//	unsigned maxSubSteps = lroundf(1.0/m_timestep);
-	//unsigned maxSubSteps = lroundf(m_timestep * 10.0); // 1/10th as fast as timestep
-	//m_btWorld->stepSimulation(deltaSeconds, maxSubSteps, m_timestep);
 	int result = m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
 	
 	if (result == MAX_SUBSTEPS) {
-		AE_LOG->warn("Physics simulation substeps maxed out at {}", result);
+		AE_LOG->warn("Physics simulation max substeps reached: {}", result);
 	}
 }
 						  

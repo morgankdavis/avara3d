@@ -45,7 +45,7 @@ PhysicsBody::PhysicsBody():
 	m_shape(nullptr),
 	m_linearFactor({1.0, 1.0, 1.0}),
 	m_angularFactor({1.0, 1.0, 1.0}),
-	m_mass(100.0),
+	m_mass(1.0),
 	m_friction(0.5),
 	m_rollingFriction(0.0),
 	m_restitution(0.0),
