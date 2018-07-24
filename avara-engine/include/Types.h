@@ -278,9 +278,9 @@ namespace ae {
 	} Vertex;
 	
 	typedef struct {
-		unsigned a;
-		unsigned b;
-		unsigned c;
+		int a;
+		int b;
+		int c;
 	} Face;
 
 	typedef struct {

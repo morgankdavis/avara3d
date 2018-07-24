@@ -13,27 +13,23 @@ Tests:
 
 	30 - rigidbody
 
+		Check shared geometry, materials, physics shapes resource management
+
 		Convex hulls for statics should always use btBvhTriangleMeshShape
 
-		btAlignedObjectArray?
-		COMPILE WITHOUT SSE?
-			BT_USE_SSE and BT_USE_SSE_IN_API defined
-
+		Fix margins + add to PhysicsBody/Shape
 
 		PhysicsBody::affectedByGravity()
 		Should be able to override where dynamic objects are
 			Feedback loop seems to take into account node's PARENT location...
 
+		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
+
 		Forces & torques -- check all other Body & Shape methods
 			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
-		Fix margins + add to PhysicsBody/Shape
-
-		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
-
-		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
-
 		Add physics stats?
+
 
 		------ Other things (non-physics) ------
 
@@ -44,6 +40,8 @@ Tests:
 
 		test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
 		Test sharing physics shapes!
+
+		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
 		Why are textures empty on first frame?
 
@@ -75,6 +73,8 @@ Tests:
 
 		AE_LOG function to return __FILE__:__func__()
 		Debug Scene/Geometry extent / default camera placement
+
+		Fix all tests
 
 
 	31 - contact

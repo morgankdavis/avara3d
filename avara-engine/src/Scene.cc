@@ -451,7 +451,9 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			unsigned int numFaces = mesh->mNumFaces;
 			for (unsigned int f=0; f<numFaces; ++f) {
 				aiFace face = mesh->mFaces[f];
-				faces.push_back({face.mIndices[0], face.mIndices[1], face.mIndices[2]});
+				faces.push_back({static_cast<int>(face.mIndices[0]),
+					static_cast<int>(face.mIndices[1]),
+					static_cast<int>(face.mIndices[2])});
 			}
 			
 			auto element = make_shared<GeometryElement>(verts, faces);

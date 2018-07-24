@@ -50,7 +50,7 @@ Plane::Plane(float width, float height):
 
 		auto faces = vector<Face>();
 		for (const Triangle& t : plane.triangles()) {
-			Face face = { (unsigned int)t.vertices[0], (unsigned int)t.vertices[1], (unsigned int)t.vertices[2] };
+			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
 			faces.push_back(face);
 		}
 

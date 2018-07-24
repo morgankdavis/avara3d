@@ -767,6 +767,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=2401
 		// [[[http://bulletphysics.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html]]]
 		
+		// COPIES vertex data into btTriangleMesh
 #warning TOTAL HACK
 		static btTriangleMesh triMesh = btTriangleMesh(true, true);
 
@@ -787,6 +788,35 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		
 		auto shape = make_shared<btBvhTriangleMeshShape>(&triMesh, true);
+		
+//		// btTriangleIndexVertexArray only REFERENCES the vertex data
+//		// http://bulletphysics.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html
+//		// this is good, but since we potentially have multiple GeometryElements we have to use addIndexedMesh() to add each one.
+//		// NOTE: this is not working. moving on as copying data is actually going to be easier to reason about for resource management
+//		// may come back to this when it's time to optimize...
+//		static auto indexedVertexArray = make_shared<btTriangleIndexVertexArray>();
+//		static auto meshes = make_shared<vector<shared_ptr<btIndexedMesh>>>();
+//		for (auto& element : geometry->elements()) {
+//			auto verts = element->vertices();
+//			auto faces = element->faces();
+//			
+//			auto mesh = make_shared<btIndexedMesh>();
+//			mesh->m_numTriangles = faces.size();
+//			mesh->m_triangleIndexBase = (const unsigned char *)&faces[0];
+//			mesh->m_triangleIndexStride = sizeof(Face);
+//			mesh->m_numVertices = verts.size();
+//			mesh->m_vertexBase = (const unsigned char *)&verts[0];
+//			mesh->m_vertexStride = sizeof(Vertex);
+//			mesh->m_indexType = PHY_INTEGER;
+//			mesh->m_vertexType = PHY_FLOAT;
+//			meshes->emplace_back(mesh);
+//		
+//			indexedVertexArray->addIndexedMesh(*mesh.get());
+//		}
+//		
+//		auto shape = make_shared<btBvhTriangleMeshShape>(indexedVertexArray.get(), true);
+		
+		
 //		shape.get()->setMargin(0);
 		
 		return shape;
