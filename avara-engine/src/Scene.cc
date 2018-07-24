@@ -227,16 +227,16 @@ void Scene::draw(Renderer& renderer,
 	// update physics model and step
 	
 	if (m_physicsWorld) {
-		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
-		physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::STEP, *this);
+		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 								 shared_from_this(),
 								 debugOptions);
 		for (auto& node: sortedNodes) {
-			physicsSimulator->update(PhysicsSimulator::PASS::UPDATE_MODEL,
+			physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 									 node,
 									 debugOptions);
 		}
-		physicsSimulator->endUpdate(PhysicsSimulator::PASS::UPDATE_MODEL, *this);
+		physicsSimulator->endUpdate(PhysicsSimulator::PASS::STEP, *this);
 		
 		physicsSimulator->step(m_renderContext.lock()->sceneTime());
 		
@@ -249,7 +249,7 @@ void Scene::draw(Renderer& renderer,
 	auto projectionMat = pointOfView.camera()->projection();
 	
 	if (m_physicsWorld) {
-		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
+		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC, *this);
 	}
 	
 	for (auto& node: sortedNodes) {
@@ -265,7 +265,7 @@ void Scene::draw(Renderer& renderer,
 		// nodes may not have geometries, but may have compound physics bodies
 		// (probably with child geometry nodes)
 		if (m_physicsWorld) {
-			physicsSimulator->update(PhysicsSimulator::PASS::SYNC_GRAPH,
+			physicsSimulator->update(PhysicsSimulator::PASS::SYNC,
 									 node,
 									 debugOptions);
 		}
@@ -288,7 +288,7 @@ void Scene::draw(Renderer& renderer,
 			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
 		}
 		
-		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC_GRAPH, *this);
+		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC, *this);
 	}
 }
 
@@ -354,87 +354,11 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 	m_renderContext = context;
 }
 
-//shared_ptr<PhysicsSimulator> Scene::physicsSimulator() const {
-//	
-//}
-//
-//void Scene::physicsSimulator(std::shared_ptr<PhysicsSimulator> simulator) {
-//	
-//}
-
 /**************************************************************************************
      Static
  **************************************************************************************/
 
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
-	
-//	Vertex verts[] = {
-//		{ vec3(-0.5f,	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(-0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(0.5f, 	0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(0.5f, 	-0.5f, 	0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		
-//		{ vec3(-0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(-0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(0.5f, 	0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) },
-//		{ vec3(0.5f, 	-0.5f, 	-0.5f ), 	vec3(0.0f, 0.0f, 0.0f), 	vec2(0.0f, 0.0f) }
-//	};
-//	
-//	// INWARD facing
-//	Face faces[] = {
-//		// front
-//		{ 0, 1, 2 },
-//		{ 2, 3, 0 },
-//		// back
-//		{ 7, 6, 5 },
-//		{ 5, 4, 7 },
-//		// left
-//		{ 4, 5, 1 },
-//		{ 1, 0, 4 },
-//		// right
-//		{ 3, 2, 6 },
-//		{ 6, 7, 3 },
-//		// top
-//		{ 1, 5, 6 },
-//		{ 6, 2, 1 },
-//		// bottom
-//		{ 4, 0, 3 },
-//		{ 3, 7, 4 },
-//	};
-//	
-////	// OUTWARD facing
-////	Face faces[] = {
-////		// front
-////		{ 2, 1, 0 },
-////		{ 0, 3, 2 },
-////		// back
-////		{ 5, 6, 7 },
-////		{ 7, 4, 5 },
-////		// left
-////		{ 1, 5, 4 },
-////		{ 4, 0, 1 },
-////		// right
-////		{ 6, 2, 3 },
-////		{ 3, 7, 6 },
-////		// top
-////		{ 6, 5, 1 },
-////		{ 1, 2, 6 },
-////		// bottom
-////		{ 3, 0, 4 },
-////		{ 4, 7, 3 },
-////	};
-//	
-//	auto vertsVector = vector<Vertex>();
-//	vertsVector.assign(verts, verts+8);
-//	
-//	auto facesVector = vector<Face>();
-//	facesVector.assign(faces, faces+12);
-//	
-//	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
-//	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
-//	material->doubleSided(false);
-//	
-//	return make_shared<Geometry>(element, material);
 	
 	auto geometry = make_shared<Box>(1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);

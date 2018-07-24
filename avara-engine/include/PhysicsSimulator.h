@@ -33,8 +33,8 @@ namespace ae {
 		 **************************************************************************************/
 
 		enum class PASS {
-			UPDATE_MODEL, // update internal model
-			SYNC_GRAPH // sync scene graph after simulation step
+			STEP, // update internal model and step simulation
+			SYNC // sync scene graph to model state
 		};
 		
 		/***************************************************************************************
