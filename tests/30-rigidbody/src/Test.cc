@@ -1017,7 +1017,7 @@ void AddBoxes(Scene& scene) {
 
 void AddCardboardBoxes(Scene& scene) {
 	
-	constexpr unsigned HEIGHT = 8;
+	constexpr unsigned HEIGHT = 7;
 	
 	const vec4 ROTATION = {0, 1, 0, radians(25.0)};
 	

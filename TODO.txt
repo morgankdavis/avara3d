@@ -29,13 +29,13 @@ Tests:
 
 		Fix margins + add to PhysicsBody/Shape
 
-		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
-
 		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
 
 		Add physics stats?
 
 		------ Other things (non-physics) ------
+
+		Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
 
 		Create a generalize caching interface for creating new geometries?
 			Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
@@ -45,12 +45,13 @@ Tests:
 		test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
 		Test sharing physics shapes!
 
+		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
+
 		Why are textures empty on first frame?
 
 		Rename StringFromXXXYYY -> String(XXXYYY)
 		ae::Object
 		AE objs -> description() + operator<<
-
 
 		Switch AABB to min, max vec3s
 
