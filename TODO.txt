@@ -28,10 +28,16 @@ Tests:
 		Forces & torques -- check all other Body & Shape methods
 			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
+		Fix margins + add to PhysicsBody/Shape
+
+		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
+
 		Add physics stats?
 
 
 		------ Other things (non-physics) ------
+
+		Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
 
 		Create a generalize caching interface for creating new geometries?
 			Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
@@ -48,7 +54,6 @@ Tests:
 		Rename StringFromXXXYYY -> String(XXXYYY)
 		ae::Object
 		AE objs -> description() + operator<<
-
 
 		Switch AABB to min, max vec3s
 
