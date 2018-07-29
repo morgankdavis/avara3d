@@ -1,0 +1,2 @@
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../../../lib/libBullet3Geometry.a  CMakeFiles/Bullet3Geometry.dir/b3ConvexHullComputer.obj CMakeFiles/Bullet3Geometry.dir/b3GeometryUtil.obj
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../../../lib/libBullet3Geometry.a

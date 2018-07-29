@@ -1,0 +1,33 @@
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "C:/Users/m/avara-engine/avara-engine/external/boost-1.67.0/libs/chrono/src/chrono.cpp" "C:/Users/m/avara-engine/build-msys/avara-engine/external/boost-1.67.0/libs/chrono/CMakeFiles/boost_chrono.dir/src/chrono.cpp.obj"
+  "C:/Users/m/avara-engine/avara-engine/external/boost-1.67.0/libs/chrono/src/process_cpu_clocks.cpp" "C:/Users/m/avara-engine/build-msys/avara-engine/external/boost-1.67.0/libs/chrono/CMakeFiles/boost_chrono.dir/src/process_cpu_clocks.cpp.obj"
+  "C:/Users/m/avara-engine/avara-engine/external/boost-1.67.0/libs/chrono/src/thread_clock.cpp" "C:/Users/m/avara-engine/build-msys/avara-engine/external/boost-1.67.0/libs/chrono/CMakeFiles/boost_chrono.dir/src/thread_clock.cpp.obj"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "DESKTOP"
+  "MINGW"
+  "MINGW64"
+  "WINDOWS"
+  )
+
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "../avara-engine/external/glm-0.9.9"
+  "../avara-engine/external/boost-1.67.0"
+  "../avara-engine/external/boost-1.67.0/."
+  )
+
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

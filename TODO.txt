@@ -1,4 +1,4 @@
-TODO:
+﻿TODO:
 
 ——————————————————————————————————
 
@@ -12,6 +12,11 @@ Tests:
 	06 - debugging & cleanup
 
 	30 - rigidbody
+
+		Clean up CMake files
+		Finish build server (with android!)
+		Only static link libc for release build (MinGW) -OR- switch everything to dynamic linking...
+		Turn off assertions? https://stackoverflow.com/questions/5354314/how-to-completely-disable-assertion
 
 		Check shared geometry, materials, physics shapes resource management
 

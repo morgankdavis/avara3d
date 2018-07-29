@@ -1,0 +1,2 @@
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../../../../lib/libBullet2FileLoader.a  CMakeFiles/Bullet2FileLoader.dir/b3BulletFile.obj CMakeFiles/Bullet2FileLoader.dir/b3Chunk.obj CMakeFiles/Bullet2FileLoader.dir/b3DNA.obj CMakeFiles/Bullet2FileLoader.dir/b3File.obj CMakeFiles/Bullet2FileLoader.dir/b3Serializer.obj
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../../../../lib/libBullet2FileLoader.a

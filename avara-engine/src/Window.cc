@@ -13,6 +13,7 @@
 
 #include <iostream>
 
+#define GLEW_STATIC // added for MinGW build... needed?
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #ifdef MACOS

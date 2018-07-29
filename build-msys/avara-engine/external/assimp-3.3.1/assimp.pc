@@ -1,0 +1,11 @@
+prefix=C:/Program Files (x86)/avara-engine
+exec_prefix=C:/Program Files (x86)/avara-engine/bin
+libdir=C:/Program Files (x86)/avara-engine/lib
+includedir=C:/Program Files (x86)/avara-engine/include/assimp
+
+Name: avara-engine
+Description: Import various well-known 3D model formats in an uniform manner.
+Version: 3.3.1
+Libs: -L${libdir} -lassimp
+Libs.private: -lstdc++ 
+Cflags: -I${includedir}

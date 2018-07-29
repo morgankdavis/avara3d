@@ -1,0 +1,2 @@
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../../../lib/libBullet3Common.a  CMakeFiles/Bullet3Common.dir/b3AlignedAllocator.obj CMakeFiles/Bullet3Common.dir/b3Vector3.obj CMakeFiles/Bullet3Common.dir/b3Logging.obj
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../../../lib/libBullet3Common.a

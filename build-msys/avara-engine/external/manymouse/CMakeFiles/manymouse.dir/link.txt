@@ -1,0 +1,2 @@
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../lib/libmanymouse.a  CMakeFiles/manymouse.dir/linux_evdev.c.obj CMakeFiles/manymouse.dir/macosx_hidmanager.c.obj CMakeFiles/manymouse.dir/macosx_hidutilities.c.obj CMakeFiles/manymouse.dir/manymouse.c.obj CMakeFiles/manymouse.dir/windows_wminput.c.obj CMakeFiles/manymouse.dir/x11_xinput2.c.obj
+"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../lib/libmanymouse.a
