@@ -5,7 +5,6 @@
 .AppleDouble
 .LSOverride
 
-
 # CLion
 .idea
 cmake-build-*
@@ -40,6 +39,7 @@ Temporary Items
 
 ## Build generated
 build/
+build*
 DerivedData
 bin
 

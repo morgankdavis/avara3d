@@ -1,2 +1,0 @@
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../lib/libimgui.a  CMakeFiles/imgui.dir/src/imgui.cpp.obj CMakeFiles/imgui.dir/src/imgui_draw.cpp.obj CMakeFiles/imgui.dir/src/imgui_impl_glfw.cpp.obj CMakeFiles/imgui.dir/src/imgui_impl_opengl3.cpp.obj
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../lib/libimgui.a

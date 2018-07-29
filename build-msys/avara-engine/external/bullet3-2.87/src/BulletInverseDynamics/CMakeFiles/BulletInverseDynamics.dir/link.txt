@@ -1,2 +1,0 @@
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../../../lib/libBulletInverseDynamics.a  CMakeFiles/BulletInverseDynamics.dir/IDMath.obj CMakeFiles/BulletInverseDynamics.dir/MultiBodyTree.obj CMakeFiles/BulletInverseDynamics.dir/details/MultiBodyTreeInitCache.obj CMakeFiles/BulletInverseDynamics.dir/details/MultiBodyTreeImpl.obj
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../../../lib/libBulletInverseDynamics.a

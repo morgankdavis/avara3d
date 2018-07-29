@@ -1,2 +1,0 @@
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ar.exe" qc ../../../../../lib/libboost_timer.a  CMakeFiles/boost_timer.dir/src/auto_timers_construction.cpp.obj CMakeFiles/boost_timer.dir/src/cpu_timer.cpp.obj
-"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/ranlib.exe" ../../../../../lib/libboost_timer.a
