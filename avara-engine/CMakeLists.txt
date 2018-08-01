@@ -90,7 +90,8 @@ elseif (LINUX)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif (WINDOWS)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem imgui)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem 
+imgui bz2)
 	
 	# wtf?
 	if(MSYS)
