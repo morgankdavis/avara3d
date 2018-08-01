@@ -29,6 +29,7 @@ namespace ae {
 	class Image;
 	class InputManager;
 	class Node;
+	class Renderer;
 	class Scene;
 
 	

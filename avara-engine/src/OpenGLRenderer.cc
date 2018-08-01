@@ -278,18 +278,32 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init();
+	
+	#warning TEMPORARY - FIX ME!
+	#ifndef WINDOWS
 
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	
 	auto fontPath = FontPath(fontName, fontType);
+
+	AE_LOG->debug("fontPath: {}", (*fontPath).string());
+
 	if (fontPath) {
-	
-	ImFont* scp = io.Fonts->AddFontFromFileTTF((*fontPath).c_str(), 14.0f);
-#warning switch to exception
-	IM_ASSERT(scp != NULL);
-		
+
+		const char* fontPath_char = (const char*)(*fontPath).c_str();
+		AE_LOG->debug("fontPath_char: {}", fontPath_char);
+
+		string fontPath_string = (*fontPath).string();
+		AE_LOG->debug("fontPath_string: {}", fontPath_string);
+
+		ImFont* scp = io.Fonts->AddFontFromFileTTF(fontPath_char, 14.0f);
+
+		if (!scp) {
+			throw Exception("Unable to load font at path: " + (*fontPath).string());
+		}
 	}
+	#endif
 	
 //	auto fontData = FontData(fontName, fontType);
 //	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
