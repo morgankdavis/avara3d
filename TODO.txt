@@ -13,6 +13,9 @@ Tests:
 
 	30 - rigidbody
 
+		Update scripts/windows for MSYS/MinGW
+		Embed minizip?? https://github.com/nmoinvaz/minizip
+
 		Check shared geometry, materials, physics shapes resource management
 
 		Convex hulls for statics should always use btBvhTriangleMeshShape
@@ -115,10 +118,13 @@ Tests:
 	90 - network
 		"Entity"
 
-	100 - vulkan? metal? deferred shading?
-		realtime GLSL editing with Imgui
+	100 - vulkan + deferred shading
 
-	120 - world editor
+	120 - particle systems
+
+	130 - world editor
+
+	150 - localization
 
 ——————————————————————————————————
 

@@ -84,7 +84,6 @@ target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_excepti
 
 
 if (MACOS)
-	#target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp z boost_system boost_filesystem)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z)
 	target_link_libraries(ae ${FRAMEWORKS})
 elseif (LINUX)
@@ -97,8 +96,6 @@ elseif (WINDOWS)
 	endif()
 	target_link_libraries(ae ${OPENGL_LIBRARY})
 elseif (ANDROID)
-	# manymouse glfw glew_s
-	#target_link_libraries(ae generator meshoptimizer assimp z boost_system boost_filesystem -landroid -lEGL -lGLESv3)
 	# removed assimp
 	target_link_libraries(ae generator meshoptimizer imgui z boost_system boost_filesystem android EGL GLESv3)
 endif()
@@ -134,8 +131,6 @@ elseif (WINDOWS)
 #		include_directories(external/winpthreads/include)
 #	endif()
 
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lwinpthread")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 	
 elseif (ANDROID)
@@ -144,7 +139,6 @@ elseif (ANDROID)
 	
 	# Export ANativeActivity_onCreate(),
 	# Refer to: https://github.com/android-ndk/ndk/issues/381.
-	# set_target_properties(${PROJECT_NAME}
 	set_target_properties(ae PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
 
 	target_link_libraries(ae NDKHelper)
