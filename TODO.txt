@@ -15,10 +15,6 @@ TODO:
 
 	REMOVE UNUSED ASSETS (1.5GB repo??)
 
-	Change aux server hostname
-
-	Fix Android build
-	
 	After git push hook, clone repo into common location on build server.
 		Each build:
 			scp script from build machine
