@@ -21,9 +21,12 @@
 #else
 #include <GL/glew.h>
 #endif
+
+#ifndef ANDROID
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#endif
 
 #include "Camera.h"
 #include "Color.h"
@@ -1837,6 +1840,8 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 
+#ifdef DESKTOP
+	
 	auto renderContext = scene.renderContext().lock();
 
 	static float fps = 0.0;
@@ -1951,6 +1956,8 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	
+#endif // DESKTOP
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {

@@ -13,7 +13,7 @@
 
 // added by Morgan to fix Android:
 // https://github.com/boostorg/filesystem/issues/65
-//#ifndef ANDROID
+#ifndef ANDROID
 
 
 
@@ -37,7 +37,7 @@
 #endif
 
 
-//#endif // ANDROID
+#endif // ANDROID
 
 
 // define BOOST_FILESYSTEM_SOURCE so that <boost/filesystem/config.hpp> knows

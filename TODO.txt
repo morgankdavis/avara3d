@@ -2,135 +2,157 @@ TODO:
 
 ——————————————————————————————————
 
+01 - import
+02 - scenegraph
+03 - input-camera
+04 - geoprimitives
+05 - materials-lights
+06 - debugging & cleanup
 
-Tests:
-	01 - import
-	02 - scenegraph
-	03 - input-camera
-	04 - geoprimitives
-	05 - materials-lights
-	06 - debugging & cleanup
+30 - rigidbody
 
-	30 - rigidbody
+	Use xcodebuild for macOS
 
-		Update scripts/windows for MSYS/MinGW
-		Embed minizip?? https://github.com/nmoinvaz/minizip
+	REMOVE UNUSED ASSETS (1.5GB repo??)
 
-		Clean up CMake files
-		Finish build server (with android!)
-		Only static link libc for release build (MinGW) -OR- switch everything to dynamic linking...
-		Turn off assertions? https://stackoverflow.com/questions/5354314/how-to-completely-disable-assertion
+	Change aux server hostname
 
+	Fix Android build
+	
+	After git push hook, clone repo into common location on build server.
+		Each build:
+			scp script from build machine
+			ssh mount the git source
 
-		Check shared geometry, materials, physics shapes resource management
+	Email notification
 
-		Convex hulls for statics should always use btBvhTriangleMeshShape
+	Email status dashboard? - https://cachethq.io/
+			
 
-		Fix margins + add to PhysicsBody/Shape
+	Look at gtest + integrate with build server?
 
-		PhysicsBody::affectedByGravity()
-		Should be able to override where dynamic objects are
-			Feedback loop seems to take into account node's PARENT location...
-
-		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
-
-		Forces & torques -- check all other Body & Shape methods
-			PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
-
-		Fix margins + add to PhysicsBody/Shape
-
-		autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
-
-		Add physics stats?
+	Clean up CMake files
+	Only static link libc for release build (MinGW) -OR- switch everything to dynamic linking...
+	Turn off assertions? https://stackoverflow.com/questions/5354314/how-to-completely-disable-assertion
 
 
-		------ Other things (non-physics) ------
-
-		Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
-
-		Create a generalize caching interface for creating new geometries?
-			Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
-			nodes that have referenced to all the cached stuff.
-			Interface to invalidate some/all contents
-
-		test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
-		Test sharing physics shapes!
-
-		Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
-
-		Why are textures empty on first frame?
-
-		Rename StringFromXXXYYY -> String(XXXYYY)
-		ae::Object
-		AE objs -> description() + operator<<
-
-		Switch AABB to min, max vec3s
-
-		Objects with textures are black on first frame
-
-		Add Geometry::extent() / extent(bool recursive)
-
-		Switch GLM setters to static references
-
-		Try glViewport() with screen points width and height...
-
-		Move Program static functions to instance variables in OpenGLRenderer	
-
-		RenderContext should own "Stats" object
-			Create at each frame, pass around. frameStartTime, frameEndTime
-
-		Reconcile primitives sizing
-			+ add default detail levels for geometry primitives (+ box & plane!)
-				Add "GeometryPrimitive" superclass + factor vertex data creation
-				-> INITIALIZERS for other classes use defaults
-			+ Generate disk shape?
-
-		AE_LOG function to return __FILE__:__func__()
-		Debug Scene/Geometry extent / default camera placement
-
-		Fix all tests
 
 
-	31 - contact
-		Kinematic objects:
-			body->setCollisionFlags( body->getCollisionFlags() |
-			btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
-	32 - utilities (ray cast, sweep, etc)
-		Raycasting non-physics objects:
-			http://codesuppository.blogspot.com/2011/08/raycasting-using-aabb-axis-aligned.html
-		test applyForce() and applyTorque() with raycasting
-	33 - categories
-		http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
-	34 - ik-constraints
-		SCNPhysicsBehavior
-		SCNPhysicsHingeJoint
-		SCNPhysicsBallSocketJoint
-		SCNPhysicsConeTwistJoint
-		SCNPhysicsSliderJoint
-		SCNPhysicsVehicle
+	Check shared geometry, materials, physics shapes resource management
 
-	40 - animation
-		http://guillaumeblanc.github.io/ozz-animation/
-		TargetNode / AnimationTarget, etc
+	Convex hulls for statics should always use btBvhTriangleMeshShape
 
-	50 - multithreading
+	Fix margins + add to PhysicsBody/Shape
 
-	60 - GUI
+	PhysicsBody::affectedByGravity()
+	Should be able to override where dynamic objects are
+		Feedback loop seems to take into account node's PARENT location...
 
-	70 - scripting
+	autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
 
-	80 - audio
+	Forces & torques -- check all other Body & Shape methods
+		PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
 
-	90 - network
-		"Entity"
+	Fix margins + add to PhysicsBody/Shape
 
-	100 - vulkan + deferred shading
+	autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
 
-	120 - particle systems
+	Add physics stats?
 
-	130 - world editor
+	
 
-	150 - localization
+
+	------ Other things (non-physics) ------
+
+	Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
+
+	Create a generalize caching interface for creating new geometries?
+		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
+		nodes that have referenced to all the cached stuff.
+		Interface to invalidate some/all contents
+
+	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
+	Test sharing physics shapes!
+
+	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
+
+	Why are textures empty on first frame?
+
+	Rename StringFromXXXYYY -> String(XXXYYY)
+	ae::Object
+	AE objs -> description() + operator<<
+
+	Switch AABB to min, max vec3s
+
+	Objects with textures are black on first frame
+
+	Add Geometry::extent() / extent(bool recursive)
+
+	Switch GLM setters to static references
+
+	Try glViewport() with screen points width and height...
+
+	Move Program static functions to instance variables in OpenGLRenderer	
+
+	RenderContext should own "Stats" object
+		Create at each frame, pass around. frameStartTime, frameEndTime
+
+	Reconcile primitives sizing
+		+ add default detail levels for geometry primitives (+ box & plane!)
+			Add "GeometryPrimitive" superclass + factor vertex data creation
+			-> INITIALIZERS for other classes use defaults
+		+ Generate disk shape?
+
+	AE_LOG function to return __FILE__:__func__()
+	Debug Scene/Geometry extent / default camera placement
+
+	Android:
+		Imgui GLES: https://github.com/ocornut/imgui/issues/1200
+
+	FIX ALL TESTS AND UPDATE BUILD SERVER TARGETS (not just "ae")
+
+
+
+31 - contact
+	Kinematic objects:
+		body->setCollisionFlags( body->getCollisionFlags() |
+		btCollisionObject::CF_KINEMATIC_OBJECT); body->setActivationState(DISABLE_DEACTIVATION);
+32 - utilities (ray cast, sweep, etc)
+	Raycasting non-physics objects:
+		http://codesuppository.blogspot.com/2011/08/raycasting-using-aabb-axis-aligned.html
+	test applyForce() and applyTorque() with raycasting
+33 - categories
+	http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Filtering
+34 - ik-constraints
+	SCNPhysicsBehavior
+	SCNPhysicsHingeJoint
+	SCNPhysicsBallSocketJoint
+	SCNPhysicsConeTwistJoint
+	SCNPhysicsSliderJoint
+	SCNPhysicsVehicle
+
+40 - animation
+	http://guillaumeblanc.github.io/ozz-animation/
+	TargetNode / AnimationTarget, etc
+
+50 - multithreading
+
+60 - GUI
+
+70 - scripting
+
+80 - audio
+
+90 - network
+	"Entity"
+
+100 - vulkan + deferred shading
+
+120 - particle systems
+
+130 - world editor
+
+150 - localization
 
 ——————————————————————————————————
 

@@ -27,8 +27,16 @@
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+
+// Modified by Morgan to use GLEW and OpenGL ES on Android
+#ifdef ANDROID
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+#else
 //#include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions. You may freely use any other OpenGL loader such as: glew, glad, glLoadGen, etc.
 #include <GL/glew.h>
+#endif
+
 
 // OpenGL Data
 static char         g_GlslVersion[32] = "#version 150";

@@ -35,7 +35,7 @@ void android_main(android_app* app) {
 
 	AE_INIT(app);
 
-	Logger::Level(LOG_LEVEL::DEBUG);
+	Logger::Level(LOG_LEVEL::DEBUG_);
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
@@ -49,13 +49,13 @@ void android_main(android_app* app) {
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChildNode(ambientLightNode);
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto sphereGeo = make_shared<Sphere>(0.5, 24);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);
-	scene->rootNode()->addChildNode(sphereNode);
+	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position({0.0f, 0.0f, 0.0f});
 
 	auto gridImage = TestImageNamed("plant", string("jpg"));
@@ -187,7 +187,7 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 	const static float mouseSensitivity = (1.0f / 0.5f);
 
 	if (!cameraNode) {
-		for (auto n : renderContext.scene()->rootNode()->childNodes(false)) {
+		for (auto n : renderContext.scene()->rootNode()->children(false)) {
 			if (n->camera()) {
 				cameraNode = n;
 				break;

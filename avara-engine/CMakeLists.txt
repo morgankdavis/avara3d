@@ -34,6 +34,12 @@ if (NOT ANDROID)
 	
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse)
+	
+	# imgui
+
+	include_directories(external/imgui-1.62/include)
+	add_subdirectory(external/imgui-1.62)
+	
 endif() # NOT ANDROID
 
 # mesh optimizer
@@ -65,11 +71,6 @@ include_directories(external/fontstash)
 include_directories(external/bullet3-2.87/src)
 add_subdirectory(external/bullet3-2.87)
 
-# imgui
-
-include_directories(external/imgui-1.62/include)
-add_subdirectory(external/imgui-1.62)
-
 
 
 file(GLOB HEADERS include/*.h)
@@ -79,8 +80,9 @@ include_directories(include)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES})
 
+
 target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
-target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_exception boost_filesystem boost_regex boost_system boost_test boost_thread boost_timer imgui)
+target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_exception boost_filesystem boost_regex boost_system boost_test boost_thread boost_timer)
 
 
 if (MACOS)
@@ -90,14 +92,13 @@ elseif (LINUX)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
 elseif (WINDOWS)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem imgui)
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem)
 	if(MINGW64)
 		target_link_libraries(ae winpthreads) # notice PLURAL (??!!)
 	endif()
 	target_link_libraries(ae ${OPENGL_LIBRARY})
 elseif (ANDROID)
-	# removed assimp
-	target_link_libraries(ae generator meshoptimizer imgui z boost_system boost_filesystem android EGL GLESv3)
+	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem android EGL GLESv3)
 endif()
 
 
@@ -125,11 +126,6 @@ elseif (LINUX)
 	set(CMAKE_CXX_FLAGS "-std=c++14")
 
 elseif (WINDOWS)
-
-#	if(MINGW64)
-#		add_subdirectory(external/winpthreads)
-#		include_directories(external/winpthreads/include)
-#	endif()
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 	

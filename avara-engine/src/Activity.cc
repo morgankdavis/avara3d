@@ -171,7 +171,7 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
      RenderContext
  ***************************************************************************************/
 
-void Activity::update() override {
+void Activity::update() {
 	RenderContext::update();
 	
 	if (m_initialized) {
@@ -266,7 +266,7 @@ bool Activity::initialize(ANativeWindow* window) {
 		initEGLContext();
 		initGLES();
 		
-		RenderContext::renderer()->initialize();
+		RenderContext::renderer()->initialize(*this);
 		
 		m_framebufferScale = 1.0;
 		m_framebufferWidth = m_width * m_framebufferScale;

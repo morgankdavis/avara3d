@@ -11,8 +11,10 @@ include_directories(include)
 
 
 # is there a better way to do this..?
-include_directories(../glfw-3.2.1/include)
-include_directories(glew-2.1.0/include)
+if (NOT ANDROID)
+	include_directories(../glfw-3.2.1/include)
+	include_directories(glew-2.1.0/include)
+endif()
 
 #include_directories(${CMAKE_SOURCE_DIR}/avara-engine/include)
 
@@ -21,5 +23,20 @@ include_directories(glew-2.1.0/include)
 
 add_library(imgui ${HEADERS} ${SOURCES})
 
-target_link_libraries(imgui glew_s) # gross
-
+if (NOT ANDROID)
+	target_link_libraries(imgui glew_s) # gross
+else()
+	
+	# link to any of these?
+	
+#	target_link_libraries(NDKHelper
+# 	  PUBLIC
+# 	    native_app_glue
+# 	    GLESv3
+# 	    EGL
+# 	    log
+# 	    android
+# 	    atomic
+# 	)
+	
+endif()

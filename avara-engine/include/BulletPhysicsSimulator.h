@@ -34,7 +34,9 @@ class btTriangleMesh;
 namespace ae {
 	
 	
+#ifdef DESKTOP
 	class BulletDebugDrawer;
+#endif
 	class Node;
 	class PhysicsBody;
 	class PhysicsShape;
@@ -114,7 +116,9 @@ namespace ae {
 		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
 		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
 		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
+#ifdef DESKTOP
 		std::shared_ptr<BulletDebugDrawer>						m_debugDrawer;
+#endif
 		
 		PhysicsBodyBTMapping									m_bodyBTMapping;
 		PhysicsShapeBTMapping									m_shapeBTMapping;

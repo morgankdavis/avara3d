@@ -108,15 +108,19 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 												   m_btBroadphase.get(),
 												   m_btSolver.get(),
 												   m_btCollisionConfiguration.get())),
+#ifdef DESKTOP
 	m_debugDrawer(make_shared<BulletDebugDrawer>()),
+#endif
 	m_bodyBTMapping(PhysicsBodyBTMapping()),
 	m_shapeBTMapping(PhysicsShapeBTMapping()),
 	m_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
 	m_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
 
 		AE_LOG->info("Bullet version: {}",  btGetVersion());
-		
+
+#ifdef DESKTOP
 		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+#endif
 		
 		
 		AE_LOG->info("m_numIterations: {}",  m_btWorld.get()->getSolverInfo().m_numIterations);
