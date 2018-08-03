@@ -86,19 +86,32 @@ target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_excepti
 
 
 if (MACOS)
+	
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z)
 	target_link_libraries(ae ${FRAMEWORKS})
+	
 elseif (LINUX)
+	
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z boost_system boost_filesystem)
 	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
+	
 elseif (WINDOWS)
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem)
-	if(MINGW64)
-		target_link_libraries(ae winpthreads) # notice PLURAL (??!!)
+
+	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem imgui bz2)
+	
+	# wtf?
+	if(MSYS)
+		target_link_libraries(ae winpthread)
+	else() # if(MINGW64)
+		target_link_libraries(ae winpthreads)
 	endif()
+	
 	target_link_libraries(ae ${OPENGL_LIBRARY})
+	
 elseif (ANDROID)
+	
 	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem android EGL GLESv3)
+	
 endif()
 
 
