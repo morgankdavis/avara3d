@@ -407,14 +407,18 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-//#ifdef XCODE
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
-//#else
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
-//#endif
-		
+
 		// "installed" location
-		auto dir = execDir->parent_path() / "avara-engine" / "shaders";
+		auto dir = *execDir / "data" / "shaders";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "shaders";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path() / "data" / "shaders";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path() / "avara-engine" / "shaders";
 		if (boost::filesystem::is_directory(dir)) return dir;
 		
 		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
@@ -457,14 +461,18 @@ vector<unsigned char> ae::utils::FontData(const string& name,
 boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-//#ifdef XCODE
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
-//#else
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
-//#endif
-		
+
 		// "installed" location
-		auto dir = *execDir / "avara-engine" / "fonts";
+		auto dir = *execDir / "data" / "fonts";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "fonts";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path() / "data" / "fonts";
+		if (boost::filesystem::is_directory(dir)) return dir;
+
+		dir = *execDir / "avara-engine" / "fonts";
 		if (boost::filesystem::is_directory(dir)) return dir;
 		
 		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
@@ -493,12 +501,7 @@ boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
 boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-//#ifdef XCODE
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-//#else
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-//#endif
-		
+
 		// "installed" location
 		auto dir = *execDir / "data";
 		if (boost::filesystem::is_directory(dir)) return dir;
@@ -538,14 +541,18 @@ shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-//#ifdef XCODE
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
-//#else
-//		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
-//#endif
 		
 		// "installed" location
-		auto dir = execDir->parent_path() / "avara-engine" / "images";
+		auto dir = *execDir / "data" / "images";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "images";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path().parent_path().parent_path() / "data" / "images";
+		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		dir = execDir->parent_path() / "avara-engine" / "images";
 		if (boost::filesystem::is_directory(dir)) return dir;
 		
 		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
