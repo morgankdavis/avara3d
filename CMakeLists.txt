@@ -5,6 +5,11 @@ cmake_minimum_required(VERSION 3.0)
 project(avara-engine)
 
 
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type")
+endif ()
+
+
 # print environment for debugging...
 
 #message("ENVIRONMENT:")

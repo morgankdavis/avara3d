@@ -11,19 +11,9 @@ TODO:
 
 30 - rigidbody
 
-	Use xcodebuild for macOS
+	Fix windows build - glew DllMainCRTStartup
 
-	REMOVE UNUSED ASSETS (1.5GB repo??)
-
-	After git push hook, clone repo into common location on build server.
-		Each build:
-			scp script from build machine
-			ssh mount the git source
-
-	Email notification
-
-	Email status dashboard? - https://cachethq.io/
-			
+	Email status dashboard? - https://cachethq.io/	
 
 	Look at gtest + integrate with build server?
 

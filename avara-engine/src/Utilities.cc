@@ -410,7 +410,7 @@ boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
 #ifdef XCODE
 		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
 #else
-		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
 #endif
 	}
 	return boost::none;
@@ -450,7 +450,7 @@ boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
 #ifdef XCODE
 		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
 #else
-		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
 #endif
 	}
 	return boost::none;
@@ -476,7 +476,7 @@ boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 #ifdef XCODE
 		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
 #else
-		return execDir->parent_path().parent_path().parent_path() / "tests" / "data";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
 #endif
 	}
 	return boost::none;
@@ -511,7 +511,7 @@ boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
 #ifdef XCODE
 		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
 #else
-		return execDir->parent_path().parent_path().parent_path() / "avara-engine" / "images";
+		return execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
 #endif
 	}
 	return boost::none;
