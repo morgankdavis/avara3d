@@ -23,8 +23,6 @@ set (GLEW_LIBRARIES ${OPENGL_LIBRARIES})
 add_definitions (-DGLEW_NO_GLU)
 
 
-
-
 if (WIN32)
   set (GLEW_LIB_NAME glew32)
 else ()
@@ -33,21 +31,11 @@ else ()
 endif ()
 
 
-
 set (GLEW_PUBLIC_HEADERS_FILES include/GL/wglew.h include/GL/glew.h include/GL/glxew.h)
 set (GLEW_SRC_FILES src/glew.c)
 
 
-
 include_directories (include)
-
-
-
-# if (WIN32)
-#   list (APPEND GLEW_SRC_FILES glew.rc)
-# endif ()
-
-
 
 
 add_library (glew SHARED ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
@@ -62,7 +50,6 @@ if(UNIX AND APPLE)
 endif()
 
 
-
 if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")))
   # remove stdlib dependency on windows with GCC and Clang (for similar reasons
   # as to MSVC - to allow it to be used with any Windows compiler)
@@ -70,8 +57,6 @@ if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCH
   target_compile_options (glew_s PRIVATE -fno-builtin -fno-stack-protector)
   target_link_libraries (glew LINK_PRIVATE -nostdlib)
 endif ()
-
-
 
 
 target_link_libraries (glew LINK_PUBLIC ${GLEW_LIBRARIES})
