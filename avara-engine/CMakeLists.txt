@@ -213,7 +213,7 @@ if (NOT ANDROID)
 	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data)
 			
 	install(DIRECTORY "../tests/data"
-	        DESTINATION ${DATA_INSTALL_DIR})
+	        DESTINATION ${DATA_INSTALL_DIR}/../)
 			
 	file(GLOB SHADERS shaders/*)
 	install(FILES ${SHADERS}

@@ -13,6 +13,12 @@ TODO:
 
 	Check and remove #ifdef XCODE in Utilities
 
+	Better error reporting for missing files
+		ex: Assertion failed: (this->is_initialized()), function get, file /Users/mkd/jenkins_build/debug/avara-engine/avara-engine/external/boost-1.67.0/boost/optional/optional.hpp, line 1191.
+zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
+
+	Trace file search paths
+
 	Only install public headers
 
 	Email status dashboard? - https://cachethq.io/	
