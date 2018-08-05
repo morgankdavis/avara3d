@@ -47,3 +47,22 @@ target_compile_options(${EXECUTABLE_NAME} PRIVATE
 	"-Wno-address-of-packed-member"
 	"-Wno-unused-function")
 
+
+
+
+
+
+if (NOT ANDROID)
+
+	# check build type
+
+	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRelease"))
+		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
+	else()
+		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
+	endif()
+
+	install(TARGETS ${EXECUTABLE_NAME}
+	        DESTINATION ${INSTALL_DIR}/tests)
+
+endif()
