@@ -22,11 +22,6 @@ set (GLEW_LIBRARIES ${OPENGL_LIBRARIES})
 
 add_definitions (-DGLEW_NO_GLU)
 
-include_directories (include)
-
-set (GLEW_PUBLIC_HEADERS_FILES include/GL/wglew.h include/GL/glew.h include/GL/glxew.h)
-set (GLEW_SRC_FILES src/glew.c)
-
 
 
 
@@ -36,6 +31,16 @@ else ()
   set (GLEW_LIB_NAME GLEW)
   set (DLL_PREFIX lib)
 endif ()
+
+
+
+set (GLEW_PUBLIC_HEADERS_FILES include/GL/wglew.h include/GL/glew.h include/GL/glxew.h)
+set (GLEW_SRC_FILES src/glew.c)
+
+
+
+include_directories (include)
+
 
 
 if (WIN32)
