@@ -43,9 +43,9 @@ include_directories (include)
 
 
 
-if (WIN32)
-  list (APPEND GLEW_SRC_FILES glew.rc)
-endif ()
+# if (WIN32)
+#   list (APPEND GLEW_SRC_FILES glew.rc)
+# endif ()
 
 
 
