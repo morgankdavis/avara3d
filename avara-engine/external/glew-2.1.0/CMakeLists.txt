@@ -43,15 +43,6 @@ if (WIN32)
 endif ()
 
 
-if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")))
-  # remove stdlib dependency on windows with GCC and Clang (for similar reasons
-  # as to MSVC - to allow it to be used with any Windows compiler)
-  target_compile_options (glew PRIVATE -fno-builtin -fno-stack-protector)
-  target_compile_options (glew_s PRIVATE -fno-builtin -fno-stack-protector)
-  target_link_libraries (glew LINK_PRIVATE -nostdlib)
-endif ()
-
-
 
 
 add_library (glew SHARED ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
@@ -64,6 +55,19 @@ set_target_properties (glew_s PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC" OUTPU
 if(UNIX AND APPLE)
 	target_compile_options(glew_s PRIVATE "-mmacosx-version-min=10.9")
 endif()
+
+
+
+if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")))
+  # remove stdlib dependency on windows with GCC and Clang (for similar reasons
+  # as to MSVC - to allow it to be used with any Windows compiler)
+  target_compile_options (glew PRIVATE -fno-builtin -fno-stack-protector)
+  target_compile_options (glew_s PRIVATE -fno-builtin -fno-stack-protector)
+  target_link_libraries (glew LINK_PRIVATE -nostdlib)
+endif ()
+
+
+
 
 target_link_libraries (glew LINK_PUBLIC ${GLEW_LIBRARIES})
 target_link_libraries (glew_s ${GLEW_LIBRARIES})
