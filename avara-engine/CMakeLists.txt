@@ -182,7 +182,7 @@ if (NOT ANDROID)
 	message(CMAKE_BUILD_TYPE)
 	message(type ${CMAKE_BUILD_TYPE})
 
-	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRelease"))
+	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
 		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
 	else()
 		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
@@ -210,7 +210,7 @@ if (NOT ANDROID)
 	# install(FILES ${FONTS}
 	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/fonts)
 			
-	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data/)
+	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data)
 			
 	install(DIRECTORY "../tests/data"
 	        DESTINATION ${DATA_INSTALL_DIR})

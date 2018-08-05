@@ -54,10 +54,7 @@ namespace ae {
 		void sourceNode(std::weak_ptr<Node> node);
 		
 		void attachedToBody(std::shared_ptr<PhysicsBody> body);
-		
-#warning may want this
-//		std::vector<std::shared_ptr<btCollisionShape>>& childShapes();
-		
+
 		std::weak_ptr<PhysicsBody> physicsBody() const;
 		void physicsBody(std::shared_ptr<PhysicsBody> body);
 
@@ -73,7 +70,6 @@ namespace ae {
 		std::weak_ptr<Geometry> 						m_sourceGeometry;
 		std::weak_ptr<Node> 							m_sourceNode;
 		PHYSICS_SHAPE_TYPE 								m_type;
-//		std::vector<std::shared_ptr<btCollisionShape>>	m_childShapes;
 		// The array of transforms that was used to create a compound shape.
 		std::vector<glm::mat4> 							m_transforms;
 
