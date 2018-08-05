@@ -11,6 +11,9 @@ TODO:
 
 30 - rigidbody
 
+	Clean external installations
+	Check and remove #ifdef XCODE in Utilities
+
 	Only install public headers
 
 	Email status dashboard? - https://cachethq.io/	
