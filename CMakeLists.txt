@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.0)
 project(avara-engine)
 
 
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type")
+if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
 
@@ -110,6 +110,8 @@ if (DESKTOP)
 endif()
 
 
+# libraries (headers...) that the test apps depend on
+
 # GLM
 
 include_directories(avara-engine/external/glm-0.9.9)
@@ -123,6 +125,7 @@ add_subdirectory(avara-engine/external/boost-1.67.0)
 
 add_subdirectory(avara-engine/external/spdlog-0.16.2)
 include_directories(avara-engine/external/spdlog-0.16.2/include)
+
 
 # android things
 

@@ -11,7 +11,7 @@ TODO:
 
 30 - rigidbody
 
-	Fix windows build - glew DllMainCRTStartup
+	Only install public headers
 
 	Email status dashboard? - https://cachethq.io/	
 

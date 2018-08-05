@@ -171,3 +171,62 @@ target_compile_options(ae PRIVATE
 	"-Wno-reorder"
 	"-Wno-address-of-packed-member"
 	"-Wno-unused-function")
+		
+		
+		
+if (NOT ANDROID)
+		
+	# check build type
+	
+	message("CMAKE_BUILD_TYPE")
+	message(CMAKE_BUILD_TYPE)
+	message(type ${CMAKE_BUILD_TYPE})
+
+	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRelease"))
+		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
+	else()
+		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
+	endif()
+	
+	set(LIB_INSTALL_DIR ${INSTALL_DIR}/${PROJECT_NAME}/)
+
+	install(TARGETS ae
+	        DESTINATION ${LIB_INSTALL_DIR}/lib)
+		
+	# TODO: make "public headers"	
+	install(FILES ${HEADERS}
+	        DESTINATION ${LIB_INSTALL_DIR}/include)
+			
+			
+	# file(GLOB SHADERS shaders/*)
+	# install(FILES ${SHADERS}
+	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/shaders)
+	#
+	# file(GLOB IMAGES images/*)
+	# install(FILES ${IMAGES}
+	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/images)
+	#
+	# file(GLOB FONTS fonts/*)
+	# install(FILES ${FONTS}
+	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/fonts)
+			
+	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data/)
+			
+	install(DIRECTORY "../tests/data/"
+	        DESTINATION ${DATA_INSTALL_DIR})
+			
+	file(GLOB SHADERS shaders/*)
+	install(FILES ${SHADERS}
+	        DESTINATION ${DATA_INSTALL_DIR}/shaders)
+	
+	file(GLOB IMAGES images/*)
+	install(FILES ${IMAGES}
+	        DESTINATION ${DATA_INSTALL_DIR}/images)
+	
+	file(GLOB FONTS fonts/*)
+	install(FILES ${FONTS}
+	        DESTINATION ${DATA_INSTALL_DIR}/fonts)
+			
+endif()
+		
+		
