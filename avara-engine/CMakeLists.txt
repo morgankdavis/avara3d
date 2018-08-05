@@ -14,7 +14,7 @@ if (NOT ANDROID)
 	
 	# GLEW
 	
-	add_subdirectory(external/glew-2.1.0/build/cmake)
+	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
 	
 	# assimp
