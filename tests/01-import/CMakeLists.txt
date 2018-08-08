@@ -54,7 +54,7 @@ if (NOT ANDROID)
 
 	# check build type
 
-	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRelease"))
+	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
 		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
 	else()
 		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
