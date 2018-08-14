@@ -183,9 +183,9 @@ if (NOT ANDROID)
 	message(type ${CMAKE_BUILD_TYPE})
 
 	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
+		set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/packaged/release)
 	else()
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
+		set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/packaged/debug)
 	endif()
 	
 	set(LIB_INSTALL_DIR ${INSTALL_DIR}/${PROJECT_NAME}/)
