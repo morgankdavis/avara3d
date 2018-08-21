@@ -42,6 +42,15 @@ if (NOT ANDROID)
 	
 endif() # NOT ANDROID
 
+if (MINGW AND UBUNTU_CROSS)
+
+	# bzip2
+
+	include_directories(external/bzip2/include)
+	add_subdirectory(external/bzip2)
+
+endif() # MINGW
+
 # mesh optimizer
 
 add_subdirectory(external/meshoptimizer)
@@ -88,7 +97,7 @@ target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_excepti
 if (MACOS)
 	
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z)
-	target_link_libraries(ae ${FRAMEWORKS})
+	#target_link_libraries(ae ${FRAMEWORKS})
 	
 elseif (LINUX)
 	
@@ -100,7 +109,7 @@ elseif (WINDOWS)
 	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem imgui bz2)
 	
 	# wtf?
-	if(MSYS)
+	if(MSYS OR UBUNTU_CROSS)
 		target_link_libraries(ae winpthread)
 	else() # if(MINGW64)
 		target_link_libraries(ae winpthreads)
@@ -115,7 +124,7 @@ elseif (ANDROID)
 endif()
 
 
-set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 14)
 
 
 if (MACOS)
@@ -125,8 +134,13 @@ if (MACOS)
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
 	find_library(FRAMEWORK_IOKIT IOKit)
+	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
 
-	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
+	# added CoreVideo to make Ubuntu osxcross compile GLFW -- may want to move to GLFW
+	#set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
+	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
+
+	target_link_libraries(ae ${FRAMEWORKS})
 
 	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ -arch x86_64")
 	

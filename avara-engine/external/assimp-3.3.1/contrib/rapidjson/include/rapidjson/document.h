@@ -557,7 +557,8 @@ public:
             flags_ |= kIntFlag;
     }
 
-#if !defined(__x86_64__) && !defined(__arm64__)
+// added by Morgan for osxcross Ubuntu->MacOS cross compile (!defined(APPLE)
+#if !defined(__x86_64__) && !defined(__arm64__) && !defined(APPLE) 
     //! Constructor for size_t value.
     explicit GenericValue( size_t u ) RAPIDJSON_NOEXCEPT : data_(), flags_( kNumberUintFlag ) {
         data_.n.u64 = u;

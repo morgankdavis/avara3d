@@ -16,7 +16,10 @@ set (GLEW_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.
 
 set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-find_package (OpenGL REQUIRED)
+# modified by Morgan for osxcross Ubuntu->MacOS cross compile
+if (NOT (MACOS AND UBUNTU_CROSS))
+	find_package (OpenGL REQUIRED)
+endif()
 
 set (GLEW_LIBRARIES ${OPENGL_LIBRARIES})
 

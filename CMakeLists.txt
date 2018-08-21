@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(avara-engine)
 
+set(CMAKE_CXX_STANDARD 14)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -108,6 +109,12 @@ endif()
 if (DESKTOP)
 	add_definitions("-DDESKTOP")
 endif()
+
+if (UBUNTU_CROSS)
+	message("We're UBUNTU_CROSS")
+	add_definitions("-DUBUNTU_CROSS")
+endif ()
+
 
 
 # libraries (headers...) that the test apps depend on

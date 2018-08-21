@@ -31,7 +31,7 @@
 #endif
 
 #ifdef WINDOWS
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #ifdef ANDROID

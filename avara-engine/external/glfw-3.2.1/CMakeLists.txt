@@ -326,10 +326,18 @@ if (_GLFW_COCOA)
     endif()
 
     # Set up library and include paths
-    find_library(COCOA_FRAMEWORK Cocoa)
-    find_library(IOKIT_FRAMEWORK IOKit)
-    find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-    find_library(CORE_VIDEO_FRAMEWORK CoreVideo)
+
+# modified by Morgan for osxcross cross compile from Ubuntu
+#    find_library(COCOA_FRAMEWORK Cocoa)
+#    find_library(IOKIT_FRAMEWORK IOKit)
+#    find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+#    find_library(CORE_VIDEO_FRAMEWORK CoreVideo)
+
+    find_library(FRAMEWORK_COCOA Cocoa)
+    find_library(FRAMEWORK_IOKIT IOKit)
+    find_library(FRAMEWORK_CORE_FOUNDATION CoreFoundation)
+    find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
+
     mark_as_advanced(COCOA_FRAMEWORK
                      IOKIT_FRAMEWORK
                      CORE_FOUNDATION_FRAMEWORK
@@ -337,7 +345,7 @@ if (_GLFW_COCOA)
     list(APPEND glfw_LIBRARIES "${COCOA_FRAMEWORK}"
                                "${IOKIT_FRAMEWORK}"
                                "${CORE_FOUNDATION_FRAMEWORK}"
-                               "${CORE_VIDEO_FRAMEWORK}")
+                               "${CORE_VIDEO_FRAMEWORK}")#
 
     set(glfw_PKG_DEPS "")
     set(glfw_PKG_LIBS "-framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo")
