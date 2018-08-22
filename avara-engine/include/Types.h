@@ -107,16 +107,16 @@ namespace ae {
 #define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) | static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
 #define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) & ~ static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
 	
-	enum class LOGGER_SINKS : unsigned {
+	enum class LOGGER_SINK : unsigned {
 		NONE =			0,
 		MAIN_FILE =		1 << 0,
 		NAMED_FILE =	1 << 1,
 		NATIVE = 		1 << 2 // stdout, android console, ...
 	};
 	
-#define LOGGER_SINKS_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) & static_cast<underlying_type<LOGGER_SINKS>::type>(sink))
-#define LOGGER_SINKS_ADD(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) | static_cast<underlying_type<LOGGER_SINKS>::type>(sink)))
-#define LOGGER_SINKS_REMOVE(sinks, sink) (static_cast<LOGGER_SINKS>(static_cast<underlying_type<LOGGER_SINKS>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINKS>::type>(sink)))
+#define LOGGER_SINK_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & static_cast<underlying_type<LOGGER_SINK>::type>(sink))
+#define LOGGER_SINK_ADD(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) | static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
+#define LOGGER_SINK_REMOVE(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
 
 	enum class PHYSICS_BODY_TYPE : unsigned {
 		STATIC =	0,

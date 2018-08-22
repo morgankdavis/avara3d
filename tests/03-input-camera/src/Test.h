@@ -22,7 +22,7 @@ namespace ae {
 
 	class InputManager;
 	class Node;
-	class Scene;
+	class RenderContext;
 	class Window;
 
 	
@@ -32,16 +32,15 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowUpdateCallback(Scene& scene, float time);
-		void windowWillRenderCallback(Scene& scene, float time);
-		void windowDidRenderCallback(Scene& scene, float time);
+		void updateCallback(RenderContext& renderContext, float time);
+		void willRenderCallback(RenderContext& renderContext, float time);
+		void didRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 		
 		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
-		std::shared_ptr<Node>				m_suzanneNode;
 	};
 }
 

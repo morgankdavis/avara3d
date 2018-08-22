@@ -11,11 +11,9 @@ TODO:
 
 30 - rigidbody
 
-	Better error reporting for missing files
-		ex: Assertion failed: (this->is_initialized()), function get, file /Users/mkd/jenkins_build/debug/avara-engine/avara-engine/external/boost-1.67.0/boost/optional/optional.hpp, line 1191.
-zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
-	Trace file search paths
+	Test-specific resources
+	Better packaging / separation of lib & tests (separate repo for tests?)
 
 	Only install public headers
 
@@ -24,9 +22,15 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 	Clean up CMake files
 	Only static link libc for release build (MinGW) -OR- switch everything to dynamic linking...
 	Turn off assertions? https://stackoverflow.com/questions/5354314/how-to-completely-disable-assertion
+	
+	
+	
 
+	Better error reporting for missing files
+		ex: Assertion failed: (this->is_initialized()), function get, file /Users/mkd/jenkins_build/debug/avara-engine/avara-engine/external/boost-1.67.0/boost/optional/optional.hpp, line 1191.
+zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
-
+	Trace file search paths
 
 	Check shared geometry, materials, physics shapes resource management
 

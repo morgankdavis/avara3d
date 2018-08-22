@@ -13,7 +13,6 @@
 #include <glm/glm.hpp>
 
 #include "ae.h"
-#include "InputManager.h"
 #include "Utilities.h"
 
 
@@ -53,7 +52,6 @@ int Test::run(const vector<string>& args) {
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
 	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(true);
-	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));

@@ -19,7 +19,7 @@ namespace ae {
 
 
 	class Node;
-	class Scene;
+	class RenderContext;
 
 	class Test {
 		
@@ -27,20 +27,13 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowUpdateCallback(Scene& scene, float time);
-		void windowWillRenderCallback(Scene& scene, float time);
-		void windowDidRenderCallback(Scene& scene, float time);
+		void updateCallback(RenderContext& renderContext, float time);
+		void willRenderCallback(RenderContext& renderContext, float time);
+		void didRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 		
-		std::shared_ptr<Node> parentNode;
-		std::shared_ptr<Node> teapotNode;
-		std::shared_ptr<Node> palmNode;
-		std::shared_ptr<Node> siameseNode;
-		std::shared_ptr<Node> torusNode;
-		std::shared_ptr<Node> coneNode;
-		std::shared_ptr<Node> suzanneNode;
-		std::shared_ptr<Node> ballNode;
+		std::shared_ptr<Node> 		m_parentNode;
 	};
 }
 

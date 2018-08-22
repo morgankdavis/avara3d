@@ -48,9 +48,9 @@ static float ScreenScaleFactor(GLFWmonitor* monitor);
  ***************************************************************************************/
 
 Window::Window(shared_ptr<Renderer> renderer,
-			   bool fullScreen,
-			   unsigned width, unsigned height,
-			   bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
+	bool fullScreen,
+	unsigned width, unsigned height,
+	bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
 	RenderContext(renderer),
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {

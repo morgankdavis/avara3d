@@ -50,8 +50,8 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 		
 		vector<sink_ptr> sinks;
 		
-		LOGGER_SINKS sinksBitmask = logger->sinks();
-		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::NATIVE)) {
+		LOGGER_SINK sinksBitmask = logger->sinks();
+		if (LOGGER_SINK_CONTAINS(sinksBitmask, LOGGER_SINK::NATIVE)) {
 #ifdef ANDROID
 			sinks.push_back(m_androidSink);
 #else
@@ -59,10 +59,10 @@ std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logg
 #endif
 		}
 #ifndef ANDROID
-		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::MAIN_FILE)) {
+		if (LOGGER_SINK_CONTAINS(sinksBitmask, LOGGER_SINK::MAIN_FILE)) {
 			sinks.push_back(m_mainFileSink);
 		}
-		if (LOGGER_SINKS_CONTAINS(sinksBitmask, LOGGER_SINKS::NAMED_FILE)) {
+		if (LOGGER_SINK_CONTAINS(sinksBitmask, LOGGER_SINK::NAMED_FILE)) {
 			// not that since we're not saving this, another sink could be created with the same file name!
 			sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(logger->name() + ".log",
 																	  LOG_FILE_SIZE,

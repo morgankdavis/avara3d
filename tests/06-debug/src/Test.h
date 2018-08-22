@@ -14,15 +14,13 @@
 #include <string>
 #include <vector>
 
-//#include "Types.h"
-
 
 namespace ae {
 
 
 	class InputManager;
 	class Node;
-	class Scene;
+	class RenderContext;
 	class Window;
 
 	
@@ -32,9 +30,9 @@ namespace ae {
 		
 		int run(const std::vector<std::string>& args);
 		
-		void windowUpdateCallback(Scene& scene, float time);
-		void windowWillRenderCallback(Scene& scene, float time);
-		void windowDidRenderCallback(Scene& scene, float time);
+		void updateCallback(RenderContext& renderContext, float time);
+		void willRenderCallback(RenderContext& renderContext, float time);
+		void didRenderCallback(RenderContext& renderContext, float time);
 		
 	private:
 

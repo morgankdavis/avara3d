@@ -59,12 +59,12 @@ void Logger::Init() {
 		//
 		//
 		
-		LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
+		LOGGER_SINK sinks = LOGGER_SINK::NONE;
 		
-		if (LOG_ENABLE_NATIVE) sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
+		if (LOG_ENABLE_NATIVE) sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::NATIVE);
 		
 #ifndef ANDROID
-		sinks = LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::MAIN_FILE);
+		sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::MAIN_FILE);
 #endif
 		g_logger = make_shared<Logger>("ae", sinks);
 		g_logger->info("Init.");
@@ -120,7 +120,7 @@ void Logger::Level(LOG_LEVEL level) {
      Lifecycle
  ***************************************************************************************/
 
-Logger::Logger(string name, LOGGER_SINKS sinks):
+Logger::Logger(string name, LOGGER_SINK sinks):
 	m_name(name),
 	m_sinks(sinks) {
 
@@ -151,7 +151,7 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 			
 			vector<sink_ptr> sinks;
 			
-			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::NATIVE)) {
+			if (LOGGER_SINK_CONTAINS(m_sinks, LOGGER_SINK::NATIVE)) {
 #ifdef ANDROID
 				sinks.push_back(i_spdlogAndroidSink);
 #else
@@ -159,10 +159,10 @@ Logger::Logger(string name, LOGGER_SINKS sinks):
 #endif
 			}
 #ifndef ANDROID
-			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::MAIN_FILE)) {
+			if (LOGGER_SINK_CONTAINS(m_sinks, LOGGER_SINK::MAIN_FILE)) {
 				sinks.push_back(i_spdlogMainFileSink);
 			}
-			if (LOGGER_SINKS_CONTAINS(m_sinks, LOGGER_SINKS::NAMED_FILE)) {
+			if (LOGGER_SINK_CONTAINS(m_sinks, LOGGER_SINK::NAMED_FILE)) {
 				// not that since we're not saving this, another sink could be created with the same file name!
 				sinks.push_back(make_shared<sinks::rotating_file_sink_mt>(name + ".log",
 																		  LOG_FILE_SIZE,
@@ -197,7 +197,7 @@ string Logger::name() const {
 	return m_name;
 }
 
-LOGGER_SINKS Logger::sinks() const {
+LOGGER_SINK Logger::sinks() const {
 	return m_sinks;
 }
 
