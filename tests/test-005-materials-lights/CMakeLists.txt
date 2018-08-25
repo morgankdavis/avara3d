@@ -62,5 +62,10 @@ if (NOT ANDROID)
 
 	install(TARGETS ${EXECUTABLE_NAME}
 	        DESTINATION ${INSTALL_DIR}/tests)
+	        
+	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/${EXECUTABLE_NAME}/data)
+			
+	install(DIRECTORY "../tests/${EXECUTABLE_NAME}/data"
+	        DESTINATION ${DATA_INSTALL_DIR}/../)
 
 endif()

@@ -224,10 +224,10 @@ if (NOT ANDROID)
 	# install(FILES ${FONTS}
 	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/fonts)
 			
-	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data)
-			
-	install(DIRECTORY "../tests/data"
-	        DESTINATION ${DATA_INSTALL_DIR}/../)
+#	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data)
+#			
+#	install(DIRECTORY "../tests/data"
+#	        DESTINATION ${DATA_INSTALL_DIR}/../)
 			
 	file(GLOB SHADERS shaders/*)
 	install(FILES ${SHADERS}
