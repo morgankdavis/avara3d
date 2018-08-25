@@ -11,13 +11,11 @@ TODO:
 
 30 - rigidbody
 
-
-	Test-specific resources
+	Wrap scene resources in individual directories
 	Revise resource search paths
 		throw Exception when not found with list of paths tried
 		Rename "TestXYZNamed" functions
 	Rename "tests" to "demos" and clean up name consistency
-	Put all scenes in "models" folder with subfolders for textures
 	Better packaging / separation of lib & tests (separate repo for tests?)
 
 	Only install public headers
