@@ -29,7 +29,7 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
+constexpr bool					CAPTURE_CURSOR =		true;
 
 
 /***************************************************************************************
@@ -66,7 +66,7 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode(make_shared<Node>("Root node"));
 	
 
-	auto siameseScene = TestSceneNamed("siamese");
+	auto siameseScene = TestSceneNamed("siamese/siamese");
 	auto siameseNode = siameseScene->rootNode()->child("Siamese", true);
 	m_siameseNode = siameseNode;
 	siameseNode->scale(siameseNode->scale() * 0.070f);
@@ -75,12 +75,12 @@ int Test::run(const vector<string>& args) {
 	siameseScene = nullptr;
 	siameseNode = nullptr;
 
-	auto islandScene = TestSceneNamed("Island", "obj");
+	auto islandScene = TestSceneNamed("island/Island", "obj");
 	auto islandNode = islandScene->rootNode()->children(true)[0];
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
-	auto palletScene = TestSceneNamed("Pallet_rot");
+	auto palletScene = TestSceneNamed("pallet_rot/Pallet_rot");
 	auto palletNode = palletScene->rootNode()->children(true)[1];
 	palletNode->name("Pallet node");
 	m_palletNode = palletNode;
@@ -90,12 +90,12 @@ int Test::run(const vector<string>& args) {
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChild(palletNode);
 	
-	auto tunaScene = TestSceneNamed("tuna_rot");
+	auto tunaScene = TestSceneNamed("tuna_rot/tuna_rot");
 	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
 	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
 	scene->rootNode()->addChild(tunaScene->rootNode());
 
-	auto palm1Scene = TestSceneNamed("palm1", "obj");
+	auto palm1Scene = TestSceneNamed("palm1/palm1", "obj");
 	m_palmsNode = palm1Scene->rootNode();
 	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
 	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);

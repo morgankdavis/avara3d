@@ -29,7 +29,7 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
+constexpr bool					CAPTURE_CURSOR =		true;
 
 
 /***************************************************************************************
