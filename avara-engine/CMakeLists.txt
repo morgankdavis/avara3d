@@ -1,7 +1,14 @@
 
 include_directories(external)
 
-if (NOT ANDROID)
+if (ANDROID)
+
+	# NDKHelper
+
+	add_subdirectory(external/NDKHelper)
+	
+else()
+
 	# GLFW
 	
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -42,6 +49,7 @@ if (NOT ANDROID)
 	
 endif() # NOT ANDROID
 
+
 if (MINGW AND UBUNTU_CROSS)
 
 	# bzip2
@@ -50,6 +58,7 @@ if (MINGW AND UBUNTU_CROSS)
 	add_subdirectory(external/bzip2)
 
 endif() # MINGW
+
 
 # mesh optimizer
 
@@ -81,7 +90,6 @@ include_directories(external/bullet3-2.87/src)
 add_subdirectory(external/bullet3-2.87)
 
 
-
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
 
@@ -90,44 +98,41 @@ include_directories(include)
 add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 
-target_link_libraries(ae Bullet3Common BulletCollision Bullet3Collision BulletDynamics Bullet3Dynamics BulletInverseDynamics Bullet3Geometry Bullet3OpenCL_clew LinearMath Bullet2FileLoader)
-target_link_libraries(ae boost_atomic boost_chrono boost_date_time boost_exception boost_filesystem boost_regex boost_system boost_test boost_thread boost_timer)
-
-
-if (MACOS)
+target_link_libraries(ae
+	generator
+	meshoptimizer
+	Bullet3Common BulletCollision
+	Bullet3Collision
+	BulletDynamics
+	Bullet3Dynamics
+	BulletInverseDynamics
+	Bullet3Geometry
+	Bullet3OpenCL_clew
+	LinearMath
+	Bullet2FileLoader
+	boost_atomic
+	boost_chrono
+	boost_date_time
+	boost_exception
+	boost_filesystem
+	boost_regex
+	boost_system
+	boost_test
+	boost_thread
+	boost_timer)
 	
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z)
-	#target_link_libraries(ae ${FRAMEWORKS})
-	
-elseif (LINUX)
-	
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui z boost_system boost_filesystem)
-	target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
-	
-elseif (WINDOWS)
-
-	target_link_libraries(ae generator manymouse meshoptimizer glfw glew_s assimp imgui boost_system boost_filesystem imgui bz2)
-	
-	# wtf?
-	if(MSYS OR UBUNTU_CROSS)
-		target_link_libraries(ae winpthread)
-	else() # if(MINGW64)
-		target_link_libraries(ae winpthreads)
-	endif()
-	
-	target_link_libraries(ae ${OPENGL_LIBRARY})
-	
-elseif (ANDROID)
-	
-	target_link_libraries(ae generator meshoptimizer z boost_system boost_filesystem android EGL GLESv3)
-	
+if (DESKTOP)
+	target_link_libraries(ae
+		manymouse
+		glfw
+		glew_s
+		assimp)
 endif()
 
 
-#set(CMAKE_CXX_STANDARD 14)
-
-
 if (MACOS)
+	
+	target_link_libraries(ae imgui z)
 	
 	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
@@ -136,8 +141,6 @@ if (MACOS)
 	find_library(FRAMEWORK_IOKIT IOKit)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
 
-	# added CoreVideo to make Ubuntu osxcross compile GLFW -- may want to move to GLFW
-	#set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT})
 	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
 
 	target_link_libraries(ae ${FRAMEWORKS})
@@ -147,34 +150,56 @@ if (MACOS)
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 	
 elseif (LINUX)
-
+	
+	target_link_libraries(ae
+		imgui
+		z
+		GL
+		X11
+		Xxf86vm
+		Xrandr
+		pthread
+		Xi
+		dl)
+	#target_link_libraries(ae GL X11 Xxf86vm Xrandr pthread Xi dl)
+	
 	include_directories("/usr/include" "/usr/local/include")
 	
 	set(CMAKE_CXX_FLAGS "-std=c++14")
-
+	
 elseif (WINDOWS)
 
+	target_link_libraries(ae
+		imgui
+		bz2)
+	
+	# wtf?
+	if(MSYS OR UBUNTU_CROSS)
+		target_link_libraries(ae winpthread)
+	else()
+		target_link_libraries(ae winpthreads)
+	endif()
+	
+	#target_link_libraries(ae ${OPENGL_LIBRARY})
+	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 	
 elseif (ANDROID)
-
-	add_subdirectory(external/NDKHelper)
 	
-	# Export ANativeActivity_onCreate(),
-	# Refer to: https://github.com/android-ndk/ndk/issues/381.
-	set_target_properties(ae PROPERTIES  LINK_FLAGS "-u ANativeActivity_onCreate")
-
-	target_link_libraries(ae NDKHelper)
-
+	target_link_libraries(ae
+		android
+		NDKHelper
+		z
+		EGL
+		GLESv3)
+		
+	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
+	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
+	
 endif()
 
-# windows:
-#cc1plus.exe: warning: unrecognized command line option '-Wno-address-of-packed-member'
-#cc1plus.exe: warning: unrecognized command line option '-Wno-self-assign'
-#cc1plus.exe: warning: unrecognized command line option '-Wno-c++11-long-long'
-#cc1plus.exe: warning: unrecognized command line option '-Wno-address-of-packed-member'
-#cc1plus.exe: warning: unrecognized command line option '-Wno-self-assign'
-#cc1plus.exe: warning: unrecognized command line option '-Wno-c++11-long-long'
+
+# silence stupid warnings
 
 target_compile_options(ae PRIVATE 
 	"-fmessage-length=0"
@@ -187,60 +212,31 @@ target_compile_options(ae PRIVATE
 	"-Wno-unused-function")
 		
 		
-		
 if (NOT ANDROID)
 		
-	# check build type
-	
-	message("CMAKE_BUILD_TYPE")
-	message(CMAKE_BUILD_TYPE)
-	message(type ${CMAKE_BUILD_TYPE})
+	# install lib and headers
 
-	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
-	else()
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
-	endif()
-	
-	set(LIB_INSTALL_DIR ${INSTALL_DIR}/${PROJECT_NAME}/)
+	set(LIB_INSTALL_DIR "${ROOT_INSTALL_DIR}/${INSTALL_DIR}/${PROJECT_NAME}")
 
 	install(TARGETS ae
-	        DESTINATION ${LIB_INSTALL_DIR}/lib)
+	        DESTINATION "${LIB_INSTALL_DIR}/lib")
 		
 	# TODO: make "public headers"	
 	install(FILES ${HEADERS}
-	        DESTINATION ${LIB_INSTALL_DIR}/include)
-			
-			
-	# file(GLOB SHADERS shaders/*)
-	# install(FILES ${SHADERS}
-	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/shaders)
-	#
-	# file(GLOB IMAGES images/*)
-	# install(FILES ${IMAGES}
-	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/images)
-	#
-	# file(GLOB FONTS fonts/*)
-	# install(FILES ${FONTS}
-	#         DESTINATION ${INSTALL_DIR}/${PROJECT_NAME}/fonts)
-			
-#	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/data)
-#			
-#	install(DIRECTORY "../tests/data"
-#	        DESTINATION ${DATA_INSTALL_DIR}/../)
-			
-	file(GLOB SHADERS shaders/*)
+	        DESTINATION "${LIB_INSTALL_DIR}/include")
+	        
+	# install engine resources
+
+	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/shaders/*")
 	install(FILES ${SHADERS}
-	        DESTINATION ${DATA_INSTALL_DIR}/shaders)
-	
-	file(GLOB IMAGES images/*)
+			DESTINATION "${LIB_INSTALL_DIR}/shaders")
+
+	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/images/*")
 	install(FILES ${IMAGES}
-	        DESTINATION ${DATA_INSTALL_DIR}/images)
-	
-	file(GLOB FONTS fonts/*)
+			DESTINATION "${LIB_INSTALL_DIR}/images")
+
+	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/fonts/*")
 	install(FILES ${FONTS}
-	        DESTINATION ${DATA_INSTALL_DIR}/fonts)
+			DESTINATION "${LIB_INSTALL_DIR}/fonts")
 			
 endif()
-		
-		

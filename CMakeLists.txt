@@ -141,6 +141,15 @@ if (ANDROID)
 endif()
 
 
+# install location
+
+if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
+	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
+else()
+	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
+endif()
+
+
 # ae & tests
 
 add_subdirectory(avara-engine)

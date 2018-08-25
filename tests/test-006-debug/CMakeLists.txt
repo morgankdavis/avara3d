@@ -1,34 +1,31 @@
 
-set(EXECUTABLE_NAME "test-006-debug")
-MESSAGE(STATUS "EXECUTABLE_NAME: " ${EXECUTABLE_NAME})
+set(TEST_PREFIX "test")
+set(DEMO_PREFIX "demo")
+set(UNIT_NUMBER "006")
+set(UNIT_DESCRIPTION "debug")
+
+set(TEST_NAME "${TEST_PREFIX}-${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
+#set(DEMO_NAME "${DEMO_PREFIX}-${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
+
+message(STATUS "TEST_NAME: " ${TEST_NAME})
+#message(STATUS "DEMO_NAME: " ${DEMO_NAME})
 
 
 # add headers from avara-engine
-include_directories(${CMAKE_SOURCE_DIR}/avara-engine/include)
+include_directories("${CMAKE_SOURCE_DIR}/avara-engine/include")
 
 
-file(GLOB HEADERS src/*.h)
-file(GLOB SOURCES src/*.c*)
+file(GLOB HEADERS "src/*.h")
+file(GLOB SOURCES "src/*.c*")
 
 
-add_executable(${EXECUTABLE_NAME} ${HEADERS} ${SOURCES})
-target_link_libraries(${EXECUTABLE_NAME} ae)
+add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
+target_link_libraries(${TEST_NAME} ae)
 
 
 if(MACOS)
 
-	link_directories("/usr/local/lib/" "/System/Library/Frameworks")
-
-	# target_compile_options(${EXECUTABLE_NAME} PRIVATE
-	# 	"-mmacosx-version-min=10.9")
-
-	set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++ -arch x86_64")
-
 elseif(LINUX)
-
-	include_directories("/usr/include" "/usr/local/include")
-
-	set(CMAKE_CXX_FLAGS "-std=c++14")
 
 elseif(WINDOWS)
 
@@ -37,7 +34,7 @@ elseif(WINDOWS)
 endif()
 
 
-target_compile_options(${EXECUTABLE_NAME} PRIVATE 
+target_compile_options(${TEST_NAME} PRIVATE 
 	"-fmessage-length=0"
 	"-UGLFW_CDECL"
 	"-Wno-float-equal"
@@ -48,26 +45,13 @@ target_compile_options(${EXECUTABLE_NAME} PRIVATE
 	"-Wno-unused-function")
 
 
-
-
-
-
 if (NOT ANDROID)
 
-	# check build type
+	# install test executable
+	
+	set(TESTS_INSTALL_DIR "${ROOT_INSTALL_DIR}/tests")
 
-	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/release)
-	else()
-		set(INSTALL_DIR ${PROJECT_BINARY_DIR}/packaged/debug)
-	endif()
-
-	install(TARGETS ${EXECUTABLE_NAME}
-	        DESTINATION ${INSTALL_DIR}/tests)
-	        
-	set(DATA_INSTALL_DIR ${INSTALL_DIR}/tests/${EXECUTABLE_NAME}/data)
-			
-	install(DIRECTORY "../tests/${EXECUTABLE_NAME}/data"
-	        DESTINATION ${DATA_INSTALL_DIR}/../)
+	install(TARGETS ${TEST_NAME}
+	        DESTINATION "${TESTS_INSTALL_DIR}")
 
 endif()
