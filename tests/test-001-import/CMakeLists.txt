@@ -29,7 +29,7 @@ elseif(LINUX)
 	
 elseif(WINDOWS)
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
 
 endif()
 
