@@ -133,21 +133,14 @@ endif()
 if (MACOS)
 	
 	target_link_libraries(ae imgui z)
-	
-	#link_directories("/usr/local/lib/" "/System/Library/Frameworks")
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
 	find_library(FRAMEWORK_IOKIT IOKit)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
-
 	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
-
 	target_link_libraries(ae ${FRAMEWORKS})
 
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -arch x86_64")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -arch x86_64")
-	
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 	
 elseif (LINUX)
@@ -162,10 +155,6 @@ elseif (LINUX)
 		pthread
 		Xi
 		dl)
-
-	#include_directories("/usr/include" "/usr/local/include")
-	
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	
 elseif (WINDOWS)
 

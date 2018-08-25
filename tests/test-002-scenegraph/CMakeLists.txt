@@ -23,17 +23,6 @@ add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${TEST_NAME} ae)
 
 
-if(MACOS)
-
-elseif(LINUX)
-
-elseif(WINDOWS)
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -lpthread")
-
-endif()
-
-
 target_compile_options(${TEST_NAME} PRIVATE 
 	"-fmessage-length=0"
 	"-UGLFW_CDECL"

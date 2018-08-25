@@ -84,11 +84,11 @@ if (MACOS OR WINDOWS OR LINUX)
     set(DESKTOP TRUE)
 endif()
 
-
 if (XCODE)
 	message("We're XCODE")
 	add_definitions("-DXCODE")
 endif()
+
 if (MACOS)
 	add_definitions("-DAPPLE" "-DMACOS")
 elseif (LINUX)
@@ -106,6 +106,7 @@ elseif (WINDOWS)
 elseif (ANDROID)
 	add_definitions("-DANDROID")
 endif()
+
 if (DESKTOP)
 	add_definitions("-DDESKTOP")
 endif()
@@ -114,6 +115,10 @@ if (UBUNTU_CROSS)
 	message("We're UBUNTU_CROSS")
 	add_definitions("-DUBUNTU_CROSS")
 endif ()
+
+if (DESKTOP)
+	set(CMAKE_OSX_ARCHITECTURES "x86_64")
+endif()
 
 
 
