@@ -259,6 +259,17 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 	return boost::none;
 }
 
+boost::optional<boost::filesystem::path> ae::utils::ExecutableName() {
+	auto execPathStr = ExecutablePath();
+	if (execPathStr) {
+		auto execPath = boost::filesystem::path(*execPathStr);
+		if (is_regular_file(execPath)) {
+			return execPath.filename();
+		}
+	}
+	return boost::none;
+}
+
 boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
@@ -511,6 +522,13 @@ boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
 		
 		dir = execDir->parent_path().parent_path().parent_path() / "tests" / "data";
 		if (boost::filesystem::is_directory(dir)) return dir;
+		
+		// xcode build
+		auto execName = ExecutableName();
+		if (execName) {
+			dir = execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / *execName / "data";
+			if (boost::filesystem::is_directory(dir)) return dir;
+		}
 	}
 	return boost::none;
 }

@@ -13,6 +13,11 @@ TODO:
 
 
 	Test-specific resources
+	Revise resource search paths
+		throw Exception when not found with list of paths tried
+		Rename "TestXYZNamed" functions
+	Rename "tests" to "demos" and clean up name consistency
+	Put all scenes in "models" folder with subfolders for textures
 	Better packaging / separation of lib & tests (separate repo for tests?)
 
 	Only install public headers
@@ -30,7 +35,6 @@ TODO:
 		ex: Assertion failed: (this->is_initialized()), function get, file /Users/mkd/jenkins_build/debug/avara-engine/avara-engine/external/boost-1.67.0/boost/optional/optional.hpp, line 1191.
 zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
-	Trace file search paths
 
 	Check shared geometry, materials, physics shapes resource management
 
@@ -57,6 +61,8 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
 
 	------ Other things (non-physics) ------
+	
+	Add "Approximate VRAM usage" to Renderer
 
 	Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
 
