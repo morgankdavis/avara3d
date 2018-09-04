@@ -40,12 +40,12 @@ else()
 	# many mouse
 	
 	add_subdirectory(external/manymouse)
-	include_directories(external/manymouse)
+	include_directories(external/manymouse/include)
 	
 	# imgui
 
-	include_directories(external/imgui-1.62/include)
 	add_subdirectory(external/imgui-1.62)
+	include_directories(external/imgui-1.62/include)
 	
 endif() # NOT ANDROID
 
@@ -54,8 +54,8 @@ if (MINGW AND UBUNTU_CROSS)
 
 	# bzip2
 
-	include_directories(external/bzip2/include)
 	add_subdirectory(external/bzip2)
+	include_directories(external/bzip2/include)
 
 endif() # MINGW
 
@@ -63,14 +63,12 @@ endif() # MINGW
 # mesh optimizer
 
 add_subdirectory(external/meshoptimizer)
-include_directories(external/meshoptimizer)
+include_directories(external/meshoptimizer/include)
 
 # generator
 
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
-
-include_directories(external/stb)
 
 # gif-h
 
@@ -80,14 +78,10 @@ include_directories(external/gif-h)
 
 include_directories(external/stb)
 
-# fontstash
-
-include_directories(external/fontstash)
-
 # bullet
 
-include_directories(external/bullet3-2.87/src)
 add_subdirectory(external/bullet3-2.87)
+include_directories(external/bullet3-2.87/src)
 
 
 file(GLOB HEADERS include/*.h)
@@ -128,7 +122,6 @@ if (DESKTOP)
 		glew_s
 		assimp)
 endif()
-
 
 if (MACOS)
 	

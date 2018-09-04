@@ -259,6 +259,15 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutablePath() {
 	return boost::none;
 }
 
+boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
+	auto execPathStr = ExecutablePath();
+	if (execPathStr) {
+		auto execPath = boost::filesystem::path(*execPathStr);
+		return execPath.parent_path();
+	}
+	return boost::none;
+}
+
 boost::optional<boost::filesystem::path> ae::utils::ExecutableName() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
@@ -266,15 +275,6 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutableName() {
 		if (is_regular_file(execPath)) {
 			return execPath.filename();
 		}
-	}
-	return boost::none;
-}
-
-boost::optional<boost::filesystem::path> ae::utils::ExecutableDirectory() {
-	auto execPathStr = ExecutablePath();
-	if (execPathStr) {
-		auto execPath = boost::filesystem::path(*execPathStr);
-		return execPath.parent_path();
 	}
 	return boost::none;
 }

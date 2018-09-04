@@ -15,8 +15,10 @@ message(STATUS "TEST_NAME: " ${TEST_NAME})
 include_directories("${CMAKE_SOURCE_DIR}/avara-engine/include")
 
 
-file(GLOB HEADERS "src/*.h")
+file(GLOB HEADERS "include/*.h")
 file(GLOB SOURCES "src/*.c*")
+
+include_directories("include")
 
 
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})

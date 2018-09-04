@@ -10,20 +10,7 @@ if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
-
-# print environment for debugging...
-
-#message("ENVIRONMENT:")
-
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
-
-#execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
-
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
-
 
 if (UNIX AND APPLE)
     message("We're MACOS")
@@ -119,7 +106,6 @@ endif ()
 if (DESKTOP)
 	set(CMAKE_OSX_ARCHITECTURES "x86_64")
 endif()
-
 
 
 # libraries (headers...) that the test apps depend on

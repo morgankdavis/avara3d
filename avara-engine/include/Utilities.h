@@ -89,8 +89,8 @@ namespace ae {
 		
 #ifndef ANDROID
 		boost::optional<boost::filesystem::path> ExecutablePath();
-		boost::optional<boost::filesystem::path> ExecutableName();
 		boost::optional<boost::filesystem::path> ExecutableDirectory();
+		boost::optional<boost::filesystem::path> ExecutableName();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
 #endif
 		

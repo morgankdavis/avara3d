@@ -11,30 +11,6 @@ TODO:
 
 30 - rigidbody
 
-	Wrap scene resources in individual directories
-	Revise resource search paths
-		throw Exception when not found with list of paths tried
-		Rename "TestXYZNamed" functions
-	Rename "tests" to "demos" and clean up name consistency
-	Better packaging / separation of lib & tests (separate repo for tests?)
-
-	Only install public headers
-
-	Look at gtest + integrate with build server?
-
-	Clean up CMake files
-	Only static link libc for release build (MinGW) -OR- switch everything to dynamic linking...
-	Turn off assertions? https://stackoverflow.com/questions/5354314/how-to-completely-disable-assertion
-	
-	
-	
-
-	Better error reporting for missing files
-		ex: Assertion failed: (this->is_initialized()), function get, file /Users/mkd/jenkins_build/debug/avara-engine/avara-engine/external/boost-1.67.0/boost/optional/optional.hpp, line 1191.
-zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
-
-
-	Check shared geometry, materials, physics shapes resource management
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -51,26 +27,35 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
 	Fix margins + add to PhysicsBody/Shape
 
-	autocomputesMomentOfInertia - dirty bits -- remember changing mass means re-computing
+	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 
-	Add physics stats?
+	Add physics stats
 
 	
-
 
 	------ Other things (non-physics) ------
 	
+	Unify Utilities data loading -- no distinction from "test" and "engine"
+		-> Look in engine directories first, then in install directories
+		e.g. ImageNamed() -> array ImageDirectories()
+		throw Exception when data is not found?
+	
+	Relink android data in bulk
+	Fix android assimp
+	Create android tests shells for all tests and link to proper test classes
+	
 	Add "Approximate VRAM usage" to Renderer
+	
+	Switch AABB to min, max vec3s
 
 	Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
 
-	Create a generalize caching interface for creating new geometries?
+	Create a generalized caching interface for creating new geometries?
 		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
 		nodes that have referenced to all the cached stuff.
 		Interface to invalidate some/all contents
 
 	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
-	Test sharing physics shapes!
 
 	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
@@ -80,15 +65,13 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 	ae::Object
 	AE objs -> description() + operator<<
 
-	Switch AABB to min, max vec3s
-
 	Objects with textures are black on first frame
 
 	Add Geometry::extent() / extent(bool recursive)
 
 	Switch GLM setters to static references
 
-	Try glViewport() with screen points width and height...
+	Try glViewport() with screen points width and height
 
 	Move Program static functions to instance variables in OpenGLRenderer	
 
@@ -106,8 +89,15 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
 	Android:
 		Imgui GLES: https://github.com/ocornut/imgui/issues/1200
+		
+	Find a new logging lib?
+		https://www.boost.org/doc/libs/1_55_0/libs/log/doc/html/index.html
+		https://github.com/emilk/loguru
+		https://github.com/muflihun/easyloggingpp
+		https://github.com/SergiusTheBest/plog
 
-	FIX ALL TESTS AND UPDATE BUILD SERVER TARGETS (not just "ae")
+	Integrate gtest
+	Rename "tests" to "demos" and clean up name consistency
 
 
 
@@ -152,6 +142,10 @@ zsh: abort      /Users/mkd/Desktop/packaged/debug/tests/test30-rigidbody
 
 150 - localization
 
+??? - Camera animation
+	http://libclaw.sourceforge.net/tweeners.html
+	https://code.google.com/archive/p/cpptweener/
+	
 ——————————————————————————————————
 
 QUESTIONS:
@@ -166,12 +160,20 @@ QUESTIONS:
 
 Laundry list:
 
+	Property encapsulate logging.
+		Look at PLog? https://github.com/SergiusTheBest/plog
+
+	Gamma correction
+
+	Embed shader sources into app
+		https://github.com/cyrilcode/embed-resource/tree/a49d88b618b85bfc7aaa02f3b5c74b7058048045
+
 	SceneImporter/.aes
 
 	ANDROID ACTIVITY LIFECYCLE
 
 	Android capture cursor: https://developer.android.com/training/gestures/movement
-					Android 8+, API 26-27
+		Android 8+, API 26-27
 
 	ANDROID RAW MOUSE
 		http://newandroidbook.com/Book/Input.html?r
@@ -179,32 +181,20 @@ Laundry list:
 	Generate and store nip maps in AE texture/model file	
 
 	Use shared libs?
-		AE_API defines
+		AE_API defines?
 		https://stackoverflow.com/questions/8863193/what-does-declspecdllimport-really-mean
-
-	SWITCH FONSTASH TO IMGUI
-
-	Localization
 
 	Mesh decimation/simplification/reduction
 	http://www.openmesh.org/Daily-Builds/Doc/index.html
 	http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
-
-	Bullet ALIGN 16 FOR SIMD
 
 	Switch generator to GLM + dynamic link
 
 	INFINATE FLAT GROUND (SCNFloor)
 		http://www.terathon.com/gdc07_lengyel.pdf
 
-	Anti-cheat. PunkBuster? https://en.wikipedia.org/wiki/PunkBuster
-
 	Try out flat shading
 		https://www.codeguru.com/cpp/g-m/opengl/article.php/c2681/Computing-normals-to-achieve-flat-and-smooth-shading.htm
-
-	Convert all path manipulations to boost::filesystem
-
-	Log level per log?
 
 	Wireframe MATERIAL?
 
@@ -222,16 +212,6 @@ Laundry list:
 			https://gafferongames.com/post/fix_your_timestep/
 
 	Read config from TOML file
-
-	Initialize weak_ptr back-pointer in constructor??
-
-	Property encapsulate logging.
-		Look at PLog? https://github.com/SergiusTheBest/plog
-
-	Gamma correction
-
-	Embed shader sources into app
-		https://github.com/cyrilcode/embed-resource/tree/a49d88b618b85bfc7aaa02f3b5c74b7058048045
 
 	Custom scene/mesh/material format
 		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
