@@ -54,7 +54,7 @@ static void AddSlurms(Scene& scene);
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	Logger::Level(LOG_LEVEL::TRACE_);
+	Logger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
 
