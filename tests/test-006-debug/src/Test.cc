@@ -70,12 +70,12 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode(make_shared<Node>("Root node"));
 	
 
-	auto teapotScene = TestSceneNamed("teapot");
+	auto teapotScene = SceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->children(true)[1];
     teapotNode->rotation({1, 0, 0, radians(30.0)});
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonScene = TestSceneNamed("dragon", "obj");
+	auto dragonScene = SceneNamed("dragon", "obj");
 	auto dragonNode = dragonScene->rootNode()->children(true)[0];
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
@@ -91,7 +91,7 @@ int Test::run(const vector<string>& args) {
 	}
 	
 
-	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
+	auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25, 0.25, 0.25, 1.0));

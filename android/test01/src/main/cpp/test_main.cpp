@@ -58,14 +58,14 @@ void android_main(android_app* app) {
 	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position({0.0f, 0.0f, 0.0f});
 
-	auto gridImage = TestImageNamed("plant", string("jpg"));
+	auto gridImage = ImageNamed("plant", string("jpg"));
 	auto sphereMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	sphereMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	sphereMaterialProperty->wrapT(WRAP_MODE::REPEAT);
 	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
 	sphereNode->geometry()->addMaterial(sphereMaterial);
 
-	cubeBackground = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
+	cubeBackground = make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png"));
 //	auto background = make_shared<MaterialProperty>(Color::Lime());
 	scene->background(cubeBackground);
 

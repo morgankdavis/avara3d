@@ -296,6 +296,103 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 #endif // !ANDROID
 
+// *** search paths ***
+
+#ifndef ANDROID
+
+vector<boost::filesystem::path> ae::utils::BaseSearchPaths() {
+	// build a list of common directories where "shader", "scene", "images", "fonts" etc
+	// subdirectories may live.
+	// clients will use this to append those subdirectory names to search for specific resources.
+	// clients should first check "local" locations first, then "engine" locations.
+	
+	auto basePaths = vector<boost::filesystem::path>();
+	auto execDir = ExecutableDirectory();
+	
+	if (execDir) {
+		// [local] archived
+		// [local] cmake installed ("packaged")
+		auto path = (*execDir) / "data";
+		basePaths.emplace_back(path);
+		
+		// [local] xcode debug
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
+		basePaths.emplace_back(path);
+		
+		// [local] unix/msys debug
+		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
+		basePaths.emplace_back(path);
+		
+		// [engine] archived
+		path = (*execDir).parent_path() / "avara-engine";
+		basePaths.emplace_back(path);
+		
+		// [engine] cmake installed ("packaged")
+		// [engine] xcode debug
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "avara-engine";
+		basePaths.emplace_back(path);
+		
+		// [engine] unix/msys debug
+		path = (*execDir).parent_path().parent_path().parent_path() / "avara-engine";
+		basePaths.emplace_back(path);
+		
+		// fallback
+		path = (*execDir);
+		basePaths.emplace_back(path);
+	}
+	
+	return basePaths;
+}
+
+vector<boost::filesystem::path> ae::utils::ShaderSearchPaths() {
+	auto searchPaths = vector<boost::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "shaders");
+	}
+	return searchPaths;
+}
+
+vector<boost::filesystem::path> ae::utils::SceneSearchPaths() {
+	auto searchPaths = vector<boost::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "scenes");
+	}
+	return searchPaths;
+}
+
+vector<boost::filesystem::path> ae::utils::ImageSearchPaths() {
+	auto searchPaths = vector<boost::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "images");
+	}
+	return searchPaths;
+}
+
+vector<boost::filesystem::path> ae::utils::FontSearchPaths() {
+	auto searchPaths = vector<boost::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "fonts");
+	}
+	return searchPaths;
+}
+
+boost::optional<boost::filesystem::path> ae::utils::SearchInPaths(const string& filename,
+																  vector<boost::filesystem::path> paths) {
+	AE_LOG->trace("Searching for '{}' in...", filename);
+	for (auto& searchPath : paths) {
+		AE_LOG->trace("\t...'{}", searchPath.string());
+		if (boost::filesystem::is_directory(searchPath)) {
+			auto path = searchPath / filename;
+			if (boost::filesystem::is_regular_file(path)) {
+				return path;
+			}
+		}
+	}
+	return boost::none;
+}
+
+#endif // !ANDROID
+
 // *** binary and text files ***
 
 vector<unsigned char> ae::utils::Buffer(unsigned char* buf, unsigned len) {
@@ -381,21 +478,19 @@ unsigned ae::utils::BinaryFile(const boost::filesystem::path& path, std::vector<
 
 #endif // ANDROID
 
-// *** engine shaders ***
+// *** shaders ***
 
 boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 													 const string& type) {
 	boost::optional<string> rawSource = boost::none;
 #ifdef ANDROID
-#warning _es temporary
 	rawSource = TextAsset("shaders/" + name + "." + type);
 #else
-	auto path = ShaderPath(name, type);
+	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
-		//return TextFile(*path);
+		AE_LOG->trace("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
-	//return boost::none;
 #endif
 	
 	if (rawSource) {
@@ -413,240 +508,82 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 	return boost::none;
 }
 
-#ifndef ANDROID
-
-boost::optional<boost::filesystem::path> ae::utils::ShadersDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-
-		// "installed" location
-		auto dir = *execDir / "data" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "data" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path() / "avara-engine" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "avara-engine" / "shaders";
-		if (boost::filesystem::is_directory(dir)) return dir;
-	}
-	return boost::none;
-}
-
-boost::optional<boost::filesystem::path> ae::utils::ShaderPath(const string& name,
-															   const string& type) {
-	auto shadersDir = ShadersDirectory();
-	if (shadersDir) {
-		return *shadersDir / (name + "." + type);
-	}
-	return boost::none;
-}
-
-#endif // !ANDROID
-
-// *** engine fonts ***
+// *** fonts ***
 
 vector<unsigned char> ae::utils::FontData(const string& name,
 										  const string& type) {
 #ifdef ANDROID
 	return BinaryAsset("fonts/" + name + "." + type);
 #else
-	auto fontPath = FontPath(name, type);
-	if (fontPath) {
-		return BinaryFile(*fontPath);
+	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
+	if (path) {
+		AE_LOG->trace("Found font at path: {}", (*path).string());
+		return BinaryFile(*path);
 	}
 	return vector<unsigned char>();
 #endif
 }
 
-#ifndef ANDROID
-
-boost::optional<boost::filesystem::path> ae::utils::FontsDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-
-		// "installed" location
-		auto dir = *execDir / "data" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "data" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-
-		dir = *execDir / "avara-engine" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "avara-engine" / "fonts";
-		if (boost::filesystem::is_directory(dir)) return dir;
-	}
-	return boost::none;
-}
-
-boost::optional<boost::filesystem::path> ae::utils::FontPath(const string& name,
-															 const string& type) {
-	auto fontsDir = FontsDirectory();
-	if (fontsDir) {
-		return *fontsDir / (name + "." + type);
-	}
-	return boost::none;
-}
-
-#endif // !ANDROID
-
-// *** test directory ***
-
-#ifndef ANDROID
-boost::optional<boost::filesystem::path> ae::utils::TestDataDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-
-		// "installed" location
-		auto dir = *execDir / "data";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "tests" / "data";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		// xcode build
-		auto execName = ExecutableName();
-		if (execName) {
-			dir = execDir->parent_path().parent_path().parent_path().parent_path() / "tests" / *execName / "data";
-			if (boost::filesystem::is_directory(dir)) return dir;
-		}
-	}
-	return boost::none;
-}
-#endif // !ANDROID
-
-// *** engine images ***
+// ***  images ***
 
 shared_ptr<Image> ae::utils::ImageNamed(const string& name,
-										const string& type) {
-#ifdef ANDROID
-	auto data = BinaryAsset("images/" + name + "." + type);
-	//auto data = BinaryAsset("images/" + (name + "." + type));
-	if (data.size()) {
-		return make_shared<Image>(data);
-	}
-#else
-	auto imagesDir = ImagesDirectory();
-	if (imagesDir) {
-		auto fullPath = *imagesDir / (name + "." + type);
-		return make_shared<Image>(fullPath.string());
-	}
-#endif
-	return nullptr;
+										bool flipHorizontal) {
+
+	return ImageNamed(name, "png", flipHorizontal);
 }
 
-#ifndef ANDROID
-
-boost::optional<boost::filesystem::path> ae::utils::ImagesDirectory() {
-	auto execDir = ExecutableDirectory();
-	if (execDir) {
-		
-		// "installed" location
-		auto dir = *execDir / "data" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "data" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "data" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path() / "avara-engine" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path().parent_path() / "avara-engine" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-		
-		dir = execDir->parent_path().parent_path().parent_path() / "avara-engine" / "images";
-		if (boost::filesystem::is_directory(dir)) return dir;
-	}
-	return boost::none;
-}
-
-boost::optional<boost::filesystem::path> ae::utils::ImagePath(const string& name,
-															  const string& type) {
-	auto imagesDir = ImagesDirectory();
-	if (imagesDir) {
-		return *imagesDir / (name + "." + type);
-	}
-	return boost::none;
-}
-
-#endif // !ANDROID
-
-// *** test images ***
-
-shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-											bool flipHorizontal) {
-	return TestImageNamed(name, "png", flipHorizontal);
-}
-
-shared_ptr<Image> ae::utils::TestImageNamed(const string& name,
-											const string& type,
-											bool flipHorizontal) {
+shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+										const string& type,
+										bool flipHorizontal) {
+	
 #ifdef ANDROID
 	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
 	return make_shared<Image>(data);
 #else
-	auto testDataDir = TestDataDirectory();
-	if (testDataDir) {
-		auto fullPath = *testDataDir / "images" / (name + "." + type);
-		return make_shared<Image>(fullPath.string(), flipHorizontal);		
+	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
+	if (path) {
+		AE_LOG->trace("Found image at path: {}", (*path).string());
+		return make_shared<Image>(*path, flipHorizontal);
 	}
 #endif
 	return nullptr;
 }
 
-shared_ptr<CubeImage> ae::utils::TestCubeImageNamed(const string& name,
-													const string& type) {
+shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name) {
 	
-	return make_shared<CubeImage>(TestImageNamed(name + "_posx", type, false),
-								  TestImageNamed(name + "_negx", type, false),
-								  TestImageNamed(name + "_posy", type, false),
-								  TestImageNamed(name + "_negy", type, false),
-								  TestImageNamed(name + "_posz", type, false),
-								  TestImageNamed(name + "_negz", type, false));
+	return CubeImageNamed(name, "png");
 }
 
-// *** test scenes ***
+shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
+												const string& type) {
+	
+	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, false),
+								  ImageNamed(name + "_negx", type, false),
+								  ImageNamed(name + "_posy", type, false),
+								  ImageNamed(name + "_negy", type, false),
+								  ImageNamed(name + "_posz", type, false),
+								  ImageNamed(name + "_negz", type, false));
+}
+
+// *** scenes ***
 
 #ifndef ANDROID
-
-shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name) {
-	return TestSceneNamed(name, "dae");
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name) {
+	
+	return SceneNamed(name, "dae");
 }
 
-shared_ptr<Scene> ae::utils::TestSceneNamed(const string& name,
-											const string& type) {
-	auto testDataDir = TestDataDirectory();
-	if (testDataDir) {
-		auto fullPath = *testDataDir / "scenes" / (name + "." + type);
-		return Scene::LoadFromFile(fullPath.string());
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+										const string& type) {
+	
+	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
+	if (path) {
+		AE_LOG->trace("Found scene at path: {}", (*path).string());
+		return Scene::LoadFromFile(*path);
 	}
-
 	return nullptr;
 }
-
-#endif // !ANDROID
+#endif
 
 /***************************************************************************************
  	Misc Utilities

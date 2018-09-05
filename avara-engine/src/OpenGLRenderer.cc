@@ -287,25 +287,44 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
+	float fontSize = 14.0;
 	
-	auto fontPath = FontPath(fontName, fontType);
-
-	AE_LOG->debug("fontPath: {}", (*fontPath).string());
-
-	if (fontPath) {
-
-		const char* fontPath_char = (const char*)(*fontPath).c_str();
-		AE_LOG->debug("fontPath_char: {}", fontPath_char);
-
-		string fontPath_string = (*fontPath).string();
-		AE_LOG->debug("fontPath_string: {}", fontPath_string);
-
-		ImFont* scp = io.Fonts->AddFontFromFileTTF(fontPath_char, 14.0f);
-
+	auto fontData = FontData(fontName, fontType);
+	if (fontData.size()) {
+#warning MEMORY LEAK -- maybe use a Font object instead???
+		void* fontBuf = malloc(fontData.size());
+		memcpy(fontBuf, &fontData[0], fontData.size());
+		
+		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(fontBuf, fontData.size(), fontSize);
+		//ImFont* scp = io.Fonts->AddFontFromMemoryTTF(&fontData[0], fontData.size(), fontSize);
 		if (!scp) {
-			throw Exception("Unable to load font at path: " + (*fontPath).string());
+			throw Exception("Unable to load font: " + fontName + "." + fontType);
 		}
 	}
+	
+	
+	//ImFont* ImFontAtlas::AddFontFromMemoryTTF(void* ttf_data, int ttf_size, float size_pixels, const ImFontConfig* font_cfg_template, const ImWchar* glyph_ranges)
+	
+	
+	
+//	auto fontPath = FontPath(fontName, fontType);
+//
+//	AE_LOG->debug("fontPath: {}", (*fontPath).string());
+//
+//	if (fontPath) {
+//
+//		const char* fontPath_char = (const char*)(*fontPath).c_str();
+//		AE_LOG->debug("fontPath_char: {}", fontPath_char);
+//
+//		string fontPath_string = (*fontPath).string();
+//		AE_LOG->debug("fontPath_string: {}", fontPath_string);
+//
+//		ImFont* scp = io.Fonts->AddFontFromFileTTF(fontPath_char, 14.0f);
+//
+//		if (!scp) {
+//			throw Exception("Unable to load font at path: " + (*fontPath).string());
+//		}
+//	}
 	#endif
 	
 //	auto fontData = FontData(fontName, fontType);

@@ -52,7 +52,7 @@ int Test::run(const vector<string>& args) {
 	m_window->enableVSync(ENABLE_VSYNC);
 	m_window->captureCursor(CAPTURE_CURSOR);
 	
-	auto scene = TestSceneNamed("importTest");
+	auto scene = SceneNamed("importTest");
 
 	
 	// ******** make everything look like it did before materials worked ********

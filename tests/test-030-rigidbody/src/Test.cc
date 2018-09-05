@@ -102,8 +102,8 @@ int Test::run(const vector<string>& args) {
 //	auto planeNode = make_shared<Node>("Box");
 //	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 ////	planeNode->geometry(make_shared<Plane>(10, 10));
-//	auto gridImage = TestImageNamed("grid10");
-//	//auto gridImage = TestImageNamed("grid10_512");
+//	auto gridImage = ImageNamed("grid10");
+//	//auto gridImage = ImageNamed("grid10_512");
 //	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 //	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 //	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
@@ -137,8 +137,8 @@ int Test::run(const vector<string>& args) {
 ////	auto boxGeometry = make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT);
 ////	auto boxNode = make_shared<Node>();
 //	//	planeNode->geometry(make_shared<Plane>(10, 10));
-//	auto gridImage = TestImageNamed("grid10");
-//	//auto gridImage = TestImageNamed("grid10_512");
+//	auto gridImage = ImageNamed("grid10");
+//	//auto gridImage = ImageNamed("grid10_512");
 //	auto boxMaterialProperty = make_shared<MaterialProperty>(gridImage);
 //	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 //	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
@@ -172,8 +172,8 @@ int Test::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>("Box");
 //	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
-	auto gridImage = TestImageNamed("grid10");
-	//auto gridImage = TestImageNamed("grid10_512");
+	auto gridImage = ImageNamed("grid10");
+	//auto gridImage = ImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
@@ -200,7 +200,7 @@ int Test::run(const vector<string>& args) {
 	
 	// add the duck
 	
-	m_duckNode = TestSceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
 	m_duckNode->position({4.5, 15, 0});
 	//m_duckNode->scale({0.25, 0.25, 0.25});
 //	m_duckNode->scale({0.33, 0.33, 0.33});
@@ -238,7 +238,7 @@ int Test::run(const vector<string>& args) {
 	AddSlurms(*scene);
 	
 
-	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("sky1", "png"));
+	auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 	scene->background(background);
 
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
@@ -571,32 +571,32 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		switch (fruitNum) {
 			case 0: {
-				node = TestSceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
+				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
 				mass = 0.05;
 				break;
 			}
 			case 1: {
-				node = TestSceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
+				node = SceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
 				mass = 0.185;
 				break;
 			}
 			case 2: {
-				node = TestSceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+				node = SceneNamed("pear_lod/pear_lod", "obj")->rootNode();
 				mass = 0.24;
 				break;
 			}
 			case 3: {
-				node = TestSceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+				node = SceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
 				mass = 0.225;
 				break;
 			}
 			case 4: {
-				node = TestSceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+				node = SceneNamed("banana_lod/banana_lod", "obj")->rootNode();
 				mass = 0.14;
 				break;
 			}
 			case 5: {
-				node = TestSceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
+				node = SceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
 				mass = 0.9;
 				break;
 			}
@@ -662,7 +662,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 	
-	static auto fileScene = TestSceneNamed("slurm/slurm", "obj");
+	static auto fileScene = SceneNamed("slurm/slurm", "obj");
 	static auto fileNode = fileScene->rootNode();
 	static auto fileCanNode = fileNode->child("g slurm", false);
 	static auto fileMaterials = fileCanNode->geometry()->materials();
@@ -716,7 +716,7 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 		node->position(location);
 		
 		
-//		auto node = TestSceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
+//		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
 //		node->position(location);
 		
 		
@@ -780,7 +780,7 @@ shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 
 shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	
-	static auto fileScene = TestSceneNamed("cardboardBox2/cardboardBox2", "obj");
+	static auto fileScene = SceneNamed("cardboardBox2/cardboardBox2", "obj");
 	static auto fileNode = fileScene->rootNode();
 	static auto fileTapeNode = fileNode->child("g tape", false);
 	static auto fileBoxNode = fileNode->child("g box", false);

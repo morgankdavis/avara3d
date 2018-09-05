@@ -58,7 +58,7 @@ int Test::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>());
 	
-	auto testScene = TestSceneNamed("importTest");
+	auto testScene = SceneNamed("importTest");
 	m_parentNode = testScene->rootNode();
 	scene->rootNode()->addChild(m_parentNode);
 	
