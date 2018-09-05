@@ -96,6 +96,7 @@ namespace ae {
 		
 		// *** search paths ***
 		
+#ifndef ANDROID
 		std::vector<boost::filesystem::path> BaseSearchPaths();
 		std::vector<boost::filesystem::path> ShaderSearchPaths();
 		std::vector<boost::filesystem::path> SceneSearchPaths();
@@ -103,6 +104,7 @@ namespace ae {
 		std::vector<boost::filesystem::path> FontSearchPaths();
 		boost::optional<boost::filesystem::path> SearchInPaths(const std::string& filename,
 															   std::vector<boost::filesystem::path> paths);
+#endif
 		
 		// *** binary and text files ***
 		

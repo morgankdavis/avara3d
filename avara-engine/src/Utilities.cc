@@ -298,6 +298,8 @@ boost::optional<boost::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 // *** search paths ***
 
+#ifndef ANDROID
+
 vector<boost::filesystem::path> ae::utils::BaseSearchPaths() {
 	// build a list of common directories where "shader", "scene", "images", "fonts" etc
 	// subdirectories may live.
@@ -322,6 +324,9 @@ vector<boost::filesystem::path> ae::utils::BaseSearchPaths() {
 		basePaths.emplace_back(path);
 		
 		// [engine] archived
+		path = (*execDir).parent_path().parent_path().parent_path() / "avara-engine";
+		basePaths.emplace_back(path);
+		
 		// [engine] cmake installed ("packaged")
 		// [engine] xcode debug
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "avara-engine";
@@ -385,6 +390,8 @@ boost::optional<boost::filesystem::path> ae::utils::SearchInPaths(const string& 
 	}
 	return boost::none;
 }
+
+#endif // !ANDROID
 
 // *** binary and text files ***
 
@@ -521,7 +528,7 @@ vector<unsigned char> ae::utils::FontData(const string& name,
 
 shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 										bool flipHorizontal) {
-	
+
 	return ImageNamed(name, "png", flipHorizontal);
 }
 
