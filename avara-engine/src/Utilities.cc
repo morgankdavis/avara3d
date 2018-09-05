@@ -324,7 +324,7 @@ vector<boost::filesystem::path> ae::utils::BaseSearchPaths() {
 		basePaths.emplace_back(path);
 		
 		// [engine] archived
-		path = (*execDir).parent_path().parent_path().parent_path() / "avara-engine";
+		path = (*execDir).parent_path() / "avara-engine";
 		basePaths.emplace_back(path);
 		
 		// [engine] cmake installed ("packaged")
