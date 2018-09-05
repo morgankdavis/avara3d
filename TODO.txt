@@ -35,10 +35,6 @@ TODO:
 
 	------ Other things (non-physics) ------
 	
-	Unify Utilities data loading -- no distinction from "test" and "engine"
-		-> Look in engine directories first, then in install directories
-		e.g. ImageNamed() -> array ImageDirectories()
-		throw Exception when data is not found?
 	
 	Relink android data in bulk
 	Fix android assimp
@@ -60,6 +56,8 @@ TODO:
 	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
 	Why are textures empty on first frame?
+	
+	Throw if setting Image as background property
 
 	Rename StringFromXXXYYY -> String(XXXYYY)
 	ae::Object
@@ -86,6 +84,15 @@ TODO:
 
 	AE_LOG function to return __FILE__:__func__()
 	Debug Scene/Geometry extent / default camera placement
+	
+	We got "Program"s, why not also "Shader"s
+	
+	AssetManager/FileManager with static functions for getting file assets?
+	FileUtilities, OutputUtilities, NumericUtilities, etc?
+	Make utils that return shared_ptr return unique_ptr?
+		-> no more optional or null returns, THROW!
+	
+	Data/Buffer/ByteBuffer to wrap vector<unsigned char>?
 
 	Android:
 		Imgui GLES: https://github.com/ocornut/imgui/issues/1200
@@ -97,6 +104,13 @@ TODO:
 		https://github.com/SergiusTheBest/plog
 
 	Integrate gtest
+		import-scenegraph
+		fileutils
+		...
+		(unit test specific things. demos can stay separate)
+	
+	Font object?
+		
 	Rename "tests" to "demos" and clean up name consistency
 
 

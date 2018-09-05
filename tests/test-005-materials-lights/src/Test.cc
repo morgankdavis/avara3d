@@ -66,7 +66,7 @@ int Test::run(const vector<string>& args) {
 	scene->rootNode(make_shared<Node>("Root node"));
 	
 
-	auto siameseScene = TestSceneNamed("siamese/siamese");
+	auto siameseScene = SceneNamed("siamese/siamese");
 	auto siameseNode = siameseScene->rootNode()->child("Siamese", true);
 	m_siameseNode = siameseNode;
 	siameseNode->scale(siameseNode->scale() * 0.070f);
@@ -75,12 +75,12 @@ int Test::run(const vector<string>& args) {
 	siameseScene = nullptr;
 	siameseNode = nullptr;
 
-	auto islandScene = TestSceneNamed("island/Island", "obj");
+	auto islandScene = SceneNamed("island/Island", "obj");
 	auto islandNode = islandScene->rootNode()->children(true)[0];
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
-	auto palletScene = TestSceneNamed("pallet_rot/Pallet_rot");
+	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
 	auto palletNode = palletScene->rootNode()->children(true)[1];
 	palletNode->name("Pallet node");
 	m_palletNode = palletNode;
@@ -90,12 +90,12 @@ int Test::run(const vector<string>& args) {
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChild(palletNode);
 	
-	auto tunaScene = TestSceneNamed("tuna_rot/tuna_rot");
+	auto tunaScene = SceneNamed("tuna_rot/tuna_rot");
 	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
 	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
 	scene->rootNode()->addChild(tunaScene->rootNode());
 
-	auto palm1Scene = TestSceneNamed("palm1/palm1", "obj");
+	auto palm1Scene = SceneNamed("palm1/palm1", "obj");
 	m_palmsNode = palm1Scene->rootNode();
 	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
 	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
@@ -110,7 +110,7 @@ int Test::run(const vector<string>& args) {
 		}
 	}
 	
-	auto background = make_shared<MaterialProperty>(TestCubeImageNamed("nebula1_blue", "png"));
+	auto background = make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png"));
 //	auto background = make_shared<MaterialProperty>(Color::Navy());
 	scene->background(background);
 
@@ -307,7 +307,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 //	}
 	
 	if (keysPressed.count(KEY::HOME)) {
-		auto squirrelImage = TestImageNamed("squirrel2");
+		auto squirrelImage = ImageNamed("squirrel2");
 		m_siameseNode->geometry()->firstMaterial()->diffuse()->contents(squirrelImage);
 	}
 	
@@ -316,7 +316,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::ZERO)) {
-		auto teapot = TestSceneNamed("teapot", "obj");
+		auto teapot = SceneNamed("teapot", "obj");
 		m_siameseNode->geometry(teapot->rootNode()->children(false)[0]->geometry());
 	}
 	

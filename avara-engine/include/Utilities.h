@@ -80,11 +80,11 @@ namespace ae {
 		void StringReplace(std::string& str,
 						   const std::string& oldStr,
 						   const std::string& newStr);
-		
+
 		/***************************************************************************************
 		 	File Utilities
 		 ***************************************************************************************/
-		
+
 		// *** executable and working directories ***
 		
 #ifndef ANDROID
@@ -93,6 +93,16 @@ namespace ae {
 		boost::optional<boost::filesystem::path> ExecutableName();
 		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
 #endif
+		
+		// *** search paths ***
+		
+		std::vector<boost::filesystem::path> BaseSearchPaths();
+		std::vector<boost::filesystem::path> ShaderSearchPaths();
+		std::vector<boost::filesystem::path> SceneSearchPaths();
+		std::vector<boost::filesystem::path> ImageSearchPaths();
+		std::vector<boost::filesystem::path> FontSearchPaths();
+		boost::optional<boost::filesystem::path> SearchInPaths(const std::string& filename,
+															   std::vector<boost::filesystem::path> paths);
 		
 		// *** binary and text files ***
 		
@@ -109,56 +119,32 @@ namespace ae {
 		unsigned BinaryFile(const boost::filesystem::path& path, std::vector<unsigned char> buffer);
 #endif
 		
-		// *** engine shaders ***
+		// *** shaders ***
 		
 		boost::optional<std::string> ShaderSource(const std::string& name,
 												  const std::string& type);
-#ifndef ANDROID
-		boost::optional<boost::filesystem::path> ShadersDirectory();
-		boost::optional<boost::filesystem::path> ShaderPath(const std::string& name,
-															const std::string& type);
-#endif
-		
-		// *** engine fonts ***
+
+		// *** fonts ***
 		
 		std::vector<unsigned char> FontData(const std::string& name,
 											const std::string& type);
-#ifndef ANDROID
-		boost::optional<boost::filesystem::path> FontsDirectory();
-		boost::optional<boost::filesystem::path> FontPath(const std::string& name,
-														  const std::string& type);
-#endif
-		
-		// *** test directory ***
-#ifndef ANDROID
-		boost::optional<boost::filesystem::path> TestDataDirectory();
-#endif
-		
-		// *** engine images ***
+
+		// ***  images ***
 		
 		std::shared_ptr<Image> ImageNamed(const std::string& name,
-										  const std::string& type);
-#ifndef ANDROID
-		boost::optional<boost::filesystem::path> ImagesDirectory();
-		boost::optional<boost::filesystem::path> ImagePath(const std::string& name,
-														   const std::string& type);
-#endif
-		
-		// *** test images ***
-		
-		std::shared_ptr<Image> TestImageNamed(const std::string& name,
-											  bool flipHorizontal=true);
-		std::shared_ptr<Image> TestImageNamed(const std::string& name,
-											  const std::string& type,
-											  bool flipHorizontal=true);
-		std::shared_ptr<CubeImage> TestCubeImageNamed(const std::string& name,
-													  const std::string& type);
-		
-		// *** test scenes ***
+										  bool flipHorizontal=true);
+		std::shared_ptr<Image> ImageNamed(const std::string& name,
+										  const std::string& type,
+										  bool flipHorizontal=true);
+		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name,
+												  const std::string& type);
 
+		// *** scenes ***
+		
 #ifndef ANDROID
-		std::shared_ptr<Scene> TestSceneNamed(const std::string& name);
-		std::shared_ptr<Scene> TestSceneNamed(const std::string& name,
+		std::shared_ptr<Scene> SceneNamed(const std::string& name);
+		std::shared_ptr<Scene> SceneNamed(const std::string& name,
 											  const std::string& type);
 #endif
 

@@ -64,7 +64,7 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		void loadFile(const boost::filesystem::path& path, bool flipHorizontal);
+		//void loadFile(const boost::filesystem::path& path, bool flipHorizontal);
 		void loadBinary(std::vector<unsigned char>& data, bool flipHorizontal);
 		void flip();
 		

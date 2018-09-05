@@ -69,7 +69,7 @@ int Test::run(const vector<string>& args) {
 	
 	// test using raw matrix manipulation
 		
-		auto aScene = TestSceneNamed("dragon", "obj");
+		auto aScene = SceneNamed("dragon", "obj");
 		auto aNode = aScene->rootNode()->children(false)[0];
 		aNode->name("A");
 		auto aTranslate = 	translate(mat4(1.0f), vec3(10.0f, 0.0f, 0.0f));
@@ -85,7 +85,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto bScene = TestSceneNamed("dragon", "obj");
+		auto bScene = SceneNamed("dragon", "obj");
 		auto bNode = bScene->rootNode()->children(false)[0];
 		bNode->name("B");
 		auto bTranslate = 	translate(mat4(1.0f), vec3(0.0f, -20.0f, -7.0f));
@@ -103,7 +103,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto fScene = TestSceneNamed("dragon", "obj");
+		auto fScene = SceneNamed("dragon", "obj");
 		auto fNode = fScene->rootNode()->children(false)[0];
 		fNode->name("F");
 		auto fTranslate = 	translate(mat4(1.0f), vec3(-16.0f, 0.0f, -60.0f));
@@ -121,7 +121,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto pScene = TestSceneNamed("cartoon_palm_tree", "obj");
+		auto pScene = SceneNamed("cartoon_palm_tree", "obj");
 		auto pNode = pScene->rootNode();
 		pNode->name("P");
 		auto pTranslate = 	translate(mat4(1.0f), vec3(0.0f, -7.0f, 0.0f));
@@ -139,7 +139,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto gScene = TestSceneNamed("ConvaliaBouquet", "obj");
+		auto gScene = SceneNamed("ConvaliaBouquet", "obj");
 		auto gNode = gScene->rootNode();
 		gNode->name("G");
 		auto gTranslate = 	translate(mat4(1.0f), vec3(0.0f, -7.0f, 0.0f));
@@ -186,7 +186,7 @@ int Test::run(const vector<string>& args) {
 		auto xNode = make_shared<Node>();
 		
 		
-		auto aScene = TestSceneNamed("dragon", "obj");
+		auto aScene = SceneNamed("dragon", "obj");
 		auto aNode = aScene->rootNode()->children(false)[0];
 		aNode->name("A");
 		aNode->position(vec3(20.0f, 0.0f, 0.0f));
@@ -196,7 +196,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto bScene = TestSceneNamed("ConvaliaBouquet", "obj");
+		auto bScene = SceneNamed("ConvaliaBouquet", "obj");
 		auto bNode = bScene->rootNode();
 		bNode->name("B");
 		bNode->position(vec3(0.0f, -3.0f, 0.0f));
@@ -207,7 +207,7 @@ int Test::run(const vector<string>& args) {
 
 
 
-		auto cScene = TestSceneNamed("cartoon_palm_tree", "obj");
+		auto cScene = SceneNamed("cartoon_palm_tree", "obj");
 		auto cNode = cScene->rootNode();
 		cNode->name("C");
 		cNode->rotation(vec4(3.0f, 13.0f, 3.0f, (float)radians(-110.0f)));
@@ -216,7 +216,7 @@ int Test::run(const vector<string>& args) {
 		bNode->addChild(cNode);
 
 
-		auto dScene = TestSceneNamed("dragon", "obj");
+		auto dScene = SceneNamed("dragon", "obj");
 		auto dNode = dScene->rootNode();
 		dNode->name("D");
 		dNode->position(vec3(-15.0f, 10.0f, 20.0f));
@@ -250,35 +250,35 @@ int Test::run(const vector<string>& args) {
 		
 		auto rootNode = make_shared<Node>();
 		
-		auto aScene = TestSceneNamed("teapot");
+		auto aScene = SceneNamed("teapot");
 		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
 		aNode->eulerAngles(vec3((float)radians(45.0f), 0, 0));
 		
 		
-		auto bScene = TestSceneNamed("teapot");
+		auto bScene = SceneNamed("teapot");
 		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->eulerAngles(vec3(0, (float)radians(45.0f), 0));
 		
 		
-		auto cScene = TestSceneNamed("teapot");
+		auto cScene = SceneNamed("teapot");
 		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
 		cNode->eulerAngles(vec3(0, 0, (float)radians(45.0f)));
 		
 		
-		auto dScene = TestSceneNamed("teapot");
+		auto dScene = SceneNamed("teapot");
 		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
 		dNode->eulerAngles(vec3((float)radians(30.0f), (float)radians(45.0f), (float)radians(60.0f)));
 		
 		
-		auto eScene = TestSceneNamed("teapot");
+		auto eScene = SceneNamed("teapot");
 		auto eNode = eScene->rootNode()->child("ID20564224", true); // teapot
 		eNode->name("E");
 		eNode->position(vec3(0.0f, 0.0f, 0.0f));
@@ -319,7 +319,7 @@ int Test::run(const vector<string>& args) {
 	else if (TEST == ReverseEulerTestCase) {
 		auto rootNode = make_shared<Node>();
 		
-		auto aScene = TestSceneNamed("teapot");
+		auto aScene = SceneNamed("teapot");
 		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
@@ -327,7 +327,7 @@ int Test::run(const vector<string>& args) {
 		cout << "aNode eulerAngles: " << aNode->eulerAngles() << endl;
 		
 		
-		auto bScene = TestSceneNamed("teapot");
+		auto bScene = SceneNamed("teapot");
 		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
@@ -336,7 +336,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto cScene = TestSceneNamed("teapot");
+		auto cScene = SceneNamed("teapot");
 		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
@@ -345,7 +345,7 @@ int Test::run(const vector<string>& args) {
 		
 		
 		
-		auto dScene = TestSceneNamed("teapot");
+		auto dScene = SceneNamed("teapot");
 		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
@@ -398,7 +398,7 @@ int Test::run(const vector<string>& args) {
 	else if (TEST == RotationAnimationTestCase) {
 		auto rootNode = make_shared<Node>();
 		
-		auto aScene = TestSceneNamed("teapot");
+		auto aScene = SceneNamed("teapot");
 		auto aNode = aScene->rootNode()->child("teapot", true); // teapot
 		aNode->name("A");
 
