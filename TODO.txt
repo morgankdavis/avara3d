@@ -169,6 +169,8 @@ Laundry list:
 		https://github.com/cyrilcode/embed-resource/tree/a49d88b618b85bfc7aaa02f3b5c74b7058048045
 
 	SceneImporter/.aes
+	
+	Crash reporting
 
 	ANDROID ACTIVITY LIFECYCLE
 
