@@ -1,37 +1,42 @@
 //
-//  Cone.h
+//  Font.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 9/5/18.
+//  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Cone_h
-#define Cone_h
+#ifndef Font_h
+#define Font_h
 
 
-#include "Geometry.h"
+#include <memory>
+
+#include <boost/filesystem.hpp>
 
 
 namespace ae {
-
 	
-	class Cone: public Geometry {
+	
+	class Buffer;
+	
+	
+	class Font {
 		
 	public:
-
-		/***************************************************************************************
-	    	 Lifecycle
-	 	 ***************************************************************************************/
 		
-		Cone(float radius, float height, int slices, int segments);
+		/***************************************************************************************
+		     Lifecycle
+		 ***************************************************************************************/
+		
+		Font(boost::filesystem::path path);
 		
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
 		
-		float radius() const;
-		float height() const;
+		std::string name() const;
+//		FONT_TYPE type() const;
 		
 	private:
 		
@@ -39,10 +44,10 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		float 	m_radius;
-		float 	m_height;
+		std::string			m_name;
+//		FONT_TYPE			m_type;
 	};
 }
 
 
-#endif /* Cone_h */
+#endif /* Font_h */

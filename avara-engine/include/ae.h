@@ -11,6 +11,7 @@
 
 #include "Activity.h"
 #include "Box.h"
+#include "Buffer.h"
 //#include "BulletPhysicsSimulator.h"
 #include "Camera.h"
 #include "Capsule.h"
@@ -19,6 +20,7 @@
 #include "CubeImage.h"
 #include "Cylinder.h"
 #include "Exception.h"
+#include "Font.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Global.h"

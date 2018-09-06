@@ -12,6 +12,16 @@ TODO:
 30 - rigidbody
 
 
+	Data/Buffer/ByteBuffer to wrap vector<unsigned char>?
+	Font object?
+	
+	AssetManager/FileManager with static functions for getting file assets?
+	FileUtilities, OutputUtilities, NumericUtilities, etc?
+	Make utils that return shared_ptr return unique_ptr?
+		-> no more optional or null returns, THROW!
+		
+
+
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
 	Fix margins + add to PhysicsBody/Shape
@@ -82,18 +92,9 @@ TODO:
 			-> INITIALIZERS for other classes use defaults
 		+ Generate disk shape?
 
-	AE_LOG function to return __FILE__:__func__()
+	
 	Debug Scene/Geometry extent / default camera placement
 	
-	We got "Program"s, why not also "Shader"s
-	
-	AssetManager/FileManager with static functions for getting file assets?
-	FileUtilities, OutputUtilities, NumericUtilities, etc?
-	Make utils that return shared_ptr return unique_ptr?
-		-> no more optional or null returns, THROW!
-	
-	Data/Buffer/ByteBuffer to wrap vector<unsigned char>?
-
 	Android:
 		Imgui GLES: https://github.com/ocornut/imgui/issues/1200
 		
@@ -102,15 +103,15 @@ TODO:
 		https://github.com/emilk/loguru
 		https://github.com/muflihun/easyloggingpp
 		https://github.com/SergiusTheBest/plog
+		
+		+ AE_LOG function to return __FILE__:__func__()
 
 	Integrate gtest
 		import-scenegraph
 		fileutils
 		...
 		(unit test specific things. demos can stay separate)
-	
-	Font object?
-		
+
 	Rename "tests" to "demos" and clean up name consistency
 
 
