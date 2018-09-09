@@ -9,9 +9,11 @@
 #include "Buffer.h"
 
 #include "Logger.h"
+#include "Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 
 
@@ -19,46 +21,51 @@ using namespace std;
    	 Lifecycle
  ***************************************************************************************/
 
-Buffer::Buffer(boost::filesystem::path& path) {
+Buffer::Buffer(const boost::filesystem::path& path):
+	m_pointer(nullptr),
+	m_size(0) {
 	
-	// read file then use Buffer(const unsigned char* buf, unsigned len);
+		ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
+		ifstream::pos_type pos = inStream.tellg();
+		m_pointer = (unsigned char*)malloc(pos);
+		inStream.seekg(0, ios::beg);
+		inStream.read((char*)m_pointer, pos);
+		m_size = pos;
 }
 
-Buffer::Buffer(const unsigned char* buf, unsigned len):
+Buffer::Buffer(const unsigned char* buf, std::size_t size):
 	m_pointer(nullptr),
-	m_length(0) {
-	
-		
+	m_size(0) {
+
+		m_pointer = (unsigned char*)malloc(size);
+		memcpy(m_pointer, buf, size);
+		m_size = size;
 }
 
 Buffer::Buffer(const vector<unsigned char>& buf):
 	Buffer(&buf[0], buf.size()) {
-	
 }
 
 Buffer::Buffer(const Buffer& other) { // copy constructor
 	// allotate our new memory and copy 'other' data into ours
 	
-//	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
-//	m_data = (unsigned char *)malloc(dataSize);
-//	memcpy(m_data, other.m_data, dataSize);
-//	
-//	m_width = other.m_width;
-//	m_height = other.m_height;
+	size_t bufSize = other.m_size;
+	m_pointer = (unsigned char *)malloc(bufSize);
+	memcpy(m_pointer, other.m_pointer, bufSize);
+	m_size = bufSize;
 }
 
 Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 	// make a copy of 'other's data, delete ours, and move their data into ours
 	
-//	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
-//	
-//	unsigned char* tempData = (unsigned char *)malloc(dataSize);
-//	memcpy(tempData, other.m_data, dataSize);
-//	free(m_data);
-//	m_data = tempData;
-//	
-//	m_width = other.m_width;
-//	m_height = other.m_height;
+	size_t bufSize = other.m_size;
+	unsigned char* tempPointer = (unsigned char *)malloc(bufSize);
+	memcpy(tempPointer, other.m_pointer, bufSize);
+	if (m_pointer) {
+		free(m_pointer);
+	}
+	m_pointer = tempPointer;
+	m_size = bufSize;
 	
 	return *this;
 }
@@ -66,9 +73,9 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 Buffer::~Buffer() {
 	AE_LOG->debug("Destroying Buffer {:p}", (void*)this);
 	
-//	if (m_data) {
-//		stbi_image_free(m_data);
-//	}
+	if (m_pointer) {
+		free(m_pointer);
+	}
 }
 
 /***************************************************************************************
@@ -76,11 +83,9 @@ Buffer::~Buffer() {
  ***************************************************************************************/
 
 unsigned char* Buffer::pointer() const {
-	
 	return m_pointer;
 }
 
-unsigned Buffer::length() const {
-	
-	return m_length;
+unsigned Buffer::size() const {
+	return m_size;
 }

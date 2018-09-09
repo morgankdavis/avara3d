@@ -23,7 +23,7 @@
 
 namespace ae {
 
-	class Program {
+	class Program : public std::enable_shared_from_this<Program> {
 		
 	public:
 		

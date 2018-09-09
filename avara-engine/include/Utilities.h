@@ -29,8 +29,10 @@ struct GLFWmonitor;
 namespace ae {
 	
 	
+	class Buffer;
 	class Color;
 	class CubeImage;
+	class Font;
 	class Image;
 	class Node;
 	class RenderContext;
@@ -58,6 +60,10 @@ namespace ae {
 		std::string StringFromTree(Node& root);
 		
 		std::string DateTimeString();
+		
+#if defined(MACOS) || defined(LINUX)
+		std::string StackTrace();
+#endif
 
 		/***************************************************************************************
 		 	Numeric Utilities
@@ -108,17 +114,12 @@ namespace ae {
 		
 		// *** binary and text files ***
 		
-		std::vector<unsigned char> Buffer(unsigned char* buf, unsigned len);
-		unsigned Buffer(std::vector<unsigned char>& inBuf, unsigned char* outBuf);
-		
 #ifdef ANDROID
 		boost::optional<boost::filesystem::path> InternalFilesDirectory();
 		boost::optional<std::string> TextAsset(const std::string& relPath);
-		std::vector<unsigned char> BinaryAsset(const std::string& relPath);
+		std::shared_ptr<Buffer> BinaryAsset(const std::string& relPath);
 #else
 		boost::optional<std::string> TextFile(const boost::filesystem::path& path);
-		std::vector<unsigned char> BinaryFile(const boost::filesystem::path& path);
-		unsigned BinaryFile(const boost::filesystem::path& path, std::vector<unsigned char> buffer);
 #endif
 		
 		// *** shaders ***
@@ -127,9 +128,9 @@ namespace ae {
 												  const std::string& type);
 		
 		// *** fonts ***
-		
-		std::vector<unsigned char> FontData(const std::string& name,
-											const std::string& type);
+
+		std::shared_ptr<Font> FontNamed(const std::string& name,
+										const std::string& type);
 		
 		// ***  images ***
 		

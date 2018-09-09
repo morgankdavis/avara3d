@@ -12,15 +12,18 @@ TODO:
 30 - rigidbody
 
 
-	Data/Buffer/ByteBuffer to wrap vector<unsigned char>?
-	Font object?
-	
 	AssetManager/FileManager with static functions for getting file assets?
 	FileUtilities, OutputUtilities, NumericUtilities, etc?
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
 		
-
+	Rename:
+		static std::shared_ptr<Light> DefaultAmbient();
+		static std::shared_ptr<Light> DefaultPoint();
+		static std::shared_ptr<Node> DefaultAmbientNode();
+		static std::shared_ptr<Node> DefaultPointNode();
+		
+	Figure out why test-030 right click has a delay!
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -73,8 +76,6 @@ TODO:
 	ae::Object
 	AE objs -> description() + operator<<
 
-	Objects with textures are black on first frame
-
 	Add Geometry::extent() / extent(bool recursive)
 
 	Switch GLM setters to static references
@@ -111,8 +112,7 @@ TODO:
 		fileutils
 		...
 		(unit test specific things. demos can stay separate)
-
-	Rename "tests" to "demos" and clean up name consistency
+		+ Rename "tests" to "demos" and clean up name consistency
 
 
 
@@ -186,6 +186,9 @@ Laundry list:
 	SceneImporter/.aes
 	
 	Crash reporting
+		https://www.bugsplat.com/
+		https://backtrace.io/
+		http://sourcecase.com/
 
 	ANDROID ACTIVITY LIFECYCLE
 

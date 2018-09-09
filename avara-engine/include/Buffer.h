@@ -10,13 +10,13 @@
 #define Buffer_h
 
 
+#include <memory>
 #include <vector>
 
 #include <boost/filesystem.hpp>
 
 
 namespace ae {
-	
 	
 	class Buffer {
 		
@@ -26,8 +26,8 @@ namespace ae {
 		   	 Lifecycle
 		 ***************************************************************************************/
 		
-		Buffer(boost::filesystem::path& path);
-		Buffer(const unsigned char* buf, unsigned len);
+		Buffer(const boost::filesystem::path& path);
+		Buffer(const unsigned char* buf, std::size_t size);
 		Buffer(const std::vector<unsigned char>& buf);
 		
 		Buffer(const Buffer& other); // copy constructor
@@ -40,7 +40,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		unsigned char* pointer() const;
-		unsigned length() const;
+		unsigned size() const;
 		
 	private:
 		
@@ -49,7 +49,7 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		unsigned char* 		m_pointer;
-		unsigned 			m_length;
+		unsigned 			m_size;
 	};
 }
 

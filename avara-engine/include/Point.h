@@ -21,7 +21,7 @@ namespace ae {
 	class Color;
 
 	
-	class Point: public std::enable_shared_from_this<Point> {
+	class Point : public std::enable_shared_from_this<Point> {
 		
 	public:
 

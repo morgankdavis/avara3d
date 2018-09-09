@@ -12,7 +12,10 @@
 
 #include <memory>
 
+#include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
+
+#include "Types.h"
 
 
 namespace ae {
@@ -21,7 +24,7 @@ namespace ae {
 	class Buffer;
 	
 	
-	class Font {
+	class Font : public std::enable_shared_from_this<Font> {
 		
 	public:
 		
@@ -29,14 +32,18 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		Font(boost::filesystem::path path);
+		Font(boost::filesystem::path& path);
+		Font(std::shared_ptr<Buffer> buffer);
+		
+		~Font();
 		
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
 		
-		std::string name() const;
-//		FONT_TYPE type() const;
+		boost::optional<std::string>	name() const;
+		FONT_TYPE 						type() const;
+		std::shared_ptr<Buffer> 		buffer() const;
 		
 	private:
 		
@@ -44,8 +51,9 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		std::string			m_name;
-//		FONT_TYPE			m_type;
+		boost::optional<std::string>	m_name;
+		FONT_TYPE						m_type;
+		std::shared_ptr<Buffer>			m_buffer;
 	};
 }
 

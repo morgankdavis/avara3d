@@ -25,7 +25,7 @@ namespace ae {
 	class MaterialPropertyContents;
 	
 	
-	class MaterialProperty {
+	class MaterialProperty : public std::enable_shared_from_this<MaterialProperty> {
 		
 	public:
 		

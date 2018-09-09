@@ -10,6 +10,8 @@
 #define CubeImage_h
 
 
+#include <memory>
+
 #include "MaterialPropertyContents.h"
 
 

@@ -15,6 +15,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
 
+#include "Buffer.h"
 #include "BulletPhysicsSimulator.h"
 #include "Camera.h"
 #include "Exception.h"
@@ -329,7 +330,7 @@ void RenderContext::saveGIFFrame(float deltaSeconds) {
 		auto frame = snapshot();
 		
 		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
-		stbir_resize_uint8(frame->data(), frame->width(), frame->height(), 0,
+		stbir_resize_uint8(frame->data()->pointer(), frame->width(), frame->height(), 0,
 						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
 		
 		// gif-h frame time is in 100ths of a second

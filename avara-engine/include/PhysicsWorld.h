@@ -29,7 +29,7 @@ namespace ae {
 	class Scene;
 	
 	
-	class PhysicsWorld {
+	class PhysicsWorld : public std::enable_shared_from_this<PhysicsWorld> {
 	
 																		 
 	public:

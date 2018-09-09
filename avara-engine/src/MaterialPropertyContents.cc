@@ -11,6 +11,7 @@
 
 using namespace ae;
 
+
 MaterialPropertyContents::MaterialPropertyContents() {
 	
 }

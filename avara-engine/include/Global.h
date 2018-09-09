@@ -32,11 +32,7 @@ namespace ae {
 	
 	constexpr unsigned 		MAX_PATH_LEN =				1024;
 	
-	
-//#ifdef ANDROID
-//	struct android_app;
-//#endif
-	
+
 #ifdef ANDROID
 		void AE_INIT(android_app* app);
 #else

@@ -28,9 +28,11 @@
 #include "imgui_impl_opengl3.h"
 #endif
 
+#include "Buffer.h"
 #include "Camera.h"
 #include "Color.h"
 #include "CubeImage.h"
+#include "Font.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Global.h"
@@ -229,7 +231,8 @@ OpenGLRenderer::OpenGLRenderer():
 	m_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
 	m_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 	m_activePointSets(unordered_set<shared_ptr<PointSet>>()),
-	m_glEnvironmentUBO(0) {
+	m_glEnvironmentUBO(0),
+	m_overlayFont(nullptr) {
 
 }
 
@@ -281,60 +284,32 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init();
-	
-	#warning TEMPORARY - FIX ME!
-	#ifndef WINDOWS
 
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
 	float fontSize = 14.0;
 	
-	auto fontData = FontData(fontName, fontType);
-	if (fontData.size()) {
-#warning MEMORY LEAK -- maybe use a Font object instead???
-		void* fontBuf = malloc(fontData.size());
-		memcpy(fontBuf, &fontData[0], fontData.size());
+	m_overlayFont = FontNamed(fontName, fontType);
+
+	if (m_overlayFont->buffer()->size()) {
 		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(fontBuf, fontData.size(), fontSize);
-		//ImFont* scp = io.Fonts->AddFontFromMemoryTTF(&fontData[0], fontData.size(), fontSize);
+		// by default Imgui transferrs font memory ownership to itself
+		// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
+		
+		ImFontConfig config;
+		config.FontDataOwnedByAtlas = false;
+		
+		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(m_overlayFont->buffer()->pointer(),
+													 m_overlayFont->buffer()->size(),
+													 fontSize,
+													 &config);
+
 		if (!scp) {
 			throw Exception("Unable to load font: " + fontName + "." + fontType);
 		}
 	}
-	
-	
-	//ImFont* ImFontAtlas::AddFontFromMemoryTTF(void* ttf_data, int ttf_size, float size_pixels, const ImFontConfig* font_cfg_template, const ImWchar* glyph_ranges)
-	
-	
-	
-//	auto fontPath = FontPath(fontName, fontType);
-//
-//	AE_LOG->debug("fontPath: {}", (*fontPath).string());
-//
-//	if (fontPath) {
-//
-//		const char* fontPath_char = (const char*)(*fontPath).c_str();
-//		AE_LOG->debug("fontPath_char: {}", fontPath_char);
-//
-//		string fontPath_string = (*fontPath).string();
-//		AE_LOG->debug("fontPath_string: {}", fontPath_string);
-//
-//		ImFont* scp = io.Fonts->AddFontFromFileTTF(fontPath_char, 14.0f);
-//
-//		if (!scp) {
-//			throw Exception("Unable to load font at path: " + (*fontPath).string());
-//		}
-//	}
-	#endif
-	
-//	auto fontData = FontData(fontName, fontType);
-//	unsigned char* dataBuf = (unsigned char*)malloc(fontData.size());
-//	memcpy(dataBuf, &fontData[0], fontData.size());
-//	IMGUI_API ImFont* AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels,
-//	const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer
 
-#endif
-	
+#endif // DESKTOP
 	
 	return true;
 }
@@ -534,10 +509,12 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
 	unsigned framebufferWidth = context.framebufferWidth();
 	unsigned framebufferHeight = context.framebufferHeight();
-	unsigned char *buf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
-	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-	auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight, 4);
-	free(buf);
+	unsigned char *pixelBuf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
+	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	//auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight, 4);
+	auto buffer = make_shared<Buffer>(pixelBuf, framebufferWidth * framebufferHeight * 4);
+	free(pixelBuf);
+	auto image = make_shared<Image>(buffer);
 	return image;
 }
 	
@@ -1051,7 +1028,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->data());
+						 image->data()->pointer());
 		}
 		
 		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
@@ -1134,7 +1111,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					 0,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
-					 image->data());
+					 image->data()->pointer());
 		
 		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
 		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());

@@ -24,6 +24,7 @@ namespace ae {
 	
 	
 	class Color;
+	class Font;
 	class Geometry;
 	class GeometryElement;
 	class Line;
@@ -126,6 +127,8 @@ namespace ae {
 		std::unordered_set<std::shared_ptr<PointSet>>			m_activePointSets;
 
 		unsigned												m_glEnvironmentUBO;
+		
+		std::shared_ptr<Font>									m_overlayFont;
 	};
 }
 

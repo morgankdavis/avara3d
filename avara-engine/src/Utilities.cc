@@ -16,9 +16,10 @@
 #include <sstream>
 
 #if defined(MACOS) || defined(LINUX)
-#include <sys/time.h>
-#include <unistd.h>
 #include <errno.h>
+#include <execinfo.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
 #ifdef MACOS
@@ -42,9 +43,11 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "Buffer.h"
 #include "Camera.h"
 #include "Color.h"
 #include "CubeImage.h"
+#include "Font.h"
 #include "Geometry.h"
 #include "GeometryElement.h"
 #include "Image.h"
@@ -169,6 +172,31 @@ string ae::utils::DateTimeString() {
 #endif
 	return string(buffer);
 }
+
+#if defined(MACOS) || defined(LINUX)
+string ae::utils::StackTrace() {
+	
+	auto traceStr = string();
+	static const unsigned MAX_FRAMES = 64;
+
+	void* addrList[MAX_FRAMES];
+	unsigned addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
+	
+	if (addrLen != 0) {
+		char** symbolList = backtrace_symbols(addrList, addrLen);
+		for (int x=1; x<addrLen; ++x) {
+			traceStr += string(symbolList[x]) + "\n";
+		}
+		
+		free(symbolList);
+	}
+	else {
+		traceStr = "No stack trace.\n";
+	}
+	
+	return traceStr;
+}
+#endif
 
 /***************************************************************************************
  	Numeric Utilities
@@ -395,25 +423,6 @@ boost::optional<boost::filesystem::path> ae::utils::SearchInPaths(const string& 
 
 // *** binary and text files ***
 
-vector<unsigned char> ae::utils::Buffer(unsigned char* buf, unsigned len) {
-	auto ret = vector<unsigned char>();
-	ret.resize(len);
-	for (int i=0; i<len; ++i) {
-		ret.push_back(buf[i]);
-	}
-	return ret;
-}
-
-unsigned ae::utils::Buffer(vector<unsigned char>& inBuf, unsigned char* outBuf) {
-	// outBuf = pre-allocated
-	unsigned index = 0;
-	for (unsigned char b : inBuf) {
-		outBuf[index] = b;
-		++index;
-	}
-	return index;
-}
-
 #ifdef ANDROID
 
 boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
@@ -424,18 +433,22 @@ boost::optional<boost::filesystem::path> ae::utils::InternalFilesDirectory() {
 }
 
 boost::optional<string> ae::utils::TextAsset(const string& relPath) {
-	vector<unsigned char> buffer = BinaryAsset(relPath);
-	if (buffer.size()) {
-		return string(buffer.begin(), buffer.end());
+//	vector<unsigned char> buffer = BinaryAsset(relPath);
+//	if (buffer.size()) {
+//		return string(buffer.begin(), buffer.end());
+//	}
+	auto buffer = BinaryAsset(relPath);
+	if (buffer->size()) {
+		return string((char*)(buffer->pointer()));
 	}
 	return boost::none;
 }
 
-vector<unsigned char> ae::utils::BinaryAsset(const string& relPath) {
+shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
-	auto buffer = vector<unsigned char>();
-	helper->ReadFile(relPath.c_str(), &buffer);
-	return buffer;
+	auto vecBuf = vector<unsigned char>();
+	helper->ReadFile(relPath.c_str(), &vecBuf);
+	return make_shared<Buffer>(vecBuf);
 }
 
 #else
@@ -455,25 +468,6 @@ boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path)
 		return source;
 	}
 	return boost::none;
-}
-
-vector<unsigned char> ae::utils::BinaryFile(const boost::filesystem::path& path) {
-	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
-    ifstream::pos_type pos = inStream.tellg();
-    vector<unsigned char> result(pos);
-    inStream.seekg(0, ios::beg);
-    inStream.read((char*)&result[0], pos);
-    return result;
-}
-
-unsigned ae::utils::BinaryFile(const boost::filesystem::path& path, std::vector<unsigned char> buffer) {
-	ofstream outStrearm(path.string(), ios::out | ios::binary | ios::app); // app = all ops happed at oef
-	unsigned written = 0;
-	for (unsigned char byte : buffer) {
-		outStrearm.write((char*)&byte, sizeof(unsigned char));
-		++written;
-	}
-	return written;
 }
 
 #endif // ANDROID
@@ -510,19 +504,20 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 
 // *** fonts ***
 
-vector<unsigned char> ae::utils::FontData(const string& name,
-										  const string& type) {
+shared_ptr<Font> ae::utils::FontNamed(const string& name,
+									  const string& type) {
 #ifdef ANDROID
-	return BinaryAsset("fonts/" + name + "." + type);
+	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
 #else
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
 		AE_LOG->trace("Found font at path: {}", (*path).string());
-		return BinaryFile(*path);
+		return make_shared<Font>(*path);
 	}
-	return vector<unsigned char>();
 #endif
+	return nullptr;
 }
+
 
 // ***  images ***
 

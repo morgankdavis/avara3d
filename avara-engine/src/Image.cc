@@ -15,6 +15,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include "Buffer.h"
 #include "Exception.h"
 #include "Logger.h"
 #include "Utilities.h"
@@ -35,70 +36,28 @@ Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
 	m_width(0),
 	m_height(0),
 	m_bytesPerPixel(0) {
-		
-		auto data = BinaryFile(path);
-		loadBinary(data, flipHorizontal);
-//		loadFile(path, flipHorizontal);
+	
+		//auto data = BinaryFile(path);
+		auto buffer = Buffer(path);
+		loadBuffer(buffer, flipHorizontal);
 }
 #endif
 
-Image::Image(vector<unsigned char>& data, bool flipHorizontal):
+Image::Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal):
 	m_data(nullptr),
 	m_width(0),
 	m_height(0),
 	m_bytesPerPixel(0) {
 		
-		loadBinary(data, flipHorizontal);
-}
-
-Image::Image(unsigned char* data, unsigned width, unsigned height,
-			 unsigned bytesPerPixel, bool flipHorizontal):
-	m_data(nullptr),
-	m_width(width),
-	m_height(height),
-	m_bytesPerPixel(bytesPerPixel) {
-	
-		m_data = (unsigned char*)malloc(width * height * bytesPerPixel);
-		memcpy(m_data, data, width * height * bytesPerPixel);
-		
-		if (flipHorizontal) {
-			flip();
-		}
-}
-
-Image::Image(const Image& other) { // copy constructor
-	// allotate our new memory and copy 'other' data into ours
-
-	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
-	m_data = (unsigned char *)malloc(dataSize);
-	memcpy(m_data, other.m_data, dataSize);
-	
-	m_width = other.m_width;
-	m_height = other.m_height;
-}
-
-Image& Image::operator=(const Image& other) { // copy assignment
-	// make a copy of 'other's data, delete ours, and move their data into ours
-
-	size_t dataSize = other.m_width * other.m_height * other.m_bytesPerPixel;
-	
-	unsigned char* tempData = (unsigned char *)malloc(dataSize);
-	memcpy(tempData, other.m_data, dataSize);
-	free(m_data);
-	m_data = tempData;
-	
-	m_width = other.m_width;
-	m_height = other.m_height;
-	
-	return *this;
+		loadBuffer(*(buffer.get()), flipHorizontal);
 }
 
 Image::~Image() {
 	AE_LOG->debug("Destroying Image {:p}", (void*)this);
 	
-	if (m_data) {
-		stbi_image_free(m_data);
-	}
+//	if (m_data) {
+//		stbi_image_free(&m_data);
+//	}
 }
 
 /***************************************************************************************
@@ -120,14 +79,14 @@ unsigned Image::bytesPerPixel() const {
 bool Image::writePNG(boost::filesystem::path path) const {
 	
 	return !stbi_write_png(path.string().c_str(), m_width, m_height,
-						   m_bytesPerPixel, m_data, m_width*m_bytesPerPixel);
+						   m_bytesPerPixel, &m_data, m_width*m_bytesPerPixel);
 }
 
 /***************************************************************************************
      Internal
  ***************************************************************************************/
 
-unsigned char* Image::data() const {
+shared_ptr<Buffer> Image::data() const {
 	return m_data;
 }
 
@@ -135,58 +94,26 @@ unsigned char* Image::data() const {
      Private
  ***************************************************************************************/
 
-//void Image::loadFile(const boost::filesystem::path& path, bool flipHorizontal) {
-//
-//	cout << "Loading image at path: " << path.string() << endl;
-//	
-//	int width, height, num_byte_pix;
-//	const char *path_cstr = path.string().c_str();
-//	m_data = stbi_load(path_cstr, &width, &height, &num_byte_pix, 4);
-//	num_byte_pix = 4;
-//
-//	if (!m_data) {
-//		throw Exception("Failed to load image file.");
-//	}
-//	
-//	m_width = width;
-//	m_height = height;
-//	m_bytesPerPixel = num_byte_pix;
-//	
-//		if (flipHorizontal) {
-//			// this is not needed for cube maps (?)
-//			int width_in_bytes = width * 4;
-//			unsigned char *top = NULL;
-//			unsigned char *bottom = NULL;
-//			unsigned char temp = 0;
-//			int half_height = height / 2;
-//			for (int row = 0; row < half_height; ++row) {
-//				top = m_data + row * width_in_bytes;
-//				bottom = m_data + (height - row - 1) * width_in_bytes;
-//				for (int col = 0; col < width_in_bytes; col++) {
-//					temp = *top;
-//					*top = *bottom;
-//					*bottom = temp;
-//					++top;
-//					++bottom;
-//				}
-//			}
-//		}
-//}
-
-void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
+void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	
 	int width;
 	int height;
 	int bytesPerPixel;
+	
+	stbi_uc* imgData = stbi_load_from_memory(inBuf.pointer(), inBuf.size(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
 
-	m_data = stbi_load_from_memory(&data[0], data.size(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
 	// force bytesPerPixel = 4 since we told STB to pad it
 	// (STB fills this with the ACTUAL BPP in the file, but pads to what we ask)
 	bytesPerPixel = 4;
 	
-	if (!m_data) {
+	if (!imgData) {
 		throw Exception("Failed to load image data.");
 	}
+
+	m_data = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
+								 static_cast<size_t>(width * height * bytesPerPixel));
+	
+	stbi_image_free(imgData);
 	
 	AE_LOG->debug("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
@@ -195,12 +122,12 @@ void Image::loadBinary(vector<unsigned char>& data, bool flipHorizontal) {
 	m_height = height;
 	m_bytesPerPixel = bytesPerPixel;
 
-	if (flipHorizontal) {
-		flip();
+	if (flip) {
+		flipHorizontal();
 	}
 }
 
-void Image::flip() {
+void Image::flipHorizontal() {
 	// this is not needed for cube maps (?)
 	int widthInBytes = m_width * m_bytesPerPixel;
 	unsigned char* top = NULL;
@@ -208,8 +135,8 @@ void Image::flip() {
 	unsigned char temp = 0;
 	int halfHeight = m_height / 2;
 	for (int row = 0; row < halfHeight; ++row) {
-		top = m_data + row * widthInBytes;
-		bottom = m_data + (m_height - row - 1) * widthInBytes;
+		top = m_data->pointer() + row * widthInBytes;
+		bottom = m_data->pointer() + (m_height - row - 1) * widthInBytes;
 		for (int col = 0; col < widthInBytes; col++) {
 			temp = *top;
 			*top = *bottom;

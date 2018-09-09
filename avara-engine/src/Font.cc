@@ -8,6 +8,9 @@
 
 #include "Font.h"
 
+#include "Buffer.h"
+#include "Logger.h"
+
 
 using namespace ae;
 using namespace std;
@@ -17,15 +20,47 @@ using namespace std;
 	Lifecycle
  ***************************************************************************************/
 
-Font::Font(boost::filesystem::path path) {
+Font::Font(boost::filesystem::path& path):
+	m_name(boost::none),
+	m_type(FONT_TYPE::UNKNOWN),
+	m_buffer(nullptr) {
 	
+		m_name = path.stem().string();
+
+		auto extension = path.extension().string();
+		if (extension == "otf") {
+			m_type = FONT_TYPE::OTF;
+		}
+		else if (extension == "otf") {
+			m_type = FONT_TYPE::TTF;
+		}
+		
+		m_buffer = make_shared<Buffer>(path);
+}
+
+Font::Font(shared_ptr<Buffer> buffer):
+	m_name(boost::none),
+	m_type(FONT_TYPE::UNKNOWN),
+	m_buffer(buffer) {
+	
+}
+
+Font::~Font() {
+	AE_LOG->debug("Destroying Font {:p}", (void*)this);
 }
 
 /***************************************************************************************
      Public
  ***************************************************************************************/
 
-string Font::name() const {
-	
+boost::optional<string> Font::name() const {
 	return m_name;
+}
+
+FONT_TYPE Font::type() const {
+	return m_type;
+}
+
+shared_ptr<Buffer> Font::buffer() const {
+	return m_buffer;
 }

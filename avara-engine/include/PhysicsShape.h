@@ -25,7 +25,7 @@ namespace ae {
 	class PhysicsBody;
 	
 
-	class PhysicsShape {
+	class PhysicsShape : public std::enable_shared_from_this<PhysicsShape> {
 		
 	public:
 		

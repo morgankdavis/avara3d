@@ -10,12 +10,9 @@
 #define MaterialPropertyContents_h
 
 
-#include <memory>
-
-
 namespace ae {
 
-	class MaterialPropertyContents: public std::enable_shared_from_this<MaterialPropertyContents> {
+	class MaterialPropertyContents {
 		
 	public:
 		

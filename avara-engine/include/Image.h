@@ -13,6 +13,7 @@
 #define Image_h
 
 
+#include <memory>
 #include <string>
 
 #include <boost/filesystem.hpp>
@@ -21,6 +22,9 @@
 
 
 namespace ae {
+	
+	
+	class Buffer;
 
 
 	class Image : public MaterialPropertyContents {
@@ -34,13 +38,8 @@ namespace ae {
 #ifndef ANDROID
 		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
 #endif
-		Image(std::vector<unsigned char>& data, bool flipHorizontal=true);
-		Image(unsigned char* data, unsigned width, unsigned height,
-			  unsigned bytesPerPixel, bool flipHorizontal=true);
-		
-		Image(const Image& other); // copy constructor
-		Image& operator=(const Image& other); // copy assignment
-		
+		Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal=true);
+
 		~Image();
 		
 		/***************************************************************************************
@@ -56,7 +55,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		unsigned char* data() const;
+		std::shared_ptr<Buffer> data() const;
 		
 	private:
 		
@@ -65,13 +64,13 @@ namespace ae {
 		 ***************************************************************************************/
 		
 		//void loadFile(const boost::filesystem::path& path, bool flipHorizontal);
-		void loadBinary(std::vector<unsigned char>& data, bool flipHorizontal);
-		void flip();
+		void loadBuffer(Buffer& buffer, bool flipHorizontal);
+		void flipHorizontal();
 		
-		unsigned			m_width;
-		unsigned			m_height;
-		unsigned 			m_bytesPerPixel;
-		unsigned char*		m_data;
+		unsigned						m_width;
+		unsigned						m_height;
+		unsigned 						m_bytesPerPixel;
+		std::shared_ptr<Buffer>		m_data;
 	};
 }
 
