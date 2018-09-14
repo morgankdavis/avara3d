@@ -92,85 +92,12 @@ int Test::run(const vector<string>& args) {
 	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
 
-//	// GROUND BOX
-//	
-//	const float PLANE_LENGTH = 40.0;
-//	const float PLANE_WIDTH = 40.0;
-//	const float PLANE_HEIGHT = 0.25;
-////	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_WIDTH, PLANE_HEIGHT));
-//	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-//	auto planeNode = make_shared<Node>("Box");
-//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-////	planeNode->geometry(make_shared<Plane>(10, 10));
-//	auto gridImage = ImageNamed("grid10");
-//	//auto gridImage = ImageNamed("grid10_512");
-//	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-//	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-//	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-//	planeMaterialProperty->maxAnisotropy(16);
-//	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-//	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
-//	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-////	planeMaterial->doubleSided(true);
-//	planeNode->geometry()->addMaterial(planeMaterial);
-//	planeNode->rotation({1, 0, 0, radians(90.0)});
-//	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-//	
-//	auto planePhysicsBody = PhysicsBody::StaticBody();
-//	planePhysicsBody->mass(0);
-//	planePhysicsBody->friction(100);
-//	planePhysicsBody->rollingFriction(100);
-//	planeNode->physicsBody(planePhysicsBody);
-//	
-//	scene->rootNode()->addChild(planeNode);
 	
-	
-	
-	
-//	// GROUND BOX UNROTATED
-//	
-//	const float PLANE_EXTENT_X = 40.0;
-//	const float PLANE_EXTENT_Y = 0.25;
-//	const float PLANE_EXTENT_Z = 40.0;
-//	auto boxNode = Node::GeometryNode(make_shared<Box>(PLANE_EXTENT_X, PLANE_EXTENT_Y, PLANE_EXTENT_Z));
-////	auto boxGeometry = make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT);
-////	auto boxNode = make_shared<Node>();
-//	//	planeNode->geometry(make_shared<Plane>(10, 10));
-//	auto gridImage = ImageNamed("grid10");
-//	//auto gridImage = ImageNamed("grid10_512");
-//	auto boxMaterialProperty = make_shared<MaterialProperty>(gridImage);
-//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-//	boxMaterialProperty->maxAnisotropy(16);
-//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
-//	boxMaterial->uvScale(PLANE_EXTENT_X/10.0);
-//	//	planeMaterial->doubleSided(true);
-//	boxNode->geometry()->addMaterial(boxMaterial);
-//	
-//	auto boxPhysicsBody = PhysicsBody::StaticBody();
-//	boxPhysicsBody->mass(0);
-//	boxPhysicsBody->friction(100);
-//	boxPhysicsBody->rollingFriction(100);
-//	boxNode->physicsBody(boxPhysicsBody);
-//	
-//	scene->rootNode()->addChild(boxNode);
-
-	
-	
-	
-	
-	// GROUND PLANE
+	// ground plane
 	
 	const float PLANE_LENGTH = 40.0;
 	const float PLANE_WIDTH = 40.0;
-	const float PLANE_HEIGHT = 0.25;
-	//	auto planeNode = make_shared<Node>(make_shared<Plane>(PLANE_WIDTH, PLANE_HEIGHT));
-	//auto planeNode = make_shared<Node>(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
-	auto planeNode = make_shared<Node>("Box");
-//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, PLANE_HEIGHT));
+	auto planeNode = make_shared<Node>("Ground");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = ImageNamed("grid10");
 	//auto gridImage = ImageNamed("grid10_512");
@@ -194,8 +121,6 @@ int Test::run(const vector<string>& args) {
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
-	
-	
 
 	
 	// add the duck
@@ -355,7 +280,6 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 		}
 		
 		if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
-			
 			ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
 		}
 	}
@@ -687,7 +611,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 }
 
 shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
-	
+
 	constexpr float SHOOT_RATE = 20; // balls/sec
 	
 	float time = scene.renderContext().lock()->sceneTime();

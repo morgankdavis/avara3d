@@ -37,7 +37,7 @@ shared_ptr<Light> Light::DefaultPoint() {
 	return light;
 }
 
-shared_ptr<Node> Light::DefaultAmbientNode() {
+shared_ptr<Node> Light::AmbientNode() {
 	static shared_ptr<Node> node = nullptr;
 	if (!node) {
 		node = make_shared<Node>();
@@ -46,7 +46,7 @@ shared_ptr<Node> Light::DefaultAmbientNode() {
 	return node;
 }
 
-shared_ptr<Node> Light::DefaultPointNode() {
+shared_ptr<Node> Light::PointNode() {
 	static shared_ptr<Node> node = nullptr;
 	if (!node) {
 		node = make_shared<Node>();

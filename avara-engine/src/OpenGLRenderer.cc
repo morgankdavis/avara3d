@@ -1298,7 +1298,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	// check for default lighting
 	
 	if (lights.size() == 0) {
-		auto detaultPoint = Light::DefaultPointNode();
+		auto detaultPoint = Light::PointNode();
 		// set position based on scene extent...
 		static vec3 sceneExtent = scene.extent(); // only doing this once or it runs reallll slow
 		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
@@ -1306,7 +1306,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 			sceneExtent.z + sceneExtent.z/4.0});
 		lights.emplace_back(detaultPoint);
 	}
-	if (!ambientLight) ambientLight = Light::DefaultAmbientNode();
+	if (!ambientLight) ambientLight = Light::AmbientNode();
 	
 	lights.emplace_back(ambientLight);
 	

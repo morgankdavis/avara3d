@@ -16,14 +16,7 @@ TODO:
 	FileUtilities, OutputUtilities, NumericUtilities, etc?
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
-		
-	Rename:
-		static std::shared_ptr<Light> DefaultAmbient();
-		static std::shared_ptr<Light> DefaultPoint();
-		static std::shared_ptr<Node> DefaultAmbientNode();
-		static std::shared_ptr<Node> DefaultPointNode();
-		
-	Figure out why test-030 right click has a delay!
+
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -52,9 +45,8 @@ TODO:
 	Relink android data in bulk
 	Fix android assimp
 	Create android tests shells for all tests and link to proper test classes
-	
-	Add "Approximate VRAM usage" to Renderer
-	
+	Android Imgui: https://github.com/ocornut/imgui/issues/1200
+
 	Switch AABB to min, max vec3s
 
 	Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
@@ -68,19 +60,17 @@ TODO:
 
 	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
-	Why are textures empty on first frame?
+	* Why are textures empty on first frame? *
 	
 	Throw if setting Image as background property
 
 	Rename StringFromXXXYYY -> String(XXXYYY)
-	ae::Object
-	AE objs -> description() + operator<<
+	ae::Object?
+		AE objs -> description() + operator<<
 
 	Add Geometry::extent() / extent(bool recursive)
 
-	Switch GLM setters to static references
-
-	Try glViewport() with screen points width and height
+	Switch all GLM setters to static references
 
 	Move Program static functions to instance variables in OpenGLRenderer	
 
@@ -92,12 +82,8 @@ TODO:
 			Add "GeometryPrimitive" superclass + factor vertex data creation
 			-> INITIALIZERS for other classes use defaults
 		+ Generate disk shape?
-
 	
 	Debug Scene/Geometry extent / default camera placement
-	
-	Android:
-		Imgui GLES: https://github.com/ocornut/imgui/issues/1200
 		
 	Find a new logging lib?
 		https://www.boost.org/doc/libs/1_55_0/libs/log/doc/html/index.html
