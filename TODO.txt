@@ -12,10 +12,7 @@ TODO:
 30 - rigidbody
 
 
-	AssetManager/FileManager with static functions for getting file assets?
-	FileUtilities, OutputUtilities, NumericUtilities, etc?
-	Make utils that return shared_ptr return unique_ptr?
-		-> no more optional or null returns, THROW!
+
 
 	Get rid of imgui.ini or move it
 
@@ -67,10 +64,6 @@ TODO:
 	
 	Throw if setting Image as background property
 
-	Rename StringFromXXXYYY -> String(XXXYYY)
-	ae::Object?
-		AE objs -> description() + operator<<
-
 	Add Geometry::extent() / extent(bool recursive)
 
 	Switch all GLM setters to static references
@@ -95,6 +88,15 @@ TODO:
 		https://github.com/SergiusTheBest/plog
 		
 		+ AE_LOG function to return __FILE__:__func__()
+		
+	AssetManager/FileManager with static functions for getting file assets?
+	FileUtilities, OutputUtilities, NumericUtilities, etc?
+	Make utils that return shared_ptr return unique_ptr?
+		-> no more optional or null returns, THROW!
+	Rename StringFromXXXYYY -> String(XXXYYY)
+	
+	ae::Object?
+		AE objs -> description() + operator<<
 
 	Integrate gtest
 		import-scenegraph
@@ -140,17 +142,14 @@ TODO:
 90 - network
 	"Entity"
 
-100 - vulkan + deferred shading
+100 - particle systems
 
-120 - particle systems
+110 - vulkan + deferred shading
 
 130 - world editor
 
-150 - localization
+160 - localization
 
-??? - Camera animation
-	http://libclaw.sourceforge.net/tweeners.html
-	https://code.google.com/archive/p/cpptweener/
 	
 ——————————————————————————————————
 
@@ -166,16 +165,23 @@ QUESTIONS:
 
 Laundry list:
 
-	Property encapsulate logging.
-		Look at PLog? https://github.com/SergiusTheBest/plog
+	Custom Log lib
+		Support multiple logs (ae log and application log)
+			XX this doesn't make sense.  Just init the log with the executable name.
+			Provide special "internal" versions of the functions that will add "[ae]" along with the "log name"
+			(executable name) to the output so when reading you can distinguish between them
+		Support formatted output
+			https://github.com/fmtlib/fmt
+			http://fmtlib.net/latest/
+		Support "native" out (stdout, android log, logging to file)
+		Support manual flushing, buffer until flush
+		Thread safety!
 
 	Gamma correction
 
 	Embed shader sources into app
 		https://github.com/cyrilcode/embed-resource/tree/a49d88b618b85bfc7aaa02f3b5c74b7058048045
 
-	SceneImporter/.aes
-	
 	Crash reporting
 		https://www.bugsplat.com/
 		https://backtrace.io/
@@ -183,23 +189,19 @@ Laundry list:
 
 	ANDROID ACTIVITY LIFECYCLE
 
+	Camera animation
+		http://libclaw.sourceforge.net/tweeners.html
+		https://code.google.com/archive/p/cpptweener/
+
 	Android capture cursor: https://developer.android.com/training/gestures/movement
 		Android 8+, API 26-27
 
 	ANDROID RAW MOUSE
 		http://newandroidbook.com/Book/Input.html?r
 
-	Generate and store nip maps in AE texture/model file	
-
-	Use shared libs?
-		AE_API defines?
-		https://stackoverflow.com/questions/8863193/what-does-declspecdllimport-really-mean
-
 	Mesh decimation/simplification/reduction
 	http://www.openmesh.org/Daily-Builds/Doc/index.html
 	http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
-
-	Switch generator to GLM + dynamic link
 
 	INFINATE FLAT GROUND (SCNFloor)
 		http://www.terathon.com/gdc07_lengyel.pdf
@@ -209,13 +211,9 @@ Laundry list:
 
 	Wireframe MATERIAL?
 
-	Proper scene graph unroll
-
 	glBlitFramebuffer() for resolution upscaling
 		https://www.opengl.org/discussion_boards/showthread.php/199483-Creating-Low-resolution-output-using-glBlitFrameBuffer
 		https://books.google.com/books?id=vUK1DAAAQBAJ&pg=PT543&lpg=PT543&dq=glBlitFramebuffer+glfwSwapBuffers&source=bl&ots=yYJ-E-jz6D&sig=lRAKc8c9lSezweBUgPpHTdbbElc&hl=en&sa=X&ved=0ahUKEwjlkumi29vYAhWKq1QKHUAwBgQQ6AEIUjAF#v=onepage&q=glBlitFramebuffer%20glfwSwapBuffers&f=false
-
-	Mouse wobbles -- missing events - need to run in its own thread/higher priority
 
 	Speed up gif downsampling with glBlitFramebuffer() instead of stb_image_resize()?
 
@@ -226,7 +224,8 @@ Laundry list:
 
 	Custom scene/mesh/material format
 		aest -> “Avara Engine Scene Tool” for creating .aes, .aeg, .ael, etc files
-		Import camera and lights
+		Import nodes, geometries, cameras, lights, physics bodies
+		Geometry subdivisions, texture qualities & mipmaps
 
 	Proper alpha blending — depth peeling or a-buffer
 		http://blog.icare3d.org/2010/06/fast-and-accurate-single-pass-buffer.html
@@ -274,8 +273,10 @@ NEW LOGGING SYSTEM
 
 
 Wish list:
-    	Camera lookAt constraint
+    Camera lookAt constraint
 	Geometry subdivision
+	
+	Custom GUI lib
 
 
 BUGS:
