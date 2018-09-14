@@ -17,6 +17,8 @@ TODO:
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
 
+	Get rid of imgui.ini or move it
+
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -41,6 +43,7 @@ TODO:
 
 	------ Other things (non-physics) ------
 	
+	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
 	
 	Relink android data in bulk
 	Fix android assimp
@@ -125,10 +128,12 @@ TODO:
 	TargetNode / AnimationTarget, etc
 
 50 - multithreading
+	https://github.com/giorgiomarcias/MPMCThreadPool
 
 60 - GUI
 
 70 - scripting
+	http://www.swig.org/
 
 80 - audio
 
