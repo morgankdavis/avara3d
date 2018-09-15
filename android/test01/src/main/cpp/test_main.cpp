@@ -35,7 +35,7 @@ void android_main(android_app* app) {
 
 	AE_INIT(app);
 
-	OlgLogger::Level(LOG_LEVEL::DEBUG_);
+	OldLogger::Level(LOG_LEVEL::DEBUG_);
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
