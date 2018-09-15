@@ -279,6 +279,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.IniFilename = nullptr;
 
 	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
 	

@@ -12,11 +12,6 @@ TODO:
 30 - rigidbody
 
 
-
-
-	Get rid of imgui.ini or move it
-
-
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
 	Fix margins + add to PhysicsBody/Shape
