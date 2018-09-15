@@ -20,7 +20,9 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
+#include <boost/filesystem.hpp>
 #include <spdlog/spdlog.h>
 
 #include "Exception.h"
@@ -29,7 +31,7 @@
 
 namespace ae {
 	
-	class Logger : public std::enable_shared_from_this<Logger> {
+	class OldLogger : public std::enable_shared_from_this<OldLogger> {
 		
 	public:
 		
@@ -44,7 +46,7 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		Logger(std::string name, LOGGER_SINK sinks);
+		OldLogger(std::string name, LOGGER_SINK sinks);
 		
 		/***************************************************************************************
 		     Public
@@ -181,12 +183,174 @@ namespace ae {
 	};
 	
 	
-	extern std::shared_ptr<ae::Logger>		g_logger;
+	extern std::shared_ptr<ae::OldLogger>		g_logger;
 	#define AE_LOG							g_logger
 	
 	#define AE_FILE							__FILE__
 	#define AE_FUNC							__func__
 	#define AE_LINE							__LINE__
+	
+	
+	
+	
+	class LoggerSink;
+	
+	
+	
+	class Logger : public std::enable_shared_from_this<Logger> {
+		
+	public:
+		
+		/**************************************************************************************
+		     Public Static
+		 **************************************************************************************/
+		
+		static std::shared_ptr<Logger> MainLogger();
+		
+		/***************************************************************************************
+		     Lifecycle
+		 ***************************************************************************************/
+		
+		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks);
+		~Logger();
+		
+		/***************************************************************************************
+		     Public
+		 ***************************************************************************************/
+		
+		std::string name() const;
+		std::vector<std::shared_ptr<LoggerSink>> sinks() const;
+		
+		LOG_LEVEL level() const;
+		void level(LOG_LEVEL level);
+		
+		void log(LOG_LEVEL level, std::string& message);
+		void log(LOG_LEVEL level, std::string& format, ...);
+		
+		void trace(std::string& message);
+		void trace(std::string& format, ...);
+		
+		void debug(std::string& message);
+		void debug(std::string& format, ...);
+
+		void info(std::string& message);
+		void info(std::string& format, ...);
+		
+		void warn(std::string& message);
+		void warn(std::string& format, ...);
+
+		void error(std::string& message);
+		void error(std::string& format, ...);
+
+		void critical(std::string& message);
+		void critical(std::string& format, ...);
+		
+		void flush();
+		
+	private:
+		
+		/***************************************************************************************
+		     Private
+		 ***************************************************************************************/
+		
+		std::string									m_name;
+		std::vector<std::shared_ptr<LoggerSink>>	m_sinks;
+	};
+	
+	
+	
+	class LoggerSink : public std::enable_shared_from_this<LoggerSink> {
+		
+	public:
+		
+		/***************************************************************************************
+		     Lifecycle
+		 ***************************************************************************************/
+		
+		LoggerSink();
+//		~NewLoggerSink();
+		
+		/***************************************************************************************
+		     Public
+		 ***************************************************************************************/
+		
+		virtual void flush();
+		
+	private:
+		
+		/***************************************************************************************
+		     Private
+		 ***************************************************************************************/
+		
+	};
+	
+	
+	
+	
+	class NativeLoggerSink : public LoggerSink {
+		
+	public:
+		
+		/***************************************************************************************
+		     Lifecycle
+		 ***************************************************************************************/
+		
+		NativeLoggerSink();
+		~NativeLoggerSink();
+		
+		/***************************************************************************************
+		     Public
+		 ***************************************************************************************/
+		
+		void flush() override;
+		
+	private:
+		
+		/***************************************************************************************
+		     Private
+		 ***************************************************************************************/
+		
+	};
+	
+	
+	
+	
+	
+	class FileLoggerSink : public LoggerSink {
+		
+	public:
+		
+		/***************************************************************************************
+		     Lifecycle
+		 ***************************************************************************************/
+		
+		FileLoggerSink(boost::filesystem::path filepath);
+		~FileLoggerSink();
+		
+		/***************************************************************************************
+		     Public
+		 ***************************************************************************************/
+		
+		boost::filesystem::path filepath() const;
+		
+		unsigned maxFiles() const;
+		unsigned maxFilesize() const;
+		
+		void flush() override;
+		
+	private:
+		
+		/***************************************************************************************
+		     Private
+		 ***************************************************************************************/
+		
+		boost::filesystem::path		m_filepath;
+		unsigned					m_maxFiles;
+		unsigned					m_maxFilesize;
+	};
+	
+	
+	
 }
 
 #endif /* Logger_h */

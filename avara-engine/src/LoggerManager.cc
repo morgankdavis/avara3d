@@ -41,7 +41,7 @@ LoggerManager::LoggerManager() {
      Internal
  ***************************************************************************************/
 
-std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<Logger> logger) {
+std::shared_ptr<spdlog::logger> LoggerManager::addLogger(shared_ptr<OldLogger> logger) {
 	
 	// first check loggerNamed()
 	

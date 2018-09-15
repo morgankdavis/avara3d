@@ -42,11 +42,11 @@ int Test::run(const vector<string>& args) {
 	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::NATIVE);
 	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::MAIN_FILE);
 	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::NAMED_FILE);
-	auto logger = make_shared<Logger>("test06", sinks);
+	auto logger = make_shared<OldLogger>("test06", sinks);
 	
 	AE_INIT();
 	
-	Logger::Level(LOG_LEVEL::DEBUG_);
+	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
 	

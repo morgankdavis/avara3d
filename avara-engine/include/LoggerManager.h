@@ -21,7 +21,7 @@
 namespace ae {
 	
 	
-	class Logger;
+	class OldLogger;
 	
 	
 	class LoggerManager {
@@ -38,7 +38,7 @@ namespace ae {
 		     Internal
 		 ***************************************************************************************/
 		
-		std::shared_ptr<spdlog::logger> addLogger(std::shared_ptr<Logger> logger);
+		std::shared_ptr<spdlog::logger> addLogger(std::shared_ptr<OldLogger> logger);
 		std::shared_ptr<spdlog::logger> loggerNamed(std::string& name);
 		
 	private:

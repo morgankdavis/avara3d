@@ -22,7 +22,7 @@ using namespace spdlog;
 using namespace std;
 
 
-shared_ptr<Logger>		ae::g_logger;
+shared_ptr<OldLogger>		ae::g_logger;
 
 
 #ifdef ANDROID
@@ -37,7 +37,7 @@ std::shared_ptr<spdlog::sinks::stdout_sink_st>			i_spdlogSTDOUTSink;
      Public Static
  **************************************************************************************/
 
-void Logger::Init() {
+void OldLogger::Init() {
 
 	static bool initialized = false;
 
@@ -50,14 +50,14 @@ void Logger::Init() {
 #ifndef ANDROID
 		sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::MAIN_FILE);
 #endif
-		g_logger = make_shared<Logger>("ae", sinks);
+		g_logger = make_shared<OldLogger>("ae", sinks);
 		g_logger->info("Init.");
 
 		initialized = true;
 	}
 }
 
-void Logger::Level(LOG_LEVEL level) {
+void OldLogger::Level(LOG_LEVEL level) {
 	set_level(static_cast<level::level_enum>(level));
 }
 
@@ -65,7 +65,7 @@ void Logger::Level(LOG_LEVEL level) {
      Lifecycle
  ***************************************************************************************/
 
-Logger::Logger(string name, LOGGER_SINK sinks):
+OldLogger::OldLogger(string name, LOGGER_SINK sinks):
 	m_name(name),
 	m_sinks(sinks) {
 
@@ -135,15 +135,183 @@ Logger::Logger(string name, LOGGER_SINK sinks):
      Public
  ***************************************************************************************/
 
-string Logger::name() const {
+string OldLogger::name() const {
 	return m_name;
 }
 
-LOGGER_SINK Logger::sinks() const {
+LOGGER_SINK OldLogger::sinks() const {
 	return m_sinks;
 }
 
-void Logger::flush() {
+void OldLogger::flush() {
 	m_logger->flush();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+/**************************************************************************************
+     Public Static
+ **************************************************************************************/
+
+std::shared_ptr<Logger> Logger::MainLogger() {
+	
+}
+
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
+
+Logger::Logger(std::string name, vector<shared_ptr<LoggerSink>> sinks) {
+	
+}
+
+Logger::~Logger() {
+	
+}
+
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
+
+string Logger::name() const {
+	
+}
+
+vector<shared_ptr<LoggerSink>> Logger::sinks() const {
+	
+}
+
+LOG_LEVEL Logger::level() const {
+	
+}
+
+void Logger::level(LOG_LEVEL level) {
+	
+}
+
+void Logger::log(LOG_LEVEL level, string& message) {
+	
+}
+
+void Logger::log(LOG_LEVEL level, string& format, ...) {
+	
+}
+
+void Logger::trace(string& message) {
+	
+}
+
+void Logger::trace(string& format, ...) {
+	
+}
+
+void Logger::debug(string& message) {
+	
+}
+
+void Logger::debug(string& format, ...) {
+	
+}
+
+void Logger::info(string& message) {
+	
+}
+
+void Logger::info(string& format, ...) {
+	
+}
+
+void Logger::warn(string& message) {
+	
+}
+
+void Logger::warn(string& format, ...) {
+	
+}
+
+void Logger::error(string& message) {
+	
+}
+
+void Logger::error(string& format, ...) {
+	
+}
+
+void Logger::critical(string& message) {
+	
+}
+
+void Logger::critical(string& format, ...) {
+	
+}
+
+void Logger::flush() {
+	
+}
+
+
+
+
+
+
+
+LoggerSink::LoggerSink() {
+	
+}
+
+void LoggerSink::flush() {
+	
+}
+
+
+
+
+
+NativeLoggerSink::NativeLoggerSink() {
+	
+}
+
+NativeLoggerSink::~NativeLoggerSink() {
+	
+}
+
+void NativeLoggerSink::flush() {
+	
+}
+
+
+
+
+FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath) {
+	
+}
+
+FileLoggerSink::~FileLoggerSink() {
+	
+}
+
+boost::filesystem::path FileLoggerSink::filepath() const {
+	return m_filepath;
+}
+
+unsigned FileLoggerSink::maxFiles() const {
+	return m_maxFiles;
+}
+
+unsigned FileLoggerSink::maxFilesize() const {
+	return m_maxFilesize;
+}
+
+void FileLoggerSink::flush() {
+	
+}

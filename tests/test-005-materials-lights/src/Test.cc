@@ -46,7 +46,7 @@ static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	Logger::Level(LOG_LEVEL::DEBUG_);
+	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
 
