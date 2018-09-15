@@ -26,6 +26,6 @@ void ae::AE_INIT(android_app* app) {
 #ifdef ANDROID
 	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 #endif
-	Logger::Init();
-	Logger::Level(LOG_START_LEVEL);
+	OldLogger::Init();
+	OldLogger::Level(LOG_START_LEVEL);
 }
