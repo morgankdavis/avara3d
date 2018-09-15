@@ -12,6 +12,20 @@ TODO:
 30 - rigidbody
 
 
+	Custom Log lib
+		Support multiple logs (ae log and application log)
+			XX this doesn't make sense.  Just init the log with the executable name.
+			Provide special "internal" versions of the functions that will add "[ae]" along with the "log name"
+			(executable name) to the output so when reading you can distinguish between them
+		Support formatted output
+			https://github.com/fmtlib/fmt
+			http://fmtlib.net/latest/
+		Support "native" out (stdout, android log, logging to file)
+		Support manual flushing, buffer until flush
+		Thread safety!
+		Rolling files
+
+
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
 	Fix margins + add to PhysicsBody/Shape
@@ -41,10 +55,9 @@ TODO:
 	Fix android assimp
 	Create android tests shells for all tests and link to proper test classes
 	Android Imgui: https://github.com/ocornut/imgui/issues/1200
+	Imgui -> glfwErrorCallback() ? error: 65537, description: The GLFW library is not initialized
 
 	Switch AABB to min, max vec3s
-
-	Imgui -> glfwErrorCallback(): error: 65537, description: The GLFW library is not initialized
 
 	Create a generalized caching interface for creating new geometries?
 		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
@@ -159,18 +172,6 @@ QUESTIONS:
 
 
 Laundry list:
-
-	Custom Log lib
-		Support multiple logs (ae log and application log)
-			XX this doesn't make sense.  Just init the log with the executable name.
-			Provide special "internal" versions of the functions that will add "[ae]" along with the "log name"
-			(executable name) to the output so when reading you can distinguish between them
-		Support formatted output
-			https://github.com/fmtlib/fmt
-			http://fmtlib.net/latest/
-		Support "native" out (stdout, android log, logging to file)
-		Support manual flushing, buffer until flush
-		Thread safety!
 
 	Gamma correction
 
