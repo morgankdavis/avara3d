@@ -19,6 +19,8 @@
 
 
 #include <memory>
+#include <cstdio>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -30,6 +32,7 @@
 
 
 namespace ae {
+
 	
 	class OldLogger : public std::enable_shared_from_this<OldLogger> {
 		
@@ -193,11 +196,32 @@ namespace ae {
 	
 	
 	
+	
+	
+	
+	
+	
+	// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+	#define LOG_T(fmt, ...) Logger::MainLogger()->trace(fmt, ##__VA_ARGS__)
+	#define LOG_D(fmt, ...) Logger::MainLogger()->debug(fmt, ##__VA_ARGS__)
+	#define LOG_I(fmt, ...) Logger::MainLogger()->info(fmt, ##__VA_ARGS__)
+	#define LOG_W(fmt, ...) Logger::MainLogger()->warn(fmt, ##__VA_ARGS__)
+	#define LOG_E(fmt, ...) Logger::MainLogger()->error(fmt, ##__VA_ARGS__)
+	#define LOG_C(fmt, ...) Logger::MainLogger()->critical(fmt, ##__VA_ARGS__)
+	
+	
+	
+	
+	
 	class LoggerSink;
 	
 	
-	
 	class Logger : public std::enable_shared_from_this<Logger> {
+		
+		
+		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::INFO_;
+		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
+		
 		
 	public:
 		
@@ -211,7 +235,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks);
+		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks,
+			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
 		
 		/***************************************************************************************
@@ -224,26 +249,24 @@ namespace ae {
 		LOG_LEVEL level() const;
 		void level(LOG_LEVEL level);
 		
-		void log(LOG_LEVEL level, std::string& message);
-		void log(LOG_LEVEL level, std::string& format, ...);
+		LOG_LEVEL flushLevel() const;
+		void flushLevel(LOG_LEVEL level);
 		
-		void trace(std::string& message);
-		void trace(std::string& format, ...);
+		void log(LOG_LEVEL level, const char* message);
+		void log(LOG_LEVEL level, const char* format, va_list args);
 		
-		void debug(std::string& message);
-		void debug(std::string& format, ...);
-
-		void info(std::string& message);
-		void info(std::string& format, ...);
-		
-		void warn(std::string& message);
-		void warn(std::string& format, ...);
-
-		void error(std::string& message);
-		void error(std::string& format, ...);
-
-		void critical(std::string& message);
-		void critical(std::string& format, ...);
+//		void trace(std::string& format, ...);
+		void trace(const char* format, ...);
+//		void debug(std::string& format, ...);
+		void debug(const char* format, ...);
+//		void info(std::string& format, ...);
+		void info(const char* format, ...);
+//		void warn(std::string& format, ...);
+		void warn(const char* format, ...);
+//		void error(std::string& format, ...);
+		void error(const char* format, ...);
+//		void critical(std::string& format, ...);
+		void critical(const char* format, ...);
 		
 		void flush();
 		
@@ -253,9 +276,22 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
+//		void trace(const char* format, va_list args);
+//		void debug(const char* format, va_list args);
+//		void info(const char* format, va_list args);
+//		void warn(const char* format, va_list args);
+//		void error(const char* format, va_list args);
+//		void critical(const char* format, va_list args);
+		
+		std::string header();
+		
 		std::string									m_name;
 		std::vector<std::shared_ptr<LoggerSink>>	m_sinks;
+		LOG_LEVEL									m_level;
+		LOG_LEVEL									m_flushLevel;
 	};
+	
+	
 	
 	
 	
@@ -264,30 +300,16 @@ namespace ae {
 	public:
 		
 		/***************************************************************************************
-		     Lifecycle
-		 ***************************************************************************************/
-		
-		LoggerSink();
-//		~NewLoggerSink();
-		
-		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
 		
 		virtual void flush();
-		
-	private:
-		
-		/***************************************************************************************
-		     Private
-		 ***************************************************************************************/
-		
 	};
 	
 	
 	
-	
-	class NativeLoggerSink : public LoggerSink {
+#ifdef DESKTOP
+	class STDLoggerSink : public LoggerSink {
 		
 	public:
 		
@@ -295,36 +317,59 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		NativeLoggerSink();
-		~NativeLoggerSink();
+		STDLoggerSink();
+		~STDLoggerSink();
 		
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
 		
+		void write(const char* message, LOG_LEVEL level);
 		void flush() override;
+	};
+#endif
+	
+	
+	
+#ifdef ANDROID
+	class AndroidLoggerSink : public LoggerSink {
 		
-	private:
+	public:
 		
 		/***************************************************************************************
-		     Private
+		     Lifecycle
 		 ***************************************************************************************/
 		
+		AndroidLoggerSink();
+		~AndroidLoggerSink();
+		
+		/***************************************************************************************
+		     Public
+		 ***************************************************************************************/
+		
+		void write(const char* message, const char* tag, LOG_LEVEL level);
+		void flush() override;
 	};
-	
-	
+#endif
 	
 	
 	
 	class FileLoggerSink : public LoggerSink {
 		
+		
+		static constexpr unsigned DEFAULT_MAX_FILES = 3;
+		static constexpr unsigned DEFAULT_MAX_FILESIZE = 1024 * 512;
+		
+		
 	public:
 		
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		FileLoggerSink(boost::filesystem::path filepath);
+		FileLoggerSink(boost::filesystem::path filepath,
+					   unsigned maxFiles = DEFAULT_MAX_FILES,
+					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);
 		~FileLoggerSink();
 		
 		/***************************************************************************************
@@ -336,6 +381,7 @@ namespace ae {
 		unsigned maxFiles() const;
 		unsigned maxFilesize() const;
 		
+		void write(const char* message);
 		void flush() override;
 		
 	private:
@@ -347,6 +393,7 @@ namespace ae {
 		boost::filesystem::path		m_filepath;
 		unsigned					m_maxFiles;
 		unsigned					m_maxFilesize;
+		std::ofstream				m_fileStream;
 	};
 	
 	

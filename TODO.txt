@@ -13,16 +13,10 @@ TODO:
 
 
 
-	Custom Log lib
-			(executable name) to the output so when reading you can distinguish between them
-		Support formatted output
-			https://github.com/fmtlib/fmt
-			http://fmtlib.net/latest/
-		Support "native" out (stdout, android log, logging to file)
-		Support manual flushing, buffer until flush
-		Thread safety!
+	Logging
 		File rotation
-
+		* Check android file sink *
+		
 
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
@@ -270,7 +264,7 @@ NEW LOGGING SYSTEM
 Wish list:
     Camera lookAt constraint
 	Geometry subdivision
-	
+	3D text
 	Custom GUI lib
 
 
@@ -284,72 +278,72 @@ BUGS:
 
 Resources:
 
-Factory Pattern:
-	https://stackoverflow.com/questions/8147027/how-do-i-call-stdmake-shared-on-a-class-with-only-protected-or-private-const/8147213#8147213
+	Factory Pattern:
+			https://stackoverflow.com/questions/8147027/how-do-i-call-stdmake-shared-on-a-class-with-only-protected-or-private-const/8147213#8147213
 
-Make textures:
-	https://www.allegorithmic.com/products/substance-designer
-	https://www.poliigon.com/
+	Make textures:
+		https://www.allegorithmic.com/products/substance-designer
+		https://www.poliigon.com/
 
-STAR/SKY TEXTURES
-	https://qeoo.tk/night-sky-texture-map.html
+	STAR/SKY TEXTURES
+		https://qeoo.tk/night-sky-texture-map.html
 
-Singleton:
-	https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+	Singleton:
+		https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
 
-Lighting examples:
-	https://github.com/stackgl/glsl-lighting-walkthrough
+	Lighting examples:
+		https://github.com/stackgl/glsl-lighting-walkthrough
 
-TOLM
-	https://github.com/toml-lang/toml
-	https://github.com/mayah/tinytoml
-	https://github.com/skystrife/cpptoml
+	TOLM
+		https://github.com/toml-lang/toml
+		https://github.com/mayah/tinytoml
+		https://github.com/skystrife/cpptoml
 
-Cmake 3.8+
-	https://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04/610352
+	Cmake 3.8+
+		https://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04/610352
 
-Light attenuation
-	https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
-	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
-	https://www.desmos.com/calculator/kp89d5khyb
-	https://www.desmos.com/calculator/nmnaud1hrw
+	Light attenuation
+		https://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula/56934
+		https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+		https://www.desmos.com/calculator/kp89d5khyb
+		https://www.desmos.com/calculator/nmnaud1hrw
 
-Gomma correction
-	https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+	Gomma correction
+		https://www.tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
 
-Distance fog
-	http://opengl-notes.readthedocs.io/en/latest/topics/texturing/aliasing.html
-	http://in2gpu.com/2014/07/22/create-fog-shader/
-	http://www.iquilezles.org/www/articles/fog/fog.htm
-	http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
-	UBO ISSUES: https://stackoverflow.com/questions/12746040/multiple-glsl-uniform-buffers
+	Distance fog
+		http://opengl-notes.readthedocs.io/en/latest/topics/texturing/aliasing.html
+		http://in2gpu.com/2014/07/22/create-fog-shader/
+		http://www.iquilezles.org/www/articles/fog/fog.htm
+		http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
+		UBO ISSUES: https://stackoverflow.com/questions/12746040/multiple-glsl-uniform-buffers
 
-Volumetric spot lights
-	http://john-chapman-graphics.blogspot.com/2013/01/good-enough-volumetrics-for-spotlights.html
+	Volumetric spot lights
+		http://john-chapman-graphics.blogspot.com/2013/01/good-enough-volumetrics-for-spotlights.html
 
-Wavefront OBJ Importing
-	https://github.com/syoyo/tinyobjloader
+	Wavefront OBJ Importing
+		https://github.com/syoyo/tinyobjloader
 
-ASSIMP MINGW!
-	https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
+	ASSIMP MINGW!
+		https://stackoverflow.com/questions/39659331/strncasecmp-and-strcasecmp-has-not-been-declared
 
-Networking
-	https://github.com/lsalzman/enet
-	https://github.com/facebookarchive/RakNet
-	https://github.com/networkprotocol/yojimbo
-	https://github.com/google/protobuf
+	Networking
+		https://github.com/lsalzman/enet
+		https://github.com/facebookarchive/RakNet
+		https://github.com/networkprotocol/yojimbo
+		https://github.com/google/protobuf
 
-SCENE GRAPH INFO
-	https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/scenegraphs/Tutorial%206%20-%20Scene%20Graphs.pdf
-	https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
-	http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
-	https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
-	EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
-	http://libcinder.org
+	SCENE GRAPH INFO
+		https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/scenegraphs/Tutorial%206%20-%20Scene%20Graphs.pdf
+		https://webglfundamentals.org/webgl/lessons/webgl-scene-graph.html
+		http://www-evasion.imag.fr/~Francois.Faure/doc/inventorMentor/sgi_html/ch03.html
+		https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
+		EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
+		http://libcinder.org
 
-Quaternion <-> Euler angle live calculator:
-	http://quaternions.online/
-Quaternion -> Euler angle any sequence:
-	http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
+	Quaternion <-> Euler angle live calculator:
+		http://quaternions.online/
+	Quaternion -> Euler angle any sequence:
+		http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
 
 	

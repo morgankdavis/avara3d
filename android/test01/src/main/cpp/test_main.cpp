@@ -35,6 +35,29 @@ void android_main(android_app* app) {
 
 	AE_INIT(app);
 
+
+
+	auto newLogger = Logger::MainLogger(); // will be created by engine
+
+	LOG_I("********** info msg **********");
+	LOG_I("********** info format: %d %s **********", 2, "dicks");
+
+	LOG_W("********** warn msg **********");
+	LOG_W("********** warn format: %d %s **********", 2, "dicks");
+
+	newLogger->level(LOG_LEVEL::WARN_);
+
+	LOG_D("********** BIG BLACK DICKS **********");
+
+	auto appLogger = make_shared<Logger>("test", newLogger->sinks());
+
+	appLogger->trace("********** YUM YUM **********");
+
+	appLogger->info("********** GOBBLE GOBBLE **********");
+
+
+
+
 	OldLogger::Level(LOG_LEVEL::DEBUG_);
 
 	auto renderer = make_shared<OpenGLRenderer>();

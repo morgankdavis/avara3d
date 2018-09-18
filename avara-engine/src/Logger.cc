@@ -8,9 +8,22 @@
 
 #include "Logger.h"
 
+#include <ctime>
 #include <iostream>
+//#include <stdlib.h>
+//#include <time.h>
 
-//#include <spdlog/spdlog.h>
+#if defined(MACOS) || defined(LINUX)
+//#include <errno.h>
+//#include <execinfo.h>
+//#include <unistd.h>
+#include <sys/time.h>
+#endif
+
+#ifdef ANDROID
+#include <android/log.h>
+#include <NDKHelper.h>
+#endif
 
 #include "Global.h"
 #include "Utilities.h"
@@ -155,7 +168,9 @@ void OldLogger::flush() {
 
 
 
-
+constexpr size_t MAX_HEADER_STR_SIZE = 128;
+constexpr size_t MAX_LOG_MSG_SIZE = 2048;
+constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + 2048;
 
 
 
@@ -165,13 +180,49 @@ void OldLogger::flush() {
 
 std::shared_ptr<Logger> Logger::MainLogger() {
 	
+	static shared_ptr<Logger> logger = nullptr;
+	if (!logger) {
+
+#if defined(DESKTOP)
+		string executableName = utils::ExecutableName()->string();
+		auto nativeSink = make_shared<STDLoggerSink>();
+		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
+													/ (executableName + string((".log"))));
+#elif defined(ANDROID)
+		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
+		auto nativeSink = make_shared<AndroidLoggerSink>();
+		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
+													/ (executableName + string((".log"))));
+#endif
+
+		
+		auto sinks = vector<shared_ptr<LoggerSink>>();
+		sinks.emplace_back(static_pointer_cast<LoggerSink>(nativeSink));
+		sinks.emplace_back(static_pointer_cast<LoggerSink>(fileSink));
+		
+		logger = make_shared<Logger>("ae", sinks);
+	}
+	return logger;
 }
+
+/**************************************************************************************
+     Private Static Prototypes
+ **************************************************************************************/
+
+string DateString();
+string HeaderString(const string& name, LOG_LEVEL level);
+string StringFromLogLevel(LOG_LEVEL level);
 
 /***************************************************************************************
      Lifecycle
  ***************************************************************************************/
 
-Logger::Logger(std::string name, vector<shared_ptr<LoggerSink>> sinks) {
+Logger::Logger(std::string name, vector<shared_ptr<LoggerSink>> sinks,
+			   LOG_LEVEL level, LOG_LEVEL flushLevel):
+	m_name(name),
+	m_sinks(sinks),
+	m_level(level),
+	m_flushLevel(flushLevel) {
 	
 }
 
@@ -184,90 +235,168 @@ Logger::~Logger() {
  ***************************************************************************************/
 
 string Logger::name() const {
-	
+	return m_name;
 }
 
 vector<shared_ptr<LoggerSink>> Logger::sinks() const {
-	
+	return m_sinks;
 }
 
 LOG_LEVEL Logger::level() const {
-	
+	return m_level;
 }
 
 void Logger::level(LOG_LEVEL level) {
-	
+	m_level = level;
 }
 
-void Logger::log(LOG_LEVEL level, string& message) {
+void Logger::log(LOG_LEVEL level, const char* message) {
 	
+	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
+		>= static_cast<underlying_type<LOG_LEVEL>::type>(m_level)) {
+		
+#if defined (DESKTOP)
+		char lineStr[MAX_LOG_LINE_SIZE];
+		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
+				 HeaderString(m_name, m_level).c_str(), message);
+#endif
+		
+		for (auto sink : m_sinks) {
+			
+#if defined (DESKTOP)
+			if (dynamic_pointer_cast<STDLoggerSink>(sink)) {
+				dynamic_pointer_cast<STDLoggerSink>(sink)->write(lineStr, level);
+			}
+#elif defined (ANDROID)
+			if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {
+				dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, m_name.c_str(), level);
+			}
+#endif
+			if (dynamic_pointer_cast<FileLoggerSink>(sink)) {
+				dynamic_pointer_cast<FileLoggerSink>(sink)->write(message);
+			}
+		}
+		
+		if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
+			>= static_cast<underlying_type<LOG_LEVEL>::type>(m_flushLevel)) {
+			flush();
+		}
+	}
 }
 
-void Logger::log(LOG_LEVEL level, string& format, ...) {
+void Logger::log(LOG_LEVEL level, const char* format, va_list args) {
 	
+	char msg[MAX_LOG_MSG_SIZE];
+
+	// https://en.cppreference.com/w/c/io/vfprintf
+	vsnprintf(msg, MAX_LOG_MSG_SIZE, format, args);
+	
+	log(level, msg);
 }
 
-void Logger::trace(string& message) {
+void Logger::trace(const char* format, ...) {
 	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::TRACE_, format, args);
+	va_end(args);
 }
 
-void Logger::trace(string& format, ...) {
+void Logger::debug(const char* format, ...) {
 	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::DEBUG_, format, args);
+	va_end(args);
 }
 
-void Logger::debug(string& message) {
+void Logger::info(const char* format, ...) {
 	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::INFO_, format, args);
+	va_end(args);
 }
 
-void Logger::debug(string& format, ...) {
+void Logger::warn(const char* format, ...) {
 	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::WARN_, format, args);
+	va_end(args);
 }
 
-void Logger::info(string& message) {
+void Logger::error(const char* format, ...) {
 	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::ERROR_, format, args);
+	va_end(args);
 }
 
-void Logger::info(string& format, ...) {
+void Logger::critical(const char* format, ...) {
 	
-}
-
-void Logger::warn(string& message) {
-	
-}
-
-void Logger::warn(string& format, ...) {
-	
-}
-
-void Logger::error(string& message) {
-	
-}
-
-void Logger::error(string& format, ...) {
-	
-}
-
-void Logger::critical(string& message) {
-	
-}
-
-void Logger::critical(string& format, ...) {
-	
+	va_list args;
+	va_start(args, format);
+	log(LOG_LEVEL::CRITICAL_, format, args);
+	va_end(args);
 }
 
 void Logger::flush() {
+
+	for (auto& sink : m_sinks) {
+		sink->flush();
+	}	
+}
+
+/**************************************************************************************
+     Private Static
+ **************************************************************************************/
+
+string DateString() {
 	
+	char buffer[256];
+#ifdef WINDOWS
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M:%S", timeinfo);
+#else
+	timeval curTime;
+	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
+	int milli = curTime.tv_usec / 1000;
+	strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
+	sprintf(buffer, "%s.%03d", buffer, milli);
+#endif
+	return string(buffer);
+}
+
+string HeaderString(const string& name, LOG_LEVEL level) {
+	
+	char headerStr[MAX_HEADER_STR_SIZE];
+	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s]",
+			 DateString().c_str(), name.c_str(), StringFromLogLevel(level).c_str());
+	
+	return string((const char*)headerStr);
+}
+
+string StringFromLogLevel(LOG_LEVEL level) {
+	
+	switch (level) {
+		case LOG_LEVEL::TRACE_: 	return "trace";
+		case LOG_LEVEL::DEBUG_: 	return "debug";
+		case LOG_LEVEL::INFO_: 		return "info";
+		case LOG_LEVEL::WARN_: 		return "warn";
+		case LOG_LEVEL::ERROR_: 	return "error";
+		case LOG_LEVEL::CRITICAL_: 	return "critical";
+		case LOG_LEVEL::OFF_: 		return "off";
+	}
 }
 
 
 
 
-
-
-
-LoggerSink::LoggerSink() {
-	
-}
 
 void LoggerSink::flush() {
 	
@@ -276,28 +405,107 @@ void LoggerSink::flush() {
 
 
 
+#ifdef DESKTOP
 
-NativeLoggerSink::NativeLoggerSink() {
+STDLoggerSink::STDLoggerSink() {
 	
 }
 
-NativeLoggerSink::~NativeLoggerSink() {
+STDLoggerSink::~STDLoggerSink() {
 	
 }
 
-void NativeLoggerSink::flush() {
+void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
+	
+	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
+		<= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::WARN_)) {
+		fprintf(stdout, "%s\n", message);
+	}
+	else {
+		fprintf(stderr, "%s\n", message);
+	}
+}
+
+void STDLoggerSink::flush() {
+
+	fflush(stdout);
+}
+
+#endif
+
+
+
+#ifdef ANDROID
+
+unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level);
+
+AndroidLoggerSink::AndroidLoggerSink() {
 	
 }
 
-
-
-
-FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath) {
+AndroidLoggerSink::~AndroidLoggerSink() {
 	
+}
+
+void AndroidLoggerSink::write(const char* message, const char* tag, LOG_LEVEL level) {
+	
+	// https://developer.android.com/ndk/reference/group/logging	
+	__android_log_write(AndroidPriorityFromLogLevel(level), tag, message);
+}
+
+void AndroidLoggerSink::flush() {
+
+	// no flush in Android.
+}
+
+unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
+	
+	//	android_LogPriority{
+	//		ANDROID_LOG_UNKNOWN = 0,
+	//		ANDROID_LOG_DEFAULT,
+	//		ANDROID_LOG_VERBOSE,
+	//		ANDROID_LOG_DEBUG,
+	//		ANDROID_LOG_INFO,
+	//		ANDROID_LOG_WARN,
+	//		ANDROID_LOG_ERROR,
+	//		ANDROID_LOG_FATAL,
+	//		ANDROID_LOG_SILENT
+	//	}
+	
+	switch (level) {
+		case LOG_LEVEL::TRACE_: 	return ANDROID_LOG_VERBOSE;
+		case LOG_LEVEL::DEBUG_: 	return ANDROID_LOG_DEBUG;
+		case LOG_LEVEL::INFO_: 		return ANDROID_LOG_INFO;
+		case LOG_LEVEL::WARN_: 		return ANDROID_LOG_WARN;
+		case LOG_LEVEL::ERROR_: 	return ANDROID_LOG_ERROR;
+		case LOG_LEVEL::CRITICAL_: 	return ANDROID_LOG_FATAL;
+		case LOG_LEVEL::OFF_: 		return ANDROID_LOG_SILENT;
+	}
+}
+
+#endif
+
+
+
+
+FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
+							   unsigned maxFiles,
+							   unsigned maxFilesize):
+	m_filepath(filepath),
+	m_maxFiles(maxFilesize),
+	m_maxFilesize(maxFilesize) {
+	//m_fileStream(filepath.string()) {
+	
+//	boost::filesystem::file_status stats;
+//	boost::filesystem::status(filepath);
+
+#warning check file writable
+		m_fileStream = ofstream(filepath.string(), fstream::out | fstream::app);
 }
 
 FileLoggerSink::~FileLoggerSink() {
 	
+	m_fileStream.close();
 }
 
 boost::filesystem::path FileLoggerSink::filepath() const {
@@ -312,6 +520,12 @@ unsigned FileLoggerSink::maxFilesize() const {
 	return m_maxFilesize;
 }
 
+void FileLoggerSink::write(const char* message) {
+
+	m_fileStream << message << endl;
+}
+
 void FileLoggerSink::flush() {
 	
+	m_fileStream.flush();
 }

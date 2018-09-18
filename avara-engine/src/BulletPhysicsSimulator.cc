@@ -121,42 +121,6 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 #ifdef DESKTOP
 		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
 #endif
-		
-		
-		AE_LOG->info("m_numIterations: {}",  m_btWorld.get()->getSolverInfo().m_numIterations);
-		AE_LOG->info("m_solverMode: {}",  m_btWorld.get()->getSolverInfo().m_solverMode);
-		AE_LOG->info("m_restingContactRestitutionThreshold: {}",  m_btWorld.get()->getSolverInfo().m_restingContactRestitutionThreshold);
-		AE_LOG->info("m_minimumSolverBatchSize: {}",  m_btWorld.get()->getSolverInfo().m_minimumSolverBatchSize);
-		
-		
-//		enum    btSolverMode
-//		22 {
-//			23         SOLVER_RANDMIZE_ORDER = 1,
-//			24         SOLVER_FRICTION_SEPARATE = 2,
-//			25         SOLVER_USE_WARMSTARTING = 4,
-//			26         SOLVER_USE_2_FRICTION_DIRECTIONS = 16,
-//			27         SOLVER_ENABLE_FRICTION_DIRECTION_CACHING = 32,
-//			28         SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64,
-//			29         SOLVER_CACHE_FRIENDLY = 128,
-//			30         SOLVER_SIMD = 256,
-//			31         SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
-//			32         SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
-//			33 };
-//		34 
-		
-//		m_btWorld.get()->getSolverInfo().m_solverMode = 0
-//		| SOLVER_ENABLE_FRICTION_DIRECTION_CACHING
-//		| SOLVER_CACHE_FRIENDLY
-//		| SOLVER_FRICTION_SEPARATE
-//		| SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS;
-		
-//		m_btWorld.get()->getSolverInfo().m_restingContactRestitutionThreshold = 12;
-//		
-//		m_btWorld.get()->getSolverInfo().m_minimumSolverBatchSize = 1024;
-		
-		
-//		m_btWorld.get()->getSolverInfo().m_numIterations = 100;
-//		m_btWorld.get()->getSolverInfo().m_timeStep = 1.0/240.0;
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {

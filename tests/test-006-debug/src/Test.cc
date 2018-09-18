@@ -46,6 +46,30 @@ int Test::run(const vector<string>& args) {
 	
 	AE_INIT();
 	
+	
+	
+	
+	auto newLogger = Logger::MainLogger(); // will be created by engine
+
+	LOG_I("********** info msg **********");
+	LOG_I("********** info format: %d %s **********", 2, "dicks");
+	
+	LOG_W("********** warn msg **********");
+	LOG_W("********** warn format: %d %s **********", 2, "dicks");
+	
+	newLogger->level(LOG_LEVEL::WARN_);
+	
+	LOG_D("********** BIG BLACK DICKS **********");
+	
+	auto appLogger = make_shared<Logger>("test", newLogger->sinks());
+	
+	appLogger->trace("********** YUM YUM **********");
+	
+	appLogger->info("********** GOBBLE GOBBLE **********");
+	
+	
+	
+	
 	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
 	AE_LOG->info("Test::run()");
@@ -59,7 +83,7 @@ int Test::run(const vector<string>& args) {
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
 	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(true);
+	m_window->captureCursor(CAPTURE_CURSOR);
 	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);
