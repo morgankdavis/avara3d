@@ -156,7 +156,7 @@ string ae::utils::StringFromTree(Node& root) {
 }
 
 string ae::utils::DateTimeString() {
-	char buffer[256];
+	char buffer[128];
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;

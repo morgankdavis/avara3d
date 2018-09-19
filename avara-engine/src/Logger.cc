@@ -38,8 +38,8 @@ using namespace std;
 
 
 constexpr size_t MAX_HEADER_STR_SIZE = 128;
-constexpr size_t MAX_LOG_MSG_SIZE = 2048;
-constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + 2048;
+constexpr size_t MAX_LOG_MSG_SIZE = 1024 * 256; // ~256,000 characters
+constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_MSG_SIZE;
 
 
 /**************************************************************************************
@@ -548,16 +548,17 @@ void FileLoggerSink::rotate() {
 		}
 		else {
 			
-			auto stem = path.stem();
-			auto extension = path.extension();
+			auto existStem = path.stem();
+//			auto oldExtension = path.extension();
 
-			boost::filesystem::path newPath;
-			if (path.string() == m_filepath) {
-				newPath = boost::filesystem::path(stem.string() + to_string(index-1) + extension.string());
-			}
-			else {
-				newPath = boost::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
-			}
+			//boost::filesystem::path newPath;
+//			if (path.string() == m_filepath) {
+//				newPath = boost::filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
+//			}
+//			else {
+				//newPath = boost::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
+				boost::filesystem::path newPath = boost::filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
+//			}
 
 			boost::filesystem::rename(path, newPath);
 		}

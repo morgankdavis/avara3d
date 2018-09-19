@@ -12,16 +12,8 @@ TODO:
 30 - rigidbody
 
 
-	Logging
-		Make rotation support an arbitrarily large number of files
-		* Check android file sink *
-		__FILE__, __func__, __LINE__ ?
+	* Check android file sink *
 
-		Increase log buffer size:
-			[NODE] (0x1025da3d8, "g polySurface335")
-				[GEOMETRY] (0x1025da2e8, "g polySurface335")
-					[EL
-		
 	Create "External.h" -> "../external/fmt...", etc?
 
 	Smash build warnings

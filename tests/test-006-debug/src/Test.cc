@@ -43,6 +43,18 @@ int Test::run(const vector<string>& args) {
 	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 	
 	LOG_I(m_logger, "Test::run()");
+	
+	
+	
+//	auto sileSink = make_shared<FileLoggerSink>("rotating.log", 20, 1024 * 512);
+//	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
+//	unsigned l = 0;
+//	while (true) {
+//		LOG_I(m_logger, "line {}", l);
+//		++l;
+//	}
+	
+	
 
 	m_window = make_shared<Window>(FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
