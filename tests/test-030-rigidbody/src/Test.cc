@@ -58,15 +58,11 @@ int Test::run(const vector<string>& args) {
 
 	LOG_I(m_logger, "Test::run()");
 
-//	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
-//	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
-//	m_logger = make_shared<Logger>("test30", sinks);
-	
-	auto renderer = make_shared<OpenGLRenderer>();
-	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
-								   FULLSCREEN,
+	m_window = make_shared<Window>(FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI, ANTIALIAS_MODE);
+								   USE_HIGH_DPI,
+								   ANTIALIAS_MODE,
+								   RENDER_API::OPENGL);
 	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));

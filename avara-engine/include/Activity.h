@@ -42,7 +42,7 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		Activity(std::shared_ptr<Renderer> renderer);
+		Activity(RENDER_API renderAPI = RENDER_API::OPENGL);
 		
 		Activity(const Activity& other) = delete; // copy constructor
 		Activity& operator=(const Activity& other) = delete; // copy assignment

@@ -36,7 +36,6 @@ void android_main(android_app* app) {
 
 	AE_INIT(app);
 
-
 	s_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 
 	LOG_I(s_logger, "********** info msg **********");
@@ -46,8 +45,7 @@ void android_main(android_app* app) {
 	LOG_W(s_logger, "********** warn format: %d %s **********", 2, "dicks");
 
 
-	auto renderer = make_shared<OpenGLRenderer>();
-	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
+	auto activity = make_shared<Activity>(RENDER_API::OPENGL);
 
 	activity->updateCallback(renderContextUpdateCallback);
 	activity->willRenderCallback(renderContextWillRenderCallback);

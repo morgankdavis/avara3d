@@ -38,6 +38,11 @@ namespace ae {
 		OFF_ = 			6
 	};
 		
+	enum class RENDER_API {
+		OPENGL,
+		VULKAN
+	};
+		
 	enum class FONT_TYPE : unsigned {
 		UNKNOWN = 	0,
 		OTF =		1 << 0,

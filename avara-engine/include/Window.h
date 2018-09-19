@@ -41,11 +41,17 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		Window(std::shared_ptr<Renderer> renderer,
-			   bool fullScreen,
+//		Window(std::shared_ptr<Renderer> renderer,
+//			   bool fullScreen,
+//			   unsigned width, unsigned height,
+//			   bool useHighDPI = true,
+//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
+		
+		Window(bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool useHighDPI = true,
-			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
+			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE,
+			   RENDER_API renderAPI = RENDER_API::OPENGL);
 		
 		Window(const Window& other) = delete; // copy constructor
 		Window& operator=(const Window& other) = delete; // copy assignment

@@ -53,7 +53,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		RenderContext(std::shared_ptr<Renderer> renderer);
+		//RenderContext(std::shared_ptr<Renderer> renderer);
+		RenderContext(RENDER_API renderAPI);
 		
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
@@ -63,7 +64,9 @@ namespace ae {
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
-			
+		
+		RENDER_API renderAPI() const;
+		
 		std::shared_ptr<Renderer> renderer() const;
 		/* REMOVE? */ void renderer(std::shared_ptr<Renderer> renderer);
 		
@@ -139,6 +142,7 @@ namespace ae {
 		virtual std::shared_ptr<Node> defaultPointOfView();
 		virtual void saveGIFFrame(float deltaSeconds);
 
+		RENDER_API 								m_renderAPI;
 		std::shared_ptr<Renderer>				m_renderer;
 		std::shared_ptr<PhysicsSimulator>		m_physicsSimulator;
 		std::shared_ptr<Scene>					m_scene;

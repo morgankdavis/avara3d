@@ -47,41 +47,30 @@ static float ScreenScaleFactor(GLFWmonitor* monitor);
      Lifescycle
  ***************************************************************************************/
 
-Window::Window(shared_ptr<Renderer> renderer,
-	bool fullScreen,
-	unsigned width, unsigned height,
-	bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
-	RenderContext(renderer),
+//Window::Window(shared_ptr<Renderer> renderer,
+//	bool fullScreen,
+//	unsigned width, unsigned height,
+//	bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
+//	RenderContext(renderer),
+//	m_inputManager(nullptr),
+//	m_cursorCaptured(false) {
+
+Window::Window(bool fullScreen,
+			   unsigned width, unsigned height,
+			   bool enableHighDPI,
+			   ANTIALIASING_MODE antialiasingMode,
+			   RENDER_API renderAPI):
+	RenderContext(renderAPI),
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {
 
 		if (!InitializeGLFW()) { AE_LOG_C("Failed to initializing GLFW."); }
 
-//        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-//        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-//        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-//        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-//        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-//        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-//
-//        AE_LOG_I("mode->redBits: {}", mode->redBits);
-//        AE_LOG_I("mode->greenBits: {}", mode->greenBits);
-//        AE_LOG_I("mode->blueBits: {}", mode->blueBits);
-//        AE_LOG_I("mode->refreshRate: {}", mode->refreshRate);
-        
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
-//		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
         glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
-		
-//		glfwWindowHint(GLFW_STENCIL_BITS, 8);
-//		glfwWindowHint(GLFW_DEPTH_BITS, 24);
-//		
-//		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-//		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
 		int viewportWidth = width;
 		int viewportHeight = height;

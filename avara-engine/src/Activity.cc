@@ -40,8 +40,8 @@ using namespace std;
      Lifescycle
  ***************************************************************************************/
 
-Activity::Activity(shared_ptr<Renderer> renderer):
-		RenderContext(renderer),
+Activity::Activity(RENDER_API renderAPI):
+		RenderContext(renderAPI),
 		m_nativeWindow(nullptr),
 		m_display(EGL_NO_DISPLAY),
 		m_surface(EGL_NO_SURFACE),

@@ -50,11 +50,11 @@ int Test::run(const vector<string>& args) {
 	
 	LOG_I(m_logger, "Test::run()");
 
-	auto renderer = make_shared<OpenGLRenderer>();
-	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
-								   FULLSCREEN,
+	m_window = make_shared<Window>(FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI, ANTIALIAS_MODE);
+								   USE_HIGH_DPI,
+								   ANTIALIAS_MODE,
+								   RENDER_API::OPENGL);
 	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->willRenderCallback(bind(&Test::willRenderCallback, this, _1, _2));
 	m_window->didRenderCallback(bind(&Test::didRenderCallback, this, _1, _2));
