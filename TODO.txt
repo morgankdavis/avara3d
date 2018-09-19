@@ -29,6 +29,8 @@ TODO:
 		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 
+	Put RENDERER::OPENGL default argument into Scene constructor, add getter
+
 
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
