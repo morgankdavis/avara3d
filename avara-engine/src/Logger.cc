@@ -8,6 +8,7 @@
 
 #include "Logger.h"
 
+#include <algorithm>
 #include <ctime>
 #include <iostream>
 //#include <stdlib.h>
@@ -165,13 +166,16 @@ void OldLogger::flush() {
 
 
 
-
+/*######################################################################################
+ #######################################################################################
+     Logger
+ #######################################################################################
+ ######################################################################################*/
 
 
 constexpr size_t MAX_HEADER_STR_SIZE = 128;
 constexpr size_t MAX_LOG_MSG_SIZE = 2048;
 constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + 2048;
-
 
 
 /**************************************************************************************
@@ -187,12 +191,12 @@ std::shared_ptr<Logger> Logger::MainLogger() {
 		string executableName = utils::ExecutableName()->string();
 		auto nativeSink = make_shared<STDLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
-													/ (executableName + string((".log"))));
+													/ (executableName + string(".log")));
 #elif defined(ANDROID)
 		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
 		auto nativeSink = make_shared<AndroidLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
-													/ (executableName + string((".log"))));
+													/ (executableName + string(".log")));
 #endif
 
 		
@@ -206,7 +210,7 @@ std::shared_ptr<Logger> Logger::MainLogger() {
 }
 
 /**************************************************************************************
-     Private Static Prototypes
+     Static Prototypes
  **************************************************************************************/
 
 string DateString();
@@ -217,7 +221,17 @@ string StringFromLogLevel(LOG_LEVEL level);
      Lifecycle
  ***************************************************************************************/
 
-Logger::Logger(std::string name, vector<shared_ptr<LoggerSink>> sinks,
+Logger::Logger(string name, shared_ptr<LoggerSink> sink,
+			   LOG_LEVEL level, LOG_LEVEL flushLevel):
+	m_name(name),
+	m_sinks(vector<shared_ptr<LoggerSink>>()),
+	m_level(level),
+	m_flushLevel(flushLevel) {
+	
+		m_sinks.emplace_back(sink);
+}
+
+Logger::Logger(string name, vector<shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level, LOG_LEVEL flushLevel):
 	m_name(name),
 	m_sinks(sinks),
@@ -350,7 +364,7 @@ void Logger::flush() {
 }
 
 /**************************************************************************************
-     Private Static
+     Static
  **************************************************************************************/
 
 string DateString() {
@@ -395,17 +409,34 @@ string StringFromLogLevel(LOG_LEVEL level) {
 }
 
 
+/*######################################################################################
+ #######################################################################################
+     LoggerSink
+ #######################################################################################
+ ######################################################################################*/
 
 
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
 
 void LoggerSink::flush() {
 	
 }
 
 
+/*######################################################################################
+ #######################################################################################
+     STDLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 
 
 #ifdef DESKTOP
+
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
 
 STDLoggerSink::STDLoggerSink() {
 	
@@ -414,6 +445,21 @@ STDLoggerSink::STDLoggerSink() {
 STDLoggerSink::~STDLoggerSink() {
 	
 }
+
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
+
+void STDLoggerSink::flush() {
+
+	fflush(stdout);
+}
+
+#endif
+
+/**************************************************************************************
+     Internal
+ **************************************************************************************/
 
 void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
 	
@@ -426,18 +472,25 @@ void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
 	}
 }
 
-void STDLoggerSink::flush() {
 
-	fflush(stdout);
-}
-
-#endif
-
+/*######################################################################################
+ #######################################################################################
+     AndroidLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 
 
 #ifdef ANDROID
 
+/***************************************************************************************
+     Static Prototypes
+ ***************************************************************************************/
+
 unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level);
+
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
 
 AndroidLoggerSink::AndroidLoggerSink() {
 	
@@ -447,16 +500,28 @@ AndroidLoggerSink::~AndroidLoggerSink() {
 	
 }
 
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
+
+void AndroidLoggerSink::flush() {
+
+	// no flush in Android.
+}
+
+/***************************************************************************************
+     Internal
+ ***************************************************************************************/
+
 void AndroidLoggerSink::write(const char* message, const char* tag, LOG_LEVEL level) {
 	
 	// https://developer.android.com/ndk/reference/group/logging	
 	__android_log_write(AndroidPriorityFromLogLevel(level), tag, message);
 }
 
-void AndroidLoggerSink::flush() {
-
-	// no flush in Android.
-}
+/***************************************************************************************
+     Static
+ ***************************************************************************************/
 
 unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 	
@@ -486,27 +551,37 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 #endif
 
 
+/*######################################################################################
+ #######################################################################################
+     FileLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 
+
+/***************************************************************************************
+     Lifecycle
+ ***************************************************************************************/
 
 FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
 	m_filepath(filepath),
-	m_maxFiles(maxFilesize),
+	m_maxFiles(max(maxFiles, (unsigned)9)),
 	m_maxFilesize(maxFilesize) {
-	//m_fileStream(filepath.string()) {
-	
-//	boost::filesystem::file_status stats;
-//	boost::filesystem::status(filepath);
 
-#warning check file writable
-		m_fileStream = ofstream(filepath.string(), fstream::out | fstream::app);
+		openStream();
 }
 
 FileLoggerSink::~FileLoggerSink() {
 	
-	m_fileStream.close();
+	if (m_fileStream && m_fileStream->is_open()) {
+		m_fileStream->close();
+	}
 }
+
+/***************************************************************************************
+     Public
+ ***************************************************************************************/
 
 boost::filesystem::path FileLoggerSink::filepath() const {
 	return m_filepath;
@@ -520,12 +595,108 @@ unsigned FileLoggerSink::maxFilesize() const {
 	return m_maxFilesize;
 }
 
-void FileLoggerSink::write(const char* message) {
-
-	m_fileStream << message << endl;
-}
-
 void FileLoggerSink::flush() {
 	
-	m_fileStream.flush();
+	m_fileStream->flush();
+}
+
+/***************************************************************************************
+     Internal
+ ***************************************************************************************/
+
+void FileLoggerSink::write(const char* message) {
+	
+	*m_fileStream << message << endl;
+	
+	checkRotate();
+}
+
+/***************************************************************************************
+     Private
+ ***************************************************************************************/
+
+void FileLoggerSink::openStream() {
+	
+	if (m_fileStream && m_fileStream->is_open()) {
+		m_fileStream->close();
+	}
+	
+#warning check file writable
+	m_fileStream = make_shared<ofstream>(m_filepath.string(), fstream::out | fstream::app);
+}
+
+void FileLoggerSink::checkRotate() {
+	
+	if (boost::filesystem::exists(m_filepath)) {
+		if (boost::filesystem::file_size(m_filepath) > m_maxFilesize) {
+			rotate();
+		}
+	}
+}
+
+void FileLoggerSink::rotate() {
+
+	// find list of existing files
+	// start at index 0, count down until the next isn't found
+
+	auto stem = m_filepath.stem();
+	auto extension = m_filepath.extension();
+	
+	auto existing = vector<boost::filesystem::path>();
+
+	existing.emplace_back(m_filepath);
+	
+	unsigned i = 0;
+	while (true) {
+		
+		auto path = boost::filesystem::path(stem.string() + to_string(i) + extension.string());
+		
+		if (boost::filesystem::exists(path)) {
+			existing.emplace_back(path);
+			++i;
+		}
+		else {
+			break;
+		}
+	}
+	
+	// go through from the end and move each file down an index
+	
+	unsigned index = existing.size();
+	
+	for (vector<boost::filesystem::path>::reverse_iterator i = existing.rbegin(); i != existing.rend(); ++i ) {
+		auto path = *i;
+		
+		if (index > m_maxFiles) {
+			
+			boost::system::error_code errorCode;
+			boost::filesystem::remove(path, errorCode);
+			if (errorCode.value() != boost::system::errc::success) {
+				cout << "Cannot remove log file: " << path.string() << endl;
+			}
+		}
+		else {
+			
+			auto stem = path.stem();
+			auto extension = path.extension();
+
+			boost::filesystem::path newPath;
+			if (path.string() == m_filepath) {
+				newPath = boost::filesystem::path(stem.string() + to_string(index-1) + extension.string());
+			}
+			else {
+				newPath = boost::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
+			}
+
+			boost::filesystem::rename(path, newPath);
+		}
+		
+		--index;
+	}
+	
+	// move the last file
+	
+	auto newPath = boost::filesystem::path(stem.string() + string("0") + extension.string());
+	
+	openStream();
 }

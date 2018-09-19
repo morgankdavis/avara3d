@@ -18,9 +18,9 @@
 #define Logger_h
 
 
-#include <memory>
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -216,6 +216,13 @@ namespace ae {
 	class LoggerSink;
 	
 	
+	/*######################################################################################
+	 #######################################################################################
+	     Logger
+	 #######################################################################################
+	 ######################################################################################*/
+	
+	
 	class Logger : public std::enable_shared_from_this<Logger> {
 		
 		
@@ -235,6 +242,8 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 		
+		Logger(std::string name, std::shared_ptr<LoggerSink> sink,
+			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
@@ -292,7 +301,11 @@ namespace ae {
 	};
 	
 	
-	
+	/*######################################################################################
+	 #######################################################################################
+	     LoggerSink
+	 #######################################################################################
+	 ######################################################################################*/
 	
 	
 	class LoggerSink : public std::enable_shared_from_this<LoggerSink> {
@@ -306,6 +319,12 @@ namespace ae {
 		virtual void flush();
 	};
 	
+	
+	/*######################################################################################
+	 #######################################################################################
+	     STDLoggerSink
+	 #######################################################################################
+	 ######################################################################################*/
 	
 	
 #ifdef DESKTOP
@@ -324,11 +343,22 @@ namespace ae {
 		     Public
 		 ***************************************************************************************/
 		
-		void write(const char* message, LOG_LEVEL level);
 		void flush() override;
+		
+		/**************************************************************************************
+		     Internal
+		 **************************************************************************************/
+		
+		void write(const char* message, LOG_LEVEL level);
 	};
 #endif
 	
+	
+	/*######################################################################################
+	 #######################################################################################
+	     AndroidLoggerSink
+	 #######################################################################################
+	 ######################################################################################*/
 	
 	
 #ifdef ANDROID
@@ -346,19 +376,30 @@ namespace ae {
 		/***************************************************************************************
 		     Public
 		 ***************************************************************************************/
+
+		void flush() override;
+		
+		/**************************************************************************************
+		     Internal
+		 **************************************************************************************/
 		
 		void write(const char* message, const char* tag, LOG_LEVEL level);
-		void flush() override;
 	};
 #endif
 	
+	
+	/*######################################################################################
+	 #######################################################################################
+	     FileLoggerSink
+	 #######################################################################################
+	 ######################################################################################*/
 	
 	
 	class FileLoggerSink : public LoggerSink {
 		
 		
 		static constexpr unsigned DEFAULT_MAX_FILES = 3;
-		static constexpr unsigned DEFAULT_MAX_FILESIZE = 1024 * 512;
+		static constexpr unsigned DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 		
 		
 	public:
@@ -381,8 +422,13 @@ namespace ae {
 		unsigned maxFiles() const;
 		unsigned maxFilesize() const;
 		
-		void write(const char* message);
 		void flush() override;
+		
+		/**************************************************************************************
+		     Internal
+		 **************************************************************************************/
+		
+		void write(const char* message);
 		
 	private:
 		
@@ -390,14 +436,15 @@ namespace ae {
 		     Private
 		 ***************************************************************************************/
 		
-		boost::filesystem::path		m_filepath;
-		unsigned					m_maxFiles;
-		unsigned					m_maxFilesize;
-		std::ofstream				m_fileStream;
+		void openStream();
+		void checkRotate();
+		void rotate();
+		
+		boost::filesystem::path				m_filepath;
+		unsigned							m_maxFiles;
+		unsigned							m_maxFilesize;
+		std::shared_ptr<std::ofstream>		m_fileStream;
 	};
-	
-	
-	
 }
 
 #endif /* Logger_h */

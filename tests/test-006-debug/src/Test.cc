@@ -68,6 +68,16 @@ int Test::run(const vector<string>& args) {
 	appLogger->info("********** GOBBLE GOBBLE **********");
 	
 	
+	auto rotateFileSink = make_shared<FileLoggerSink>(boost::filesystem::path("rotate.log"), 10, 1024 * 1024 * 1);
+	auto rotateLogger = make_shared<Logger>("rotate", dynamic_pointer_cast<LoggerSink>(rotateFileSink));
+	
+	//for (unsigned i=0; i < 1024 * 4; ++i) {
+	unsigned i = 0;
+	while (true) {
+		rotateLogger->info("line %d", i);
+		++i;
+	}
+	
 	
 	
 	OldLogger::Level(LOG_LEVEL::DEBUG_);

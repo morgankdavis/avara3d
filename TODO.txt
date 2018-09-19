@@ -12,11 +12,9 @@ TODO:
 30 - rigidbody
 
 
-
 	Logging
-		File rotation
 		* Check android file sink *
-		
+		__FILE__, __func__, __LINE__ ?
 
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
