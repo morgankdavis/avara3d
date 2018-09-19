@@ -124,7 +124,7 @@ Scene::Scene():
 }
 
 Scene::~Scene() {
-	AE_LOG->debug("Destroying Scene {:p}", (void*)this);
+	AE_LOG_D("Destroying Scene {:p}", (void*)this);
 }
 
 /***************************************************************************************
@@ -377,7 +377,7 @@ static shared_ptr<Image> MissingTextureImage() {
 //			image = make_shared<Image>(imagePath.string());
 //		}
 //		else {
-//			AE_LOG->warn("Couldn't locate images directory.");
+//			AE_LOG_W("Couldn't locate images directory.");
 //		}
 	}
 	return image;
@@ -386,10 +386,10 @@ static shared_ptr<Image> MissingTextureImage() {
 #ifndef ANDROID
 static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 	
-	AE_LOG->info("Assimp version: {}.{}.{}",
+	AE_LOG_I("Assimp version: {}.{}.{}",
 				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
 	
-	AE_LOG->info("Loading scene: {}", importPath.string());
+	AE_LOG_I("Loading scene: {}", importPath.string());
 	
 	unsigned int assimpFlags = aiProcess_Triangulate
 	| aiProcess_SortByPType
@@ -417,14 +417,14 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 		
 		int numMeshes = aiScene->mNumMeshes;
 		for (int m=0; m<numMeshes; ++m) {
-			AE_LOG->debug("Processing mesh {}...:", m);
+			AE_LOG_D("Processing mesh {}...:", m);
 			
 			aiMesh *mesh = aiScene->mMeshes[m];
 			
 			// should be set for parent Geometry
 			aiString name = mesh->mName;
 			if (strcmp(name.C_Str(), "") != 0) {
-				AE_LOG->debug("Mesh name: {}", name.C_Str());
+				AE_LOG_D("Mesh name: {}", name.C_Str());
 			}
 			
 			auto verts = vector<Vertex>();
@@ -464,11 +464,11 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 		
 		// ********** materials **********
 		
-		AE_LOG->debug("Number of materials: {}", aiScene->mNumMaterials);
+		AE_LOG_D("Number of materials: {}", aiScene->mNumMaterials);
 		
 		for (unsigned int m=0; m < aiScene->mNumMaterials; ++m) {
 			
-			AE_LOG->debug("Processing material {}...:", m);
+			AE_LOG_D("Processing material {}...:", m);
 			
 			aiMaterial* aiMaterial = aiScene->mMaterials[m];
 			
@@ -486,13 +486,13 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			aiString name;
 			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
 				if (strcmp(name.C_Str(), "") != 0) {
-					AE_LOG->debug("Name: {}", name.C_Str());
+					AE_LOG_D("Name: {}", name.C_Str());
 					material->name(name.C_Str());
 					if (*(material->name()) == AI_DEFAULT_MATERIAL_NAME) {
 						// https://sourceforge.net/p/assimp/discussion/817654/thread/0729fb73/
 						// it appears that OBJ add a "default material". donno why. it doesn't get used
 						// and thus the created MaterialProperties and Material will be deallocated after import
-						AE_LOG->info("AI_DEFAULT_MATERIAL_NAME");
+						AE_LOG_I("AI_DEFAULT_MATERIAL_NAME");
 					}
 				}
 			}
@@ -502,15 +502,15 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
 			float shininess = 0;
 			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-				AE_LOG->debug("Specular exponent: {}", shininess);
+				AE_LOG_D("Specular exponent: {}", shininess);
 			}
 			material->specularExponent(shininess);
 			
-			AE_LOG->debug("ADDING MATERIAL: {:p}", (void*)material.get());
+			AE_LOG_D("ADDING MATERIAL: {:p}", (void*)material.get());
 			importMaterials.push_back(material);
 		}
 		
-		AE_LOG->debug("DONE WITH MATERIALS. COUNT: {}", importMaterials.size());
+		AE_LOG_D("DONE WITH MATERIALS. COUNT: {}", importMaterials.size());
 		
 		// ********** nodes (ae::Geometry) **********
 		
@@ -578,7 +578,7 @@ static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
 		}
 	}
 	else {
-		//AE_LOG->error("Error importing scene: {}", aiGetErrorString());
+		//AE_LOG_E("Error importing scene: {}", aiGetErrorString());
 		
 		char errMsg[1024];
 		sprintf(errMsg, "Error importing scene: %s\n",  aiGetErrorString());
@@ -613,16 +613,16 @@ static void AddAIGeometryNodeRec(Scene& scene,
 	
 	mat4 transform = GLMMat4FromAIMaxtrix4x4(aiGeometryNode->mTransformation);
 	
-	AE_LOG->debug("Adding '{}' with transform:\n{}", name, StringFromGLMMat4(transform));
+	AE_LOG_D("Adding '{}' with transform:\n{}", name, StringFromGLMMat4(transform));
 	
 	auto elements = vector<shared_ptr<GeometryElement>>();
 	auto materials = vector<shared_ptr<Material>>();
 	int numMeshes = aiGeometryNode->mNumMeshes;
 	
-	AE_LOG->debug("Number of meshes: {}", numMeshes);
+	AE_LOG_D("Number of meshes: {}", numMeshes);
 	
 	for (int m=0; m<numMeshes; ++m) {
-		AE_LOG->debug("Reading mesh {}...", m);
+		AE_LOG_D("Reading mesh {}...", m);
 		
 		unsigned int meshIndex = aiGeometryNode->mMeshes[m];
 		auto element = importElements[meshIndex];
@@ -631,7 +631,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 		unsigned int materialIndex = aiScene->mMeshes[meshIndex]->mMaterialIndex;
 		if (importMaterials.size() && (importMaterials.size()-1 >= materialIndex)) {
 			auto material = importMaterials[materialIndex];
-			AE_LOG->debug("Adding material at index: {}", materialIndex);
+			AE_LOG_D("Adding material at index: {}", materialIndex);
 			materials.push_back(material);
 		}
 	}
@@ -642,7 +642,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 	shared_ptr<Node> newNode = nullptr;
 	
 	if (numMeshes > 0) {
-		AE_LOG->debug("Adding node WITH geometry...");
+		AE_LOG_D("Adding node WITH geometry...");
 		auto geometry = make_shared<Geometry>(elements, materials);
 		geometry->name(name);
 		
@@ -653,7 +653,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 		aeParentNode->addChild(newNode);
 	}
 	else {
-		AE_LOG->debug("Adding node WITHOUT geometry...");
+		AE_LOG_D("Adding node WITHOUT geometry...");
 		//newNode = make_shared<Node>(name, transform);
 		newNode = make_shared<Node>(name);
 		newNode->transform(transform);
@@ -697,11 +697,11 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 			typeStr = "emissive";
 			break;
 		default:
-			AE_LOG->warn("Unsupported material type: {}", type);
+			AE_LOG_W("Unsupported material type: {}", type);
 			return nullptr;
 	}
 	
-	AE_LOG->info("Reading {} material...", typeStr);
+	AE_LOG_I("Reading {} material...", typeStr);
 	
 	if (aiMaterial->GetTextureCount(type)) { // texture
 		
@@ -710,7 +710,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 								   NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
 			auto texturePath = FilepathFromTextureFilename(filename.C_Str(), basePath);
 			if (texturePath) {
-				AE_LOG->debug("Texture path: {}", texturePath->string());
+				AE_LOG_D("Texture path: {}", texturePath->string());
 				auto textureImage = make_shared<Image>(*texturePath);
 				return make_shared<MaterialProperty>(textureImage);
 			}
@@ -724,11 +724,11 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 		aiColor4D aiColor;
 		if (aiMaterial->Get(colorType, 0, 0, aiColor) == AI_SUCCESS) {
 			auto aeColor = make_shared<Color>(ColorFromAIColor4D(aiColor));
-			AE_LOG->debug("Color: {}", StringFromColor(*aeColor));
+			AE_LOG_D("Color: {}", StringFromColor(*aeColor));
 			return make_shared<MaterialProperty>(aeColor);
 		}
 		else {
-			AE_LOG->debug("No {} material...", typeStr);
+			AE_LOG_D("No {} material...", typeStr);
 		}
 	}
 	
@@ -751,10 +751,10 @@ static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(cons
 		return texturePath;
 	}
 	catch (const boost::filesystem::filesystem_error& e) {
-		AE_LOG->error("Error expanding path: {}", e.what());
+		AE_LOG_E("Error expanding path: {}", e.what());
 	}
 	
-	AE_LOG->warn("Missing texture: {}", filename);
+	AE_LOG_W("Missing texture: {}", filename);
 	
 	return {};
 }

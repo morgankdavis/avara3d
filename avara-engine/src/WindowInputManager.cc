@@ -81,7 +81,7 @@ void WindowInputManager::update() {
 				break;
 
 			case MANYMOUSE_EVENT_DISCONNECT:
-				AE_LOG->warn("Mouse {} disconnected.", event.device);
+				AE_LOG_W("Mouse {} disconnected.", event.device);
 				break;
 
 			case MANYMOUSE_EVENT_ABSMOTION:
@@ -158,12 +158,12 @@ void WindowInputManager::initManyMouse() {
 		throw Exception("ManyMouse failed to initialize.");
 	}
 	else if (availableMice == 0) {
-		AE_LOG->warn("ManyMouse failed to initialize.");
+		AE_LOG_W("ManyMouse failed to initialize.");
 	}
 	else {
-		AE_LOG->info("ManyMouse driver: {}", ManyMouse_DriverName());
+		AE_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
 		for (int m = 0; m<availableMice; ++m) {
-			AE_LOG->info("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+			AE_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}
 }

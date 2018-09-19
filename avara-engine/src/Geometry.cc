@@ -55,7 +55,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 }
 
 Geometry::~Geometry() {
-	AE_LOG->debug("Destroying Geometry {:p}", (void*)this);
+	AE_LOG_D("Destroying Geometry {:p}", (void*)this);
 }
 
 /***************************************************************************************

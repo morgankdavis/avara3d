@@ -25,193 +25,32 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
-#include <spdlog/spdlog.h>
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 
 #include "Exception.h"
 #include "Types.h"
 
 
-namespace ae {
+// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 
-	
-	class OldLogger : public std::enable_shared_from_this<OldLogger> {
-		
-	public:
-		
-		/**************************************************************************************
-		     Public Static
-		 **************************************************************************************/
-		
-		static void Init();
-		static void Level(LOG_LEVEL level);
-		
-		/***************************************************************************************
-		     Lifecycle
-		 ***************************************************************************************/
-		
-		OldLogger(std::string name, LOGGER_SINK sinks);
-		
-		/***************************************************************************************
-		     Public
-		 ***************************************************************************************/
-		
-		std::string name() const;
-		LOGGER_SINK sinks() const;
-		
-		template<typename T>
-		inline void trace(const T& msg) {
+#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
-			m_logger->log(spdlog::level::trace, msg);
-		}
-		
-		template <typename... Args>
-		inline void trace(const wchar_t* fmt, const Args&... args) {
-			
-			m_logger->log(spdlog::level::trace, fmt, args...);
-		}
-		
-		template <typename Arg1, typename... Args>
-		inline void trace(const char* fmt, const Arg1 &arg1, const Args&... args) {
+#define LOG_T(logger, fmtStr, ...) logger->trace(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_D(logger, fmtStr, ...) logger->debug(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_I(logger, fmtStr, ...) logger->info(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_W(logger, fmtStr, ...) logger->warn(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_E(logger, fmtStr, ...) logger->error(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_C(logger, fmtStr, ...) logger->critical(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
-			m_logger->log(spdlog::level::trace, fmt, arg1, args...);
-		}
 
-		template<typename T>
-		inline void debug(const T& msg) {
+namespace ae {	
 
-			m_logger->log(spdlog::level::debug, msg);
-		}
-		
-		template <typename... Args>
-		inline void debug(const wchar_t* fmt, const Args&... args) {
-
-			m_logger->log(spdlog::level::debug, fmt, args...);
-		}
-		
-		template <typename Arg1, typename... Args>
-		inline void debug(const char* fmt, const Arg1 &arg1, const Args&... args) {
-
-			m_logger->log(spdlog::level::debug, fmt, arg1, args...);
-		}
-
-		template<typename T>
-		inline void info(const T& msg) {
-
-			m_logger->log(spdlog::level::info, msg);
-		}
-
-		template <typename... Args>
-		inline void info(const wchar_t* fmt, const Args&... args) {
-
-			m_logger->log(spdlog::level::info, fmt, args...);
-		}
-
-		template <typename Arg1, typename... Args>
-		inline void info(const char* fmt, const Arg1 &arg1, const Args&... args) {
-
-			m_logger->log(spdlog::level::info, fmt, arg1, args...);
-		}
-		
-		template<typename T>
-		inline void warn(const T& msg) {
-
-			m_logger->log(spdlog::level::warn, msg);
-		}
-		
-		template <typename... Args>
-		inline void warn(const wchar_t* fmt, const Args&... args) {
-
-			m_logger->log(spdlog::level::warn, fmt, args...);
-		}
-		
-		template <typename Arg1, typename... Args>
-		inline void warn(const char* fmt, const Arg1 &arg1, const Args&... args) {
-
-			m_logger->log(spdlog::level::warn, fmt, arg1, args...);
-		}
-		
-		template<typename T>
-		inline void error(const T& msg) {
-
-			m_logger->log(spdlog::level::err, msg);
-		}
-		
-		template <typename... Args>
-		inline void error(const wchar_t* fmt, const Args&... args) {
-
-			m_logger->log(spdlog::level::err, fmt, args...);
-		}
-		
-		template <typename Arg1, typename... Args>
-		inline void error(const char* fmt, const Arg1 &arg1, const Args&... args) {
-
-			m_logger->log(spdlog::level::err, fmt, arg1, args...);
-		}
-		
-		template<typename T>
-		inline void critical(const T& msg) {
-
-			m_logger->log(spdlog::level::critical, msg);
-			m_logger->flush();
-			std::abort();
-		}
-		
-		template <typename... Args>
-		inline void critical(const wchar_t* fmt, const Args&... args) {
-
-			m_logger->log(spdlog::level::critical, fmt, args...);
-			m_logger->flush();
-			std::abort();
-		}
-		
-		template <typename Arg1, typename... Args>
-		inline void critical(const char* fmt, const Arg1 &arg1, const Args&... args) {
-
-			m_logger->log(spdlog::level::critical, fmt, arg1, args...);
-			m_logger->flush();
-			std::abort();
-		}
-		
-		void flush();
-		
-	private:
-		
-		/***************************************************************************************
-		     Private
-		 ***************************************************************************************/
-		
-		std::string							m_name;
-		LOGGER_SINK							m_sinks;
-		std::shared_ptr<spdlog::logger>		m_logger;
-	};
-	
-	
-	extern std::shared_ptr<ae::OldLogger>		g_logger;
-	#define AE_LOG							g_logger
-	
-	#define AE_FILE							__FILE__
-	#define AE_FUNC							__func__
-	#define AE_LINE							__LINE__
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-	#define LOG_T(fmt, ...) Logger::MainLogger()->trace(fmt, ##__VA_ARGS__)
-	#define LOG_D(fmt, ...) Logger::MainLogger()->debug(fmt, ##__VA_ARGS__)
-	#define LOG_I(fmt, ...) Logger::MainLogger()->info(fmt, ##__VA_ARGS__)
-	#define LOG_W(fmt, ...) Logger::MainLogger()->warn(fmt, ##__VA_ARGS__)
-	#define LOG_E(fmt, ...) Logger::MainLogger()->error(fmt, ##__VA_ARGS__)
-	#define LOG_C(fmt, ...) Logger::MainLogger()->critical(fmt, ##__VA_ARGS__)
-	
-	
-	
-	
 	
 	class LoggerSink;
 	
@@ -226,7 +65,8 @@ namespace ae {
 	class Logger : public std::enable_shared_from_this<Logger> {
 		
 		
-		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::INFO_;
+		//static constexpr unsigned char DEFAULT_NAME[] = "ae";
+		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG_;
 		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
 		
 		
@@ -261,20 +101,16 @@ namespace ae {
 		LOG_LEVEL flushLevel() const;
 		void flushLevel(LOG_LEVEL level);
 		
+		// * favor using AE_LOG_ and LOG_ macros for fancy formatting *
+		
 		void log(LOG_LEVEL level, const char* message);
 		void log(LOG_LEVEL level, const char* format, va_list args);
 		
-//		void trace(std::string& format, ...);
 		void trace(const char* format, ...);
-//		void debug(std::string& format, ...);
 		void debug(const char* format, ...);
-//		void info(std::string& format, ...);
 		void info(const char* format, ...);
-//		void warn(std::string& format, ...);
 		void warn(const char* format, ...);
-//		void error(std::string& format, ...);
 		void error(const char* format, ...);
-//		void critical(std::string& format, ...);
 		void critical(const char* format, ...);
 		
 		void flush();
@@ -284,14 +120,7 @@ namespace ae {
 		/***************************************************************************************
 		     Private
 		 ***************************************************************************************/
-		
-//		void trace(const char* format, va_list args);
-//		void debug(const char* format, va_list args);
-//		void info(const char* format, va_list args);
-//		void warn(const char* format, va_list args);
-//		void error(const char* format, va_list args);
-//		void critical(const char* format, va_list args);
-		
+
 		std::string header();
 		
 		std::string									m_name;

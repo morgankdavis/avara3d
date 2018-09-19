@@ -36,7 +36,7 @@ MaterialProperty::MaterialProperty():
 	m_maxAnisotropy(16),
 	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
-		AE_LOG->debug("Creating MaterialProperty {:p}", (void*)this);
+		AE_LOG_D("Creating MaterialProperty {:p}", (void*)this);
 }
 
 MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents):
@@ -46,7 +46,7 @@ MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents
 }
 
 MaterialProperty::~MaterialProperty() {
-	AE_LOG->debug("Destroying MaterialProperty {:p}", (void*)this);
+	AE_LOG_D("Destroying MaterialProperty {:p}", (void*)this);
 }
 
 /***************************************************************************************

@@ -41,7 +41,7 @@ int Test::run(const vector<string>& args) {
 	
 	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
-	AE_LOG->info("Test::run()");
+	AE_LOG_I("Test::run()");
 	
 	auto renderer = make_shared<OpenGLRenderer>();
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),

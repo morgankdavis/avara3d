@@ -28,7 +28,7 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-	AE_LOG->debug("Destroying Renderer {:p}", (void*)this);
+	AE_LOG_D("Destroying Renderer {:p}", (void*)this);
 }
 
 /**************************************************************************************
@@ -51,7 +51,7 @@ void Renderer::render(shared_ptr<Scene> scene,
 					  const DEBUG_OPTIONS& debugOptions,
 					  RenderStats& stats) {
 	
-	AE_LOG->critical("Renderer::render(<Scene>) should be overidden in derived class.");
+	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<Geometry> geometry,
@@ -61,7 +61,7 @@ void Renderer::render(shared_ptr<Geometry> geometry,
 					  const DEBUG_OPTIONS& debugOptions,
 					  RenderStats& stats) {
 	
-	AE_LOG->critical("Renderer::render(<Geometry>) should be overidden in derived class.");
+	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<GeometryElement> element,
@@ -72,7 +72,7 @@ void Renderer::render(shared_ptr<GeometryElement> element,
 					  const DEBUG_OPTIONS& debugOptions,
 					  RenderStats& stats) {
 	
-	AE_LOG->critical("Renderer::render(<GeometryElement>) should be overidden in derived class.");
+	AE_LOG_C("Renderer::render(<GeometryElement>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<LineSet> lines,
@@ -80,7 +80,7 @@ void Renderer::render(shared_ptr<LineSet> lines,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
 	
-	AE_LOG->critical("Renderer::render(<LineSet>) should be overidden in derived class.");
+	AE_LOG_C("Renderer::render(<LineSet>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<PointSet> points,
@@ -88,12 +88,12 @@ void Renderer::render(shared_ptr<PointSet> points,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
 	
-	AE_LOG->critical("Renderer::render(<PointSet>) should be overidden in derived class.");
+	AE_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
 }
 
 shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
-	AE_LOG->critical("Renderer::snapshot() should be overidden in derived class.");
+	AE_LOG_C("Renderer::snapshot() should be overidden in derived class.");
 	return nullptr;
 }
 

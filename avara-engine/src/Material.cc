@@ -55,7 +55,7 @@ Material::Material():
 	m_uvScale(1.0f),
 	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
-		AE_LOG->debug("Creating Material {:p}", (void*)this);
+		AE_LOG_D("Creating Material {:p}", (void*)this);
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
@@ -81,7 +81,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 }
 
 Material::~Material() {
-	AE_LOG->debug("Destroying Material {:p}", (void*)this);
+	AE_LOG_D("Destroying Material {:p}", (void*)this);
 }
 
 /***************************************************************************************

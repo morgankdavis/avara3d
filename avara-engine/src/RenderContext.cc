@@ -62,7 +62,7 @@ RenderContext::RenderContext(shared_ptr<Renderer> renderer):
 }
 
 RenderContext::~RenderContext() {
-	AE_LOG->debug("Destroying RenderContext {:p}", (void*)this);
+	AE_LOG_D("Destroying RenderContext {:p}", (void*)this);
 }
 
 /**************************************************************************************
@@ -169,7 +169,7 @@ ANTIALIASING_MODE RenderContext::antialiasingMode() const {
 }
 
 shared_ptr<InputManager> RenderContext::inputManager() {
-	AE_LOG->critical("RenderContext::inputManager() should be overidden in derived class.");
+	AE_LOG_C("RenderContext::inputManager() should be overidden in derived class.");
 	return nullptr;
 }
 
@@ -195,7 +195,7 @@ void RenderContext::startGIFRecording(const boost::filesystem::path& path,
 									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!m_recordingGIF) {
-		AE_LOG->info("Starting GIF recording...");
+		AE_LOG_I("Starting GIF recording...");
 		
 		m_gifRecordingMaxFramerate = maxFramerate;
 		m_gifRecordedFrames = 0;
@@ -237,7 +237,7 @@ void RenderContext::stopGIFRecording() {
 		//free(m_gifWriter.get());
 		m_gifWriter = nullptr;
 		
-		AE_LOG->info("Stopped GIF recording.");
+		AE_LOG_I("Stopped GIF recording.");
 	}
 }
 

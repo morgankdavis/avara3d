@@ -14,6 +14,8 @@ message(STATUS "TEST_NAME: " ${TEST_NAME})
 # add headers from avara-engine
 include_directories("${CMAKE_SOURCE_DIR}/avara-engine/include")
 
+#include_directories("${CMAKE_SOURCE_DIR}/avara-engine/external/fmt-5.2.0/include")
+
 
 file(GLOB HEADERS "include/*.h")
 file(GLOB SOURCES "src/*.c*")

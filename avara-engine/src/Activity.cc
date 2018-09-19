@@ -51,7 +51,7 @@ Activity::Activity(shared_ptr<Renderer> renderer):
 }
 
 Activity::~Activity() {
-	AE_LOG->debug("Destroying Activity {:p}", (void*)this);
+	AE_LOG_D("Destroying Activity {:p}", (void*)this);
 	
 	terminate();
 }
@@ -62,7 +62,7 @@ Activity::~Activity() {
 
 void Activity::display(android_app* app) {
 	
-	AE_LOG->trace("Activity::display()");
+	AE_LOG_T("Activity::display()");
 
 	//ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
@@ -176,7 +176,7 @@ void Activity::update() {
 	
 	if (m_initialized) {
 		
-		AE_LOG->trace("-------------------------------------------------------------------------------");
+		AE_LOG_T("-------------------------------------------------------------------------------");
 		
 		m_renderer->beginFrame(*this);
 		
@@ -258,7 +258,7 @@ shared_ptr<InputManager> Activity::inputManager() {
 
 bool Activity::initialize(ANativeWindow* window) {
 	
-	AE_LOG->debug("Activity::initialize()");
+	AE_LOG_D("Activity::initialize()");
 
 	if (!m_initialized) {
 		m_nativeWindow = window;
@@ -279,7 +279,7 @@ bool Activity::initialize(ANativeWindow* window) {
 
 void Activity::initGLES() {
 	
-	AE_LOG->debug("Activity::initGLES()");
+	AE_LOG_D("Activity::initGLES()");
 
 	if (m_initialized) return;
 	//
@@ -299,7 +299,7 @@ void Activity::initGLES() {
 
 int Activity::initDisplay(android_app* app) {
 	
-	AE_LOG->debug("Activity::initDisplay()");
+	AE_LOG_D("Activity::initDisplay()");
 
 	static bool displayInitialized = false;
 	
@@ -344,7 +344,7 @@ int Activity::initDisplay(android_app* app) {
 
 bool Activity::initEGLSurface() {
 	
-	AE_LOG->debug("Activity::initEGLSurface()");
+	AE_LOG_D("Activity::initEGLSurface()");
 
 	m_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 	eglInitialize(m_display, 0, 0);
@@ -370,7 +370,7 @@ bool Activity::initEGLSurface() {
 	eglChooseConfig(m_display, attribs, &m_config, 1, &num_configs);
 	
 	if (!num_configs) {
-		AE_LOG->info("Falling back to 16-bit depth buffer.");
+		AE_LOG_I("Falling back to 16-bit depth buffer.");
 
 		// Fall back to 16bit depth buffer
 		const EGLint attribs[] = {
@@ -392,7 +392,7 @@ bool Activity::initEGLSurface() {
 	}
 	
 	if (!num_configs) {
-		AE_LOG->critical("Unable to retrieve EGL config.");
+		AE_LOG_C("Unable to retrieve EGL config.");
 		return false;
 	}
 
@@ -411,7 +411,7 @@ bool Activity::initEGLSurface() {
 
 bool Activity::initEGLContext() {
 	
-	AE_LOG->debug("Activity::initEGLContext()");
+	AE_LOG_D("Activity::initEGLContext()");
 	
 	const EGLint context_attribs[] = {
 			EGL_CONTEXT_CLIENT_VERSION,
@@ -421,21 +421,21 @@ bool Activity::initEGLContext() {
 	m_context = eglCreateContext(m_display, m_config, NULL, context_attribs);
 	
 	if (eglMakeCurrent(m_display, m_surface, m_surface, m_context) == EGL_FALSE) {
-		AE_LOG->critical("Unable to make EGL context current.");
+		AE_LOG_C("Unable to make EGL context current.");
 		return false;
 	}
 	
 	const GLubyte *renderer = glGetString(GL_RENDERER);
 	const GLubyte *version = glGetString(GL_VERSION);
 	
-	AE_LOG->info("Renderer: {}", renderer);
-	AE_LOG->info("Version: {}", version);
+	AE_LOG_I("Renderer: {}", renderer);
+	AE_LOG_I("Version: {}", version);
 	
 	GLint numExtensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-	AE_LOG->info("Extensions:\n");
+	AE_LOG_I("Extensions:\n");
 	for (GLint e=0 ; e<numExtensions ; ++e) {
-		AE_LOG->info("{}", glGetStringi(GL_EXTENSIONS, e));
+		AE_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
 	}
 	
 	m_contextValid = true;
@@ -444,7 +444,7 @@ bool Activity::initEGLContext() {
 
 void Activity::suspend() {
 	
-	AE_LOG->debug("Activity::suspend()");
+	AE_LOG_D("Activity::suspend()");
 	
 	if (m_surface != EGL_NO_SURFACE) {
 		eglDestroySurface(m_display, m_surface);
@@ -454,7 +454,7 @@ void Activity::suspend() {
 
 EGLint Activity::resume(ANativeWindow* window) {
 	
-	AE_LOG->debug("Activity::resume()");
+	AE_LOG_D("Activity::resume()");
 	
 	if (m_initialized == false) {
 		initialize(window);
@@ -476,7 +476,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 		
 		if (m_width != originalWidth || m_height != originalHeight) {
 			// Screen resized
-			AE_LOG->debug("Screen resized: ({}, {}) -> ({}, {})",
+			AE_LOG_D("Screen resized: ({}, {}) -> ({}, {})",
 						  originalWidth, originalHeight, m_width, m_height);
 		}
 		
@@ -486,7 +486,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 		EGLint err = eglGetError();
 		if (err == EGL_CONTEXT_LOST) {
 			// Recreate context
-			AE_LOG->info("Re-creating EGL context...");
+			AE_LOG_I("Re-creating EGL context...");
 			initEGLContext();
 		}
 		else {
@@ -502,7 +502,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 
 bool Activity::invalidate() {
 	
-	AE_LOG->debug("Activity::invalidate()");
+	AE_LOG_D("Activity::invalidate()");
 	
 	terminate();
 	m_initialized = false;
@@ -512,7 +512,7 @@ bool Activity::invalidate() {
 
 void Activity::terminate() {
 	
-	AE_LOG->debug("Activity::terminate()");
+	AE_LOG_D("Activity::terminate()");
 	
 	if (m_display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

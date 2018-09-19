@@ -237,7 +237,7 @@ OpenGLRenderer::OpenGLRenderer():
 }
 
 OpenGLRenderer::~OpenGLRenderer() {
-	AE_LOG->debug("Destroying OpenGLRenderer {:p}", (void*)this);
+	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
 	
 	m_activeGeometryElements.clear();
 	m_activeMaterialProperties.clear();
@@ -264,7 +264,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	AE_LOG->trace("OpenGLRenderer::initialize()");
+	AE_LOG_T("OpenGLRenderer::initialize()");
 	
 	// create environment UBO
 	
@@ -652,7 +652,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 		
 		// construct a new lineset matching the geometry's extent
 		
-		AE_LOG->debug("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		AE_LOG_D("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
 		
 		map<string, vec3> bp = *(geometry->boundingPoints(false));
 		
@@ -756,7 +756,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
 				
-				AE_LOG->info("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				AE_LOG_I("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
 				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
@@ -785,7 +785,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG->info("Buffering vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG_I("Buffering vertex data for geometry element {:p}...", (void*)&element);
 	
 	program.use();
 	
@@ -843,7 +843,7 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG->info("Buffering skybox vertex data...");
+	AE_LOG_I("Buffering skybox vertex data...");
 	
 	program.use();
 	
@@ -881,7 +881,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
-	AE_LOG->info("Buffering vertex data for AABB {:p}...", (void*)&geometry);
+	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
 	
 	map<string, vec3> bp = *(geometry.boundingPoints(false));
 	
@@ -989,7 +989,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG->info("Buffering cube texture {:p}...", (void*)&property);
+		AE_LOG_I("Buffering cube texture {:p}...", (void*)&property);
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
@@ -1063,12 +1063,12 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		
 		
-		AE_LOG->info("Buffering 2D texture {:p}...", (void*)&property);
+		AE_LOG_I("Buffering 2D texture {:p}...", (void*)&property);
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
 		glGenTextures(1, &glTextureHandle);
-		AE_LOG->info("Binding new texture handle: {}", glTextureHandle);
+		AE_LOG_I("Binding new texture handle: {}", glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 		unsigned bytesPerPixel = image->bytesPerPixel();
@@ -1076,7 +1076,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 		
-		AE_LOG->debug("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
 					  image->width() * image->height() * image->bytesPerPixel());
 		
@@ -1086,7 +1086,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 //		// DEBUG: write texture data to file
 //		
-//		AE_LOG->debug("Saving property {:p}...", (void*)&property);
+//		AE_LOG_D("Saving property {:p}...", (void*)&property);
 //	
 //		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
 //		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
@@ -1094,14 +1094,14 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //		static unsigned index = 0;
 //		string filePath = "./" + to_string(index) + ".buf			";
 //		unsigned written = BinaryFile(boost::filesystem::path(filePath), imageBuf);
-//		AE_LOG->debug("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
+//		AE_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
 //		++index;
 		
 		
 //		unsigned char* thing = (unsigned char*)malloc(1024 * sizeof(unsigned char));
-//		AE_LOG->debug("THING SIZE: {}", sizeof(thing));
+//		AE_LOG_D("THING SIZE: {}", sizeof(thing));
 //		
-//		AE_LOG->debug("DATA SIZE: {}", sizeof(image->data()));
+//		AE_LOG_D("DATA SIZE: {}", sizeof(image->data()));
 		
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D,
@@ -1243,7 +1243,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
-		AE_LOG->warn("NULL material property contents.");
+		AE_LOG_W("NULL material property contents.");
 	}
 	
 	//program.unuse();
@@ -1639,7 +1639,7 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 	
 	// deallocate unused elements
 	if (unused.size()) {
-		//AE_LOG->debug("Deleting GL resources for {} geometry elements...", unused.size());
+		//AE_LOG_D("Deleting GL resources for {} geometry elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<GeometryElement> element = *it;
@@ -1678,7 +1678,7 @@ static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialPr
 	
 	// deallocate unused properties
 	if (unused.size()) {
-		//AE_LOG->debug("Deleting GL resources for {} textures...", unused.size());
+		//AE_LOG_D("Deleting GL resources for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<MaterialProperty> property = *it;
@@ -1717,7 +1717,7 @@ static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 	
 	// deallocate unused LineSets
 	if (unused.size()) {
-		//AE_LOG->debug("Deleting GL resources for {} line sets...", unused.size());
+		//AE_LOG_D("Deleting GL resources for {} line sets...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<LineSet> lineSet = *it;
@@ -1741,7 +1741,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG->debug("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
+		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
 		
 		auto glHandles = glMapping[element];
 		
@@ -1768,7 +1768,7 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	
 	if (glMapping.count(property)) {
 		
-		AE_LOG->debug("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
+		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
 		
 		GLuint handle = glMapping[property];
 		
@@ -1789,7 +1789,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG->trace("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
+		AE_LOG_T("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
 		
 		auto glHandles = glMapping[lineSet];
 		
@@ -1987,7 +1987,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 		break;
 		default:
-		AE_LOG->warn("Unsupported magnification filter mode: {}", (unsigned)mode);
+		AE_LOG_W("Unsupported magnification filter mode: {}", (unsigned)mode);
 		break;
 	}
 }
@@ -2071,6 +2071,6 @@ static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 static void CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG->warn("*** GL error: 0x{:X} ***", err);
+		AE_LOG_W("*** GL error: 0x{:X} ***", err);
 	}
 }

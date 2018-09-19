@@ -18,6 +18,7 @@
 namespace ae {
 
 
+	class Logger;
 	class Node;
 	class RenderContext;
 
@@ -34,6 +35,7 @@ namespace ae {
 	private:
 		
 		std::shared_ptr<Node> 		m_parentNode;
+		std::shared_ptr<Logger>		m_logger;
 	};
 }
 

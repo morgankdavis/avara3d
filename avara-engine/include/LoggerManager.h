@@ -8,54 +8,54 @@
 //  ****** This class is unused. See Logger.h for a sob story ******
 //
 
-#ifndef LoggerManager_h
-#define LoggerManager_h
-
-
-#include <map>
-#include <string>
-
-#include <spdlog/spdlog.h>
-
-
-namespace ae {
-	
-	
-	class OldLogger;
-	
-	
-	class LoggerManager {
-		
-	public:
+//#ifndef LoggerManager_h
+//#define LoggerManager_h
+//
+//
+//#include <map>
+//#include <string>
+//
+//#include <spdlog/spdlog.h>
+//
+//
+//namespace ae {
+//	
+//	
+//	class OldLogger;
+//	
+//	
+//	class LoggerManager {
+//		
+//	public:
 		
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
 		
-		LoggerManager();
-		
-		/***************************************************************************************
-		     Internal
-		 ***************************************************************************************/
-		
-		std::shared_ptr<spdlog::logger> addLogger(std::shared_ptr<OldLogger> logger);
-		std::shared_ptr<spdlog::logger> loggerNamed(std::string& name);
-		
-	private:
-
-		/***************************************************************************************
-		     Private
-		 ***************************************************************************************/
-		
-		std::map<std::string, std::shared_ptr<spdlog::logger>>	m_loggers;
-		
-		std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	m_mainFileSink;
-		std::shared_ptr<spdlog::sinks::stdout_sink_st>			m_stdoutSink;
-#ifdef ANDROID
-		std::shared_ptr<spdlog::sinks::android_sink>			m_androidSink;
-#endif
-	};
-}
-
-
-#endif /* LoggerManager_h */
+//		LoggerManager();
+//		
+//		/***************************************************************************************
+//		     Internal
+//		 ***************************************************************************************/
+//		
+//		std::shared_ptr<spdlog::logger> addLogger(std::shared_ptr<OldLogger> logger);
+//		std::shared_ptr<spdlog::logger> loggerNamed(std::string& name);
+//		
+//	private:
+//
+//		/***************************************************************************************
+//		     Private
+//		 ***************************************************************************************/
+//		
+//		std::map<std::string, std::shared_ptr<spdlog::logger>>	m_loggers;
+//		
+//		std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>	m_mainFileSink;
+//		std::shared_ptr<spdlog::sinks::stdout_sink_st>			m_stdoutSink;
+//#ifdef ANDROID
+//		std::shared_ptr<spdlog::sinks::android_sink>			m_androidSink;
+//#endif
+//	};
+//}
+//
+//
+//#endif /* LoggerManager_h */

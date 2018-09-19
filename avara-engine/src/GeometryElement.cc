@@ -33,7 +33,7 @@ GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 }
 
 GeometryElement::~GeometryElement() {
-	AE_LOG->debug("Destroying GeometryElement {:p}", (void*)this);
+	AE_LOG_D("Destroying GeometryElement {:p}", (void*)this);
 }
 
 /***************************************************************************************

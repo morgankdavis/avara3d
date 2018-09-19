@@ -406,9 +406,9 @@ vector<boost::filesystem::path> ae::utils::FontSearchPaths() {
 
 boost::optional<boost::filesystem::path> ae::utils::SearchInPaths(const string& filename,
 																  vector<boost::filesystem::path> paths) {
-	AE_LOG->trace("Searching for '{}' in...", filename);
+	AE_LOG_T("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
-		AE_LOG->trace("\t...'{}", searchPath.string());
+		AE_LOG_T("\t...'{}", searchPath.string());
 		if (boost::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (boost::filesystem::is_regular_file(path)) {
@@ -482,7 +482,7 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 #else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
-		AE_LOG->trace("Found shader at path: {}", (*path).string());
+		AE_LOG_T("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
 #endif
@@ -511,7 +511,7 @@ shared_ptr<Font> ae::utils::FontNamed(const string& name,
 #else
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
-		AE_LOG->trace("Found font at path: {}", (*path).string());
+		AE_LOG_T("Found font at path: {}", (*path).string());
 		return make_shared<Font>(*path);
 	}
 #endif
@@ -537,7 +537,7 @@ shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 #else
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
-		AE_LOG->trace("Found image at path: {}", (*path).string());
+		AE_LOG_T("Found image at path: {}", (*path).string());
 		return make_shared<Image>(*path, flipHorizontal);
 	}
 #endif
@@ -573,7 +573,7 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
-		AE_LOG->trace("Found scene at path: {}", (*path).string());
+		AE_LOG_T("Found scene at path: {}", (*path).string());
 		return Scene::LoadFromFile(*path);
 	}
 	return nullptr;
@@ -595,7 +595,7 @@ void ae::utils::SaveSnapshot(RenderContext& context) {
 	char filename[256] = "";
 	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
 	
-	AE_LOG->info("Saving snapshot '{}'...", filename);
+	AE_LOG_I("Saving snapshot '{}'...", filename);
 	
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
@@ -603,7 +603,7 @@ void ae::utils::SaveSnapshot(RenderContext& context) {
 		image->writePNG(fullPath);
 	}
 	else {
-		AE_LOG->warn("Couldn't locate executable directory.");
+		AE_LOG_W("Couldn't locate executable directory.");
 	}
 #endif
 }
@@ -621,7 +621,7 @@ void ae::utils::StartGIFRecording(RenderContext& context,
 		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
 	}
 	else {
-		AE_LOG->warn("Couldn't locate executable directory.");
+		AE_LOG_W("Couldn't locate executable directory.");
 	}
 #endif
 }

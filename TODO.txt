@@ -17,6 +17,20 @@ TODO:
 		* Check android file sink *
 		__FILE__, __func__, __LINE__ ?
 
+		Build: disable fmt tests, etc
+		
+		FIX TESTS
+		
+	Create "External.h" -> "../external/fmt...", etc?
+
+	GLEW is still building dynamic libraries
+
+	Smash build warnings
+		if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+
+
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -40,6 +54,8 @@ TODO:
 	
 
 	------ Other things (non-physics) ------
+	
+	internal namespace?
 	
 	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
 	

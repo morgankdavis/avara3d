@@ -21,6 +21,6 @@ using namespace std;
 
 Exception::Exception(const string& what):
 	runtime_error(what) {
-	AE_LOG->error(what);
+	AE_LOG_E(what);
 }
 

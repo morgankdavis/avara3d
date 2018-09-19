@@ -71,7 +71,7 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 }
 
 Buffer::~Buffer() {
-	AE_LOG->debug("Destroying Buffer {:p}", (void*)this);
+	AE_LOG_D("Destroying Buffer {:p}", (void*)this);
 	
 	if (m_pointer) {
 		free(m_pointer);

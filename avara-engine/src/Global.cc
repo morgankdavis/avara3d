@@ -12,8 +12,6 @@
 #include <NDKHelper.h>
 #endif
 
-#include "Logger.h"
-
 
 using namespace ae;
 
@@ -26,6 +24,4 @@ void ae::AE_INIT(android_app* app) {
 #ifdef ANDROID
 	ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 #endif
-	OldLogger::Init();
-	OldLogger::Level(LOG_START_LEVEL);
 }

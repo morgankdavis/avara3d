@@ -79,7 +79,7 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 //}
 
 PhysicsBody::~PhysicsBody() {
-	AE_LOG->debug("Destroying PhysicsBody {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsBody {:p}", (void*)this);
 }
 
 /***************************************************************************************

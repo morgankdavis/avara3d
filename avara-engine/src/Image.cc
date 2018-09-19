@@ -53,7 +53,7 @@ Image::Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal):
 }
 
 Image::~Image() {
-	AE_LOG->debug("Destroying Image {:p}", (void*)this);
+	AE_LOG_D("Destroying Image {:p}", (void*)this);
 	
 //	if (m_data) {
 //		stbi_image_free(&m_data);
@@ -115,7 +115,7 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	
 	stbi_image_free(imgData);
 	
-	AE_LOG->debug("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
+	AE_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
 	
 	m_width = width;

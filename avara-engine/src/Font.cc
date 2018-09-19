@@ -46,7 +46,7 @@ Font::Font(shared_ptr<Buffer> buffer):
 }
 
 Font::~Font() {
-	AE_LOG->debug("Destroying Font {:p}", (void*)this);
+	AE_LOG_D("Destroying Font {:p}", (void*)this);
 }
 
 /***************************************************************************************

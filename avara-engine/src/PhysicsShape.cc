@@ -58,7 +58,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 		
 		auto name = node->name();
 		if (name) {
-			AE_LOG->debug("Creating PhysicsShape for source node: {}...", *name);
+			AE_LOG_D("Creating PhysicsShape for source node: {}...", *name);
 		}
 		
 		m_sourceNode = node;
@@ -66,7 +66,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 }
 
 PhysicsShape::~PhysicsShape() {
-	AE_LOG->debug("Destroying PhysicsShape {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsShape {:p}", (void*)this);
 }
 
 /***************************************************************************************

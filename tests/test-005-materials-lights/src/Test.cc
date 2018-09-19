@@ -48,7 +48,7 @@ int Test::run(const vector<string>& args) {
 	
 	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
-	AE_LOG->info("Test::run()");
+	AE_LOG_I("Test::run()");
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
@@ -201,7 +201,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		AE_LOG->info("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		AE_LOG_I("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
 	}
 	
 	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderContext.scene()));
@@ -303,7 +303,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 //	for (auto& key : keysPressed) {
-//		AE_LOG->debug("KEY: {}", static_cast<int>(key));
+//		AE_LOG_D("KEY: {}", static_cast<int>(key));
 //	}
 	
 	if (keysPressed.count(KEY::HOME)) {

@@ -126,8 +126,8 @@ include_directories(avara-engine/external/fmt-5.2.0/include)
 
 # spdlog
 
-add_subdirectory(avara-engine/external/spdlog-0.16.2)
-include_directories(avara-engine/external/spdlog-0.16.2/include)
+#add_subdirectory(avara-engine/external/spdlog-0.16.2)
+#include_directories(avara-engine/external/spdlog-0.16.2/include)
 
 
 # android things

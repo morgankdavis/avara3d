@@ -55,7 +55,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 	m_inputManager(nullptr),
 	m_cursorCaptured(false) {
 
-		if (!InitializeGLFW()) { AE_LOG->critical("Failed to initializing GLFW."); }
+		if (!InitializeGLFW()) { AE_LOG_C("Failed to initializing GLFW."); }
 
 //        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 //        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -64,10 +64,10 @@ Window::Window(shared_ptr<Renderer> renderer,
 //        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 //        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 //
-//        AE_LOG->info("mode->redBits: {}", mode->redBits);
-//        AE_LOG->info("mode->greenBits: {}", mode->greenBits);
-//        AE_LOG->info("mode->blueBits: {}", mode->blueBits);
-//        AE_LOG->info("mode->refreshRate: {}", mode->refreshRate);
+//        AE_LOG_I("mode->redBits: {}", mode->redBits);
+//        AE_LOG_I("mode->greenBits: {}", mode->greenBits);
+//        AE_LOG_I("mode->blueBits: {}", mode->blueBits);
+//        AE_LOG_I("mode->refreshRate: {}", mode->refreshRate);
         
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -108,7 +108,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		}
 
 		if (!m_glfwWindow) {
-			AE_LOG->critical("Couldn't create GLFW Window.");
+			AE_LOG_C("Couldn't create GLFW Window.");
 			glfwTerminate();
 		}
 		
@@ -117,7 +117,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 		glfwMakeContextCurrent(m_glfwWindow);
 		enableVSync(false);
 
-		if (!InitializeGLEW()) { AE_LOG->critical("Failed to initialize GLEW."); }
+		if (!InitializeGLEW()) { AE_LOG_C("Failed to initialize GLEW."); }
 		RenderContext::renderer()->initialize(*this);
 
 		m_width = viewportWidth;
@@ -129,7 +129,7 @@ Window::Window(shared_ptr<Renderer> renderer,
 }
 
 Window::~Window() {
-	AE_LOG->debug("Destroying Window {:p}", (void*)this);
+	AE_LOG_D("Destroying Window {:p}", (void*)this);
 	
 	glfwTerminate();
 }
@@ -139,7 +139,7 @@ Window::~Window() {
  ***************************************************************************************/
 
 void Window::display() {
-	AE_LOG->info("Window::display()");
+	AE_LOG_I("Window::display()");
 	
 	if (m_scene) {
 		glfwMakeContextCurrent(m_glfwWindow);
@@ -186,7 +186,7 @@ GLFWwindow* Window::glfwWindow() const {
 void Window::update() {
 	RenderContext::update();
 	
-	AE_LOG->trace("-------------------------------------------------------------------------------");\
+	AE_LOG_T("-------------------------------------------------------------------------------");\
 	
 #warning move to saveGIFFrame()
 	float time = sceneTime();
@@ -266,7 +266,7 @@ float Window::sceneTime() const {
  ***************************************************************************************/
 
 void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwWindowSizeCallback()");
+	AE_LOG_T("glfwWindowSizeCallback()");
 	
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	
@@ -275,7 +275,7 @@ void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHei
 }
 
 void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG->trace("glfwFramebufferSizeCallback()");
+	AE_LOG_T("glfwFramebufferSizeCallback()");
 	
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	
@@ -284,7 +284,7 @@ void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int
 }
 
 void Window::glfwErrorCallback(int error, const char* description) {
-	AE_LOG->error("glfwErrorCallback(): error: {}, description: {}", error, description);
+	AE_LOG_E("glfwErrorCallback(): error: {}, description: {}", error, description);
 }
 
 /**************************************************************************************
@@ -295,19 +295,19 @@ static bool InitializeGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		AE_LOG->trace("InitializeGLFW()");
+		AE_LOG_T("InitializeGLFW()");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		AE_LOG->info("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
+		AE_LOG_I("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 		
 		glfwSetErrorCallback(Window::glfwErrorCallback);
 		
 		if (glfwInit()) {
-			AE_LOG->info("GLFW Initialized.");
+			AE_LOG_I("GLFW Initialized.");
 		}
 		else {
-			AE_LOG->critical("Error initializing GLFW.");
+			AE_LOG_C("Error initializing GLFW.");
 			return false;
 		}
 		
@@ -330,14 +330,14 @@ static bool InitializeGLEW() {
 		const GLubyte *renderer = glGetString(GL_RENDERER);
 		const GLubyte *version = glGetString(GL_VERSION);
 		
-		AE_LOG->info("Renderer: {}", renderer);
-		AE_LOG->info("Version: {}", version);
+		AE_LOG_I("Renderer: {}", renderer);
+		AE_LOG_I("Version: {}", version);
 		
 		GLint numExtensions;
 		glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-		AE_LOG->info("Extensions:\n");
+		AE_LOG_I("Extensions:\n");
 		for (GLint e=0 ; e<numExtensions ; ++e) {
-			AE_LOG->info("{}", glGetStringi(GL_EXTENSIONS, e));
+			AE_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
 		}
 		
 		initialized = true;

@@ -9,11 +9,11 @@ endif()
 
 # Determine if fmt is built as a subproject (using add_subdirectory)
 # or if it is the master project.
-set(MASTER_PROJECT OFF)
-if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  set(MASTER_PROJECT ON)
-  message(STATUS "CMake version: ${CMAKE_VERSION}")
-endif ()
+#set(MASTER_PROJECT OFF)
+#if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+#  set(MASTER_PROJECT ON)
+#  message(STATUS "CMake version: ${CMAKE_VERSION}")
+#endif ()
 
 # Joins arguments and places the results in ${result_var}.
 function(join result_var)
@@ -27,19 +27,19 @@ endfunction()
 # Set the default CMAKE_BUILD_TYPE to Release.
 # This should be done before the project command since the latter can set
 # CMAKE_BUILD_TYPE itself (it does so for nmake).
-if (NOT CMAKE_BUILD_TYPE)
-  join(doc "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or "
-           "CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
-  set(CMAKE_BUILD_TYPE Release CACHE STRING ${doc})
-endif ()
+#if (NOT CMAKE_BUILD_TYPE)
+#  join(doc "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or "
+#           "CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+#  set(CMAKE_BUILD_TYPE Release CACHE STRING ${doc})
+#endif ()
 
 option(FMT_PEDANTIC "Enable extra warnings and expensive tests." OFF)
 option(FMT_WERROR "Halt the compilation with an error on compiler warnings." OFF)
 
 # Options that control generation of various targets.
-option(FMT_DOC "Generate the doc target." ${MASTER_PROJECT})
-option(FMT_INSTALL "Generate the install target." ${MASTER_PROJECT})
-option(FMT_TEST "Generate the test target." ${MASTER_PROJECT})
+#option(FMT_DOC "Generate the doc target." ${MASTER_PROJECT})
+#option(FMT_INSTALL "Generate the install target." ${MASTER_PROJECT})
+#option(FMT_TEST "Generate the test target." ${MASTER_PROJECT})
 
 project(FMT)
 
@@ -158,7 +158,8 @@ if (HAVE_OPEN)
   set(FMT_SOURCES ${FMT_SOURCES} src/posix.cc)
 endif ()
 
-add_library(fmt ${FMT_SOURCES} ${FMT_HEADERS} README.rst ChangeLog.rst)
+#add_library(fmt ${FMT_SOURCES} ${FMT_HEADERS} README.rst ChangeLog.rst)
+add_library(fmt ${FMT_SOURCES} ${FMT_HEADERS})
 add_library(fmt::fmt ALIAS fmt)
 
 if (FMT_WERROR)
@@ -195,79 +196,79 @@ target_include_directories(fmt-header-only INTERFACE
   $<INSTALL_INTERFACE:include>)
 
 # Install targets.
-if (FMT_INSTALL)
-  include(GNUInstallDirs)
-  include(CMakePackageConfigHelpers)
-  set(FMT_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/fmt CACHE STRING
-    "Installation directory for cmake files, relative to ${CMAKE_INSTALL_PREFIX}.")
-  set(version_config ${PROJECT_BINARY_DIR}/fmt-config-version.cmake)
-  set(project_config ${PROJECT_BINARY_DIR}/fmt-config.cmake)
-  set(targets_export_name fmt-targets)
+#if (FMT_INSTALL)
+#  include(GNUInstallDirs)
+#  include(CMakePackageConfigHelpers)
+#  set(FMT_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/fmt CACHE STRING
+#    "Installation directory for cmake files, relative to ${CMAKE_INSTALL_PREFIX}.")
+#  set(version_config ${PROJECT_BINARY_DIR}/fmt-config-version.cmake)
+#  set(project_config ${PROJECT_BINARY_DIR}/fmt-config.cmake)
+#  set(targets_export_name fmt-targets)
+#
+#  set (INSTALL_TARGETS fmt)
+#  if (TARGET fmt-header-only)
+#    set(INSTALL_TARGETS ${INSTALL_TARGETS} fmt-header-only)
+#  endif ()
+#
+#  set(FMT_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE STRING
+#      "Installation directory for libraries, relative to ${CMAKE_INSTALL_PREFIX}.")
+#
+#  set(FMT_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR}/fmt CACHE STRING
+#      "Installation directory for include files, relative to ${CMAKE_INSTALL_PREFIX}.")
+#
+#  # Generate the version, config and target files into the build directory.
+#  write_basic_package_version_file(
+#    ${version_config}
+#    VERSION ${FMT_VERSION}
+#    COMPATIBILITY AnyNewerVersion)
+#  configure_package_config_file(
+#    ${PROJECT_SOURCE_DIR}/support/cmake/fmt-config.cmake.in
+#    ${project_config}
+#    INSTALL_DESTINATION ${FMT_CMAKE_DIR})
+#  # Use a namespace because CMake provides better diagnostics for namespaced
+#  # imported targets.
+#  export(TARGETS ${INSTALL_TARGETS} NAMESPACE fmt::
+#         FILE ${PROJECT_BINARY_DIR}/${targets_export_name}.cmake)
+#
+#  # Install version, config and target files.
+#  install(
+#    FILES ${project_config} ${version_config}
+#    DESTINATION ${FMT_CMAKE_DIR})
+#  install(EXPORT ${targets_export_name} DESTINATION ${FMT_CMAKE_DIR}
+#          NAMESPACE fmt::)
+#
+#  # Install the library and headers.
+#  install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name}
+#          DESTINATION ${FMT_LIB_DIR})
+#  install(FILES ${FMT_HEADERS} DESTINATION ${FMT_INC_DIR})
+#endif ()
 
-  set (INSTALL_TARGETS fmt)
-  if (TARGET fmt-header-only)
-    set(INSTALL_TARGETS ${INSTALL_TARGETS} fmt-header-only)
-  endif ()
-
-  set(FMT_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE STRING
-      "Installation directory for libraries, relative to ${CMAKE_INSTALL_PREFIX}.")
-
-  set(FMT_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR}/fmt CACHE STRING
-      "Installation directory for include files, relative to ${CMAKE_INSTALL_PREFIX}.")
-
-  # Generate the version, config and target files into the build directory.
-  write_basic_package_version_file(
-    ${version_config}
-    VERSION ${FMT_VERSION}
-    COMPATIBILITY AnyNewerVersion)
-  configure_package_config_file(
-    ${PROJECT_SOURCE_DIR}/support/cmake/fmt-config.cmake.in
-    ${project_config}
-    INSTALL_DESTINATION ${FMT_CMAKE_DIR})
-  # Use a namespace because CMake provides better diagnostics for namespaced
-  # imported targets.
-  export(TARGETS ${INSTALL_TARGETS} NAMESPACE fmt::
-         FILE ${PROJECT_BINARY_DIR}/${targets_export_name}.cmake)
-
-  # Install version, config and target files.
-  install(
-    FILES ${project_config} ${version_config}
-    DESTINATION ${FMT_CMAKE_DIR})
-  install(EXPORT ${targets_export_name} DESTINATION ${FMT_CMAKE_DIR}
-          NAMESPACE fmt::)
-
-  # Install the library and headers.
-  install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name}
-          DESTINATION ${FMT_LIB_DIR})
-  install(FILES ${FMT_HEADERS} DESTINATION ${FMT_INC_DIR})
-endif ()
-
-if (FMT_DOC)
-  add_subdirectory(doc)
-endif ()
-
-if (FMT_TEST)
-  enable_testing()
-  add_subdirectory(test)
-endif ()
-
-set(gitignore ${PROJECT_SOURCE_DIR}/.gitignore)
-if (MASTER_PROJECT AND EXISTS ${gitignore})
-  # Get the list of ignored files from .gitignore.
-  file (STRINGS ${gitignore} lines)
-  LIST(REMOVE_ITEM lines /doc/html)
-  foreach (line ${lines})
-    string(REPLACE "." "[.]" line "${line}")
-    string(REPLACE "*" ".*" line "${line}")
-    set(ignored_files ${ignored_files} "${line}$" "${line}/")
-  endforeach ()
-  set(ignored_files ${ignored_files}
-    /.git /breathe /format-benchmark sphinx/ .buildinfo .doctrees)
-
-  set(CPACK_SOURCE_GENERATOR ZIP)
-  set(CPACK_SOURCE_IGNORE_FILES ${ignored_files})
-  set(CPACK_SOURCE_PACKAGE_FILE_NAME fmt-${FMT_VERSION})
-  set(CPACK_PACKAGE_NAME fmt)
-  set(CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/README.rst)
-  include(CPack)
-endif ()
+#if (FMT_DOC)
+#  add_subdirectory(doc)
+#endif ()
+#
+#if (FMT_TEST)
+#  enable_testing()
+#  add_subdirectory(test)
+#endif ()
+#
+#set(gitignore ${PROJECT_SOURCE_DIR}/.gitignore)
+#if (MASTER_PROJECT AND EXISTS ${gitignore})
+#  # Get the list of ignored files from .gitignore.
+#  file (STRINGS ${gitignore} lines)
+#  LIST(REMOVE_ITEM lines /doc/html)
+#  foreach (line ${lines})
+#    string(REPLACE "." "[.]" line "${line}")
+#    string(REPLACE "*" ".*" line "${line}")
+#    set(ignored_files ${ignored_files} "${line}$" "${line}/")
+#  endforeach ()
+#  set(ignored_files ${ignored_files}
+#    /.git /breathe /format-benchmark sphinx/ .buildinfo .doctrees)
+#
+#  set(CPACK_SOURCE_GENERATOR ZIP)
+#  set(CPACK_SOURCE_IGNORE_FILES ${ignored_files})
+#  set(CPACK_SOURCE_PACKAGE_FILE_NAME fmt-${FMT_VERSION})
+#  set(CPACK_PACKAGE_NAME fmt)
+#  set(CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/README.rst)
+#  include(CPack)
+#endif ()

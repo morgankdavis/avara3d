@@ -34,7 +34,7 @@ PhysicsWorld::PhysicsWorld():
 }
 
 PhysicsWorld::~PhysicsWorld() {
-	AE_LOG->debug("Destroying PhysicsWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsWorld {:p}", (void*)this);
 }
 
 /***************************************************************************************

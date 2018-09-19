@@ -89,7 +89,7 @@ Node::Node(const string& name):
 }
 
 Node::~Node() {
-	AE_LOG->debug("Destroying Node {:p}", (void*)this);
+	AE_LOG_D("Destroying Node {:p}", (void*)this);
 }
 
 /***************************************************************************************

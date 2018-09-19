@@ -64,7 +64,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 		switch (action) {
 				
 			case AMOTION_EVENT_ACTION_BUTTON_PRESS: {
-				AE_LOG->trace("AMOTION_EVENT_ACTION_BUTTON_PRESS");
+				AE_LOG_T("AMOTION_EVENT_ACTION_BUTTON_PRESS");
 				
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
 				
@@ -83,7 +83,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			case AMOTION_EVENT_ACTION_BUTTON_RELEASE: {
-				AE_LOG->trace("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
+				AE_LOG_T("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
 
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
 
@@ -105,16 +105,16 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 
 			case AMOTION_EVENT_ACTION_DOWN: {
-				AE_LOG->trace("AMOTION_EVENT_ACTION_DOWN");
+				AE_LOG_T("AMOTION_EVENT_ACTION_DOWN");
 				break; }
 				
 			case AMOTION_EVENT_ACTION_UP:
-				AE_LOG->trace("AMOTION_EVENT_ACTION_UP");
+				AE_LOG_T("AMOTION_EVENT_ACTION_UP");
 				break;
 				
 			case AMOTION_EVENT_ACTION_HOVER_MOVE: {
 			case AMOTION_EVENT_ACTION_MOVE:
-				AE_LOG->trace("AMOTION_EVENT_ACTION_MOVE");
+				AE_LOG_T("AMOTION_EVENT_ACTION_MOVE");
 				
 //				float rawX = AMotionEvent_getRawX(event, 0);
 //				float rawY = AMotionEvent_getRawY(event, 0);
@@ -149,7 +149,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			case AMOTION_EVENT_ACTION_SCROLL: {
-				AE_LOG->trace("AMOTION_EVENT_ACTION_SCROLL");
+				AE_LOG_T("AMOTION_EVENT_ACTION_SCROLL");
 				
 				float hScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
 				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
@@ -167,7 +167,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			default:
-				//AE_LOG->info("[unknown]");
+				//AE_LOG_I("[unknown]");
 				break;
 		}
 	}

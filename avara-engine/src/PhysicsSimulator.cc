@@ -28,7 +28,7 @@ PhysicsSimulator::PhysicsSimulator():
 }
 
 PhysicsSimulator::~PhysicsSimulator() {
-	AE_LOG->debug("Destroying PhysicsSimulator {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsSimulator {:p}", (void*)this);
 }
 
 /**************************************************************************************

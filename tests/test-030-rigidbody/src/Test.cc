@@ -56,7 +56,7 @@ int Test::run(const vector<string>& args) {
 	
 	OldLogger::Level(LOG_LEVEL::DEBUG_);
 	
-	AE_LOG->info("Test::run()");
+	AE_LOG_I("Test::run()");
 
 //	LOGGER_SINKS sinks = LOGGER_SINKS::NONE;
 //	LOGGER_SINKS_ADD(sinks, LOGGER_SINKS::NATIVE);
@@ -131,7 +131,7 @@ int Test::run(const vector<string>& args) {
 //	m_duckNode->scale({0.33, 0.33, 0.33});
 //#warning TEMPORARY workaround for physics scaling
 //	for (auto& c : m_duckNode->children(true)) {
-//		AE_LOG->debug("c tr: {}", StringFromGLMMat4(c->transform()));
+//		AE_LOG_D("c tr: {}", StringFromGLMMat4(c->transform()));
 //		c->geometry()->burnTransform(m_duckNode->transform(), true);
 //		m_duckNode->transform(mat4(1.0));
 //	}
@@ -183,7 +183,7 @@ int Test::run(const vector<string>& args) {
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(Color::LightGray());
 	
-	AE_LOG->info("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
+	AE_LOG_I("*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 	
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();
@@ -197,7 +197,7 @@ int Test::run(const vector<string>& args) {
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("updateCallback(RenderContext&, float)");
+	AE_LOG_T("updateCallback(RenderContext&, float)");
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -234,7 +234,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		AE_LOG->info("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		AE_LOG_I("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
 	}
 	
 	
@@ -465,15 +465,15 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 }
 
 void Test::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("didSimulatePhysicsCallback(RenderContext&, float)");
+	AE_LOG_T("didSimulatePhysicsCallback(RenderContext&, float)");
 }
 
 void Test::willRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("willRenderCallback(RenderContext&, float)");
+	AE_LOG_T("willRenderCallback(RenderContext&, float)");
 }
 
 void Test::didRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("didRenderCallback(RenderContext&, float)");
+	AE_LOG_T("didRenderCallback(RenderContext&, float)");
 }
 
 /***************************************************************************************
@@ -533,7 +533,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//	node->scale({3.0, 3.0, 3.0});
 		//#warning TEMPORARY workaround for physics scaling
 		//	for (auto& c : node->children(true)) {
-		//		AE_LOG->debug("c tr: {}", StringFromGLMMat4(c->transform()));
+		//		AE_LOG_D("c tr: {}", StringFromGLMMat4(c->transform()));
 		//		c->geometry()->burnTransform(node->transform(), true);
 		//		node->transform(mat4(1.0));
 		//	}

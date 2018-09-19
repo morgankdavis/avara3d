@@ -116,7 +116,7 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 	m_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
 	m_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
 
-		AE_LOG->info("Bullet version: {}",  btGetVersion());
+		AE_LOG_I("Bullet version: {}",  btGetVersion());
 
 #ifdef DESKTOP
 		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
@@ -124,7 +124,7 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
-	AE_LOG->debug("Destroying BulletPhysicsSimulator {:p}", (void*)this);
+	AE_LOG_D("Destroying BulletPhysicsSimulator {:p}", (void*)this);
 	
 	m_activeBodies.clear();
 	m_activeShapes.clear();
@@ -264,7 +264,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 			m_activeShapes.emplace(body->shape());
 		}
 		else {
-			AE_LOG->warn("No PhysicsShape attached to PhysicsBody.");
+			AE_LOG_W("No PhysicsShape attached to PhysicsBody.");
 			//throw Exception("No PhysicsShape attached to PhysicsBody.");
 		}
 		
@@ -274,7 +274,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 }
 
 void BulletPhysicsSimulator::step(float time) {
-	AE_LOG->trace("step()");
+	AE_LOG_T("step()");
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -283,7 +283,7 @@ void BulletPhysicsSimulator::step(float time) {
 	int result = m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
 	
 	if (result == MAX_SUBSTEPS) {
-		AE_LOG->warn("Physics simulation max substeps reached: {}", result);
+		AE_LOG_W("Physics simulation max substeps reached: {}", result);
 	}
 }
 						  
@@ -333,7 +333,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION)) {
 		
-		AE_LOG->info("Creating rigid body for physics body {:p}...", (void*)body.get());
+		AE_LOG_I("Creating rigid body for physics body {:p}...", (void*)body.get());
 		
 		
 		
@@ -342,7 +342,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 //											  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
 //			
 //			auto worldScale = shape->sourceNode().lock()->worldScale();
-//			AE_LOG->debug("worldScale: {}", StringFromGLMVec3(worldScale));
+//			AE_LOG_D("worldScale: {}", StringFromGLMVec3(worldScale));
 //			auto btScale = BTVector3FromGLMVec3(worldScale);
 //			(*btShape)->setLocalScaling(btScale);
 //			
@@ -363,7 +363,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		bool wasScaled = false;
 		btTransform transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(), wasScaled));
 		if (wasScaled) {
-			AE_LOG->warn("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+			AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 						 (void*)node.get(), (void*)body.get());
 		}
 		
@@ -466,8 +466,8 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD)) {
 		(*btBody)->setSleepingThresholds(body->linearSleepingThreshold(), body->angularSleepingThreshold());
 		
-//		AE_LOG->debug("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
-//		AE_LOG->debug("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
+//		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
+//		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
 		
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD));
@@ -524,16 +524,16 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	
 //	if (body->type() == PHYSICS_BODY_TYPE::STATIC) {
-//		AE_LOG->debug("STATIC");
+//		AE_LOG_D("STATIC");
 //	}
 //	else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-//		AE_LOG->debug("DYNAMIC");
+//		AE_LOG_D("DYNAMIC");
 //		(*btBody)->setGravity((btVector3){0, 0, 0});
 //	}
 //	else if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-//		AE_LOG->debug("KINEMATIC");
+//		AE_LOG_D("KINEMATIC");
 //	}
-//	AE_LOG->debug("Gravity: {}", StringFromGLMVec3(GLMVec3FromBTVector3((*btBody)->getGravity())));
+//	AE_LOG_D("Gravity: {}", StringFromGLMVec3(GLMVec3FromBTVector3((*btBody)->getGravity())));
 	
 	// update shape scale. done here instead of GetPhysicsShapeBTModels() because we need the rigidbody
 	
@@ -649,7 +649,7 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 	
 	// deallocate unused bodies
 	if (unused.size()) {
-		AE_LOG->debug("Deallocating bullet body for {} physics bodies...", unused.size());
+		AE_LOG_D("Deallocating bullet body for {} physics bodies...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<PhysicsBody> body = *it;
@@ -689,7 +689,7 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 	
 	// deallocate unused shapes
 	if (unused.size()) {
-		AE_LOG->debug("Deallocating bullet shape for {} physics shape...", unused.size());
+		AE_LOG_D("Deallocating bullet shape for {} physics shape...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<PhysicsShape> shape = *it;
@@ -723,13 +723,13 @@ void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE shapeType,
 														  PHYSICS_BODY_TYPE bodyType) {
-	AE_LOG->trace("BTCollisionShapeFromGeometry()");
+	AE_LOG_T("BTCollisionShapeFromGeometry()");
 	
 	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
 		// static objects ALWAYS use btBvhTriangleMeshShape
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 		
-		AE_LOG->info("Static body, using btBvhTriangleMeshShape.");
+		AE_LOG_I("Static body, using btBvhTriangleMeshShape.");
 		
 #warning: Use btStridingMeshInterface
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=2401
@@ -792,7 +792,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	else {
 
 		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
-			AE_LOG->info("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
+			AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
 			
 			vec3 extent = geometry->extent(false);
 			float width = extent.x;
@@ -803,7 +803,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 													 (btScalar)length/2.0));
 		}
 		else if (dynamic_cast<Box*>(geometry.get())) {
-			AE_LOG->info("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+			AE_LOG_I("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
 			auto box = dynamic_cast<Box*>(geometry.get());
@@ -812,14 +812,14 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 													 (btScalar)box->length()/2.0));
 		}
 		else if (dynamic_cast<Sphere*>(geometry.get())) {
-			AE_LOG->info("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+			AE_LOG_I("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
 			auto sphere = dynamic_cast<Sphere*>(geometry.get());
 			return make_shared<btSphereShape>((btScalar)sphere->radius());
 		}
 		else if (dynamic_cast<Capsule*>(geometry.get())) {
-			AE_LOG->info("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+			AE_LOG_I("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
 			auto capsule = dynamic_cast<Capsule*>(geometry.get());
@@ -827,7 +827,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 											   (btScalar)capsule->height());
 		}
 		else if (dynamic_cast<Cone*>(geometry.get())) {
-			AE_LOG->info("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+			AE_LOG_I("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
 			auto cone = dynamic_cast<Cone*>(geometry.get());
@@ -835,7 +835,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 											(btScalar)cone->height());
 		}
 		else if (dynamic_cast<Cylinder*>(geometry.get())) {
-			AE_LOG->info("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+			AE_LOG_I("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
 						 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
 			
 			auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
@@ -846,7 +846,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		else {
 			
 			if (shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-				AE_LOG->critical("Concave polyhedron physics shapes not supported.");
+				AE_LOG_C("Concave polyhedron physics shapes not supported.");
 				
 				//			btMultiSphereShape?
 				
@@ -876,7 +876,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 			}
 			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
 				
-				AE_LOG->info("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
+				AE_LOG_I("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
 				
 				// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 				
@@ -911,7 +911,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 				
 				// for debug drawing
 				if (!reducedShape->initializePolyhedralFeatures()) {
-					AE_LOG->warn("Could not initialize polyhedral features for reduced btConvexHullShape.");
+					AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
 				}
 				
 //				reducedShape.get()->setMargin(0);
@@ -928,7 +928,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													PHYSICS_SHAPE_TYPE shapeType,
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes) {
-	AE_LOG->trace("BTCompoundShapeFromNode()");
+	AE_LOG_T("BTCompoundShapeFromNode()");
 
 	auto compoundShape = make_shared<btCompoundShape>(true);
 	
@@ -945,7 +945,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 			bool wasScaled = false;
 			btTransform localTransform = BTTransformFromGLMMat4(TransformByRemovingScale(n->transform(), wasScaled));
 //			if (wasScaled) {
-//				AE_LOG->warn("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//				AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 //							 (void*)node.get(), (void*)body.get());
 //			}
 			compoundShape->addChildShape(localTransform, collisionShape.get());
@@ -993,7 +993,7 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIO
 	
 	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
 	if (btModes != previousModes) {
-		AE_LOG->debug("Bullet debug modes: {}", btModes);
+		AE_LOG_D("Bullet debug modes: {}", btModes);
 	}
 	previousModes = btModes;
 	
