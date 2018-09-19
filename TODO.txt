@@ -13,7 +13,19 @@ TODO:
 
 
 	* Check android file sink *
-
+		adb connect
+		adb shell
+		cd /storage/self/primary/Android/data/com.mkdinteractive.test01/files
+		# logcat says: /data/user/0/com.mkdinteractive.test01/files/rotating11.log
+		
+	FileLoggerSink create intermediate directories
+		
+	FILE LOGS ARE MISSING HEADERS??
+	
+	Mail log files??
+		https://www.vmime.org/
+	
+	
 	Create "External.h" -> "../external/fmt...", etc?
 
 	Smash build warnings
@@ -67,6 +79,7 @@ TODO:
 	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
 
 	* Why are textures empty on first frame? *
+		PROGRAM NOT READY??
 	
 	Throw if setting Image as background property
 

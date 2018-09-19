@@ -8,7 +8,6 @@
 
 #include "Logger.h"
 
-#include <algorithm>
 #include <ctime>
 #include <iostream>
 
@@ -59,10 +58,10 @@ std::shared_ptr<Logger> Logger::MainLogger() {
 #elif defined(ANDROID)
 		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
 		auto nativeSink = make_shared<AndroidLoggerSink>();
-		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
-													/ (executableName + string(".log")));
+//		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
+//													/ (executableName + string(".log")));
+		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
 #endif
-
 		
 		auto sinks = vector<shared_ptr<LoggerSink>>();
 		sinks.emplace_back(static_pointer_cast<LoggerSink>(nativeSink));
@@ -391,19 +390,7 @@ void AndroidLoggerSink::write(const char* message, const char* tag, LOG_LEVEL le
  ***************************************************************************************/
 
 unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
-	
-	//	android_LogPriority{
-	//		ANDROID_LOG_UNKNOWN = 0,
-	//		ANDROID_LOG_DEFAULT,
-	//		ANDROID_LOG_VERBOSE,
-	//		ANDROID_LOG_DEBUG,
-	//		ANDROID_LOG_INFO,
-	//		ANDROID_LOG_WARN,
-	//		ANDROID_LOG_ERROR,
-	//		ANDROID_LOG_FATAL,
-	//		ANDROID_LOG_SILENT
-	//	}
-	
+
 	switch (level) {
 		case LOG_LEVEL::TRACE_: 	return ANDROID_LOG_VERBOSE;
 		case LOG_LEVEL::DEBUG_: 	return ANDROID_LOG_DEBUG;
@@ -429,14 +416,51 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
      Lifecycle
  ***************************************************************************************/
 
-FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
+//#if defined(DESKTOP)
+//
+//FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
+//							   unsigned maxFiles,
+//							   unsigned maxFilesize):
+//	m_filepath(filepath),
+//	m_maxFiles(maxFiles),
+//	m_maxFilesize(maxFilesize) {
+//
+//		openStream();
+//}
+//
+//#elif defined(ANDROID)
+//
+//FileLoggerSink::FileLoggerSink(string filename,
+//							   unsigned maxFiles,
+//							   unsigned maxFilesize):
+//	//m_filepath(filepath),
+//	m_maxFiles(maxFiles),
+//	m_maxFilesize(maxFilesize) {
+//
+//		m_filepath = *(utils::InternalFilesDirectory()) / filename;
+//
+//		__android_log_write(ANDROID_LOG_INFO, "FileLoggerSink", m_filepath.string().c_str());
+//
+//		openStream();
+//}
+//
+//#endif
+
+FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
-	m_filepath(filepath),
-	m_maxFiles(max(maxFiles, (unsigned)9)),
-	m_maxFilesize(maxFilesize) {
+		m_filepath(relPath),
+		m_maxFiles(maxFiles),
+		m_maxFilesize(maxFilesize) {
 
-		openStream();
+#if defined(ANDROID)
+
+	m_filepath = (*(utils::InternalFilesDirectory())) / relPath;
+	__android_log_write(ANDROID_LOG_INFO, "AE_LOG m_filepath", m_filepath.string().c_str());
+
+#endif
+
+	openStream();
 }
 
 FileLoggerSink::~FileLoggerSink() {
@@ -478,7 +502,7 @@ void FileLoggerSink::flush() {
 void FileLoggerSink::write(const char* message) {
 	
 	*m_fileStream << message << endl;
-	
+
 	checkRotate();
 }
 
@@ -491,9 +515,25 @@ void FileLoggerSink::openStream() {
 	if (m_fileStream && m_fileStream->is_open()) {
 		m_fileStream->close();
 	}
-	
+
+#warning create intermediate paths //bool create_directories(const path& p, system::error_code& ec);
 #warning check file writable
 	m_fileStream = make_shared<ofstream>(m_filepath.string(), fstream::out | fstream::app);
+	
+	
+	
+//#ifdef ANDROID
+//
+//	auto logDirecotryPath = m_filepath.parent_path();
+//
+//	boost::filesystem::directory_iterator end;
+//
+//	for (boost::filesystem::directory_iterator i(logDirecotryPath); i != end; ++i) {
+//		auto child = (*i);
+//		__android_log_write(ANDROID_LOG_INFO, "AE_LOG CHILD", child.path().string().c_str());
+//	}
+//
+//#endif
 }
 
 void FileLoggerSink::checkRotate() {
@@ -520,7 +560,7 @@ void FileLoggerSink::rotate() {
 	unsigned i = 0;
 	while (true) {
 		
-		auto path = boost::filesystem::path(stem.string() + to_string(i) + extension.string());
+		auto path = m_filepath.parent_path() / boost::filesystem::path(stem.string() + to_string(i) + extension.string());
 		
 		if (boost::filesystem::exists(path)) {
 			existing.emplace_back(path);
@@ -557,7 +597,7 @@ void FileLoggerSink::rotate() {
 //			}
 //			else {
 				//newPath = boost::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
-				boost::filesystem::path newPath = boost::filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
+				boost::filesystem::path newPath = path.parent_path() / boost::filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
 //			}
 
 			boost::filesystem::rename(path, newPath);
@@ -568,7 +608,7 @@ void FileLoggerSink::rotate() {
 	
 	// move the last file
 	
-	auto newPath = boost::filesystem::path(stem.string() + string("0") + extension.string());
+	auto newPath = m_filepath.parent_path() / boost::filesystem::path(stem.string() + string("0") + extension.string());
 	
 	openStream();
 }

@@ -2,6 +2,7 @@
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
 #include <errno.h>
+//#include <exception>
 #include <iostream>
 #include <jni.h>
 #include <memory>
@@ -38,11 +39,19 @@ void android_main(android_app* app) {
 
 	s_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 
-	LOG_I(s_logger, "********** info msg **********");
-	LOG_I(s_logger, "********** info format: %d %s **********", 2, "dicks");
 
-	LOG_W(s_logger, "********** warn msg **********");
-	LOG_W(s_logger, "********** warn format: %d %s **********", 2, "dicks");
+
+	auto fileSink = make_shared<FileLoggerSink>("rotating.log", 20, 1024 * 512);
+	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
+//	unsigned l = 0;
+//	while (true) {
+//		LOG_I(rotatingLogger, "line {}", l);
+//		++l;
+//	}
+	for (unsigned l=0; l<50000; ++l) {
+		LOG_I(rotatingLogger, "line {}", l);
+	}
+
 
 
 	auto activity = make_shared<Activity>(RENDER_API::OPENGL);
@@ -83,6 +92,8 @@ void android_main(android_app* app) {
 
 	activity->scene(scene);
 	activity->display(app);
+
+	//terminate(); // needed for NDK
 }
 
 void renderContextUpdateCallback(RenderContext& renderContext, float time) {
