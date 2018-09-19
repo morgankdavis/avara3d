@@ -116,8 +116,13 @@ include_directories(avara-engine/external/glm-0.9.9)
 
 # boost
 
-include_directories(avara-engine/external/boost-1.67.0)
 add_subdirectory(avara-engine/external/boost-1.67.0)
+include_directories(avara-engine/external/boost-1.67.0)
+
+# fmt
+
+add_subdirectory(avara-engine/external/fmt-5.2.0)
+include_directories(avara-engine/external/fmt-5.2.0/include)
 
 # spdlog
 

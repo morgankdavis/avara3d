@@ -444,6 +444,7 @@ STDLoggerSink::STDLoggerSink() {
 
 STDLoggerSink::~STDLoggerSink() {
 	
+	flush();
 }
 
 /***************************************************************************************
@@ -453,6 +454,7 @@ STDLoggerSink::~STDLoggerSink() {
 void STDLoggerSink::flush() {
 
 	fflush(stdout);
+	fflush(stderr);
 }
 
 /**************************************************************************************
@@ -498,6 +500,7 @@ AndroidLoggerSink::AndroidLoggerSink() {
 
 AndroidLoggerSink::~AndroidLoggerSink() {
 	
+	flush();
 }
 
 /***************************************************************************************
@@ -574,6 +577,8 @@ FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
 
 FileLoggerSink::~FileLoggerSink() {
 	
+	flush();
+	
 	if (m_fileStream && m_fileStream->is_open()) {
 		m_fileStream->close();
 	}
@@ -597,7 +602,9 @@ unsigned FileLoggerSink::maxFilesize() const {
 
 void FileLoggerSink::flush() {
 	
-	m_fileStream->flush();
+	if (m_fileStream && m_fileStream->is_open()) {
+		m_fileStream->flush();
+	}
 }
 
 /***************************************************************************************
