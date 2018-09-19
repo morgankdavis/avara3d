@@ -39,9 +39,9 @@ constexpr bool					CAPTURE_CURSOR =		true;
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	OldLogger::Level(LOG_LEVEL::DEBUG_);
+	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 	
-	AE_LOG_I("Test::run()");
+	LOG_I(m_logger, "Test::run()");
 	
 	auto renderer = make_shared<OpenGLRenderer>();
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),

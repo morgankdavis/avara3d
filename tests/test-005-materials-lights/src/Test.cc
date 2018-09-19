@@ -46,9 +46,9 @@ static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 int Test::run(const vector<string>& args) {
 	AE_INIT();
 	
-	OldLogger::Level(LOG_LEVEL::DEBUG_);
+	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 	
-	AE_LOG_I("Test::run()");
+	LOG_I(m_logger, "Test::run()");
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
@@ -201,7 +201,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		AE_LOG_I("TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		LOG_I(m_logger, "TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
 	}
 	
 	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderContext.scene()));
@@ -303,7 +303,7 @@ void Test::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 //	for (auto& key : keysPressed) {
-//		AE_LOG_D("KEY: {}", static_cast<int>(key));
+//		LOG_D(m_logger, "KEY: {}", static_cast<int>(key));
 //	}
 	
 	if (keysPressed.count(KEY::HOME)) {

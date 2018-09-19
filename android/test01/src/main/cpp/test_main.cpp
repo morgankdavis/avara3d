@@ -27,8 +27,9 @@ static void renderContextWillRenderCallback(RenderContext& renderContext, float 
 static void renderContextDidRenderCallback(RenderContext& renderContext, float time);
 
 
-static shared_ptr<Node> cameraNode = nullptr;
-static shared_ptr<MaterialProperty> cubeBackground = nullptr;
+static shared_ptr<Node> s_cameraNode = nullptr;
+static shared_ptr<MaterialProperty> s_cubeBackground = nullptr;
+static shared_ptr<Logger> s_logger = nullptr;
 
 
 void android_main(android_app* app) {
@@ -36,29 +37,14 @@ void android_main(android_app* app) {
 	AE_INIT(app);
 
 
+	s_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 
-	auto newLogger = Logger::MainLogger(); // will be created by engine
+	LOG_I(s_logger, "********** info msg **********");
+	LOG_I(s_logger, "********** info format: %d %s **********", 2, "dicks");
 
-	LOG_I("********** info msg **********");
-	LOG_I("********** info format: %d %s **********", 2, "dicks");
+	LOG_W(s_logger, "********** warn msg **********");
+	LOG_W(s_logger, "********** warn format: %d %s **********", 2, "dicks");
 
-	LOG_W("********** warn msg **********");
-	LOG_W("********** warn format: %d %s **********", 2, "dicks");
-
-	newLogger->level(LOG_LEVEL::WARN_);
-
-	LOG_D("********** BIG BLACK DICKS **********");
-
-	auto appLogger = make_shared<Logger>("test", newLogger->sinks());
-
-	appLogger->trace("********** YUM YUM **********");
-
-	appLogger->info("********** GOBBLE GOBBLE **********");
-
-
-
-
-	OldLogger::Level(LOG_LEVEL::DEBUG_);
 
 	auto renderer = make_shared<OpenGLRenderer>();
 	auto activity = make_shared<Activity>(static_pointer_cast<Renderer>(renderer));
@@ -88,9 +74,9 @@ void android_main(android_app* app) {
 	auto sphereMaterial = make_shared<Material>(nullptr, sphereMaterialProperty, nullptr);
 	sphereNode->geometry()->addMaterial(sphereMaterial);
 
-	cubeBackground = make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png"));
+	s_cubeBackground = make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png"));
 //	auto background = make_shared<MaterialProperty>(Color::Lime());
-	scene->background(cubeBackground);
+	scene->background(s_cubeBackground);
 
 
 	activity->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
@@ -102,7 +88,7 @@ void android_main(android_app* app) {
 }
 
 void renderContextUpdateCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("renderContextUpdateCallback({})", time);
+	LOG_T(s_logger, "renderContextUpdateCallback({})", time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -154,33 +140,33 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 
 
 	if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
-		AE_LOG->trace("PRESSED MOUSE_BUTTON::ONE");
+		LOG_T(s_logger, "PRESSED MOUSE_BUTTON::ONE");
 		auto background = make_shared<MaterialProperty>(Color::Lime());
 		renderContext.scene()->background(background);
 	}
 
 	if (mouseButtonsPressed.count(MOUSE_BUTTON::TWO)) {
-		AE_LOG->trace("PRESSED MOUSE_BUTTON::TWO");
+		LOG_T(s_logger, "PRESSED MOUSE_BUTTON::TWO");
 		auto background = make_shared<MaterialProperty>(Color::Purple());
 		renderContext.scene()->background(background);
 	}
 
 	if (mouseButtonsPressed.count(MOUSE_BUTTON::THREE)) {
-		AE_LOG->trace("PRESSED MOUSE_BUTTON::THREE");
-		renderContext.scene()->background(cubeBackground);
+		LOG_T(s_logger, "PRESSED MOUSE_BUTTON::THREE");
+		renderContext.scene()->background(s_cubeBackground);
 	}
 
 
 	if (mouseButtonsDown.count(MOUSE_BUTTON::ONE)) {
-		AE_LOG->trace("DOWN MOUSE_BUTTON::ONE");
+		LOG_T(s_logger, "DOWN MOUSE_BUTTON::ONE");
 	}
 
 	if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
-		AE_LOG->trace("DOWN MOUSE_BUTTON::TWO");
+		LOG_T(s_logger, "DOWN MOUSE_BUTTON::TWO");
 	}
 
 	if (mouseButtonsDown.count(MOUSE_BUTTON::THREE)) {
-		AE_LOG->trace("DOWN MOUSE_BUTTON::THREE");
+		LOG_T(s_logger, "DOWN MOUSE_BUTTON::THREE");
 	}
 
 
@@ -192,10 +178,10 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 		//AE_LOG->debug("Mouse scroll Y delta: {}", mouseScrollWheelDelta.y);
 
 		static float FOV_SPEED = 2.5; // degrees/roll
-		if (cameraNode) {
-			auto fov = cameraNode->camera()->fov();
+		if (s_cameraNode) {
+			auto fov = s_cameraNode->camera()->fov();
 			fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-			cameraNode->camera()->fov(fov);
+			s_cameraNode->camera()->fov(fov);
 		}
 	}
 
@@ -209,30 +195,30 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 
 	const static float mouseSensitivity = (1.0f / 0.5f);
 
-	if (!cameraNode) {
+	if (!s_cameraNode) {
 		for (auto n : renderContext.scene()->rootNode()->children(false)) {
 			if (n->camera()) {
-				cameraNode = n;
+				s_cameraNode = n;
 				break;
 			}
 		}
 	}
 
-	if (cameraNode) {
+	if (s_cameraNode) {
 
 		//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
 
 		// look
 
-		vec3 camForward = cameraNode->worldForward();
-		vec3 camRight = cameraNode->worldRight();
-		vec3 camUp = cameraNode->worldUp();
+		vec3 camForward = s_cameraNode->worldForward();
+		vec3 camRight = s_cameraNode->worldRight();
+		vec3 camUp = s_cameraNode->worldUp();
 
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 
-		vec3 angles = cameraNode->eulerAngles();
-		cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+		vec3 angles = s_cameraNode->eulerAngles();
+		s_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 		// move
 
@@ -244,25 +230,25 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			cameraNode->position(cameraNode->position() + positionDelta);
+			s_cameraNode->position(s_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			cameraNode->position(cameraNode->position() + positionDelta);
+			s_cameraNode->position(s_cameraNode->position() + positionDelta);
 		}
 
 		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			cameraNode->position(cameraNode->position() + positionDelta);
+			s_cameraNode->position(s_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			cameraNode->position(cameraNode->position() + positionDelta);
+			s_cameraNode->position(s_cameraNode->position() + positionDelta);
 		}
 
 		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			cameraNode->position(cameraNode->position() + positionDelta);
+			s_cameraNode->position(s_cameraNode->position() + positionDelta);
 		}
 	}
 
@@ -271,9 +257,9 @@ void renderContextUpdateCallback(RenderContext& renderContext, float time) {
 }
 
 void renderContextWillRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("renderContextWillRenderCallback({})", time);
+	LOG_T(s_logger, "renderContextWillRenderCallback({})", time);
 }
 
 void renderContextDidRenderCallback(RenderContext& renderContext, float time) {
-	AE_LOG->trace("renderContextDidRenderCallback({})", time);
+	LOG_T(s_logger, "renderContextDidRenderCallback({})", time);
 }

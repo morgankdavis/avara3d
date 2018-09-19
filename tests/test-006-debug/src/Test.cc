@@ -38,51 +38,12 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
-//	LOGGER_SINK sinks = LOGGER_SINK::NONE;
-//	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::NATIVE);
-//	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::MAIN_FILE);
-//	sinks = LOGGER_SINK_ADD(sinks, LOGGER_SINK::NAMED_FILE);
-	
-	
 	AE_INIT();
 	
-//	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
-//	auto newLogger = Logger::MainLogger(); // will be created by engine
-//	
-//	AE_LOG_I("********** info msg **********");
-//	AE_LOG_I("********** info format: %d %s **********", 2, "dicks");
-//	
-//	AE_LOG_W("********** warn msg **********");
-//	AE_LOG_W("********** warn format: {} {} **********", 2, "dicks");
-//	
-//	newLogger->level(LOG_LEVEL::WARN_);
-//	
-//	AE_LOG_D("********** BIG BLACK DICKS **********");
-//	
-//	auto appLogger = make_shared<Logger>("test", newLogger->sinks());
-//	
-//	appLogger->trace("********** YUM YUM **********");
-//	
-//	//appLogger->info("********** GOBBLE GOBBLE **********");
-//	LOG_I(appLogger, "********** GOBBLE GOBBLE {} {} **********", 16, "fajitas");
+	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 	
-	
-//	auto rotateFileSink = make_shared<FileLoggerSink>(boost::filesystem::path("rotate.log"), 10, 1024 * 1024 * 1);
-//	auto rotateLogger = make_shared<Logger>("rotate", dynamic_pointer_cast<LoggerSink>(rotateFileSink));
-//	
-//	//for (unsigned i=0; i < 1024 * 4; ++i) {
-//	unsigned i = 0;
-//	while (true) {
-//		rotateLogger->info("line %d", i);
-//		++i;
-//	}
-	
-	
-	
-//	m_logger->level(LOG_LEVEL::DEBUG_);
-//	
-//	LOG_I(m_logger, "Test::run()");
-	
+	LOG_I(m_logger, "Test::run()");
+
 	auto renderer = make_shared<OpenGLRenderer>();
 	m_window = make_shared<Window>(static_pointer_cast<Renderer>(renderer),
 								   FULLSCREEN,

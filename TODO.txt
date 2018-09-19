@@ -17,13 +17,12 @@ TODO:
 		* Check android file sink *
 		__FILE__, __func__, __LINE__ ?
 
-		Build: disable fmt tests, etc
-		
-		FIX TESTS
+		Increase log buffer size:
+			[NODE] (0x1025da3d8, "g polySurface335")
+				[GEOMETRY] (0x1025da2e8, "g polySurface335")
+					[EL
 		
 	Create "External.h" -> "../external/fmt...", etc?
-
-	GLEW is still building dynamic libraries
 
 	Smash build warnings
 		if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
