@@ -21,10 +21,10 @@ target_link_libraries ( bzip2 bz2 )
 
 add_executable ( bzip2recover bzip2recover.c )
 
-file ( WRITE bzegrep.1 ".so man1/bzgrep.1" )
-file ( WRITE bzfgrep.1 ".so man1/bzgrep.1" )
-file ( WRITE bzless.1 ".so man1/bzmore.1" )
-file ( WRITE bzcmp.1 ".so man1/bzdiff.1" )
+#file ( WRITE bzegrep.1 ".so man1/bzgrep.1" )
+#file ( WRITE bzfgrep.1 ".so man1/bzgrep.1" )
+#file ( WRITE bzless.1 ".so man1/bzmore.1" )
+#file ( WRITE bzcmp.1 ".so man1/bzdiff.1" )
 
 #include ( CTest )
 #add_test ( test ${CMAKE_COMMAND} -P test.cmake )
