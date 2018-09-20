@@ -11,10 +11,6 @@ TODO:
 
 30 - rigidbody
 
-	Smash build warnings
-		if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
 
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
@@ -39,9 +35,7 @@ TODO:
 	
 
 	------ Other things (non-physics) ------
-	
-	internal namespace?
-	
+
 	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
 	
 	Relink android data in bulk
@@ -51,6 +45,7 @@ TODO:
 	Imgui -> glfwErrorCallback() ? error: 65537, description: The GLFW library is not initialized
 
 	Switch AABB to min, max vec3s
+	Add Geometry::extent() / extent(bool recursive)
 
 	Create a generalized caching interface for creating new geometries?
 		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
@@ -59,15 +54,11 @@ TODO:
 
 	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
 
-	Remove node world transform dirty bit?  Does this really add much on a given frame, or is it just overly complex?
-
 	* Why are textures empty on first frame? *
 		PROGRAM NOT READY??
 		-> pause main thread for a while in android (ex. rotating log output) and see that not all shaders are loaded
 	
 	Throw if setting Image as background property
-
-	Add Geometry::extent() / extent(bool recursive)
 
 	Switch all GLM setters to static references
 

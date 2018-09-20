@@ -2,7 +2,7 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall") # -Werror -Wunused-variable
 
 include_directories(${PROJECT_SOURCE_DIR}/avara-engine/include)
-include_directories(${PROJECT_SOURCE_DIR}/avara-engine/external/NDKHelper ABSOLUTE)
+include_directories(${PROJECT_SOURCE_DIR}/avara-engine/external/NDKHelper/include ABSOLUTE)
 
 add_library(test_main
   SHARED
