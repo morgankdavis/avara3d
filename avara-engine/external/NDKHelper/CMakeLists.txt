@@ -4,9 +4,12 @@ cmake_minimum_required(VERSION 3.4.1)
 include(AndroidNdkModules)
 android_ndk_import_module_native_app_glue()
 
+file(GLOB HEADERS include/*.h)
+file(GLOB SOURCES src/*.c*)
+
 add_library(NDKHelper
   STATIC
-    JNIHelper.cpp
+    ${HEADERS} ${SOURCES}
 )
 set_target_properties(NDKHelper
   PROPERTIES
