@@ -8,12 +8,16 @@
 #define GENERATOR_MATH_HPP
 
 // Morgan: why isn't this being set by CMAKE??
+#ifndef GENERATOR_USE_GLM // silence GCC warning
 #define GENERATOR_USE_GLM
+#endif
 
 #ifdef GENERATOR_USE_GLM
 
 // Added by Morgan
+#ifndef GLM_ENABLE_EXPERIMENTAL// silence GCC warning
 #define GLM_ENABLE_EXPERIMENTAL
+#endif
 
 #include <stdexcept>
 #include <limits>
