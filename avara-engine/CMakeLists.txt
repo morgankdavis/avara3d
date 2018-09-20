@@ -186,6 +186,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	target_compile_options(ae PUBLIC
 			"-fmessage-length=0"
 			"-UGLFW_CDECL"
+			"-Wno-unknown-warning-option"
 			"-Wno-float-equal"
 			"-Wno-c++11-long-long"
 			"-Wno-self-assign"

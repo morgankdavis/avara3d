@@ -20,7 +20,7 @@ set_target_properties(NDKHelper
 )
 target_include_directories(NDKHelper
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(NDKHelper
