@@ -21,6 +21,7 @@ using namespace std;
 
 Exception::Exception(const string& what):
 	runtime_error(what) {
+#warning TODO get stack trace and log it.
 	AE_LOG_E(what);
 }
 

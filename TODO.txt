@@ -11,21 +11,6 @@ TODO:
 
 30 - rigidbody
 
-
-	* Check android file sink *
-		adb connect
-		adb shell
-		cd /storage/self/primary/Android/data/com.mkdinteractive.test01/files
-		# logcat says: /data/user/0/com.mkdinteractive.test01/files/rotating11.log
-		
-	FileLoggerSink create intermediate directories
-		
-	FILE LOGS ARE MISSING HEADERS??
-	
-	Mail log files??
-		https://www.vmime.org/
-	
-	
 	Create "External.h" -> "../external/fmt...", etc?
 
 	Smash build warnings
@@ -80,6 +65,7 @@ TODO:
 
 	* Why are textures empty on first frame? *
 		PROGRAM NOT READY??
+		-> pause main thread for a while in android (ex. rotating log output) and see that not all shaders are loaded
 	
 	Throw if setting Image as background property
 

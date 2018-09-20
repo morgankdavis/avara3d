@@ -46,12 +46,15 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	auto fileSink = make_shared<FileLoggerSink>("../rotating.log", 20, 1024 * 512);
+	auto fileSink = make_shared<FileLoggerSink>("log/rotating.log", 20, 1024 * 512);
 	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
-	unsigned l = 0;
-	while (true) {
+//	unsigned l = 0;
+//	while (true) {
+//		LOG_I(rotatingLogger, "line {}", l);
+//		++l;
+//	}
+	for (unsigned l=0; l < 50000; ++l) {
 		LOG_I(rotatingLogger, "line {}", l);
-		++l;
 	}
 	
 	

@@ -20,6 +20,7 @@
 #include <NDKHelper.h>
 #endif
 
+#include "Exception.h"
 #include "Global.h"
 #include "Utilities.h"
 
@@ -131,26 +132,24 @@ void Logger::log(LOG_LEVEL level, const char* message) {
 	
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
 		>= static_cast<underlying_type<LOG_LEVEL>::type>(m_level)) {
-		
-#if defined (DESKTOP)
+
 		char lineStr[MAX_LOG_LINE_SIZE];
 		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
 				 HeaderString(m_name, m_level).c_str(), message);
-#endif
 		
 		for (auto sink : m_sinks) {
 			
-#if defined (DESKTOP)
+#if defined(DESKTOP)
 			if (dynamic_pointer_cast<STDLoggerSink>(sink)) {
 				dynamic_pointer_cast<STDLoggerSink>(sink)->write(lineStr, level);
 			}
-#elif defined (ANDROID)
+#elif defined(ANDROID)
 			if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {
 				dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, m_name.c_str(), level);
 			}
 #endif
 			if (dynamic_pointer_cast<FileLoggerSink>(sink)) {
-				dynamic_pointer_cast<FileLoggerSink>(sink)->write(message);
+				dynamic_pointer_cast<FileLoggerSink>(sink)->write(lineStr);
 			}
 		}
 		
@@ -416,36 +415,6 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
      Lifecycle
  ***************************************************************************************/
 
-//#if defined(DESKTOP)
-//
-//FileLoggerSink::FileLoggerSink(boost::filesystem::path filepath,
-//							   unsigned maxFiles,
-//							   unsigned maxFilesize):
-//	m_filepath(filepath),
-//	m_maxFiles(maxFiles),
-//	m_maxFilesize(maxFilesize) {
-//
-//		openStream();
-//}
-//
-//#elif defined(ANDROID)
-//
-//FileLoggerSink::FileLoggerSink(string filename,
-//							   unsigned maxFiles,
-//							   unsigned maxFilesize):
-//	//m_filepath(filepath),
-//	m_maxFiles(maxFiles),
-//	m_maxFilesize(maxFilesize) {
-//
-//		m_filepath = *(utils::InternalFilesDirectory()) / filename;
-//
-//		__android_log_write(ANDROID_LOG_INFO, "FileLoggerSink", m_filepath.string().c_str());
-//
-//		openStream();
-//}
-//
-//#endif
-
 FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
@@ -454,11 +423,14 @@ FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
 		m_maxFilesize(maxFilesize) {
 
 #if defined(ANDROID)
-
 	m_filepath = (*(utils::InternalFilesDirectory())) / relPath;
-	__android_log_write(ANDROID_LOG_INFO, "AE_LOG m_filepath", m_filepath.string().c_str());
-
 #endif
+
+	boost::system::error_code errorCode;
+	boost::filesystem::create_directories(m_filepath.parent_path(), errorCode);
+	if (errorCode.value() != boost::system::errc::success) {
+		throw Exception("Couldn't create intermediate directories for log: " + m_filepath.string());
+	}
 
 	openStream();
 }
@@ -516,24 +488,8 @@ void FileLoggerSink::openStream() {
 		m_fileStream->close();
 	}
 
-#warning create intermediate paths //bool create_directories(const path& p, system::error_code& ec);
 #warning check file writable
 	m_fileStream = make_shared<ofstream>(m_filepath.string(), fstream::out | fstream::app);
-	
-	
-	
-//#ifdef ANDROID
-//
-//	auto logDirecotryPath = m_filepath.parent_path();
-//
-//	boost::filesystem::directory_iterator end;
-//
-//	for (boost::filesystem::directory_iterator i(logDirecotryPath); i != end; ++i) {
-//		auto child = (*i);
-//		__android_log_write(ANDROID_LOG_INFO, "AE_LOG CHILD", child.path().string().c_str());
-//	}
-//
-//#endif
 }
 
 void FileLoggerSink::checkRotate() {
@@ -583,7 +539,7 @@ void FileLoggerSink::rotate() {
 			boost::system::error_code errorCode;
 			boost::filesystem::remove(path, errorCode);
 			if (errorCode.value() != boost::system::errc::success) {
-				cout << "Cannot remove log file: " << path.string() << endl;
+				throw Exception("Cannot remove log file: " + path.string());
 			}
 		}
 		else {

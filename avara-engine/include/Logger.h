@@ -236,20 +236,9 @@ namespace ae {
 		/***************************************************************************************
 		     Lifecycle
 		 ***************************************************************************************/
-		
-//#if defined(DESKTOP)
-//		// desktop OSs accept absolute paths and paths relative to the executable
-//		FileLoggerSink(boost::filesystem::path filepath,
-//					   unsigned maxFiles = DEFAULT_MAX_FILES,
-//					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);
-//#elif defined(ANDROID)
-//		// Android only accepts paths relative to the internal storage directory
-//		FileLoggerSink(std::string filename,
-//					   unsigned maxFiles = DEFAULT_MAX_FILES,
-//					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);
-//#endif
-		// desktop OS log paths are given relative to the executable
-		// android log paths are given relative to the app's internal storage folder
+
+		// desktop log paths are relative to the executable
+		// android log paths are relative to the app's internal storage directory
 		FileLoggerSink(boost::filesystem::path relPath,
 					   unsigned maxFiles = DEFAULT_MAX_FILES,
 					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);

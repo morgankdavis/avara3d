@@ -41,7 +41,7 @@ void android_main(android_app* app) {
 
 
 
-	auto fileSink = make_shared<FileLoggerSink>("rotating.log", 20, 1024 * 512);
+	auto fileSink = make_shared<FileLoggerSink>("log/rotating.log", 20, 1024 * 512);
 	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
 //	unsigned l = 0;
 //	while (true) {
