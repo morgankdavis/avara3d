@@ -60,6 +60,15 @@ add_subdirectory(src)
 
 # added by Morgan
 
-target_compile_options(generator PUBLIC 
-	"-Wno-macro-redefined")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+	target_compile_options(generator PUBLIC 
+		"-Wno-macro-redefined")
+	
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	
+	target_compile_options(generator PUBLIC 
+		"-Wno-builtin-macro-redefined")
+	
+endif()
 	
