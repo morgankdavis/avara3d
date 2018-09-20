@@ -192,22 +192,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 			"-Wno-self-assign"
 			"-Wno-reorder"
 			"-Wno-address-of-packed-member"
-			"-Wno-unused-function")
+			"-Wno-unused-function"
+			"-Wno-deprecated-declarations")
 			#"-Wno-macro-redefined")
 			
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 # seems as if these are not needed for some reason... (?)
-#
-#	target_compile_options(ae PUBLIC 
-#		"-fmessage-length=0"
-#		"-UGLFW_CDECL"
-#		"-Wno-float-equal"
-#		"-Wno-c++11-long-long"
-#		"-Wno-self-assign"
-#		"-Wno-reorder"
-#		"-Wno-address-of-packed-member"
-#		"-Wno-unused-function")
 
 endif()
 		
