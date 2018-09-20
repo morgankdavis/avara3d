@@ -11,8 +11,6 @@ TODO:
 
 30 - rigidbody
 
-	Create "External.h" -> "../external/fmt...", etc?
-
 	Smash build warnings
 		if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")

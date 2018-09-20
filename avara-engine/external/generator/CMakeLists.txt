@@ -9,7 +9,7 @@ if(MSVC)
 	add_definitions(/W3)
 else()
 	# Morgan: SHUT UP
-	add_definitions(-std=c++11)
+	add_definitions(-std=c++14)
 	#add_definitions(-std=c++11 -pedantic -Wall -Wextra)
 endif()
 
@@ -56,3 +56,10 @@ add_subdirectory(src)
 
 #install(DIRECTORY include/generator DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 #install(FILES lib/${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+
+# added by Morgan
+
+target_compile_options(generator PUBLIC 
+	"-Wno-macro-redefined")
+	
