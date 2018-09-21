@@ -9,7 +9,7 @@
 #include "Exception.h"
 
 #include "Logger.h"
-#include "Utilities.cc"
+#include "Utilities.h"
 
 
 using namespace ae;
@@ -24,6 +24,10 @@ using namespace std;
 Exception::Exception(const string& what):
 	runtime_error(what) {
 
+#if defined(MACOS) || defined(LINUX)
 		AE_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));
+#else
+		AE_LOG_E("Exception: {}", what);
+#endif
 }
 

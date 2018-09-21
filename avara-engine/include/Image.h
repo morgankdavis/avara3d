@@ -40,11 +40,9 @@ namespace ae {
 #endif
 		// with header
 		Image(std::shared_ptr<Buffer> headerBuffer, bool flipHorizontal=true);
-		
 		// raw
 		Image(std::shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
 			  unsigned bytesPerPixel, bool flipHorizontal = true);
-
 		~Image();
 		
 		/***************************************************************************************

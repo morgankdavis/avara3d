@@ -12,6 +12,8 @@ TODO:
 30 - rigidbody
 
 
+	Windows and Android stacktraces
+
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -38,7 +40,7 @@ TODO:
 
 	Switch AABB to min, max vec3s
 	Add Geometry::extent() / extent(bool recursive)
-	Debug Scene/Geometry extent / default camera placement
+	Debug Scene/Geometry extent/default camera placement -- import cameras?
 
 
 	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
