@@ -41,12 +41,6 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-//		Window(std::shared_ptr<Renderer> renderer,
-//			   bool fullScreen,
-//			   unsigned width, unsigned height,
-//			   bool useHighDPI = true,
-//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
-		
 		Window(bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool useHighDPI = true,

@@ -37,32 +37,6 @@ using namespace std;
      Lifescycle
  ***************************************************************************************/
 
-//RenderContext::RenderContext(shared_ptr<Renderer> renderer):
-//	m_renderer(renderer),
-//	m_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
-//	m_scene(nullptr),
-//	m_width(0),
-//	m_height(0),
-//	m_framebufferScale(1),
-//	m_framebufferWidth(0),
-//	m_framebufferHeight(0),
-//	m_vSyncEnabled(false),
-//	m_antialiasingMode(ANTIALIASING_MODE::NONE),
-//	m_debugOptions(DEBUG_OPTIONS::NONE),
-//	m_pointOfView(nullptr),
-//	m_gifWriter(nullptr),
-//	m_recordingGIF(false),
-//	m_gifRecordingWidth(0),
-//	m_gifRecordingHeight(0),
-//	m_gifRecordingMaxFramerate(0),
-//	m_gifRecordedFrames(0),
-//	m_updateCallback(nullptr),
-//	m_didSimulatePhysicsCallback(nullptr),
-//	m_willRenderCallback(nullptr),
-//	m_didRenderCallback(nullptr) {
-//	
-//}
-
 RenderContext::RenderContext(RENDER_API renderAPI):
 	m_renderAPI(renderAPI),
 	m_renderer(nullptr),
@@ -101,6 +75,10 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 
 RenderContext::~RenderContext() {
 	AE_LOG_D("Destroying RenderContext {:p}", (void*)this);
+	
+	if (m_recordingGIF) {
+		stopGIFRecording();
+	}
 }
 
 /**************************************************************************************
@@ -357,7 +335,13 @@ void RenderContext::framebufferHeight(unsigned height) {
      Protected
  **************************************************************************************/
 
-void RenderContext::saveGIFFrame(float deltaSeconds) {
+void RenderContext::saveGIFFrame(float time) {
+	
+//	float time = sceneTime();
+	static float previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+	
 	static float secondsAccum = 0;
 	secondsAccum += deltaSeconds;
 	

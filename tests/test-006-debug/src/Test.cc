@@ -43,7 +43,12 @@ int Test::run(const vector<string>& args) {
 	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
 	
 	LOG_I(m_logger, "Test::run()");
+
 	
+//	auto nodeA = make_shared<Node>();
+//	auto nodeB = make_shared<Node>();
+//	nodeA->addChild(nodeB);
+//	nodeA->addChild(nodeB);
 	
 	
 	auto fileSink = make_shared<FileLoggerSink>("log/rotating.log", 20, 1024 * 512);

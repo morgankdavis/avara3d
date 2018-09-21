@@ -558,7 +558,10 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	
 	// back-fill PhysicsBody properties
 	
-#warning this is causing a loop canceling out any manual dynamic movement
+	
+	
+	
+// *** causing a loop canceling out any manual dynamic movement ***
 	
 	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()), false);
 	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()), false);

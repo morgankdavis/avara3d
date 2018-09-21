@@ -174,7 +174,7 @@ string ae::utils::DateTimeString() {
 }
 
 #if defined(MACOS) || defined(LINUX)
-string ae::utils::StackTrace() {
+string ae::utils::StackTrace(unsigned dropFunctions) {
 	
 	auto traceStr = string();
 	static const unsigned MAX_FRAMES = 64;
@@ -184,7 +184,7 @@ string ae::utils::StackTrace() {
 	
 	if (addrLen != 0) {
 		char** symbolList = backtrace_symbols(addrList, addrLen);
-		for (int x=1; x<addrLen; ++x) {
+		for (int x=dropFunctions+1; x<addrLen; ++x) {
 			traceStr += string(symbolList[x]) + "\n";
 		}
 		

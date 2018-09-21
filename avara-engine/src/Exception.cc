@@ -9,9 +9,11 @@
 #include "Exception.h"
 
 #include "Logger.h"
+#include "Utilities.cc"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 
 
@@ -21,7 +23,7 @@ using namespace std;
 
 Exception::Exception(const string& what):
 	runtime_error(what) {
-#warning TODO get stack trace and log it.
-	AE_LOG_E(what);
+
+		AE_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));
 }
 

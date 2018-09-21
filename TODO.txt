@@ -36,23 +36,20 @@ TODO:
 
 	------ Other things (non-physics) ------
 
+	Switch AABB to min, max vec3s
+	Add Geometry::extent() / extent(bool recursive)
+	Debug Scene/Geometry extent / default camera placement
+
+
 	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
 	
 	Relink android data in bulk
 	Fix android assimp
-	Create android tests shells for all tests and link to proper test classes
+	Create android tests shells for all tests, link to proper test classes, modularize ae??
 	Android Imgui: https://github.com/ocornut/imgui/issues/1200
+	
 	Imgui -> glfwErrorCallback() ? error: 65537, description: The GLFW library is not initialized
 
-	Switch AABB to min, max vec3s
-	Add Geometry::extent() / extent(bool recursive)
-
-	Create a generalized caching interface for creating new geometries?
-		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
-		nodes that have referenced to all the cached stuff.
-		Interface to invalidate some/all contents
-
-	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
 
 	* Why are textures empty on first frame? *
 		PROGRAM NOT READY??
@@ -67,30 +64,24 @@ TODO:
 	RenderContext should own "Stats" object
 		Create at each frame, pass around. frameStartTime, frameEndTime
 
-	Reconcile primitives sizing
+	Reconcile primitives sizing & orientation
 		+ add default detail levels for geometry primitives (+ box & plane!)
 			Add "GeometryPrimitive" superclass + factor vertex data creation
-			-> INITIALIZERS for other classes use defaults
-		+ Generate disk shape?
+			-> INITIALIZERS for other tests use defaults
+		+ Add disk shape
 	
-	Debug Scene/Geometry extent / default camera placement
-		
-	Find a new logging lib?
-		https://www.boost.org/doc/libs/1_55_0/libs/log/doc/html/index.html
-		https://github.com/emilk/loguru
-		https://github.com/muflihun/easyloggingpp
-		https://github.com/SergiusTheBest/plog
-		
-		+ AE_LOG function to return __FILE__:__func__()
+	Create a generalized caching interface for creating new geometries?
+		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
+		nodes that have referenced to all the cached stuff.
+		Interface to invalidate some/all contents
+
+	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
 		
 	AssetManager/FileManager with static functions for getting file assets?
 	FileUtilities, OutputUtilities, NumericUtilities, etc?
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
 	Rename StringFromXXXYYY -> String(XXXYYY)
-	
-	ae::Object?
-		AE objs -> description() + operator<<
 
 	Integrate gtest
 		import-scenegraph
@@ -137,6 +128,7 @@ TODO:
 	"Entity"
 
 100 - particle systems
+	https://sourceforge.net/projects/sparkengine/
 
 110 - vulkan + deferred shading
 
@@ -249,9 +241,6 @@ Squirral?
 
 Laundry list:
     Node pivot point: https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
-
-NEW LOGGING SYSTEM
-	Either isolate spdlog, write our own, or look at something like: https://github.com/SergiusTheBest/plog
 
 
 Wish list:

@@ -53,7 +53,6 @@ namespace ae {
 		     Lifecycle
 		 ***************************************************************************************/
 
-		//RenderContext(std::shared_ptr<Renderer> renderer);
 		RenderContext(RENDER_API renderAPI);
 		
 		RenderContext(const RenderContext& other) = delete; // copy constructor
@@ -140,7 +139,7 @@ namespace ae {
 		 **************************************************************************************/
 		
 		virtual std::shared_ptr<Node> defaultPointOfView();
-		virtual void saveGIFFrame(float deltaSeconds);
+		virtual void saveGIFFrame(float time);
 
 		RENDER_API 								m_renderAPI;
 		std::shared_ptr<Renderer>				m_renderer;

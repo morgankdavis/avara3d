@@ -134,7 +134,8 @@ void Geometry::draw(Renderer& renderer,
 					const DEBUG_OPTIONS& debugOptions,
 					RenderStats& stats) {
 	
-#warning may be unneccesary
+	// forces Renderer to re-create AABB linesets next time they're turned on.
+	// this seems like hacky way to do it.
 	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::EXTENT);
 	}

@@ -510,13 +510,10 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
 	unsigned framebufferWidth = context.framebufferWidth();
 	unsigned framebufferHeight = context.framebufferHeight();
-	unsigned char *pixelBuf = (unsigned char*)malloc(framebufferWidth * framebufferHeight * 4);
+	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
 	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
-	//auto image = make_shared<Image>(buf, framebufferWidth, framebufferHeight, 4);
-	auto buffer = make_shared<Buffer>(pixelBuf, framebufferWidth * framebufferHeight * 4);
-	free(pixelBuf);
-	auto image = make_shared<Image>(buffer);
-	return image;
+	auto buffer = make_shared<Buffer>((const unsigned char*)pixelBuf, framebufferWidth * framebufferHeight * 4);
+	return make_shared<Image>(buffer, framebufferWidth, framebufferHeight, 4);
 }
 	
 /**************************************************************************************
@@ -652,7 +649,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 		
 		// construct a new lineset matching the geometry's extent
 		
-		AE_LOG_D("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
 		
 		map<string, vec3> bp = *(geometry->boundingPoints(false));
 		

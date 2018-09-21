@@ -47,14 +47,6 @@ static float ScreenScaleFactor(GLFWmonitor* monitor);
      Lifescycle
  ***************************************************************************************/
 
-//Window::Window(shared_ptr<Renderer> renderer,
-//	bool fullScreen,
-//	unsigned width, unsigned height,
-//	bool enableHighDPI, ANTIALIASING_MODE antialiasingMode):
-//	RenderContext(renderer),
-//	m_inputManager(nullptr),
-//	m_cursorCaptured(false) {
-
 Window::Window(bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool enableHighDPI,
@@ -177,11 +169,11 @@ void Window::update() {
 	
 	AE_LOG_T("-------------------------------------------------------------------------------");\
 	
-#warning move to saveGIFFrame()
-	float time = sceneTime();
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+//#warning move to saveGIFFrame()
+//	float time = sceneTime();
+//	static float previousSeconds = time;
+//	float deltaSeconds = time - previousSeconds;
+//	previousSeconds = time;
 	
 	if (updateCallback()) {
 		(updateCallback())(*this, sceneTime());
@@ -208,7 +200,7 @@ void Window::update() {
 	
 	glfwSwapBuffers(m_glfwWindow);
 	
-	if (m_recordingGIF) saveGIFFrame(deltaSeconds);
+	if (m_recordingGIF) saveGIFFrame(sceneTime());
 	
 	if (didRenderCallback()) {
 		(didRenderCallback())(*this, sceneTime());

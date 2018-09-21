@@ -180,11 +180,11 @@ void Activity::update() {
 		
 		m_renderer->beginFrame(*this);
 		
-#warning move to saveGIFFrame()
-		float time = sceneTime();
-		static float previousSeconds = time;
-		float deltaSeconds = time - previousSeconds;
-		previousSeconds = time;
+//#warning move to saveGIFFrame()
+//		float time = sceneTime();
+//		static float previousSeconds = time;
+//		float deltaSeconds = time - previousSeconds;
+//		previousSeconds = time;
 		
 		if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
 		

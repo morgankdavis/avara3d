@@ -49,7 +49,19 @@ Image::Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal):
 	m_height(0),
 	m_bytesPerPixel(0) {
 		
-		loadBuffer(*(buffer.get()), flipHorizontal);
+		loadBuffer(*buffer, flipHorizontal);
+}
+
+Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
+			 unsigned bytesPerPixel, bool flip):
+	m_data(rawBuffer),
+	m_width(width),
+	m_height(height),
+	m_bytesPerPixel(bytesPerPixel) {
+
+	if (flip) {
+		flipHorizontal();
+	}
 }
 
 Image::~Image() {
@@ -79,7 +91,7 @@ unsigned Image::bytesPerPixel() const {
 bool Image::writePNG(boost::filesystem::path path) const {
 	
 	return !stbi_write_png(path.string().c_str(), m_width, m_height,
-						   m_bytesPerPixel, &m_data, m_width*m_bytesPerPixel);
+						   m_bytesPerPixel, m_data->pointer(), m_width*m_bytesPerPixel);
 }
 
 /***************************************************************************************
@@ -100,7 +112,9 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	int height;
 	int bytesPerPixel;
 	
-	stbi_uc* imgData = stbi_load_from_memory(inBuf.pointer(), inBuf.size(), &width, &height, &bytesPerPixel, STBI_rgb_alpha);
+	stbi_uc* imgData = stbi_load_from_memory(inBuf.pointer(), inBuf.size(),
+											 &width, &height, &bytesPerPixel,
+											 STBI_rgb_alpha);
 
 	// force bytesPerPixel = 4 since we told STB to pad it
 	// (STB fills this with the ACTUAL BPP in the file, but pads to what we ask)

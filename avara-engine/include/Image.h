@@ -38,7 +38,12 @@ namespace ae {
 #ifndef ANDROID
 		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
 #endif
-		Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal=true);
+		// with header
+		Image(std::shared_ptr<Buffer> headerBuffer, bool flipHorizontal=true);
+		
+		// raw
+		Image(std::shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
+			  unsigned bytesPerPixel, bool flipHorizontal = true);
 
 		~Image();
 		
