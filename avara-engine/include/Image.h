@@ -31,48 +31,49 @@ namespace ae {
 		
 	public:
 		
-		/***************************************************************************************
-		     Lifecycle
-		 ***************************************************************************************/
+/*********************************************************************************************
+     Lifecycle
+ *********************************************************************************************/
 
 #ifndef ANDROID
-		Image(const boost::filesystem::path& path, bool flipHorizontal=true);
+		Image(const boost::filesystem::path& path, bool flipVertical=true);
 #endif
 		// with header
-		Image(std::shared_ptr<Buffer> headerBuffer, bool flipHorizontal=true);
+		Image(std::shared_ptr<Buffer> headerBuffer, bool flipVertical=true);
 		// raw
 		Image(std::shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
-			  unsigned bytesPerPixel, bool flipHorizontal = true);
+			  unsigned bytesPerPixel, bool flipVertical = true);
 		~Image();
 		
-		/***************************************************************************************
-		     Public
-		 ***************************************************************************************/
+/*********************************************************************************************
+     Public
+ *********************************************************************************************/
 		
 		unsigned width() const;
 		unsigned height() const;
 		unsigned bytesPerPixel() const;
 		bool writePNG(boost::filesystem::path path) const;
 		
-		/***************************************************************************************
-		     Internal
-		 ***************************************************************************************/
+/*********************************************************************************************
+     Internal
+ *********************************************************************************************/
 		
 		std::shared_ptr<Buffer> data() const;
 		
 	private:
 		
-		/***************************************************************************************
-		     Private
-		 ***************************************************************************************/
+/*********************************************************************************************
+     Private
+ *********************************************************************************************/
 		
 		//void loadFile(const boost::filesystem::path& path, bool flipHorizontal);
-		void loadBuffer(Buffer& buffer, bool flipHorizontal);
-		void flipHorizontal();
+		void loadBuffer(Buffer& buffer, bool flipVertical);
+		void flipVertical(); // "flip"
+		void flipHorizontal(); // "mirror"
 		
-		unsigned						m_width;
-		unsigned						m_height;
-		unsigned 						m_bytesPerPixel;
+		unsigned					m_width;
+		unsigned					m_height;
+		unsigned					m_bytesPerPixel;
 		std::shared_ptr<Buffer>		m_data;
 	};
 }

@@ -65,15 +65,15 @@ using namespace glm;
 using namespace std;
 
 
-/***************************************************************************************
+/*********************************************************************************************
  Private Static Prototypes
- ***************************************************************************************/
+ *********************************************************************************************/
 
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
-/***************************************************************************************
+/*********************************************************************************************
  	Output Utilities
- ***************************************************************************************/
+ *********************************************************************************************/
 
 ostream& ae::utils::operator<<(ostream& os, const glm::vec3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
@@ -198,9 +198,9 @@ string ae::utils::StackTrace(unsigned dropFunctions) {
 }
 #endif
 
-/***************************************************************************************
+/*********************************************************************************************
  	Numeric Utilities
- ***************************************************************************************/
+ *********************************************************************************************/
 
 int ae::utils::Uniform(int min, int max) {
 	static random_device rd;
@@ -243,9 +243,9 @@ bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
 	&& Equal(a.w, b.w, tolerance);
 }
 
-/**************************************************************************************
+/*********************************************************************************************
      String Utilities
- **************************************************************************************/
+ *********************************************************************************************/
 
 void ae::utils::StringReplace(string& str,
 							  const string& oldStr,
@@ -257,9 +257,9 @@ void ae::utils::StringReplace(string& str,
 	}
 }
 
-/***************************************************************************************
+/*********************************************************************************************
  	File Utilities
- ***************************************************************************************/
+ *********************************************************************************************/
 
 // *** executable and working directories ***
 
@@ -552,12 +552,17 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name) {
 shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 												const string& type) {
 	
-	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, false),
-								  ImageNamed(name + "_negx", type, false),
-								  ImageNamed(name + "_posy", type, false),
-								  ImageNamed(name + "_negy", type, false),
-								  ImageNamed(name + "_posz", type, false),
-								  ImageNamed(name + "_negz", type, false));
+	// NOTE: to get cubes created with Gear 360 + https://jaxry.github.io/panorama-to-cubemap/
+	// to work properly (not horizontally flipped) you have to horizontally flip each image,
+	// then swap pos x and neg x
+	
+	constexpr bool V_FLIP = false;
+	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, V_FLIP),
+								  ImageNamed(name + "_negx", type, V_FLIP),
+								  ImageNamed(name + "_posy", type, V_FLIP),
+								  ImageNamed(name + "_negy", type, V_FLIP),
+								  ImageNamed(name + "_posz", type, V_FLIP),
+								  ImageNamed(name + "_negz", type, V_FLIP));
 }
 
 // *** scenes ***
@@ -580,9 +585,9 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 }
 #endif
 
-/***************************************************************************************
+/*********************************************************************************************
  	Misc Utilities
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void ae::utils::SaveSnapshot(RenderContext& context) {
 #ifdef ANDROID
@@ -634,9 +639,9 @@ void ae::utils::StopGIFRecording(RenderContext& context) {
 #endif
 }
 
-/***************************************************************************************
+/*********************************************************************************************
  Private Static
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 	

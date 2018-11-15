@@ -11,9 +11,21 @@ TODO:
 
 30 - rigidbody
 
+	
+	Use linux-fb-capture style build for tests
+	
+	Shader doesn't compile -> throw
+	Uniform not found? Error.
+	macOS app bundles? see GLFW
+	glfwDestroyWindow
 
+
+		
+	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+		
 	Windows and Android stacktraces
-
+		https://stackoverflow.com/questions/7841232/java-android-how-to-print-out-a-full-stack-trace
+		StackTraceElement trace = new Exception().getStackTrace();
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -27,8 +39,6 @@ TODO:
 
 	Forces & torques -- check all other Body & Shape methods
 		PHYSICS_BODY_DIRTY_BITS::FORCES & TORQUES should be singular .. accumulate forces & torques into single vector
-
-	Fix margins + add to PhysicsBody/Shape
 
 	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 
@@ -111,6 +121,13 @@ TODO:
 	SCNPhysicsConeTwistJoint
 	SCNPhysicsSliderJoint
 	SCNPhysicsVehicle
+	
+	
+	
+- Vulkan / 3D API abstraction? -
+	https://github.com/bkaradzic/bgfx
+	
+	
 
 40 - animation
 	http://guillaumeblanc.github.io/ozz-animation/
@@ -125,6 +142,7 @@ TODO:
 	http://www.swig.org/
 
 80 - audio
+	OpenAL software? https://github.com/kcat/openal-soft
 
 90 - network
 	"Entity"
@@ -176,8 +194,12 @@ Laundry list:
 		http://newandroidbook.com/Book/Input.html?r
 
 	Mesh decimation/simplification/reduction
-	http://www.openmesh.org/Daily-Builds/Doc/index.html
-	http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
+		http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html?m=1
+		http://www.openmesh.org/Daily-Builds/Doc/index.html
+		http://kmamou.blogspot.com/2015/06/a-simple-c-class-for-3d-mesh-decimation.html
+		https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
+		https://www.gamedev.net/forums/topic/656486-high-speed-quadric-mesh-simplification-without-problems-resolved/
+		https://www.gamedev.net/forums/topic/691729-mesh-simplification-algorithm/
 
 	INFINATE FLAT GROUND (SCNFloor)
 		http://www.terathon.com/gdc07_lengyel.pdf
@@ -250,6 +272,11 @@ Wish list:
 	Geometry subdivision
 	3D text
 	Custom GUI lib
+	Underwater/buoyancy
+		https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=8307
+		https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=5234&p=18941
+		https://github.com/Smeat/Bullet-Physics/blob/master/Demos/HeightFieldFluidDemo/BulletHfFluid/btHfFluidRigidCollisionAlgorithm.cpp
+		http://www.vivekc.com/portfolio/bullet-underwater-dynamics/
 
 
 BUGS:

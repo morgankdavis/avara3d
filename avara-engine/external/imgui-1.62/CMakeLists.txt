@@ -11,8 +11,13 @@ include_directories(include)
 
 
 # is there a better way to do this..?
+#if (NOT ANDROID)
+#	include_directories(../glfw-3.2.1/include)
+#	include_directories(glew-2.1.0/include)
+#endif()
+
 if (NOT ANDROID)
-	include_directories(../glfw-3.2.1/include)
+	include_directories(../glfw-3.3b-mojave-fix/include)
 	include_directories(glew-2.1.0/include)
 endif()
 

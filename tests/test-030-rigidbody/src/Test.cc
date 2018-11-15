@@ -27,7 +27,7 @@ constexpr bool					USE_HIGH_DPI =			true;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_8X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		true;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
@@ -61,7 +61,7 @@ int Test::run(const vector<string>& args) {
 	m_window = make_shared<Window>(FULLSCREEN,
 								   WINDOW_WIDTH, WINDOW_HEIGHT,
 								   USE_HIGH_DPI,
-								   ANTIALIAS_MODE,
+								   MSAA_MODE,
 								   RENDER_API::OPENGL);
 	m_window->updateCallback(bind(&Test::updateCallback, this, _1, _2));
 	m_window->didSimulatePhysicsCallback(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
@@ -117,7 +117,20 @@ int Test::run(const vector<string>& args) {
 	planeNode->physicsBody(planePhysicsBody);
 	
 	scene->rootNode()->addChild(planeNode);
-
+	
+	
+	
+	// add dick statue
+	
+	m_dickNode = SceneNamed("dick_statue", "obj")->rootNode();
+	m_dickNode->position({0, 0, 0});
+//	float DICK_SCALE = 0.075;
+//	m_dickNode->scale({DICK_SCALE, DICK_SCALE, DICK_SCALE});
+	m_dickNode->rotation({0, 1, 0, radians(45.0)});
+	m_dickNode->physicsBody(PhysicsBody::StaticBody());
+	scene->rootNode()->addChild(m_dickNode);
+	
+	
 	
 	// add the duck
 	
@@ -159,7 +172,8 @@ int Test::run(const vector<string>& args) {
 	AddSlurms(*scene);
 	
 
-	auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
+	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
+	auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
 	scene->background(background);
 
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));

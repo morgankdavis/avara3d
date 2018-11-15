@@ -35,17 +35,17 @@ using namespace std;
 using namespace ae;
 
 
-/**************************************************************************************
+/*********************************************************************************************
      Static Prototypes
- **************************************************************************************/
+ *********************************************************************************************/
 
 static bool InitializeGLFW();
 static bool InitializeGLEW();
 static float ScreenScaleFactor(GLFWmonitor* monitor);
 
-/***************************************************************************************
+/*********************************************************************************************
      Lifescycle
- ***************************************************************************************/
+ *********************************************************************************************/
 
 Window::Window(bool fullScreen,
 			   unsigned width, unsigned height,
@@ -63,7 +63,12 @@ Window::Window(bool fullScreen,
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
+        
+		
+#warning THIS
+//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
+        
 		int viewportWidth = width;
 		int viewportHeight = height;
 
@@ -73,7 +78,6 @@ Window::Window(bool fullScreen,
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			m_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-			//i_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 			
@@ -84,7 +88,6 @@ Window::Window(bool fullScreen,
 			
 			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-			//scaleFactor = GetScreenScaleFactor(glfwGetWindowMonitor(i_glfwWindow));
 			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
 
@@ -104,7 +107,7 @@ Window::Window(bool fullScreen,
 		m_width = viewportWidth;
 		m_height = viewportHeight;
 
-		m_framebufferScale = (enableHighDPI ? scaleFactor : 1.0);
+		m_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //m_framebufferScale = 1;
 		m_framebufferWidth = m_width * m_framebufferScale;
 		m_framebufferHeight = m_height * m_framebufferScale;
 }
@@ -115,9 +118,9 @@ Window::~Window() {
 	glfwTerminate();
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      Public
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void Window::display() {
 	AE_LOG_I("Window::display()");
@@ -128,6 +131,8 @@ void Window::display() {
 		glfwSetWindowSizeCallback(m_glfwWindow, Window::glfwWindowSizeCallback);
 		glfwSetFramebufferSizeCallback(m_glfwWindow, Window::glfwFramebufferSizeCallback);
 		
+        captureCursor(cursorCaptured()); // needs to be set after windows is made current
+        
 		while (!glfwWindowShouldClose(m_glfwWindow)) {
 			update();
 		}
@@ -152,29 +157,23 @@ void Window::setShouldClose() {
 	glfwSetWindowShouldClose(m_glfwWindow, true);
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      Internal
- ***************************************************************************************/
+ *********************************************************************************************/
 
 GLFWwindow* Window::glfwWindow() const {
 	return m_glfwWindow;
 }
 
-/**************************************************************************************
+/*********************************************************************************************
      RenderContext
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void Window::update() {
 	RenderContext::update();
-	
-	AE_LOG_T("-------------------------------------------------------------------------------");\
-	
-//#warning move to saveGIFFrame()
-//	float time = sceneTime();
-//	static float previousSeconds = time;
-//	float deltaSeconds = time - previousSeconds;
-//	previousSeconds = time;
-	
+
+	AE_LOG_T("-------------------------------------------------------------------------------");
+
 	if (updateCallback()) {
 		(updateCallback())(*this, sceneTime());
 	}
@@ -242,9 +241,9 @@ float Window::sceneTime() const {
 	return glfwGetTime();
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      GLFW Callbacks
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
 	AE_LOG_T("glfwWindowSizeCallback()");
@@ -268,9 +267,9 @@ void Window::glfwErrorCallback(int error, const char* description) {
 	AE_LOG_E("glfwErrorCallback(): error: {}, description: {}", error, description);
 }
 
-/**************************************************************************************
+/*********************************************************************************************
      Static
- **************************************************************************************/
+ *********************************************************************************************/
 
 static bool InitializeGLFW() {
 	

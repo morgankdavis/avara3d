@@ -26,12 +26,12 @@ using namespace ae::utils;
 using namespace std;
 
 
-/***************************************************************************************
+/*********************************************************************************************
      Lifecycle
- ***************************************************************************************/
+ *********************************************************************************************/
 
 #ifndef ANDROID
-Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
+Image::Image(const boost::filesystem::path& path, bool flipVertical):
 	m_data(nullptr),
 	m_width(0),
 	m_height(0),
@@ -39,17 +39,17 @@ Image::Image(const boost::filesystem::path& path, bool flipHorizontal):
 	
 		//auto data = BinaryFile(path);
 		auto buffer = Buffer(path);
-		loadBuffer(buffer, flipHorizontal);
+		loadBuffer(buffer, flipVertical);
 }
 #endif
 
-Image::Image(std::shared_ptr<Buffer> buffer, bool flipHorizontal):
+Image::Image(std::shared_ptr<Buffer> buffer, bool flipVertical):
 	m_data(nullptr),
 	m_width(0),
 	m_height(0),
 	m_bytesPerPixel(0) {
 		
-		loadBuffer(*buffer, flipHorizontal);
+		loadBuffer(*buffer, flipVertical);
 }
 
 Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
@@ -60,7 +60,7 @@ Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
 	m_bytesPerPixel(bytesPerPixel) {
 
 	if (flip) {
-		flipHorizontal();
+		flipVertical();
 	}
 }
 
@@ -72,9 +72,9 @@ Image::~Image() {
 //	}
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      Public
- ***************************************************************************************/
+ *********************************************************************************************/
 
 unsigned Image::width() const {
 	return m_width;
@@ -94,17 +94,17 @@ bool Image::writePNG(boost::filesystem::path path) const {
 						   m_bytesPerPixel, m_data->pointer(), m_width*m_bytesPerPixel);
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      Internal
- ***************************************************************************************/
+ *********************************************************************************************/
 
 shared_ptr<Buffer> Image::data() const {
 	return m_data;
 }
 
-/***************************************************************************************
+/*********************************************************************************************
      Private
- ***************************************************************************************/
+ *********************************************************************************************/
 
 void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	
@@ -137,12 +137,12 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	m_bytesPerPixel = bytesPerPixel;
 
 	if (flip) {
-		flipHorizontal();
+		flipVertical();
 	}
 }
 
-void Image::flipHorizontal() {
-	// this is not needed for cube maps (?)
+void Image::flipVertical() { // "flip"
+
 	int widthInBytes = m_width * m_bytesPerPixel;
 	unsigned char* top = NULL;
 	unsigned char* bottom = NULL;
@@ -160,3 +160,37 @@ void Image::flipHorizontal() {
 		}
 	}
 }
+
+void Image::flipHorizontal() { // "mirror"
+	// this is not needed for cube maps (?)
+//	int widthInBytes = m_width * m_bytesPerPixel;
+//	unsigned char* top = NULL;
+//	unsigned char* bottom = NULL;
+//	unsigned char temp = 0;
+//	int halfHeight = m_height / 2;
+//	for (int row = 0; row < halfHeight; ++row) {
+//		top = m_data->pointer() + row * widthInBytes;
+//		bottom = m_data->pointer() + (m_height - row - 1) * widthInBytes;
+//		for (int col = 0; col < widthInBytes; col++) {
+//			temp = *top;
+//			*top = *bottom;
+//			*bottom = temp;
+//			++top;
+//			++bottom;
+//		}
+//	}
+}
+
+//const int width = 100;
+//const int height = width;
+//const int components = 3;
+//unsigned char pixels[width * height * components];
+//glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+//unsigned char flipPixels[width * height * components];
+//for (int i = 0; i < width; ++i) {
+//	for (int j = 0; j < height; ++j) {
+//		for (int k = 0; k < components; ++k) {
+//			flipPixels[i + j * width + k] = pixels[(height) * (width) - ((j+1) * width) + i + k];
+//		}
+//	}
+//}

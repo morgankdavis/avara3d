@@ -11,12 +11,20 @@ else()
 
 	# GLFW
 	
+#	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+#	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+#	add_subdirectory(external/glfw-3.2.1)
+#	if (WINDOWS) # donno
+#		include_directories(external/glfw-3.2.1/include)
+#	endif()
+
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(external/glfw-3.2.1)
+	add_subdirectory(external/glfw-3.3b-mojave-fix)
 	if (WINDOWS) # donno
-		include_directories(external/glfw-3.2.1/include)
+		include_directories(external/glfw-3.3b-mojave-fix/include)
 	endif()
 	
 	# GLEW
@@ -135,7 +143,7 @@ if (MACOS)
 	target_link_libraries(ae ${FRAMEWORKS})
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
-	
+
 elseif (LINUX)
 	
 	target_link_libraries(ae
