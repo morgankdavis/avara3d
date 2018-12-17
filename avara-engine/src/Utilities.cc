@@ -300,9 +300,9 @@ boost::optional<boost::filesystem::path> ae::utils::ExecutableName() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
 		auto execPath = boost::filesystem::path(*execPathStr);
-		if (is_regular_file(execPath)) {
+		//if (is_regular_file(execPath)) {
 			return execPath.filename();
-		}
+		//}
 	}
 	return boost::none;
 }
