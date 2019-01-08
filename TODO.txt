@@ -11,8 +11,13 @@ TODO:
 
 30 - rigidbody
 
+	Combine GLM namespace with AE source? Clone?
+		ae.h should #include all mandatory externals?
 	
 	Use linux-fb-capture style build for tests
+	
+	FIX LINUX CRASHES (?)
+	FIX WINDOWS LINKING
 	
 	Shader doesn't compile -> throw
 	Uniform not found? Error.
@@ -43,6 +48,13 @@ TODO:
 	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 
 	Add physics stats
+	
+	DYNAMIC LINKING??
+		rpath
+			https://stackoverflow.com/questions/30430155/cmake-is-it-possible-to-link-executable-to-shared-library-with-relative-path-a
+			https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
+		output lib naming
+			https://stackoverflow.com/questions/49672264/cmake-add-d-suffix-for-debug-build-of-static-library
 
 	
 
