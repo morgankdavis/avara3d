@@ -1,9 +1,0 @@
-{
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
-    "editor.fontSize": 12,
-    "editor.fontFamily": "'Menlo Regular',  'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
-    "editor.scrollBeyondLastLine": false,
-    "editor.minimap.enabled": false,
-    "workbench.editor.showTabs": false,
-    "editor.folding": false
-}

@@ -120,15 +120,15 @@ int Test::run(const vector<string>& args) {
 	
 	
 	
-	// add dick statue
-	
-	m_dickNode = SceneNamed("dick_statue", "obj")->rootNode();
-	m_dickNode->position({0, 0, 0});
-//	float DICK_SCALE = 0.075;
-//	m_dickNode->scale({DICK_SCALE, DICK_SCALE, DICK_SCALE});
-	m_dickNode->rotation({0, 1, 0, radians(45.0)});
-	m_dickNode->physicsBody(PhysicsBody::StaticBody());
-	scene->rootNode()->addChild(m_dickNode);
+//	// add dick statue
+//
+//	m_dickNode = SceneNamed("dick_statue", "obj")->rootNode();
+//	m_dickNode->position({0, 0, 0});
+////	float DICK_SCALE = 0.075;
+////	m_dickNode->scale({DICK_SCALE, DICK_SCALE, DICK_SCALE});
+//	m_dickNode->rotation({0, 1, 0, radians(45.0)});
+//	m_dickNode->physicsBody(PhysicsBody::StaticBody());
+//	scene->rootNode()->addChild(m_dickNode);
 	
 	
 	
