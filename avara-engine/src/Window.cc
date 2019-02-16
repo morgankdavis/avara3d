@@ -84,7 +84,7 @@ Window::Window(bool fullScreen,
 			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
-			m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", NULL, NULL);
+			m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
 			
 			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)

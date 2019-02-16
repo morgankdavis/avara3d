@@ -12,11 +12,13 @@ TODO:
 30 - rigidbody
 
 	Combine GLM namespace with AE source? Clone?
-		ae.h should #include all mandatory externals?
-	
-	Use linux-fb-capture style build for tests
-	
-	FIX LINUX CRASHES (?)
+    ae.h should #include all mandatory externals?
+
+    move avara-engine/avara-engine/* to avara-engine/
+    Use linux-fb-capture style build for tests
+
+    ae add "verbose" log level between "trace" and "debug"
+
 	FIX WINDOWS LINKING
 	
 	Shader doesn't compile -> throw
