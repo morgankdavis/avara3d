@@ -11,29 +11,8 @@ TODO:
 
 30 - rigidbody
 
-	Combine GLM namespace with AE source? Clone?
-    ae.h should #include all mandatory externals?
-
-    move avara-engine/avara-engine/* to avara-engine/
-    Use linux-fb-capture style build for tests
-
-    ae add "verbose" log level between "trace" and "debug"
-
 	FIX WINDOWS LINKING
 	
-	Shader doesn't compile -> throw
-	Uniform not found? Error.
-	macOS app bundles? see GLFW
-	glfwDestroyWindow
-
-
-		
-	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-		
-	Windows and Android stacktraces
-		https://stackoverflow.com/questions/7841232/java-android-how-to-print-out-a-full-stack-trace
-		StackTraceElement trace = new Exception().getStackTrace();
-
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
 	Fix margins + add to PhysicsBody/Shape
@@ -49,39 +28,42 @@ TODO:
 
 	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 
-	Add physics stats
-	
-	DYNAMIC LINKING??
-		rpath
-			https://stackoverflow.com/questions/30430155/cmake-is-it-possible-to-link-executable-to-shared-library-with-relative-path-a
-			https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
-		output lib naming
-			https://stackoverflow.com/questions/49672264/cmake-add-d-suffix-for-debug-build-of-static-library
-
-	
+	Add physics stats	
 
 	------ Other things (non-physics) ------
 
+	Combine GLM namespace with AE source? Clone?
+	ae.h should #include all mandatory externals?
+
+	move avara-engine/avara-engine/* to avara-engine/
+		Combine android assets in bulk
+	Use linux-fb-capture style build for tests
+
+	Shader doesn't compile -> throw
+	Uniform not found? Error.
+	glfwDestroyWindow
+		
+	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+		
+	Windows and Android stacktraces
+		https://stackoverflow.com/questions/7841232/java-android-how-to-print-out-a-full-stack-trace
+		StackTraceElement trace = new Exception().getStackTrace();
+
 	Switch AABB to min, max vec3s
-	Add Geometry::extent() / extent(bool recursive)
+	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
 	Debug Scene/Geometry extent/default camera placement -- import cameras?
 
-
-	GLFW wrapper? https://github.com/giorgiomarcias/glfwm
-	
-	Relink android data in bulk
 	Fix android assimp
 	Create android tests shells for all tests, link to proper test classes, modularize ae??
 	Android Imgui: https://github.com/ocornut/imgui/issues/1200
 	
 	Imgui -> glfwErrorCallback() ? error: 65537, description: The GLFW library is not initialized
 
-
 	* Why are textures empty on first frame? *
 		PROGRAM NOT READY??
 		-> pause main thread for a while in android (ex. rotating log output) and see that not all shaders are loaded
 	
-	Throw if setting Image as background property
+	Image as background property? - Quad class?
 
 	Switch all GLM setters to static references
 
@@ -94,29 +76,16 @@ TODO:
 		+ add default detail levels for geometry primitives (+ box & plane!)
 			Add "GeometryPrimitive" superclass + factor vertex data creation
 			-> INITIALIZERS for other tests use defaults
-		+ Add disk shape
+		+ Add Disk primitive
 	
-	Create a generalized caching interface for creating new geometries?
-		Load a scene THROUGH the interface -- it keeps the loaded data cached inside, and returns 
-		nodes that have referenced to all the cached stuff.
-		Interface to invalidate some/all contents
-
-	test30 -- set a limit on max dynamic objects? Add to PhysicsWorld?
-		
+	Switch test to use instancing (load thing.obj, re-use its geometry on diff nodes
+	
 	AssetManager/FileManager with static functions for getting file assets?
 	FileUtilities, OutputUtilities, NumericUtilities, etc?
+		Platform heirarchy?
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
 	Rename StringFromXXXYYY -> String(XXXYYY)
-
-	Integrate gtest
-		import-scenegraph
-		fileutils
-		...
-		(unit test specific things. demos can stay separate)
-		+ Rename "tests" to "demos" and clean up name consistency
-
-
 
 31 - contact
 	Kinematic objects:
@@ -135,40 +104,63 @@ TODO:
 	SCNPhysicsConeTwistJoint
 	SCNPhysicsSliderJoint
 	SCNPhysicsVehicle
-	
-	
-	
-- Vulkan / 3D API abstraction? -
-	https://github.com/bkaradzic/bgfx
-	
-	
+
+[automated testing]
+	Integrate test framework
+		import-scenegraph
+		fileutils
+		...
+		(unit test specific things. demos can stay separate)
+		+ Rename "tests" to "demos" and clean up name consistency
 
 40 - animation
 	http://guillaumeblanc.github.io/ozz-animation/
 	TargetNode / AnimationTarget, etc
 
-50 - multithreading
+50 - multithreading, vulkan, more lights + shadows
 	https://github.com/giorgiomarcias/MPMCThreadPool
 
-60 - GUI
+60 - audio
+	OpenAL software? https://github.com/kcat/openal-soft
+
+70 - GUI
+
+80 - network
 
 70 - scripting
 	http://www.swig.org/
 
 80 - audio
-	OpenAL software? https://github.com/kcat/openal-soft
 
-90 - network
-	"Entity"
+90 - scene file format
+	
+100 - network
+	"Entity"/"NetworkEntity?"
 
-100 - particle systems
+110 - script binding
+
+120 - app framework, world editor
+
+130 - lessons
+
+140 - installers/deployment
+	.app, win installer, .deb, ChromeOS?
+
+150 - web site (django?)
+	marketing
+	sales processor
+	customer & slaes database
+	telemetry
+	quick prototyping framework
+
+160 - telemetry, licensing mechanism
+
+
+
+
+# - particle systems
 	https://sourceforge.net/projects/sparkengine/
-
-110 - vulkan + deferred shading
-
-130 - world editor
-
-160 - localization
+# - localization
 
 	
 ——————————————————————————————————
@@ -247,7 +239,6 @@ Laundry list:
 
 	Compressed textures + texture scaling (low, medium, high, highest)
 
-	Vertex lighting?
 	Normal mapping
 	Shadows
 	SSAA
@@ -282,7 +273,7 @@ Laundry list:
 
 
 Wish list:
-    Camera lookAt constraint
+    Constraints - lookAt 
 	Geometry subdivision
 	3D text
 	Custom GUI lib
