@@ -12,6 +12,8 @@ TODO:
 30 - rigidbody
 
 	FIX WINDOWS LINKING
+
+	GLFW 3.3 raw mouse!
 	
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
