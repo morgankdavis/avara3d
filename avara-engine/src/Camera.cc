@@ -58,7 +58,7 @@ void Camera::rotate(vec3 rotation) {
 }
 
 float Camera::fov() {
-	return m_fov;	
+	return m_fov;
 }
 
 void Camera::fov(float fov) {

@@ -43,7 +43,7 @@ Buffer::Buffer(const unsigned char* buf, std::size_t size):
 }
 
 Buffer::Buffer(const vector<unsigned char>& buf):
-	Buffer(&buf[0], buf.size()) {
+		Buffer(&buf[0], buf.size()) {
 }
 
 Buffer::Buffer(const Buffer& other) { // copy constructor
