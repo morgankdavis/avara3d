@@ -56,23 +56,26 @@ namespace ae {
      GLFW Callbacks
  *********************************************************************************************/
 		
-		static void glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
-		static void glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
-		static void glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
-		static void glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods);
-
+		static void GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int button, int action, int mods);
+		static void GLFWCursorPositionCallback(GLFWwindow *glfwWindow, double xPos, double yPos);
+		static void GLFWScrollWheelCallback(GLFWwindow *glfwWindow, double xOffset, double yOffset);
+		static void GLFWKeyCallback(GLFWwindow *glfwWindow, int key, int scancode, int action, int mods);
+		static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+		
 	private:
 
 /*********************************************************************************************
     		Private
  *********************************************************************************************/
 
+		void initMouseMotionInput();
 		void initManyMouse();
 		void quitManyMouse();
 		void registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
 		std::weak_ptr<Window>			m_window;
+		bool							m_usingManyMouse;
 	};
 }
 

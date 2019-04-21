@@ -15,9 +15,9 @@ else()
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	add_subdirectory(external/glfw-3.3)
-	if (WINDOWS) # donno
+	#if (WINDOWS) # donno
 		include_directories(external/glfw-3.3/include)
-	endif()
+	#endif()
 	
 	# GLEW
 	

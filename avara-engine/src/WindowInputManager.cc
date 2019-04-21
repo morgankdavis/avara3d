@@ -26,6 +26,7 @@ using namespace std;
 using namespace glm;
 
 
+// TODO: get rid of these/make non constant
 constexpr bool	FLIP_MOUSE_VERTICAL =		true;
 constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
@@ -39,7 +40,7 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	m_window(window) {
 
 		registerGLFWCallbacks(window->glfwWindow());
-		initManyMouse();
+		initMouseMotionInput();
 }
 
 WindowInputManager::~WindowInputManager() {
@@ -55,39 +56,39 @@ WindowInputManager::~WindowInputManager() {
  *********************************************************************************************/
 
 void WindowInputManager::update() {
-	
-	static ManyMouseEvent event;
-	
-	while (ManyMouse_PollEvent(&event)) {
-		switch(event.type) {
-				
-			case MANYMOUSE_EVENT_RELMOTION:
 
-				if (event.item == 0) {
-					m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
-				}
-				else {
-					m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
-				}
-				break;
+	if (m_usingManyMouse) {
+		static ManyMouseEvent event;
 
-			case MANYMOUSE_EVENT_SCROLL:
-				if (event.item == 0) {
-					m_mouseScrollWheelDelta.y += event.value;
-				}
-				else {
-					m_mouseScrollWheelDelta.x += event.value;
-				}
-				break;
+		while (ManyMouse_PollEvent(&event)) {
+			switch (event.type) {
 
-			case MANYMOUSE_EVENT_DISCONNECT:
-				AE_LOG_W("Mouse {} disconnected.", event.device);
-				break;
+				case MANYMOUSE_EVENT_RELMOTION:
 
-			case MANYMOUSE_EVENT_ABSMOTION:
-			case MANYMOUSE_EVENT_BUTTON:
-			case MANYMOUSE_EVENT_MAX:
-				break;
+					if (event.item == 0) {
+						m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+					} else {
+						m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+					}
+					break;
+
+				case MANYMOUSE_EVENT_SCROLL:
+					if (event.item == 0) {
+						m_mouseScrollWheelDelta.y += event.value;
+					} else {
+						m_mouseScrollWheelDelta.x += event.value;
+					}
+					break;
+
+				case MANYMOUSE_EVENT_DISCONNECT:
+					AE_LOG_W("Mouse {} disconnected.", event.device);
+					break;
+
+				case MANYMOUSE_EVENT_ABSMOTION:
+				case MANYMOUSE_EVENT_BUTTON:
+				case MANYMOUSE_EVENT_MAX:
+					break;
+			}
 		}
 	}
 }
@@ -96,10 +97,9 @@ void WindowInputManager::update() {
      GLFW Callbacks
  *********************************************************************************************/
 
-void WindowInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
+void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int button, int action, int mods) {
 
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	auto inputManager = static_pointer_cast<WindowInputManager>(window->inputManager());
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
 	auto aeButton = static_cast<MOUSE_BUTTON>(button);
 	
@@ -118,19 +118,38 @@ void WindowInputManager::glfwMouseButtonCallback(GLFWwindow* glfwWindow, int but
 	}
 }
 
-void WindowInputManager::glfwCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
+void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow *glfwWindow, double xPos, double yPos) {
 	// ignoring in favor of ManyMouse
+
+	//AE_LOG_D("GLFWCursorPositionCallback(): ({}, {})", xPos, yPos);
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	static double lastXPos = xPos;
+	static double lastYPos = yPos;
+
+	double xDelta = lastXPos - xPos;
+	double yDelta = lastYPos - yPos;
+
+	//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
+
+	inputManager->m_mousePositionDelta.x -= xDelta;
+	inputManager->m_mousePositionDelta.y += yDelta;
+
+	lastXPos = xPos;
+	lastYPos = yPos;
 }
 
-void WindowInputManager::glfwScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
+void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow *glfwWindow, double xOffset, double yOffset) {
 	// ignoring in favor of ManyMouse
+
+	// TODO: use GLFW if using GLFW for raw mouse
 }
 
-void WindowInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
-	//cout << "glfwKeyCallback()" << endl;
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	auto inputManager = static_pointer_cast<WindowInputManager>(window->inputManager());
+void WindowInputManager::GLFWKeyCallback(GLFWwindow *glfwWindow, int key, int scancode, int action, int mods) {
+	//cout << "GLFWKeyCallback()" << endl;
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
 	if (action == GLFW_PRESS) {
 		inputManager->m_keysDown.insert(static_cast<KEY>(key));
@@ -147,11 +166,34 @@ void WindowInputManager::glfwKeyCallback(GLFWwindow* glfwWindow, int key, int sc
 	}
 }
 
+shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	return static_pointer_cast<WindowInputManager>(window->inputManager());
+}
+
 /*********************************************************************************************
      Private
  *********************************************************************************************/
 
+void WindowInputManager::initMouseMotionInput() {
+
+	if (glfwRawMouseMotionSupported()) {
+		AE_LOG_I("Using GLFW raw mouse input.");
+		glfwSetInputMode(m_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		glfwSetCursorPosCallback(m_window.lock()->glfwWindow(), WindowInputManager::GLFWCursorPositionCallback);
+		m_usingManyMouse = false;
+	}
+	else {
+		AE_LOG_E("GLFW raw mouse input unavailable. Using ManyMouse raw mouse input.");
+		initManyMouse();
+		m_usingManyMouse = true;
+	}
+}
+
 void WindowInputManager::initManyMouse() {
+
+	// TODO: must be changed to support multiple windows
 	int availableMice = ManyMouse_Init();
 	
 	if (availableMice < 0) {
@@ -173,16 +215,21 @@ void WindowInputManager::quitManyMouse() {
 }
 
 void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
-	glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::glfwMouseButtonCallback);
-	glfwSetKeyCallback(glfwWindow, WindowInputManager::glfwKeyCallback);
+	glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::GLFWMouseButtonCallback);
+	glfwSetKeyCallback(glfwWindow, WindowInputManager::GLFWKeyCallback);
+
+	// TODO: probably re-factor key callback creation code
 }
 
 void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
-
+	
 	glfwSetMouseButtonCallback(glfwWindow, NULL);
 	glfwSetCursorPosCallback(glfwWindow, NULL);
 	glfwSetScrollCallback(glfwWindow, NULL);
 	glfwSetKeyCallback(glfwWindow, NULL);
+
+	// TODO: refactor
+	glfwSetCursorPosCallback(glfwWindow, NULL);
 }
 
 #endif // DESKTOP

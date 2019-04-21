@@ -94,8 +94,9 @@ set<MOUSE_BUTTON> InputManager::mouseButtonsPressed() {
 
 vec2 InputManager::mousePositionDelta() {
 //	if (m_mousePositionDelta.x != 0 && m_mousePositionDelta.y != 0) {
-//		cout << "DELTA: " << m_mousePositionDelta.x << ", " << m_mousePositionDelta.y << endl;
+//		AE_LOG_D("MOUSE DELTA: ({}, {})", m_mousePositionDelta.x, m_mousePositionDelta.y);
 //	}
+
 	auto mouseMoveDeltaCopy = m_mousePositionDelta;
 	clearMousePositionDelta();
 	return mouseMoveDeltaCopy;

@@ -114,7 +114,9 @@ Window::Window(bool fullScreen,
 
 Window::~Window() {
 	AE_LOG_D("Destroying Window {:p}", (void*)this);
-	
+
+	// TODO: must move to support multiple windows
+	glfwSetErrorCallback(NULL);
 	glfwTerminate();
 }
 
@@ -280,7 +282,8 @@ static bool InitializeGLFW() {
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		AE_LOG_I("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
-		
+
+		// TODO: must move to support multiple windows
 		glfwSetErrorCallback(Window::glfwErrorCallback);
 		
 		if (glfwInit()) {
