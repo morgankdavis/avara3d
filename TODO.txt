@@ -15,10 +15,8 @@ TODO:
 
 	GLFW 3.3 raw mouse!
 	    Test everywhere -- can we get rid of manymouse?
-
-    GLFW path drop for loading test files!
-	GLFW clipboard?
-	Extrude & render text?
+	    
+	Update GLM, bullet, etc
 	
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -38,6 +36,10 @@ TODO:
 	Add physics stats	
 
 	------ Other things (non-physics) ------
+	
+	GLFW path drop for loading test files!
+	GLFW clipboard?
+	Extrude & render text?
 
 	Combine GLM namespace with AE source? Clone?
 	ae.h should #include all mandatory externals?
