@@ -16,6 +16,19 @@ TODO:
 	GLFW 3.3 raw mouse!
 	    Test everywhere -- can we get rid of manymouse?
 	    
+	Fix jenkins github
+	Jenkins llvm for Linux
+	Fix windows linking
+	Test GLFW raw input
+	Use C++17/get rid of boost?
+		https://blog.knatten.org/2018/04/06/trying-out-c17-on-macos/
+		export CC=/usr/local/opt/llvm/bin/clang
+		export CXX=/usr/local/opt/llvm/bin/clang++
+		export PATH="/usr/local/opt/llvm/bin
+		LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+		export LDFLAGS="-L/usr/local/opt/llvm/lib"
+		export CPPFLAGS="-I/usr/local/opt/llvm/include"
+	    
 	Update GLM, bullet, etc
 	
 	Convex hulls for statics should always use btBvhTriangleMeshShape
