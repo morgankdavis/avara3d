@@ -79,7 +79,7 @@ const vector<shared_ptr<Material>>& Geometry::materials() {
 }
 
 shared_ptr<Material> Geometry::firstMaterial() const {
-	if (m_materials.size() > 0) {
+	if (!m_materials.empty()) {
 		return m_materials[0];
 	}
 	return nullptr;
@@ -89,7 +89,7 @@ shared_ptr<Material> Geometry::materialNamed(const string& name) const {
 	for (auto material : m_materials) {
 		auto matName = material->name();
 		if (matName) {
-			if (!(*matName).compare(name)) {
+			if (!((*matName) == name)) {
 				return material;
 			}
 		}

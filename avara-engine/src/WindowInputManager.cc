@@ -67,7 +67,8 @@ void WindowInputManager::update() {
 
 					if (event.item == 0) {
 						m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
-					} else {
+					}
+					else {
 						m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 					}
 					break;
@@ -75,7 +76,8 @@ void WindowInputManager::update() {
 				case MANYMOUSE_EVENT_SCROLL:
 					if (event.item == 0) {
 						m_mouseScrollWheelDelta.y += event.value;
-					} else {
+					}
+					else {
 						m_mouseScrollWheelDelta.x += event.value;
 					}
 					break;

@@ -318,9 +318,9 @@ static bool InitializeGLEW() {
 		
 		GLint numExtensions;
 		glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-		AE_LOG_I("Extensions:\n");
+		AE_LOG_I("Extensions:");
 		for (GLint e=0 ; e<numExtensions ; ++e) {
-			AE_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
+			AE_LOG_I("\t{}", glGetStringi(GL_EXTENSIONS, e));
 		}
 		
 		initialized = true;

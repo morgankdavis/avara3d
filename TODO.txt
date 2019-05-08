@@ -12,9 +12,24 @@ TODO:
 30 - rigidbody
 
 	FIX WINDOWS LINKING
+	Put build in containing folder
 
 	GLFW 3.3 raw mouse!
 	    Test everywhere -- can we get rid of manymouse?
+
+	Geometry, etc implement a clone() convention.  Ex. loading boxes in test030
+	Rename m_ to _
+	    Rules:
+	        [https://stackoverflow.com/questions/228783/what-are-the-rules-about-using-an-underscore-in-a-c-identifier]
+            The rules (which did not change in C++11):
+
+                Reserved in any scope, including for use as implementation macros:
+                    identifiers beginning with an underscore followed immediately by an uppercase letter
+                    identifiers containing adjacent underscores (or "double underscore")
+                Reserved in the global namespace:
+                    identifiers beginning with an underscore
+                Also, everything in the std namespace is reserved. (You are allowed to add template specializations, though.)
+
 
     GLFW path drop for loading test files!
 	GLFW clipboard?
