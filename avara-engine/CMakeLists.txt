@@ -9,6 +9,10 @@ if (ANDROID)
 	
 else()
 
+	# either use CMake 3.11 or set 'OpenGL_GL_PREFERENCE' to 'GLVND' to use new OpenGL libs
+	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
+	set(OpenGL_GL_PREFERENCE GLVND)
+
 	# GLFW
 	
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
