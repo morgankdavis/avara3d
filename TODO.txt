@@ -139,27 +139,25 @@ TODO:
 	http://guillaumeblanc.github.io/ozz-animation/
 	TargetNode / AnimationTarget, etc
 
-50 - multithreading, vulkan, more lights + shadows
+50 - spot & directional lights, shadows, normal mapping, deferred shading, modular shaders, vulcan
+	Lance Williams “Casting curved shadows on curved surfaces”
+	https://gamedev.stackexchange.com/questions/57957/game-engine-design-ubershader-shader-management-design
+
+60 - multithreading
 	https://github.com/giorgiomarcias/MPMCThreadPool
 
-60 - audio
+70 - audio
 	OpenAL software? https://github.com/kcat/openal-soft
 
-70 - GUI
+80 - GUI
 
-80 - network
-
-70 - scripting
-	http://www.swig.org/
-
-80 - audio
-
-90 - scene file format
-	
-100 - network
+90 - network
 	"Entity"/"NetworkEntity?"
 
-110 - script binding
+100 - scripting
+	http://www.swig.org/
+
+110 - file format
 
 120 - app framework, world editor
 
