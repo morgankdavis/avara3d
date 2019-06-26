@@ -54,6 +54,10 @@ TODO:
 
 	------ Other things (non-physics) ------
 
+	Try inscripten??
+		https://emscripten.org/
+		https://github.com/emscripten-core/emscripten
+
 	Combine GLM namespace with AE source? Clone?
 	ae.h should #include all mandatory externals?
 
