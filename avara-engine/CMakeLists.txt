@@ -44,13 +44,17 @@ else()
 	
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse/include)
-	
+
+endif() # NOT ANDROID
+
+if (GL_FULL)
+
 	# imgui
 
 	add_subdirectory(external/imgui-1.62)
 	include_directories(external/imgui-1.62/include)
-	
-endif() # NOT ANDROID
+
+endif ()
 
 
 if (MINGW AND UBUNTU_CROSS)
@@ -172,14 +176,20 @@ elseif (ANDROID)
 	target_link_libraries(ae
 		android
 		NDKHelper
-		z
-		EGL
-		GLESv3)
+		z)
 		
 	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
 	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
 	
 endif()
+
+if (GL_ES)
+
+	target_link_libraries(ae
+			EGL
+			GLESv3)
+
+endif ()
 
 
 # silence stupid warnings

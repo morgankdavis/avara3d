@@ -15,14 +15,14 @@
 #include <vector>
 
 #include <boost/circular_buffer.hpp>
-#ifdef ANDROID
+#ifdef GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include <GL/glew.h>
 #endif
 
-#ifndef ANDROID
+#ifdef GL_FULL
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -251,7 +251,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
 	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
 	
-#ifdef DESKTOP
+#ifdef GL_FULL
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -272,7 +272,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	m_glEnvironmentUBO = ubo;
 
-#ifdef DESKTOP
+#ifdef GL_FULL
 	
 	// setup Imgui for stats overlay
 	
@@ -310,7 +310,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		}
 	}
 
-#endif // DESKTOP
+#endif // GL_FULL
 	
 	return true;
 }
@@ -1445,13 +1445,13 @@ static void SetMaterialOpenGLState(const Material& material,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//m_program = Program::Wireframe();
 		
-#ifdef DESKTOP
+#ifdef GL_FULL
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef DESKTOP
+#ifdef GL_FULL
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1476,7 +1476,7 @@ static void SetMaterialOpenGLState(const Material& material,
 static void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef DESKTOP
+#ifdef GL_FULL
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1486,7 +1486,7 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef DESKTOP
+#ifdef GL_FULL
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
@@ -1495,7 +1495,7 @@ static void SetLineSetGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef DESKTOP
+#ifdef GL_FULL
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -1834,7 +1834,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 
-#ifdef DESKTOP
+#ifdef GL_FULL
 	
 	auto renderContext = scene.renderContext().lock();
 
@@ -1951,7 +1951,7 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	
-#endif // DESKTOP
+#endif // GL_FULL
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
@@ -1991,7 +1991,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 
-#ifdef DESKTOP
+#ifdef GL_FULL
 	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
@@ -2048,7 +2048,7 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef DESKTOP
+#ifdef GL_FULL
 		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
 #endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
@@ -2057,7 +2057,7 @@ static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef DESKTOP
+#ifdef GL_FULL
 		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
 #endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;

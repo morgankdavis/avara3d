@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#ifdef ANDROID
+#ifdef GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else

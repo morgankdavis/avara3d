@@ -477,7 +477,7 @@ boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path)
 boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 													 const string& type) {
 	boost::optional<string> rawSource = boost::none;
-#ifdef ANDROID
+#ifdef GL_ES
 	rawSource = TextAsset("shaders/" + name + "." + type);
 #else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
@@ -489,7 +489,7 @@ boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 	
 	if (rawSource) {
 		static const string HEADER_PLACEHOLDER = "<#HEADER#>";
-#ifdef ANDROID
+#ifdef GL_ES
 		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 #else
 		static const string PLATFORM_HEADER = "#version 330";

@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifdef DESKTOP
+#ifdef GL_FULL
 
 #include "BulletDebugDrawer.h"
 
@@ -250,4 +250,4 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-#endif // DESKTOP
+#endif // GL_FULL

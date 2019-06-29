@@ -107,6 +107,16 @@ if (DESKTOP)
 	set(CMAKE_OSX_ARCHITECTURES "x86_64")
 endif()
 
+if (ANDROID OR RPI)
+	set(RPI TRUE)
+	add_definitions("-DRPI")
+	set(GL_ES TRUE)
+	add_definitions("-DGL_ES")
+else ()
+	set(GL_FULL TRUE)
+	add_definitions("-DGL_FULL")
+endif ()
+
 
 # libraries (headers...) that the test apps depend on
 
