@@ -102,7 +102,8 @@ add_library(ae STATIC ${HEADERS} ${SOURCES})
 target_link_libraries(ae
 	generator
 	meshoptimizer
-	Bullet3Common BulletCollision
+	Bullet3Common
+	BulletCollision
 	Bullet3Collision
 	BulletDynamics
 	Bullet3Dynamics
@@ -143,7 +144,7 @@ if (MACOS)
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (LINUX)
+elseif (LINUX AND NOT RPI)
 	
 	target_link_libraries(ae
 		imgui
@@ -187,12 +188,19 @@ endif()
 
 if (RPI)
 
-	#link_directories("/opt/vc/lib/")
-	include_directories("/opt/vc/include/")
+	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
+	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
 
 	target_link_libraries(ae
-			GLESv2_static
-			EGL)
+		z
+                X11
+                Xxf86vm
+                Xrandr
+                pthread
+                Xi
+                dl
+		${OPENGLES3_LIBRARY}
+		${EGL_LIBRARY})
 
 endif ()
 

@@ -477,7 +477,7 @@ boost::optional<string> ae::utils::TextFile(const boost::filesystem::path& path)
 boost::optional<std::string> ae::utils::ShaderSource(const string& name,
 													 const string& type) {
 	boost::optional<string> rawSource = boost::none;
-#ifdef GL_ES
+#ifdef ANDROID
 	rawSource = TextAsset("shaders/" + name + "." + type);
 #else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());

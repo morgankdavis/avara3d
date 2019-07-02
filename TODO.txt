@@ -14,8 +14,11 @@ TODO:
 	FIX WINDOWS LINKING
 	Put build in containing folder
 
+	Add RENDER_API::OPENGL_ES
+
 	GLFW 3.3 raw mouse!
 	    Test everywhere -- can we get rid of manymouse?
+		+macOS +Linux +RPi *Windows
 
 	Geometry, etc implement a clone() convention.  Ex. loading boxes in test030
 	Rename m_ to _
