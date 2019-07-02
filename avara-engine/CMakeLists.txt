@@ -176,18 +176,23 @@ elseif (ANDROID)
 	target_link_libraries(ae
 		android
 		NDKHelper
-		z)
+		z
+		EGL
+		GLESv3)
 		
 	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
 	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
 	
 endif()
 
-if (GL_ES)
+if (RPI)
+
+	#link_directories("/opt/vc/lib/")
+	include_directories("/opt/vc/include/")
 
 	target_link_libraries(ae
-			EGL
-			GLESv3)
+			GLESv2_static
+			EGL)
 
 endif ()
 

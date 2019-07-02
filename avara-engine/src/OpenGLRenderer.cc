@@ -16,8 +16,12 @@
 
 #include <boost/circular_buffer.hpp>
 #ifdef GL_ES
-#include <EGL/egl.h>
-#include <GLES3/gl3.h>
+	#include <EGL/egl.h>
+	#ifdef ANDROID
+	#include <GLES3/gl3.h>
+	#else // RPI
+	#include <GLES2/gl2.h>
+	#endif
 #else
 #include <GL/glew.h>
 #endif
