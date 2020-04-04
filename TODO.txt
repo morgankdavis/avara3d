@@ -11,8 +11,7 @@ TODO:
 
 30 - rigidbody
 
-	FIX WINDOWS LINKING
-	Put build in containing folder
+	DROP SUPPORT FOR WIN 7&8 (how will this simplify things?)
 
 	Add RENDER_API::OPENGL_ES
 
@@ -21,22 +20,8 @@ TODO:
 		+macOS +Linux +RPi *Windows
 
 	Geometry, etc implement a clone() convention.  Ex. loading boxes in test030
-	Rename m_ to _
-	    Rules:
-	        [https://stackoverflow.com/questions/228783/what-are-the-rules-about-using-an-underscore-in-a-c-identifier]
-            The rules (which did not change in C++11):
-
-                Reserved in any scope, including for use as implementation macros:
-                    identifiers beginning with an underscore followed immediately by an uppercase letter
-                    identifiers containing adjacent underscores (or "double underscore")
-                Reserved in the global namespace:
-                    identifiers beginning with an underscore
-                Also, everything in the std namespace is reserved. (You are allowed to add template specializations, though.)
-
 
     GLFW path drop for loading test files!
-	GLFW clipboard?
-	Extrude & render text?
 	
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
@@ -61,7 +46,8 @@ TODO:
 		https://emscripten.org/
 		https://github.com/emscripten-core/emscripten
 
-	Combine GLM namespace with AE source? Clone?
+	Combine GLM namespace with AE source/embedd it? Clone?
+		Anything else we can combine into AE namespace?
 	ae.h should #include all mandatory externals?
 
 	move avara-engine/avara-engine/* to avara-engine/

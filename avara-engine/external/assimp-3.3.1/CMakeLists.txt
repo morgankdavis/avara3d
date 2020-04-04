@@ -218,10 +218,16 @@ else(NOT ZLIB_FOUND)
 ENDIF(NOT ZLIB_FOUND)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
 
+# disabled 20200403 by mkd
+# project builds fine in arch on command line, but in clion
+# it would try (and fail) to link to libminizip (?)
+# installing minizip on the system fixed the issue.
+# maybe this will break windows..?
+#
 # Search for unzip
-IF (PKG_CONFIG_FOUND)
-  PKG_CHECK_MODULES(UNZIP minizip)
-ENDIF (PKG_CONFIG_FOUND)
+#IF (PKG_CONFIG_FOUND)
+#  PKG_CHECK_MODULES(UNZIP minizip)
+#ENDIF (PKG_CONFIG_FOUND)
 
 IF ( ASSIMP_NO_EXPORT )
   ADD_DEFINITIONS( -DASSIMP_BUILD_NO_EXPORT)

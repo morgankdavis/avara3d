@@ -173,14 +173,15 @@ elseif (WINDOWS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 	
 elseif (ANDROID)
-	
-	target_link_libraries(ae
-		android
-		NDKHelper
-		z
-		EGL
-		GLESv3)
-		
+
+	target_link_libraries(
+			ae
+			android
+			NDKHelper
+			z
+			EGL
+			GLESv3)
+
 	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
 	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
 	
@@ -191,14 +192,15 @@ if (RPI)
 	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
 	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
 
-	target_link_libraries(ae
-		z
-                X11
-                Xxf86vm
-                Xrandr
-                pthread
-                Xi
-                dl
+	target_link_libraries(
+			ae
+			z
+			X11
+			Xxf86vm
+			Xrandr
+			pthread
+			Xi
+			dl
 		${OPENGLES3_LIBRARY}
 		${EGL_LIBRARY})
 
