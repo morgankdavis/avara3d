@@ -32,7 +32,7 @@
 #endif
 
 #ifdef WINDOWS
-#include <windows.h>
+//#include <windows.h>
 #endif
 
 #ifdef ANDROID
