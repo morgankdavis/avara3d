@@ -173,7 +173,8 @@ elseif (WINDOWS)
 	# https://stackoverflow.com/questions/11783932/how-do-i-add-a-linker-or-compile-flag-in-a-cmake-file
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ '-Wl,-rpath,$ORIGIN/lib'") # I don't think RPATH works in windows
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -lgcc -lstdc++")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -lgcc -lstdc++")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
 
 	# https://stackoverflow.com/questions/18138635/mingw-exe-requires-a-few-gcc-dlls-regardless-of-the-code
 	#set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ ${CMAKE_CXX_STANDARD_LIBRARIES}")
