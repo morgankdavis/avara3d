@@ -171,7 +171,7 @@ elseif (WINDOWS)
 	endif()
 
 	# https://stackoverflow.com/questions/11783932/how-do-i-add-a-linker-or-compile-flag-in-a-cmake-file
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ -Wl,-rpath,$ORIGIN/lib")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ '-Wl,-rpath,$ORIGIN/lib'")
 
 #	'-Wl,-rpath,$ORIGIN/../lib'
 	
