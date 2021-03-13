@@ -57,7 +57,7 @@ if (GL_FULL)
 endif ()
 
 
-if (MINGW AND UBUNTU_CROSS)
+if (MINGW)# AND UBUNTU_CROSS)
 
 	# bzip2
 
@@ -164,7 +164,7 @@ elseif (WINDOWS)
 		bz2)
 	
 	# wtf?
-	if(MSYS OR UBUNTU_CROSS)
+	if(MSYS OR MINGW OR UBUNTU_CROSS)
 		target_link_libraries(ae winpthread)
 	else()
 		target_link_libraries(ae winpthreads)
@@ -175,7 +175,7 @@ elseif (WINDOWS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 
 	# https://stackoverflow.com/questions/18138635/mingw-exe-requires-a-few-gcc-dlls-regardless-of-the-code
-	set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ ${CMAKE_CXX_STANDARD_LIBRARIES}")
+	##set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ ${CMAKE_CXX_STANDARD_LIBRARIES}")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive")
 
 #	'-Wl,-rpath,$ORIGIN/../lib'

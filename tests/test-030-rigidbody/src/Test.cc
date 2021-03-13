@@ -17,8 +17,9 @@
 
 
 
-# TEMPORARY
+// TEMPORARY
 #ifdef WINDOWS
+#include <windows.h>
 #include <libloaderapi.h>
 #include <boost/filesystem.hpp>
 #endif
@@ -58,15 +59,32 @@ static void AddSlurms(Scene& scene);
      Public
  ***************************************************************************************/
 
+// https://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
+std::wstring s2ws(const std::string& s)
+{
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+    wchar_t* buf = new wchar_t[len];
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    std::wstring r(buf);
+    delete[] buf;
+    return r;
+}
+
 int Test::run(const vector<string>& args) {
 
-# TEMPORARY
+// TEMPORARY
 #ifdef WINDOWS
 //    DLL_DIRECTORY_COOKIE AddDllDirectory(
 //  PCWSTR NewDirectory
 //);
 
-DLL_DIRECTORY_COOKIE ret = AddDllDirectory(boost::filesystem::path(ExecutableDirectory() / "lib").string());
+    std::wstring stemp = s2ws(boost::filesystem::path(*ExecutableDirectory() / std::string("lib")).string());
+    LPCWSTR result = stemp.c_str();
+
+DLL_DIRECTORY_COOKIE ret = AddDllDirectory(
+        reinterpret_cast<PCWSTR>(result));
 #endif
 
 
