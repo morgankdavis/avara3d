@@ -21,6 +21,8 @@ TODO:
 LLVM windows:
 http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
 
+Generator warnings windows: https://stackoverflow.com/questions/20013901/im-getting-an-error-invalid-use-of-incomplete-type-class-map/20014164
+
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
 	* Why are textures empty on first frame? *
