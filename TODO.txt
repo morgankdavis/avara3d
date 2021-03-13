@@ -12,6 +12,13 @@ TODO:
 30 - rigidbody
 
 	Fix win10 wingw
+	
+"the code execution cannot proceed because libstdc++-6.dll was not found"
+
+*** RPATH: https://stackoverflow.com/questions/13636513/linking-libstdc-statically-any-gotchas
+
+LLVM windows:
+http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
 
 	Convex hulls for statics should always use btBvhTriangleMeshShape
 
