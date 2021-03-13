@@ -11,7 +11,13 @@ TODO:
 
 30 - rigidbody
 
-	DROP SUPPORT FOR WIN 7&8 (how will this simplify things?)
+	Fix win10 wingw
+
+	Convex hulls for statics should always use btBvhTriangleMeshShape
+
+	* Why are textures empty on first frame? *
+		PROGRAM NOT READY??
+	-	> pause main thread for a while in android (ex. rotating log output) and see that not all shaders are loaded
 
 	Add RENDER_API::OPENGL_ES
 
@@ -21,9 +27,7 @@ TODO:
 
 	Geometry, etc implement a clone() convention.  Ex. loading boxes in test030
 
-    GLFW path drop for loading test files!
-	
-	Convex hulls for statics should always use btBvhTriangleMeshShape
+    	x GLFW path drop for loading test files!
 
 	Fix margins + add to PhysicsBody/Shape
 
@@ -41,10 +45,6 @@ TODO:
 	Add physics stats	
 
 	------ Other things (non-physics) ------
-
-	Try inscripten??
-		https://emscripten.org/
-		https://github.com/emscripten-core/emscripten
 
 	Combine GLM namespace with AE source/embedd it? Clone?
 		Anything else we can combine into AE namespace?
@@ -73,10 +73,6 @@ TODO:
 	Android Imgui: https://github.com/ocornut/imgui/issues/1200
 	
 	Imgui -> glfwErrorCallback() ? error: 65537, description: The GLFW library is not initialized
-
-	* Why are textures empty on first frame? *
-		PROGRAM NOT READY??
-		-> pause main thread for a while in android (ex. rotating log output) and see that not all shaders are loaded
 	
 	Image as background property? - Quad class?
 
@@ -101,6 +97,10 @@ TODO:
 	Make utils that return shared_ptr return unique_ptr?
 		-> no more optional or null returns, THROW!
 	Rename StringFromXXXYYY -> String(XXXYYY)
+
+	Try inscripten??
+	https://emscripten.org/
+	https://github.com/emscripten-core/emscripten
 
 31 - contact
 	Kinematic objects:
