@@ -20,6 +20,11 @@ public:
 		vertices{}
 	{ }
 
+	// added by MKD
+	explicit Edge(const int& x, const int& y) noexcept :
+			vertices{x, y}
+	{ }
+
 	explicit Edge(const gml::ivec2& vertices) noexcept :
 		vertices{vertices}
 	{ }
