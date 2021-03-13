@@ -16,6 +16,7 @@ TODO:
 "the code execution cannot proceed because libstdc++-6.dll was not found"
 
 *** RPATH: https://stackoverflow.com/questions/13636513/linking-libstdc-statically-any-gotchas
+*** Windows DLL directory: https://stackoverflow.com/questions/107888/is-there-a-windows-msvc-equivalent-to-the-rpath-linker-flag
 
 LLVM windows:
 http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/

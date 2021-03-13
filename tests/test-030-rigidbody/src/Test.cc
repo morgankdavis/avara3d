@@ -16,6 +16,13 @@
 #include "Utilities.h"
 
 
+
+# TEMPORARY
+#ifdef WINDOWS
+#include <libloaderapi.h>
+#include <boost/filesystem.hpp>
+#endif
+
 using namespace ae;
 using namespace ae::utils;
 using namespace std;
@@ -52,6 +59,17 @@ static void AddSlurms(Scene& scene);
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
+
+# TEMPORARY
+#ifdef WINDOWS
+//    DLL_DIRECTORY_COOKIE AddDllDirectory(
+//  PCWSTR NewDirectory
+//);
+
+DLL_DIRECTORY_COOKIE ret = AddDllDirectory(boost::filesystem::path(ExecutableDirectory() / "lib").string());
+#endif
+
+
 	AE_INIT();
 	
 	m_logger = make_shared<Logger>("test", Logger::MainLogger()->sinks());
