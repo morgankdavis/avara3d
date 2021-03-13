@@ -34,7 +34,11 @@ target_compile_options(${TEST_NAME} PRIVATE
 	"-Wno-reorder"
 	"-Wno-address-of-packed-member"
 	"-Wno-unused-function")
-	
+
+
+if (WINDOWS)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+endif()
 
 if (NOT ANDROID)
 
