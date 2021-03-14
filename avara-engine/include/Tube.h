@@ -21,7 +21,7 @@ namespace ae {
 	public:
 
 /*********************************************************************************************
-   	 Lifecycle
+	Lifecycle
  *********************************************************************************************/
 		
 		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);

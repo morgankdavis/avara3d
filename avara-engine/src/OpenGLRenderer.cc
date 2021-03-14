@@ -61,7 +61,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-     Static Prorotypes
+	Static Prorotypes
  *********************************************************************************************/
 
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
@@ -178,7 +178,7 @@ static WRAP_MODE WrapModeForGLWrapMode(GLenum mode);
 static void CheckGLError();
 
 /*********************************************************************************************
-     Types
+	Types
  *********************************************************************************************/
 
 enum class MATERIAL_MODE : int {
@@ -218,7 +218,7 @@ typedef struct {
 } FogGLSLStruct;
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
@@ -259,7 +259,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
@@ -517,7 +517,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 }
 	
 /*********************************************************************************************
-     Static
+	Static
  *********************************************************************************************/
 
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,

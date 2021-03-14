@@ -76,7 +76,7 @@ Cylinder::Cylinder(float radius, float height, int slices, int segments):
 }
 
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 
 float Cylinder::radius() const {

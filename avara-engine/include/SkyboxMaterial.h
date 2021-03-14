@@ -26,20 +26,20 @@ namespace ae {
 	public:
 		
 /*********************************************************************************************
-   	Lifecycle
+	Lifecycle
  *********************************************************************************************/
 		
 		SkyboxMaterial(std::shared_ptr<MaterialProperty> cubeProperty);
 		
 /*********************************************************************************************
-   	Internal
+	Internal
  *********************************************************************************************/
 		
 		std::shared_ptr<MaterialProperty> cubeProperty() const;
 		void cubeProperty(std::shared_ptr<MaterialProperty> property);
 		
 /*********************************************************************************************
-   	Material
+	Material
  *********************************************************************************************/
 		
 		void prepareToRender(DEBUG_OPTIONS debugOptions) const;

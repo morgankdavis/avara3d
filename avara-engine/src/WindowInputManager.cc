@@ -32,7 +32,7 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(shared_ptr<Window> window):
@@ -52,7 +52,7 @@ WindowInputManager::~WindowInputManager() {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void WindowInputManager::update() {
@@ -96,7 +96,7 @@ void WindowInputManager::update() {
 }
 
 /*********************************************************************************************
-     GLFW Callbacks
+	GLFW Callbacks
  *********************************************************************************************/
 
 void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int button, int action, int mods) {
@@ -175,7 +175,7 @@ shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GL
 }
 
 /*********************************************************************************************
-     Private
+	Private
  *********************************************************************************************/
 
 void WindowInputManager::initMouseMotionInput() {

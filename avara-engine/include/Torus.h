@@ -21,7 +21,7 @@ namespace ae {
 	public:
 
 /*********************************************************************************************
-   	 Lifecycle
+	Lifecycle
  *********************************************************************************************/
 		
 		Torus(float minorRadius, float majorRadius, int slices, int segments);

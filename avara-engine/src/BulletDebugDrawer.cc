@@ -29,7 +29,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-     Static Prototypes
+	Static Prototypes
  *********************************************************************************************/
 
 static vec3 GLMVec3FromBTVector3(const btVector3& from);
@@ -38,7 +38,7 @@ static btVector3 BTVector3FromGLMVec3(const vec3& from);
 static btVector4 BTVector4FromGLMVec4(const vec4& from);
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
@@ -52,7 +52,7 @@ BulletDebugDrawer::~BulletDebugDrawer() {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void BulletDebugDrawer::clear() {
@@ -72,7 +72,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 }
 
 /*********************************************************************************************
-     btIDebugDraw
+	btIDebugDraw
  *********************************************************************************************/
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
@@ -231,7 +231,7 @@ int BulletDebugDrawer::getDebugMode() const {
 }
 
 /*********************************************************************************************
-     Static
+	Static
  *********************************************************************************************/
 
 vec3 GLMVec3FromBTVector3(const btVector3& from) {

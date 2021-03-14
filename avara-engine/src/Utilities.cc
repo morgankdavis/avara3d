@@ -244,7 +244,7 @@ bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
 }
 
 /*********************************************************************************************
-     String Utilities
+	String Utilities
  *********************************************************************************************/
 
 void ae::utils::StringReplace(string& str,

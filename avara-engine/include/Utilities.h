@@ -80,7 +80,7 @@ namespace ae {
 		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 		
 /*********************************************************************************************
-     String Utilities
+	String Utilities
  *********************************************************************************************/
 		
 		void StringReplace(std::string& str,

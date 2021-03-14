@@ -48,7 +48,7 @@ constexpr unsigned MAX_SUBSTEPS =	10;
 
 
 /*********************************************************************************************
-     Static Prototypes
+	Static Prototypes
  *********************************************************************************************/
 
 void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
@@ -95,7 +95,7 @@ static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
 //glm::mat4 BulletToGlm(const btTransform& t);
 
 /*********************************************************************************************
-     Lifescycle
+	Lifescycle
  *********************************************************************************************/
 
 BulletPhysicsSimulator::BulletPhysicsSimulator():
@@ -134,7 +134,7 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
@@ -151,7 +151,7 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 }
 
 /*********************************************************************************************
-     PhysicsSimulator
+	PhysicsSimulator
  *********************************************************************************************/
 
 void BulletPhysicsSimulator::beginUpdate(PASS pass,
@@ -288,7 +288,7 @@ void BulletPhysicsSimulator::step(float time) {
 }
 						  
 /*********************************************************************************************
-     Static
+	Static
  *********************************************************************************************/
 
 void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,

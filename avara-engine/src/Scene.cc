@@ -53,7 +53,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-     Static Prototypes
+	Static Prototypes
  *********************************************************************************************/
 
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
@@ -88,7 +88,7 @@ static Color ColorFromAIColor4D(const aiColor4D& from);
 #endif // !ANDROID
 
 /*********************************************************************************************
-     Public Static
+	Public Static
  *********************************************************************************************/
 
 #ifndef ANDROID
@@ -108,7 +108,7 @@ shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
 //}
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 Scene::Scene():
@@ -128,7 +128,7 @@ Scene::~Scene() {
 }
 
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 
 shared_ptr<Node> Scene::rootNode() const {
@@ -208,7 +208,7 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void Scene::draw(Renderer& renderer,
@@ -355,7 +355,7 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 }
 
 /*********************************************************************************************
-     Static
+	Static
  *********************************************************************************************/
 
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {

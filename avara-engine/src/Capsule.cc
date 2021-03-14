@@ -77,7 +77,7 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 }
 
 /*********************************************************************************************
-    	 Public
+ 	Public
  *********************************************************************************************/
 
 float Capsule::radius() const {

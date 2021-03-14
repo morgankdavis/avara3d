@@ -23,7 +23,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 MaterialProperty::MaterialProperty():
@@ -50,7 +50,7 @@ MaterialProperty::~MaterialProperty() {
 }
 
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 
 shared_ptr<MaterialPropertyContents> MaterialProperty::contents() const {
@@ -140,7 +140,7 @@ void MaterialProperty::wrapR(WRAP_MODE mode) {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 MATERIAL_PROPERTY_DIRTY_BITS MaterialProperty::dirtyBits() const {

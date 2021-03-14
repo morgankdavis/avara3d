@@ -41,7 +41,7 @@ namespace ae {
 	public:
 		
 /*********************************************************************************************
-     Types
+	Types
  *********************************************************************************************/
 		
 		using UpdateFunction = std::function<void(RenderContext& renderContext, float time)>;
@@ -50,7 +50,7 @@ namespace ae {
 		using DidRenderFunction = std::function<void(RenderContext& renderContext, float time)>;
 		
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 		RenderContext(RENDER_API renderAPI);
@@ -61,7 +61,7 @@ namespace ae {
 		virtual ~RenderContext();
 		
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 		
 		RENDER_API renderAPI() const;
@@ -116,7 +116,7 @@ namespace ae {
 		void didRenderCallback(DidRenderFunction function);
 		
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 		
 		virtual void update();
@@ -135,7 +135,7 @@ namespace ae {
 	protected:
 		
 /*********************************************************************************************
-     Protected
+	Protected
  *********************************************************************************************/
 		
 		virtual std::shared_ptr<Node> defaultPointOfView();

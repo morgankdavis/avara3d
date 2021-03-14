@@ -32,7 +32,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
@@ -70,7 +70,7 @@ PhysicsShape::~PhysicsShape() {
 }
 
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 
 weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
@@ -90,7 +90,7 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {

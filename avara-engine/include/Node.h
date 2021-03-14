@@ -38,7 +38,7 @@ namespace ae {
 	public:
 		
 /*********************************************************************************************
-     Public Static
+	Public Static
  *********************************************************************************************/
 
 		static std::shared_ptr<Node> GeometryNode(std::shared_ptr<Geometry> geometry);
@@ -46,7 +46,7 @@ namespace ae {
 		static std::shared_ptr<Node> CameraNode(std::shared_ptr<Camera> camera);
 
 /*********************************************************************************************
-   	 Lifecycle
+	Lifecycle
  *********************************************************************************************/
 		
 		Node();
@@ -54,7 +54,7 @@ namespace ae {
 		~Node();
 
 /*********************************************************************************************
-    		Public
+ 		Public
  *********************************************************************************************/
 
 		boost::optional<std::string> name() const;
@@ -67,7 +67,7 @@ namespace ae {
 		void camera(const std::shared_ptr<Camera> camera);
 		
 		std::shared_ptr<Geometry> geometry() const;
-		void geometry(const std::shared_ptr<Geometry> geometry);
+		void geometry(const std::shared_ptr<Geometry>& geometry);
 
 		bool hidden() const;
 		void hidden(const bool hidden);
@@ -130,7 +130,7 @@ namespace ae {
 //		glm::mat4 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
 
 /*********************************************************************************************
-    		Internal
+ 		Internal
  *********************************************************************************************/
 		
 		void unrollWorldTransform(glm::mat4 transform);
@@ -149,7 +149,7 @@ namespace ae {
 	private:
 
 /*********************************************************************************************
-    		Private
+ 		Private
  *********************************************************************************************/
 		
 		std::vector<std::shared_ptr<Node>> pathToRoot() const;

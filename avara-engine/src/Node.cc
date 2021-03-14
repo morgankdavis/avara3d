@@ -40,7 +40,11 @@ using namespace glm;
 
 
 /*********************************************************************************************
-     Public Static
+	Public Static
+ *********************************************************************************************/
+
+/*********************************************************************************************
+	Lifecycle
  *********************************************************************************************/
 
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
@@ -62,7 +66,7 @@ shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
 }
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 Node::Node():
@@ -93,7 +97,7 @@ Node::~Node() {
 }
 
 /*********************************************************************************************
-     Public
+	Public
  *********************************************************************************************/
 
 boost::optional<std::string> Node::name() const {
@@ -126,7 +130,7 @@ shared_ptr<Geometry> Node::geometry() const {
 	return m_geometry;
 }
 
-void Node::geometry(const shared_ptr<Geometry> geometry) {
+void Node::geometry(const shared_ptr<Geometry>& geometry) {
 	if (geometry) {
 		geometry->attachedToNode(shared_from_this());
 		if (m_physicsBody) {
@@ -593,7 +597,7 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 void Node::unrollWorldTransform(mat4 transform) {
@@ -678,7 +682,7 @@ void Node::attachedToParent(shared_ptr<Node> parentNode) {
 //}
 
 /*********************************************************************************************
-     Private
+	Private
  *********************************************************************************************/
 
 vector<shared_ptr<Node>> Node::pathToRoot() const {

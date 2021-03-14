@@ -31,13 +31,13 @@ using namespace glm;
 
 
 /*********************************************************************************************
-     Static Prototypes
+	Static Prototypes
  *********************************************************************************************/
 
 static KEY AEKeyForChromeOSKeyCode(int32_t code);
 
 /*********************************************************************************************
-     Lifecycle
+	Lifecycle
  *********************************************************************************************/
 
 ActivityInputManager::ActivityInputManager(shared_ptr<Activity> activity):
@@ -52,7 +52,7 @@ ActivityInputManager::~ActivityInputManager() {
 }
 
 /*********************************************************************************************
-     Internal
+	Internal
  *********************************************************************************************/
 
 int ActivityInputManager::update(AInputEvent* event) {
@@ -196,7 +196,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 }
 
 /*********************************************************************************************
-     Private
+	Private
  *********************************************************************************************/
 
 void ActivityInputManager::mouseButton(MOUSE_BUTTON button, bool down) {
@@ -217,7 +217,7 @@ void ActivityInputManager::mouseButton(MOUSE_BUTTON button, bool down) {
 }
 
 /*********************************************************************************************
-     Static
+	Static
  *********************************************************************************************/
 
 static KEY AEKeyForChromeOSKeyCode(int32_t code) {
