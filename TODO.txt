@@ -1,6 +1,3 @@
-TODO:
-
-——————————————————————————————————
 
 01 - import
 02 - scenegraph
@@ -123,11 +120,10 @@ TODO:
 	https://sourceforge.net/projects/sparkengine/
 
 # - localization
-
 	
 
-
 QUESTIONS
+---------------------------
 
 	Why do we have to invert our view matrix?
 		Apparently transforming everything into eye-space in the vertex shader is requiring this...
@@ -137,8 +133,20 @@ QUESTIONS
 		https://www.opengl.org/discussion_boards/showthread.php/178301-View-matrix-for-point-light-calculation-should-be-inverse
 
 
+LAUNDRY
+---------------------------
+	
+	GLFM for Android/iOS?
 
-SANDBOX
+	android -> avara-engine/avara-engine
+
+	Replace Generator?
+		https://press3.mcs.anl.gov/sigma/meshkit-library/
+		https://cran.r-project.org/web/packages/geometry/index.html
+		https://www.mcs.anl.gov/~fathom/meshkit-docs/html/index.html
+		https://www.cgal.org/
+
+	Proper shader class
 
 	AssetManager/FileManager with static functions for getting file assets?
 	FileUtilities, OutputUtilities, NumericUtilities, etc?
@@ -159,6 +167,7 @@ SANDBOX
 	    Test everywhere -- can we get rid of manymouse?
 		+macOS +Linux +RPi *Windows
 
+	Node pivot point: https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
 
 	Windows and Android stacktraces
 		https://stackoverflow.com/questions/7841232/java-android-how-to-print-out-a-full-stack-trace
@@ -193,8 +202,8 @@ SANDBOX
 		(unit test specific things. demos can stay separate)
 		+ Rename "tests" to "demos" and clean up name consistency
 
-
 FUTURE
+---------------------------
 
 	Gamma correction
 
@@ -266,33 +275,29 @@ FUTURE
 	Motion blur
 		http://www.terathon.com/gdc07_lengyel.pdf
 
-UI
-	ImGUI !
-		Syntax highlighting:
-		https://github.com/BalazsJako/ImGuiColorTextEdit
-	CEGUI2
-	NANOGUI: https://github.com/wjakob/nanogui
-    https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
+	UI
+		ImGUI !
+			Syntax highlighting:
+			https://github.com/BalazsJako/ImGuiColorTextEdit
+		CEGUI2
+		NANOGUI: https://github.com/wjakob/nanogui
+		    https://github.com/wjakob/nanogui/blob/master/src/example3.cpp (hook into existing GLFW)
 
 
-Lua?
-	[https://github.com/ThePhD/sol2/]
-	http://lua-users.org/wiki/BindingCodeToLua
-	https://eliasdaler.wordpress.com/2013/10/11/lua_cpp_binder/
-	https://www.lua.org/wshop14/Zykov.pdf
-	https://github.com/jeremyong/Selene
+		Lua?
+			[https://github.com/ThePhD/sol2/]
+			http://lua-users.org/wiki/BindingCodeToLua
+			https://eliasdaler.wordpress.com/2013/10/11/lua_cpp_binder/
+			https://www.lua.org/wshop14/Zykov.pdf
+			https://github.com/jeremyong/Selene
 
-Squirral?
-    http://squirrel-lang.org/
-    http://wiki.squirrel-lang.org/default.aspx/SquirrelWiki/SqPlus.html
-
-
-Laundry list:
-    Node pivot point: https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
-
+		Squirral?
+		    http://squirrel-lang.org/
+		    http://wiki.squirrel-lang.org/default.aspx/SquirrelWiki/SqPlus.html
 
 
 WISH LIST
+---------------------------
 
     Constraints - lookAt 
 	Geometry subdivision
@@ -304,16 +309,33 @@ WISH LIST
 		https://github.com/Smeat/Bullet-Physics/blob/master/Demos/HeightFieldFluidDemo/BulletHfFluid/btHfFluidRigidCollisionAlgorithm.cpp
 		http://www.vivekc.com/portfolio/bullet-underwater-dynamics/
 
+	Bezier camera movement
+		http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
 
 BUGS
+---------------------------
+
 	Looks like default camera isn’t respecting transform correctly
 		Ex: Empty scene -> add mesh -> move +X, camera will slip mesh
 	Would be nice to support Physics shape scaling.
 	Node::hidden() check should be in Renderer // need a keep-alive mechanism
 
 
+LEARNING
+---------------------------
+	3D Rotations
+		http://muri.materials.cmu.edu/wp-content/uploads/2015/06/RotationPaperRevised.pdf
+		https://rotations.berkeley.edu/eulers-representation/
+	Quaternion <-> Euler angle live calculator:
+		http://quaternions.online/
+	Quaternion -> Euler angle any sequence:
+		http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
+	Rotation calculator!
+		http://www.andre-gaschler.com/rotationconverter/
+
 
 RESOURCES
+---------------------------
 
 	Factory Pattern:
 			https://stackoverflow.com/questions/8147027/how-do-i-call-stdmake-shared-on-a-class-with-only-protected-or-private-const/8147213#8147213
@@ -378,9 +400,3 @@ RESOURCES
 		EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
 		http://libcinder.org
 
-	Quaternion <-> Euler angle live calculator:
-		http://quaternions.online/
-	Quaternion -> Euler angle any sequence:
-		http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
-
-	
