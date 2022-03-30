@@ -8,6 +8,35 @@
 
 30 - rigidbody
 
+	Add physics stats
+		RenderContext (scene?) should own "Stats" object ("Framestats"?)
+			Create at each frame, pass around. frameStartTime, frameEndTime
+
+	New class: Simulator?
+		-> takes update loop functionalities from Renderer
+		-> owns scene graph & PhysicsWorld
+		[the point: simulating worlds without rendering -- networking]
+
+		Simulator has:
+			SceneGraph (WorldGraph?)
+			RenderContext
+				Renderer
+			Scene (VisualWorld?) -- no - "scene" is not defined as only visual
+				Camera/pov
+			PhysicsSimulator
+			PhysicsWorld				
+			update loop
+
+		Remember: physics world is not completely disconnected from visual world --
+			Most physics world will come from meshes loaded from file
+
+	Scene, Node, Geometry, GeometryElement all draw() -- why don't we simulate() physics objects?
+		-> WTF is going on with physics step & sync?
+
+	PhysicsSimulator.step() -- don't use statics! pass-in startTime or deltaTime
+
+	unique_ptr and shared_ptr
+
 	RenderContext should own "Stats" object
 		Create at each frame, pass around. frameStartTime, frameEndTime
 	Add physics stats
