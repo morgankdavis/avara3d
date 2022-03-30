@@ -43,7 +43,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
 
 /***************************************************************************************
-     Static Prototypes
+	Static Prototypes
  ***************************************************************************************/
 
 static shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
@@ -56,7 +56,7 @@ static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
 
 /***************************************************************************************
-     Public
+	Public
  ***************************************************************************************/
 
 // https://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
@@ -223,7 +223,7 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     RenderContext Callbacks
+	RenderContext Callbacks
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
@@ -507,7 +507,7 @@ void Test::didRenderCallback(RenderContext& renderContext, float time) {
 }
 
 /***************************************************************************************
-     Static
+	Static
  ***************************************************************************************/
 
 shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {

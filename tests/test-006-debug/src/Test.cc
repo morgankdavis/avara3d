@@ -34,7 +34,7 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
 /***************************************************************************************
-     Public
+	Public
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
@@ -146,7 +146,7 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     RenderContext Callbacks
+	RenderContext Callbacks
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {

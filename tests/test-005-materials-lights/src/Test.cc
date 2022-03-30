@@ -33,14 +33,14 @@ constexpr bool					CAPTURE_CURSOR =		true;
 
 
 /***************************************************************************************
-     Static Prototypes
+	Static Prototypes
  ***************************************************************************************/
 
 static void SetAllFilterModes(FILTER_MODE mode, Scene& scene);
 static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 
 /***************************************************************************************
-     Public
+	Public
  ***************************************************************************************/
 
 int Test::run(const vector<string>& args) {
@@ -183,7 +183,7 @@ int Test::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-     RenderContext Callbacks
+	RenderContext Callbacks
  ***************************************************************************************/
 
 void Test::updateCallback(RenderContext& renderContext, float time) {
@@ -427,7 +427,7 @@ void Test::didRenderCallback(RenderContext& renderContext, float time) {
 }
 
 /***************************************************************************************
-     Static
+	Static
  ***************************************************************************************/
 
 void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {

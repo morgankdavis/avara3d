@@ -642,7 +642,7 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 	}
 	sort(storedBodiesSorted.begin(), storedBodiesSorted.end());
 	
-	// find unused bodies 
+	// find unused bodies
 	auto unused = vector<shared_ptr<PhysicsBody>>(storedBodiesSorted.size());
 	vector<shared_ptr<PhysicsBody>>::iterator it;
 	it = set_difference(storedBodiesSorted.begin(), storedBodiesSorted.end(),
