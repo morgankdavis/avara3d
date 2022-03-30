@@ -554,7 +554,8 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 	
 	// NOTE: to get cubes created with Gear 360 + https://jaxry.github.io/panorama-to-cubemap/
 	// to work properly (not horizontally flipped) you have to horizontally flip each image,
-	// then swap pos x and neg x
+	// then swap pos x and neg x.
+	// to get zfight cubes to work properly, rotate posy 90 CCW, and negy 90 CW.q
 	
 	constexpr bool V_FLIP = false;
 	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, V_FLIP),

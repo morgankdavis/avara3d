@@ -44,8 +44,7 @@ namespace ae {
 		std::shared_ptr<Window>				m_window;
 		std::shared_ptr<InputManager>		m_inputManager;
 		std::shared_ptr<Node>				m_cameraNode;
-		
-		std::shared_ptr<Node>				m_dickNode;
+
 		std::shared_ptr<Node>				m_duckSpinnerNode;
 		std::shared_ptr<Node>				m_duckNode;
 		std::shared_ptr<Node>				m_paddleNode;
