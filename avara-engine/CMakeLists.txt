@@ -231,7 +231,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 			"-Wno-reorder"
 			"-Wno-address-of-packed-member"
 			"-Wno-unused-function"
-			"-Wno-deprecated-declarations")
+			"-Wno-deprecated-declarations"
+			"-Wargument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
 			#"-Wno-macro-redefined")
 			
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
