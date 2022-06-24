@@ -177,42 +177,54 @@ GLFWwindow* Window::glfwWindow() const {
 	RenderContext
  *********************************************************************************************/
 
-void Window::update() {
-	RenderContext::update();
+//void Window::update() {
+//	//RenderContext::update();
+//
+//	AE_LOG_T("-------------------------------------------------------------------------------");
+//
+//	if (updateCallback()) {
+//		(updateCallback())(*this, sceneTime());
+//	}
+//
+//	m_renderer->beginFrame(*this);
+//
+//	auto pov = pointOfView();
+//	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+//	pov->camera()->aspectRatio(aspectRatio);
+//
+//	m_renderer->renderStats().cameraPosition = pov->position();
+//
+//	if (willRenderCallback()) {
+//		(willRenderCallback())(*this, sceneTime());
+//	}
+//
+//	m_scene->draw(*RenderContext::renderer(),
+//				  m_framebufferWidth, m_framebufferHeight,
+//				  *pov,
+//				  m_debugOptions, m_renderer->renderStats());
+//
+//	m_renderer->endFrame(*this);
+//
+//	glfwSwapBuffers(m_glfwWindow);
+//
+//	if (m_recordingGIF) saveGIFFrame(sceneTime());
+//
+//	if (didRenderCallback()) {
+//		(didRenderCallback())(*this, sceneTime());
+//	}
+//
+//	glfwPollEvents();
+//
+//	if (m_inputManager) {
+//		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
+//	}
+//}
 
-	AE_LOG_T("-------------------------------------------------------------------------------");
-
-	if (updateCallback()) {
-		(updateCallback())(*this, sceneTime());
-	}
-	
-	m_renderer->beginFrame(*this);
-	
-	auto pov = pointOfView();
-	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
-	pov->camera()->aspectRatio(aspectRatio);
-	
-	m_renderer->renderStats().cameraPosition = pov->position();
-
-	if (willRenderCallback()) {
-		(willRenderCallback())(*this, sceneTime());
-	}
-	
-	m_scene->draw(*RenderContext::renderer(),
-				  m_framebufferWidth, m_framebufferHeight,
-				  *pov,
-				  m_debugOptions, m_renderer->renderStats());
-	
-	m_renderer->endFrame(*this);
-	
+void Window::swapBuffers() {
 	glfwSwapBuffers(m_glfwWindow);
-	
-	if (m_recordingGIF) saveGIFFrame(sceneTime());
-	
-	if (didRenderCallback()) {
-		(didRenderCallback())(*this, sceneTime());
-	}
-	
+}
+
+void Window::pollInput() {
 	glfwPollEvents();
 
 	if (m_inputManager) {

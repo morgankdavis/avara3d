@@ -116,7 +116,7 @@ unsigned RenderContext::height() const {
 	return m_height;
 }
 
-unsigned RenderContext::framebufferScale() const {
+float RenderContext::framebufferScale() const {
 	return m_framebufferScale;
 }
 
@@ -188,10 +188,10 @@ ANTIALIASING_MODE RenderContext::antialiasingMode() const {
 	return m_antialiasingMode;
 }
 
-shared_ptr<InputManager> RenderContext::inputManager() {
-	AE_LOG_C("RenderContext::inputManager() should be overidden in derived class.");
-	return nullptr;
-}
+//shared_ptr<InputManager> RenderContext::inputManager() { // pure virtual
+//	AE_LOG_C("RenderContext::inputManager() should be overidden in derived class.");
+//	return nullptr;
+//}
 
 float RenderContext::sceneTime() const {
 	// should probably override in subclass to use library's time utilities (GLFW, for example)
@@ -297,8 +297,41 @@ void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function)
 	Internal
  *********************************************************************************************/
 
-void RenderContext::update() {
+void RenderContext::update() { // pure virtual
+	AE_LOG_T("-------------------------------------------------------------------------------");
 
+	if (updateCallback()) {
+		(updateCallback())(*this, sceneTime());
+	}
+
+	m_renderer->beginFrame(*this);
+
+	auto pov = pointOfView();
+	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+	pov->camera()->aspectRatio(aspectRatio);
+
+	m_renderer->renderStats().cameraPosition = pov->position();
+
+	if (willRenderCallback()) {
+		(willRenderCallback())(*this, sceneTime());
+	}
+
+	m_scene->draw(*RenderContext::renderer(),
+				  m_framebufferWidth, m_framebufferHeight,
+				  *pov,
+				  m_debugOptions, m_renderer->renderStats());
+
+	m_renderer->endFrame(*this);
+
+	swapBuffers();
+
+	if (m_recordingGIF) saveGIFFrame(sceneTime());
+
+	if (didRenderCallback()) {
+		(didRenderCallback())(*this, sceneTime());
+	}
+
+	pollInput();
 }
 
 shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {
@@ -319,7 +352,7 @@ void RenderContext::height(unsigned height) {
 	framebufferHeight(m_height * m_framebufferScale);
 }
 
-void RenderContext::framebufferScale(unsigned scale) {
+void RenderContext::framebufferScale(float scale) {
 	m_framebufferScale = scale;
 }
 

@@ -55,7 +55,7 @@
 			-> INITIALIZERS for other tests use defaults
 		Add Disk primitive
 
-	Switch AABB to min, max vec3s
+	Switch AABB to min, max vec3s.  BoundingBox class
 	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
 	Debug Scene/Geometry extent/default camera placement -- import cameras?
 
@@ -84,6 +84,10 @@
 	Fix Eulers
 		(See notes at bottom)
 	Fix axis-angle locking
+	
+	InputManager should probably be in the application layer
+
+	Public vs (Engine) Internal vs (Class) Private
 
 31 - contact
 	Kinematic objects:

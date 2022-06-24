@@ -1,0 +1,55 @@
+CURRNET OWNERSHIP
+==============================
+
+RenderContext
+	<Update loop>
+	Scene
+		<Graph>
+		<Draw> (Render + physics)
+		PhysicsWorld
+			<Physics properties>
+	Renderer
+		<API>
+	PhysicsSimulator
+		<Engine>
+	InputManager
+	
+	
+	
+
+NEW OWNERSHIP
+==============================
+
+Simulator
+	<Update loop>
+	Scene
+		<Graph>
+		PhysicsWorld
+			<Physics properties>
+	InputManager
+	PhysicsSimulator
+		<Engine>
+	RenderContext [Window, View, LED mat, etc]
+		Renderer
+			<API>
+		
+		
+	----- OR -----
+		
+		
+Simulator
+	<Update loop>
+	Scene (Graph)
+		<Nodes>
+			(Optional) PhysicsBody
+			(Optional) Geometry
+				<(Optional) Visual properties>
+		(Optional) PhysicsWorld
+		(Optional) VisualWorld
+	(Optional) PhysicsSimulator
+		<Engine>
+	InputManager
+	(Optional) RenderContext [Window, View, LED mat, etc]
+		Renderer
+			<API>
+		

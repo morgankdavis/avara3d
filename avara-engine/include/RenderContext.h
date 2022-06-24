@@ -75,7 +75,7 @@ namespace ae {
 		unsigned width() const;
 		unsigned height() const;
 		
-		unsigned framebufferScale() const;
+		float framebufferScale() const;
 		
 		unsigned framebufferWidth() const;
 		unsigned framebufferHeight() const;
@@ -91,7 +91,7 @@ namespace ae {
 		
 		ANTIALIASING_MODE antialiasingMode() const;
 		
-		virtual std::shared_ptr<InputManager> inputManager();
+		virtual std::shared_ptr<InputManager> inputManager() = 0;
 		
 		virtual float sceneTime() const;
 		
@@ -120,6 +120,8 @@ namespace ae {
  *********************************************************************************************/
 		
 		virtual void update();
+		virtual void swapBuffers() = 0;
+		virtual void pollInput() = 0;
 		
 		std::shared_ptr<PhysicsSimulator> physicsSimulator() const;
 		/* REMOVE? */ void physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
@@ -127,7 +129,7 @@ namespace ae {
 		void width(unsigned width);
 		void height(unsigned height);
 		
-		void framebufferScale(unsigned scale);
+		void framebufferScale(float scale);
 		
 		void framebufferWidth(unsigned width);
 		void framebufferHeight(unsigned height);

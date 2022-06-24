@@ -73,10 +73,12 @@ namespace ae {
 	RenderContext
  *********************************************************************************************/
 		
-		void update() override;
+		//void update() override;
+		void swapBuffers() override;
+		void pollInput() override;
 		void enableVSync(bool enabled) override;
 		void debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<InputManager> inputManager() override;;
+		std::shared_ptr<InputManager> inputManager() override;
 		float sceneTime() const override;
 		
 /*********************************************************************************************
