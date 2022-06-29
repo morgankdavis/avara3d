@@ -399,7 +399,8 @@ struct gcc_dcas_x86_64
         );
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+	// MKD: storage used to be const
+    static BOOST_FORCEINLINE storage_type load(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
 #if defined(__clang__)
 

@@ -262,7 +262,9 @@ SET_TARGET_PROPERTIES(BulletCollision PROPERTIES SOVERSION ${BULLET_VERSION})
 
 # added by Morgan
 if(UNIX AND APPLE)
-	target_compile_options(BulletCollision PRIVATE "-mmacosx-version-min=10.9")
+        target_compile_options(BulletCollision PRIVATE
+                "-mmacosx-version-min=10.9"
+                "-Wno-argument-outside-range")
 endif()
 
 

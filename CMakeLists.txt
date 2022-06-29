@@ -10,6 +10,18 @@ if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
+
+
+# print all variables
+# https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+
+
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 if (UNIX AND APPLE)

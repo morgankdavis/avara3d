@@ -40,7 +40,9 @@ SET_TARGET_PROPERTIES(Bullet3Dynamics PROPERTIES SOVERSION ${BULLET_VERSION})
 
 # added by Morgan
 if(UNIX AND APPLE)
-	target_compile_options(Bullet3Dynamics PRIVATE "-mmacosx-version-min=10.9")
+        target_compile_options(Bullet3Dynamics PRIVATE
+                "-mmacosx-version-min=10.9"
+                "-Wno-argument-outside-range")
 endif()
 
 # disabled by Morgan

@@ -26,7 +26,9 @@ SET_TARGET_PROPERTIES(Bullet3Geometry PROPERTIES SOVERSION ${BULLET_VERSION})
 
 # added by Morgan
 if(UNIX AND APPLE)
-	target_compile_options(Bullet3Geometry PRIVATE "-mmacosx-version-min=10.9")
+        target_compile_options(Bullet3Geometry PRIVATE
+                "-mmacosx-version-min=10.9"
+                "-Wno-argument-outside-range")
 endif()
 
 # disabled by Morgan

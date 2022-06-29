@@ -39,7 +39,9 @@ SET_TARGET_PROPERTIES(BulletInverseDynamics PROPERTIES SOVERSION ${BULLET_VERSIO
 
 # added by Morgan
 if(UNIX AND APPLE)
-	target_compile_options(BulletInverseDynamics PRIVATE "-mmacosx-version-min=10.9")
+        target_compile_options(BulletInverseDynamics PRIVATE
+                "-mmacosx-version-min=10.9"
+                "-Wno-argument-outside-range")
 endif()
 
 

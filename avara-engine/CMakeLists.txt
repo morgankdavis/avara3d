@@ -6,7 +6,7 @@ if (ANDROID)
 	# NDKHelper
 
 	add_subdirectory(external/NDKHelper)
-	
+
 else()
 
 	# either use CMake 3.11 or set 'OpenGL_GL_PREFERENCE' to 'GLVND' to use new OpenGL libs
@@ -14,21 +14,21 @@ else()
 	set(OpenGL_GL_PREFERENCE GLVND)
 
 	# GLFW
-	
+
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 	add_subdirectory(external/glfw-3.3)
 	include_directories(external/glfw-3.3/include)
-	
+
 	# GLEW
-	
+
 	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
-	
+
 	# assimp
-	
+
 	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
@@ -39,9 +39,9 @@ else()
 	endif()
 	add_subdirectory(external/assimp-3.3.1)
 	include_directories(external/assimp-3.3.1/include)
-	
+
 	# many mouse
-	
+
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse/include)
 
@@ -122,7 +122,7 @@ target_link_libraries(ae
 	boost_test
 	boost_thread
 	boost_timer)
-	
+
 if (DESKTOP)
 	target_link_libraries(ae
 		manymouse
@@ -132,7 +132,7 @@ if (DESKTOP)
 endif()
 
 if (MACOS)
-	
+
 	target_link_libraries(ae imgui z)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
@@ -144,8 +144,12 @@ if (MACOS)
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
+#        target_compile_options(ae PUBLIC
+#                        "-Wargument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
+
+
 elseif (LINUX AND NOT RPI)
-	
+
 	target_link_libraries(ae
 		imgui
 		z
@@ -156,13 +160,13 @@ elseif (LINUX AND NOT RPI)
 		pthread
 		Xi
 		dl)
-	
+
 elseif (WINDOWS)
 
 	target_link_libraries(ae
 		imgui
 		bz2)
-	
+
 	# wtf?
 	if(MSYS OR MINGW OR UBUNTU_CROSS)
 		target_link_libraries(ae winpthread)
@@ -181,7 +185,7 @@ elseif (WINDOWS)
 	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive")
 
 #	'-Wl,-rpath,$ORIGIN/../lib'
-	
+
 elseif (ANDROID)
 
 	target_link_libraries(
@@ -194,7 +198,7 @@ elseif (ANDROID)
 
 	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
 	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
-	
+
 endif()
 
 if (RPI)
@@ -219,7 +223,13 @@ endif ()
 
 # silence stupid warnings
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#message("COMPILER IS CLANG")
+#message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID})
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+	message("COMPILER IS CLANG")
+	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
 	target_compile_options(ae PUBLIC
 			"-fmessage-length=0"
@@ -232,29 +242,34 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 			"-Wno-address-of-packed-member"
 			"-Wno-unused-function"
 			"-Wno-deprecated-declarations"
-			"-Wargument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
+			"-Wno-argument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
 			#"-Wno-macro-redefined")
-			
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 # seems as if these are not needed for some reason... (?)
 
+#else()
+
+#	message("COMPILER IS OTHER")
+#	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID})
+
 endif()
-		
-		
+
+
 if (NOT ANDROID)
-		
+
 	# install lib and headers
 
 	set(LIB_INSTALL_DIR "${ROOT_INSTALL_DIR}/${INSTALL_DIR}/${PROJECT_NAME}")
 
 	install(TARGETS ae
 	        DESTINATION "${LIB_INSTALL_DIR}/lib")
-		
-	# TODO: make "public headers"	
+
+	# TODO: make "public headers"
 	install(FILES ${HEADERS}
 	        DESTINATION "${LIB_INSTALL_DIR}/include")
-	        
+
 	# install engine resources
 
 	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/shaders/*")
@@ -268,5 +283,5 @@ if (NOT ANDROID)
 	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/fonts/*")
 	install(FILES ${FONTS}
 			DESTINATION "${LIB_INSTALL_DIR}/fonts")
-			
+
 endif()
