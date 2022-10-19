@@ -58,8 +58,10 @@
 			Most physics world will come from meshes loaded from file
 
 	---------------------------------------------------
+	
+	Add Window title accessor
 
-	unique_ptr and shared_ptr
+	unique_ptr and shared_ptr -- check all enable_shared_from_this<> and shared_from_this()
 
 	glfwDestroyWindow
 

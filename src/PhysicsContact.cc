@@ -27,29 +27,29 @@ PhysicsContact::PhysicsContact() {
  *********************************************************************************************/
 
 shared_ptr<Node> PhysicsContact::nodeA() const {
-	return m_nodeA;
+	return _nodeA;
 }
 
 shared_ptr<Node> PhysicsContact::nodeB() const {
-	return m_nodeB;
+	return _nodeB;
 }
 
 vec3 PhysicsContact::contactPoint() const {
-	return m_contactPoint;
+	return _contactPoint;
 }
 
 vec3 PhysicsContact::contactNormal() const {
-	return m_contactNormal;
+	return _contactNormal;
 }
 
 float PhysicsContact::collisionImpulse() const {
-	return m_collisionImpulse;
+	return _collisionImpulse;
 }
 
 float PhysicsContact::penetrationDistance() const {
-	return m_penetrationDistance;
+	return _penetrationDistance;
 }
 
 float PhysicsContact::sweepTestFraction() const {
-	return m_sweepTestFraction;
+	return _sweepTestFraction;
 }

@@ -89,16 +89,16 @@ namespace ae {
 		void terminate();
 		int swap();
 
-		ANativeWindow* 					m_nativeWindow;
-		EGLDisplay 						m_display;
-		EGLSurface 						m_surface;
-		EGLContext 						m_context;
-		EGLConfig 						m_config;
-		int 							m_colorSize;
-		int 							m_depthSize;
-		bool 							m_initialized;
-		bool 							m_contextValid;
-		std::shared_ptr<InputManager>	m_inputManager;
+		ANativeWindow* 					_nativeWindow;
+		EGLDisplay 						_display;
+		EGLSurface 						_surface;
+		EGLContext 						_context;
+		EGLConfig 						_config;
+		int 							_colorSize;
+		int 							_depthSize;
+		bool 							_initialized;
+		bool 							_contextValid;
+		std::shared_ptr<InputManager>	_inputManager;
 	};
 }
 

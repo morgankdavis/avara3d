@@ -56,10 +56,10 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		glm::vec3 					m_fromLocation;
-		glm::vec3 					m_toLocation;
-		std::shared_ptr<Color> 		m_fromColor;
-		std::shared_ptr<Color> 		m_toColor;
+		glm::vec3 					_fromLocation;
+		glm::vec3 					_toLocation;
+		std::shared_ptr<Color> 		_fromColor;
+		std::shared_ptr<Color> 		_toColor;
 	};
 }
 

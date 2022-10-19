@@ -43,17 +43,17 @@ shared_ptr<Material> Material::DefaultMaterial() {
  *********************************************************************************************/
 
 Material::Material():
-	m_name(boost::none),
-	m_ambient(nullptr),
-	m_diffuse(nullptr),
-	m_specular(nullptr),
-	m_emissive(nullptr),
-	m_specularExponent(150.0),
-	m_locksAmbientWithDiffuse(true),
-	m_doubleSided(false),
-	m_fillMode(FILL_MODE::FILL),
-	m_uvScale(1.0f),
-	m_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
+	_name(boost::none),
+	_ambient(nullptr),
+	_diffuse(nullptr),
+	_specular(nullptr),
+	_emissive(nullptr),
+	_specularExponent(150.0),
+	_locksAmbientWithDiffuse(true),
+	_doubleSided(false),
+	_fillMode(FILL_MODE::FILL),
+	_uvScale(1.0f),
+	_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
 	
 		AE_LOG_D("Creating Material {:p}", (void*)this);
 }
@@ -63,9 +63,9 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> specular):
 	Material() {
 
-		m_ambient = ambient;
-		m_diffuse = diffuse;
-		m_specular = specular;
+		_ambient = ambient;
+		_diffuse = diffuse;
+		_specular = specular;
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
@@ -74,10 +74,10 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> emissive):
 	Material() {
 	
-		m_ambient = ambient;
-		m_diffuse = diffuse;
-		m_specular = specular;
-		m_emissive = emissive;
+		_ambient = ambient;
+		_diffuse = diffuse;
+		_specular = specular;
+		_emissive = emissive;
 }
 
 Material::~Material() {
@@ -89,74 +89,74 @@ Material::~Material() {
  *********************************************************************************************/
 
 boost::optional<std::string> Material::name() const {
-	return m_name;
+	return _name;
 }
 
 void Material::name(const string& name) {
-	m_name = name;
+	_name = name;
 }
 
 shared_ptr<MaterialProperty> Material::ambient() const {
-	return m_ambient;
+	return _ambient;
 }
 
 void Material::ambient(const shared_ptr<MaterialProperty> property) {
-	m_ambient = property;
+	_ambient = property;
 }
 
 shared_ptr<MaterialProperty> Material::diffuse() const {
-	return m_diffuse;
+	return _diffuse;
 }
 
 void Material::diffuse(const shared_ptr<MaterialProperty> property) {
-	m_diffuse = property;
+	_diffuse = property;
 }
 
 shared_ptr<MaterialProperty> Material::specular() const {
-	return m_specular;
+	return _specular;
 }
 
 void Material::specular(const shared_ptr<MaterialProperty> property) {
-	m_specular = property;
+	_specular = property;
 }
 
 shared_ptr<MaterialProperty> Material::emissive() const {
-	return m_emissive;
+	return _emissive;
 }
 
 void Material::emissive(const shared_ptr<MaterialProperty> property) {
-	m_emissive = property;
+	_emissive = property;
 }
 
 float Material::specularExponent() const {
-	return m_specularExponent;
+	return _specularExponent;
 }
 
 void Material::specularExponent(float exponent) {
-	m_specularExponent = exponent;
+	_specularExponent = exponent;
 }
 
 bool Material::locksAmbientWithDiffuse() const {
-	return m_locksAmbientWithDiffuse;
+	return _locksAmbientWithDiffuse;
 }
 
 void Material::locksAmbientWithDiffuse(bool flag) {
-	m_locksAmbientWithDiffuse = flag;
+	_locksAmbientWithDiffuse = flag;
 }
 
 bool Material::doubleSided() const {
-	return m_doubleSided;
+	return _doubleSided;
 }
 
 void Material::doubleSided(bool flag) {
-	m_doubleSided = flag;
+	_doubleSided = flag;
 }
 
 FILL_MODE Material::fillMode() const {
 #ifdef ANDROID
 	return FILL_MODE::FILL;
 #else
-	return m_fillMode;
+	return _fillMode;
 #endif
 }
 
@@ -167,15 +167,15 @@ void Material::fillMode(FILL_MODE mode) {
 	}
 #endif
 	
-	m_fillMode = mode;
+	_fillMode = mode;
 }
 
 float Material::uvScale() const {
-	return m_uvScale;
+	return _uvScale;
 }
 
 void Material::uvScale(float scale) {
-	m_uvScale = scale;
+	_uvScale = scale;
 }
 
 /*********************************************************************************************
@@ -183,9 +183,9 @@ void Material::uvScale(float scale) {
  *********************************************************************************************/
 
 MATERIAL_DIRTY_BITS Material::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void Material::dirtyBits(MATERIAL_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

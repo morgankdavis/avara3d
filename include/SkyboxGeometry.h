@@ -46,7 +46,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<SkyboxMaterial>>		m_materials;
+		std::vector<std::shared_ptr<SkyboxMaterial>>		_materials;
 	};
 }
 

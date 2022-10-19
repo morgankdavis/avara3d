@@ -51,13 +51,13 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		std::shared_ptr<Node> 		m_nodeA;
-		std::shared_ptr<Node> 		m_nodeB;
-		glm::vec3 					m_contactPoint;
-		glm::vec3 					m_contactNormal;
-		float 						m_collisionImpulse;
-		float 						m_penetrationDistance;
-		float 						m_sweepTestFraction;
+		std::shared_ptr<Node> 		_nodeA;
+		std::shared_ptr<Node> 		_nodeB;
+		glm::vec3 					_contactPoint;
+		glm::vec3 					_contactNormal;
+		float 						_collisionImpulse;
+		float 						_penetrationDistance;
+		float 						_sweepTestFraction;
 	};
 }
 

@@ -27,12 +27,12 @@ Camera::Camera():
 }
 
 Camera::Camera(float zNear, float zFar, float fov):
-	m_name(boost::none),
-	m_zNear(zNear),
-	m_zFar(zFar),
-	m_fov(radians(fov)),
-	m_aspectRatio(1.0),
-	m_node({}) {
+	_name(boost::none),
+	_zNear(zNear),
+	_zFar(zFar),
+	_fov(radians(fov)),
+	_aspectRatio(1.0),
+	_node({}) {
 
 		constructProjectionMat();
 }
@@ -42,11 +42,11 @@ Camera::Camera(float zNear, float zFar, float fov):
  *********************************************************************************************/
 
 boost::optional<std::string> Camera::name() {
-	return m_name;
+	return _name;
 }
 
 void Camera::name(string name) {
-	m_name = name;
+	_name = name;
 }
 
 void Camera::translate(vec3 translation) {
@@ -58,48 +58,48 @@ void Camera::rotate(vec3 rotation) {
 }
 
 float Camera::fov() {
-	return m_fov;
+	return _fov;
 }
 
 void Camera::fov(float fov) {
 	//if (fov > 0 || fov < M_PI) {
-		m_fov = fov;
+		_fov = fov;
 		constructProjectionMat();
 	//}
 }
 
 float Camera::zNear() {
-	return m_zNear;
+	return _zNear;
 }
 
 void Camera::zNear(float zNear) {
-	m_zNear = zNear;
+	_zNear = zNear;
 	constructProjectionMat();
 }
 
 float Camera::zFar() {
-	return m_zFar;
+	return _zFar;
 }
 
 void Camera::zFar(float zFar) {
-	m_zFar = zFar;
+	_zFar = zFar;
 	constructProjectionMat();
 }
 
 float Camera::aspectRatio() {
-	return m_aspectRatio;
+	return _aspectRatio;
 }
 
 void Camera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every draw
-	if (!utils::Equal(ratio, m_aspectRatio, 0.001)) {
-		m_aspectRatio = ratio;
+	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
+		_aspectRatio = ratio;
 		constructProjectionMat();
 	}
 }
 
 mat4 Camera::projection() {
-	return m_projection;
+	return _projection;
 }
 
 /*********************************************************************************************
@@ -108,17 +108,17 @@ mat4 Camera::projection() {
 
 void Camera::constructProjectionMat() {
 	
-	m_projection = perspective(m_fov,
-							   m_aspectRatio,
-							   m_zNear,
-							   m_zFar);
+	_projection = perspective(_fov,
+							   _aspectRatio,
+							   _zNear,
+							   _zFar);
 }
 
 weak_ptr<Node> Camera::node() const {
-	return m_node;
+	return _node;
 }
 
 void Camera::attachedToNode(shared_ptr<Node> node) {
-	m_node = node;
+	_node = node;
 }
 

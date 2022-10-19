@@ -48,8 +48,8 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		unsigned char* 		m_pointer;
-		unsigned 			m_size;
+		unsigned char* 		_pointer;
+		unsigned 			_size;
 	};
 }
 

@@ -75,16 +75,16 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		std::shared_ptr<MaterialPropertyContents>				m_contents;
+		std::shared_ptr<MaterialPropertyContents>				_contents;
 		
-		FILTER_MODE												m_minificationFilter;
-		FILTER_MODE												m_magnificationFilter;
-		float													m_maxAnisotropy;
-		WRAP_MODE												m_wrapS;
-		WRAP_MODE												m_wrapT;
-		WRAP_MODE												m_wrapR;
+		FILTER_MODE												_minificationFilter;
+		FILTER_MODE												_magnificationFilter;
+		float													_maxAnisotropy;
+		WRAP_MODE												_wrapS;
+		WRAP_MODE												_wrapT;
+		WRAP_MODE												_wrapR;
 
-		MATERIAL_PROPERTY_DIRTY_BITS							m_dirtyBits;
+		MATERIAL_PROPERTY_DIRTY_BITS							_dirtyBits;
 	};
 }
 

@@ -161,7 +161,7 @@ namespace ae {
 	Protected
  *********************************************************************************************/
 		
-		int							m_debugMode;
+		int							_debugMode;
 		
 	private:
 		
@@ -169,7 +169,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 	
-		std::shared_ptr<LineSet>	m_lineSet;
+		std::shared_ptr<LineSet>	_lineSet;
 	};
 }
 

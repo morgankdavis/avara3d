@@ -91,8 +91,8 @@ namespace ae {
 	Protected
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<GeometryElement>>		m_elements;
-		std::vector<std::shared_ptr<Material>>				m_materials;
+		std::vector<std::shared_ptr<GeometryElement>>		_elements;
+		std::vector<std::shared_ptr<Material>>				_materials;
 
 	private:
 
@@ -100,10 +100,10 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		boost::optional<std::string>						m_name;
-		std::weak_ptr<Node>									m_node;
+		boost::optional<std::string>						_name;
+		std::weak_ptr<Node>									_node;
 
-		GEOMETRY_DIRTY_BITS									m_dirtyBits;
+		GEOMETRY_DIRTY_BITS									_dirtyBits;
 	};
 }
 

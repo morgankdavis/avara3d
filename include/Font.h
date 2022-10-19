@@ -51,9 +51,9 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>	m_name;
-		FONT_TYPE						m_type;
-		std::shared_ptr<Buffer>			m_buffer;
+		boost::optional<std::string>	_name;
+		FONT_TYPE						_type;
+		std::shared_ptr<Buffer>			_buffer;
 	};
 }
 

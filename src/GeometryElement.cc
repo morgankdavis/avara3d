@@ -26,9 +26,9 @@ using namespace glm;
 
 GeometryElement::GeometryElement(std::vector<Vertex>& verticies,
 								 std::vector<Face>& faces):
-	m_vertices(verticies),
-	m_faces(faces),
-	m_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
+	_vertices(verticies),
+	_faces(faces),
+	_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
 		
 }
 
@@ -58,8 +58,8 @@ void GeometryElement::draw(Renderer& renderer,
 }
 
 void GeometryElement::burnTransform(const mat4& transform, bool normals) {
-	for (int v=0; v<m_vertices.size(); ++v) {
-		Vertex* vertex = &m_vertices[v];
+	for (int v=0; v<_vertices.size(); ++v) {
+		Vertex* vertex = &_vertices[v];
 		vertex->position = vec3(transform * vec4(vertex->position, 1.0f));
 
 		if (normals) {
@@ -67,21 +67,21 @@ void GeometryElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	GEOMETRY_ELEMENT_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA);
+	GEOMETRY_ELEMENT_DIRTY_BITS_ADD(_dirtyBits, GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA);
 }
 
 const vector<Vertex>& GeometryElement::vertices() const {
-	return m_vertices;
+	return _vertices;
 }
 
 const vector<Face>& GeometryElement::faces() const {
-	return m_faces;
+	return _faces;
 }
 
 GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

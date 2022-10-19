@@ -30,11 +30,11 @@ using namespace glm;
  *********************************************************************************************/
 
 Geometry::Geometry():
-	m_name(boost::none),
-	m_elements(vector<shared_ptr<GeometryElement>>()),
-	m_materials(vector<shared_ptr<Material>>()),
-	m_node({}),
-	m_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
+	_name(boost::none),
+	_elements(vector<shared_ptr<GeometryElement>>()),
+	_materials(vector<shared_ptr<Material>>()),
+	_node({}),
+	_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
 
@@ -42,16 +42,16 @@ Geometry::Geometry(const shared_ptr<GeometryElement> element,
 				   const shared_ptr<Material> material):
 	Geometry() {
 		
-		m_elements.emplace_back(element);
-		m_materials.emplace_back(material);
+		_elements.emplace_back(element);
+		_materials.emplace_back(material);
 }
 
 Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 				   const vector<shared_ptr<Material>> materials):
 	Geometry() {
 
-		m_elements.insert(m_elements.begin(), elements.begin(), elements.end());
-		m_materials.insert(m_materials.begin(), materials.begin(), materials.end());
+		_elements.insert(_elements.begin(), elements.begin(), elements.end());
+		_materials.insert(_materials.begin(), materials.begin(), materials.end());
 }
 
 Geometry::~Geometry() {
@@ -63,30 +63,30 @@ Geometry::~Geometry() {
  *********************************************************************************************/
 
 boost::optional<string> Geometry::name() const {
-	return m_name;
+	return _name;
 }
 
 void Geometry::name(const string& name) {
-	m_name = name;
+	_name = name;
 }
 
 const vector<shared_ptr<GeometryElement>>& Geometry::elements() {
-	return m_elements;
+	return _elements;
 }
 
 const vector<shared_ptr<Material>>& Geometry::materials() {
-	return m_materials;
+	return _materials;
 }
 
 shared_ptr<Material> Geometry::firstMaterial() const {
-	if (!m_materials.empty()) {
-		return m_materials[0];
+	if (!_materials.empty()) {
+		return _materials[0];
 	}
 	return nullptr;
 }
 
 shared_ptr<Material> Geometry::materialNamed(const string& name) const {
-	for (auto material : m_materials) {
+	for (auto material : _materials) {
 		auto matName = material->name();
 		if (matName) {
 			if (!((*matName) == name)) {
@@ -98,16 +98,16 @@ shared_ptr<Material> Geometry::materialNamed(const string& name) const {
 }
 
 void Geometry::addMaterial(const shared_ptr<Material> material) {
-	m_materials.emplace_back(material);
+	_materials.emplace_back(material);
 }
 
 void Geometry::insertMaterial(const shared_ptr<Material> material, int index) {
-	m_materials.insert(m_materials.begin()+index, material);
+	_materials.insert(_materials.begin()+index, material);
 }
 
 void Geometry::removeMaterial(int index) {
-	if (m_materials.size() >= index-1) {
-		m_materials.erase(m_materials.begin()+index);
+	if (_materials.size() >= index-1) {
+		_materials.erase(_materials.begin()+index);
 	}
 }
 
@@ -137,22 +137,22 @@ void Geometry::draw(Renderer& renderer,
 	// forces Renderer to re-create AABB linesets next time they're turned on.
 	// this seems like hacky way to do it.
 	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		m_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(m_dirtyBits, GEOMETRY_DIRTY_BITS::EXTENT);
+		_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(_dirtyBits, GEOMETRY_DIRTY_BITS::EXTENT);
 	}
 	
 	renderer.render(shared_from_this(),
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
 
-	unsigned numElements = m_elements.size();
+	unsigned numElements = _elements.size();
 	stats.meshes += numElements;
 	
 	for (unsigned e=0; e<numElements; ++e) {
 		
-		shared_ptr<GeometryElement> element = m_elements[e];
+		shared_ptr<GeometryElement> element = _elements[e];
 		shared_ptr<Material> material = nullptr;
-		if (m_materials.size() > e) {
-			material = m_materials[e];
+		if (_materials.size() > e) {
+			material = _materials[e];
 		}
 		else {
 			material = Material::DefaultMaterial();
@@ -178,11 +178,11 @@ shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
 	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
-	for (auto element : m_elements) {
+	for (auto element : _elements) {
 		for (auto v : element->vertices()) {
 			vec3 p = v.position;
 			if (worldSpace) {
-				if (auto node = m_node.lock()) {
+				if (auto node = _node.lock()) {
 					p = vec3(node->worldTransform() * vec4(v.position, 1.0f));
 				}
 			}
@@ -209,17 +209,17 @@ vec3 Geometry::extent(bool worldSpace) const {
 }
 
 void Geometry::attachedToNode(shared_ptr<Node> node) {
-	m_node = node;
+	_node = node;
 }
 
 weak_ptr<Node> Geometry::node() const {
-	return m_node;
+	return _node;
 }
 
 GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void Geometry::dirtyBits(GEOMETRY_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

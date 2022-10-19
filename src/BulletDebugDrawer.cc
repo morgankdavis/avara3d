@@ -42,8 +42,8 @@ static btVector4 BTVector4FromGLMVec4(const vec4& from);
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
-	m_debugMode(btIDebugDraw::DBG_NoDebug),
-	m_lineSet(make_shared<LineSet>()) {
+	_debugMode(btIDebugDraw::DBG_NoDebug),
+	_lineSet(make_shared<LineSet>()) {
 
 }
 
@@ -57,7 +57,7 @@ BulletDebugDrawer::~BulletDebugDrawer() {
 
 void BulletDebugDrawer::clear() {
 	// have to replace shared_ptr for Renderer to reload the data
-	m_lineSet = make_shared<LineSet>();
+	_lineSet = make_shared<LineSet>();
 }
 
 void BulletDebugDrawer::draw(Renderer& renderer,
@@ -67,7 +67,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		AE_LOG_T("BulletDebugDrawer::draw()");
 
-		renderer.render(m_lineSet, mat4(1.0), viewMat, projectionMat);
+		renderer.render(_lineSet, mat4(1.0), viewMat, projectionMat);
 	}
 }
 
@@ -89,7 +89,7 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								  const btVector3& toColor) {
 	//AE_LOG_D("drawLine() - 2 colors");
 
-	m_lineSet->emplace(make_shared<Line>(GLMVec3FromBTVector3(from),
+	_lineSet->emplace(make_shared<Line>(GLMVec3FromBTVector3(from),
 										 GLMVec3FromBTVector3(to),
 										 make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
 										 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
@@ -223,11 +223,11 @@ void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 */
 
 void BulletDebugDrawer::setDebugMode(int debugMode) {
-	m_debugMode = debugMode;
+	_debugMode = debugMode;
 }
 
 int BulletDebugDrawer::getDebugMode() const {
-	return m_debugMode;
+	return _debugMode;
 }
 
 /*********************************************************************************************

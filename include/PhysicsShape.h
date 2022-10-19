@@ -67,15 +67,15 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		std::weak_ptr<Geometry> 						m_sourceGeometry;
-		std::weak_ptr<Node> 							m_sourceNode;
-		PHYSICS_SHAPE_TYPE 								m_type;
+		std::weak_ptr<Geometry> 						_sourceGeometry;
+		std::weak_ptr<Node> 							_sourceNode;
+		PHYSICS_SHAPE_TYPE 								_type;
 		// The array of transforms that was used to create a compound shape.
-		std::vector<glm::mat4> 							m_transforms;
+		std::vector<glm::mat4> 							_transforms;
 
-		std::weak_ptr<PhysicsBody>						m_physicsBody;
+		std::weak_ptr<PhysicsBody>						_physicsBody;
 		
-		PHYSICS_SHAPE_DIRTY_BITS 						m_dirtyBits;
+		PHYSICS_SHAPE_DIRTY_BITS 						_dirtyBits;
 	};
 }
 

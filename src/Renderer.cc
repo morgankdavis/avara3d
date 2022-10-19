@@ -40,7 +40,7 @@ bool Renderer::initialize(const RenderContext& context) {
 }
 
 void Renderer::beginFrame(const RenderContext& context) {
-	m_renderStats = (RenderStats){};
+	_renderStats = (RenderStats){};
 }
 
 void Renderer::endFrame(const RenderContext& context) {
@@ -98,5 +98,5 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 }
 
 RenderStats& Renderer::renderStats() {
-	return m_renderStats;
+	return _renderStats;
 }

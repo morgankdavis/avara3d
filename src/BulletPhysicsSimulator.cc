@@ -100,37 +100,37 @@ static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
 
 BulletPhysicsSimulator::BulletPhysicsSimulator():
 	PhysicsSimulator(),
-	m_btCollisionConfiguration(make_shared<btDefaultCollisionConfiguration>()),
-	m_btDispatcher(make_shared<btCollisionDispatcher>(m_btCollisionConfiguration.get())),
-	m_btBroadphase(make_shared<btDbvtBroadphase>()),
-	m_btSolver(make_shared<btSequentialImpulseConstraintSolver>()),
-	m_btWorld(make_shared<btDiscreteDynamicsWorld>(m_btDispatcher.get(),
-												   m_btBroadphase.get(),
-												   m_btSolver.get(),
-												   m_btCollisionConfiguration.get())),
+	_btCollisionConfiguration(make_shared<btDefaultCollisionConfiguration>()),
+	_btDispatcher(make_shared<btCollisionDispatcher>(_btCollisionConfiguration.get())),
+	_btBroadphase(make_shared<btDbvtBroadphase>()),
+	_btSolver(make_shared<btSequentialImpulseConstraintSolver>()),
+	_btWorld(make_shared<btDiscreteDynamicsWorld>(_btDispatcher.get(),
+												   _btBroadphase.get(),
+												   _btSolver.get(),
+												   _btCollisionConfiguration.get())),
 #ifdef GL_FULL
-	m_debugDrawer(make_shared<BulletDebugDrawer>()),
+	_debugDrawer(make_shared<BulletDebugDrawer>()),
 #endif
-	m_bodyBTMapping(PhysicsBodyBTMapping()),
-	m_shapeBTMapping(PhysicsShapeBTMapping()),
-	m_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
-	m_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
+	_bodyBTMapping(PhysicsBodyBTMapping()),
+	_shapeBTMapping(PhysicsShapeBTMapping()),
+	_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
+	_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
 
 		AE_LOG_I("Bullet version: {}",  btGetVersion());
 
 #ifdef GL_FULL
-		m_btWorld.get()->setDebugDrawer(m_debugDrawer.get());
+		_btWorld.get()->setDebugDrawer(_debugDrawer.get());
 #endif
 }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	AE_LOG_D("Destroying BulletPhysicsSimulator {:p}", (void*)this);
 	
-	m_activeBodies.clear();
-	m_activeShapes.clear();
+	_activeBodies.clear();
+	_activeShapes.clear();
 	
-	CleanupPhysicsBodyResources(m_activeBodies, *m_btWorld, m_bodyBTMapping);
-	CleanupPhysicsShapeResources(m_activeShapes, m_shapeBTMapping);
+	CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
+	CleanupPhysicsShapeResources(_activeShapes, _shapeBTMapping);
 }
 
 /*********************************************************************************************
@@ -143,10 +143,10 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 									   const DEBUG_OPTIONS& debugOptions) {
 #ifdef GL_FULL
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
-	m_debugDrawer->setDebugMode(btDebugModes);
-	m_debugDrawer->clear();
-	m_btWorld->debugDrawWorld();
-	m_debugDrawer->draw(renderer, viewMat, projectionMat);
+	_debugDrawer->setDebugMode(btDebugModes);
+	_debugDrawer->clear();
+	_btWorld->debugDrawWorld();
+	_debugDrawer->draw(renderer, viewMat, projectionMat);
 #endif
 }
 
@@ -159,8 +159,8 @@ void BulletPhysicsSimulator::beginUpdate(PASS pass,
 	PhysicsSimulator::beginUpdate(pass, scene);
 	
 	if (pass == PASS::STEP) {
-		m_activeBodies.clear();
-		m_activeShapes.clear();
+		_activeBodies.clear();
+		_activeShapes.clear();
 	}
 }
 
@@ -170,8 +170,8 @@ void BulletPhysicsSimulator::endUpdate(PASS pass,
 	
 	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
 	if (pass == PASS::STEP) {
-		CleanupPhysicsBodyResources(m_activeBodies, *m_btWorld, m_bodyBTMapping);
-		CleanupPhysicsShapeResources(m_activeShapes, m_shapeBTMapping);
+		CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
+		CleanupPhysicsShapeResources(_activeShapes, _shapeBTMapping);
 	}
 }
 
@@ -183,7 +183,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		auto world = scene->physicsWorld();
 		
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
-			m_timestep = world->timestep();
+			_timestep = world->timestep();
 			
 			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
 															 PHYSICS_WORLD_DIRTY_BITS::TIMESTEP));
@@ -191,7 +191,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 		#warning set this gravity for all physics objects, too...
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::GRAVITY)) {
-			m_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
+			_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
 			
 			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
 															 PHYSICS_WORLD_DIRTY_BITS::GRAVITY));
@@ -219,9 +219,9 @@ void BulletPhysicsSimulator::update(PASS pass,
 			
 			GetPhysicsBodyBTModels(body,
 								   &btBody, &btMotionState, &btShape, btChildShapes,
-								   *m_btWorld,
-								   m_bodyBTMapping,
-								   m_shapeBTMapping);
+								   *_btWorld,
+								   _bodyBTMapping,
+								   _shapeBTMapping);
 			
 			// if the body isn't complete (doesn't have a source geometry or source node?)
 			// we can't make a BT model for it
@@ -261,7 +261,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 			}
 			
 			// save reference for housekeeping
-			m_activeShapes.emplace(body->shape());
+			_activeShapes.emplace(body->shape());
 		}
 		else {
 			AE_LOG_W("No PhysicsShape attached to PhysicsBody.");
@@ -269,7 +269,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		}
 		
 		// save reference for housekeeping
-		m_activeBodies.emplace(body);
+		_activeBodies.emplace(body);
 	}
 }
 
@@ -280,7 +280,7 @@ void BulletPhysicsSimulator::step(float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 	
-	int result = m_btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, m_timestep);
+	int result = _btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, _timestep);
 	
 	if (result == MAX_SUBSTEPS) {
 		AE_LOG_W("Physics simulation max substeps reached: {}", result);
@@ -772,14 +772,14 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 //			auto faces = element->faces();
 //			
 //			auto mesh = make_shared<btIndexedMesh>();
-//			mesh->m_numTriangles = faces.size();
-//			mesh->m_triangleIndexBase = (const unsigned char *)&faces[0];
-//			mesh->m_triangleIndexStride = sizeof(Face);
-//			mesh->m_numVertices = verts.size();
-//			mesh->m_vertexBase = (const unsigned char *)&verts[0];
-//			mesh->m_vertexStride = sizeof(Vertex);
-//			mesh->m_indexType = PHY_INTEGER;
-//			mesh->m_vertexType = PHY_FLOAT;
+//			mesh->_numTriangles = faces.size();
+//			mesh->_triangleIndexBase = (const unsigned char *)&faces[0];
+//			mesh->_triangleIndexStride = sizeof(Face);
+//			mesh->_numVertices = verts.size();
+//			mesh->_vertexBase = (const unsigned char *)&verts[0];
+//			mesh->_vertexStride = sizeof(Vertex);
+//			mesh->_indexType = PHY_INTEGER;
+//			mesh->_vertexType = PHY_FLOAT;
 //			meshes->emplace_back(mesh);
 //		
 //			indexedVertexArray->addIndexedMesh(*mesh.get());

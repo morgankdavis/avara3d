@@ -38,34 +38,34 @@ using namespace std;
  *********************************************************************************************/
 
 RenderContext::RenderContext(RENDER_API renderAPI):
-	m_renderAPI(renderAPI),
-	m_renderer(nullptr),
-	m_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
-	m_scene(nullptr),
-	m_width(0),
-	m_height(0),
-	m_framebufferScale(1),
-	m_framebufferWidth(0),
-	m_framebufferHeight(0),
-	m_vSyncEnabled(false),
-	m_antialiasingMode(ANTIALIASING_MODE::NONE),
-	m_debugOptions(DEBUG_OPTIONS::NONE),
-	m_pointOfView(nullptr),
-	m_gifWriter(nullptr),
-	m_recordingGIF(false),
-	m_gifRecordingWidth(0),
-	m_gifRecordingHeight(0),
-	m_gifRecordingMaxFramerate(0),
-	m_gifRecordedFrames(0),
-	m_updateCallback(nullptr),
-	m_didSimulatePhysicsCallback(nullptr),
-	m_willRenderCallback(nullptr),
-	m_didRenderCallback(nullptr) {
+	_renderAPI(renderAPI),
+	_renderer(nullptr),
+	_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
+	_scene(nullptr),
+	_width(0),
+	_height(0),
+	_framebufferScale(1),
+	_framebufferWidth(0),
+	_framebufferHeight(0),
+	_vSyncEnabled(false),
+	_antialiasingMode(ANTIALIASING_MODE::NONE),
+	_debugOptions(DEBUG_OPTIONS::NONE),
+	_pointOfView(nullptr),
+	_gifWriter(nullptr),
+	_recordingGIF(false),
+	_gifRecordingWidth(0),
+	_gifRecordingHeight(0),
+	_gifRecordingMaxFramerate(0),
+	_gifRecordedFrames(0),
+	_updateCallback(nullptr),
+	_didSimulatePhysicsCallback(nullptr),
+	_willRenderCallback(nullptr),
+	_didRenderCallback(nullptr) {
 
-		switch (m_renderAPI) {
+		switch (_renderAPI) {
 			case RENDER_API::OPENGL: {
 				auto renderer = make_shared<OpenGLRenderer>();
-				m_renderer = static_pointer_cast<Renderer>(renderer);
+				_renderer = static_pointer_cast<Renderer>(renderer);
 				break; }
 			case RENDER_API::VULKAN: {
 				throw Exception("Unsupported render API: Vulkan");
@@ -76,7 +76,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 RenderContext::~RenderContext() {
 	AE_LOG_D("Destroying RenderContext {:p}", (void*)this);
 	
-	if (m_recordingGIF) {
+	if (_recordingGIF) {
 		stopGIFRecording();
 	}
 }
@@ -86,58 +86,58 @@ RenderContext::~RenderContext() {
  *********************************************************************************************/
 
 RENDER_API RenderContext::renderAPI() const {
-	return m_renderAPI;
+	return _renderAPI;
 }
 
 shared_ptr<Renderer> RenderContext::renderer() const {
-	return m_renderer;
+	return _renderer;
 }
 
 void RenderContext::renderer(shared_ptr<Renderer> renderer) {
-	m_renderer = renderer;
+	_renderer = renderer;
 }
 
 shared_ptr<Scene> RenderContext::scene() const {
-	//return m_renderer->scene();
-	return m_scene;
+	//return _renderer->scene();
+	return _scene;
 }
 
 void RenderContext::scene(const shared_ptr<Scene> scene) {
-	//m_renderer->scene(scene);
-	m_scene = scene;
+	//_renderer->scene(scene);
+	_scene = scene;
 	scene->attachedToRenderContext(shared_from_this());
 }
 
 unsigned RenderContext::width() const {
-	return m_width;
+	return _width;
 }
 
 unsigned RenderContext::height() const {
-	return m_height;
+	return _height;
 }
 
 float RenderContext::framebufferScale() const {
-	return m_framebufferScale;
+	return _framebufferScale;
 }
 
 unsigned RenderContext::framebufferWidth() const {
-	return m_framebufferWidth;
+	return _framebufferWidth;
 }
 
 unsigned RenderContext::framebufferHeight() const {
-	return m_framebufferHeight;
+	return _framebufferHeight;
 }
 
 bool RenderContext::vSyncEnabled() const {
-	return m_vSyncEnabled;
+	return _vSyncEnabled;
 }
 
 void RenderContext::enableVSync(bool enabled) {
-	m_vSyncEnabled = enabled;
+	_vSyncEnabled = enabled;
 }
 
 DEBUG_OPTIONS RenderContext::debugOptions() const {
-	return m_debugOptions;
+	return _debugOptions;
 }
 
 void RenderContext::debugOptions(DEBUG_OPTIONS options) {
@@ -151,41 +151,41 @@ void RenderContext::debugOptions(DEBUG_OPTIONS options) {
 	}
 #endif
 	
-	m_debugOptions = options;
+	_debugOptions = options;
 	
-//	if (m_scene && m_scene->physicsWorld()) {
-//		m_scene->physicsWorld()->debugOptions(m_debugOptions);
+//	if (_scene && _scene->physicsWorld()) {
+//		_scene->physicsWorld()->debugOptions(_debugOptions);
 //	}
 }
 
 shared_ptr<Node> RenderContext::pointOfView() {
 	
-	if (m_pointOfView) {
-		return m_pointOfView;
+	if (_pointOfView) {
+		return _pointOfView;
 	}
 	else {
 		// try to assign one from the scene
-		for (auto node: m_scene->rootNode()->children(true)) {
+		for (auto node: _scene->rootNode()->children(true)) {
 			if (node->camera()) {
-				m_pointOfView = node;
-				return m_pointOfView;
+				_pointOfView = node;
+				return _pointOfView;
 			}
 		}
 	}
-	if (!m_pointOfView) {
+	if (!_pointOfView) {
 		// still no POV. add a default one.
-		m_pointOfView = defaultPointOfView();
+		_pointOfView = defaultPointOfView();
 	}
 	
-	return m_pointOfView;
+	return _pointOfView;
 }
 
 void RenderContext::pointOfView(const shared_ptr<Node> camera) {
-	m_pointOfView = camera;
+	_pointOfView = camera;
 }
 
 ANTIALIASING_MODE RenderContext::antialiasingMode() const {
-	return m_antialiasingMode;
+	return _antialiasingMode;
 }
 
 //shared_ptr<InputManager> RenderContext::inputManager() { // pure virtual
@@ -201,96 +201,96 @@ float RenderContext::sceneTime() const {
 }
 
 shared_ptr<Image> RenderContext::snapshot() const {
-	if (m_renderer) {
-		return m_renderer->snapshot(*this);
+	if (_renderer) {
+		return _renderer->snapshot(*this);
 	}
 	return nullptr;
 }
 
 bool RenderContext::recordingGIF() const {
-	return m_recordingGIF;
+	return _recordingGIF;
 }
 
 void RenderContext::startGIFRecording(const boost::filesystem::path& path,
 									  unsigned maxHeight, unsigned maxFramerate) {
 	
-	if (!m_recordingGIF) {
+	if (!_recordingGIF) {
 		AE_LOG_I("Starting GIF recording...");
 		
-		m_gifRecordingMaxFramerate = maxFramerate;
-		m_gifRecordedFrames = 0;
+		_gifRecordingMaxFramerate = maxFramerate;
+		_gifRecordedFrames = 0;
 		
-		m_gifRecordingHeight = m_framebufferHeight;
-		m_gifRecordingWidth = m_framebufferWidth;
-		if (m_gifRecordingHeight > maxHeight) {
-			float scale = (float)maxHeight / (float)m_framebufferHeight;
-			m_gifRecordingHeight = m_framebufferHeight * scale;
-			m_gifRecordingWidth = m_framebufferWidth * scale;
+		_gifRecordingHeight = _framebufferHeight;
+		_gifRecordingWidth = _framebufferWidth;
+		if (_gifRecordingHeight > maxHeight) {
+			float scale = (float)maxHeight / (float)_framebufferHeight;
+			_gifRecordingHeight = _framebufferHeight * scale;
+			_gifRecordingWidth = _framebufferWidth * scale;
 		}
 		
-		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
 		unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 		
-		//m_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
-		m_gifWriter = make_shared<GifWriter>();
+		//_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
+		_gifWriter = make_shared<GifWriter>();
 		// gif-h frame time is in 100ths of a second
-		GifBegin(m_gifWriter.get(), path.string().c_str(), 
-				 m_gifRecordingWidth, m_gifRecordingHeight, 
+		GifBegin(_gifWriter.get(), path.string().c_str(),
+				 _gifRecordingWidth, _gifRecordingHeight,
 				 frameTimeHS);
 		
-		m_recordingGIF = true;
+		_recordingGIF = true;
 	}
 }
 
 unsigned RenderContext::recordedGIFFrames() const {
-	return m_gifRecordedFrames; 
+	return _gifRecordedFrames;
 }
 
 void RenderContext::stopGIFRecording() {
-	if (m_recordingGIF) {
-		m_recordingGIF = false;
+	if (_recordingGIF) {
+		_recordingGIF = false;
 		
-		GifEnd(m_gifWriter.get());
+		GifEnd(_gifWriter.get());
 		// crashing... but it doesn't look like GifEnd() frees everything,
 		// just the main buffer.
-		//free(m_gifWriter.get());
-		m_gifWriter = nullptr;
+		//free(_gifWriter.get());
+		_gifWriter = nullptr;
 		
 		AE_LOG_I("Stopped GIF recording.");
 	}
 }
 
 RenderContext::UpdateFunction RenderContext::updateCallback() const {
-	return m_updateCallback;
+	return _updateCallback;
 }
 
 void RenderContext::updateCallback(RenderContext::UpdateFunction function) {
-	m_updateCallback = function;
+	_updateCallback = function;
 }
 
 RenderContext::DidSimulatePhysicsFunction RenderContext::didSimulatePhysicsCallback() const {
-	return m_didSimulatePhysicsCallback;
+	return _didSimulatePhysicsCallback;
 }
 
 void RenderContext::didSimulatePhysicsCallback(RenderContext::DidSimulatePhysicsFunction function) {
-	m_didSimulatePhysicsCallback = function;
+	_didSimulatePhysicsCallback = function;
 }
 
 RenderContext::WillRenderFunction RenderContext::willRenderCallback() const {
-	return m_willRenderCallback;
+	return _willRenderCallback;
 }
 
 void RenderContext::willRenderCallback(RenderContext::WillRenderFunction function) {
-	m_willRenderCallback = function;
+	_willRenderCallback = function;
 }
 
 RenderContext::DidRenderFunction RenderContext::didRenderCallback() const {
-	return m_didRenderCallback;
+	return _didRenderCallback;
 }
 
 void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function) {
-	m_didRenderCallback = function;
+	_didRenderCallback = function;
 }
 
 /*********************************************************************************************
@@ -304,28 +304,28 @@ void RenderContext::update() { // pure virtual
 		(updateCallback())(*this, sceneTime());
 	}
 
-	m_renderer->beginFrame(*this);
+	_renderer->beginFrame(*this);
 
 	auto pov = pointOfView();
-	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
 	pov->camera()->aspectRatio(aspectRatio);
 
-	m_renderer->renderStats().cameraPosition = pov->position();
+	_renderer->renderStats().cameraPosition = pov->position();
 
 	if (willRenderCallback()) {
 		(willRenderCallback())(*this, sceneTime());
 	}
 
-	m_scene->draw(*RenderContext::renderer(),
-				  m_framebufferWidth, m_framebufferHeight,
+	_scene->draw(*RenderContext::renderer(),
+				  _framebufferWidth, _framebufferHeight,
 				  *pov,
-				  m_debugOptions, m_renderer->renderStats());
+				  _debugOptions, _renderer->renderStats());
 
-	m_renderer->endFrame(*this);
+	_renderer->endFrame(*this);
 
 	swapBuffers();
 
-	if (m_recordingGIF) saveGIFFrame(sceneTime());
+	if (_recordingGIF) saveGIFFrame(sceneTime());
 
 	if (didRenderCallback()) {
 		(didRenderCallback())(*this, sceneTime());
@@ -335,33 +335,33 @@ void RenderContext::update() { // pure virtual
 }
 
 shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {
-	return m_physicsSimulator;
+	return _physicsSimulator;
 }
 
 void RenderContext::physicsSimulator(shared_ptr<PhysicsSimulator> physicsSimulator) {
-	m_physicsSimulator = physicsSimulator;
+	_physicsSimulator = physicsSimulator;
 }
 
 void RenderContext::width(unsigned width) {
-	m_width = width;
-	framebufferWidth(m_width * m_framebufferScale);
+	_width = width;
+	framebufferWidth(_width * _framebufferScale);
 }
 
 void RenderContext::height(unsigned height) {
-	m_height = height;
-	framebufferHeight(m_height * m_framebufferScale);
+	_height = height;
+	framebufferHeight(_height * _framebufferScale);
 }
 
 void RenderContext::framebufferScale(float scale) {
-	m_framebufferScale = scale;
+	_framebufferScale = scale;
 }
 
 void RenderContext::framebufferWidth(unsigned width) {
-	m_framebufferWidth = width;
+	_framebufferWidth = width;
 }
 
 void RenderContext::framebufferHeight(unsigned height) {
-	m_framebufferHeight = height;
+	_framebufferHeight = height;
 }
 
 /*********************************************************************************************
@@ -378,26 +378,26 @@ void RenderContext::saveGIFFrame(float time) {
 	static float secondsAccum = 0;
 	secondsAccum += deltaSeconds;
 	
-	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / m_gifRecordingMaxFramerate /* (frames/sec) */;
+	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
 	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 	
-	//unsigned frameTime = 1000.0/m_gifRecordingMaxFramerate; // ms/frame
+	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
 	
 	if (secondsAccum >= frameTimeMS/1000.0) {
 		
 		auto frame = snapshot();
 		
-		unsigned char* resizedFrameData = (unsigned char*)malloc(m_gifRecordingWidth * m_gifRecordingHeight * 4);
+		unsigned char* resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
 		stbir_resize_uint8(frame->data()->pointer(), frame->width(), frame->height(), 0,
-						   resizedFrameData, m_gifRecordingWidth, m_gifRecordingHeight, 0, 4);
+						   resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0, 4);
 		
 		// gif-h frame time is in 100ths of a second
-		GifWriteFrame(m_gifWriter.get(), resizedFrameData,
-					  m_gifRecordingWidth, m_gifRecordingHeight,
+		GifWriteFrame(_gifWriter.get(), resizedFrameData,
+					  _gifRecordingWidth, _gifRecordingHeight,
 					  (secondsAccum*1000.0)/10.0);
 		
-		++m_gifRecordedFrames;
+		++_gifRecordedFrames;
 		
 		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		secondsAccum = 0;
@@ -407,7 +407,7 @@ void RenderContext::saveGIFFrame(float time) {
 shared_ptr<Node> RenderContext::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
-	//m_scene->rootNode()->addChild(cameraNode); // done below
+	//_scene->rootNode()->addChild(cameraNode); // done below
 	auto camera = make_shared<Camera>();
 	camera->name("default camera");
 	cameraNode->camera(camera);

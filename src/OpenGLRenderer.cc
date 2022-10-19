@@ -223,33 +223,33 @@ typedef struct {
 
 OpenGLRenderer::OpenGLRenderer():
 	Renderer(),
-	m_geometryElementGLMapping(GeometryElementGLMapping()),
-	m_materialPropertyGLMapping(MaterialPropertyGLMapping()),
-	m_lineSetGLMapping(LineSetGLMapping()),
-	m_pointSetGLMapping(PointSetGLMapping()),
-	m_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-	m_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
-	m_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
-	m_activePointSets(unordered_set<shared_ptr<PointSet>>()),
-	m_glEnvironmentUBO(0),
-	m_overlayFont(nullptr) {
+	_geometryElementGLMapping(GeometryElementGLMapping()),
+	_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+	_lineSetGLMapping(LineSetGLMapping()),
+	_pointSetGLMapping(PointSetGLMapping()),
+	_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
+	_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+	_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
+	_activePointSets(unordered_set<shared_ptr<PointSet>>()),
+	_glEnvironmentUBO(0),
+	_overlayFont(nullptr) {
 
 }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
 	
-	m_activeGeometryElements.clear();
-	m_activeMaterialProperties.clear();
-	m_activeLineSets.clear();
-	m_activePointSets.clear();
+	_activeGeometryElements.clear();
+	_activeMaterialProperties.clear();
+	_activeLineSets.clear();
+	_activePointSets.clear();
 	
-	glDeleteBuffers(1, &m_glEnvironmentUBO);
+	glDeleteBuffers(1, &_glEnvironmentUBO);
 	
-	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
-	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
-	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
-	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
+	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
+	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
+	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
 #ifdef GL_FULL
 	ImGui_ImplOpenGL3_Shutdown();
@@ -270,7 +270,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	uint32 ubo;
 	glGenBuffers(1, &ubo);
-	m_glEnvironmentUBO = ubo;
+	_glEnvironmentUBO = ubo;
 
 #ifdef GL_FULL
 	
@@ -290,9 +290,9 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	string fontType = "otf";
 	float fontSize = 14.0;
 	
-	m_overlayFont = FontNamed(fontName, fontType);
+	_overlayFont = FontNamed(fontName, fontType);
 
-	if (m_overlayFont->buffer()->size()) {
+	if (_overlayFont->buffer()->size()) {
 		
 		// by default Imgui transferrs font memory ownership to itself
 		// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
@@ -300,8 +300,8 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		ImFontConfig config;
 		config.FontDataOwnedByAtlas = false;
 		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(m_overlayFont->buffer()->pointer(),
-													 m_overlayFont->buffer()->size(),
+		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->pointer(),
+													 _overlayFont->buffer()->size(),
 													 fontSize,
 													 &config);
 
@@ -318,10 +318,10 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	Renderer::beginFrame(context);
 
-	m_activeGeometryElements.clear();
-	m_activeMaterialProperties.clear();
-	m_activeLineSets.clear();
-	m_activePointSets.clear();
+	_activeGeometryElements.clear();
+	_activeMaterialProperties.clear();
+	_activeLineSets.clear();
+	_activePointSets.clear();
 }
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
@@ -335,10 +335,10 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 						   *context.scene());
 	}
 	
-	CleanupGeometryElementResources(m_activeGeometryElements, m_geometryElementGLMapping);
-	CleanupMaterialPropertyResources(m_activeMaterialProperties, m_materialPropertyGLMapping);
-	CleanupLineSetResources(m_activeLineSets, m_lineSetGLMapping);
-	CleanupPointSetResources(m_activePointSets, m_pointSetGLMapping);
+	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
+	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
+	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 
 	CheckGLError();
 }
@@ -367,12 +367,12 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
-						 m_geometryElementGLMapping,
-						 m_materialPropertyGLMapping,
-						 m_activeMaterialProperties);
+						 _geometryElementGLMapping,
+						 _materialPropertyGLMapping,
+						 _activeMaterialProperties);
 			
 			// save reference for housekeeping
-			m_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}
 		else if (dynamic_pointer_cast<Color>(scene->background()->contents())) {
 			auto color = dynamic_pointer_cast<Color>(scene->background()->contents());
@@ -381,9 +381,9 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 		}
 	}
 	
-	SendEnvironmentUniforms(m_glEnvironmentUBO, *scene, stats);
+	SendEnvironmentUniforms(_glEnvironmentUBO, *scene, stats);
 	
-	Program::Default()->bindUniformBlock("EnvironmentBlock", m_glEnvironmentUBO);
+	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
 void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
@@ -396,21 +396,21 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
 		// will check dirt but, and create an AABB lineset if necessary,
-		// and insert into m_geometryAABBLineSetMapping
+		// and insert into _geometryAABBLineSetMapping
 		
 		GLuint vbo, vao;
 		GetGeometryAABBLineSetVertexDataHandles(geometry,
-												m_geometryAABBLineSetMapping,
-												m_lineSetGLMapping,
+												_geometryAABBLineSetMapping,
+												_lineSetGLMapping,
 												vbo, vao);
 		
-		render(m_geometryAABBLineSetMapping[geometry],
+		render(_geometryAABBLineSetMapping[geometry],
 			   modelMat, viewMat, projectionMat);
 		
 	}
 	else {
 		// if there was an AABB lineset, just remove it
-		m_geometryAABBLineSetMapping.erase(geometry);
+		_geometryAABBLineSetMapping.erase(geometry);
 	}
 }
 
@@ -428,7 +428,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 
 	GLuint vbo, vao, ibo;
 	GetGeometryElementGLVertexDataHandles(element,
-										  m_geometryElementGLMapping,
+										  _geometryElementGLMapping,
 										  vbo, vao, ibo);
 	
 	bool wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
@@ -444,8 +444,8 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 
 	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
 	GetMaterialGLTextureHandles(material,
-								m_materialPropertyGLMapping,
-								m_activeMaterialProperties,
+								_materialPropertyGLMapping,
+								_activeMaterialProperties,
 								glTextureHandles);
 
 	if (!wireframe) {
@@ -465,7 +465,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
-	m_activeGeometryElements.emplace(element);
+	_activeGeometryElements.emplace(element);
 }
 	
 void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
@@ -480,7 +480,7 @@ void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
 	GLuint vbo, vao;
 	GetLineSetVertexDataHandles(lines,
 								*program,
-								m_lineSetGLMapping,
+								_lineSetGLMapping,
 								vbo, vao);
 
 	// configure OpenGL state
@@ -496,7 +496,7 @@ void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
 	//stats.polygons += element->faces().size();
 	
 	// save reference for housekeeping
-	m_activeLineSets.emplace(lines);
+	_activeLineSets.emplace(lines);
 }
 
 void OpenGLRenderer::render(std::shared_ptr<PointSet> points,
@@ -1443,7 +1443,7 @@ static void SetMaterialOpenGLState(const Material& material,
 	}
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		//m_program = Program::Wireframe();
+		//_program = Program::Wireframe();
 		
 #ifdef GL_FULL
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

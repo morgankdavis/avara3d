@@ -71,10 +71,10 @@ namespace ae {
 		void flipVertical(); // "flip"
 		void flipHorizontal(); // "mirror"
 		
-		unsigned					m_width;
-		unsigned					m_height;
-		unsigned					m_bytesPerPixel;
-		std::shared_ptr<Buffer>		m_data;
+		unsigned					_width;
+		unsigned					_height;
+		unsigned					_bytesPerPixel;
+		std::shared_ptr<Buffer>		_data;
 	};
 }
 

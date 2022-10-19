@@ -64,10 +64,10 @@ namespace ae {
 	Protected
  *********************************************************************************************/
 		
-		std::vector<Vertex>						m_vertices;
-		std::vector<Face>						m_faces;
+		std::vector<Vertex>						_vertices;
+		std::vector<Face>						_faces;
 
-		GEOMETRY_ELEMENT_DIRTY_BITS				m_dirtyBits;
+		GEOMETRY_ELEMENT_DIRTY_BITS				_dirtyBits;
 	};
 }
 

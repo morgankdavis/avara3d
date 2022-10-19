@@ -32,7 +32,7 @@ using namespace std;
 Sphere::Sphere(float radius, int segments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
-		m_radius = radius;
+		_radius = radius;
 		
 		/// @param radius The radius of the containing sphere.
 		/// @param segments The number of segments per icosahedron edge. Must be >= 1.
@@ -54,7 +54,7 @@ Sphere::Sphere(float radius, int segments):
 		}
 
 		auto element = make_shared<GeometryElement>(verts, faces);
-		m_elements.push_back(element);
+		_elements.push_back(element);
 		
 		//loadVertexData();
 }
@@ -64,16 +64,16 @@ Sphere::Sphere(float radius, int segments):
 
 //Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 //				   const vector<shared_ptr<Material>> materials):
-//m_name(boost::none),
-//m_elements(elements),
-//m_materials(materials) {
+//_name(boost::none),
+//_elements(elements),
+//_materials(materials) {
 //
-//	for (int e=0; e < m_elements.size(); ++e) {
-//		auto element = m_elements[e];
+//	for (int e=0; e < _elements.size(); ++e) {
+//		auto element = _elements[e];
 //
-//		if (m_materials.size() > e) {
-//			auto element = m_elements[e];
-//			auto material = m_materials[e];
+//		if (_materials.size() > e) {
+//			auto element = _elements[e];
+//			auto material = _materials[e];
 //			element->loadVertexData(*(material->program()));
 //		}
 //		else {
@@ -82,8 +82,8 @@ Sphere::Sphere(float radius, int segments):
 //	}
 //
 //
-//	//		for (int m=0; m < m_elements.size() - m_materials.size(); ++m) {
-//	//			m_materials.push_back(Material::DefaultMaterial());
+//	//		for (int m=0; m < _elements.size() - _materials.size(); ++m) {
+//	//			_materials.push_back(Material::DefaultMaterial());
 //	//		}
 //}
 
@@ -106,7 +106,7 @@ Sphere::Sphere(float radius, int segments):
 //	}
 //
 //	auto element = make_shared<GeometryElement>(verts, faces);
-//	m_elements.push_back(element);
+//	_elements.push_back(element);
 //
 //	generateFlatNormals();
 //	//generateSmoothNormals();
@@ -120,7 +120,7 @@ Sphere::Sphere(float radius, int segments):
  *********************************************************************************************/
 
 float Sphere::radius() const {
-	return m_radius;
+	return _radius;
 }
 
 /*********************************************************************************************

@@ -136,28 +136,28 @@ namespace ae {
 
 		void checkShape();
 		
-		PHYSICS_BODY_TYPE 						m_type;
-		std::shared_ptr<PhysicsShape> 			m_shape;
-		float 									m_mass;
-		glm::vec3 								m_momentOfInertia;
-		float 									m_friction;
-		float 									m_rollingFriction;
-		float 									m_restitution;
-		glm::vec3 								m_linearVelocity;
-		glm::vec3 								m_angularVelocity;
-		glm::vec3 								m_linearFactor;
-		glm::vec3 								m_angularFactor;
-		float 									m_linearDamping;
-		float 									m_angularDamping;
-		float									m_linearSleepingThreshold;
-		float									m_angularSleepingThreshold;
-		bool									m_affectedByGravity;
-		bool 									m_allowsResting;
-		bool 									m_resting;
+		PHYSICS_BODY_TYPE 						_type;
+		std::shared_ptr<PhysicsShape> 			_shape;
+		float 									_mass;
+		glm::vec3 								_momentOfInertia;
+		float 									_friction;
+		float 									_rollingFriction;
+		float 									_restitution;
+		glm::vec3 								_linearVelocity;
+		glm::vec3 								_angularVelocity;
+		glm::vec3 								_linearFactor;
+		glm::vec3 								_angularFactor;
+		float 									_linearDamping;
+		float 									_angularDamping;
+		float									_linearSleepingThreshold;
+		float									_angularSleepingThreshold;
+		bool									_affectedByGravity;
+		bool 									_allowsResting;
+		bool 									_resting;
 		
-		std::weak_ptr<Node>						m_node;
+		std::weak_ptr<Node>						_node;
 
-		PHYSICS_BODY_DIRTY_BITS 				m_dirtyBits;
+		PHYSICS_BODY_DIRTY_BITS 				_dirtyBits;
 	};
 }
 

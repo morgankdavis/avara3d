@@ -63,14 +63,14 @@ namespace ae {
 	Protected
  *********************************************************************************************/
 		
-		std::set<KEY> 				m_keysDown;
-		std::set<MOUSE_BUTTON> 		m_mouseButtonsDown;
-		std::set<KEY> 				m_keysPressed;
-		std::set<KEY> 				m_keysPressedCleared;
-		std::set<MOUSE_BUTTON> 		m_mouseButtonsPressed;
-		std::set<MOUSE_BUTTON> 		m_mouseButtonsPressedCleared;
-		glm::vec2  					m_mousePositionDelta;
-		glm::vec2  					m_mouseScrollWheelDelta;
+		std::set<KEY> 				_keysDown;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsDown;
+		std::set<KEY> 				_keysPressed;
+		std::set<KEY> 				_keysPressedCleared;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsPressed;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsPressedCleared;
+		glm::vec2  					_mousePositionDelta;
+		glm::vec2  					_mouseScrollWheelDelta;
 
 		void clearMousePositionDelta(); // called after mouseMoveDelta()
 		void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()

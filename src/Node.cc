@@ -38,11 +38,6 @@ using namespace glm;
 
 //#define ALTERNATE_EULERS
 
-
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -70,26 +65,26 @@ shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
  *********************************************************************************************/
 
 Node::Node():
-	m_name(boost::none),
-	m_hidden(false),
-	m_camera(nullptr),
-	m_light(nullptr),
-	m_geometry(nullptr),
-	m_position({0.0f, 0.0f, 0.0f}),
-	m_orientation(quat()),
-	m_scale({1.0f, 1.0f, 1.0f}),
-	m_worldTransform(mat4(1.0f)),
-	m_physicsBody(nullptr),
-	m_parent({}),
-//	m_scene({}),
-	m_dirtyBits(NODE_DIRTY_BITS::ALL) {
+	_name(boost::none),
+	_hidden(false),
+	_camera(nullptr),
+	_light(nullptr),
+	_geometry(nullptr),
+	_position({0.0f, 0.0f, 0.0f}),
+	_orientation(quat()),
+	_scale({1.0f, 1.0f, 1.0f}),
+	_worldTransform(mat4(1.0f)),
+	_physicsBody(nullptr),
+	_parent({}),
+//	_scene({}),
+	_dirtyBits(NODE_DIRTY_BITS::ALL) {
 
 }
 
 Node::Node(const string& name):
 	Node() {
 
-		m_name = name;
+		_name = name;
 }
 
 Node::~Node() {
@@ -101,66 +96,66 @@ Node::~Node() {
  *********************************************************************************************/
 
 boost::optional<std::string> Node::name() const {
-	return m_name;
+	return _name;
 }
 
 void Node::name(const string& name) {
-	m_name = name;
+	_name = name;
 }
 
 shared_ptr<Light> Node::light() const {
-	return m_light;
+	return _light;
 }
 
 void Node::light(const shared_ptr<Light> light) {
 	light->attachedToNode(shared_from_this());
-	m_light = light;
+	_light = light;
 }
 
 shared_ptr<Camera> Node::camera() const {
-	return m_camera;
+	return _camera;
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
 	camera->attachedToNode(shared_from_this());
-	m_camera = camera;
+	_camera = camera;
 }
 
 shared_ptr<Geometry> Node::geometry() const {
-	return m_geometry;
+	return _geometry;
 }
 
 void Node::geometry(const shared_ptr<Geometry>& geometry) {
 	if (geometry) {
 		geometry->attachedToNode(shared_from_this());
-		if (m_physicsBody) {
-			m_physicsBody->geometryAttachedToNode(geometry);
+		if (_physicsBody) {
+			_physicsBody->geometryAttachedToNode(geometry);
 		}
 	}
-	m_geometry = geometry;
+	_geometry = geometry;
 }
 
 bool Node::hidden() const {
-	return m_hidden;
+	return _hidden;
 }
 
 void Node::hidden(const bool hidden) {
-	m_hidden = hidden;
+	_hidden = hidden;
 }
 
 vec3 Node::position() const {
-	return m_position;
+	return _position;
 }
 
 void Node::position(const vec3 position) {
-	m_position = position;
+	_position = position;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
 
-	//http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
 
 	/*
 		angle = 2 * acos(qw)
@@ -170,16 +165,16 @@ vec4 Node::rotation() const {
 	 */
 
 	// WORKS (but clips rotation to 2PI)
-	vec4 angleAxis = vec4(m_orientation.x / sqrt(1-m_orientation.w*m_orientation.w),
-						  m_orientation.y / sqrt(1-m_orientation.w*m_orientation.w),
-						  m_orientation.z / sqrt(1-m_orientation.w*m_orientation.w),
-						  2 * acos(m_orientation.w));
+	vec4 angleAxis = vec4(_orientation.x / sqrt(1-_orientation.w*_orientation.w),
+						  _orientation.y / sqrt(1-_orientation.w*_orientation.w),
+						  _orientation.z / sqrt(1-_orientation.w*_orientation.w),
+						  2 * acos(_orientation.w));
 
 	return angleAxis;
 
 
 	// doesn't really work at all, surprisingly
-//	mat4 rotMat = mat4_cast(m_orientation);
+//	mat4 rotMat = mat4_cast(_orientation);
 //	vec3 axis;
 //	float angle;
 //	axisAngle(rotMat, axis, angle);
@@ -188,7 +183,7 @@ vec4 Node::rotation() const {
 
 void Node::rotation(const vec4 rotation) {
 	
-//	if (m_physicsBody && m_physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
+//	if (_physicsBody && _physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
 //		throw Exception("Can't manipulate )
 //	}
 //	else {
@@ -214,13 +209,13 @@ void Node::rotation(const vec4 rotation) {
 //		float qz = rotation.z * sin(rotation.w/2.0f);
 //		float qw = cos(rotation.w/2.0f);
 //
-//		m_orientation = quat(qw, qx, qy, qz);
+//		_orientation = quat(qw, qx, qy, qz);
 
 
 
 	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 	float angle = rotation.w;
-	m_orientation = angleAxis(angle, axisNormalized);
+	_orientation = angleAxis(angle, axisNormalized);
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 //	}
@@ -237,7 +232,8 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// works great, but appears to be ZXY order.
 	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 
-	auto q = m_orientation;
+	auto q = _orientation;
+
 
 	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
 	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
@@ -248,7 +244,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 #else
 	// http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
 
-	auto q = m_orientation;
+	auto q = _orientation;
 	vec3 res = vec3(0.0f, 0.0f, 0.0f);
 	res.x = atan2(2*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
 	res.y = asin(-2*(q.x*q.z - q.w*q.y));
@@ -258,7 +254,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 #endif
 
 	// clips to +-180
-	// return glm::eulerAngles(m_orientation);
+	// return glm::eulerAngles(_orientation);
 }
 
 void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
@@ -291,7 +287,7 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	float y = s1*c2*c3 + c1*s2*s3;
 	float z = c1*s2*c3 - s1*c2*s3;
 
-	m_orientation = quat(w, x, y, z);
+	_orientation = quat(w, x, y, z);
 	
 #else
 
@@ -302,16 +298,16 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 //	float sx = sin(eulerAngles.x/2.0), sy = sin(eulerAngles.y/2.0), sz = sin(eulerAngles.z/2.0),
 //	cx = cos(eulerAngles.x/2.0), cy = cos(eulerAngles.y/2.0), cz = cos(eulerAngles.z/2.0);
 //
-//	m_orientation = normalize(quat( cx*cy*cz + sx*sy*sz,
+//	_orientation = normalize(quat( cx*cy*cz + sx*sy*sz,
 //	   sx*cy*cz - cx*sy*sz,
 //	   cx*sy*cz + sx*cy*sz,
 //	   cx*cy*sz - sx*sy*cz )); // for XYZ application order
 
 
 
-	//m_orientation = toQuat( orientate3( eulerAngles ) );
+	//_orientation = toQuat( orientate3( eulerAngles ) );
 
-	//m_orientation = toQuat( yawPitchRoll( eulerAngles.y, eulerAngles.x, eulerAngles.z ) );
+	//_orientation = toQuat( yawPitchRoll( eulerAngles.y, eulerAngles.x, eulerAngles.z ) );
 
 
 //	// https://www.opengl.org/discussion_boards/showthread.php/174858-GLM-Initializing-Quaternion-with-Eular-XYZ
@@ -320,12 +316,12 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 //	quat quatAroundZ = angleAxis( eulerAngles.z, vec3(0.0,0.0,1.0) );
 //	//quat finalOrientation = normalize(quatAroundX * quatAroundY * quatAroundZ);
 //	quat finalOrientation = quatAroundZ * quatAroundY * quatAroundX;
-//	m_orientation = finalOrientation;
+//	_orientation = finalOrientation;
 
 
 
 
-	//m_orientation = quat(eulerAngles); // WOW this works, but still acts strange after 180
+	//_orientation = quat(eulerAngles); // WOW this works, but still acts strange after 180
 
 
 	//return;
@@ -334,41 +330,41 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));
 	auto rotationZ = rotate(mat4(1.0f), eulerAngles.z, vec3(0.0f, 0.0f, 1.0f));
 
-	//m_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
-	m_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
+	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
+	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
-	return m_orientation;
+	return _orientation;
 }
 
 void Node::orientation(const quat orientation) {
-	m_orientation = orientation;
+	_orientation = orientation;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
-	return m_scale;
+	return _scale;
 }
 
 void Node::scale(const glm::vec3 scale) {
 	
-	//checkPhysicsScale(m_scale, scale);
+	//checkPhysicsScale(_scale, scale);
 	
-	m_scale = scale;
+	_scale = scale;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
 
-	mat4 t = translate(mat4(1.0), m_position);
-	mat4 r = mat4_cast(m_orientation);
-	mat4 s = glm::scale(mat4(1.0), m_scale);
+	mat4 t = translate(mat4(1.0), _position);
+	mat4 r = mat4_cast(_orientation);
+	mat4 s = glm::scale(mat4(1.0), _scale);
 	
 	return t * r * s;
 }
@@ -387,11 +383,11 @@ void Node::transform(const mat4 transform) {
 			  skew,
 			  perspective);
 	
-	//checkPhysicsScale(m_scale, scale);
+	// checkPhysicsScale(_scale, scale);
 
-	m_position = translation;
-	m_scale = scale;
-	m_orientation = orientation;
+	_position = translation;
+	_scale = scale;
+	_orientation = orientation;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
 }
@@ -508,7 +504,7 @@ vec3 Node::worldRight() {
 
 mat4 Node::worldTransform() {
 
-	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		
 		auto t = mat4(1.0f);
 		auto path = pathToRoot();
@@ -520,12 +516,12 @@ mat4 Node::worldTransform() {
 			t = t * node->transform();
 		}
 		
-		m_worldTransform = t * transform();
+		_worldTransform = t * transform();
 		
-		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 	}
 	
-	return m_worldTransform;
+	return _worldTransform;
 }
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
@@ -541,7 +537,7 @@ void Node::addChild(shared_ptr<Node> node) {
 	}
 	
 	node->attachedToParent(shared_from_this());
-	m_children.push_back(node);
+	_children.push_back(node);
 }
 
 void Node::insertChild(const Node& node, int index) {
@@ -549,14 +545,14 @@ void Node::insertChild(const Node& node, int index) {
 }
 
 void Node::removeFromParent() {
-	if (auto parent = m_parent.lock()) {
+	if (auto parent = _parent.lock()) {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-		auto vec = parent->m_children;
+		auto vec = parent->_children;
 		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
 // TODO: can we avoid the copy?
-		parent->m_children = vec;
+		parent->_children = vec;
 	}
 }
 
@@ -565,7 +561,7 @@ void Node::replaceChild(const Node& replace, const Node& with) {
 }
 
 weak_ptr<Node> Node::parent() const {
-	return m_parent;
+	return _parent;
 }
 
 vector<shared_ptr<Node>> Node::children(bool resursive) {
@@ -576,7 +572,7 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 		return topologicalChildren(shared_from_this());
 	}
 	else {
-		return m_children;
+		return _children;
 	}
 }
 
@@ -588,12 +584,12 @@ shared_ptr<Node> Node::child(const string& name, bool resursive) {
 }
 
 shared_ptr<PhysicsBody> Node::physicsBody() const {
-	return m_physicsBody;
+	return _physicsBody;
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 	body->attachedToNode(shared_from_this());
-	m_physicsBody = body;
+	_physicsBody = body;
 }
 
 /*********************************************************************************************
@@ -603,8 +599,8 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 void Node::unrollWorldTransform(mat4 transform) {
 	// used for physics simulation to update local transform relative to parent
 	
-	//this->transform(transform * inverse(m_parent.lock()->worldTransform()));
-	this->transform(inverse(m_parent.lock()->worldTransform()) * transform);
+	//this->transform(transform * inverse(_parent.lock()->worldTransform()));
+	this->transform(inverse(_parent.lock()->worldTransform()) * transform);
 }
 
 void Node::updateWorldTransform() {
@@ -613,15 +609,15 @@ void Node::updateWorldTransform() {
 	// updateWorldTransform() is called in order, guaranteeing that its parent's
 	// world tranform is indeed a valid world transform
 	
-	if (NODE_DIRTY_BITS_CONTAINS(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
 		if (auto p = parent().lock()) {
 			//auto oldScale = scale();
-			m_worldTransform = p->worldTransform() * transform();
+			_worldTransform = p->worldTransform() * transform();
 			//auto newScale = scale();
 			//checkPhysicsScale(oldScale, newScale);
 		}
 		
-		m_dirtyBits = NODE_DIRTY_BITS_REMOVE(m_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 	}
 }
 
@@ -643,7 +639,7 @@ bool Node::containsChild(shared_ptr<Node> node) {
 
 void Node::attachedToScene(shared_ptr<Scene> scene) {
 //	if (!root()) {
-//		m_scene = scene;
+//		_scene = scene;
 //	}
 //	else {
 //		for (auto child : children(true)) {
@@ -653,7 +649,7 @@ void Node::attachedToScene(shared_ptr<Scene> scene) {
 }
 
 void Node::attachedToParent(shared_ptr<Node> parentNode) {
-	m_parent = parentNode;
+	_parent = parentNode;
 }
 
 //shared_ptr<Node> Node::root() const {
@@ -669,16 +665,16 @@ void Node::attachedToParent(shared_ptr<Node> parentNode) {
 //		return root()->scene();
 //	}
 //	else {
-//		return m_scene;
+//		return _scene;
 //	}
 //}
 
 //weak_ptr<Node> Node::model() const {
-//	return m_model;
+//	return _model;
 //}
 //
 //void Node::attachedToModel(shared_ptr<Node> model) {
-//	m_model = model;
+//	_model = model;
 //}
 
 /*********************************************************************************************
@@ -690,8 +686,8 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	
 	auto parents = vector<shared_ptr<Node>>();
 	
-	if (auto p = m_parent.lock()) {
-		if (auto p = m_parent.lock()) {
+	if (auto p = _parent.lock()) {
+		if (auto p = _parent.lock()) {
 			do {
 				parents.push_back(p);
 				p = p->parent().lock();
@@ -704,10 +700,10 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 
 void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
 	
-	m_dirtyBits = NODE_DIRTY_BITS_ADD(m_dirtyBits, bits);
+	_dirtyBits = NODE_DIRTY_BITS_ADD(_dirtyBits, bits);
 	
 	for (auto& c : children(true)) {
-		c->m_dirtyBits = NODE_DIRTY_BITS_ADD(c->m_dirtyBits, bits);
+		c->_dirtyBits = NODE_DIRTY_BITS_ADD(c->_dirtyBits, bits);
 	}
 }
 
@@ -734,7 +730,7 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 	
 	visited[node] = true;
 	
-	for (auto child : node->m_children) {
+	for (auto child : node->_children) {
 		if (!visited[child]) {
 			topologicalChildrenRec(child, visited, stack);
 		}
@@ -746,9 +742,9 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 //void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
 //	// check if the physics shape needs to be scaled
 //	
-//	if (m_physicsBody && m_physicsBody->shape()) {
+//	if (_physicsBody && _physicsBody->shape()) {
 //		if (!Equal(oldScale, newScale)) {
-//			auto shape = m_physicsBody->shape();
+//			auto shape = _physicsBody->shape();
 //			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_ADD(shape->dirtyBits(),
 //														  PHYSICS_SHAPE_DIRTY_BITS::SCALE));
 //		}
@@ -756,9 +752,9 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 //}
 
 NODE_DIRTY_BITS Node::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void Node::dirtyBits(NODE_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

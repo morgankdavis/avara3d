@@ -8,8 +8,8 @@
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef Program_h
-#define Program_h
+#ifndef Progra_h
+#define Progra_h
 
 
 #include <map>
@@ -100,15 +100,15 @@ namespace ae {
 		void isLinked(bool isLinked);
 		void logString(boost::optional<std::string> logString);
 		
-		std::string  					m_name;
-		unsigned  						m_glID;
-		bool 							m_isLinked;
-		boost::optional<std::string>	m_logString;
-		boost::optional<std::string>	m_vertexShaderSource;
-		boost::optional<std::string>	m_fragmentShaderSource;
-		std::map<std::string, int>		m_uniformLocations;
+		std::string  					_name;
+		unsigned  						_glID;
+		bool 							_isLinked;
+		boost::optional<std::string>	_logString;
+		boost::optional<std::string>	_vertexShaderSource;
+		boost::optional<std::string>	_fragmentShaderSource;
+		std::map<std::string, int>		_uniformLocations;
 	};
 }
 
 
-#endif /* Program_h */
+#endif /* Progra_h */

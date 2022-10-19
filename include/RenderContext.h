@@ -143,31 +143,31 @@ namespace ae {
 		virtual std::shared_ptr<Node> defaultPointOfView();
 		virtual void saveGIFFrame(float time);
 
-		RENDER_API 								m_renderAPI;
-		std::shared_ptr<Renderer>				m_renderer;
-		std::shared_ptr<PhysicsSimulator>		m_physicsSimulator;
-		std::shared_ptr<Scene>					m_scene;
-		unsigned								m_width;
-		unsigned								m_height;
-		float									m_framebufferScale;
-		unsigned								m_framebufferWidth;
-		unsigned								m_framebufferHeight;
-		bool									m_vSyncEnabled;
-		ANTIALIASING_MODE						m_antialiasingMode;
-		DEBUG_OPTIONS							m_debugOptions;
-		std::shared_ptr<Node>					m_pointOfView;
+		RENDER_API 								_renderAPI;
+		std::shared_ptr<Renderer>				_renderer;
+		std::shared_ptr<PhysicsSimulator>		_physicsSimulator;
+		std::shared_ptr<Scene>					_scene;
+		unsigned								_width;
+		unsigned								_height;
+		float									_framebufferScale;
+		unsigned								_framebufferWidth;
+		unsigned								_framebufferHeight;
+		bool									_vSyncEnabled;
+		ANTIALIASING_MODE						_antialiasingMode;
+		DEBUG_OPTIONS							_debugOptions;
+		std::shared_ptr<Node>					_pointOfView;
 		
-		std::shared_ptr<GifWriter> 				m_gifWriter;
-		bool									m_recordingGIF;
-		unsigned								m_gifRecordingWidth;
-		unsigned								m_gifRecordingHeight;
-		unsigned								m_gifRecordingMaxFramerate;
-		unsigned								m_gifRecordedFrames;
+		std::shared_ptr<GifWriter> 				_gifWriter;
+		bool									_recordingGIF;
+		unsigned								_gifRecordingWidth;
+		unsigned								_gifRecordingHeight;
+		unsigned								_gifRecordingMaxFramerate;
+		unsigned								_gifRecordedFrames;
 		
-		UpdateFunction							m_updateCallback;
-		DidSimulatePhysicsFunction				m_didSimulatePhysicsCallback;
-		WillRenderFunction 						m_willRenderCallback;
-		DidRenderFunction 						m_didRenderCallback;
+		UpdateFunction							_updateCallback;
+		DidSimulatePhysicsFunction				_didSimulatePhysicsCallback;
+		WillRenderFunction 						_willRenderCallback;
+		DidRenderFunction 						_didRenderCallback;
 	};
 }
 

@@ -75,16 +75,16 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>	m_name;
+		boost::optional<std::string>	_name;
 		
-		float							m_fov;
-		float							m_zNear;
-		float							m_zFar;
-		float							m_aspectRatio;
+		float							_fov;
+		float							_zNear;
+		float							_zFar;
+		float							_aspectRatio;
 		
-		glm::mat4						m_projection;
+		glm::mat4						_projection;
 		
-		std::weak_ptr<Node>				m_node;
+		std::weak_ptr<Node>				_node;
 	};
 }
 

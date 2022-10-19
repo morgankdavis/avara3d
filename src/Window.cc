@@ -53,8 +53,8 @@ Window::Window(bool fullScreen,
 			   ANTIALIASING_MODE antialiasingMode,
 			   RENDER_API renderAPI):
 	RenderContext(renderAPI),
-	m_inputManager(nullptr),
-	m_cursorCaptured(false) {
+	_inputManager(nullptr),
+	_cursorCaptured(false) {
 
 		if (!InitializeGLFW()) { AE_LOG_C("Failed to initializing GLFW."); }
 
@@ -83,39 +83,39 @@ Window::Window(bool fullScreen,
 		if (fullScreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-			m_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+			_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 			
 			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
-			m_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
+			_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
 			
 			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
 			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
 
-		if (!m_glfwWindow) {
+		if (!_glfwWindow) {
 			AE_LOG_C("Couldn't create GLFW Window.");
 			glfwTerminate();
 		}
 		
-		glfwSetWindowUserPointer(m_glfwWindow, (void*)this);
+		glfwSetWindowUserPointer(_glfwWindow, (void*)this);
 		
-		glfwMakeContextCurrent(m_glfwWindow);
+		glfwMakeContextCurrent(_glfwWindow);
 		enableVSync(false);
 
 		if (!InitializeGLEW()) { AE_LOG_C("Failed to initialize GLEW."); }
 		RenderContext::renderer()->initialize(*this);
 
-		m_width = viewportWidth;
-		m_height = viewportHeight;
+		_width = viewportWidth;
+		_height = viewportHeight;
 
-		m_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //m_framebufferScale = 1;
-		m_framebufferWidth = m_width * m_framebufferScale;
-		m_framebufferHeight = m_height * m_framebufferScale;
+		_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //_framebufferScale = 1;
+		_framebufferWidth = _width * _framebufferScale;
+		_framebufferHeight = _height * _framebufferScale;
 }
 
 Window::~Window() {
@@ -133,15 +133,15 @@ Window::~Window() {
 void Window::display() {
 	AE_LOG_I("Window::display()");
 	
-	if (m_scene) {
-		glfwMakeContextCurrent(m_glfwWindow);
+	if (_scene) {
+		glfwMakeContextCurrent(_glfwWindow);
 		
-		glfwSetWindowSizeCallback(m_glfwWindow, Window::glfwWindowSizeCallback);
-		glfwSetFramebufferSizeCallback(m_glfwWindow, Window::glfwFramebufferSizeCallback);
+		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
+		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
 		
         captureCursor(cursorCaptured()); // needs to be set after windows is made current
         
-		while (!glfwWindowShouldClose(m_glfwWindow)) {
+		while (!glfwWindowShouldClose(_glfwWindow)) {
 			update();
 		}
 		
@@ -153,16 +153,16 @@ void Window::display() {
 }
 
 bool Window::cursorCaptured() const {
-	return m_cursorCaptured;
+	return _cursorCaptured;
 }
 
 void Window::captureCursor(bool captured) {
-	m_cursorCaptured = captured;
-	glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+	_cursorCaptured = captured;
+	glfwSetInputMode(_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
 void Window::setShouldClose() {
-	glfwSetWindowShouldClose(m_glfwWindow, true);
+	glfwSetWindowShouldClose(_glfwWindow, true);
 }
 
 /*********************************************************************************************
@@ -170,7 +170,7 @@ void Window::setShouldClose() {
  *********************************************************************************************/
 
 GLFWwindow* Window::glfwWindow() const {
-	return m_glfwWindow;
+	return _glfwWindow;
 }
 
 /*********************************************************************************************
@@ -186,28 +186,28 @@ GLFWwindow* Window::glfwWindow() const {
 //		(updateCallback())(*this, sceneTime());
 //	}
 //
-//	m_renderer->beginFrame(*this);
+//	_renderer->beginFrame(*this);
 //
 //	auto pov = pointOfView();
-//	float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+//	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
 //	pov->camera()->aspectRatio(aspectRatio);
 //
-//	m_renderer->renderStats().cameraPosition = pov->position();
+//	_renderer->renderStats().cameraPosition = pov->position();
 //
 //	if (willRenderCallback()) {
 //		(willRenderCallback())(*this, sceneTime());
 //	}
 //
-//	m_scene->draw(*RenderContext::renderer(),
-//				  m_framebufferWidth, m_framebufferHeight,
+//	_scene->draw(*RenderContext::renderer(),
+//				  _framebufferWidth, _framebufferHeight,
 //				  *pov,
-//				  m_debugOptions, m_renderer->renderStats());
+//				  _debugOptions, _renderer->renderStats());
 //
-//	m_renderer->endFrame(*this);
+//	_renderer->endFrame(*this);
 //
-//	glfwSwapBuffers(m_glfwWindow);
+//	glfwSwapBuffers(_glfwWindow);
 //
-//	if (m_recordingGIF) saveGIFFrame(sceneTime());
+//	if (_recordingGIF) saveGIFFrame(sceneTime());
 //
 //	if (didRenderCallback()) {
 //		(didRenderCallback())(*this, sceneTime());
@@ -215,20 +215,20 @@ GLFWwindow* Window::glfwWindow() const {
 //
 //	glfwPollEvents();
 //
-//	if (m_inputManager) {
-//		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
+//	if (_inputManager) {
+//		static_pointer_cast<WindowInputManager>(_inputManager)->update();
 //	}
 //}
 
 void Window::swapBuffers() {
-	glfwSwapBuffers(m_glfwWindow);
+	glfwSwapBuffers(_glfwWindow);
 }
 
 void Window::pollInput() {
 	glfwPollEvents();
 
-	if (m_inputManager) {
-		static_pointer_cast<WindowInputManager>(m_inputManager)->update();
+	if (_inputManager) {
+		static_pointer_cast<WindowInputManager>(_inputManager)->update();
 	}
 }
 
@@ -243,18 +243,18 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
 //#warning Refactor this
-//	if (m_scene && m_scene->physicsWorld()) {
-//		m_scene->physicsWorld()->debugOptions(m_debugOptions);
+//	if (_scene && _scene->physicsWorld()) {
+//		_scene->physicsWorld()->debugOptions(_debugOptions);
 //	}
 }
 
 shared_ptr<InputManager> Window::inputManager() {
-	if (m_inputManager == nullptr) {
+	if (_inputManager == nullptr) {
 		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
 		auto inputManager = make_shared<WindowInputManager>(window);
-		m_inputManager = static_pointer_cast<InputManager>(inputManager);
+		_inputManager = static_pointer_cast<InputManager>(inputManager);
 	}
-	return m_inputManager;
+	return _inputManager;
 }
 
 float Window::sceneTime() const {

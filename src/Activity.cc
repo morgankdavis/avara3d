@@ -42,11 +42,11 @@ using namespace std;
 
 Activity::Activity(RENDER_API renderAPI):
 		RenderContext(renderAPI),
-		m_nativeWindow(nullptr),
-		m_display(EGL_NO_DISPLAY),
-		m_surface(EGL_NO_SURFACE),
-		m_context(EGL_NO_CONTEXT),
-		m_initialized(false) {
+		_nativeWindow(nullptr),
+		_display(EGL_NO_DISPLAY),
+		_surface(EGL_NO_SURFACE),
+		_context(EGL_NO_CONTEXT),
+		_initialized(false) {
 
 }
 
@@ -160,8 +160,8 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 	
 	Activity* activity = (Activity*)app->userData;
 	
-	if (activity->m_inputManager) {
-		return static_pointer_cast<ActivityInputManager>(activity->m_inputManager)->update(event);
+	if (activity->_inputManager) {
+		return static_pointer_cast<ActivityInputManager>(activity->_inputManager)->update(event);
 	}
 	
 	return 0;
@@ -174,11 +174,11 @@ int32_t Activity::appInputCallback(android_app* app, AInputEvent* event) {
 void Activity::update() {
 	RenderContext::update();
 	
-	if (m_initialized) {
+	if (_initialized) {
 		
 		AE_LOG_T("-------------------------------------------------------------------------------");
 		
-		m_renderer->beginFrame(*this);
+		_renderer->beginFrame(*this);
 		
 //#warning move to saveGIFFrame()
 //		float time = sceneTime();
@@ -189,13 +189,13 @@ void Activity::update() {
 		if (RenderContext::updateCallback()) RenderContext::updateCallback()(*this, sceneTime());
 		
 		auto pov = pointOfView();
-		float aspectRatio = (float)m_framebufferWidth/(float)m_framebufferHeight;
+		float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
 		pov->camera()->aspectRatio(aspectRatio);
 		
-		m_renderer->renderStats().cameraPosition = pov->position();
+		_renderer->renderStats().cameraPosition = pov->position();
 		
 		// simulate physics
-		//	auto physicsWorld = m_scene->physicsWorld();
+		//	auto physicsWorld = _scene->physicsWorld();
 		//	if (physicsWorld) {
 		//		physicsWorld->step();
 		//		
@@ -206,16 +206,16 @@ void Activity::update() {
 		
 		if (RenderContext::willRenderCallback()) RenderContext::willRenderCallback()(*this, sceneTime());
 		
-		m_scene->draw(*RenderContext::renderer(),
-					  m_framebufferWidth, m_framebufferHeight,
+		_scene->draw(*RenderContext::renderer(),
+					  _framebufferWidth, _framebufferHeight,
 					  *pov,
-					  m_debugOptions, m_renderer->renderStats());
+					  _debugOptions, _renderer->renderStats());
 		
-		m_renderer->endFrame(*this);
+		_renderer->endFrame(*this);
 		
 		swap();
 		
-		//if (m_recordingGIF) saveGIFFrame(deltaSeconds);
+		//if (_recordingGIF) saveGIFFrame(deltaSeconds);
 		
 		if (RenderContext::didRenderCallback()) RenderContext::didRenderCallback()(*this, sceneTime());
 		
@@ -238,18 +238,18 @@ void Activity::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
 	//#warning Refactor this
-	//	if (m_scene && m_scene->physicsWorld()) {
-	//		m_scene->physicsWorld()->debugOptions(m_debugOptions);
+	//	if (_scene && _scene->physicsWorld()) {
+	//		_scene->physicsWorld()->debugOptions(_debugOptions);
 	//	}
 }
 
 shared_ptr<InputManager> Activity::inputManager() {
-	if (m_inputManager == nullptr) {
+	if (_inputManager == nullptr) {
 		shared_ptr<Activity> activity = static_pointer_cast<Activity>(shared_from_this());
 		auto inputManager = make_shared<ActivityInputManager>(activity);
-		m_inputManager = static_pointer_cast<InputManager>(inputManager);
+		_inputManager = static_pointer_cast<InputManager>(inputManager);
 	}
-	return m_inputManager;
+	return _inputManager;
 }
 
 /*********************************************************************************************
@@ -260,19 +260,19 @@ bool Activity::initialize(ANativeWindow* window) {
 	
 	AE_LOG_D("Activity::initialize()");
 
-	if (!m_initialized) {
-		m_nativeWindow = window;
+	if (!_initialized) {
+		_nativeWindow = window;
 		initEGLSurface();
 		initEGLContext();
 		initGLES();
 		
 		RenderContext::renderer()->initialize(*this);
 		
-		m_framebufferScale = 1.0;
-		m_framebufferWidth = m_width * m_framebufferScale;
-		m_framebufferHeight = m_height * m_framebufferScale;
+		_framebufferScale = 1.0;
+		_framebufferWidth = _width * _framebufferScale;
+		_framebufferHeight = _height * _framebufferScale;
 		
-		m_initialized = true;
+		_initialized = true;
 	}
 	return true;
 }
@@ -281,7 +281,7 @@ void Activity::initGLES() {
 	
 	AE_LOG_D("Activity::initGLES()");
 
-	if (m_initialized) return;
+	if (_initialized) return;
 	//
 	// init OpenGL ES 3 if available
 	//
@@ -294,7 +294,7 @@ void Activity::initGLES() {
 //		gl_version_ = 2.0f;
 //	}
 
-	m_initialized = true;
+	_initialized = true;
 }
 
 int Activity::initDisplay(android_app* app) {
@@ -346,8 +346,8 @@ bool Activity::initEGLSurface() {
 	
 	AE_LOG_D("Activity::initEGLSurface()");
 
-	m_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	eglInitialize(m_display, 0, 0);
+	_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	eglInitialize(_display, 0, 0);
 	
 	const EGLint attribs[] = {
 			EGL_RENDERABLE_TYPE,
@@ -363,13 +363,13 @@ bool Activity::initEGLSurface() {
 			EGL_DEPTH_SIZE,
 			24,
 			EGL_NONE};
-	m_colorSize = 8;
-	m_depthSize = 24;
+	_colorSize = 8;
+	_depthSize = 24;
 	
-	EGLint num_configs;
-	eglChooseConfig(m_display, attribs, &m_config, 1, &num_configs);
+	EGLint nu_configs;
+	eglChooseConfig(_display, attribs, &_config, 1, &nu_configs);
 	
-	if (!num_configs) {
+	if (!nu_configs) {
 		AE_LOG_I("Falling back to 16-bit depth buffer.");
 
 		// Fall back to 16bit depth buffer
@@ -387,24 +387,24 @@ bool Activity::initEGLSurface() {
 			EGL_DEPTH_SIZE,
 			16,
 			EGL_NONE};
-		eglChooseConfig(m_display, attribs, &m_config, 1, &num_configs);
-		m_depthSize = 16;
+		eglChooseConfig(_display, attribs, &_config, 1, &nu_configs);
+		_depthSize = 16;
 	}
 	
-	if (!num_configs) {
+	if (!nu_configs) {
 		AE_LOG_C("Unable to retrieve EGL config.");
 		return false;
 	}
 
 	int32_t width;
 	int32_t height;
-	m_surface = eglCreateWindowSurface(m_display, m_config, m_nativeWindow, NULL);
-	eglQuerySurface(m_display, m_surface, EGL_WIDTH, &width);
-	eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &height);
-	m_width = width;
-	m_height = height;
+	_surface = eglCreateWindowSurface(_display, _config, _nativeWindow, NULL);
+	eglQuerySurface(_display, _surface, EGL_WIDTH, &width);
+	eglQuerySurface(_display, _surface, EGL_HEIGHT, &height);
+	_width = width;
+	_height = height;
 
-	eglSwapInterval(m_display, 1);
+	eglSwapInterval(_display, 1);
 	
 	return true;
 }
@@ -418,9 +418,9 @@ bool Activity::initEGLContext() {
 			3, // OpenGL ES 3.0
 			EGL_NONE};
 	
-	m_context = eglCreateContext(m_display, m_config, NULL, context_attribs);
+	_context = eglCreateContext(_display, _config, NULL, context_attribs);
 	
-	if (eglMakeCurrent(m_display, m_surface, m_surface, m_context) == EGL_FALSE) {
+	if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_FALSE) {
 		AE_LOG_C("Unable to make EGL context current.");
 		return false;
 	}
@@ -438,7 +438,7 @@ bool Activity::initEGLContext() {
 		AE_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
 	}
 	
-	m_contextValid = true;
+	_contextValid = true;
 	return true;
 }
 
@@ -446,9 +446,9 @@ void Activity::suspend() {
 	
 	AE_LOG_D("Activity::suspend()");
 	
-	if (m_surface != EGL_NO_SURFACE) {
-		eglDestroySurface(m_display, m_surface);
-		m_surface = EGL_NO_SURFACE;
+	if (_surface != EGL_NO_SURFACE) {
+		eglDestroySurface(_display, _surface);
+		_surface = EGL_NO_SURFACE;
 	}
 }
 
@@ -456,31 +456,31 @@ EGLint Activity::resume(ANativeWindow* window) {
 	
 	AE_LOG_D("Activity::resume()");
 	
-	if (m_initialized == false) {
+	if (_initialized == false) {
 		initialize(window);
 		return EGL_SUCCESS;
 	}
 	else {
-		int32_t originalWidth = m_width;
-		int32_t originalHeight = m_height;
+		int32_t originalWidth = _width;
+		int32_t originalHeight = _height;
 		
 		// Create surface
-		m_nativeWindow = window;
-		m_surface = eglCreateWindowSurface(m_display, m_config, m_nativeWindow, NULL);
+		_nativeWindow = window;
+		_surface = eglCreateWindowSurface(_display, _config, _nativeWindow, NULL);
 		int32_t width;
 		int32_t height;
-		eglQuerySurface(m_display, m_surface, EGL_WIDTH, &width);
-		eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &height);
-		m_width = width;
-		m_height = height;
+		eglQuerySurface(_display, _surface, EGL_WIDTH, &width);
+		eglQuerySurface(_display, _surface, EGL_HEIGHT, &height);
+		_width = width;
+		_height = height;
 		
-		if (m_width != originalWidth || m_height != originalHeight) {
+		if (_width != originalWidth || _height != originalHeight) {
 			// Screen resized
 			AE_LOG_D("Screen resized: ({}, {}) -> ({}, {})",
-						  originalWidth, originalHeight, m_width, m_height);
+						  originalWidth, originalHeight, _width, _height);
 		}
 		
-		if (eglMakeCurrent(m_display, m_surface, m_surface, m_context) == EGL_TRUE)
+		if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_TRUE)
 			return EGL_SUCCESS;
 		
 		EGLint err = eglGetError();
@@ -505,7 +505,7 @@ bool Activity::invalidate() {
 	AE_LOG_D("Activity::invalidate()");
 	
 	terminate();
-	m_initialized = false;
+	_initialized = false;
 	
 	return true;
 }
@@ -514,27 +514,27 @@ void Activity::terminate() {
 	
 	AE_LOG_D("Activity::terminate()");
 	
-	if (m_display != EGL_NO_DISPLAY) {
-		eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-		if (m_context != EGL_NO_CONTEXT) {
-			eglDestroyContext(m_display, m_context);
+	if (_display != EGL_NO_DISPLAY) {
+		eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+		if (_context != EGL_NO_CONTEXT) {
+			eglDestroyContext(_display, _context);
 		}
 		
-		if (m_surface != EGL_NO_SURFACE) {
-			eglDestroySurface(m_display, m_surface);
+		if (_surface != EGL_NO_SURFACE) {
+			eglDestroySurface(_display, _surface);
 		}
-		eglTerminate(m_display);
+		eglTerminate(_display);
 	}
 	
-	m_display = EGL_NO_DISPLAY;
-	m_context = EGL_NO_CONTEXT;
-	m_surface = EGL_NO_SURFACE;
-	m_nativeWindow = nullptr;
-	m_contextValid = false;
+	_display = EGL_NO_DISPLAY;
+	_context = EGL_NO_CONTEXT;
+	_surface = EGL_NO_SURFACE;
+	_nativeWindow = nullptr;
+	_contextValid = false;
 }
 
 EGLint Activity::swap() {
-	bool b = eglSwapBuffers(m_display, m_surface);
+	bool b = eglSwapBuffers(_display, _surface);
 	if (!b) {
 		EGLint err = eglGetError();
 		if (err == EGL_BAD_SURFACE) {
@@ -544,7 +544,7 @@ EGLint Activity::swap() {
 		}
 		else if (err == EGL_CONTEXT_LOST || err == EGL_BAD_CONTEXT) {
 			// Context has been lost!!
-			m_contextValid = false;
+			_contextValid = false;
 			terminate();
 			initEGLContext();
 		}

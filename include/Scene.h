@@ -106,15 +106,15 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		std::shared_ptr<Node>					m_rootNode;
-		std::shared_ptr<MaterialProperty>		m_background;
-		std::shared_ptr<Geometry>				m_skyboxGeometry;
-		float									m_fogStartDistance;
-		float									m_fogEndDistance;
-		float									m_fogDensityExponent;
-		std::shared_ptr<Color>					m_fogColor;
-		std::shared_ptr<PhysicsWorld> 			m_physicsWorld;
-		std::weak_ptr<RenderContext>			m_renderContext;
+		std::shared_ptr<Node>					_rootNode;
+		std::shared_ptr<MaterialProperty>		_background;
+		std::shared_ptr<Geometry>				_skyboxGeometry;
+		float									_fogStartDistance;
+		float									_fogEndDistance;
+		float									_fogDensityExponent;
+		std::shared_ptr<Color>					_fogColor;
+		std::shared_ptr<PhysicsWorld> 			_physicsWorld;
+		std::weak_ptr<RenderContext>			_renderContext;
 	};
 }
 

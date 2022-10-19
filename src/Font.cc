@@ -21,27 +21,27 @@ using namespace std;
  *********************************************************************************************/
 
 Font::Font(boost::filesystem::path& path):
-	m_name(boost::none),
-	m_type(FONT_TYPE::UNKNOWN),
-	m_buffer(nullptr) {
+	_name(boost::none),
+	_type(FONT_TYPE::UNKNOWN),
+	_buffer(nullptr) {
 	
-		m_name = path.stem().string();
+		_name = path.stem().string();
 
 		auto extension = path.extension().string();
 		if (extension == "otf") {
-			m_type = FONT_TYPE::OTF;
+			_type = FONT_TYPE::OTF;
 		}
 		else if (extension == "otf") {
-			m_type = FONT_TYPE::TTF;
+			_type = FONT_TYPE::TTF;
 		}
 		
-		m_buffer = make_shared<Buffer>(path);
+		_buffer = make_shared<Buffer>(path);
 }
 
 Font::Font(shared_ptr<Buffer> buffer):
-	m_name(boost::none),
-	m_type(FONT_TYPE::UNKNOWN),
-	m_buffer(buffer) {
+	_name(boost::none),
+	_type(FONT_TYPE::UNKNOWN),
+	_buffer(buffer) {
 	
 }
 
@@ -54,13 +54,13 @@ Font::~Font() {
  *********************************************************************************************/
 
 boost::optional<string> Font::name() const {
-	return m_name;
+	return _name;
 }
 
 FONT_TYPE Font::type() const {
-	return m_type;
+	return _type;
 }
 
 shared_ptr<Buffer> Font::buffer() const {
-	return m_buffer;
+	return _buffer;
 }

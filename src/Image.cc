@@ -32,10 +32,10 @@ using namespace std;
 
 #ifndef ANDROID
 Image::Image(const boost::filesystem::path& path, bool flipVertical):
-	m_data(nullptr),
-	m_width(0),
-	m_height(0),
-	m_bytesPerPixel(0) {
+	_data(nullptr),
+	_width(0),
+	_height(0),
+	_bytesPerPixel(0) {
 	
 		//auto data = BinaryFile(path);
 		auto buffer = Buffer(path);
@@ -44,20 +44,20 @@ Image::Image(const boost::filesystem::path& path, bool flipVertical):
 #endif
 
 Image::Image(std::shared_ptr<Buffer> buffer, bool flipVertical):
-	m_data(nullptr),
-	m_width(0),
-	m_height(0),
-	m_bytesPerPixel(0) {
+	_data(nullptr),
+	_width(0),
+	_height(0),
+	_bytesPerPixel(0) {
 		
 		loadBuffer(*buffer, flipVertical);
 }
 
 Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
 			 unsigned bytesPerPixel, bool flip):
-	m_data(rawBuffer),
-	m_width(width),
-	m_height(height),
-	m_bytesPerPixel(bytesPerPixel) {
+	_data(rawBuffer),
+	_width(width),
+	_height(height),
+	_bytesPerPixel(bytesPerPixel) {
 
 	if (flip) {
 		flipVertical();
@@ -67,8 +67,8 @@ Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
 Image::~Image() {
 	AE_LOG_D("Destroying Image {:p}", (void*)this);
 	
-//	if (m_data) {
-//		stbi_image_free(&m_data);
+//	if (_data) {
+//		stbi_image_free(&_data);
 //	}
 }
 
@@ -77,21 +77,21 @@ Image::~Image() {
  *********************************************************************************************/
 
 unsigned Image::width() const {
-	return m_width;
+	return _width;
 }
 
 unsigned Image::height() const {
-	return m_height;
+	return _height;
 }
 
 unsigned Image::bytesPerPixel() const {
-	return m_bytesPerPixel;
+	return _bytesPerPixel;
 }
 
 bool Image::writePNG(boost::filesystem::path path) const {
 	
-	return !stbi_write_png(path.string().c_str(), m_width, m_height,
-						   m_bytesPerPixel, m_data->pointer(), m_width*m_bytesPerPixel);
+	return !stbi_write_png(path.string().c_str(), _width, _height,
+						   _bytesPerPixel, _data->pointer(), _width*_bytesPerPixel);
 }
 
 /*********************************************************************************************
@@ -99,7 +99,7 @@ bool Image::writePNG(boost::filesystem::path path) const {
  *********************************************************************************************/
 
 shared_ptr<Buffer> Image::data() const {
-	return m_data;
+	return _data;
 }
 
 /*********************************************************************************************
@@ -124,7 +124,7 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 		throw Exception("Failed to load image data.");
 	}
 
-	m_data = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
+	_data = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
 								 static_cast<size_t>(width * height * bytesPerPixel));
 	
 	stbi_image_free(imgData);
@@ -132,9 +132,9 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	AE_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
 	
-	m_width = width;
-	m_height = height;
-	m_bytesPerPixel = bytesPerPixel;
+	_width = width;
+	_height = height;
+	_bytesPerPixel = bytesPerPixel;
 
 	if (flip) {
 		flipVertical();
@@ -143,14 +143,14 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 
 void Image::flipVertical() { // "flip"
 
-	int widthInBytes = m_width * m_bytesPerPixel;
+	int widthInBytes = _width * _bytesPerPixel;
 	unsigned char* top = NULL;
 	unsigned char* bottom = NULL;
 	unsigned char temp = 0;
-	int halfHeight = m_height / 2;
+	int halfHeight = _height / 2;
 	for (int row = 0; row < halfHeight; ++row) {
-		top = m_data->pointer() + row * widthInBytes;
-		bottom = m_data->pointer() + (m_height - row - 1) * widthInBytes;
+		top = _data->pointer() + row * widthInBytes;
+		bottom = _data->pointer() + (_height - row - 1) * widthInBytes;
 		for (int col = 0; col < widthInBytes; col++) {
 			temp = *top;
 			*top = *bottom;
@@ -163,14 +163,14 @@ void Image::flipVertical() { // "flip"
 
 void Image::flipHorizontal() { // "mirror"
 	// this is not needed for cube maps (?)
-//	int widthInBytes = m_width * m_bytesPerPixel;
+//	int widthInBytes = _width * _bytesPerPixel;
 //	unsigned char* top = NULL;
 //	unsigned char* bottom = NULL;
 //	unsigned char temp = 0;
-//	int halfHeight = m_height / 2;
+//	int halfHeight = _height / 2;
 //	for (int row = 0; row < halfHeight; ++row) {
-//		top = m_data->pointer() + row * widthInBytes;
-//		bottom = m_data->pointer() + (m_height - row - 1) * widthInBytes;
+//		top = _data->pointer() + row * widthInBytes;
+//		bottom = _data->pointer() + (_height - row - 1) * widthInBytes;
 //		for (int col = 0; col < widthInBytes; col++) {
 //			temp = *top;
 //			*top = *bottom;

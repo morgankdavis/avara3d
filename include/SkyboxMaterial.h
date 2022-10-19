@@ -50,7 +50,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		std::shared_ptr<MaterialProperty>	m_cubeProperty;
+		std::shared_ptr<MaterialProperty>	_cubeProperty;
 	};
 }
 

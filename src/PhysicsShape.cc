@@ -36,33 +36,33 @@ using namespace std;
  *********************************************************************************************/
 
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry({}),
-	m_sourceNode({}),
-	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
-	m_transforms(vector<mat4>()),
-	m_physicsBody({}),
-	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
+	_sourceGeometry({}),
+	_sourceNode({}),
+	_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
+	_transforms(vector<mat4>()),
+	_physicsBody({}),
+	_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
-		m_sourceGeometry = geometry;
-		m_type = type;
+		_sourceGeometry = geometry;
+		_type = type;
 }
 
 // construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
-	m_sourceGeometry({}),
-	m_sourceNode({}),
-	m_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
-	m_transforms(vector<mat4>()),
-	m_physicsBody({}),
-	m_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
+	_sourceGeometry({}),
+	_sourceNode({}),
+	_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
+	_transforms(vector<mat4>()),
+	_physicsBody({}),
+	_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 		
 		auto name = node->name();
 		if (name) {
 			AE_LOG_D("Creating PhysicsShape for source node: {}...", *name);
 		}
 		
-		m_sourceNode = node;
-		m_type = type;
+		_sourceNode = node;
+		_type = type;
 }
 
 PhysicsShape::~PhysicsShape() {
@@ -74,19 +74,19 @@ PhysicsShape::~PhysicsShape() {
  *********************************************************************************************/
 
 weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
-	return m_sourceGeometry;
+	return _sourceGeometry;
 }
 
 weak_ptr<Node> PhysicsShape::sourceNode() const {
-	return m_sourceNode;
+	return _sourceNode;
 }
 
 PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
-	return m_type;
+	return _type;
 }
 
 /* ? */ vector<glm::mat4> PhysicsShape::transforms() const {
-	return m_transforms;
+	return _transforms;
 }
 
 /*********************************************************************************************
@@ -94,39 +94,39 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
  *********************************************************************************************/
 
 void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
-	m_sourceGeometry = geometry;
+	_sourceGeometry = geometry;
 	
-	m_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
 }
 
 void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
-	m_sourceNode = node;
+	_sourceNode = node;
 	
-	m_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
 }
 
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-	m_physicsBody = body;
-	m_sourceNode = body->node();
+	_physicsBody = body;
+	_sourceNode = body->node();
 }
 
 //vector<shared_ptr<btCollisionShape>>& PhysicsShape::childShapes() {
-//	return m_childShapes;
+//	return _childShapes;
 //}
 
 weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
-	return m_physicsBody;
+	return _physicsBody;
 }
 
 void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
-	m_physicsBody = body;
+	_physicsBody = body;
 	attachedToBody(body);
 }
 
 PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void PhysicsShape::dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

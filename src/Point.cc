@@ -26,8 +26,8 @@ Point::Point(vec3 location):
 }
 
 Point::Point(vec3 location, shared_ptr<Color> color):
-	m_location(location),
-	m_color(color) {
+	_location(location),
+	_color(color) {
 	
 }
 
@@ -36,17 +36,17 @@ Point::Point(vec3 location, shared_ptr<Color> color):
  *********************************************************************************************/
 
 vec3 Point::location() const {
-	return m_location;
+	return _location;
 }
 
 void Point::location(vec3 point) {
-	m_location = point;
+	_location = point;
 }
 
 shared_ptr<Color> Point::color() const {
-	return m_color;
+	return _color;
 }
 
 void Point::color(shared_ptr<Color> color) {
-	m_color = color;
+	_color = color;
 }

@@ -40,9 +40,9 @@ namespace ae {
 	 Private
  *********************************************************************************************/
 		
-		float	m_width;
-		float	m_height;
-		float	m_length;
+		float	_width;
+		float	_height;
+		float	_length;
 	};
 }
 

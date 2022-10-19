@@ -95,9 +95,9 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		GLFWwindow*							m_glfwWindow;
-		std::shared_ptr<InputManager> 		m_inputManager;
-		bool								m_cursorCaptured;
+		GLFWwindow*							_glfwWindow;
+		std::shared_ptr<InputManager> 		_inputManager;
+		bool								_cursorCaptured;
 	};
 }
 

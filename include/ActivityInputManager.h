@@ -60,7 +60,7 @@ namespace ae {
 
 		void mouseButton(MOUSE_BUTTON button, bool down);
 
-		std::weak_ptr<Activity> 		m_activity;
+		std::weak_ptr<Activity> 		_activity;
 	};
 }
 

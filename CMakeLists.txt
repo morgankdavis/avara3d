@@ -1,16 +1,13 @@
 
 # https://api.csswg.org/bikeshed/?force=1&url=https://raw.githubusercontent.com/vector-of-bool/pitchfork/develop/data/spec.bs
 
-### FROM TOP {{{
-
-
 
 # cmake 3.8 is required for C++17
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(avara-engine)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -267,8 +264,8 @@ endif() # MINGW
 
 # mesh optimizer
 
-add_subdirectory(external/meshoptimizer)
-include_directories(external/meshoptimizer/include)
+#add_subdirectory(external/meshoptimizer)
+#include_directories(external/meshoptimizer/include)
 
 # generator
 

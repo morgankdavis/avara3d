@@ -21,9 +21,9 @@ using namespace std;
  *********************************************************************************************/
 
 PhysicsSimulator::PhysicsSimulator():
-	m_gravity({0, -9.807, 0}),
-	m_speed(1.0),
-	m_timestep(1.0/60.0) {
+	_gravity({0, -9.807, 0}),
+	_speed(1.0),
+	_timestep(1.0/60.0) {
 		
 }
 

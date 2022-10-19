@@ -33,10 +33,10 @@ Line::Line(vec3 fromLocation, vec3 toLocation,
 
 Line::Line(vec3 fromLocation, vec3 toLocation,
 	shared_ptr<Color> fromColor, shared_ptr<Color> toColor):
-	m_fromLocation(fromLocation),
-	m_toLocation(toLocation),
-	m_fromColor(fromColor),
-	m_toColor(toColor) {
+	_fromLocation(fromLocation),
+	_toLocation(toLocation),
+	_fromColor(fromColor),
+	_toColor(toColor) {
 	
 }
 
@@ -45,33 +45,33 @@ Line::Line(vec3 fromLocation, vec3 toLocation,
  *********************************************************************************************/
 
 vec3 Line::fromLocation() const {
-	return m_fromLocation;
+	return _fromLocation;
 }
 
 void Line::fromLocation(vec3 point) {
-	m_fromLocation = point;
+	_fromLocation = point;
 }
 
 vec3 Line::toLocation() const {
-	return m_toLocation;
+	return _toLocation;
 }
 
 void Line::toLocation(vec3 point) {
-	m_toLocation = point;
+	_toLocation = point;
 }
 
 shared_ptr<Color> Line::fromColor() const {
-	return m_fromColor;
+	return _fromColor;
 }
 
 void Line::fromColor(shared_ptr<Color> color) {
-	m_fromColor = color;
+	_fromColor = color;
 }
 
 shared_ptr<Color> Line::toColor() const {
-	return m_toColor;
+	return _toColor;
 }
 
 void Line::toColor(shared_ptr<Color> color) {
-	m_toColor = color;
+	_toColor = color;
 }

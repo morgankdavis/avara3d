@@ -114,21 +114,21 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		GeometryElementGLMapping 								m_geometryElementGLMapping;
-		MaterialPropertyGLMapping								m_materialPropertyGLMapping;
-		LineSetGLMapping										m_lineSetGLMapping;
-		PointSetGLMapping										m_pointSetGLMapping;
+		GeometryElementGLMapping 								_geometryElementGLMapping;
+		MaterialPropertyGLMapping								_materialPropertyGLMapping;
+		LineSetGLMapping										_lineSetGLMapping;
+		PointSetGLMapping										_pointSetGLMapping;
 		
-		GeometryAABBLineSetMapping								m_geometryAABBLineSetMapping;
+		GeometryAABBLineSetMapping								_geometryAABBLineSetMapping;
 		
-		std::unordered_set<std::shared_ptr<GeometryElement>>	m_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<MaterialProperty>>	m_activeMaterialProperties;
-		std::unordered_set<std::shared_ptr<LineSet>>			m_activeLineSets;
-		std::unordered_set<std::shared_ptr<PointSet>>			m_activePointSets;
+		std::unordered_set<std::shared_ptr<GeometryElement>>	_activeGeometryElements;
+		std::unordered_set<std::shared_ptr<MaterialProperty>>	_activeMaterialProperties;
+		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
+		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
 
-		unsigned												m_glEnvironmentUBO;
+		unsigned												_glEnvironmentUBO;
 		
-		std::shared_ptr<Font>									m_overlayFont;
+		std::shared_ptr<Font>									_overlayFont;
 	};
 }
 

@@ -123,10 +123,10 @@ namespace ae {
 
 		std::string header();
 		
-		std::string									m_name;
-		std::vector<std::shared_ptr<LoggerSink>>	m_sinks;
-		LOG_LEVEL									m_level;
-		LOG_LEVEL									m_flushLevel;
+		std::string									_name;
+		std::vector<std::shared_ptr<LoggerSink>>	_sinks;
+		LOG_LEVEL									_level;
+		LOG_LEVEL									_flushLevel;
 	};
 	
 	
@@ -277,10 +277,10 @@ namespace ae {
 		void checkRotate();
 		void rotate();
 		
-		boost::filesystem::path				m_filepath;
-		unsigned							m_maxFiles;
-		unsigned							m_maxFilesize;
-		std::shared_ptr<std::ofstream>		m_fileStream;
+		boost::filesystem::path				_filepath;
+		unsigned							_maxFiles;
+		unsigned							_maxFilesize;
+		std::shared_ptr<std::ofstream>		_fileStream;
 	};
 }
 

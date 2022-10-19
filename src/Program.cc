@@ -80,17 +80,17 @@ shared_ptr<Program> Program::Points() {
  *********************************************************************************************/
 
 Program::Program(const string& name):
-	m_name(name),
-	m_glID(0),
-	m_isLinked(false),
-	m_logString(boost::optional<string>(boost::none)),
-	m_vertexShaderSource(boost::optional<string>(boost::none)),
-	m_fragmentShaderSource(boost::optional<string>(boost::none)),
-	m_uniformLocations(map<string, int>() ){
+	_name(name),
+	_glID(0),
+	_isLinked(false),
+	_logString(boost::optional<string>(boost::none)),
+	_vertexShaderSource(boost::optional<string>(boost::none)),
+	_fragmentShaderSource(boost::optional<string>(boost::none)),
+	_uniformLocations(map<string, int>() ){
 		
-		m_glID = glCreateProgram();
+		_glID = glCreateProgram();
 		
-		if (m_glID == 0) {
+		if (_glID == 0) {
 			//logString(string("Unable to create shader program."));
 			//string errMsg = "Unable to create shader program.";
 			AE_LOG_C("Unable to create shader program.");
@@ -137,24 +137,24 @@ bool Program::compile() {
 bool Program::link() {
 	
 	if (isLinked()) return true;
-	if (m_glID <= 0) return false;
+	if (_glID <= 0) return false;
 	
-	glLinkProgram(m_glID);
+	glLinkProgram(_glID);
 	
 	int status = 0;
-	glGetProgramiv(m_glID, GL_LINK_STATUS, &status);
+	glGetProgramiv(_glID, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		int length = 0;
-		m_logString = boost::none;
+		_logString = boost::none;
 		
-		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
 		if (length > 0) {
 			// TODO: put on stack
 			char* c_log = new char[length];
 			int written = 0;
-			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			m_logString = string(c_log);
+			glGetProgramInfoLog(_glID, length, &written, c_log);
+			_logString = string(c_log);
 			//AE_LOG_E("Link log:\n{}", c_log);
 			delete[] c_log;
 		}
@@ -171,21 +171,21 @@ bool Program::validate() {
 	if (!isLinked()) return false;
 	
 	GLint status;
-	glValidateProgram(m_glID);
-	glGetProgramiv(m_glID, GL_VALIDATE_STATUS, &status);
+	glValidateProgram(_glID);
+	glGetProgramiv(_glID, GL_VALIDATE_STATUS, &status);
 	
 	if (status == GL_FALSE) {
 		// Store log and return false
 		int length = 0;
-		m_logString = boost::none;
+		_logString = boost::none;
 		
-		glGetProgramiv(m_glID, GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
 		if (length > 0) {
 			char * c_log = new char[length];
 			int written = 0;
-			glGetProgramInfoLog(m_glID, length, &written, c_log);
-			m_logString = string(c_log);
+			glGetProgramInfoLog(_glID, length, &written, c_log);
+			_logString = string(c_log);
 			//AE_LOG_E("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
@@ -199,12 +199,12 @@ bool Program::validate() {
 
 void Program::use() {
 	
-	if (m_glID <= 0 || (!m_isLinked)) {
+	if (_glID <= 0 || (!_isLinked)) {
 		//cout << "*** Program NOT ready. ***" << endl;
-		AE_LOG_C("Program '{}' not ready.", m_name);
+		AE_LOG_C("Program '{}' not ready.", _name);
 	}
 	else {
-		glUseProgram(m_glID);
+		glUseProgram(_glID);
 	}
 }
 
@@ -213,11 +213,11 @@ void Program::unuse() {
 }
 
 void Program::bindAttribLocation(GLuint location, const char* name) {
-	glBindAttribLocation(m_glID, location, name);
+	glBindAttribLocation(_glID, location, name);
 }
 
 //void Program::bindFragDataLocation(GLuint location, const char* name) {
-//	glBindFragDataLocation(m_glID, location, name);
+//	glBindFragDataLocation(_glID, location, name);
 //}
 
 void Program::setUniform(const char* name, float x, float y, float z) {
@@ -323,7 +323,7 @@ void Program::setUniform(const char* name, float val) {
 
 void Program::bindUniformBlock(const char* name, GLuint location) {
 	
-	GLint blockIndex = glGetUniformBlockIndex(m_glID, name);
+	GLint blockIndex = glGetUniformBlockIndex(_glID, name);
 	if (blockIndex != GL_INVALID_INDEX) {
 		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 	}
@@ -343,7 +343,7 @@ void Program::bindTexture(const char* name, const int& target, const unsigned& s
 
 unsigned Program::getAttributeLocation(const char* name) const {
 	
-	return glGetAttribLocation(m_glID, name);
+	return glGetAttribLocation(_glID, name);
 }
 
 //void Program::printActiveUniforms() const {
@@ -353,16 +353,16 @@ unsigned Program::getAttributeLocation(const char* name) const {
 //	GLsizei written;
 //	GLenum type;
 //
-//	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-//	glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
+//	glGetProgramiv(_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+//	glGetProgramiv(_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
 //
 //	name = (GLchar*)malloc(maxLen);
 //
 //	printf(" Location | Name\n");
 //	printf("------------------------------------------------\n");
 //	for (int i=0 ; i<nUniforms ; ++i) {
-//		glGetActiveUniform(m_glID, i, maxLen, &written, &size, &type, name);
-//		location = glGetUniformLocation(m_glID, name);
+//		glGetActiveUniform(_glID, i, maxLen, &written, &size, &type, name);
+//		location = glGetUniformLocation(_glID, name);
 //		printf(" %-8d | %s\n" ,location, name);
 //	}
 //
@@ -375,16 +375,16 @@ unsigned Program::getAttributeLocation(const char* name) const {
 //	GLenum type;
 //	GLchar* name;
 //
-//	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-//	glGetProgramiv(m_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+//	glGetProgramiv(_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+//	glGetProgramiv(_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 //
 //	name = (GLchar*)malloc(maxLength);
 //
 //	printf(" Index | Name\n");
 //	printf("------------------------------------------------\n");
 //	for (int i=0 ; i<nAttribs ; i++) {
-//		glGetActiveAttrib(m_glID, i, maxLength, &written, &size, &type, name);
-//		location = glGetAttribLocation(m_glID, name);
+//		glGetActiveAttrib(_glID, i, maxLength, &written, &size, &type, name);
+//		location = glGetAttribLocation(_glID, name);
 //		printf(" %-5d | %s\n", location, name);
 //	}
 //
@@ -392,33 +392,33 @@ unsigned Program::getAttributeLocation(const char* name) const {
 //}
 
 std::string Program::name() const {
-	return m_name;
+	return _name;
 }
 
 GLuint Program::glID() {
-	return m_glID;
+	return _glID;
 }
 
 bool Program::isLinked() const {
-	return m_isLinked;
+	return _isLinked;
 }
 
 boost::optional<string> Program::vertexShaderSource() const {
-	return m_vertexShaderSource;
+	return _vertexShaderSource;
 }
 
 //void Program::vertexShaderSource(boost::optional<string> source) {
 void Program::vertexShaderSource(string source) {
-	m_vertexShaderSource = source;
+	_vertexShaderSource = source;
 }
 
 boost::optional<string> Program::fragmentShaderSource() const {
-	return m_fragmentShaderSource;
+	return _fragmentShaderSource;
 }
 
 //void Program::fragmentShaderSource(boost::optional<string> source) {
 void Program::fragmentShaderSource(string source) {
-	m_fragmentShaderSource = source;
+	_fragmentShaderSource = source;
 }
 
 /*********************************************************************************************
@@ -428,30 +428,30 @@ void Program::fragmentShaderSource(string source) {
 void Program::prepare() {
 	AE_LOG_T("Program::prepare()");
 	
-	if (!m_isLinked) {
+	if (!_isLinked) {
 		if (compile()) {
 			//cout << "Shader program '" << shaderName << "' compiled." << endl;
-			AE_LOG_I("Program '{}' compiled.", m_name);
+			AE_LOG_I("Program '{}' compiled.", _name);
 			
 			if (link()) {
 				//cout << "Shader program '" << shaderName << "' linked." << endl;
-				AE_LOG_I("Program '{}' linked.", m_name);
+				AE_LOG_I("Program '{}' linked.", _name);
 			}
 			else {
-				AE_LOG_C("Couldn't link {} shaders:\n{}", m_name, *m_logString);
+				AE_LOG_C("Couldn't link {} shaders:\n{}", _name, *_logString);
 			}
 		}
 		else {
-			AE_LOG_C("Couldn't compile {} shader:\n{}", m_name, *m_logString);
+			AE_LOG_C("Couldn't compile {} shader:\n{}", _name, *_logString);
 		}
 	}
 }
 
 bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	
-//	if (m_glID <= 0) {
+//	if (_glID <= 0) {
 //		glID(glCreateProgram());
-//		if (m_glID == 0) {
+//		if (_glID == 0) {
 //			logString(string("Unable to create shader program."));
 //			return false;
 //		}
@@ -479,14 +479,14 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
 	if (GL_FALSE == result) {
 		int length = 0;
-		m_logString = boost::none;
+		_logString = boost::none;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack
 			char* c_log = new char[length];
 			int written = 0;
 			glGetShaderInfoLog(shaderID, length, &written, c_log);
-			m_logString = string(c_log);
+			_logString = string(c_log);
 			AE_LOG_W("Compile log:\n{}", c_log);
 			delete[] c_log;
 		}
@@ -494,7 +494,7 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 		return false;
 	}
 	else {
-		glAttachShader(m_glID, shaderID);
+		glAttachShader(_glID, shaderID);
 		
 		return true;
 	}
@@ -503,20 +503,20 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 unsigned Program::getUniformLocation(const char* name) {
 	
 	int location = -1;
-	if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
-		location = glGetUniformLocation(m_glID, name);
-		m_uniformLocations[name] = location;
+	if (_uniformLocations.find(name) == _uniformLocations.end()) {
+		location = glGetUniformLocation(_glID, name);
+		_uniformLocations[name] = location;
 	}
 	else {
-		location = m_uniformLocations[name];
+		location = _uniformLocations[name];
 	}
 	return location;
 }
 
 void Program::glID(GLuint glID) {
-	m_glID = glID;
+	_glID = glID;
 }
 
 void Program::isLinked(bool isLinked) {
-	m_isLinked = isLinked;
+	_isLinked = isLinked;
 }

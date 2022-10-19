@@ -87,20 +87,20 @@ string StringFromLogLevel(LOG_LEVEL level);
 
 Logger::Logger(string name, shared_ptr<LoggerSink> sink,
 			   LOG_LEVEL level, LOG_LEVEL flushLevel):
-	m_name(name),
-	m_sinks(vector<shared_ptr<LoggerSink>>()),
-	m_level(level),
-	m_flushLevel(flushLevel) {
+	_name(name),
+	_sinks(vector<shared_ptr<LoggerSink>>()),
+	_level(level),
+	_flushLevel(flushLevel) {
 	
-		m_sinks.emplace_back(sink);
+		_sinks.emplace_back(sink);
 }
 
 Logger::Logger(string name, vector<shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level, LOG_LEVEL flushLevel):
-	m_name(name),
-	m_sinks(sinks),
-	m_level(level),
-	m_flushLevel(flushLevel) {
+	_name(name),
+	_sinks(sinks),
+	_level(level),
+	_flushLevel(flushLevel) {
 	
 }
 
@@ -113,31 +113,31 @@ Logger::~Logger() {
  *********************************************************************************************/
 
 string Logger::name() const {
-	return m_name;
+	return _name;
 }
 
 vector<shared_ptr<LoggerSink>> Logger::sinks() const {
-	return m_sinks;
+	return _sinks;
 }
 
 LOG_LEVEL Logger::level() const {
-	return m_level;
+	return _level;
 }
 
 void Logger::level(LOG_LEVEL level) {
-	m_level = level;
+	_level = level;
 }
 
 void Logger::log(LOG_LEVEL level, const char* message) {
 	
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(m_level)) {
+		>= static_cast<underlying_type<LOG_LEVEL>::type>(_level)) {
 
 		char lineStr[MAX_LOG_LINE_SIZE];
 		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
-				 HeaderString(m_name, m_level).c_str(), message);
+				 HeaderString(_name, _level).c_str(), message);
 		
-		for (auto sink : m_sinks) {
+		for (auto sink : _sinks) {
 			
 #if defined(DESKTOP)
 			if (dynamic_pointer_cast<STDLoggerSink>(sink)) {
@@ -145,7 +145,7 @@ void Logger::log(LOG_LEVEL level, const char* message) {
 			}
 #elif defined(ANDROID)
 			if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {
-				dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, m_name.c_str(), level);
+				dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, _name.c_str(), level);
 			}
 #endif
 			if (dynamic_pointer_cast<FileLoggerSink>(sink)) {
@@ -154,7 +154,7 @@ void Logger::log(LOG_LEVEL level, const char* message) {
 		}
 		
 		if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-			>= static_cast<underlying_type<LOG_LEVEL>::type>(m_flushLevel)) {
+			>= static_cast<underlying_type<LOG_LEVEL>::type>(_flushLevel)) {
 			flush();
 		}
 	}
@@ -220,7 +220,7 @@ void Logger::critical(const char* format, ...) {
 
 void Logger::flush() {
 
-	for (auto& sink : m_sinks) {
+	for (auto& sink : _sinks) {
 		sink->flush();
 	}	
 }
@@ -426,18 +426,18 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
-		m_filepath(relPath),
-		m_maxFiles(maxFiles),
-		m_maxFilesize(maxFilesize) {
+		_filepath(relPath),
+		_maxFiles(maxFiles),
+		_maxFilesize(maxFilesize) {
 
 #if defined(ANDROID)
-	m_filepath = (*(utils::InternalFilesDirectory())) / relPath;
+	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
 #endif
 
 	boost::system::error_code errorCode;
-	boost::filesystem::create_directories(m_filepath.parent_path(), errorCode);
+	boost::filesystem::create_directories(_filepath.parent_path(), errorCode);
 	if (errorCode.value() != boost::system::errc::success) {
-		throw Exception("Couldn't create intermediate directories for log: " + m_filepath.string());
+		throw Exception("Couldn't create intermediate directories for log: " + _filepath.string());
 	}
 
 	openStream();
@@ -447,8 +447,8 @@ FileLoggerSink::~FileLoggerSink() {
 	
 	flush();
 	
-	if (m_fileStream && m_fileStream->is_open()) {
-		m_fileStream->close();
+	if (_fileStream && _fileStream->is_open()) {
+		_fileStream->close();
 	}
 }
 
@@ -457,21 +457,21 @@ FileLoggerSink::~FileLoggerSink() {
  *********************************************************************************************/
 
 boost::filesystem::path FileLoggerSink::filepath() const {
-	return m_filepath;
+	return _filepath;
 }
 
 unsigned FileLoggerSink::maxFiles() const {
-	return m_maxFiles;
+	return _maxFiles;
 }
 
 unsigned FileLoggerSink::maxFilesize() const {
-	return m_maxFilesize;
+	return _maxFilesize;
 }
 
 void FileLoggerSink::flush() {
 	
-	if (m_fileStream && m_fileStream->is_open()) {
-		m_fileStream->flush();
+	if (_fileStream && _fileStream->is_open()) {
+		_fileStream->flush();
 	}
 }
 
@@ -481,7 +481,7 @@ void FileLoggerSink::flush() {
 
 void FileLoggerSink::write(const char* message) {
 	
-	*m_fileStream << message << endl;
+	*_fileStream << message << endl;
 
 	checkRotate();
 }
@@ -492,18 +492,18 @@ void FileLoggerSink::write(const char* message) {
 
 void FileLoggerSink::openStream() {
 	
-	if (m_fileStream && m_fileStream->is_open()) {
-		m_fileStream->close();
+	if (_fileStream && _fileStream->is_open()) {
+		_fileStream->close();
 	}
 
 #warning check file writable
-	m_fileStream = make_shared<ofstream>(m_filepath.string(), fstream::out | fstream::app);
+	_fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
 }
 
 void FileLoggerSink::checkRotate() {
 	
-	if (boost::filesystem::exists(m_filepath)) {
-		if (boost::filesystem::file_size(m_filepath) > m_maxFilesize) {
+	if (boost::filesystem::exists(_filepath)) {
+		if (boost::filesystem::file_size(_filepath) > _maxFilesize) {
 			rotate();
 		}
 	}
@@ -514,17 +514,17 @@ void FileLoggerSink::rotate() {
 	// find list of existing files
 	// start at index 0, count down until the next isn't found
 
-	auto stem = m_filepath.stem();
-	auto extension = m_filepath.extension();
+	auto stem = _filepath.stem();
+	auto extension = _filepath.extension();
 	
 	auto existing = vector<boost::filesystem::path>();
 
-	existing.emplace_back(m_filepath);
+	existing.emplace_back(_filepath);
 	
 	unsigned i = 0;
 	while (true) {
 		
-		auto path = m_filepath.parent_path() / boost::filesystem::path(stem.string() + to_string(i) + extension.string());
+		auto path = _filepath.parent_path() / boost::filesystem::path(stem.string() + to_string(i) + extension.string());
 		
 		if (boost::filesystem::exists(path)) {
 			existing.emplace_back(path);
@@ -542,7 +542,7 @@ void FileLoggerSink::rotate() {
 	for (vector<boost::filesystem::path>::reverse_iterator i = existing.rbegin(); i != existing.rend(); ++i ) {
 		auto path = *i;
 		
-		if (index > m_maxFiles) {
+		if (index > _maxFiles) {
 			
 			boost::system::error_code errorCode;
 			boost::filesystem::remove(path, errorCode);
@@ -556,7 +556,7 @@ void FileLoggerSink::rotate() {
 //			auto oldExtension = path.extension();
 
 			//boost::filesystem::path newPath;
-//			if (path.string() == m_filepath) {
+//			if (path.string() == _filepath) {
 //				newPath = boost::filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
 //			}
 //			else {
@@ -572,7 +572,7 @@ void FileLoggerSink::rotate() {
 	
 	// move the last file
 	
-	auto newPath = m_filepath.parent_path() / boost::filesystem::path(stem.string() + string("0") + extension.string());
+	auto newPath = _filepath.parent_path() / boost::filesystem::path(stem.string() + string("0") + extension.string());
 	
 	openStream();
 }

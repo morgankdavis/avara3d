@@ -164,28 +164,28 @@ namespace ae {
 		NODE_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(NODE_DIRTY_BITS bits);
 		
-		boost::optional<std::string>		m_name;
+		boost::optional<std::string>		_name;
 		
-		std::shared_ptr<Light>				m_light;
-		std::shared_ptr<Camera>				m_camera;
-		std::shared_ptr<Geometry>			m_geometry;
+		std::shared_ptr<Light>				_light;
+		std::shared_ptr<Camera>				_camera;
+		std::shared_ptr<Geometry>			_geometry;
 		
-		bool								m_hidden;
+		bool								_hidden;
 
-		std::vector<std::shared_ptr<Node>>	m_children;
+		std::vector<std::shared_ptr<Node>>	_children;
 		
-		glm::vec3							m_position;
-		glm::quat							m_orientation;
-		glm::vec3							m_scale;
-//		glm::mat4							m_pivot;
-		glm::mat4							m_worldTransform;
+		glm::vec3							_position;
+		glm::quat							_orientation;
+		glm::vec3							_scale;
+//		glm::mat4							_pivot;
+		glm::mat4							_worldTransform;
 		
-		std::shared_ptr<PhysicsBody>		m_physicsBody;
+		std::shared_ptr<PhysicsBody>		_physicsBody;
 		
-//		std::weak_ptr<Scene> 				m_scene;
-		std::weak_ptr<Node>					m_parent;
+//		std::weak_ptr<Scene> 				_scene;
+		std::weak_ptr<Node>					_parent;
 		
-		NODE_DIRTY_BITS						m_dirtyBits;
+		NODE_DIRTY_BITS						_dirtyBits;
 	};
 }
 

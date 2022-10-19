@@ -26,10 +26,10 @@ using namespace std;
  *********************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
-	m_gravity({0, -9.807, 0}),
-	m_timestep(1.0/60.0),
-	m_scene({}),
-	m_dirtyBits(PHYSICS_WORLD_DIRTY_BITS::ALL) {
+	_gravity({0, -9.807, 0}),
+	_timestep(1.0/60.0),
+	_scene({}),
+	_dirtyBits(PHYSICS_WORLD_DIRTY_BITS::ALL) {
 
 }
 
@@ -42,28 +42,28 @@ PhysicsWorld::~PhysicsWorld() {
  *********************************************************************************************/
 
 vec3 PhysicsWorld::gravity() const {
-	return m_gravity;
+	return _gravity;
 }
 
 void PhysicsWorld::gravity(vec3 gravity) {
-	m_gravity = gravity;
+	_gravity = gravity;
 	
-	m_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::GRAVITY);
+	_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::GRAVITY);
 }
 
 float PhysicsWorld::timestep() const {
-	return m_timestep;
+	return _timestep;
 }
 
 void PhysicsWorld::timestep(float timestep) {
-	m_timestep = timestep;
+	_timestep = timestep;
 	
-	m_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::TIMESTEP);
+	_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::TIMESTEP);
 }
 
 void PhysicsWorld::updateCollisionPairs() {
 	#warning FIX
-	//m_btWorld->getCollisionWorld()->computeOverlappingPairs();
+	//_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
 shared_ptr<PhysicsContact> PhysicsWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
@@ -102,7 +102,7 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
  *********************************************************************************************/
 
 void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
-	m_scene = scene;
+	_scene = scene;
 //	if (auto window = scene->window().lock()) {
 //		debugOptions(window->debugOptions());
 //	}
@@ -114,9 +114,9 @@ void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
 }
 
 PHYSICS_WORLD_DIRTY_BITS PhysicsWorld::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void PhysicsWorld::dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

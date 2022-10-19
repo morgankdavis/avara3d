@@ -90,7 +90,7 @@ namespace ae {
 	Private
  **************************************************************************************/
 		
-		RenderStats			m_renderStats;
+		RenderStats			_renderStats;
 	};
 }
 

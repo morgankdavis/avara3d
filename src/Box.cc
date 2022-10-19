@@ -30,9 +30,9 @@ using namespace std;
 Box::Box(float width, float height, float length):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 		
-		m_width = width;
-		m_height = height;
-		m_length = length;
+		_width = width;
+		_height = height;
+		_length = length;
 	
 		/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 		/// @param segments The number of segments in x (0), y (1) and z (2)
@@ -55,7 +55,7 @@ Box::Box(float width, float height, float length):
 		}
 		
 		auto element = make_shared<GeometryElement>(verts, faces);
-		m_elements.push_back(element);
+		_elements.push_back(element);
 		
 		//loadVertexData();
 }
@@ -104,7 +104,7 @@ Box::Box(float width, float height, float length):
 //
 //	auto element = make_shared<GeometryElement>(vertsVector, facesVector);
 //
-//	m_elements.push_back(element);
+//	_elements.push_back(element);
 //
 //	generateFlatNormals();
 //}
@@ -114,13 +114,13 @@ Box::Box(float width, float height, float length):
  *********************************************************************************************/
 
 float Box::width() const {
-	return m_width;
+	return _width;
 }
 
 float Box::height() const {
-	return m_height;
+	return _height;
 }
 
 float Box::length() const {
-	return m_length;
+	return _length;
 }

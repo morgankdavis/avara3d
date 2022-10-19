@@ -61,12 +61,12 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		std::shared_ptr<Image>		m_posX;
-		std::shared_ptr<Image>		m_negX;
-		std::shared_ptr<Image>		m_posY;
-		std::shared_ptr<Image>		m_negY;
-		std::shared_ptr<Image>		m_posZ;
-		std::shared_ptr<Image>		m_negZ;
+		std::shared_ptr<Image>		_posX;
+		std::shared_ptr<Image>		_negX;
+		std::shared_ptr<Image>		_posY;
+		std::shared_ptr<Image>		_negY;
+		std::shared_ptr<Image>		_posZ;
+		std::shared_ptr<Image>		_negZ;
 	};
 }
 

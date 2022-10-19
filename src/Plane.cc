@@ -30,8 +30,8 @@ using namespace std;
 Plane::Plane(float width, float height):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
-		m_width = width;
-		m_height = height;
+		_width = width;
+		_height = height;
 		
 		/// @param size Half of the side length in x (0) and y (1) direction.
 		/// @param segments Number of subdivisions in the x (0) and y (1) direction.
@@ -55,7 +55,7 @@ Plane::Plane(float width, float height):
 		}
 
 		auto element = make_shared<GeometryElement>(verts, faces);
-		m_elements.push_back(element);
+		_elements.push_back(element);
 		
 		//loadVertexData();
 }
@@ -83,7 +83,7 @@ Plane::Plane(float width, float height):
 //
 //		auto element = make_shared<GeometryElement>(vertsVector, facesVector);
 //
-//		m_elements.push_back(element);
+//		_elements.push_back(element);
 //			
 //		loadVertexData();
 //}
@@ -93,9 +93,9 @@ Plane::Plane(float width, float height):
  *********************************************************************************************/
 
 float Plane::width() const {
-	return m_width;
+	return _width;
 }
 
 float Plane::height() const {
-	return m_height;
+	return _height;
 }

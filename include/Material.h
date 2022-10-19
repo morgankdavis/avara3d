@@ -95,20 +95,20 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>		m_name;
+		boost::optional<std::string>		_name;
 		
-		std::shared_ptr<MaterialProperty>	m_ambient;
-		std::shared_ptr<MaterialProperty> 	m_diffuse;
-		std::shared_ptr<MaterialProperty> 	m_specular;
-		std::shared_ptr<MaterialProperty> 	m_emissive;
+		std::shared_ptr<MaterialProperty>	_ambient;
+		std::shared_ptr<MaterialProperty> 	_diffuse;
+		std::shared_ptr<MaterialProperty> 	_specular;
+		std::shared_ptr<MaterialProperty> 	_emissive;
 
-		float 								m_specularExponent;
-		bool 								m_locksAmbientWithDiffuse;
-		bool 								m_doubleSided;
-		FILL_MODE 							m_fillMode;
-		float 								m_uvScale;
+		float 								_specularExponent;
+		bool 								_locksAmbientWithDiffuse;
+		bool 								_doubleSided;
+		FILL_MODE 							_fillMode;
+		float 								_uvScale;
 
-		MATERIAL_DIRTY_BITS					m_dirtyBits;
+		MATERIAL_DIRTY_BITS					_dirtyBits;
 	};
 }
 

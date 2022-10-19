@@ -71,9 +71,9 @@ namespace ae {
 	Protected
  *********************************************************************************************/
 		
-		glm::vec3 												m_gravity;
-		float 													m_speed;
-		float 													m_timestep;
+		glm::vec3 												_gravity;
+		float 													_speed;
+		float 													_timestep;
 	};
 }
 

@@ -58,7 +58,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		std::weak_ptr<Activity> 		m_activity;
+		std::weak_ptr<Activity> 		_activity;
 	};
 }
 

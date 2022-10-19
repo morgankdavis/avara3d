@@ -112,14 +112,14 @@ shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
  *********************************************************************************************/
 
 Scene::Scene():
-	m_rootNode(nullptr),
-	m_background(nullptr),
-	m_fogStartDistance(0.0),
-	m_fogEndDistance(0.0),
-	m_fogDensityExponent(0.0),
-	m_fogColor(nullptr),
-	m_physicsWorld(nullptr),
-	m_renderContext({}) {
+	_rootNode(nullptr),
+	_background(nullptr),
+	_fogStartDistance(0.0),
+	_fogEndDistance(0.0),
+	_fogDensityExponent(0.0),
+	_fogColor(nullptr),
+	_physicsWorld(nullptr),
+	_renderContext({}) {
 		
 }
 
@@ -132,16 +132,16 @@ Scene::~Scene() {
  *********************************************************************************************/
 
 shared_ptr<Node> Scene::rootNode() const {
-	return m_rootNode;
+	return _rootNode;
 }
 
 void Scene::rootNode(shared_ptr<Node> node) {
 	node->attachedToScene(shared_from_this());
-	m_rootNode = node;
+	_rootNode = node;
 }
 
 shared_ptr<MaterialProperty> Scene::background() const {
-	return m_background;
+	return _background;
 }
 
 void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
@@ -154,57 +154,57 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
 
 		// generate the skybox geometry if it hasn't already been
-		if (!m_skyboxGeometry) {
-			m_skyboxGeometry = SkyboxGeometry(backgroundProperty);
+		if (!_skyboxGeometry) {
+			_skyboxGeometry = SkyboxGeometry(backgroundProperty);
 		}
 		else {
 			// we already have the geometry, just update its material
-			m_skyboxGeometry->replaceMaterial(0, material);
+			_skyboxGeometry->replaceMaterial(0, material);
 		}
 	}
 
-	m_background = backgroundProperty;
+	_background = backgroundProperty;
 }
 
 float Scene::fogStartDistance() const {
-	return m_fogStartDistance;
+	return _fogStartDistance;
 }
 
 void Scene::fogStartDistance(float distance) {
-	m_fogStartDistance = distance;
+	_fogStartDistance = distance;
 }
 
 float Scene::fogEndDistance() const {
-	return m_fogEndDistance;
+	return _fogEndDistance;
 }
 
 void Scene::fogEndDistance(float distance) {
-	m_fogEndDistance = distance;
+	_fogEndDistance = distance;
 }
 
 float Scene::fogDensityExponent() const {
-	return m_fogDensityExponent;
+	return _fogDensityExponent;
 }
 
 void Scene::fogDensityExponent(float exponent) {
-	m_fogDensityExponent = exponent;
+	_fogDensityExponent = exponent;
 }
 
 shared_ptr<Color> Scene::fogColor() const {
-	return m_fogColor;
+	return _fogColor;
 }
 
 void Scene::fogColor(shared_ptr<Color> color) {
-	m_fogColor = color;
+	_fogColor = color;
 }
 
 shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
-	return m_physicsWorld;
+	return _physicsWorld;
 }
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
-	m_physicsWorld = world;
-	m_physicsWorld->attachedToScene(shared_from_this());
+	_physicsWorld = world;
+	_physicsWorld->attachedToScene(shared_from_this());
 }
 
 /*********************************************************************************************
@@ -220,13 +220,13 @@ void Scene::draw(Renderer& renderer,
 	
 	renderer.render(shared_from_this(), debugOptions, stats);
 	
-	auto renderContext = m_renderContext.lock();
+	auto renderContext = _renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
-	auto sortedNodes = m_rootNode->children(true);
+	auto sortedNodes = _rootNode->children(true);
 
 	// update physics model and step
 	
-	if (m_physicsWorld) {
+	if (_physicsWorld) {
 		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::STEP, *this);
 		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 								 shared_from_this(),
@@ -238,7 +238,7 @@ void Scene::draw(Renderer& renderer,
 		}
 		physicsSimulator->endUpdate(PhysicsSimulator::PASS::STEP, *this);
 		
-		physicsSimulator->step(m_renderContext.lock()->sceneTime());
+		physicsSimulator->step(_renderContext.lock()->sceneTime());
 		
 		if (renderContext->didSimulatePhysicsCallback()) {
 			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
@@ -248,7 +248,7 @@ void Scene::draw(Renderer& renderer,
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	if (m_physicsWorld) {
+	if (_physicsWorld) {
 		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC, *this);
 	}
 	
@@ -264,7 +264,7 @@ void Scene::draw(Renderer& renderer,
 
 		// nodes may not have geometries, but may have compound physics bodies
 		// (probably with child geometry nodes)
-		if (m_physicsWorld) {
+		if (_physicsWorld) {
 			physicsSimulator->update(PhysicsSimulator::PASS::SYNC,
 									 node,
 									 debugOptions);
@@ -282,7 +282,7 @@ void Scene::draw(Renderer& renderer,
 		}
 	}
 	
-	if (m_physicsWorld) {
+	if (_physicsWorld) {
 		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
 		if (bulletSimulator) {
 			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
@@ -293,7 +293,7 @@ void Scene::draw(Renderer& renderer,
 }
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {
-	return m_skyboxGeometry;
+	return _skyboxGeometry;
 }
 
 shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
@@ -310,7 +310,7 @@ shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
 	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : m_rootNode->children(true)) {
+	for (auto node : _rootNode->children(true)) {
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
@@ -340,18 +340,18 @@ vec3 Scene::extent() const {
 }
 
 void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
-	m_renderContext = renderContext;
-	if (m_physicsWorld) {
-		m_physicsWorld->attachedToScene(shared_from_this());
+	_renderContext = renderContext;
+	if (_physicsWorld) {
+		_physicsWorld->attachedToScene(shared_from_this());
 	}
 }
 
 weak_ptr<RenderContext> Scene::renderContext() const {
-	return m_renderContext;
+	return _renderContext;
 }
 
 void Scene::renderContext(shared_ptr<RenderContext> context) {
-	m_renderContext = context;
+	_renderContext = context;
 }
 
 /*********************************************************************************************

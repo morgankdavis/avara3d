@@ -41,27 +41,27 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody():
-	m_type(PHYSICS_BODY_TYPE::STATIC),
-	m_shape(nullptr),
-	m_linearFactor({1.0, 1.0, 1.0}),
-	m_angularFactor({1.0, 1.0, 1.0}),
-	m_mass(1.0),
-	m_friction(0.5),
-	m_rollingFriction(0.0),
-	m_restitution(0.0),
-	m_linearDamping(0.0),
-	m_angularDamping(0.0),
-	m_momentOfInertia({0, 0, 0}),
-	//m_momentOfInertia({1000, 1000, 1000}),
-	m_linearVelocity({0, 0, 0}),
-	m_angularVelocity({0, 0, 0}),
-	m_linearSleepingThreshold(0.8),
-	m_angularSleepingThreshold(1.0),
-	m_allowsResting(true),
-	m_affectedByGravity(true),
-	m_resting(false),
-	m_node({}),
-	m_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
+	_type(PHYSICS_BODY_TYPE::STATIC),
+	_shape(nullptr),
+	_linearFactor({1.0, 1.0, 1.0}),
+	_angularFactor({1.0, 1.0, 1.0}),
+	_mass(1.0),
+	_friction(0.5),
+	_rollingFriction(0.0),
+	_restitution(0.0),
+	_linearDamping(0.0),
+	_angularDamping(0.0),
+	_momentOfInertia({0, 0, 0}),
+	//_momentOfInertia({1000, 1000, 1000}),
+	_linearVelocity({0, 0, 0}),
+	_angularVelocity({0, 0, 0}),
+	_linearSleepingThreshold(0.8),
+	_angularSleepingThreshold(1.0),
+	_allowsResting(true),
+	_affectedByGravity(true),
+	_resting(false),
+	_node({}),
+	_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 	
 }
 
@@ -87,183 +87,183 @@ PhysicsBody::~PhysicsBody() {
  *********************************************************************************************/
 
 PHYSICS_BODY_TYPE PhysicsBody::type() const {
-	return m_type;
+	return _type;
 }
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
-	m_type = type;
+	_type = type;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE);
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
-	return m_shape;
+	return _shape;
 }
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
-	m_shape = shape;
-	m_shape->attachedToBody(shared_from_this());
+	_shape = shape;
+	_shape->attachedToBody(shared_from_this());
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
 }
 
 float PhysicsBody::mass() const {
-	return m_mass;
+	return _mass;
 }
 
 void PhysicsBody::mass(float mass) {
-	m_mass = mass;
+	_mass = mass;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MASS);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MASS);
 }
 
 vec3 PhysicsBody::momentOfInertia() const {
-	return m_momentOfInertia;
+	return _momentOfInertia;
 }
 
 void PhysicsBody::momentOfInertia(vec3 moment) {
-	m_momentOfInertia = moment;
+	_momentOfInertia = moment;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA);
 }
 
 float PhysicsBody::friction() const {
-	return m_friction;
+	return _friction;
 }
 
 void PhysicsBody::friction(float friction) {
-	m_friction = friction;
+	_friction = friction;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION);
 }
 
 float PhysicsBody::rollingFriction() const {
-	return m_rollingFriction;
+	return _rollingFriction;
 }
 
 void PhysicsBody::rollingFriction(float friction) {
-	m_rollingFriction = friction;
+	_rollingFriction = friction;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION);
 }
 
 float PhysicsBody::restitution() const {
-	return m_restitution;
+	return _restitution;
 }
 
 void PhysicsBody::restitution(float restitution) {
-	m_restitution = restitution;
+	_restitution = restitution;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION);
 }
 
 vec3 PhysicsBody::linearVelocity() const {
-	return m_linearVelocity;
+	return _linearVelocity;
 }
 
 void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
-	m_linearVelocity = velocity;
+	_linearVelocity = velocity;
 	
 	if (setDirty) {
-		m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
+		_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
 	}
 }
 
 vec3 PhysicsBody::angularVelocity() const {
-	return m_angularVelocity;
+	return _angularVelocity;
 }
 
 void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
-	m_angularVelocity = velocity;
+	_angularVelocity = velocity;
 	
 	if (setDirty) {
-		m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
+		_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
 	}
 }
 
 vec3 PhysicsBody::linearFactor() const {
-	return m_linearFactor;
+	return _linearFactor;
 }
 
 void PhysicsBody::linearFactor(vec3 factor) {
-	m_linearFactor = factor;
+	_linearFactor = factor;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR);
 }
 
 vec3 PhysicsBody::angularFactor() const {
-	return m_angularFactor;
+	return _angularFactor;
 }
 
 void PhysicsBody::angularFactor(vec3 factor) {
-	m_angularFactor = factor;
+	_angularFactor = factor;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR);
 }
 
 float PhysicsBody::linearDamping() const {
-	return m_linearDamping;
+	return _linearDamping;
 }
 
 void PhysicsBody::linearDamping(float damping) {
-	m_linearDamping = damping;
+	_linearDamping = damping;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING);
 }
 
 float PhysicsBody::angularDamping() const {
-	return m_angularDamping;
+	return _angularDamping;
 }
 
 void PhysicsBody::angularDamping(float damping) {
-	m_angularDamping = damping;
+	_angularDamping = damping;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
-	return m_linearSleepingThreshold;
+	return _linearSleepingThreshold;
 }
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
-	m_linearSleepingThreshold = threshold;
+	_linearSleepingThreshold = threshold;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
-	return m_angularSleepingThreshold;
+	return _angularSleepingThreshold;
 }
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
-	m_angularSleepingThreshold = threshold;
+	_angularSleepingThreshold = threshold;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD);
 }
 
 bool PhysicsBody::affectedByGravity() const {
-	return m_affectedByGravity;
+	return _affectedByGravity;
 }
 
 void PhysicsBody::affectedByGravity(bool flag) {
-	m_affectedByGravity = flag;
+	_affectedByGravity = flag;
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY);
 }
 
 bool PhysicsBody::allowsResting() const {
-	return m_allowsResting;
+	return _allowsResting;
 }
 
 void PhysicsBody::allowsResting(bool flag) {
-	m_allowsResting = flag;
+	_allowsResting = flag;
 
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING);
 }
 
 bool PhysicsBody::resting() const {
 	
-	return m_resting;
+	return _resting;
 }
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
@@ -279,38 +279,38 @@ void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 	
 #warning save list of applied forces
 	
-//	if (m_btRigidBody) {
+//	if (_btRigidBody) {
 //		/**********
-//		if (impulse) m_btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-//		else m_btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+//		if (impulse) _btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
+//		else _btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
 //		 *********/
 //	}
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES);
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 	
 #warning save list of applied torques
 	
-//	if (m_btRigidBody) {
+//	if (_btRigidBody) {
 //		/**********
-//		if (impulse) m_btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
-//		else  m_btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
+//		if (impulse) _btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
+//		else  _btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
 //		 *********/
 //	}
 	
-	m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES);
+	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES);
 }
 
 void PhysicsBody::clearForces() {
 	#warning FIX
-	//if (m_btRigidBody) m_btRigidBody->clearForces();
+	//if (_btRigidBody) _btRigidBody->clearForces();
 }
 
 void PhysicsBody::resetTransform() {
 	#warning FIX
-	//m_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(m_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
+	//_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
 	
 	//proceedToTransform (const btTransform &newTrans)
 }
@@ -320,13 +320,13 @@ void PhysicsBody::resetTransform() {
  *********************************************************************************************/
 
 void PhysicsBody::resting(bool resting) {
-	m_resting = resting;
+	_resting = resting;
 	
 #warning need to update BT motion state?
 }
 
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
-	m_node = node;
+	_node = node;
 	if (node) {
 		checkShape();
 	}
@@ -339,15 +339,15 @@ void PhysicsBody::geometryAttachedToNode(std::shared_ptr<Geometry> geometry) {
 }
 
 weak_ptr<Node> PhysicsBody::node() const {
-	return m_node;
+	return _node;
 }
 
 PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }
 
 /*********************************************************************************************
@@ -355,8 +355,8 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
  *********************************************************************************************/
 
 void PhysicsBody::checkShape() {
-//	if (!m_shape) {
-//		if (auto node = m_node.lock()) {
+//	if (!_shape) {
+//		if (auto node = _node.lock()) {
 //			auto geometry = node->geometry();
 //			if (geometry) {
 //				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
@@ -369,9 +369,9 @@ void PhysicsBody::checkShape() {
 	
 	
 	
-	if (auto node = m_node.lock()) {
+	if (auto node = _node.lock()) {
 		auto geometry = node->geometry();
-		if (!m_shape) {
+		if (!_shape) {
 			if (geometry) {
 				shape(make_shared<PhysicsShape>(geometry, PHYSICS_SHAPE_TYPE::CONVEX_HULL));
 			}
@@ -381,10 +381,10 @@ void PhysicsBody::checkShape() {
 		}
 		else {
 			if (geometry) {
-				m_shape->sourceGeometry(geometry);
+				_shape->sourceGeometry(geometry);
 			}
 			else {
-				m_shape->sourceNode(node);
+				_shape->sourceNode(node);
 			}
 		}
 	}

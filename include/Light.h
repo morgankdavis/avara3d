@@ -75,14 +75,14 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>		m_name;
+		boost::optional<std::string>		_name;
 		
-		LIGHT_TYPE							m_type;
-		std::shared_ptr<Color>				m_color;
+		LIGHT_TYPE							_type;
+		std::shared_ptr<Color>				_color;
 
-		float								m_attenuationFactor; // att = 1/(1-k(d^2))
+		float								_attenuationFactor; // att = 1/(1-k(d^2))
 		
-		std::weak_ptr<Node>					m_node;
+		std::weak_ptr<Node>					_node;
 
 //		float			attenuationStartDistance;
 //		float			attenuationEndDistance;

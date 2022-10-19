@@ -24,14 +24,14 @@ using namespace glm;
  *********************************************************************************************/
 
 InputManager::InputManager():
-	m_keysDown(set<KEY>()),
-	m_mouseButtonsDown(set<MOUSE_BUTTON>()),
-	m_keysPressed(set<KEY>()),
-	m_keysPressedCleared(set<KEY>()),
-	m_mouseButtonsPressed(set<MOUSE_BUTTON>()),
-	m_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
-	m_mousePositionDelta(vec2(0.0f, 0.0f)),
-	m_mouseScrollWheelDelta(vec2(0.0f, 0.0f)) {
+	_keysDown(set<KEY>()),
+	_mouseButtonsDown(set<MOUSE_BUTTON>()),
+	_keysPressed(set<KEY>()),
+	_keysPressedCleared(set<KEY>()),
+	_mouseButtonsPressed(set<MOUSE_BUTTON>()),
+	_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
+	_mousePositionDelta(vec2(0.0f, 0.0f)),
+	_mouseScrollWheelDelta(vec2(0.0f, 0.0f)) {
 
 		//inputManager = this;
 }
@@ -45,65 +45,65 @@ InputManager::~InputManager() {
  *********************************************************************************************/
 
 bool InputManager::keyDown(KEY key) {
-	return m_keysDown.count(key);
+	return _keysDown.count(key);
 }
 
 bool InputManager::mouseButtonDown(MOUSE_BUTTON button) {
-	return m_mouseButtonsDown.count(button);
+	return _mouseButtonsDown.count(button);
 }
 
 bool InputManager::keyPressed(KEY key) {
-	bool pressed = m_keysPressed.count(key);
+	bool pressed = _keysPressed.count(key);
 	if (pressed) {
-		m_keysPressed.erase(key);
-		m_keysPressedCleared.insert(key);
+		_keysPressed.erase(key);
+		_keysPressedCleared.insert(key);
 	}
 	return pressed;
 }
 
 bool InputManager::mouseButtonPressed(MOUSE_BUTTON button) {
-	bool pressed = m_mouseButtonsPressed.count(button);
+	bool pressed = _mouseButtonsPressed.count(button);
 	if (pressed) {
-		m_mouseButtonsPressed.erase(button);
-		m_mouseButtonsPressedCleared.insert(button);
+		_mouseButtonsPressed.erase(button);
+		_mouseButtonsPressedCleared.insert(button);
 	}
 	return pressed;
 }
 
 set<KEY> InputManager::keysDown() {
-	auto keysDownCopy = m_keysDown;
+	auto keysDownCopy = _keysDown;
 	return keysDownCopy;
 }
 
 set<MOUSE_BUTTON> InputManager::mouseButtonsDown() {
-	auto mouseButtonsDownCopy = m_mouseButtonsDown;
+	auto mouseButtonsDownCopy = _mouseButtonsDown;
 	return mouseButtonsDownCopy;
 }
 
 set<KEY> InputManager::keysPressed() {
-	auto keysPressedCopy = m_keysPressed;
-	m_keysPressed.clear();
+	auto keysPressedCopy = _keysPressed;
+	_keysPressed.clear();
 	return keysPressedCopy;
 }
 
 set<MOUSE_BUTTON> InputManager::mouseButtonsPressed() {
-	auto mouseButtonsPressedCopy = m_mouseButtonsPressed;
-	m_mouseButtonsPressed.clear();
+	auto mouseButtonsPressedCopy = _mouseButtonsPressed;
+	_mouseButtonsPressed.clear();
 	return mouseButtonsPressedCopy;
 }
 
 vec2 InputManager::mousePositionDelta() {
-//	if (m_mousePositionDelta.x != 0 && m_mousePositionDelta.y != 0) {
-//		AE_LOG_D("MOUSE DELTA: ({}, {})", m_mousePositionDelta.x, m_mousePositionDelta.y);
+//	if (_mousePositionDelta.x != 0 && _mousePositionDelta.y != 0) {
+//		AE_LOG_D("MOUSE DELTA: ({}, {})", _mousePositionDelta.x, _mousePositionDelta.y);
 //	}
 
-	auto mouseMoveDeltaCopy = m_mousePositionDelta;
+	auto mouseMoveDeltaCopy = _mousePositionDelta;
 	clearMousePositionDelta();
 	return mouseMoveDeltaCopy;
 }
 
 vec2 InputManager::mouseScrollWheelDelta() {
-	auto mouseScrollWheelDeltaCopy = m_mouseScrollWheelDelta;
+	auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
 	clearMouseScrollWheelDelta();
 	return mouseScrollWheelDeltaCopy;
 }
@@ -113,11 +113,11 @@ vec2 InputManager::mouseScrollWheelDelta() {
  *********************************************************************************************/
 
 void InputManager::clearMousePositionDelta() {
-	m_mousePositionDelta.x = 0.0f;
-	m_mousePositionDelta.y = 0.0f;
+	_mousePositionDelta.x = 0.0f;
+	_mousePositionDelta.y = 0.0f;
 }
 
 void InputManager::clearMouseScrollWheelDelta() {
-	m_mouseScrollWheelDelta.x = 0.0f;
-	m_mouseScrollWheelDelta.y = 0.0f;
+	_mouseScrollWheelDelta.x = 0.0f;
+	_mouseScrollWheelDelta.y = 0.0f;
 }

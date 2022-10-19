@@ -37,7 +37,7 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	InputManager(),
-	m_window(window) {
+	_window(window) {
 
 		registerGLFWCallbacks(window->glfwWindow());
 		initMouseMotionInput();
@@ -45,7 +45,7 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 
 WindowInputManager::~WindowInputManager() {
 	quitManyMouse();
-	auto window = m_window.lock();
+	auto window = _window.lock();
 	if (window) {
 		unregisterGLFWCallbacks(window->glfwWindow());
 	}
@@ -57,7 +57,7 @@ WindowInputManager::~WindowInputManager() {
 
 void WindowInputManager::update() {
 
-	if (m_usingManyMouse) {
+	if (_usingManyMouse) {
 		static ManyMouseEvent event;
 
 		while (ManyMouse_PollEvent(&event)) {
@@ -66,19 +66,19 @@ void WindowInputManager::update() {
 				case MANYMOUSE_EVENT_RELMOTION:
 
 					if (event.item == 0) {
-						m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+						_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 					}
 					else {
-						m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+						_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 					}
 					break;
 
 				case MANYMOUSE_EVENT_SCROLL:
 					if (event.item == 0) {
-						m_mouseScrollWheelDelta.y += event.value;
+						_mouseScrollWheelDelta.y += event.value;
 					}
 					else {
-						m_mouseScrollWheelDelta.x += event.value;
+						_mouseScrollWheelDelta.x += event.value;
 					}
 					break;
 
@@ -106,17 +106,17 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int but
 	auto aeButton = static_cast<MOUSE_BUTTON>(button);
 	
 	if (action == GLFW_PRESS) {
-		inputManager->m_mouseButtonsDown.insert(aeButton);
+		inputManager->_mouseButtonsDown.insert(aeButton);
 		
 		// if button is in "cleared" it means the client already read it, so don't add it again until
 		// we get button up, and then back down again
-		if (inputManager->m_mouseButtonsPressedCleared.count(aeButton) == 0) {
-			inputManager->m_mouseButtonsPressed.insert(aeButton);
+		if (inputManager->_mouseButtonsPressedCleared.count(aeButton) == 0) {
+			inputManager->_mouseButtonsPressed.insert(aeButton);
 		}
 	}
 	else if (action == GLFW_RELEASE) {
-		inputManager->m_mouseButtonsDown.erase(aeButton);
-		inputManager->m_mouseButtonsPressedCleared.erase(aeButton);
+		inputManager->_mouseButtonsDown.erase(aeButton);
+		inputManager->_mouseButtonsPressedCleared.erase(aeButton);
 	}
 }
 
@@ -135,8 +135,8 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow *glfwWindow, doub
 
 	//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
 
-	inputManager->m_mousePositionDelta.x -= xDelta;
-	inputManager->m_mousePositionDelta.y += yDelta;
+	inputManager->_mousePositionDelta.x -= xDelta;
+	inputManager->_mousePositionDelta.y += yDelta;
 
 	lastXPos = xPos;
 	lastYPos = yPos;
@@ -154,17 +154,17 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow *glfwWindow, int key, int sc
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
 	if (action == GLFW_PRESS) {
-		inputManager->m_keysDown.insert(static_cast<KEY>(key));
+		inputManager->_keysDown.insert(static_cast<KEY>(key));
 		
 		// if key is in "cleared" it means the client already read it, so don't add it again until
 		// we get key up, and then back down again
-		if (inputManager->m_keysPressedCleared.count(static_cast<KEY>(key)) == 0) {
-			inputManager->m_keysPressed.insert(static_cast<KEY>(key));
+		if (inputManager->_keysPressedCleared.count(static_cast<KEY>(key)) == 0) {
+			inputManager->_keysPressed.insert(static_cast<KEY>(key));
 		}
 	}
 	else if (action == GLFW_RELEASE) {
-		inputManager->m_keysDown.erase(static_cast<KEY>(key));
-		inputManager->m_keysPressedCleared.erase(static_cast<KEY>(key));
+		inputManager->_keysDown.erase(static_cast<KEY>(key));
+		inputManager->_keysPressedCleared.erase(static_cast<KEY>(key));
 	}
 }
 
@@ -182,14 +182,14 @@ void WindowInputManager::initMouseMotionInput() {
 
 	if (glfwRawMouseMotionSupported()) {
 		AE_LOG_I("Using GLFW raw mouse input.");
-		glfwSetInputMode(m_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-		glfwSetCursorPosCallback(m_window.lock()->glfwWindow(), WindowInputManager::GLFWCursorPositionCallback);
-		m_usingManyMouse = false;
+		glfwSetInputMode(_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		glfwSetCursorPosCallback(_window.lock()->glfwWindow(), WindowInputManager::GLFWCursorPositionCallback);
+		_usingManyMouse = false;
 	}
 	else {
 		AE_LOG_E("GLFW raw mouse input unavailable. Using ManyMouse raw mouse input.");
 		initManyMouse();
-		m_usingManyMouse = true;
+		_usingManyMouse = true;
 	}
 }
 

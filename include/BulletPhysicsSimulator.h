@@ -111,20 +111,20 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		std::shared_ptr<btDefaultCollisionConfiguration> 		m_btCollisionConfiguration;
-		std::shared_ptr<btCollisionDispatcher>					m_btDispatcher;
-		std::shared_ptr<btDbvtBroadphase>						m_btBroadphase;
-		std::shared_ptr<btSequentialImpulseConstraintSolver>	m_btSolver;
-		std::shared_ptr<btDiscreteDynamicsWorld>				m_btWorld;
+		std::shared_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
+		std::shared_ptr<btCollisionDispatcher>					_btDispatcher;
+		std::shared_ptr<btDbvtBroadphase>						_btBroadphase;
+		std::shared_ptr<btSequentialImpulseConstraintSolver>	_btSolver;
+		std::shared_ptr<btDiscreteDynamicsWorld>				_btWorld;
 #ifdef DESKTOP
-		std::shared_ptr<BulletDebugDrawer>						m_debugDrawer;
+		std::shared_ptr<BulletDebugDrawer>						_debugDrawer;
 #endif
 		
-		PhysicsBodyBTMapping									m_bodyBTMapping;
-		PhysicsShapeBTMapping									m_shapeBTMapping;
+		PhysicsBodyBTMapping									_bodyBTMapping;
+		PhysicsShapeBTMapping									_shapeBTMapping;
 		
-		std::unordered_set<std::shared_ptr<PhysicsBody>>		m_activeBodies;
-		std::unordered_set<std::shared_ptr<PhysicsShape>>		m_activeShapes;
+		std::unordered_set<std::shared_ptr<PhysicsBody>>		_activeBodies;
+		std::unordered_set<std::shared_ptr<PhysicsShape>>		_activeShapes;
 	};
 }
 

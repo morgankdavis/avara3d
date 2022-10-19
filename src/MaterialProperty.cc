@@ -27,14 +27,14 @@ using namespace std;
  *********************************************************************************************/
 
 MaterialProperty::MaterialProperty():
-	m_contents(nullptr),
-	m_wrapS(WRAP_MODE::REPEAT),
-	m_wrapT(WRAP_MODE::REPEAT),
-	m_wrapR(WRAP_MODE::REPEAT),
-	m_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
-	m_magnificationFilter(FILTER_MODE::LINEAR),
-	m_maxAnisotropy(16),
-	m_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
+	_contents(nullptr),
+	_wrapS(WRAP_MODE::REPEAT),
+	_wrapT(WRAP_MODE::REPEAT),
+	_wrapR(WRAP_MODE::REPEAT),
+	_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
+	_magnificationFilter(FILTER_MODE::LINEAR),
+	_maxAnisotropy(16),
+	_dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS::ALL) {
 	
 		AE_LOG_D("Creating MaterialProperty {:p}", (void*)this);
 }
@@ -42,7 +42,7 @@ MaterialProperty::MaterialProperty():
 MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents):
 	MaterialProperty() {
 		
-		m_contents = contents;
+		_contents = contents;
 }
 
 MaterialProperty::~MaterialProperty() {
@@ -54,36 +54,36 @@ MaterialProperty::~MaterialProperty() {
  *********************************************************************************************/
 
 shared_ptr<MaterialPropertyContents> MaterialProperty::contents() const {
-	return m_contents;
+	return _contents;
 }
 
 void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> contents) {
 	
-	m_contents = contents;
+	_contents = contents;
 	
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS);
 }
 
 FILTER_MODE MaterialProperty::minificationFilter() const {
-	return m_minificationFilter;
+	return _minificationFilter;
 }
 
 void MaterialProperty::minificationFilter(FILTER_MODE mode) {
-	m_minificationFilter = mode;
+	_minificationFilter = mode;
 	
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::MINIFICATION_FILTER);
 }
 
 FILTER_MODE MaterialProperty::magnificationFilter() const {
-	return m_magnificationFilter;
+	return _magnificationFilter;
 }
 
 void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
-	m_magnificationFilter = mode;
+	_magnificationFilter = mode;
 
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::MAGNIFICATION_FILTER);
 }
 
@@ -91,7 +91,7 @@ float MaterialProperty::maxAnisotropy() const {
 #ifdef ANDROID
 	return 0;
 #else
-	return m_maxAnisotropy;
+	return _maxAnisotropy;
 #endif
 }
 
@@ -100,42 +100,42 @@ void MaterialProperty::maxAnisotropy(float max) {
 	throw Exception("Anisotropy is not supported on this platform.");
 #endif
 	
-	m_maxAnisotropy = max;
+	_maxAnisotropy = max;
 
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::MAX_ANISTROPY);
 }
 
 WRAP_MODE MaterialProperty::wrapS() const {
-	return m_wrapS;
+	return _wrapS;
 }
 
 void MaterialProperty::wrapS(WRAP_MODE mode) {
-	m_wrapS = mode;
+	_wrapS = mode;
 
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_S);
 }
 
 WRAP_MODE MaterialProperty::wrapT() const {
-	return m_wrapT;
+	return _wrapT;
 }
 
 void MaterialProperty::wrapT(WRAP_MODE mode) {
-	m_wrapT = mode;
+	_wrapT = mode;
 
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_T);
 }
 
 WRAP_MODE MaterialProperty::wrapR() const {
-	return m_wrapR;
+	return _wrapR;
 }
 
 void MaterialProperty::wrapR(WRAP_MODE mode) {
-	m_wrapR = mode;
+	_wrapR = mode;
 	
-	m_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(m_dirtyBits,
+	_dirtyBits = MATERIAL_PROPERTY_DIRTY_BITS_ADD(_dirtyBits,
 												   MATERIAL_PROPERTY_DIRTY_BITS::WRAP_R);
 }
 
@@ -144,9 +144,9 @@ void MaterialProperty::wrapR(WRAP_MODE mode) {
  *********************************************************************************************/
 
 MATERIAL_PROPERTY_DIRTY_BITS MaterialProperty::dirtyBits() const {
-	return m_dirtyBits;
+	return _dirtyBits;
 }
 
 void MaterialProperty::dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits) {
-	m_dirtyBits = bits;
+	_dirtyBits = bits;
 }

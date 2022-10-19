@@ -86,10 +86,10 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		glm::vec3 												m_gravity;
-		float 													m_timestep;
-		std::weak_ptr<Scene>									m_scene;
-		PHYSICS_WORLD_DIRTY_BITS								m_dirtyBits;
+		glm::vec3 												_gravity;
+		float 													_timestep;
+		std::weak_ptr<Scene>									_scene;
+		PHYSICS_WORLD_DIRTY_BITS								_dirtyBits;
 	};
 }
 

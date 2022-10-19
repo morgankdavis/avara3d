@@ -47,5 +47,5 @@ Pyramid::Pyramid(float width, float height):
 //	}
 //
 //	auto element = make_shared<GeometryElement>(verts, faces);
-//	m_elements.push_back(element);
+//	_elements.push_back(element);
 }

@@ -65,11 +65,11 @@ Light::Light(LIGHT_TYPE type):
 }
 
 Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
-	m_name(boost::none),
-	m_type(type),
-	m_color(color),
-	m_attenuationFactor(1.0f),
-	m_node({}) {
+	_name(boost::none),
+	_type(type),
+	_color(color),
+	_attenuationFactor(1.0f),
+	_node({}) {
 	
 }
 
@@ -78,35 +78,35 @@ Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
  *********************************************************************************************/
 
 boost::optional<string> Light::name() const {
-	return m_name;
+	return _name;
 }
 
 void Light::name(const string& name) {
-	m_name = name;
+	_name = name;
 }
 
 LIGHT_TYPE Light::type() const {
-	return m_type;
+	return _type;
 }
 
 void Light::type(LIGHT_TYPE type) {
-	m_type = type;
+	_type = type;
 }
 
 shared_ptr<Color> Light::color() const {
-	return m_color;
+	return _color;
 }
 
 void Light::color(shared_ptr<Color> color) {
-	m_color = color;
+	_color = color;
 }
 
 float Light::attenuationFactor() const {
-	return m_attenuationFactor;
+	return _attenuationFactor;
 }
 
 void Light::attenuationFactor(float factor) {
-	m_attenuationFactor = factor;
+	_attenuationFactor = factor;
 }
 
 /*********************************************************************************************
@@ -114,9 +114,9 @@ void Light::attenuationFactor(float factor) {
  *********************************************************************************************/
 
 weak_ptr<Node> Light::node() const {
-	return m_node;
+	return _node;
 }
 
 void Light::attachedToNode(shared_ptr<Node> node) {
-	m_node = node;
+	_node = node;
 }

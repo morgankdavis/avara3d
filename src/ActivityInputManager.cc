@@ -42,8 +42,8 @@ static KEY AEKeyForChromeOSKeyCode(int32_t code);
 
 ActivityInputManager::ActivityInputManager(shared_ptr<Activity> activity):
 	InputManager(),
-	//m_previousMouseButtonsDown(set<MOUSE_BUTTON>()),
-	m_activity(activity) {
+	//_previousMouseButtonsDown(set<MOUSE_BUTTON>()),
+	_activity(activity) {
 
 }
 
@@ -87,17 +87,17 @@ int ActivityInputManager::update(AInputEvent* event) {
 
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
 
-				if (m_mouseButtonsDown.count(MOUSE_BUTTON::ONE)
+				if (_mouseButtonsDown.count(MOUSE_BUTTON::ONE)
 					&& !(buttonStates & AMOTION_EVENT_BUTTON_PRIMARY)) {
 					mouseButton(MOUSE_BUTTON::ONE, false);
 				}
 				
-				if (m_mouseButtonsDown.count(MOUSE_BUTTON::TWO)
+				if (_mouseButtonsDown.count(MOUSE_BUTTON::TWO)
 					&& !(buttonStates & AMOTION_EVENT_BUTTON_SECONDARY)) {
 					mouseButton(MOUSE_BUTTON::TWO, false);
 				}
 				
-				if (m_mouseButtonsDown.count(MOUSE_BUTTON::THREE)
+				if (_mouseButtonsDown.count(MOUSE_BUTTON::THREE)
 					&& !(buttonStates & AMOTION_EVENT_BUTTON_TERTIARY)) {
 					mouseButton(MOUSE_BUTTON::THREE, false);
 				}
@@ -143,8 +143,8 @@ int ActivityInputManager::update(AInputEvent* event) {
 				oldXPos = xPos;
 				oldYPos = yPos;
 				
-				m_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -xDelta : xDelta);
-				m_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -yDelta : yDelta);
+				_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -xDelta : xDelta);
+				_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -yDelta : yDelta);
 				
 				break; }
 				
@@ -155,13 +155,13 @@ int ActivityInputManager::update(AInputEvent* event) {
 				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
 
 				if (!Equal(vScroll, 0.0)) {
-					if (vScroll > 0.0) m_mouseScrollWheelDelta.y += 1;
-					else m_mouseScrollWheelDelta.y -= 1;
+					if (vScroll > 0.0) _mouseScrollWheelDelta.y += 1;
+					else _mouseScrollWheelDelta.y -= 1;
 				}
 				
 				if (!Equal(hScroll, 0.0)) {
-					if (vScroll > 0.0) m_mouseScrollWheelDelta.x += 1;
-					else m_mouseScrollWheelDelta.x -= 1;
+					if (vScroll > 0.0) _mouseScrollWheelDelta.x += 1;
+					else _mouseScrollWheelDelta.x -= 1;
 				}
 				
 				break; }
@@ -178,17 +178,17 @@ int ActivityInputManager::update(AInputEvent* event) {
 		auto key = AEKeyForChromeOSKeyCode(keyCode);
 		
 		if (action == AMOTION_EVENT_ACTION_DOWN) {
-			m_keysDown.insert(key);
+			_keysDown.insert(key);
 			
 			// if key is in "cleared" it means the client already read it, so don't add it again until
 			// we get key up, and then back down again
-			if (m_keysPressedCleared.count(key) == 0) {
-				m_keysPressed.insert(key);
+			if (_keysPressedCleared.count(key) == 0) {
+				_keysPressed.insert(key);
 			}
 		}
 		else if (action == AMOTION_EVENT_ACTION_UP) {
-			m_keysDown.erase(key);
-			m_keysPressedCleared.erase(key);
+			_keysDown.erase(key);
+			_keysPressedCleared.erase(key);
 		}
 	}
 	
@@ -202,17 +202,17 @@ int ActivityInputManager::update(AInputEvent* event) {
 void ActivityInputManager::mouseButton(MOUSE_BUTTON button, bool down) {
 
 	if (down) {
-		m_mouseButtonsDown.insert(button);
+		_mouseButtonsDown.insert(button);
 		
 		// if button is in "cleared" it means the client already read it, so don't add it again until
 		// we get button up, and then back down again
-		if (m_mouseButtonsPressedCleared.count(button) == 0) {
-			m_mouseButtonsPressed.insert(button);
+		if (_mouseButtonsPressedCleared.count(button) == 0) {
+			_mouseButtonsPressed.insert(button);
 		}
 	}
 	else {
-		m_mouseButtonsDown.erase(button);
-		m_mouseButtonsPressedCleared.erase(button);
+		_mouseButtonsDown.erase(button);
+		_mouseButtonsPressedCleared.erase(button);
 	}
 }
 
