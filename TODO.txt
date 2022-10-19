@@ -8,11 +8,38 @@
 
 30 - rigidbody
 
+	cmake project generator: https://github.com/friendlyanon/cmake-init
+	Remove m_
+	Move private headers?
+	add 'testing' branch -> debug build
+		master -> release
+		any -> just build
+		
+	Add line number/class/function to logger?
+		
+	switch to C++17
+		
+	Fix win10 wingw
+		MSVS?
+		LLVM windows: http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
+		
+	Switch AABB to min, max vec3s.  BoundingBox class
+	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
+	Debug Scene/Geometry extent/default camera placement -- import cameras?
+	
+	Switch manymouse to GLFW
+
+	Scene, Node, Geometry, GeometryElement all draw() -- why don't we simulate() physics objects?
+		-> WTF is going on with physics step & sync?
+
 	Add physics stats
 		RenderContext (scene?) should own "Stats" object ("Framestats"?)
 			Create at each frame, pass around. frameStartTime, frameEndTime
+		PhysicsSimulator.step() -- don't use statics! pass-in startTime or deltaTime
+		RenderContext should own "Stats" object
+		Create at each frame, pass around. frameStartTime, frameEndTime
 
-	New class: Simulator?
+	New class: Simulator? -> See "SCRATCHPAD.txt"
 		-> takes update loop functionalities from Renderer
 		-> owns scene graph & PhysicsWorld
 		[the point: simulating worlds without rendering -- networking]
@@ -30,16 +57,9 @@
 		Remember: physics world is not completely disconnected from visual world --
 			Most physics world will come from meshes loaded from file
 
-	Scene, Node, Geometry, GeometryElement all draw() -- why don't we simulate() physics objects?
-		-> WTF is going on with physics step & sync?
-
-	PhysicsSimulator.step() -- don't use statics! pass-in startTime or deltaTime
+	---------------------------------------------------
 
 	unique_ptr and shared_ptr
-
-	RenderContext should own "Stats" object
-		Create at each frame, pass around. frameStartTime, frameEndTime
-	Add physics stats
 
 	glfwDestroyWindow
 
@@ -54,14 +74,6 @@
 			Add "GeometryPrimitive" superclass + factor vertex data creation
 			-> INITIALIZERS for other tests use defaults
 		Add Disk primitive
-
-	Switch AABB to min, max vec3s.  BoundingBox class
-	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
-	Debug Scene/Geometry extent/default camera placement -- import cameras?
-
-	Fix win10 wingw
-		MSVS?
-		LLVM windows: http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
 
 	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 	Switch test to use instancing (load thing.obj, re-use its geometry on diff nodes
