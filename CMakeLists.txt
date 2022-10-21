@@ -3,25 +3,26 @@
 
 
 # cmake 3.8 is required for C++17
+# cmake 3.12 is required for C++20
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(avara-engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
+#if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+#	set(CMAKE_BUILD_TYPE "Debug")
+#endif ()
 
 
 
 # print all variables
 # https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
 
 
@@ -44,6 +45,8 @@ if (WIN32)
     message("We're WIN32")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
+	add_definitions("-DWINDOWS")
+	add_definitions("-DBT_NO_SIMD_OPERATOR_OVERLOADS")
 endif()
 
 if (WIN64)
