@@ -3,32 +3,33 @@
 
 
 # cmake 3.8 is required for C++17
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+# 3.13: target_link_libraries() and target_sources(): https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(avara-engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
+#if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+#	set(CMAKE_BUILD_TYPE "Debug")
+#endif ()
 
 
 
 # print all variables
 # https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
 
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 if (UNIX AND APPLE)
-    message("We're MACOS")
+    message("*** MACOS ***")
     set(MACOS TRUE)
     if (CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
@@ -36,24 +37,24 @@ if (UNIX AND APPLE)
 endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
-    message("We're LINUX")
+    message("*** LINUX ***")
     set(LINUX TRUE)
 endif()
 
 if (WIN32)
-    message("We're WIN32")
+    message("*** WIN32 ***")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
 endif()
 
 if (WIN64)
-    message("We're WIN64")
+    message("*** WIN64 ***")
     set(WINDOWS TRUE)
     set(WIN64 TRUE)
 endif()
 
 if (MINGW)
-    message("We're MINGW")
+    message("*** MINGW ***")
     set(WINDOWS TRUE)
 
     if (CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
@@ -68,26 +69,26 @@ if (MINGW)
 endif()
 
 if (ANDROID)
-    message("We're ANDROID")
+    message("*** ANDROID ***")
     set(ANDROID TRUE)
 endif()
 
 if (MSYS)
-    message("We're MSYS")
+    message("*** MSYS ***")
 	set(MSYS TRUE)
 endif()
 
 if (MSVS)
-    message("We're MSVS")
+    message("*** MSVS ***")
 endif()
 
 if (MACOS OR WINDOWS OR LINUX)
-	message("We're DESKTOP")
+	message("*** DESKTOP ***")
     set(DESKTOP TRUE)
 endif()
 
 if (XCODE)
-	message("We're XCODE")
+	message("*** XCODE ***")
 	add_definitions("-DXCODE")
 endif()
 
@@ -114,7 +115,7 @@ if (DESKTOP)
 endif()
 
 if (UBUNTU_CROSS)
-	message("We're UBUNTU_CROSS")
+	message("*** UBUNTU_CROSS ***")
 	add_definitions("-DUBUNTU_CROSS")
 endif ()
 
@@ -123,7 +124,7 @@ if (DESKTOP)
 endif()
 
 if (RPI)
-    message("We're RPI")
+    message("*** RPI ***")
     set(RPI TRUE)
     add_definitions("-DRPI")
 endif()
@@ -133,7 +134,7 @@ if (ANDROID OR RPI)
 	set(GL_ES TRUE)
 	add_definitions("-DGL_ES")
 else ()
-	message("Using OpenGL full.")
+	message("Using full OpenGL.")
 	set(GL_FULL TRUE)
 	add_definitions("-DGL_FULL")
 endif ()
@@ -149,11 +150,26 @@ include_directories(external/glm-0.9.9)
 
 add_subdirectory(external/boost-1.67.0)
 include_directories(external/boost-1.67.0)
+set_property(TARGET boost_regex PROPERTY CXX_STANDARD 17)
+set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
+
+#	boost_atomic
+#	boost_chrono
+#	boost_date_time
+#	boost_exception
+#	boost_filesystem
+#	boost_regex*
+#	boost_system
+#	boost_test
+#	boost_thread
+#	boost_timer)
 
 # fmt
 
 add_subdirectory(external/fmt-5.2.0)
 include_directories(external/fmt-5.2.0/include)
+set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
+set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
 
 # spdlog
 
@@ -234,6 +250,7 @@ else()
 	endif()
 	add_subdirectory(external/assimp-3.3.1)
 	include_directories(external/assimp-3.3.1/include)
+	set_property(TARGET assimp PROPERTY CXX_STANDARD 17)
 
 	# many mouse
 
@@ -288,15 +305,21 @@ include_directories(external/bullet3-2.87/src)
 
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
-
 include_directories(include)
-
 add_library(ae STATIC ${HEADERS} ${SOURCES})
+
+
+# this is causing external library headers to not be found. ?
+#add_library(ae STATIC "")
+#add_subdirectory(include)
+#add_subdirectory(src)
+#include_directories(include)
+
 
 
 target_link_libraries(ae
 	generator
-	meshoptimizer
+	#meshoptimizer
 	Bullet3Common
 	BulletCollision
 	Bullet3Collision
@@ -328,7 +351,9 @@ endif()
 
 if (MACOS)
 
-	target_link_libraries(ae imgui z)
+	target_link_libraries(ae
+			imgui
+			z)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
@@ -364,9 +389,11 @@ elseif (WINDOWS)
 
 	# wtf?
 	if(MSYS OR MINGW OR UBUNTU_CROSS)
-		target_link_libraries(ae winpthread)
+		target_link_libraries(ae
+				winpthread)
 	else()
-		target_link_libraries(ae winpthreads)
+		target_link_libraries(ae
+				winpthreads)
 	endif()
 
 	# https://stackoverflow.com/questions/11783932/how-do-i-add-a-linker-or-compile-flag-in-a-cmake-file
@@ -383,8 +410,7 @@ elseif (WINDOWS)
 
 elseif (ANDROID)
 
-	target_link_libraries(
-			ae
+	target_link_libraries(ae
 			android
 			NDKHelper
 			z
@@ -401,8 +427,7 @@ if (RPI)
 	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
 	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
 
-	target_link_libraries(
-			ae
+	target_link_libraries(ae
 			z
 			X11
 			Xxf86vm

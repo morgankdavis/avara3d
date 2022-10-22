@@ -23,6 +23,8 @@
 		MSVS?
 		LLVM windows: http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
 		
+	Add custom screen overlay text (key commands, instructions, etc)
+		
 	Switch AABB to min, max vec3s.  BoundingBox class
 	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
 	Debug Scene/Geometry extent/default camera placement -- import cameras?
@@ -185,7 +187,7 @@ LAUNDRY
 	
 	GLFM for Android/iOS?
 
-	android -> avara-engine/avara-engine
+	generator LGPL how-to: https://medialooks.com/lgpl
 
 	Replace Generator?
 		https://press3.mcs.anl.gov/sigma/meshkit-library/
@@ -446,4 +448,9 @@ RESOURCES
 		https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
 		EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
 		http://libcinder.org
+
+SANDBOX
+---------------------------
+
+	GLFW off-screen rendering: https://discourse.glfw.org/t/glfw-with-egl-and-osmesa/1574
 
