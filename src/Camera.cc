@@ -27,7 +27,7 @@ Camera::Camera():
 }
 
 Camera::Camera(float zNear, float zFar, float fov):
-	_name(boost::none),
+	_name(std::nullopt),
 	_zNear(zNear),
 	_zFar(zFar),
 	_fov(radians(fov)),
@@ -41,7 +41,7 @@ Camera::Camera(float zNear, float zFar, float fov):
 	Public
  *********************************************************************************************/
 
-boost::optional<std::string> Camera::name() {
+std::optional<std::string> Camera::name() {
 	return _name;
 }
 

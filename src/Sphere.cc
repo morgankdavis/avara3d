@@ -64,7 +64,7 @@ Sphere::Sphere(float radius, int segments):
 
 //Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 //				   const vector<shared_ptr<Material>> materials):
-//_name(boost::none),
+//_name(std::nullopt),
 //_elements(elements),
 //_materials(materials) {
 //

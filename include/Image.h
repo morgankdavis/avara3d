@@ -13,10 +13,11 @@
 #define Image_h
 
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 
 #include "MaterialPropertyContents.h"
 
@@ -36,7 +37,7 @@ namespace ae {
  *********************************************************************************************/
 
 #ifndef ANDROID
-		Image(const boost::filesystem::path& path, bool flipVertical=true);
+		Image(const std::filesystem::path& path, bool flipVertical=true);
 #endif
 		// with header
 		Image(std::shared_ptr<Buffer> headerBuffer, bool flipVertical=true);
@@ -52,7 +53,7 @@ namespace ae {
 		unsigned width() const;
 		unsigned height() const;
 		unsigned bytesPerPixel() const;
-		bool writePNG(boost::filesystem::path path) const;
+		bool writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
 	Internal
@@ -66,7 +67,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		//void loadFile(const boost::filesystem::path& path, bool flipHorizontal);
+		//void loadFile(const std::filesystem::path& path, bool flipHorizontal);
 		void loadBuffer(Buffer& buffer, bool flipVertical);
 		void flipVertical(); // "flip"
 		void flipHorizontal(); // "mirror"

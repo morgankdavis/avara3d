@@ -12,10 +12,11 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -49,7 +50,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		boost::optional<std::string> name() const;
+		std::optional<std::string> name() const;
 		void name(const std::string& name);
 		
 		const std::vector<std::shared_ptr<GeometryElement>>& elements();
@@ -100,7 +101,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		boost::optional<std::string>						_name;
+		std::optional<std::string>						_name;
 		std::weak_ptr<Node>									_node;
 
 		GEOMETRY_DIRTY_BITS									_dirtyBits;

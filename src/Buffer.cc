@@ -21,7 +21,7 @@ using namespace std;
 	 Lifecycle
  *********************************************************************************************/
 
-Buffer::Buffer(const boost::filesystem::path& path):
+Buffer::Buffer(const std::filesystem::path& path):
 	_pointer(nullptr),
 	_size(0) {
 	

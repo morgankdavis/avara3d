@@ -30,7 +30,7 @@ using namespace glm;
  *********************************************************************************************/
 
 Geometry::Geometry():
-	_name(boost::none),
+	_name(std::nullopt),
 	_elements(vector<shared_ptr<GeometryElement>>()),
 	_materials(vector<shared_ptr<Material>>()),
 	_node({}),
@@ -62,7 +62,7 @@ Geometry::~Geometry() {
 	Public
  *********************************************************************************************/
 
-boost::optional<string> Geometry::name() const {
+std::optional<string> Geometry::name() const {
 	return _name;
 }
 

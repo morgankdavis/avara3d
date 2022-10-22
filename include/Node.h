@@ -12,11 +12,12 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <stack>
 #include <string>
 #include <vector>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -57,7 +58,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		boost::optional<std::string> name() const;
+		std::optional<std::string> name() const;
 		void name(const std::string& name);
 		
 		std::shared_ptr<Light> light() const;
@@ -164,7 +165,7 @@ namespace ae {
 		NODE_DIRTY_BITS dirtyBits() const;
 		void dirtyBits(NODE_DIRTY_BITS bits);
 		
-		boost::optional<std::string>		_name;
+		std::optional<std::string>		_name;
 		
 		std::shared_ptr<Light>				_light;
 		std::shared_ptr<Camera>				_camera;

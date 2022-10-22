@@ -148,21 +148,11 @@ include_directories(external/glm-0.9.9.8)
 
 # boost
 
-add_subdirectory(external/boost-1.67.0)
-include_directories(external/boost-1.67.0)
+#add_subdirectory(external/boost-1.67.0)
+#include_directories(external/boost-1.67.0)
 #set_property(TARGET boost_regex PROPERTY CXX_STANDARD 17)
 #set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
 
-#	boost_atomic
-#	boost_chrono
-#	boost_date_time
-#	boost_exception
-#	boost_filesystem
-#	boost_regex*
-#	boost_system
-#	boost_test
-#	boost_thread
-#	boost_timer)
 
 # fmt
 
@@ -330,17 +320,17 @@ target_link_libraries(ae
 	Bullet3Geometry
 	Bullet3OpenCL_clew
 	LinearMath
-	Bullet2FileLoader
-	boost_atomic
-	boost_chrono
-	boost_date_time
-	boost_exception
-	boost_filesystem
-	boost_regex
-	boost_system
-	boost_test
-	boost_thread
-	boost_timer)
+	Bullet2FileLoader)
+#	boost_atomic
+#	boost_chrono
+#	boost_date_time
+#	boost_exception
+#	boost_filesystem
+#	boost_regex
+#	boost_system
+#	boost_test
+#	boost_thread
+#	boost_timer)
 
 if (DESKTOP)
 	target_link_libraries(ae

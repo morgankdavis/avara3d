@@ -14,7 +14,7 @@
 #include <set>
 #include <vector>
 
-#include <boost/circular_buffer.hpp>
+//#include <boost/circular_buffer.hpp>
 #ifdef GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
@@ -1091,7 +1091,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //		
 //		static unsigned index = 0;
 //		string filePath = "./" + to_string(index) + ".buf			";
-//		unsigned written = BinaryFile(boost::filesystem::path(filePath), imageBuf);
+//		unsigned written = BinaryFile(std::filesystem::path(filePath), imageBuf);
 //		AE_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
 //		++index;
 		
@@ -1844,36 +1844,40 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 	
 	// sample frametime for last FRAME_SAMPLE_SIZE frames
 	// average them and print it every FRAME_UPDATE_INTERVAL so it's readable
-	
-	const unsigned FRAME_SAMPLE_SIZE = 60;
-	const float FRAME_UPDATE_INTERVAL = 0.5;
-	
-	static boost::circular_buffer<float> fpsBuf(FRAME_SAMPLE_SIZE);
-	
-	static float previousFrameTime = time;
-	float deltaSecondsFromLastFrame = 0;
-	static float elapsedSecondsSinceUpdate = 0;
-	float currentFrameTime = time;
-	static unsigned elapsedFramesSinceUpdate = 0;
-	++elapsedFramesSinceUpdate;
-	
-	deltaSecondsFromLastFrame = currentFrameTime - previousFrameTime;
-	elapsedSecondsSinceUpdate += deltaSecondsFromLastFrame;
-	previousFrameTime = currentFrameTime;
-	fpsBuf.push_back(deltaSecondsFromLastFrame);
-	
-	if (elapsedSecondsSinceUpdate > FRAME_UPDATE_INTERVAL) {
-		ms = (elapsedSecondsSinceUpdate * 1000.0) / elapsedFramesSinceUpdate;
-		
-		float bufFrameTime = 0;
-		for (float t : fpsBuf) bufFrameTime += t;
-		fps = ((float)FRAME_SAMPLE_SIZE)/bufFrameTime;
-		
-		// reset framerate stats
-		
-		elapsedFramesSinceUpdate = 0;
-		elapsedSecondsSinceUpdate = 0;
-	}
+
+	// UPDATE: just check if elapsed time > FPS display update time
+	// count the number of frames that have been drawn since then and display it.
+
+
+//	const unsigned FRAME_SAMPLE_SIZE = 60;
+//	const float FRAME_UPDATE_INTERVAL = 0.5;
+//
+//	static boost::circular_buffer<float> fpsBuf(FRAME_SAMPLE_SIZE);
+//
+//	static float previousFrameTime = time;
+//	float deltaSecondsFromLastFrame = 0;
+//	static float elapsedSecondsSinceUpdate = 0;
+//	float currentFrameTime = time;
+//	static unsigned elapsedFramesSinceUpdate = 0;
+//	++elapsedFramesSinceUpdate;
+//
+//	deltaSecondsFromLastFrame = currentFrameTime - previousFrameTime;
+//	elapsedSecondsSinceUpdate += deltaSecondsFromLastFrame;
+//	previousFrameTime = currentFrameTime;
+//	fpsBuf.push_back(deltaSecondsFromLastFrame);
+//
+//	if (elapsedSecondsSinceUpdate > FRAME_UPDATE_INTERVAL) {
+//		ms = (elapsedSecondsSinceUpdate * 1000.0) / elapsedFramesSinceUpdate;
+//
+//		float bufFrameTime = 0;
+//		for (float t : fpsBuf) bufFrameTime += t;
+//		fps = ((float)FRAME_SAMPLE_SIZE)/bufFrameTime;
+//
+//		// reset framerate stats
+//
+//		elapsedFramesSinceUpdate = 0;
+//		elapsedSecondsSinceUpdate = 0;
+//	}
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

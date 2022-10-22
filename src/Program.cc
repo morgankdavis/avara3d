@@ -83,9 +83,9 @@ Program::Program(const string& name):
 	_name(name),
 	_glID(0),
 	_isLinked(false),
-	_logString(boost::optional<string>(boost::none)),
-	_vertexShaderSource(boost::optional<string>(boost::none)),
-	_fragmentShaderSource(boost::optional<string>(boost::none)),
+	_logString(std::optional<string>(std::nullopt)),
+	_vertexShaderSource(std::optional<string>(std::nullopt)),
+	_fragmentShaderSource(std::optional<string>(std::nullopt)),
 	_uniformLocations(map<string, int>() ){
 		
 		_glID = glCreateProgram();
@@ -145,7 +145,7 @@ bool Program::link() {
 	glGetProgramiv(_glID, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		int length = 0;
-		_logString = boost::none;
+		_logString = std::nullopt;
 		
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -177,7 +177,7 @@ bool Program::validate() {
 	if (status == GL_FALSE) {
 		// Store log and return false
 		int length = 0;
-		_logString = boost::none;
+		_logString = std::nullopt;
 		
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -403,20 +403,20 @@ bool Program::isLinked() const {
 	return _isLinked;
 }
 
-boost::optional<string> Program::vertexShaderSource() const {
+std::optional<string> Program::vertexShaderSource() const {
 	return _vertexShaderSource;
 }
 
-//void Program::vertexShaderSource(boost::optional<string> source) {
+//void Program::vertexShaderSource(std::optional<string> source) {
 void Program::vertexShaderSource(string source) {
 	_vertexShaderSource = source;
 }
 
-boost::optional<string> Program::fragmentShaderSource() const {
+std::optional<string> Program::fragmentShaderSource() const {
 	return _fragmentShaderSource;
 }
 
-//void Program::fragmentShaderSource(boost::optional<string> source) {
+//void Program::fragmentShaderSource(std::optional<string> source) {
 void Program::fragmentShaderSource(string source) {
 	_fragmentShaderSource = source;
 }
@@ -479,7 +479,7 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
 	if (GL_FALSE == result) {
 		int length = 0;
-		_logString = boost::none;
+		_logString = std::nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack

@@ -8,22 +8,25 @@
 
 30 - rigidbody
 
-	cmake project generator: https://github.com/friendlyanon/cmake-init
-	Remove m_
-	Move private headers?
-	add 'testing' branch -> debug build
+	Update libs
+	Make Windows work
+	
+	Setup GitLab
+	Add 'testing' branch -> debug build
 		master -> release
 		any -> just build
 		
+	FPS display
+	Just TRY GLFM
+		
 	Add line number/class/function to logger?
-		
-	switch to C++17
-		
-	Fix win10 wingw
-		MSVS?
-		LLVM windows: http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
-		
+
 	Add custom screen overlay text (key commands, instructions, etc)
+	
+	Breakup namespaces?
+		Utilities:
+			<granular>
+		GeometricPrimitives
 		
 	Switch AABB to min, max vec3s.  BoundingBox class
 	Add Geometry::extent() / extent(bool recursive)? -- no - NODE

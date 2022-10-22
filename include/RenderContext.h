@@ -10,10 +10,11 @@
 #define RenderContext_h
 
 
+#include <filesystem>
 #include <functional>
 #include <memory>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -98,7 +99,7 @@ namespace ae {
 		std::shared_ptr<Image> snapshot() const;
 		
 		virtual bool recordingGIF() const;
-		virtual void startGIFRecording(const boost::filesystem::path& path,
+		virtual void startGIFRecording(const std::filesystem::path& path,
 									   unsigned maxHeight, unsigned maxFramerate);
 		virtual unsigned recordedGIFFrames() const;
 		virtual void stopGIFRecording();

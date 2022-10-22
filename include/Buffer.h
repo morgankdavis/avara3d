@@ -10,10 +10,12 @@
 #define Buffer_h
 
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
+
 
 
 namespace ae {
@@ -26,7 +28,7 @@ namespace ae {
 	 Lifecycle
  *********************************************************************************************/
 		
-		Buffer(const boost::filesystem::path& path);
+		Buffer(const std::filesystem::path& path);
 		Buffer(const unsigned char* buf, std::size_t size);
 		Buffer(const std::vector<unsigned char>& buf);
 		

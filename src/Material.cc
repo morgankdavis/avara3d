@@ -43,7 +43,7 @@ shared_ptr<Material> Material::DefaultMaterial() {
  *********************************************************************************************/
 
 Material::Material():
-	_name(boost::none),
+	_name(std::nullopt),
 	_ambient(nullptr),
 	_diffuse(nullptr),
 	_specular(nullptr),
@@ -88,7 +88,7 @@ Material::~Material() {
 	Public
  *********************************************************************************************/
 
-boost::optional<std::string> Material::name() const {
+std::optional<std::string> Material::name() const {
 	return _name;
 }
 
