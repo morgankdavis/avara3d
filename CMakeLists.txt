@@ -144,7 +144,7 @@ endif ()
 
 # GLM
 
-include_directories(external/glm-0.9.9)
+include_directories(external/glm-0.9.9.8)
 
 # boost
 
