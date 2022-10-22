@@ -11,9 +11,10 @@
 
 
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 
 #include "Types.h"
 
@@ -52,7 +53,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		boost::optional<std::string> name() const;
+		std::optional<std::string> name() const;
 		void name(const std::string& name);
 		
 		std::shared_ptr<MaterialProperty> ambient() const;
@@ -95,7 +96,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>		_name;
+		std::optional<std::string>		_name;
 		
 		std::shared_ptr<MaterialProperty>	_ambient;
 		std::shared_ptr<MaterialProperty> 	_diffuse;

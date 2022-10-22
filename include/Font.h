@@ -10,10 +10,12 @@
 #define Font_h
 
 
+#include <filesystem>
 #include <memory>
+#include <optional>
 
-#include <boost/optional.hpp>
-#include <boost/filesystem.hpp>
+//#include <boost/optional.hpp>
+//#include <boost/filesystem.hpp>
 
 #include "Types.h"
 
@@ -32,7 +34,7 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 		
-		Font(boost::filesystem::path& path);
+		Font(std::filesystem::path& path);
 		Font(std::shared_ptr<Buffer> buffer);
 		
 		~Font();
@@ -41,7 +43,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		boost::optional<std::string>	name() const;
+		std::optional<std::string>	name() const;
 		FONT_TYPE 						type() const;
 		std::shared_ptr<Buffer> 		buffer() const;
 		
@@ -51,7 +53,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>	_name;
+		std::optional<std::string>	_name;
 		FONT_TYPE						_type;
 		std::shared_ptr<Buffer>			_buffer;
 	};

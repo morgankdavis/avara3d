@@ -14,9 +14,10 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 
 #include "Types.h"
 
@@ -80,9 +81,9 @@ namespace ae {
 		std::string name() const;
 		unsigned glID();
 		bool isLinked() const;
-		boost::optional<std::string> vertexShaderSource() const;
+		std::optional<std::string> vertexShaderSource() const;
 		void vertexShaderSource(std::string source);
-		boost::optional<std::string> fragmentShaderSource() const;
+		std::optional<std::string> fragmentShaderSource() const;
 		void fragmentShaderSource(std::string source);
 		
 	private:
@@ -98,14 +99,14 @@ namespace ae {
 		
 		void glID(unsigned glID);
 		void isLinked(bool isLinked);
-		void logString(boost::optional<std::string> logString);
+		void logString(std::optional<std::string> logString);
 		
 		std::string  					_name;
 		unsigned  						_glID;
 		bool 							_isLinked;
-		boost::optional<std::string>	_logString;
-		boost::optional<std::string>	_vertexShaderSource;
-		boost::optional<std::string>	_fragmentShaderSource;
+		std::optional<std::string>	_logString;
+		std::optional<std::string>	_vertexShaderSource;
+		std::optional<std::string>	_fragmentShaderSource;
 		std::map<std::string, int>		_uniformLocations;
 	};
 }

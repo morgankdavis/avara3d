@@ -11,9 +11,10 @@
 
 
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 
 #include "Types.h"
 
@@ -49,7 +50,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		boost::optional<std::string> name() const;
+		std::optional<std::string> name() const;
 		void name(const std::string& name);
 		
 		LIGHT_TYPE type() const;
@@ -75,7 +76,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>		_name;
+		std::optional<std::string>		_name;
 		
 		LIGHT_TYPE							_type;
 		std::shared_ptr<Color>				_color;

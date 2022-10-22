@@ -10,14 +10,16 @@
 #define Utilities_h
 
 
+#include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
 
-#include <boost/optional.hpp>
-#include <boost/filesystem.hpp>
+//#include <boost/optional.hpp>
+//#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
 #include "Types.h"
@@ -94,37 +96,37 @@ namespace ae {
 		// *** executable and working directories ***
 		
 #ifndef ANDROID
-		boost::optional<boost::filesystem::path> ExecutablePath();
-		boost::optional<boost::filesystem::path> ExecutableDirectory();
-		boost::optional<boost::filesystem::path> ExecutableName();
-		boost::optional<boost::filesystem::path> CurrentWorkingDirectory();
+		std::optional<std::filesystem::path> ExecutablePath();
+		std::optional<std::filesystem::path> ExecutableDirectory();
+		std::optional<std::filesystem::path> ExecutableName();
+		std::optional<std::filesystem::path> CurrentWorkingDirectory();
 #endif
 		
 		// *** search paths ***
 		
 #ifndef ANDROID
-		std::vector<boost::filesystem::path> BaseSearchPaths();
-		std::vector<boost::filesystem::path> ShaderSearchPaths();
-		std::vector<boost::filesystem::path> SceneSearchPaths();
-		std::vector<boost::filesystem::path> ImageSearchPaths();
-		std::vector<boost::filesystem::path> FontSearchPaths();
-		boost::optional<boost::filesystem::path> SearchInPaths(const std::string& filename,
-															   std::vector<boost::filesystem::path> paths);
+		std::vector<std::filesystem::path> BaseSearchPaths();
+		std::vector<std::filesystem::path> ShaderSearchPaths();
+		std::vector<std::filesystem::path> SceneSearchPaths();
+		std::vector<std::filesystem::path> ImageSearchPaths();
+		std::vector<std::filesystem::path> FontSearchPaths();
+		std::optional<std::filesystem::path> SearchInPaths(const std::string& filename,
+															   std::vector<std::filesystem::path> paths);
 #endif
 		
 		// *** binary and text files ***
 		
 #ifdef ANDROID
-		boost::optional<boost::filesystem::path> InternalFilesDirectory();
-		boost::optional<std::string> TextAsset(const std::string& relPath);
+		std::optional<std::filesystem::path> InternalFilesDirectory();
+		std::optional<std::string> TextAsset(const std::string& relPath);
 		std::shared_ptr<Buffer> BinaryAsset(const std::string& relPath);
 #else
-		boost::optional<std::string> TextFile(const boost::filesystem::path& path);
+		std::optional<std::string> TextFile(const std::filesystem::path& path);
 #endif
 		
 		// *** shaders ***
 		
-		boost::optional<std::string> ShaderSource(const std::string& name,
+		std::optional<std::string> ShaderSource(const std::string& name,
 												  const std::string& type);
 		
 		// *** fonts ***

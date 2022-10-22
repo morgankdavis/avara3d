@@ -31,7 +31,7 @@ using namespace std;
  *********************************************************************************************/
 
 #ifndef ANDROID
-Image::Image(const boost::filesystem::path& path, bool flipVertical):
+Image::Image(const std::filesystem::path& path, bool flipVertical):
 	_data(nullptr),
 	_width(0),
 	_height(0),
@@ -88,7 +88,7 @@ unsigned Image::bytesPerPixel() const {
 	return _bytesPerPixel;
 }
 
-bool Image::writePNG(boost::filesystem::path path) const {
+bool Image::writePNG(std::filesystem::path path) const {
 	
 	return !stbi_write_png(path.string().c_str(), _width, _height,
 						   _bytesPerPixel, _data->pointer(), _width*_bytesPerPixel);

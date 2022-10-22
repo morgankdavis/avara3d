@@ -211,7 +211,7 @@ bool RenderContext::recordingGIF() const {
 	return _recordingGIF;
 }
 
-void RenderContext::startGIFRecording(const boost::filesystem::path& path,
+void RenderContext::startGIFRecording(const std::filesystem::path& path,
 									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {

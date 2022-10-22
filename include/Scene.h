@@ -10,12 +10,13 @@
 #define Scene_h
 
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Types.h"
@@ -43,7 +44,7 @@ namespace ae {
  *********************************************************************************************/
 		
 #ifndef ANDROID
-		static std::shared_ptr<Scene> LoadFromFile(const boost::filesystem::path& path);
+		static std::shared_ptr<Scene> LoadFromFile(const std::filesystem::path& path);
 #endif
 //		static std::shared_ptr<Scene> LoadFromData(const std::vector<unsigned char>& data);
 

@@ -11,9 +11,10 @@
 
 
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 
@@ -38,7 +39,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		boost::optional<std::string> name();
+		std::optional<std::string> name();
 		void name(std::string name);
 
 		void translate(glm::vec3 translation);
@@ -75,7 +76,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		boost::optional<std::string>	_name;
+		std::optional<std::string>	_name;
 		
 		float							_fov;
 		float							_zNear;

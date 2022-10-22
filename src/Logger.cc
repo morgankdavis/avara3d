@@ -423,7 +423,7 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 	Lifecycle
  *********************************************************************************************/
 
-FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
+FileLoggerSink::FileLoggerSink(std::filesystem::path relPath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
 		_filepath(relPath),
@@ -434,10 +434,14 @@ FileLoggerSink::FileLoggerSink(boost::filesystem::path relPath,
 	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
 #endif
 
-	boost::system::error_code errorCode;
-	boost::filesystem::create_directories(_filepath.parent_path(), errorCode);
-	if (errorCode.value() != boost::system::errc::success) {
-		throw Exception("Couldn't create intermediate directories for log: " + _filepath.string());
+	std::error_code errorCode;
+	std::filesystem::create_directories(_filepath.parent_path(), errorCode);
+	// this bugs me.
+	// std::errc::success -> used to be boost:errc::success
+	// std::errc::success or anything evaluating to 0 does not exist, apparently.
+	auto code = errorCode.value();
+	if (code != 0) {
+		throw Exception("Couldn't create intermediate directories for log: " + _filepath.string() + " [code " + to_string(code) + "]");
 	}
 
 	openStream();
@@ -456,7 +460,7 @@ FileLoggerSink::~FileLoggerSink() {
 	Public
  *********************************************************************************************/
 
-boost::filesystem::path FileLoggerSink::filepath() const {
+std::filesystem::path FileLoggerSink::filepath() const {
 	return _filepath;
 }
 
@@ -502,8 +506,8 @@ void FileLoggerSink::openStream() {
 
 void FileLoggerSink::checkRotate() {
 	
-	if (boost::filesystem::exists(_filepath)) {
-		if (boost::filesystem::file_size(_filepath) > _maxFilesize) {
+	if (std::filesystem::exists(_filepath)) {
+		if (std::filesystem::file_size(_filepath) > _maxFilesize) {
 			rotate();
 		}
 	}
@@ -517,16 +521,16 @@ void FileLoggerSink::rotate() {
 	auto stem = _filepath.stem();
 	auto extension = _filepath.extension();
 	
-	auto existing = vector<boost::filesystem::path>();
+	auto existing = vector<std::filesystem::path>();
 
 	existing.emplace_back(_filepath);
 	
 	unsigned i = 0;
 	while (true) {
 		
-		auto path = _filepath.parent_path() / boost::filesystem::path(stem.string() + to_string(i) + extension.string());
+		auto path = _filepath.parent_path() / std::filesystem::path(stem.string() + to_string(i) + extension.string());
 		
-		if (boost::filesystem::exists(path)) {
+		if (std::filesystem::exists(path)) {
 			existing.emplace_back(path);
 			++i;
 		}
@@ -539,15 +543,17 @@ void FileLoggerSink::rotate() {
 	
 	unsigned index = existing.size();
 	
-	for (vector<boost::filesystem::path>::reverse_iterator i = existing.rbegin(); i != existing.rend(); ++i ) {
+	for (vector<std::filesystem::path>::reverse_iterator i = existing.rbegin(); i != existing.rend(); ++i ) {
 		auto path = *i;
 		
 		if (index > _maxFiles) {
 			
-			boost::system::error_code errorCode;
-			boost::filesystem::remove(path, errorCode);
-			if (errorCode.value() != boost::system::errc::success) {
-				throw Exception("Cannot remove log file: " + path.string());
+			std::error_code errorCode;
+			std::filesystem::remove(path, errorCode);
+			// still bugs me. see note above about std:errc
+			auto code = errorCode.value();
+			if (code != 0) {
+				throw Exception("Cannot remove log file: " + path.string() + " [code " + to_string(code) + "]");
 			}
 		}
 		else {
@@ -555,16 +561,16 @@ void FileLoggerSink::rotate() {
 			auto existStem = path.stem();
 //			auto oldExtension = path.extension();
 
-			//boost::filesystem::path newPath;
+			//std::filesystem::path newPath;
 //			if (path.string() == _filepath) {
-//				newPath = boost::filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
+//				newPath = std::filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
 //			}
 //			else {
-				//newPath = boost::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
-				boost::filesystem::path newPath = path.parent_path() / boost::filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
+				//newPath = std::filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
+				std::filesystem::path newPath = path.parent_path() / std::filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
 //			}
 
-			boost::filesystem::rename(path, newPath);
+			std::filesystem::rename(path, newPath);
 		}
 		
 		--index;
@@ -572,7 +578,7 @@ void FileLoggerSink::rotate() {
 	
 	// move the last file
 	
-	auto newPath = _filepath.parent_path() / boost::filesystem::path(stem.string() + string("0") + extension.string());
+	auto newPath = _filepath.parent_path() / std::filesystem::path(stem.string() + string("0") + extension.string());
 	
 	openStream();
 }

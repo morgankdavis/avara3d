@@ -65,7 +65,7 @@ shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
  *********************************************************************************************/
 
 Node::Node():
-	_name(boost::none),
+	_name(std::nullopt),
 	_hidden(false),
 	_camera(nullptr),
 	_light(nullptr),
@@ -95,7 +95,7 @@ Node::~Node() {
 	Public
  *********************************************************************************************/
 
-boost::optional<std::string> Node::name() const {
+std::optional<std::string> Node::name() const {
 	return _name;
 }
 

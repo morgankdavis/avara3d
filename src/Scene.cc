@@ -15,8 +15,11 @@
 #include <assimp/scene.h>
 #include <assimp/version.h>
 #endif
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
+//#include <boost/filesystem.hpp>
+//#include <boost/optional.hpp>
+
+#include <filesystem>
+#include <optional>
 
 #include "BulletPhysicsSimulator.h"
 #include "Camera.h"
@@ -47,7 +50,7 @@ using namespace ae::utils;
 #ifndef ANDROID
 using namespace Assimp;
 #endif
-using namespace boost::filesystem;
+using namespace std::filesystem;
 using namespace glm;
 using namespace std;
 
@@ -59,7 +62,7 @@ using namespace std;
 static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> MissingTextureImage();
 #ifndef ANDROID
-static void LoadFile(Scene& scene, const boost::filesystem::path& importPath);
+static void LoadFile(Scene& scene, const std::filesystem::path& importPath);
 //static void LoadData(Scene& scene, const vector<unsigned char>& data);
 static void AddAIGeometryNodes(Scene& scene,
 							   const aiScene* aiScene,
@@ -75,7 +78,7 @@ static void AddAIGeometryNodeRec(Scene& scene,
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath);
-static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
+static std::optional<std::filesystem::path> FilepathFromTextureFilename(const string& filename,
 																			const string& basePath);
 static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType);
 
@@ -92,7 +95,7 @@ static Color ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::LoadFromFile(const boost::filesystem::path& path) {
+shared_ptr<Scene> Scene::LoadFromFile(const std::filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 	LoadFile(*scene, path);
@@ -384,7 +387,7 @@ static shared_ptr<Image> MissingTextureImage() {
 }
 
 #ifndef ANDROID
-static void LoadFile(Scene& scene, const boost::filesystem::path& importPath) {
+static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 	
 	AE_LOG_I("Assimp version: {}.{}.{}",
 				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
@@ -735,22 +738,25 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
-static boost::optional<boost::filesystem::path> FilepathFromTextureFilename(const string& filename,
-																			const string& basePath) {
+static std::optional<std::filesystem::path> FilepathFromTextureFilename(const string& filename,
+																		const string& basePath) {
 	
 	string textureName = filename;
-	if (textureName.substr(0,1) == "/") {
+	if (textureName.substr(0, 1) == "/") {
 		textureName = textureName.substr(1, textureName.length()-1);
 	}
-	else if (textureName.substr(0,2) == "./") {
+	else if (textureName.substr(0, 2) == "./") {
 		textureName = textureName.substr(2, textureName.length()-2);
 	}
 	
 	try {
-		path texturePath = canonical(path(textureName), path(basePath));
+		//path texturePath = canonical(path(textureName), path(basePath)); // boost
+		path combined = path(basePath) / path(textureName);
+		path texturePath = canonical(combined);
 		return texturePath;
 	}
-	catch (const boost::filesystem::filesystem_error& e) {
+	//catch (const std::filesystem::filesystem_error& e) {
+	catch (const std::exception& e) {
 		AE_LOG_E("Error expanding path: {}", e.what());
 	}
 	

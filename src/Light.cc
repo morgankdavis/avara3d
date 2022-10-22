@@ -65,7 +65,7 @@ Light::Light(LIGHT_TYPE type):
 }
 
 Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
-	_name(boost::none),
+	_name(std::nullopt),
 	_type(type),
 	_color(color),
 	_attenuationFactor(1.0f),
@@ -77,7 +77,7 @@ Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
 	Public
  *********************************************************************************************/
 
-boost::optional<string> Light::name() const {
+std::optional<string> Light::name() const {
 	return _name;
 }
 

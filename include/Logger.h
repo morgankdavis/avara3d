@@ -19,12 +19,13 @@
 
 
 #include <cstdio>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
@@ -245,7 +246,7 @@ namespace ae {
 
 		// desktop log paths are relative to the executable
 		// android log paths are relative to the app's internal storage directory
-		FileLoggerSink(boost::filesystem::path relPath,
+		FileLoggerSink(std::filesystem::path relPath,
 					   unsigned maxFiles = DEFAULT_MAX_FILES,
 					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);
 		~FileLoggerSink();
@@ -254,7 +255,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		boost::filesystem::path filepath() const;
+		std::filesystem::path filepath() const;
 		
 		unsigned maxFiles() const;
 		unsigned maxFilesize() const;
@@ -277,7 +278,7 @@ namespace ae {
 		void checkRotate();
 		void rotate();
 		
-		boost::filesystem::path				_filepath;
+		std::filesystem::path				_filepath;
 		unsigned							_maxFiles;
 		unsigned							_maxFilesize;
 		std::shared_ptr<std::ofstream>		_fileStream;
