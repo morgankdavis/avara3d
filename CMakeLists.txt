@@ -150,8 +150,8 @@ include_directories(external/glm-0.9.9)
 
 add_subdirectory(external/boost-1.67.0)
 include_directories(external/boost-1.67.0)
-set_property(TARGET boost_regex PROPERTY CXX_STANDARD 17)
-set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
+#set_property(TARGET boost_regex PROPERTY CXX_STANDARD 17)
+#set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
 
 #	boost_atomic
 #	boost_chrono
@@ -168,8 +168,8 @@ set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
 
 add_subdirectory(external/fmt-5.2.0)
 include_directories(external/fmt-5.2.0/include)
-set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
-set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
+#set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
+#set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
 
 # spdlog
 
@@ -250,7 +250,7 @@ else()
 	endif()
 	add_subdirectory(external/assimp-3.3.1)
 	include_directories(external/assimp-3.3.1/include)
-	set_property(TARGET assimp PROPERTY CXX_STANDARD 17)
+	#set_property(TARGET assimp PROPERTY CXX_STANDARD 17)
 
 	# many mouse
 
