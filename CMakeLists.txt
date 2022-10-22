@@ -263,8 +263,9 @@ if (GL_FULL)
 
 	# imgui
 
-	add_subdirectory(external/imgui-1.62)
-	include_directories(external/imgui-1.62/include)
+	add_subdirectory(external/imgui-1.88)
+	include_directories(external/imgui-1.88)
+	include_directories(external/imgui-1.88/backends)
 
 endif ()
 
