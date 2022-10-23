@@ -28,6 +28,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 
+# Windows = WIN32, nothing else
+
+
+
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 if (UNIX AND APPLE)
@@ -244,7 +248,7 @@ else()
 	endif()
 	add_subdirectory(external/assimp-3.3.1)
 	include_directories(external/assimp-3.3.1/include)
-	#set_property(TARGET assimp PROPERTY CXX_STANDARD 17)
+	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
 	# many mouse
 
@@ -264,14 +268,14 @@ if (GL_FULL)
 endif ()
 
 
-if (MINGW)# AND UBUNTU_CROSS)
+#if (MINGW)# AND UBUNTU_CROSS)
 
 	# bzip2
 
-	add_subdirectory(external/bzip2)
-	include_directories(external/bzip2/include)
+#	add_subdirectory(external/bzip2)
+#	include_directories(external/bzip2/include)
 
-endif() # MINGW
+#endif() # MINGW
 
 
 # mesh optimizer
@@ -294,8 +298,20 @@ include_directories(external/stb)
 
 # bullet
 
-add_subdirectory(external/bullet3-2.87)
-include_directories(external/bullet3-2.87/src)
+add_subdirectory(external/bullet3-3.17)
+include_directories(external/bullet3-3.17/src)
+set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
+set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+#	Bullet3Common
+#	BulletCollision
+#	Bullet3Collision
+#	BulletDynamics
+#	Bullet3Dynamics
+#	BulletInverseDynamics
+#	Bullet3Geometry
+#	Bullet3OpenCL_clew
+#	LinearMath
+#	Bullet2FileLoader)
 
 
 file(GLOB HEADERS include/*.h)
@@ -314,7 +330,6 @@ add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 target_link_libraries(ae
 	generator
-	#meshoptimizer
 	Bullet3Common
 	BulletCollision
 	Bullet3Collision
@@ -325,16 +340,7 @@ target_link_libraries(ae
 	Bullet3OpenCL_clew
 	LinearMath
 	Bullet2FileLoader)
-#	boost_atomic
-#	boost_chrono
-#	boost_date_time
-#	boost_exception
-#	boost_filesystem
-#	boost_regex
-#	boost_system
-#	boost_test
-#	boost_thread
-#	boost_timer)
+	
 
 if (DESKTOP)
 	target_link_libraries(ae
@@ -379,29 +385,22 @@ elseif (LINUX AND NOT RPI)
 elseif (WINDOWS)
 
 	target_link_libraries(ae
-		imgui
-		bz2)
+		imgui)
+		#bz2)
 
 	# wtf?
-	if(MSYS OR MINGW OR UBUNTU_CROSS)
-		target_link_libraries(ae
-				winpthread)
-	else()
-		target_link_libraries(ae
-				winpthreads)
-	endif()
+#	if(MSYS OR MINGW OR UBUNTU_CROSS)
+#		target_link_libraries(ae
+#				winpthread)
+#	else()
+#		target_link_libraries(ae
+#				winpthreads)
+#	endif()
 
-	# https://stackoverflow.com/questions/11783932/how-do-i-add-a-linker-or-compile-flag-in-a-cmake-file
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++ '-Wl,-rpath,$ORIGIN/lib'") # I don't think RPATH works in windows
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -lgcc -lstdc++")
+	# for MinGW / cross compile?
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
 
-	# https://stackoverflow.com/questions/18138635/mingw-exe-requires-a-few-gcc-dlls-regardless-of-the-code
-	#set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ ${CMAKE_CXX_STANDARD_LIBRARIES}")
-	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive")
 
-#	'-Wl,-rpath,$ORIGIN/../lib'
 
 elseif (ANDROID)
 

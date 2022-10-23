@@ -8,6 +8,8 @@
 
 #include "Example.h"
 
+#define _USE_MATH_DEFINES // windows
+#include <math.h>
 #include <iostream>
 #include <memory>
 

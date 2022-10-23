@@ -142,6 +142,7 @@
 	OpenAL software? https://github.com/kcat/openal-soft
 
 80 - network
+	https://github.com/rumaniel/Awesome-Game-Networking
 	http://www.jenkinssoftware.com/
 	"Entity"/"NetworkEntity?"
 

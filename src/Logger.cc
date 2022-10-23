@@ -332,17 +332,28 @@ void STDLoggerSink::flush() {
  **************************************************************************************/
 
 void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
-	
+
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
 		<= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::WARN_)) {
 		fprintf(stdout, "%s\n", message);
+
 	}
 	else {
 		fprintf(stderr, "%s\n", message);
+		OutputDebugStringA(message);
 	}
+
+#ifdef WINDOWS
+	auto newLined = (char*)malloc(strlen(message) + 2);
+	//sprintf(newLined, "%s\n", message);
+	strcpy(newLined, message);
+	strcat(newLined, "\n");
+	OutputDebugStringA((const char*)newLined);
+	free(newLined);
+#endif
 }
 
-#endif
+#endif // DESKTOP
 
 
 /*######################################################################################
