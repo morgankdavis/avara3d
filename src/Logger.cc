@@ -340,7 +340,6 @@ void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
 	}
 	else {
 		fprintf(stderr, "%s\n", message);
-		OutputDebugStringA(message);
 	}
 
 #ifdef WINDOWS
