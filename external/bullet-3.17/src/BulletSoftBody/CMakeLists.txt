@@ -68,6 +68,8 @@ SET(BulletSoftBody_HDRS
 
 
 ADD_LIBRARY(BulletSoftBody  ${BulletSoftBody_SRCS} ${BulletSoftBody_HDRS})
+TARGET_COMPILE_OPTIONS(BulletSoftBody PUBLIC
+	"-Wno-implicit-const-int-float-conversion") # mkd: added
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)

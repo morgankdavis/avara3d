@@ -1,9 +1,10 @@
 /// @ref core
 /// @file glm/glm.cpp
 
-#ifndef GLM_ENABLE_EXPERIMENTAL
-#define GLM_ENABLE_EXPERIMENTAL
-#endif
+// mkd: disabling.  doesn't this just enable GLM_ENABLE_EXPERIMENTAL no matter what...? am I taking crazy pills?
+//#ifndef GLM_ENABLE_EXPERIMENTAL
+//#define GLM_ENABLE_EXPERIMENTAL
+//#endif
 #include <glm/gtx/dual_quaternion.hpp>
 #include <glm/gtc/vec1.hpp>
 #include <glm/gtc/quaternion.hpp>

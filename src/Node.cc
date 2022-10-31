@@ -11,7 +11,8 @@
 #include <algorithm>
 #include <iostream>
 
-#define GLM_ENABLE_EXPERIMENTAL
+// apparently we're not using anything experimental here since at least GLM .9.9.8
+//#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
@@ -223,6 +224,8 @@ void Node::rotation(const vec4 rotation) {
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 
+	// !? https://glm.g-truc.net/0.9.0/api/a00151.html
+
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
 	// note that the linked equation seems to have switched attitude and bank
@@ -254,7 +257,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 #endif
 
 	// clips to +-180
-	// return glm::eulerAngles(_orientation);
+	//return glm::eulerAngles(_orientation);
 }
 
 void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll

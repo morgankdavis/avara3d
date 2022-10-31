@@ -12,7 +12,7 @@
 #include <vector>
 
 #include <generator/generator.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
+//#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include "GeometryElement.h"
