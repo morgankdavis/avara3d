@@ -298,20 +298,11 @@ include_directories(external/stb)
 
 # bullet
 
-add_subdirectory(external/bullet3-3.17)
-include_directories(external/bullet3-3.17/src)
+add_subdirectory(external/bullet-3.17)
+include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-#	Bullet3Common
-#	BulletCollision
-#	Bullet3Collision
-#	BulletDynamics
-#	Bullet3Dynamics
-#	BulletInverseDynamics
-#	Bullet3Geometry
-#	Bullet3OpenCL_clew
-#	LinearMath
-#	Bullet2FileLoader)
+
 
 
 file(GLOB HEADERS include/*.h)

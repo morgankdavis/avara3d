@@ -464,6 +464,9 @@ ELSE()
 ENDIF()
 
 
+SET(INSTALL_LIBS OFF CACHE BOOL "Shared Libs" FORCE) # mkd: this only happens with CLion, but even though CMAKE_GENERATOR == "Unix Makefiles" above, INSTALL_LIBS is still ON (??)
+
+
 IF(INSTALL_LIBS)
 	#INSTALL of other files requires CMake 2.6
 	IF(BUILD_EXTRAS)
@@ -516,3 +519,4 @@ IF (INSTALL_CMAKE_FILES)
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
 ENDIF (INSTALL_CMAKE_FILES)
+
