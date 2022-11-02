@@ -15,8 +15,9 @@
 #include <LinearMath/btIDebugDraw.h>
 #include <LinearMath/btScalar.h> // btGetVersion() !
 
-#warning experimental
-#define GLM_ENABLE_EXPERIMENTAL
+// apparently we're not using anything experimental here since at least GLM .9.9.8
+//#warning experimental
+//#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
 

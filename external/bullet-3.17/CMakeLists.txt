@@ -355,6 +355,15 @@ ENDIF(BUILD_PYBULLET)
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
 
+# mkd: changed to ON otherwise in Linux we get Bullet linking errors (undefined symbols) when linking ae to examples (??).
+# note that even when setting the default option value near the top of the file this doesn't want to take effect.
+# not sure where it's being turned back on between there and here...
+# update: apparently Windows/ClandCL likes this off...
+if (NOT WIN32)
+	SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
+endif ()
+
+
 
 IF(BUILD_PYBULLET)
 	FIND_PACKAGE(PythonLibs)
@@ -461,6 +470,9 @@ ELSE()
 ENDIF()
 
 
+SET(INSTALL_LIBS OFF CACHE BOOL "Shared Libs" FORCE) # mkd: this only happens with CLion, but even though CMAKE_GENERATOR == "Unix Makefiles" above, INSTALL_LIBS is still ON (??)
+
+
 IF(INSTALL_LIBS)
 	#INSTALL of other files requires CMake 2.6
 	IF(BUILD_EXTRAS)
@@ -513,3 +525,4 @@ IF (INSTALL_CMAKE_FILES)
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
 ENDIF (INSTALL_CMAKE_FILES)
+

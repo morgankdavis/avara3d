@@ -26,7 +26,7 @@ endif ()
 #endforeach()
 
 
-# Windows = WIN32, nothing else
+# Windows ClangCL = WIN32, nothing else
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
@@ -265,11 +265,13 @@ include_directories(external/stb)
 
 # bullet
 
-add_subdirectory(external/bullet3-3.17)
-include_directories(external/bullet3-3.17/src)
+add_subdirectory(external/bullet-3.17)
+include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 
+
+# ae
 
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
