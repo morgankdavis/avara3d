@@ -12,10 +12,9 @@ project(avara-engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-#if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-#	set(CMAKE_BUILD_TYPE "Debug")
-#endif ()
-
+if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+	set(CMAKE_BUILD_TYPE "Debug")
+endif ()
 
 
 # print all variables
@@ -27,10 +26,7 @@ set(CMAKE_CXX_STANDARD 17)
 #endforeach()
 
 
-
 # Windows = WIN32, nothing else
-
-
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
@@ -154,13 +150,6 @@ endif ()
 
 include_directories(external/glm-0.9.9.8)
 
-# boost
-
-#add_subdirectory(external/boost-1.67.0)
-#include_directories(external/boost-1.67.0)
-#set_property(TARGET boost_regex PROPERTY CXX_STANDARD 17)
-#set_property(TARGET boost_test PROPERTY CXX_STANDARD 17)
-
 
 # fmt
 
@@ -168,11 +157,6 @@ add_subdirectory(external/fmt-5.2.0)
 include_directories(external/fmt-5.2.0/include)
 #set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
 #set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
-
-# spdlog
-
-#add_subdirectory(avara-engine/external/spdlog-0.16.2)
-#include_directories(avara-engine/external/spdlog-0.16.2/include)
 
 
 # android things
@@ -191,21 +175,9 @@ else()
 endif()
 
 
-# ae & tests
-
-#add_subdirectory(avara-engine)
-
 #if (DESKTOP)
 	add_subdirectory(examples)
 #endif()
-
-
-
-### }}} END FROM TOP
-
-
-
-
 
 
 include_directories(external)
@@ -278,11 +250,6 @@ endif ()
 #endif() # MINGW
 
 
-# mesh optimizer
-
-#add_subdirectory(external/meshoptimizer)
-#include_directories(external/meshoptimizer/include)
-
 # generator
 
 add_subdirectory(external/generator)
@@ -302,16 +269,6 @@ add_subdirectory(external/bullet3-3.17)
 include_directories(external/bullet3-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-#	Bullet3Common
-#	BulletCollision
-#	Bullet3Collision
-#	BulletDynamics
-#	Bullet3Dynamics
-#	BulletInverseDynamics
-#	Bullet3Geometry
-#	Bullet3OpenCL_clew
-#	LinearMath
-#	Bullet2FileLoader)
 
 
 file(GLOB HEADERS include/*.h)
@@ -325,7 +282,6 @@ add_library(ae STATIC ${HEADERS} ${SOURCES})
 #add_subdirectory(include)
 #add_subdirectory(src)
 #include_directories(include)
-
 
 
 target_link_libraries(ae
@@ -364,10 +320,6 @@ if (MACOS)
 	target_link_libraries(ae ${FRAMEWORKS})
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
-
-#        target_compile_options(ae PUBLIC
-#                        "-Wargument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
-
 
 elseif (LINUX AND NOT RPI)
 
@@ -411,7 +363,7 @@ elseif (ANDROID)
 			EGL
 			GLESv3)
 
-	# Export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
+	# export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
 	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
 
 endif()
@@ -435,11 +387,6 @@ if (RPI)
 endif ()
 
 
-# silence stupid warnings
-
-#message("COMPILER IS CLANG")
-#message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID})
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 	message("COMPILER IS CLANG")
@@ -456,17 +403,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 			"-Wno-address-of-packed-member"
 			"-Wno-unused-function"
 			"-Wno-deprecated-declarations"
-			"-Wno-argument-outside-range") # for Bullet 3.87 osxcross 'error: argument value 10880 is outside the valid range [0, 255]'
-			#"-Wno-macro-redefined")
-
+			"-Wno-argument-outside-range")
+			
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-# seems as if these are not needed for some reason... (?)
-
-#else()
-
-#	message("COMPILER IS OTHER")
-#	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID})
 
 endif()
 
@@ -499,3 +439,4 @@ if (NOT ANDROID)
 			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
 
 endif()
+
