@@ -40,8 +40,15 @@ build-linux-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     #- env
-    - startx -- :1
-    - export DISPLAY=:1
+
+    # this TRIES to start X at least
+    #- startx -- :1
+    #- export DISPLAY=:1
+    #
+
+    echo $(whoami)
+    echo $(eval ~)
+    
     #- export XAUTHORITY=/var/run/lightdm/root/:0 # heh
     - /usr/bin/glxinfo | /usr/bin/grep "version"
     #- export "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
