@@ -44,7 +44,7 @@ build-linux-job:       # This job runs in the build stage, which runs first.
     - export DISPLAY=:1
     #- export XAUTHORITY=/var/run/lightdm/root/:0 # heh
     - /usr/bin/glxinfo | /usr/bin/grep "version"
-    - export "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
+    #- export "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake -G"Unix Makefiles" ..
