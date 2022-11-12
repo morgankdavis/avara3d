@@ -41,7 +41,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compiling the code..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    - /usr/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
     - echo "Compile complete."
 
