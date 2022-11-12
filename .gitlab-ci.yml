@@ -40,7 +40,7 @@ build-linux-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     - env
-    - export DISPLAY=192.168.122.1:0
+    - export DISPLAY=127.0.0.1:0
     #- export XAUTHORITY=/var/run/lightdm/root/:0 # heh
     - /usr/bin/glxinfo | /usr/bin/grep "version"
     - export "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
