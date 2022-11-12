@@ -21,7 +21,7 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
+build-macos:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
       - macos-12.6
@@ -32,6 +32,31 @@ build-job:       # This job runs in the build stage, which runs first.
     - /opt/local/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
     - echo "Compile complete."
+
+build-linux:       # This job runs in the build stage, which runs first.
+  stage: build
+  tags:
+      - debian-11
+  script:
+    - echo "Compiling the code..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    - /usr/bin/make -j4
+    - echo "Compile complete."
+
+build-windows:       # This job runs in the build stage, which runs first.
+  stage: build
+  tags:
+      - windows-10
+  script:
+    - echo "Compiling the code..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - "C:\Program Files\Cmake\bin\cmake" -T"ClangCL" ..
+    - "C:\Program Files\Cmake\bin\cmake" cmake --build . -- -maxCpuCount:6
+    - echo "Compile complete."
+
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
