@@ -40,6 +40,7 @@ build-linux-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     - env
+    - export "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake -G"Unix Makefiles" ..
