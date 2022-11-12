@@ -43,9 +43,9 @@ build-linux-job:       # This job runs in the build stage, which runs first.
 
     # this TRIES to start X at least
     #- startx -- :1
-    #- export DISPLAY=:1
+    - export DISPLAY=:0
     #
-
+    - cp 
     - echo $(whoami)
     - echo $(eval ~)
     
