@@ -54,7 +54,7 @@ build-windows10-job:       # This job runs in the build stage, which runs first.
   tags:
       - windows-10
   script:
-    - echo "Compiling the code..."
+    - echo "Compiling the code...."
     - mkdir gitlab-build
     - cd gitlab-build
     - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
