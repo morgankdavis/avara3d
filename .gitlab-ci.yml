@@ -21,19 +21,19 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
-build-macos-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  tags:
-      - macos-12.6
-  script:
-    - echo "Compiling the code..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
-    - echo "Compile complete."
+#build-job:       # This job runs in the build stage, which runs first.
+#  stage: build
+#  tags:
+#      - macos-12.6
+#  script:
+#    - echo "Compiling the code..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - /opt/local/bin/cmake -G"Unix Makefiles" ..
+#    - /usr/bin/make -j4
+#    - echo "Compile complete."
 
-build-linux-job:       # This job runs in the build stage, which runs first.
+build-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
       - debian-11
@@ -45,17 +45,17 @@ build-linux-job:       # This job runs in the build stage, which runs first.
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-windows-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  tags:
-      - windows-10
-  script:
-    - echo "Compiling the code..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - "C:\Program Files\Cmake\bin\cmake" -T"ClangCL" ..
-    - "C:\Program Files\Cmake\bin\cmake" cmake --build . -- -maxCpuCount:6
-    - echo "Compile complete."
+#build-job:       # This job runs in the build stage, which runs first.
+#  stage: build
+#  tags:
+#      - windows-10
+#  script:
+#    - echo "Compiling the code..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - "C:\Program Files\Cmake\bin\cmake" -T"ClangCL" ..
+#    - "C:\Program Files\Cmake\bin\cmake" cmake --build . -- -maxCpuCount:6
+#    - echo "Compile complete."
 
 
 unit-test-job:   # This job runs in the test stage.
