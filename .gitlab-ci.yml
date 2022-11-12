@@ -21,7 +21,7 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
-build-macos:       # This job runs in the build stage, which runs first.
+build-macos-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
       - macos-12.6
@@ -33,7 +33,7 @@ build-macos:       # This job runs in the build stage, which runs first.
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-linux:       # This job runs in the build stage, which runs first.
+build-linux-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
       - debian-11
@@ -45,7 +45,7 @@ build-linux:       # This job runs in the build stage, which runs first.
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-windows:       # This job runs in the build stage, which runs first.
+build-windows-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
       - windows-10
