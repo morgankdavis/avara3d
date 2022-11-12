@@ -46,8 +46,8 @@ build-linux-job:       # This job runs in the build stage, which runs first.
     #- export DISPLAY=:1
     #
 
-    echo $(whoami)
-    echo $(eval ~)
+    - echo $(whoami)
+    - echo $(eval ~)
     
     #- export XAUTHORITY=/var/run/lightdm/root/:0 # heh
     - /usr/bin/glxinfo | /usr/bin/grep "version"
