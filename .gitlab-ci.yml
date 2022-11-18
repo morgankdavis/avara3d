@@ -80,26 +80,26 @@ test-linux:
   tags:
       - debian-11
   script:
-    - echo "Testing..."
+    - echo "Starting Linux text..."
 
 test-macos:
   stage: test
   tags:
       - macos-12.6
   script:
-    - echo "Testing..."
+    - echo "Starting macOS text..."
 
 test-windows:
   stage: test
   tags:
       - windows-10
   script:
-    - echo "Testing..."
+    - echo "Starting Windows text..."
 
 deploy-debug-linux: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "testing"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - debian-11
@@ -109,7 +109,7 @@ deploy-debug-linux:
 deploy-debug-macos: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "testing"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - macos-12.6
@@ -119,7 +119,7 @@ deploy-debug-macos:
 deploy-debug-windows: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "testing"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - windows-10
@@ -129,7 +129,7 @@ deploy-debug-windows:
 deploy-release-linux: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - debian-11
@@ -139,7 +139,7 @@ deploy-release-linux:
 deploy-release-macos: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - macos-12.6
@@ -149,7 +149,7 @@ deploy-release-macos:
 deploy-release-windows: 
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - windows-10
