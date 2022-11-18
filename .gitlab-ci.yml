@@ -49,7 +49,7 @@ build-macos:
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-windows10:
+build-windows10: # bash
   stage: build
   tags:
       - windows-10
@@ -58,9 +58,22 @@ build-windows10:
     - echo "Compiling the code...."
     - mkdir gitlab-build
     - cd gitlab-build
-    - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
-    - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
+    - C:\\Program Files\\Cmake\\bin\\cmake -T\"ClangCL\" ..
+    - C:\\Program Files\\Cmake\\bin\\cmake\ cmake --build . -- -maxCpuCount:6
     - echo "Compile complete."
+
+# build-windows10: # pwsh
+#   stage: build
+#   tags:
+#       - windows-10
+#   script:
+#     #- kjhbdsfgkjbfg # break please
+#     - echo "Compiling the code...."
+#     - mkdir gitlab-build
+#     - cd gitlab-build
+#     - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
+#     - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
+#     - echo "Compile complete."
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
