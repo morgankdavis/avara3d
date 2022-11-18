@@ -96,26 +96,62 @@ test-windows:
   script:
     - echo "Testing..."
 
-deploy-release-linux: 
+deploy-debug-linux: 
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "testing"
   environment: production
   tags:
     - debian-11
   script:
-    - echo "Deploying..."
+    - echo "Starting Linux debug deployment..."
 
-deploy-release-macos: 
+deploy-debug-macos: 
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "testing"
   environment: production
   tags:
     - macos-12.6
   script:
-    - echo "Deploying..."
+    - echo "Starting macOS debug deployment..."
 
-deploy-release-windows: 
+deploy-debug-windows: 
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "testing"
   environment: production
   tags:
     - windows-10
   script:
-    - echo "Deploying..."
+    - echo "Starting Windows debug deployment..."
+
+deploy-release-linux: 
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  environment: production
+  tags:
+    - debian-11
+  script:
+    - echo "Starting Linux release deployment..."
+
+deploy-release-macos: 
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Starting macOS release deployment..."
+
+deploy-release-windows: 
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Starting Windows release deployment..."
