@@ -33,8 +33,11 @@ build-linux:
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
+        - export PATH=/usr/bin/:$PATH
+    - cmake -G"Unix Makefiles" ..
+    - make -j4
+    # - /usr/bin/cmake -G"Unix Makefiles" ..
+    # - /usr/bin/make -j4
     - echo "Compile complete."
 
 build-macos:
@@ -45,8 +48,11 @@ build-macos:
     - echo "Compiling the code..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
+    - export PATH=/usr/bin/:/opt/local/bin/:$PATH
+    - cmake -G"Unix Makefiles" ..
+    - make -j4
+    #- /opt/local/bin/cmake -G"Unix Makefiles" ..
+    #- /usr/bin/make -j4
     - echo "Compile complete."
 
 build-windows: # bash
