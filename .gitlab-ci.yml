@@ -55,6 +55,7 @@ build-windows10: # bash
       - windows-10
   script:
     - echo "Compiling the code...."
+    - echo $0
     - mkdir gitlab-build
     - cd gitlab-build
     - |
