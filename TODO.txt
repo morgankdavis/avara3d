@@ -8,6 +8,8 @@
 
 30 - rigidbody
 
+	<ci test>
+
 	Update libs
 	Make Windows work
 	
