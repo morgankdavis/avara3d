@@ -54,13 +54,13 @@ build-windows10:
   tags:
       - windows-10
   script:
-    - kjhbdsfgkjbfg # break please
-    #- echo "Compiling the code...."
-    #- mkdir gitlab-build
-    #- cd gitlab-build
-    #- \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
-    #- \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
-    #- echo "Compile complete."
+    #- kjhbdsfgkjbfg # break please
+    - echo "Compiling the code...."
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
+    - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
+    - echo "Compile complete."
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
