@@ -54,15 +54,16 @@ build-windows10: # bash
   tags:
       - windows-10
   script:
-    #- kjhbdsfgkjbfg # break please
     - echo "Compiling the code...."
     - mkdir gitlab-build
     - cd gitlab-build
     - |
       "/Program Files/Cmake/bin/cmake" -T"ClangCL" ..
-    #- ./"C:\\Program Files\\Cmake\\bin\\cmake" -T"ClangCL" ..
-    #- ./"C:\\Program Files\\Cmake\\bin\\cmake" cmake --build . -- -maxCpuCount:6
+
     - echo "Compile complete."
+
+        #- ./"C:\\Program Files\\Cmake\\bin\\cmake" -T"ClangCL" ..
+    #- ./"C:\\Program Files\\Cmake\\bin\\cmake" cmake --build . -- -maxCpuCount:6
 
 # build-windows10: # pwsh
 #   stage: build
