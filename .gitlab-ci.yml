@@ -19,7 +19,7 @@
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
-  - deploy
+  - archive
 
 build-linux:
   stage: build
@@ -96,62 +96,62 @@ test-windows:
   script:
     - echo "Starting Windows text..."
 
-deploy-debug-linux: 
-  stage: deploy
+archive-debug-linux: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - debian-11
   script:
-    - echo "Starting Linux debug deployment..."
+    - echo "Starting Linux debug archive..."
 
-deploy-debug-macos: 
-  stage: deploy
+archive-debug-macos: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - macos-12.6
   script:
-    - echo "Starting macOS debug deployment..."
+    - echo "Starting macOS debug archive..."
 
-deploy-debug-windows: 
-  stage: deploy
+archive-debug-windows: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
   tags:
     - windows-10
   script:
-    - echo "Starting Windows debug deployment..."
+    - echo "Starting Windows debug archive..."
 
-deploy-release-linux: 
-  stage: deploy
+archive-release-linux: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - debian-11
   script:
-    - echo "Starting Linux release deployment..."
+    - echo "Starting Linux release archive..."
 
-deploy-release-macos: 
-  stage: deploy
+archive-release-macos: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - macos-12.6
   script:
-    - echo "Starting macOS release deployment..."
+    - echo "Starting macOS release archive..."
 
-deploy-release-windows: 
-  stage: deploy
+archive-release-windows: 
+  stage: archive
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
   tags:
     - windows-10
   script:
-    - echo "Starting Windows release deployment..."
+    - echo "Starting Windows release archive..."
