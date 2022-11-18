@@ -58,8 +58,8 @@ build-windows10: # bash
     - echo $0
     - mkdir gitlab-build
     - cd gitlab-build
-    - cmake -T ClangCL ..
-    - cmake --build .
+    - cmake -G"Unix Makefiles" -T"ClangCL" ..
+    - cmake --build . -- -j6
     #/Program Files/Cmake/bin/cmake -T ClangCL ..
 
     - echo "Compile complete."
