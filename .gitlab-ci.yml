@@ -49,7 +49,7 @@ build-macos:
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-windows10: # bash
+build-windows: # bash
   stage: build
   tags:
       - windows-10
@@ -75,23 +75,47 @@ build-windows10: # bash
 #     - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
 #     - echo "Compile complete."
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+test-linux:
+  stage: test
+  tags:
+      - debian-11
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 5
-    - echo "Code coverage is 90%"
+    - echo "Testing..."
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
+test-macos:
+  stage: test
+  tags:
+      - macos-12.6
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 5
-    - echo "No lint issues found."
+    - echo "Testing..."
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+test-windows:
+  stage: test
+  tags:
+      - windows-10
+  script:
+    - echo "Testing..."
+
+deploy-release-linux: 
+  stage: deploy
   environment: production
+  tags:
+    - debian-11
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - echo "Deploying..."
+
+deploy-release-macos: 
+  stage: deploy
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Deploying..."
+
+deploy-release-windows: 
+  stage: deploy
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Deploying..."
