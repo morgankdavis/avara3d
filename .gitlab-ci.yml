@@ -21,7 +21,7 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
-build-linux-job:
+build-linux:
   stage: build
   tags:
       - debian-11
@@ -37,7 +37,7 @@ build-linux-job:
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-macos-job:
+build-macos:
   stage: build
   tags:
       - macos-12.6
@@ -49,17 +49,18 @@ build-macos-job:
     - /usr/bin/make -j4
     - echo "Compile complete."
 
-build-windows10-job:
+build-windows10:
   stage: build
   tags:
       - windows-10
   script:
-    - echo "Compiling the code...."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
-    - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
-    - echo "Compile complete."
+    - kjhbdsfgkjbfg # break please
+    #- echo "Compiling the code...."
+    #- mkdir gitlab-build
+    #- cd gitlab-build
+    #- \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
+    #- \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
+    #- echo "Compile complete."
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
