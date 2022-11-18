@@ -59,6 +59,7 @@ build-windows10: # bash
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake -T ClangCL ..
+    - cmake --build . -- -maxCpuCount:6
       #/Program Files/Cmake/bin/cmake -T ClangCL ..
 
     - echo "Compile complete."
