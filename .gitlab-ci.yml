@@ -59,7 +59,7 @@ build-windows10: # bash
     - mkdir gitlab-build
     - cd gitlab-build
     - |
-      eval "/Program\ Files/Cmake/bin/cmake -TClangCL .."
+      "/Program Files/Cmake/bin/cmake" -T ClangCL ..
 
     - echo "Compile complete."
 
