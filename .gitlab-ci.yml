@@ -26,7 +26,7 @@ build-linux:
   tags:
       - debian-11
   script:
-    - echo "Compiling for Linux..."
+    - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
     # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start) to allow us to get an X connection
     # (used by GLFW) else: "/usr/bin/ld: cannot find -lXxf86vm"
@@ -35,33 +35,32 @@ build-linux:
     - cd gitlab-build
     - /usr/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
-    - echo "Linux compilation complete."
+    - echo "Linux build complete."
 
 build-macos:
   stage: build
   tags:
       - macos-12.6
   script:
-    - echo "Compiling for macOS..."
+    - echo "Starting for macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - /opt/local/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
-    - echo "macOS compilation complete."
+    - echo "macOS build complete."
 
 build-windows: # bash
   stage: build
   tags:
       - windows-10
   script:
-    - echo "Compiling for Windows...."
-    - echo $0
+    - echo "Starting for Windows build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake -T"ClangCL" ..
     # mkd: make maxCpuCount work...
     - cmake --build . # -- -maxCpuCount:6
-    - echo "Windows compilation complete."
+    - echo "Windows build complete."
 
 # build-windows10: # pwsh
 #   stage: build
