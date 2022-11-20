@@ -36,7 +36,6 @@ build-linux:
     - /usr/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
     - echo "Linux build complete."
-    
 
 build-macos:
   stage: build
