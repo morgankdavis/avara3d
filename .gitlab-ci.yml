@@ -26,7 +26,6 @@ build-linux:
   tags:
       - debian-11
   script:
-    
     - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
     # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start) to allow us to get an X connection
