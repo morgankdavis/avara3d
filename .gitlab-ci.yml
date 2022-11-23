@@ -19,7 +19,7 @@
 stages:          # List of stages for jobs, and their order of execution
   - build
   #- test
-  #- archive
+  - archive
 
 build-linux:
   stage: build
@@ -100,62 +100,74 @@ build-windows: # bash
 #   script:
 #     - echo "Starting Windows text..."
 
-# archive-debug-linux: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-#   environment: production
-#   tags:
-#     - debian-11
-#   script:
-#     - echo "Starting Linux debug archive..."
+.pigify: &pigify
+  script:
+    - tar --help
+    - pigz --help
 
-# archive-debug-macos: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-#   environment: production
-#   tags:
-#     - macos-12.6
-#   script:
-#     - echo "Starting macOS debug archive..."
+archive-debug-linux:
+  stage: archive
+  only: testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - debian-11
+  script:
+    - echo "Starting Linux debug archive..."
+    - &pigify
 
-# archive-debug-windows: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-#   environment: production
-#   tags:
-#     - windows-10
-#   script:
-#     - echo "Starting Windows debug archive..."
+archive-debug-macos:
+  stage: archive
+  only: testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Starting macOS debug archive..."
 
-# archive-release-linux: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-#   environment: production
-#   tags:
-#     - debian-11
-#   script:
-#     - echo "Starting Linux release archive..."
+archive-debug-windows:
+  stage: archive
+  only: testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Starting Windows debug archive..."
 
-# archive-release-macos: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-#   environment: production
-#   tags:
-#     - macos-12.6
-#   script:
-#     - echo "Starting macOS release archive..."
+archive-release-linux:
+  stage: archive
+  only: master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - debian-11
+  script:
+    - echo "Starting Linux release archive..."
 
-# archive-release-windows: 
-#   stage: archive
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-#   environment: production
-#   tags:
-#     - windows-10
-#   script:
-#     - echo "Starting Windows release archive..."
+archive-release-macos:
+  stage: archive
+  only: master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Starting macOS release archive..."
+
+archive-release-windows:
+  stage: archive
+  only: master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Starting Windows release archive..."
