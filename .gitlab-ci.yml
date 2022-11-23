@@ -55,8 +55,8 @@ build-windows: # bash
       - windows-10
   script:
     - echo "Starting for Windows build..."
-    - echo $0
     - tar --version
+    - echo "Things" > thing
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake -T"ClangCL" ..
