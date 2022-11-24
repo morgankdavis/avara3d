@@ -76,9 +76,6 @@ build-windows: # bash
 #     - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
 #     - echo "Compile complete."
 
-
-
-
 # test-linux:
 #   stage: test
 #   tags:
@@ -100,14 +97,14 @@ build-windows: # bash
 #   script:
 #     - echo "Starting Windows text..."
 
-.pigify: &pigify
-  script:
-    - tar --help
-    - pigz --help
+# .pigify: &pigify_thing
+#   - tar --help
+#   - pigz --help
 
 archive-debug-linux:
   stage: archive
-  only: testing
+  only:
+    - testing
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
@@ -115,11 +112,13 @@ archive-debug-linux:
     - debian-11
   script:
     - echo "Starting Linux debug archive..."
-    - &pigify
+  #<<: *pigify_thing
+    #- !reference [ .pigify ]
 
 archive-debug-macos:
   stage: archive
-  only: testing
+  only:
+    - testing
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
@@ -130,7 +129,8 @@ archive-debug-macos:
 
 archive-debug-windows:
   stage: archive
-  only: testing
+  only: 
+    - testing
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
@@ -141,7 +141,8 @@ archive-debug-windows:
 
 archive-release-linux:
   stage: archive
-  only: master
+  only:
+    - master
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
@@ -152,7 +153,8 @@ archive-release-linux:
 
 archive-release-macos:
   stage: archive
-  only: master
+  only:
+    - master
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
@@ -163,7 +165,8 @@ archive-release-macos:
 
 archive-release-windows:
   stage: archive
-  only: master
+  only:
+    - master
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
