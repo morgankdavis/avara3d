@@ -1,0 +1,176 @@
+# This file is a template, and might need editing before it works on your project.
+# This is a sample GitLab CI/CD configuration file that should run without any modifications.
+# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
+# it uses echo commands to simulate the pipeline execution.
+#
+# A pipeline is composed of independent jobs that run scripts, grouped into stages.
+# Stages run in sequential order, but jobs within stages run in parallel.
+#
+# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+#
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+#
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  #- test
+  - archive
+
+build-linux:
+  stage: build
+  tags:
+      - debian-11
+  script:
+    - echo "Starting Linux build..."
+    # the VM creates an X authority at /home/gitlab/.Xauthority at login.
+    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start) to allow us to get an X connection
+    # (used by GLFW) else: "/usr/bin/ld: cannot find -lXxf86vm"
+    - export DISPLAY=:0
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - /usr/bin/cmake -G"Unix Makefiles" ..
+    - /usr/bin/make -j4
+    - echo "Linux build complete."
+
+build-macos:
+  stage: build
+  tags:
+      - macos-12.6
+  script:
+    - echo "Starting for macOS build..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    - /usr/bin/make -j4
+    - echo "macOS build complete."
+
+build-windows: # bash
+  stage: build
+  tags:
+      - windows-10
+  script:
+    - echo "Starting for Windows build..."
+    - tar --version
+    - echo "Things" > thing
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - cmake -T"ClangCL" ..
+    # mkd: make maxCpuCount work...
+    - cmake --build . # -- -maxCpuCount:6
+    - echo "Windows build complete."
+
+# build-windows10: # pwsh
+#   stage: build
+#   tags:
+#       - windows-10
+#   script:
+#     - echo "Compiling the code...."
+#     - mkdir gitlab-build
+#     - cd gitlab-build
+#     - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
+#     - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
+#     - echo "Compile complete."
+
+# test-linux:
+#   stage: test
+#   tags:
+#       - debian-11
+#   script:
+#     - echo "Starting Linux text..."
+
+# test-macos:
+#   stage: test
+#   tags:
+#       - macos-12.6
+#   script:
+#     - echo "Starting macOS text..."
+
+# test-windows:
+#   stage: test
+#   tags:
+#       - windows-10
+#   script:
+#     - echo "Starting Windows text..."
+
+# .pigify: &pigify_thing
+#   - tar --help
+#   - pigz --help
+
+archive-debug-linux:
+  stage: archive
+  only:
+    - testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - debian-11
+  script:
+    - echo "Starting Linux debug archive..."
+  #<<: *pigify_thing
+    #- !reference [ .pigify ]
+
+archive-debug-macos:
+  stage: archive
+  only:
+    - testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Starting macOS debug archive..."
+
+archive-debug-windows:
+  stage: archive
+  only: 
+    - testing
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Starting Windows debug archive..."
+
+archive-release-linux:
+  stage: archive
+  only:
+    - master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - debian-11
+  script:
+    - echo "Starting Linux release archive..."
+
+archive-release-macos:
+  stage: archive
+  only:
+    - master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - macos-12.6
+  script:
+    - echo "Starting macOS release archive..."
+
+archive-release-windows:
+  stage: archive
+  only:
+    - master
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+  environment: production
+  tags:
+    - windows-10
+  script:
+    - echo "Starting Windows release archive..."
