@@ -16,6 +16,7 @@
 
 //#include <boost/optional.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -33,7 +34,7 @@ namespace ae {
 	Public Static
  *********************************************************************************************/
 		
-		static std::shared_ptr<Material> DefaultMaterial();
+		static MaterialSPtr DefaultMaterial();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -96,7 +97,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 		
-		std::optional<std::string>		_name;
+		std::optional<std::string>			_name;
 		
 		std::shared_ptr<MaterialProperty>	_ambient;
 		std::shared_ptr<MaterialProperty> 	_diffuse;

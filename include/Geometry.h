@@ -19,14 +19,17 @@
 //#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 
+#include "Aliases.h"
+#include "GeometryElement.h"
+#include "Material.h"
 #include "Types.h"
 
 
 namespace ae {
 
 
-	class GeometryElement;
-	class Material;
+//	class GeometryElement;
+//	class Material;
 	class Node;
 	class Renderer;
 
@@ -40,68 +43,71 @@ namespace ae {
  *********************************************************************************************/
 
 		Geometry();
-		Geometry(const std::shared_ptr<GeometryElement> element,
-				 const std::shared_ptr<Material> material);
-		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
-				 const std::vector<std::shared_ptr<Material>> materials);
+		Geometry(const GeometryElementSPtr element,
+				 const MaterialSPtr material);
+		Geometry(const std::vector<GeometryElementSPtr> elements,
+				 const std::vector<MaterialSPtr> materials);
 		virtual ~Geometry();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> name() const;
-		void name(const std::string& name);
-		
-		const std::vector<std::shared_ptr<GeometryElement>>& elements();
-		const std::vector<std::shared_ptr<Material>>& materials();
-		
-		std::shared_ptr<Material> firstMaterial() const;
-		std::shared_ptr<Material> materialNamed(const std::string& name) const;
-		void addMaterial(const std::shared_ptr<Material> material);
-		void insertMaterial(const std::shared_ptr<Material> material, int index);
-		void removeMaterial(int index);
-		void replaceMaterial(int index, const std::shared_ptr<Material> replacement);
+		std::optional<std::string> 							name() const;
+		void 												name(const std::string& name);
+
+		const std::vector<GeometryElementSPtr>& 			elements();
+		const std::vector<MaterialSPtr>& 					materials();
+
+		MaterialSPtr 										firstMaterial() const;
+		MaterialSPtr 										materialNamed(const std::string& name) const;
+		void 												addMaterial(const MaterialSPtr material);
+		void 												insertMaterial(const MaterialSPtr material,
+																			int index);
+		void 												removeMaterial(int index);
+		void 												replaceMaterial(int index,
+																			 const MaterialSPtr replacement);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void burnTransform(const glm::mat4& transform, bool normals);
+		void 												burnTransform(const glm::mat4& transform,
+																		   bool normals);
 		
-		void draw(Renderer& renderer,
-				  const glm::mat4& modelMat,
-				  const glm::mat4& viewMat,
-				  const glm::mat4& projectionMat,
-				  const DEBUG_OPTIONS& debugOptions,
-				  RenderStats& stats);
+		void 												draw(Renderer& renderer,
+																  const glm::mat4& modelMat,
+																  const glm::mat4& viewMat,
+																  const glm::mat4& projectionMat,
+																  const DEBUG_OPTIONS& debugOptions,
+																  RenderStats& stats);
 		
-		std::shared_ptr<std::map<std::string, glm::vec3>> boundingPoints(bool worldSpace) const;
-		glm::vec3 extent(bool worldSpace) const;
+		std::shared_ptr<std::map<std::string, glm::vec3>> 	boundingPoints(bool worldSpace) const;
+		glm::vec3 											extent(bool worldSpace) const;
 		
-		void attachedToNode(std::shared_ptr<Node> node);
+		void 												attachedToNode(std::shared_ptr<Node> node);
 		
-		std::weak_ptr<Node> node() const;
+		std::weak_ptr<Node> 								node() const;
 
-		GEOMETRY_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(GEOMETRY_DIRTY_BITS bits);
-
-	protected:
+		GEOMETRY_DIRTY_BITS 								dirtyBits() const;
+		void 												dirtyBits(GEOMETRY_DIRTY_BITS bits);
 
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<GeometryElement>>		_elements;
-		std::vector<std::shared_ptr<Material>>				_materials;
+	protected:
 
-	private:
+		std::vector<GeometryElementSPtr>					_elements;
+		std::vector<MaterialSPtr>							_materials;
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-		std::optional<std::string>						_name;
+	private:
+
+		std::optional<std::string>							_name;
 		std::weak_ptr<Node>									_node;
 
 		GEOMETRY_DIRTY_BITS									_dirtyBits;

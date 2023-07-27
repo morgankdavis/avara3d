@@ -24,7 +24,7 @@ namespace ae {
 	class Material;
 	class Program;
 	class Renderer;
-	
+
 
 	class GeometryElement : public std::enable_shared_from_this<GeometryElement> {
 		
