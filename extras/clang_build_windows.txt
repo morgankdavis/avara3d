@@ -1,0 +1,10 @@
+add to PATH: C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin
+
+rm -r *; cmake -G"Visual Studio 17 2022" -T"ClangCL" ..
+cmake --build . -- -maxCpuCount:32
+
+
+rm -r *; cmake -G"Visual Studio 17 2022" -T"ClangCL" ..; cmake --build . -- -maxCpuCount:32
+
+
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin

@@ -8,11 +8,45 @@
 
 30 - rigidbody
 
+	<ci test>
+
+	Update libs
+	Make Windows work
+	
+	Setup GitLab
+	Add 'testing' branch -> debug build
+		master -> release
+		any -> just build
+		
+	FPS display
+	Just TRY GLFM
+		
+	Add line number/class/function to logger?
+
+	Add custom screen overlay text (key commands, instructions, etc)
+	
+	Breakup namespaces?
+		Utilities:
+			<granular>
+		GeometricPrimitives
+		
+	Switch AABB to min, max vec3s.  BoundingBox class
+	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
+	Debug Scene/Geometry extent/default camera placement -- import cameras?
+	
+	Switch manymouse to GLFW
+
+	Scene, Node, Geometry, GeometryElement all draw() -- why don't we simulate() physics objects?
+		-> WTF is going on with physics step & sync?
+
 	Add physics stats
 		RenderContext (scene?) should own "Stats" object ("Framestats"?)
 			Create at each frame, pass around. frameStartTime, frameEndTime
+		PhysicsSimulator.step() -- don't use statics! pass-in startTime or deltaTime
+		RenderContext should own "Stats" object
+		Create at each frame, pass around. frameStartTime, frameEndTime
 
-	New class: Simulator?
+	New class: Simulator? -> See "SCRATCHPAD.txt"
 		-> takes update loop functionalities from Renderer
 		-> owns scene graph & PhysicsWorld
 		[the point: simulating worlds without rendering -- networking]
@@ -30,16 +64,11 @@
 		Remember: physics world is not completely disconnected from visual world --
 			Most physics world will come from meshes loaded from file
 
-	Scene, Node, Geometry, GeometryElement all draw() -- why don't we simulate() physics objects?
-		-> WTF is going on with physics step & sync?
+	---------------------------------------------------
+	
+	Add Window title accessor
 
-	PhysicsSimulator.step() -- don't use statics! pass-in startTime or deltaTime
-
-	unique_ptr and shared_ptr
-
-	RenderContext should own "Stats" object
-		Create at each frame, pass around. frameStartTime, frameEndTime
-	Add physics stats
+	unique_ptr and shared_ptr -- check all enable_shared_from_this<> and shared_from_this()
 
 	glfwDestroyWindow
 
@@ -54,14 +83,6 @@
 			Add "GeometryPrimitive" superclass + factor vertex data creation
 			-> INITIALIZERS for other tests use defaults
 		Add Disk primitive
-
-	Switch AABB to min, max vec3s.  BoundingBox class
-	Add Geometry::extent() / extent(bool recursive)? -- no - NODE
-	Debug Scene/Geometry extent/default camera placement -- import cameras?
-
-	Fix win10 wingw
-		MSVS?
-		LLVM windows: http://blog.johannesmp.com/2015/09/01/installing-clang-on-windows-pt2/
 
 	Check shared geometry, materials, physics shapes resource management + sharing physics shapes
 	Switch test to use instancing (load thing.obj, re-use its geometry on diff nodes
@@ -123,6 +144,7 @@
 	OpenAL software? https://github.com/kcat/openal-soft
 
 80 - network
+	https://github.com/rumaniel/Awesome-Game-Networking
 	http://www.jenkinssoftware.com/
 	"Entity"/"NetworkEntity?"
 
@@ -171,7 +193,7 @@ LAUNDRY
 	
 	GLFM for Android/iOS?
 
-	android -> avara-engine/avara-engine
+	generator LGPL how-to: https://medialooks.com/lgpl
 
 	Replace Generator?
 		https://press3.mcs.anl.gov/sigma/meshkit-library/
@@ -432,4 +454,9 @@ RESOURCES
 		https://geektube405.wordpress.com/2013/10/03/basic-scene-graph-node-structure-part-02/
 		EXAMPLE: https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
 		http://libcinder.org
+
+SANDBOX
+---------------------------
+
+	GLFW off-screen rendering: https://discourse.glfw.org/t/glfw-with-egl-and-osmesa/1574
 
