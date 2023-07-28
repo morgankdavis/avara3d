@@ -110,7 +110,7 @@ namespace ae {
 
 		NodeSPtr					_rootNode;
 		MaterialPropertySPtr		_background;
-		SkyboxGeometrySPtr			_skyboxGeometry;
+		GeometrySPtr				_skyboxGeometry;
 		float						_fogStartDistance;
 		float						_fogEndDistance;
 		float						_fogDensityExponent;

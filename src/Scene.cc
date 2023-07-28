@@ -38,7 +38,6 @@
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "RenderContext.h"
-#include "SkyboxGeometry.h"
 #include "Utilities.h"
 
 
@@ -60,7 +59,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> MissingTextureImage();
 #ifndef ANDROID
 static void LoadFile(Scene& scene, const std::filesystem::path& importPath);
@@ -160,7 +159,7 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 		// generate the skybox geometry if it hasn't already been
 		if (!_skyboxGeometry) {
 			// MKD: u_s_ptr_aliases
-			//_skyboxGeometry = SkyboxGeometry(backgroundProperty);
+			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
 		}
 		else {
 			// we already have the geometry, just update its material
@@ -363,7 +362,7 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
+static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 	
 	auto geometry = make_shared<Box>(1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
