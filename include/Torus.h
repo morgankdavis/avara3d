@@ -17,13 +17,13 @@ namespace ae {
 
 	
 	class Torus: public Geometry {
-		
-	public:
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Torus(float minorRadius, float majorRadius, int slices, int segments);
 	};
 }

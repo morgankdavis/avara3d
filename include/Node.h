@@ -21,6 +21,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -36,15 +37,15 @@ namespace ae {
 	
 	class Node : public std::enable_shared_from_this<Node> {
 		
-	public:
-		
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
 
-		static std::shared_ptr<Node> GeometryNode(std::shared_ptr<Geometry> geometry);
-		static std::shared_ptr<Node> LightNode(std::shared_ptr<Light> light);
-		static std::shared_ptr<Node> CameraNode(std::shared_ptr<Camera> camera);
+	public:
+
+		static NodeSPtr 				GeometryNode(GeometrySPtr geometry);
+		static NodeSPtr 				LightNode(LightSPtr light);
+		static NodeSPtr 				CameraNode(CameraSPtr camera);
 
 /*********************************************************************************************
 	Lifecycle
@@ -58,135 +59,135 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> name() const;
-		void name(const std::string& name);
+		std::optional<std::string> 		name() const;
+		void 							name(const std::string& name);
 		
-		std::shared_ptr<Light> light() const;
-		void light(const std::shared_ptr<Light> light);
+		LightSPtr 						light() const;
+		void 							light(const LightSPtr light);
 		
-		std::shared_ptr<Camera> camera() const;
-		void camera(const std::shared_ptr<Camera> camera);
+		CameraSPtr 						camera() const;
+		void 							camera(const CameraSPtr camera);
 		
-		std::shared_ptr<Geometry> geometry() const;
-		void geometry(const std::shared_ptr<Geometry>& geometry);
+		GeometrySPtr 					geometry() const;
+		void 							geometry(const GeometrySPtr& geometry);
 
-		bool hidden() const;
-		void hidden(const bool hidden);
+		bool 							hidden() const;
+		void 							hidden(const bool hidden);
 		
-		float opacity() const;
-		void opacity(const float opacity);
+		float 							opacity() const;
+		void				 			opacity(const float opacity);
 		
-		/* REMOVE? */ int renderOrder() const;
-		/* REMOVE? */ void renderOrder(const int renderOrder);
+		/* REMOVE? */ int 				renderOrder() const;
+		/* REMOVE? */ void 				renderOrder(const int renderOrder);
 		
-		/* REMOVE? */ bool castsShadow() const;
-		/* REMOVE? */ void castsShadow(const bool castsShadow);
+		/* REMOVE? */ bool 				castsShadow() const;
+		/* REMOVE? */ void			 	castsShadow(const bool castsShadow);
 		
-		glm::vec3 position() const;
-		void position(const glm::vec3 position);
+		glm::vec3 						position() const;
+		void 							position(const glm::vec3 position);
 
-		glm::vec4 rotation() const; // axis-angle
-		void rotation(const glm::vec4 rotation);
+		glm::vec4 						rotation() const; // axis-angle
+		void 							rotation(const glm::vec4 rotation);
 		
-		glm::vec3 eulerAngles() const; // pitch, yaw, roll
-		void eulerAngles(const glm::vec3 eulerAngles);
+		glm::vec3 						eulerAngles() const; // pitch, yaw, roll
+		void 							eulerAngles(const glm::vec3 eulerAngles);
 		
-		glm::quat orientation() const; // angle == 1st component
-		void orientation(const glm::quat orientation);
+		glm::quat 						orientation() const; // angle == 1st component
+		void 							orientation(const glm::quat orientation);
 		
-		glm::vec3 scale() const;
-		void scale(const glm::vec3 scale);
+		glm::vec3 						scale() const;
+		void 							scale(const glm::vec3 scale);
 		
-		glm::mat4 transform() const;
-		void transform(const glm::mat4 transform);
+		glm::mat4 						transform() const;
+		void 							transform(const glm::mat4 transform);
 		
-		glm::vec3 worldPosition();
-		glm::vec4 worldRotation(); // axis-angle
-		glm::vec3 worldEulerAngles(); // pitch, yaw, roll
-		glm::quat worldOrientation(); // angle == 1st component
-		glm::vec3 worldScale();
+		glm::vec3 						worldPosition();
+		glm::vec4 						worldRotation(); // axis-angle
+		glm::vec3 						worldEulerAngles(); // pitch, yaw, roll
+		glm::quat 						worldOrientation(); // angle == 1st component
+		glm::vec3 						worldScale();
 		
-		glm::vec3 worldForward();
-		glm::vec3 worldUp();
-		glm::vec3 worldRight();
+		glm::vec3 						worldForward();
+		glm::vec3 						worldUp();
+		glm::vec3 						worldRight();
 		
-		glm::mat4 worldTransform();
+		glm::mat4 						worldTransform();
 		
-		void addChildren(std::vector<std::shared_ptr<Node>> nodes);
-		void addChild(std::shared_ptr<Node> node);
-		void insertChild(const Node& node, int index);
-		void removeFromParent();
-		void replaceChild(const Node& replace, const Node& with);
+		void 							addChildren(std::vector<NodeSPtr> nodes);
+		void 							addChild(NodeSPtr node);
+		void 							insertChild(const Node& node, int index);
+		void 							removeFromParent();
+		void 							replaceChild(const Node& replace, const Node& with);
 		
-		std::weak_ptr<Node> parent() const;
-		std::vector<std::shared_ptr<Node>> children(bool resursive);
-		std::shared_ptr<Node> child(const std::string& name, bool resursive);
+		std::weak_ptr<Node> 			parent() const;
+		std::vector<NodeSPtr> 			children(bool resursive);
+		NodeSPtr 						child(const std::string& name, bool resursive);
 		
-		std::shared_ptr<PhysicsBody> physicsBody() const;
-		void physicsBody(std::shared_ptr<PhysicsBody> body);
+		PhysicsBodySPtr 				physicsBody() const;
+		void 							physicsBody(PhysicsBodySPtr body);
 
-//		glm::vec3 convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
-//		glm::vec3 convertPositionToNode(const glm::vec3& position, const Node& toNode);
-//		glm::mat4 convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
-//		glm::mat4 convertTransformToNode(const glm::mat4& transform, const Node& toNode);
+//		glm::vec3 						convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
+//		glm::vec3 						convertPositionToNode(const glm::vec3& position, const Node& toNode);
+//		glm::mat4 						convertTransformFromNode(const glm::mat4& transform, const Node& fromNode);
+//		glm::mat4 						convertTransformToNode(const glm::mat4& transform, const Node& toNode);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void unrollWorldTransform(glm::mat4 transform);
+		void	 						unrollWorldTransform(glm::mat4 transform);
 		
-		void updateWorldTransform();
-		bool containsChild(std::shared_ptr<Node> node);
-		void attachedToScene(std::shared_ptr<Scene> scene);
-		void attachedToParent(std::shared_ptr<Node> parentNode);
+		void 							updateWorldTransform();
+		bool 							containsChild(NodeSPtr node);
+		void 							attachedToScene(SceneSPtr scene);
+		void 							attachedToParent(NodeSPtr parentNode);
 		
-//		std::shared_ptr<Node> root() const;
-//		std::weak_ptr<Scene> scene() const;
+//		NodeSPtr 						root() const;
+//		SceneWPtr 						scene() const;
 
-//		std::weak_ptr<Node> model() const;
-//		void attachedToModel(std::shared_ptr<Node> model);
-		
-	private:
+//		NodeWPtr 						model() const;
+//		void 							attachedToModel(NodeSPtr model);
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
+
+	private:
+
+		std::vector<NodeSPtr> 			pathToRoot() const;
+		void			 				addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
+		std::vector<NodeSPtr> 			topologicalChildren(NodeSPtr top);
+		void 							topologicalChildrenRec(NodeSPtr node,
+															   std::map<NodeSPtr, bool>& visited,
+															   std::stack<NodeSPtr>& stack);
 		
-		std::vector<std::shared_ptr<Node>> pathToRoot() const;
-		void addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
-		std::vector<std::shared_ptr<Node>> topologicalChildren(std::shared_ptr<Node> top);
-		void topologicalChildrenRec(std::shared_ptr<Node> node,
-									std::map<std::shared_ptr<Node>, bool>& visited,
-									std::stack<std::shared_ptr<Node>>& stack);
+		//void 							checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
 		
-		//void checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
-		
-		NODE_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(NODE_DIRTY_BITS bits);
+		NODE_DIRTY_BITS 				dirtyBits() const;
+		void 							dirtyBits(NODE_DIRTY_BITS bits);
 		
 		std::optional<std::string>		_name;
 		
-		std::shared_ptr<Light>				_light;
-		std::shared_ptr<Camera>				_camera;
-		std::shared_ptr<Geometry>			_geometry;
+		LightSPtr						_light;
+		CameraSPtr						_camera;
+		GeometrySPtr					_geometry;
 		
-		bool								_hidden;
+		bool							_hidden;
 
-		std::vector<std::shared_ptr<Node>>	_children;
+		std::vector<NodeSPtr>			_children;
 		
-		glm::vec3							_position;
-		glm::quat							_orientation;
-		glm::vec3							_scale;
-//		glm::mat4							_pivot;
-		glm::mat4							_worldTransform;
+		glm::vec3						_position;
+		glm::quat						_orientation;
+		glm::vec3						_scale;
+//		glm::mat4						_pivot;
+		glm::mat4						_worldTransform;
 		
-		std::shared_ptr<PhysicsBody>		_physicsBody;
+		PhysicsBodySPtr					_physicsBody;
 		
-//		std::weak_ptr<Scene> 				_scene;
-		std::weak_ptr<Node>					_parent;
+//		SceneWPtr 						_scene;
+		NodeWPtr						_parent;
 		
-		NODE_DIRTY_BITS						_dirtyBits;
+		NODE_DIRTY_BITS					_dirtyBits;
 	};
 }
 

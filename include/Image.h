@@ -19,6 +19,7 @@
 
 //#include <boost/filesystem.hpp>
 
+#include "Aliases.h"
 #include "MaterialPropertyContents.h"
 
 
@@ -30,52 +31,56 @@ namespace ae {
 
 	class Image : public MaterialPropertyContents {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
+	public:
+
 #ifndef ANDROID
-		Image(const std::filesystem::path& path, bool flipVertical=true);
+		Image(const std::filesystem::path& path,
+			  bool flipVertical=true);
 #endif
 		// with header
-		Image(std::shared_ptr<Buffer> headerBuffer, bool flipVertical=true);
+		Image(BufferSPtr headerBuffer,
+			  bool flipVertical=true);
 		// raw
-		Image(std::shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
-			  unsigned bytesPerPixel, bool flipVertical = true);
+		Image(BufferSPtr rawBuffer,
+			  unsigned width, unsigned height,
+			  unsigned bytesPerPixel,
+			  bool flipVertical = true);
 		~Image();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		unsigned width() const;
-		unsigned height() const;
-		unsigned bytesPerPixel() const;
-		bool writePNG(std::filesystem::path path) const;
+		unsigned 		width() const;
+		unsigned 		height() const;
+		unsigned 		bytesPerPixel() const;
+		bool 			writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<Buffer> data() const;
-		
-	private:
+		BufferSPtr 		data() const;
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
+
+	private:
+
 		//void loadFile(const std::filesystem::path& path, bool flipHorizontal);
-		void loadBuffer(Buffer& buffer, bool flipVertical);
-		void flipVertical(); // "flip"
-		void flipHorizontal(); // "mirror"
+		void 			loadBuffer(Buffer& buffer, bool flipVertical);
+		void 			flipVertical(); // "flip"
+		void 			flipHorizontal(); // "mirror"
 		
-		unsigned					_width;
-		unsigned					_height;
-		unsigned					_bytesPerPixel;
-		std::shared_ptr<Buffer>		_data;
+		unsigned		_width;
+		unsigned		_height;
+		unsigned		_bytesPerPixel;
+		BufferSPtr		_data;
 	};
 }
 

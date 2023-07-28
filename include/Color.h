@@ -14,6 +14,7 @@
 #include <vector>
 
 
+#include "Aliases.h"
 #include "MaterialPropertyContents.h"
 
 
@@ -21,33 +22,33 @@ namespace ae {
 	
 	class Color : public MaterialPropertyContents {
 		
-	public:
-		
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
+
+	public:
+
+		static ColorSPtr 				Black();
+		static ColorSPtr 				DarkGray();
+		static ColorSPtr 				Gray();
+		static ColorSPtr 				LightGray();
+		static ColorSPtr 				White();
+		static ColorSPtr 				Maroon();
+		static ColorSPtr 				Red();
+		static ColorSPtr 				Orange();
+		static ColorSPtr 				Yellow();
+		static ColorSPtr 				Olive();
+		static ColorSPtr 				Lime();
+		static ColorSPtr 				Green();
+		static ColorSPtr				Cyan();
+		static ColorSPtr 				Blue();
+		static ColorSPtr 				Navy();
+		static ColorSPtr 				Teal();
+		static ColorSPtr 				Magenta();
+		static ColorSPtr				Purple();
+		static ColorSPtr 				Brown();
 		
-		static std::shared_ptr<Color> Black();
-		static std::shared_ptr<Color> DarkGray();
-		static std::shared_ptr<Color> Gray();
-		static std::shared_ptr<Color> LightGray();
-		static std::shared_ptr<Color> White();
-		static std::shared_ptr<Color> Maroon();
-		static std::shared_ptr<Color> Red();
-		static std::shared_ptr<Color> Orange();
-		static std::shared_ptr<Color> Yellow();
-		static std::shared_ptr<Color> Olive();
-		static std::shared_ptr<Color> Lime();
-		static std::shared_ptr<Color> Green();
-		static std::shared_ptr<Color> Cyan();
-		static std::shared_ptr<Color> Blue();
-		static std::shared_ptr<Color> Navy();
-		static std::shared_ptr<Color> Teal();
-		static std::shared_ptr<Color> Magenta();
-		static std::shared_ptr<Color> Purple();
-		static std::shared_ptr<Color> Brown();
-		
-		static std::vector<std::shared_ptr<Color>> Rainbow();
+		static std::vector<ColorSPtr> 	Rainbow();
 		
 /*********************************************************************************************
 	Lifecycle

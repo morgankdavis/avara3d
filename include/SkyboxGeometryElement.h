@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 
+#include "Aliases.h"
 #include "GeometryElement.h"
 #include "Types.h"
 
@@ -26,12 +27,12 @@ namespace ae {
 	
 	class SkyboxGeometryElement: public GeometryElement {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		SkyboxGeometryElement(std::vector<Vertex>& verticies,
 							  std::vector<Face>& faces);
 		~SkyboxGeometryElement();
@@ -40,19 +41,19 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		void draw(const glm::mat4& viewMat,
-				  const glm::mat4& projectionMat,
-				  const SkyboxMaterial& material,
-				  RenderStats& stats);
+		void 		draw(const glm::mat4& viewMat,
+						 const glm::mat4& projectionMat,
+						 const SkyboxMaterial& material,
+						 RenderStats& stats);
 		
-		void loadVertexData(const Program& program);
-		
-	private:
+		void 		loadVertexData(const Program& program);
 		
 /*********************************************************************************************
  	Private
  *********************************************************************************************/
-		
+
+	private:
+
 	};
 }
 

@@ -14,6 +14,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Aliases.h"
 #include "Geometry.h"
 
 
@@ -24,42 +25,42 @@ namespace ae {
 
 	
 	class Line: public std::enable_shared_from_this<Line> {
-		
-	public:
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> color);
+			 ColorSPtr color);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> fromColor, std::shared_ptr<Color> toColor);
+			 ColorSPtr fromColor, ColorSPtr toColor);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		glm::vec3 fromLocation() const;
-		void fromLocation(glm::vec3 location);
-		glm::vec3 toLocation() const;
-		void toLocation(glm::vec3 location);
-		std::shared_ptr<Color> fromColor() const;
-		void fromColor(std::shared_ptr<Color> color);
-		std::shared_ptr<Color> toColor() const;
-		void toColor(std::shared_ptr<Color> color);
-		
-	private:
+		glm::vec3 			fromLocation() const;
+		void 				fromLocation(glm::vec3 location);
+		glm::vec3 			toLocation() const;
+		void 				toLocation(glm::vec3 location);
+		ColorSPtr 			fromColor() const;
+		void 				fromColor(ColorSPtr color);
+		ColorSPtr 			toColor() const;
+		void 				toColor(ColorSPtr color);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		glm::vec3 					_fromLocation;
-		glm::vec3 					_toLocation;
-		std::shared_ptr<Color> 		_fromColor;
-		std::shared_ptr<Color> 		_toColor;
+
+	private:
+
+		glm::vec3 			_fromLocation;
+		glm::vec3 			_toLocation;
+		ColorSPtr 			_fromColor;
+		ColorSPtr 			_toColor;
 	};
 }
 

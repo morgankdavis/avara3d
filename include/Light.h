@@ -16,6 +16,7 @@
 
 //#include <boost/optional.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -28,69 +29,71 @@ namespace ae {
 	
 	class Light {
 		
-	public:
-		
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
-		
-		static std::shared_ptr<Light> DefaultAmbient();
-		static std::shared_ptr<Light> DefaultPoint();
-		static std::shared_ptr<Node> AmbientNode();
-		static std::shared_ptr<Node> PointNode();
+
+	public:
+
+		static LightSPtr DefaultAmbient();
+		static LightSPtr DefaultPoint();
+		static NodeSPtr AmbientNode();
+		static NodeSPtr PointNode();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Light(LIGHT_TYPE type);
-		Light(LIGHT_TYPE type, const std::shared_ptr<Color> color);
+		Light(LIGHT_TYPE type, const ColorSPtr color);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> name() const;
-		void name(const std::string& name);
+		std::optional<std::string> 		name() const;
+		void 							name(const std::string& name);
 		
-		LIGHT_TYPE type() const;
-		void type(LIGHT_TYPE type);
+		LIGHT_TYPE 						type() const;
+		void 							type(LIGHT_TYPE type);
 		
-		std::shared_ptr<Color> color() const;
-		void color(std::shared_ptr<Color> color);
+		ColorSPtr 						color() const;
+		void 							color(ColorSPtr color);
 
-		float attenuationFactor() const;
-		void attenuationFactor(float factor);
+		float 							attenuationFactor() const;
+		void 							attenuationFactor(float factor);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
+
+	// protected
+
+		NodeWPtr 						node() const;
 		
-		std::weak_ptr<Node> node() const;
-		
-		void attachedToNode(std::shared_ptr<Node> node);
-		
-	private:
+		void 							attachedToNode(NodeSPtr node);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
+
+	private:
+
 		std::optional<std::string>		_name;
 		
-		LIGHT_TYPE							_type;
-		std::shared_ptr<Color>				_color;
+		LIGHT_TYPE						_type;
+		ColorSPtr						_color;
 
-		float								_attenuationFactor; // att = 1/(1-k(d^2))
+		float							_attenuationFactor; // att = 1/(1-k(d^2))
 		
-		std::weak_ptr<Node>					_node;
+		std::weak_ptr<Node>				_node;
 
-//		float			attenuationStartDistance;
-//		float			attenuationEndDistance;
-//		float			attenuationFalloffExponent;
+//		float							_attenuationStartDistance;
+//		float							_attenuationEndDistance;
+//		float							_attenuationFalloffExponent;
 //
-//		float			spotInnerAngle;
-//		float			spotOuterAngle;
+//		float							_spotInnerAngle;
+//		float							_spotOuterAngle;
 	};
 	
 }

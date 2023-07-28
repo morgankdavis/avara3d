@@ -38,6 +38,7 @@
 #include "PhysicsWorld.h"
 #include "Renderer.h"
 #include "RenderContext.h"
+#include "SkyboxGeometry.h"
 #include "Utilities.h"
 
 
@@ -151,14 +152,16 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
 	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
 		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
-		
+
 		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
 		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
 		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
 
 		// generate the skybox geometry if it hasn't already been
 		if (!_skyboxGeometry) {
-			_skyboxGeometry = SkyboxGeometry(backgroundProperty);
+			SkyboxMaterialSPtr skyMat = SkyboxMaterialSPtr
+			SkyboxGeometrySPtr skyGeo = make_shared<SkyboxGeometry>(backgroundProperty);
+			_skyboxGeometry = skyGeo;
 		}
 		else {
 			// we already have the geometry, just update its material

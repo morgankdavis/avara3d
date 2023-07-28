@@ -9,10 +9,10 @@
 #ifndef SkyboxMaterial_h
 #define SkyboxMaterial_h
 
-
-#include "Material.h"
-
 #include <memory>
+
+#include "Aliases.h"
+#include "Material.h"
 
 
 namespace ae {
@@ -23,34 +23,34 @@ namespace ae {
 	
 	class SkyboxMaterial: public Material {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		SkyboxMaterial(std::shared_ptr<MaterialProperty> cubeProperty);
+
+	public:
+
+		SkyboxMaterial(MaterialPropertySPtr cubeProperty);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<MaterialProperty> cubeProperty() const;
-		void cubeProperty(std::shared_ptr<MaterialProperty> property);
+		MaterialPropertySPtr 		cubeProperty() const;
+		void 						cubeProperty(MaterialPropertySPtr property);
 		
 /*********************************************************************************************
 	Material
  *********************************************************************************************/
 		
-		void prepareToRender(DEBUG_OPTIONS debugOptions) const;
-
-	private:
+		void 						prepareToRender(DEBUG_OPTIONS debugOptions) const;
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-		std::shared_ptr<MaterialProperty>	_cubeProperty;
+	private:
+
+		MaterialPropertySPtr		_cubeProperty;
 	};
 }
 

@@ -14,6 +14,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -26,11 +27,11 @@ namespace ae {
 
 	class PhysicsSimulator : public std::enable_shared_from_this<PhysicsSimulator> {
 		
-	public:
-		
 /*********************************************************************************************
 	Types
  *********************************************************************************************/
+
+	public:
 
 		enum class PASS {
 			STEP, // update internal model and step simulation
@@ -51,29 +52,29 @@ namespace ae {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		virtual void beginUpdate(PASS pass,
-								 const Scene& scene);
-		virtual void endUpdate(PASS pass,
-							   const Scene& scene);
 
-		virtual void update(PASS pass,
-							std::shared_ptr<Scene> scene,
-							const DEBUG_OPTIONS& debugOptions);
-		virtual void update(PASS pass,
-							std::shared_ptr<Node> node,
-							const DEBUG_OPTIONS& debugOptions);
-		virtual void step(float time);
-		
-	protected:
+		virtual void 			beginUpdate(PASS pass,
+											const Scene& scene);
+		virtual void 			endUpdate(PASS pass,
+										  const Scene& scene);
+
+		virtual void 			update(PASS pass,
+									   SceneSPtr scene,
+									   const DEBUG_OPTIONS& debugOptions);
+		virtual void 			update(PASS pass,
+									   NodeSPtr node,
+									   const DEBUG_OPTIONS& debugOptions);
+		virtual void 			step(float time);
 		
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
-		
-		glm::vec3 												_gravity;
-		float 													_speed;
-		float 													_timestep;
+
+	protected:
+
+		glm::vec3 				_gravity;
+		float 					_speed;
+		float					_timestep;
 	};
 }
 

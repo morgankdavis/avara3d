@@ -19,6 +19,7 @@
 
 #include <glm/vec2.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -50,17 +51,28 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void update();
+		void 							update();
 
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
-		
-		static void GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int button, int action, int mods);
-		static void GLFWCursorPositionCallback(GLFWwindow *glfwWindow, double xPos, double yPos);
-		static void GLFWScrollWheelCallback(GLFWwindow *glfwWindow, double xOffset, double yOffset);
-		static void GLFWKeyCallback(GLFWwindow *glfwWindow, int key, int scancode, int action, int mods);
-		static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+
+		static void 					GLFWMouseButtonCallback(GLFWwindow *glfwWindow,
+															   int button,
+															   int action,
+															   int mods);
+		static void 					GLFWCursorPositionCallback(GLFWwindow *glfwWindow,
+																  double xPos,
+																  double yPos);
+		static void 					GLFWScrollWheelCallback(GLFWwindow *glfwWindow,
+															   double xOffset,
+															   double yOffset);
+		static void 					GLFWKeyCallback(GLFWwindow *glfwWindow,
+													   int key,
+													   int scancode,
+													   int action,
+													   int mods);
+		static WindowInputManagerSPtr 	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 		
 	private:
 
@@ -68,13 +80,13 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-		void initMouseMotionInput();
-		void initManyMouse();
-		void quitManyMouse();
-		void registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 							initMouseMotionInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
+		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-		std::weak_ptr<Window>			_window;
+		WindowWPtr						_window;
 		bool							_usingManyMouse;
 	};
 }

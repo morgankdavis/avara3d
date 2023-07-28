@@ -36,11 +36,11 @@ namespace ae {
 
 	class Geometry : public std::enable_shared_from_this<Geometry> {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		Geometry();
 		Geometry(const GeometryElementSPtr element,
@@ -63,25 +63,25 @@ namespace ae {
 		MaterialSPtr 										materialNamed(const std::string& name) const;
 		void 												addMaterial(const MaterialSPtr material);
 		void 												insertMaterial(const MaterialSPtr material,
-																			int index);
+																		   int index);
 		void 												removeMaterial(int index);
 		void 												replaceMaterial(int index,
-																			 const MaterialSPtr replacement);
+																			const MaterialSPtr replacement);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
 		void 												burnTransform(const glm::mat4& transform,
-																		   bool normals);
-		
+																		  bool normals);
+
 		void 												draw(Renderer& renderer,
-																  const glm::mat4& modelMat,
-																  const glm::mat4& viewMat,
-																  const glm::mat4& projectionMat,
-																  const DEBUG_OPTIONS& debugOptions,
-																  RenderStats& stats);
-		
+																 const glm::mat4& modelMat,
+																 const glm::mat4& viewMat,
+																 const glm::mat4& projectionMat,
+																 const DEBUG_OPTIONS& debugOptions,
+																 RenderStats& stats);
+
 		std::shared_ptr<std::map<std::string, glm::vec3>> 	boundingPoints(bool worldSpace) const;
 		glm::vec3 											extent(bool worldSpace) const;
 		

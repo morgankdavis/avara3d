@@ -14,9 +14,6 @@
 #include <memory>
 #include <vector>
 
-//#include <boost/filesystem.hpp>
-
-
 
 namespace ae {
 	
@@ -41,17 +38,17 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		unsigned char* pointer() const;
-		unsigned size() const;
-		
-	private:
+		unsigned char* 			pointer() const;
+		unsigned 				size() const;
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		unsigned char* 		_pointer;
-		unsigned 			_size;
+
+	private:
+
+		unsigned char* 			_pointer;
+		unsigned 				_size;
 	};
 }
 

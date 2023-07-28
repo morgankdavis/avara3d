@@ -29,6 +29,7 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
+#include "Aliases.h"
 #include "Exception.h"
 #include "Types.h"
 
@@ -62,7 +63,6 @@ namespace ae {
 	 #######################################################################################
 	 ######################################################################################*/
 	
-	
 	class Logger : public std::enable_shared_from_this<Logger> {
 		
 		
@@ -70,14 +70,13 @@ namespace ae {
 		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG_;
 		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
 		
-		
-	public:
-		
 /**************************************************************************************
 	Public Static
  **************************************************************************************/
-		
-		static std::shared_ptr<Logger> MainLogger();
+
+	public:
+
+		static LoggerSPtr MainLogger();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -116,11 +115,11 @@ namespace ae {
 		
 		void flush();
 		
-	private:
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
+
+	private:
 
 		std::string header();
 		
@@ -140,12 +139,12 @@ namespace ae {
 	
 	class LoggerSink : public std::enable_shared_from_this<LoggerSink> {
 		
-	public:
-		
 /**************************************************************************************
 	Lifecycle
  **************************************************************************************/
-		
+
+	public:
+
 		virtual ~LoggerSink();
 		
 /*********************************************************************************************
@@ -166,12 +165,12 @@ namespace ae {
 #ifdef DESKTOP
 	class STDLoggerSink : public LoggerSink {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		STDLoggerSink();
 		~STDLoggerSink();
 		
@@ -236,13 +235,13 @@ namespace ae {
 		
 		static constexpr unsigned DEFAULT_MAX_FILES = 3;
 		static constexpr unsigned DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
-		
-		
-	public:
+
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		// desktop log paths are relative to the executable
 		// android log paths are relative to the app's internal storage directory
@@ -268,12 +267,12 @@ namespace ae {
 		
 		void write(const char* message);
 		
-	private:
-		
 	/*********************************************************************************************
 		Private
 	 *********************************************************************************************/
-		
+
+	private:
+
 		void openStream();
 		void checkRotate();
 		void rotate();

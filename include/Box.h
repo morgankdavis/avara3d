@@ -17,12 +17,12 @@ namespace ae {
 
 	
 	class Box: public Geometry {
-		
-	public:
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 		
 		Box(float width, float height, float length);
 		
@@ -30,19 +30,19 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		float width() const;
-		float height() const;
-		float length() const;
-		
-	private:
+		float 		width() const;
+		float 		height() const;
+		float 		length() const;
 		
 /*********************************************************************************************
 	 Private
  *********************************************************************************************/
-		
-		float	_width;
-		float	_height;
-		float	_length;
+
+	private:
+
+		float		_width;
+		float		_height;
+		float		_length;
 	};
 }
 

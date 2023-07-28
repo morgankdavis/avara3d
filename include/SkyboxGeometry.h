@@ -9,10 +9,10 @@
 #ifndef SkyboxGeometry_h
 #define SkyboxGeometry_h
 
-
-#include "Geometry.h"
-
 #include <memory>
+
+#include "Aliases.h"
+#include "Geometry.h"
 
 
 namespace ae {
@@ -23,30 +23,32 @@ namespace ae {
 	
 	class SkyboxGeometry: public Geometry {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		SkyboxGeometry(const std::shared_ptr<SkyboxMaterial> material);
+
+	public:
+
+		SkyboxGeometry(const SkyboxMaterialSPtr material);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void draw(const glm::mat4& viewMat, const glm::mat4& projectionMat, RenderStats& stats);
-		
-		void material(std::shared_ptr<SkyboxMaterial> material);
-		//void skyboxMaterial(std::shared_ptr<SkyboxMaterial> material);
 
-	private:
+		void 								draw(const glm::mat4& viewMat,
+												 const glm::mat4& projectionMat,
+												 RenderStats& stats);
+
+		void 								material(SkyboxMaterialSPtr material);
+		//void 								skyboxMaterial(SkyboxMaterialSPtr material);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<SkyboxMaterial>>		_materials;
+	private:
+
+		std::vector<SkyboxMaterialSPtr>		_materials;
 	};
 }
 

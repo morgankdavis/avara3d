@@ -15,6 +15,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Aliases.h"
 #include "Types.h"
 
 
@@ -30,17 +31,16 @@ namespace ae {
 	
 	
 	class PhysicsWorld : public std::enable_shared_from_this<PhysicsWorld> {
-	
-																		 
-	public:
 		
 /*********************************************************************************************
 	Types
  *********************************************************************************************/
-		
-		using DidBeginContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using DidUpdateContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using DidEndContactFunction = std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+
+	public:
+
+		using DidBeginContactFunction = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using DidUpdateContactFunction = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using DidEndContactFunction = 		std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
 		
 /*********************************************************************************************
 	Lifecycle
@@ -52,44 +52,44 @@ namespace ae {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		glm::vec3 gravity() const;
-		void gravity(glm::vec3 gravity);
 
-		float timestep() const;
-		void timestep(float timestep);
-		
-		void updateCollisionPairs();
-		
-		std::shared_ptr<PhysicsContact> contactTest(std::shared_ptr<PhysicsBody> bodyA,
-													std::shared_ptr<PhysicsBody> bodyB); // may add options
-		std::shared_ptr<PhysicsContact> contactTest(std::shared_ptr<PhysicsBody> body); // may add options
-		
-		std::shared_ptr<HitTestResult> rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
-		std::shared_ptr<PhysicsContact> convexSweepTest(std::shared_ptr<PhysicsContact> contact,
-														const glm::mat4& fromMat,
-														const glm::mat4& toMat); // may add options
-		
+		glm::vec3 							gravity() const;
+		void 								gravity(glm::vec3 gravity);
+
+		float 								timestep() const;
+		void 								timestep(float timestep);
+
+		void 								updateCollisionPairs();
+
+		PhysicsContactSPtr 					contactTest(PhysicsBodySPtr bodyA,
+														  PhysicsBodySPtr bodyB); // may add options
+		PhysicsContactSPtr 					contactTest(PhysicsBodySPtr body); // may add options
+
+		HitTestResultSPtr 					rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
+		PhysicsContactSPtr 					convexSweepTest(PhysicsContactSPtr contact,
+															  const glm::mat4& fromMat,
+															  const glm::mat4& toMat); // may add options
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void attachedToScene(std::shared_ptr<Scene> scene);
-		//void debugOptions(DEBUG_OPTIONS options);
+		void 								attachedToScene(SceneSPtr scene);
+		//void 								debugOptions(DEBUG_OPTIONS options);
 
-		PHYSICS_WORLD_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits);
-
-	private:
+		PHYSICS_WORLD_DIRTY_BITS 			dirtyBits() const;
+		void 								dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-		glm::vec3 												_gravity;
-		float 													_timestep;
-		std::weak_ptr<Scene>									_scene;
-		PHYSICS_WORLD_DIRTY_BITS								_dirtyBits;
+	private:
+
+		glm::vec3 							_gravity;
+		float 								_timestep;
+		SceneWPtr 							_scene;
+		PHYSICS_WORLD_DIRTY_BITS			_dirtyBits;
 	};
 }
 
