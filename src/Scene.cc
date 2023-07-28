@@ -159,9 +159,8 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 
 		// generate the skybox geometry if it hasn't already been
 		if (!_skyboxGeometry) {
-			SkyboxMaterialSPtr skyMat = SkyboxMaterialSPtr
-			SkyboxGeometrySPtr skyGeo = make_shared<SkyboxGeometry>(backgroundProperty);
-			_skyboxGeometry = skyGeo;
+			// MKD: u_s_ptr_aliases
+			//_skyboxGeometry = SkyboxGeometry(backgroundProperty);
 		}
 		else {
 			// we already have the geometry, just update its material
