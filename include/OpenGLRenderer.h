@@ -41,27 +41,32 @@ namespace ae {
 
 		/* <ae_GeometryElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		using GeometryElementGLMapping =
-				std::map<std::shared_ptr<ae::GeometryElement>, std::tuple<unsigned,
+				std::map<std::shared_ptr<ae::GeometryElement>, std::tuple<
+				        unsigned,
 						unsigned,
 						unsigned>>;
 
 		/* <ae_MaterialProperty : <gl_textureHandle> */
 		using MaterialPropertyGLMapping =
-				std::map<std::shared_ptr<ae::MaterialProperty>, unsigned>;
+				std::map<std::shared_ptr<ae::MaterialProperty>,
+						unsigned>;
 
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
-				std::map<std::shared_ptr<LineSet>, std::pair<unsigned,
+				std::map<std::shared_ptr<LineSet>, std::pair<
+						unsigned,
 						unsigned>>;
 
 		/* <set<ae_Point> : <gl_vboHandle, gl_vaoHandle>> */
 		using PointSetGLMapping =
-				std::map<std::shared_ptr<PointSet>, std::pair<unsigned,
+				std::map<std::shared_ptr<PointSet>, std::pair<
+						unsigned,
 						unsigned>>;
 
 		/* <ae_Geometry : set<ae_Line>> */
 		using GeometryAABBLineSetMapping =
-				std::map<std::shared_ptr<ae::Geometry>, std::shared_ptr<LineSet>>;
+				std::map<std::shared_ptr<ae::Geometry>,
+						std::shared_ptr<LineSet>>;
 
 /*********************************************************************************************
 	Lifecycle
