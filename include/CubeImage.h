@@ -12,7 +12,6 @@
 
 #include <memory>
 
-#include "Aliases.h"
 #include "MaterialPropertyContents.h"
 
 
@@ -30,31 +29,31 @@ namespace ae {
 
 	public:
 
-		CubeImage(ImageSPtr posX, ImageSPtr negX,
-				  ImageSPtr posY, ImageSPtr negY,
-				  ImageSPtr posZ, ImageSPtr negZ);
+		CubeImage(std::shared_ptr<ae::Image> posX, std::shared_ptr<ae::Image> negX,
+				  std::shared_ptr<ae::Image> posY, std::shared_ptr<ae::Image> negY,
+				  std::shared_ptr<ae::Image> posZ, std::shared_ptr<ae::Image> negZ);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		ImageSPtr 		posX() const;
-		void 			posX(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		posX() const;
+		void 			posX(std::shared_ptr<ae::Image> image);
 		
-		ImageSPtr 		negX() const;
-		void 			negX(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		negX() const;
+		void 			negX(std::shared_ptr<ae::Image> image);
 		
-		ImageSPtr 		posY() const;
-		void 			posY(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		posY() const;
+		void 			posY(std::shared_ptr<ae::Image> image);
 		
-		ImageSPtr 		negY() const;
-		void 			negY(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		negY() const;
+		void 			negY(std::shared_ptr<ae::Image> image);
 		
-		ImageSPtr 		posZ() const;
-		void 			posZ(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		posZ() const;
+		void 			posZ(std::shared_ptr<ae::Image> image);
 		
-		ImageSPtr 		negZ() const;
-		void 			negZ(ImageSPtr image);
+		std::shared_ptr<ae::Image> 		negZ() const;
+		void 			negZ(std::shared_ptr<ae::Image> image);
 		
 /*********************************************************************************************
 	Private
@@ -62,12 +61,12 @@ namespace ae {
 
 	private:
 
-		ImageSPtr		_posX;
-		ImageSPtr		_negX;
-		ImageSPtr		_posY;
-		ImageSPtr		_negY;
-		ImageSPtr		_posZ;
-		ImageSPtr		_negZ;
+		std::shared_ptr<ae::Image>		_posX;
+		std::shared_ptr<ae::Image>		_negX;
+		std::shared_ptr<ae::Image>		_posY;
+		std::shared_ptr<ae::Image>		_negY;
+		std::shared_ptr<ae::Image>		_posZ;
+		std::shared_ptr<ae::Image>		_negZ;
 	};
 }
 

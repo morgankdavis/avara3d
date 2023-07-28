@@ -22,8 +22,6 @@
 //#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
-
 
 struct GLFWmonitor;
 
@@ -131,25 +129,25 @@ namespace ae {
 		
 		// *** fonts ***
 
-		FontSPtr FontNamed(const std::string& name,
+		std::shared_ptr<ae::Font> FontNamed(const std::string& name,
 										const std::string& type);
 		
 		// ***  images ***
 		
-		ImageSPtr ImageNamed(const std::string& name,
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  bool flipHorizontal=true);
-		ImageSPtr ImageNamed(const std::string& name,
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  const std::string& type,
 										  bool flipHorizontal=true);
-		CubeImageSPtr CubeImageNamed(const std::string& name);
-		CubeImageSPtr CubeImageNamed(const std::string& name,
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name,
 												  const std::string& type);
 		
 		// *** scenes ***
 		
 #ifndef ANDROID
-		SceneSPtr SceneNamed(const std::string& name);
-		SceneSPtr SceneNamed(const std::string& name,
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name);
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 										  const std::string& type);
 #endif
 

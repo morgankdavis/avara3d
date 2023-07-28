@@ -14,7 +14,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -34,9 +33,9 @@ namespace ae {
 
 	public:
 
-		static PhysicsBodySPtr 			StaticBody();
-		static PhysicsBodySPtr 			DynamicBody();
-		static PhysicsBodySPtr 			KinematicBody();
+		static std::shared_ptr<ae::PhysicsBody> 			StaticBody();
+		static std::shared_ptr<ae::PhysicsBody> 			DynamicBody();
+		static std::shared_ptr<ae::PhysicsBody> 			KinematicBody();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -44,7 +43,7 @@ namespace ae {
 		
 		PhysicsBody();
 		PhysicsBody(PHYSICS_BODY_TYPE type);
-//		PhysicsBody(PHYSICS_BODY_TYPE type, PhysicsShapeSPtr shape);
+//		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<ae::PhysicsShape> shape);
 		~PhysicsBody();
 		
 /*********************************************************************************************
@@ -54,8 +53,8 @@ namespace ae {
 		PHYSICS_BODY_TYPE 				type() const;
 		void 							type(PHYSICS_BODY_TYPE type);
 		
-		PhysicsShapeSPtr 				shape() const;
-		void 							shape(PhysicsShapeSPtr shape);
+		std::shared_ptr<ae::PhysicsShape> 				shape() const;
+		void 							shape(std::shared_ptr<ae::PhysicsShape> shape);
 
 		float 							mass() const;
 		void 							mass(float mass);
@@ -121,10 +120,10 @@ namespace ae {
 		
 		void 							resting(bool resting);
 		
-		void 							attachedToNode(NodeSPtr node);
-		void 							geometryAttachedToNode(GeometrySPtr geometry);
+		void 							attachedToNode(std::shared_ptr<ae::Node> node);
+		void 							geometryAttachedToNode(std::shared_ptr<ae::Geometry> geometry);
 		
-		NodeWPtr 						node() const;
+		std::weak_ptr<ae::Node> 						node() const;
 		
 		PHYSICS_BODY_DIRTY_BITS 		dirtyBits() const;
 		void 							dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
@@ -138,7 +137,7 @@ namespace ae {
 		void checkShape();
 		
 		PHYSICS_BODY_TYPE 				_type;
-		PhysicsShapeSPtr 				_shape;
+		std::shared_ptr<ae::PhysicsShape> 				_shape;
 		float 							_mass;
 		glm::vec3 						_momentOfInertia;
 		float 							_friction;
@@ -156,7 +155,7 @@ namespace ae {
 		bool 							_allowsResting;
 		bool 							_resting;
 		
-		NodeWPtr						_node;
+		std::weak_ptr<ae::Node>						_node;
 
 		PHYSICS_BODY_DIRTY_BITS 		_dirtyBits;
 	};

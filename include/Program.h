@@ -19,7 +19,6 @@
 
 //#include <boost/optional.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -33,11 +32,11 @@ namespace ae {
 
 	public:
 
-		static ProgramSPtr 				Default();
-		static ProgramSPtr 				Skybox();
-		static ProgramSPtr 				Wireframe();
-		static ProgramSPtr 				Lines();
-		static ProgramSPtr 				Points();
+		static std::shared_ptr<ae::Program> 				Default();
+		static std::shared_ptr<ae::Program> 				Skybox();
+		static std::shared_ptr<ae::Program> 				Wireframe();
+		static std::shared_ptr<ae::Program> 				Lines();
+		static std::shared_ptr<ae::Program> 				Points();
 		
 /*********************************************************************************************
 	Lifecycle

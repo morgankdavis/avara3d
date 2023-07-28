@@ -32,23 +32,23 @@ using namespace glm;
 
 Geometry::Geometry():
 	_name(std::nullopt),
-	_elements(vector<GeometryElementSPtr>()),
-	_materials(vector<MaterialSPtr>()),
+	_elements(vector<std::shared_ptr<ae::GeometryElement>>()),
+	_materials(vector<std::shared_ptr<ae::Material>>()),
 	_node({}),
 	_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
 
-Geometry::Geometry(const GeometryElementSPtr element,
-				   const MaterialSPtr material):
+Geometry::Geometry(const std::shared_ptr<ae::GeometryElement> element,
+				   const std::shared_ptr<ae::Material> material):
 	Geometry() {
 		
 		_elements.emplace_back(element);
 		_materials.emplace_back(material);
 }
 
-Geometry::Geometry(const vector<GeometryElementSPtr> elements,
-				   const vector<MaterialSPtr> materials):
+Geometry::Geometry(const vector<std::shared_ptr<ae::GeometryElement>> elements,
+				   const vector<std::shared_ptr<ae::Material>> materials):
 	Geometry() {
 
 		_elements.insert(_elements.begin(), elements.begin(), elements.end());
@@ -71,22 +71,22 @@ void Geometry::name(const string& name) {
 	_name = name;
 }
 
-const vector<GeometryElementSPtr>& Geometry::elements() {
+const vector<std::shared_ptr<ae::GeometryElement>>& Geometry::elements() {
 	return _elements;
 }
 
-const vector<MaterialSPtr>& Geometry::materials() {
+const vector<std::shared_ptr<ae::Material>>& Geometry::materials() {
 	return _materials;
 }
 
-MaterialSPtr Geometry::firstMaterial() const {
+std::shared_ptr<ae::Material> Geometry::firstMaterial() const {
 	if (!_materials.empty()) {
 		return _materials[0];
 	}
 	return nullptr;
 }
 
-MaterialSPtr Geometry::materialNamed(const string& name) const {
+std::shared_ptr<ae::Material> Geometry::materialNamed(const string& name) const {
 	for (auto material : _materials) {
 		auto matName = material->name();
 		if (matName) {
@@ -98,11 +98,11 @@ MaterialSPtr Geometry::materialNamed(const string& name) const {
 	return nullptr;
 }
 
-void Geometry::addMaterial(const MaterialSPtr material) {
+void Geometry::addMaterial(const std::shared_ptr<ae::Material> material) {
 	_materials.emplace_back(material);
 }
 
-void Geometry::insertMaterial(const MaterialSPtr material, int index) {
+void Geometry::insertMaterial(const std::shared_ptr<ae::Material> material, int index) {
 	_materials.insert(_materials.begin()+index, material);
 }
 
@@ -112,7 +112,7 @@ void Geometry::removeMaterial(int index) {
 	}
 }
 
-void Geometry::replaceMaterial(int index, const MaterialSPtr replacement) {
+void Geometry::replaceMaterial(int index, const std::shared_ptr<ae::Material> replacement) {
 	removeMaterial(index);
 	insertMaterial(replacement, index);
 }
@@ -150,8 +150,8 @@ void Geometry::draw(Renderer& renderer,
 	
 	for (unsigned e=0; e<numElements; ++e) {
 		
-		GeometryElementSPtr element = _elements[e];
-		MaterialSPtr material = nullptr;
+		std::shared_ptr<ae::GeometryElement> element = _elements[e];
+		std::shared_ptr<ae::Material> material = nullptr;
 		if (_materials.size() > e) {
 			material = _materials[e];
 		}

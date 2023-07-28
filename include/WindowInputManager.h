@@ -19,7 +19,6 @@
 
 #include <glm/vec2.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -72,7 +71,7 @@ namespace ae {
 													   int scancode,
 													   int action,
 													   int mods);
-		static WindowInputManagerSPtr 	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+		static std::shared_ptr<WindowInputManager> 	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 		
 	private:
 
@@ -86,7 +85,7 @@ namespace ae {
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-		WindowWPtr						_window;
+		std::weak_ptr<ae::Window>						_window;
 		bool							_usingManyMouse;
 	};
 }

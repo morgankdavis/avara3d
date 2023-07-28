@@ -19,7 +19,6 @@
 
 //#include <boost/filesystem.hpp>
 
-#include "Aliases.h"
 #include "MaterialPropertyContents.h"
 
 
@@ -42,10 +41,10 @@ namespace ae {
 			  bool flipVertical=true);
 #endif
 		// with header
-		Image(BufferSPtr headerBuffer,
+		Image(std::shared_ptr<ae::Buffer> headerBuffer,
 			  bool flipVertical=true);
 		// raw
-		Image(BufferSPtr rawBuffer,
+		Image(std::shared_ptr<ae::Buffer> rawBuffer,
 			  unsigned width, unsigned height,
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true);
@@ -64,7 +63,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		BufferSPtr 		data() const;
+		std::shared_ptr<ae::Buffer> 		data() const;
 		
 /*********************************************************************************************
 	Private
@@ -80,7 +79,7 @@ namespace ae {
 		unsigned		_width;
 		unsigned		_height;
 		unsigned		_bytesPerPixel;
-		BufferSPtr		_data;
+		std::shared_ptr<ae::Buffer>		_data;
 	};
 }
 

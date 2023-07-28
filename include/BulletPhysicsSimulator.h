@@ -16,7 +16,6 @@
 #include <utility>
 #include <vector>
 
-#include "Aliases.h"
 #include "PhysicsSimulator.h"
 
 
@@ -98,10 +97,10 @@ namespace ae {
 							  const Scene& scene) override;
 
 		void 		update(PASS pass,
-						   SceneSPtr scene,
+						   std::shared_ptr<ae::Scene> scene,
 						   const DEBUG_OPTIONS& debugOptions) override;
 		void 		update(PASS pass,
-						   NodeSPtr node,
+						   std::shared_ptr<ae::Node> node,
 						   const DEBUG_OPTIONS& debugOptions) override;
 		
 		void 		step(float time) override;
@@ -124,8 +123,8 @@ namespace ae {
 		PhysicsBodyBTMapping									_bodyBTMapping;
 		PhysicsShapeBTMapping									_shapeBTMapping;
 		
-		std::unordered_set<PhysicsBodySPtr>						_activeBodies;
-		std::unordered_set<PhysicsShapeSPtr>					_activeShapes;
+		std::unordered_set<std::shared_ptr<ae::PhysicsBody>>						_activeBodies;
+		std::unordered_set<std::shared_ptr<ae::PhysicsShape>>					_activeShapes;
 	};
 }
 

@@ -13,7 +13,6 @@
 #include <memory>
 #include <vector>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -33,16 +32,16 @@ namespace ae {
 
 	public:
 
-		PhysicsShape(GeometrySPtr geometry, PHYSICS_SHAPE_TYPE type);
-		PhysicsShape(NodeSPtr node, PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(std::shared_ptr<ae::Geometry> geometry, PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(std::shared_ptr<ae::Node> node, PHYSICS_SHAPE_TYPE type);
 		~PhysicsShape();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		GeometryWPtr 						sourceGeometry() const;
-		NodeWPtr 							sourceNode() const;
+		std::weak_ptr<ae::Geometry> 						sourceGeometry() const;
+		std::weak_ptr<ae::Node> 							sourceNode() const;
 		PHYSICS_SHAPE_TYPE 					type() const;
 		std::vector<glm::mat4> 				transforms() const;
 
@@ -50,13 +49,13 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void								sourceGeometry(GeometryWPtr geometry);
-		void 								sourceNode(NodeWPtr node);
+		void								sourceGeometry(std::weak_ptr<ae::Geometry> geometry);
+		void 								sourceNode(std::weak_ptr<ae::Node> node);
 
-		void 								attachedToBody(PhysicsBodySPtr body);
+		void 								attachedToBody(std::shared_ptr<ae::PhysicsBody> body);
 
-		PhysicsBodyWPtr						physicsBody() const;
-		void 								physicsBody(PhysicsBodySPtr body);
+		std::weak_ptr<ae::PhysicsBody>						physicsBody() const;
+		void 								physicsBody(std::shared_ptr<ae::PhysicsBody> body);
 
 		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
@@ -67,8 +66,8 @@ namespace ae {
 
 	private:
 
-		GeometryWPtr 						_sourceGeometry;
-		NodeWPtr							_sourceNode;
+		std::weak_ptr<ae::Geometry> 						_sourceGeometry;
+		std::weak_ptr<ae::Node>							_sourceNode;
 		PHYSICS_SHAPE_TYPE 					_type;
 		// the array of transforms that was used to create a compound shape.
 		std::vector<glm::mat4> 				_transforms;

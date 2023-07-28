@@ -16,7 +16,6 @@
 
 //#include <boost/optional.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -34,20 +33,20 @@ namespace ae {
 
 	public:
 
-		static MaterialSPtr DefaultMaterial();
+		static std::shared_ptr<ae::Material> DefaultMaterial();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Material();
-		Material(MaterialPropertySPtr ambient,
-				 MaterialPropertySPtr diffuse,
-				 MaterialPropertySPtr specular);
-		Material(MaterialPropertySPtr ambient,
-				 MaterialPropertySPtr diffuse,
-				 MaterialPropertySPtr specular,
-				 MaterialPropertySPtr emissive);
+		Material(std::shared_ptr<ae::MaterialProperty> ambient,
+				 std::shared_ptr<ae::MaterialProperty> diffuse,
+				 std::shared_ptr<ae::MaterialProperty> specular);
+		Material(std::shared_ptr<ae::MaterialProperty> ambient,
+				 std::shared_ptr<ae::MaterialProperty> diffuse,
+				 std::shared_ptr<ae::MaterialProperty> specular,
+				 std::shared_ptr<ae::MaterialProperty> emissive);
 		~Material();
 		
 /*********************************************************************************************
@@ -57,17 +56,17 @@ namespace ae {
 		std::optional<std::string> 			name() const;
 		void 								name(const std::string& name);
 		
-		MaterialPropertySPtr 				ambient() const;
-		void							 	ambient(const MaterialPropertySPtr property);
+		std::shared_ptr<ae::MaterialProperty> 				ambient() const;
+		void							 	ambient(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		MaterialPropertySPtr 				diffuse() const;
-		void 								diffuse(const MaterialPropertySPtr property);
+		std::shared_ptr<ae::MaterialProperty> 				diffuse() const;
+		void 								diffuse(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		MaterialPropertySPtr 				specular() const;
-		void 								specular(const MaterialPropertySPtr property);
+		std::shared_ptr<ae::MaterialProperty> 				specular() const;
+		void 								specular(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		MaterialPropertySPtr 				emissive() const;
-		void 								emissive(const MaterialPropertySPtr property);
+		std::shared_ptr<ae::MaterialProperty> 				emissive() const;
+		void 								emissive(const std::shared_ptr<ae::MaterialProperty> property);
 		
 		float 								specularExponent() const;
 		void 								specularExponent(float exponent);
@@ -99,10 +98,10 @@ namespace ae {
 
 		std::optional<std::string>			_name;
 		
-		MaterialPropertySPtr				_ambient;
-		MaterialPropertySPtr 				_diffuse;
-		MaterialPropertySPtr 				_specular;
-		MaterialPropertySPtr 				_emissive;
+		std::shared_ptr<ae::MaterialProperty>				_ambient;
+		std::shared_ptr<ae::MaterialProperty> 				_diffuse;
+		std::shared_ptr<ae::MaterialProperty> 				_specular;
+		std::shared_ptr<ae::MaterialProperty> 				_emissive;
 
 		float 								_specularExponent;
 		bool 								_locksAmbientWithDiffuse;

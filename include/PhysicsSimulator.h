@@ -14,7 +14,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -59,10 +58,10 @@ namespace ae {
 										  const Scene& scene);
 
 		virtual void 			update(PASS pass,
-									   SceneSPtr scene,
+									   std::shared_ptr<ae::Scene> scene,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			update(PASS pass,
-									   NodeSPtr node,
+									   std::shared_ptr<ae::Node> node,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			step(float time);
 		

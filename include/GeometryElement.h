@@ -15,7 +15,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 

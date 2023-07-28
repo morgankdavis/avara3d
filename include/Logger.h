@@ -29,7 +29,6 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-#include "Aliases.h"
 #include "Exception.h"
 #include "Types.h"
 
@@ -76,7 +75,7 @@ namespace ae {
 
 	public:
 
-		static LoggerSPtr MainLogger();
+		static std::shared_ptr<ae::Logger> MainLogger();
 		
 /*********************************************************************************************
 	Lifecycle

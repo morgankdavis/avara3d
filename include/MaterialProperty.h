@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -35,15 +34,15 @@ namespace ae {
 	public:
 
 		MaterialProperty();
-		MaterialProperty(MaterialPropertyContentsSPtr contents);
+		MaterialProperty(std::shared_ptr<ae::MaterialPropertyContents> contents);
 		~MaterialProperty();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		MaterialPropertyContentsSPtr 	contents() const;
-		void							contents(const MaterialPropertyContentsSPtr contents);
+		std::shared_ptr<ae::MaterialPropertyContents> 	contents() const;
+		void							contents(const std::shared_ptr<ae::MaterialPropertyContents> contents);
 
 		FILTER_MODE 					minificationFilter() const;
 		void 							minificationFilter(FILTER_MODE mode);
@@ -76,7 +75,7 @@ namespace ae {
 
 	private:
 
-		MaterialPropertyContentsSPtr	_contents;
+		std::shared_ptr<ae::MaterialPropertyContents>	_contents;
 		
 		FILTER_MODE						_minificationFilter;
 		FILTER_MODE						_magnificationFilter;

@@ -15,7 +15,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -56,7 +55,7 @@ namespace ae {
 		virtual void 		beginFrame(const RenderContext& context);
 		virtual void 		endFrame(const RenderContext& context);
 
-		virtual void 		render(SceneSPtr scene,
+		virtual void 		render(std::shared_ptr<ae::Scene> scene,
 								   const DEBUG_OPTIONS& debugOptions,
 								   RenderStats& stats);
 		virtual void 		render(std::shared_ptr<Geometry> geometry,
@@ -65,7 +64,7 @@ namespace ae {
 								   const glm::mat4& projectionMat,
 								   const DEBUG_OPTIONS& debugOptions,
 								   RenderStats& stats);
-		virtual void 		render(GeometryElementSPtr element,
+		virtual void 		render(std::shared_ptr<ae::GeometryElement> element,
 								   Material& material,
 								   const glm::mat4& modelMat,
 								   const glm::mat4& viewMat,
@@ -81,7 +80,7 @@ namespace ae {
 								   const glm::mat4& viewMat,
 								   const glm::mat4& projectionMat);
 		
-		virtual ImageSPtr 	snapshot(const RenderContext& context) const;
+		virtual std::shared_ptr<ae::Image> 	snapshot(const RenderContext& context) const;
 		
 		RenderStats& 		renderStats();
 

@@ -15,7 +15,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -61,12 +60,12 @@ namespace ae {
 
 		void 								updateCollisionPairs();
 
-		PhysicsContactSPtr 					contactTest(PhysicsBodySPtr bodyA,
-														  PhysicsBodySPtr bodyB); // may add options
-		PhysicsContactSPtr 					contactTest(PhysicsBodySPtr body); // may add options
+		std::shared_ptr<ae::PhysicsContact> 					contactTest(std::shared_ptr<ae::PhysicsBody> bodyA,
+														  std::shared_ptr<ae::PhysicsBody> bodyB); // may add options
+		std::shared_ptr<ae::PhysicsContact> 					contactTest(std::shared_ptr<ae::PhysicsBody> body); // may add options
 
-		HitTestResultSPtr 					rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
-		PhysicsContactSPtr 					convexSweepTest(PhysicsContactSPtr contact,
+		std::shared_ptr<ae::HitTestResult> 					rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
+		std::shared_ptr<ae::PhysicsContact> 					convexSweepTest(std::shared_ptr<ae::PhysicsContact> contact,
 															  const glm::mat4& fromMat,
 															  const glm::mat4& toMat); // may add options
 
@@ -74,7 +73,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		void 								attachedToScene(SceneSPtr scene);
+		void 								attachedToScene(std::shared_ptr<ae::Scene> scene);
 		//void 								debugOptions(DEBUG_OPTIONS options);
 
 		PHYSICS_WORLD_DIRTY_BITS 			dirtyBits() const;
@@ -88,7 +87,7 @@ namespace ae {
 
 		glm::vec3 							_gravity;
 		float 								_timestep;
-		SceneWPtr 							_scene;
+		std::weak_ptr<ae::Scene> 							_scene;
 		PHYSICS_WORLD_DIRTY_BITS			_dirtyBits;
 	};
 }

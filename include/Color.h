@@ -13,8 +13,6 @@
 #include <memory>
 #include <vector>
 
-
-#include "Aliases.h"
 #include "MaterialPropertyContents.h"
 
 
@@ -28,27 +26,27 @@ namespace ae {
 
 	public:
 
-		static ColorSPtr 				Black();
-		static ColorSPtr 				DarkGray();
-		static ColorSPtr 				Gray();
-		static ColorSPtr 				LightGray();
-		static ColorSPtr 				White();
-		static ColorSPtr 				Maroon();
-		static ColorSPtr 				Red();
-		static ColorSPtr 				Orange();
-		static ColorSPtr 				Yellow();
-		static ColorSPtr 				Olive();
-		static ColorSPtr 				Lime();
-		static ColorSPtr 				Green();
-		static ColorSPtr				Cyan();
-		static ColorSPtr 				Blue();
-		static ColorSPtr 				Navy();
-		static ColorSPtr 				Teal();
-		static ColorSPtr 				Magenta();
-		static ColorSPtr				Purple();
-		static ColorSPtr 				Brown();
+		static std::shared_ptr<ae::Color> 				Black();
+		static std::shared_ptr<ae::Color> 				DarkGray();
+		static std::shared_ptr<ae::Color> 				Gray();
+		static std::shared_ptr<ae::Color> 				LightGray();
+		static std::shared_ptr<ae::Color> 				White();
+		static std::shared_ptr<ae::Color> 				Maroon();
+		static std::shared_ptr<ae::Color> 				Red();
+		static std::shared_ptr<ae::Color> 				Orange();
+		static std::shared_ptr<ae::Color> 				Yellow();
+		static std::shared_ptr<ae::Color> 				Olive();
+		static std::shared_ptr<ae::Color> 				Lime();
+		static std::shared_ptr<ae::Color> 				Green();
+		static std::shared_ptr<ae::Color>				Cyan();
+		static std::shared_ptr<ae::Color> 				Blue();
+		static std::shared_ptr<ae::Color> 				Navy();
+		static std::shared_ptr<ae::Color> 				Teal();
+		static std::shared_ptr<ae::Color> 				Magenta();
+		static std::shared_ptr<ae::Color>				Purple();
+		static std::shared_ptr<ae::Color> 				Brown();
 		
-		static std::vector<ColorSPtr> 	Rainbow();
+		static std::vector<std::shared_ptr<ae::Color>> 	Rainbow();
 		
 /*********************************************************************************************
 	Lifecycle

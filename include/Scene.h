@@ -19,7 +19,6 @@
 //#include <boost/filesystem.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -45,7 +44,7 @@ namespace ae {
 	public:
 
 #ifndef ANDROID
-		static SceneSPtr 			LoadFromFile(const std::filesystem::path& path);
+		static std::shared_ptr<ae::Scene> 			LoadFromFile(const std::filesystem::path& path);
 #endif
 //		static std::shared_ptr<Scene> LoadFromData(const std::vector<unsigned char>& data);
 
@@ -60,11 +59,11 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		NodeSPtr 					rootNode() const;
-		void 						rootNode(NodeSPtr node);
+		std::shared_ptr<ae::Node> 					rootNode() const;
+		void 						rootNode(std::shared_ptr<ae::Node> node);
 		
-		MaterialPropertySPtr 		background() const;
-		void 						background(MaterialPropertySPtr background);
+		std::shared_ptr<ae::MaterialProperty> 		background() const;
+		void 						background(std::shared_ptr<ae::MaterialProperty> background);
 		
 		float 						fogStartDistance() const;
 		void 						fogStartDistance(float distance);
@@ -75,11 +74,11 @@ namespace ae {
 										// 0 = constant, alpha respected
 										// 1 = linear, alpha ignored
 										// >=2 = exponential, alpha ignored
-		ColorSPtr 					fogColor() const;
-		void 						fogColor(ColorSPtr color);
+		std::shared_ptr<ae::Color> 					fogColor() const;
+		void 						fogColor(std::shared_ptr<ae::Color> color);
 		
-		PhysicsWorldSPtr 			physicsWorld() const;
-		void 						physicsWorld(PhysicsWorldSPtr world);
+		std::shared_ptr<ae::PhysicsWorld> 			physicsWorld() const;
+		void 						physicsWorld(std::shared_ptr<ae::PhysicsWorld> world);
 		
 /*********************************************************************************************
 	Internal
@@ -92,15 +91,15 @@ namespace ae {
 										 const DEBUG_OPTIONS& debugOptions,
 										 RenderStats& stats);
 		
-		GeometrySPtr				skyboxGeometry() const;
+		std::shared_ptr<ae::Geometry>				skyboxGeometry() const;
 		
 		std::shared_ptr<std::map<std::string, glm::vec3>> 	boundingPoints() const;
 		glm::vec3 					extent() const;
 		
-		void 						attachedToRenderContext(RenderContextSPtr renderContext);
+		void 						attachedToRenderContext(std::shared_ptr<ae::RenderContext> renderContext);
 
-		RenderContextWPtr 			renderContext() const;
-		void 						renderContext(RenderContextSPtr context);
+		std::weak_ptr<ae::RenderContext> 			renderContext() const;
+		void 						renderContext(std::shared_ptr<ae::RenderContext> context);
 		
 /*********************************************************************************************
 	Private
@@ -108,15 +107,15 @@ namespace ae {
 
 	private:
 
-		NodeSPtr					_rootNode;
-		MaterialPropertySPtr		_background;
-		GeometrySPtr				_skyboxGeometry;
+		std::shared_ptr<ae::Node>					_rootNode;
+		std::shared_ptr<ae::MaterialProperty>		_background;
+		std::shared_ptr<ae::Geometry>				_skyboxGeometry;
 		float						_fogStartDistance;
 		float						_fogEndDistance;
 		float						_fogDensityExponent;
-		ColorSPtr					_fogColor;
-		PhysicsWorldSPtr 			_physicsWorld;
-		RenderContextWPtr			_renderContext;
+		std::shared_ptr<ae::Color>					_fogColor;
+		std::shared_ptr<ae::PhysicsWorld> 			_physicsWorld;
+		std::weak_ptr<ae::RenderContext>			_renderContext;
 	};
 }
 

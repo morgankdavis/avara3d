@@ -10,7 +10,6 @@
 #define Plane_h
 
 
-#include "Aliases.h"
 #include "Geometry.h"
 
 

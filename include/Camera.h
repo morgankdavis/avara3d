@@ -17,8 +17,6 @@
 //#include <boost/optional.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Aliases.h"
-
 
 namespace ae {
 	
@@ -68,9 +66,9 @@ namespace ae {
 		
 		void 							constructProjectionMat();
 		
-		NodeWPtr 						node() const;
+		std::weak_ptr<ae::Node> 						node() const;
 		
-		void 							attachedToNode(NodeSPtr node);
+		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 		
 /*********************************************************************************************
 	Private
@@ -87,7 +85,7 @@ namespace ae {
 		
 		glm::mat4						_projection;
 
-		NodeWPtr						_node;
+		std::weak_ptr<ae::Node>						_node;
 	};
 }
 

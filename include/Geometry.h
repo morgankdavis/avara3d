@@ -19,7 +19,6 @@
 //#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "GeometryElement.h"
 #include "Material.h"
 #include "Types.h"
@@ -43,10 +42,10 @@ namespace ae {
 	public:
 
 		Geometry();
-		Geometry(const GeometryElementSPtr element,
-				 const MaterialSPtr material);
-		Geometry(const std::vector<GeometryElementSPtr> elements,
-				 const std::vector<MaterialSPtr> materials);
+		Geometry(const std::shared_ptr<ae::GeometryElement> element,
+				 const std::shared_ptr<ae::Material> material);
+		Geometry(const std::vector<std::shared_ptr<ae::GeometryElement>> elements,
+				 const std::vector<std::shared_ptr<ae::Material>> materials);
 		virtual ~Geometry();
 		
 /*********************************************************************************************
@@ -56,17 +55,17 @@ namespace ae {
 		std::optional<std::string> 							name() const;
 		void 												name(const std::string& name);
 
-		const std::vector<GeometryElementSPtr>& 			elements();
-		const std::vector<MaterialSPtr>& 					materials();
+		const std::vector<std::shared_ptr<ae::GeometryElement>>& 			elements();
+		const std::vector<std::shared_ptr<ae::Material>>& 					materials();
 
-		MaterialSPtr 										firstMaterial() const;
-		MaterialSPtr 										materialNamed(const std::string& name) const;
-		void 												addMaterial(const MaterialSPtr material);
-		void 												insertMaterial(const MaterialSPtr material,
+		std::shared_ptr<ae::Material> 										firstMaterial() const;
+		std::shared_ptr<ae::Material> 										materialNamed(const std::string& name) const;
+		void 												addMaterial(const std::shared_ptr<ae::Material> material);
+		void 												insertMaterial(const std::shared_ptr<ae::Material> material,
 																		   int index);
 		void 												removeMaterial(int index);
 		void 												replaceMaterial(int index,
-																			const MaterialSPtr replacement);
+																			const std::shared_ptr<ae::Material> replacement);
 		
 /*********************************************************************************************
 	Internal
@@ -98,8 +97,8 @@ namespace ae {
 
 	protected:
 
-		std::vector<GeometryElementSPtr>					_elements;
-		std::vector<MaterialSPtr>							_materials;
+		std::vector<std::shared_ptr<ae::GeometryElement>>					_elements;
+		std::vector<std::shared_ptr<ae::Material>>							_materials;
 
 /*********************************************************************************************
 	Private

@@ -16,7 +16,6 @@
 
 //#include <boost/optional.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -35,17 +34,17 @@ namespace ae {
 
 	public:
 
-		static LightSPtr DefaultAmbient();
-		static LightSPtr DefaultPoint();
-		static NodeSPtr AmbientNode();
-		static NodeSPtr PointNode();
+		static std::shared_ptr<ae::Light> DefaultAmbient();
+		static std::shared_ptr<ae::Light> DefaultPoint();
+		static std::shared_ptr<ae::Node> AmbientNode();
+		static std::shared_ptr<ae::Node> PointNode();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Light(LIGHT_TYPE type);
-		Light(LIGHT_TYPE type, const ColorSPtr color);
+		Light(LIGHT_TYPE type, const std::shared_ptr<ae::Color> color);
 		
 /*********************************************************************************************
 	Public
@@ -57,8 +56,8 @@ namespace ae {
 		LIGHT_TYPE 						type() const;
 		void 							type(LIGHT_TYPE type);
 		
-		ColorSPtr 						color() const;
-		void 							color(ColorSPtr color);
+		std::shared_ptr<ae::Color> 						color() const;
+		void 							color(std::shared_ptr<ae::Color> color);
 
 		float 							attenuationFactor() const;
 		void 							attenuationFactor(float factor);
@@ -69,9 +68,9 @@ namespace ae {
 
 	// protected
 
-		NodeWPtr 						node() const;
+		std::weak_ptr<ae::Node> 						node() const;
 		
-		void 							attachedToNode(NodeSPtr node);
+		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 		
 /*********************************************************************************************
 	Private
@@ -82,7 +81,7 @@ namespace ae {
 		std::optional<std::string>		_name;
 		
 		LIGHT_TYPE						_type;
-		ColorSPtr						_color;
+		std::shared_ptr<ae::Color>						_color;
 
 		float							_attenuationFactor; // att = 1/(1-k(d^2))
 		

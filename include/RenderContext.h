@@ -17,7 +17,6 @@
 //#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -68,11 +67,11 @@ namespace ae {
 		
 		RENDER_API 						renderAPI() const;
 		
-		RendererSPtr 					renderer() const;
-		/* REMOVE? */ void 				renderer(RendererSPtr renderer);
+		std::shared_ptr<ae::Renderer> 					renderer() const;
+		/* REMOVE? */ void 				renderer(std::shared_ptr<ae::Renderer> renderer);
 		
-		SceneSPtr 						scene() const;
-		void 							scene(const SceneSPtr scene);
+		std::shared_ptr<ae::Scene> 						scene() const;
+		void 							scene(const std::shared_ptr<ae::Scene> scene);
 		
 		unsigned 						width() const;
 		unsigned 						height() const;
@@ -88,16 +87,16 @@ namespace ae {
 		virtual DEBUG_OPTIONS 			debugOptions() const;
 		virtual void 					debugOptions(DEBUG_OPTIONS options);
 		
-		virtual NodeSPtr 				pointOfView();
-		virtual void 					pointOfView(const NodeSPtr camera);
+		virtual std::shared_ptr<ae::Node> 				pointOfView();
+		virtual void 					pointOfView(const std::shared_ptr<ae::Node> camera);
 		
 		ANTIALIASING_MODE 				antialiasingMode() const;
 		
-		virtual InputManagerSPtr 		inputManager() = 0;
+		virtual std::shared_ptr<ae::InputManager> 		inputManager() = 0;
 		
 		virtual float 					sceneTime() const;
 		
-		ImageSPtr 						snapshot() const;
+		std::shared_ptr<ae::Image> 						snapshot() const;
 		
 		virtual bool 					recordingGIF() const;
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
@@ -125,8 +124,8 @@ namespace ae {
 		virtual void 					swapBuffers() = 0;
 		virtual void 					pollInput() = 0;
 		
-		PhysicsSimulatorSPtr 			physicsSimulator() const;
-		/* REMOVE? */ void 				physicsSimulator(PhysicsSimulatorSPtr physicsSimulator);
+		std::shared_ptr<ae::PhysicsSimulator> 			physicsSimulator() const;
+		/* REMOVE? */ void 				physicsSimulator(std::shared_ptr<ae::PhysicsSimulator> physicsSimulator);
 		
 		void 							width(unsigned width);
 		void 							height(unsigned height);
@@ -142,13 +141,13 @@ namespace ae {
 
 	protected:
 
-		virtual NodeSPtr 				defaultPointOfView();
+		virtual std::shared_ptr<ae::Node> 				defaultPointOfView();
 		virtual void 					saveGIFFrame(float time);
 
 		RENDER_API 						_renderAPI;
-		RendererSPtr					_renderer;
-		PhysicsSimulatorSPtr			_physicsSimulator;
-		SceneSPtr						_scene;
+		std::shared_ptr<ae::Renderer>					_renderer;
+		std::shared_ptr<ae::PhysicsSimulator>			_physicsSimulator;
+		std::shared_ptr<ae::Scene>						_scene;
 		unsigned						_width;
 		unsigned						_height;
 		float							_framebufferScale;
@@ -157,7 +156,7 @@ namespace ae {
 		bool							_vSyncEnabled;
 		ANTIALIASING_MODE				_antialiasingMode;
 		DEBUG_OPTIONS					_debugOptions;
-		NodeSPtr						_pointOfView;
+		std::shared_ptr<ae::Node>						_pointOfView;
 		
 		std::shared_ptr<GifWriter>		_gifWriter;
 		bool							_recordingGIF;

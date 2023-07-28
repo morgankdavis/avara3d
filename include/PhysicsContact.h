@@ -14,7 +14,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -38,8 +37,8 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		NodeSPtr 		nodeA() const;
-		NodeSPtr 		nodeB() const;
+		std::shared_ptr<ae::Node> 		nodeA() const;
+		std::shared_ptr<ae::Node> 		nodeB() const;
 		glm::vec3 		contactPoint() const;
 		glm::vec3 		contactNormal() const;
 		float 			collisionImpulse() const;
@@ -52,8 +51,8 @@ namespace ae {
 
 	private:
 
-		NodeSPtr 		_nodeA;
-		NodeSPtr		_nodeB;
+		std::shared_ptr<ae::Node> 		_nodeA;
+		std::shared_ptr<ae::Node>		_nodeB;
 		glm::vec3 		_contactPoint;
 		glm::vec3 		_contactNormal;
 		float			_collisionImpulse;

@@ -21,7 +21,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -43,9 +42,9 @@ namespace ae {
 
 	public:
 
-		static NodeSPtr 				GeometryNode(GeometrySPtr geometry);
-		static NodeSPtr 				LightNode(LightSPtr light);
-		static NodeSPtr 				CameraNode(CameraSPtr camera);
+		static std::shared_ptr<ae::Node> 				GeometryNode(std::shared_ptr<ae::Geometry> geometry);
+		static std::shared_ptr<ae::Node> 				LightNode(std::shared_ptr<ae::Light> light);
+		static std::shared_ptr<ae::Node> 				CameraNode(std::shared_ptr<ae::Camera> camera);
 
 /*********************************************************************************************
 	Lifecycle
@@ -62,14 +61,14 @@ namespace ae {
 		std::optional<std::string> 		name() const;
 		void 							name(const std::string& name);
 		
-		LightSPtr 						light() const;
-		void 							light(const LightSPtr light);
+		std::shared_ptr<ae::Light> 						light() const;
+		void 							light(const std::shared_ptr<ae::Light> light);
 		
-		CameraSPtr 						camera() const;
-		void 							camera(const CameraSPtr camera);
+		std::shared_ptr<ae::Camera> 						camera() const;
+		void 							camera(const std::shared_ptr<ae::Camera> camera);
 		
-		GeometrySPtr 					geometry() const;
-		void 							geometry(const GeometrySPtr& geometry);
+		std::shared_ptr<ae::Geometry> 					geometry() const;
+		void 							geometry(const std::shared_ptr<ae::Geometry>& geometry);
 
 		bool 							hidden() const;
 		void 							hidden(const bool hidden);
@@ -113,18 +112,18 @@ namespace ae {
 		
 		glm::mat4 						worldTransform();
 		
-		void 							addChildren(std::vector<NodeSPtr> nodes);
-		void 							addChild(NodeSPtr node);
+		void 							addChildren(std::vector<std::shared_ptr<ae::Node>> nodes);
+		void 							addChild(std::shared_ptr<ae::Node> node);
 		void 							insertChild(const Node& node, int index);
 		void 							removeFromParent();
 		void 							replaceChild(const Node& replace, const Node& with);
 		
 		std::weak_ptr<Node> 			parent() const;
-		std::vector<NodeSPtr> 			children(bool resursive);
-		NodeSPtr 						child(const std::string& name, bool resursive);
+		std::vector<std::shared_ptr<ae::Node>> 			children(bool resursive);
+		std::shared_ptr<ae::Node> 						child(const std::string& name, bool resursive);
 		
-		PhysicsBodySPtr 				physicsBody() const;
-		void 							physicsBody(PhysicsBodySPtr body);
+		std::shared_ptr<ae::PhysicsBody> 				physicsBody() const;
+		void 							physicsBody(std::shared_ptr<ae::PhysicsBody> body);
 
 //		glm::vec3 						convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
 //		glm::vec3 						convertPositionToNode(const glm::vec3& position, const Node& toNode);
@@ -138,15 +137,15 @@ namespace ae {
 		void	 						unrollWorldTransform(glm::mat4 transform);
 		
 		void 							updateWorldTransform();
-		bool 							containsChild(NodeSPtr node);
-		void 							attachedToScene(SceneSPtr scene);
-		void 							attachedToParent(NodeSPtr parentNode);
+		bool 							containsChild(std::shared_ptr<ae::Node> node);
+		void 							attachedToScene(std::shared_ptr<ae::Scene> scene);
+		void 							attachedToParent(std::shared_ptr<ae::Node> parentNode);
 		
-//		NodeSPtr 						root() const;
-//		SceneWPtr 						scene() const;
+//		std::shared_ptr<ae::Node> 						root() const;
+//		std::weak_ptr<ae::Scene> 						scene() const;
 
-//		NodeWPtr 						model() const;
-//		void 							attachedToModel(NodeSPtr model);
+//		std::weak_ptr<ae::Node> 						model() const;
+//		void 							attachedToModel(std::shared_ptr<ae::Node> model);
 
 /*********************************************************************************************
 	Private
@@ -154,12 +153,12 @@ namespace ae {
 
 	private:
 
-		std::vector<NodeSPtr> 			pathToRoot() const;
+		std::vector<std::shared_ptr<ae::Node>> 			pathToRoot() const;
 		void			 				addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
-		std::vector<NodeSPtr> 			topologicalChildren(NodeSPtr top);
-		void 							topologicalChildrenRec(NodeSPtr node,
-															   std::map<NodeSPtr, bool>& visited,
-															   std::stack<NodeSPtr>& stack);
+		std::vector<std::shared_ptr<ae::Node>> 			topologicalChildren(std::shared_ptr<ae::Node> top);
+		void 							topologicalChildrenRec(std::shared_ptr<ae::Node> node,
+															   std::map<std::shared_ptr<ae::Node>, bool>& visited,
+															   std::stack<std::shared_ptr<ae::Node>>& stack);
 		
 		//void 							checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
 		
@@ -168,13 +167,13 @@ namespace ae {
 		
 		std::optional<std::string>		_name;
 		
-		LightSPtr						_light;
-		CameraSPtr						_camera;
-		GeometrySPtr					_geometry;
+		std::shared_ptr<ae::Light>						_light;
+		std::shared_ptr<ae::Camera>						_camera;
+		std::shared_ptr<ae::Geometry>					_geometry;
 		
 		bool							_hidden;
 
-		std::vector<NodeSPtr>			_children;
+		std::vector<std::shared_ptr<ae::Node>>			_children;
 		
 		glm::vec3						_position;
 		glm::quat						_orientation;
@@ -182,10 +181,10 @@ namespace ae {
 //		glm::mat4						_pivot;
 		glm::mat4						_worldTransform;
 		
-		PhysicsBodySPtr					_physicsBody;
+		std::shared_ptr<ae::PhysicsBody>					_physicsBody;
 		
-//		SceneWPtr 						_scene;
-		NodeWPtr						_parent;
+//		std::weak_ptr<ae::Scene> 						_scene;
+		std::weak_ptr<ae::Node>						_parent;
 		
 		NODE_DIRTY_BITS					_dirtyBits;
 	};

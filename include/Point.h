@@ -14,8 +14,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Aliases.h"
-
 
 namespace ae {
 	
@@ -32,7 +30,7 @@ namespace ae {
 	public:
 
 		Point(glm::vec3 location);
-		Point(glm::vec3 location, ColorSPtr color);
+		Point(glm::vec3 location, std::shared_ptr<ae::Color> color);
 		
 /*********************************************************************************************
 	Public
@@ -40,8 +38,8 @@ namespace ae {
 		
 		glm::vec3 		location() const;
 		void 			location(glm::vec3 point);
-		ColorSPtr 		color() const;
-		void 			color(ColorSPtr color);
+		std::shared_ptr<ae::Color> 		color() const;
+		void 			color(std::shared_ptr<ae::Color> color);
 		
 /*********************************************************************************************
 	Private
@@ -50,7 +48,7 @@ namespace ae {
 	private:
 
 		glm::vec3 		_location;
-		ColorSPtr 		_color;
+		std::shared_ptr<ae::Color> 		_color;
 	};
 }
 

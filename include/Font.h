@@ -17,7 +17,6 @@
 //#include <boost/optional.hpp>
 //#include <boost/filesystem.hpp>
 
-#include "Aliases.h"
 #include "Types.h"
 
 
@@ -36,7 +35,7 @@ namespace ae {
 	public:
 
 		Font(std::filesystem::path& path);
-		Font(BufferSPtr buffer);
+		Font(std::shared_ptr<ae::Buffer> buffer);
 		
 		~Font();
 		
@@ -46,7 +45,7 @@ namespace ae {
 		
 		std::optional<std::string>		name() const;
 		FONT_TYPE 						type() const;
-		BufferSPtr 						buffer() const;
+		std::shared_ptr<ae::Buffer> 						buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -56,7 +55,7 @@ namespace ae {
 
 		std::optional<std::string>		_name;
 		FONT_TYPE						_type;
-		BufferSPtr						_buffer;
+		std::shared_ptr<ae::Buffer>						_buffer;
 	};
 }
 
