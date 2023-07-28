@@ -23,7 +23,8 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-Renderer::Renderer() {
+Renderer::Renderer():
+		_frametimeAveragingInterval(.25) {
 		
 }
 
@@ -44,7 +45,7 @@ void Renderer::beginFrame(const RenderContext& context) {
 }
 
 void Renderer::endFrame(const RenderContext& context) {
-	
+	updateFrametimeStats(renderStats(), context.sceneTime());
 }
 
 void Renderer::render(shared_ptr<Scene> scene,
@@ -91,6 +92,14 @@ void Renderer::render(shared_ptr<PointSet> points,
 	AE_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
 }
 
+float Renderer::frametimeAveragingInterval() const {
+	return _frametimeAveragingInterval;
+}
+
+void Renderer::frametimeAveragingInterval(float interval) {
+	_frametimeAveragingInterval = interval;
+}
+
 shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
 	AE_LOG_C("Renderer::snapshot() should be overidden in derived class.");
@@ -99,4 +108,37 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 
 RenderStats& Renderer::renderStats() {
 	return _renderStats;
+}
+
+void Renderer::updateFrametimeStats(RenderStats& stats, float time) {
+
+	static float fps = 0.0;
+	static float ms = 0.0;
+
+	static int elapsedFrames = 0;
+
+	static float lastFPSSampleStartTime = time;
+	float timeSinceBeginFPSSample = time - lastFPSSampleStartTime;
+	if (timeSinceBeginFPSSample >= frametimeAveragingInterval()) {
+
+		// display
+//		AE_LOG_I("timeSinceBeginFPSSample: {}", timeSinceBeginFPSSample);
+		fps = (float)elapsedFrames / timeSinceBeginFPSSample;
+//		AE_LOG_I("fps: {}", fps);
+
+		elapsedFrames = 0;
+		lastFPSSampleStartTime = time;
+
+//		stats.averageFramerate = fps;
+//		stats.averageFrametime = 0;
+	}
+	else {
+		++elapsedFrames;
+	}
+
+	stats.averageFramerate = fps;
+	stats.averageFrametime = 0;
+
+	stats.currentFramerate = 60.0/timeSinceBeginFPSSample;
+	stats.currentFrametime = timeSinceBeginFPSSample; // NOTE: SECONDS NOT MS
 }

@@ -1839,8 +1839,36 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 	
 	auto renderContext = scene.renderContext().lock();
 
-	static float fps = 0.0;
-	static float ms = 0.0;
+
+//	const float FPS_AVG_INTERVAL = 0.25; // seconds
+//
+//	static float fps = 0.0;
+//	static float ms = 0.0;
+//
+//	static int elapsedFrames = 0;
+//
+//	static float lastFPSSampleStartTime = time;
+//	float timeSinceBeginFPSSample = time - lastFPSSampleStartTime;
+//	if (timeSinceBeginFPSSample >= FPS_AVG_INTERVAL) {
+//
+//		// display
+////		AE_LOG_I("timeSinceBeginFPSSample: {}", timeSinceBeginFPSSample);
+//		fps = (float)elapsedFrames / timeSinceBeginFPSSample;
+////		AE_LOG_I("fps: {}", fps);
+//
+//		elapsedFrames = 0;
+//		lastFPSSampleStartTime = time;
+//	}
+//	else {
+//		++elapsedFrames;
+//	}
+
+	float fps = stats.averageFramerate;
+	float ms = stats.averageFrametime;
+
+
+//	static float fps = 0.0;
+//	static float ms = 0.0;
 	
 	// sample frametime for last FRAME_SAMPLE_SIZE frames
 	// average them and print it every FRAME_UPDATE_INTERVAL so it's readable

@@ -79,17 +79,32 @@ namespace ae {
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);
-		
+
+//		// time interval over which to average averageFrametime and averageFramerate over
+		float 								frametimeAveragingInterval() const;
+		void 								frametimeAveragingInterval(float interval);
+
 		virtual std::shared_ptr<ae::Image>	snapshot(const RenderContext& context) const;
 		
 		RenderStats& 						renderStats();
 
-	private:
+/**************************************************************************************
+	Internal
+ **************************************************************************************/
+
+	protected:
+
+		virtual void						updateFrametimeStats(RenderStats& stats, float time);
 		
 /**************************************************************************************
 	Private
  **************************************************************************************/
-		
+
+	private:
+
+//		float 								_currentFramerate;
+//		float 								_currentFramerate;
+		float								_frametimeAveragingInterval;
 		RenderStats							_renderStats;
 	};
 }
