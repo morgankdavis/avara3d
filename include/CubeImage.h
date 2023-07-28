@@ -37,23 +37,23 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<ae::Image> 		posX() const;
-		void 			posX(std::shared_ptr<ae::Image> image);
+		std::shared_ptr<ae::Image>		posX() const;
+		void 							posX(std::shared_ptr<ae::Image> image);
 		
 		std::shared_ptr<ae::Image> 		negX() const;
-		void 			negX(std::shared_ptr<ae::Image> image);
+		void 							negX(std::shared_ptr<ae::Image> image);
 		
 		std::shared_ptr<ae::Image> 		posY() const;
-		void 			posY(std::shared_ptr<ae::Image> image);
+		void 							posY(std::shared_ptr<ae::Image> image);
 		
 		std::shared_ptr<ae::Image> 		negY() const;
-		void 			negY(std::shared_ptr<ae::Image> image);
+		void 							negY(std::shared_ptr<ae::Image> image);
 		
 		std::shared_ptr<ae::Image> 		posZ() const;
-		void 			posZ(std::shared_ptr<ae::Image> image);
+		void 							posZ(std::shared_ptr<ae::Image> image);
 		
 		std::shared_ptr<ae::Image> 		negZ() const;
-		void 			negZ(std::shared_ptr<ae::Image> image);
+		void 							negZ(std::shared_ptr<ae::Image> image);
 		
 /*********************************************************************************************
 	Private

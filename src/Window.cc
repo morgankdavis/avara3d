@@ -39,9 +39,9 @@ using namespace ae;
 	Static Prototypes
  *********************************************************************************************/
 
-static bool InitializeGLFW();
-static bool InitializeGLEW();
-static float ScreenScaleFactor(GLFWmonitor* monitor);
+static bool 	InitializeGLFW();
+static bool 	InitializeGLEW();
+static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 
 /*********************************************************************************************
 	Lifescycle

@@ -59,34 +59,34 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
-static shared_ptr<Image> MissingTextureImage();
+static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
-static void LoadFile(Scene& scene, const std::filesystem::path& importPath);
-//static void LoadData(Scene& scene, const vector<unsigned char>& data);
-static void AddAIGeometryNodes(Scene& scene,
-							   const aiScene* aiScene,
-							   shared_ptr<Node> aeRootNode,
-							   const vector<shared_ptr<GeometryElement>>& importElements,
-							   const vector<shared_ptr<Material>>& importMaterials);
-static void AddAIGeometryNodeRec(Scene& scene,
-								 const aiScene* aiScene,
-								 const aiNode* aiGeometryNode,
-								 shared_ptr<Node> aeParentNode,
-								 const vector<shared_ptr<GeometryElement>>& importElements,
-								 const vector<shared_ptr<Material>>& importMaterials);
+static void 						LoadFile(Scene& scene, const std::filesystem::path& importPath);
+//static void 						LoadData(Scene& scene, const vector<unsigned char>& data);
+static void 						AddAIGeometryNodes(Scene& scene,
+													  const aiScene* aiScene,
+													  shared_ptr<Node> aeRootNode,
+													  const vector<shared_ptr<GeometryElement>>& importElements,
+													  const vector<shared_ptr<Material>>& importMaterials);
+static void 						AddAIGeometryNodeRec(Scene& scene,
+														const aiScene* aiScene,
+														const aiNode* aiGeometryNode,
+														shared_ptr<Node> aeParentNode,
+														const vector<shared_ptr<GeometryElement>>& importElements,
+														const vector<shared_ptr<Material>>& importMaterials);
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath);
-static std::optional<std::filesystem::path> FilepathFromTextureFilename(const string& filename,
-																			const string& basePath);
-static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType);
+static std::optional<path> 			FilepathFromTextureFilename(const string& filename,
+																  const string& basePath);
+static LIGHT_TYPE 					LightTypeForAILightType(aiLightSourceType aiType);
 
-static vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
-static vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
-static mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
-static Color ColorFromAIColor3D(const aiColor3D& from);
-static Color ColorFromAIColor4D(const aiColor4D& from);
+static vec2 						GLMVec2FromAIVector3D(const aiVector2D& from);
+static vec3 						GLMVec3FromAIVector3D(const aiVector3D& from);
+static mat4 						GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
+static Color 						ColorFromAIColor3D(const aiColor3D& from);
+static Color 						ColorFromAIColor4D(const aiColor4D& from);
 
 #endif // !ANDROID
 

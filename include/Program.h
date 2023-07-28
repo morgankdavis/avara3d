@@ -32,11 +32,11 @@ namespace ae {
 
 	public:
 
-		static std::shared_ptr<ae::Program> 				Default();
-		static std::shared_ptr<ae::Program> 				Skybox();
-		static std::shared_ptr<ae::Program> 				Wireframe();
-		static std::shared_ptr<ae::Program> 				Lines();
-		static std::shared_ptr<ae::Program> 				Points();
+		static std::shared_ptr<ae::Program> 	Default();
+		static std::shared_ptr<ae::Program> 	Skybox();
+		static std::shared_ptr<ae::Program> 	Wireframe();
+		static std::shared_ptr<ae::Program> 	Lines();
+		static std::shared_ptr<ae::Program> 	Points();
 		
 /*********************************************************************************************
 	Lifecycle

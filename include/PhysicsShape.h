@@ -40,8 +40,8 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::weak_ptr<ae::Geometry> 						sourceGeometry() const;
-		std::weak_ptr<ae::Node> 							sourceNode() const;
+		std::weak_ptr<ae::Geometry> 		sourceGeometry() const;
+		std::weak_ptr<ae::Node> 			sourceNode() const;
 		PHYSICS_SHAPE_TYPE 					type() const;
 		std::vector<glm::mat4> 				transforms() const;
 
@@ -54,7 +54,7 @@ namespace ae {
 
 		void 								attachedToBody(std::shared_ptr<ae::PhysicsBody> body);
 
-		std::weak_ptr<ae::PhysicsBody>						physicsBody() const;
+		std::weak_ptr<ae::PhysicsBody>		physicsBody() const;
 		void 								physicsBody(std::shared_ptr<ae::PhysicsBody> body);
 
 		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
@@ -66,8 +66,8 @@ namespace ae {
 
 	private:
 
-		std::weak_ptr<ae::Geometry> 						_sourceGeometry;
-		std::weak_ptr<ae::Node>							_sourceNode;
+		std::weak_ptr<ae::Geometry> 		_sourceGeometry;
+		std::weak_ptr<ae::Node>				_sourceNode;
 		PHYSICS_SHAPE_TYPE 					_type;
 		// the array of transforms that was used to create a compound shape.
 		std::vector<glm::mat4> 				_transforms;

@@ -50,39 +50,39 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		virtual bool 		initialize(const RenderContext& context);
+		virtual bool 						initialize(const RenderContext& context);
 		
-		virtual void 		beginFrame(const RenderContext& context);
-		virtual void 		endFrame(const RenderContext& context);
+		virtual void 						beginFrame(const RenderContext& context);
+		virtual void 						endFrame(const RenderContext& context);
 
-		virtual void 		render(std::shared_ptr<ae::Scene> scene,
-								   const DEBUG_OPTIONS& debugOptions,
-								   RenderStats& stats);
-		virtual void 		render(std::shared_ptr<Geometry> geometry,
-								   const glm::mat4& modelMat,
-								   const glm::mat4& viewMat,
-								   const glm::mat4& projectionMat,
-								   const DEBUG_OPTIONS& debugOptions,
-								   RenderStats& stats);
-		virtual void 		render(std::shared_ptr<ae::GeometryElement> element,
-								   Material& material,
-								   const glm::mat4& modelMat,
-								   const glm::mat4& viewMat,
-								   const glm::mat4& projectionMat,
-								   const DEBUG_OPTIONS& debugOptions,
-								   RenderStats& stats);
-		virtual void 		render(std::shared_ptr<LineSet> lines,
-								   const glm::mat4& modelMat,
-								   const glm::mat4& viewMat,
-								   const glm::mat4& projectionMat);
-		virtual void 		render(std::shared_ptr<PointSet> points,
-								   const glm::mat4& modelMat,
-								   const glm::mat4& viewMat,
-								   const glm::mat4& projectionMat);
+		virtual void 						render(std::shared_ptr<ae::Scene> scene,
+												   const DEBUG_OPTIONS& debugOptions,
+												   RenderStats& stats);
+		virtual void 						render(std::shared_ptr<Geometry> geometry,
+												   const glm::mat4& modelMat,
+												   const glm::mat4& viewMat,
+												   const glm::mat4& projectionMat,
+												   const DEBUG_OPTIONS& debugOptions,
+												   RenderStats& stats);
+		virtual void 						render(std::shared_ptr<ae::GeometryElement> element,
+												   Material& material,
+												   const glm::mat4& modelMat,
+												   const glm::mat4& viewMat,
+												   const glm::mat4& projectionMat,
+												   const DEBUG_OPTIONS& debugOptions,
+												   RenderStats& stats);
+		virtual void 						render(std::shared_ptr<LineSet> lines,
+												   const glm::mat4& modelMat,
+												   const glm::mat4& viewMat,
+												   const glm::mat4& projectionMat);
+		virtual void 						render(std::shared_ptr<PointSet> points,
+												   const glm::mat4& modelMat,
+												   const glm::mat4& viewMat,
+												   const glm::mat4& projectionMat);
 		
-		virtual std::shared_ptr<ae::Image> 	snapshot(const RenderContext& context) const;
+		virtual std::shared_ptr<ae::Image>	snapshot(const RenderContext& context) const;
 		
-		RenderStats& 		renderStats();
+		RenderStats& 						renderStats();
 
 	private:
 		
@@ -90,7 +90,7 @@ namespace ae {
 	Private
  **************************************************************************************/
 		
-		RenderStats			_renderStats;
+		RenderStats							_renderStats;
 	};
 }
 

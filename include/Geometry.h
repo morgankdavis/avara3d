@@ -51,45 +51,45 @@ namespace ae {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		std::optional<std::string> 							name() const;
-		void 												name(const std::string& name);
 
-		const std::vector<std::shared_ptr<ae::GeometryElement>>& 			elements();
-		const std::vector<std::shared_ptr<ae::Material>>& 					materials();
+		std::optional<std::string> 					name() const;
+		void 										name(const std::string& name);
 
-		std::shared_ptr<ae::Material> 										firstMaterial() const;
-		std::shared_ptr<ae::Material> 										materialNamed(const std::string& name) const;
-		void 												addMaterial(const std::shared_ptr<ae::Material> material);
-		void 												insertMaterial(const std::shared_ptr<ae::Material> material,
-																		   int index);
-		void 												removeMaterial(int index);
-		void 												replaceMaterial(int index,
-																			const std::shared_ptr<ae::Material> replacement);
-		
-/*********************************************************************************************
+		const std::vector<std::shared_ptr<ae::GeometryElement>>& 	elements();
+		const std::vector<std::shared_ptr<ae::Material>>& 			materials();
+
+		std::shared_ptr<ae::Material> 				firstMaterial() const;
+		std::shared_ptr<ae::Material> 				materialNamed(const std::string& name) const;
+		void 										addMaterial(const std::shared_ptr<ae::Material> material);
+		void 										insertMaterial(const std::shared_ptr<ae::Material> material,
+																   int index);
+		void 										removeMaterial(int index);
+		void 										replaceMaterial(int index,
+																	const std::shared_ptr<ae::Material> replacement);
+
+		/*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void 												burnTransform(const glm::mat4& transform,
-																		  bool normals);
 
-		void 												draw(Renderer& renderer,
-																 const glm::mat4& modelMat,
-																 const glm::mat4& viewMat,
-																 const glm::mat4& projectionMat,
-																 const DEBUG_OPTIONS& debugOptions,
-																 RenderStats& stats);
+		void 										burnTransform(const glm::mat4& transform,
+																  bool normals);
 
-		std::shared_ptr<std::map<std::string, glm::vec3>> 	boundingPoints(bool worldSpace) const;
+		void 										draw(Renderer& renderer,
+														 const glm::mat4& modelMat,
+														 const glm::mat4& viewMat,
+														 const glm::mat4& projectionMat,
+														 const DEBUG_OPTIONS& debugOptions,
+														 RenderStats& stats);
+
+		std::shared_ptr<std::map<std::string, glm::vec3>>	boundingPoints(bool worldSpace) const;
 		glm::vec3 											extent(bool worldSpace) const;
-		
-		void 												attachedToNode(std::shared_ptr<Node> node);
-		
-		std::weak_ptr<Node> 								node() const;
 
-		GEOMETRY_DIRTY_BITS 								dirtyBits() const;
-		void 												dirtyBits(GEOMETRY_DIRTY_BITS bits);
+		void 										attachedToNode(std::shared_ptr<Node> node);
+
+		std::weak_ptr<Node> 						node() const;
+
+		GEOMETRY_DIRTY_BITS 						dirtyBits() const;
+		void 										dirtyBits(GEOMETRY_DIRTY_BITS bits);
 
 /*********************************************************************************************
 	Protected
@@ -97,8 +97,8 @@ namespace ae {
 
 	protected:
 
-		std::vector<std::shared_ptr<ae::GeometryElement>>					_elements;
-		std::vector<std::shared_ptr<ae::Material>>							_materials;
+		std::vector<std::shared_ptr<ae::GeometryElement>>	_elements;
+		std::vector<std::shared_ptr<ae::Material>>			_materials;
 
 /*********************************************************************************************
 	Private

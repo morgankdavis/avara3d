@@ -45,7 +45,7 @@ namespace ae {
 		
 		std::optional<std::string>		name() const;
 		FONT_TYPE 						type() const;
-		std::shared_ptr<ae::Buffer> 						buffer() const;
+		std::shared_ptr<ae::Buffer> 	buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -55,7 +55,7 @@ namespace ae {
 
 		std::optional<std::string>		_name;
 		FONT_TYPE						_type;
-		std::shared_ptr<ae::Buffer>						_buffer;
+		std::shared_ptr<ae::Buffer>		_buffer;
 	};
 }
 

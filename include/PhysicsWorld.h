@@ -52,22 +52,22 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		glm::vec3 							gravity() const;
-		void 								gravity(glm::vec3 gravity);
+		glm::vec3 								gravity() const;
+		void 									gravity(glm::vec3 gravity);
 
-		float 								timestep() const;
-		void 								timestep(float timestep);
+		float 									timestep() const;
+		void 									timestep(float timestep);
 
-		void 								updateCollisionPairs();
+		void 									updateCollisionPairs();
 
-		std::shared_ptr<ae::PhysicsContact> 					contactTest(std::shared_ptr<ae::PhysicsBody> bodyA,
-														  std::shared_ptr<ae::PhysicsBody> bodyB); // may add options
-		std::shared_ptr<ae::PhysicsContact> 					contactTest(std::shared_ptr<ae::PhysicsBody> body); // may add options
+		std::shared_ptr<ae::PhysicsContact> 	contactTest(std::shared_ptr<ae::PhysicsBody> bodyA,
+														   std::shared_ptr<ae::PhysicsBody> bodyB); // may add options
+		std::shared_ptr<ae::PhysicsContact> 	contactTest(std::shared_ptr<ae::PhysicsBody> body); // may add options
 
-		std::shared_ptr<ae::HitTestResult> 					rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
-		std::shared_ptr<ae::PhysicsContact> 					convexSweepTest(std::shared_ptr<ae::PhysicsContact> contact,
-															  const glm::mat4& fromMat,
-															  const glm::mat4& toMat); // may add options
+		std::shared_ptr<ae::HitTestResult> 		rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
+		std::shared_ptr<ae::PhysicsContact> 	convexSweepTest(std::shared_ptr<ae::PhysicsContact> contact,
+															   const glm::mat4& fromMat,
+															   const glm::mat4& toMat); // may add options
 
 /*********************************************************************************************
 	Internal
@@ -87,7 +87,7 @@ namespace ae {
 
 		glm::vec3 							_gravity;
 		float 								_timestep;
-		std::weak_ptr<ae::Scene> 							_scene;
+		std::weak_ptr<ae::Scene> 			_scene;
 		PHYSICS_WORLD_DIRTY_BITS			_dirtyBits;
 	};
 }

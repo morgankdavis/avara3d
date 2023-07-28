@@ -36,10 +36,10 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		glm::vec3 		location() const;
-		void 			location(glm::vec3 point);
-		std::shared_ptr<ae::Color> 		color() const;
-		void 			color(std::shared_ptr<ae::Color> color);
+		glm::vec3 						location() const;
+		void 							location(glm::vec3 point);
+		std::shared_ptr<ae::Color>		color() const;
+		void 							color(std::shared_ptr<ae::Color> color);
 		
 /*********************************************************************************************
 	Private
@@ -47,7 +47,7 @@ namespace ae {
 
 	private:
 
-		glm::vec3 		_location;
+		glm::vec3 						_location;
 		std::shared_ptr<ae::Color> 		_color;
 	};
 }

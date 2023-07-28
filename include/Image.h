@@ -54,16 +54,16 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		unsigned 		width() const;
-		unsigned 		height() const;
-		unsigned 		bytesPerPixel() const;
-		bool 			writePNG(std::filesystem::path path) const;
+		unsigned 						width() const;
+		unsigned 						height() const;
+		unsigned 						bytesPerPixel() const;
+		bool 							writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<ae::Buffer> 		data() const;
+		std::shared_ptr<ae::Buffer> 	data() const;
 		
 /*********************************************************************************************
 	Private
@@ -71,14 +71,14 @@ namespace ae {
 
 	private:
 
-		//void loadFile(const std::filesystem::path& path, bool flipHorizontal);
-		void 			loadBuffer(Buffer& buffer, bool flipVertical);
-		void 			flipVertical(); // "flip"
-		void 			flipHorizontal(); // "mirror"
+		//void 							loadFile(const std::filesystem::path& path, bool flipHorizontal);
+		void 							loadBuffer(Buffer& buffer, bool flipVertical);
+		void 							flipVertical(); // "flip"
+		void 							flipHorizontal(); // "mirror"
 		
-		unsigned		_width;
-		unsigned		_height;
-		unsigned		_bytesPerPixel;
+		unsigned						_width;
+		unsigned						_height;
+		unsigned						_bytesPerPixel;
 		std::shared_ptr<ae::Buffer>		_data;
 	};
 }

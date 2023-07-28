@@ -123,8 +123,8 @@ namespace ae {
 		PhysicsBodyBTMapping									_bodyBTMapping;
 		PhysicsShapeBTMapping									_shapeBTMapping;
 		
-		std::unordered_set<std::shared_ptr<ae::PhysicsBody>>						_activeBodies;
-		std::unordered_set<std::shared_ptr<ae::PhysicsShape>>					_activeShapes;
+		std::unordered_set<std::shared_ptr<ae::PhysicsBody>>	_activeBodies;
+		std::unordered_set<std::shared_ptr<ae::PhysicsShape>>	_activeShapes;
 	};
 }
 

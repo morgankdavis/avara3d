@@ -37,13 +37,13 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<ae::Node> 		nodeA() const;
-		std::shared_ptr<ae::Node> 		nodeB() const;
-		glm::vec3 		contactPoint() const;
-		glm::vec3 		contactNormal() const;
-		float 			collisionImpulse() const;
-		float 			penetrationDistance() const;
-		float 			sweepTestFraction() const;
+		std::shared_ptr<ae::Node>	nodeA() const;
+		std::shared_ptr<ae::Node> 	nodeB() const;
+		glm::vec3 					contactPoint() const;
+		glm::vec3 					contactNormal() const;
+		float 						collisionImpulse() const;
+		float 						penetrationDistance() const;
+		float 						sweepTestFraction() const;
 		
 /*********************************************************************************************
 	Private
@@ -51,13 +51,13 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<ae::Node> 		_nodeA;
-		std::shared_ptr<ae::Node>		_nodeB;
-		glm::vec3 		_contactPoint;
-		glm::vec3 		_contactNormal;
-		float			_collisionImpulse;
-		float			_penetrationDistance;
-		float			_sweepTestFraction;
+		std::shared_ptr<ae::Node> 	_nodeA;
+		std::shared_ptr<ae::Node>	_nodeB;
+		glm::vec3 					_contactPoint;
+		glm::vec3 					_contactNormal;
+		float						_collisionImpulse;
+		float						_penetrationDistance;
+		float						_sweepTestFraction;
 	};
 }
 

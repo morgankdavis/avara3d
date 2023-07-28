@@ -85,7 +85,7 @@ namespace ae {
 		
 		glm::mat4						_projection;
 
-		std::weak_ptr<ae::Node>						_node;
+		std::weak_ptr<ae::Node>			_node;
 	};
 }
 

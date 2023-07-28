@@ -65,118 +65,118 @@ using namespace std;
 	Static Prorotypes
  *********************************************************************************************/
 
-static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
-						 Node& pointOfView,
-						 const DEBUG_OPTIONS& debugOptions,
-						 RenderStats& stats,
-						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
-						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
-static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
-												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
-												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
-										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
-										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-													GLuint& glVBO, GLuint& glVAO);
-static void GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
-										Program& program,
-										OpenGLRenderer::LineSetGLMapping& glMapping,
-										GLuint& glVBO, GLuint& glVAO);
-static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
-										 Program& program,
-										 OpenGLRenderer::PointSetGLMapping& glMapping,
-										 GLuint& glVBO, GLuint& glVAO);
-static void GetMaterialGLTextureHandles(Material& material,
-										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
-static void BufferGeometryElementVertexData(const GeometryElement& element,
+static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
+								Node& pointOfView,
+								const DEBUG_OPTIONS& debugOptions,
+								RenderStats& stats,
+								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
+								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
+								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
+static void 		GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
+														 OpenGLRenderer::GeometryElementGLMapping& glMapping,
+														 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
+												OpenGLRenderer::GeometryElementGLMapping& glMapping,
+												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
+														   OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
+														   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+														   GLuint& glVBO, GLuint& glVAO);
+static void 		GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
+											   Program& program,
+											   OpenGLRenderer::LineSetGLMapping& glMapping,
+											   GLuint& glVBO, GLuint& glVAO);
+static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
+												Program& program,
+												OpenGLRenderer::PointSetGLMapping& glMapping,
+												GLuint& glVBO, GLuint& glVAO);
+static void 		GetMaterialGLTextureHandles(Material& material,
+											   OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
+											   unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
+											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
+static void 		BufferGeometryElementVertexData(const GeometryElement& element,
+												   Program& program,
+												   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		BufferSkyboxVertexData(Geometry& skyboxGeometry,
+										  Program& program,
+										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		BufferLineSetVertexData(LineSet& lineSet,
+										   Program& program,
+										   GLuint& glVBO, GLuint& glVAO);
+static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
-											GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
-								   Program& program,
-								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void BufferLineSetVertexData(LineSet& lineSet,
-									Program& program,
-									GLuint& glVBO, GLuint& glVAO);
-static void BufferPointSetVertexData(PointSet& pointSet,
+											GLuint& glVBO, GLuint& glVAO);
+static void 		BufferMaterialPropertyTexture(const MaterialProperty& property,
+												 MATERIAL_PROPERTY_TYPE type,
+												 GLuint& glTextureHandle);
+static void 		SendMaterialUniforms(const Material& material,
+										Program& program,
+										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
+										const DEBUG_OPTIONS& debugOptions);
+static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
+												MATERIAL_PROPERTY_TYPE type,
+												GLuint glTextureHandle,
+												const DEBUG_OPTIONS& debugOptions,
+												Program& program);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, RenderStats& stats);
+static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
+													   GLuint glTextureHandle);
+static void 		SetMaterialFilteringOptions(const Material& material,
+											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
+static void 		SetMaterialOpenGLState(const Material& material,
+										  const DEBUG_OPTIONS& debugOptions);
+static void	 		SetSkyboxOpenGLState();
+static void 		SetLineSetGLState();
+static void 		SetPointSetGLState();
+static void 		DrawGeometryElement(GeometryElement& element,
+									   Program& program,
+									   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+									   GLuint vao, GLuint ibo);
+static void 		DrawSkyboxElement(GeometryElement& element,
 									 Program& program,
-									 GLuint& glVBO, GLuint& glVAO);
-static void BufferMaterialPropertyTexture(const MaterialProperty& property,
-										  MATERIAL_PROPERTY_TYPE type,
-										  GLuint& glTextureHandle);	
-static void SendMaterialUniforms(const Material& material,
-								 Program& program,
-								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
-								 const DEBUG_OPTIONS& debugOptions);
-static void SendMaterialPropertyUniforms(MaterialProperty& property,
-										 MATERIAL_PROPERTY_TYPE type,
-										 GLuint glTextureHandle,
-										 const DEBUG_OPTIONS& debugOptions,
-										 Program& program);
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, RenderStats& stats);
-static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-												GLuint glTextureHandle);
-static void SetMaterialFilteringOptions(const Material& material,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
-static void SetMaterialOpenGLState(const Material& material, 
-								   const DEBUG_OPTIONS& debugOptions);
-static void SetSkyboxOpenGLState();
-static void SetLineSetGLState();
-static void SetPointSetGLState();
-static void DrawGeometryElement(GeometryElement& element,
+									 Node& pointOfView,
+									 GLuint vao, GLuint ibo);
+static void 		DrawLineSet(LineSet& lineSet,
+							   Program& program,
+							   mat4 modelMat,
+							   mat4 viewMat,
+							   mat4 projectionMat,
+							   GLuint glVBO, GLuint glVAO);
+static void 		DrawPointSet(PointSet& pointSet,
 								Program& program,
-								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
-								GLuint vao, GLuint ibo);	
-static void DrawSkyboxElement(GeometryElement& element,
-							  Program& program,
-							  Node& pointOfView,
-							  GLuint vao, GLuint ibo);
-static void DrawLineSet(LineSet& lineSet,
-						Program& program,
-						mat4 modelMat,
-						mat4 viewMat,
-						mat4 projectionMat,
-						GLuint glVBO, GLuint glVAO);
-static void DrawPointSet(PointSet& pointSet,
-						 Program& program,
-						 mat4 modelMat,
-						 mat4 viewMat,
-						 mat4 projectionMat,
-						 GLuint glVBO, GLuint glVAO);
-static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
-											OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
-											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
-static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
-									OpenGLRenderer::LineSetGLMapping& glMapping);
-static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
-									 OpenGLRenderer::PointSetGLMapping& glMapping);
-static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
-											 OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
-											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
-static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
-									 OpenGLRenderer::LineSetGLMapping& glMapping);
-static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
-									  OpenGLRenderer::PointSetGLMapping& glMapping);
-static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights);
-static void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene);
-static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
-static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
-static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
-static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
-static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
-static void SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode);
-static GLenum GLFilterModeForFilterMode(FILTER_MODE mode);
-static FILTER_MODE FilterModeForGLFilterMode(GLenum mode);
-static GLenum GLWrapModeForWrapMode(WRAP_MODE mode);
-static WRAP_MODE WrapModeForGLWrapMode(GLenum mode);
-static void CheckGLError();
+								mat4 modelMat,
+								mat4 viewMat,
+								mat4 projectionMat,
+								GLuint glVBO, GLuint glVAO);
+static void 		CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
+												   OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void 		CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
+													OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
+										   OpenGLRenderer::LineSetGLMapping& glMapping);
+static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
+											OpenGLRenderer::PointSetGLMapping& glMapping);
+static void 		DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
+													OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void 		DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
+													 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
+											OpenGLRenderer::LineSetGLMapping& glMapping);
+static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
+											 OpenGLRenderer::PointSetGLMapping& glMapping);
+static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
+static void 		DrawStatsOverlay(RenderStats& stats, float time, Scene& scene);
+static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
+static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
+static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
+static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
+static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
+static void 		SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode);
+static GLenum 		GLFilterModeForFilterMode(FILTER_MODE mode);
+static FILTER_MODE 	FilterModeForGLFilterMode(GLenum mode);
+static GLenum 		GLWrapModeForWrapMode(WRAP_MODE mode);
+static WRAP_MODE 	WrapModeForGLWrapMode(GLenum mode);
+static void 		CheckGLError();
 
 /*********************************************************************************************
 	Types
