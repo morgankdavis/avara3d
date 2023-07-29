@@ -2033,6 +2033,6 @@ static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 static void CheckGLError() {
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG_W("*** GL error: 0x{:X} ***", err);
+		AE_LOG_E("*** GL error: 0x{:X} ***", err);
 	}
 }
