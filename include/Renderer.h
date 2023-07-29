@@ -80,7 +80,6 @@ namespace ae {
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);
 
-//		// time interval over which to average averageFrametime and averageFramerate over
 		float 								frametimeAveragingInterval() const;
 		void 								frametimeAveragingInterval(float interval);
 
@@ -102,8 +101,6 @@ namespace ae {
 
 	private:
 
-//		float 								_currentFramerate;
-//		float 								_currentFramerate;
 		float								_frametimeAveragingInterval;
 		RenderStats							_renderStats;
 	};

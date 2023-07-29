@@ -201,20 +201,20 @@ typedef struct {
 	float32_t 	PADDING6;
 	float32_t	PADDING7;
 	float32_t 	PADDING8;
-	/* vec3 direction_world;
-	float attenuationStart;
-	float attenuationEnd;
-	float attenuationExponent;
-	float innerAngle;
-	float outerAngle; */
+	/* vec3 	direction_world;
+	float 		attenuationStart;
+	float 		attenuationEnd;
+	float 		attenuationExponent;
+	float 		innerAngle;
+	float 		outerAngle; */
 } LightGLSLStruct;
 
 typedef struct {
-	float32_t 	startDistance;
-	float32_t 	endDistance;
-	float32_t 	densityExponent;
-	float32_t 	PADDING1;
-	vec4 		color;
+	float32_t 		startDistance;
+	float32_t 		endDistance;
+	float32_t 		densityExponent;
+	float32_t 		PADDING1;
+	vec4 			color;
 	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
@@ -396,7 +396,7 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
-		// will check dirt but, and create an AABB lineset if necessary,
+		// will check dirty bit, and create an AABB lineset if necessary,
 		// and insert into _geometryAABBLineSetMapping
 		
 		GLuint vbo, vao;
@@ -1839,74 +1839,6 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 	
 	auto renderContext = scene.renderContext().lock();
 
-
-//	const float FPS_AVG_INTERVAL = 0.25; // seconds
-//
-//	static float fps = 0.0;
-//	static float ms = 0.0;
-//
-//	static int elapsedFrames = 0;
-//
-//	static float lastFPSSampleStartTime = time;
-//	float timeSinceBeginFPSSample = time - lastFPSSampleStartTime;
-//	if (timeSinceBeginFPSSample >= FPS_AVG_INTERVAL) {
-//
-//		// display
-////		AE_LOG_I("timeSinceBeginFPSSample: {}", timeSinceBeginFPSSample);
-//		fps = (float)elapsedFrames / timeSinceBeginFPSSample;
-////		AE_LOG_I("fps: {}", fps);
-//
-//		elapsedFrames = 0;
-//		lastFPSSampleStartTime = time;
-//	}
-//	else {
-//		++elapsedFrames;
-//	}
-
-	float fps = stats.averageFramerate;
-	float ms = stats.averageFrametime;
-
-
-//	static float fps = 0.0;
-//	static float ms = 0.0;
-	
-	// sample frametime for last FRAME_SAMPLE_SIZE frames
-	// average them and print it every FRAME_UPDATE_INTERVAL so it's readable
-
-	// UPDATE: just check if elapsed time > FPS display update time
-	// count the number of frames that have been drawn since then and display it.
-
-
-//	const unsigned FRAME_SAMPLE_SIZE = 60;
-//	const float FRAME_UPDATE_INTERVAL = 0.5;
-//
-//	static boost::circular_buffer<float> fpsBuf(FRAME_SAMPLE_SIZE);
-//
-//	static float previousFrameTime = time;
-//	float deltaSecondsFromLastFrame = 0;
-//	static float elapsedSecondsSinceUpdate = 0;
-//	float currentFrameTime = time;
-//	static unsigned elapsedFramesSinceUpdate = 0;
-//	++elapsedFramesSinceUpdate;
-//
-//	deltaSecondsFromLastFrame = currentFrameTime - previousFrameTime;
-//	elapsedSecondsSinceUpdate += deltaSecondsFromLastFrame;
-//	previousFrameTime = currentFrameTime;
-//	fpsBuf.push_back(deltaSecondsFromLastFrame);
-//
-//	if (elapsedSecondsSinceUpdate > FRAME_UPDATE_INTERVAL) {
-//		ms = (elapsedSecondsSinceUpdate * 1000.0) / elapsedFramesSinceUpdate;
-//
-//		float bufFrameTime = 0;
-//		for (float t : fpsBuf) bufFrameTime += t;
-//		fps = ((float)FRAME_SAMPLE_SIZE)/bufFrameTime;
-//
-//		// reset framerate stats
-//
-//		elapsedFramesSinceUpdate = 0;
-//		elapsedSecondsSinceUpdate = 0;
-//	}
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -1934,7 +1866,7 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 	
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %.1f%s fps\n" \
+		ImGui::Text("%-14s %.1f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1947,8 +1879,8 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %d %s\n",
 					
-					"framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""),
-					"frametime", ms,
+					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+					"frametime", stats.averageFrametime,
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
 					"meshes", stats.meshes,
@@ -1958,7 +1890,7 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %.1f%s fps\n" \
+		ImGui::Text("%-14s %.1f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1969,8 +1901,8 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %.1f, %.1f, %.1f\n",
 					
-					"framerate", fps, (renderContext->vSyncEnabled() ? " [vsync]" : ""),
-					"frametime", ms,
+					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+					"frametime", stats.averageFrametime,
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
 					"meshes", stats.meshes,

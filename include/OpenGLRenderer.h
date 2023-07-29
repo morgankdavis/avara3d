@@ -48,8 +48,7 @@ namespace ae {
 
 		/* <ae_MaterialProperty : <gl_textureHandle> */
 		using MaterialPropertyGLMapping =
-				std::map<std::shared_ptr<ae::MaterialProperty>,
-						unsigned>;
+				std::map<std::shared_ptr<ae::MaterialProperty>, unsigned>;
 
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =

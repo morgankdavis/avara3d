@@ -112,33 +112,33 @@ RenderStats& Renderer::renderStats() {
 
 void Renderer::updateFrametimeStats(RenderStats& stats, float time) {
 
-	static float fps = 0.0;
-	static float ms = 0.0;
+	static float fpsAvg = 0.0;
+	static float msAvg = 0.0;
 
-	static int elapsedFrames = 0;
+	static int elapsedFramesThisSample = 0;
 
-	static float lastFPSSampleStartTime = time;
-	float timeSinceBeginFPSSample = time - lastFPSSampleStartTime;
-	if (timeSinceBeginFPSSample >= frametimeAveragingInterval()) {
+	static float lastSampleStartTime = time;
 
-		// display
-//		AE_LOG_I("timeSinceBeginFPSSample: {}", timeSinceBeginFPSSample);
-		fps = (float)elapsedFrames / timeSinceBeginFPSSample;
-//		AE_LOG_I("fps: {}", fps);
+	float elapsedSecondsSinceLastFrame = time - lastSampleStartTime;
 
-		elapsedFrames = 0;
-		lastFPSSampleStartTime = time;
+	float timeSinceBeginSample = time - lastSampleStartTime;
+	if (timeSinceBeginSample >= frametimeAveragingInterval()) {
 
-//		stats.averageFramerate = fps;
-//		stats.averageFrametime = 0;
+		fpsAvg = (float)elapsedFramesThisSample / timeSinceBeginSample;
+		msAvg = (elapsedSecondsSinceLastFrame * 1000.0f) / elapsedFramesThisSample;
+
+		elapsedFramesThisSample = 0;
+		lastSampleStartTime = time;
 	}
 	else {
-		++elapsedFrames;
+		++elapsedFramesThisSample;
 	}
 
-	stats.averageFramerate = fps;
-	stats.averageFrametime = 0;
+	stats.averageFramerate = fpsAvg;
+	stats.averageFrametime = msAvg;
 
-	stats.currentFramerate = 60.0/timeSinceBeginFPSSample;
-	stats.currentFrametime = timeSinceBeginFPSSample; // NOTE: SECONDS NOT MS
+	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
+	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f; // is this wrong?
+
+	stats.frametimeAveragingInterval = frametimeAveragingInterval();
 }
