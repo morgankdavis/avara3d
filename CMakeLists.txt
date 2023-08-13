@@ -276,7 +276,7 @@ set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.c*)
 include_directories(include)
-add_library(ae STATIC ${HEADERS} ${SOURCES} include/Aliases.h)
+add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 
 # this is causing external library headers to not be found. ?
