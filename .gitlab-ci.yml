@@ -33,7 +33,7 @@ build-linux:
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++- ..
+    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
     - /usr/bin/make -j4
     - echo "Linux build complete."
 
