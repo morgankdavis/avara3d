@@ -14,7 +14,6 @@
 #include <functional>
 #include <memory>
 
-//#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
 #include "Types.h"

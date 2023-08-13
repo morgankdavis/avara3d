@@ -1,7 +1,7 @@
 CURRNET OWNERSHIP
 ==============================
 
-RenderContext
+RenderContext [Not necessarily rendering!]
 	<Update loop>
 	Scene
 		<Graph>
@@ -20,19 +20,24 @@ RenderContext
 NEW OWNERSHIP
 ==============================
 
-Simulator
+
+World [was Scene]
 	<Update loop>
-	Scene
-		<Graph>
-		PhysicsWorld
-			<Physics properties>
-	InputManager
-	PhysicsSimulator
-		<Engine>
-	RenderContext [Window, View, LED mat, etc]
+	<Graph>
+	InputManager [KB/M, Touch, Network, ...]
+	PhysicsWorld
+		<Physics properties>
+		PhysicsSimulator
+			<Engine> [Bullet, ...]	
+	RenderContext [Window, View, LED matrix, ...]
+		<Background and Fog properties> 
 		Renderer
-			<API>
-		
+			<API> [OpenGL, OpenGLES, Vulkan, ...]
+		Animator?
+			<Engine>?
+	AudioContext?
+		<Engine>?
+			
 		
 	----- OR -----
 		

@@ -209,7 +209,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		
 		// creates and updates bullet models as needed
 		// for PASS::STEP this checks everything gets ready for the simulation step
-		// for PASS::SYNC, it simple gets the handles for the BT models we're driving our graph from
+		// for PASS::SYNC, it simply gets the handles for the BT models we're driving our graph from
 
 		if (body->shape()) {
 			
