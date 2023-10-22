@@ -29,7 +29,7 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		true;
+constexpr bool					CAPTURE_CURSOR =		false;
 
 
 /***************************************************************************************
@@ -98,6 +98,10 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	auto keysDown = m_inputManager->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<KEY>::type>(k) << endl;
+	}
+
+	if (keysDown.count(KEY::SLASH)) {
+		m_window->captureCursor(!(m_window->cursorCaptured()));
 	}
 	
 	if (keysDown.count(KEY::ESCAPE)) {

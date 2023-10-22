@@ -25,8 +25,8 @@ namespace ae {
 	class Line;
 	class Point;
 	
-	using LineSet = std::set<std::shared_ptr<Line>>;
-	using PointSet = std::set<std::shared_ptr<Point>>;
+	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
+	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
 	
 	enum class LOG_LEVEL : unsigned {
 		TRACE_ =		0,
@@ -57,22 +57,16 @@ namespace ae {
 		MSAA_16X =	16
 	};
 
-	enum class SHADER_TYPE {
-		VERTEX,
-		FRAGMENT
-	};
+	typedef struct {
+		glm::vec3 	min;
+		glm::vec3 	max;
+	} Extent;
 
 	enum class MATERIAL_PROPERTY_TYPE {
 		AMBIENT,
 		DIFFUSE,
 		SPECULAR,
 		EMISSIVE
-	};
-
-	enum class FILL_MODE {
-		FILL,
-		LINES,
-		POINTS
 	};
 
 	enum class FILTER_MODE {
@@ -281,6 +275,17 @@ namespace ae {
 /**************************************************************************************
 	Internal
  **************************************************************************************/
+
+	enum class SHADER_TYPE {
+		VERTEX,
+		FRAGMENT
+	};
+
+	enum class FILL_MODE {
+		FILL,
+		LINES,
+		POINTS
+	};
 
 	typedef struct {
 		glm::vec3 position;

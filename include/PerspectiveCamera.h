@@ -1,70 +1,63 @@
 //
-//  Camera.h
-//	avara-engine
-//
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+// Created by mkd on 10/22/23.
 //
 
-#ifndef Camera_h
-#define Camera_h
+#ifndef PerspectiveCamera_h
+#define PerspectiveCamera_h
 
 
-#include <memory>
-#include <optional>
-#include <string>
-
-#include "Types.h"
+#include "Camera.h"
 
 
 namespace ae {
-	
-	
-	class Node;
-	
-	
-	class Camera {
-		
+
+	class PerspectiveCamera : public Camera {
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		Camera();
-		Camera(std::optional<std::string> name);
-		
+		PerspectiveCamera();
+		PerspectiveCamera(float zNear, float zFar, float fov);
+		PerspectiveCamera(std::optional<std::string> name, float zNear, float zFar, float fov);
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		std::optional<std::string> 		name() const;
-		void 							name(std::string name);
 
-		glm::mat4 						projection() const;
-		
+		float 					zNear() const;
+		void 					zNear(float zNear);
+
+		float 					zFar() const;
+		void				 	zFar(float zFar);
+
+		float 					fov() const;
+		void	 				fov(float fov);
+
+		float 					aspectRatio() const;
+		void 					aspectRatio(float ratio);
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::weak_ptr<ae::Node> 		node() const;
-		void 							attachedToNode(std::shared_ptr<ae::Node> node);
-
 	protected:
 
-		virtual void 					constructProjectionMatrix() = 0;
-		glm::mat4						_projection;
-		
+		void 					constructProjectionMatrix() override;
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		std::optional<std::string>		_name;
-		std::weak_ptr<ae::Node>			_node;
+		float					_zNear;
+		float					_zFar;
+		float					_fov;
+		float					_aspectRatio;
 	};
 }
 
-
-#endif /* Camera_h */
+#endif /* PerspectiveCamera_h */

@@ -18,12 +18,12 @@
 
 #include "Buffer.h"
 #include "BulletPhysicsSimulator.h"
-#include "Camera.h"
 #include "Exception.h"
 #include "Image.h"
 #include "Logger.h"
 #include "Node.h"
 #include "OpenGLRenderer.h"
+#include "PerspectiveCamera.h"
 #include "Renderer.h"
 #include "Scene.h"
 
@@ -298,7 +298,7 @@ void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function)
  *********************************************************************************************/
 
 void RenderContext::update() { // pure virtual
-	AE_LOG_T("-------------------------------------------------------------------------------");
+	//AE_LOG_T("-------------------------------------------------------------------------------");
 
 	if (updateCallback()) {
 		(updateCallback())(*this, sceneTime());
@@ -310,7 +310,7 @@ void RenderContext::update() { // pure virtual
 
 	auto pov = pointOfView();
 	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
-	pov->camera()->aspectRatio(aspectRatio);
+	static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
 	_renderer->renderStats().cameraPosition = pov->position();
 
@@ -411,13 +411,13 @@ shared_ptr<Node> RenderContext::defaultPointOfView() {
 	
 	auto cameraNode = make_shared<Node>();
 	//_scene->rootNode()->addChild(cameraNode); // done below
-	auto camera = make_shared<Camera>();
+	auto camera = make_shared<PerspectiveCamera>();
 	camera->name("default camera");
 	cameraNode->camera(camera);
 	
 	auto boundingPoints = (*scene()->boundingPoints());
 	
-	float fovH = cameraNode->camera()->fov();
+	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
 	float w = width();
 	float h = height();
 	float aspectRatio = w/h;

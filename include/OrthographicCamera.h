@@ -1,70 +1,52 @@
 //
-//  Camera.h
-//	avara-engine
-//
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+// Created by mkd on 10/22/23.
 //
 
-#ifndef Camera_h
-#define Camera_h
+#ifndef OrthographicCamera_h
+#define OrthographicCamera_h
 
 
-#include <memory>
-#include <optional>
-#include <string>
+//#include <glm/vec4.hpp>
 
+#include "Camera.h"
 #include "Types.h"
 
 
 namespace ae {
-	
-	
-	class Node;
-	
-	
-	class Camera {
-		
+
+	class OrthographicCamera : public Camera {
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		Camera();
-		Camera(std::optional<std::string> name);
-		
+		OrthographicCamera();
+		OrthographicCamera(Extent extent);
+		OrthographicCamera(std::optional<std::string> name, Extent extent);
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		std::optional<std::string> 		name() const;
-		void 							name(std::string name);
 
-		glm::mat4 						projection() const;
-		
+		Extent 			extent() const;
+		void	 			extent(const Extent& e);
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::weak_ptr<ae::Node> 		node() const;
-		void 							attachedToNode(std::shared_ptr<ae::Node> node);
+		void 				constructProjectionMatrix() override;
 
-	protected:
-
-		virtual void 					constructProjectionMatrix() = 0;
-		glm::mat4						_projection;
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		std::optional<std::string>		_name;
-		std::weak_ptr<ae::Node>			_node;
+		Extent 			_extent;
 	};
 }
 
-
-#endif /* Camera_h */
+#endif /* OrthographicCamera_h */

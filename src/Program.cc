@@ -80,13 +80,13 @@ shared_ptr<Program> Program::Points() {
  *********************************************************************************************/
 
 Program::Program(const string& name):
-	_name(name),
-	_glID(0),
-	_isLinked(false),
-	_logString(std::optional<string>(std::nullopt)),
-	_vertexShaderSource(std::optional<string>(std::nullopt)),
-	_fragmentShaderSource(std::optional<string>(std::nullopt)),
-	_uniformLocations(map<string, int>() ){
+		_name(name),
+		_glID(0),
+		_isLinked(false),
+		_logString(std::optional<string>(std::nullopt)),
+		_vertexShaderSource(std::optional<string>(std::nullopt)),
+		_fragmentShaderSource(std::optional<string>(std::nullopt)),
+		_uniformLocationCache(map<string, int>() ){
 		
 		_glID = glCreateProgram();
 		
@@ -98,8 +98,8 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			auto vsSource = Program::ShaderSource(name, "vert");
-			auto fsSource = Program::ShaderSource(name, "frag");
+			auto vsSource = Program::shaderSource(name, "vert");
+			auto fsSource = Program::shaderSource(name, "frag");
 			
 			if (vsSource && fsSource) {
 				vertexShaderSource(*vsSource);
@@ -413,7 +413,7 @@ void Program::fragmentShaderSource(string source) {
 	Private
  *********************************************************************************************/
 
-optional<string> Program::ShaderSource(const string& name, const string& type) {
+optional<string> Program::shaderSource(const string &name, const string &type) {
 
 	auto source = ae::utils::ShaderSource(name, type);
 
@@ -436,11 +436,10 @@ void Program::prepare() {
 	
 	if (!_isLinked) {
 		if (compile()) {
-			//cout << "Shader program '" << shaderName << "' compiled." << endl;
 			AE_LOG_I("Program '{}' compiled.", _name);
 			
 			if (link()) {
-				//cout << "Shader program '" << shaderName << "' linked." << endl;
+				_uniformLocationCache = map<string, int>();
 				AE_LOG_I("Program '{}' linked.", _name);
 			}
 			else {
@@ -476,25 +475,24 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 			return false;
 	}
 	
-	const char *c_code = source.c_str();
-	glShaderSource(shaderID, 1, &c_code, NULL);
-	
+	const char* c_source = source.c_str();
+	glShaderSource(shaderID, 1, &c_source, NULL);
 	glCompileShader(shaderID);
 	
 	int result;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
-	if (GL_FALSE == result) {
+	if (result = GL_FALSE) {
 		int length = 0;
 		_logString = std::nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack
-			char* c_log = new char[length];
+			char* log = new char[length];
 			int written = 0;
-			glGetShaderInfoLog(shaderID, length, &written, c_log);
-			_logString = string(c_log);
-			AE_LOG_W("Compile log:\n{}", c_log);
-			delete[] c_log;
+			glGetShaderInfoLog(shaderID, length, &written, log);
+			_logString = string(log);
+			AE_LOG_W("Compile log:\n{}", log);
+			delete[] log;
 		}
 		
 		return false;
@@ -509,12 +507,12 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 unsigned Program::getUniformLocation(const char* name) {
 	
 	int location = -1;
-	if (_uniformLocations.find(name) == _uniformLocations.end()) {
+	if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
 		location = glGetUniformLocation(_glID, name);
-		_uniformLocations[name] = location;
+		_uniformLocationCache[name] = location;
 	}
 	else {
-		location = _uniformLocations[name];
+		location = _uniformLocationCache[name];
 	}
 	return location;
 }

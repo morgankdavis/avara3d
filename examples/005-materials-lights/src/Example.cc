@@ -29,7 +29,8 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		true;
+constexpr bool					CAPTURE_CURSOR =		false;
+constexpr bool 					ORTHO_CAMERA =			false;
 
 
 /***************************************************************************************
@@ -47,6 +48,8 @@ int Example::run(const vector<string>& args) {
 	AE_INIT();
 	
 	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	m_logger->level(LOG_LEVEL::TRACE_);
+	Logger::MainLogger()->level(LOG_LEVEL::TRACE_);
 	
 	LOG_I(m_logger, "Example::run()");
 
@@ -64,7 +67,13 @@ int Example::run(const vector<string>& args) {
 
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	
+
+	if (ORTHO_CAMERA) {
+		auto orthoCameraNode = Node::CameraNode(
+				make_shared<OrthographicCamera>("Ortho camera", (Extent){vec3{0, 0, 0},
+																		 vec3{100, 100, 100}}));
+		scene->rootNode()->addChild(orthoCameraNode);
+	}
 
 	auto siameseScene = SceneNamed("siamese/siamese");
 	auto siameseNode = siameseScene->rootNode()->child("Siamese", true);
@@ -191,6 +200,15 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
+
+	if (!m_cameraNode) {
+		for (auto n : renderContext.scene()->rootNode()->children(false)) {
+			if (n->camera()) {
+				m_cameraNode = n;
+				break;
+			}
+		}
+	}
 	
 	// get input
 	
@@ -319,8 +337,6 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		auto teapot = SceneNamed("teapot", "obj");
 		m_siameseNode->geometry(teapot->rootNode()->children(false)[0]->geometry());
 	}
-	
-	
 
 	if (m_window->cursorCaptured()) {
 		
@@ -328,28 +344,24 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		// move camera
 		
-		const static float mouseSensitivity = (1.0f / 0.5f);
-		
-		if (!m_cameraNode) {
-			for (auto n : renderContext.scene()->rootNode()->children(false)) {
-				if (n->camera()) {
-					m_cameraNode = n;
-					break;
+		if (m_cameraNode) {
+
+			const static float mouseSensitivity = (1.0f / 0.5f);
+
+			vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+			if (mouseScrollWheelDelta.y) {
+				AE_LOG_I("mouseScrollWheelDelta");
+				static float FOV_SPEED = 2.5; // degrees/roll
+				if (m_cameraNode) {
+					AE_LOG_I("m_cameraNode");
+					shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(camera);
+					auto fov = camera->fov();
+					AE_LOG_I("oldFOV: {}", fov);
+					fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
+					AE_LOG_I("newFOV: {}", fov);
+					camera->fov(fov);
 				}
 			}
-		}
-		
-		vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
-		if (mouseScrollWheelDelta.y) {
-			static float FOV_SPEED = 2.5; // degrees/roll
-			if (m_cameraNode) {
-				auto fov = m_cameraNode->camera()->fov();
-				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-				m_cameraNode->camera()->fov(fov);
-			}
-		}
-		
-		if (m_cameraNode) {
 
 			//cout << "Camera distance: " << length(m_cameraNode->position()) << endl;
 			
