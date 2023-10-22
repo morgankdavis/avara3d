@@ -1,6 +1,3 @@
-<#HEADER#>
-
-
 #define GAMMA		2.2
 
 

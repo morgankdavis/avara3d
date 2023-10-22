@@ -8,16 +8,14 @@
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef Progra_h
-#define Progra_h
+#ifndef Program_h
+#define Program_h
 
 
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
-
-//#include <boost/optional.hpp>
 
 #include "Types.h"
 
@@ -28,7 +26,7 @@ namespace ae {
 
 /*********************************************************************************************
 	Public Static
- *********************************************************************************************/
+ *********************\************************************************************************/
 
 	public:
 
@@ -95,12 +93,11 @@ namespace ae {
 
 	private:
 
+		std::optional<std::string> 		ShaderSource(const std::string& name, const std::string& type);
 		void 							prepare();
-		
 		bool 							compileShaderFromString(const std::string& source,
 																SHADER_TYPE type);
 		unsigned 						getUniformLocation(const char* name);
-		
 		void 							glID(unsigned glID);
 		void 							isLinked(bool isLinked);
 		void 							logString(std::optional<std::string> logString);
@@ -116,4 +113,4 @@ namespace ae {
 }
 
 
-#endif /* Progra_h */
+#endif /* Program_h */

@@ -1,7 +1,7 @@
 //
 //  Program.cc
 //	avara-engine
-//material
+//
 //  Created by Morgan Davis on 12/23/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
@@ -98,8 +98,8 @@ Program::Program(const string& name):
 		}
 		else {
 			
-			auto vsSource = ShaderSource(name, "vert");
-			auto fsSource = ShaderSource(name, "frag");
+			auto vsSource = Program::ShaderSource(name, "vert");
+			auto fsSource = Program::ShaderSource(name, "frag");
 			
 			if (vsSource && fsSource) {
 				vertexShaderSource(*vsSource);
@@ -200,7 +200,6 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
-		//cout << "*** Program NOT ready. ***" << endl;
 		AE_LOG_C("Program '{}' not ready.", _name);
 	}
 	else {
@@ -227,8 +226,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 		glUniform3f(loc, x, y, z);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -239,8 +237,7 @@ void Program::setUniform(const char* name, const vec2& v) {
 		glUniform2f(loc, v.x, v.y);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -256,8 +253,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 		glUniform4f(loc, v.x, v.y, v.z, v.w);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -268,8 +264,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 		glUniformMatrix3fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -280,8 +275,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -292,8 +286,7 @@ void Program::setUniform(const char* name, bool val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -304,8 +297,7 @@ void Program::setUniform(const char* name, int val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -316,8 +308,7 @@ void Program::setUniform(const char* name, float val) {
 		glUniform1f(loc, val);
 	}
 	else {
-		//printf("Uniform: %s not found.\n", name);
-		AE_LOG_W("Uniform '{}' not found.", name);
+		AE_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -328,8 +319,7 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 	}
 	else {
-		//printf("Uniform block: %s not found.\n", name);
-		AE_LOG_W("Uniform block '{}' not found.", name);
+		AE_LOG_E("Uniform block '{}' not found.", name);
 	}
 }
 
@@ -407,7 +397,6 @@ std::optional<string> Program::vertexShaderSource() const {
 	return _vertexShaderSource;
 }
 
-//void Program::vertexShaderSource(std::optional<string> source) {
 void Program::vertexShaderSource(string source) {
 	_vertexShaderSource = source;
 }
@@ -416,7 +405,6 @@ std::optional<string> Program::fragmentShaderSource() const {
 	return _fragmentShaderSource;
 }
 
-//void Program::fragmentShaderSource(std::optional<string> source) {
 void Program::fragmentShaderSource(string source) {
 	_fragmentShaderSource = source;
 }
@@ -424,6 +412,24 @@ void Program::fragmentShaderSource(string source) {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
+
+optional<string> Program::ShaderSource(const string& name, const string& type) {
+
+	auto source = ae::utils::ShaderSource(name, type);
+
+	if (source) {
+		// add appropriate GLSL version header
+
+#ifdef GL_ES
+		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
+#else
+		static const string PLATFORM_HEADER = "#version 410";
+#endif
+		return PLATFORM_HEADER + "\n\n" + *source;
+	}
+
+	return nullopt;
+}
 
 void Program::prepare() {
 	AE_LOG_T("Program::prepare()");

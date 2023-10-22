@@ -486,20 +486,8 @@ std::optional<std::string> ae::utils::ShaderSource(const string& name,
 		rawSource = TextFile(*path);
 	}
 #endif
-	
-	if (rawSource) {
-		static const string HEADER_PLACEHOLDER = "<#HEADER#>";
-#ifdef GL_ES
-		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
-#else
-		static const string PLATFORM_HEADER = "#version 330";
-#endif
-		auto replaced = *rawSource;
-		StringReplace(replaced, HEADER_PLACEHOLDER, PLATFORM_HEADER);
-		return replaced;
-	}
-	
-	return std::nullopt;
+
+	return rawSource;
 }
 
 // *** fonts ***
