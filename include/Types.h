@@ -58,16 +58,16 @@ namespace ae {
 	};
 
 	typedef struct {
-		glm::vec3 	minXYZ;
-		glm::vec3 	maxXYZ;
-	} Extent;
+		glm::vec3 	min;
+		glm::vec3 	max;
+	} Extent3D;
 
-	typedef struct {
-		float 	left;
-		float 	right;
-		float 	top;
-		float 	bottom;
-	} Bounds;
+//	typedef struct {
+//		float 	left;
+//		float 	right;
+//		float 	top;
+//		float 	bottom;
+//	} Bounds;
 
 //	enum class PROJECTION_TYPE : unsigned {
 //		PERSPECTIVE =	0,

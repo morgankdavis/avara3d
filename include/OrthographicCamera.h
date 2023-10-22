@@ -25,14 +25,14 @@ namespace ae {
 		OrthographicCamera();
 		OrthographicCamera(std::optional<std::string> name,
 						   float zNear, float zFar,
-						   ae::Bounds bounds);
+						   ae::Extent3D extent);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		ae::Bounds 				bounds() const;
-		void	 				bounds(const ae::Bounds& b);
+		ae::Extent3D 			extent() const;
+		void	 				extent(const ae::Extent3D& e);
 
 /*********************************************************************************************
 	Internal
@@ -46,7 +46,7 @@ namespace ae {
 
 	private:
 
-		ae::Bounds 				_bounds;
+		ae::Extent3D 			_extent;
 	};
 }
 
