@@ -216,8 +216,8 @@ public:
 	int m_useQuantization;
 	int m_numContiguousLeafNodes;
 	int m_numQuantizedContiguousNodes;
-	b3OptimizedBvhNodeFloatData *m_contiguousNodesPtr;
-	b3QuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+	b3OptimizedBvhNodeFloatData *m_contiguousstd::shared_ptr<ae::Node>;
+	b3QuantizedBvhNodeData *m_quantizedContiguousstd::shared_ptr<ae::Node>;
 	b3BvhSubtreeInfoData *m_subTreeInfoPtr;
 	int m_traversalMode;
 	int m_numSubtreeHeaders;
@@ -234,8 +234,8 @@ public:
 	int m_useQuantization;
 	int m_numContiguousLeafNodes;
 	int m_numQuantizedContiguousNodes;
-	b3OptimizedBvhNodeDoubleData *m_contiguousNodesPtr;
-	b3QuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+	b3OptimizedBvhNodeDoubleData *m_contiguousstd::shared_ptr<ae::Node>;
+	b3QuantizedBvhNodeData *m_quantizedContiguousstd::shared_ptr<ae::Node>;
 	int m_traversalMode;
 	int m_numSubtreeHeaders;
 	b3BvhSubtreeInfoData *m_subTreeInfoPtr;

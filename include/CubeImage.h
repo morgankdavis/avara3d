@@ -23,50 +23,50 @@ namespace ae {
 
 	class CubeImage : public MaterialPropertyContents {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		CubeImage(std::shared_ptr<Image> posX, std::shared_ptr<Image> negX,
-				  std::shared_ptr<Image> posY, std::shared_ptr<Image> negY,
-				  std::shared_ptr<Image> posZ, std::shared_ptr<Image> negZ);
+
+	public:
+
+		CubeImage(std::shared_ptr<ae::Image> posX, std::shared_ptr<ae::Image> negX,
+				  std::shared_ptr<ae::Image> posY, std::shared_ptr<ae::Image> negY,
+				  std::shared_ptr<ae::Image> posZ, std::shared_ptr<ae::Image> negZ);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<Image> posX() const;
-		void posX(std::shared_ptr<Image> image);
+		std::shared_ptr<ae::Image>		posX() const;
+		void 							posX(std::shared_ptr<ae::Image> image);
 		
-		std::shared_ptr<Image> negX() const;
-		void negX(std::shared_ptr<Image> image);
+		std::shared_ptr<ae::Image> 		negX() const;
+		void 							negX(std::shared_ptr<ae::Image> image);
 		
-		std::shared_ptr<Image> posY() const;
-		void posY(std::shared_ptr<Image> image);
+		std::shared_ptr<ae::Image> 		posY() const;
+		void 							posY(std::shared_ptr<ae::Image> image);
 		
-		std::shared_ptr<Image> negY() const;
-		void negY(std::shared_ptr<Image> image);
+		std::shared_ptr<ae::Image> 		negY() const;
+		void 							negY(std::shared_ptr<ae::Image> image);
 		
-		std::shared_ptr<Image> posZ() const;
-		void posZ(std::shared_ptr<Image> image);
+		std::shared_ptr<ae::Image> 		posZ() const;
+		void 							posZ(std::shared_ptr<ae::Image> image);
 		
-		std::shared_ptr<Image> negZ() const;
-		void negZ(std::shared_ptr<Image> image);
-		
-	private:
+		std::shared_ptr<ae::Image> 		negZ() const;
+		void 							negZ(std::shared_ptr<ae::Image> image);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		std::shared_ptr<Image>		_posX;
-		std::shared_ptr<Image>		_negX;
-		std::shared_ptr<Image>		_posY;
-		std::shared_ptr<Image>		_negY;
-		std::shared_ptr<Image>		_posZ;
-		std::shared_ptr<Image>		_negZ;
+
+	private:
+
+		std::shared_ptr<ae::Image>		_posX;
+		std::shared_ptr<ae::Image>		_negX;
+		std::shared_ptr<ae::Image>		_posY;
+		std::shared_ptr<ae::Image>		_negY;
+		std::shared_ptr<ae::Image>		_posZ;
+		std::shared_ptr<ae::Image>		_negZ;
 	};
 }
 

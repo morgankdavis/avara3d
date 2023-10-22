@@ -295,12 +295,22 @@ namespace ae {
 	} Face;
 
 	typedef struct {
-		unsigned nodes;
-		unsigned geometries;
-		unsigned meshes;
-		unsigned polygons;
-		unsigned lights;
-		glm::vec3 cameraPosition;
+		// the frame time as of the last frame
+		float		currentFrametime;
+		// the framerate as of the last frame
+		float		currentFramerate;
+		// the average of frame time over frametimeAveragingInterval
+		float		averageFrametime;
+		// the average of frame rate over frametimeAveragingInterval
+		float		averageFramerate;
+		// time interval over which to average averageFrametime and averageFramerate over
+		float 		frametimeAveragingInterval;
+		unsigned 	nodes;
+		unsigned 	geometries;
+		unsigned 	meshes;
+		unsigned 	polygons;
+		unsigned 	lights;
+		glm::vec3 	cameraPosition;
 	} RenderStats;
 		
 	enum class NODE_DIRTY_BITS : unsigned {

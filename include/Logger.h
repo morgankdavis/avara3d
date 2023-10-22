@@ -11,7 +11,7 @@
 //	This means as long as we want to use template log functions (uh, yes)
 //	we have to expose spdlog headers to clients.
 //
-//	The only solution is to implement the log outselves.
+//	The only solution is to implement the log ourselves.
 //
 
 #ifndef Logger_h
@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/filesystem.hpp>
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
@@ -35,19 +34,22 @@
 
 // https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 
-#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+// __PRETTY_FUNCTION__ gives something like:
+// "virtual void ae::Renderer::updateFrametimeStats(ae::RenderStats &, float)"
+// __FUNCTION_NAME__: https://stackoverflow.com/questions/15305310/predefined-macros-for-function-name-func
+#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
-#define LOG_T(logger, fmtStr, ...) logger->trace(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_D(logger, fmtStr, ...) logger->debug(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_I(logger, fmtStr, ...) logger->info(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_W(logger, fmtStr, ...) logger->warn(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_E(logger, fmtStr, ...) logger->error(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_C(logger, fmtStr, ...) logger->critical(fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_T(logger, fmtStr, ...) logger->trace(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_D(logger, fmtStr, ...) logger->debug(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_I(logger, fmtStr, ...) logger->info(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_W(logger, fmtStr, ...) logger->warn(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_E(logger, fmtStr, ...) logger->error(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_C(logger, fmtStr, ...) logger->critical(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
 
 namespace ae {	
@@ -56,12 +58,11 @@ namespace ae {
 	class LoggerSink;
 	
 	
-	/*######################################################################################
-	 #######################################################################################
-		Logger
-	 #######################################################################################
-	 ######################################################################################*/
-	
+/*######################################################################################
+ #######################################################################################
+	Logger
+ #######################################################################################
+ ######################################################################################*/
 	
 	class Logger : public std::enable_shared_from_this<Logger> {
 		
@@ -70,14 +71,13 @@ namespace ae {
 		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG_;
 		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
 		
-		
-	public:
-		
 /**************************************************************************************
 	Public Static
  **************************************************************************************/
-		
-		static std::shared_ptr<Logger> MainLogger();
+
+	public:
+
+		static std::shared_ptr<ae::Logger> MainLogger();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -103,24 +103,36 @@ namespace ae {
 		void flushLevel(LOG_LEVEL level);
 		
 		// * favor using AE_LOG_ and LOG_ macros for fancy formatting *
-		
-		void log(LOG_LEVEL level, const char* message);
-		void log(LOG_LEVEL level, const char* format, va_list args);
-		
+
 		void trace(const char* format, ...);
 		void debug(const char* format, ...);
 		void info(const char* format, ...);
 		void warn(const char* format, ...);
 		void error(const char* format, ...);
 		void critical(const char* format, ...);
-		
+
+		void trace(const char* filename, int line, const char* function, const char* format, ...);
+		void debug(const char* filename, int line, const char* function, const char* format, ...);
+		void info(const char* filename, int line, const char* function, const char* format, ...);
+		void warn(const char* filename, int line, const char* function, const char* format, ...);
+		void error(const char* filename, int line, const char* function, const char* format, ...);
+		void critical(const char* filename, int line, const char* function, const char* format, ...);
+
+		void log(LOG_LEVEL level, const char* format, va_list args);
+		void log(LOG_LEVEL level, const char* filename, int line, const char* function, const char* format, va_list args);
+
+		void construct(LOG_LEVEL level, const char* message);
+		void construct(LOG_LEVEL level, const char* filename, int line, const char* function,const char* body);
+
+		void dispatch(LOG_LEVEL level, const char* line);
+
 		void flush();
-		
-	private:
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
+
+	private:
 
 		std::string header();
 		
@@ -131,21 +143,21 @@ namespace ae {
 	};
 	
 	
-	/*######################################################################################
-	 #######################################################################################
-		LoggerSink
-	 #######################################################################################
-	 ######################################################################################*/
+/*######################################################################################
+ #######################################################################################
+	LoggerSink
+ #######################################################################################
+ ######################################################################################*/
 	
 	
 	class LoggerSink : public std::enable_shared_from_this<LoggerSink> {
 		
-	public:
-		
 /**************************************************************************************
 	Lifecycle
  **************************************************************************************/
-		
+
+	public:
+
 		virtual ~LoggerSink();
 		
 /*********************************************************************************************
@@ -156,22 +168,22 @@ namespace ae {
 	};
 	
 	
-	/*######################################################################################
-	 #######################################################################################
-		STDLoggerSink
-	 #######################################################################################
-	 ######################################################################################*/
+/*######################################################################################
+ #######################################################################################
+	STDLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 	
 	
 #ifdef DESKTOP
 	class STDLoggerSink : public LoggerSink {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		STDLoggerSink();
 		~STDLoggerSink();
 		
@@ -190,11 +202,11 @@ namespace ae {
 #endif
 	
 	
-	/*######################################################################################
-	 #######################################################################################
-		AndroidLoggerSink
-	 #######################################################################################
-	 ######################################################################################*/
+/*######################################################################################
+ #######################################################################################
+	AndroidLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 	
 	
 #ifdef ANDROID
@@ -224,11 +236,11 @@ namespace ae {
 #endif
 	
 	
-	/*######################################################################################
-	 #######################################################################################
-		FileLoggerSink
-	 #######################################################################################
-	 ######################################################################################*/
+/*######################################################################################
+ #######################################################################################
+	FileLoggerSink
+ #######################################################################################
+ ######################################################################################*/
 	
 	
 	class FileLoggerSink : public LoggerSink {
@@ -236,13 +248,13 @@ namespace ae {
 		
 		static constexpr unsigned DEFAULT_MAX_FILES = 3;
 		static constexpr unsigned DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
-		
-		
-	public:
+
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		// desktop log paths are relative to the executable
 		// android log paths are relative to the app's internal storage directory
@@ -268,12 +280,12 @@ namespace ae {
 		
 		void write(const char* message);
 		
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
 	private:
-		
-	/*********************************************************************************************
-		Private
-	 *********************************************************************************************/
-		
+
 		void openStream();
 		void checkRotate();
 		void rotate();

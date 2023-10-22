@@ -46,11 +46,11 @@ namespace ae {
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
 		
-	public:
-		
 /*********************************************************************************************
 	Types
  *********************************************************************************************/
+
+	public:
 		
 		/* <ae_obj : <bt_rigidBody, bt_motionState>> */
 		using PhysicsBodyBTMapping =
@@ -81,36 +81,36 @@ namespace ae {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void drawDebug(Renderer& renderer,
-					   const glm::mat4& viewMat,
-					   const glm::mat4& projectionMat,
-					   const DEBUG_OPTIONS& debugOptions);
-		
+
+		void 		drawDebug(Renderer& renderer,
+							  const glm::mat4& viewMat,
+							  const glm::mat4& projectionMat,
+							  const DEBUG_OPTIONS& debugOptions);
+
 /*********************************************************************************************
 	PhysicsSimulator
  *********************************************************************************************/
-		
-		void beginUpdate(PASS pass,
-						 const Scene& scene) override;
-		void endUpdate(PASS pass,
-					   const Scene& scene) override;
 
-		void update(PASS pass,
-					std::shared_ptr<Scene> scene,
-					const DEBUG_OPTIONS& debugOptions) override;
-		void update(PASS pass,
-					std::shared_ptr<Node> node,
-					const DEBUG_OPTIONS& debugOptions) override;
+		void 		beginUpdate(PASS pass,
+								const Scene& scene) override;
+		void 		endUpdate(PASS pass,
+							  const Scene& scene) override;
+
+		void 		update(PASS pass,
+						   std::shared_ptr<ae::Scene> scene,
+						   const DEBUG_OPTIONS& debugOptions) override;
+		void 		update(PASS pass,
+						   std::shared_ptr<ae::Node> node,
+						   const DEBUG_OPTIONS& debugOptions) override;
 		
-		void step(float time) override;
-		
-	private:
+		void 		step(float time) override;
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
+
+	private:
+
 		std::shared_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
 		std::shared_ptr<btCollisionDispatcher>					_btDispatcher;
 		std::shared_ptr<btDbvtBroadphase>						_btBroadphase;
@@ -123,8 +123,8 @@ namespace ae {
 		PhysicsBodyBTMapping									_bodyBTMapping;
 		PhysicsShapeBTMapping									_shapeBTMapping;
 		
-		std::unordered_set<std::shared_ptr<PhysicsBody>>		_activeBodies;
-		std::unordered_set<std::shared_ptr<PhysicsShape>>		_activeShapes;
+		std::unordered_set<std::shared_ptr<ae::PhysicsBody>>	_activeBodies;
+		std::unordered_set<std::shared_ptr<ae::PhysicsShape>>	_activeShapes;
 	};
 }
 

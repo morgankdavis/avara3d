@@ -193,7 +193,7 @@ protected:
 	//! Returns the cell index
 	inline GUINT _find_cell(GUINT hashkey)
 	{
-		_node_type* nodesptr = m_nodes.pointer();
+		_node_type* std::shared_ptr<ae::Node> = m_nodes.pointer();
 		GUINT start_index = (hashkey % m_table_size) * m_node_size;
 		GUINT end_index = start_index + m_node_size;
 
@@ -202,7 +202,7 @@ protected:
 			GUINT value = m_hash_table[start_index];
 			if (value != GIM_INVALID_HASH)
 			{
-				if (nodesptr[value].m_key == hashkey) return start_index;
+				if (std::shared_ptr<ae::Node>[value].m_key == hashkey) return start_index;
 			}
 			start_index++;
 		}
@@ -212,7 +212,7 @@ protected:
 	//! Find the avaliable cell for the hashkey, and return an existing cell if it has the same hash key
 	inline GUINT _find_avaliable_cell(GUINT hashkey)
 	{
-		_node_type* nodesptr = m_nodes.pointer();
+		_node_type* std::shared_ptr<ae::Node> = m_nodes.pointer();
 		GUINT avaliable_index = GIM_INVALID_HASH;
 		GUINT start_index = (hashkey % m_table_size) * m_node_size;
 		GUINT end_index = start_index + m_node_size;
@@ -227,7 +227,7 @@ protected:
 					avaliable_index = start_index;
 				}
 			}
-			else if (nodesptr[value].m_key == hashkey)
+			else if (std::shared_ptr<ae::Node>[value].m_key == hashkey)
 			{
 				return start_index;
 			}
@@ -278,10 +278,10 @@ protected:
 	{
 		_invalidate_keys();
 
-		_node_type* nodesptr = m_nodes.pointer();
+		_node_type* std::shared_ptr<ae::Node> = m_nodes.pointer();
 		for (GUINT i = 0; i < (GUINT)m_nodes.size(); i++)
 		{
-			GUINT nodekey = nodesptr[i].m_key;
+			GUINT nodekey = std::shared_ptr<ae::Node>[i].m_key;
 			if (nodekey != GIM_INVALID_HASH)
 			{
 				//Search for the avaliable cell in buffer
@@ -290,7 +290,7 @@ protected:
 				if (m_hash_table[index] != GIM_INVALID_HASH)
 				{  //The new index is alreade used... discard this new incomming object, repeated key
 					btAssert(m_hash_table[index] == nodekey);
-					nodesptr[i].m_key = GIM_INVALID_HASH;
+					std::shared_ptr<ae::Node>[i].m_key = GIM_INVALID_HASH;
 				}
 				else
 				{

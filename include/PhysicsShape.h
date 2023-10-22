@@ -13,7 +13,6 @@
 #include <memory>
 #include <vector>
 
-
 #include "Types.h"
 
 
@@ -27,55 +26,55 @@ namespace ae {
 
 	class PhysicsShape : public std::enable_shared_from_this<PhysicsShape> {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		PhysicsShape(std::shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type);
-		PhysicsShape(std::shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type);
+
+	public:
+
+		PhysicsShape(std::shared_ptr<ae::Geometry> geometry, PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(std::shared_ptr<ae::Node> node, PHYSICS_SHAPE_TYPE type);
 		~PhysicsShape();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		std::weak_ptr<Geometry> sourceGeometry() const;
-		std::weak_ptr<Node> sourceNode() const;
-		PHYSICS_SHAPE_TYPE type() const;
-		std::vector<glm::mat4> transforms() const;
-		
+
+		std::weak_ptr<ae::Geometry> 		sourceGeometry() const;
+		std::weak_ptr<ae::Node> 			sourceNode() const;
+		PHYSICS_SHAPE_TYPE 					type() const;
+		std::vector<glm::mat4> 				transforms() const;
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void sourceGeometry(std::weak_ptr<Geometry> geometry);
-		void sourceNode(std::weak_ptr<Node> node);
-		
-		void attachedToBody(std::shared_ptr<PhysicsBody> body);
 
-		std::weak_ptr<PhysicsBody> physicsBody() const;
-		void physicsBody(std::shared_ptr<PhysicsBody> body);
+		void								sourceGeometry(std::weak_ptr<ae::Geometry> geometry);
+		void 								sourceNode(std::weak_ptr<ae::Node> node);
 
-		PHYSICS_SHAPE_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
-		
-	private:
-		
+		void 								attachedToBody(std::shared_ptr<ae::PhysicsBody> body);
+
+		std::weak_ptr<ae::PhysicsBody>		physicsBody() const;
+		void 								physicsBody(std::shared_ptr<ae::PhysicsBody> body);
+
+		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
+		void 								dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		std::weak_ptr<Geometry> 						_sourceGeometry;
-		std::weak_ptr<Node> 							_sourceNode;
-		PHYSICS_SHAPE_TYPE 								_type;
-		// The array of transforms that was used to create a compound shape.
-		std::vector<glm::mat4> 							_transforms;
 
-		std::weak_ptr<PhysicsBody>						_physicsBody;
+	private:
+
+		std::weak_ptr<ae::Geometry> 		_sourceGeometry;
+		std::weak_ptr<ae::Node>				_sourceNode;
+		PHYSICS_SHAPE_TYPE 					_type;
+		// the array of transforms that was used to create a compound shape.
+		std::vector<glm::mat4> 				_transforms;
+
+		std::weak_ptr<PhysicsBody>			_physicsBody;
 		
-		PHYSICS_SHAPE_DIRTY_BITS 						_dirtyBits;
+		PHYSICS_SHAPE_DIRTY_BITS 			_dirtyBits;
 	};
 }
 

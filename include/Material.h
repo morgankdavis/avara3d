@@ -27,89 +27,89 @@ namespace ae {
 
 	class Material {
 		
-	public:
-		
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
-		
-		static std::shared_ptr<Material> DefaultMaterial();
+
+	public:
+
+		static std::shared_ptr<ae::Material> DefaultMaterial();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Material();
-		Material(std::shared_ptr<MaterialProperty> ambient,
-				 std::shared_ptr<MaterialProperty> diffuse,
-				 std::shared_ptr<MaterialProperty> specular);
-		Material(std::shared_ptr<MaterialProperty> ambient,
-				 std::shared_ptr<MaterialProperty> diffuse,
-				 std::shared_ptr<MaterialProperty> specular,
-				 std::shared_ptr<MaterialProperty> emissive);
+		Material(std::shared_ptr<ae::MaterialProperty> ambient,
+				 std::shared_ptr<ae::MaterialProperty> diffuse,
+				 std::shared_ptr<ae::MaterialProperty> specular);
+		Material(std::shared_ptr<ae::MaterialProperty> ambient,
+				 std::shared_ptr<ae::MaterialProperty> diffuse,
+				 std::shared_ptr<ae::MaterialProperty> specular,
+				 std::shared_ptr<ae::MaterialProperty> emissive);
 		~Material();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> name() const;
-		void name(const std::string& name);
+		std::optional<std::string> 				name() const;
+		void 									name(const std::string& name);
 		
-		std::shared_ptr<MaterialProperty> ambient() const;
-		void ambient(const std::shared_ptr<MaterialProperty> property);
+		std::shared_ptr<ae::MaterialProperty> 	ambient() const;
+		void							 		ambient(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		std::shared_ptr<MaterialProperty> diffuse() const;
-		void diffuse(const std::shared_ptr<MaterialProperty> property);
+		std::shared_ptr<ae::MaterialProperty> 	diffuse() const;
+		void 									diffuse(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		std::shared_ptr<MaterialProperty> specular() const;
-		void specular(const std::shared_ptr<MaterialProperty> property);
+		std::shared_ptr<ae::MaterialProperty>	specular() const;
+		void 									specular(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		std::shared_ptr<MaterialProperty> emissive() const;
-		void emissive(const std::shared_ptr<MaterialProperty> property);
+		std::shared_ptr<ae::MaterialProperty> 	emissive() const;
+		void 									emissive(const std::shared_ptr<ae::MaterialProperty> property);
 		
-		float specularExponent() const;
-		void specularExponent(float exponent);
+		float 									specularExponent() const;
+		void 									specularExponent(float exponent);
 		
-		bool locksAmbientWithDiffuse() const;
-		void locksAmbientWithDiffuse(bool flag);
+		bool 									locksAmbientWithDiffuse() const;
+		void 									locksAmbientWithDiffuse(bool flag);
 		
-		bool doubleSided() const;
-		void doubleSided(bool flag);
+		bool 									doubleSided() const;
+		void 									doubleSided(bool flag);
 		
-		FILL_MODE fillMode() const;
-		void fillMode(FILL_MODE mode);
+		FILL_MODE 								fillMode() const;
+		void 									fillMode(FILL_MODE mode);
 		
-		float uvScale() const;
-		void uvScale(float scale);
+		float 									uvScale() const;
+		void 									uvScale(float scale);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		MATERIAL_DIRTY_BITS dirtyBits() const;
-		void dirtyBits(MATERIAL_DIRTY_BITS bits);
+		MATERIAL_DIRTY_BITS 					dirtyBits() const;
+		void 									dirtyBits(MATERIAL_DIRTY_BITS bits);
 
-	private:
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		std::optional<std::string>		_name;
-		
-		std::shared_ptr<MaterialProperty>	_ambient;
-		std::shared_ptr<MaterialProperty> 	_diffuse;
-		std::shared_ptr<MaterialProperty> 	_specular;
-		std::shared_ptr<MaterialProperty> 	_emissive;
 
-		float 								_specularExponent;
-		bool 								_locksAmbientWithDiffuse;
-		bool 								_doubleSided;
-		FILL_MODE 							_fillMode;
-		float 								_uvScale;
+	private:
 
-		MATERIAL_DIRTY_BITS					_dirtyBits;
+		std::optional<std::string>				_name;
+
+		std::shared_ptr<ae::MaterialProperty>	_ambient;
+		std::shared_ptr<ae::MaterialProperty> 	_diffuse;
+		std::shared_ptr<ae::MaterialProperty> 	_specular;
+		std::shared_ptr<ae::MaterialProperty> 	_emissive;
+
+		float 									_specularExponent;
+		bool 									_locksAmbientWithDiffuse;
+		bool 									_doubleSided;
+		FILL_MODE 								_fillMode;
+		float 									_uvScale;
+
+		MATERIAL_DIRTY_BITS						_dirtyBits;
 	};
 }
 

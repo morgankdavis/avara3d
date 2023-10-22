@@ -304,6 +304,8 @@ void RenderContext::update() { // pure virtual
 		(updateCallback())(*this, sceneTime());
 	}
 
+	//_renderStats = (RenderStats){};
+
 	_renderer->beginFrame(*this);
 
 	auto pov = pointOfView();
@@ -319,7 +321,8 @@ void RenderContext::update() { // pure virtual
 	_scene->draw(*RenderContext::renderer(),
 				  _framebufferWidth, _framebufferHeight,
 				  *pov,
-				  _debugOptions, _renderer->renderStats());
+				  _debugOptions,
+				  _renderer->renderStats());
 
 	_renderer->endFrame(*this);
 

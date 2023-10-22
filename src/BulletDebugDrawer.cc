@@ -32,10 +32,10 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static vec3 GLMVec3FromBTVector3(const btVector3& from);
-static vec4 GLMVec4FromBTVector4(const btVector4& from);
-static btVector3 BTVector3FromGLMVec3(const vec3& from);
-static btVector4 BTVector4FromGLMVec4(const vec4& from);
+static vec3 		GLMVec3FromBTVector3(const btVector3& from);
+static vec4 		GLMVec4FromBTVector4(const btVector4& from);
+static btVector3 	BTVector3FromGLMVec3(const vec3& from);
+static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 /*********************************************************************************************
 	Lifecycle
@@ -76,23 +76,23 @@ void BulletDebugDrawer::draw(Renderer& renderer,
  *********************************************************************************************/
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
-								  const btVector3& to,
-								  const btVector3& color) {
+								 const btVector3& to,
+								 const btVector3& color) {
 	//AE_LOG_D("drawLine() - 1 color");
 	
 	drawLine(from, to, color, color);
 }
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
-								  const btVector3& to,
-								  const btVector3& fromColor,
-								  const btVector3& toColor) {
+								 const btVector3& to,
+								 const btVector3& fromColor,
+								 const btVector3& toColor) {
 	//AE_LOG_D("drawLine() - 2 colors");
 
 	_lineSet->emplace(make_shared<Line>(GLMVec3FromBTVector3(from),
-										 GLMVec3FromBTVector3(to),
-										 make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
-										 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
+										GLMVec3FromBTVector3(to),
+										make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
+										make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
 }
 
 /*
@@ -118,10 +118,10 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 */
 
 void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
-										  const btVector3& normalOnB,
-										  btScalar distance,
-										  int lifeTime,
-										  const btVector3& color) {
+										 const btVector3& normalOnB,
+										 btScalar distance,
+										 int lifeTime,
+										 const btVector3& color) {
 	//AE_LOG_D(AE_FUNC);
 	
 	const float DISTANCE_EXTENSION = 0.0;
@@ -134,7 +134,7 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 }
 
 void BulletDebugDrawer::draw3dText(const btVector3& location,
-									const char* textString) {
+								   const char* textString) {
 	//AE_LOG_D(AE_FUNC);
 }
 

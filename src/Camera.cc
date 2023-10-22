@@ -118,7 +118,7 @@ weak_ptr<Node> Camera::node() const {
 	return _node;
 }
 
-void Camera::attachedToNode(shared_ptr<Node> node) {
+void Camera::attachedToNode(std::shared_ptr<ae::Node> node) {
 	_node = node;
 }
 

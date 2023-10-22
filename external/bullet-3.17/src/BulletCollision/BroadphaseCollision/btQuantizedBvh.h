@@ -514,7 +514,7 @@ struct	btQuantizedBvhFloatData
 	btBvhSubtreeInfoData	*m_subTreeInfoPtr;
 	int					m_traversalMode;
 	int					m_numSubtreeHeaders;
-	
+
 };
 
 struct	btQuantizedBvhDoubleData

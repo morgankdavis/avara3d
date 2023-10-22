@@ -52,48 +52,48 @@ constexpr unsigned MAX_SUBSTEPS =	10;
 	Static Prototypes
  *********************************************************************************************/
 
-void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
-							shared_ptr<btRigidBody>* btBody,
-							shared_ptr<btDefaultMotionState>* btMotionState,
-							shared_ptr<btCollisionShape>* btShape,
-							vector<shared_ptr<btCollisionShape>>& btChildShapes,
-							btDiscreteDynamicsWorld& btWorld,
-							BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
-							BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping);
-void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
-							 PHYSICS_BODY_TYPE bodyType,
-							 shared_ptr<btCollisionShape>* btShape,
-							 vector<shared_ptr<btCollisionShape>>& btChildShapes,
-							 btDiscreteDynamicsWorld& btWorld,
-							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
-							 bool& wasDirty);
-static void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
-										btDiscreteDynamicsWorld& btWorld,
-										BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping);
-static void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
-										 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
-static void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
-										 btDiscreteDynamicsWorld& btWorld,
-										 BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping);
-static void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
-										  BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
-static shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
-																 PHYSICS_SHAPE_TYPE shapeType,
-																 PHYSICS_BODY_TYPE bodyType);
-static shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-														   PHYSICS_SHAPE_TYPE shapeType,
-														   PHYSICS_BODY_TYPE bodyType,
-														   vector<shared_ptr<btCollisionShape>>& childShapes);
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
-static vec3 GLMVec3FromBTVector3(const btVector3& from);
-static vec4 GLMVec4FromBTVector4(const btVector4& from);
-static mat4 GLMMat4FromBTTransform(const btTransform& from);
-static btVector3 BTVector3FromGLMVec3(const vec3& from);
-static btVector4 BTVector4FromGLMVec4(const vec4& from);
-static btQuaternion BTQuaternionFromGLMQuat(const quat& from);
-static btTransform BTTransformFromGLMMat4(const mat4& from);
-static mat4 TransformByRemovingScale(const mat4& m, bool& scaled);
-//glm::mat4 BulletToGlm(const btTransform& t);
+void 									GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
+															   shared_ptr<btRigidBody>* btBody,
+															   shared_ptr<btDefaultMotionState>* btMotionState,
+															   shared_ptr<btCollisionShape>* btShape,
+															   vector<shared_ptr<btCollisionShape>>& btChildShapes,
+															   btDiscreteDynamicsWorld& btWorld,
+															   BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
+															   BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping);
+void 									GetPhysicsShapeBTModels(std::shared_ptr<ae::PhysicsShape> shape,
+																PHYSICS_BODY_TYPE bodyType,
+																shared_ptr<btCollisionShape>* btShape,
+																vector<shared_ptr<btCollisionShape>>& btChildShapes,
+																btDiscreteDynamicsWorld& btWorld,
+																BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping,
+																bool& wasDirty);
+static void 							CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>& active,
+																   btDiscreteDynamicsWorld& btWorld,
+																   BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping);
+static void 							CleanupPhysicsShapeResources(unordered_set<std::shared_ptr<ae::PhysicsShape>>& active,
+																	BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
+static void 							DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
+																	btDiscreteDynamicsWorld& btWorld,
+																	BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping);
+static void 							DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
+																	 BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping);
+static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(std::shared_ptr<ae::Geometry> geometry,
+																	PHYSICS_SHAPE_TYPE shapeType,
+																	PHYSICS_BODY_TYPE bodyType);
+static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
+																  PHYSICS_SHAPE_TYPE shapeType,
+																  PHYSICS_BODY_TYPE bodyType,
+																  vector<shared_ptr<btCollisionShape>>& childShapes);
+static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
+static vec3 							GLMVec3FromBTVector3(const btVector3& from);
+static vec4 							GLMVec4FromBTVector4(const btVector4& from);
+static mat4 							GLMMat4FromBTTransform(const btTransform& from);
+static btVector3 						BTVector3FromGLMVec3(const vec3& from);
+static btVector4 						BTVector4FromGLMVec4(const vec4& from);
+static btQuaternion 					BTQuaternionFromGLMQuat(const quat& from);
+static btTransform 						BTTransformFromGLMMat4(const mat4& from);
+static mat4 							TransformByRemovingScale(const mat4& m, bool& scaled);
+//glm::mat4 							BulletToGlm(const btTransform& t);
 
 /*********************************************************************************************
 	Lifescycle
@@ -114,8 +114,8 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 #endif
 	_bodyBTMapping(PhysicsBodyBTMapping()),
 	_shapeBTMapping(PhysicsShapeBTMapping()),
-	_activeBodies(unordered_set<shared_ptr<PhysicsBody>>()),
-	_activeShapes(unordered_set<shared_ptr<PhysicsShape>>()) {
+	_activeBodies(unordered_set<std::shared_ptr<ae::PhysicsBody>>()),
+	_activeShapes(unordered_set<std::shared_ptr<ae::PhysicsShape>>()) {
 
 		AE_LOG_I("Bullet version: {}",  btGetVersion());
 
@@ -201,7 +201,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 }
 
 void BulletPhysicsSimulator::update(PASS pass, 
-									shared_ptr<Node> node,
+									std::shared_ptr<ae::Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
 	
 	auto body = node->physicsBody();
@@ -209,7 +209,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		
 		// creates and updates bullet models as needed
 		// for PASS::STEP this checks everything gets ready for the simulation step
-		// for PASS::SYNC, it simple gets the handles for the BT models we're driving our graph from
+		// for PASS::SYNC, it simply gets the handles for the BT models we're driving our graph from
 
 		if (body->shape()) {
 			
@@ -292,7 +292,7 @@ void BulletPhysicsSimulator::step(float time) {
 	Static
  *********************************************************************************************/
 
-void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
+void GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
 							shared_ptr<btRigidBody>* btBody,
 							shared_ptr<btDefaultMotionState>* btMotionState,
 							shared_ptr<btCollisionShape>* btShape,
@@ -569,7 +569,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false));
 }
 
-void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
+void GetPhysicsShapeBTModels(std::shared_ptr<ae::PhysicsShape> shape,
 							 PHYSICS_BODY_TYPE bodyType,
 							 shared_ptr<btCollisionShape>* btShape,
 							 vector<shared_ptr<btCollisionShape>>& btChildShapes,
@@ -625,18 +625,18 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 	}
 }
 
-void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
+void CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>& active,
 								 btDiscreteDynamicsWorld& btWorld,
 								 BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping) {
 	
 	// gather sorted vector of bodies used this frame
-	auto activeBodiesSorted = vector<shared_ptr<PhysicsBody>>();
+	auto activeBodiesSorted = vector<std::shared_ptr<ae::PhysicsBody>>();
 	activeBodiesSorted.reserve(active.size());
 	copy(active.begin(), active.end(), back_inserter(activeBodiesSorted));
 	sort(activeBodiesSorted.begin(), activeBodiesSorted.end());
 	
 	// gather sorted vector of bodies in the mapping
-	auto storedBodiesSorted = vector<shared_ptr<PhysicsBody>>();
+	auto storedBodiesSorted = vector<std::shared_ptr<ae::PhysicsBody>>();
 	storedBodiesSorted.reserve(btMapping.size());
 	for (auto it = btMapping.begin(); it != btMapping.end(); ++it) {
 		storedBodiesSorted.emplace_back(it->first);
@@ -644,8 +644,8 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 	sort(storedBodiesSorted.begin(), storedBodiesSorted.end());
 	
 	// find unused bodies
-	auto unused = vector<shared_ptr<PhysicsBody>>(storedBodiesSorted.size());
-	vector<shared_ptr<PhysicsBody>>::iterator it;
+	auto unused = vector<std::shared_ptr<ae::PhysicsBody>>(storedBodiesSorted.size());
+	vector<std::shared_ptr<ae::PhysicsBody>>::iterator it;
 	it = set_difference(storedBodiesSorted.begin(), storedBodiesSorted.end(),
 						activeBodiesSorted.begin(), activeBodiesSorted.end(),
 						unused.begin());
@@ -656,7 +656,7 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 		AE_LOG_D("Deallocating bullet body for {} physics bodies...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<PhysicsBody> body = *it;
+			std::shared_ptr<ae::PhysicsBody> body = *it;
 
 			DeletePhysicsBodyBTResources(body, btWorld, btMapping);
 			
@@ -666,17 +666,17 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 	}
 }
 
-void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
+void CleanupPhysicsShapeResources(unordered_set<std::shared_ptr<ae::PhysicsShape>>& active,
 								  BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping) {
 	
 	// gather sorted vector of shapes used this frame
-	auto activeShapesSorted = vector<shared_ptr<PhysicsShape>>();
+	auto activeShapesSorted = vector<std::shared_ptr<ae::PhysicsShape>>();
 	activeShapesSorted.reserve(active.size());
 	copy(active.begin(), active.end(), back_inserter(activeShapesSorted));
 	sort(activeShapesSorted.begin(), activeShapesSorted.end());
 	
 	// gather sorted vector of shapes in the mapping
-	auto storedShapesSorted = vector<shared_ptr<PhysicsShape>>();
+	auto storedShapesSorted = vector<std::shared_ptr<ae::PhysicsShape>>();
 	storedShapesSorted.reserve(btMapping.size());
 	for (auto it = btMapping.begin(); it != btMapping.end(); ++it) {
 		storedShapesSorted.emplace_back(it->first);
@@ -684,8 +684,8 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 	sort(storedShapesSorted.begin(), storedShapesSorted.end());
 	
 	// find unused shapes
-	auto unused = vector<shared_ptr<PhysicsShape>>(storedShapesSorted.size());
-	vector<shared_ptr<PhysicsShape>>::iterator it;
+	auto unused = vector<std::shared_ptr<ae::PhysicsShape>>(storedShapesSorted.size());
+	vector<std::shared_ptr<ae::PhysicsShape>>::iterator it;
 	it = set_difference(storedShapesSorted.begin(), storedShapesSorted.end(),
 						activeShapesSorted.begin(), activeShapesSorted.end(),
 						unused.begin());
@@ -696,7 +696,7 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 		AE_LOG_D("Deallocating bullet shape for {} physics shape...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<PhysicsShape> shape = *it;
+			std::shared_ptr<ae::PhysicsShape> shape = *it;
 
 			DeletePhysicsShapeBTResources(shape, btMapping);
 			
@@ -706,7 +706,7 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 	}
 }
 
-void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
+void DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
 								  btDiscreteDynamicsWorld& btWorld,
 								  BulletPhysicsSimulator::PhysicsBodyBTMapping& btMapping) {
 	
@@ -718,13 +718,13 @@ void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
 	btMapping.erase(body);
 }
 
-void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
+void DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
 								   BulletPhysicsSimulator::PhysicsShapeBTMapping& btMapping) {
 	
 	btMapping.erase(shape);
 }
 
-shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
+shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(std::shared_ptr<ae::Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE shapeType,
 														  PHYSICS_BODY_TYPE bodyType) {
 	AE_LOG_T("BTCollisionShapeFromGeometry()");
@@ -928,7 +928,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	return nullptr;
 }
 
-shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
+shared_ptr<btCompoundShape> BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
 													PHYSICS_SHAPE_TYPE shapeType,
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes) {

@@ -17,13 +17,13 @@ namespace ae {
 
 	
 	class Tube: public Geometry {
-		
-	public:
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);
 	};
 }

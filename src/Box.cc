@@ -28,18 +28,18 @@ using namespace std;
 *********************************************************************************************/
 
 Box::Box(float width, float height, float length):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
-		
+	Geometry(vector<std::shared_ptr<ae::GeometryElement>>(), vector<std::shared_ptr<ae::Material>>()) {
+
 		_width = width;
 		_height = height;
 		_length = length;
-	
+
 		/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 		/// @param segments The number of segments in x (0), y (1) and z (2)
-		
+
 		BoxMesh box{{width/2.0, height/2.0, length/2.0}, {1, 1, 1}};
 		//BoxMesh box{{width/2.0, height/2.0, length/2.0}, {(int)lround(width), (int)lround(height), (int)lround(length)}};
-		
+
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : box.vertices()) {
 			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
@@ -47,21 +47,21 @@ Box::Box(float width, float height, float length):
 				vec2(v.texCoord[0], v.texCoord[1]) };
 			verts.push_back(vertex);
 		}
-		
+
 		auto faces = vector<Face>();
 		for (const Triangle& t : box.triangles()) {
 			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
 			faces.push_back(face);
 		}
-		
+
 		auto element = make_shared<GeometryElement>(verts, faces);
 		_elements.push_back(element);
-		
+
 		//loadVertexData();
 }
 
 //Box::Box(float width, float height, float length):
-//	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+//	Geometry(vector<GeometryElementSPrt>(), vector<shared_ptr<Material>>()) {
 //
 //    Vertex verts[] = {
 //            { vec3(-width/2.0f, -height/2.0f, length/2.0f ),     vec3(0.0f, 0.0f, 0.0f),     vec2(0.0f, 0.0f) },

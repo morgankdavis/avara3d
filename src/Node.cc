@@ -40,7 +40,7 @@ using namespace glm;
 //#define ALTERNATE_EULERS
 
 /*********************************************************************************************
-	Lifecycle
+	Pulic Static
  *********************************************************************************************/
 
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {

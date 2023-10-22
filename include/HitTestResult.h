@@ -46,7 +46,6 @@ namespace ae {
 //		Returns the texture coordinates at the point of intersection for the specified texture mapping channel.
 		
 	};
-	
 }
 
 

@@ -22,8 +22,6 @@
 //#include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
-#include "Types.h"
-
 
 struct GLFWmonitor;
 
@@ -131,25 +129,25 @@ namespace ae {
 		
 		// *** fonts ***
 
-		std::shared_ptr<Font> FontNamed(const std::string& name,
+		std::shared_ptr<ae::Font> FontNamed(const std::string& name,
 										const std::string& type);
 		
 		// ***  images ***
 		
-		std::shared_ptr<Image> ImageNamed(const std::string& name,
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  bool flipHorizontal=true);
-		std::shared_ptr<Image> ImageNamed(const std::string& name,
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  const std::string& type,
 										  bool flipHorizontal=true);
-		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name);
-		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name,
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name,
 												  const std::string& type);
 		
 		// *** scenes ***
 		
 #ifndef ANDROID
-		std::shared_ptr<Scene> SceneNamed(const std::string& name);
-		std::shared_ptr<Scene> SceneNamed(const std::string& name,
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name);
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 										  const std::string& type);
 #endif
 

@@ -28,14 +28,14 @@ namespace ae {
 	
 	class Font : public std::enable_shared_from_this<Font> {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Font(std::filesystem::path& path);
-		Font(std::shared_ptr<Buffer> buffer);
+		Font(std::shared_ptr<ae::Buffer> buffer);
 		
 		~Font();
 		
@@ -43,19 +43,19 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string>	name() const;
+		std::optional<std::string>		name() const;
 		FONT_TYPE 						type() const;
-		std::shared_ptr<Buffer> 		buffer() const;
-		
-	private:
+		std::shared_ptr<ae::Buffer> 	buffer() const;
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		std::optional<std::string>	_name;
+
+	private:
+
+		std::optional<std::string>		_name;
 		FONT_TYPE						_type;
-		std::shared_ptr<Buffer>			_buffer;
+		std::shared_ptr<ae::Buffer>		_buffer;
 	};
 }
 

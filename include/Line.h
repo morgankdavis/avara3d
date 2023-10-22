@@ -24,42 +24,42 @@ namespace ae {
 
 	
 	class Line: public std::enable_shared_from_this<Line> {
-		
-	public:
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> color);
+			 std::shared_ptr<ae::Color> color);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> fromColor, std::shared_ptr<Color> toColor);
+			 std::shared_ptr<ae::Color> fromColor, std::shared_ptr<ae::Color> toColor);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		glm::vec3 fromLocation() const;
-		void fromLocation(glm::vec3 location);
-		glm::vec3 toLocation() const;
-		void toLocation(glm::vec3 location);
-		std::shared_ptr<Color> fromColor() const;
-		void fromColor(std::shared_ptr<Color> color);
-		std::shared_ptr<Color> toColor() const;
-		void toColor(std::shared_ptr<Color> color);
-		
-	private:
+		glm::vec3 							fromLocation() const;
+		void 								fromLocation(glm::vec3 location);
+		glm::vec3 							toLocation() const;
+		void 								toLocation(glm::vec3 location);
+		std::shared_ptr<ae::Color> 			fromColor() const;
+		void 								fromColor(std::shared_ptr<ae::Color> color);
+		std::shared_ptr<ae::Color> 			toColor() const;
+		void 								toColor(std::shared_ptr<ae::Color> color);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		glm::vec3 					_fromLocation;
-		glm::vec3 					_toLocation;
-		std::shared_ptr<Color> 		_fromColor;
-		std::shared_ptr<Color> 		_toColor;
+
+	private:
+
+		glm::vec3 							_fromLocation;
+		glm::vec3 							_toLocation;
+		std::shared_ptr<ae::Color> 			_fromColor;
+		std::shared_ptr<ae::Color> 			_toColor;
 	};
 }
 

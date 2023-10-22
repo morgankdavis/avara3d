@@ -59,34 +59,34 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
-static shared_ptr<Image> MissingTextureImage();
+static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
-static void LoadFile(Scene& scene, const std::filesystem::path& importPath);
-//static void LoadData(Scene& scene, const vector<unsigned char>& data);
-static void AddAIGeometryNodes(Scene& scene,
-							   const aiScene* aiScene,
-							   shared_ptr<Node> aeRootNode,
-							   const vector<shared_ptr<GeometryElement>>& importElements,
-							   const vector<shared_ptr<Material>>& importMaterials);
-static void AddAIGeometryNodeRec(Scene& scene,
-								 const aiScene* aiScene,
-								 const aiNode* aiGeometryNode,
-								 shared_ptr<Node> aeParentNode,
-								 const vector<shared_ptr<GeometryElement>>& importElements,
-								 const vector<shared_ptr<Material>>& importMaterials);
+static void 						LoadFile(Scene& scene, const std::filesystem::path& importPath);
+//static void 						LoadData(Scene& scene, const vector<unsigned char>& data);
+static void 						AddAIGeometryNodes(Scene& scene,
+													  const aiScene* aiScene,
+													  shared_ptr<Node> aeRootNode,
+													  const vector<shared_ptr<GeometryElement>>& importElements,
+													  const vector<shared_ptr<Material>>& importMaterials);
+static void 						AddAIGeometryNodeRec(Scene& scene,
+														const aiScene* aiScene,
+														const aiNode* aiGeometryNode,
+														shared_ptr<Node> aeParentNode,
+														const vector<shared_ptr<GeometryElement>>& importElements,
+														const vector<shared_ptr<Material>>& importMaterials);
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath);
-static std::optional<std::filesystem::path> FilepathFromTextureFilename(const string& filename,
-																			const string& basePath);
-static LIGHT_TYPE LightTypeForAILightType(aiLightSourceType aiType);
+static std::optional<path> 			FilepathFromTextureFilename(const string& filename,
+																  const string& basePath);
+static LIGHT_TYPE 					LightTypeForAILightType(aiLightSourceType aiType);
 
-static vec2 GLMVec2FromAIVector3D(const aiVector2D& from);
-static vec3 GLMVec3FromAIVector3D(const aiVector3D& from);
-static mat4 GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
-static Color ColorFromAIColor3D(const aiColor3D& from);
-static Color ColorFromAIColor4D(const aiColor4D& from);
+static vec2 						GLMVec2FromAIVector3D(const aiVector2D& from);
+static vec3 						GLMVec3FromAIVector3D(const aiVector3D& from);
+static mat4 						GLMMat4FromAIMaxtrix4x4(const aiMatrix4x4& from);
+static Color 						ColorFromAIColor3D(const aiColor3D& from);
+static Color 						ColorFromAIColor4D(const aiColor4D& from);
 
 #endif // !ANDROID
 
@@ -151,14 +151,15 @@ void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	
 	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
 		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
-		
+
 		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
 		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
 		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
 
 		// generate the skybox geometry if it hasn't already been
 		if (!_skyboxGeometry) {
-			_skyboxGeometry = SkyboxGeometry(backgroundProperty);
+			// MKD: u_s_ptr_aliases
+			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
 		}
 		else {
 			// we already have the geometry, just update its material
@@ -361,7 +362,7 @@ void Scene::renderContext(shared_ptr<RenderContext> context) {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> SkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
+static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 	
 	auto geometry = make_shared<Box>(1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);

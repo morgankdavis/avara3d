@@ -26,12 +26,12 @@ namespace ae {
 	
 	class Camera {
 		
-	public:
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		Camera();
 		Camera(float zNear, float zFar, float fov);
 		
@@ -39,44 +39,44 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> name();
-		void name(std::string name);
+		std::optional<std::string> 		name();
+		void 							name(std::string name);
 
-		void translate(glm::vec3 translation);
-		void rotate(glm::vec3 rotation);
+		void 							translate(glm::vec3 translation);
+		void 							rotate(glm::vec3 rotation);
 		
-		float fov();
-		void fov(float fov);
+		float 							fov();
+		void	 						fov(float fov);
 		
-		float zNear();
-		void zNear(float zNear);
+		float 							zNear();
+		void 							zNear(float zNear);
 		
-		float zFar();
-		void zFar(float zFar);
+		float 							zFar();
+		void				 			zFar(float zFar);
 		
-		float aspectRatio();
-		void aspectRatio(float ratio);
+		float 							aspectRatio();
+		void 							aspectRatio(float ratio);
 		
-		glm::mat4 projection();
-//		void projection(const glm::mat4 projection);
+		glm::mat4 						projection();
+//		void 							projection(const glm::mat4 projection);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void constructProjectionMat();
+		void 							constructProjectionMat();
 		
-		std::weak_ptr<Node> node() const;
+		std::weak_ptr<ae::Node> 						node() const;
 		
-		void attachedToNode(std::shared_ptr<Node> node);
-		
-	private:
+		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		
-		std::optional<std::string>	_name;
+
+	private:
+
+		std::optional<std::string>		_name;
 		
 		float							_fov;
 		float							_zNear;
@@ -84,8 +84,8 @@ namespace ae {
 		float							_aspectRatio;
 		
 		glm::mat4						_projection;
-		
-		std::weak_ptr<Node>				_node;
+
+		std::weak_ptr<ae::Node>			_node;
 	};
 }
 
