@@ -62,7 +62,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prorotypes
+	Static Prototypes
  *********************************************************************************************/
 
 static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,

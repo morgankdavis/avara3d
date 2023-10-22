@@ -1,6 +1,3 @@
-<#HEADER#>
-
-
 #define GAMMA 	                    2.2
 
 #define ALPHA_REJECTION_THRESHOLD 	0.5

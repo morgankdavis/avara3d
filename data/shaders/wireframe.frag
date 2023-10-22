@@ -1,6 +1,3 @@
-<#HEADER#>
-
-
 out vec4 fragColor;
 
 
