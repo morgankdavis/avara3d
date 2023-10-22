@@ -32,7 +32,7 @@ namespace ae {
 	public:
 
 		Camera();
-		Camera(std::optional<std::string> name, float zNear, float zFar);
+		Camera(std::optional<std::string> name);
 		
 /*********************************************************************************************
 	Public
@@ -41,26 +41,18 @@ namespace ae {
 		std::optional<std::string> 		name() const;
 		void 							name(std::string name);
 
-		float 							zNear() const;
-		void 							zNear(float zNear);
-		
-		float 							zFar() const;
-		void				 			zFar(float zFar);
-		
 		glm::mat4 						projection() const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-	//protected:
-
-		virtual void 					constructProjection() = 0;
 		std::weak_ptr<ae::Node> 		node() const;
 		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 
-		float							_zNear;
-		float							_zFar;
+	protected:
+
+		virtual void 					constructProjectionMatrix() = 0;
 		glm::mat4						_projection;
 		
 /*********************************************************************************************

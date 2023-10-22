@@ -16,16 +16,40 @@ using namespace glm;
 
 PerspectiveCamera::PerspectiveCamera():
 	Camera(),
+	_zNear(0.1),
+	_zFar(1000.0),
 	_fov(radians(45.0)) {
+}
+
+PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float fov):
+		PerspectiveCamera(nullopt, zNear, zFar, fov) {
 
 }
 
-PerspectiveCamera::PerspectiveCamera(optional<string> name,
-									 float zNear, float zFar,
-									 float fov):
-		Camera(name, zNear, zFar),
+PerspectiveCamera::PerspectiveCamera(optional<string> name, float zNear, float zFar, float fov):
+		Camera(name),
+		_zNear(zNear),
+		_zFar(zFar),
 		_fov(radians(fov)) {
+	constructProjectionMatrix();
+}
 
+float PerspectiveCamera::zNear() const {
+	return _zNear;
+}
+
+void PerspectiveCamera::zNear(float zNear) {
+	_zNear = zNear;
+	constructProjectionMatrix();
+}
+
+float PerspectiveCamera::zFar() const {
+	return _zFar;
+}
+
+void PerspectiveCamera::zFar(float zFar) {
+	_zFar = zFar;
+	constructProjectionMatrix();
 }
 
 float PerspectiveCamera::fov() const {
@@ -35,7 +59,7 @@ float PerspectiveCamera::fov() const {
 void PerspectiveCamera::fov(float fov) {
 	//if (fov > 0 || fov < M_PI) {
 	_fov = fov;
-	constructProjection();
+	constructProjectionMatrix();
 	//}
 }
 
@@ -47,11 +71,11 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every draw
 	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
 		_aspectRatio = ratio;
-		constructProjection();
+		constructProjectionMatrix();
 	}
 }
 
-void PerspectiveCamera::constructProjection() {
+void PerspectiveCamera::constructProjectionMatrix() {
 	_projection = glm::perspective(_fov,
 								   _aspectRatio,
 								   _zNear,

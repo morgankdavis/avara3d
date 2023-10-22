@@ -20,13 +20,18 @@ namespace ae {
 	public:
 
 		PerspectiveCamera();
-		PerspectiveCamera(std::optional<std::string> name,
-						  float zNear, float zFar,
-						  float fov);
+		PerspectiveCamera(float zNear, float zFar, float fov);
+		PerspectiveCamera(std::optional<std::string> name, float zNear, float zFar, float fov);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		float 					zNear() const;
+		void 					zNear(float zNear);
+
+		float 					zFar() const;
+		void				 	zFar(float zFar);
 
 		float 					fov() const;
 		void	 				fov(float fov);
@@ -38,7 +43,9 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void 					constructProjection() override;
+	protected:
+
+		void 					constructProjectionMatrix() override;
 
 /*********************************************************************************************
 	Private
@@ -46,6 +53,8 @@ namespace ae {
 
 	private:
 
+		float					_zNear;
+		float					_zFar;
 		float					_fov;
 		float					_aspectRatio;
 	};

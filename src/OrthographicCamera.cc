@@ -15,36 +15,34 @@ using namespace glm;
 
 OrthographicCamera::OrthographicCamera():
 	Camera(),
-	_extent(Extent3D{vec3{-1, -1, -1}, vec3{1, 1, 1}}) {
+	_extent(Extent{vec3{-1, -1, -1}, vec3{1, 1, 1}}) {
 
 }
 
-OrthographicCamera::OrthographicCamera(std::optional<std::string> name,
-									   float zNear, float zFar,
-									   ae::Extent3D extent):
-	Camera(name, zNear, zFar),
+OrthographicCamera::OrthographicCamera(Extent extent):
+		OrthographicCamera(nullopt, extent) {
+
+}
+
+OrthographicCamera::OrthographicCamera(optional<string> name, Extent extent):
+	Camera(name),
 	_extent(extent) {
 
 }
 
-Extent3D OrthographicCamera::extent() const {
+Extent OrthographicCamera::extent() const {
 	return _extent;
 }
 
-void OrthographicCamera::extent(const ae::Extent3D& e) {
+void OrthographicCamera::extent(const Extent& e) {
 	_extent = e;
 }
 
-void OrthographicCamera::constructProjection() {
-//	_projection = glm::ortho(_bounds.left,
-//							 _bounds.right,
-//							 _bounds.bottom,
-//							 _bounds.top);
-
+void OrthographicCamera::constructProjectionMatrix() {
 	_projection = glm::ortho(_extent.min.x,
-							 _extent.min.y,
-							 _extent.min.z,
 							 _extent.max.x,
 							 _extent.max.y,
+							 _extent.min.y,
+							 _extent.min.z,
 							 _extent.max.z);
 }

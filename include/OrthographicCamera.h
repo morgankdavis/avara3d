@@ -23,22 +23,21 @@ namespace ae {
 	public:
 
 		OrthographicCamera();
-		OrthographicCamera(std::optional<std::string> name,
-						   float zNear, float zFar,
-						   ae::Extent3D extent);
+		OrthographicCamera(Extent extent);
+		OrthographicCamera(std::optional<std::string> name, Extent extent);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		ae::Extent3D 			extent() const;
-		void	 				extent(const ae::Extent3D& e);
+		Extent 			extent() const;
+		void	 			extent(const Extent& e);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 					constructProjection() override;
+		void 				constructProjectionMatrix() override;
 
 /*********************************************************************************************
 	Private
@@ -46,7 +45,7 @@ namespace ae {
 
 	private:
 
-		ae::Extent3D 			_extent;
+		Extent 			_extent;
 	};
 }
 

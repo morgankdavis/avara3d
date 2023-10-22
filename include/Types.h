@@ -60,36 +60,13 @@ namespace ae {
 	typedef struct {
 		glm::vec3 	min;
 		glm::vec3 	max;
-	} Extent3D;
-
-//	typedef struct {
-//		float 	left;
-//		float 	right;
-//		float 	top;
-//		float 	bottom;
-//	} Bounds;
-
-//	enum class PROJECTION_TYPE : unsigned {
-//		PERSPECTIVE =	0,
-//		ORTHOGRAPHIC =	1
-//	};
-
-	enum class SHADER_TYPE { // internal?
-		VERTEX,
-		FRAGMENT
-	};
+	} Extent;
 
 	enum class MATERIAL_PROPERTY_TYPE {
 		AMBIENT,
 		DIFFUSE,
 		SPECULAR,
 		EMISSIVE
-	};
-
-	enum class FILL_MODE {
-		FILL,
-		LINES,
-		POINTS
 	};
 
 	enum class FILTER_MODE {
@@ -298,6 +275,17 @@ namespace ae {
 /**************************************************************************************
 	Internal
  **************************************************************************************/
+
+	enum class SHADER_TYPE {
+		VERTEX,
+		FRAGMENT
+	};
+
+	enum class FILL_MODE {
+		FILL,
+		LINES,
+		POINTS
+	};
 
 	typedef struct {
 		glm::vec3 position;

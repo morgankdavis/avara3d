@@ -23,16 +23,12 @@ using namespace glm;
  *********************************************************************************************/
 
 Camera::Camera():
-		_name(nullopt),
-		_zNear(0.1),
-		_zFar(1000.0) {
+		_name(nullopt) {
 
 }
 
-Camera::Camera(optional<string> name, float zNear, float zFar):
-		_name(name),
-		_zNear(zNear),
-		_zFar(zFar) {
+Camera::Camera(optional<string> name):
+		_name(name) {
 
 }
 
@@ -46,24 +42,6 @@ std::optional<std::string> Camera::name() const {
 
 void Camera::name(string name) {
 	_name = name;
-}
-
-float Camera::zNear() const {
-	return _zNear;
-}
-
-void Camera::zNear(float zNear) {
-	_zNear = zNear;
-	constructProjection();
-}
-
-float Camera::zFar() const {
-	return _zFar;
-}
-
-void Camera::zFar(float zFar) {
-	_zFar = zFar;
-	constructProjection();
 }
 
 mat4 Camera::projection() const {

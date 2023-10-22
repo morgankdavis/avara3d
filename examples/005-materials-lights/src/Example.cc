@@ -30,7 +30,7 @@ constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
-constexpr bool 					ORTHOGRAPHIC_CAMERA =	true;
+constexpr bool 					ORTHO_CAMERA =			false;
 
 
 /***************************************************************************************
@@ -68,9 +68,10 @@ int Example::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 
-	if (ORTHOGRAPHIC_CAMERA) {
+	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
-				make_shared<OrthographicCamera>("Ortho camera", 0.1, 1000.0, (Bounds){-100, 100, 100, -100}));
+				make_shared<OrthographicCamera>("Ortho camera", (Extent){vec3{0, 0, 0},
+																		 vec3{100, 100, 100}}));
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 

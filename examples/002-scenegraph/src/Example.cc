@@ -166,7 +166,7 @@ int Example::run(const vector<string>& args) {
 		cout << "fNode worldTransform:\n" << fNode->worldTransform() << endl;
 		cout << "pNode worldTransform:\n" << pNode->worldTransform() << endl;
 		
-		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");
@@ -235,7 +235,7 @@ int Example::run(const vector<string>& args) {
 //		cout << "cNode worldTransform:\n" << cNode->worldTransform() << endl;
 //		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
 		
-		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");
@@ -305,7 +305,7 @@ int Example::run(const vector<string>& args) {
 		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
 		cout << "eNode worldTransform:\n" << eNode->worldTransform() << endl;
 		
-		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");
@@ -384,7 +384,7 @@ int Example::run(const vector<string>& args) {
 		cout << "dNode worldTransform:\n" << dNode->worldTransform() << endl;
 //		cout << "eNode worldTransform:\n" << eNode->worldTransform() << endl;
 		
-		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");
@@ -416,7 +416,7 @@ int Example::run(const vector<string>& args) {
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
 		
-		auto camera = make_shared<Camera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");
