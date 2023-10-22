@@ -12,6 +12,7 @@
 #include "Window.h"
 
 #include <iostream>
+#include <sstream>
 
 #define GLEW_STATIC // added for MinGW build... needed?
 #include <GL/glew.h>
