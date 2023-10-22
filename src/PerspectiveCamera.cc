@@ -20,7 +20,9 @@ PerspectiveCamera::PerspectiveCamera():
 
 }
 
-PerspectiveCamera::PerspectiveCamera(optional<string> name, float zNear, float zFar, float fov):
+PerspectiveCamera::PerspectiveCamera(optional<string> name,
+									 float zNear, float zFar,
+									 float fov):
 		Camera(name, zNear, zFar),
 		_fov(radians(fov)) {
 

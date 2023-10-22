@@ -23,31 +23,22 @@ namespace ae {
 	public:
 
 		OrthographicCamera();
-//		OrthographicCamera(glm::vec4 bounds); // left, right, top, botton
-//		OrthographicCamera(float left, float right, float top, float botton);
-		OrthographicCamera(ae::Bounds bounds);
+		OrthographicCamera(std::optional<std::string> name,
+						   float zNear, float zFar,
+						   ae::Bounds bounds);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		ae::Bounds 						bounds() const;
-		void	 						bounds(ae::Bounds b);
+		ae::Bounds 				bounds() const;
+		void	 				bounds(const ae::Bounds& b);
 
-//		glm::vec4 						bounds() const;
-//		void	 						bounds(glm::vec4 b);
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
 
-//		float 							left() const;
-//		void	 						left(float l);
-//
-//		float 							right() const;
-//		void	 						right(float r);
-//
-//		float 							top() const;
-//		void	 						top(float t);
-//
-//		float 							bottom() const;
-//		void	 						bottom(float b);
+		void 					constructProjection() override;
 
 /*********************************************************************************************
 	Private
@@ -55,8 +46,7 @@ namespace ae {
 
 	private:
 
-//		glm::vec4 						_bounds;
-		ae::Bounds 						_bounds;
+		ae::Bounds 				_bounds;
 	};
 }
 

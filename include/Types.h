@@ -66,7 +66,7 @@ namespace ae {
 		float 	left;
 		float 	right;
 		float 	top;
-		float 	botton;
+		float 	bottom;
 	} Bounds;
 
 //	enum class PROJECTION_TYPE : unsigned {

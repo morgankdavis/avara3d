@@ -20,7 +20,9 @@ namespace ae {
 	public:
 
 		PerspectiveCamera();
-		PerspectiveCamera(std::optional<std::string> name, float zNear, float zFar, float fov);
+		PerspectiveCamera(std::optional<std::string> name,
+						  float zNear, float zFar,
+						  float fov);
 
 /*********************************************************************************************
 	Public
