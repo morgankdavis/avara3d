@@ -14,8 +14,6 @@
 #include <optional>
 #include <string>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Types.h"
 
 
@@ -34,6 +32,7 @@ namespace ae {
 	public:
 
 		Camera();
+		Camera(std::optional<std::string> name, float zNear, float zFar);
 		
 /*********************************************************************************************
 	Public
@@ -47,20 +46,21 @@ namespace ae {
 		
 		float 							zFar() const;
 		void				 			zFar(float zFar);
-
-//		PROJECTION_TYPE					projectionType() const;
-//		void							projectionType(PROJECTION_TYPE type);
 		
 		glm::mat4 						projection() const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
+
+	//protected:
+
 		virtual void 					constructProjection() = 0;
 		std::weak_ptr<ae::Node> 		node() const;
 		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 
+		float							_zNear;
+		float							_zFar;
 		glm::mat4						_projection;
 		
 /*********************************************************************************************
@@ -70,8 +70,6 @@ namespace ae {
 	private:
 
 		std::optional<std::string>		_name;
-		float							_zNear;
-		float							_zFar;
 		std::weak_ptr<ae::Node>			_node;
 	};
 }

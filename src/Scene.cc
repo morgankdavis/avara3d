@@ -22,7 +22,6 @@
 #include <optional>
 
 #include "BulletPhysicsSimulator.h"
-#include "Camera.h"
 #include "Color.h"
 #include "CubeImage.h"
 #include "Geometry.h"
@@ -34,6 +33,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "Node.h"
+#include "PerspectiveCamera.h"
 #include "PhysicsBody.h"
 #include "PhysicsWorld.h"
 #include "Renderer.h"
@@ -558,10 +558,14 @@ static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 			
 			aiCamera* aiCamera = aiScene->mCameras[c];
 			
-			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
-											  aiCamera->mClipPlaneFar,
-											  aiCamera->mHorizontalFOV,
-											  PROJECTION_TYPE::PERSPECTIVE);
+//			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
+//											  aiCamera->mClipPlaneFar,
+//											  aiCamera->mHorizontalFOV,
+//											  PROJECTION_TYPE::PERSPECTIVE);
+			auto camera = make_shared<PerspectiveCamera>(aiCamera->mName.C_Str(),
+														 aiCamera->mClipPlaneNear,
+														 aiCamera->mClipPlaneFar,
+														 aiCamera->mHorizontalFOV);
 			
 			aiString name = aiCamera->mName;
 			if (strcmp(name.C_Str(), "") != 0) {

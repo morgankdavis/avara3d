@@ -35,6 +35,8 @@
 #include "MaterialProperty.h"
 #include "MaterialPropertyContents.h"
 #include "Node.h"
+#include "OrthographicCamera.h"
+#include "PerspectiveCamera.h"
 #include "PhysicsBody.h"
 #include "PhysicsContact.h"
 #include "PhysicsShape.h"

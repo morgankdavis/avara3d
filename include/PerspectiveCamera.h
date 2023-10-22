@@ -6,13 +6,12 @@
 #define PerspectiveCamera_h
 
 
-
 #include "Camera.h"
 
 
 namespace ae {
 
-	class PerspectiveCamera : Camera {
+	class PerspectiveCamera : public Camera {
 
 /*********************************************************************************************
 	Lifecycle
@@ -21,17 +20,23 @@ namespace ae {
 	public:
 
 		PerspectiveCamera();
-		PerspectiveCamera(float zNear, float zFar, float fov);
+		PerspectiveCamera(std::optional<std::string> name, float zNear, float zFar, float fov);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		float 							fov() const;
-		void	 						fov(float fov);
+		float 					fov() const;
+		void	 				fov(float fov);
 
-		float 							aspectRatio() const;
-		void 							aspectRatio(float ratio);
+		float 					aspectRatio() const;
+		void 					aspectRatio(float ratio);
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		void 					constructProjection() override;
 
 /*********************************************************************************************
 	Private
@@ -39,8 +44,8 @@ namespace ae {
 
 	private:
 
-		float							_fov;
-		float							_aspectRatio;
+		float					_fov;
+		float					_aspectRatio;
 	};
 }
 

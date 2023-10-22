@@ -12,6 +12,7 @@
 
 #include "Utilities.h"
 
+
 using namespace ae;
 using namespace std;
 using namespace glm;
@@ -22,20 +23,17 @@ using namespace glm;
  *********************************************************************************************/
 
 Camera::Camera():
-	Camera(0.1, 1000.0, 45.0, PROJECTION_TYPE::PERSPECTIVE) {
+		_name(nullopt),
+		_zNear(0.1),
+		_zFar(1000.0) {
 
 }
 
-Camera::Camera(float zNear, float zFar, float fov, PROJECTION_TYPE projectionType):
-	_name(std::nullopt),
-	_zNear(zNear),
-	_zFar(zFar),
-	_fov(radians(fov)),
-	_projectionType(projectionType),
-	_aspectRatio(1.0),
-	_node({}) {
+Camera::Camera(optional<string> name, float zNear, float zFar):
+		_name(name),
+		_zNear(zNear),
+		_zFar(zFar) {
 
-	constructProjection();
 }
 
 /*********************************************************************************************
@@ -48,17 +46,6 @@ std::optional<std::string> Camera::name() const {
 
 void Camera::name(string name) {
 	_name = name;
-}
-
-float Camera::fov() const {
-	return _fov;
-}
-
-void Camera::fov(float fov) {
-	//if (fov > 0 || fov < M_PI) {
-		_fov = fov;
-	constructProjection();
-	//}
 }
 
 float Camera::zNear() const {
@@ -79,27 +66,6 @@ void Camera::zFar(float zFar) {
 	constructProjection();
 }
 
-float Camera::aspectRatio() const {
-	return _aspectRatio;
-}
-
-void Camera::aspectRatio(float ratio) {
-	// small optimization as Window::mainLoop() calls this every draw
-	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
-		_aspectRatio = ratio;
-		constructProjection();
-	}
-}
-
-//PROJECTION_TYPE Camera::projectionType() const {
-//	return _projectionType;
-//}
-
-//void Camera::projectionType(PROJECTION_TYPE type) {
-//	_projectionType = type;
-//	constructProjection();
-//}
-
 mat4 Camera::projection() const {
 	return _projection;
 }
@@ -108,24 +74,6 @@ mat4 Camera::projection() const {
 	Internal
  *********************************************************************************************/
 
-void Camera::constructProjection() {
-
-//	if (_projectionType == PROJECTION_TYPE::PERSPECTIVE) {
-//
-//		_projection = perspective(_fov,
-//								  _aspectRatio,
-//								  _zNear,
-//								  _zFar);
-//	}
-//	else {
-//			// ortho(T left, T right, T bottom, T top, T zNear, T zFar)
-////			_projection = ortho(_fov,
-////									  _aspectRatio,
-////									  _zNear,
-////									  _zFar);
-//	}
-}
-
 weak_ptr<Node> Camera::node() const {
 	return _node;
 }
@@ -133,4 +81,3 @@ weak_ptr<Node> Camera::node() const {
 void Camera::attachedToNode(std::shared_ptr<ae::Node> node) {
 	_node = node;
 }
-

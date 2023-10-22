@@ -29,7 +29,7 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		true;
+constexpr bool					CAPTURE_CURSOR =		false;
 
 
 /***************************************************************************************
@@ -345,9 +345,10 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		if (mouseScrollWheelDelta.y) {
 			static float FOV_SPEED = 2.5; // degrees/roll
 			if (m_cameraNode) {
-				auto fov = m_cameraNode->camera()->fov();
+				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(camera);
+				auto fov = camera->fov();
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-				m_cameraNode->camera()->fov(fov);
+				camera->fov(fov);
 			}
 		}
 		

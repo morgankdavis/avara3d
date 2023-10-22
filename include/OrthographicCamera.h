@@ -14,7 +14,7 @@
 
 namespace ae {
 
-	class OrthographicCamera : Camera {
+	class OrthographicCamera : public Camera {
 
 /*********************************************************************************************
 	Lifecycle
