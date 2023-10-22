@@ -560,7 +560,8 @@ static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 			
 			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
 											  aiCamera->mClipPlaneFar,
-											  aiCamera->mHorizontalFOV);
+											  aiCamera->mHorizontalFOV,
+											  PROJECTION_TYPE::PERSPECTIVE);
 			
 			aiString name = aiCamera->mName;
 			if (strcmp(name.C_Str(), "") != 0) {

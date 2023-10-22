@@ -17,6 +17,7 @@
 #include <optional>
 #include <string>
 
+
 #include "Types.h"
 
 
@@ -93,7 +94,8 @@ namespace ae {
 
 	private:
 
-		std::optional<std::string> 		ShaderSource(const std::string& name, const std::string& type);
+		std::optional<std::string> 		shaderSource(const std::string &name,
+														const std::string &type);
 		void 							prepare();
 		bool 							compileShaderFromString(const std::string& source,
 																SHADER_TYPE type);
@@ -108,7 +110,7 @@ namespace ae {
 		std::optional<std::string>		_logString;
 		std::optional<std::string>		_vertexShaderSource;
 		std::optional<std::string>		_fragmentShaderSource;
-		std::map<std::string, int>		_uniformLocations;
+		std::map<std::string, int>		_uniformLocationCache;
 	};
 }
 

@@ -14,8 +14,9 @@
 #include <optional>
 #include <string>
 
-//#include <boost/optional.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "Types.h"
 
 
 namespace ae {
@@ -33,42 +34,34 @@ namespace ae {
 	public:
 
 		Camera();
-		Camera(float zNear, float zFar, float fov);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 		name();
+		std::optional<std::string> 		name() const;
 		void 							name(std::string name);
 
-		void 							translate(glm::vec3 translation);
-		void 							rotate(glm::vec3 rotation);
-		
-		float 							fov();
-		void	 						fov(float fov);
-		
-		float 							zNear();
+		float 							zNear() const;
 		void 							zNear(float zNear);
 		
-		float 							zFar();
+		float 							zFar() const;
 		void				 			zFar(float zFar);
+
+//		PROJECTION_TYPE					projectionType() const;
+//		void							projectionType(PROJECTION_TYPE type);
 		
-		float 							aspectRatio();
-		void 							aspectRatio(float ratio);
-		
-		glm::mat4 						projection();
-//		void 							projection(const glm::mat4 projection);
+		glm::mat4 						projection() const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void 							constructProjectionMat();
-		
-		std::weak_ptr<ae::Node> 						node() const;
-		
+		virtual void 					constructProjection() = 0;
+		std::weak_ptr<ae::Node> 		node() const;
 		void 							attachedToNode(std::shared_ptr<ae::Node> node);
+
+		glm::mat4						_projection;
 		
 /*********************************************************************************************
 	Private
@@ -77,14 +70,8 @@ namespace ae {
 	private:
 
 		std::optional<std::string>		_name;
-		
-		float							_fov;
 		float							_zNear;
 		float							_zFar;
-		float							_aspectRatio;
-		
-		glm::mat4						_projection;
-
 		std::weak_ptr<ae::Node>			_node;
 	};
 }

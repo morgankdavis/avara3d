@@ -22,26 +22,27 @@ using namespace glm;
  *********************************************************************************************/
 
 Camera::Camera():
-	Camera(0.1, 1000.0, 45.0) { 
+	Camera(0.1, 1000.0, 45.0, PROJECTION_TYPE::PERSPECTIVE) {
 
 }
 
-Camera::Camera(float zNear, float zFar, float fov):
+Camera::Camera(float zNear, float zFar, float fov, PROJECTION_TYPE projectionType):
 	_name(std::nullopt),
 	_zNear(zNear),
 	_zFar(zFar),
 	_fov(radians(fov)),
+	_projectionType(projectionType),
 	_aspectRatio(1.0),
 	_node({}) {
 
-		constructProjectionMat();
+	constructProjection();
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-std::optional<std::string> Camera::name() {
+std::optional<std::string> Camera::name() const {
 	return _name;
 }
 
@@ -49,44 +50,36 @@ void Camera::name(string name) {
 	_name = name;
 }
 
-void Camera::translate(vec3 translation) {
-	
-}
-
-void Camera::rotate(vec3 rotation) {
-	
-}
-
-float Camera::fov() {
+float Camera::fov() const {
 	return _fov;
 }
 
 void Camera::fov(float fov) {
 	//if (fov > 0 || fov < M_PI) {
 		_fov = fov;
-		constructProjectionMat();
+	constructProjection();
 	//}
 }
 
-float Camera::zNear() {
+float Camera::zNear() const {
 	return _zNear;
 }
 
 void Camera::zNear(float zNear) {
 	_zNear = zNear;
-	constructProjectionMat();
+	constructProjection();
 }
 
-float Camera::zFar() {
+float Camera::zFar() const {
 	return _zFar;
 }
 
 void Camera::zFar(float zFar) {
 	_zFar = zFar;
-	constructProjectionMat();
+	constructProjection();
 }
 
-float Camera::aspectRatio() {
+float Camera::aspectRatio() const {
 	return _aspectRatio;
 }
 
@@ -94,11 +87,20 @@ void Camera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every draw
 	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
 		_aspectRatio = ratio;
-		constructProjectionMat();
+		constructProjection();
 	}
 }
 
-mat4 Camera::projection() {
+//PROJECTION_TYPE Camera::projectionType() const {
+//	return _projectionType;
+//}
+
+//void Camera::projectionType(PROJECTION_TYPE type) {
+//	_projectionType = type;
+//	constructProjection();
+//}
+
+mat4 Camera::projection() const {
 	return _projection;
 }
 
@@ -106,12 +108,22 @@ mat4 Camera::projection() {
 	Internal
  *********************************************************************************************/
 
-void Camera::constructProjectionMat() {
-	
-	_projection = perspective(_fov,
-							   _aspectRatio,
-							   _zNear,
-							   _zFar);
+void Camera::constructProjection() {
+
+//	if (_projectionType == PROJECTION_TYPE::PERSPECTIVE) {
+//
+//		_projection = perspective(_fov,
+//								  _aspectRatio,
+//								  _zNear,
+//								  _zFar);
+//	}
+//	else {
+//			// ortho(T left, T right, T bottom, T top, T zNear, T zFar)
+////			_projection = ortho(_fov,
+////									  _aspectRatio,
+////									  _zNear,
+////									  _zFar);
+//	}
 }
 
 weak_ptr<Node> Camera::node() const {

@@ -47,6 +47,8 @@ int Example::run(const vector<string>& args) {
 	AE_INIT();
 	
 	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	m_logger->level(LOG_LEVEL::TRACE_);
+	Logger::MainLogger()->level(LOG_LEVEL::TRACE_);
 	
 	LOG_I(m_logger, "Example::run()");
 

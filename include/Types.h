@@ -25,8 +25,8 @@ namespace ae {
 	class Line;
 	class Point;
 	
-	using LineSet = std::set<std::shared_ptr<Line>>;
-	using PointSet = std::set<std::shared_ptr<Point>>;
+	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
+	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
 	
 	enum class LOG_LEVEL : unsigned {
 		TRACE_ =		0,
@@ -57,7 +57,24 @@ namespace ae {
 		MSAA_16X =	16
 	};
 
-	enum class SHADER_TYPE {
+	typedef struct {
+		glm::vec3 	minXYZ;
+		glm::vec3 	maxXYZ;
+	} Extent;
+
+	typedef struct {
+		float 	left;
+		float 	right;
+		float 	top;
+		float 	botton;
+	} Bounds;
+
+//	enum class PROJECTION_TYPE : unsigned {
+//		PERSPECTIVE =	0,
+//		ORTHOGRAPHIC =	1
+//	};
+
+	enum class SHADER_TYPE { // internal?
 		VERTEX,
 		FRAGMENT
 	};

@@ -298,7 +298,7 @@ void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function)
  *********************************************************************************************/
 
 void RenderContext::update() { // pure virtual
-	AE_LOG_T("-------------------------------------------------------------------------------");
+	//AE_LOG_T("-------------------------------------------------------------------------------");
 
 	if (updateCallback()) {
 		(updateCallback())(*this, sceneTime());
