@@ -41,6 +41,7 @@ using namespace ae;
 
 static bool 	InitializeGLFW();
 static bool 	InitializeGLEW();
+static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 
 /*********************************************************************************************
@@ -341,19 +342,8 @@ static bool InitializeGLEW() {
 
 		auto initStatus = glewInit();
 		if (initStatus == GLEW_OK) {
-			const GLubyte* renderer = glGetString(GL_RENDERER);
-			const GLubyte* version = glGetString(GL_VERSION);
 
-			AE_LOG_I("Renderer: {}", renderer);
-			AE_LOG_I("Version: {}", version);
-
-			GLint numExtensions;
-			glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-			AE_LOG_I("Extensions:");
-			for (GLint e = 0; e < numExtensions; ++e) {
-				AE_LOG_I("\t{}", glGetStringi(GL_EXTENSIONS, e));
-			}
-
+			LogGLInfo();
 			initialized = true;
 		}
 		else {
@@ -362,6 +352,84 @@ static bool InitializeGLEW() {
 		}
 	}
 	return true;
+}
+
+static void LogGLInfo()
+{
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+
+	AE_LOG_I("Renderer: {}", renderer);
+	AE_LOG_I("Version: {}", version);
+
+	// extensions
+
+	GLint numExtensions;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+	ostringstream extensionsStream;
+	extensionsStream << "Extensions:" << endl;
+	for (GLint e=0; e < numExtensions; ++e) {
+		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
+		if (e < numExtensions-1) extensionsStream << endl;
+	}
+	AE_LOG_I(extensionsStream.str());
+
+	// context info
+
+	GLenum contextParams[] = {
+			GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+			GL_MAX_CUBE_MAP_TEXTURE_SIZE,
+			GL_MAX_DRAW_BUFFERS,
+			GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
+			GL_MAX_TEXTURE_IMAGE_UNITS,
+			GL_MAX_TEXTURE_SIZE,
+			GL_MAX_VARYING_FLOATS,
+			GL_MAX_VERTEX_ATTRIBS,
+			GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
+			GL_MAX_VERTEX_UNIFORM_COMPONENTS,
+			GL_MAX_VIEWPORT_DIMS,
+			GL_STEREO,
+	};
+	const char* contextParamNames[] = {
+			"GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS",
+			"GL_MAX_CUBE_MAP_TEXTURE_SIZE",
+			"GL_MAX_DRAW_BUFFERS",
+			"GL_MAX_FRAGMENT_UNIFORM_COMPONENTS",
+			"GL_MAX_TEXTURE_IMAGE_UNITS",
+			"GL_MAX_TEXTURE_SIZE",
+			"GL_MAX_VARYING_FLOATS",
+			"GL_MAX_VERTEX_ATTRIBS",
+			"GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS",
+			"GL_MAX_VERTEX_UNIFORM_COMPONENTS",
+			"GL_MAX_VIEWPORT_DIMS",
+			"GL_STEREO",
+	};
+
+	// (integers)
+
+	ostringstream contextParamsStream;
+	contextParamsStream << "Context parameters:" << endl;
+	const int numIntParams = 10;
+	for (int p=0; p<numIntParams; ++p) {
+		GLint intValue = 0;
+		glGetIntegerv(contextParams[p], &intValue);
+		contextParamsStream << "\t" << contextParamNames[p] << ": " << intValue << endl;
+	}
+
+	// (int vec2)
+
+	GLint maxViewportDims[2];
+	glGetIntegerv(contextParams[10], maxViewportDims);
+	contextParamsStream << "\t" << contextParamNames[10] << ": " << maxViewportDims[0]
+		<< ", " << maxViewportDims[0] << endl;
+
+	// (boolean)
+
+	GLboolean stereo = 0;
+	glGetBooleanv(contextParams[11], &stereo);
+	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
+
+	AE_LOG_I(contextParamsStream.str());
 }
 
 static float ScreenScaleFactor(GLFWmonitor* monitor) {
