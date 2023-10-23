@@ -76,6 +76,18 @@ shared_ptr<Program> Program::Points() {
 }
 
 /*********************************************************************************************
+	Private Static
+ *********************************************************************************************/
+
+string StringFromShaderType(SHADER_TYPE type) {
+
+	switch (type) {
+		case SHADER_TYPE::VERTEX: 		return "VERTEX";
+		case SHADER_TYPE::FRAGMENT: 	return "FRAGMENT";
+	}
+}
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
@@ -86,10 +98,10 @@ Program::Program(const string& name):
 		_logString(std::optional<string>(std::nullopt)),
 		_vertexShaderSource(std::optional<string>(std::nullopt)),
 		_fragmentShaderSource(std::optional<string>(std::nullopt)),
-		_uniformLocationCache(map<string, int>() ){
-		
+		_uniformLocationCache(map<string, int>()) {
+
 		_glID = glCreateProgram();
-		
+
 		if (_glID == 0) {
 			//logString(string("Unable to create shader program."));
 			//string errMsg = "Unable to create shader program.";
@@ -97,7 +109,6 @@ Program::Program(const string& name):
 			//throw Exception(errMsg);
 		}
 		else {
-			
 			auto vsSource = Program::shaderSource(name, "vert");
 			auto fsSource = Program::shaderSource(name, "frag");
 			
@@ -140,19 +151,19 @@ bool Program::link() {
 	if (_glID <= 0) return false;
 	
 	glLinkProgram(_glID);
-	
-	int status = 0;
+
+	GLint status = 0;
 	glGetProgramiv(_glID, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE) {
-		int length = 0;
+
+	if (status != GL_NO_ERROR) {
+		GLint length = 0;
 		_logString = std::nullopt;
 		
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
-		
 		if (length > 0) {
 			// TODO: put on stack
-			char* c_log = new char[length];
-			int written = 0;
+			auto c_log = (GLchar*)new char[length];
+			GLint written = 0;
 			glGetProgramInfoLog(_glID, length, &written, c_log);
 			_logString = string(c_log);
 			//AE_LOG_E("Link log:\n{}", c_log);
@@ -170,20 +181,20 @@ bool Program::link() {
 bool Program::validate() {
 	if (!isLinked()) return false;
 	
-	GLint status;
+	GLint status = 0;
 	glValidateProgram(_glID);
 	glGetProgramiv(_glID, GL_VALIDATE_STATUS, &status);
-	
-	if (status == GL_FALSE) {
+
+	if (status != GL_NO_ERROR) {
 		// Store log and return false
-		int length = 0;
+		GLint length = 0;
 		_logString = std::nullopt;
 		
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
 		if (length > 0) {
-			char * c_log = new char[length];
-			int written = 0;
+			auto c_log = (GLchar*)new char[length];
+			GLint written = 0;
 			glGetProgramInfoLog(_glID, length, &written, c_log);
 			_logString = string(c_log);
 			//AE_LOG_E("Validate log:\n{}", c_log);
@@ -413,26 +424,49 @@ void Program::fragmentShaderSource(string source) {
 	Private
  *********************************************************************************************/
 
+//optional<string> Program::shaderSource(const string &name, const string &type) {
+//
+//	auto source = ae::utils::ShaderSource(name, type);
+//
+//	if (source) {
+//		// add appropriate GLSL version header
+//
+//#ifdef GL_ES
+//		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
+//#else
+//		static const string PLATFORM_HEADER = "#version 410";
+//#endif
+//		return PLATFORM_HEADER + "\n\n" + *source;
+//	}
+//
+//	return nullopt;
+//}
+
 optional<string> Program::shaderSource(const string &name, const string &type) {
 
 	auto source = ae::utils::ShaderSource(name, type);
 
 	if (source) {
-		// add appropriate GLSL version header
+
 
 #ifdef GL_ES
-		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
+		// replace dekstop GLSL header string with ES version string
+		static const string ES_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
+
+		auto replaced = *source;
+		// TODO: sync this up with a new GL version constant also used in Window::Window()
+		StringReplace(replaced, "#version 410", ES_HEADER);
+		return replaced;
 #else
-		static const string PLATFORM_HEADER = "#version 410";
+		return  *source;
 #endif
-		return PLATFORM_HEADER + "\n\n" + *source;
 	}
 
 	return nullopt;
 }
 
 void Program::prepare() {
-	AE_LOG_T("Program::prepare()");
+	AE_LOG_T("prepare()");
 	
 	if (!_isLinked) {
 		if (compile()) {
@@ -443,25 +477,17 @@ void Program::prepare() {
 				AE_LOG_I("Program '{}' linked.", _name);
 			}
 			else {
-				AE_LOG_C("Couldn't link {} shaders:\n{}", _name, *_logString);
+				AE_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
 			}
 		}
 		else {
-			AE_LOG_C("Couldn't compile {} shader:\n{}", _name, *_logString);
+			AE_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
 		}
 	}
 }
 
 bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
-	
-//	if (_glID <= 0) {
-//		glID(glCreateProgram());
-//		if (_glID == 0) {
-//			logString(string("Unable to create shader program."));
-//			return false;
-//		}
-//	}
-	
+
 	GLuint shaderID = 0;
 	
 	switch (type) {
@@ -478,21 +504,29 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	const char* c_source = source.c_str();
 	glShaderSource(shaderID, 1, &c_source, NULL);
 	glCompileShader(shaderID);
-	
-	int result;
-	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
-	if (result = GL_FALSE) {
-		int length = 0;
+
+	GLint status = 0;
+	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
+	if (status != GL_NO_ERROR) {
+		GLint length = 0;
 		_logString = std::nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
 			// TODO: put on stack
-			char* log = new char[length];
-			int written = 0;
-			glGetShaderInfoLog(shaderID, length, &written, log);
-			_logString = string(log);
-			AE_LOG_W("Compile log:\n{}", log);
-			delete[] log;
+//			GLchar c_log[length];
+//			int written = 0;
+//			glGetShaderInfoLog(shaderID, length, &written, c_log);
+//			_logString = string(c_log);
+//			AE_LOG_W("Failed to compile {} shader:\n{}",
+//					 StringFromShaderType(type), *_logString);
+
+			auto c_log = (GLchar*)new char[length];
+			GLint written = 0;
+			glGetShaderInfoLog(shaderID, length, &written, c_log);
+			_logString = string(c_log);
+			AE_LOG_W("Failed to compile {} shader:\n{}",
+					 StringFromShaderType(type), *_logString);
+			delete[] c_log;
 		}
 		
 		return false;
@@ -505,8 +539,8 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 }
 
 unsigned Program::getUniformLocation(const char* name) {
-	
-	int location = -1;
+
+	GLuint location = -1;
 	if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
 		location = glGetUniformLocation(_glID, name);
 		_uniformLocationCache[name] = location;
