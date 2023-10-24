@@ -266,7 +266,12 @@ void Logger::log(LOG_LEVEL level,
 	// https://en.cppreference.com/w/c/io/vfprintf
 	vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
 
-	construct(level, filename, line, function, body);
+	if (useHeader) {
+		construct(level, filename, line, function, body);
+	}
+	else {
+		dispatch(level, body);
+	}
 }
 
 //void Logger::log_trace(const char* filename, int line, const char* function) {
