@@ -130,51 +130,57 @@ void Logger::level(LOG_LEVEL level) {
 	_level = level;
 }
 
-void Logger::trace(const char* format, ...) {
+void Logger::trace(bool header,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE_, format, args);
+	log(LOG_LEVEL::TRACE_, header, format, args);
 	va_end(args);
 }
 
-void Logger::debug(const char* format, ...) {
+void Logger::debug(bool header,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG_, format, args);
+	log(LOG_LEVEL::DEBUG_, header, format, args);
 	va_end(args);
 }
 
-void Logger::info(const char* format, ...) {
+void Logger::info(bool header,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO_, format, args);
+	log(LOG_LEVEL::INFO_, header, format, args);
 	va_end(args);
 }
 
-void Logger::warn(const char* format, ...) {
+void Logger::warn(bool header,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN_, format, args);
+	log(LOG_LEVEL::WARN_, header, format, args);
 	va_end(args);
 }
 
-void Logger::error(const char* format, ...) {
+void Logger::error(bool header,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR_, format, args);
+	log(LOG_LEVEL::ERROR_, header, format, args);
 	va_end(args);
 }
 
-void Logger::critical(const char* format, ...) {
+void Logger::critical(bool header,
+					  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL_, format, args);
+	log(LOG_LEVEL::CRITICAL_, header, format, args);
 	va_end(args);
 }
 
@@ -183,56 +189,70 @@ void Logger::critical(const char* format, ...) {
 //	log_trace(filename, line, function);
 //}
 
-void Logger::trace(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::trace(bool header,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE_, filename, line, function, format, args);
+	log(LOG_LEVEL::TRACE_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::debug(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::debug(bool header,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG_, filename, line, function, format, args);
+	log(LOG_LEVEL::DEBUG_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::info(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::info(bool header,
+				  const char* filename, int line, const char* function,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO_, filename, line, function, format, args);
+	log(LOG_LEVEL::INFO_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::warn(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::warn(bool header,
+				  const char* filename, int line, const char* function,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN_, filename, line, function, format, args);
+	log(LOG_LEVEL::WARN_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::error(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::error(bool header,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR_, filename, line, function, format, args);
+	log(LOG_LEVEL::ERROR_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::critical(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::critical(bool header,
+					  const char* filename, int line, const char* function,
+					  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL_, filename, line, function, format, args);
+	log(LOG_LEVEL::CRITICAL_, header, filename, line, function, format, args);
 	va_end(args);
 }
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level, const char* format, va_list args) {
+void Logger::log(LOG_LEVEL level,
+				 bool header,
+				 const char* format, va_list args) {
 
 	char body[MAX_LOG_BODY_SIZE];
 
@@ -243,7 +263,10 @@ void Logger::log(LOG_LEVEL level, const char* format, va_list args) {
 }
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level, const char* filename, int line, const char* function, const char* format, va_list args) {
+void Logger::log(LOG_LEVEL level,
+				 bool header,
+				 const char* filename, int line, const char* function,
+				 const char* format, va_list args) {
 
 	char body[MAX_LOG_BODY_SIZE];
 
@@ -272,7 +295,9 @@ void Logger::construct(LOG_LEVEL level, const char* body) {
 	}
 }
 
-void Logger::construct(LOG_LEVEL level, const char* filename, int line, const char* function, const char* body) {
+void Logger::construct(LOG_LEVEL level,
+					   const char* filename, int line, const char* function,
+					   const char* body) {
 
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
 		>= static_cast<underlying_type<LOG_LEVEL>::type>(_level)) {
