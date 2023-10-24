@@ -108,8 +108,8 @@ namespace ae {
 		std::vector<std::filesystem::path> SceneSearchPaths();
 		std::vector<std::filesystem::path> ImageSearchPaths();
 		std::vector<std::filesystem::path> FontSearchPaths();
-		std::optional<std::filesystem::path> SearchInPaths(const std::string& filename,
-															   std::vector<std::filesystem::path> paths);
+		std::optional<std::filesystem::path> SearchInPaths(const std::string filename,
+														   std::vector<std::filesystem::path> paths);
 #endif
 		
 		// *** binary and text files ***

@@ -135,7 +135,7 @@ namespace ae {
 
 	private:
 
-		std::string header();
+		std::string 								header();
 		
 		std::string									_name;
 		std::vector<std::shared_ptr<LoggerSink>>	_sinks;
