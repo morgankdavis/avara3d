@@ -489,7 +489,7 @@ void Program::prepare() {
 bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 
 	GLuint shaderID = 0;
-	
+
 	switch (type) {
 		case SHADER_TYPE::VERTEX:
 			shaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -500,7 +500,7 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 		default:
 			return false;
 	}
-	
+
 	const char* c_source = source.c_str();
 	glShaderSource(shaderID, 1, &c_source, NULL);
 	glCompileShader(shaderID);
@@ -528,12 +528,12 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 					 StringFromShaderType(type), *_logString);
 			delete[] c_log;
 		}
-		
+
 		return false;
 	}
 	else {
 		glAttachShader(_glID, shaderID);
-		
+
 		return true;
 	}
 }
