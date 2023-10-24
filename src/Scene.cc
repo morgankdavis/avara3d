@@ -557,11 +557,7 @@ static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 			break; // disabling for now...
 			
 			aiCamera* aiCamera = aiScene->mCameras[c];
-			
-//			auto camera = make_shared<Camera>(aiCamera->mClipPlaneNear,
-//											  aiCamera->mClipPlaneFar,
-//											  aiCamera->mHorizontalFOV,
-//											  PROJECTION_TYPE::PERSPECTIVE);
+
 			auto camera = make_shared<PerspectiveCamera>(aiCamera->mName.C_Str(),
 														 aiCamera->mClipPlaneNear,
 														 aiCamera->mClipPlaneFar,

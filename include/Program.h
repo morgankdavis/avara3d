@@ -27,7 +27,7 @@ namespace ae {
 
 /*********************************************************************************************
 	Public Static
- *********************\************************************************************************/
+ *********************************************************************************************/
 
 	public:
 
@@ -54,7 +54,7 @@ namespace ae {
 		void 							use();
 		void 							unuse();
 		
-		void 							bindAttribLocation(unsigned location, const char* name);
+		void 							bindAttributeLocation(unsigned location, const char* name);
 		//void bindFragDataLocation(unsigned location, const char* name);
 		
 		void 							setUniform(const char* name, float x, float y, float z);

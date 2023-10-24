@@ -222,7 +222,7 @@ void Program::unuse() {
 	glUseProgram(0);
 }
 
-void Program::bindAttribLocation(GLuint location, const char* name) {
+void Program::bindAttributeLocation(GLuint location, const char* name) {
 	glBindAttribLocation(_glID, location, name);
 }
 
@@ -508,7 +508,7 @@ bool Program::compileShaderFromString(const string& source, SHADER_TYPE type) {
 	GLint status = 0;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
 	if (status != GL_NO_ERROR) {
-		GLint length = 0;
+		int length = 0;
 		_logString = std::nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 		if (length > 0) {
