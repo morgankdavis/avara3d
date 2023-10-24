@@ -146,7 +146,7 @@ Window::~Window() {
  *********************************************************************************************/
 
 void Window::display() {
-	AE_LOG_I("Window::display()");
+	AE_LOG_D("display()");
 	
 	if (_scene) {
 		glfwMakeContextCurrent(_glfwWindow);

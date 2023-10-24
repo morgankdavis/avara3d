@@ -89,7 +89,7 @@ bool FloatEqual(float a, float b, float tolarance) {
 
 
 void main () {
-	immaerror
+
 	vec4 Ka = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
