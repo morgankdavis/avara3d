@@ -515,7 +515,7 @@ void Program::prepare() {
 			}
 			else {
 				//AE_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
-				AE_LOG_C("Failed linking '{}' program."), _name;
+				AE_LOG_C("Failed linking '{}' program.", _name);
 			}
 		}
 		else {
