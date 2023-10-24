@@ -178,6 +178,11 @@ void Logger::critical(const char* format, ...) {
 	va_end(args);
 }
 
+//void Logger::trace(const char* filename, int line, const char* function) {
+//
+//	log_trace(filename, line, function);
+//}
+
 void Logger::trace(const char* filename, int line, const char* function, const char* format, ...) {
 
 	va_list args;
@@ -247,6 +252,11 @@ void Logger::log(LOG_LEVEL level, const char* filename, int line, const char* fu
 
 	construct(level, filename, line, function, body);
 }
+
+//void Logger::log_trace(const char* filename, int line, const char* function) {
+//
+//	dispatch(LOG_LEVEL::TRACE_, HeaderString(_name, LOG_LEVEL::TRACE_, filename, line, function).c_str());
+//}
 
 void Logger::construct(LOG_LEVEL level, const char* body) {
 

@@ -38,6 +38,7 @@
 // "virtual void ae::Renderer::updateFrametimeStats(ae::RenderStats &, float)"
 // __FUNCTION_NAME__: https://stackoverflow.com/questions/15305310/predefined-macros-for-function-name-func
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
+//#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
@@ -45,6 +46,7 @@
 #define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
+//#define LOG_T(logger) logger->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define LOG_T(logger, fmtStr, ...) logger->trace(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_D(logger, fmtStr, ...) logger->debug(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_I(logger, fmtStr, ...) logger->info(__FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
@@ -112,6 +114,7 @@ namespace ae {
 		void error(const char* format, ...);
 		void critical(const char* format, ...);
 
+//		void trace(const char* filename, int line, const char* function);
 		void trace(const char* filename, int line, const char* function, const char* format, ...);
 		void debug(const char* filename, int line, const char* function, const char* format, ...);
 		void info(const char* filename, int line, const char* function, const char* format, ...);
@@ -121,6 +124,7 @@ namespace ae {
 
 		void log(LOG_LEVEL level, const char* format, va_list args);
 		void log(LOG_LEVEL level, const char* filename, int line, const char* function, const char* format, va_list args);
+		void log_trace(const char* filename, int line, const char* function);
 
 		void construct(LOG_LEVEL level, const char* message);
 		void construct(LOG_LEVEL level, const char* filename, int line, const char* function,const char* body);
