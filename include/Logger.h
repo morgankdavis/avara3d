@@ -121,18 +121,12 @@ namespace ae {
 		
 		// * favor using AE_LOG_ and LOG_ macros for fancy formatting *
 
-		void trace(bool useHeader,
-				   const char* format, ...);
-		void debug(bool useHeader,
-				   const char* format, ...);
-		void info(bool useHeader,
-				  const char* format, ...);
-		void warn(bool useHeader,
-				  const char* format, ...);
-		void error(bool useHeader,
-				   const char* format, ...);
-		void critical(bool useHeader,
-					  const char* format, ...);
+		void trace(const char* format, ...);
+		void debug(const char* format, ...);
+		void info(const char* format, ...);
+		void warn(const char* format, ...);
+		void error(const char* format, ...);
+		void critical(const char* format, ...);
 
 //		void trace(const char* filename, int line, const char* function);
 		void trace(bool useHeader,
@@ -150,12 +144,11 @@ namespace ae {
 		void error(bool useHeader,
 				   const char* filename, int line, const char* function,
 				   const char* format, ...);
-		void critical(bool header,
-					  const char* useHeader, int line, const char* function,
+		void critical(bool useHeader,
+					  const char* filename, int line, const char* function,
 					  const char* format, ...);
 
-		void log(LOG_LEVEL useHeader,
-				 bool header,
+		void log(LOG_LEVEL level,
 				 const char* format, va_list args);
 		void log(LOG_LEVEL level,
 				 bool useHeader,
