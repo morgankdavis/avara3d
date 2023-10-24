@@ -754,7 +754,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(property->dirtyBits(),
 													  MATERIAL_PROPERTY_DIRTY_BITS::CONTENTS)) {
 				
-				AE_LOG_I("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
 				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
@@ -841,7 +841,7 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_I("Buffering skybox vertex data...");
+	AE_LOG_D("Buffering skybox vertex data...");
 	
 	program.use();
 	
@@ -987,7 +987,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_I("Buffering cube texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering cube texture {:p}...", (void*)&property);
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		

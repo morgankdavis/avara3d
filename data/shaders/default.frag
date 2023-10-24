@@ -1,3 +1,6 @@
+#version 410
+
+
 #define GAMMA 	                    2.2
 
 #define ALPHA_REJECTION_THRESHOLD 	0.5
@@ -86,7 +89,7 @@ bool FloatEqual(float a, float b, float tolarance) {
 
 
 void main () {
-	
+
 	vec4 Ka = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);

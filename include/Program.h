@@ -27,7 +27,7 @@ namespace ae {
 
 /*********************************************************************************************
 	Public Static
- *********************\************************************************************************/
+ *********************************************************************************************/
 
 	public:
 
@@ -54,7 +54,7 @@ namespace ae {
 		void 							use();
 		void 							unuse();
 		
-		void 							bindAttribLocation(unsigned location, const char* name);
+		void 							bindAttributeLocation(unsigned location, const char* name);
 		//void bindFragDataLocation(unsigned location, const char* name);
 		
 		void 							setUniform(const char* name, float x, float y, float z);
@@ -97,8 +97,8 @@ namespace ae {
 		std::optional<std::string> 		shaderSource(const std::string &name,
 														const std::string &type);
 		void 							prepare();
-		bool 							compileShaderFromString(const std::string& source,
-																SHADER_TYPE type);
+		bool 							compile(const std::string &source,
+												SHADER_TYPE type);
 		unsigned 						getUniformLocation(const char* name);
 		void 							glID(unsigned glID);
 		void 							isLinked(bool isLinked);

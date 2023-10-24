@@ -37,7 +37,7 @@ constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_8X;
 constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		true;
+constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
