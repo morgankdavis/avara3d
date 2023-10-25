@@ -81,8 +81,8 @@ namespace ae {
 														 const DEBUG_OPTIONS& debugOptions,
 														 RenderStats& stats);
 
-		std::shared_ptr<std::map<std::string, glm::vec3>>	boundingPoints(bool worldSpace) const;
-		glm::vec3 											extent(bool worldSpace) const;
+		AABB										aabb(bool worldSpace) const;
+		glm::vec3 									extent(bool worldSpace) const;
 
 		void 										attachedToNode(std::shared_ptr<Node> node);
 

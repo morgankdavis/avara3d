@@ -300,47 +300,81 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return _skyboxGeometry;
 }
 
-shared_ptr<map<string, vec3>> Scene::boundingPoints() const {
+//shared_ptr<map<string, vec3>> Scene::aabb() const {
+//
+//	float maxFloat = numeric_limits<float>::max();
+//	float minFloat = numeric_limits<float>::min();
+//
+//	auto aabb = make_shared<map<string, vec3>>();
+//	(*aabb)["xMin"] = vec3(maxFloat, 0, 0);
+//	(*aabb)["xMax"] = vec3(minFloat, 0, 0);
+//	(*aabb)["yMin"] = vec3(0, maxFloat, 0);
+//	(*aabb)["yMax"] = vec3(0, minFloat, 0);
+//	(*aabb)["zMin"] = vec3(0, 0, maxFloat);
+//	(*aabb)["zMax"] = vec3(0, 0, minFloat);
+//
+//	vector<shared_ptr<Geometry>> geometries;
+//	for (auto node : _rootNode->children(true)) {
+//		if (node->geometry() && !node->light()) {
+//			geometries.push_back(node->geometry());
+//		}
+//	}
+//
+//	for (auto geometry : geometries) {
+//		auto points = geometry->aabb(true);
+//
+//		if ((*points)["xMin"].x < (*aabb)["xMin"].x) (*aabb)["xMin"] = (*points)["xMin"];
+//		if ((*points)["xMax"].x > (*aabb)["xMax"].x) (*aabb)["xMax"] = (*points)["xMax"];
+//
+//		if ((*points)["yMin"].y < (*aabb)["yMin"].y) (*aabb)["yMin"] = (*points)["yMin"];
+//		if ((*points)["yMax"].y > (*aabb)["yMax"].y) (*aabb)["yMax"] = (*points)["yMax"];
+//
+//		if ((*points)["zMin"].z < (*aabb)["zMin"].z) (*aabb)["zMin"] = (*points)["zMin"];
+//		if ((*points)["zMax"].z > (*aabb)["zMax"].z) (*aabb)["zMax"] = (*points)["zMax"];
+//	}
+//
+//	return aabb;
+//}
 
-	float maxFloat = numeric_limits<float>::max();
-	float minFloat = numeric_limits<float>::min();
+AABB Scene::aabb() const {
 
-	auto boundingPoints = make_shared<map<string, vec3>>();
-	(*boundingPoints)["xMin"] = vec3(maxFloat, 0, 0);
-	(*boundingPoints)["xMax"] = vec3(minFloat, 0, 0);
-	(*boundingPoints)["xMin"] = vec3(0, maxFloat, 0);
-	(*boundingPoints)["yMax"] = vec3(0, minFloat, 0);
-	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
-	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
+	const float maxFloat = numeric_limits<float>::max();
+	const float minFloat = numeric_limits<float>::min();
+
+	AABB aabb;
+	aabb.min.x = maxFloat;
+	aabb.max.x = minFloat;
+	aabb.min.y = maxFloat;
+	aabb.max.y = minFloat;
+	aabb.min.z = maxFloat;
+	aabb.max.z = minFloat;
 
 	vector<shared_ptr<Geometry>> geometries;
-	for (auto node : _rootNode->children(true)) {
+	for (const auto& node : _rootNode->children(true)) {
 		if (node->geometry() && !node->light()) {
 			geometries.push_back(node->geometry());
 		}
 	}
 
-	for (auto geometry : geometries) {
-		auto points = geometry->boundingPoints(true);
+	for (const auto& geometry : geometries) {
+		auto geoAABB = geometry->aabb(true);
 
-		if ((*points)["xMin"].x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = (*points)["xMin"];
-		if ((*points)["xMax"].x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = (*points)["xMax"];
-
-		if ((*points)["yMin"].y < (*boundingPoints)["yMin"].y) (*boundingPoints)["yMin"] = (*points)["yMin"];
-		if ((*points)["yMax"].y > (*boundingPoints)["yMax"].y) (*boundingPoints)["yMax"] = (*points)["yMax"];
-
-		if ((*points)["zMin"].z < (*boundingPoints)["zMin"].z) (*boundingPoints)["zMin"] = (*points)["zMin"];
-		if ((*points)["zMax"].z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = (*points)["zMax"];
+		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
+		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
+		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
+		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
+		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
+		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
 	}
 
-	return boundingPoints;
+	return aabb;
 }
 
 vec3 Scene::extent() const {
-	auto bp = *boundingPoints();
-	return vec3(bp["xMax"].x - bp["xMin"].x,
-				bp["yMax"].y - bp["yMin"].y,
-				bp["zMax"].z - bp["zMin"].z);
+	auto aabb = Scene::aabb();
+	return {aabb.max.x - aabb.min.x,
+			aabb.max.y - aabb.min.y,
+			aabb.max.z - aabb.min.z};
 }
 
 void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {

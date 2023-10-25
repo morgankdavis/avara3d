@@ -407,51 +407,102 @@ void RenderContext::saveGIFFrame(float time) {
 	}
 }
 
+//shared_ptr<Node> RenderContext::defaultPointOfView() {
+//
+//	auto cameraNode = make_shared<Node>();
+//	//_scene->rootNode()->addChild(cameraNode); // done below
+//	auto camera = make_shared<PerspectiveCamera>();
+//	camera->name("default camera");
+//	cameraNode->camera(camera);
+//
+//	auto boundingPoints = (*scene()->aabb());
+//
+//	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
+//	float w = width();
+//	float h = height();
+//	float aspectRatio = w/h;
+//	float inverseAspectRatio = 1.0f/aspectRatio;
+//	float fovV = fovH * inverseAspectRatio;
+//
+//	// tan(angle) = x/z
+//	// ztan(angle) = x
+//	// z = x/tan(angle)
+//
+//	float maxZ = abs(boundingPoints["zMax"].z);
+//
+//	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
+//	float angleH = fovH / 2.0;
+//	float zH = xH / tan(angleH);
+//
+//	float xV = abs(boundingPoints["yMin"].y) + abs(boundingPoints["yMax"].y) / 2.0f;
+//	float angleV = fovV / 2.0;
+//	float zV = xV / tan(angleV);
+//
+//	zH += maxZ;
+//	zV += maxZ;
+//
+//	float z = fmax(zH, zV);
+//	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
+//	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
+//
+//	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
+//	//vec3 eye = vec3(midX, midY, z);
+//
+//	mat4 viewMat = translate(mat4(1.0f), eye);
+//	cameraNode->transform(viewMat);
+//
+//	scene()->rootNode()->addChild(cameraNode);
+//	pointOfView(cameraNode);
+//
+//	return cameraNode;
+//}
+
 shared_ptr<Node> RenderContext::defaultPointOfView() {
-	
+
 	auto cameraNode = make_shared<Node>();
 	//_scene->rootNode()->addChild(cameraNode); // done below
 	auto camera = make_shared<PerspectiveCamera>();
 	camera->name("default camera");
 	cameraNode->camera(camera);
-	
-	auto boundingPoints = (*scene()->boundingPoints());
-	
+
+	auto aabb = scene()->aabb();
+
 	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
 	float w = width();
 	float h = height();
 	float aspectRatio = w/h;
 	float inverseAspectRatio = 1.0f/aspectRatio;
 	float fovV = fovH * inverseAspectRatio;
-	
+
 	// tan(angle) = x/z
 	// ztan(angle) = x
 	// z = x/tan(angle)
-	
-	float maxZ = abs(boundingPoints["zMax"].z);
-	
-	float xH = abs(boundingPoints["xMin"].x) + abs(boundingPoints["xMax"].x) / 2.0f;
+
+	float maxZ = abs(aabb.max.z);
+
+	float xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
 	float angleH = fovH / 2.0;
 	float zH = xH / tan(angleH);
-	
-	float xV = abs(boundingPoints["yMin"].y) + abs(boundingPoints["yMax"].y) / 2.0f;
+
+	float xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
 	float angleV = fovV / 2.0;
 	float zV = xV / tan(angleV);
-	
+
 	zH += maxZ;
 	zV += maxZ;
-	
+
 	float z = fmax(zH, zV);
-	float midX = (boundingPoints["xMin"].x + boundingPoints["xMax"].x) / 2.0f;
-	float midY = (boundingPoints["yMin"].y + boundingPoints["yMax"].y) / 2.0f;
-	
+	float midX = (aabb.min.x + aabb.max.x) / 2.0f;
+	float midY = (aabb.min.y + aabb.max.y) / 2.0f;
+
 	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
-	
+	//vec3 eye = vec3(midX, midY, z);
+
 	mat4 viewMat = translate(mat4(1.0f), eye);
 	cameraNode->transform(viewMat);
-	
+
 	scene()->rootNode()->addChild(cameraNode);
 	pointOfView(cameraNode);
-	
+
 	return cameraNode;
 }

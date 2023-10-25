@@ -23,15 +23,15 @@ namespace ae {
 	public:
 
 		OrthographicCamera();
-		OrthographicCamera(Extent extent);
-		OrthographicCamera(std::optional<std::string> name, Extent extent);
+		OrthographicCamera(AABB extent);
+		OrthographicCamera(std::optional<std::string> name, AABB extent);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		Extent 			extent() const;
-		void	 			extent(const Extent& e);
+		AABB 			extent() const;
+		void	 			extent(const AABB& e);
 
 /*********************************************************************************************
 	Internal
@@ -45,7 +45,7 @@ namespace ae {
 
 	private:
 
-		Extent 			_extent;
+		AABB 			_extent;
 	};
 }
 

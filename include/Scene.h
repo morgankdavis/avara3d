@@ -84,22 +84,22 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void 												draw(Renderer& renderer,
-															unsigned framebufferWidth,
-															unsigned framebufferHeight,
-													 		Node& pointOfView,
-													 		const DEBUG_OPTIONS& debugOptions,
-													 		RenderStats& stats);
+		void 									draw(Renderer& renderer,
+													 unsigned framebufferWidth,
+													 unsigned framebufferHeight,
+													 Node& pointOfView,
+													 const DEBUG_OPTIONS& debugOptions,
+													 RenderStats& stats);
 
-		std::shared_ptr<ae::Geometry>						skyboxGeometry() const;
+		std::shared_ptr<ae::Geometry>			skyboxGeometry() const;
 		
-		std::shared_ptr<std::map<std::string, glm::vec3>>	boundingPoints() const;
-		glm::vec3 											extent() const;
+		AABB									aabb() const;
+		glm::vec3 								extent() const;
 		
-		void 												attachedToRenderContext(std::shared_ptr<ae::RenderContext> renderContext);
+		void 									attachedToRenderContext(std::shared_ptr<ae::RenderContext> renderContext);
 
-		std::weak_ptr<ae::RenderContext> 					renderContext() const;
-		void 												renderContext(std::shared_ptr<ae::RenderContext> context);
+		std::weak_ptr<ae::RenderContext> 		renderContext() const;
+		void 									renderContext(std::shared_ptr<ae::RenderContext> context);
 		
 /*********************************************************************************************
 	Private
@@ -107,15 +107,15 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<ae::Node>					_rootNode;
-		std::shared_ptr<ae::MaterialProperty>		_background;
-		std::shared_ptr<ae::Geometry>				_skyboxGeometry;
-		float										_fogStartDistance;
-		float										_fogEndDistance;
-		float										_fogDensityExponent;
-		std::shared_ptr<ae::Color>					_fogColor;
-		std::shared_ptr<ae::PhysicsWorld> 			_physicsWorld;
-		std::weak_ptr<ae::RenderContext>			_renderContext;
+		std::shared_ptr<ae::Node>				_rootNode;
+		std::shared_ptr<ae::MaterialProperty>	_background;
+		std::shared_ptr<ae::Geometry>			_skyboxGeometry;
+		float									_fogStartDistance;
+		float									_fogEndDistance;
+		float									_fogDensityExponent;
+		std::shared_ptr<ae::Color>				_fogColor;
+		std::shared_ptr<ae::PhysicsWorld> 		_physicsWorld;
+		std::weak_ptr<ae::RenderContext>		_renderContext;
 	};
 }
 

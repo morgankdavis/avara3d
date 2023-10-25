@@ -70,8 +70,8 @@ int Example::run(const vector<string>& args) {
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
-				make_shared<OrthographicCamera>("Ortho camera", (Extent){vec3{0, 0, 0},
-																		 vec3{100, 100, 100}}));
+				make_shared<OrthographicCamera>("Ortho camera", (AABB){vec3{0, 0, 0},
+																	   vec3{100, 100, 100}}));
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
