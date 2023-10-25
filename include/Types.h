@@ -60,7 +60,7 @@ namespace ae {
 	typedef struct {
 		glm::vec3 	min;
 		glm::vec3 	max;
-	} Extent;
+	} AABB;
 
 	enum class MATERIAL_PROPERTY_TYPE {
 		AMBIENT,

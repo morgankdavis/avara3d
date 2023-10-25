@@ -634,11 +634,75 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	}
 }
 	
+//static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
+//													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
+//													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+//													GLuint& glVBO, GLuint& glVAO) {
+//
+//	auto program = Program::Lines();
+//
+//	// looks up and populates glVBO and glVAO, loading the vertex data if needed
+//
+//	if (GEOMETRY_DIRTY_BITS_CONTAINS(geometry->dirtyBits(),
+//									 GEOMETRY_DIRTY_BITS::EXTENT)) {
+//
+//		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
+//
+//		// construct a new lineset matching the geometry's extent
+//
+//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+//
+//		map<string, vec3> bp = *(geometry->aabb(false));
+//
+//		float xMin = bp["xMin"].x;
+//		float xMax = bp["xMax"].x;
+//		float yMin = bp["yMin"].y;
+//		float yMax = bp["yMax"].y;
+//		float zMin = bp["zMin"].z;
+//		float zMax = bp["zMax"].z;
+//
+//		vec3 one =      vec3(xMin, yMax, zMin);
+//		vec3 two =      vec3(xMin, yMax, zMax);
+//		vec3 three =    vec3(xMax, yMax, zMax);
+//		vec3 four =     vec3(xMax, yMax, zMin);
+//		vec3 five =     vec3(xMin, yMin, zMin);
+//		vec3 six =      vec3(xMin, yMin, zMax);
+//		vec3 seven =    vec3(xMax, yMin, zMax);
+//		vec3 eight =    vec3(xMax, yMin, zMin);
+//
+//		auto aabbLineSet = make_shared<LineSet>();
+//		auto red = Color::Red();
+//
+//		aabbLineSet->emplace(make_shared<Line>(one, two, red));
+//		aabbLineSet->emplace(make_shared<Line>(two, three, red));
+//		aabbLineSet->emplace(make_shared<Line>(three, four, red));
+//		aabbLineSet->emplace(make_shared<Line>(four, one, red));
+//		aabbLineSet->emplace(make_shared<Line>(five, six, red));
+//		aabbLineSet->emplace(make_shared<Line>(six, seven, red));
+//		aabbLineSet->emplace(make_shared<Line>(seven, eight, red));
+//		aabbLineSet->emplace(make_shared<Line>(eight, five, red));
+//		aabbLineSet->emplace(make_shared<Line>(one, five, red));
+//		aabbLineSet->emplace(make_shared<Line>(two, six, red));
+//		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
+//		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
+//
+//		aabbLineSetMapping[geometry] = aabbLineSet;
+//
+//		geometry->dirtyBits(GEOMETRY_DIRTY_BITS_REMOVE(geometry->dirtyBits(),
+//													   GEOMETRY_DIRTY_BITS::EXTENT));
+//	}
+//
+//	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
+//								*program,
+//								lineSetGLMapping,
+//								glVBO, glVAO);
+//}
+
 static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
 													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
 													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
 													GLuint& glVBO, GLuint& glVAO) {
-	
+
 	auto program = Program::Lines();
 
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
@@ -652,14 +716,14 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 
 		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
 
-		map<string, vec3> bp = *(geometry->boundingPoints(false));
+		auto aabb = geometry->aabb(false);
 
-		float xMin = bp["xMin"].x;
-		float xMax = bp["xMax"].x;
-		float yMin = bp["yMin"].y;
-		float yMax = bp["yMax"].y;
-		float zMin = bp["zMin"].z;
-		float zMax = bp["zMax"].z;
+		float xMin = aabb.min.x;
+		float xMax = aabb.max.x;
+		float yMin = aabb.min.y;
+		float yMax = aabb.max.y;
+		float zMin = aabb.min.z;
+		float zMax = aabb.max.z;
 
 		vec3 one =      vec3(xMin, yMax, zMin);
 		vec3 two =      vec3(xMin, yMax, zMax);
@@ -881,14 +945,14 @@ static void BufferAABBVertexData(Geometry& geometry,
 	
 	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
 
-	map<string, vec3> bp = *(geometry.boundingPoints(false));
+	auto aabb = geometry.aabb(false);
 
-	float xMin = bp["xMin"].x;
-	float xMax = bp["xMax"].x;
-	float yMin = bp["yMin"].y;
-	float yMax = bp["yMax"].y;
-	float zMin = bp["zMin"].z;
-	float zMax = bp["zMax"].z;
+	float xMin = aabb.min.x;
+	float xMax = aabb.max.x;
+	float yMin = aabb.min.y;
+	float yMax = aabb.max.y;
+	float zMin = aabb.min.z;
+	float zMax = aabb.max.z;
 
 	vec3 one =      vec3(xMin, yMax, zMin);
 	vec3 two =      vec3(xMin, yMax, zMax);

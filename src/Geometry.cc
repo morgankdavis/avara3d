@@ -166,47 +166,89 @@ void Geometry::draw(Renderer& renderer,
 	}	
 }
 
-shared_ptr<map<string, vec3>> Geometry::boundingPoints(bool worldSpace) const {
+//shared_ptr<map<string, vec3>> Geometry::aabb(bool worldSpace) const {
+//
+//	float maxFloat = numeric_limits<float>::max();
+//	float minFloat = numeric_limits<float>::min();
+//
+//	auto aabb = make_shared<map<string, vec3>>();
+//	(*aabb)["xMin"] = vec3(maxFloat, 0, 0);
+//	(*aabb)["xMax"] = vec3(minFloat, 0, 0);
+//	(*aabb)["yMin"] = vec3(0, maxFloat, 0);
+//	(*aabb)["yMax"] = vec3(0, minFloat, 0);
+//	(*aabb)["zMin"] = vec3(0, 0, maxFloat);
+//	(*aabb)["zMax"] = vec3(0, 0, minFloat);
+//
+//	for (auto element : _elements) {
+//		for (auto v : element->vertices()) {
+//			vec3 p = v.position;
+//			if (worldSpace) {
+//				if (auto node = _node.lock()) {
+//					p = vec3(node->worldTransform() * vec4(v.position, 1.0f));
+//				}
+//			}
+//
+//			if (p.x < (*boundingPoints)["xMin"].x) (*aabb)["xMin"] = p;
+//			if (p.x > (*aabb)["xMax"].x) (*boundingPoints)["xMax"] = p;
+//
+//			if (p.y < (*boundingPoints)["yMin"].y) (*aabb)["yMin"] = p;
+//			if (p.y > (*aabb)["yMax"].y) (*boundingPoints)["yMax"] = p;
+//
+//			if (p.z < (*boundingPoints)["zMin"].z) (*aabb)["zMin"] = p;
+//			if (p.z > (*aabb)["zMax"].z) (*boundingPoints)["zMax"] = p;
+//		}
+//	}
+//
+//	return aabb;
+//}
 
-	float maxFloat = numeric_limits<float>::max();
-	float minFloat = numeric_limits<float>::min();
+AABB Geometry::aabb(bool worldSpace) const {
 
-	auto boundingPoints = make_shared<map<string, vec3>>();
-	(*boundingPoints)["xMin"] = vec3(maxFloat, 0, 0);
-	(*boundingPoints)["xMax"] = vec3(minFloat, 0, 0);
-	(*boundingPoints)["xMin"] = vec3(0, maxFloat, 0);
-	(*boundingPoints)["yMax"] = vec3(0, minFloat, 0);
-	(*boundingPoints)["zMin"] = vec3(0, 0, maxFloat);
-	(*boundingPoints)["zMax"] = vec3(0, 0, minFloat);
+	const float maxFloat = numeric_limits<float>::max();
+	const float minFloat = numeric_limits<float>::min();
 
-	for (auto element : _elements) {
+	AABB aabb;
+	aabb.min.x = maxFloat;
+	aabb.max.x = minFloat;
+	aabb.min.y = maxFloat;
+	aabb.max.y = minFloat;
+	aabb.min.z = maxFloat;
+	aabb.max.z = minFloat;
+
+	const auto nodeWorldTransform = (worldSpace
+									 ? _node.lock()->worldTransform()
+									 : mat4(1.0));
+
+	for (const auto& element : _elements) {
 		for (auto v : element->vertices()) {
-			vec3 p = v.position;
-			if (worldSpace) {
-				if (auto node = _node.lock()) {
-					p = vec3(node->worldTransform() * vec4(v.position, 1.0f));
-				}
-			}
+			vec3 p = (worldSpace
+					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
+					  : v.position);
 
-			if (p.x < (*boundingPoints)["xMin"].x) (*boundingPoints)["xMin"] = p;
-			if (p.x > (*boundingPoints)["xMax"].x) (*boundingPoints)["xMax"] = p;
-
-			if (p.y < (*boundingPoints)["yMin"].y) (*boundingPoints)["yMin"] = p;
-			if (p.y > (*boundingPoints)["yMax"].y) (*boundingPoints)["yMax"] = p;
-
-			if (p.z < (*boundingPoints)["zMin"].z) (*boundingPoints)["zMin"] = p;
-			if (p.z > (*boundingPoints)["zMax"].z) (*boundingPoints)["zMax"] = p;
+			aabb.min.x = std::min(aabb.min.x, p.x);
+			aabb.max.x = std::max(aabb.max.x, p.x);
+			aabb.min.y = std::min(aabb.min.y, p.y);
+			aabb.max.y = std::max(aabb.max.y, p.y);
+			aabb.min.z = std::min(aabb.min.z, p.z);
+			aabb.max.z = std::max(aabb.max.z, p.z);
 		}
 	}
 
-	return boundingPoints;
+	return aabb;
 }
 
+//vec3 Geometry::extent(bool worldSpace) const {
+//	auto bp = *aabb(worldSpace);
+//	return vec3(bp["xMax"].x - bp["xMin"].x,
+//				bp["yMax"].y - bp["yMin"].y,
+//				bp["zMax"].z - bp["zMin"].z);
+//}
+
 vec3 Geometry::extent(bool worldSpace) const {
-	auto bp = *boundingPoints(worldSpace);
-	return vec3(bp["xMax"].x - bp["xMin"].x,
-				bp["yMax"].y - bp["yMin"].y,
-				bp["zMax"].z - bp["zMin"].z);
+	auto aabb = Geometry::aabb(worldSpace);
+	return {aabb.max.x - aabb.min.x,
+			aabb.max.y - aabb.min.y,
+			aabb.max.z - aabb.min.z};
 }
 
 void Geometry::attachedToNode(shared_ptr<Node> node) {
