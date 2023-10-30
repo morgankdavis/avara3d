@@ -36,10 +36,12 @@ class btTriangleMesh;
 
 namespace ae {
 	
-	
+
+	class BulletBodyResources;
 #ifdef DESKTOP
 	class BulletDebugDrawer;
 #endif
+	class BulletShapeResources;
 	class Node;
 	class PhysicsBody;
 	class PhysicsShape;
@@ -56,18 +58,24 @@ namespace ae {
 	public:
 		
 		/* <ae_obj : <bt_rigidBody, bt_motionState>> */
+//		using PhysicsBodyBTMapping =
+//				std::map<std::shared_ptr<PhysicsBody>,
+//						std::pair<
+//								std::shared_ptr<btRigidBody>,
+//								std::shared_ptr<btDefaultMotionState> >>;
+
 		using PhysicsBodyBTMapping =
-				std::map<std::shared_ptr<PhysicsBody>,
-						std::pair<
-								std::shared_ptr<btRigidBody>,
-								std::shared_ptr<btDefaultMotionState> >>;
+				std::map<std::shared_ptr<PhysicsBody>, std::shared_ptr<BulletBodyResources>>;
 
 		/* <ae_obj : <bt_collisionShape, bt_childShapes>> */
+//		using PhysicsShapeBTMapping =
+//				std::map<std::shared_ptr<PhysicsShape>,
+//						std::tuple<
+//								std::shared_ptr<btCollisionShape>,
+//								std::vector<std::shared_ptr<btCollisionShape> >>>;
+
 		using PhysicsShapeBTMapping =
-				std::map<std::shared_ptr<PhysicsShape>,
-						std::tuple<
-								std::shared_ptr<btCollisionShape>,
-								std::vector<std::shared_ptr<btCollisionShape> >>>;
+				std::map<std::shared_ptr<PhysicsShape>, std::shared_ptr<BulletShapeResources>>;
 
 		/* <ae_obj : <bt_collisionShape, bt_childShapes, btTriangleIndexVertexArray>> */
 //		using PhysicsShapeBTMapping =
@@ -76,15 +84,6 @@ namespace ae {
 //															std::vector<std::shared_ptr<btCollisionShape>,
 //															std::optional<btTriangleIndexVertexArray> >>>;
 
-		/* <btBvhTriangleMeshShape : btTriangleIndexVertexArray> */
-//		using BTBhvMeshToVertexArrayMapping =
-//				std::map<std::shared_ptr<btBvhTriangleMeshShape>, std::shared_ptr<btTriangleIndexVertexArray>>;
-
-//		using PhysicsShapeBTMapping =
-//			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
-//															   std::vector<std::shared_ptr<btCollisionShape>>,
-//															   std::shared_ptr<btTriangleMesh>>>;
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
