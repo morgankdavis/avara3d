@@ -12,6 +12,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -22,12 +23,14 @@
 struct btDefaultMotionState;
 struct btDbvtBroadphase;
 
+class btBvhTriangleMeshShape;
 class btCollisionDispatcher;
 class btCollisionShape;
 class btDefaultCollisionConfiguration;
 class btDiscreteDynamicsWorld;
 class btRigidBody;
 class btSequentialImpulseConstraintSolver;
+class btTriangleIndexVertexArray;
 class btTriangleMesh;
 
 
@@ -54,14 +57,29 @@ namespace ae {
 		
 		/* <ae_obj : <bt_rigidBody, bt_motionState>> */
 		using PhysicsBodyBTMapping =
-			std::map<std::shared_ptr<PhysicsBody>, std::pair<std::shared_ptr<btRigidBody>, 
-												   			 std::shared_ptr<btDefaultMotionState>>>;
-		
+				std::map<std::shared_ptr<PhysicsBody>,
+						std::pair<
+								std::shared_ptr<btRigidBody>,
+								std::shared_ptr<btDefaultMotionState> >>;
+
 		/* <ae_obj : <bt_collisionShape, bt_childShapes>> */
 		using PhysicsShapeBTMapping =
-			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
-															   std::vector<std::shared_ptr<btCollisionShape>>>>;
-		
+				std::map<std::shared_ptr<PhysicsShape>,
+						std::tuple<
+								std::shared_ptr<btCollisionShape>,
+								std::vector<std::shared_ptr<btCollisionShape> >>>;
+
+		/* <ae_obj : <bt_collisionShape, bt_childShapes, btTriangleIndexVertexArray>> */
+//		using PhysicsShapeBTMapping =
+//				std::map<std::shared_ptr<PhysicsShape>, std::tuple<
+//															std::shared_ptr<btCollisionShape>,
+//															std::vector<std::shared_ptr<btCollisionShape>,
+//															std::optional<btTriangleIndexVertexArray> >>>;
+
+		/* <btBvhTriangleMeshShape : btTriangleIndexVertexArray> */
+//		using BTBhvMeshToVertexArrayMapping =
+//				std::map<std::shared_ptr<btBvhTriangleMeshShape>, std::shared_ptr<btTriangleIndexVertexArray>>;
+
 //		using PhysicsShapeBTMapping =
 //			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
 //															   std::vector<std::shared_ptr<btCollisionShape>>,

@@ -147,8 +147,29 @@ int Example::run(const vector<string>& args) {
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
 	planeNode->physicsBody(planePhysicsBody);
-	
+
 	scene->rootNode()->addChild(planeNode);
+
+
+	// add the palm tree
+
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	m_palmNode = palmScene->rootNode();
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	m_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
 
 
 	// add the duck

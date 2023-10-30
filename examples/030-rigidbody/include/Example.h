@@ -39,6 +39,7 @@ namespace example {
 		std::shared_ptr<ae::InputManager>	m_inputManager;
 		std::shared_ptr<ae::Node>			m_cameraNode;
 
+		std::shared_ptr<ae::Node>			m_palmNode;
 		std::shared_ptr<ae::Node>			m_duckSpinnerNode;
 		std::shared_ptr<ae::Node>			m_duckNode;
 		std::shared_ptr<ae::Node>			m_paddleNode;
