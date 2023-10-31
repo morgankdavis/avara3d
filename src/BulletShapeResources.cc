@@ -15,10 +15,16 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> shapes,
-										   shared_ptr<btTriangleIndexVertexArray> indexVertexArrays):
-		_shapes(shapes),
-		_indexVertexArrays(indexVertexArrays) {
+BulletShapeResources::BulletShapeResources(shared_ptr<btCollisionShape> shape,
+										   shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
+										   vector<shared_ptr<btCollisionShape>> childShapes,
+										   vector<shared_ptr<btIndexedMesh>> childIndexedMeshes,
+										   vector<shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays):
+		_shape(shape),
+		_indexVertexArray(indexVertexArray),
+		_childShapes(childShapes),
+		_childIndexedMeshes(childIndexedMeshes),
+		_childIndexVertexArrays(childIndexVertexArrays) {
 
 }
 
@@ -30,10 +36,23 @@ BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> 
 	Public
  *********************************************************************************************/
 
-vector<shared_ptr<btCollisionShape>>& BulletShapeResources::shapes() {
-	return _shapes;
+shared_ptr<btCollisionShape>& BulletShapeResources::shape() {
+	return _shape;
 }
 
-shared_ptr<btTriangleIndexVertexArray>& BulletShapeResources::indexVertexArrays() {
-	return _indexVertexArrays;
+shared_ptr<btTriangleIndexVertexArray>& BulletShapeResources::indexVertexArray() {
+	return _indexVertexArray;
 }
+
+vector<shared_ptr<btCollisionShape>>& BulletShapeResources::childShapes() {
+	return _childShapes;
+}
+
+vector<shared_ptr<btIndexedMesh>>& BulletShapeResources::childIndexedMeshes() {
+	return _childIndexedMeshes;
+}
+
+vector<shared_ptr<btTriangleIndexVertexArray>>&	BulletShapeResources::childIndexVertexArrays() {
+	return _childIndexVertexArrays;
+}
+

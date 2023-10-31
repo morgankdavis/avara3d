@@ -56,6 +56,15 @@ namespace ae {
 		const std::vector<Vertex>& 			vertices() const;
 		const std::vector<Face>&			faces() const;
 
+//		const std::shared_ptr<std::vector<Vertex>>& 			vertices() const;
+//		const std::shared_ptr<std::vector<Face>>&			faces() const;
+
+		std::vector<Vertex>* 			verticesPtr();
+		std::vector<Face>*			facesPtr();
+
+		std::shared_ptr<std::vector<Vertex>> 			verticesSPtr();
+		std::shared_ptr<std::vector<Face>>			facesSPtr();
+
 		GEOMETRY_ELEMENT_DIRTY_BITS 		dirtyBits() const;
 		void 								dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
 		
@@ -67,6 +76,9 @@ namespace ae {
 
 		std::vector<Vertex>					_vertices;
 		std::vector<Face>					_faces;
+
+//		std::shared_ptr<std::vector<Vertex>>					_vertices;
+//		std::shared_ptr<std::vector<Face>>					_faces;
 
 		GEOMETRY_ELEMENT_DIRTY_BITS			_dirtyBits;
 	};

@@ -12,6 +12,7 @@
 
 
 class btCollisionShape;
+class btIndexedMesh;
 class btRigidBody;
 class btTriangleIndexVertexArray;
 
@@ -27,16 +28,34 @@ namespace ae {
 
 	public:
 
-		BulletShapeResources(std::vector<std::shared_ptr<btCollisionShape>> shapes,
-							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArrays);
+		BulletShapeResources(std::shared_ptr<btCollisionShape> shape,
+							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
+							 std::vector<std::shared_ptr<btCollisionShape>> childShapes,
+							 std::vector<std::shared_ptr<btIndexedMesh>> childIndexedMeshes, // MAYBE NOT NECESSARY
+							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays);
 //		~BulletShapeResources();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<btCollisionShape>>&		shapes();
-		std::shared_ptr<btTriangleIndexVertexArray>&		indexVertexArrays();
+		// - if 'shape' is a normal btCollisionShape with dynamic or kinematic body,
+		// 'indexVertexArray', 'childShapes', and 'childIndexVertexArrays' will be empty.
+		// - if 'shape' is a normal btCollisionShape with static body,
+		// 'indexVertexArray' will have vertex data shared with one or more GeometryElements,
+		// and 'childShapes' and 'childIndexVertexArrays' will be empty.
+		// - if 'shape' is a btCompoundShape with dynamic or kinematic body,
+		// 'indexVertexArray' and 'childIndexVertexArrays' will be empty, and
+		// 'childIndexVertexArrays' will contain child shapes.
+		// - if 'shape' is a btCompoundShape with static body,
+		// 'indexVertexArray' will be empty, 'childShapes' will contain the child shapes,
+		// and 'childIndexVertexArrays' will contain the child index vertex arrays.
+
+		std::shared_ptr<btCollisionShape>&							shape();
+		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
+		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
+		std::vector<std::shared_ptr<btIndexedMesh>>&				childIndexedMeshes(); // MAYBE NOT NECESSARY
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
 
 /*********************************************************************************************
 	 Private
@@ -44,8 +63,11 @@ namespace ae {
 
 	private:
 
-		std::vector<std::shared_ptr<btCollisionShape>>		_shapes;
-		std::shared_ptr<btTriangleIndexVertexArray>			_indexVertexArrays;
+		std::shared_ptr<btCollisionShape>							_shape;
+		std::shared_ptr<btTriangleIndexVertexArray>					_indexVertexArray;
+		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
+		std::vector<std::shared_ptr<btIndexedMesh>>&				_childIndexedMeshes; // MAYBE NOT NECESSARY
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
 	};
 }
 

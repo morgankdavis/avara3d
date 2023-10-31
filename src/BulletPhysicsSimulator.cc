@@ -20,7 +20,9 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "Box.h"
+#include "BulletBodyResources.h"
 #include "BulletDebugDrawer.h"
+#include "BulletShapeResources.h"
 #include "Capsule.h"
 #include "Cone.h"
 #include "Cylinder.h"
@@ -64,7 +66,7 @@ void 									GetPhysicsShapeBTModels(std::shared_ptr<ae::PhysicsShape> shape,
 																vector<shared_ptr<btCollisionShape>>& btChildShapes,
 																btDiscreteDynamicsWorld& btWorld,
 																BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping,
-																bool& wasDirty);
+																bool& newlyCreated);
 static void 							CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>& active,
 																   btDiscreteDynamicsWorld& btWorld,
 																   BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping);
@@ -78,7 +80,8 @@ static void 							DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShap
 static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(std::shared_ptr<ae::Geometry> geometry,
 																	PHYSICS_SHAPE_TYPE shapeType,
 																	PHYSICS_BODY_TYPE bodyType,
-																	shared_ptr<btTriangleIndexVertexArray>& indexVertexArrays);
+																	std::vector<shared_ptr<btIndexedMesh>>& childIndexedMeshes,
+																	shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
 																  PHYSICS_SHAPE_TYPE shapeType,
 																  PHYSICS_BODY_TYPE bodyType,
@@ -292,7 +295,7 @@ void BulletPhysicsSimulator::step(float time) {
 	Static
  *********************************************************************************************/
 
-void GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
+void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 							shared_ptr<btRigidBody>* btBody,
 							shared_ptr<btDefaultMotionState>* btMotionState,
 							shared_ptr<btCollisionShape>* btShape,
@@ -407,7 +410,8 @@ void GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
 		*btBody = newBody;
 		*btMotionState = newMotionState;
 
-		bodyBTMapping[body] = make_pair(newBody, newMotionState);
+		//bodyBTMapping[body] = make_pair(newBody, newMotionState);
+		bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
 		
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::TYPE));
@@ -423,9 +427,11 @@ void GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
 													   PHYSICS_BODY_DIRTY_BITS::RESTITUTION));
 	}
 	else {
-		auto mapping = bodyBTMapping[body];
-		*btBody = get<0>(mapping);
-		*btMotionState = get<1>(mapping);
+		auto resources = bodyBTMapping[body];
+//		*btBody = get<0>(resources);
+//		*btMotionState = get<1>(resources);
+		*btBody = resources->body();
+		*btMotionState = resources->motionState();
 	}
 	
 	// check and set the rest of the properties
@@ -557,70 +563,81 @@ void GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
 	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false));
 }
 
-void GetPhysicsShapeBTModels(std::shared_ptr<ae::PhysicsShape> shape,
+void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 							 PHYSICS_BODY_TYPE bodyType,
 							 shared_ptr<btCollisionShape>* btShape,
 							 vector<shared_ptr<btCollisionShape>>& btChildShapes,
 							 btDiscreteDynamicsWorld& btWorld,
 							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping,
-							 bool& created) {
+							 bool& newlyCreated) {
 
 	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
 										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
-		
+
+		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
+
+		shared_ptr<btCollisionShape> newShape = nullptr;
+		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+		auto childShapes = vector<shared_ptr<btCollisionShape>>();
+		auto childTriangleMeshes = std::vector<shared_ptr<btIndexedMesh>>();
+		auto childIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+
 		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
 
-			shared_ptr<btTriangleIndexVertexArray> indexVertexArray = nullptr;
-			auto newShape = BTCollisionShapeFromGeometry(sourceGeometry,
-														 shape->type(),
-														 bodyType,
-														 indexVertexArray);
-			
-			// out parameters
-			*btShape = newShape;
+			newShape = BTCollisionShapeFromGeometry(sourceGeometry,
+													shape->type(),
+													bodyType,
+													childTriangleMeshes, // MAYBE NOT NECESSARY
+													indexVertexArray);
 
-			btShapeMapping[shape] = make_tuple(newShape,
-											   vector<std::shared_ptr<btCollisionShape>>());
+			if (auto sourceNode = shape->sourceNode().lock()) {
+				if (sourceNode->name()) {
+//					auto triangles = indexVertexArray->getIndexedMeshArray()[0].m_numTriangles;
+//					AE_LOG_D("[{}] shape: {:p}, indexVertexArray: {:p} / {} triangles",
+//							 *sourceNode->name(), (void*)shape.get(), (void*)indexVertexArray.get(), triangles);
+
+					AE_LOG_D("[{}] shape: {:p}, indexVertexArray: {:p}",
+							 *sourceNode->name(), (void*)shape.get(), (void*)indexVertexArray.get());
+				}
+			}
 		}
 		else if (auto sourceNode = shape->sourceNode().lock()) {
 
-			auto newChildShapes = vector<shared_ptr<btCollisionShape>>();
-			auto newIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
-			auto newShape = BTCompoundShapeFromNode(sourceNode,
-													shape->type(),
-													bodyType,
-													newChildShapes,
-													newIndexVertexArrays);
-			
-			// out parameters
-			*btShape = newShape;
-			for (auto& c : newChildShapes) {
-				btChildShapes.push_back(c);
-			}
+			newShape = BTCompoundShapeFromNode(sourceNode,
+											   shape->type(),
+											   bodyType,
+											   childShapes,
+											   childIndexVertexArrays);
 
-			btShapeMapping[shape] = make_tuple(dynamic_pointer_cast<btCollisionShape>(newShape),
-											   newChildShapes);
+			//auto triangles = indexVertexArray->getIndexedMeshArray()[0].m_numTriangles;
+			AE_LOG_D("[{}] childShapes: {}, childIndexVertexArrays: {}",
+					 *sourceNode->name(), childShapes.size(), childIndexVertexArrays.size());
 		}
 		else {
 			// this might better be an assertation where nodes are checked before submitted to the PhysicsSimulator
 			throw Exception("PhysicsBody with no geometry or source node.");
 			btShape = nullptr;
 		}
+
+		// out parameters
+		*btShape = newShape;
+		btChildShapes.insert(btChildShapes.end(), childShapes.begin(), childShapes.end());
+		btShapeMapping[shape] = make_shared<BulletShapeResources>(newShape,
+																  indexVertexArray,
+																  childShapes,
+																  childTriangleMeshes, // MAYBE NOT NECESSARY
+																  childIndexVertexArrays);
+		newlyCreated = true;
 		
 		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
 														 PHYSICS_SHAPE_DIRTY_BITS::MODEL));
-
-		created = true;
 	}
 	else {
-		auto mapping = btShapeMapping[shape];
-		*btShape = get<0>(mapping);
-		auto childShapes = get<1>(mapping);
-		for (auto& c : childShapes) {
-			btChildShapes.push_back(c);
-		}
-
-		created = false;
+		auto resources = btShapeMapping[shape];
+		*btShape = resources->shape();
+		auto childShapes = resources->childShapes();
+		btChildShapes.insert(btChildShapes.end(), childShapes.begin(), childShapes.end());
+		newlyCreated = false;
 	}
 }
 
@@ -709,9 +726,9 @@ void DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
 								  btDiscreteDynamicsWorld& btWorld,
 								  BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping) {
 	
-	auto btHandles = btBodyMapping[body];
+	auto resources = btBodyMapping[body];
 	
-	shared_ptr<btRigidBody> btRigidBody = get<0>(btHandles);
+	shared_ptr<btRigidBody> btRigidBody = resources->body();
 	btWorld.removeRigidBody(btRigidBody.get());
 	
 	btBodyMapping.erase(body);
@@ -726,8 +743,9 @@ void DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE shapeType,
 														  PHYSICS_BODY_TYPE bodyType,
-														  shared_ptr<btTriangleIndexVertexArray>& indexVertexArrays) {
-	AE_LOG_T("BTCollisionShapeFromGeometry()");
+														  std::vector<shared_ptr<btIndexedMesh>>& childIndexedMeshes,
+														  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+	AE_LOG_T("");
 
 	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
 		// static objects ALWAYS use btBvhTriangleMeshShape
@@ -735,9 +753,19 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		// "btBvhTriangleMeshShape can be used for static/kinematic objects only.
 		// You can use btGImpactMeshShapes (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
 
-		AE_LOG_I("Static body, using btBvhTriangleMeshShape.");
+		AE_LOG_I("******************** STATIC BODY, using btBvhTriangleMeshShape.");
+		bool hasName = false;
+		if (auto node = geometry->node().lock()) {
+			auto name = node->name();
+			if (name.has_value()) {
+				AE_LOG_I("Static geometry node name: {}", *node->name());
+				hasName = true;
+			}
+		}
 
-
+		if (!hasName) {
+			AE_LOG_W("Static body geometry node has no name.");
+		}
 
 		// ****************
 		// WORKS but copies vertex data?
@@ -756,39 +784,108 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 //		}
 //
 //		static auto shape = make_shared<btBvhTriangleMeshShape>(triangleMesh.get(), true);
+//		return shape;
 
-
-
-//		using BTBhvMeshVertexArrayMapping =
-//				std::map<std::shared_ptr<btBvhTriangleMeshShape>, std::shared_ptr<btTriangleIndexVertexArray>>;
 
 		// *** btTriangleIndexVertexArray.addIndexedMesh() takes a reference to btIndexedMesh,
 		// which REFERENCES vertex data in GeometryElement, and btBvhTriangleMeshShape takes
 		// a reference to btTriangleIndexVertexArray.
 		// need to keep all of these datatypes alive for the duration of the btBvhTriangleMeshShape's life.
 
-		static auto triangleIndexVertexArray = make_shared<btTriangleIndexVertexArray>();
+		//static int i = 0;
+		//static auto meshes = vector<shared_ptr<btIndexedMesh>>();
+//		static auto vertsVec = vector<shared_ptr<vector<Vertex>>>();
+//		static auto facesVec = vector<shared_ptr<vector<Face>>>();
+		static auto vertsVec = vector<vector<Vertex>*>();
+		static auto facesVec = vector<vector<Face>*>();
+
 		for (auto& element : geometry->elements()) {
-			static auto verts = element->vertices();
-			static auto faces = element->faces();
+//			static auto faces = element->faces();
+//			static auto verts = element->vertices();
+//
+//			auto indexedMesh = make_shared<btIndexedMesh>();
+//
+//			indexedMesh->m_numTriangles = (int)faces.size();
+//			indexedMesh->m_triangleIndexBase = (const unsigned char *)&faces[0];
+//			indexedMesh->m_triangleIndexStride = sizeof(Face);
+//			// "The index type is set when adding an indexed mesh to the
+//			// btTriangleIndexVertexArray, do not set it manually"
+//			//indexedMesh->m_indexType = PHY_INTEGER;
+//			indexedMesh->m_numVertices = (int)verts.size();
+//			indexedMesh->m_vertexBase = (const unsigned char *)&verts[0];
+//			indexedMesh->m_vertexStride = sizeof(Vertex);
+//			indexedMesh->m_vertexType = PHY_FLOAT;
+
+// WORKS
+//			static auto verts = *element->verticesSPtr();
+//			static auto faces = *element->facesSPtr();
+//
+//			static auto indexedMesh = make_shared<btIndexedMesh>();
+//
+//			indexedMesh->m_numTriangles = (int)faces.size();
+//			indexedMesh->m_triangleIndexBase = (const unsigned char *)(&faces[0]);
+//			indexedMesh->m_triangleIndexStride = sizeof(Face);
+//			// "The index type is set when adding an indexed mesh to the
+//			// btTriangleIndexVertexArray, do not set it manually"
+//			//indexedMesh->m_indexType = PHY_INTEGER;
+//			indexedMesh->m_numVertices = (int)verts.size();
+//			indexedMesh->m_vertexBase = (const unsigned char *)(&verts[0]);
+//			indexedMesh->m_vertexStride = sizeof(Vertex);
+//			indexedMesh->m_vertexType = PHY_FLOAT;
+//
+//			childIndexedMeshes.push_back(indexedMesh);
+
+
+// DOESN'T WORKS
+//			static auto verts = element->verticesSPtr();
+//			static auto faces = element->facesSPtr();
+//
+//			static auto indexedMesh = make_shared<btIndexedMesh>();
+//
+//			indexedMesh->m_numTriangles = (int)faces->size();
+//			indexedMesh->m_triangleIndexBase = (const unsigned char *)(&faces.get()[0]);
+//			indexedMesh->m_triangleIndexStride = sizeof(Face);
+//			// "The index type is set when adding an indexed mesh to the
+//			// btTriangleIndexVertexArray, do not set it manually"
+//			//indexedMesh->m_indexType = PHY_INTEGER;
+//			indexedMesh->m_numVertices = (int)verts->size();
+//			indexedMesh->m_vertexBase = (const unsigned char *)(&verts.get()[0]);
+//			indexedMesh->m_vertexStride = sizeof(Vertex);
+//			indexedMesh->m_vertexType = PHY_FLOAT;
+//
+//			childIndexedMeshes.push_back(indexedMesh);
+
+
+// WTF?
+//			auto verts = element->verticesSPtr();
+//			auto faces = element->facesSPtr();
+
+			auto verts = element->verticesPtr();
+			auto faces = element->facesPtr();
 
 			auto indexedMesh = make_shared<btIndexedMesh>();
 
-			indexedMesh->m_numTriangles = (int)faces.size();
-			indexedMesh->m_triangleIndexBase = (const unsigned char *)&faces[0];
-			indexedMesh->m_triangleIndexStride = sizeof(Face); // is this right? -- sizeof(Face), sizeof(int)?
-			indexedMesh->m_indexType = PHY_INTEGER;
-			indexedMesh->m_numVertices = (int)verts.size();
-			indexedMesh->m_vertexBase = (const unsigned char *)&verts[0];
-			indexedMesh->m_vertexStride = sizeof(Vertex); // is this right? -- sizeof(Vertex), sizeof(glm::vec3)?
+			indexedMesh->m_numTriangles = (int)faces->size();
+			indexedMesh->m_triangleIndexBase = (const unsigned char *)faces->data();//&faces[0];
+			indexedMesh->m_triangleIndexStride = sizeof(Face);
+			// "The index type is set when adding an indexed mesh to the
+			// btTriangleIndexVertexArray, do not set it manually"
+			//indexedMesh->m_indexType = PHY_INTEGER;
+			indexedMesh->m_numVertices = (int)verts->size();
+			indexedMesh->m_vertexBase = (const unsigned char *)verts->data();//&verts[0];
+			indexedMesh->m_vertexStride = sizeof(Vertex);
 			indexedMesh->m_vertexType = PHY_FLOAT;
 
-			triangleIndexVertexArray->addIndexedMesh(*indexedMesh);
+//			childIndexedMeshes.push_back(indexedMesh);
+//			vertsVec.push_back(verts);
+//			facesVec.push_back(faces);
+
+
+
+			indexVertexArray->addIndexedMesh(*indexedMesh);
 		}
 
-		static auto shape = make_shared<btBvhTriangleMeshShape>(triangleIndexVertexArray.get(), true);
-
-		return shape;
+		return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
 	}
 	else {
 
@@ -906,33 +1003,31 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(std::shared_ptr<ae::Node> no
 													PHYSICS_SHAPE_TYPE shapeType,
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes,
-													vector<shared_ptr<btTriangleIndexVertexArray>>& indexVertexArrays) {
+													vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
 	AE_LOG_T("");
 
-	auto compoundShape = make_shared<btCompoundShape>(true);
-	
-	auto allNodes = node->children(true);
-	for (auto n : allNodes) {
-		auto geometry = n->geometry();
-		if (geometry) {
+	auto compoundShape = make_shared<btCompoundShape>(true); // for compound shapes only
 
-			shared_ptr<btTriangleIndexVertexArray> indexVertexArray = nullptr;
-			auto collisionShape = BTCollisionShapeFromGeometry(geometry,
-															   shapeType,
-															   bodyType,
-															   indexVertexArray);
+	for (auto& n : node->children(true)) {
+		if (auto geometry = n->geometry()) {
+
+			auto childTriangleMeshes = std::vector<shared_ptr<btIndexedMesh>>(); // TEMP? ^ if used pass in
+			auto childIndexVertexArray = make_shared<btTriangleIndexVertexArray>();
+			auto childCollisionShape = BTCollisionShapeFromGeometry(geometry,
+																	shapeType,
+																	bodyType,
+																	childTriangleMeshes, // !!!!!!!!!!!!!!!!
+																	childIndexVertexArray);
 			
-			childShapes.push_back(collisionShape);
-			indexVertexArrays.push_back(indexVertexArray);
+			childShapes.push_back(childCollisionShape);
+			childIndexVertexArrays.push_back(childIndexVertexArray);
 
-			//btTransform localTransform = BTTransformFromGLMMat4(n->transform());
 			bool wasScaled = false;
 			auto localTransform = BTTransformFromGLMMat4(TransformByRemovingScale(n->transform(), wasScaled));
-//			if (wasScaled) {
-//				AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-//							 (void*)node.get(), (void*)body.get());
-//			}
-			compoundShape->addChildShape(localTransform, collisionShape.get());
+			if (wasScaled) {
+				AE_LOG_W("Ignorning (child) scale for Node {:p}.", (void*)node.get());
+			}
+			compoundShape->addChildShape(localTransform, childCollisionShape.get());
 		}
 	}
 	
@@ -1047,6 +1142,8 @@ btTransform BTTransformFromGLMMat4(const mat4& from) {
 }
 
 mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
+	// TODO: optimize
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -1061,7 +1158,8 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 			  perspective);
 
 	scaled = !Equal(scale, {1, 1, 1});
-	return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
+	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
+	else return m;
 }
 
 //glm::mat4 BulletToGlm(const btTransform& t)

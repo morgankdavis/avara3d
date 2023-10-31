@@ -78,6 +78,36 @@ const vector<Face>& GeometryElement::faces() const {
 	return _faces;
 }
 
+std::vector<Vertex>* GeometryElement::verticesPtr() {
+	return &_vertices;
+}
+
+std::vector<Face>* GeometryElement::facesPtr() {
+	return &_faces;
+}
+
+shared_ptr<std::vector<Vertex>> GeometryElement::verticesSPtr() {
+	auto shared = make_shared<vector<Vertex>>();
+	shared->reserve(_vertices.size());
+	shared->insert(shared->end(), _vertices.begin(), _vertices.end());
+	return shared;
+}
+
+shared_ptr<std::vector<Face>> GeometryElement::facesSPtr() {
+	auto shared = make_shared<vector<Face>>();
+	shared->reserve(_faces.size());
+	shared->insert(shared->end(), _faces.begin(), _faces.end());
+	return shared;
+}
+
+//const std::shared_ptr<std::vector<Vertex>>& GeometryElement::vertices() const {
+//	return _vertices;
+//}
+//
+//const std::shared_ptr<std::vector<Face>>& GeometryElement::faces() const {
+//	return _faces;
+//}
+
 GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
 	return _dirtyBits;
 }
