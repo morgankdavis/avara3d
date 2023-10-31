@@ -31,7 +31,6 @@ namespace ae {
 		BulletShapeResources(std::shared_ptr<btCollisionShape> shape,
 							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
 							 std::vector<std::shared_ptr<btCollisionShape>> childShapes,
-							 std::vector<std::shared_ptr<btIndexedMesh>> childIndexedMeshes, // MAYBE NOT NECESSARY
 							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays);
 //		~BulletShapeResources();
 
@@ -54,7 +53,6 @@ namespace ae {
 		std::shared_ptr<btCollisionShape>&							shape();
 		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
 		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
-		std::vector<std::shared_ptr<btIndexedMesh>>&				childIndexedMeshes(); // MAYBE NOT NECESSARY
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
 
 /*********************************************************************************************
@@ -66,7 +64,6 @@ namespace ae {
 		std::shared_ptr<btCollisionShape>							_shape;
 		std::shared_ptr<btTriangleIndexVertexArray>					_indexVertexArray;
 		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
-		std::vector<std::shared_ptr<btIndexedMesh>>&				_childIndexedMeshes; // MAYBE NOT NECESSARY
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
 	};
 }

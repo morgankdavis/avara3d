@@ -18,12 +18,10 @@ using namespace std;
 BulletShapeResources::BulletShapeResources(shared_ptr<btCollisionShape> shape,
 										   shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
 										   vector<shared_ptr<btCollisionShape>> childShapes,
-										   vector<shared_ptr<btIndexedMesh>> childIndexedMeshes,
 										   vector<shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays):
 		_shape(shape),
 		_indexVertexArray(indexVertexArray),
 		_childShapes(childShapes),
-		_childIndexedMeshes(childIndexedMeshes),
 		_childIndexVertexArrays(childIndexVertexArrays) {
 
 }
@@ -46,10 +44,6 @@ shared_ptr<btTriangleIndexVertexArray>& BulletShapeResources::indexVertexArray()
 
 vector<shared_ptr<btCollisionShape>>& BulletShapeResources::childShapes() {
 	return _childShapes;
-}
-
-vector<shared_ptr<btIndexedMesh>>& BulletShapeResources::childIndexedMeshes() {
-	return _childIndexedMeshes;
 }
 
 vector<shared_ptr<btTriangleIndexVertexArray>>&	BulletShapeResources::childIndexVertexArrays() {

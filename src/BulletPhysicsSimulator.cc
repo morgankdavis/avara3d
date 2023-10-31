@@ -80,7 +80,6 @@ static void 							DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShap
 static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(std::shared_ptr<ae::Geometry> geometry,
 																	PHYSICS_SHAPE_TYPE shapeType,
 																	PHYSICS_BODY_TYPE bodyType,
-																	std::vector<shared_ptr<btIndexedMesh>>& childIndexedMeshes,
 																	shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
 																  PHYSICS_SHAPE_TYPE shapeType,
@@ -587,7 +586,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 			newShape = BTCollisionShapeFromGeometry(sourceGeometry,
 													shape->type(),
 													bodyType,
-													childTriangleMeshes, // MAYBE NOT NECESSARY
 													indexVertexArray);
 
 			if (auto sourceNode = shape->sourceNode().lock()) {
@@ -625,7 +623,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		btShapeMapping[shape] = make_shared<BulletShapeResources>(newShape,
 																  indexVertexArray,
 																  childShapes,
-																  childTriangleMeshes, // MAYBE NOT NECESSARY
 																  childIndexVertexArrays);
 		newlyCreated = true;
 		
@@ -743,7 +740,6 @@ void DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
 shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 														  PHYSICS_SHAPE_TYPE shapeType,
 														  PHYSICS_BODY_TYPE bodyType,
-														  std::vector<shared_ptr<btIndexedMesh>>& childIndexedMeshes,
 														  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_T("");
 
@@ -753,134 +749,32 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		// "btBvhTriangleMeshShape can be used for static/kinematic objects only.
 		// You can use btGImpactMeshShapes (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
 
-		AE_LOG_I("******************** STATIC BODY, using btBvhTriangleMeshShape.");
-		bool hasName = false;
-		if (auto node = geometry->node().lock()) {
-			auto name = node->name();
-			if (name.has_value()) {
-				AE_LOG_I("Static geometry node name: {}", *node->name());
-				hasName = true;
-			}
-		}
-
-		if (!hasName) {
-			AE_LOG_W("Static body geometry node has no name.");
-		}
-
-		// ****************
-		// WORKS but copies vertex data?
-		// ****************
-
-//		static auto triangleMesh = make_shared<btTriangleMesh>(true, false);
-//		for (auto& element : geometry->elements()) {
-//			auto verts = element->vertices();
-//			auto faces = element->faces();
-//			for (auto& face : faces) {
-//				triangleMesh->addTriangle(BTVector3FromGLMVec3(verts[face.a].position),
-//										  BTVector3FromGLMVec3(verts[face.b].position),
-//										  BTVector3FromGLMVec3(verts[face.c].position),
-//										  false);
-//			}
-//		}
-//
-//		static auto shape = make_shared<btBvhTriangleMeshShape>(triangleMesh.get(), true);
-//		return shape;
-
-
-		// *** btTriangleIndexVertexArray.addIndexedMesh() takes a reference to btIndexedMesh,
-		// which REFERENCES vertex data in GeometryElement, and btBvhTriangleMeshShape takes
-		// a reference to btTriangleIndexVertexArray.
-		// need to keep all of these datatypes alive for the duration of the btBvhTriangleMeshShape's life.
-
-		//static int i = 0;
-		//static auto meshes = vector<shared_ptr<btIndexedMesh>>();
-//		static auto vertsVec = vector<shared_ptr<vector<Vertex>>>();
-//		static auto facesVec = vector<shared_ptr<vector<Face>>>();
-		static auto vertsVec = vector<vector<Vertex>*>();
-		static auto facesVec = vector<vector<Face>*>();
-
 		for (auto& element : geometry->elements()) {
-//			static auto faces = element->faces();
-//			static auto verts = element->vertices();
-//
-//			auto indexedMesh = make_shared<btIndexedMesh>();
-//
-//			indexedMesh->m_numTriangles = (int)faces.size();
-//			indexedMesh->m_triangleIndexBase = (const unsigned char *)&faces[0];
-//			indexedMesh->m_triangleIndexStride = sizeof(Face);
-//			// "The index type is set when adding an indexed mesh to the
-//			// btTriangleIndexVertexArray, do not set it manually"
-//			//indexedMesh->m_indexType = PHY_INTEGER;
-//			indexedMesh->m_numVertices = (int)verts.size();
-//			indexedMesh->m_vertexBase = (const unsigned char *)&verts[0];
-//			indexedMesh->m_vertexStride = sizeof(Vertex);
-//			indexedMesh->m_vertexType = PHY_FLOAT;
 
-// WORKS
-//			static auto verts = *element->verticesSPtr();
-//			static auto faces = *element->facesSPtr();
-//
-//			static auto indexedMesh = make_shared<btIndexedMesh>();
-//
-//			indexedMesh->m_numTriangles = (int)faces.size();
-//			indexedMesh->m_triangleIndexBase = (const unsigned char *)(&faces[0]);
-//			indexedMesh->m_triangleIndexStride = sizeof(Face);
-//			// "The index type is set when adding an indexed mesh to the
-//			// btTriangleIndexVertexArray, do not set it manually"
-//			//indexedMesh->m_indexType = PHY_INTEGER;
-//			indexedMesh->m_numVertices = (int)verts.size();
-//			indexedMesh->m_vertexBase = (const unsigned char *)(&verts[0]);
-//			indexedMesh->m_vertexStride = sizeof(Vertex);
-//			indexedMesh->m_vertexType = PHY_FLOAT;
-//
-//			childIndexedMeshes.push_back(indexedMesh);
+			auto vertsBase = element->vertices().data();
+			auto facesBase = element->faces().data();
 
+//			auto verts = element->verticesPtr();
+//			auto faces = element->facesPtr();
 
-// DOESN'T WORKS
-//			static auto verts = element->verticesSPtr();
-//			static auto faces = element->facesSPtr();
-//
-//			static auto indexedMesh = make_shared<btIndexedMesh>();
-//
-//			indexedMesh->m_numTriangles = (int)faces->size();
-//			indexedMesh->m_triangleIndexBase = (const unsigned char *)(&faces.get()[0]);
-//			indexedMesh->m_triangleIndexStride = sizeof(Face);
-//			// "The index type is set when adding an indexed mesh to the
-//			// btTriangleIndexVertexArray, do not set it manually"
-//			//indexedMesh->m_indexType = PHY_INTEGER;
-//			indexedMesh->m_numVertices = (int)verts->size();
-//			indexedMesh->m_vertexBase = (const unsigned char *)(&verts.get()[0]);
-//			indexedMesh->m_vertexStride = sizeof(Vertex);
-//			indexedMesh->m_vertexType = PHY_FLOAT;
-//
-//			childIndexedMeshes.push_back(indexedMesh);
+			auto verts = element->vertices();
+			auto faces = element->faces();
 
-
-// WTF?
-//			auto verts = element->verticesSPtr();
-//			auto faces = element->facesSPtr();
-
-			auto verts = element->verticesPtr();
-			auto faces = element->facesPtr();
+//			auto vertsBase = verts.data();
+//			auto facesBase = faces.data();
 
 			auto indexedMesh = make_shared<btIndexedMesh>();
 
-			indexedMesh->m_numTriangles = (int)faces->size();
-			indexedMesh->m_triangleIndexBase = (const unsigned char *)faces->data();//&faces[0];
+			indexedMesh->m_numTriangles = (int)faces.size();
+			indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
 			indexedMesh->m_triangleIndexStride = sizeof(Face);
-			// "The index type is set when adding an indexed mesh to the
-			// btTriangleIndexVertexArray, do not set it manually"
+			/* "The index type is set when adding an indexed mesh to the
+			btTriangleIndexVertexArray, do not set it manually" -- btTriangleIndexVertexArray.h:39 */
 			//indexedMesh->m_indexType = PHY_INTEGER;
-			indexedMesh->m_numVertices = (int)verts->size();
-			indexedMesh->m_vertexBase = (const unsigned char *)verts->data();//&verts[0];
+			indexedMesh->m_numVertices = (int)verts.size();
+			indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
 			indexedMesh->m_vertexStride = sizeof(Vertex);
 			indexedMesh->m_vertexType = PHY_FLOAT;
-
-//			childIndexedMeshes.push_back(indexedMesh);
-//			vertsVec.push_back(verts);
-//			facesVec.push_back(faces);
-
-
 
 			indexVertexArray->addIndexedMesh(*indexedMesh);
 		}
@@ -1016,7 +910,6 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(std::shared_ptr<ae::Node> no
 			auto childCollisionShape = BTCollisionShapeFromGeometry(geometry,
 																	shapeType,
 																	bodyType,
-																	childTriangleMeshes, // !!!!!!!!!!!!!!!!
 																	childIndexVertexArray);
 			
 			childShapes.push_back(childCollisionShape);
