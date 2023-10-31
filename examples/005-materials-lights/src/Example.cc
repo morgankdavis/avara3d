@@ -124,7 +124,7 @@ int Example::run(const vector<string>& args) {
 	scene->background(background);
 
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::DarkGray());
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	m_ambientLightNode = ambientLightNode;
@@ -232,9 +232,9 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, *(renderContext.scene()));
 	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, *(renderContext.scene()));
 	
-	if 		(keysPressed.count(KEY::F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1, 0.1, 0.1, 1.0));
-	else if (keysPressed.count(KEY::F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2, 0.2, 0.2, 1.0));
-	else if (keysPressed.count(KEY::F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3, 0.3, 0.3, 1.0));
+	if 		(keysPressed.count(KEY::F10)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.1f, 0.1, 0.1, 1.0));
+	else if (keysPressed.count(KEY::F11)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	else if (keysPressed.count(KEY::F12)) 	m_ambientLightNode->light()->color(make_shared<Color>(0.3f, 0.3, 0.3, 1.0));
 	
 	if 		(keysPressed.count(KEY::F1)) 	m_pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysPressed.count(KEY::F2)) 	m_pointLightNode->light()->attenuationFactor(0.00015);

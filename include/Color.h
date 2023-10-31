@@ -55,6 +55,8 @@ namespace ae {
 		Color();
 		Color(float r, float g, float b);
 		Color(float r, float g, float b, float a);
+		Color(int r, int g, int b);
+		Color(int r, int g, int b, int a);
 		Color(float black);
 		//Color(const Color& color); // copy
 		
