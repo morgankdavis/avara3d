@@ -744,39 +744,41 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	AE_LOG_T("");
 
 	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
+		AE_LOG_I("Creating static convex traniangle mesh physics shape for geometry {:p}...", (void*)geometry.get());
+
 		// static objects ALWAYS use btBvhTriangleMeshShape
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-		// "btBvhTriangleMeshShape can be used for static/kinematic objects only.
-		// You can use btGImpactMeshShapes (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
 
 		for (auto& element : geometry->elements()) {
 
+			// WORKS
 			auto vertsBase = element->vertices().data();
 			auto facesBase = element->faces().data();
 
-//			auto verts = element->verticesPtr();
-//			auto faces = element->facesPtr();
+			// WORKS
+//			auto vertsBase = &element->vertices()[0];
+//			auto facesBase = &element->faces()[0];
 
-			auto verts = element->vertices();
-			auto faces = element->faces();
-
+			// DOES NOT WORK
+//			auto verts = element->vertices();
+//			auto faces = element->faces();
 //			auto vertsBase = verts.data();
 //			auto facesBase = faces.data();
 
+			// ^^ asked about on Bullet forum:
+			// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
+
 			auto indexedMesh = make_shared<btIndexedMesh>();
 
-			indexedMesh->m_numTriangles = (int)faces.size();
+			indexedMesh->m_numTriangles = (int)element->faces().size();
 			indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
 			indexedMesh->m_triangleIndexStride = sizeof(Face);
-			/* "The index type is set when adding an indexed mesh to the
-			btTriangleIndexVertexArray, do not set it manually" -- btTriangleIndexVertexArray.h:39 */
-			//indexedMesh->m_indexType = PHY_INTEGER;
-			indexedMesh->m_numVertices = (int)verts.size();
+			indexedMesh->m_numVertices = (int)element->vertices().size();
 			indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
 			indexedMesh->m_vertexStride = sizeof(Vertex);
 			indexedMesh->m_vertexType = PHY_FLOAT;
 
-			indexVertexArray->addIndexedMesh(*indexedMesh);
+			indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
 		}
 
 		return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
@@ -841,7 +843,8 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 				AE_LOG_C("Concave polyhedron physics shapes not supported.");
 
 				// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-				// "You can use btGImpactMeshShapes (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+				// "You can use  (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+				// https://pybullet.org/Bullet/BulletFull/classbtGImpactMeshShape.html
 
 			}
 			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
