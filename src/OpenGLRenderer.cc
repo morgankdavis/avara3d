@@ -847,7 +847,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_I("Buffering vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG_D("Buffering vertex data for geometry element {:p}...", (void*)&element);
 	
 	program.use();
 	
@@ -1125,12 +1125,12 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		
 		
-		AE_LOG_I("Buffering 2D texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering 2D texture {:p}...", (void*)&property);
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
 		glGenTextures(1, &glTextureHandle);
-		AE_LOG_I("Binding new texture handle: {}", glTextureHandle);
+		AE_LOG_D("Binding new texture handle: {}", glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 		unsigned bytesPerPixel = image->bytesPerPixel();

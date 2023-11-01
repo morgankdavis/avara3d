@@ -209,7 +209,7 @@ int ae::utils::Uniform(int min, int max) {
 	return dis(gen);
 }
 
-float ae::utils::Uniform(float min, int max) {
+float ae::utils::Uniform(float min, float max) {
 	static random_device rd;
 	static mt19937 gen(rd());
 	uniform_real_distribution<> dis(min, max);

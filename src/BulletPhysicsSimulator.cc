@@ -10,6 +10,7 @@
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#include <BulletCollision/Gimpact/btGImpactShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <LinearMath/btIDebugDraw.h>
@@ -332,7 +333,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION)) {
 		
-		AE_LOG_I("Creating rigid body for physics body {:p}...", (void*)body.get());
+		AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)body.get());
 
 //		#warning experimental
 //		if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
@@ -744,7 +745,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	AE_LOG_T("");
 
 	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
-		AE_LOG_I("Creating static convex traniangle mesh physics shape for geometry {:p}...", (void*)geometry.get());
+		AE_LOG_I("Creating static concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
 
 		// static objects ALWAYS use btBvhTriangleMeshShape
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -783,7 +784,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 
 		return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
 	}
-	else {
+	else { // DYNAMIC or KINEMATIC
 
 		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 			AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
@@ -840,12 +841,35 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		else {
 
 			if (shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-				AE_LOG_C("Concave polyhedron physics shapes not supported.");
+				AE_LOG_I("Creating concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
 
 				// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-				// "You can use  (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
-				// https://pybullet.org/Bullet/BulletFull/classbtGImpactMeshShape.html
+				// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
 
+				for (auto& element : geometry->elements()) {
+
+					// see notes above under PHYSICS_BODY_TYPE::STATIC
+					auto vertsBase = element->vertices().data();
+					auto facesBase = element->faces().data();
+
+					auto indexedMesh = make_shared<btIndexedMesh>();
+
+					indexedMesh->m_numTriangles = (int)element->faces().size();
+					indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
+					indexedMesh->m_triangleIndexStride = sizeof(Face);
+					indexedMesh->m_numVertices = (int)element->vertices().size();
+					indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
+					indexedMesh->m_vertexStride = sizeof(Vertex);
+					indexedMesh->m_vertexType = PHY_FLOAT;
+
+					indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+				}
+
+				auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
+				// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
+				gImpactMeshShape->updateBound();
+
+				return gImpactMeshShape;
 			}
 			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
 
@@ -853,24 +877,17 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 
 				// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
-				unsigned numVerticies = 0;
+				// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
+				auto originalShape = make_shared<btConvexHullShape>();
 				for (auto& element : geometry->elements()) {
-					numVerticies += element->vertices().size();
+					for (auto& vertex : element->vertices()) {
+						originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
+					}
 				}
-				vector<Vertex> verticies;
-				verticies.reserve(numVerticies);
-				for (auto& element : geometry->elements()) {
-					auto verts = element->vertices();
-					verticies.insert(verticies.end(), &verts[0], &verts[0] + verts.size());
-				}
-
-				auto originalShape = make_shared<btConvexHullShape>((const btScalar*)&verticies[0],
-																	numVerticies,
-																	sizeof(Vertex));
+				originalShape->recalcLocalAabb();
 
 				// reduce number of verticies
 				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-
 				auto hull = btShapeHull(originalShape.get());
 				btScalar margin = originalShape->getMargin();
 				hull.buildHull((btScalar)margin);
@@ -885,8 +902,6 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 				if (!reducedShape->initializePolyhedralFeatures()) {
 					AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
 				}
-
-//				reducedShape.get()->setMargin(0);
 
 				return reducedShape;
 			}

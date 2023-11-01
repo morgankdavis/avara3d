@@ -38,7 +38,7 @@ using namespace std;
 PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE type):
 	_sourceGeometry({}),
 	_sourceNode({}),
-	_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
+	_type(type),
 	_transforms(vector<mat4>()),
 	_physicsBody({}),
 	_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
@@ -51,7 +51,7 @@ PhysicsShape::PhysicsShape(shared_ptr<Geometry> geometry, PHYSICS_SHAPE_TYPE typ
 PhysicsShape::PhysicsShape(shared_ptr<Node> node, PHYSICS_SHAPE_TYPE type):
 	_sourceGeometry({}),
 	_sourceNode({}),
-	_type(PHYSICS_SHAPE_TYPE::CONVEX_HULL),
+	_type(type),
 	_transforms(vector<mat4>()),
 	_physicsBody({}),
 	_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
@@ -83,6 +83,11 @@ weak_ptr<Node> PhysicsShape::sourceNode() const {
 
 PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 	return _type;
+}
+
+void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+	_type = type;
+	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
 }
 
 /* ? */ vector<glm::mat4> PhysicsShape::transforms() const {

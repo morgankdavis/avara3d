@@ -41,41 +41,41 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody():
-	_type(PHYSICS_BODY_TYPE::STATIC),
-	_shape(nullptr),
-	_linearFactor({1.0, 1.0, 1.0}),
-	_angularFactor({1.0, 1.0, 1.0}),
-	_mass(1.0),
-	_friction(0.5),
-	_rollingFriction(0.0),
-	_restitution(0.0),
-	_linearDamping(0.0),
-	_angularDamping(0.0),
-	_momentOfInertia({0, 0, 0}),
-	//_momentOfInertia({1000, 1000, 1000}),
-	_linearVelocity({0, 0, 0}),
-	_angularVelocity({0, 0, 0}),
-	_linearSleepingThreshold(0.8),
-	_angularSleepingThreshold(1.0),
-	_allowsResting(true),
-	_affectedByGravity(true),
-	_resting(false),
-	_node({}),
-	_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
-	
+		_type(PHYSICS_BODY_TYPE::DYNAMIC),
+		_shape(nullptr),
+		_linearFactor({1.0, 1.0, 1.0}),
+		_angularFactor({1.0, 1.0, 1.0}),
+		_mass(1.0),
+		_friction(0.5),
+		_rollingFriction(0.0),
+		_restitution(0.0),
+		_linearDamping(0.0),
+		_angularDamping(0.0),
+		_momentOfInertia({0, 0, 0}),
+		//_momentOfInertia({1000, 1000, 1000}),
+		_linearVelocity({0, 0, 0}),
+		_angularVelocity({0, 0, 0}),
+		_linearSleepingThreshold(0.8),
+		_angularSleepingThreshold(1.0),
+		_allowsResting(true),
+		_affectedByGravity(true),
+		_resting(false),
+		_node({}),
+		_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
+
 }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
-	PhysicsBody() {
-	
-		this->type(type);
+		PhysicsBody() {
+
+	this->type(type);
 }
 
 //PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
-//	PhysicsBody(type) {
-//		
-//		this->type(type);
-//		this->shape(shape);
+//		PhysicsBody() {
+//
+//	this->type(type);
+//	this->shape(shape);
 //}
 
 PhysicsBody::~PhysicsBody() {
@@ -355,6 +355,8 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
  *********************************************************************************************/
 
 void PhysicsBody::checkShape() {
+	AE_LOG_T("");
+
 //	if (!_shape) {
 //		if (auto node = _node.lock()) {
 //			auto geometry = node->geometry();

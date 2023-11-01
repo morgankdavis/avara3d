@@ -208,15 +208,12 @@ int Example::run(const vector<string>& args) {
 	
 	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
 	m_duckNode->position({4.5, 15, 0});
-	//m_duckNode->scale({0.25, 0.25, 0.25});
-//	m_duckNode->scale({0.33, 0.33, 0.33});
-//#warning TEMPORARY workaround for physics scaling
-//	for (auto& c : m_duckNode->children(true)) {
-//		LOG_D(m_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
-//		c->geometry()->burnTransform(m_duckNode->transform(), true);
-//		m_duckNode->transform(mat4(1.0));
-//	}
 	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
+	auto duckPhysicsShape = make_shared<PhysicsShape>(m_duckNode->geometry(),
+													  PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(m_duckNode, // DOESN'T WORK
+//													  PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	m_duckNode->physicsBody()->shape(duckPhysicsShape);
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
 	scene->rootNode()->addChild(m_duckSpinnerNode);
@@ -615,7 +612,9 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		}
 		
 //		node->scale({5.0, 5.0, 5.0});
-		node->position(duckNode->worldPosition() + vec3(0.0, 1.0, 0.0));
+		// add local offset to duck, then convert that position to world space,
+		// then attach to root node (below)
+		node->position(duckNode->worldPosition() + vec3(0.0, 2.5, 0.0));
 		
 		//	node->scale({3.0, 3.0, 3.0});
 		//#warning TEMPORARY workaround for physics scaling
@@ -625,9 +624,9 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//		node->transform(mat4(1.0));
 		//	}
 		
-//		auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+		//auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 		auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-		
+		//auto phyicsShape = make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->shape(phyicsShape);
 		
@@ -809,6 +808,8 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	node->rotation(rotation);
 	
 	auto physicsBody = PhysicsBody::DynamicBody();
+	auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
+	physicsBody->shape(phyicsShape);
 	physicsBody->mass(0.1);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.5);

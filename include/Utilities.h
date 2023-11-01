@@ -70,7 +70,7 @@ namespace ae {
  *********************************************************************************************/
 		
 		int Uniform(int min, int max);
-		float Uniform(float min, int max);
+		float Uniform(float min, float max);
 		
 		bool Zero(const glm::vec3& v, float tolerance = 0.0001);
 		float Max(const glm::vec3& v);
