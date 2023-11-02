@@ -52,13 +52,10 @@ namespace ae {
  *********************************************************************************************/
 
 		std::weak_ptr<ae::Geometry> 		sourceGeometry() const;
-
 		std::weak_ptr<ae::Node> 			sourceNode() const;
 
 		PHYSICS_SHAPE_TYPE 					type() const;
 		void 								type(PHYSICS_SHAPE_TYPE type);
-
-		std::vector<glm::mat4> 				transforms() const;
 
 /*********************************************************************************************
 	Internal
@@ -84,11 +81,6 @@ namespace ae {
 		std::weak_ptr<ae::Geometry> 		_sourceGeometry;
 		std::weak_ptr<ae::Node>				_sourceNode;
 		PHYSICS_SHAPE_TYPE 					_type;
-		// the array of transforms that was used to create a compound shape.
-		std::vector<glm::mat4> 				_transforms;
-
-		std::weak_ptr<PhysicsBody>			_physicsBody;
-		
 		PHYSICS_SHAPE_DIRTY_BITS 			_dirtyBits;
 	};
 }

@@ -13,12 +13,10 @@
 #include <BulletCollision/Gimpact/btGImpactShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <LinearMath/btIDebugDraw.h>
 #include <LinearMath/btScalar.h> // btGetVersion() !
-// apparently we're not using anything experimental here since at least GLM .9.9.8
-//#warning experimental
-//#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_decompose.hpp>
+#include <magic_enum.hpp>
 
 #include "Box.h"
 #include "BulletBodyResources.h"
@@ -46,7 +44,7 @@ using namespace glm;
 using namespace std;
 
 
-constexpr unsigned MAX_SUBSTEPS =	10;
+constexpr unsigned MAX_SUBSTEPS =	20;
 
 
 /*********************************************************************************************
@@ -120,7 +118,7 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 	_activeBodies(unordered_set<std::shared_ptr<ae::PhysicsBody>>()),
 	_activeShapes(unordered_set<std::shared_ptr<ae::PhysicsShape>>()) {
 
-		AE_LOG_I("Bullet version: {}",  btGetVersion());
+		AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
 #ifdef GL_FULL
 		_btWorld.get()->setDebugDrawer(_debugDrawer.get());
@@ -593,17 +591,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 													shape->type(),
 													bodyType,
 													indexVertexArray);
-
-			if (auto sourceNode = shape->sourceNode().lock()) {
-				if (sourceNode->name()) {
-//					auto triangles = indexVertexArray->getIndexedMeshArray()[0].m_numTriangles;
-//					AE_LOG_D("[{}] shape: {:p}, indexVertexArray: {:p} / {} triangles",
-//							 *sourceNode->name(), (void*)shape.get(), (void*)indexVertexArray.get(), triangles);
-
-					AE_LOG_D("[{}] shape: {:p}, indexVertexArray: {:p}",
-							 *sourceNode->name(), (void*)shape.get(), (void*)indexVertexArray.get());
-				}
-			}
 		}
 		// if there is no geometry on this node, construct a compound shape encompassing
 		// all child node geometries.
@@ -614,9 +601,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 											   bodyType,
 											   childShapes,
 											   childIndexVertexArrays);
-
-			AE_LOG_D("[{}] childShapes: {}, childIndexVertexArrays: {}",
-					 *sourceNode->name(), childShapes.size(), childIndexVertexArrays.size());
 		}
 		else {
 			// this might better be an assertation where nodes are checked before submitted to the PhysicsSimulator
@@ -805,7 +789,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else if (dynamic_cast<Box*>(geometry.get())) {
 			AE_LOG_I("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
 
 			auto box = dynamic_cast<Box*>(geometry.get());
 			return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
@@ -814,14 +798,14 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else if (dynamic_cast<Sphere*>(geometry.get())) {
 			AE_LOG_I("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
 
 			auto sphere = dynamic_cast<Sphere*>(geometry.get());
 			return make_shared<btSphereShape>((btScalar)sphere->radius());
 		}
 		else if (dynamic_cast<Capsule*>(geometry.get())) {
 			AE_LOG_I("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
 
 			auto capsule = dynamic_cast<Capsule*>(geometry.get());
 			return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
@@ -829,7 +813,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else if (dynamic_cast<Cone*>(geometry.get())) {
 			AE_LOG_I("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
 
 			auto cone = dynamic_cast<Cone*>(geometry.get());
 			return make_shared<btConeShape>((btScalar)cone->radius(),
@@ -837,7 +821,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else if (dynamic_cast<Cylinder*>(geometry.get())) {
 			AE_LOG_I("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), static_cast<underlying_type<PHYSICS_SHAPE_TYPE>::type>(shapeType));
+					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
 
 			auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
 			return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
@@ -851,6 +835,13 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 
 				// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 				// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+				// doesn't seem to want to collide with static shapes.
+				// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
+				// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
+				// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
+				// - GImpact shapes are well optimized for when you need dynamic concave shapes.
+				// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
+				// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
 
 				for (auto& element : geometry->elements()) {
 
@@ -891,7 +882,6 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 					}
 				}
 				originalShape->recalcLocalAabb();
-
 
 				// reduce number of verticies
 				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility

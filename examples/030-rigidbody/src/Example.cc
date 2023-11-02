@@ -621,15 +621,11 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//		c->geometry()->burnTransform(node->transform(), true);
 		//		node->transform(mat4(1.0));
 		//	}
-		
-		//auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-		auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node);
-		//auto phyicsShape = make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+
+		auto physicsShape = PhysicsShape::ConvexHullShape();
 		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->shape(phyicsShape);
-		
-		
-		
+		physicsBody->shape(physicsShape);
+
 		physicsBody->mass(mass);
 		physicsBody->restitution(0.25);
 		physicsBody->friction(1);
@@ -805,13 +801,13 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	node->position(location);
 	node->rotation(rotation);
 
-//	auto physicsBody = PhysicsBody::DynamicBody();
-//	auto phyicsShape = PhysicsShape::BoundingBoxShape();
-//	physicsBody->shape(phyicsShape);
+	auto physicsBody = PhysicsBody::DynamicBody();
+	auto phyicsShape = PhysicsShape::BoundingBoxShape();
+	physicsBody->shape(phyicsShape);
 
-// this SHOULD work but doesn't
-	auto physicsShape = PhysicsShape::BoundingBoxShape();
-	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
+ 	// this SHOULD work but doesn't
+//	auto physicsShape = PhysicsShape::BoundingBoxShape();
+//	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 
 	physicsBody->mass(0.1);
 	physicsBody->restitution(0.1);

@@ -32,32 +32,31 @@ using namespace std;
 
 #ifndef ANDROID
 Image::Image(const std::filesystem::path& path, bool flipVertical):
-	_data(nullptr),
-	_width(0),
-	_height(0),
-	_bytesPerPixel(0) {
-	
-		//auto data = BinaryFile(path);
-		auto buffer = Buffer(path);
-		loadBuffer(buffer, flipVertical);
+		_data(nullptr),
+		_width(0),
+		_height(0),
+		_bytesPerPixel(0) {
+
+	auto buffer = Buffer(path);
+	loadBuffer(buffer, flipVertical);
 }
 #endif
 
 Image::Image(std::shared_ptr<Buffer> buffer, bool flipVertical):
-	_data(nullptr),
-	_width(0),
-	_height(0),
-	_bytesPerPixel(0) {
-		
-		loadBuffer(*buffer, flipVertical);
+		_data(nullptr),
+		_width(0),
+		_height(0),
+		_bytesPerPixel(0) {
+
+	loadBuffer(*buffer, flipVertical);
 }
 
 Image::Image(shared_ptr<Buffer> rawBuffer, unsigned width, unsigned height,
 			 unsigned bytesPerPixel, bool flip):
-	_data(rawBuffer),
-	_width(width),
-	_height(height),
-	_bytesPerPixel(bytesPerPixel) {
+		_data(rawBuffer),
+		_width(width),
+		_height(height),
+		_bytesPerPixel(bytesPerPixel) {
 
 	if (flip) {
 		flipVertical();
@@ -90,8 +89,10 @@ unsigned Image::bytesPerPixel() const {
 
 bool Image::writePNG(std::filesystem::path path) const {
 	
-	return !stbi_write_png(path.string().c_str(), _width, _height,
-						   _bytesPerPixel, _data->pointer(), _width*_bytesPerPixel);
+	return !stbi_write_png(path.string().c_str(),
+						   _width, _height, _bytesPerPixel,
+						   _data->pointer(),
+						   _width*_bytesPerPixel);
 }
 
 /*********************************************************************************************
@@ -125,7 +126,7 @@ void Image::loadBuffer(Buffer& inBuf, bool flip) {
 	}
 
 	_data = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
-								 static_cast<size_t>(width * height * bytesPerPixel));
+								static_cast<size_t>(width * height * bytesPerPixel));
 	
 	stbi_image_free(imgData);
 	

@@ -23,9 +23,11 @@
 #endif
 
 #ifdef GL_FULL
+// TODO: why are these using quotation marks?
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <magic_enum.hpp>
 
 #endif
 

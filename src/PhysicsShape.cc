@@ -8,26 +8,16 @@
 
 #include "PhysicsShape.h"
 
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <magic_enum.hpp>
 
-#include "Box.h"
-#include "Capsule.h"
-#include "Cone.h"
-#include "Cylinder.h"
 #include "Geometry.h"
-#include "GeometryElement.h"
 #include "Logger.h"
 #include "Node.h"
 #include "PhysicsBody.h"
-#include "Plane.h"
-#include "Sphere.h"
-#include "Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -56,8 +46,6 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
 		_sourceGeometry({}),
 		_sourceNode({}),
 		_type(type),
-		_transforms(vector<mat4>()),
-		_physicsBody({}),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 
 	AE_LOG_D("Creating PhysicsShape type {}...",
@@ -68,8 +56,6 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 		_sourceGeometry({}),
 		_sourceNode({}),
 		_type(type),
-		_transforms(vector<mat4>()),
-		_physicsBody({}),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -89,8 +75,6 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 		_sourceGeometry({}),
 		_sourceNode({}),
 		_type(type),
-		_transforms(vector<mat4>()),
-		_physicsBody({}),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 
 	if (auto name = node->name()) {
@@ -130,10 +114,6 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
 }
 
-/* ? */ vector<glm::mat4> PhysicsShape::transforms() const {
-	return _transforms;
-}
-
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -151,7 +131,7 @@ void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
 }
 
 void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-	_physicsBody = body;
+
 	_sourceNode = body->node();
 
 	if (auto node = _sourceNode.lock()) {
@@ -159,19 +139,6 @@ void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 			sourceGeometry(geometry);
 		}
 	}
-}
-
-//vector<shared_ptr<btCollisionShape>>& PhysicsShape::childShapes() {
-//	return _childShapes;
-//}
-
-weak_ptr<PhysicsBody> PhysicsShape::physicsBody() const {
-	return _physicsBody;
-}
-
-void PhysicsShape::physicsBody(shared_ptr<PhysicsBody> body) {
-	_physicsBody = body;
-	attachedToBody(body);
 }
 
 PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
