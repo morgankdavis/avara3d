@@ -170,10 +170,11 @@ int Example::run(const vector<string>& args) {
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
+	planeNode->physicsBody(std::move(planePhysicsBody));
 	planePhysicsBody->mass(0);
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
-	planeNode->physicsBody(planePhysicsBody);
+
 
 	scene->rootNode()->addChild(planeNode);
 
@@ -205,7 +206,7 @@ int Example::run(const vector<string>& args) {
 
 
 	// add the duck
-	
+
 	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
 	AE_LOG_I("DUCK NODE: {}", StringFromTree(*m_duckNode));
 	m_duckNode->position({4.5, 15, 0});
@@ -216,11 +217,11 @@ int Example::run(const vector<string>& args) {
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
 	scene->rootNode()->addChild(m_duckSpinnerNode);
-	
-	
-	
+
+
+
 	// add the paddle
-	
+
 	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
 	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
 	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);

@@ -118,15 +118,15 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		void 							resting(bool resting);
+		void 								resting(bool resting);
 		
-		void 							attachedToNode(std::shared_ptr<ae::Node> node);
-		void 							geometryAttachedToNode(std::shared_ptr<ae::Geometry> geometry);
+		void 								attachedToNode(std::shared_ptr<ae::Node> node);
+		void 								geometryAttachedToNode(std::shared_ptr<ae::Geometry> geometry);
 		
-		std::weak_ptr<ae::Node> 		node() const;
+		std::weak_ptr<ae::Node> 			node() const;
 		
-		PHYSICS_BODY_DIRTY_BITS 		dirtyBits() const;
-		void 							dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
+		PHYSICS_BODY_DIRTY_BITS 			dirtyBits() const;
+		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
 		
 /*********************************************************************************************
 	Private
@@ -134,7 +134,7 @@ namespace ae {
 
 	private:
 
-		void checkAutocreateShape();
+		void 								checkAutocreateShape();
 		
 		PHYSICS_BODY_TYPE 					_type;
 		std::shared_ptr<ae::PhysicsShape>	_shape;
