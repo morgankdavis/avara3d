@@ -43,7 +43,7 @@ namespace ae {
 		
 		PhysicsBody();
 		PhysicsBody(PHYSICS_BODY_TYPE type);
-//		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<ae::PhysicsShape> shape);
+		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<ae::PhysicsShape> shape);
 		~PhysicsBody();
 		
 /*********************************************************************************************
@@ -123,7 +123,7 @@ namespace ae {
 		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 		void 							geometryAttachedToNode(std::shared_ptr<ae::Geometry> geometry);
 		
-		std::weak_ptr<ae::Node> 						node() const;
+		std::weak_ptr<ae::Node> 		node() const;
 		
 		PHYSICS_BODY_DIRTY_BITS 		dirtyBits() const;
 		void 							dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
@@ -134,7 +134,7 @@ namespace ae {
 
 	private:
 
-		void checkShape();
+		void checkAutocreateShape();
 		
 		PHYSICS_BODY_TYPE 					_type;
 		std::shared_ptr<ae::PhysicsShape>	_shape;

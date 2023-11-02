@@ -207,12 +207,11 @@ int Example::run(const vector<string>& args) {
 	// add the duck
 	
 	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+	AE_LOG_I("DUCK NODE: {}", StringFromTree(*m_duckNode));
 	m_duckNode->position({4.5, 15, 0});
 	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	auto duckPhysicsShape = make_shared<PhysicsShape>(m_duckNode->geometry(),
-													  PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(m_duckNode, // DOESN'T WORK
-//													  PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
 	m_duckNode->physicsBody()->shape(duckPhysicsShape);
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
@@ -300,7 +299,6 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 
-	
 	// get input
 	
 	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
@@ -625,7 +623,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//	}
 		
 		//auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-		auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+		auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node);
 		//auto phyicsShape = make_shared<PhysicsShape>(node->geometry(), PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->shape(phyicsShape);
@@ -806,10 +804,15 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 
 	node->position(location);
 	node->rotation(rotation);
-	
-	auto physicsBody = PhysicsBody::DynamicBody();
-	auto phyicsShape = make_shared<PhysicsShape>(node, PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
-	physicsBody->shape(phyicsShape);
+
+//	auto physicsBody = PhysicsBody::DynamicBody();
+//	auto phyicsShape = PhysicsShape::BoundingBoxShape();
+//	physicsBody->shape(phyicsShape);
+
+// this SHOULD work but doesn't
+	auto physicsShape = PhysicsShape::BoundingBoxShape();
+	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
+
 	physicsBody->mass(0.1);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.5);

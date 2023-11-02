@@ -206,6 +206,10 @@ void BulletPhysicsSimulator::update(PASS pass,
 void BulletPhysicsSimulator::update(PASS pass, 
 									std::shared_ptr<ae::Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
+
+//	if ((node->name() != nullopt) && (*node->name() == "g duck")) {
+//		AE_LOG_I("QUACK");
+//	}
 	
 	auto body = node->physicsBody();
 	if (body) {
@@ -303,9 +307,10 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 							btDiscreteDynamicsWorld& btWorld,
 							BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
 							BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping) {
-	
+
 	bool shapeNewlyCreated = false;
-	
+
+	// g duck has no source geometry
 	GetPhysicsShapeBTModels(body->shape(),
 							body->type(),
 							btShape, btChildShapes,
@@ -600,6 +605,8 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 				}
 			}
 		}
+		// if there is no geometry on this node, construct a compound shape encompassing
+		// all child node geometries.
 		else if (auto sourceNode = shape->sourceNode().lock()) {
 
 			newShape = BTCompoundShapeFromNode(sourceNode,
@@ -608,7 +615,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 											   childShapes,
 											   childIndexVertexArrays);
 
-			//auto triangles = indexVertexArray->getIndexedMeshArray()[0].m_numTriangles;
 			AE_LOG_D("[{}] childShapes: {}, childIndexVertexArrays: {}",
 					 *sourceNode->name(), childShapes.size(), childIndexVertexArrays.size());
 		}
@@ -784,7 +790,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 
 		return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
 	}
-	else { // DYNAMIC or KINEMATIC
+	else { // PHYSICS_BODY_TYPE::DYNAMIC or PHYSICS_BODY_TYPE::KINEMATIC
 
 		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 			AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
@@ -886,6 +892,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 				}
 				originalShape->recalcLocalAabb();
 
+
 				// reduce number of verticies
 				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
 				auto hull = btShapeHull(originalShape.get());
@@ -916,7 +923,7 @@ shared_ptr<btCompoundShape> BTCompoundShapeFromNode(std::shared_ptr<ae::Node> no
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes,
 													vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
-	AE_LOG_T("");
+	AE_LOG_I("tree: {}", StringFromTree(*node));
 
 	auto compoundShape = make_shared<btCompoundShape>(true); // for compound shapes only
 

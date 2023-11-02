@@ -25,6 +25,16 @@ namespace ae {
 	
 
 	class PhysicsShape : public std::enable_shared_from_this<PhysicsShape> {
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+	public:
+
+		static std::shared_ptr<ae::PhysicsShape> 	BoundingBoxShape();
+		static std::shared_ptr<ae::PhysicsShape> 	ConvexHullShape();
+		static std::shared_ptr<ae::PhysicsShape> 	ConcavePolyhedronShape();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -32,8 +42,9 @@ namespace ae {
 
 	public:
 
-		PhysicsShape(std::shared_ptr<ae::Geometry> geometry, PHYSICS_SHAPE_TYPE type);
-		PhysicsShape(std::shared_ptr<ae::Node> node, PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(PHYSICS_SHAPE_TYPE type);
+		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<ae::Geometry> geometry);
+		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<ae::Node> node);
 		~PhysicsShape();
 		
 /*********************************************************************************************

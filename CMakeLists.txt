@@ -270,6 +270,9 @@ include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 
+# magic_enmum
+
+include_directories(external/magic_enum-0.9.3/include)
 
 # ae
 
