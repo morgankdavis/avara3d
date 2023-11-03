@@ -349,22 +349,17 @@ AABB Scene::aabb() const {
 	aabb.min.z = maxFloat;
 	aabb.max.z = minFloat;
 
-	vector<shared_ptr<Geometry>> geometries;
-	for (const auto& node : _rootNode->children(true)) {
+	for (const auto node : _rootNode->children(true)) {
 		if (node->geometry() && !node->light()) {
-			geometries.push_back(node->geometry());
+			auto geoAABB = node->geometry()->aabb(node);
+
+			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
+			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
+			aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
+			aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
+			aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
+			aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
 		}
-	}
-
-	for (const auto& geometry : geometries) {
-		auto geoAABB = geometry->aabb(rootNode());
-
-		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
-		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
-		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
-		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
-		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
-		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
 	}
 
 	return aabb;
