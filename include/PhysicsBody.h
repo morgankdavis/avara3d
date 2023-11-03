@@ -33,17 +33,19 @@ namespace ae {
 
 	public:
 
-		static std::shared_ptr<ae::PhysicsBody> 	StaticBody();
-		static std::shared_ptr<ae::PhysicsBody> 	DynamicBody();
-		static std::shared_ptr<ae::PhysicsBody> 	KinematicBody();
+		static std::shared_ptr<PhysicsBody> 	StaticBody();
+		static std::shared_ptr<PhysicsBody> 	DynamicBody();
+		static std::shared_ptr<PhysicsBody> 	KinematicBody();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
-		PhysicsBody();
+		//PhysicsBody();
+		// "If you pass nil for the shape parameter, SceneKit automatically creates a physics
+		// shape for the body when you attach it to a node, based on that node’s geometry property."
 		PhysicsBody(PHYSICS_BODY_TYPE type);
-		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<ae::PhysicsShape> shape);
+		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
 		~PhysicsBody();
 		
 /*********************************************************************************************
@@ -53,8 +55,8 @@ namespace ae {
 		PHYSICS_BODY_TYPE 					type() const;
 		void 								type(PHYSICS_BODY_TYPE type);
 
-		std::shared_ptr<ae::PhysicsShape> 	shape() const;
-		void 								shape(std::shared_ptr<ae::PhysicsShape> shape);
+		std::shared_ptr<PhysicsShape> 		shape() const;
+		void 								shape(std::shared_ptr<PhysicsShape> shape);
 
 		float 								mass() const;
 		void 								mass(float mass);
@@ -120,10 +122,10 @@ namespace ae {
 		
 		void 								resting(bool resting);
 		
-		void 								attachedToNode(std::shared_ptr<ae::Node> node);
-		void 								geometryAttachedToNode(std::shared_ptr<ae::Geometry> geometry);
+		void 								attachedToNode(std::shared_ptr<Node> node);
+		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 		
-		std::weak_ptr<ae::Node> 			node() const;
+//		std::weak_ptr<Node> 				node() const;
 		
 		PHYSICS_BODY_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
@@ -134,10 +136,11 @@ namespace ae {
 
 	private:
 
-		void 								checkAutocreateShape();
+		void 								checkAutocreateShape(std::shared_ptr<Node> node);
+		void 								checkAutocreateShape(std::shared_ptr<Geometry> geometry);
 		
 		PHYSICS_BODY_TYPE 					_type;
-		std::shared_ptr<ae::PhysicsShape>	_shape;
+		std::shared_ptr<PhysicsShape>		_shape;
 		float 								_mass;
 		glm::vec3 							_momentOfInertia;
 		float 								_friction;
@@ -155,7 +158,7 @@ namespace ae {
 		bool 								_allowsResting;
 		bool 								_resting;
 		
-		std::weak_ptr<ae::Node>				_node;
+//		std::weak_ptr<Node>					_node;
 
 		PHYSICS_BODY_DIRTY_BITS 			_dirtyBits;
 	};

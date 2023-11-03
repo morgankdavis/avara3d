@@ -8,6 +8,8 @@
 
 #include "BulletPhysicsSimulator.h"
 
+#include <variant>
+
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/Gimpact/btGImpactShape.h>
@@ -44,14 +46,15 @@ using namespace glm;
 using namespace std;
 
 
-constexpr unsigned MAX_SUBSTEPS =	20;
+constexpr unsigned MAX_SUBSTEPS = 20;
 
 
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
 
-void 									GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
+void 									GetPhysicsBodyBTModels(shared_ptr<Node> node,
+															   shared_ptr<PhysicsBody> body,
 															   shared_ptr<btRigidBody>* btBody,
 															   shared_ptr<btDefaultMotionState>* btMotionState,
 															   shared_ptr<btCollisionShape>* btShape,
@@ -59,28 +62,28 @@ void 									GetPhysicsBodyBTModels(std::shared_ptr<ae::PhysicsBody> body,
 															   btDiscreteDynamicsWorld& btWorld,
 															   BulletPhysicsSimulator::PhysicsBodyBTMapping& bodyBTMapping,
 															   BulletPhysicsSimulator::PhysicsShapeBTMapping& shapeBTMapping);
-void 									GetPhysicsShapeBTModels(std::shared_ptr<ae::PhysicsShape> shape,
+void 									GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 																PHYSICS_BODY_TYPE bodyType,
 																shared_ptr<btCollisionShape>* btShape,
 																vector<shared_ptr<btCollisionShape>>& btChildShapes,
 																btDiscreteDynamicsWorld& btWorld,
 																BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping,
 																bool& newlyCreated);
-static void 							CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>& active,
+static void 							CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 																   btDiscreteDynamicsWorld& btWorld,
 																   BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping);
-static void 							CleanupPhysicsShapeResources(unordered_set<std::shared_ptr<ae::PhysicsShape>>& active,
+static void 							CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
 																	BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping);
-static void 							DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
+static void 							DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
 																	btDiscreteDynamicsWorld& btWorld,
 																	BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping);
-static void 							DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
+static void 							DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
 																	 BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping);
-static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(std::shared_ptr<ae::Geometry> geometry,
+static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(shared_ptr<Geometry> geometry,
 																	PHYSICS_SHAPE_TYPE shapeType,
 																	PHYSICS_BODY_TYPE bodyType,
 																	shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
-static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
+static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(shared_ptr<Node> node,
 																  PHYSICS_SHAPE_TYPE shapeType,
 																  PHYSICS_BODY_TYPE bodyType,
 																  vector<shared_ptr<btCollisionShape>>& childShapes,
@@ -140,8 +143,8 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
  *********************************************************************************************/
 
 void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const mat4& viewMat,
+									   const mat4& projectionMat,
 									   const DEBUG_OPTIONS& debugOptions) {
 #ifdef GL_FULL
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
@@ -202,7 +205,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 }
 
 void BulletPhysicsSimulator::update(PASS pass, 
-									std::shared_ptr<ae::Node> node,
+									shared_ptr<Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
 
 //	if ((node->name() != nullopt) && (*node->name() == "g duck")) {
@@ -223,7 +226,8 @@ void BulletPhysicsSimulator::update(PASS pass,
 			shared_ptr<btCollisionShape> btShape = nullptr;
 			auto btChildShapes = vector<shared_ptr<btCollisionShape>>();
 			
-			GetPhysicsBodyBTModels(body,
+			GetPhysicsBodyBTModels(node,
+								   body,
 								   &btBody, &btMotionState, &btShape, btChildShapes,
 								   *_btWorld,
 								   _bodyBTMapping,
@@ -280,7 +284,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 }
 
 void BulletPhysicsSimulator::step(float time) {
-	AE_LOG_T("step()");
+	AE_LOG_T("");
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -297,7 +301,8 @@ void BulletPhysicsSimulator::step(float time) {
 	Static
  *********************************************************************************************/
 
-void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
+void GetPhysicsBodyBTModels(shared_ptr<Node> node,
+							shared_ptr<PhysicsBody> body,
 							shared_ptr<btRigidBody>* btBody,
 							shared_ptr<btDefaultMotionState>* btMotionState,
 							shared_ptr<btCollisionShape>* btShape,
@@ -316,7 +321,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 							shapeBTMapping,
 							shapeNewlyCreated);
 
-	auto node = body->node().lock();
+	//auto node = body->node().lock();
 	auto type = body->type();
 	
 	auto dirtyBits = body->dirtyBits();
@@ -329,6 +334,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 	auto shape = body->shape();
 
 	if (shapeNewlyCreated
+		// these properties only appear to be set-able via btRigidBodyConstructionInfo
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA)
@@ -384,7 +390,7 @@ void GetPhysicsBodyBTModels(shared_ptr<PhysicsBody> body,
 			collisionShape->calculateLocalInertia(mass, momentOfInertia);
 		}
 		
-		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((type == PHYSICS_BODY_TYPE::STATIC ? 0 : mass),
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
 															   newMotionState.get(),
 															   collisionShape.get(),
 															   momentOfInertia);
@@ -585,28 +591,83 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		auto childTriangleMeshes = std::vector<shared_ptr<btIndexedMesh>>();
 		auto childIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
 
-		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
+		// if the shape was created with a Node, construct a compound shape from that node's geometry
+		// (if any) and the geometry of all child nodes
+//		if (auto sourceObject = shape->sourceObject().lock()) {
 
-			newShape = BTCollisionShapeFromGeometry(sourceGeometry,
-													shape->type(),
-													bodyType,
-													indexVertexArray);
+		bool hasSource = false;
+		auto sourceObject = shape->sourceObject();
+		if (std::holds_alternative<weak_ptr<Node>>(sourceObject)) {
+			auto sourceNodeWeak = std::get<weak_ptr<Node>>(sourceObject);
+			if (auto sourceNode = sourceNodeWeak.lock()) {
+				hasSource = true;
+				newShape = BTCompoundShapeFromNode(sourceNode,
+												   shape->type(),
+												   bodyType,
+												   childShapes,
+												   childIndexVertexArrays);
+			}
 		}
-		// if there is no geometry on this node, construct a compound shape encompassing
-		// all child node geometries.
-		else if (auto sourceNode = shape->sourceNode().lock()) {
+		else if (std::holds_alternative<weak_ptr<Geometry>>(sourceObject)) {
+			auto sourceGeometryWeak = std::get<weak_ptr<Geometry>>(sourceObject);
+			if (auto sourceGeometry = sourceGeometryWeak.lock()) {
+				hasSource = true;
+				newShape = BTCollisionShapeFromGeometry(sourceGeometry,
+														shape->type(),
+														bodyType,
+														indexVertexArray);
+			}
+		}
 
-			newShape = BTCompoundShapeFromNode(sourceNode,
-											   shape->type(),
-											   bodyType,
-											   childShapes,
-											   childIndexVertexArrays);
-		}
-		else {
-			// this might better be an assertation where nodes are checked before submitted to the PhysicsSimulator
-			throw Exception("PhysicsBody with no geometry or source node.");
+		if (!hasSource) {
+			AE_LOG_E("No shape source.");
 			btShape = nullptr;
 		}
+
+
+//		// if the shape was created with a Node, construct a compound shape from that node's geometry
+//		// (if any) and the geometry of all child nodes
+//		if (auto sourceNode = shape->sourceNode().lock()) {
+//			newShape = BTCompoundShapeFromNode(sourceNode,
+//											   shape->type(),
+//											   bodyType,
+//											   childShapes,
+//											   childIndexVertexArrays);
+//		}
+//		// if the shape was created with a geometry, construct a shape with it.
+//		else if (auto sourceGeometry = shape->sourceGeometry().lock()) {
+//			newShape = BTCollisionShapeFromGeometry(sourceGeometry,
+//													shape->type(),
+//													bodyType,
+//													indexVertexArray);
+//		}
+//		else {
+//			AE_LOG_E("No shape source.");
+//			btShape = nullptr;
+//		}
+
+//		if (auto sourceGeometry = shape->sourceGeometry().lock()) {
+//
+//			newShape = BTCollisionShapeFromGeometry(sourceGeometry,
+//													shape->type(),
+//													bodyType,
+//													indexVertexArray);
+//		}
+//		// if there is no geometry on this node, construct a compound shape encompassing
+//		// all child node geometries.
+//		else if (auto sourceNode = shape->sourceNode().lock()) {
+//
+//			newShape = BTCompoundShapeFromNode(sourceNode,
+//											   shape->type(),
+//											   bodyType,
+//											   childShapes,
+//											   childIndexVertexArrays);
+//		}
+//		else {
+//			// this might better be an assertation where nodes are checked before submitted to the PhysicsSimulator
+//			throw Exception("PhysicsBody with no geometry or source node.");
+//			btShape = nullptr;
+//		}
 
 		// out parameters
 		*btShape = newShape;
@@ -629,7 +690,7 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 	}
 }
 
-void CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>& active,
+void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 								 btDiscreteDynamicsWorld& btWorld,
 								 BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping) {
 	
@@ -670,7 +731,7 @@ void CleanupPhysicsBodyResources(unordered_set<std::shared_ptr<ae::PhysicsBody>>
 	}
 }
 
-void CleanupPhysicsShapeResources(unordered_set<std::shared_ptr<ae::PhysicsShape>>& active,
+void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& active,
 								  BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping) {
 	
 	// gather sorted vector of shapes used this frame
@@ -710,7 +771,7 @@ void CleanupPhysicsShapeResources(unordered_set<std::shared_ptr<ae::PhysicsShape
 	}
 }
 
-void DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
+void DeletePhysicsBodyBTResources(shared_ptr<PhysicsBody> body,
 								  btDiscreteDynamicsWorld& btWorld,
 								  BulletPhysicsSimulator::PhysicsBodyBTMapping& btBodyMapping) {
 	
@@ -722,7 +783,7 @@ void DeletePhysicsBodyBTResources(std::shared_ptr<ae::PhysicsBody> body,
 	btBodyMapping.erase(body);
 }
 
-void DeletePhysicsShapeBTResources(std::shared_ptr<ae::PhysicsShape> shape,
+void DeletePhysicsShapeBTResources(shared_ptr<PhysicsShape> shape,
 								   BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping) {
 	
 	btShapeMapping.erase(shape);
@@ -779,7 +840,7 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 			AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
 
-			vec3 extent = geometry->extent(false);
+			vec3 extent = geometry->extent();
 			float width = extent.x;
 			float height = extent.y;
 			float length = extent.z;
@@ -908,15 +969,16 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	return nullptr;
 }
 
-shared_ptr<btCompoundShape> BTCompoundShapeFromNode(std::shared_ptr<ae::Node> node,
+shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													PHYSICS_SHAPE_TYPE shapeType,
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes,
 													vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
-	AE_LOG_I("tree: {}", StringFromTree(*node));
+	AE_LOG_T("");
 
 	auto compoundShape = make_shared<btCompoundShape>(true); // for compound shapes only
 
+	// TODO: if node also has a geometry, include that
 	for (auto& n : node->children(true)) {
 		if (auto geometry = n->geometry()) {
 
@@ -1096,4 +1158,3 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 //	m[3][3] = 1.0f;
 //	return m;
 //}
-

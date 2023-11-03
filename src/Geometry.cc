@@ -31,28 +31,28 @@ using namespace glm;
  *********************************************************************************************/
 
 Geometry::Geometry():
-	_name(std::nullopt),
-	_elements(vector<std::shared_ptr<ae::GeometryElement>>()),
-	_materials(vector<std::shared_ptr<ae::Material>>()),
-	_node({}),
-	_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
+		_name(std::nullopt),
+		_elements(vector<std::shared_ptr<ae::GeometryElement>>()),
+		_materials(vector<std::shared_ptr<ae::Material>>()),
+//	_node({}),
+		_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
 
 }
 
 Geometry::Geometry(const std::shared_ptr<ae::GeometryElement> element,
 				   const std::shared_ptr<ae::Material> material):
-	Geometry() {
-		
-		_elements.emplace_back(element);
-		_materials.emplace_back(material);
+		Geometry() {
+
+	_elements.emplace_back(element);
+	_materials.emplace_back(material);
 }
 
 Geometry::Geometry(const vector<std::shared_ptr<ae::GeometryElement>> elements,
 				   const vector<std::shared_ptr<ae::Material>> materials):
-	Geometry() {
+		Geometry() {
 
-		_elements.insert(_elements.begin(), elements.begin(), elements.end());
-		_materials.insert(_materials.begin(), materials.begin(), materials.end());
+	_elements.insert(_elements.begin(), elements.begin(), elements.end());
+	_materials.insert(_materials.begin(), materials.begin(), materials.end());
 }
 
 Geometry::~Geometry() {
@@ -202,7 +202,8 @@ void Geometry::draw(Renderer& renderer,
 //	return aabb;
 //}
 
-AABB Geometry::aabb(bool worldSpace) const {
+//AABB Geometry::aabb(bool worldSpace) const {
+AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 
 	const float maxFloat = numeric_limits<float>::max();
 	const float minFloat = numeric_limits<float>::min();
@@ -215,15 +216,16 @@ AABB Geometry::aabb(bool worldSpace) const {
 	aabb.min.z = maxFloat;
 	aabb.max.z = minFloat;
 
-	const auto nodeWorldTransform = (worldSpace
-									 ? _node.lock()->worldTransform()
+	const auto nodeWorldTransform = (convertToNode
+									 ? convertToNode->worldTransform()
 									 : mat4(1.0));
 
 	for (const auto& element : _elements) {
 		for (auto v : element->vertices()) {
-			vec3 p = (worldSpace
+			vec3 p = (convertToNode
 					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
 					  : v.position);
+//			vec3 p = v.position;
 
 			aabb.min.x = std::min(aabb.min.x, p.x);
 			aabb.max.x = std::max(aabb.max.x, p.x);
@@ -244,20 +246,22 @@ AABB Geometry::aabb(bool worldSpace) const {
 //				bp["zMax"].z - bp["zMin"].z);
 //}
 
-vec3 Geometry::extent(bool worldSpace) const {
-	auto aabb = Geometry::aabb(worldSpace);
+//vec3 Geometry::extent(bool worldSpace) const {
+vec3 Geometry::extent(const shared_ptr<Node> convertToNode) const {
+//	auto aabb = Geometry::aabb(worldSpace);
+	auto aabb = Geometry::aabb(convertToNode);
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,
 			aabb.max.z - aabb.min.z};
 }
 
-void Geometry::attachedToNode(shared_ptr<Node> node) {
-	_node = node;
-}
-
-weak_ptr<Node> Geometry::node() const {
-	return _node;
-}
+//void Geometry::attachedToNode(shared_ptr<Node> node) {
+//	_node = node;
+//}
+//
+//weak_ptr<Node> Geometry::node() const {
+//	return _node;
+//}
 
 GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
 	return _dirtyBits;

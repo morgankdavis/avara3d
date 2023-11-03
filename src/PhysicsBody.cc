@@ -41,9 +41,34 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsBody::PhysicsBody():
+//PhysicsBody::PhysicsBody():
+//		_type(PHYSICS_BODY_TYPE::DYNAMIC),
+//		_shape({}),
+//		_linearFactor({1.0, 1.0, 1.0}),
+//		_angularFactor({1.0, 1.0, 1.0}),
+//		_mass(1.0),
+//		_friction(0.5),
+//		_rollingFriction(0.0),
+//		_restitution(0.0),
+//		_linearDamping(0.0),
+//		_angularDamping(0.0),
+//		_momentOfInertia({0, 0, 0}),
+//		//_momentOfInertia({1000, 1000, 1000}),
+//		_linearVelocity({0, 0, 0}),
+//		_angularVelocity({0, 0, 0}),
+//		_linearSleepingThreshold(0.8),
+//		_angularSleepingThreshold(1.0),
+//		_allowsResting(true),
+//		_affectedByGravity(true),
+//		_resting(false),
+////		_node({}),
+//		_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
+//
+//}
+
+PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_type(PHYSICS_BODY_TYPE::DYNAMIC),
-		_shape(nullptr),
+		_shape({}),
 		_linearFactor({1.0, 1.0, 1.0}),
 		_angularFactor({1.0, 1.0, 1.0}),
 		_mass(1.0),
@@ -61,23 +86,18 @@ PhysicsBody::PhysicsBody():
 		_allowsResting(true),
 		_affectedByGravity(true),
 		_resting(false),
-		_node({}),
+//		_node({}),
 		_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
 
-}
-
-PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
-		PhysicsBody() {
-
 	this->type(type);
 }
 
-PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
-		PhysicsBody() {
-
-	this->type(type);
-	this->shape(shape);
-}
+//PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, weak_ptr<PhysicsShape> shape):
+//		PhysicsBody() {
+//
+//	this->type(type);
+//	this->shape(shape);
+//}
 
 PhysicsBody::~PhysicsBody() {
 	AE_LOG_D("Destroying PhysicsBody {:p}", (void*)this);
@@ -103,7 +123,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	_shape = shape;
-	_shape->attachedToBody(shared_from_this());
+	//_shape->attachedToBody(shared_from_this());
 	
 	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
 }
@@ -327,21 +347,21 @@ void PhysicsBody::resting(bool resting) {
 }
 
 void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
-	_node = node;
+//	_node = node;
 	if (node) {
-		checkAutocreateShape();
+		checkAutocreateShape(node);
 	}
 }
 
 void PhysicsBody::geometryAttachedToNode(std::shared_ptr<Geometry> geometry) {
 	if (geometry) {
-		checkAutocreateShape();
+		checkAutocreateShape(geometry);
 	}
 }
 
-weak_ptr<Node> PhysicsBody::node() const {
-	return _node;
-}
+//weak_ptr<Node> PhysicsBody::node() const {
+//	return _node;
+//}
 
 PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {
 	return _dirtyBits;
@@ -355,44 +375,86 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
 	Private
  *********************************************************************************************/
 
-void PhysicsBody::checkAutocreateShape() {
-	AE_LOG_T("");
-
-	if (auto node = _node.lock()) {
-		auto geometry = node->geometry();
-		if (!_shape) {
-			if (geometry) {
-				if (type() == PHYSICS_BODY_TYPE::STATIC) {
-					AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry.get());
-					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
-				}
-				else {
-					AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry.get());
-					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
-				}
-			}
-			else {
-				if (type() == PHYSICS_BODY_TYPE::STATIC) {
-					AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
-					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
-				}
-				else {
-					AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
-					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
-				}
-			}
+void PhysicsBody::checkAutocreateShape(shared_ptr<Node> node) {
+	if (auto geometry = node->geometry()) {
+		// make a shape based on the geometry
+		checkAutocreateShape(geometry);
+	}
+	else {
+		// make a shape based on the node
+		if (type() == PHYSICS_BODY_TYPE::STATIC) {
+			AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
+			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
+			_shape->sourceObject(node);
 		}
 		else {
-			if (geometry) {
-				_shape->sourceGeometry(geometry);
-			}
-			else {
-				_shape->sourceNode(node);
-			}
+			AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
+			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
+			_shape->sourceObject(node);
 		}
 	}
 }
+
+void PhysicsBody::checkAutocreateShape(shared_ptr<Geometry> geometry) {
+
+	if (!_shape) {
+		if (type() == PHYSICS_BODY_TYPE::STATIC) {
+			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void *) geometry.get());
+			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
+			_shape->sourceObject(geometry);
+		} else {
+			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void *) geometry.get());
+			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
+			_shape->sourceObject(geometry);
+		}
+	}
+	else {
+		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating becuase of node geometry addition.");
+	}
+}
+
+//void PhysicsBody::checkAutocreateShape() {
+//	AE_LOG_T("");
+//
+//	if (auto node = _node.lock()) {
+//		auto geometry = node->geometry();
+//		if (!_shape) {
+//			if (geometry) {
+//				if (type() == PHYSICS_BODY_TYPE::STATIC) {
+//					AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
+//							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry.get());
+//					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
+//				}
+//				else {
+//					AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
+//							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry.get());
+//					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
+//				}
+//			}
+//			else {
+//				if (type() == PHYSICS_BODY_TYPE::STATIC) {
+//					AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+//							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
+//					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
+//				}
+//				else {
+//					AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+//							 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
+//					shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
+//				}
+//			}
+//		}
+//		else {
+//			if (geometry) {
+//				_shape->sourceGeometry(geometry);
+//			}
+//			else {
+//				_shape->sourceNode(node);
+//			}
+//		}
+//	}
+//}

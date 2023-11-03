@@ -126,14 +126,12 @@ shared_ptr<Geometry> Node::geometry() const {
 	return _geometry;
 }
 
-void Node::geometry(const shared_ptr<Geometry>& geometry) {
-	if (geometry) {
-		geometry->attachedToNode(shared_from_this());
-		if (_physicsBody) {
-			_physicsBody->geometryAttachedToNode(geometry);
-		}
-	}
+void Node::geometry(const shared_ptr<Geometry> geometry) {
 	_geometry = geometry;
+//	geometry->attachedToNode(shared_from_this());
+	if (_physicsBody) {
+		_physicsBody->geometryAttachedToNode(geometry);
+	}
 }
 
 bool Node::hidden() const {
@@ -591,8 +589,8 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
-	body->attachedToNode(shared_from_this());
 	_physicsBody = body;
+	body->attachedToNode(shared_from_this());
 }
 
 /*********************************************************************************************

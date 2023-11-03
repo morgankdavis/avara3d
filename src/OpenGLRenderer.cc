@@ -718,7 +718,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 
 		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
 
-		auto aabb = geometry->aabb(false);
+		auto aabb = geometry->aabb();
 
 		float xMin = aabb.min.x;
 		float xMax = aabb.max.x;
@@ -947,7 +947,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 	
 	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
 
-	auto aabb = geometry.aabb(false);
+	auto aabb = geometry.aabb();
 
 	float xMin = aabb.min.x;
 	float xMax = aabb.max.x;

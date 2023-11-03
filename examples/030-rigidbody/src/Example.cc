@@ -87,7 +87,6 @@ int Example::run(const vector<string>& args) {
 	AE_INIT();
 	
 	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-
 	LOG_I(m_logger, "Example::run()");
 
 	m_window = make_shared<Window>(FULLSCREEN,
@@ -170,7 +169,7 @@ int Example::run(const vector<string>& args) {
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
-	planeNode->physicsBody(std::move(planePhysicsBody));
+	planeNode->physicsBody(planePhysicsBody);
 	planePhysicsBody->mass(0);
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
@@ -212,8 +211,8 @@ int Example::run(const vector<string>& args) {
 	m_duckNode->position({4.5, 15, 0});
 	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
 //	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
-	m_duckNode->physicsBody()->shape(duckPhysicsShape);
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
+//	m_duckNode->physicsBody()->shape(duckPhysicsShape);
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
 	scene->rootNode()->addChild(m_duckSpinnerNode);
@@ -623,9 +622,9 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//		node->transform(mat4(1.0));
 		//	}
 
-		auto physicsShape = PhysicsShape::ConvexHullShape();
+		//auto physicsShape = PhysicsShape::ConvexHullShape();
 		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->shape(physicsShape);
+		//physicsBody->shape(physicsShape);
 
 		physicsBody->mass(mass);
 		physicsBody->restitution(0.25);
@@ -803,8 +802,8 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	node->rotation(rotation);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-	auto phyicsShape = PhysicsShape::BoundingBoxShape();
-	physicsBody->shape(phyicsShape);
+//	auto phyicsShape = PhysicsShape::BoundingBoxShape();
+//	physicsBody->shape(phyicsShape);
 
  	// this SHOULD work but doesn't
 //	auto physicsShape = PhysicsShape::BoundingBoxShape();

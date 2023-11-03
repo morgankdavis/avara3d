@@ -68,7 +68,7 @@ namespace ae {
 		void 									camera(const std::shared_ptr<ae::Camera> camera);
 
 		std::shared_ptr<ae::Geometry> 			geometry() const;
-		void 									geometry(const std::shared_ptr<ae::Geometry>& geometry);
+		void 									geometry(const std::shared_ptr<ae::Geometry> geometry);
 
 		bool 									hidden() const;
 		void 									hidden(const bool hidden);

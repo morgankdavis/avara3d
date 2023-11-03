@@ -26,35 +26,36 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape() {
-	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
-}
-
-shared_ptr<PhysicsShape> PhysicsShape::ConvexHullShape() {
-	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-}
-
-shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape() {
-	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-}
+//shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape() {
+//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
+//}
+//
+//shared_ptr<PhysicsShape> PhysicsShape::ConvexHullShape() {
+//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+//}
+//
+//shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape() {
+//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//}
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
-		_sourceGeometry({}),
-		_sourceNode({}),
-		_type(type),
-		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
-
-	AE_LOG_D("Creating PhysicsShape type {}...",
-			 magic_enum::enum_name(type));
-}
+//PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
+////		_sourceGeometry({}),
+////		_sourceNode({}),
+//		_type(type),
+//		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
+//
+//	AE_LOG_D("Creating PhysicsShape type {}...",
+//			 magic_enum::enum_name(type));
+//}
 
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
-		_sourceGeometry({}),
-		_sourceNode({}),
+//		_sourceGeometry({}),
+//		_sourceNode({}),
+		_sourceObject(geometry),
 		_type(type),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 
@@ -67,13 +68,14 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 				 magic_enum::enum_name(type), (void*)geometry.get());
 	}
 
-	sourceGeometry(geometry);
+	//sourceGeometry(geometry);
 }
 
 // construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
-		_sourceGeometry({}),
-		_sourceNode({}),
+//		_sourceGeometry({}),
+//		_sourceNode({}),
+		_sourceObject(node),
 		_type(type),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
 
@@ -86,7 +88,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 				 magic_enum::enum_name(type), (void*)node.get());
 	}
 
-	sourceNode(node);
+	//sourceNode(node);
 }
 
 PhysicsShape::~PhysicsShape() {
@@ -97,12 +99,20 @@ PhysicsShape::~PhysicsShape() {
 	Public
  *********************************************************************************************/
 
-weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
-	return _sourceGeometry;
-}
+//weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
+//	return _sourceGeometry;
+//}
+//
+//weak_ptr<Node> PhysicsShape::sourceNode() const {
+//	return _sourceNode;
+//}
 
-weak_ptr<Node> PhysicsShape::sourceNode() const {
-	return _sourceNode;
+//weak_ptr<std::any> PhysicsShape::sourceObject() const {
+//	return _sourceObject;
+//}
+
+variant<weak_ptr<Geometry>, weak_ptr<Node>> PhysicsShape::sourceObject() const {
+	return _sourceObject;
 }
 
 PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
@@ -118,28 +128,32 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	Internal
  *********************************************************************************************/
 
-void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
-	_sourceGeometry = geometry;
-	
-	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sourceObject) {
+	_sourceObject = sourceObject;
 }
 
-void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
-	_sourceNode = node;
-	
-	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
-}
+//void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
+//	_sourceGeometry = geometry;
+//
+//	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+//}
+//
+//void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
+//	_sourceNode = node;
+//
+//	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+//}
 
-void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-
-	_sourceNode = body->node();
-
-	if (auto node = _sourceNode.lock()) {
-		if (auto geometry = node->geometry()) {
-			sourceGeometry(geometry);
-		}
-	}
-}
+//void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
+//
+//	_sourceNode = body->node();
+//
+//	if (auto node = _sourceNode.lock()) {
+//		if (auto geometry = node->geometry()) {
+//			sourceGeometry(geometry);
+//		}
+//	}
+//}
 
 PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
 	return _dirtyBits;

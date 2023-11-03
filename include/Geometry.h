@@ -81,12 +81,14 @@ namespace ae {
 														 const DEBUG_OPTIONS& debugOptions,
 														 RenderStats& stats);
 
-		AABB										aabb(bool worldSpace) const;
-		glm::vec3 									extent(bool worldSpace) const;
+//		AABB										aabb(bool worldSpace) const;
+//		glm::vec3 									extent(bool worldSpace) const;
+		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
-		void 										attachedToNode(std::shared_ptr<Node> node);
+//		void 										attachedToNode(std::shared_ptr<Node> node);
 
-		std::weak_ptr<Node> 						node() const;
+//		std::weak_ptr<Node> 						node() const;
 
 		GEOMETRY_DIRTY_BITS 						dirtyBits() const;
 		void 										dirtyBits(GEOMETRY_DIRTY_BITS bits);
@@ -107,7 +109,7 @@ namespace ae {
 	private:
 
 		std::optional<std::string>							_name;
-		std::weak_ptr<Node>									_node;
+//		std::weak_ptr<Node>									_node;
 
 		GEOMETRY_DIRTY_BITS									_dirtyBits;
 	};
