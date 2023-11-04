@@ -166,55 +166,14 @@ void Geometry::draw(Renderer& renderer,
 	}	
 }
 
-//shared_ptr<map<string, vec3>> Geometry::aabb(bool worldSpace) const {
-//
-//	float maxFloat = numeric_limits<float>::max();
-//	float minFloat = numeric_limits<float>::min();
-//
-//	auto aabb = make_shared<map<string, vec3>>();
-//	(*aabb)["xMin"] = vec3(maxFloat, 0, 0);
-//	(*aabb)["xMax"] = vec3(minFloat, 0, 0);
-//	(*aabb)["yMin"] = vec3(0, maxFloat, 0);
-//	(*aabb)["yMax"] = vec3(0, minFloat, 0);
-//	(*aabb)["zMin"] = vec3(0, 0, maxFloat);
-//	(*aabb)["zMax"] = vec3(0, 0, minFloat);
-//
-//	for (auto element : _elements) {
-//		for (auto v : element->vertices()) {
-//			vec3 p = v.position;
-//			if (worldSpace) {
-//				if (auto node = _node.lock()) {
-//					p = vec3(node->worldTransform() * vec4(v.position, 1.0f));
-//				}
-//			}
-//
-//			if (p.x < (*boundingPoints)["xMin"].x) (*aabb)["xMin"] = p;
-//			if (p.x > (*aabb)["xMax"].x) (*boundingPoints)["xMax"] = p;
-//
-//			if (p.y < (*boundingPoints)["yMin"].y) (*aabb)["yMin"] = p;
-//			if (p.y > (*aabb)["yMax"].y) (*boundingPoints)["yMax"] = p;
-//
-//			if (p.z < (*boundingPoints)["zMin"].z) (*aabb)["zMin"] = p;
-//			if (p.z > (*aabb)["zMax"].z) (*boundingPoints)["zMax"] = p;
-//		}
-//	}
-//
-//	return aabb;
-//}
-
 //AABB Geometry::aabb(bool worldSpace) const {
 AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 
 	const float maxFloat = numeric_limits<float>::max();
 	const float minFloat = numeric_limits<float>::min();
 
-	AABB aabb;
-	aabb.min.x = maxFloat;
-	aabb.max.x = minFloat;
-	aabb.min.y = maxFloat;
-	aabb.max.y = minFloat;
-	aabb.min.z = maxFloat;
-	aabb.max.z = minFloat;
+	AABB aabb = { {maxFloat, maxFloat, maxFloat},
+				  {minFloat, minFloat, minFloat} };
 
 	const auto nodeWorldTransform = (convertToNode
 									 ? convertToNode->worldTransform()
@@ -238,13 +197,6 @@ AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 
 	return aabb;
 }
-
-//vec3 Geometry::extent(bool worldSpace) const {
-//	auto bp = *aabb(worldSpace);
-//	return vec3(bp["xMax"].x - bp["xMin"].x,
-//				bp["yMax"].y - bp["yMin"].y,
-//				bp["zMax"].z - bp["zMin"].z);
-//}
 
 //vec3 Geometry::extent(bool worldSpace) const {
 vec3 Geometry::extent(const shared_ptr<Node> convertToNode) const {

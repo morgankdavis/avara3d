@@ -300,59 +300,17 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return _skyboxGeometry;
 }
 
-//shared_ptr<map<string, vec3>> Scene::aabb() const {
-//
-//	float maxFloat = numeric_limits<float>::max();
-//	float minFloat = numeric_limits<float>::min();
-//
-//	auto aabb = make_shared<map<string, vec3>>();
-//	(*aabb)["xMin"] = vec3(maxFloat, 0, 0);
-//	(*aabb)["xMax"] = vec3(minFloat, 0, 0);
-//	(*aabb)["yMin"] = vec3(0, maxFloat, 0);
-//	(*aabb)["yMax"] = vec3(0, minFloat, 0);
-//	(*aabb)["zMin"] = vec3(0, 0, maxFloat);
-//	(*aabb)["zMax"] = vec3(0, 0, minFloat);
-//
-//	vector<shared_ptr<Geometry>> geometries;
-//	for (auto node : _rootNode->children(true)) {
-//		if (node->geometry() && !node->light()) {
-//			geometries.push_back(node->geometry());
-//		}
-//	}
-//
-//	for (auto geometry : geometries) {
-//		auto points = geometry->aabb(true);
-//
-//		if ((*points)["xMin"].x < (*aabb)["xMin"].x) (*aabb)["xMin"] = (*points)["xMin"];
-//		if ((*points)["xMax"].x > (*aabb)["xMax"].x) (*aabb)["xMax"] = (*points)["xMax"];
-//
-//		if ((*points)["yMin"].y < (*aabb)["yMin"].y) (*aabb)["yMin"] = (*points)["yMin"];
-//		if ((*points)["yMax"].y > (*aabb)["yMax"].y) (*aabb)["yMax"] = (*points)["yMax"];
-//
-//		if ((*points)["zMin"].z < (*aabb)["zMin"].z) (*aabb)["zMin"] = (*points)["zMin"];
-//		if ((*points)["zMax"].z > (*aabb)["zMax"].z) (*aabb)["zMax"] = (*points)["zMax"];
-//	}
-//
-//	return aabb;
-//}
-
 AABB Scene::aabb() const {
 
 	const float maxFloat = numeric_limits<float>::max();
 	const float minFloat = numeric_limits<float>::min();
 
-	AABB aabb;
-	aabb.min.x = maxFloat;
-	aabb.max.x = minFloat;
-	aabb.min.y = maxFloat;
-	aabb.max.y = minFloat;
-	aabb.min.z = maxFloat;
-	aabb.max.z = minFloat;
+	AABB aabb = { {maxFloat, maxFloat, maxFloat},
+				  {minFloat, minFloat, minFloat} };
 
 	for (const auto node : _rootNode->children(true)) {
 		if (node->geometry() && !node->light()) {
 			auto geoAABB = node->geometry()->aabb(node);
-
 			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
 			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
 			aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);

@@ -25,19 +25,8 @@ namespace ae {
 	class PhysicsBody;
 	
 
-	class PhysicsShape {// : public std::enable_shared_from_this<PhysicsShape> {
+	class PhysicsShape {
 
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
-
-	public:
-
-		// SCNPhysicsShape does NOT have these
-//		static std::shared_ptr<PhysicsShape> 	BoundingBoxShape();
-//		static std::shared_ptr<PhysicsShape> 	ConvexHullShape();
-//		static std::shared_ptr<PhysicsShape> 	ConcavePolyhedronShape();
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -52,11 +41,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-//		std::weak_ptr<Geometry> 			sourceGeometry() const;
-//		std::weak_ptr<Node> 				sourceNode() const;
-
-//		std::weak_ptr<std::variant<Geometry, Node>> sourceObject() const;
-		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject() const;
+		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	sourceObject() const;
 
 		PHYSICS_SHAPE_TYPE 					type() const;
 		void 								type(PHYSICS_SHAPE_TYPE type);
@@ -67,14 +52,6 @@ namespace ae {
 
 		void sourceObject(std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject);
 
-//		void								sourceGeometry(std::weak_ptr<Geometry> geometry);
-//		void 								sourceNode(std::weak_ptr<Node> node);
-
-//		void 								attachedToBody(std::shared_ptr<PhysicsBody> body);
-
-//		std::weak_ptr<PhysicsBody>			physicsBody() const;
-//		void 								physicsBody(std::shared_ptr<PhysicsBody> body);
-
 		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
 
@@ -84,11 +61,7 @@ namespace ae {
 
 	private:
 
-//		std::weak_ptr<Geometry> 			_sourceGeometry;
-//		std::weak_ptr<Node>					_sourceNode;
-
-		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> _sourceObject;
-
+		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	_sourceObject;
 
 		PHYSICS_SHAPE_TYPE 					_type;
 		PHYSICS_SHAPE_DIRTY_BITS 			_dirtyBits;

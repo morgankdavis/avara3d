@@ -119,10 +119,10 @@ namespace ae {
 		void 									replaceChild(const Node& replace, const Node& with);
 
 		std::weak_ptr<Node> 					parent() const;
-		std::vector<std::shared_ptr<ae::Node>> 	children(bool resursive);
-		std::shared_ptr<ae::Node> 				child(const std::string& name, bool resursive);
+		std::vector<std::shared_ptr<Node>> 		children(bool resursive);
+		std::shared_ptr<Node> 					child(const std::string& name, bool resursive);
 
-		std::shared_ptr<ae::PhysicsBody> 		physicsBody() const;
+		std::shared_ptr<PhysicsBody> 			physicsBody() const;
 		void 									physicsBody(std::shared_ptr<ae::PhysicsBody> body);
 
 //		glm::vec3 								convertPositionFromNode(const glm::vec3& position, const Node& fromNode);

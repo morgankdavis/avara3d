@@ -388,6 +388,13 @@ void Node::transform(const mat4 transform) {
 
 	_position = translation;
 	_scale = scale;
+
+	// https://stackoverflow.com/questions/17918033/glm-decompose-mat4-into-translation-and-rotation
+	// "Keep in mind that the resulting quaternion in not correct. It returns its conjugate!
+	//
+	//To fix this add this to your code:
+	//
+	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
 	
 	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
@@ -708,12 +715,16 @@ void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> top) {
+vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> root) {
 	
-	auto visited = std::map<shared_ptr<Node>, bool>();
+	auto visited = map<shared_ptr<Node>, bool>();
 	auto stack = std::stack<shared_ptr<Node>>();
-	
-	topologicalChildrenRec(top, visited, stack);
+
+	// don't include the root
+	//topologicalChildrenRec(root, visited, stack);
+	for (auto child : root->children(false)) {
+		topologicalChildrenRec(child, visited, stack);
+	}
 	
 	// probably a better way to do this
 	auto vec = vector<shared_ptr<Node>>();

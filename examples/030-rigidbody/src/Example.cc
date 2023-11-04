@@ -209,13 +209,35 @@ int Example::run(const vector<string>& args) {
 	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
 	AE_LOG_I("DUCK NODE: {}", StringFromTree(*m_duckNode));
 	m_duckNode->position({4.5, 15, 0});
+
+
+	// #0
 	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
+	m_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+
+	// #1
+//	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, m_duckNode);
 //	m_duckNode->physicsBody()->shape(duckPhysicsShape);
+
+	// #2
+//	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, m_duckNode->geometry());
+//	m_duckNode->physicsBody()->shape(duckPhysicsShape);
+
+	// #3
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
+//	m_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+
+	// #4
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode->geometry());
+//	m_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+
 	m_duckSpinnerNode = make_shared<Node>("duck spinner");
 	m_duckSpinnerNode->addChild(m_duckNode);
 	scene->rootNode()->addChild(m_duckSpinnerNode);
+
+
 
 
 
@@ -265,6 +287,23 @@ int Example::run(const vector<string>& args) {
 	scene->fogColor(Color::LightGray());
 	
 	LOG_I(m_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
+
+
+//	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+//	auto children = scene->rootNode()->children(true);
+//	AE_LOG_I("CHILDREN REC:");
+//	for (auto& child : children) {
+//		if (child == scene->rootNode()){
+//			AE_LOG_I("\troot");
+//		}
+//		else if (child->name().has_value()) {
+//			AE_LOG_I("\t{}", *child->name());
+//		}
+//		else {
+//			AE_LOG_I("\t{:p}", (void*)child.get());
+//		}
+//	}
+
 	
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();

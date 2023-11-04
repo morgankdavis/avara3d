@@ -23,38 +23,10 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
- *********************************************************************************************/
-
-//shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape() {
-//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
-//}
-//
-//shared_ptr<PhysicsShape> PhysicsShape::ConvexHullShape() {
-//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-//}
-//
-//shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape() {
-//	return make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//}
-
-/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-//PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
-////		_sourceGeometry({}),
-////		_sourceNode({}),
-//		_type(type),
-//		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
-//
-//	AE_LOG_D("Creating PhysicsShape type {}...",
-//			 magic_enum::enum_name(type));
-//}
-
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
-//		_sourceGeometry({}),
-//		_sourceNode({}),
 		_sourceObject(geometry),
 		_type(type),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
@@ -67,14 +39,10 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {:p}...",
 				 magic_enum::enum_name(type), (void*)geometry.get());
 	}
-
-	//sourceGeometry(geometry);
 }
 
 // construct a compound shape based on geometries under this node
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
-//		_sourceGeometry({}),
-//		_sourceNode({}),
 		_sourceObject(node),
 		_type(type),
 		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
@@ -87,8 +55,6 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
 				 magic_enum::enum_name(type), (void*)node.get());
 	}
-
-	//sourceNode(node);
 }
 
 PhysicsShape::~PhysicsShape() {
@@ -98,18 +64,6 @@ PhysicsShape::~PhysicsShape() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-
-//weak_ptr<Geometry> PhysicsShape::sourceGeometry() const {
-//	return _sourceGeometry;
-//}
-//
-//weak_ptr<Node> PhysicsShape::sourceNode() const {
-//	return _sourceNode;
-//}
-
-//weak_ptr<std::any> PhysicsShape::sourceObject() const {
-//	return _sourceObject;
-//}
 
 variant<weak_ptr<Geometry>, weak_ptr<Node>> PhysicsShape::sourceObject() const {
 	return _sourceObject;
@@ -130,6 +84,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 
 void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sourceObject) {
 	_sourceObject = sourceObject;
+	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
 }
 
 //void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {

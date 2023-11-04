@@ -25,7 +25,7 @@ namespace ae {
 	class PhysicsShape;
 	
 	
-	class PhysicsBody : public std::enable_shared_from_this<PhysicsBody> {
+	class PhysicsBody {
 		
 /*********************************************************************************************
 	Public Static
@@ -125,8 +125,6 @@ namespace ae {
 		void 								attachedToNode(std::shared_ptr<Node> node);
 		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 		
-//		std::weak_ptr<Node> 				node() const;
-		
 		PHYSICS_BODY_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
 		
@@ -157,8 +155,6 @@ namespace ae {
 		bool								_affectedByGravity;
 		bool 								_allowsResting;
 		bool 								_resting;
-		
-//		std::weak_ptr<Node>					_node;
 
 		PHYSICS_BODY_DIRTY_BITS 			_dirtyBits;
 	};
