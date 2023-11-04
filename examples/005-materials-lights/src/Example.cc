@@ -85,12 +85,14 @@ int Example::run(const vector<string>& args) {
 	siameseNode = nullptr;
 
 	auto islandScene = SceneNamed("island/Island", "obj");
-	auto islandNode = islandScene->rootNode()->children(true)[0];
+	//auto islandNode = islandScene->rootNode()->children(true)[0];
+	auto islandNode = islandScene->rootNode();
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
 	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
-	auto palletNode = palletScene->rootNode()->children(true)[1];
+//	auto palletNode = palletScene->rootNode()->children(true)[1];
+	auto palletNode = palletScene->rootNode()->children(true)[0];
 	palletNode->name("Pallet node");
 	m_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
@@ -334,8 +336,8 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysPressed.count(KEY::ZERO)) {
-		auto teapot = SceneNamed("teapot", "obj");
-		m_siameseNode->geometry(teapot->rootNode()->children(false)[0]->geometry());
+		auto teapot = SceneNamed("teapot", "dae");
+		m_siameseNode->geometry(teapot->rootNode()->children(false)[1]->geometry());
 	}
 
 	if (m_window->cursorCaptured()) {
@@ -418,7 +420,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		static float radiusX = 100.0;
 		static float radiusY = 100.0;
-		
+
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
 		angle += rotationSpeed * deltaSeconds;
