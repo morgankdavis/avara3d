@@ -346,11 +346,11 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	CheckGLError();
 }
 
-void OpenGLRenderer::render(shared_ptr<Scene> scene,
+void OpenGLRenderer::render(Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
 							RenderStats& stats) {
 
-	auto renderContext = scene->renderContext().lock();
+	auto renderContext = scene.renderContext().lock();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
@@ -361,9 +361,9 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (scene->background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene->background()->contents())) {
-			auto skyboxGeometry = scene->skyboxGeometry();
+	if (scene.background()) {
+		if (dynamic_pointer_cast<CubeImage>(scene.background()->contents())) {
+			auto skyboxGeometry = scene.skyboxGeometry();
 			auto pointOfView = renderContext->pointOfView();
 
 			RenderSkybox(skyboxGeometry,
@@ -377,14 +377,14 @@ void OpenGLRenderer::render(shared_ptr<Scene> scene,
 			// save reference for housekeeping
 			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}
-		else if (dynamic_pointer_cast<Color>(scene->background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene->background()->contents());
+		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
+			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
 	
-	SendEnvironmentUniforms(_glEnvironmentUBO, *scene, stats);
+	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 	
 	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
@@ -1320,7 +1320,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	// lights
 	
 	auto lights = vector<shared_ptr<Node>>();
-	shared_ptr<Node> ambientLight = nullptr;
+	shared_ptr<Node> ambientLightNode = nullptr;
 	
 	// find all lights in the scene
 	for (auto node: scene.rootNode()->children(true)) {
@@ -1331,7 +1331,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 					lights.emplace_back(node);
 				}
 				else if (light->type() == LIGHT_TYPE::AMBIENT) {
-					ambientLight = node;
+					ambientLightNode = node;
 				}
 			}
 		}
@@ -1363,17 +1363,18 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	// check for default lighting
 	
 	if (lights.size() == 0) {
-		auto detaultPoint = Light::PointNode();
+//		auto detaultPoint = Light::PointNode();
+		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
 		// set position based on scene extent...
 		static vec3 sceneExtent = scene.extent(); // only doing this once or it runs reallll slow
-		detaultPoint->position({sceneExtent.x + sceneExtent.x/4.0,
+		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
 			sceneExtent.y + sceneExtent.y/4.0,
 			sceneExtent.z + sceneExtent.z/4.0});
-		lights.emplace_back(detaultPoint);
+		lights.emplace_back(detaultPointNode);
 	}
-	if (!ambientLight) ambientLight = Light::AmbientNode();
+	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
 	
-	lights.emplace_back(ambientLight);
+	lights.emplace_back(ambientLightNode);
 	
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];

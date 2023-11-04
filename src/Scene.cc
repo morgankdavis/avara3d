@@ -139,7 +139,7 @@ shared_ptr<Node> Scene::rootNode() const {
 }
 
 void Scene::rootNode(shared_ptr<Node> node) {
-	node->attachedToScene(shared_from_this());
+//	node->attachedToScene(shared_from_this());
 	_rootNode = node;
 }
 
@@ -208,7 +208,7 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	_physicsWorld = world;
-	_physicsWorld->attachedToScene(shared_from_this());
+//	_physicsWorld->attachedToScene(shared_from_this());
 }
 
 /*********************************************************************************************
@@ -222,7 +222,7 @@ void Scene::draw(Renderer& renderer,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
 	
-	renderer.render(shared_from_this(), debugOptions, stats);
+	renderer.render(*this, debugOptions, stats);
 	
 	auto renderContext = _renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
@@ -233,7 +233,7 @@ void Scene::draw(Renderer& renderer,
 	if (_physicsWorld) {
 		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::STEP, *this);
 		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
-								 shared_from_this(),
+								 *this,
 								 debugOptions);
 		for (auto& node: sortedNodes) {
 			physicsSimulator->update(PhysicsSimulator::PASS::STEP,
@@ -332,9 +332,9 @@ vec3 Scene::extent() const {
 
 void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
 	_renderContext = renderContext;
-	if (_physicsWorld) {
-		_physicsWorld->attachedToScene(shared_from_this());
-	}
+//	if (_physicsWorld) {
+//		_physicsWorld->attachedToScene(shared_from_this());
+//	}
 }
 
 weak_ptr<RenderContext> Scene::renderContext() const {

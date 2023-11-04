@@ -48,7 +48,7 @@ namespace ae {
  *********************************************************************************************/
 
 		std::weak_ptr<ae::Node> 		node() const;
-		void 							attachedToNode(std::shared_ptr<ae::Node> node);
+//		void 							attachedToNode(std::shared_ptr<ae::Node> node);
 
 	protected:
 
@@ -62,7 +62,7 @@ namespace ae {
 	private:
 
 		std::optional<std::string>		_name;
-		std::weak_ptr<ae::Node>			_node;
+//		std::weak_ptr<ae::Node>			_node;
 	};
 }
 

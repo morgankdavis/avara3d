@@ -21,7 +21,7 @@
 namespace ae {
 
 	
-	class InputManager: public std::enable_shared_from_this<InputManager> {
+	class InputManager {
 		
 /*********************************************************************************************
 	Lifecycle

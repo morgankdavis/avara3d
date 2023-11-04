@@ -48,7 +48,7 @@ void Renderer::endFrame(const RenderContext& context) {
 	updateFrametimeStats(renderStats(), context.sceneTime());
 }
 
-void Renderer::render(shared_ptr<Scene> scene,
+void Renderer::render(Scene& scene,
 					  const DEBUG_OPTIONS& debugOptions,
 					  RenderStats& stats) {
 	

@@ -37,23 +37,23 @@ shared_ptr<Light> Light::DefaultPoint() {
 	return light;
 }
 
-shared_ptr<Node> Light::AmbientNode() {
-	static shared_ptr<Node> node = nullptr;
-	if (!node) {
-		node = make_shared<Node>();
-		node->light(DefaultAmbient());
-	}
-	return node;
-}
-
-shared_ptr<Node> Light::PointNode() {
-	static shared_ptr<Node> node = nullptr;
-	if (!node) {
-		node = make_shared<Node>();
-		node->light(DefaultPoint());
-	}
-	return node;
-}
+//shared_ptr<Node> Light::AmbientNode() {
+//	static shared_ptr<Node> node = nullptr;
+//	if (!node) {
+//		node = make_shared<Node>();
+//		node->light(DefaultAmbient());
+//	}
+//	return node;
+//}
+//
+//shared_ptr<Node> Light::PointNode() {
+//	static shared_ptr<Node> node = nullptr;
+//	if (!node) {
+//		node = make_shared<Node>();
+//		node->light(DefaultPoint());
+//	}
+//	return node;
+//}
 
 /*********************************************************************************************
 	Lifecycle
@@ -68,8 +68,8 @@ Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
 	_name(std::nullopt),
 	_type(type),
 	_color(color),
-	_attenuationFactor(1.0f),
-	_node({}) {
+	_attenuationFactor(1.0f) {
+//	_node({}) {
 	
 }
 
@@ -113,10 +113,10 @@ void Light::attenuationFactor(float factor) {
 	Internal
  *********************************************************************************************/
 
-weak_ptr<Node> Light::node() const {
-	return _node;
-}
-
-void Light::attachedToNode(shared_ptr<Node> node) {
-	_node = node;
-}
+//weak_ptr<Node> Light::node() const {
+//	return _node;
+//}
+//
+//void Light::attachedToNode(shared_ptr<Node> node) {
+//	_node = node;
+//}

@@ -36,8 +36,8 @@ namespace ae {
 
 		static std::shared_ptr<ae::Light> 	DefaultAmbient();
 		static std::shared_ptr<ae::Light> 	DefaultPoint();
-		static std::shared_ptr<ae::Node> 	AmbientNode();
-		static std::shared_ptr<ae::Node> 	PointNode();
+//		static std::shared_ptr<ae::Node> 	AmbientNode();
+//		static std::shared_ptr<ae::Node> 	PointNode();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -68,9 +68,9 @@ namespace ae {
 
 	// protected
 
-		std::weak_ptr<ae::Node> 			node() const;
-		
-		void 								attachedToNode(std::shared_ptr<ae::Node> node);
+//		std::weak_ptr<ae::Node> 			node() const;
+//
+//		void 								attachedToNode(std::shared_ptr<ae::Node> node);
 		
 /*********************************************************************************************
 	Private
@@ -85,7 +85,7 @@ namespace ae {
 
 		float								_attenuationFactor; // att = 1/(1-k(d^2))
 		
-		std::weak_ptr<Node>					_node;
+//		std::weak_ptr<Node>					_node;
 
 //		float								_attenuationStartDistance;
 //		float								_attenuationEndDistance;

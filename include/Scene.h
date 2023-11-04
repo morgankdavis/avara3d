@@ -35,7 +35,7 @@ namespace ae {
 	class RenderContext;
 	
 	
-	class Scene : public std::enable_shared_from_this<Scene> {
+	class Scene {
 		
 /*********************************************************************************************
 	Public Static

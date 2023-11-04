@@ -14,9 +14,6 @@
 #include <memory>
 #include <optional>
 
-//#include <boost/optional.hpp>
-//#include <boost/filesystem.hpp>
-
 #include "Types.h"
 
 
@@ -26,7 +23,7 @@ namespace ae {
 	class Buffer;
 	
 	
-	class Font : public std::enable_shared_from_this<Font> {
+	class Font {
 		
 /*********************************************************************************************
 	Lifecycle
@@ -35,7 +32,7 @@ namespace ae {
 	public:
 
 		Font(std::filesystem::path& path);
-		Font(std::shared_ptr<ae::Buffer> buffer);
+		Font(std::shared_ptr<Buffer> buffer);
 		
 		~Font();
 		
@@ -45,7 +42,7 @@ namespace ae {
 		
 		std::optional<std::string>		name() const;
 		FONT_TYPE 						type() const;
-		std::shared_ptr<ae::Buffer> 	buffer() const;
+		std::shared_ptr<Buffer> 		buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -55,7 +52,7 @@ namespace ae {
 
 		std::optional<std::string>		_name;
 		FONT_TYPE						_type;
-		std::shared_ptr<ae::Buffer>		_buffer;
+		std::shared_ptr<Buffer>			_buffer;
 	};
 }
 

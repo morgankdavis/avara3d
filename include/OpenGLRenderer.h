@@ -85,7 +85,7 @@ namespace ae {
 		void 						beginFrame(const RenderContext& context) override;
 		void 						endFrame(const RenderContext& context) override;
 
-		void 						render(std::shared_ptr<Scene> scene,
+		void 						render(Scene& scene,
 										   const DEBUG_OPTIONS& debugOptions,
 										   RenderStats& stats) override;
 		void 						render(std::shared_ptr<ae::Geometry> geometry,

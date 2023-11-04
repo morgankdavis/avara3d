@@ -31,7 +31,7 @@ namespace ae {
 	class Scene;
 	
 	
-	class Renderer : public std::enable_shared_from_this<Renderer> {
+	class Renderer {
 
 /*********************************************************************************************
 	Lifecycle
@@ -55,7 +55,7 @@ namespace ae {
 		virtual void 						beginFrame(const RenderContext& context);
 		virtual void 						endFrame(const RenderContext& context);
 
-		virtual void 						render(std::shared_ptr<ae::Scene> scene,
+		virtual void 						render(Scene& scene,
 												   const DEBUG_OPTIONS& debugOptions,
 												   RenderStats& stats);
 		virtual void 						render(std::shared_ptr<Geometry> geometry,

@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/optional.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -138,7 +137,7 @@ namespace ae {
 		
 		void 									updateWorldTransform();
 		bool 									containsChild(std::shared_ptr<ae::Node> node);
-		void 									attachedToScene(std::shared_ptr<ae::Scene> scene);
+//		void 									attachedToScene(std::shared_ptr<ae::Scene> scene);
 		void 									attachedToParent(std::shared_ptr<ae::Node> parentNode);
 		
 //		std::shared_ptr<ae::Node> 				root() const;

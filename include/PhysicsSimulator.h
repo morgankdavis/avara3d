@@ -24,7 +24,7 @@ namespace ae {
 	class Scene;
 	
 
-	class PhysicsSimulator : public std::enable_shared_from_this<PhysicsSimulator> {
+	class PhysicsSimulator {
 		
 /*********************************************************************************************
 	Types
@@ -58,7 +58,7 @@ namespace ae {
 										  const Scene& scene);
 
 		virtual void 			update(PASS pass,
-									   std::shared_ptr<ae::Scene> scene,
+									   Scene& scene,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			update(PASS pass,
 									   std::shared_ptr<ae::Node> node,

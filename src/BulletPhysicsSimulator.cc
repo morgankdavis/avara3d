@@ -181,11 +181,11 @@ void BulletPhysicsSimulator::endUpdate(PASS pass,
 }
 
 void BulletPhysicsSimulator::update(PASS pass,
-									shared_ptr<Scene> scene,
+									Scene& scene,
 									const DEBUG_OPTIONS& debugOptions) {
 
 	if (pass == BulletPhysicsSimulator::PASS::STEP) {
-		auto world = scene->physicsWorld();
+		auto world = scene.physicsWorld();
 		
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
 			_timestep = world->timestep();

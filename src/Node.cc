@@ -109,7 +109,7 @@ shared_ptr<Light> Node::light() const {
 }
 
 void Node::light(const shared_ptr<Light> light) {
-	light->attachedToNode(shared_from_this());
+	//light->attachedToNode(shared_from_this());
 	_light = light;
 }
 
@@ -118,7 +118,7 @@ shared_ptr<Camera> Node::camera() const {
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
-	camera->attachedToNode(shared_from_this());
+//	camera->attachedToNode(shared_from_this());
 	_camera = camera;
 }
 
@@ -645,16 +645,16 @@ bool Node::containsChild(shared_ptr<Node> node) {
 	return false;
 }
 
-void Node::attachedToScene(shared_ptr<Scene> scene) {
-//	if (!root()) {
-//		_scene = scene;
-//	}
-//	else {
-//		for (auto child : children(true)) {
-//			child->attachedToScene(scene); // just in case they want to do something with it
-//		}
-//	}
-}
+//void Node::attachedToScene(shared_ptr<Scene> scene) {
+////	if (!root()) {
+////		_scene = scene;
+////	}
+////	else {
+////		for (auto child : children(true)) {
+////			child->attachedToScene(scene); // just in case they want to do something with it
+////		}
+////	}
+//}
 
 void Node::attachedToParent(shared_ptr<Node> parentNode) {
 	_parent = parentNode;

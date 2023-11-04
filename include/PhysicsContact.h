@@ -23,7 +23,7 @@ namespace ae {
 	class Node;
 	
 
-	class PhysicsContact : public std::enable_shared_from_this<PhysicsContact> {
+	class PhysicsContact {
 		
 /*********************************************************************************************
 	Lifecycle

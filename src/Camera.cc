@@ -52,10 +52,10 @@ mat4 Camera::projection() const {
 	Internal
  *********************************************************************************************/
 
-weak_ptr<Node> Camera::node() const {
-	return _node;
-}
+//weak_ptr<Node> Camera::node() const {
+//	return _node;
+//}
 
-void Camera::attachedToNode(std::shared_ptr<ae::Node> node) {
-	_node = node;
-}
+//void Camera::attachedToNode(std::shared_ptr<ae::Node> node) {
+//	_node = node;
+//}

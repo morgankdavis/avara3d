@@ -93,7 +93,7 @@ namespace ae {
 							  const Scene& scene) override;
 
 		void 		update(PASS pass,
-						   std::shared_ptr<ae::Scene> scene,
+						   Scene& scene,
 						   const DEBUG_OPTIONS& debugOptions) override;
 		void 		update(PASS pass,
 						   std::shared_ptr<ae::Node> node,

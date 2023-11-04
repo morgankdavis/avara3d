@@ -65,7 +65,7 @@ namespace ae {
  #######################################################################################
  ######################################################################################*/
 	
-	class Logger : public std::enable_shared_from_this<Logger> {
+	class Logger {
 		
 		
 		//static constexpr unsigned char DEFAULT_NAME[] = "ae";
@@ -151,7 +151,7 @@ namespace ae {
  ######################################################################################*/
 	
 	
-	class LoggerSink : public std::enable_shared_from_this<LoggerSink> {
+	class LoggerSink {
 		
 /**************************************************************************************
 	Lifecycle

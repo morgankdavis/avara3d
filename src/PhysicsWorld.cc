@@ -28,7 +28,7 @@ using namespace std;
 PhysicsWorld::PhysicsWorld():
 	_gravity({0, -9.807, 0}),
 	_timestep(1.0/60.0),
-	_scene({}),
+//	_scene({}),
 	_dirtyBits(PHYSICS_WORLD_DIRTY_BITS::ALL) {
 
 }
@@ -101,17 +101,17 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
 	Internal
  *********************************************************************************************/
 
-void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
-	_scene = scene;
-//	if (auto window = scene->window().lock()) {
-//		debugOptions(window->debugOptions());
-//	}
-//#ifdef DESKTOP
-//	if (auto renderer = scene->renderContext().lock()) {
-//		debugOptions(renderer->debugOptions());
-//	}
-//#endif
-}
+//void PhysicsWorld::attachedToScene(shared_ptr<Scene> scene) {
+//	_scene = scene;
+////	if (auto window = scene->window().lock()) {
+////		debugOptions(window->debugOptions());
+////	}
+////#ifdef DESKTOP
+////	if (auto renderer = scene->renderContext().lock()) {
+////		debugOptions(renderer->debugOptions());
+////	}
+////#endif
+//}
 
 PHYSICS_WORLD_DIRTY_BITS PhysicsWorld::dirtyBits() const {
 	return _dirtyBits;

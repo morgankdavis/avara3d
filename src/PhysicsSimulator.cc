@@ -46,7 +46,7 @@ void PhysicsSimulator::endUpdate(PASS pass,
 }
 
 void PhysicsSimulator::update(PASS pass,
-							  shared_ptr<Scene> scene,
+							  Scene& scene,
 							  const DEBUG_OPTIONS& debugOptions) {
 	
 }

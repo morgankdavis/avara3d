@@ -23,7 +23,7 @@ namespace ae {
 	class Color;
 
 	
-	class Line: public std::enable_shared_from_this<Line> {
+	class Line {
 
 /*********************************************************************************************
 	Lifecycle

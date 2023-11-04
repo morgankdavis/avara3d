@@ -24,12 +24,11 @@ namespace ae {
 	class HitTestResult;
 	class PhysicsBody;
 	class PhysicsContact;
-	class PhysicsDebugDrawer;
 	class PhysicsShape;
 	class Scene;
 	
 	
-	class PhysicsWorld : public std::enable_shared_from_this<PhysicsWorld> {
+	class PhysicsWorld {
 		
 /*********************************************************************************************
 	Types
@@ -73,7 +72,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		void 								attachedToScene(std::shared_ptr<ae::Scene> scene);
+//		void 								attachedToScene(std::shared_ptr<ae::Scene> scene);
 		//void 								debugOptions(DEBUG_OPTIONS options);
 
 		PHYSICS_WORLD_DIRTY_BITS 			dirtyBits() const;
@@ -87,7 +86,7 @@ namespace ae {
 
 		glm::vec3 							_gravity;
 		float 								_timestep;
-		std::weak_ptr<ae::Scene> 			_scene;
+//		std::weak_ptr<ae::Scene> 			_scene;
 		PHYSICS_WORLD_DIRTY_BITS			_dirtyBits;
 	};
 }
