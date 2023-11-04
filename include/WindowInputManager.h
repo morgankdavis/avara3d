@@ -85,7 +85,7 @@ namespace ae {
 		void 										registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 										unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-		std::weak_ptr<ae::Window>					_window;
+		std::weak_ptr<Window>						_window;
 		bool										_usingManyMouse;
 	};
 }

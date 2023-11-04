@@ -42,10 +42,10 @@ namespace ae {
 	public:
 
 		Geometry();
-		Geometry(const std::shared_ptr<ae::GeometryElement> element,
-				 const std::shared_ptr<ae::Material> material);
-		Geometry(const std::vector<std::shared_ptr<ae::GeometryElement>> elements,
-				 const std::vector<std::shared_ptr<ae::Material>> materials);
+		Geometry(const std::shared_ptr<GeometryElement> element,
+				 const std::shared_ptr<Material> material);
+		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
+				 const std::vector<std::shared_ptr<Material>> materials);
 		virtual ~Geometry();
 		
 /*********************************************************************************************
@@ -55,17 +55,17 @@ namespace ae {
 		std::optional<std::string> 					name() const;
 		void 										name(const std::string& name);
 
-		const std::vector<std::shared_ptr<ae::GeometryElement>>& 	elements();
-		const std::vector<std::shared_ptr<ae::Material>>& 			materials();
+		const std::vector<std::shared_ptr<GeometryElement>>& 	elements();
+		const std::vector<std::shared_ptr<Material>>& 			materials();
 
-		std::shared_ptr<ae::Material> 				firstMaterial() const;
-		std::shared_ptr<ae::Material> 				materialNamed(const std::string& name) const;
-		void 										addMaterial(const std::shared_ptr<ae::Material> material);
-		void 										insertMaterial(const std::shared_ptr<ae::Material> material,
+		std::shared_ptr<Material> 					firstMaterial() const;
+		std::shared_ptr<Material> 					materialNamed(const std::string& name) const;
+		void 										addMaterial(const std::shared_ptr<Material> material);
+		void 										insertMaterial(const std::shared_ptr<Material> material,
 																   int index);
 		void 										removeMaterial(int index);
 		void 										replaceMaterial(int index,
-																	const std::shared_ptr<ae::Material> replacement);
+																	const std::shared_ptr<Material> replacement);
 
 /*********************************************************************************************
 	Internal
@@ -99,8 +99,8 @@ namespace ae {
 
 	protected:
 
-		std::vector<std::shared_ptr<ae::GeometryElement>>	_elements;
-		std::vector<std::shared_ptr<ae::Material>>			_materials;
+		std::vector<std::shared_ptr<GeometryElement>>	_elements;
+		std::vector<std::shared_ptr<Material>>			_materials;
 
 /*********************************************************************************************
 	Private
@@ -108,10 +108,10 @@ namespace ae {
 
 	private:
 
-		std::optional<std::string>							_name;
-//		std::weak_ptr<Node>									_node;
+		std::optional<std::string>					_name;
+//		std::weak_ptr<Node>							_node;
 
-		GEOMETRY_DIRTY_BITS									_dirtyBits;
+		GEOMETRY_DIRTY_BITS							_dirtyBits;
 	};
 }
 

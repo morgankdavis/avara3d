@@ -31,11 +31,11 @@ namespace ae {
 
 	public:
 
-		static std::shared_ptr<ae::Program> 	Default();
-		static std::shared_ptr<ae::Program> 	Skybox();
-		static std::shared_ptr<ae::Program> 	Wireframe();
-		static std::shared_ptr<ae::Program> 	Lines();
-		static std::shared_ptr<ae::Program> 	Points();
+		static std::shared_ptr<Program> 	Default();
+		static std::shared_ptr<Program> 	Skybox();
+		static std::shared_ptr<Program> 	Wireframe();
+		static std::shared_ptr<Program> 	Lines();
+		static std::shared_ptr<Program> 	Points();
 		
 /*********************************************************************************************
 	Lifecycle
@@ -48,45 +48,45 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		bool 							compile();
-		bool 							link();
-		bool 							validate();
-		void 							use();
-		void 							unuse();
+		bool 								compile();
+		bool 								link();
+		bool 								validate();
+		void 								use();
+		void 								unuse();
 		
-		void 							bindAttributeLocation(unsigned location, const char* name);
+		void 								bindAttributeLocation(unsigned location, const char* name);
 		//void bindFragDataLocation(unsigned location, const char* name);
 		
-		void 							setUniform(const char* name, float x, float y, float z);
-		void 							setUniform(const char* name, const glm::vec2& v);
-		void 							setUniform(const char* name, const glm::vec3& v);
-		void 							setUniform(const char* name, const glm::vec4& v);
-		void 							setUniform(const char* name, const glm::mat3& m);
-		void 							setUniform(const char* name, const glm::mat4& m);
-		void 							setUniform(const char* name, bool val);
-		void 							setUniform(const char* name, int val);
-		void 							setUniform(const char* name, float val);
+		void 								setUniform(const char* name, float x, float y, float z);
+		void 								setUniform(const char* name, const glm::vec2& v);
+		void 								setUniform(const char* name, const glm::vec3& v);
+		void 								setUniform(const char* name, const glm::vec4& v);
+		void 								setUniform(const char* name, const glm::mat3& m);
+		void 								setUniform(const char* name, const glm::mat4& m);
+		void 								setUniform(const char* name, bool val);
+		void 								setUniform(const char* name, int val);
+		void 								setUniform(const char* name, float val);
+
+		void 								bindUniformBlock(const char* name,
+															 unsigned location);
+
+		void 								bindTexture(const char* name,
+														const int& target,
+														const unsigned& slot,
+														const unsigned& textureID, unsigned index);
+
+		unsigned 							getAttributeLocation(const char* name) const;
 		
-		void 							bindUniformBlock(const char* name,
-														 unsigned location);
+//		void 								printActiveUniforms() const;
+//		void 								printActiveAttribs() const;
 		
-		void 							bindTexture(const char* name,
-													const int& target,
-													const unsigned& slot,
-													const unsigned& textureID, unsigned index);
-		
-		unsigned 						getAttributeLocation(const char* name) const;
-		
-//		void 							printActiveUniforms() const;
-//		void 							printActiveAttribs() const;
-		
-		std::string 					name() const;
-		unsigned 						glID();
-		bool	 						isLinked() const;
-		std::optional<std::string> 		vertexShaderSource() const;
-		void 							vertexShaderSource(std::string source);
-		std::optional<std::string> 		fragmentShaderSource() const;
-		void 							fragmentShaderSource(std::string source);
+		std::string 						name() const;
+		unsigned 							glID();
+		bool	 							isLinked() const;
+		std::optional<std::string> 			vertexShaderSource() const;
+		void 								vertexShaderSource(std::string source);
+		std::optional<std::string> 			fragmentShaderSource() const;
+		void 								fragmentShaderSource(std::string source);
 
 /*********************************************************************************************
 	Private
@@ -94,23 +94,23 @@ namespace ae {
 
 	private:
 
-		std::optional<std::string> 		shaderSource(const std::string &name,
-														const std::string &type);
-		void 							prepare();
-		bool 							compile(const std::string &source,
-												SHADER_TYPE type);
-		unsigned 						getUniformLocation(const char* name);
-		void 							glID(unsigned glID);
-		void 							isLinked(bool isLinked);
-		void 							logString(std::optional<std::string> logString);
-		
-		std::string  					_name;
-		unsigned  						_glID;
-		bool 							_isLinked;
-		std::optional<std::string>		_logString;
-		std::optional<std::string>		_vertexShaderSource;
-		std::optional<std::string>		_fragmentShaderSource;
-		std::map<std::string, int>		_uniformLocationCache;
+		std::optional<std::string> 			shaderSource(const std::string &name,
+														   const std::string &type);
+		void 								prepare();
+		bool 								compile(const std::string &source,
+													SHADER_TYPE type);
+		unsigned 							getUniformLocation(const char* name);
+		void 								glID(unsigned glID);
+		void 								isLinked(bool isLinked);
+		void 								logString(std::optional<std::string> logString);
+
+		std::string  						_name;
+		unsigned  							_glID;
+		bool 								_isLinked;
+		std::optional<std::string>			_logString;
+		std::optional<std::string>			_vertexShaderSource;
+		std::optional<std::string>			_fragmentShaderSource;
+		std::map<std::string, int>			_uniformLocationCache;
 	};
 }
 

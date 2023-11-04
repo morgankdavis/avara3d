@@ -66,11 +66,11 @@ namespace ae {
 		
 		RENDER_API 									renderAPI() const;
 		
-		std::shared_ptr<ae::Renderer> 				renderer() const;
-		/* REMOVE? */ void 							renderer(std::shared_ptr<ae::Renderer> renderer);
+		std::shared_ptr<Renderer> 					renderer() const;
+		/* REMOVE? */ void 							renderer(std::shared_ptr<Renderer> renderer);
 		
-		std::shared_ptr<ae::Scene> 					scene() const;
-		void 										scene(const std::shared_ptr<ae::Scene> scene);
+		std::shared_ptr<Scene> 						scene() const;
+		void 										scene(const std::shared_ptr<Scene> scene);
 		
 		unsigned 									width() const;
 		unsigned 									height() const;
@@ -86,16 +86,16 @@ namespace ae {
 		virtual DEBUG_OPTIONS 						debugOptions() const;
 		virtual void 								debugOptions(DEBUG_OPTIONS options);
 		
-		virtual std::shared_ptr<ae::Node>			pointOfView();
-		virtual void 								pointOfView(const std::shared_ptr<ae::Node> camera);
+		virtual std::shared_ptr<Node>				pointOfView();
+		virtual void 								pointOfView(const std::shared_ptr<Node> camera);
 		
 		ANTIALIASING_MODE 							antialiasingMode() const;
 		
-		virtual std::shared_ptr<ae::InputManager> 	inputManager() = 0;
+		virtual std::shared_ptr<InputManager> 		inputManager() = 0;
 		
 		virtual float 								sceneTime() const;
 		
-		std::shared_ptr<ae::Image> 					snapshot() const;
+		std::shared_ptr<Image> 						snapshot() const;
 		
 		virtual bool 								recordingGIF() const;
 		virtual void 								startGIFRecording(const std::filesystem::path& path,
@@ -123,8 +123,8 @@ namespace ae {
 		virtual void 								swapBuffers() = 0;
 		virtual void 								pollInput() = 0;
 		
-		std::shared_ptr<ae::PhysicsSimulator> 		physicsSimulator() const;
-		/* REMOVE? */ void 							physicsSimulator(std::shared_ptr<ae::PhysicsSimulator> physicsSimulator);
+		std::shared_ptr<PhysicsSimulator> 			physicsSimulator() const;
+		/* REMOVE? */ void 							physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
 		
 		void 										width(unsigned width);
 		void 										height(unsigned height);
@@ -140,13 +140,13 @@ namespace ae {
 
 	protected:
 
-		virtual std::shared_ptr<ae::Node> 			defaultPointOfView();
+		virtual std::shared_ptr<Node> 				defaultPointOfView();
 		virtual void 								saveGIFFrame(float time);
 
 		RENDER_API 									_renderAPI;
-		std::shared_ptr<ae::Renderer>				_renderer;
-		std::shared_ptr<ae::PhysicsSimulator>		_physicsSimulator;
-		std::shared_ptr<ae::Scene>					_scene;
+		std::shared_ptr<Renderer>					_renderer;
+		std::shared_ptr<PhysicsSimulator>			_physicsSimulator;
+		std::shared_ptr<Scene>						_scene;
 		unsigned									_width;
 		unsigned									_height;
 		float										_framebufferScale;
@@ -155,7 +155,7 @@ namespace ae {
 		bool										_vSyncEnabled;
 		ANTIALIASING_MODE							_antialiasingMode;
 		DEBUG_OPTIONS								_debugOptions;
-		std::shared_ptr<ae::Node>					_pointOfView;
+		std::shared_ptr<Node>						_pointOfView;
 		
 		std::shared_ptr<GifWriter>					_gifWriter;
 		bool										_recordingGIF;

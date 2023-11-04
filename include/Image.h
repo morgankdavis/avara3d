@@ -41,10 +41,10 @@ namespace ae {
 			  bool flipVertical=true);
 #endif
 		// with header
-		Image(std::shared_ptr<ae::Buffer> headerBuffer,
+		Image(std::shared_ptr<Buffer> headerBuffer,
 			  bool flipVertical=true);
 		// raw
-		Image(std::shared_ptr<ae::Buffer> rawBuffer,
+		Image(std::shared_ptr<Buffer> rawBuffer,
 			  unsigned width, unsigned height,
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true);
@@ -63,7 +63,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<ae::Buffer> 	data() const;
+		std::shared_ptr<Buffer> 		data() const;
 		
 /*********************************************************************************************
 	Private
@@ -79,7 +79,7 @@ namespace ae {
 		unsigned						_width;
 		unsigned						_height;
 		unsigned						_bytesPerPixel;
-		std::shared_ptr<ae::Buffer>		_data;
+		std::shared_ptr<Buffer>		_data;
 	};
 }
 

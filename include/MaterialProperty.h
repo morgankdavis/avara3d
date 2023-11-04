@@ -34,40 +34,40 @@ namespace ae {
 	public:
 
 		MaterialProperty();
-		MaterialProperty(std::shared_ptr<ae::MaterialPropertyContents> contents);
+		MaterialProperty(std::shared_ptr<MaterialPropertyContents> contents);
 		~MaterialProperty();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::shared_ptr<ae::MaterialPropertyContents> 	contents() const;
-		void											contents(const std::shared_ptr<ae::MaterialPropertyContents> contents);
+		std::shared_ptr<MaterialPropertyContents> 	contents() const;
+		void										contents(const std::shared_ptr<MaterialPropertyContents> contents);
 
-		FILTER_MODE 							minificationFilter() const;
-		void 									minificationFilter(FILTER_MODE mode);
+		FILTER_MODE 								minificationFilter() const;
+		void 										minificationFilter(FILTER_MODE mode);
 		
-		FILTER_MODE 							magnificationFilter() const;
-		void 									magnificationFilter(FILTER_MODE mode);
+		FILTER_MODE 								magnificationFilter() const;
+		void 										magnificationFilter(FILTER_MODE mode);
 
-		float 									maxAnisotropy() const;
-		void 									maxAnisotropy(float max);
+		float 										maxAnisotropy() const;
+		void 										maxAnisotropy(float max);
 		
-		WRAP_MODE 								wrapS() const;
-		void 									wrapS(WRAP_MODE mode);
+		WRAP_MODE 									wrapS() const;
+		void 										wrapS(WRAP_MODE mode);
 		
-		WRAP_MODE 								wrapT() const;
-		void 									wrapT(WRAP_MODE mode);
+		WRAP_MODE 									wrapT() const;
+		void 										wrapT(WRAP_MODE mode);
 		
-		WRAP_MODE 								wrapR() const;
-		void 									wrapR(WRAP_MODE mode);
+		WRAP_MODE 									wrapR() const;
+		void 										wrapR(WRAP_MODE mode);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		MATERIAL_PROPERTY_DIRTY_BITS 			dirtyBits() const;
-		void 									dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
+		MATERIAL_PROPERTY_DIRTY_BITS 				dirtyBits() const;
+		void 										dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
 		
 /*********************************************************************************************
 	Private
@@ -75,16 +75,16 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<ae::MaterialPropertyContents>	_contents;
+		std::shared_ptr<MaterialPropertyContents>	_contents;
 		
-		FILTER_MODE								_minificationFilter;
-		FILTER_MODE								_magnificationFilter;
-		float									_maxAnisotropy;
-		WRAP_MODE								_wrapS;
-		WRAP_MODE								_wrapT;
-		WRAP_MODE								_wrapR;
+		FILTER_MODE									_minificationFilter;
+		FILTER_MODE									_magnificationFilter;
+		float										_maxAnisotropy;
+		WRAP_MODE									_wrapS;
+		WRAP_MODE									_wrapT;
+		WRAP_MODE									_wrapR;
 
-		MATERIAL_PROPERTY_DIRTY_BITS			_dirtyBits;
+		MATERIAL_PROPERTY_DIRTY_BITS				_dirtyBits;
 	};
 }
 

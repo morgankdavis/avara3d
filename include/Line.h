@@ -33,9 +33,9 @@ namespace ae {
 
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<ae::Color> color);
+			 std::shared_ptr<Color> color);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<ae::Color> fromColor, std::shared_ptr<ae::Color> toColor);
+			 std::shared_ptr<Color> fromColor, std::shared_ptr<Color> toColor);
 		
 /*********************************************************************************************
 	Public
@@ -45,10 +45,10 @@ namespace ae {
 		void 								fromLocation(glm::vec3 location);
 		glm::vec3 							toLocation() const;
 		void 								toLocation(glm::vec3 location);
-		std::shared_ptr<ae::Color> 			fromColor() const;
-		void 								fromColor(std::shared_ptr<ae::Color> color);
-		std::shared_ptr<ae::Color> 			toColor() const;
-		void 								toColor(std::shared_ptr<ae::Color> color);
+		std::shared_ptr<Color> 				fromColor() const;
+		void 								fromColor(std::shared_ptr<Color> color);
+		std::shared_ptr<Color> 				toColor() const;
+		void 								toColor(std::shared_ptr<Color> color);
 		
 /*********************************************************************************************
 	Private
@@ -58,8 +58,8 @@ namespace ae {
 
 		glm::vec3 							_fromLocation;
 		glm::vec3 							_toLocation;
-		std::shared_ptr<ae::Color> 			_fromColor;
-		std::shared_ptr<ae::Color> 			_toColor;
+		std::shared_ptr<Color> 				_fromColor;
+		std::shared_ptr<Color> 				_toColor;
 	};
 }
 

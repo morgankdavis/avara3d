@@ -78,7 +78,7 @@ namespace ae {
 		void 								pollInput() override;
 		void 								enableVSync(bool enabled) override;
 		void 								debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<ae::InputManager> 	inputManager() override;
+		std::shared_ptr<InputManager> 		inputManager() override;
 		float 								sceneTime() const override;
 		
 /*********************************************************************************************
@@ -96,7 +96,7 @@ namespace ae {
 	private:
 
 		GLFWwindow*							_glfwWindow;
-		std::shared_ptr<ae::InputManager> 	_inputManager;
+		std::shared_ptr<InputManager> 		_inputManager;
 		bool								_cursorCaptured;
 	};
 }

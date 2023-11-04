@@ -34,17 +34,15 @@ namespace ae {
 
 	public:
 
-		static std::shared_ptr<ae::Light> 	DefaultAmbient();
-		static std::shared_ptr<ae::Light> 	DefaultPoint();
-//		static std::shared_ptr<ae::Node> 	AmbientNode();
-//		static std::shared_ptr<ae::Node> 	PointNode();
+		static std::shared_ptr<Light> 		DefaultAmbient();
+		static std::shared_ptr<Light> 		DefaultPoint();
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Light(LIGHT_TYPE type);
-		Light(LIGHT_TYPE type, const std::shared_ptr<ae::Color> color);
+		Light(LIGHT_TYPE type, const std::shared_ptr<Color> color);
 		
 /*********************************************************************************************
 	Public
@@ -56,8 +54,8 @@ namespace ae {
 		LIGHT_TYPE 							type() const;
 		void 								type(LIGHT_TYPE type);
 		
-		std::shared_ptr<ae::Color> 			color() const;
-		void 								color(std::shared_ptr<ae::Color> color);
+		std::shared_ptr<Color> 				color() const;
+		void 								color(std::shared_ptr<Color> color);
 
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);
@@ -68,9 +66,9 @@ namespace ae {
 
 	// protected
 
-//		std::weak_ptr<ae::Node> 			node() const;
+//		std::weak_ptr<Node> 				node() const;
 //
-//		void 								attachedToNode(std::shared_ptr<ae::Node> node);
+//		void 								attachedToNode(std::shared_ptr<Node> node);
 		
 /*********************************************************************************************
 	Private
@@ -81,7 +79,7 @@ namespace ae {
 		std::optional<std::string>			_name;
 		
 		LIGHT_TYPE							_type;
-		std::shared_ptr<ae::Color>			_color;
+		std::shared_ptr<Color>				_color;
 
 		float								_attenuationFactor; // att = 1/(1-k(d^2))
 		

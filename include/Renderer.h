@@ -64,7 +64,7 @@ namespace ae {
 												   const glm::mat4& projectionMat,
 												   const DEBUG_OPTIONS& debugOptions,
 												   RenderStats& stats);
-		virtual void 						render(std::shared_ptr<ae::GeometryElement> element,
+		virtual void 						render(std::shared_ptr<GeometryElement> element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
@@ -83,7 +83,7 @@ namespace ae {
 		float 								frametimeAveragingInterval() const;
 		void 								frametimeAveragingInterval(float interval);
 
-		virtual std::shared_ptr<ae::Image>	snapshot(const RenderContext& context) const;
+		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
 		
 		RenderStats& 						renderStats();
 

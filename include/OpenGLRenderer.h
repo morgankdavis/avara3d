@@ -88,13 +88,13 @@ namespace ae {
 		void 						render(Scene& scene,
 										   const DEBUG_OPTIONS& debugOptions,
 										   RenderStats& stats) override;
-		void 						render(std::shared_ptr<ae::Geometry> geometry,
+		void 						render(std::shared_ptr<Geometry> geometry,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
 										   const DEBUG_OPTIONS& debugOptions,
 										   RenderStats& stats) override;
-		void 						render(std::shared_ptr<ae::GeometryElement> element,
+		void 						render(std::shared_ptr<GeometryElement> element,
 										   Material& material,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
@@ -125,10 +125,10 @@ namespace ae {
 
 		GeometryAABBLineSetMapping				_geometryAABBLineSetMapping;
 
-		std::unordered_set<std::shared_ptr<ae::GeometryElement>>	_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<ae::MaterialProperty>>	_activeMaterialProperties;
-		std::unordered_set<std::shared_ptr<LineSet>>				_activeLineSets;
-		std::unordered_set<std::shared_ptr<PointSet>>				_activePointSets;
+		std::unordered_set<std::shared_ptr<GeometryElement>>	_activeGeometryElements;
+		std::unordered_set<std::shared_ptr<MaterialProperty>>	_activeMaterialProperties;
+		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
+		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
 
 		unsigned								_glEnvironmentUBO;
 		

@@ -78,7 +78,7 @@ namespace ae {
 
 	public:
 
-		static std::shared_ptr<ae::Logger> MainLogger();
+		static std::shared_ptr<Logger> MainLogger();
 		
 /*********************************************************************************************
 	Lifecycle
