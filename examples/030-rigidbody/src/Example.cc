@@ -237,9 +237,7 @@ int Example::run(const vector<string>& args) {
 	m_duckSpinnerNode->addChild(m_duckNode);
 	scene->rootNode()->addChild(m_duckSpinnerNode);
 
-
-
-
+	
 
 	// add the paddle
 

@@ -208,10 +208,6 @@ void BulletPhysicsSimulator::update(PASS pass,
 									shared_ptr<Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
 
-//	if ((node->name() != nullopt) && (*node->name() == "g duck")) {
-//		AE_LOG_I("QUACK");
-//	}
-	
 	auto body = node->physicsBody();
 	if (body) {
 		
@@ -591,11 +587,6 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 		if (std::holds_alternative<weak_ptr<Node>>(sourceObject)) {
 			auto sourceNodeWeak = std::get<weak_ptr<Node>>(sourceObject);
 			if (auto sourceNode = sourceNodeWeak.lock()) {
-				if (auto name = sourceNode->name()) {
-					if (name == "g duck") {
-						AE_LOG_I("QUACK TREE:\n{}", StringFromTree(*sourceNode));
-					}
-				}
 				newShape = BTCompoundShapeFromNode(sourceNode,
 												   shape->type(),
 												   bodyType,
