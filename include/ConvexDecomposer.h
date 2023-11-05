@@ -6,6 +6,7 @@
 #define ConvexDecomposer_h
 
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -30,6 +31,25 @@ namespace ae {
 
 	public:
 
+		enum class FillMode {
+			FLOOD_FILL,
+			SURFACE_ONLY,
+			RAYCAST_FILL
+		};
+
+		struct Options {
+			uint32_t	maxConvexHulls {64};
+			uint32_t	resolution {400000};
+			double		minimumVolumePercentErrorAllowed {1};
+			uint32_t	maxRecursionDepth {10};
+			bool		shrinkWrap {true};
+			FillMode	fillMode {FillMode::FLOOD_FILL};
+			uint32_t	maxNumVerticesPerCH {64};
+//			bool		asyncACD {true};
+			uint32_t	minEdgeLength {2};
+			bool		findBestPlane {false};
+		};
+
 		using ProgressFunction = std::function<void(ConvexDecomposer& decomposer, float progress)>;
 		using FinishedFunction = std::function<void(ConvexDecomposer& decomposer)>;
 		using CanceledFunction = std::function<void(ConvexDecomposer& decomposer)>;
@@ -38,29 +58,20 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 
-//		uint32_t            m_maxConvexHulls{ 64 };         // The maximum number of convex hulls to produce
-//		uint32_t            m_resolution{ 400000 };         // The voxel resolution to use
-//		double              m_minimumVolumePercentErrorAllowed{ 1 }; // if the voxels are within 1% of the volume of the hull, we consider this a close enough approximation
-//		uint32_t            m_maxRecursionDepth{ 10 };        // The maximum recursion depth
-//		bool                m_shrinkWrap{true};             // Whether or not to shrinkwrap the voxel positions to the source mesh on output
-//		FillMode            m_fillMode{ FillMode::FLOOD_FILL }; // How to fill the interior of the voxelized mesh
-//		uint32_t            m_maxNumVerticesPerCH{ 64 };    // The maximum number of vertices allowed in any output convex hull
-//		bool                m_asyncACD{ true };             // Whether or not to run asynchronously, taking advantage of additional cores
-//		uint32_t            m_minEdgeLength{ 2 };           // Once a voxel patch has an edge length of less than 4 on all 3 sides, we don't keep recursing
-//		bool                m_findBestPlane{ false };
-
-		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>&	elements);
+		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
+						 Options& options,
+						 bool runAsync);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		void begin();
-		bool isReady();
-		void cancel();
+		void 									run();
+		bool  									isRunning() const;
+		bool  									isAsync() const;
 
-		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements();
-		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements();
+		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
+		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements() const;
 
 		ProgressFunction 						progressCallback() const;
 		void 									progressCallback(ProgressFunction function);
@@ -72,6 +83,22 @@ namespace ae {
 		void 									canceledCallback(CanceledFunction function);
 
 /*********************************************************************************************
+	IVHACD::IUserCallback
+ *********************************************************************************************/
+
+		void Update(const double overallProgress,
+					const double stageProgress,
+					const char* const stage,
+					const char* operation) override;
+		void NotifyVHACDComplete() override;
+
+/*********************************************************************************************
+	IVHACD::IUserLogger
+ *********************************************************************************************/
+
+		void Log(const char* const msg) override;
+
+/*********************************************************************************************
 	Private
  *********************************************************************************************/
 
@@ -79,6 +106,9 @@ namespace ae {
 
 		std::vector<std::shared_ptr<GeometryElement>>		_sourceElements;
 		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
+
+		bool												_isRunning;
+		bool												_isAsync;
 
 		ProgressFunction									_progressFunction;
 		FinishedFunction									_finishedFunction;
