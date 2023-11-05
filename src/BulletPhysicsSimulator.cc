@@ -28,13 +28,11 @@
 #include "Cone.h"
 #include "Cylinder.h"
 #include "Geometry.h"
-#include "GeometryElement.h"
 #include "Logger.h"
 #include "Node.h"
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
-#include "Plane.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Utilities.h"
@@ -52,6 +50,14 @@ constexpr unsigned MAX_SUBSTEPS = 20;
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
+
+
+
+//btCompoundShape* DoDecomposition(double* aVertices, int aVerticesCount, int* aIndices, int aTriCount);
+
+void BTCompoundShapeViaHACD(vector<Vertex>& verticies, vector<Face>& faces);
+
+
 
 void 									GetPhysicsBodyBTModels(shared_ptr<Node> node,
 															   shared_ptr<PhysicsBody> body,
@@ -118,8 +124,8 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 #endif
 	_bodyBTMapping(PhysicsBodyBTMapping()),
 	_shapeBTMapping(PhysicsShapeBTMapping()),
-	_activeBodies(unordered_set<std::shared_ptr<ae::PhysicsBody>>()),
-	_activeShapes(unordered_set<std::shared_ptr<ae::PhysicsShape>>()) {
+	_activeBodies(unordered_set<std::shared_ptr<PhysicsBody>>()),
+	_activeShapes(unordered_set<std::shared_ptr<PhysicsShape>>()) {
 
 		AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
@@ -130,10 +136,10 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	AE_LOG_D("Destroying BulletPhysicsSimulator {:p}", (void*)this);
-	
+
 	_activeBodies.clear();
 	_activeShapes.clear();
-	
+
 	CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
 	CleanupPhysicsShapeResources(_activeShapes, _shapeBTMapping);
 }
@@ -162,7 +168,7 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 void BulletPhysicsSimulator::beginUpdate(PASS pass,
 										 const Scene& scene) {
 	PhysicsSimulator::beginUpdate(pass, scene);
-	
+
 	if (pass == PASS::STEP) {
 		_activeBodies.clear();
 		_activeShapes.clear();
@@ -172,7 +178,7 @@ void BulletPhysicsSimulator::beginUpdate(PASS pass,
 void BulletPhysicsSimulator::endUpdate(PASS pass,
 									   const Scene& scene) {
 	PhysicsSimulator::endUpdate(pass, scene);
-	
+
 	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
 	if (pass == PASS::STEP) {
 		CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
@@ -186,10 +192,10 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 	if (pass == BulletPhysicsSimulator::PASS::STEP) {
 		auto world = scene.physicsWorld();
-		
+
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
 			_timestep = world->timestep();
-			
+
 			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
 															 PHYSICS_WORLD_DIRTY_BITS::TIMESTEP));
 		}
@@ -197,50 +203,50 @@ void BulletPhysicsSimulator::update(PASS pass,
 		#warning set this gravity for all physics objects, too...
 		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::GRAVITY)) {
 			_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
-			
+
 			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
 															 PHYSICS_WORLD_DIRTY_BITS::GRAVITY));
 		}
 	}
 }
 
-void BulletPhysicsSimulator::update(PASS pass, 
+void BulletPhysicsSimulator::update(PASS pass,
 									shared_ptr<Node> node,
 									const DEBUG_OPTIONS& debugOptions) {
 
 	auto body = node->physicsBody();
 	if (body) {
-		
+
 		// creates and updates bullet models as needed
 		// for PASS::STEP this checks everything gets ready for the simulation step
 		// for PASS::SYNC, it simply gets the handles for the BT models we're driving our graph from
 
 		if (body->shape()) {
-			
+
 			shared_ptr<btRigidBody> btBody = nullptr;
 			shared_ptr<btDefaultMotionState> btMotionState = nullptr;
 			shared_ptr<btCollisionShape> btShape = nullptr;
 			auto btChildShapes = vector<shared_ptr<btCollisionShape>>();
-			
+
 			GetPhysicsBodyBTModels(node,
 								   body,
 								   &btBody, &btMotionState, &btShape, btChildShapes,
 								   *_btWorld,
 								   _bodyBTMapping,
 								   _shapeBTMapping);
-			
+
 			// if the body isn't complete (doesn't have a source geometry or source node?)
 			// we can't make a BT model for it
-			
+
 			if (btBody) {
-				
+
 				if (pass == PASS::STEP) {
-					
+
 					// if dynamic or kinematic, put their scene graph transforms into bullet model
-					
+
 //					if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC
 //						|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-					
+
 					if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
 
 						auto toTransform = BTTransformFromGLMMat4(node->worldTransform());
@@ -248,15 +254,15 @@ void BulletPhysicsSimulator::update(PASS pass,
 						auto motionState = btBody->getMotionState();
 						motionState->setWorldTransform(toTransform); // and this kinematic...
 						btBody->setMotionState(motionState);
-						
+
 						btBody->setActivationState(ACTIVE_TAG);
 //						btBody->forceActivationState(ACTIVE_TAG);
 					}
 				}
 				else if (pass == PASS::SYNC) {
-					
+
 					// get body transforms and apply back to scene graph
-					
+
 					btTransform btWorldTransform;
 					btWorldTransform.setIdentity();
 					btMotionState->getWorldTransform(btWorldTransform);
@@ -265,7 +271,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 					node->unrollWorldTransform(worldMat);
 				}
 			}
-			
+
 			// save reference for housekeeping
 			_activeShapes.emplace(body->shape());
 		}
@@ -273,7 +279,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 			AE_LOG_W("No PhysicsShape attached to PhysicsBody.");
 			//throw Exception("No PhysicsShape attached to PhysicsBody.");
 		}
-		
+
 		// save reference for housekeeping
 		_activeBodies.emplace(body);
 	}
@@ -281,21 +287,88 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 void BulletPhysicsSimulator::step(float time) {
 	AE_LOG_T("");
-	
+
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-	
+
 	int result = _btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, _timestep);
-	
+
 	if (result == MAX_SUBSTEPS) {
 		AE_LOG_W("Physics simulation max substeps reached: {}", result);
 	}
 }
-						  
+
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
+
+
+
+void BTCompoundShapeViaHACD(vector<Vertex>& verticies, vector<Face>& faces) {
+
+}
+
+
+
+//// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=10038
+//btCompoundShape* DoDecomposition(double* aVertices, int aVerticesCount, int* aIndices, int aTriCount) {
+//	vector<HACD::Vec3 <HACD::Real>> points;
+//	vector<HACD::Vec3 <long>> triangles;
+//
+//	for (int i = 0; i < aVerticesCount; i++) {
+//		int index = i * 3;
+//		HACD::Vec3 <HACD::Real> vertex(aVertices[index], aVertices[index + 1], aVertices[index + 2]);
+//		points.push_back(vertex);
+//	}
+//
+//	for (int i = 0; i < aTriCount; i++) {
+//		int index = i * 3;
+//		HACD::Vec3<long> triangle(aIndices[index], aIndices[index + 1], aIndices[index + 2]);
+//		triangles.push_back(triangle);
+//	}
+//
+//	HACD::HACD myHACD;
+//	myHACD.SetPoints(&points[0]);
+//	myHACD.SetNPoints(points.size());
+//	myHACD.SetTriangles(&triangles[0]);
+//	myHACD.SetNTriangles(triangles.size());
+//	myHACD.SetCompacityWeight(0.1);
+//	myHACD.SetVolumeWeight(0.0);
+//
+//// HACD parameters
+//// Recommended parameters: 2 100 0 0 0 0
+//	size_t nClusters = 2;
+//	double concavity = 100;
+//	bool invert = false;
+//	bool addExtraDistPoints = false;
+//	bool addNeighboursDistPoints = false;
+//	bool addFacesPoints = false;
+//
+//	myHACD.SetNClusters(nClusters); // minimum number of clusters
+//	myHACD.SetNVerticesPerCH(100); // max of 100 vertices per convex-hull
+//	myHACD.SetConcavity(concavity); // maximum concavity
+//	myHACD.SetAddExtraDistPoints(addExtraDistPoints);
+//	myHACD.SetAddNeighboursDistPoints(addNeighboursDistPoints);
+//	myHACD.SetAddFacesPoints(addFacesPoints);
+//
+//	myHACD.Compute();
+//	nClusters = myHACD.GetNClusters();
+//
+//	AE_LOG_I("nClusters: {}", nClusters);
+//}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 							shared_ptr<PhysicsBody> body,
@@ -318,7 +391,7 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 
 	auto type = body->type();
 	auto dirtyBits = body->dirtyBits();
-	
+
 	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
 	// we also re-create the body.
 	// additionally, since some physical properties have to be passed via btRigidBodyConstructionInfo,
@@ -334,24 +407,24 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION)) {
-		
+
 		AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)body.get());
 
 //		#warning experimental
 //		if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
 //											  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
-//			
+//
 //			auto worldScale = shape->sourceNode().lock()->worldScale();
 //			AE_LOG_D("worldScale: {}", StringFromGLMVec3(worldScale));
 //			auto btScale = BTVector3FromGLMVec3(worldScale);
 //			(*btShape)->setLocalScaling(btScale);
-//			
+//
 ////			for (auto& c : btChildShapes) {
 ////				c->setLocalScaling(btScale);
 ////			}
-//			
+//
 //			//btWorld.updateSingleAabb((*btBody).get());
-//			
+//
 ////			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
 ////															 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
 //		}
@@ -368,13 +441,13 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		}
 
 		auto newMotionState = make_shared<btDefaultMotionState>(transform);
-		
+
 		auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
-		
+
 		btVector3 localInertia = BTVector3FromGLMVec3(body->momentOfInertia());
 
 		auto mass = body->mass();
-		
+
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC
 			|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
 			mass = 0;
@@ -383,12 +456,12 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //#warning this is GENERATING momentOfInertia
 			collisionShape->calculateLocalInertia(mass, localInertia);
 		}
-		
+
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
 															   newMotionState.get(),
 															   collisionShape.get(),
 															   localInertia);
-		
+
 		rigidBodyInfo.m_mass = mass;
 		rigidBodyInfo.m_linearDamping = body->linearDamping();
 		rigidBodyInfo.m_angularDamping = body->angularDamping();
@@ -397,23 +470,23 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		rigidBodyInfo.m_restitution = body->restitution();
 		rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
 		rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
-		
+
 		auto newBody = make_shared<btRigidBody>(rigidBodyInfo);
-		
+
 		if (body->type() == PHYSICS_BODY_TYPE::STATIC) {
 			newBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
 		}
 		else if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
 			newBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 		}
-		
+
 		btWorld.addRigidBody(newBody.get());
 
 		// out parameters
 		*btBody = newBody;
 		*btMotionState = newMotionState;
 		bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::TYPE));
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
@@ -432,25 +505,25 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		*btBody = resources->body();
 		*btMotionState = resources->motionState();
 	}
-	
+
 	// check and set the rest of the properties
-	
+
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR)) {
 		(*btBody)->setLinearFactor(BTVector3FromGLMVec3(body->linearFactor()));
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR)) {
 		(*btBody)->setAngularFactor(BTVector3FromGLMVec3(body->angularFactor()));
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING)) {
 		(*btBody)->setDamping(body->linearDamping(), body->angularDamping());
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING));
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
@@ -459,10 +532,10 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD)
 		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD)) {
 		(*btBody)->setSleepingThresholds(body->linearSleepingThreshold(), body->angularSleepingThreshold());
-		
+
 //		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
 //		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD));
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
@@ -476,7 +549,7 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 			// NOTE: setting world gravity resets this
 			(*btBody)->setGravity({0, 0, 0});
 		}
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY));
 	}
@@ -487,36 +560,36 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		else {
 			(*btBody)->setActivationState(DISABLE_DEACTIVATION);
 		}
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES)) {
 #warning TODO
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::FORCES));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES)) {
 #warning TODO
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::TORQUES));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY)) {
 		(*btBody)->setLinearVelocity(BTVector3FromGLMVec3(body->linearVelocity()));
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY));
 	}
 	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY)) {
 		(*btBody)->setAngularVelocity(BTVector3FromGLMVec3(body->angularVelocity()));
-		
+
 		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
 													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY));
 	}
-	
-	
+
+
 //	if (body->type() == PHYSICS_BODY_TYPE::STATIC) {
 //		AE_LOG_D("STATIC");
 //	}
@@ -528,35 +601,35 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //		AE_LOG_D("KINEMATIC");
 //	}
 //	AE_LOG_D("Gravity: {}", StringFromGLMVec3(GLMVec3FromBTVector3((*btBody)->getGravity())));
-	
+
 	// update shape scale. done here instead of GetPhysicsShapeBTModels() because we need the rigidbody
-	
-	
+
+
 //	#warning experimental
 ////	auto shape = body->shape();
 //	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
 //										  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
-//		
+//
 ////		auto btScale = BTVector3FromGLMVec3(shape->sourceNode().lock()->worldScale());
 ////		(*btShape)->setLocalScaling(btScale);
-////		
+////
 ////		for (auto& c : btChildShapes) {
 ////			c->setLocalScaling(btScale);
 ////		}
-//		
+//
 //		btWorld.updateSingleAabb((*btBody).get());
-//		
+//
 //		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
 //														 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
 //	}
-	
+
 	// back-fill PhysicsBody properties
-	
-	
-	
-	
+
+
+
+
 // *** causing a loop canceling out any manual dynamic movement ***
-	
+
 	body->linearVelocity(GLMVec3FromBTVector3((*btBody)->getLinearVelocity()), false);
 	body->angularVelocity(GLMVec3FromBTVector3((*btBody)->getAngularVelocity()), false);
 	body->resting((*btBody)->getActivationState() == (ISLAND_SLEEPING ? true : false));
@@ -911,7 +984,7 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 	sort(activeShapesSorted.begin(), activeShapesSorted.end());
 
 	// gather sorted vector of shapes in the mapping
-	auto storedShapesSorted = vector<shared_ptr<ae::PhysicsShape>>();
+	auto storedShapesSorted = vector<shared_ptr<PhysicsShape>>();
 	storedShapesSorted.reserve(btShapeMapping.size());
 	for (auto it = btShapeMapping.begin(); it != btShapeMapping.end(); ++it) {
 		storedShapesSorted.emplace_back(it->first);

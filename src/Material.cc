@@ -43,41 +43,41 @@ shared_ptr<Material> Material::DefaultMaterial() {
  *********************************************************************************************/
 
 Material::Material():
-	_name(std::nullopt),
-	_ambient(nullptr),
-	_diffuse(nullptr),
-	_specular(nullptr),
-	_emissive(nullptr),
-	_specularExponent(150.0),
-	_locksAmbientWithDiffuse(true),
-	_doubleSided(false),
-	_fillMode(FILL_MODE::FILL),
-	_uvScale(1.0f),
-	_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
-	
-		AE_LOG_D("Creating Material {:p}", (void*)this);
+		_name(nullopt),
+		_ambient(nullptr),
+		_diffuse(nullptr),
+		_specular(nullptr),
+		_emissive(nullptr),
+		_specularExponent(150.0),
+		_locksAmbientWithDiffuse(true),
+		_doubleSided(false),
+		_fillMode(FILL_MODE::FILL),
+		_uvScale(1.0f),
+		_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
+
+	AE_LOG_D("Creating Material {:p}", (void*)this);
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular):
-	Material() {
+		Material() {
 
-		_ambient = ambient;
-		_diffuse = diffuse;
-		_specular = specular;
+	_ambient = ambient;
+	_diffuse = diffuse;
+	_specular = specular;
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
 				   shared_ptr<MaterialProperty> emissive):
-	Material() {
-	
-		_ambient = ambient;
-		_diffuse = diffuse;
-		_specular = specular;
-		_emissive = emissive;
+		Material() {
+
+	_ambient = ambient;
+	_diffuse = diffuse;
+	_specular = specular;
+	_emissive = emissive;
 }
 
 Material::~Material() {
@@ -88,7 +88,7 @@ Material::~Material() {
 	Public
  *********************************************************************************************/
 
-std::optional<std::string> Material::name() const {
+optional<string> Material::name() const {
 	return _name;
 }
 

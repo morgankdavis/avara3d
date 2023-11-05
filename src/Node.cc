@@ -544,7 +544,7 @@ void Node::addChild(shared_ptr<Node> node) {
 		throw Exception("Node already exists in tree.");
 	}
 	
-	node->attachedToParent(shared_from_this());
+	node->attachedToParent(weak_from_this());
 	_children.push_back(node);
 }
 
@@ -656,8 +656,8 @@ bool Node::containsChild(shared_ptr<Node> node) {
 ////	}
 //}
 
-void Node::attachedToParent(shared_ptr<Node> parentNode) {
-	_parent = parentNode;
+void Node::attachedToParent(weak_ptr<Node> parent) {
+	_parent = parent;
 }
 
 //shared_ptr<Node> Node::root() const {
@@ -753,7 +753,7 @@ void Node::topologicalChildrenRec(shared_ptr<Node> node,
 
 //void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
 //	// check if the physics shape needs to be scaled
-//	
+//
 //	if (_physicsBody && _physicsBody->shape()) {
 //		if (!Equal(oldScale, newScale)) {
 //			auto shape = _physicsBody->shape();

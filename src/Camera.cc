@@ -36,7 +36,7 @@ Camera::Camera(optional<string> name):
 	Public
  *********************************************************************************************/
 
-std::optional<std::string> Camera::name() const {
+optional<string> Camera::name() const {
 	return _name;
 }
 
@@ -56,6 +56,6 @@ mat4 Camera::projection() const {
 //	return _node;
 //}
 
-//void Camera::attachedToNode(std::shared_ptr<ae::Node> node) {
+//void Camera::attachedToNode(shared_ptr<Node> node) {
 //	_node = node;
 //}

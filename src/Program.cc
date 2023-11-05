@@ -95,9 +95,9 @@ Program::Program(const string& name):
 		_name(name),
 		_glID(0),
 		_isLinked(false),
-		_logString(std::optional<string>(std::nullopt)),
-		_vertexShaderSource(std::optional<string>(std::nullopt)),
-		_fragmentShaderSource(std::optional<string>(std::nullopt)),
+		_logString(optional<string>(nullopt)),
+		_vertexShaderSource(optional<string>(nullopt)),
+		_fragmentShaderSource(optional<string>(nullopt)),
 		_uniformLocationCache(map<string, int>()) {
 
 		_glID = glCreateProgram();
@@ -157,7 +157,7 @@ bool Program::compile() {
 //
 //	if (status != GL_NO_ERROR) {
 //		GLint length = 0;
-//		_logString = std::nullopt;
+//		_logString = nullopt;
 //
 //		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 //		if (length > 0) {
@@ -192,7 +192,7 @@ bool Program::link() {
 
 	if (linkSucceeded == GL_FALSE) {
 		GLint logSize = 0;
-		_logString = std::nullopt;
+		_logString = nullopt;
 
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0) {
@@ -225,7 +225,7 @@ bool Program::validate() {
 	if (status != GL_NO_ERROR) {
 		// Store log and return false
 		GLint length = 0;
-		_logString = std::nullopt;
+		_logString = nullopt;
 		
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 		
@@ -429,7 +429,7 @@ unsigned Program::getAttributeLocation(const char* name) const {
 //	free(name);
 //}
 
-std::string Program::name() const {
+string Program::name() const {
 	return _name;
 }
 
@@ -441,7 +441,7 @@ bool Program::isLinked() const {
 	return _isLinked;
 }
 
-std::optional<string> Program::vertexShaderSource() const {
+optional<string> Program::vertexShaderSource() const {
 	return _vertexShaderSource;
 }
 
@@ -449,7 +449,7 @@ void Program::vertexShaderSource(string source) {
 	_vertexShaderSource = source;
 }
 
-std::optional<string> Program::fragmentShaderSource() const {
+optional<string> Program::fragmentShaderSource() const {
 	return _fragmentShaderSource;
 }
 
@@ -463,7 +463,7 @@ void Program::fragmentShaderSource(string source) {
 
 //optional<string> Program::shaderSource(const string &name, const string &type) {
 //
-//	auto source = ae::utils::ShaderSource(name, type);
+//	auto source = utils::ShaderSource(name, type);
 //
 //	if (source) {
 //		// add appropriate GLSL version header
@@ -481,7 +481,7 @@ void Program::fragmentShaderSource(string source) {
 
 optional<string> Program::shaderSource(const string &name, const string &type) {
 
-	auto source = ae::utils::ShaderSource(name, type);
+	auto source = utils::ShaderSource(name, type);
 
 	if (source) {
 
@@ -548,7 +548,7 @@ void Program::prepare() {
 //	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
 //	if (status != GL_NO_ERROR) {
 //		int length = 0;
-//		_logString = std::nullopt;
+//		_logString = nullopt;
 //		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
 //		if (length > 0) {
 //			// TODO: put on stack
@@ -604,7 +604,7 @@ bool Program::compile(const string &source, SHADER_TYPE type) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileSucceeded); // error = 1 (GL_TRUE = 1)
 	if (compileSucceeded == GL_FALSE) {
 		GLint logSize = 0;
-		_logString = std::nullopt;
+		_logString = nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0) {
 			GLchar c_log[logSize];

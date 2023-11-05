@@ -61,7 +61,7 @@ namespace ae {
 									   Scene& scene,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			update(PASS pass,
-									   std::shared_ptr<ae::Node> node,
+									   std::shared_ptr<Node> node,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			step(float time);
 		

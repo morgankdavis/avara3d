@@ -471,7 +471,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	_activeGeometryElements.emplace(element);
 }
 	
-void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
+void OpenGLRenderer::render(shared_ptr<LineSet> lines,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -502,7 +502,7 @@ void OpenGLRenderer::render(std::shared_ptr<LineSet> lines,
 	_activeLineSets.emplace(lines);
 }
 
-void OpenGLRenderer::render(std::shared_ptr<PointSet> points,
+void OpenGLRenderer::render(shared_ptr<PointSet> points,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -1157,7 +1157,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //		
 //		static unsigned index = 0;
 //		string filePath = "./" + to_string(index) + ".buf			";
-//		unsigned written = BinaryFile(std::filesystem::path(filePath), imageBuf);
+//		unsigned written = BinaryFile(filesystem::path(filePath), imageBuf);
 //		AE_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
 //		++index;
 		

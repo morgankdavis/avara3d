@@ -30,7 +30,7 @@ using namespace std;
 *********************************************************************************************/
 
 Capsule::Capsule(float radius, float height, int slices, int segments, int rings):
-	Geometry(vector<std::shared_ptr<ae::GeometryElement>>(), vector<std::shared_ptr<ae::Material>>()) {
+	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
 		_radius = radius;
 		_height = height;

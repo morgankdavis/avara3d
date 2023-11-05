@@ -1,9 +1,10 @@
 
 IF(BUILD_BULLET3)
-	SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry )
+	SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry)
 ENDIF(BUILD_BULLET3)
 
 
+# mkd: added VHACD
 SUBDIRS(   BulletInverseDynamics BulletSoftBody BulletCollision BulletDynamics LinearMath Bullet3Common)
 
 
@@ -17,3 +18,4 @@ IF(INSTALL_LIBS)
 		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 ENDIF(INSTALL_LIBS)
+

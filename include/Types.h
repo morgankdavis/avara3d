@@ -62,6 +62,12 @@ namespace ae {
 		glm::vec3 	max;
 	} AABB;
 
+	typedef struct {
+		float x;
+		float y;
+		float z;
+	} Extent;
+
 	enum class MATERIAL_PROPERTY_TYPE {
 		AMBIENT,
 		DIFFUSE,

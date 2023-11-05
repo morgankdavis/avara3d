@@ -303,7 +303,7 @@ void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 	}
 }
 
-void PhysicsBody::geometryAttachedToNode(std::shared_ptr<Geometry> geometry) {
+void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
 	if (geometry) {
 		checkAutocreateShape(geometry);
 	}

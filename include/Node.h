@@ -118,7 +118,7 @@ namespace ae {
 		void 									replaceChild(const Node& replace, const Node& with);
 
 		std::weak_ptr<Node> 					parent() const;
-		std::vector<std::shared_ptr<Node>> 		children(bool resursive);
+		std::vector<std::shared_ptr<Node>>		children(bool resursive);
 		std::shared_ptr<Node> 					child(const std::string& name, bool resursive);
 
 		std::shared_ptr<PhysicsBody> 			physicsBody() const;
@@ -138,7 +138,7 @@ namespace ae {
 		void 									updateWorldTransform();
 		bool 									containsChild(std::shared_ptr<Node> node);
 //		void 									attachedToScene(std::shared_ptr<Scene> scene);
-		void 									attachedToParent(std::shared_ptr<Node> parentNode);
+		void 									attachedToParent(std::weak_ptr<Node> parent);
 		
 //		std::shared_ptr<Node> 					root() const;
 //		std::weak_ptr<Scene> 					scene() const;
@@ -154,7 +154,7 @@ namespace ae {
 
 		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
 		void			 						addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
-		std::vector<std::shared_ptr<Node>> 		topologicalChildren(std::shared_ptr<Node> top);
+		std::vector<std::shared_ptr<Node>>		topologicalChildren(std::shared_ptr<Node> top);
 		void 									topologicalChildrenRec(std::shared_ptr<Node> node,
 																	   std::map<std::shared_ptr<Node>, bool>& visited,
 																	   std::stack<std::shared_ptr<Node>>& stack);

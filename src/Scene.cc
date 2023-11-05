@@ -62,7 +62,7 @@ using namespace std;
 static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
-static void 						LoadFile(Scene& scene, const std::filesystem::path& importPath);
+static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 //static void 						LoadData(Scene& scene, const vector<unsigned char>& data);
 static void 						AddAIGeometryNodes(Scene& scene,
 													  const aiScene* aiScene,
@@ -78,7 +78,7 @@ static void 						AddAIGeometryNodeRec(Scene& scene,
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath);
-static std::optional<path> 			FilepathFromTextureFilename(const string& filename,
+static optional<path> 			FilepathFromTextureFilename(const string& filename,
 																  const string& basePath);
 static LIGHT_TYPE 					LightTypeForAILightType(aiLightSourceType aiType);
 
@@ -95,7 +95,7 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::LoadFromFile(const std::filesystem::path& path) {
+shared_ptr<Scene> Scene::LoadFromFile(const filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 	LoadFile(*scene, path);
@@ -375,7 +375,7 @@ static shared_ptr<Image> MissingTextureImage() {
 }
 
 #ifndef ANDROID
-static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
+static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 	
 	AE_LOG_I("Assimp version: {}.{}.{}",
 				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
@@ -404,7 +404,7 @@ static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 		auto importElements = vector<shared_ptr<GeometryElement>>();
 		auto importMaterials = vector<shared_ptr<Material>>();
 		
-		// ********** meshes (ae::GeometryElement) **********
+		// ********** meshes (GeometryElement) **********
 		
 		int numMeshes = aiScene->mNumMeshes;
 		for (int m=0; m<numMeshes; ++m) {
@@ -503,7 +503,7 @@ static void LoadFile(Scene& scene, const std::filesystem::path& importPath) {
 		
 		AE_LOG_D("DONE WITH MATERIALS. COUNT: {}", importMaterials.size());
 		
-		// ********** nodes (ae::Geometry) **********
+		// ********** nodes (Geometry) **********
 		
 		// in AI terminology, a "node" is what we call a "geometry"
 		// also in AI terminology, a "mesh" is what we call a "geometry element"
@@ -727,7 +727,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 	return nullptr;
 }
 
-static std::optional<std::filesystem::path> FilepathFromTextureFilename(const string& filename,
+static optional<filesystem::path> FilepathFromTextureFilename(const string& filename,
 																		const string& basePath) {
 	
 	string textureName = filename;
@@ -744,8 +744,8 @@ static std::optional<std::filesystem::path> FilepathFromTextureFilename(const st
 		path texturePath = canonical(combined);
 		return texturePath;
 	}
-	//catch (const std::filesystem::filesystem_error& e) {
-	catch (const std::exception& e) {
+	//catch (const filesystem::filesystem_error& e) {
+	catch (const exception& e) {
 		AE_LOG_E("Error expanding path: {}", e.what());
 	}
 	

@@ -20,8 +20,8 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Font::Font(std::filesystem::path& path):
-	_name(std::nullopt),
+Font::Font(filesystem::path& path):
+	_name(nullopt),
 	_type(FONT_TYPE::UNKNOWN),
 	_buffer(nullptr) {
 	
@@ -39,7 +39,7 @@ Font::Font(std::filesystem::path& path):
 }
 
 Font::Font(shared_ptr<Buffer> buffer):
-	_name(std::nullopt),
+	_name(nullopt),
 	_type(FONT_TYPE::UNKNOWN),
 	_buffer(buffer) {
 	
@@ -53,7 +53,7 @@ Font::~Font() {
 	Public
  *********************************************************************************************/
 
-std::optional<string> Font::name() const {
+optional<string> Font::name() const {
 	return _name;
 }
 

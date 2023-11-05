@@ -28,7 +28,7 @@ using namespace std;
 *********************************************************************************************/
 
 Box::Box(float width, float height, float length):
-	Geometry(vector<std::shared_ptr<ae::GeometryElement>>(), vector<std::shared_ptr<ae::Material>>()) {
+	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
 		_width = width;
 		_height = height;

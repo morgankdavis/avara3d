@@ -47,7 +47,7 @@ Light::Light(LIGHT_TYPE type):
 }
 
 Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
-	_name(std::nullopt),
+	_name(nullopt),
 	_type(type),
 	_color(color),
 	_attenuationFactor(1.0f) {
@@ -59,7 +59,7 @@ Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
 	Public
  *********************************************************************************************/
 
-std::optional<string> Light::name() const {
+optional<string> Light::name() const {
 	return _name;
 }
 

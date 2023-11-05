@@ -41,14 +41,14 @@ namespace ae {
 
 		/* <ae_GeometryElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
 		using GeometryElementGLMapping =
-				std::map<std::shared_ptr<ae::GeometryElement>, std::tuple<
+				std::map<std::shared_ptr<GeometryElement>, std::tuple<
 				        unsigned,
 						unsigned,
 						unsigned>>;
 
 		/* <ae_MaterialProperty : <gl_textureHandle> */
 		using MaterialPropertyGLMapping =
-				std::map<std::shared_ptr<ae::MaterialProperty>, unsigned>;
+				std::map<std::shared_ptr<MaterialProperty>, unsigned>;
 
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
@@ -64,7 +64,7 @@ namespace ae {
 
 		/* <ae_Geometry : set<ae_Line>> */
 		using GeometryAABBLineSetMapping =
-				std::map<std::shared_ptr<ae::Geometry>,
+				std::map<std::shared_ptr<Geometry>,
 						std::shared_ptr<LineSet>>;
 
 /*********************************************************************************************

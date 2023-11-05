@@ -263,12 +263,18 @@ include_directories(external/gif-h)
 
 include_directories(external/stb)
 
+# v-hacd
+
+include_directories(external/v-hacd-4.1.0)
+
 # bullet
 
 add_subdirectory(external/bullet-3.17)
 include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+
+#add_subdirectory(external/bullet-3.17/src/VHACD)
 
 # magic_enmum
 

@@ -17,84 +17,84 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-std::shared_ptr<ae::Color> Color::Black() {
+std::shared_ptr<Color> Color::Black() {
 	return make_shared<Color>(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::DarkGray() {
+std::shared_ptr<Color> Color::DarkGray() {
 	return make_shared<Color>(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Gray() {
+std::shared_ptr<Color> Color::Gray() {
 	return make_shared<Color>(0.5f, 0.5, 0.5f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::LightGray() {
+std::shared_ptr<Color> Color::LightGray() {
 	return make_shared<Color>(0.75f, 0.75f, 0.75f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::White() {
+std::shared_ptr<Color> Color::White() {
 	return make_shared<Color>(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Maroon() {
+std::shared_ptr<Color> Color::Maroon() {
 	return make_shared<Color>(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Red() {
+std::shared_ptr<Color> Color::Red() {
 	return make_shared<Color>(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Orange() {
+std::shared_ptr<Color> Color::Orange() {
 	return make_shared<Color>(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Yellow() {
+std::shared_ptr<Color> Color::Yellow() {
 	return make_shared<Color>(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Olive() {
+std::shared_ptr<Color> Color::Olive() {
 	return make_shared<Color>(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Lime() {
+std::shared_ptr<Color> Color::Lime() {
 	return make_shared<Color>(0.0f, 1.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Green() {
+std::shared_ptr<Color> Color::Green() {
 	return make_shared<Color>(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Cyan() {
+std::shared_ptr<Color> Color::Cyan() {
 	return make_shared<Color>(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Blue() {
+std::shared_ptr<Color> Color::Blue() {
 	return make_shared<Color>(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Navy() {
+std::shared_ptr<Color> Color::Navy() {
 	return make_shared<Color>(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Teal() {
+std::shared_ptr<Color> Color::Teal() {
 	return make_shared<Color>(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Magenta() {
+std::shared_ptr<Color> Color::Magenta() {
 	return make_shared<Color>(1.0f, 0.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Purple() {
+std::shared_ptr<Color> Color::Purple() {
 	return make_shared<Color>(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<ae::Color> Color::Brown() {
+std::shared_ptr<Color> Color::Brown() {
 	return make_shared<Color>(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
 }
 
-vector<std::shared_ptr<ae::Color>> Color::Rainbow() {
-	return vector<std::shared_ptr<ae::Color>>() = {
+vector<std::shared_ptr<Color>> Color::Rainbow() {
+	return vector<std::shared_ptr<Color>>() = {
 		Black(),
 		DarkGray(),
 		Gray(),

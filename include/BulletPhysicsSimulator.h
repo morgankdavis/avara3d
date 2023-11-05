@@ -47,7 +47,7 @@ namespace ae {
 	class PhysicsShape;
 	class Renderer;
 	class Scene;
-	
+
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
 		
@@ -119,8 +119,8 @@ namespace ae {
 		PhysicsBodyBTMapping									_bodyBTMapping;
 		PhysicsShapeBTMapping									_shapeBTMapping;
 		
-		std::unordered_set<std::shared_ptr<ae::PhysicsBody>>	_activeBodies;
-		std::unordered_set<std::shared_ptr<ae::PhysicsShape>>	_activeShapes;
+		std::unordered_set<std::shared_ptr<PhysicsBody>>	_activeBodies;
+		std::unordered_set<std::shared_ptr<PhysicsShape>>	_activeShapes;
 	};
 }
 
