@@ -8,8 +8,11 @@
 
 #include "Color.h"
 
+#include "Utilities.h"
+
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 
 
@@ -116,6 +119,9 @@ vector<std::shared_ptr<Color>> Color::Rainbow() {
 		Brown() };
 }
 
+shared_ptr<Color> Color::Random() {
+	return make_shared<Color>(Uniform(0, 255), Uniform(0, 255), Uniform(0, 255));
+}
 
 /*********************************************************************************************
 	Lifecycle

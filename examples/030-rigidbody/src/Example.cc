@@ -16,6 +16,10 @@
 
 
 
+// TEMPORARY (not a public class)
+#include "ConvexDecomposer.h"
+
+
 // TEMPORARY
 //#ifdef WINDOWS
 //#include <windows.h>
@@ -258,6 +262,37 @@ int Example::run(const vector<string>& args) {
 	
 	// add slurms
 	AddSlurms(*scene);
+
+
+
+
+
+
+
+	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
+	ConvexDecomposer::Options options;
+	vector<shared_ptr<GeometryElement>> elements = teapotNode->geometry()->elements();
+	auto decomposer = ConvexDecomposer(elements, options);
+	auto decomponsedElements = decomposer.decompose();
+
+	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+	decomposedTeapotMaterials.reserve(decomponsedElements.size());
+	for (int m=0; m<decomponsedElements.size(); ++m) {
+		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
+		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr, nullptr, nullptr, randomColorProperty));
+	}
+
+	auto hacdTeapotGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
+	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+	decomposedTeapotNode->scale({.1, .1, .1});
+	decomposedTeapotNode->rotation({1, 0, 0, radians(-90.0)});
+	decomposedTeapotNode->position({0, 1, 2});
+	scene->rootNode()->addChild(decomposedTeapotNode);
+
+
+
+
+
 	
 
 	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
@@ -286,7 +321,6 @@ int Example::run(const vector<string>& args) {
 	
 	LOG_I(m_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 
-
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
 //	AE_LOG_I("CHILDREN REC:");
@@ -301,7 +335,6 @@ int Example::run(const vector<string>& args) {
 //			AE_LOG_I("\t{:p}", (void*)child.get());
 //		}
 //	}
-
 	
 	m_window->scene(scene);
 	m_inputManager = m_window->inputManager();
