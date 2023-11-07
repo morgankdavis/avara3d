@@ -20,6 +20,9 @@ class btTriangleIndexVertexArray;
 namespace ae {
 
 
+	class Geometry;
+
+
 	class BulletShapeResources {
 
 /*********************************************************************************************
@@ -49,11 +52,14 @@ namespace ae {
 		// - if 'shape' is a btCompoundShape with static body,
 		// 'indexVertexArray' will be empty, 'childShapes' will contain the child shapes,
 		// and 'childIndexVertexArrays' will contain the child index vertex arrays.
+//x		 - if 'shape' type is CONVEX_POLYHEDRON attached to a dynamic body, 'hacdGeometry'
+//x		 will contain the HACD data for the mesh.
 
 		std::shared_ptr<btCollisionShape>&							shape();
 		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
 		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
+//		std::shared_ptr<Geometry>&									hacdGeometry();
 
 /*********************************************************************************************
 	 Private
@@ -65,6 +71,7 @@ namespace ae {
 		std::shared_ptr<btTriangleIndexVertexArray>					_indexVertexArray;
 		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
+//		std::shared_ptr<Geometry>									_hacdGeometry;
 	};
 }
 

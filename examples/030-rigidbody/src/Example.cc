@@ -55,6 +55,7 @@ static shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation);
 static shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction);
 static shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color);
 static shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation);
+static void SpawnHACDTeapot(Scene& scene);
 static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
@@ -158,6 +159,7 @@ int Example::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = ImageNamed("grid10");
+	//auto inverted = gridImage->inverted();
 	//auto gridImage = ImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -269,25 +271,29 @@ int Example::run(const vector<string>& args) {
 
 
 
-	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-	ConvexDecomposer::Options options;
-	vector<shared_ptr<GeometryElement>> elements = teapotNode->geometry()->elements();
-	auto decomposer = ConvexDecomposer(elements, options);
-	auto decomponsedElements = decomposer.decompose();
-
-	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
-	decomposedTeapotMaterials.reserve(decomponsedElements.size());
-	for (int m=0; m<decomponsedElements.size(); ++m) {
-		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
-		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr, nullptr, nullptr, randomColorProperty));
-	}
-
-	auto hacdTeapotGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
-	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
-	decomposedTeapotNode->scale({.1, .1, .1});
-	decomposedTeapotNode->rotation({1, 0, 0, radians(-90.0)});
-	decomposedTeapotNode->position({0, 1, 2});
-	scene->rootNode()->addChild(decomposedTeapotNode);
+//	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
+////	auto teapotNode = SceneNamed("cartoon_palm_tree", "obj")->rootNode()->children(false)[1];
+//	ConvexDecomposer::Options options;
+//	vector<shared_ptr<GeometryElement>> elements = teapotNode->geometry()->elements();
+//	auto decomposer = ConvexDecomposer(elements, options);
+//	auto decomponsedElements = decomposer.decompose();
+//
+//	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+//	decomposedTeapotMaterials.reserve(decomponsedElements.size());
+//	for (int m=0; m<decomponsedElements.size(); ++m) {
+//		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
+//		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
+//																  nullptr,
+//																  nullptr,
+//																  randomColorProperty));
+//	}
+//
+//	auto hacdTeapotGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
+//	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+//	decomposedTeapotNode->scale({.25, .25, .25});
+//	decomposedTeapotNode->rotation({1, 0, 0, radians(-90.0)});
+//	decomposedTeapotNode->position({0, 0, 4});
+//	scene->rootNode()->addChild(decomposedTeapotNode);
 
 
 
@@ -401,11 +407,15 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			m_fruit1Node = fruitNode;
 		}
 	}
-	
+
 	if (keysPressed.count(KEY::J)) {
 		if (m_fruit1Node) {
 			m_fruit1Node->physicsBody()->affectedByGravity(!(m_fruit1Node->physicsBody()->affectedByGravity()));
 		}
+	}
+
+	if (keysPressed.count(KEY::H)) {
+		SpawnHACDTeapot(*scene);
 	}
 	
 	// move paddle
@@ -644,7 +654,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		unsigned fruitNum = Uniform(0, 5);
 		shared_ptr<Node> node = nullptr;
 		float mass = 1;
-		
+
 		switch (fruitNum) {
 			case 0: {
 				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
@@ -723,6 +733,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
 		
 		node->physicsBody(physicsBody);
+		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 		
 		scene.rootNode()->addChild(node);
 		
@@ -888,6 +899,23 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	scene.rootNode()->addChild(node);
 	
 	return node;
+}
+
+void SpawnHACDTeapot(Scene& scene) {
+
+		//auto node = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
+		auto node = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+		node->position({5, 10, 0.0});
+
+		auto physicsBody = PhysicsBody::DynamicBody();
+		physicsBody->mass(10);
+		physicsBody->restitution(0.25);
+		physicsBody->friction(1);
+
+		node->physicsBody(physicsBody);
+		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+
+		scene.rootNode()->addChild(node);
 }
 
 void AddBoxes(Scene& scene) {

@@ -326,16 +326,17 @@ void PhysicsBody::checkAutocreateShape(shared_ptr<Node> node) {
 		if (auto geometry = node->geometry()) {
 			// make a shape based on the geometry
 			checkAutocreateShape(geometry);
-		} else {
+		}
+		else {
 			// make a shape based on the node
 			if (type() == PHYSICS_BODY_TYPE::STATIC) {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void *) node.get());
+						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
 				_shape->sourceObject(node);
 			} else {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void *) node.get());
+						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
 				_shape->sourceObject(node);
 			}
@@ -348,13 +349,13 @@ void PhysicsBody::checkAutocreateShape(shared_ptr<Geometry> geometry) {
 	if (!_shape) {
 		if (type() == PHYSICS_BODY_TYPE::STATIC) {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void *) geometry.get());
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry.get());
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
 			_shape->sourceObject(geometry);
 		}
 		else {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void *) geometry.get());
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry.get());
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
 			_shape->sourceObject(geometry);
 		}

@@ -50,7 +50,7 @@ namespace ae {
 			uint32_t	maxRecursionDepth {10};
 			bool		shrinkWrap {true};
 			FILL_MODE	fillMode {FILL_MODE::FLOOD_FILL};
-			uint32_t	maxNumVerticesPerCH {64};
+			uint32_t	maxNumVerticesPerHull {64};
 //			bool		asyncACD {true};
 			uint32_t	minEdgeLength {2};
 			bool		findBestPlane {false};

@@ -24,6 +24,7 @@
 #include "BulletBodyResources.h"
 #include "BulletDebugDrawer.h"
 #include "BulletShapeResources.h"
+#include "ConvexDecomposer.h"
 #include "Capsule.h"
 #include "Cone.h"
 #include "Cylinder.h"
@@ -33,6 +34,7 @@
 #include "PhysicsBody.h"
 #include "PhysicsShape.h"
 #include "PhysicsWorld.h"
+#include "Plane.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Utilities.h"
@@ -50,14 +52,6 @@ constexpr unsigned MAX_SUBSTEPS = 20;
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
-
-
-
-//btCompoundShape* DoDecomposition(double* aVertices, int aVerticesCount, int* aIndices, int aTriCount);
-
-void BTCompoundShapeViaHACD(vector<Vertex>& verticies, vector<Face>& faces);
-
-
 
 void 									GetPhysicsBodyBTModels(shared_ptr<Node> node,
 															   shared_ptr<PhysicsBody> body,
@@ -79,6 +73,15 @@ static shared_ptr<btCollisionShape> 	BTCollisionShapeFromGeometry(shared_ptr<Geo
 																	PHYSICS_SHAPE_TYPE shapeType,
 																	PHYSICS_BODY_TYPE bodyType,
 																	shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+
+static shared_ptr<btConvexHullShape> 		BTConvexHullShapeFromGeometry(shared_ptr<Geometry> geometry);
+
+static shared_ptr<btGImpactMeshShape> 		BTGImpactMeshShapeFromGeometry(shared_ptr<Geometry> geometry,
+																			shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+static shared_ptr<btBvhTriangleMeshShape>	BTBvhTriangleMeshShapeFromGeometry(shared_ptr<Geometry> geometry,
+																				shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+static shared_ptr<btConvexHullShape> 		BTConvexHullHACDShapeFromGeometry(shared_ptr<Geometry> geometry);
+
 static shared_ptr<btCompoundShape> 		BTCompoundShapeFromNode(shared_ptr<Node> node,
 																  PHYSICS_SHAPE_TYPE shapeType,
 																  PHYSICS_BODY_TYPE bodyType,
@@ -302,73 +305,6 @@ void BulletPhysicsSimulator::step(float time) {
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
-
-
-
-void BTCompoundShapeViaHACD(vector<Vertex>& verticies, vector<Face>& faces) {
-
-}
-
-
-
-//// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=10038
-//btCompoundShape* DoDecomposition(double* aVertices, int aVerticesCount, int* aIndices, int aTriCount) {
-//	vector<HACD::Vec3 <HACD::Real>> points;
-//	vector<HACD::Vec3 <long>> triangles;
-//
-//	for (int i = 0; i < aVerticesCount; i++) {
-//		int index = i * 3;
-//		HACD::Vec3 <HACD::Real> vertex(aVertices[index], aVertices[index + 1], aVertices[index + 2]);
-//		points.push_back(vertex);
-//	}
-//
-//	for (int i = 0; i < aTriCount; i++) {
-//		int index = i * 3;
-//		HACD::Vec3<long> triangle(aIndices[index], aIndices[index + 1], aIndices[index + 2]);
-//		triangles.push_back(triangle);
-//	}
-//
-//	HACD::HACD myHACD;
-//	myHACD.SetPoints(&points[0]);
-//	myHACD.SetNPoints(points.size());
-//	myHACD.SetTriangles(&triangles[0]);
-//	myHACD.SetNTriangles(triangles.size());
-//	myHACD.SetCompacityWeight(0.1);
-//	myHACD.SetVolumeWeight(0.0);
-//
-//// HACD parameters
-//// Recommended parameters: 2 100 0 0 0 0
-//	size_t nClusters = 2;
-//	double concavity = 100;
-//	bool invert = false;
-//	bool addExtraDistPoints = false;
-//	bool addNeighboursDistPoints = false;
-//	bool addFacesPoints = false;
-//
-//	myHACD.SetNClusters(nClusters); // minimum number of clusters
-//	myHACD.SetNVerticesPerCH(100); // max of 100 vertices per convex-hull
-//	myHACD.SetConcavity(concavity); // maximum concavity
-//	myHACD.SetAddExtraDistPoints(addExtraDistPoints);
-//	myHACD.SetAddNeighboursDistPoints(addNeighboursDistPoints);
-//	myHACD.SetAddFacesPoints(addFacesPoints);
-//
-//	myHACD.Compute();
-//	nClusters = myHACD.GetNClusters();
-//
-//	AE_LOG_I("nClusters: {}", nClusters);
-//}
-
-
-
-
-
-
-
-
-
-
-
-
 
 void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 							shared_ptr<PhysicsBody> body,
@@ -712,44 +648,38 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	AE_LOG_T("");
 
 	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
-		AE_LOG_I("Creating static concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
+		//return BTBvhTriangleMeshShapeFromGeometry(geometry, indexVertexArray);
 
-		// static objects ALWAYS use btBvhTriangleMeshShape
-		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 
-		for (auto& element : geometry->elements()) {
 
-			// WORKS
-			auto vertsBase = element->vertices().data();
-			auto facesBase = element->faces().data();
+		if (auto plane = dynamic_pointer_cast<Plane>(geometry)) {
 
-			// WORKS
-//			auto vertsBase = &element->vertices()[0];
-//			auto facesBase = &element->faces()[0];
 
-			// DOES NOT WORK
-//			auto verts = element->vertices();
-//			auto faces = element->faces();
-//			auto vertsBase = verts.data();
-//			auto facesBase = faces.data();
+			return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
+													 (btScalar)plane->height()/2.0f,
+													 (btScalar)0));
 
-			// ^^ asked about on Bullet forum:
-			// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
 
-			auto indexedMesh = make_shared<btIndexedMesh>();
-
-			indexedMesh->m_numTriangles = (int)element->faces().size();
-			indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
-			indexedMesh->m_triangleIndexStride = sizeof(Face);
-			indexedMesh->m_numVertices = (int)element->vertices().size();
-			indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
-			indexedMesh->m_vertexStride = sizeof(Vertex);
-			indexedMesh->m_vertexType = PHY_FLOAT;
-
-			indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+		}
+		else {
+			return BTBvhTriangleMeshShapeFromGeometry(geometry, indexVertexArray);
 		}
 
-		return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+
+
+
+
+
+
+
+
+
+
+
+	}
+	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
+			 && shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
+		return BTConvexHullHACDShapeFromGeometry(geometry);
 	}
 	else { // DYNAMIC or KINEMATIC
 
@@ -807,76 +737,11 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 		}
 		else {
 			if (shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-				AE_LOG_I("Creating concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
-
-				// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-				// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
-				// doesn't seem to want to collide with static shapes.
-				// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
-				// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
-				// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
-				// - GImpact shapes are well optimized for when you need dynamic concave shapes.
-				// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
-				// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
-
-				for (auto& element : geometry->elements()) {
-
-					// see notes above under PHYSICS_BODY_TYPE::STATIC
-					auto vertsBase = element->vertices().data();
-					auto facesBase = element->faces().data();
-
-					auto indexedMesh = make_shared<btIndexedMesh>();
-
-					indexedMesh->m_numTriangles = (int)element->faces().size();
-					indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
-					indexedMesh->m_triangleIndexStride = sizeof(Face);
-					indexedMesh->m_numVertices = (int)element->vertices().size();
-					indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
-					indexedMesh->m_vertexStride = sizeof(Vertex);
-					indexedMesh->m_vertexType = PHY_FLOAT;
-
-					indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
-				}
-
-				auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
-				// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
-				gImpactMeshShape->updateBound();
-
-				return gImpactMeshShape;
+				return BTGImpactMeshShapeFromGeometry(geometry, indexVertexArray);
 			}
 			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
 
-				AE_LOG_I("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
-
-				// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
-
-				// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
-				auto originalShape = make_shared<btConvexHullShape>();
-				for (auto& element : geometry->elements()) {
-					for (auto& vertex : element->vertices()) {
-						originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
-					}
-				}
-				originalShape->recalcLocalAabb();
-
-				// reduce number of verticies
-				// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-				auto hull = btShapeHull(originalShape.get());
-				btScalar margin = originalShape->getMargin();
-				hull.buildHull((btScalar)margin);
-
-				auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
-																   hull.numVertices(),
-																   sizeof(btVector3));
-
-				reducedShape->optimizeConvexHull();
-
-				// for debug drawing
-				if (!reducedShape->initializePolyhedralFeatures()) {
-					AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
-				}
-
-				return reducedShape;
+				return BTConvexHullShapeFromGeometry(geometry);
 			}
 		}
 	}
@@ -884,12 +749,147 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 	return nullptr;
 }
 
+shared_ptr<btConvexHullShape> BTConvexHullShapeFromGeometry(shared_ptr<Geometry> geometry) {
+	AE_LOG_I("Creating convex hull physics shape for geometry {:p}...", (void*)geometry.get());
+
+	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+
+	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
+	auto originalShape = make_shared<btConvexHullShape>();
+	for (auto& element : geometry->elements()) {
+		for (auto& vertex : element->vertices()) {
+			originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
+		}
+	}
+	originalShape->recalcLocalAabb();
+
+	// reduce number of verticies
+	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+	auto hull = btShapeHull(originalShape.get());
+	btScalar margin = originalShape->getMargin();
+	hull.buildHull((btScalar)margin);
+
+	auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
+													   hull.numVertices(),
+													   sizeof(btVector3));
+
+	reducedShape->optimizeConvexHull();
+
+	// for debug drawing
+	if (!reducedShape->initializePolyhedralFeatures()) {
+		AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
+	}
+
+	return reducedShape;
+}
+
+shared_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromGeometry(shared_ptr<Geometry> geometry,
+															  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+	AE_LOG_I("Creating concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
+
+	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+	// doesn't seem to want to collide with static shapes.
+	// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
+	// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
+	// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
+	// - GImpact shapes are well optimized for when you need dynamic concave shapes.
+	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
+	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
+
+	for (auto& element : geometry->elements()) {
+
+		// see notes above under PHYSICS_BODY_TYPE::STATIC
+		auto vertsBase = element->vertices().data();
+		auto facesBase = element->faces().data();
+
+		auto indexedMesh = make_shared<btIndexedMesh>();
+
+		indexedMesh->m_numTriangles = (int)element->faces().size();
+		indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
+		indexedMesh->m_triangleIndexStride = sizeof(Face);
+		indexedMesh->m_numVertices = (int)element->vertices().size();
+		indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
+		indexedMesh->m_vertexStride = sizeof(Vertex);
+		indexedMesh->m_vertexType = PHY_FLOAT;
+
+		indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+	}
+
+	auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
+	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
+	gImpactMeshShape->updateBound();
+
+	return gImpactMeshShape;
+}
+
+shared_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromGeometry(shared_ptr<Geometry> geometry,
+																	  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+	AE_LOG_I("Creating concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
+
+	// static objects ALWAYS use btBvhTriangleMeshShape
+	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+
+	for (auto& element : geometry->elements()) {
+
+		// WORKS
+		auto vertsBase = element->vertices().data();
+		auto facesBase = element->faces().data();
+
+		// WORKS
+//			auto vertsBase = &element->vertices()[0];
+//			auto facesBase = &element->faces()[0];
+
+		// DOES NOT WORK
+//			auto verts = element->vertices();
+//			auto faces = element->faces();
+//			auto vertsBase = verts.data();
+//			auto facesBase = faces.data();
+
+		// ^^ asked about on Bullet forum:
+		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
+
+		auto indexedMesh = make_shared<btIndexedMesh>();
+
+		indexedMesh->m_numTriangles = (int)element->faces().size();
+		indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
+		indexedMesh->m_triangleIndexStride = sizeof(Face);
+		indexedMesh->m_numVertices = (int)element->vertices().size();
+		indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
+		indexedMesh->m_vertexStride = sizeof(Vertex);
+		indexedMesh->m_vertexType = PHY_FLOAT;
+
+		indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+	}
+
+	return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+}
+
+shared_ptr<btConvexHullShape> BTConvexHullHACDShapeFromGeometry(shared_ptr<Geometry> geometry) {
+	AE_LOG_I("Creating HACD concave polyhedron physics shape for geometry {:p}...", (void*)geometry.get());
+
+	ConvexDecomposer::Options options;
+//	options.maxConvexHulls = options.maxConvexHulls / 4;
+//	options.resolution = options.resolution / 2;
+//	options.maxRecursionDepth = options.maxRecursionDepth / 2;
+//	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 4;
+	vector<shared_ptr<GeometryElement>> elements = geometry->elements();
+	auto decomposer = ConvexDecomposer(elements, options);
+	auto decomponsedElements = decomposer.decompose();
+
+	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+
+	auto hacdGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
+
+	return BTConvexHullShapeFromGeometry(hacdGeometry);
+}
+
 shared_ptr<btCompoundShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													PHYSICS_SHAPE_TYPE shapeType,
 													PHYSICS_BODY_TYPE bodyType,
 													vector<shared_ptr<btCollisionShape>>& childShapes,
 													vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
-	AE_LOG_T("");
+	AE_LOG_I("Creating compound physics shape for node {:p}...", (void*)node.get());
 
 	auto componentGeometryNodes = vector<shared_ptr<Node>>();
 	if (node->geometry()) componentGeometryNodes.push_back(node);

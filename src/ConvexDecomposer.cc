@@ -92,7 +92,7 @@ vector<shared_ptr<GeometryElement>>	ConvexDecomposer::decompose() {
 			_options.maxRecursionDepth,
 			_options.shrinkWrap,
 			_vhacdFillMode, //_options.fillMode,
-			_options.maxNumVerticesPerCH,
+			_options.maxNumVerticesPerHull,
 			false,//_options.asyncACD,
 			_options.minEdgeLength,
 			_options.findBestPlane

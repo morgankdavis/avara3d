@@ -45,7 +45,8 @@ namespace ae {
 			  bool flipVertical=true);
 		// raw
 		Image(std::shared_ptr<Buffer> rawBuffer,
-			  unsigned width, unsigned height,
+			  unsigned width,
+			  unsigned height,
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true);
 		~Image();
@@ -57,6 +58,7 @@ namespace ae {
 		unsigned 						width() const;
 		unsigned 						height() const;
 		unsigned 						bytesPerPixel() const;
+		std::shared_ptr<Image> 			inverted() const;
 		bool 							writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
@@ -79,7 +81,7 @@ namespace ae {
 		unsigned						_width;
 		unsigned						_height;
 		unsigned						_bytesPerPixel;
-		std::shared_ptr<Buffer>		_data;
+		std::shared_ptr<Buffer>			_data;
 	};
 }
 

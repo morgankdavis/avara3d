@@ -87,6 +87,26 @@ unsigned Image::bytesPerPixel() const {
 	return _bytesPerPixel;
 }
 
+shared_ptr<Image> Image::inverted() const {
+	int widthInBytes = _width * _bytesPerPixel;
+	int size = widthInBytes * _height;
+
+	std::byte buf[size];
+
+	auto existing = _data->pointer();
+	for (int r=0; r<_height; ++r) {
+		for (int c=0; c<widthInBytes; ++c) {
+			buf[widthInBytes*r + c] = (std::byte)existing[widthInBytes*r + c];
+		}
+	}
+
+	return make_shared<Image>(make_shared<Buffer>((unsigned char*)buf, size),
+							  _width,
+							  _height,
+							  _bytesPerPixel,
+							  false);
+}
+
 bool Image::writePNG(filesystem::path path) const {
 	
 	return !stbi_write_png(path.string().c_str(),
@@ -149,10 +169,10 @@ void Image::flipVertical() { // "flip"
 	unsigned char* bottom = NULL;
 	unsigned char temp = 0;
 	int halfHeight = _height / 2;
-	for (int row = 0; row < halfHeight; ++row) {
-		top = _data->pointer() + row * widthInBytes;
-		bottom = _data->pointer() + (_height - row - 1) * widthInBytes;
-		for (int col = 0; col < widthInBytes; col++) {
+	for (int r=0; r<halfHeight; ++r) {
+		top = _data->pointer() + r * widthInBytes;
+		bottom = _data->pointer() + (_height - r - 1) * widthInBytes;
+		for (int c=0; c<widthInBytes; ++c) {
 			temp = *top;
 			*top = *bottom;
 			*bottom = temp;
