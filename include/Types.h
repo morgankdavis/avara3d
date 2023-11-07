@@ -29,13 +29,13 @@ namespace ae {
 	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
 	
 	enum class LOG_LEVEL : unsigned {
-		TRACE =		0,
-		DEBUG =		1,
-		INFO =		2,
-		WARN =		3,
-		ERROR =		4,
-		CRITICAL = 	5,
-		OFF = 		6
+		TRACE_ =		0,
+		DEBUG_ =		1,
+		INFO_ =		2,
+		WARN_ =		3,
+		ERROR_ =		4,
+		CRITICAL_ = 	5,
+		OFF_ = 		6
 	};
 		
 	enum class RENDER_API {

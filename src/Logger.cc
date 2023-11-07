@@ -134,7 +134,7 @@ void Logger::trace(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE, format, args);
+	log(LOG_LEVEL::TRACE_, format, args);
 	va_end(args);
 }
 
@@ -142,7 +142,7 @@ void Logger::debug(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG, format, args);
+	log(LOG_LEVEL::DEBUG_, format, args);
 	va_end(args);
 }
 
@@ -150,7 +150,7 @@ void Logger::info(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO, format, args);
+	log(LOG_LEVEL::INFO_, format, args);
 	va_end(args);
 }
 
@@ -158,7 +158,7 @@ void Logger::warn(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN, format, args);
+	log(LOG_LEVEL::WARN_, format, args);
 	va_end(args);
 }
 
@@ -166,7 +166,7 @@ void Logger::error(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR, format, args);
+	log(LOG_LEVEL::ERROR_, format, args);
 	va_end(args);
 }
 
@@ -174,7 +174,7 @@ void Logger::critical(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL, format, args);
+	log(LOG_LEVEL::CRITICAL_, format, args);
 	va_end(args);
 }
 
@@ -189,7 +189,7 @@ void Logger::trace(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::TRACE_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -199,7 +199,7 @@ void Logger::debug(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::DEBUG_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -209,7 +209,7 @@ void Logger::info(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::INFO_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -219,7 +219,7 @@ void Logger::warn(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::WARN_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -229,7 +229,7 @@ void Logger::error(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::ERROR_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -239,7 +239,7 @@ void Logger::critical(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::CRITICAL_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -276,8 +276,8 @@ void Logger::log(LOG_LEVEL level,
 
 //void Logger::log_trace(const char* filename, int line, const char* function) {
 //
-//	dispatch(LOG_LEVEL::TRACE,
-//			 HeaderString(_name, LOG_LEVEL::TRACE, filename, line, function).c_str());
+//	dispatch(LOG_LEVEL::TRACE_,
+//			 HeaderString(_name, LOG_LEVEL::TRACE_, filename, line, function).c_str());
 //}
 
 void Logger::construct(LOG_LEVEL level, const char* body) {
@@ -396,13 +396,13 @@ string HeaderString(const string& logName, LOG_LEVEL level,
 string StringFromLogLevel(LOG_LEVEL level) {
 	
 	switch (level) {
-		case LOG_LEVEL::TRACE: 	return "trace";
-		case LOG_LEVEL::DEBUG: 	return "debug";
-		case LOG_LEVEL::INFO: 		return "info";
-		case LOG_LEVEL::WARN: 		return "WARN";
-		case LOG_LEVEL::ERROR: 	return "ERROR";
-		case LOG_LEVEL::CRITICAL: 	return "CRITICAL";
-		case LOG_LEVEL::OFF: 		return "off";
+		case LOG_LEVEL::TRACE_: 	return "trace";
+		case LOG_LEVEL::DEBUG_: 	return "debug";
+		case LOG_LEVEL::INFO_: 		return "info";
+		case LOG_LEVEL::WARN_: 		return "WARN";
+		case LOG_LEVEL::ERROR_: 	return "ERROR";
+		case LOG_LEVEL::CRITICAL_: 	return "CRITICAL_";
+		case LOG_LEVEL::OFF_: 		return "off";
 	}
 }
 
@@ -470,7 +470,7 @@ void STDLoggerSink::flush() {
 void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
 
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR)) {
+		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR_)) {
 		fprintf(stderr, "%s\n", message);
 
 	}
@@ -545,12 +545,12 @@ void AndroidLoggerSink::write(const char* message, const char* tag, LOG_LEVEL le
 unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 
 	switch (level) {
-		case LOG_LEVEL::TRACE: 	return ANDROID_LOG_VERBOSE;
+		case LOG_LEVEL::TRACE_: 	return ANDROID_LOG_VERBOSE;
 		case LOG_LEVEL::DEBUG: 	return ANDROID_LOG_DEBUG;
 		case LOG_LEVEL::INFO: 		return ANDROID_LOG_INFO;
 		case LOG_LEVEL::WARN: 		return ANDROID_LOG_WARN;
 		case LOG_LEVEL::ERROR: 	return ANDROID_LOG_ERROR;
-		case LOG_LEVEL::CRITICAL: 	return ANDROID_LOG_FATAL;
+		case LOG_LEVEL::CRITICAL_: 	return ANDROID_LOG_FATAL;
 		case LOG_LEVEL::OFF: 		return ANDROID_LOG_SILENT;
 	}
 }
