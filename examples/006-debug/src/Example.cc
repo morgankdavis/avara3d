@@ -110,7 +110,7 @@ int Example::run(const vector<string>& args) {
 	auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 	scene->background(background);
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>("Ambient light");
 	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
