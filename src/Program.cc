@@ -503,7 +503,7 @@ optional<string> Program::shaderSource(const string &name, const string &type) {
 }
 
 void Program::prepare() {
-	AE_LOG_T("prepare()");
+	AE_LOG_T	("");
 	
 	if (!_isLinked) {
 		if (compile()) {

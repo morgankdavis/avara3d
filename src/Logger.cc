@@ -178,56 +178,74 @@ void Logger::critical(const char* format, ...) {
 	va_end(args);
 }
 
-void Logger::trace(const char* filename, int line, const char* function, const char* format, ...) {
+//void Logger::trace(const char* filename, int line, const char* function) {
+//
+//	log_trace(filename, line, function);
+//}
+
+void Logger::trace(bool useHeader,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE_, filename, line, function, format, args);
+	log(LOG_LEVEL::TRACE_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::debug(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::debug(bool useHeader,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG_, filename, line, function, format, args);
+	log(LOG_LEVEL::DEBUG_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::info(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::info(bool useHeader,
+				  const char* filename, int line, const char* function,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO_, filename, line, function, format, args);
+	log(LOG_LEVEL::INFO_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::warn(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::warn(bool useHeader,
+				  const char* filename, int line, const char* function,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN_, filename, line, function, format, args);
+	log(LOG_LEVEL::WARN_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::error(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::error(bool useHeader,
+				   const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR_, filename, line, function, format, args);
+	log(LOG_LEVEL::ERROR_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
-void Logger::critical(const char* filename, int line, const char* function, const char* format, ...) {
+void Logger::critical(bool useHeader,
+					  const char* filename, int line, const char* function,
+					  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL_, filename, line, function, format, args);
+	log(LOG_LEVEL::CRITICAL_, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level, const char* format, va_list args) {
+void Logger::log(LOG_LEVEL level,
+				 const char* format, va_list args) {
 
 	char body[MAX_LOG_BODY_SIZE];
 
@@ -238,15 +256,29 @@ void Logger::log(LOG_LEVEL level, const char* format, va_list args) {
 }
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level, const char* filename, int line, const char* function, const char* format, va_list args) {
+void Logger::log(LOG_LEVEL level,
+				 bool useHeader,
+				 const char* filename, int line, const char* function,
+				 const char* format, va_list args) {
 
 	char body[MAX_LOG_BODY_SIZE];
 
 	// https://en.cppreference.com/w/c/io/vfprintf
 	vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
 
-	construct(level, filename, line, function, body);
+	if (useHeader) {
+		construct(level, filename, line, function, body);
+	}
+	else {
+		dispatch(level, body);
+	}
 }
+
+//void Logger::log_trace(const char* filename, int line, const char* function) {
+//
+//	dispatch(LOG_LEVEL::TRACE_,
+//			 HeaderString(_name, LOG_LEVEL::TRACE_, filename, line, function).c_str());
+//}
 
 void Logger::construct(LOG_LEVEL level, const char* body) {
 
@@ -262,7 +294,9 @@ void Logger::construct(LOG_LEVEL level, const char* body) {
 	}
 }
 
-void Logger::construct(LOG_LEVEL level, const char* filename, int line, const char* function, const char* body) {
+void Logger::construct(LOG_LEVEL level,
+					   const char* filename, int line, const char* function,
+					   const char* body) {
 
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
 		>= static_cast<underlying_type<LOG_LEVEL>::type>(_level)) {
@@ -367,7 +401,7 @@ string StringFromLogLevel(LOG_LEVEL level) {
 		case LOG_LEVEL::INFO_: 		return "info";
 		case LOG_LEVEL::WARN_: 		return "WARN";
 		case LOG_LEVEL::ERROR_: 	return "ERROR";
-		case LOG_LEVEL::CRITICAL_: 	return "CRITICAL";
+		case LOG_LEVEL::CRITICAL_: 	return "CRITICAL_";
 		case LOG_LEVEL::OFF_: 		return "off";
 	}
 }
@@ -512,12 +546,12 @@ unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 
 	switch (level) {
 		case LOG_LEVEL::TRACE_: 	return ANDROID_LOG_VERBOSE;
-		case LOG_LEVEL::DEBUG_: 	return ANDROID_LOG_DEBUG;
-		case LOG_LEVEL::INFO_: 		return ANDROID_LOG_INFO;
-		case LOG_LEVEL::WARN_: 		return ANDROID_LOG_WARN;
-		case LOG_LEVEL::ERROR_: 	return ANDROID_LOG_ERROR;
+		case LOG_LEVEL::DEBUG: 	return ANDROID_LOG_DEBUG;
+		case LOG_LEVEL::INFO: 		return ANDROID_LOG_INFO;
+		case LOG_LEVEL::WARN: 		return ANDROID_LOG_WARN;
+		case LOG_LEVEL::ERROR: 	return ANDROID_LOG_ERROR;
 		case LOG_LEVEL::CRITICAL_: 	return ANDROID_LOG_FATAL;
-		case LOG_LEVEL::OFF_: 		return ANDROID_LOG_SILENT;
+		case LOG_LEVEL::OFF: 		return ANDROID_LOG_SILENT;
 	}
 }
 

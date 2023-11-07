@@ -265,61 +265,61 @@ void ae::utils::StringReplace(string& str,
 
 #ifndef ANDROID
 
-optional<filesystem::path> ae::utils::ExecutablePath() {
+std::optional<std::filesystem::path> ae::utils::ExecutablePath() {
 #if defined(MACOS)
 	char path[1024];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
-		return filesystem::path(path);
+		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
 	char path[1024];
 	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
-		return filesystem::path(path);
+		return std::filesystem::path(path);
 	}
 #elif defined(WINDOWS)
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
-		return filesystem::path(path);
+		return std::filesystem::path(path);
 	}
 #endif
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<filesystem::path> ae::utils::ExecutableDirectory() {
+std::optional<std::filesystem::path> ae::utils::ExecutableDirectory() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
-		auto execPath = filesystem::path(*execPathStr);
+		auto execPath = std::filesystem::path(*execPathStr);
 		return execPath.parent_path();
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<filesystem::path> ae::utils::ExecutableName() {
+std::optional<std::filesystem::path> ae::utils::ExecutableName() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
-		auto execPath = filesystem::path(*execPathStr);
+		auto execPath = std::filesystem::path(*execPathStr);
 		//if (is_regular_file(execPath)) {
 			return execPath.filename();
 		//}
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<filesystem::path> ae::utils::CurrentWorkingDirectory() {
+std::optional<std::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 #if defined(MACOS) || defined(LINUX) || defined(ANDROID)
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
-		return filesystem::path(cwd);
+		return std::filesystem::path(cwd);
 	}
 #else
 	char path[1024];
 	if (GetModuleFileName(NULL, path, 1024)) {
-		return filesystem::path(path);
+		return std::filesystem::path(path);
 	}
 #endif
-	return nullopt;
+	return std::nullopt;
 }
 
 #endif // !ANDROID
@@ -328,13 +328,13 @@ optional<filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 #ifndef ANDROID
 
-vector<filesystem::path> ae::utils::BaseSearchPaths() {
+vector<std::filesystem::path> ae::utils::BaseSearchPaths() {
 	// build a list of common directories where "shader", "scene", "images", "fonts" etc
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
 	// clients should first check "local" locations first, then "engine" locations.
 	
-	auto basePaths = vector<filesystem::path>();
+	auto basePaths = vector<std::filesystem::path>();
 	auto execDir = ExecutableDirectory();
 	
 	if (execDir) {
@@ -372,51 +372,51 @@ vector<filesystem::path> ae::utils::BaseSearchPaths() {
 	return basePaths;
 }
 
-vector<filesystem::path> ae::utils::ShaderSearchPaths() {
-	auto searchPaths = vector<filesystem::path>();
+vector<std::filesystem::path> ae::utils::ShaderSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "shaders");
 	}
 	return searchPaths;
 }
 
-vector<filesystem::path> ae::utils::SceneSearchPaths() {
-	auto searchPaths = vector<filesystem::path>();
+vector<std::filesystem::path> ae::utils::SceneSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "scenes");
 	}
 	return searchPaths;
 }
 
-vector<filesystem::path> ae::utils::ImageSearchPaths() {
-	auto searchPaths = vector<filesystem::path>();
+vector<std::filesystem::path> ae::utils::ImageSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "images");
 	}
 	return searchPaths;
 }
 
-vector<filesystem::path> ae::utils::FontSearchPaths() {
-	auto searchPaths = vector<filesystem::path>();
+vector<std::filesystem::path> ae::utils::FontSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "fonts");
 	}
 	return searchPaths;
 }
 
-optional<filesystem::path> ae::utils::SearchInPaths(const string& filename,
-																  vector<filesystem::path> paths) {
+std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& filename,
+																  vector<std::filesystem::path> paths) {
 	AE_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
 		AE_LOG_D("\t...'{}", searchPath.string());
-		if (filesystem::is_directory(searchPath)) {
+		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
-			if (filesystem::is_regular_file(path)) {
+			if (std::filesystem::is_regular_file(path)) {
 				return path;
 			}
 		}
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
 #endif // !ANDROID
@@ -425,14 +425,14 @@ optional<filesystem::path> ae::utils::SearchInPaths(const string& filename,
 
 #ifdef ANDROID
 
-optional<filesystem::path> ae::utils::InternalFilesDirectory() {
+std::optional<std::filesystem::path> ae::utils::InternalFilesDirectory() {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
 	string filesDir = helper->GetFilesDir();
-	if (filesDir.length()) return filesystem::path(filesDir);
-	return nullopt;
+	if (filesDir.length()) return std::filesystem::path(filesDir);
+	return std::nullopt;
 }
 
-optional<string> ae::utils::TextAsset(const string& relPath) {
+std::optional<string> ae::utils::TextAsset(const string& relPath) {
 //	vector<unsigned char> buffer = BinaryAsset(relPath);
 //	if (buffer.size()) {
 //		return string(buffer.begin(), buffer.end());
@@ -441,7 +441,7 @@ optional<string> ae::utils::TextAsset(const string& relPath) {
 	if (buffer->size()) {
 		return string((char*)(buffer->pointer()));
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
 shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
@@ -453,7 +453,7 @@ shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
 
 #else
 
-optional<string> ae::utils::TextFile(const filesystem::path& path) {
+std::optional<string> ae::utils::TextFile(const std::filesystem::path& path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -467,16 +467,16 @@ optional<string> ae::utils::TextFile(const filesystem::path& path) {
 		infile.close();
 		return source;
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
 #endif // ANDROID
 
 // *** shaders ***
 
-optional<string> ae::utils::ShaderSource(const string& name,
+std::optional<std::string> ae::utils::ShaderSource(const string& name,
 													 const string& type) {
-	optional<string> rawSource = nullopt;
+	std::optional<string> rawSource = std::nullopt;
 #ifdef ANDROID
 	rawSource = TextAsset("shaders/" + name + "." + type);
 #else

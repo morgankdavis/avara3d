@@ -109,9 +109,9 @@ namespace ae {
 		std::vector<std::filesystem::path> ImageSearchPaths();
 		std::vector<std::filesystem::path> FontSearchPaths();
 		std::optional<std::filesystem::path> SearchInPaths(const std::string& filename,
-														   std::vector<std::filesystem::path> paths);
+															   std::vector<std::filesystem::path> paths);
 #endif
-
+		
 		// *** binary and text files ***
 		
 #ifdef ANDROID
@@ -123,38 +123,38 @@ namespace ae {
 #endif
 		
 		// *** shaders ***
-
+		
 		std::optional<std::string> ShaderSource(const std::string& name,
-												const std::string& type);
-
+												  const std::string& type);
+		
 		// *** fonts ***
 
-		std::shared_ptr<Font> FontNamed(const std::string& name,
+		std::shared_ptr<ae::Font> FontNamed(const std::string& name,
 										const std::string& type);
-
+		
 		// ***  images ***
-
-		std::shared_ptr<Image> ImageNamed(const std::string& name,
+		
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  bool flipHorizontal=true);
-		std::shared_ptr<Image> ImageNamed(const std::string& name,
+		std::shared_ptr<ae::Image> ImageNamed(const std::string& name,
 										  const std::string& type,
 										  bool flipHorizontal=true);
-		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name);
-		std::shared_ptr<CubeImage> CubeImageNamed(const std::string& name,
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<ae::CubeImage> CubeImageNamed(const std::string& name,
 												  const std::string& type);
-
+		
 		// *** scenes ***
-
+		
 #ifndef ANDROID
-		std::shared_ptr<Scene> SceneNamed(const std::string& name);
-		std::shared_ptr<Scene> SceneNamed(const std::string& name,
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name);
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 										  const std::string& type);
 #endif
 
 /*********************************************************************************************
 	Misc Utilities
  *********************************************************************************************/
-
+		
 		void SaveSnapshot(RenderContext& context);
 		void StartGIFRecording(RenderContext& context,
 							   unsigned maxHeight, unsigned maxFramerate);
