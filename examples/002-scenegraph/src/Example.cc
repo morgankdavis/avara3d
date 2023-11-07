@@ -434,7 +434,7 @@ int Example::run(const vector<string>& args) {
 	// ******** make everything look like it did before materials worked ********
 	
 	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0fb, 1.0, 1.0, 1.0));
+	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
 	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	
 	for (auto n : scene->rootNode()->children(true)) {
