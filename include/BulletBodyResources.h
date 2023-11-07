@@ -9,7 +9,8 @@
 #include <memory>
 
 
-class btDefaultMotionState;
+struct btDefaultMotionState;
+
 class btRigidBody;
 
 
