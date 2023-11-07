@@ -12,6 +12,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -22,21 +23,25 @@
 struct btDefaultMotionState;
 struct btDbvtBroadphase;
 
+class btBvhTriangleMeshShape;
 class btCollisionDispatcher;
 class btCollisionShape;
 class btDefaultCollisionConfiguration;
 class btDiscreteDynamicsWorld;
 class btRigidBody;
 class btSequentialImpulseConstraintSolver;
+class btTriangleIndexVertexArray;
 class btTriangleMesh;
 
 
 namespace ae {
 	
-	
+
+	class BulletBodyResources;
 #ifdef DESKTOP
 	class BulletDebugDrawer;
 #endif
+	class BulletShapeResources;
 	class Node;
 	class PhysicsBody;
 	class PhysicsShape;
@@ -51,22 +56,13 @@ namespace ae {
  *********************************************************************************************/
 
 	public:
-		
-		/* <ae_obj : <bt_rigidBody, bt_motionState>> */
+
 		using PhysicsBodyBTMapping =
-			std::map<std::shared_ptr<PhysicsBody>, std::pair<std::shared_ptr<btRigidBody>, 
-												   			 std::shared_ptr<btDefaultMotionState>>>;
-		
-		/* <ae_obj : <bt_collisionShape, bt_childShapes>> */
+				std::map<std::shared_ptr<PhysicsBody>, std::shared_ptr<BulletBodyResources>>;
+
 		using PhysicsShapeBTMapping =
-			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
-															   std::vector<std::shared_ptr<btCollisionShape>>>>;
-		
-//		using PhysicsShapeBTMapping =
-//			std::map<std::shared_ptr<PhysicsShape>, std::tuple<std::shared_ptr<btCollisionShape>,
-//															   std::vector<std::shared_ptr<btCollisionShape>>,
-//															   std::shared_ptr<btTriangleMesh>>>;
-		
+				std::map<std::shared_ptr<PhysicsShape>, std::shared_ptr<BulletShapeResources>>;
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/

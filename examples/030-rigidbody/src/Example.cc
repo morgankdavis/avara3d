@@ -35,7 +35,7 @@ constexpr bool					USE_HIGH_DPI =			true;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_8X;
+constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
@@ -120,12 +120,39 @@ int Example::run(const vector<string>& args) {
 	physicsWorld->timestep(PHYSICS_TIMESTEP);
 	scene->physicsWorld(physicsWorld);
 
-	
+
+	// box
+//	const float BOX_DIM = 10.0;
+//	auto boxNode = make_shared<Node>("Box node");
+//	boxNode->geometry(make_shared<Box>(BOX_DIM, BOX_DIM, BOX_DIM));
+//	auto boxImage = ImageNamed("grid10");
+//	//auto gridImage = ImageNamed("grid10_512");
+//	auto boxMaterialProperty = make_shared<MaterialProperty>(boxImage);
+//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+//	boxMaterialProperty->maxAnisotropy(16);
+//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
+//	boxMaterial->uvScale(BOX_DIM/10.0);
+//	boxMaterial->doubleSided(true);
+//	boxNode->geometry()->addMaterial(boxMaterial);
+//	boxNode->position({-20, 0, 20});
+//
+//	auto boxPhysicsBody = PhysicsBody::StaticBody();
+//	boxPhysicsBody->mass(0);
+//	boxPhysicsBody->friction(1);
+//	boxPhysicsBody->restitution(0.25);
+//	boxNode->physicsBody(boxPhysicsBody);
+//
+//	scene->rootNode()->addChild(boxNode);
+
+
 	// ground plane
 	
 	const float PLANE_LENGTH = 40.0;
 	const float PLANE_WIDTH = 40.0;
-	auto planeNode = make_shared<Node>("Ground");
+	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = ImageNamed("grid10");
 	//auto gridImage = ImageNamed("grid10_512");
@@ -147,8 +174,34 @@ int Example::run(const vector<string>& args) {
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
 	planeNode->physicsBody(planePhysicsBody);
-	
+
 	scene->rootNode()->addChild(planeNode);
+
+
+
+
+
+
+	// add the palm tree
+
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	m_palmNode = palmScene->rootNode();
+	m_palmNode->name("Palm node");
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	m_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
 
 
 	// add the duck
@@ -197,7 +250,9 @@ int Example::run(const vector<string>& args) {
 	scene->background(background);
 
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
+//	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185));
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 

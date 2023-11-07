@@ -31,8 +31,8 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75, 0.75, 0.75, 1.0));
-		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0, 1.0, 1.0, 1.0));
+		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
 		material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
 	}
 	return material;

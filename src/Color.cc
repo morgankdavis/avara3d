@@ -141,6 +141,16 @@ Color::Color(float r, float g, float b, float a):
 	a(a) {
 }
 
+Color::Color(int r, int g, int b):
+		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, 1.0) {
+
+}
+
+Color::Color(int r, int g, int b, int a):
+		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, (float)a/255.0f) {
+
+}
+
 Color::Color(float black):
 	r(black),
 	g(black),

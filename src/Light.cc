@@ -23,7 +23,7 @@ using namespace std;
 shared_ptr<Light> Light::DefaultAmbient() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25, 0.25, 0.25, 1.0));
+		light = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	}
 	return light;
 }
