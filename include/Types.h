@@ -31,11 +31,11 @@ namespace ae {
 	enum class LOG_LEVEL : unsigned {
 		TRACE_ =		0,
 		DEBUG_ =		1,
-		INFO_ =			2,
-		WARN_ =			3,
+		INFO_ =		2,
+		WARN_ =		3,
 		ERROR_ =		4,
 		CRITICAL_ = 	5,
-		OFF_ = 			6
+		OFF_ = 		6
 	};
 		
 	enum class RENDER_API {

@@ -503,7 +503,7 @@ optional<string> Program::shaderSource(const string &name, const string &type) {
 }
 
 void Program::prepare() {
-	AE_LOG_T("prepare()");
+	AE_LOG_T	("");
 	
 	if (!_isLinked) {
 		if (compile()) {
@@ -515,7 +515,7 @@ void Program::prepare() {
 			}
 			else {
 				//AE_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
-				AE_LOG_C("Failed linking '{}' program."), _name;
+				AE_LOG_C("Failed linking '{}' program.", _name);
 			}
 		}
 		else {

@@ -404,18 +404,27 @@ vector<std::filesystem::path> ae::utils::FontSearchPaths() {
 	return searchPaths;
 }
 
-std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& filename,
-																  vector<std::filesystem::path> paths) {
-	AE_LOG_D("Searching for '{}' in...", filename);
+std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string filename,
+															  vector<std::filesystem::path> paths) {
+	ostringstream searchPaths;
+	searchPaths << "Searching for '" << filename << " in:" << endl;
+
 	for (auto& searchPath : paths) {
-		AE_LOG_D("\t...'{}", searchPath.string());
+		searchPaths << "\t" << searchPath.string();
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
+				AE_LOG_D(searchPaths.str());
+				AE_LOG_D("Found at '{}'.", path.string());
 				return path;
 			}
 		}
+		searchPaths << endl;
 	}
+
+	AE_LOG_D(searchPaths.str());
+	AE_LOG_D("Not found.");
+
 	return std::nullopt;
 }
 
