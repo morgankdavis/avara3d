@@ -33,18 +33,18 @@ namespace example {
 		
 	private:
 
-		std::shared_ptr<ae::Logger>			m_logger;
+		std::shared_ptr<ae::Logger>			_logger;
 		
-		std::shared_ptr<ae::Window>			m_window;
-		std::shared_ptr<ae::InputManager>	m_inputManager;
-		std::shared_ptr<ae::Node>			m_cameraNode;
+		std::shared_ptr<ae::Window>			_window;
+		std::shared_ptr<ae::InputManager>	_inputManager;
+		std::shared_ptr<ae::Node>			_cameraNode;
 
-		std::shared_ptr<ae::Node>			m_palmNode;
-		std::shared_ptr<ae::Node>			m_duckSpinnerNode;
-		std::shared_ptr<ae::Node>			m_duckNode;
-		std::shared_ptr<ae::Node>			m_paddleNode;
+		std::shared_ptr<ae::Node>			_palmNode;
+		std::shared_ptr<ae::Node>			_duckSpinnerNode;
+		std::shared_ptr<ae::Node>			_duckNode;
+		std::shared_ptr<ae::Node>			_paddleNode;
 		
-		std::shared_ptr<ae::Node>			m_fruit1Node;
+		std::shared_ptr<ae::Node>			_fruit1Node;
 	};
 }
 

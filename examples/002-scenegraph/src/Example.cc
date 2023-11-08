@@ -59,15 +59,15 @@ int Example::run(const vector<string>& args) {
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	
+
+
+
+	_TEST = MatrixTestCase;
 
 	
-	TEST = MatrixTestCase;
-
-	
 	
 
-	if (TEST == MatrixTestCase) {
+	if (_TEST == MatrixTestCase) {
 	
 	// test using raw matrix manipulation
 		
@@ -180,7 +180,7 @@ int Example::run(const vector<string>& args) {
 //		window.display();
 		
 	}
-	else if (TEST == Convenience1TestCase) {
+	else if (_TEST == Convenience1TestCase) {
 		
 		// test using constituent parts manipulation
 		
@@ -248,7 +248,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == EulerTestCase) {
+	else if (_TEST == EulerTestCase) {
 		
 		auto rootNode = make_shared<Node>();
 		
@@ -318,7 +318,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == ReverseEulerTestCase) {
+	else if (_TEST == ReverseEulerTestCase) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -397,7 +397,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == RotationAnimationTestCase) {
+	else if (_TEST == RotationAnimationTestCase) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -468,7 +468,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	if (TEST == RotationAnimationTestCase) {
+	if (_TEST == RotationAnimationTestCase) {
 		auto node = renderContext.scene()->rootNode()->child("A", true);
 		
 		// we WANT this to work (this is how scene kit works)

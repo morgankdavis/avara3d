@@ -41,16 +41,16 @@ int Example::run(const vector<string>& args) {
 	
 	AE_INIT();
 
-	m_window = make_shared<Window>(FULLSCREEN,
-								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI,
-								   ANTIALIAS_MODE,
-								   RENDER_API::OPENGL);
-	m_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(CAPTURE_CURSOR);
+	_window = make_shared<Window>(FULLSCREEN,
+								  WINDOW_WIDTH, WINDOW_HEIGHT,
+								  USE_HIGH_DPI,
+								  ANTIALIAS_MODE,
+								  RENDER_API::OPENGL);
+	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
+	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
+	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
+	_window->enableVSync(ENABLE_VSYNC);
+	_window->captureCursor(CAPTURE_CURSOR);
 	
 	auto scene = SceneNamed("importTest");
 
@@ -74,9 +74,9 @@ int Example::run(const vector<string>& args) {
 	// **************************************************************************
 	
 
-	m_window->scene(scene);
-	m_inputManager = m_window->inputManager();
-	m_window->display();
+	_window->scene(scene);
+	_inputManager = _window->inputManager();
+	_window->display();
 	
 	return 0;
 }
@@ -95,29 +95,29 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	// get input
 	
-	auto keysDown = m_inputManager->keysDown();
+	auto keysDown = _inputManager->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<KEY>::type>(k) << endl;
 	}
 
 	if (keysDown.count(KEY::SLASH)) {
-		m_window->captureCursor(!(m_window->cursorCaptured()));
+		_window->captureCursor(!(_window->cursorCaptured()));
 	}
 	
 	if (keysDown.count(KEY::ESCAPE)) {
 		exit(0);
 	}
 	
-	for (auto mb : m_inputManager->mouseButtonsDown()) {
+	for (auto mb : _inputManager->mouseButtonsDown()) {
 		cout << "Mouse button: " << static_cast<underlying_type<MOUSE_BUTTON>::type>(mb) << endl;
 	}
 	
-	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+	vec2 mousePositionDelta = _inputManager->mousePositionDelta();
 	//	if (mousePositionDelta.x || mousePositionDelta.y) {
 	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
 	//	}
 	
-	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+	vec2 mouseScrollWheelDelta = _inputManager->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 		<< mouseScrollWheelDelta.y << ")" << endl;
@@ -129,23 +129,23 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	const static float mouseSensitivity = (1.0f / 1.5f);
 	
 	
-	if (!m_cameraNode) {
+	if (!_cameraNode) {
 		for (auto n : scene->rootNode()->children(false)) {
 			if (n->camera()) {
-				m_cameraNode = n;
+				_cameraNode = n;
 				break;
 			}
 		}
 	}
 	
 	
-	if (m_cameraNode) {
+	if (_cameraNode) {
 		
 		// look
 		
-		vec3 camForward = m_cameraNode->worldForward();
-		vec3 camRight = m_cameraNode->worldRight();
-		vec3 camUp = m_cameraNode->worldUp();
+		vec3 camForward = _cameraNode->worldForward();
+		vec3 camRight = _cameraNode->worldRight();
+		vec3 camUp = _cameraNode->worldUp();
 		
 		
 		//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
@@ -158,11 +158,11 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
-		vec3 angles = m_cameraNode->eulerAngles();
+		vec3 angles = _cameraNode->eulerAngles();
 		// weird angles
-		//m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
+		//_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
 		// pitch, yaw, roll
-		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+		_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 		
 		
 		// move
@@ -172,25 +172,25 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 	}
 }

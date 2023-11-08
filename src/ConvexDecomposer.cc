@@ -63,7 +63,7 @@ vector<shared_ptr<GeometryElement>>	ConvexDecomposer::decompose() {
 //{
 //	public:
 //	IUserCallback*      m_callback{nullptr};            // Optional user provided callback interface for progress
-//	IUserLogger*        m_logger{nullptr};              // Optional user provided callback interface for log messages
+//	IUserLogger*        _logger{nullptr};              // Optional user provided callback interface for log messages
 //	IUserTaskRunner*    m_taskRunner{nullptr};          // Optional user provided interface for creating tasks
 //	uint32_t            m_maxConvexHulls{ 64 };         // The maximum number of convex hulls to produce
 //	uint32_t            m_resolution{ 400000 };         // The voxel resolution to use

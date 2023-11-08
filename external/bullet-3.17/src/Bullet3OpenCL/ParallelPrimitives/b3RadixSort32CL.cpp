@@ -113,7 +113,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 			int tableIdx = (src[i].m_key >> startBit) & (NUM_TABLES - 1);
 			tables[tableIdx]++;
 		}
-//#define TEST
+//#define _TEST
 #ifdef TEST
 		printf("histogram size=%d\n", NUM_TABLES);
 		for (int i = 0; i < NUM_TABLES; i++)
@@ -123,7 +123,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 				printf("tables[%d]=%d]\n", i, tables[i]);
 			}
 		}
-#endif  //TEST \
+#endif  //_TEST \
 	//	prefix scan
 		int sum = 0;
 		for (int i = 0; i < NUM_TABLES; i++)

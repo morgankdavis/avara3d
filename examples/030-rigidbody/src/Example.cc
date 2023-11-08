@@ -90,30 +90,30 @@ int Example::run(const vector<string>& args) {
 
 
 	AE_INIT();
-	
-	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	LOG_I(m_logger, "Example::run()");
 
-	m_window = make_shared<Window>(FULLSCREEN,
-								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI,
-								   MSAA_MODE,
-								   RENDER_API::OPENGL);
-	m_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	m_window->didSimulatePhysicsCallback(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(CAPTURE_CURSOR);
-	m_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	LOG_I(_logger, "Example::run()");
+
+	_window = make_shared<Window>(FULLSCREEN,
+								  WINDOW_WIDTH, WINDOW_HEIGHT,
+								  USE_HIGH_DPI,
+								  MSAA_MODE,
+								  RENDER_API::OPENGL);
+	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
+	_window->didSimulatePhysicsCallback(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
+	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
+	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
+	_window->enableVSync(ENABLE_VSYNC);
+	_window->captureCursor(CAPTURE_CURSOR);
+	_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	
-//	auto renderContext = static_pointer_cast<RenderContext>(m_window);
+//	auto renderContext = static_pointer_cast<RenderContext>(_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
 //												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
 //												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 	
-//	auto renderContext = static_pointer_cast<RenderContext>(m_window);
+//	auto renderContext = static_pointer_cast<RenderContext>(_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 	
@@ -191,8 +191,8 @@ int Example::run(const vector<string>& args) {
 	// add the palm tree
 
 	auto palmScene = SceneNamed("palm2/palm2", "obj");
-	m_palmNode = palmScene->rootNode();
-	m_palmNode->name("Palm node");
+	_palmNode = palmScene->rootNode();
+	_palmNode->name("Palm node");
 	for (auto n : palmScene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
@@ -205,58 +205,58 @@ int Example::run(const vector<string>& args) {
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
 	palmPhysicsBody->restitution(0.25);
-	m_palmNode->physicsBody(palmPhysicsBody);
+	_palmNode->physicsBody(palmPhysicsBody);
 
 	scene->rootNode()->addChild(palmScene->rootNode());
 
 
 	// add the duck
 
-	m_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
-	AE_LOG_I("DUCK NODE: {}", StringFromTree(*m_duckNode));
-	m_duckNode->position({4.5, 15, 0});
+	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
+	_duckNode->position({4.5, 15, 0});
 
 
 	// #0
-	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	m_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 	// #1
-//	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, m_duckNode);
-//	m_duckNode->physicsBody()->shape(duckPhysicsShape);
+//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode);
+//	_duckNode->physicsBody()->shape(duckPhysicsShape);
 
 	// #2
-//	m_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, m_duckNode->geometry());
-//	m_duckNode->physicsBody()->shape(duckPhysicsShape);
+//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry());
+//	_duckNode->physicsBody()->shape(duckPhysicsShape);
 
 	// #3
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode);
-//	m_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode);
+//	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 
 	// #4
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, m_duckNode->geometry());
-//	m_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry());
+//	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 
-	m_duckSpinnerNode = make_shared<Node>("duck spinner");
-	m_duckSpinnerNode->addChild(m_duckNode);
-	scene->rootNode()->addChild(m_duckSpinnerNode);
+	_duckSpinnerNode = make_shared<Node>("duck spinner");
+	_duckSpinnerNode->addChild(_duckNode);
+	scene->rootNode()->addChild(_duckSpinnerNode);
 
 	
 
 	// add the paddle
 
-	m_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
+	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
 	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
 	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-	m_paddleNode->geometry()->addMaterial(paddleMaterial);
-	m_paddleNode->position({15-.25, 2.5, 0});
+	_paddleNode->geometry()->addMaterial(paddleMaterial);
+	_paddleNode->position({15 - .25, 2.5, 0});
 	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
 //	paddlePhysicsBody->friction(100);
 	paddlePhysicsBody->restitution(0.25);
-	m_paddleNode->physicsBody(paddlePhysicsBody);
-	scene->rootNode()->addChild(m_paddleNode);
+	_paddleNode->physicsBody(paddlePhysicsBody);
+	scene->rootNode()->addChild(_paddleNode);
 	
 	
 	// add cardboard boxes
@@ -325,7 +325,7 @@ int Example::run(const vector<string>& args) {
 	scene->fogDensityExponent(1.0);
 	scene->fogColor(Color::LightGray());
 	
-	LOG_I(m_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
+	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->extent()));
 
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
@@ -342,10 +342,10 @@ int Example::run(const vector<string>& args) {
 //		}
 //	}
 	
-	m_window->scene(scene);
-	m_inputManager = m_window->inputManager();
+	_window->scene(scene);
+	_inputManager = _window->inputManager();
 
-	m_window->display();
+	_window->display();
 	
 	return 0;
 }
@@ -355,7 +355,7 @@ int Example::run(const vector<string>& args) {
  ***************************************************************************************/
 
 void Example::updateCallback(RenderContext& renderContext, float time) {
-	LOG_T(m_logger, "updateCallback(RenderContext&, float)");
+	LOG_T(_logger, "updateCallback(RenderContext&, float)");
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -367,31 +367,31 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
 	
-	if (m_duckSpinnerNode) {
-		//auto duckRotation = m_duckSpinnerNode->rotation();
-		//m_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
-		auto duckSpinnerEuler = m_duckSpinnerNode->eulerAngles();
-		m_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+	if (_duckSpinnerNode) {
+		//auto duckRotation = _duckSpinnerNode->rotation();
+		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
+		auto duckSpinnerEuler = _duckSpinnerNode->eulerAngles();
+		_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
 	
 
 	// get input
 	
-	auto mouseButtonsDown = m_inputManager->mouseButtonsDown();
-	auto mouseButtonsPressed = m_inputManager->mouseButtonsPressed();
-	auto keysDown = m_inputManager->keysDown();
-	auto keysPressed = m_inputManager->keysPressed();
+	auto mouseButtonsDown = _inputManager->mouseButtonsDown();
+	auto mouseButtonsPressed = _inputManager->mouseButtonsPressed();
+	auto keysDown = _inputManager->keysDown();
+	auto keysPressed = _inputManager->keysPressed();
 	auto cursorCaptured = true;
 	if (dynamic_cast<Window*>(&renderContext)) {
 		cursorCaptured = dynamic_cast<Window*>(&renderContext)->cursorCaptured();
 	}
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		m_window->setShouldClose();
+		_window->setShouldClose();
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		LOG_I(m_logger, "TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
 	}
 	
 	
@@ -402,15 +402,15 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	if (keysDown.count(KEY::TAB)) {
-		auto fruitNode = SpawnDuckFruit(*scene, m_duckNode);
-		if (!m_fruit1Node) {
-			m_fruit1Node = fruitNode;
+		auto fruitNode = SpawnDuckFruit(*scene, _duckNode);
+		if (!_fruit1Node) {
+			_fruit1Node = fruitNode;
 		}
 	}
 
 	if (keysPressed.count(KEY::J)) {
-		if (m_fruit1Node) {
-			m_fruit1Node->physicsBody()->affectedByGravity(!(m_fruit1Node->physicsBody()->affectedByGravity()));
+		if (_fruit1Node) {
+			_fruit1Node->physicsBody()->affectedByGravity(!(_fruit1Node->physicsBody()->affectedByGravity()));
 		}
 	}
 
@@ -421,27 +421,27 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	// move paddle
 	
 	static const float PADDLE_SPEED = 5.0; // m/s
-	if (m_inputManager->keysDown().count(KEY::EQUAL)) {
-		if (m_paddleNode) {
-			auto p = m_paddleNode->position();
-			m_paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
+	if (_inputManager->keysDown().count(KEY::EQUAL)) {
+		if (_paddleNode) {
+			auto p = _paddleNode->position();
+			_paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
 		}
 	}
-	if (m_inputManager->keysDown().count(KEY::MINUS)) {
-		if (m_paddleNode) {
-			auto p = m_paddleNode->position();
-			m_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
+	if (_inputManager->keysDown().count(KEY::MINUS)) {
+		if (_paddleNode) {
+			auto p = _paddleNode->position();
+			_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
 		}
 	}
 	
 	
 	if (cursorCaptured) {
 		if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
-			ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+			ShootBall(*scene, _window->pointOfView()->worldPosition(), _window->pointOfView()->worldForward());
 		}
 		
 		if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
-			ShootBall(*scene, m_window->pointOfView()->worldPosition(), m_window->pointOfView()->worldForward());
+			ShootBall(*scene, _window->pointOfView()->worldPosition(), _window->pointOfView()->worldForward());
 		}
 	}
 
@@ -517,23 +517,23 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 
 	if (keysPressed.count(KEY::V)) {
-		m_window->enableVSync(!(m_window->vSyncEnabled()));
+		_window->enableVSync(!(_window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
-		SaveSnapshot(*m_window);
+		SaveSnapshot(*_window);
 	}
 	
 	if (keysPressed.count(KEY::SLASH)) {
-		m_window->captureCursor(!(m_window->cursorCaptured()));
+		_window->captureCursor(!(_window->cursorCaptured()));
 	}
 	
 	if (keysPressed.count(KEY::R)) {
-		if (!m_window->recordingGIF()) {
-			StartGIFRecording(*m_window, 240, 8);
+		if (!_window->recordingGIF()) {
+			StartGIFRecording(*_window, 240, 8);
 		}
 		else {
-			StopGIFRecording(*m_window);
+			StopGIFRecording(*_window);
 		}
 	}
 	
@@ -556,27 +556,27 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		// mouselook
 		
-		vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+		vec2 mousePositionDelta = _inputManager->mousePositionDelta();
 		
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 		
-		if (!m_cameraNode) {
+		if (!_cameraNode) {
 			for (auto n : scene->rootNode()->children(false)) {
 				if (n->camera()) {
-					m_cameraNode = n;
-					//m_cameraNode->camera()->fov(M_PI);
+					_cameraNode = n;
+					//_cameraNode->camera()->fov(M_PI);
 					break;
 				}
 			}
 		}
 		
-		if (m_cameraNode) {
+		if (_cameraNode) {
 			
 			// look
 			
-			vec3 camForward = m_cameraNode->worldForward();
-			vec3 camRight = m_cameraNode->worldRight();
-			vec3 camUp = m_cameraNode->worldUp();
+			vec3 camForward = _cameraNode->worldForward();
+			vec3 camRight = _cameraNode->worldRight();
+			vec3 camUp = _cameraNode->worldUp();
 			
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -584,8 +584,8 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 			//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 			
-			vec3 angles = m_cameraNode->eulerAngles();
-			m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = _cameraNode->eulerAngles();
+			_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 			
 			// move
 			
@@ -593,7 +593,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			static float MOVE_SPEED = 0;
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
 			
-			auto keysDown = m_inputManager->keysDown();
+			auto keysDown = _inputManager->keysDown();
 			
 			float moveMultiplier = 1.0;
 			if (keysDown.count(KEY::LEFT_SHIFT)) {
@@ -602,40 +602,40 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			
 			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
-				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
-				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
-				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
-				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::SPACE)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
-				m_cameraNode->position(m_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta);
 			}
 		}
 	}
 }
 
 void Example::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
-	LOG_T(m_logger, "didSimulatePhysicsCallback(RenderContext&, float)");
+	LOG_T(_logger, "didSimulatePhysicsCallback(RenderContext&, float)");
 }
 
 void Example::willRenderCallback(RenderContext& renderContext, float time) {
-	LOG_T(m_logger, "willRenderCallback(RenderContext&, float)");
+	LOG_T(_logger, "willRenderCallback(RenderContext&, float)");
 }
 
 void Example::didRenderCallback(RenderContext& renderContext, float time) {
-	LOG_T(m_logger, "didRenderCallback(RenderContext&, float)");
+	LOG_T(_logger, "didRenderCallback(RenderContext&, float)");
 }
 
 /***************************************************************************************
@@ -697,7 +697,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		//	node->scale({3.0, 3.0, 3.0});
 		//#warning TEMPORARY workaround for physics scaling
 		//	for (auto& c : node->children(true)) {
-		//		LOG_D(m_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
+		//		LOG_D(_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
 		//		c->geometry()->burnTransform(node->transform(), true);
 		//		node->transform(mat4(1.0));
 		//	}

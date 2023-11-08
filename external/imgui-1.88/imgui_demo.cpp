@@ -2823,9 +2823,9 @@ static void ShowDemoWindowLayout()
             HelpMarker("We call AlignTextToFramePadding() to vertically align the text baseline by +FramePadding.y");
 
             // SmallButton() uses the same vertical padding as Text
-            ImGui::Button("TEST##1"); ImGui::SameLine();
-            ImGui::Text("TEST"); ImGui::SameLine();
-            ImGui::SmallButton("TEST##2");
+            ImGui::Button("_TEST##1"); ImGui::SameLine();
+            ImGui::Text("_TEST"); ImGui::SameLine();
+            ImGui::SmallButton("_TEST##2");
 
             // If your line starts with text, call AlignTextToFramePadding() to align text to upcoming widgets.
             ImGui::AlignTextToFramePadding();

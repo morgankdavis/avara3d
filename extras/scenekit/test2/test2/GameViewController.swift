@@ -43,7 +43,7 @@ enum TestCase {
 class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 	
-	private 		var TEST: TestCase = 					.reverseEuler
+	private 		var _TEST: TestCase = 					.reverseEuler
 	private         var lastRenderTime:                     Double?
 	private         var rotationNode: 						SCNNode!
 	
@@ -54,12 +54,12 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		
 		
-		TEST = .convenience1
+		_TEST = .convenience1
 		
 		
 		
 		
-		if (TEST == .matrix) {
+		if (_TEST == .matrix) {
 
 			// test using raw matrix manipulation
 			
@@ -170,7 +170,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 			scnView.autoenablesDefaultLighting = true
 			
 		}
-		else if (TEST == .convenience1 ) {
+		else if (_TEST == .convenience1 ) {
 
 			// test using constituent parts manipulation
 			
@@ -240,7 +240,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 			scnView.backgroundColor = NSColor.darkGray
 			scnView.autoenablesDefaultLighting = true
 		}
-		else if (TEST == .euler) {
+		else if (_TEST == .euler) {
 			
 			let rootNode = SCNNode()
 			
@@ -311,7 +311,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 			scnView.backgroundColor = NSColor.darkGray
 			scnView.autoenablesDefaultLighting = true
 		}
-		else if (TEST == .reverseEuler) {
+		else if (_TEST == .reverseEuler) {
 			
 			let rootNode = SCNNode()
 			
@@ -386,7 +386,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 			scnView.backgroundColor = NSColor.darkGray
 			scnView.autoenablesDefaultLighting = true
 		}
-		else if (TEST == .rotationAnimation) {
+		else if (_TEST == .rotationAnimation) {
 			let rootNode = SCNNode()
 			
 			let aScene = SCNScene(named: "art.scnassets/teapot.dae")!
@@ -441,7 +441,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 			
 			let dT = Double(time - lastTime)
 			
-			if TEST == TestCase.rotationAnimation {
+			if _TEST == TestCase.rotationAnimation {
 				
 
 				let rotationDeg: CGFloat = CGFloat(dT) * 30.0; // 30deg/sec

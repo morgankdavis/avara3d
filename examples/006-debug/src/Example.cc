@@ -39,10 +39,10 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 int Example::run(const vector<string>& args) {
 	AE_INIT();
+
+	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	
-	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	
-	LOG_I(m_logger, "Example::run()");
+	LOG_I(_logger, "Example::run()");
 
 	
 //	auto nodeA = make_shared<Node>();
@@ -61,23 +61,23 @@ int Example::run(const vector<string>& args) {
 	for (unsigned l=0; l < 50000; ++l) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
-	
-	
 
-	m_window = make_shared<Window>(FULLSCREEN,
-								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI,
-								   ANTIALIAS_MODE,
-								   RENDER_API::OPENGL);
-	m_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(CAPTURE_CURSOR);
+
+
+	_window = make_shared<Window>(FULLSCREEN,
+								  WINDOW_WIDTH, WINDOW_HEIGHT,
+								  USE_HIGH_DPI,
+								  ANTIALIAS_MODE,
+								  RENDER_API::OPENGL);
+	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
+	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
+	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
+	_window->enableVSync(ENABLE_VSYNC);
+	_window->captureCursor(CAPTURE_CURSOR);
 	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);
-	m_window->debugOptions(debugOptions);
+	_window->debugOptions(debugOptions);
 	
 
 	auto scene = make_shared<Scene>();
@@ -102,7 +102,7 @@ int Example::run(const vector<string>& args) {
 	}
 	catch (Exception& e) {
 		
-//		LOG_E(m_logger, e.what());
+//		LOG_E(_logger, e.what());
 		//logger->error(e.what());
 	}
 	
@@ -138,9 +138,9 @@ int Example::run(const vector<string>& args) {
 	scene->fogColor(Color::LightGray());
 
 	
-	m_window->scene(scene);
-	m_inputManager = m_window->inputManager();
-	m_window->display();
+	_window->scene(scene);
+	_inputManager = _window->inputManager();
+	_window->display();
 	
 	return 0;
 }
@@ -159,10 +159,10 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	// get input
 	
-	auto keysPressed = m_inputManager->keysPressed();
+	auto keysPressed = _inputManager->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		m_window->setShouldClose();
+		_window->setShouldClose();
 	}
 	
 	if (keysPressed.count(KEY::F)) {
@@ -197,44 +197,44 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 
 	if (keysPressed.count(KEY::V)) {
-		m_window->enableVSync(!(m_window->vSyncEnabled()));
+		_window->enableVSync(!(_window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
-		SaveSnapshot(*m_window);
+		SaveSnapshot(*_window);
 	}
 	
 	if (keysPressed.count(KEY::R)) {
-		if (!m_window->recordingGIF()) {
-			StartGIFRecording(*m_window, 240, 8);
+		if (!_window->recordingGIF()) {
+			StartGIFRecording(*_window, 240, 8);
 		}
 		else {
-			StopGIFRecording(*m_window);
+			StopGIFRecording(*_window);
 		}
 	}
 	
 	// mouselook
 	
-	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+	vec2 mousePositionDelta = _inputManager->mousePositionDelta();
 	
 	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 	
-	if (!m_cameraNode) {
+	if (!_cameraNode) {
 		for (auto n : scene->rootNode()->children(false)) {
 			if (n->camera()) {
-				m_cameraNode = n;
+				_cameraNode = n;
 				break;
 			}
 		}
 	}
 	
-	if (m_cameraNode) {
+	if (_cameraNode) {
 		
 		// look
 		
-		vec3 camForward = m_cameraNode->worldForward();
-		vec3 camRight = m_cameraNode->worldRight();
-		vec3 camUp = m_cameraNode->worldUp();
+		vec3 camForward = _cameraNode->worldForward();
+		vec3 camRight = _cameraNode->worldRight();
+		vec3 camUp = _cameraNode->worldUp();
 		
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -242,8 +242,8 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 //		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 //		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 		
-		vec3 angles = m_cameraNode->eulerAngles();
-		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+		vec3 angles = _cameraNode->eulerAngles();
+		_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 		
 		// move
 		
@@ -251,29 +251,29 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		static float MOVE_SPEED = 0;
 		if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
 		
-		auto keysDown = m_inputManager->keysDown();
+		auto keysDown = _inputManager->keysDown();
 		
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 	}
 }

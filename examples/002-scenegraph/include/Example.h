@@ -41,7 +41,7 @@ namespace example {
 		
 	private:
 		
-		TestCase TEST;
+		TestCase _TEST;
 
 	};
 }
