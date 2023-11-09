@@ -275,9 +275,55 @@ include_directories(external/magic_enum-0.9.3/include)
 
 # ae
 
-file(GLOB HEADERS include/*.h)
-file(GLOB SOURCES src/*.c*)
+#include_directories(include)
+#file(GLOB HEADERS include/*.h)
+#file(GLOB SOURCES src/*.c*)
+
 include_directories(include)
+
+#include_directories(
+#		include
+#
+#		include/diagnostic
+#		include/diagnostic/logging
+#
+#		include/geometry
+#		include/geometry/primitives
+#
+#		include/input
+#		include/input/platform
+#		include/input/platform/android
+#		include/input/platform/desktop
+#
+#		include/physics
+#		include/physics/bullet
+#
+#		include/rendering
+#		include/rendering/camera
+#		include/rendering/context/platform/android
+#		include/rendering/context/platform/desktop
+#		include/rendering/materials
+#		include/rendering/opengl
+#
+#		include/scene
+#
+#		include/utilities)
+
+#target_sources(
+#		ae
+#		PUBLIC
+#		include/*.h
+#		src/*.c*
+#		include/diagnostic
+#		src/diagnostic
+#		include/diagnostic/logging
+#		src/diagnostic/logging
+#)
+
+
+file(GLOB_RECURSE HEADERS include/*.h)
+file(GLOB_RECURSE SOURCES src/*.c*)
+
 add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 

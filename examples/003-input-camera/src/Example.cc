@@ -12,7 +12,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;

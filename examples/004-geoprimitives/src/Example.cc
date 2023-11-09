@@ -12,7 +12,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;

@@ -12,12 +12,12 @@
 
 #include <glm/glm.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 
 // TEMPORARY (not a public class)
-#include "ConvexDecomposer.h"
+#include "physics/ConvexDecomposer.h"
 
 
 // TEMPORARY
