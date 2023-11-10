@@ -14,6 +14,12 @@
 #include "Types.h"
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
+#include "diagnostic/logging/sinks/FileLoggerSink.h"
+#if defined(ANDROID)
+#include "diagnostic/logging/sinks/platform/android/FileLoggerSink.h"
+#elif defined(DESKTOP)
+#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#endif
 #include "geometry/Geometry.h"
 #include "geometry/GeometryElement.h"
 #include "geometry/Line.h"

@@ -2,7 +2,7 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "diagnostic/logging/sinks/platform/desktop/STDLoggerSink.h"
+#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 
 
 using namespace ae;
@@ -13,11 +13,11 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-STDLoggerSink::STDLoggerSink() {
+StdOutLoggerSink::StdOutLoggerSink() {
 
 }
 
-STDLoggerSink::~STDLoggerSink() {
+StdOutLoggerSink::~StdOutLoggerSink() {
 
 	flush();
 }
@@ -26,7 +26,7 @@ STDLoggerSink::~STDLoggerSink() {
 	Public
  *********************************************************************************************/
 
-void STDLoggerSink::flush() {
+void StdOutLoggerSink::flush() {
 
 	fflush(stdout);
 	fflush(stderr);
@@ -36,7 +36,7 @@ void STDLoggerSink::flush() {
 	Internal
  **************************************************************************************/
 
-void STDLoggerSink::write(const char* message, LOG_LEVEL level) {
+void StdOutLoggerSink::write(const char* message, LOG_LEVEL level) {
 
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
 		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR_)) {

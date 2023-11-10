@@ -25,7 +25,7 @@
 #include "diagnostic/logging/sinks/LoggerSink.h"
 #include "diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP
-	#include "diagnostic/logging/sinks/platform/desktop/STDLoggerSink.h"
+	#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 #endif
 #include "utilities/Utilities.h"
 
@@ -51,7 +51,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 
 #if defined(DESKTOP)
 		string executableName = utils::ExecutableName()->string();
-		auto nativeSink = make_shared<STDLoggerSink>();
+		auto nativeSink = make_shared<StdOutLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
 													/ (executableName + string(".log")));
 #elif defined(ANDROID)
@@ -313,8 +313,8 @@ void Logger::dispatch(LOG_LEVEL level, const char* line) {
 	for (auto sink : _sinks) {
 
 #if defined(DESKTOP)
-		if (dynamic_pointer_cast<STDLoggerSink>(sink)) {
-			dynamic_pointer_cast<STDLoggerSink>(sink)->write(line, level);
+		if (dynamic_pointer_cast<StdOutLoggerSink>(sink)) {
+			dynamic_pointer_cast<StdOutLoggerSink>(sink)->write(line, level);
 		}
 #elif defined(ANDROID)
 		if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {

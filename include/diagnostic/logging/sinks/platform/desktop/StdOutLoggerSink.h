@@ -2,8 +2,8 @@
 // Created by mkd on 11/9/23.
 //
 
-#ifndef AVARA_ENGINE_STDLOGGERSINK_H
-#define AVARA_ENGINE_STDLOGGERSINK_H
+#ifndef AVARA_ENGINE_STDOUTLOGGERSINK_H
+#define AVARA_ENGINE_STDOUTLOGGERSINK_H
 
 
 #include "diagnostic/logging/Logger.h"
@@ -12,7 +12,7 @@
 
 namespace ae {
 
-	class STDLoggerSink : public LoggerSink {
+	class StdOutLoggerSink : public LoggerSink {
 
 /*********************************************************************************************
 	Lifecycle
@@ -20,8 +20,8 @@ namespace ae {
 
 	public:
 
-		STDLoggerSink();
-		~STDLoggerSink();
+		StdOutLoggerSink();
+		~StdOutLoggerSink();
 
 /*********************************************************************************************
 	Public
@@ -38,4 +38,4 @@ namespace ae {
 }
 
 
-#endif //AVARA_ENGINE_STDLOGGERSINK_H
+#endif //AVARA_ENGINE_STDOUTLOGGERSINK_H
