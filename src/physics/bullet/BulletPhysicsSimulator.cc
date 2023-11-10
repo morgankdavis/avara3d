@@ -647,103 +647,71 @@ shared_ptr<btCollisionShape> BTCollisionShapeFromGeometry(shared_ptr<Geometry> g
 														  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_T("");
 
-	if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
-		//return BTBvhTriangleMeshShapeFromGeometry(geometry, indexVertexArray);
+	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
+		AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
 
-
-
-		if (auto plane = dynamic_pointer_cast<Plane>(geometry)) {
-
-
-			return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
-													 (btScalar)plane->height()/2.0f,
-													 (btScalar)0));
-
-
-		}
-		else {
-			return BTBvhTriangleMeshShapeFromGeometry(geometry, indexVertexArray);
-		}
-
-
-
-
-
-
-
-
-
-
-
-
+		vec3 extent = geometry->extent();
+		float width = extent.x;
+		float height = extent.y;
+		float length = extent.z;
+		return make_shared<btBoxShape>(btVector3((btScalar)width/2.0f,
+												 (btScalar)height/2.0f,
+												 (btScalar)length/2.0f));
 	}
-	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
-			 && shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
+	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
+		AE_LOG_I("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+				 (void*)geometry.get(), magic_enum::enum_name(shapeType));
+
+		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
+												 (btScalar)box->height()/2.0f,
+												 (btScalar)box->length()/2.0f));
+	}
+	else if (auto capsule = dynamic_cast<Capsule*>(geometry.get())) {
+		AE_LOG_I("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+				 (void*)geometry.get(), magic_enum::enum_name(shapeType));
+
+		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
+										   (btScalar)capsule->height());
+	}
+	else if (auto cone  = dynamic_cast<Cone*>(geometry.get())) {
+		AE_LOG_I("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+				 (void*)geometry.get(), magic_enum::enum_name(shapeType));
+
+		return make_shared<btConeShape>((btScalar)cone->radius(),
+										(btScalar)cone->height());
+	}
+	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry.get())) {
+		AE_LOG_I("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+				 (void*)geometry.get(), magic_enum::enum_name(shapeType));
+
+		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
+													  (btScalar)cylinder->height()/2.0,
+													  (btScalar)cylinder->radius()));
+	}
+	else if (auto plane = dynamic_cast<Plane*>(geometry.get())) {
+		// ae::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
+		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
+												 (btScalar)plane->height()/2.0f,
+												 (btScalar)0));
+	}
+	else if (auto sphere = dynamic_cast<Sphere*>(geometry.get())) {
+		AE_LOG_I("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
+				 (void*)geometry.get(), magic_enum::enum_name(shapeType));
+
+		return make_shared<btSphereShape>((btScalar)sphere->radius());
+	}
+	// * no Bullet primitives for Torus or Tube *
+	else if (shapeType == PHYSICS_SHAPE_TYPE::CONVEX_HULL) {
+		return BTConvexHullShapeFromGeometry(geometry);
+	}
+	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC) {
 		return BTConvexHullHACDShapeFromGeometry(geometry);
 	}
-	else { // DYNAMIC or KINEMATIC
-
-		if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
-			AE_LOG_I("Creating box physics shape for geometry {:p}...", (void*)geometry.get());
-
-			vec3 extent = geometry->extent();
-			float width = extent.x;
-			float height = extent.y;
-			float length = extent.z;
-			return make_shared<btBoxShape>(btVector3((btScalar)width/2.0f,
-													 (btScalar)height/2.0f,
-													 (btScalar)length/2.0f));
-		}
-		else if (dynamic_cast<Box*>(geometry.get())) {
-			AE_LOG_I("Creating box physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
-
-			auto box = dynamic_cast<Box*>(geometry.get());
-			return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
-													 (btScalar)box->height()/2.0f,
-													 (btScalar)box->length()/2.0f));
-		}
-		else if (dynamic_cast<Sphere*>(geometry.get())) {
-			AE_LOG_I("Creating sphere physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
-
-			auto sphere = dynamic_cast<Sphere*>(geometry.get());
-			return make_shared<btSphereShape>((btScalar)sphere->radius());
-		}
-		else if (dynamic_cast<Capsule*>(geometry.get())) {
-			AE_LOG_I("Creating capsule physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
-
-			auto capsule = dynamic_cast<Capsule*>(geometry.get());
-			return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
-											   (btScalar)capsule->height());
-		}
-		else if (dynamic_cast<Cone*>(geometry.get())) {
-			AE_LOG_I("Creating cone physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
-
-			auto cone = dynamic_cast<Cone*>(geometry.get());
-			return make_shared<btConeShape>((btScalar)cone->radius(),
-											(btScalar)cone->height());
-		}
-		else if (dynamic_cast<Cylinder*>(geometry.get())) {
-			AE_LOG_I("Creating cylinder physics shape for geometry {:p}... (ignoring physics shape type '{}')",
-					 (void*)geometry.get(), magic_enum::enum_name(shapeType));
-
-			auto cylinder = dynamic_cast<Cylinder*>(geometry.get());
-			return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-														  (btScalar)cylinder->height()/2.0,
-														  (btScalar)cylinder->radius()));
-		}
-		else {
-			if (shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-				return BTGImpactMeshShapeFromGeometry(geometry, indexVertexArray);
-			}
-			else { // PHYSICS_SHAPE_TYPE::CONVEX_HULL
-
-				return BTConvexHullShapeFromGeometry(geometry);
-			}
-		}
+	else if (bodyType == PHYSICS_BODY_TYPE::KINEMATIC) {
+		return BTGImpactMeshShapeFromGeometry(geometry, indexVertexArray);
+	}
+	else if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
+		return BTBvhTriangleMeshShapeFromGeometry(geometry, indexVertexArray);
 	}
 
 	return nullptr;
@@ -1099,7 +1067,7 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-static btQuaternion BTQuaternionFromGLMQuat(const quat& from) {
+btQuaternion BTQuaternionFromGLMQuat(const quat& from) {
 	
 	return btQuaternion(from.x, from.y, from.z, from.w);
 	
