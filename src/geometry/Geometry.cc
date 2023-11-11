@@ -166,7 +166,6 @@ void Geometry::draw(Renderer& renderer,
 	}	
 }
 
-//AABB Geometry::aabb(bool worldSpace) const {
 AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 
 	const float maxFloat = numeric_limits<float>::max();
@@ -175,32 +174,20 @@ AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };
 
-	const auto nodeWorldTransform = (convertToNode
-									 ? convertToNode->worldTransform()
-									 : mat4(1.0));
-
 	for (const auto& element : _elements) {
-		for (auto v : element->vertices()) {
-			vec3 p = (convertToNode
-					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
-					  : v.position);
-//			vec3 p = v.position;
-
-			aabb.min.x = std::min(aabb.min.x, p.x);
-			aabb.max.x = std::max(aabb.max.x, p.x);
-			aabb.min.y = std::min(aabb.min.y, p.y);
-			aabb.max.y = std::max(aabb.max.y, p.y);
-			aabb.min.z = std::min(aabb.min.z, p.z);
-			aabb.max.z = std::max(aabb.max.z, p.z);
-		}
+		auto elementAABB = element->aabb(convertToNode);
+			aabb.min.x = std::min(aabb.min.x, elementAABB.min.x);
+			aabb.max.x = std::max(aabb.max.x, elementAABB.max.x);
+			aabb.min.y = std::min(aabb.min.y, elementAABB.min.y);
+			aabb.max.y = std::max(aabb.max.y, elementAABB.max.y);
+			aabb.min.z = std::min(aabb.min.z, elementAABB.min.z);
+			aabb.max.z = std::max(aabb.max.z, elementAABB.max.z);
 	}
 
 	return aabb;
 }
 
-//vec3 Geometry::extent(bool worldSpace) const {
 vec3 Geometry::extent(const shared_ptr<Node> convertToNode) const {
-//	auto aabb = Geometry::aabb(worldSpace);
 	auto aabb = Geometry::aabb(convertToNode);
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,

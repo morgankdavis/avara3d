@@ -12,6 +12,7 @@
 
 #include "Types.h"
 #include "diagnostic/logging/Logger.h"
+#include "scene/Node.h"
 #include "rendering/Renderer.h"
 
 
@@ -76,6 +77,41 @@ const vector<Vertex>& GeometryElement::vertices() const {
 
 const vector<Face>& GeometryElement::faces() const {
 	return _faces;
+}
+
+AABB GeometryElement::aabb(const std::shared_ptr<Node> convertToNode) const {
+
+	const float maxFloat = numeric_limits<float>::max();
+	const float minFloat = numeric_limits<float>::min();
+
+	AABB aabb = { {maxFloat, maxFloat, maxFloat},
+				  {minFloat, minFloat, minFloat} };
+
+	const auto nodeWorldTransform = (convertToNode
+									 ? convertToNode->worldTransform()
+									 : mat4(1.0));
+
+		for (auto v : vertices()) {
+			vec3 p = (convertToNode
+					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
+					  : v.position);
+
+			aabb.min.x = std::min(aabb.min.x, p.x);
+			aabb.max.x = std::max(aabb.max.x, p.x);
+			aabb.min.y = std::min(aabb.min.y, p.y);
+			aabb.max.y = std::max(aabb.max.y, p.y);
+			aabb.min.z = std::min(aabb.min.z, p.z);
+			aabb.max.z = std::max(aabb.max.z, p.z);
+		}
+
+	return aabb;
+}
+
+glm::vec3 GeometryElement::extent(const std::shared_ptr<Node> convertToNode) const {
+	auto aabb = GeometryElement::aabb(convertToNode);
+	return {aabb.max.x - aabb.min.x,
+			aabb.max.y - aabb.min.y,
+			aabb.max.z - aabb.min.z};
 }
 
 GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {

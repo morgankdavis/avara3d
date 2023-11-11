@@ -67,7 +67,9 @@ namespace ae {
 //		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
 //						 Options& options,
 //						 bool async);
-		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
+//		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
+//						 Options& options);
+		ConvexDecomposer(std::shared_ptr<GeometryElement> element,
 						 Options& options);
 
 /*********************************************************************************************
@@ -82,6 +84,9 @@ namespace ae {
 //
 //		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
 //		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements() const;
+
+		std::shared_ptr<GeometryElement>				sourceElement() const;
+		std::vector<std::shared_ptr<GeometryElement>>	decomposedElements() const;
 //
 //		ProgressFunction 						progressCallback() const;
 //		void 									progressCallback(ProgressFunction function);
@@ -120,7 +125,9 @@ namespace ae {
 
 		Options 											_options;
 
-		std::vector<std::shared_ptr<GeometryElement>>		_sourceElements;
+//		std::vector<std::shared_ptr<GeometryElement>>		_sourceElements;
+//		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
+		std::shared_ptr<GeometryElement>					_sourceElement;
 		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
 
 //		bool												_isRunning;

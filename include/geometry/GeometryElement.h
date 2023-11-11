@@ -22,6 +22,7 @@ namespace ae {
 
 
 	class Material;
+	class Node;
 	class Program;
 	class Renderer;
 
@@ -55,6 +56,9 @@ namespace ae {
 
 		const std::vector<Vertex>& 			vertices() const;
 		const std::vector<Face>&			faces() const;
+
+		AABB								aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 							extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
 		GEOMETRY_ELEMENT_DIRTY_BITS 		dirtyBits() const;
 		void 								dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
