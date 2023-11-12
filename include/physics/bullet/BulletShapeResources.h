@@ -31,10 +31,13 @@ namespace ae {
 
 	public:
 
-		BulletShapeResources(std::shared_ptr<btCollisionShape> shape,
-							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
-							 std::vector<std::shared_ptr<btCollisionShape>> childShapes,
-							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays);
+		BulletShapeResources(std::vector<std::shared_ptr<btCollisionShape>> shapes,
+							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
+
+//		BulletShapeResources(std::shared_ptr<btCollisionShape> shape,
+//							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
+//							 std::vector<std::shared_ptr<btCollisionShape>> childShapes,
+//							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays);
 //		~BulletShapeResources();
 
 /*********************************************************************************************
@@ -55,10 +58,13 @@ namespace ae {
 //x		 - if 'shape' type is CONVEX_POLYHEDRON attached to a dynamic body, 'hacdGeometry'
 //x		 will contain the HACD data for the mesh.
 
-		std::shared_ptr<btCollisionShape>&							shape();
-		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
-		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
+		std::vector<std::shared_ptr<btCollisionShape>>&				shapes();
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	indexVertexArrays();
+
+//		std::shared_ptr<btCollisionShape>&							shape();
+//		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
+//		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
+//		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
 //		std::shared_ptr<Geometry>&									hacdGeometry();
 
 /*********************************************************************************************
@@ -67,10 +73,12 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<btCollisionShape>							_shape;
-		std::shared_ptr<btTriangleIndexVertexArray>					_indexVertexArray;
-		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
+		std::vector<std::shared_ptr<btCollisionShape>>				_shapes;
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_indexVertexArrays;
+//		std::shared_ptr<btCollisionShape>							_shape;
+//		std::shared_ptr<btTriangleIndexVertexArray>					_indexVertexArray;
+//		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
+//		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
 //		std::shared_ptr<Geometry>									_hacdGeometry;
 	};
 }
