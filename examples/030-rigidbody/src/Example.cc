@@ -9,6 +9,7 @@
 #include "Example.h"
 
 #include <iostream>
+#include <math.h>
 
 #include <glm/glm.hpp>
 
@@ -706,6 +707,16 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		auto physicsBody = PhysicsBody::DynamicBody();
 		//physicsBody->shape(physicsShape);
 
+
+		// *** without this a compound body would be maade including 'sphereGeometry' below
+		// this way we are telling AE to make the physics body based solely on this particular geometry
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
+											   node->children(false).front()->geometry());
+		physicsBody->shape(shape);
+		///////////////////
+
+
+
 		physicsBody->mass(mass);
 		physicsBody->restitution(0.25);
 		physicsBody->friction(1);
@@ -716,9 +727,25 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 //		physicsBody->linearSleepingThreshold(0.1);
 //		physicsBody->angularSleepingThreshold(.01);
+
+
+		// add a visual-only child
+		auto sphereGeometry = make_shared<Sphere>(.5f, 16);
+		//auto sphereNode =
+		auto sphereNode = Node::GeometryNode(sphereGeometry);
+		sphereNode->position({1, 0, 0});
+		node->addChild(sphereNode);
+
+
 		
 		// add random factor
-		
+
+		float heading = Uniform(0.0f, 2*M_PI);
+		float pitch = Uniform(0.0f, 2*M_PI);
+		float roll = Uniform(0.0f, 2*M_PI);
+
+		node->eulerAngles({heading, pitch, roll});
+
 		float linearVelocityX = Uniform(-2.0f, 2.0f);
 		float linearVelocityY = Uniform(5.0f, 12.0f);	
 		float linearVelocityZ = Uniform(-2.0f, 2.0f);
