@@ -119,9 +119,9 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 	_btBroadphase(make_shared<btDbvtBroadphase>()),
 	_btSolver(make_shared<btSequentialImpulseConstraintSolver>()),
 	_btWorld(make_shared<btDiscreteDynamicsWorld>(_btDispatcher.get(),
-												   _btBroadphase.get(),
-												   _btSolver.get(),
-												   _btCollisionConfiguration.get())),
+												  _btBroadphase.get(),
+												  _btSolver.get(),
+												  _btCollisionConfiguration.get())),
 #ifdef GL_FULL
 	_debugDrawer(make_shared<BulletDebugDrawer>()),
 #endif
@@ -268,7 +268,8 @@ void BulletPhysicsSimulator::update(PASS pass,
 
 					btTransform btWorldTransform;
 					btWorldTransform.setIdentity();
-					btMotionState->getWorldTransform(btWorldTransform);
+					//btMotionState->getWorldTransform(btWorldTransform); // crash?
+					btBody->getMotionState()->getWorldTransform(btWorldTransform);
 
 					auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
 					node->unrollWorldTransform(worldMat);
