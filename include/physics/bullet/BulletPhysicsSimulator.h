@@ -91,14 +91,12 @@ namespace ae {
 								const Scene& scene) override;
 		void 		endUpdate(PASS pass,
 							  const Scene& scene) override;
-
 		void 		update(PASS pass,
 						   Scene& scene,
 						   const DEBUG_OPTIONS& debugOptions) override;
 		void 		update(PASS pass,
 						   std::shared_ptr<Node> node,
 						   const DEBUG_OPTIONS& debugOptions) override;
-		
 		void 		step(float time) override;
 		
 /*********************************************************************************************

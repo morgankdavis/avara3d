@@ -324,7 +324,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		}
 
 		// save reference for housekeeping
-		_activeBodies.emplace(body);
+		activeBodies.emplace(body);
 	}
 }
 

@@ -19,10 +19,12 @@
 
 namespace ae {
 	
-	
+
+	class BodyPhysicsResourses;
 	class Geometry;
 	class Node;
 	class PhysicsShape;
+	class PhysicsSimulator;
 	
 	
 	class PhysicsBody {
@@ -127,7 +129,16 @@ namespace ae {
 		
 		PHYSICS_BODY_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
-		
+
+		void								update(PhysicsSimulator& simulator,
+														Node& node,
+														const DEBUG_OPTIONS& debugOptions);
+		glm::mat4							sync(PhysicsSimulator& simulator,
+															Node& node,
+															const DEBUG_OPTIONS& debugOptions);
+
+		//BodyPhysicsResourses&				_resources();
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -157,6 +168,8 @@ namespace ae {
 		bool 								_resting;
 
 		PHYSICS_BODY_DIRTY_BITS 			_dirtyBits;
+
+		std::shared_ptr<BodyPhysicsResourses>	_resources;
 	};
 }
 
