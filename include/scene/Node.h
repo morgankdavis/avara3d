@@ -138,7 +138,7 @@ namespace ae {
 		void	 								unrollWorldTransform(glm::mat4 transform);
 		
 		//void 									updateWorldTransform();
-		void 									updateWorldTransform(glm::mat4& parentWorldTransform);
+//		void 									updateWorldTransform(glm::mat4& parentWorldTransform);
 		bool 									containsChild(std::shared_ptr<Node> node);
 //		void 									attachedToScene(std::shared_ptr<Scene> scene);
 		void 									attachedToParent(std::weak_ptr<Node> parent);
@@ -149,18 +149,14 @@ namespace ae {
 //		std::weak_ptr<Node> 					model() const;
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
-
-
 		void 									update(PhysicsSimulator& physicsSimulator,
 													   const DEBUG_OPTIONS& debugOptions,
 													   RenderStats& stats,
-													   //std::shared_ptr<Node> parentNode,
 													   std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									sync(PhysicsSimulator& physicsSimulator,
 													 const DEBUG_OPTIONS& debugOptions,
 													 RenderStats& stats,
-													 //std::shared_ptr<Node> parentNode,
 													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									draw(Renderer& renderer,
@@ -168,17 +164,7 @@ namespace ae {
 													 const glm::mat4& projectionMat,
 													 const DEBUG_OPTIONS& debugOptions,
 													 RenderStats& stats,
-													 //std::shared_ptr<Node> parentNode,
 													 std::map<std::shared_ptr<Node>, bool>& visited);
-
-
-//		void 										draw(Renderer& renderer,
-//														 const glm::mat4& modelMat,
-//														 const glm::mat4& viewMat,
-//														 const glm::mat4& projectionMat,
-//														 const DEBUG_OPTIONS& debugOptions,
-//														 RenderStats& stats);
-
 
 		void									_printPreorder(); // testing
 		void									_printPreorderRec(std::shared_ptr<Node> node,

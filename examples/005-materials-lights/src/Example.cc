@@ -415,19 +415,19 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	// move the light
 	
 	if (_pointLightNode) {
-		
+
 		auto center = vec3(0, -75, 0);
-		
+
 		static float radiusX = 100.0;
 		static float radiusY = 100.0;
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
 		angle += rotationSpeed * deltaSeconds;
-		
+
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
-		
+
 		_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }

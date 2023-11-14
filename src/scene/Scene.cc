@@ -219,9 +219,7 @@ void Scene::draw(Renderer& renderer,
 
 	auto renderContext = _renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
-
-	auto visited = map<shared_ptr<Node>, bool>();
-
+	static auto visited = map<shared_ptr<Node>, bool>();
 
 //	if (_physicsWorld) {
 //		physicsSimulator->beginUpdate(*this);
@@ -229,13 +227,13 @@ void Scene::draw(Renderer& renderer,
 //		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 //								 *this,
 //								 debugOptions);
-//}
+//	}
 
-		visited.clear();
-		_rootNode->update(*physicsSimulator,
-						  debugOptions,
-						  stats,
-						  visited);
+	visited.clear();
+	_rootNode->update(*physicsSimulator,
+					  debugOptions,
+					  stats,
+					  visited);
 
 
 //	if (_physicsWorld) {
@@ -247,7 +245,6 @@ void Scene::draw(Renderer& renderer,
 //		_rootNode->sync(*physicsSimulator,
 //						debugOptions,
 //						stats,
-//						_rootNode,
 //						visited);
 //
 //		physicsSimulator->endUpdate(*this);

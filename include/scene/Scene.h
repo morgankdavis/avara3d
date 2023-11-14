@@ -32,25 +32,15 @@ namespace ae {
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
-	
+
 	
 	class Scene {
 
 /*********************************************************************************************
-	Types
+	Public Static
  *********************************************************************************************/
 
 	public:
-
-//		enum class FRAME_STEP {
-//			UPDATE,
-//			SYNC_PHYSICS,
-//			DRAW
-//		};
-
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 #ifndef ANDROID
 		static std::shared_ptr<Scene> 			LoadFromFile(const std::filesystem::path& path);

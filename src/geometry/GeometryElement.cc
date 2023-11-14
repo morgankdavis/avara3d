@@ -51,11 +51,13 @@ void GeometryElement::draw(Renderer& renderer,
 	
 	renderer.render(shared_from_this(),
 					material,
-					modelMat, viewMat, projectionMat,
+					modelMat,
+					viewMat,
+					projectionMat,
 					debugOptions,
 					stats);
 	
-	stats.meshes++;
+	++stats.meshes;
 }
 
 void GeometryElement::burnTransform(const mat4& transform, bool normals) {

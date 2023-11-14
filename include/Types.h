@@ -325,6 +325,7 @@ namespace ae {
 	} RenderStats;
 		
 	enum class NODE_DIRTY_BITS : unsigned {
+		NONE =					0,
 		WORLD_TRANSFORM =		1 << 0,
 		ALL = 					UINT_MAX
 	};
@@ -334,6 +335,7 @@ namespace ae {
 #define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit)))
 	
 	enum class GEOMETRY_DIRTY_BITS : unsigned {
+		NONE =					0,
 		EXTENT =				1 << 0,
 		ALL = 					UINT_MAX
 	};
@@ -343,6 +345,7 @@ namespace ae {
 #define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit)))
 
 	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
+		NONE =					0,
 		VERTEX_DATA =			1 << 0,
 		ALL = 					UINT_MAX
 	};
@@ -352,6 +355,7 @@ namespace ae {
 #define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit)))
 	
 	enum class MATERIAL_DIRTY_BITS : unsigned {
+		NONE =					0,
 		ALL = 					UINT_MAX
 	};
 		
@@ -360,6 +364,7 @@ namespace ae {
 #define MATERIAL_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit)))
 	
 	enum class MATERIAL_PROPERTY_DIRTY_BITS : unsigned {
+		NONE =					0,
 		CONTENTS = 				1 << 0,
 		MINIFICATION_FILTER = 	1 << 1,
 		MAGNIFICATION_FILTER = 	1 << 2,
@@ -385,6 +390,7 @@ namespace ae {
 #define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit)))
 			
 	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
+		NONE =							0,
 		TYPE =							1 << 0,
 		SHAPE =							1 << 1,
 		MASS =							1 << 2,
@@ -412,6 +418,7 @@ namespace ae {
 #define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit)))
 
 	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
+		NONE =					0,
 		MODEL =					1 << 0,
 		ALL = 					UINT_MAX
 	};

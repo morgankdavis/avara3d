@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <locale.h>
 #include <set>
 #include <vector>
 
@@ -1376,7 +1377,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
 	
-	stats.lights = numLights - 1; // not counting ambient
+	stats.lights = numLights;// - 1; // not counting ambient
 	
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
@@ -1927,21 +1928,25 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 		ImGui::SetWindowPos((ImVec2){10.0, 10.0});
 		setInitialPosition = true;
 	}
-	
+
+	// add the comma to thousands format
+	// https://stackoverflow.com/questions/1449805/how-to-format-a-number-using-comma-as-thousands-separator-in-c
+	setlocale(LC_NUMERIC, "");
+
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %.1f fps %s\n" \
-					"%-14s %.1f ms\n" \
+		ImGui::Text("%-14s %'.1f fps %s\n" \
+					"%-14s %'.1f ms\n" \
 					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
 					"\n" \
-					"%-14s %.1f, %.1f, %.1f\n" \
+					"%-14s (%'.1f %'.1f %'.1f)\n" \
 					"\n" \
-					"%-14s %d %s\n",
+					"%-14s %'d %s\n",
 					
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
@@ -1954,16 +1959,16 @@ void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
 					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %.1f fps %s\n" \
-					"%-14s %.1f ms\n" \
+		ImGui::Text("%-14s %'.1f fps %s\n" \
+					"%-14s %'.1f ms\n" \
 					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
+					"%-14s %'d\n" \
 					"\n" \
-					"%-14s %.1f, %.1f, %.1f\n",
+					"%'-14s (%'.1f %'.1f %'.1f)\n",
 					
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,

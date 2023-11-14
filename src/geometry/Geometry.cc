@@ -144,11 +144,8 @@ void Geometry::draw(Renderer& renderer,
 	renderer.render(shared_from_this(),
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
-
-	unsigned numElements = _elements.size();
-	stats.meshes += numElements;
 	
-	for (unsigned e=0; e<numElements; ++e) {
+	for (unsigned e=0; e<_elements.size(); ++e) {
 		
 		shared_ptr<GeometryElement> element = _elements[e];
 		shared_ptr<Material> material = nullptr;
@@ -161,8 +158,13 @@ void Geometry::draw(Renderer& renderer,
 		
 		element->draw(renderer,
 					  *material,
-					  modelMat, viewMat, projectionMat,
-					  debugOptions, stats);
+					  modelMat,
+					  viewMat,
+					  projectionMat,
+					  debugOptions,
+					  stats);
+
+		++stats.geometries;
 	}	
 }
 

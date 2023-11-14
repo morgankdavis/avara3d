@@ -78,7 +78,7 @@ Node::Node():
 	_physicsBody(nullptr),
 	_parent({}),
 //	_scene({}),
-	_dirtyBits(NODE_DIRTY_BITS::ALL) {
+	_dirtyBits(NODE_DIRTY_BITS::NONE) {
 
 }
 
@@ -234,7 +234,6 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
 
 	auto q = _orientation;
-
 
 	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
 	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
@@ -513,7 +512,9 @@ vec3 Node::worldRight() {
 mat4 Node::worldTransform() {
 
 	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
-		
+
+		//AE_LOG_I("DIRTY UPDATING WORLD");
+
 		auto t = mat4(1.0f);
 		auto path = pathToRoot();
 		
@@ -629,14 +630,13 @@ void Node::unrollWorldTransform(mat4 transform) {
 //	}
 //}
 
-void Node::updateWorldTransform(mat4& parentWorldTransform) {
-
-	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
-
-		_worldTransform = parentWorldTransform * transform();
-		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
-	}
-}
+//void Node::updateWorldTransform(mat4& parentWorldTransform) {
+//
+//	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+//		_worldTransform = parentWorldTransform * transform();
+//		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+//	}
+//}
 
 bool Node::containsChild(shared_ptr<Node> node) {
 //	auto top = root();
@@ -704,12 +704,19 @@ void Node::update(PhysicsSimulator& physicsSimulator,
 		// - world transform dirty?
 		//		update
 
-		static const auto mat4Identity = mat4(1.0);
-		auto parentNode = _parent.lock();
-		mat4 parentWorldTransform = (parentNode
-									 ? parentNode->worldTransform()
-									 : mat4Identity);
-		updateWorldTransform(parentWorldTransform);
+		//updateWorldTransform(parentWorldTransform);
+		if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+			//AE_LOG_I("UPDATING WORLD in update()");
+
+			static const auto mat4Identity = mat4(1.0);
+			auto parentNode = _parent.lock();
+			mat4 parentWorldTransform = (parentNode
+										 ? parentNode->worldTransform()
+										 : mat4Identity);
+
+			_worldTransform = parentWorldTransform * transform();
+			_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+		}
 
 	// - physics body or physics body dirty?
 	//		create/update
@@ -732,7 +739,17 @@ void Node::sync(PhysicsSimulator& physicsSimulator,
 				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
 
-	// apply physics model to visual
+	if (!visited[shared_from_this()]) {
+
+		// apply physics model to visual
+
+		for (auto& child : _children) {
+			child->sync(physicsSimulator,
+						debugOptions,
+						stats,
+						visited);
+		}
+	}
 }
 
 void Node::draw(Renderer& renderer,
@@ -765,27 +782,6 @@ void Node::draw(Renderer& renderer,
 	}
 }
 
-//void Node::update(Scene::FRAME_STEP step,
-//				  Renderer& renderer,
-//				  PhysicsSimulator& physicsSimulator,
-//				  const mat4& viewMat,
-//				  const mat4& projectionMat,
-//				  const DEBUG_OPTIONS& debugOptions,
-//				  RenderStats& stats) {
-//
-//	switch (step) {
-//		case Scene::FRAME_STEP::UPDATE:
-//			break;
-//		case Scene::FRAME_STEP::SYNC_PHYSICS:
-//			break;
-//		case Scene::FRAME_STEP::DRAW:
-//
-//			break;
-//		default:
-//			break;
-//	}
-//}
-
 void Node::_printPreorder() {
 
 	int level = 0;
@@ -803,6 +799,7 @@ void Node::_printPreorderRec(shared_ptr<Node> node,
 							 map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[node]) {
+
 		AE_LOG_I("[{}] {}", level, *node->name());
 
 		visited[node] = true;
