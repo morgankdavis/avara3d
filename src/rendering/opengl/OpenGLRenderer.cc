@@ -371,7 +371,7 @@ void OpenGLRenderer::render(Scene& scene,
 						 _geometryElementGLMapping,
 						 _materialPropertyGLMapping,
 						 _activeMaterialProperties);
-			
+
 			// save reference for housekeeping
 			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}

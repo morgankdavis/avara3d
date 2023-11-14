@@ -20,6 +20,7 @@ BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> 
 		_shapes(shapes),
 		_indexVertexArrays(indexVertexArrays) {
 
+
 }
 
 //	BulletShapeResources::BulletShapeResources(shared_ptr <btCollisionShape> shape,

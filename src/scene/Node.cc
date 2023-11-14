@@ -149,7 +149,7 @@ vec3 Node::position() const {
 void Node::position(const vec3& position) {
 	_position = position;
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
@@ -215,7 +215,7 @@ void Node::rotation(const vec3& axis, float angle) {
 	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
 	_orientation = angleAxis(angle, axisNormalized);
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 }
 
@@ -333,7 +333,7 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
@@ -343,7 +343,7 @@ quat Node::orientation() const {
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
@@ -356,7 +356,7 @@ void Node::scale(const glm::vec3& scale) {
 	
 	_scale = scale;
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
@@ -395,7 +395,7 @@ void Node::transform(const mat4& transform) {
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
 
-	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::worldPosition() {
@@ -806,10 +806,11 @@ void Node::_printPreorderRec(shared_ptr<Node> node,
 							 map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[node]) {
+		visited[node] = true;
 
 		AE_LOG_I("[{}] {}", level, *node->name());
 
-		visited[node] = true;
+
 
 		for (auto child : node->_children) {
 			_printPreorderRec(child, level+1, visited);
@@ -838,12 +839,28 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	return parents;
 }
 
-void Node::addDirtyMaskRecursive(NODE_DIRTY_MASK bits) {
+void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
 
-	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, bits);
-	
-	for (auto& c : children(true)) {
-		c->_dirtyMask = NODE_DIRTY_MASK_ADD(c->_dirtyMask, bits);
+//	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+
+	auto visited = map<shared_ptr<Node>, bool>();
+	auto stack = std::stack<shared_ptr<Node>>();
+	addChildrenDirtyMaskRec(mask, shared_from_this(), visited, stack);
+}
+
+void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
+								   std::shared_ptr<Node> node,
+								   std::map<std::shared_ptr<Node>, bool>& visited,
+								   std::stack<std::shared_ptr<Node>>& stack) {
+
+	if (!visited[node]) {
+		visited[node] = true;
+
+		_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+
+		for (auto child : node->_children) {
+			addChildrenDirtyMaskRec(mask, node, visited, stack);
+		}
 	}
 }
 
@@ -869,8 +886,8 @@ vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
 }
 
 void Node::preorderChildrenRec(shared_ptr<Node> node,
-							   map<shared_ptr<Node>, bool> &visited,
-							   stack<shared_ptr<Node>> &stack) {
+							   map<shared_ptr<Node>, bool>& visited,
+							   stack<shared_ptr<Node>>& stack) {
 	
 	visited[node] = true;
 	
