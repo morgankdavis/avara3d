@@ -317,6 +317,32 @@ void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
 	_dirtyBits = bits;
 }
 
+void PhysicsBody::update(PhysicsSimulator& simulator,
+						 RenderStats& stats) {
+
+	// get/create/update the body
+
+	if (_type == PHYSICS_BODY_TYPE::KINEMATIC) {
+
+//		auto toTransform = BTTransformFromGLMMat4(node->worldTransform());
+//		auto motionState = btBody->getMotionState();
+//		motionState->setWorldTransform(toTransform); // and this kinematic...
+//		btBody->setMotionState(motionState);
+//
+//		btBody->setActivationState(ACTIVE_TAG);
+	}
+
+	if (_shape) {
+
+	}
+}
+
+void PhysicsBody::sync(PhysicsSimulator& simulator,
+					   Node& node,
+					   RenderStats& stats) {
+
+}
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/

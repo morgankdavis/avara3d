@@ -68,7 +68,7 @@ float PerspectiveCamera::aspectRatio() const {
 }
 
 void PerspectiveCamera::aspectRatio(float ratio) {
-	// small optimization as Window::mainLoop() calls this every draw
+	// small optimization as Window::mainLoop() calls this every update
 	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
 		_aspectRatio = ratio;
 		constructProjectionMatrix();

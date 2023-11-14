@@ -213,7 +213,7 @@ GLFWwindow* Window::glfwWindow() const {
 //		(willRenderCallback())(*this, sceneTime());
 //	}
 //
-//	_scene->draw(*RenderContext::renderer(),
+//	_scene->update(*RenderContext::renderer(),
 //				  _framebufferWidth, _framebufferHeight,
 //				  *pov,
 //				  _debugOptions, _renderer->renderStats());

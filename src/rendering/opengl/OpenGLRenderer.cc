@@ -460,7 +460,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// configure OpenGL state
 	SetMaterialOpenGLState(material, debugOptions);
 
-	// draw
+	// update
 
 	DrawGeometryElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	stats.polygons += element->faces().size();
@@ -488,7 +488,7 @@ void OpenGLRenderer::render(shared_ptr<LineSet> lines,
 	
 	SetLineSetGLState();
 	
-	// draw
+	// update
 		
 	DrawLineSet(*lines,
 				*program,
@@ -567,7 +567,7 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	
 	SetSkyboxOpenGLState();
 	
-	// draw
+	// update
 	
 	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
 	
@@ -1588,7 +1588,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	program.setUniform("view", inverse(viewMat));
 	program.setUniform("projection", projectionMat);
 	
-	// draw
+	// update
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -1612,7 +1612,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	program.setUniform("view", viewMat);
 	program.setUniform("projection", projectionMat);
 	
-	// draw
+	// update
 	
 	auto faces = element.faces();
 	
@@ -1638,7 +1638,7 @@ static void DrawAABB(Geometry& geometry,
 	program.setUniform("view", inverse(viewMat));
 	program.setUniform("projection", projectionMat);
 	
-	// draw
+	// update
 	
 	glBindVertexArray(glVAO);
 	glDrawArrays(GL_LINES, 0, 24);
@@ -1659,7 +1659,7 @@ static void DrawLineSet(LineSet& lineSet,
 	program.setUniform("view", inverse(viewMat));
 	program.setUniform("projection", projectionMat);
 	
-	// draw
+	// update
 	
 	glBindVertexArray(glVAO);
 	glDrawArrays(GL_LINES, 0, lineSet.size() * 4);

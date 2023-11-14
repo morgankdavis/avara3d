@@ -83,12 +83,12 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void 									draw(Renderer& renderer,
-													 unsigned framebufferWidth,
-													 unsigned framebufferHeight,
-													 Node& pointOfView,
-													 const DEBUG_OPTIONS& debugOptions,
-													 RenderStats& stats);
+		void 									update(Renderer& renderer,
+													   unsigned framebufferWidth,
+													   unsigned framebufferHeight,
+													   Node& pointOfView,
+													   const DEBUG_OPTIONS& debugOptions,
+													   RenderStats& stats);
 
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		

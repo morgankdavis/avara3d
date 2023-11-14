@@ -23,8 +23,8 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicsBody;
+	class PhysicsShapeResourses;
 	class PhysicsSimulator;
-	class ShapePhysicsResourses;
 	
 
 	class PhysicsShape {
@@ -57,10 +57,8 @@ namespace ae {
 		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
 		void 								dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
 
-		void								updateModel(PhysicsSimulator& simulator,
-														Node& node,
-														PhysicsBody& body,
-														const DEBUG_OPTIONS& debugOptions);
+		void								update(PhysicsSimulator& simulator,
+												   RenderStats& stats);
 
 /*********************************************************************************************
 	Private
@@ -70,10 +68,10 @@ namespace ae {
 
 		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	_sourceObject;
 
-		PHYSICS_SHAPE_TYPE 					_type;
-		PHYSICS_SHAPE_DIRTY_BITS 			_dirtyBits;
+		PHYSICS_SHAPE_TYPE 						_type;
+		PHYSICS_SHAPE_DIRTY_BITS 				_dirtyBits;
 
-		std::shared_ptr<ShapePhysicsResourses>	_resources;
+		std::shared_ptr<PhysicsShapeResourses>	_resources;
 	};
 }
 

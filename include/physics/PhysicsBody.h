@@ -20,9 +20,9 @@
 namespace ae {
 	
 
-	class BodyPhysicsResourses;
 	class Geometry;
 	class Node;
+	class PhysicsBodyResourses;
 	class PhysicsShape;
 	class PhysicsSimulator;
 	
@@ -131,13 +131,10 @@ namespace ae {
 		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
 
 		void								update(PhysicsSimulator& simulator,
-														Node& node,
-														const DEBUG_OPTIONS& debugOptions);
-		glm::mat4							sync(PhysicsSimulator& simulator,
-															Node& node,
-															const DEBUG_OPTIONS& debugOptions);
-
-		//BodyPhysicsResourses&				_resources();
+												   RenderStats& stats);
+		void								sync(PhysicsSimulator& simulator,
+												 Node& node,
+												 RenderStats& stats);
 
 /*********************************************************************************************
 	Private
@@ -145,31 +142,31 @@ namespace ae {
 
 	private:
 
-		void 								checkAutocreateShape(std::shared_ptr<Node> node);
-		void 								checkAutocreateShape(std::shared_ptr<Geometry> geometry);
+		void 									checkAutocreateShape(std::shared_ptr<Node> node);
+		void 									checkAutocreateShape(std::shared_ptr<Geometry> geometry);
 		
-		PHYSICS_BODY_TYPE 					_type;
-		std::shared_ptr<PhysicsShape>		_shape;
-		float 								_mass;
-		glm::vec3 							_momentOfInertia;
-		float 								_friction;
-		float 								_rollingFriction;
-		float 								_restitution;
-		glm::vec3 							_linearVelocity;
-		glm::vec3 							_angularVelocity;
-		glm::vec3 							_linearFactor;
-		glm::vec3 							_angularFactor;
-		float 								_linearDamping;
-		float 								_angularDamping;
-		float								_linearSleepingThreshold;
-		float								_angularSleepingThreshold;
-		bool								_affectedByGravity;
-		bool 								_allowsResting;
-		bool 								_resting;
+		PHYSICS_BODY_TYPE 						_type;
+		std::shared_ptr<PhysicsShape>			_shape;
+		float 									_mass;
+		glm::vec3 								_momentOfInertia;
+		float 									_friction;
+		float 									_rollingFriction;
+		float 									_restitution;
+		glm::vec3 								_linearVelocity;
+		glm::vec3 								_angularVelocity;
+		glm::vec3 								_linearFactor;
+		glm::vec3 								_angularFactor;
+		float 									_linearDamping;
+		float 									_angularDamping;
+		float									_linearSleepingThreshold;
+		float									_angularSleepingThreshold;
+		bool									_affectedByGravity;
+		bool 									_allowsResting;
+		bool 									_resting;
 
-		PHYSICS_BODY_DIRTY_BITS 			_dirtyBits;
+		PHYSICS_BODY_DIRTY_BITS 				_dirtyBits;
 
-		std::shared_ptr<BodyPhysicsResourses>	_resources;
+		std::shared_ptr<PhysicsBodyResourses>	_resources;
 	};
 }
 

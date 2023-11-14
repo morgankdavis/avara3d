@@ -19,6 +19,9 @@ class btRigidBody;
 namespace ae {
 
 
+//	class BulletPhysicsSimulator;
+
+
 	class BulletBodyResources : PhysicsBodyResources {
 
 /*********************************************************************************************
@@ -46,6 +49,8 @@ namespace ae {
 
 		std::shared_ptr<btRigidBody>			_body;
 		std::shared_ptr<btDefaultMotionState>	_motionState;
+
+//		std::weak_ptr<BulletPhysicsSimulator>	_simulator;
 	};
 }
 

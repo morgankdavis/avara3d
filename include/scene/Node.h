@@ -149,13 +149,11 @@ namespace ae {
 //		std::weak_ptr<Node> 					model() const;
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
-		void 									update(PhysicsSimulator& physicsSimulator,
-													   const DEBUG_OPTIONS& debugOptions,
+		void 									update(PhysicsSimulator& simulator,
 													   RenderStats& stats,
 													   std::map<std::shared_ptr<Node>, bool>& visited);
 
-		void 									sync(PhysicsSimulator& physicsSimulator,
-													 const DEBUG_OPTIONS& debugOptions,
+		void 									sync(PhysicsSimulator& simulator,
 													 RenderStats& stats,
 													 std::map<std::shared_ptr<Node>, bool>& visited);
 

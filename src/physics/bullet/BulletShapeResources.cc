@@ -37,6 +37,10 @@ BulletShapeResources::~BulletShapeResources() {
 	AE_LOG_D("Destroying BulletShapeResources {:p}", (void*)this);
 
 	// SIMULATOR -> DESTROY()
+//	for (auto shape : _shapes) {
+//		delete shape;
+//	}
+	//_simulator->DestroyShapResources(_shapes);
 }
 
 /*********************************************************************************************

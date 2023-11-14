@@ -21,7 +21,7 @@ class btTriangleIndexVertexArray;
 namespace ae {
 
 
-	class Geometry;
+//	class BulletPhysicsSimulator;
 
 
 	class BulletShapeResources : PhysicsShapeResources {
@@ -81,6 +81,8 @@ namespace ae {
 //		std::vector<std::shared_ptr<btCollisionShape>>				_childShapes;
 //		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_childIndexVertexArrays;
 //		std::shared_ptr<Geometry>									_hacdGeometry;
+
+//		std::weak_ptr<BulletPhysicsSimulator>						_simulator;
 	};
 }
 

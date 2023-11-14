@@ -694,15 +694,14 @@ void Node::attachedToParent(weak_ptr<Node> parent) {
 //	_model = model;
 //}
 
-void Node::update(PhysicsSimulator& physicsSimulator,
-				  const DEBUG_OPTIONS& debugOptions,
+void Node::update(PhysicsSimulator& simulator,
 				  RenderStats& stats,
 				  //shared_ptr<Node> parentNode,
 				  map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[shared_from_this()]) {
-		// - world transform dirty?
-		//		update
+
+		// - world transform dirty? -> update
 
 		//updateWorldTransform(parentWorldTransform);
 		if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
@@ -718,13 +717,18 @@ void Node::update(PhysicsSimulator& physicsSimulator,
 			_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 		}
 
-	// - physics body or physics body dirty?
-	//		create/update
-	// - apply visual to kinematic bodies (and static?)
+		// physics body or physics body dirty?
+		//		create/update
+
+		if (_physicsBody) {
+			_physicsBody->update(simulator,
+								 stats);
+		}
+
+		// apply visual to kinematic bodies (and static?)
 
 		for (auto& child : _children) {
-			child->update(physicsSimulator,
-						  debugOptions,
+			child->update(simulator,
 						  stats,
 						  visited);
 		}
@@ -733,8 +737,7 @@ void Node::update(PhysicsSimulator& physicsSimulator,
 	}
 }
 
-void Node::sync(PhysicsSimulator& physicsSimulator,
-				const DEBUG_OPTIONS& debugOptions,
+void Node::sync(PhysicsSimulator& simulator,
 				RenderStats& stats,
 				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
@@ -743,9 +746,14 @@ void Node::sync(PhysicsSimulator& physicsSimulator,
 
 		// apply physics model to visual
 
+		if (_physicsBody) {
+			_physicsBody->sync(simulator,
+							   *this,
+							   stats);
+		}
+
 		for (auto& child : _children) {
-			child->sync(physicsSimulator,
-						debugOptions,
+			child->sync(simulator,
 						stats,
 						visited);
 		}

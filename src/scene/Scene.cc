@@ -208,12 +208,12 @@ void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	Internal
  *********************************************************************************************/
 
-void Scene::draw(Renderer& renderer,
-				 unsigned framebufferWidth,
-				 unsigned framebufferHeight,
-				 Node& pointOfView,
-				 const DEBUG_OPTIONS& debugOptions,
-				 RenderStats& stats) {
+void Scene::update(Renderer& renderer,
+				   unsigned framebufferWidth,
+				   unsigned framebufferHeight,
+				   Node& pointOfView,
+				   const DEBUG_OPTIONS& debugOptions,
+				   RenderStats& stats) {
 
 	renderer.render(*this, debugOptions, stats);
 
@@ -224,6 +224,7 @@ void Scene::draw(Renderer& renderer,
 //	if (_physicsWorld) {
 //		physicsSimulator->beginUpdate(*this);
 //
+//		// TODO: move here
 //		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 //								 *this,
 //								 debugOptions);
@@ -231,7 +232,6 @@ void Scene::draw(Renderer& renderer,
 
 	visited.clear();
 	_rootNode->update(*physicsSimulator,
-					  debugOptions,
 					  stats,
 					  visited);
 
@@ -363,7 +363,7 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 	unsigned int assimpFlags = aiProcess_Triangulate
 	| aiProcess_SortByPType
 	| aiProcess_GenSmoothNormals
-	// "This will, in fact, reduce the number of draw calls."
+	// "This will, in fact, reduce the number of update calls."
 	// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410af5fe0d6ee720c91359dc61cb849f2ebf
 	| aiProcess_OptimizeMeshes
 	// "If this flag is not specified, no vertices are referenced by more than one face and no index buffer is required for rendering."

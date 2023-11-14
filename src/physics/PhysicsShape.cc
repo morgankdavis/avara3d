@@ -117,3 +117,9 @@ PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
 void PhysicsShape::dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits) {
 	_dirtyBits = bits;
 }
+
+void PhysicsShape::update(PhysicsSimulator& simulator,
+						  RenderStats& stats) {
+
+}
+

@@ -65,7 +65,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		AE_LOG_T("BulletDebugDrawer::draw()");
+		AE_LOG_T("BulletDebugDrawer::update()");
 
 		renderer.render(_lineSet, mat4(1.0), viewMat, projectionMat);
 	}

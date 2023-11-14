@@ -25,7 +25,7 @@ BulletBodyResources::BulletBodyResources(shared_ptr<btRigidBody> body,
 BulletBodyResources::~BulletBodyResources() {
 	AE_LOG_D("Destroying BulletBodyResources {:p}", (void*)this);
 
-	// SIMULATOR -> DESTROY()
+//	_simulator->DestroyBodyResources(_body);
 }
 
 /*********************************************************************************************

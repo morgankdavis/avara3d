@@ -316,11 +316,11 @@ void RenderContext::update() { // pure virtual
 		(willRenderCallback())(*this, sceneTime());
 	}
 
-	_scene->draw(*RenderContext::renderer(),
-				  _framebufferWidth, _framebufferHeight,
-				  *pov,
-				  _debugOptions,
-				  _renderer->renderStats());
+	_scene->update(*RenderContext::renderer(),
+				   _framebufferWidth, _framebufferHeight,
+				   *pov,
+				   _debugOptions,
+				   _renderer->renderStats());
 
 	_renderer->endFrame(*this);
 
