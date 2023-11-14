@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/filesystem.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Types.h"
@@ -36,12 +35,22 @@ namespace ae {
 	
 	
 	class Scene {
-		
+
 /*********************************************************************************************
-	Public Static
+	Types
  *********************************************************************************************/
 
 	public:
+
+//		enum class FRAME_STEP {
+//			UPDATE,
+//			SYNC_PHYSICS,
+//			DRAW
+//		};
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
 
 #ifndef ANDROID
 		static std::shared_ptr<Scene> 			LoadFromFile(const std::filesystem::path& path);

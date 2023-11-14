@@ -214,79 +214,67 @@ void Scene::draw(Renderer& renderer,
 				 Node& pointOfView,
 				 const DEBUG_OPTIONS& debugOptions,
 				 RenderStats& stats) {
-	
+
 	renderer.render(*this, debugOptions, stats);
-	
+
 	auto renderContext = _renderContext.lock();
 	auto physicsSimulator = renderContext->physicsSimulator();
-	auto sortedNodes = _rootNode->children(true);
 
-	// update physics model and step
-	
-	if (_physicsWorld) {
-		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::STEP, *this);
-		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
-								 *this,
-								 debugOptions);
-		for (auto& node: sortedNodes) {
-			physicsSimulator->update(PhysicsSimulator::PASS::STEP,
-									 node,
-									 debugOptions);
-		}
-		physicsSimulator->endUpdate(PhysicsSimulator::PASS::STEP, *this);
-		
-		physicsSimulator->step(_renderContext.lock()->sceneTime());
-		
-		if (renderContext->didSimulatePhysicsCallback()) {
-			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
-		}
-	}
+	auto visited = map<shared_ptr<Node>, bool>();
+
+
+//	if (_physicsWorld) {
+//		physicsSimulator->beginUpdate(*this);
+//
+//		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
+//								 *this,
+//								 debugOptions);
+//}
+
+		visited.clear();
+		_rootNode->update(*physicsSimulator,
+						  debugOptions,
+						  stats,
+						  visited);
+
+
+//	if (_physicsWorld) {
+//		physicsSimulator->endUpdate(*this);
+//
+//		physicsSimulator->step(_renderContext.lock()->sceneTime());
+//
+//		visited.clear();
+//		_rootNode->sync(*physicsSimulator,
+//						debugOptions,
+//						stats,
+//						_rootNode,
+//						visited);
+//
+//		physicsSimulator->endUpdate(*this);
+//
+//		if (renderContext->didSimulatePhysicsCallback()) {
+//			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+//		}
+//	}
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
-	
-	if (_physicsWorld) {
-		physicsSimulator->beginUpdate(PhysicsSimulator::PASS::SYNC, *this);
-	}
-	
-	for (auto& node: sortedNodes) {
-		
-		stats.nodes++;
-		
-		// disabled by morgan during compound physics shapes debugging -- seems unnecessary
-		//if (!node->physicsBody()) {
-			// update all non-physics nodes world transforms
-			node->updateWorldTransform();
-		//}
 
-		// nodes may not have geometries, but may have compound physics bodies
-		// (probably with child geometry nodes)
-		if (_physicsWorld) {
-			physicsSimulator->update(PhysicsSimulator::PASS::SYNC,
-									 node,
-									 debugOptions);
-		}
+	visited.clear();
+	_rootNode->draw(renderer,
+					viewMat,
+					projectionMat,
+					debugOptions,
+					stats,
+					//_rootNode,
+					visited);
 
-		auto geometry = node->geometry();
-		if (geometry != nullptr) {
-			if (!node->hidden()) {
-				stats.geometries++;
-				
-				geometry->draw(renderer,
-							   node->worldTransform(), viewMat, projectionMat,
-							   debugOptions, stats);
-			}
-		}
-	}
-	
-	if (_physicsWorld) {
-		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-		if (bulletSimulator) {
-			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
-		}
-		
-		physicsSimulator->endUpdate(PhysicsSimulator::PASS::SYNC, *this);
-	}
+//	if (_physicsWorld) {
+//		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+//		if (bulletSimulator) {
+//			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
+//		}
+//	}
 }
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {

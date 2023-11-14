@@ -20,6 +20,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#include "Scene.h"
 #include "Types.h"
 
 
@@ -30,7 +31,7 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
-	class Scene;
+	class PhysicsSimulator;
 
 	
 	class Node : public std::enable_shared_from_this<Node> {
@@ -41,6 +42,7 @@ namespace ae {
 
 	public:
 
+		static std::shared_ptr<Node> 			NamedNode(std::string name);
 		static std::shared_ptr<Node> 			GeometryNode(std::shared_ptr<Geometry> geometry);
 		static std::shared_ptr<Node> 			LightNode(std::shared_ptr<Light> light);
 		static std::shared_ptr<Node> 			CameraNode(std::shared_ptr<Camera> camera);
@@ -135,7 +137,8 @@ namespace ae {
 		
 		void	 								unrollWorldTransform(glm::mat4 transform);
 		
-		void 									updateWorldTransform();
+		//void 									updateWorldTransform();
+		void 									updateWorldTransform(glm::mat4& parentWorldTransform);
 		bool 									containsChild(std::shared_ptr<Node> node);
 //		void 									attachedToScene(std::shared_ptr<Scene> scene);
 		void 									attachedToParent(std::weak_ptr<Node> parent);
@@ -146,6 +149,42 @@ namespace ae {
 //		std::weak_ptr<Node> 					model() const;
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
+
+
+		void 									update(PhysicsSimulator& physicsSimulator,
+													   const DEBUG_OPTIONS& debugOptions,
+													   RenderStats& stats,
+													   //std::shared_ptr<Node> parentNode,
+													   std::map<std::shared_ptr<Node>, bool>& visited);
+
+		void 									sync(PhysicsSimulator& physicsSimulator,
+													 const DEBUG_OPTIONS& debugOptions,
+													 RenderStats& stats,
+													 //std::shared_ptr<Node> parentNode,
+													 std::map<std::shared_ptr<Node>, bool>& visited);
+
+		void 									draw(Renderer& renderer,
+													 const glm::mat4& viewMat,
+													 const glm::mat4& projectionMat,
+													 const DEBUG_OPTIONS& debugOptions,
+													 RenderStats& stats,
+													 //std::shared_ptr<Node> parentNode,
+													 std::map<std::shared_ptr<Node>, bool>& visited);
+
+
+//		void 										draw(Renderer& renderer,
+//														 const glm::mat4& modelMat,
+//														 const glm::mat4& viewMat,
+//														 const glm::mat4& projectionMat,
+//														 const DEBUG_OPTIONS& debugOptions,
+//														 RenderStats& stats);
+
+
+		void									_printPreorder(); // testing
+		void									_printPreorderRec(std::shared_ptr<Node> node,
+																  int level,
+																  std::map<std::shared_ptr<Node>, bool>& visited);
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -154,10 +193,10 @@ namespace ae {
 
 		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
 		void			 						addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
-		std::vector<std::shared_ptr<Node>>		topologicalChildren(std::shared_ptr<Node> top);
-		void 									topologicalChildrenRec(std::shared_ptr<Node> node,
-																	   std::map<std::shared_ptr<Node>, bool>& visited,
-																	   std::stack<std::shared_ptr<Node>>& stack);
+		std::vector<std::shared_ptr<Node>>		preorderChildren(std::shared_ptr<Node> root);
+		void 									preorderChildrenRec(std::shared_ptr<Node> node,
+																	std::map<std::shared_ptr<Node>, bool> &visited,
+																	std::stack<std::shared_ptr<Node>> &stack);
 
 		//void 									checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
 		

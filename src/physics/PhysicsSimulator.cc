@@ -35,14 +35,21 @@ PhysicsSimulator::~PhysicsSimulator() {
 	Internal
  *********************************************************************************************/
 
-void PhysicsSimulator::beginUpdate(PASS pass,
-								   const Scene& scene) {
-	
+//void PhysicsSimulator::beginUpdate(PASS pass,
+//								   const Scene& scene) {
+//
+//}
+//
+//void PhysicsSimulator::endUpdate(PASS pass,
+//								 const Scene& scene) {
+//
+//}
+void PhysicsSimulator::beginUpdate(const Scene& scene) {
+
 }
 
-void PhysicsSimulator::endUpdate(PASS pass,
-								 const Scene& scene) {
-	
+void PhysicsSimulator::endUpdate(const Scene& scene) {
+
 }
 
 void PhysicsSimulator::update(PASS pass,

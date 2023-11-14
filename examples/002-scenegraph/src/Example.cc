@@ -62,12 +62,78 @@ int Example::run(const vector<string>& args) {
 
 
 
-	_TEST = MatrixTestCase;
+	_test = TEST::TRAVERSAL;
 
-	
-	
 
-	if (_TEST == MatrixTestCase) {
+
+
+	if (_test == TEST::TRAVERSAL) {
+
+		auto a = Node::NamedNode("a");
+		auto b = Node::NamedNode("b");
+		auto c = Node::NamedNode("c");
+		auto d = Node::NamedNode("d");
+		auto e = Node::NamedNode("e");
+		auto f = Node::NamedNode("f");
+		auto g = Node::NamedNode("g");
+		auto h = Node::NamedNode("h");
+		auto i = Node::NamedNode("i");
+		auto j = Node::NamedNode("j");
+		auto k = Node::NamedNode("k");
+		auto l = Node::NamedNode("l");
+		auto m = Node::NamedNode("m");
+		auto n = Node::NamedNode("n");
+		auto o = Node::NamedNode("o");
+		auto p = Node::NamedNode("p");
+		auto q = Node::NamedNode("q");
+		auto r = Node::NamedNode("r");
+		auto s = Node::NamedNode("s");
+		auto t = Node::NamedNode("t");
+		auto u = Node::NamedNode("u");
+		auto v = Node::NamedNode("v");
+		auto w = Node::NamedNode("w");
+
+		u->addChild(v);
+		u->addChild(w);
+
+		t->addChild(u);
+
+		n->addChild(t);
+
+		g->addChild(n);
+
+		c->addChild(f);
+		c->addChild(g);
+
+		a->addChild(c);
+
+		k->addChild(q);
+		k->addChild(r);
+
+		m->addChild(s);
+
+		e->addChild(j);
+		e->addChild(k);
+		e->addChild(l);
+		e->addChild(m);
+
+		b->addChild(e);
+
+		a->addChild(b);
+
+		h->addChild(o);
+		h->addChild(p);
+
+		d->addChild(h);
+		d->addChild(i);
+
+		a->addChild(d);
+
+		a->_printPreorder();
+
+
+	}
+	else if (_test == TEST::MATRIX) {
 	
 	// test using raw matrix manipulation
 		
@@ -180,7 +246,7 @@ int Example::run(const vector<string>& args) {
 //		window.display();
 		
 	}
-	else if (_TEST == Convenience1TestCase) {
+	else if (_test == TEST::CONVENIENCE) {
 		
 		// test using constituent parts manipulation
 		
@@ -248,7 +314,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (_TEST == EulerTestCase) {
+	else if (_test == TEST::EULER) {
 		
 		auto rootNode = make_shared<Node>();
 		
@@ -318,7 +384,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (_TEST == ReverseEulerTestCase) {
+	else if (_test == TEST::REVERSE_EULER) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -397,7 +463,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (_TEST == RotationAnimationTestCase) {
+	else if (_test == TEST::ROTATION) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -468,7 +534,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	if (_TEST == RotationAnimationTestCase) {
+	if (_test == TEST::ROTATION) {
 		auto node = renderContext.scene()->rootNode()->child("A", true);
 		
 		// we WANT this to work (this is how scene kit works)

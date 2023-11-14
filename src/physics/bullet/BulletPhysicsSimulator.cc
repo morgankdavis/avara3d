@@ -207,25 +207,33 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 	PhysicsSimulator
  *********************************************************************************************/
 
-void BulletPhysicsSimulator::beginUpdate(PASS pass,
-										 const Scene& scene) {
-	PhysicsSimulator::beginUpdate(pass, scene);
+//void BulletPhysicsSimulator::beginUpdate(PASS pass,
+//										 const Scene& scene) {
+//	PhysicsSimulator::beginUpdate(pass, scene);
+//
+//	if (pass == PASS::STEP) {
+//		_activeBodies.clear();
+//		_activeShapes.clear();
+//	}
+//}
+//
+//void BulletPhysicsSimulator::endUpdate(PASS pass,
+//									   const Scene& scene) {
+//	PhysicsSimulator::endUpdate(pass, scene);
+//
+//	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
+//	if (pass == PASS::STEP) {
+//		CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
+//		CleanupPhysicsShapeResources(_activeShapes, _shapeBTMapping);
+//	}
+//}
 
-	if (pass == PASS::STEP) {
-		_activeBodies.clear();
-		_activeShapes.clear();
-	}
+void BulletPhysicsSimulator::beginUpdate(const Scene& scene) {
+	PhysicsSimulator::beginUpdate(scene);
 }
 
-void BulletPhysicsSimulator::endUpdate(PASS pass,
-									   const Scene& scene) {
-	PhysicsSimulator::endUpdate(pass, scene);
-
-	// we want to make sure the bt rigidbody model is removed from the simulation before stepping the simulation
-	if (pass == PASS::STEP) {
-		CleanupPhysicsBodyResources(_activeBodies, *_btWorld, _bodyBTMapping);
-		CleanupPhysicsShapeResources(_activeShapes, _shapeBTMapping);
-	}
+void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
+	PhysicsSimulator::endUpdate(scene);
 }
 
 void BulletPhysicsSimulator::update(PASS pass,
@@ -324,7 +332,7 @@ void BulletPhysicsSimulator::update(PASS pass,
 		}
 
 		// save reference for housekeeping
-		activeBodies.emplace(body);
+		/* MKD bt_tree_rework */ // activeBodies.emplace(body);
 	}
 }
 
@@ -968,7 +976,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 															 indexVertexArray);
 
 			auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
-			compoundShape->addChildShape(localTransform, childShape.get());
+			/* MKD bt_tree_rework */ //compoundShape->addChildShape(localTransform, childShape.get());
 			compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
 
 			btShapes.push_back(componentShape);
@@ -1028,32 +1036,32 @@ shared_ptr<btCollisionShape> BTCompoundShapeFromGeometry(shared_ptr<Geometry> ge
 	return compoundShape;
 }
 
-// for a node with its own geometry and no child node geometries
-shared_ptr<btCollisionShape> BTShapeFromNode(shared_ptr<Node> node,
-											 PHYSICS_SHAPE_TYPE shapeType,
-											 PHYSICS_BODY_TYPE bodyType,
-											 vector<shared_ptr<btCollisionShape>>& childShapes,
-											 vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
-
-	auto elements = node->geometry()->elements();
-	 if (elements.size() == 1) {
-		 auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		 auto shape = BTShapeFromGeometryElement(elements.front(),
-												 node->geometry(),
-												 shapeType,
-												 bodyType,
-												 indexVertexArray);
-		 childIndexVertexArrays.push_back(indexVertexArray);
-		 return shape;
-	 }
-	 else {
-		 return BTCompoundShapeFromGeometry(node->geometry(),
-											shapeType,
-											bodyType,
-											childShapes,
-											childIndexVertexArrays);
-	 }
-}
+//// for a node with its own geometry and no child node geometries
+//shared_ptr<btCollisionShape> BTShapeFromNode(shared_ptr<Node> node,
+//											 PHYSICS_SHAPE_TYPE shapeType,
+//											 PHYSICS_BODY_TYPE bodyType,
+//											 vector<shared_ptr<btCollisionShape>>& childShapes,
+//											 vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
+//
+//	auto elements = node->geometry()->elements();
+//	 if (elements.size() == 1) {
+//		 auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+//		 auto shape = BTShapeFromGeometryElement(elements.front(),
+//												 node->geometry(),
+//												 shapeType,
+//												 bodyType,
+//												 indexVertexArray);
+//		 childIndexVertexArrays.push_back(indexVertexArray);
+//		 return shape;
+//	 }
+//	 else {
+//		 return BTCompoundShapeFromGeometry(node->geometry(),
+//											shapeType,
+//											bodyType,
+//											childShapes,
+//											childIndexVertexArrays);
+//	 }
+//}
 
 shared_ptr<btCollisionShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 													 PHYSICS_SHAPE_TYPE shapeType,
@@ -1077,29 +1085,30 @@ shared_ptr<btCollisionShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
 		auto geometry = geometryNode->geometry();
 
 		auto childIndexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		auto childCollisionShape = BTShapeFromGeometry(geometry,
-													   shapeType,
-													   bodyType,
-													   childIndexVertexArray);
-
-		childShapes.push_back(childCollisionShape);
-		childIndexVertexArrays.push_back(childIndexVertexArray);
-
-		// if the geometry is for the compound shape's root node, don't add a local transform here.
-		// it's added in the btRigidBody's localInertia.
-		if (geometryNode == node) {
-			static auto identityTransform = btTransform();
-			identityTransform.setIdentity(); // meh
-			compoundShape->addChildShape(identityTransform, childCollisionShape.get());
-		}
-		else {
-			bool wasScaled = false;
-			auto unscaledTransform = TransformByRemovingScale(geometryNode->transform(), wasScaled);
-			if (wasScaled) {
-				AE_LOG_W("Ignorning (child) scale for Node {:p}.", (void *) node.get());
-			}
-			compoundShape->addChildShape(BTTransformFromGLMMat4(unscaledTransform), childCollisionShape.get());
-		}
+		/* MKD bt_tree_rework */
+//		auto childCollisionShape = BTShapeFromGeometry(geometry,
+//													   shapeType,
+//													   bodyType,
+//													   childIndexVertexArray);
+//
+//		childShapes.push_back(childCollisionShape);
+//		childIndexVertexArrays.push_back(childIndexVertexArray);
+//
+//		// if the geometry is for the compound shape's root node, don't add a local transform here.
+//		// it's added in the btRigidBody's localInertia.
+//		if (geometryNode == node) {
+//			static auto identityTransform = btTransform();
+//			identityTransform.setIdentity(); // meh
+//			compoundShape->addChildShape(identityTransform, childCollisionShape.get());
+//		}
+//		else {
+//			bool wasScaled = false;
+//			auto unscaledTransform = TransformByRemovingScale(geometryNode->transform(), wasScaled);
+//			if (wasScaled) {
+//				AE_LOG_W("Ignorning (child) scale for Node {:p}.", (void *) node.get());
+//			}
+//			compoundShape->addChildShape(BTTransformFromGLMMat4(unscaledTransform), childCollisionShape.get());
+//		}
 	}
 
 	return compoundShape;
@@ -1339,7 +1348,8 @@ shared_ptr<btConvexHullShape> BTConvexHullHACDShapeFromGeometryElement(shared_pt
 
 //	auto hacdGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
 
-	return BTConvexHullShapeFromGeometryElement(hacdGeometry);
+/* MKD bt_tree_rework */
+	//return BTConvexHullShapeFromGeometryElement(hacdGeometry);
 }
 
 shared_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,

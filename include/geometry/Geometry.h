@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/optional.hpp>
 #include "glm/glm.hpp"
 
 #include "GeometryElement.h"
@@ -27,8 +26,6 @@
 namespace ae {
 
 
-//	class GeometryElement;
-//	class Material;
 	class Node;
 	class Renderer;
 
@@ -81,8 +78,6 @@ namespace ae {
 														 const DEBUG_OPTIONS& debugOptions,
 														 RenderStats& stats);
 
-//		AABB										aabb(bool worldSpace) const;
-//		glm::vec3 									extent(bool worldSpace) const;
 		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
 		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 

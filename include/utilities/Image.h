@@ -17,8 +17,6 @@
 #include <memory>
 #include <string>
 
-//#include <boost/filesystem.hpp>
-
 #include "rendering/materials/MaterialPropertyContents.h"
 
 

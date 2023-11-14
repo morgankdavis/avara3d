@@ -240,7 +240,7 @@ shared_ptr<GeometryElement> ConvexDecomposer::sourceElement() const {
 	return _sourceElement;
 }
 
-vector<shared_ptr<GeometryElement>> ConvexDecomposer::decomposedElement() const {
+vector<shared_ptr<GeometryElement>> ConvexDecomposer::decomposedElements() const {
 	return _decomposedElements;
 }
 

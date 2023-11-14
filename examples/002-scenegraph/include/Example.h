@@ -20,13 +20,14 @@
 namespace example {
 	
 	
-	typedef enum {
-		MatrixTestCase,
-		Convenience1TestCase,
-		EulerTestCase,
-		ReverseEulerTestCase,
-		RotationAnimationTestCase
-	} TestCase;
+	enum class TEST {
+		TRAVERSAL,
+		MATRIX,
+		CONVENIENCE,
+		EULER,
+		REVERSE_EULER,
+		ROTATION
+	};
 
 
 	class Example {
@@ -40,8 +41,8 @@ namespace example {
 		void didRenderCallback(ae::RenderContext& renderContext, float time);
 		
 	private:
-		
-		TestCase _TEST;
+
+		TEST _test;
 
 	};
 }

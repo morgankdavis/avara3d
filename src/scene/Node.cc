@@ -37,6 +37,12 @@ using namespace glm;
 	Pulic Static
  *********************************************************************************************/
 
+shared_ptr<Node> Node::NamedNode(std::string name) {
+	auto node = make_shared<Node>();
+	node->name(name);
+	return node;
+}
+
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
 	auto node = make_shared<Node>();
 	node->geometry(geometry);
@@ -571,7 +577,7 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 	// if resursive, returns all descendants in topological order
 
 	if (resursive) {
-		return topologicalChildren(shared_from_this());
+		return preorderChildren(shared_from_this());
 	}
 	else {
 		return _children;
@@ -605,20 +611,29 @@ void Node::unrollWorldTransform(mat4 transform) {
 	this->transform(inverse(_parent.lock()->worldTransform()) * transform);
 }
 
-void Node::updateWorldTransform() {
-	// gets called by Scene each frame.
-	// before being called a topological sort if done on the scene, and each node's 
-	// updateWorldTransform() is called in order, guaranteeing that its parent's
-	// world tranform is indeed a valid world transform
-	
+//void Node::updateWorldTransform() {
+//	// gets called by Scene each frame.
+//	// before being called a topological sort if done on the scene, and each node's
+//	// updateWorldTransform() is called in order, guaranteeing that its parent's
+//	// world tranform is indeed a valid world transform
+//
+//	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+//		if (auto p = parent().lock()) {
+//			//auto oldScale = scale();
+//			_worldTransform = p->worldTransform() * transform();
+//			//auto newScale = scale();
+//			//checkPhysicsScale(oldScale, newScale);
+//		}
+//
+//		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+//	}
+//}
+
+void Node::updateWorldTransform(mat4& parentWorldTransform) {
+
 	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
-		if (auto p = parent().lock()) {
-			//auto oldScale = scale();
-			_worldTransform = p->worldTransform() * transform();
-			//auto newScale = scale();
-			//checkPhysicsScale(oldScale, newScale);
-		}
-		
+
+		_worldTransform = parentWorldTransform * transform();
 		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
 	}
 }
@@ -679,6 +694,125 @@ void Node::attachedToParent(weak_ptr<Node> parent) {
 //	_model = model;
 //}
 
+void Node::update(PhysicsSimulator& physicsSimulator,
+				  const DEBUG_OPTIONS& debugOptions,
+				  RenderStats& stats,
+				  //shared_ptr<Node> parentNode,
+				  map<shared_ptr<Node>, bool>& visited) {
+
+	if (!visited[shared_from_this()]) {
+		// - world transform dirty?
+		//		update
+
+		static const auto mat4Identity = mat4(1.0);
+		auto parentNode = _parent.lock();
+		mat4 parentWorldTransform = (parentNode
+									 ? parentNode->worldTransform()
+									 : mat4Identity);
+		updateWorldTransform(parentWorldTransform);
+
+	// - physics body or physics body dirty?
+	//		create/update
+	// - apply visual to kinematic bodies (and static?)
+
+		for (auto& child : _children) {
+			child->update(physicsSimulator,
+						  debugOptions,
+						  stats,
+						  visited);
+		}
+
+		++stats.nodes;
+	}
+}
+
+void Node::sync(PhysicsSimulator& physicsSimulator,
+				const DEBUG_OPTIONS& debugOptions,
+				RenderStats& stats,
+				//shared_ptr<Node> parentNode,
+				map<shared_ptr<Node>, bool>& visited) {
+
+	// apply physics model to visual
+}
+
+void Node::draw(Renderer& renderer,
+				const mat4& viewMat,
+				const mat4& projectionMat,
+				const DEBUG_OPTIONS& debugOptions,
+				RenderStats& stats,
+				//shared_ptr<Node> parentNode,
+				map<shared_ptr<Node>, bool>& visited) {
+
+	if (!visited[shared_from_this()]) {
+
+		if (_geometry && !_hidden) {
+			_geometry->draw(renderer,
+							_worldTransform,
+							viewMat,
+							projectionMat,
+							debugOptions,
+							stats);
+		}
+
+		for (auto& child : _children) {
+			child->draw(renderer,
+						viewMat,
+						projectionMat,
+						debugOptions,
+						stats,
+						visited);
+		}
+	}
+}
+
+//void Node::update(Scene::FRAME_STEP step,
+//				  Renderer& renderer,
+//				  PhysicsSimulator& physicsSimulator,
+//				  const mat4& viewMat,
+//				  const mat4& projectionMat,
+//				  const DEBUG_OPTIONS& debugOptions,
+//				  RenderStats& stats) {
+//
+//	switch (step) {
+//		case Scene::FRAME_STEP::UPDATE:
+//			break;
+//		case Scene::FRAME_STEP::SYNC_PHYSICS:
+//			break;
+//		case Scene::FRAME_STEP::DRAW:
+//
+//			break;
+//		default:
+//			break;
+//	}
+//}
+
+void Node::_printPreorder() {
+
+	int level = 0;
+	auto visited = map<shared_ptr<Node>, bool>();
+
+	// don't include the root
+	//visited[shared_from_this()] = true;
+	for (auto child : children(false)) {
+		_printPreorderRec(child, level, visited);
+	}
+}
+
+void Node::_printPreorderRec(shared_ptr<Node> node,
+							 int level,
+							 map<shared_ptr<Node>, bool>& visited) {
+
+	if (!visited[node]) {
+		AE_LOG_I("[{}] {}", level, *node->name());
+
+		visited[node] = true;
+
+		for (auto child : node->_children) {
+			_printPreorderRec(child, level+1, visited);
+		}
+	}
+}
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -709,15 +843,15 @@ void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> root) {
+vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
 	
 	auto visited = map<shared_ptr<Node>, bool>();
 	auto stack = std::stack<shared_ptr<Node>>();
 
 	// don't include the root
-	//topologicalChildrenRec(root, visited, stack);
+	//preorderChildrenRec(root, visited, stack);
 	for (auto child : root->children(false)) {
-		topologicalChildrenRec(child, visited, stack);
+		preorderChildrenRec(child, visited, stack);
 	}
 	
 	// probably a better way to do this
@@ -730,15 +864,15 @@ vector<shared_ptr<Node>> Node::topologicalChildren(shared_ptr<Node> root) {
 	return vec;
 }
 
-void Node::topologicalChildrenRec(shared_ptr<Node> node,
-								  map<shared_ptr<Node>, bool>& visited,
-								  stack<shared_ptr<Node>>& stack) {
+void Node::preorderChildrenRec(shared_ptr<Node> node,
+							   map<shared_ptr<Node>, bool> &visited,
+							   stack<shared_ptr<Node>> &stack) {
 	
 	visited[node] = true;
 	
 	for (auto child : node->_children) {
 		if (!visited[child]) {
-			topologicalChildrenRec(child, visited, stack);
+			preorderChildrenRec(child, visited, stack);
 		}
 	}
 

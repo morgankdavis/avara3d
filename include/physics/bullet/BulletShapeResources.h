@@ -1,4 +1,3 @@
-
 //
 // Created by mkd on 10/29/23.
 //
@@ -9,6 +8,8 @@
 
 #include <memory>
 #include <vector>
+
+#include "physics/PhysicsShapeResources.h"
 
 
 class btCollisionShape;
@@ -23,7 +24,7 @@ namespace ae {
 	class Geometry;
 
 
-	class BulletShapeResources {
+	class BulletShapeResources : PhysicsShapeResources {
 
 /*********************************************************************************************
 	Lifecycle
@@ -38,7 +39,7 @@ namespace ae {
 //							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,
 //							 std::vector<std::shared_ptr<btCollisionShape>> childShapes,
 //							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> childIndexVertexArrays);
-//		~BulletShapeResources();
+		~BulletShapeResources();
 
 /*********************************************************************************************
 	Public

@@ -52,10 +52,12 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		virtual void 			beginUpdate(PASS pass,
-											const Scene& scene);
-		virtual void 			endUpdate(PASS pass,
-										  const Scene& scene);
+//		virtual void 			beginUpdate(PASS pass,
+//											const Scene& scene);
+//		virtual void 			endUpdate(PASS pass,
+//										  const Scene& scene);
+		virtual void 			beginUpdate(const Scene& scene);
+		virtual void 			endUpdate(const Scene& scene);
 
 		virtual void 			update(PASS pass,
 									   Scene& scene,

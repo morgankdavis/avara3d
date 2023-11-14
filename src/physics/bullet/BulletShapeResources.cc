@@ -33,9 +33,11 @@ BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> 
 //
 //	}
 
-//BulletShapeResources::~BulletShapeResources() {
-//	AE_LOG_D("Destroying BulletShapeResources {:p}", (void*)this);
-//}
+BulletShapeResources::~BulletShapeResources() {
+	AE_LOG_D("Destroying BulletShapeResources {:p}", (void*)this);
+
+	// SIMULATOR -> DESTROY()
+}
 
 /*********************************************************************************************
 	Public

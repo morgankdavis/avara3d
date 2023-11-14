@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/optional.hpp>
-//#include <boost/filesystem.hpp>
 #include "glm/glm.hpp"
 
 

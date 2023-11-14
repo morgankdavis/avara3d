@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "physics/PhysicsBodyResources.h"
+
 
 struct btDefaultMotionState;
 
@@ -17,7 +19,7 @@ class btRigidBody;
 namespace ae {
 
 
-	class BulletBodyResources {
+	class BulletBodyResources : PhysicsBodyResources {
 
 /*********************************************************************************************
 	Lifecycle
@@ -27,7 +29,7 @@ namespace ae {
 
 		BulletBodyResources(std::shared_ptr<btRigidBody> body,
 							std::shared_ptr<btDefaultMotionState> motionState);
-//		~BulletBodyResources();
+		~BulletBodyResources();
 
 /*********************************************************************************************
 	Public

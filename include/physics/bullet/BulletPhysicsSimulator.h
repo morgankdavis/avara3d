@@ -87,10 +87,12 @@ namespace ae {
 	PhysicsSimulator
  *********************************************************************************************/
 
-		void 		beginUpdate(PASS pass,
-								const Scene& scene) override;
-		void 		endUpdate(PASS pass,
-							  const Scene& scene) override;
+//		void 		beginUpdate(PASS pass,
+//								const Scene& scene) override;
+//		void 		endUpdate(PASS pass,
+//							  const Scene& scene) override;
+		void 		beginUpdate(const Scene& scene) override;
+		void 		endUpdate(const Scene& scene) override;
 		void 		update(PASS pass,
 						   Scene& scene,
 						   const DEBUG_OPTIONS& debugOptions) override;
