@@ -84,22 +84,22 @@ namespace ae {
 		/* REMOVE? */ void			 			castsShadow(const bool castsShadow);
 
 		glm::vec3 								position() const;
-		void 									position(const glm::vec3 position);
+		void 									position(const glm::vec3& position);
 
-		glm::vec4 								rotation() const; // axis-angle
-		void 									rotation(const glm::vec4 rotation);
+		glm::vec4 								rotation() const;
+		void 									rotation(const glm::vec3& axis, float angle);
 
 		glm::vec3 								eulerAngles() const; // pitch, yaw, roll
-		void 									eulerAngles(const glm::vec3 eulerAngles);
+		void 									eulerAngles(const glm::vec3& eulerAngles);
 
 		glm::quat 								orientation() const; // angle == 1st component
-		void 									orientation(const glm::quat orientation);
+		void 									orientation(const glm::quat& orientation);
 
 		glm::vec3 								scale() const;
-		void 									scale(const glm::vec3 scale);
+		void 									scale(const glm::vec3& scale);
 
 		glm::mat4 								transform() const;
-		void 									transform(const glm::mat4 transform);
+		void 									transform(const glm::mat4& transform);
 
 		glm::vec3 								worldPosition();
 		glm::vec4 								worldRotation(); // axis-angle

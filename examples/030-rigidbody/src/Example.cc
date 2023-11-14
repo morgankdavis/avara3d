@@ -51,10 +51,10 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
  ***************************************************************************************/
 
 static shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
-static shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation);
-static shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction);
-static shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color);
-static shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation);
+static shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
+static shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction);
+static shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
+static shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 static void SpawnHACDTeapot(Scene& scene);
 static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
@@ -159,7 +159,7 @@ int Example::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = ImageNamed("grid10");
-	//auto inverted = gridImage->inverted();
+//	auto inverted = gridImage->inverted();
 	//auto gridImage = ImageNamed("grid10_512");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -171,7 +171,7 @@ int Example::run(const vector<string>& args) {
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
-	planeNode->rotation({1, 0, 0, radians(3*90.0)});
+	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 	
 	auto planePhysicsBody = PhysicsBody::StaticBody();
@@ -771,7 +771,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 	return nullptr;
 }
 
-shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
+shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 	
 	static auto fileScene = SceneNamed("slurm/slurm", "obj");
 	static auto fileNode = fileScene->rootNode();
@@ -787,7 +787,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 	node->addChild(canNode);
 
 	node->position(location);
-	node->rotation(rotation);
+	node->rotation(axis, angle);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(.4);
 //	physicsBody->friction(5);
@@ -797,7 +797,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, vec3 location, vec4 rotation) {
 	return node;
 }
 
-shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
+shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
 	
@@ -869,7 +869,7 @@ shared_ptr<Node> ShootBall(Scene& scene, vec3 location, vec3 direction) {
 	return nullptr;
 }
 
-shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
+shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	
 	auto node = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
 	auto materialProperty = make_shared<MaterialProperty>(color);
@@ -889,7 +889,7 @@ shared_ptr<Node> AddBox(Scene& scene, vec3 location, shared_ptr<Color> color) {
 	return node;
 }
 
-shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
+shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 	
 	static auto fileScene = SceneNamed("cardboardBox2/cardboardBox2", "obj");
 	static auto fileNode = fileScene->rootNode();
@@ -906,7 +906,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, vec3 location, vec4 rotation) {
 	node->addChild(boxNode);
 
 	node->position(location);
-	node->rotation(rotation);
+	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
 //	auto phyicsShape = PhysicsShape::BoundingBoxShape();
@@ -976,7 +976,8 @@ void AddCardboardBoxes(Scene& scene) {
 	
 	constexpr unsigned HEIGHT = 7;
 	
-	const vec4 ROTATION = {0, 1, 0, radians(25.0)};
+	static const vec3 AXIS = {0, 1, 0};
+	static const float ANGLE = radians(25.0);
 	
 	constexpr float X_BASE = -15.0;
 	constexpr float Y_BASE = 0.5;
@@ -992,7 +993,7 @@ void AddCardboardBoxes(Scene& scene) {
 		float z = Z_BASE + (Z_OFFSET * r);
 		
 		for (unsigned i=0; i<HEIGHT-r; ++i) {
-			AddCardboardBox(scene, {x, y, z}, ROTATION);
+			AddCardboardBox(scene, {x, y, z}, AXIS, ANGLE);
 			x += 1.5; z -= 0.75;
 		}
 	}
@@ -1005,7 +1006,7 @@ void AddSlurms(Scene& scene) {
 	float z = -9;
 	
 	for (unsigned i=0; i<19; ++i) {
-		AddSlurm(scene, {x, y, z}, {0, 1, 0, radians((float)Uniform(0, 359))});
+		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)Uniform(0, 359)));
 		z += 1;
 	}
 }

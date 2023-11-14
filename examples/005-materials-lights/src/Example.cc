@@ -110,7 +110,7 @@ int Example::run(const vector<string>& args) {
 	_palmsNode = palm1Scene->rootNode();
 	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
 	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
-	palm1Scene->rootNode()->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-5.0f)));
+	palm1Scene->rootNode()->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
 	scene->rootNode()->addChild(palm1Scene->rootNode());
 	
 	for (auto n : palm1Scene->rootNode()->children(true)) {

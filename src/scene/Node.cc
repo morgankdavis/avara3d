@@ -146,7 +146,7 @@ vec3 Node::position() const {
 	return _position;
 }
 
-void Node::position(const vec3 position) {
+void Node::position(const vec3& position) {
 	_position = position;
 
 	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
@@ -180,7 +180,7 @@ vec4 Node::rotation() const {
 //	return vec4(axis.x, axis.y, axis.z, angle);
 }
 
-void Node::rotation(const vec4 rotation) {
+void Node::rotation(const vec3& axis, float angle) {
 	
 //	if (_physicsBody && _physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
 //		throw Exception("Can't manipulate )
@@ -212,8 +212,7 @@ void Node::rotation(const vec4 rotation) {
 
 
 
-	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
-	float angle = rotation.w;
+	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
 	_orientation = angleAxis(angle, axisNormalized);
 
 	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
@@ -257,7 +256,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 	//return glm::eulerAngles(_orientation);
 }
 
-void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
+void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 
 	// NOTE:
 	// this first formula works well for one rotation at a time,
@@ -341,7 +340,7 @@ quat Node::orientation() const {
 	return _orientation;
 }
 
-void Node::orientation(const quat orientation) {
+void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
 
 	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
@@ -351,7 +350,7 @@ vec3 Node::scale() const {
 	return _scale;
 }
 
-void Node::scale(const glm::vec3 scale) {
+void Node::scale(const glm::vec3& scale) {
 	
 	//checkPhysicsScale(_scale, scale);
 	
@@ -369,7 +368,7 @@ mat4 Node::transform() const {
 	return t * r * s;
 }
 
-void Node::transform(const mat4 transform) {
+void Node::transform(const mat4& transform) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;

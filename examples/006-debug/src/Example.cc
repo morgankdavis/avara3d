@@ -86,7 +86,7 @@ int Example::run(const vector<string>& args) {
 
 	auto teapotScene = SceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->children(true)[1];
-    teapotNode->rotation({1, 0, 0, radians(30.0)});
+    teapotNode->rotation({1, 0, 0}, radians(30.0));
 	scene->rootNode()->addChild(teapotNode);
 
 	auto dragonScene = SceneNamed("dragon", "obj");

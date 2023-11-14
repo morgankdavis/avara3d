@@ -93,7 +93,7 @@ shared_ptr<Image> Image::inverted() const {
 
 	std::byte buf[size];
 
-	auto existing = _data->pointer();
+	unsigned char* existing = _data->pointer();
 	for (int r=0; r<_height; ++r) {
 		for (int c=0; c<widthInBytes; ++c) {
 			buf[widthInBytes*r + c] = (std::byte)existing[widthInBytes*r + c];

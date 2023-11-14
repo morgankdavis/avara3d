@@ -62,7 +62,7 @@ int Example::run(const vector<string>& args) {
 	planeGeo->name("plane");
 	planeNode->geometry(planeGeo);
 	scene->rootNode()->addChild(planeNode);
-	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
+	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
 
@@ -71,7 +71,7 @@ int Example::run(const vector<string>& args) {
 	boxGeo->name("box");
 	boxNode->geometry(boxGeo);
 	scene->rootNode()->addChild(boxNode);
-	boxNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-70.0f)));
+	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
 
 
@@ -88,7 +88,7 @@ int Example::run(const vector<string>& args) {
 	torusGeo->name("torus");
 	torusNode->geometry(torusGeo);
 	scene->rootNode()->addChild(torusNode);
-	torusNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(45.0f)));
+	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
 	
 	
@@ -97,7 +97,7 @@ int Example::run(const vector<string>& args) {
 	tubeGeo->name("tube");
 	tubeNode->geometry(tubeGeo);
 	scene->rootNode()->addChild(tubeNode);
-	tubeNode->rotation(vec4(1.0f, -1.0f, 0.0f, radians(-45.0f)));
+	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
 	
 	

@@ -259,7 +259,7 @@ int Example::run(const vector<string>& args) {
 		aNode->name("A");
 		aNode->position(vec3(20.0f, 0.0f, 0.0f));
 		aNode->scale(vec3(2.0f, 3.0f, 2.0f));
-		aNode->rotation(vec4(0.0f, 1.0f, 3.0f, (float)radians(45.0f)));
+		aNode->rotation({0.0f, 1.0f, 3.0f}, (float)radians(45.0f));
 		xNode->addChild(aNode);
 		
 		
@@ -268,7 +268,7 @@ int Example::run(const vector<string>& args) {
 		auto bNode = bScene->rootNode();
 		bNode->name("B");
 		bNode->position(vec3(0.0f, -3.0f, 0.0f));
-		bNode->rotation(vec4(3.0f, 1.0f, 2.0f, (float)radians(574.0f)));
+		bNode->rotation({3.0f, 1.0f, 2.0f}, (float)radians(574.0f));
 		bNode->scale(vec3(15.0f, 1.0f, 1.0f));
 		aNode->addChild(bNode);
 		cout << "bNode->rotation(): " << bNode->rotation() << endl;
@@ -278,7 +278,7 @@ int Example::run(const vector<string>& args) {
 		auto cScene = SceneNamed("cartoon_palm_tree", "obj");
 		auto cNode = cScene->rootNode();
 		cNode->name("C");
-		cNode->rotation(vec4(3.0f, 13.0f, 3.0f, (float)radians(-110.0f)));
+		cNode->rotation({3.0f, 13.0f, 3.0f}, (float)radians(-110.0f));
 		cNode->scale(vec3(0.5f, 0.5f, -2.0f));
 		cNode->position(vec3(-2.0f, 1.0f, -2.0f));
 		bNode->addChild(cNode);
@@ -546,7 +546,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		newAngle = (newAngle > 0 ?
 					fmod(newAngle, 2.0f*M_PI) :
 					fmod(newAngle, 2.0f*M_PI));
-		node->rotation(vec4(1.0f, 0.0f, 0.0f, newAngle));
+		node->rotation({1.0f, 0.0f, 0.0f}, newAngle);
 		
 		cout << "node transform:\n" << node->transform() << endl;
 	}
