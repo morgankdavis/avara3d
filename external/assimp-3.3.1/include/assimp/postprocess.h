@@ -572,22 +572,22 @@ enum aiPostProcessSteps
     aiProcess_SortByPType           |  \
     0 )
 
- // ---------------------------------------------------------------------------------------
- /** @def aiProcessPreset_TargetRealtime_Quality
-  *  @brief Default postprocess configuration optimizing the data for real-time rendering.
-  *
-  *  Unlike #aiProcessPreset_TargetRealtime_Fast, this configuration
-  *  performs some extra optimizations to improve rendering speed and
-  *  to minimize memory usage. It could be a good choice for a level editor
-  *  environment where import speed is not so important.
-  *
-  *  If you're using DirectX, don't forget to combine this value with
-  *  the #aiProcess_ConvertToLeftHanded step. If you don't support UV transformations
-  *  in your application apply the #aiProcess_TransformUVCoords step, too.
-  *  @note Please take the time to read the docs for the steps enabled by this preset.
-  *  Some of them offer further configurable properties, while some of them might not be
-  *  of use for you so it might be better to not specify them.
-  */
+// ---------------------------------------------------------------------------------------
+/** @def aiProcessPreset_TargetRealtime_Quality
+ *  @brief Default postprocess configuration optimizing the data for real-time rendering.
+ *
+ *  Unlike #aiProcessPreset_TargetRealtime_Fast, this configuration
+ *  performs some extra optimizations to improve rendering speed and
+ *  to minimize memory usage. It could be a good choice for a level editor
+ *  environment where import speed is not so important.
+ *
+ *  If you're using DirectX, don't forget to combine this value with
+ *  the #aiProcess_ConvertToLeftHanded step. If you don't support UV transformations
+ *  in your application apply the #aiProcess_TransformUVCoords step, too.
+ *  @note Please take the time to read the docs for the steps enabled by this preset.
+ *  Some of them offer further configurable properties, while some of them might not be
+ *  of use for you so it might be better to not specify them.
+ */
 #define aiProcessPreset_TargetRealtime_Quality ( \
     aiProcess_CalcTangentSpace              |  \
     aiProcess_GenSmoothNormals              |  \
@@ -603,21 +603,21 @@ enum aiPostProcessSteps
     aiProcess_FindInvalidData               |  \
     0 )
 
- // ---------------------------------------------------------------------------------------
- /** @def aiProcessPreset_TargetRealtime_MaxQuality
-  *  @brief Default postprocess configuration optimizing the data for real-time rendering.
-  *
-  *  This preset enables almost every optimization step to achieve perfectly
-  *  optimized data. It's your choice for level editor environments where import speed
-  *  is not important.
-  *
-  *  If you're using DirectX, don't forget to combine this value with
-  *  the #aiProcess_ConvertToLeftHanded step. If you don't support UV transformations
-  *  in your application, apply the #aiProcess_TransformUVCoords step, too.
-  *  @note Please take the time to read the docs for the steps enabled by this preset.
-  *  Some of them offer further configurable properties, while some of them might not be
-  *  of use for you so it might be better to not specify them.
-  */
+// ---------------------------------------------------------------------------------------
+/** @def aiProcessPreset_TargetRealtime_MaxQuality
+ *  @brief Default postprocess configuration optimizing the data for real-time rendering.
+ *
+ *  This preset enables almost every optimization step to achieve perfectly
+ *  optimized data. It's your choice for level editor environments where import speed
+ *  is not important.
+ *
+ *  If you're using DirectX, don't forget to combine this value with
+ *  the #aiProcess_ConvertToLeftHanded step. If you don't support UV transformations
+ *  in your application, apply the #aiProcess_TransformUVCoords step, too.
+ *  @note Please take the time to read the docs for the steps enabled by this preset.
+ *  Some of them offer further configurable properties, while some of them might not be
+ *  of use for you so it might be better to not specify them.
+ */
 #define aiProcessPreset_TargetRealtime_MaxQuality ( \
     aiProcessPreset_TargetRealtime_Quality   |  \
     aiProcess_FindInstances                  |  \

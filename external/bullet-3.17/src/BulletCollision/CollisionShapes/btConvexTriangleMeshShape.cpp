@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
 
 btConvexTriangleMeshShape ::btConvexTriangleMeshShape(btStridingMeshInterface* meshInterface, bool calcAabb)
-	: btPolyhedralConvexAabbCachingShape(), m_stridingMesh(meshInterface)
+		: btPolyhedralConvexAabbCachingShape(), m_stridingMesh(meshInterface)
 {
 	m_shapeType = CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE;
 	if (calcAabb)
@@ -38,9 +38,9 @@ public:
 	btVector3 m_supportVecLocal;
 
 	LocalSupportVertexCallback(const btVector3& supportVecLocal)
-		: m_supportVertexLocal(btScalar(0.), btScalar(0.), btScalar(0.)),
-		  m_maxDot(btScalar(-BT_LARGE_FLOAT)),
-		  m_supportVecLocal(supportVecLocal)
+			: m_supportVertexLocal(btScalar(0.), btScalar(0.), btScalar(0.)),
+			  m_maxDot(btScalar(-BT_LARGE_FLOAT)),
+			  m_supportVecLocal(supportVecLocal)
 	{
 	}
 
@@ -144,12 +144,12 @@ int btConvexTriangleMeshShape::getNumEdges() const
 
 void btConvexTriangleMeshShape::getEdge(int, btVector3&, btVector3&) const
 {
-	btAssert(0);
+			btAssert(0);
 }
 
 void btConvexTriangleMeshShape::getVertex(int, btVector3&) const
 {
-	btAssert(0);
+			btAssert(0);
 }
 
 int btConvexTriangleMeshShape::getNumPlanes() const
@@ -159,13 +159,13 @@ int btConvexTriangleMeshShape::getNumPlanes() const
 
 void btConvexTriangleMeshShape::getPlane(btVector3&, btVector3&, int) const
 {
-	btAssert(0);
+			btAssert(0);
 }
 
 //not yet
 bool btConvexTriangleMeshShape::isInside(const btVector3&, btScalar) const
 {
-	btAssert(0);
+			btAssert(0);
 	return false;
 }
 
