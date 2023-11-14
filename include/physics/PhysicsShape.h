@@ -54,8 +54,8 @@ namespace ae {
 
 		void sourceObject(std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject);
 
-		PHYSICS_SHAPE_DIRTY_BITS 			dirtyBits() const;
-		void 								dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits);
+		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
+		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
 
 		void								update(PhysicsSimulator& simulator,
 												   RenderStats& stats);
@@ -69,7 +69,7 @@ namespace ae {
 		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	_sourceObject;
 
 		PHYSICS_SHAPE_TYPE 						_type;
-		PHYSICS_SHAPE_DIRTY_BITS 				_dirtyBits;
+		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 
 		std::shared_ptr<PhysicsShapeResourses>	_resources;
 	};

@@ -29,7 +29,7 @@ using namespace std;
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
 		_sourceObject(geometry),
 		_type(type),
-		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
+		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
@@ -45,7 +45,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 		_sourceObject(node),
 		_type(type),
-		_dirtyBits(PHYSICS_SHAPE_DIRTY_BITS::ALL) {
+		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
@@ -75,7 +75,7 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 
 void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	_type = type;
-	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
 
 /*********************************************************************************************
@@ -84,19 +84,19 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 
 void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sourceObject) {
 	_sourceObject = sourceObject;
-	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
 
 //void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
 //	_sourceGeometry = geometry;
 //
-//	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 //}
 //
 //void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
 //	_sourceNode = node;
 //
-//	_dirtyBits = PHYSICS_SHAPE_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_SHAPE_DIRTY_BITS::MODEL);
+//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 //}
 
 //void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
@@ -110,12 +110,12 @@ void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sour
 //	}
 //}
 
-PHYSICS_SHAPE_DIRTY_BITS PhysicsShape::dirtyBits() const {
-	return _dirtyBits;
+PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void PhysicsShape::dirtyBits(PHYSICS_SHAPE_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }
 
 void PhysicsShape::update(PhysicsSimulator& simulator,

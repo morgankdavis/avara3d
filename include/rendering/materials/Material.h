@@ -85,8 +85,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		MATERIAL_DIRTY_BITS 					dirtyBits() const;
-		void 									dirtyBits(MATERIAL_DIRTY_BITS bits);
+		MATERIAL_DIRTY_MASK 					dirtyMask() const;
+		void 									dirtyMask(MATERIAL_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -107,7 +107,7 @@ namespace ae {
 		FILL_MODE 								_fillMode;
 		float 									_uvScale;
 
-		MATERIAL_DIRTY_BITS						_dirtyBits;
+		MATERIAL_DIRTY_MASK						_dirtyMask;
 	};
 }
 

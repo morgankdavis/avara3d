@@ -60,8 +60,8 @@ namespace ae {
 		AABB								aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
 		glm::vec3 							extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
-		GEOMETRY_ELEMENT_DIRTY_BITS 		dirtyBits() const;
-		void 								dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits);
+		GEOMETRY_ELEMENT_DIRTY_MASK 		dirtyMask() const;
+		void 								dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK mask);
 		
 /*********************************************************************************************
 	Protected
@@ -72,7 +72,7 @@ namespace ae {
 		std::vector<Vertex>					_vertices;
 		std::vector<Face>					_faces;
 
-		GEOMETRY_ELEMENT_DIRTY_BITS			_dirtyBits;
+		GEOMETRY_ELEMENT_DIRTY_MASK			_dirtyMask;
 	};
 }
 

@@ -35,7 +35,7 @@ Geometry::Geometry():
 		_elements(vector<shared_ptr<GeometryElement>>()),
 		_materials(vector<shared_ptr<Material>>()),
 //	_node({}),
-		_dirtyBits(GEOMETRY_DIRTY_BITS::ALL) {
+		_dirtyMask(GEOMETRY_DIRTY_MASK::ALL) {
 
 }
 
@@ -138,7 +138,7 @@ void Geometry::draw(Renderer& renderer,
 	// forces Renderer to re-create AABB linesets next time they're turned on.
 	// this seems like hacky way to do it.
 	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		_dirtyBits = GEOMETRY_DIRTY_BITS_ADD(_dirtyBits, GEOMETRY_DIRTY_BITS::EXTENT);
+		_dirtyMask = GEOMETRY_DIRTY_MASK_ADD(_dirtyMask, GEOMETRY_DIRTY_MASK::EXTENT);
 	}
 	
 	renderer.render(shared_from_this(),
@@ -204,10 +204,10 @@ vec3 Geometry::extent(const shared_ptr<Node> convertToNode) const {
 //	return _node;
 //}
 
-GEOMETRY_DIRTY_BITS Geometry::dirtyBits() const {
-	return _dirtyBits;
+GEOMETRY_DIRTY_MASK Geometry::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void Geometry::dirtyBits(GEOMETRY_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }

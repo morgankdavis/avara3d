@@ -21,10 +21,10 @@ using namespace std;
  *********************************************************************************************/
 
 PhysicsWorld::PhysicsWorld():
-	_gravity({0, -9.807, 0}),
-	_timestep(1.0/60.0),
+		_gravity({0, -9.807, 0}),
+		_timestep(1.0/60.0),
 //	_scene({}),
-	_dirtyBits(PHYSICS_WORLD_DIRTY_BITS::ALL) {
+	_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL) {
 
 }
 
@@ -42,8 +42,8 @@ vec3 PhysicsWorld::gravity() const {
 
 void PhysicsWorld::gravity(vec3 gravity) {
 	_gravity = gravity;
-	
-	_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::GRAVITY);
+
+	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::GRAVITY);
 }
 
 float PhysicsWorld::timestep() const {
@@ -52,8 +52,8 @@ float PhysicsWorld::timestep() const {
 
 void PhysicsWorld::timestep(float timestep) {
 	_timestep = timestep;
-	
-	_dirtyBits = PHYSICS_WORLD_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_WORLD_DIRTY_BITS::TIMESTEP);
+
+	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::TIMESTEP);
 }
 
 void PhysicsWorld::updateCollisionPairs() {
@@ -108,10 +108,10 @@ shared_ptr<PhysicsContact> PhysicsWorld::convexSweepTest(shared_ptr<PhysicsConta
 ////#endif
 //}
 
-PHYSICS_WORLD_DIRTY_BITS PhysicsWorld::dirtyBits() const {
-	return _dirtyBits;
+PHYSICS_WORLD_DIRTY_MASK PhysicsWorld::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void PhysicsWorld::dirtyBits(PHYSICS_WORLD_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void PhysicsWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }

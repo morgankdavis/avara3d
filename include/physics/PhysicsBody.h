@@ -127,8 +127,8 @@ namespace ae {
 		void 								attachedToNode(std::shared_ptr<Node> node);
 		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 		
-		PHYSICS_BODY_DIRTY_BITS 			dirtyBits() const;
-		void 								dirtyBits(PHYSICS_BODY_DIRTY_BITS bits);
+		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
+		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
 
 		void								update(PhysicsSimulator& simulator,
 												   RenderStats& stats);
@@ -164,7 +164,7 @@ namespace ae {
 		bool 									_allowsResting;
 		bool 									_resting;
 
-		PHYSICS_BODY_DIRTY_BITS 				_dirtyBits;
+		PHYSICS_BODY_DIRTY_MASK 				_dirtyMask;
 
 		std::shared_ptr<PhysicsBodyResourses>	_resources;
 	};

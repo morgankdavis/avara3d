@@ -50,7 +50,7 @@ Material::Material():
 		_doubleSided(false),
 		_fillMode(FILL_MODE::FILL),
 		_uvScale(1.0f),
-		_dirtyBits(MATERIAL_DIRTY_BITS::ALL) {
+		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
 
 	AE_LOG_D("Creating Material {:p}", (void*)this);
 }
@@ -179,10 +179,10 @@ void Material::uvScale(float scale) {
 	Internal
  *********************************************************************************************/
 
-MATERIAL_DIRTY_BITS Material::dirtyBits() const {
-	return _dirtyBits;
+MATERIAL_DIRTY_MASK Material::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void Material::dirtyBits(MATERIAL_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void Material::dirtyMask(MATERIAL_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }

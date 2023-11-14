@@ -324,46 +324,46 @@ namespace ae {
 		glm::vec3 	cameraPosition;
 	} RenderStats;
 		
-	enum class NODE_DIRTY_BITS : unsigned {
+	enum class NODE_DIRTY_MASK : unsigned {
 		NONE =					0,
 		WORLD_TRANSFORM =		1 << 0,
 		ALL = 					UINT_MAX
 	};
 			
-#define NODE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit))
-#define NODE_DIRTY_BITS_ADD(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit)))
-#define NODE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<NODE_DIRTY_BITS>(static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<NODE_DIRTY_BITS>::type>(bit)))
+#define NODE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit))
+#define NODE_DIRTY_MASK_ADD(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
+#define NODE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
 	
-	enum class GEOMETRY_DIRTY_BITS : unsigned {
+	enum class GEOMETRY_DIRTY_MASK : unsigned {
 		NONE =					0,
 		EXTENT =				1 << 0,
 		ALL = 					UINT_MAX
 	};
 		
-#define GEOMETRY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit))
-#define GEOMETRY_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit)))
-#define GEOMETRY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_DIRTY_BITS>::type>(bit)))
+#define GEOMETRY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit))
+#define GEOMETRY_DIRTY_MASK_ADD(mask, bit) (static_cast<GEOMETRY_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit)))
+#define GEOMETRY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GEOMETRY_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit)))
 
-	enum class GEOMETRY_ELEMENT_DIRTY_BITS : unsigned {
+	enum class GEOMETRY_ELEMENT_DIRTY_MASK : unsigned {
 		NONE =					0,
 		VERTEX_DATA =			1 << 0,
 		ALL = 					UINT_MAX
 	};
 		
-#define GEOMETRY_ELEMENT_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_ADD(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit)))
-#define GEOMETRY_ELEMENT_DIRTY_BITS_REMOVE(bits, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_BITS>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_BITS>::type>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_ADD(mask, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit)))
 	
-	enum class MATERIAL_DIRTY_BITS : unsigned {
+	enum class MATERIAL_DIRTY_MASK : unsigned {
 		NONE =					0,
 		ALL = 					UINT_MAX
 	};
 		
-#define MATERIAL_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit))
-#define MATERIAL_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit)))
-#define MATERIAL_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_DIRTY_BITS>::type>(bit)))
+#define MATERIAL_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit))
+#define MATERIAL_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) | static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
+#define MATERIAL_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
 	
-	enum class MATERIAL_PROPERTY_DIRTY_BITS : unsigned {
+	enum class MATERIAL_PROPERTY_DIRTY_MASK : unsigned {
 		NONE =					0,
 		CONTENTS = 				1 << 0,
 		MINIFICATION_FILTER = 	1 << 1,
@@ -375,21 +375,21 @@ namespace ae {
 		ALL = 					UINT_MAX
 	};
 		
-#define MATERIAL_PROPERTY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit))
-#define MATERIAL_PROPERTY_DIRTY_BITS_ADD(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
-#define MATERIAL_PROPERTY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_BITS>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_BITS>::type>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit))
+#define MATERIAL_PROPERTY_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
 		
-	enum class PHYSICS_WORLD_DIRTY_BITS : unsigned {
+	enum class PHYSICS_WORLD_DIRTY_MASK : unsigned {
 		TIMESTEP =				1 << 0,
 		GRAVITY =				1 << 1,
 		ALL = 					UINT_MAX
 	};
 			
-#define PHYSICS_WORLD_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit))
-#define PHYSICS_WORLD_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit)))
-#define PHYSICS_WORLD_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_WORLD_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_WORLD_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit))
+#define PHYSICS_WORLD_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
+#define PHYSICS_WORLD_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
 			
-	enum class PHYSICS_BODY_DIRTY_BITS : unsigned {
+	enum class PHYSICS_BODY_DIRTY_MASK : unsigned {
 		NONE =							0,
 		TYPE =							1 << 0,
 		SHAPE =							1 << 1,
@@ -413,19 +413,19 @@ namespace ae {
 		ALL = 							UINT_MAX
 	};
 			
-#define PHYSICS_BODY_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit))
-#define PHYSICS_BODY_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit)))
-#define PHYSICS_BODY_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_BODY_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_BODY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit))
+#define PHYSICS_BODY_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
+#define PHYSICS_BODY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
 
-	enum class PHYSICS_SHAPE_DIRTY_BITS : unsigned {
+	enum class PHYSICS_SHAPE_DIRTY_MASK : unsigned {
 		NONE =					0,
 		MODEL =					1 << 0,
 		ALL = 					UINT_MAX
 	};
 			
-#define PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(bits, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit))
-#define PHYSICS_SHAPE_DIRTY_BITS_ADD(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit)))
-#define PHYSICS_SHAPE_DIRTY_BITS_REMOVE(bits, bit) (static_cast<PHYSICS_SHAPE_DIRTY_BITS>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bits) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_BITS>::type>(bit)))
+#define PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit))
+#define PHYSICS_SHAPE_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
+#define PHYSICS_SHAPE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
 
 } // namespace ae
 

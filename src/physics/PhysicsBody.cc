@@ -60,7 +60,7 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_allowsResting(true),
 		_affectedByGravity(true),
 		_resting(false),
-		_dirtyBits(PHYSICS_BODY_DIRTY_BITS::ALL) {
+		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL) {
 
 }
 
@@ -84,7 +84,7 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
 	_type = type;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE);
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
@@ -93,7 +93,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	_shape = shape;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
 }
 
 float PhysicsBody::mass() const {
@@ -102,7 +102,7 @@ float PhysicsBody::mass() const {
 
 void PhysicsBody::mass(float mass) {
 	_mass = mass;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MASS);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MASS);
 }
 
 vec3 PhysicsBody::momentOfInertia() const {
@@ -111,7 +111,7 @@ vec3 PhysicsBody::momentOfInertia() const {
 
 void PhysicsBody::momentOfInertia(vec3 moment) {
 	_momentOfInertia = moment;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA);
 }
 
 float PhysicsBody::friction() const {
@@ -120,7 +120,7 @@ float PhysicsBody::friction() const {
 
 void PhysicsBody::friction(float friction) {
 	_friction = friction;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION);
 }
 
 float PhysicsBody::rollingFriction() const {
@@ -129,7 +129,7 @@ float PhysicsBody::rollingFriction() const {
 
 void PhysicsBody::rollingFriction(float friction) {
 	_rollingFriction = friction;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION);
 }
 
 float PhysicsBody::restitution() const {
@@ -138,7 +138,7 @@ float PhysicsBody::restitution() const {
 
 void PhysicsBody::restitution(float restitution) {
 	_restitution = restitution;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION);
 }
 
 vec3 PhysicsBody::linearVelocity() const {
@@ -148,7 +148,7 @@ vec3 PhysicsBody::linearVelocity() const {
 void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
 	_linearVelocity = velocity;
 	if (setDirty) {
-		_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY);
+		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY);
 	}
 }
 
@@ -159,7 +159,7 @@ vec3 PhysicsBody::angularVelocity() const {
 void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
 	_angularVelocity = velocity;
 	if (setDirty) {
-		_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY);
+		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY);
 	}
 }
 
@@ -169,7 +169,7 @@ vec3 PhysicsBody::linearFactor() const {
 
 void PhysicsBody::linearFactor(vec3 factor) {
 	_linearFactor = factor;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR);
 }
 
 vec3 PhysicsBody::angularFactor() const {
@@ -178,7 +178,7 @@ vec3 PhysicsBody::angularFactor() const {
 
 void PhysicsBody::angularFactor(vec3 factor) {
 	_angularFactor = factor;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR);
 }
 
 float PhysicsBody::linearDamping() const {
@@ -187,7 +187,7 @@ float PhysicsBody::linearDamping() const {
 
 void PhysicsBody::linearDamping(float damping) {
 	_linearDamping = damping;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING);
 }
 
 float PhysicsBody::angularDamping() const {
@@ -196,7 +196,7 @@ float PhysicsBody::angularDamping() const {
 
 void PhysicsBody::angularDamping(float damping) {
 	_angularDamping = damping;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
@@ -205,7 +205,7 @@ float PhysicsBody::linearSleepingThreshold() const {
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
 	_linearSleepingThreshold = threshold;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
@@ -214,7 +214,7 @@ float PhysicsBody::angularSleepingThreshold() const {
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
 	_angularSleepingThreshold = threshold;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD);
 }
 
 bool PhysicsBody::affectedByGravity() const {
@@ -223,7 +223,7 @@ bool PhysicsBody::affectedByGravity() const {
 
 void PhysicsBody::affectedByGravity(bool flag) {
 	_affectedByGravity = flag;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY);
 }
 
 bool PhysicsBody::allowsResting() const {
@@ -232,7 +232,7 @@ bool PhysicsBody::allowsResting() const {
 
 void PhysicsBody::allowsResting(bool flag) {
 	_allowsResting = flag;
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING);
 }
 
 bool PhysicsBody::resting() const {
@@ -259,7 +259,7 @@ void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 //		 *********/
 //	}
 	
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES);
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
@@ -273,7 +273,7 @@ void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 //		 *********/
 //	}
 	
-	_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES);
+	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
 }
 
 void PhysicsBody::clearForces() {
@@ -283,7 +283,7 @@ void PhysicsBody::clearForces() {
 
 void PhysicsBody::resetTransform() {
 	#warning FIX
-	//_dirtyBits = PHYSICS_BODY_DIRTY_BITS_ADD(_dirtyBits, PHYSICS_BODY_DIRTY_BITS::TRANSFORM);
+	//_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TRANSFORM);
 	//proceedToTransform (const btTransform &newTrans)
 }
 
@@ -309,12 +309,12 @@ void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
 	}
 }
 
-PHYSICS_BODY_DIRTY_BITS PhysicsBody::dirtyBits() const {
-	return _dirtyBits;
+PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void PhysicsBody::dirtyBits(PHYSICS_BODY_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }
 
 void PhysicsBody::update(PhysicsSimulator& simulator,

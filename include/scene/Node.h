@@ -176,7 +176,7 @@ namespace ae {
 	private:
 
 		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
-		void			 						addDirtyBitsRecursive(NODE_DIRTY_BITS bits);
+		void			 						addDirtyMaskRecursive(NODE_DIRTY_MASK bits);
 		std::vector<std::shared_ptr<Node>>		preorderChildren(std::shared_ptr<Node> root);
 		void 									preorderChildrenRec(std::shared_ptr<Node> node,
 																	std::map<std::shared_ptr<Node>, bool> &visited,
@@ -184,9 +184,9 @@ namespace ae {
 
 		//void 									checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
 		
-		NODE_DIRTY_BITS 						dirtyBits() const;
-		void 									dirtyBits(NODE_DIRTY_BITS bits);
-		
+		NODE_DIRTY_MASK 						dirtyMask() const;
+		void 									dirtyMask(NODE_DIRTY_MASK mask);
+//
 		std::optional<std::string>				_name;
 		
 		std::shared_ptr<Light>					_light;
@@ -208,7 +208,7 @@ namespace ae {
 //		std::weak_ptr<Scene> 					_scene;
 		std::weak_ptr<Node>						_parent;
 		
-		NODE_DIRTY_BITS							_dirtyBits;
+		NODE_DIRTY_MASK							_dirtyMask;
 	};
 }
 

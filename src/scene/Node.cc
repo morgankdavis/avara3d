@@ -66,19 +66,19 @@ shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
  *********************************************************************************************/
 
 Node::Node():
-	_name(std::nullopt),
-	_hidden(false),
-	_camera(nullptr),
-	_light(nullptr),
-	_geometry(nullptr),
-	_position({0.0f, 0.0f, 0.0f}),
-	_orientation(quat()),
-	_scale({1.0f, 1.0f, 1.0f}),
-	_worldTransform(mat4(1.0f)),
-	_physicsBody(nullptr),
-	_parent({}),
+		_name(std::nullopt),
+		_hidden(false),
+		_camera(nullptr),
+		_light(nullptr),
+		_geometry(nullptr),
+		_position({0.0f, 0.0f, 0.0f}),
+		_orientation(quat()),
+		_scale({1.0f, 1.0f, 1.0f}),
+		_worldTransform(mat4(1.0f)),
+		_physicsBody(nullptr),
+		_parent({}),
 //	_scene({}),
-	_dirtyBits(NODE_DIRTY_BITS::NONE) {
+	_dirtyMask(NODE_DIRTY_MASK::NONE) {
 
 }
 
@@ -148,8 +148,8 @@ vec3 Node::position() const {
 
 void Node::position(const vec3 position) {
 	_position = position;
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
@@ -215,8 +215,8 @@ void Node::rotation(const vec4 rotation) {
 	vec3 axisNormalized = normalize(vec3(rotation.x, rotation.y, rotation.z));
 	float angle = rotation.w;
 	_orientation = angleAxis(angle, axisNormalized);
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 }
 
@@ -333,8 +333,8 @@ void Node::eulerAngles(const vec3 eulerAngles) { // pitch, yaw, roll
 	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
@@ -343,8 +343,8 @@ quat Node::orientation() const {
 
 void Node::orientation(const quat orientation) {
 	_orientation = orientation;
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
@@ -356,8 +356,8 @@ void Node::scale(const glm::vec3 scale) {
 	//checkPhysicsScale(_scale, scale);
 	
 	_scale = scale;
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
@@ -395,8 +395,8 @@ void Node::transform(const mat4 transform) {
 	//
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
-	
-	addDirtyBitsRecursive(NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+	addDirtyMaskRecursive(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::worldPosition() {
@@ -511,7 +511,7 @@ vec3 Node::worldRight() {
 
 mat4 Node::worldTransform() {
 
-	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 
 		//AE_LOG_I("DIRTY UPDATING WORLD");
 
@@ -526,8 +526,8 @@ mat4 Node::worldTransform() {
 		}
 		
 		_worldTransform = t * transform();
-		
-		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+
+		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
 	}
 	
 	return _worldTransform;
@@ -618,7 +618,7 @@ void Node::unrollWorldTransform(mat4 transform) {
 //	// updateWorldTransform() is called in order, guaranteeing that its parent's
 //	// world tranform is indeed a valid world transform
 //
-//	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 //		if (auto p = parent().lock()) {
 //			//auto oldScale = scale();
 //			_worldTransform = p->worldTransform() * transform();
@@ -626,15 +626,15 @@ void Node::unrollWorldTransform(mat4 transform) {
 //			//checkPhysicsScale(oldScale, newScale);
 //		}
 //
-//		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 //}
 
 //void Node::updateWorldTransform(mat4& parentWorldTransform) {
 //
-//	if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 //		_worldTransform = parentWorldTransform * transform();
-//		_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 //}
 
@@ -704,7 +704,7 @@ void Node::update(PhysicsSimulator& simulator,
 		// - world transform dirty? -> update
 
 		//updateWorldTransform(parentWorldTransform);
-		if (NODE_DIRTY_BITS_CONTAINS(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM)) {
+		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 			//AE_LOG_I("UPDATING WORLD in update()");
 
 			static const auto mat4Identity = mat4(1.0);
@@ -714,7 +714,7 @@ void Node::update(PhysicsSimulator& simulator,
 										 : mat4Identity);
 
 			_worldTransform = parentWorldTransform * transform();
-			_dirtyBits = NODE_DIRTY_BITS_REMOVE(_dirtyBits, NODE_DIRTY_BITS::WORLD_TRANSFORM);
+			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
 		}
 
 		// physics body or physics body dirty?
@@ -839,12 +839,12 @@ vector<shared_ptr<Node>> Node::pathToRoot() const {
 	return parents;
 }
 
-void Node::addDirtyBitsRecursive(NODE_DIRTY_BITS bits) {
-	
-	_dirtyBits = NODE_DIRTY_BITS_ADD(_dirtyBits, bits);
+void Node::addDirtyMaskRecursive(NODE_DIRTY_MASK bits) {
+
+	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, bits);
 	
 	for (auto& c : children(true)) {
-		c->_dirtyBits = NODE_DIRTY_BITS_ADD(c->_dirtyBits, bits);
+		c->_dirtyMask = NODE_DIRTY_MASK_ADD(c->_dirtyMask, bits);
 	}
 }
 
@@ -890,16 +890,16 @@ void Node::preorderChildrenRec(shared_ptr<Node> node,
 //	if (_physicsBody && _physicsBody->shape()) {
 //		if (!Equal(oldScale, newScale)) {
 //			auto shape = _physicsBody->shape();
-//			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_ADD(shape->dirtyBits(),
-//														  PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+//			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_ADD(shape->dirtyMask(),
+//														  PHYSICS_SHAPE_DIRTY_MASK::SCALE));
 //		}
 //	}
 //}
 
-NODE_DIRTY_BITS Node::dirtyBits() const {
-	return _dirtyBits;
+NODE_DIRTY_MASK Node::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void Node::dirtyBits(NODE_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void Node::dirtyMask(NODE_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }

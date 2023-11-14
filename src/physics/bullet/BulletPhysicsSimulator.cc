@@ -243,19 +243,19 @@ void BulletPhysicsSimulator::update(PASS pass,
 	if (pass == BulletPhysicsSimulator::PASS::STEP) {
 		auto world = scene.physicsWorld();
 
-		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::TIMESTEP)) {
+		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
 			_timestep = world->timestep();
 
-			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
-															 PHYSICS_WORLD_DIRTY_BITS::TIMESTEP));
+			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
+															 PHYSICS_WORLD_DIRTY_MASK::TIMESTEP));
 		}
 
 		#warning set this gravity for all physics objects, too...
-		if (PHYSICS_WORLD_DIRTY_BITS_CONTAINS(world->dirtyBits(), PHYSICS_WORLD_DIRTY_BITS::GRAVITY)) {
+		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::GRAVITY)) {
 			_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
 
-			world->dirtyBits(PHYSICS_WORLD_DIRTY_BITS_REMOVE(world->dirtyBits(),
-															 PHYSICS_WORLD_DIRTY_BITS::GRAVITY));
+			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
+															 PHYSICS_WORLD_DIRTY_MASK::GRAVITY));
 		}
 	}
 }
@@ -374,7 +374,7 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 							shapeNewlyCreated);
 
 	auto type = body->type();
-	auto dirtyBits = body->dirtyBits();
+	auto dirtyMask = body->dirtyMask();
 
 	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
 	// we also re-create the body.
@@ -385,18 +385,18 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 
 	if (shapeNewlyCreated
 		// these properties only appear to be set-able via btRigidBodyConstructionInfo
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TYPE)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::SHAPE)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FRICTION)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::RESTITUTION)) {
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION)) {
 
 		AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)body.get());
 
 //		#warning experimental
-//		if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-//											  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
+//		if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
+//											  PHYSICS_SHAPE_DIRTY_MASK::SCALE)) {
 //
 //			auto worldScale = shape->sourceNode().lock()->worldScale();
 //			AE_LOG_D("worldScale: {}", StringFromGLMVec3(worldScale));
@@ -409,8 +409,8 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //
 //			//btWorld.updateSingleAabb((*btBody).get());
 //
-////			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-////															 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+////			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+////															 PHYSICS_SHAPE_DIRTY_MASK::SCALE));
 //		}
 
 //#warning experimental
@@ -471,18 +471,18 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		*btMotionState = newMotionState;
 		bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::TYPE));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::SHAPE));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::MOMENT_OF_INERTIA));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::FRICTION));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ROLLING_FRICTION));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::RESTITUTION));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::TYPE));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::SHAPE));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::FRICTION));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::RESTITUTION));
 	}
 	else {
 		auto resources = bodyBTMapping[body];
@@ -492,40 +492,40 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 
 	// check and set the rest of the properties
 
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR)) {
 		(*btBody)->setLinearFactor(BTVector3FromGLMVec3(body->linearFactor()));
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::LINEAR_FACTOR));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR)) {
 		(*btBody)->setAngularFactor(BTVector3FromGLMVec3(body->angularFactor()));
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_FACTOR));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING)) {
 		(*btBody)->setDamping(body->linearDamping(), body->angularDamping());
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::LINEAR_DAMPING));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_DAMPING));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD)
-		|| PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD)) {
 		(*btBody)->setSleepingThresholds(body->linearSleepingThreshold(), body->angularSleepingThreshold());
 
 //		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
 //		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::LINEAR_SLEEPING_THRESHOLD));
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_SLEEPING_THRESHOLD));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY)) {
 		if (body->affectedByGravity()) {
 			(*btBody)->setGravity(btWorld.getGravity());
 		}
@@ -534,10 +534,10 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 			(*btBody)->setGravity({0, 0, 0});
 		}
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::AFFECTED_BY_GRAVITY));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING)) {
 		if (body->allowsResting()) {
 			(*btBody)->setActivationState(ACTIVE_TAG);
 		}
@@ -545,32 +545,32 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 			(*btBody)->setActivationState(DISABLE_DEACTIVATION);
 		}
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ALLOWS_RESTING));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::FORCES)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES)) {
 #warning TODO
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::FORCES));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::FORCES));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::TORQUES)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES)) {
 #warning TODO
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::TORQUES));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::TORQUES));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY)) {
 		(*btBody)->setLinearVelocity(BTVector3FromGLMVec3(body->linearVelocity()));
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::LINEAR_VELOCITY));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY));
 	}
-	if (PHYSICS_BODY_DIRTY_BITS_CONTAINS(dirtyBits, PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY)) {
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY)) {
 		(*btBody)->setAngularVelocity(BTVector3FromGLMVec3(body->angularVelocity()));
 
-		body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-													   PHYSICS_BODY_DIRTY_BITS::ANGULAR_VELOCITY));
+		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+													   PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY));
 	}
 
 
@@ -591,8 +591,8 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 
 //	#warning experimental
 ////	auto shape = body->shape();
-//	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-//										  PHYSICS_SHAPE_DIRTY_BITS::SCALE)) {
+//	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
+//										  PHYSICS_SHAPE_DIRTY_MASK::SCALE)) {
 //
 ////		auto btScale = BTVector3FromGLMVec3(shape->sourceNode().lock()->worldScale());
 ////		(*btShape)->setLocalScaling(btScale);
@@ -603,8 +603,8 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //
 //		btWorld.updateSingleAabb((*btBody).get());
 //
-//		shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-//														 PHYSICS_SHAPE_DIRTY_BITS::SCALE));
+//		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+//														 PHYSICS_SHAPE_DIRTY_MASK::SCALE));
 //	}
 
 	// back-fill PhysicsBody properties
@@ -627,8 +627,8 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping,
 //							 bool& newlyCreated) {
 //
-//	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-//										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
+//	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
+//										  PHYSICS_SHAPE_DIRTY_MASK::MODEL)) {
 //
 //		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
 //
@@ -672,8 +672,8 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 //																	  childIndexVertexArrays);
 //			newlyCreated = true;
 //
-//			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-//															 PHYSICS_SHAPE_DIRTY_BITS::MODEL));
+//			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+//															 PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 //		}
 //		else {
 //			btShape = nullptr;
@@ -697,8 +697,8 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 							 BulletPhysicsSimulator::PhysicsShapeBTMapping& btShapeMapping,
 							 bool& newlyCreated) {
 
-	if (PHYSICS_SHAPE_DIRTY_BITS_CONTAINS(shape->dirtyBits(),
-										  PHYSICS_SHAPE_DIRTY_BITS::MODEL)) {
+	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
+										  PHYSICS_SHAPE_DIRTY_MASK::MODEL)) {
 
 		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
 
@@ -823,8 +823,8 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 																	  btIndexVertexArrays);
 			newlyCreated = true;
 
-			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-															 PHYSICS_SHAPE_DIRTY_BITS::MODEL));
+			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+															 PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 		}
 		else {
 			btShape = nullptr;
@@ -1616,8 +1616,8 @@ void CleanupPhysicsBodyResources(unordered_set<shared_ptr<PhysicsBody>>& active,
 
 			DeletePhysicsBodyBTResources(body, btWorld, btBodyMapping);
 
-			body->dirtyBits(PHYSICS_BODY_DIRTY_BITS_REMOVE(body->dirtyBits(),
-														   PHYSICS_BODY_DIRTY_BITS::ALL));
+			body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
+														   PHYSICS_BODY_DIRTY_MASK::ALL));
 		}
 	}
 }
@@ -1656,8 +1656,8 @@ void CleanupPhysicsShapeResources(unordered_set<shared_ptr<PhysicsShape>>& activ
 
 			DeletePhysicsShapeBTResources(shape, btShapeMapping);
 
-			shape->dirtyBits(PHYSICS_SHAPE_DIRTY_BITS_REMOVE(shape->dirtyBits(),
-															 PHYSICS_SHAPE_DIRTY_BITS::ALL));
+			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+															 PHYSICS_SHAPE_DIRTY_MASK::ALL));
 		}
 	}
 }

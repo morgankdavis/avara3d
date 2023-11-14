@@ -27,9 +27,9 @@ using namespace glm;
 
 GeometryElement::GeometryElement(vector<Vertex>& verticies,
 								 vector<Face>& faces):
-	_vertices(verticies),
-	_faces(faces),
-	_dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS::ALL) {
+		_vertices(verticies),
+		_faces(faces),
+		_dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK::ALL) {
 		
 }
 
@@ -70,7 +70,7 @@ void GeometryElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	GEOMETRY_ELEMENT_DIRTY_BITS_ADD(_dirtyBits, GEOMETRY_ELEMENT_DIRTY_BITS::VERTEX_DATA);
+	GEOMETRY_ELEMENT_DIRTY_MASK_ADD(_dirtyMask, GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA);
 }
 
 const vector<Vertex>& GeometryElement::vertices() const {
@@ -116,10 +116,10 @@ glm::vec3 GeometryElement::extent(const std::shared_ptr<Node> convertToNode) con
 			aabb.max.z - aabb.min.z};
 }
 
-GEOMETRY_ELEMENT_DIRTY_BITS GeometryElement::dirtyBits() const {
-	return _dirtyBits;
+GEOMETRY_ELEMENT_DIRTY_MASK GeometryElement::dirtyMask() const {
+	return _dirtyMask;
 }
 
-void GeometryElement::dirtyBits(GEOMETRY_ELEMENT_DIRTY_BITS bits) {
-	_dirtyBits = bits;
+void GeometryElement::dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }

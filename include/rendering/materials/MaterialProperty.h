@@ -66,8 +66,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		MATERIAL_PROPERTY_DIRTY_BITS 				dirtyBits() const;
-		void 										dirtyBits(MATERIAL_PROPERTY_DIRTY_BITS bits);
+		MATERIAL_PROPERTY_DIRTY_MASK 				dirtyMask() const;
+		void 										dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK mask);
 		
 /*********************************************************************************************
 	Private
@@ -84,7 +84,7 @@ namespace ae {
 		WRAP_MODE									_wrapT;
 		WRAP_MODE									_wrapR;
 
-		MATERIAL_PROPERTY_DIRTY_BITS				_dirtyBits;
+		MATERIAL_PROPERTY_DIRTY_MASK				_dirtyMask;
 	};
 }
 
