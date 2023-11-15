@@ -1901,7 +1901,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 
 #ifdef GL_FULL
-	
+
 	auto renderContext = scene.renderContext().lock();
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -1917,37 +1917,33 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 	window_flags |= ImGuiWindowFlags_NoNav;
 	window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGui::SetNextWindowBgAlpha(0);  
+	ImGui::SetNextWindowBgAlpha(0);
 	bool* p_open = nullptr;
 	ImGui::Begin("Stats", p_open, window_flags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
-	
+
 	static bool setInitialPosition = false;
 	if (!setInitialPosition) {
 		ImGui::SetWindowPos((ImVec2){10.0, 10.0});
 		setInitialPosition = true;
 	}
 
-	// add the comma to thousands format
-	// https://stackoverflow.com/questions/1449805/how-to-format-a-number-using-comma-as-thousands-separator-in-c
-	setlocale(LC_NUMERIC, "");
-
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %'.1f fps %s\n" \
-					"%-14s %'.1f ms\n" \
+		ImGui::Text("%-14s %.1f fps %s\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
 					"\n" \
-					"%-14s (%'.1f %'.1f %'.1f)\n" \
+					"%-14s (%.1f %.1f %.1f)\n" \
 					"\n" \
-					"%-14s %'d %s\n",
-					
+					"%-14s %d %s\n",
+
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
 					"nodes", stats.nodes,
@@ -1959,17 +1955,17 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %'.1f fps %s\n" \
-					"%-14s %'.1f ms\n" \
+		ImGui::Text("%-14s %.1f fps %s\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
-					"%-14s %'d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
 					"\n" \
-					"%'-14s (%'.1f %'.1f %'.1f)\n",
-					
+					"%-14s (%.1f, %.1f, %.1f)\n",
+
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
 					"nodes", stats.nodes,
@@ -1984,7 +1980,7 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	
+
 #endif // GL_FULL
 }
 
