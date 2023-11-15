@@ -9,7 +9,6 @@
 #include "Example.h"
 
 #include <iostream>
-#include <math.h>
 
 #include <glm/glm.hpp>
 
@@ -739,9 +738,10 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		// add random factor
 
-		float heading = Uniform(0.0f, 2*M_PI);
-		float pitch = Uniform(0.0f, 2*M_PI);
-		float roll = Uniform(0.0f, 2*M_PI);
+		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
+		float heading = Uniform(0.0f, 2*PI);
+		float pitch = Uniform(0.0f, 2*PI);
+		float roll = Uniform(0.0f, 2*PI);
 
 		node->eulerAngles({heading, pitch, roll});
 

@@ -6,7 +6,7 @@
 #define AVARA_ENGINE_PHYSICSBODYRESOURCES_H
 
 
-#import "Types.h"
+#include "Types.h"
 
 
 namespace ae {
