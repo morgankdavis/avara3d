@@ -39,3 +39,8 @@ shared_ptr<btRigidBody>& BulletBodyResources::body() {
 shared_ptr<btDefaultMotionState>& BulletBodyResources::motionState() {
 	return _motionState;
 }
+
+void BulletBodyResources::update(PhysicsSimulator& simulator,
+								 FrameStats& stats) {
+
+}

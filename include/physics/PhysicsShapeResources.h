@@ -6,16 +6,22 @@
 #define AVARA_ENGINE_PHYSICSSHAPERESOURCES_H
 
 
+#import "Types.h"
+
+
 namespace ae {
+
+
+	class PhysicsShape;
+	class PhysicsSimulator;
+
 
 	class PhysicsShapeResources {
 
-//		PhysicsShapeResources();
-//		PhysicsShapeResources(const PhysicsShapeResources& other) = delete; // copy constructor
-//		PhysicsShapeResources& operator=(const PhysicsShapeResources& other) = delete; // copy assignment
-//		virtual ~PhysicsShapeResources() = delete;
-
-		virtual void _abstract() = delete;
+		virtual void				get(PhysicsSimulator& simulator,
+										std::shared_ptr<PhysicsShape>* shape,
+										bool& newlyCreated,
+										FrameStats& stats) = 0;
 	};
 }
 

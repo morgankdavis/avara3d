@@ -58,7 +58,7 @@ namespace ae {
 		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
 
 		void								update(PhysicsSimulator& simulator,
-												   RenderStats& stats);
+												   FrameStats& stats);
 
 /*********************************************************************************************
 	Private

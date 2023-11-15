@@ -88,7 +88,7 @@ namespace ae {
 													   unsigned framebufferHeight,
 													   Node& pointOfView,
 													   const DEBUG_OPTIONS& debugOptions,
-													   RenderStats& stats);
+													   FrameStats& stats);
 
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		

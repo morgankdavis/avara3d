@@ -87,18 +87,6 @@ void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sour
 	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
 
-//void PhysicsShape::sourceGeometry(std::weak_ptr<Geometry> geometry) {
-//	_sourceGeometry = geometry;
-//
-//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
-//}
-//
-//void PhysicsShape::sourceNode(std::weak_ptr<Node> node) {
-//	_sourceNode = node;
-//
-//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
-//}
-
 //void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 //
 //	_sourceNode = body->node();
@@ -119,7 +107,7 @@ void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
 }
 
 void PhysicsShape::update(PhysicsSimulator& simulator,
-						  RenderStats& stats) {
+						  FrameStats& stats) {
+
 
 }
-

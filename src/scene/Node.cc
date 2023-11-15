@@ -694,7 +694,7 @@ void Node::attachedToParent(weak_ptr<Node> parent) {
 //}
 
 void Node::update(PhysicsSimulator& simulator,
-				  RenderStats& stats,
+				  FrameStats& stats,
 				  //shared_ptr<Node> parentNode,
 				  map<shared_ptr<Node>, bool>& visited) {
 
@@ -737,7 +737,7 @@ void Node::update(PhysicsSimulator& simulator,
 }
 
 void Node::sync(PhysicsSimulator& simulator,
-				RenderStats& stats,
+				FrameStats& stats,
 				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
 
@@ -763,7 +763,7 @@ void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
-				RenderStats& stats,
+				FrameStats& stats,
 				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
 

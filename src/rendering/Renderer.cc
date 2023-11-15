@@ -41,7 +41,7 @@ bool Renderer::initialize(const RenderContext& context) {
 }
 
 void Renderer::beginFrame(const RenderContext& context) {
-	_renderStats = (RenderStats){};
+	_renderStats = (FrameStats){};
 }
 
 void Renderer::endFrame(const RenderContext& context) {
@@ -50,7 +50,7 @@ void Renderer::endFrame(const RenderContext& context) {
 
 void Renderer::render(Scene& scene,
 					  const DEBUG_OPTIONS& debugOptions,
-					  RenderStats& stats) {
+					  FrameStats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
@@ -60,7 +60,7 @@ void Renderer::render(shared_ptr<Geometry> geometry,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const DEBUG_OPTIONS& debugOptions,
-					  RenderStats& stats) {
+					  FrameStats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
 }
@@ -71,7 +71,7 @@ void Renderer::render(shared_ptr<GeometryElement> element,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const DEBUG_OPTIONS& debugOptions,
-					  RenderStats& stats) {
+					  FrameStats& stats) {
 	
 	AE_LOG_C("Renderer::render(<GeometryElement>) should be overidden in derived class.");
 }
@@ -106,11 +106,11 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	return nullptr;
 }
 
-RenderStats& Renderer::renderStats() {
+FrameStats& Renderer::renderStats() {
 	return _renderStats;
 }
 
-void Renderer::updateFrametimeStats(RenderStats& stats, float time) {
+void Renderer::updateFrametimeStats(FrameStats& stats, float time) {
 
 	static float fpsAvg = 0.0;
 	static float msAvg = 0.0;

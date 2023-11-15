@@ -18,11 +18,7 @@ class btRigidBody;
 
 namespace ae {
 
-
-//	class BulletPhysicsSimulator;
-
-
-	class BulletBodyResources : PhysicsBodyResources {
+	class BulletBodyResources : public PhysicsBodyResources {
 
 /*********************************************************************************************
 	Lifecycle
@@ -40,6 +36,9 @@ namespace ae {
 
 		std::shared_ptr<btRigidBody>&			body();
 		std::shared_ptr<btDefaultMotionState>&	motionState();
+
+		void	update(PhysicsSimulator& simulator,
+					   FrameStats& stats) override;
 
 /*********************************************************************************************
 	 Private

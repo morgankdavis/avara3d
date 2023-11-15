@@ -302,7 +302,7 @@ void RenderContext::update() { // pure virtual
 		(updateCallback())(*this, sceneTime());
 	}
 
-	//_renderStats = (RenderStats){};
+	//_renderStats = (FrameStats){};
 
 	_renderer->beginFrame(*this);
 

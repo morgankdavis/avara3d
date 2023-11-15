@@ -131,10 +131,10 @@ namespace ae {
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
 
 		void								update(PhysicsSimulator& simulator,
-												   RenderStats& stats);
+												   FrameStats& stats);
 		void								sync(PhysicsSimulator& simulator,
 												 Node& node,
-												 RenderStats& stats);
+												 FrameStats& stats);
 
 /*********************************************************************************************
 	Private

@@ -68,7 +68,7 @@ using namespace std;
 static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								Node& pointOfView,
 								const DEBUG_OPTIONS& debugOptions,
-								RenderStats& stats,
+								FrameStats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
@@ -118,7 +118,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, RenderStats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -165,7 +165,7 @@ static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
-static void 		DrawStatsOverlay(RenderStats& stats, float time, Scene& scene);
+static void 		DrawStatsOverlay(FrameStats& stats, float time, Scene& scene);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -346,7 +346,7 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 
 void OpenGLRenderer::render(Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
-							RenderStats& stats) {
+							FrameStats& stats) {
 
 	auto renderContext = scene.renderContext().lock();
 	
@@ -392,7 +392,7 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							RenderStats& stats) {
+							FrameStats& stats) {
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
@@ -421,7 +421,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							RenderStats& stats) {
+							FrameStats& stats) {
 
 	shared_ptr<Program> program = nullptr;
 
@@ -524,7 +524,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
-						 RenderStats& stats,
+						 FrameStats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
@@ -1311,7 +1311,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, RenderStats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats) {
 	
 	// program "Default" must be active
 	
@@ -1898,7 +1898,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	return sortedVector;
 }
 	
-void DrawStatsOverlay(RenderStats& stats, float time, Scene& scene) {
+void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 
 #ifdef GL_FULL
 	

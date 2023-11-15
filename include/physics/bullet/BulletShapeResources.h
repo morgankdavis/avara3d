@@ -21,10 +21,11 @@ class btTriangleIndexVertexArray;
 namespace ae {
 
 
-//	class BulletPhysicsSimulator;
+//	class PhysicsShape;
+//	class PhysicsSimulator;
 
 
-	class BulletShapeResources : PhysicsShapeResources {
+	class BulletShapeResources : public PhysicsShapeResources {
 
 /*********************************************************************************************
 	Lifecycle
@@ -67,6 +68,11 @@ namespace ae {
 //		std::vector<std::shared_ptr<btCollisionShape>>&				childShapes();
 //		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
 //		std::shared_ptr<Geometry>&									hacdGeometry();
+
+		void									get(PhysicsSimulator& simulator,
+													std::shared_ptr<PhysicsShape>* shape,
+													bool& newlyCreated,
+													FrameStats& stats) override;
 
 /*********************************************************************************************
 	 Private

@@ -150,18 +150,18 @@ namespace ae {
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
 		void 									update(PhysicsSimulator& simulator,
-													   RenderStats& stats,
+													   FrameStats& stats,
 													   std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									sync(PhysicsSimulator& simulator,
-													 RenderStats& stats,
+													 FrameStats& stats,
 													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
 													 const DEBUG_OPTIONS& debugOptions,
-													 RenderStats& stats,
+													 FrameStats& stats,
 													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void									_printPreorder(); // testing

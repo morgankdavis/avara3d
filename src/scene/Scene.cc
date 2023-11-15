@@ -213,7 +213,7 @@ void Scene::update(Renderer& renderer,
 				   unsigned framebufferHeight,
 				   Node& pointOfView,
 				   const DEBUG_OPTIONS& debugOptions,
-				   RenderStats& stats) {
+				   FrameStats& stats) {
 
 	renderer.render(*this, debugOptions, stats);
 

@@ -57,20 +57,20 @@ namespace ae {
 
 		virtual void 						render(Scene& scene,
 												   const DEBUG_OPTIONS& debugOptions,
-												   RenderStats& stats);
+												   FrameStats& stats);
 		virtual void 						render(std::shared_ptr<Geometry> geometry,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DEBUG_OPTIONS& debugOptions,
-												   RenderStats& stats);
+												   FrameStats& stats);
 		virtual void 						render(std::shared_ptr<GeometryElement> element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DEBUG_OPTIONS& debugOptions,
-												   RenderStats& stats);
+												   FrameStats& stats);
 		virtual void 						render(std::shared_ptr<LineSet> lines,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
@@ -85,7 +85,7 @@ namespace ae {
 
 		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
 		
-		RenderStats& 						renderStats();
+		FrameStats& 						renderStats();
 
 /**************************************************************************************
 	Internal
@@ -93,7 +93,7 @@ namespace ae {
 
 	protected:
 
-		virtual void						updateFrametimeStats(RenderStats& stats, float time);
+		virtual void						updateFrametimeStats(FrameStats& stats, float time);
 		
 /**************************************************************************************
 	Private
@@ -102,7 +102,7 @@ namespace ae {
 	private:
 
 		float								_frametimeAveragingInterval;
-		RenderStats							_renderStats;
+		FrameStats							_renderStats;
 	};
 }
 

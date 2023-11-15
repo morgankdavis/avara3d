@@ -322,7 +322,7 @@ namespace ae {
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
-	} RenderStats;
+	} FrameStats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {
 		NONE =					0,

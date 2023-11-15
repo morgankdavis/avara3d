@@ -318,7 +318,7 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 }
 
 void PhysicsBody::update(PhysicsSimulator& simulator,
-						 RenderStats& stats) {
+						 FrameStats& stats) {
 
 	// get/create/update the body
 
@@ -339,7 +339,7 @@ void PhysicsBody::update(PhysicsSimulator& simulator,
 
 void PhysicsBody::sync(PhysicsSimulator& simulator,
 					   Node& node,
-					   RenderStats& stats) {
+					   FrameStats& stats) {
 
 }
 

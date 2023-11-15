@@ -44,6 +44,14 @@ BulletShapeResources::~BulletShapeResources() {
 	//_simulator->DestroyShapResources(_shapes);
 }
 
+void BulletShapeResources::get(PhysicsSimulator& simulator,
+
+							   shared_ptr<PhysicsShape>* shape,
+							   bool& newlyCreated,
+							   FrameStats& stats) {
+
+}
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/

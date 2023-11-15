@@ -6,11 +6,19 @@
 #define AVARA_ENGINE_PHYSICSBODYRESOURCES_H
 
 
+#import "Types.h"
+
+
 namespace ae {
+
+
+	class PhysicsSimulator;
+
 
 	class PhysicsBodyResources {
 
-		virtual void _abstract() = delete;
+		virtual void	update(PhysicsSimulator& simulator,
+							   FrameStats& stats) = 0;
 	};
 }
 
