@@ -9,6 +9,10 @@
 #include "physics/PhysicsSimulator.h"
 
 #include "diagnostic/logging/Logger.h"
+#include "scene/Node.h"
+#include "physics/PhysicsBody.h"
+#include "physics/PhysicsShape.h"
+#include "scene/Scene.h"
 
 
 using namespace ae;
@@ -51,6 +55,53 @@ void PhysicsSimulator::beginUpdate(const Scene& scene) {
 void PhysicsSimulator::endUpdate(const Scene& scene) {
 
 }
+
+
+
+
+
+void PhysicsSimulator::update(Scene& scene) {
+
+}
+
+void PhysicsSimulator::sync(Scene& scene,
+							FrameStats& stats) {
+
+}
+
+void PhysicsSimulator::update(PhysicsBody& body) {
+
+}
+
+void PhysicsSimulator::sync(PhysicsBody& body,
+							Node& node,
+							mat4 localTransform,
+							FrameStats& stats) {
+
+	switch (body.type()) {
+		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
+		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
+		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
+	}
+}
+
+void PhysicsSimulator::update(PhysicsShape& shape) {
+
+}
+
+void PhysicsSimulator::sync(PhysicsShape& shape,
+							FrameStats& stats) {
+
+	switch (shape.type()) {
+		case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX): ++stats.boundingBoxShapes; break;
+		case (PHYSICS_SHAPE_TYPE::CONVEX_HULL): ++stats.convexHullShapes; break;
+		case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON): ++stats.concavePolyhedronShapes; break;
+	}
+}
+
+
+
+
 
 void PhysicsSimulator::update(PASS pass,
 							  Scene& scene,

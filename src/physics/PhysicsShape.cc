@@ -98,16 +98,26 @@ void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sour
 //	}
 //}
 
+void  PhysicsShape::update(PhysicsSimulator& simulator,
+						   Node& node,
+						   PhysicsBody& body,
+						   bool& updated,
+						   FrameStats& stats) {
+
+}
+
+void  PhysicsShape::sync(PhysicsSimulator& simulator,
+						 Node& node,
+						 PhysicsBody& body,
+						 mat4& transform,
+						 FrameStats& stats) {
+
+}
+
 PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
 	return _dirtyMask;
 }
 
 void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
 	_dirtyMask = mask;
-}
-
-void PhysicsShape::update(PhysicsSimulator& simulator,
-						  FrameStats& stats) {
-
-
 }

@@ -309,15 +309,8 @@ void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
 	}
 }
 
-PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
-	_dirtyMask = mask;
-}
-
 void PhysicsBody::update(PhysicsSimulator& simulator,
+						 Node& node,
 						 FrameStats& stats) {
 
 	// get/create/update the body
@@ -339,8 +332,17 @@ void PhysicsBody::update(PhysicsSimulator& simulator,
 
 void PhysicsBody::sync(PhysicsSimulator& simulator,
 					   Node& node,
+					   mat4& transform,
 					   FrameStats& stats) {
 
+}
+
+PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
+	return _dirtyMask;
+}
+
+void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
+	_dirtyMask = mask;
 }
 
 /*********************************************************************************************

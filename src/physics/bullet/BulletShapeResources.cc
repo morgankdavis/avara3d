@@ -44,24 +44,25 @@ BulletShapeResources::~BulletShapeResources() {
 	//_simulator->DestroyShapResources(_shapes);
 }
 
-void BulletShapeResources::get(PhysicsSimulator& simulator,
-
-							   shared_ptr<PhysicsShape>* shape,
-							   bool& newlyCreated,
-							   FrameStats& stats) {
-
-}
+//void BulletShapeResources::get(PhysicsSimulator& simulator,
+//
+//
+//							   shared_ptr<PhysicsShape>* shape,
+//							   bool& newlyCreated,
+//							   FrameStats& stats) {
+//
+//}
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
 
-vector <shared_ptr<btCollisionShape>> &BulletShapeResources::shapes() {
+vector <shared_ptr<btCollisionShape>> BulletShapeResources::shapes() {
 	return _shapes;
 }
 
-vector <shared_ptr<btTriangleIndexVertexArray>> &BulletShapeResources::indexVertexArrays() {
+vector <shared_ptr<btTriangleIndexVertexArray>> BulletShapeResources::indexVertexArrays() {
 	return _indexVertexArrays;
 }
 

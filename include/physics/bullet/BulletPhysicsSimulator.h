@@ -91,14 +91,31 @@ namespace ae {
 //								const Scene& scene) override;
 //		void 		endUpdate(PASS pass,
 //							  const Scene& scene) override;
+
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
+
+		void		update(Scene& scene) override;
+		void		sync(Scene& scene,
+						 FrameStats& stats) override;
+
+		void		update(PhysicsBody& body) override;
+		void		sync(PhysicsBody& body,
+						 Node& node,
+						 glm::mat4 localTransform,
+						 FrameStats& stats) override;
+
+		void		update(PhysicsShape& shape) override;
+		void		sync(PhysicsShape& shape,
+						 FrameStats& stats) override;
+
 		void 		update(PASS pass,
 						   Scene& scene,
 						   const DEBUG_OPTIONS& debugOptions) override;
 		void 		update(PASS pass,
 						   std::shared_ptr<Node> node,
 						   const DEBUG_OPTIONS& debugOptions) override;
+
 		void 		step(float time) override;
 		
 /*********************************************************************************************

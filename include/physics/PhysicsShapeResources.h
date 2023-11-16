@@ -12,16 +12,22 @@
 namespace ae {
 
 
-	class PhysicsShape;
-	class PhysicsSimulator;
+//	class PhysicsShape;
+//	class PhysicsSimulator;
 
 
 	class PhysicsShapeResources {
 
-		virtual void				get(PhysicsSimulator& simulator,
-										std::shared_ptr<PhysicsShape>* shape,
-										bool& newlyCreated,
-										FrameStats& stats) = 0;
+		virtual void _abstract() = 0;
+
+//	protected:
+//
+//		virtual ~PhysicsShapeResources() = 0;
+
+//		virtual void				get(PhysicsSimulator& simulator,
+//										std::shared_ptr<PhysicsShape>* shape,
+//										bool& newlyCreated,
+//										FrameStats& stats) = 0;
 	};
 }
 

@@ -126,15 +126,19 @@ namespace ae {
 		
 		void 								attachedToNode(std::shared_ptr<Node> node);
 		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
-		
-		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
+
+		std::shared_ptr<PhysicsBodyResourses>	resources();
 
 		void								update(PhysicsSimulator& simulator,
+												   Node& node,
 												   FrameStats& stats);
 		void								sync(PhysicsSimulator& simulator,
 												 Node& node,
+												 glm::mat4& transform,
 												 FrameStats& stats);
+
+		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
+		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private

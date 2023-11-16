@@ -48,17 +48,27 @@ namespace ae {
 		PHYSICS_SHAPE_TYPE 					type() const;
 		void 								type(PHYSICS_SHAPE_TYPE type);
 
+		void sourceObject(std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject);
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void sourceObject(std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject);
+		std::shared_ptr<PhysicsShapeResourses>	resources();
+
+		void								update(PhysicsSimulator& simulator,
+												   Node& node,
+												   PhysicsBody& body,
+												   bool& updated,
+												   FrameStats& stats);
+		void								sync(PhysicsSimulator& simulator,
+												 Node& node,
+												 PhysicsBody& body,
+												 glm::mat4& transform,
+												 FrameStats& stats);
 
 		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
-
-		void								update(PhysicsSimulator& simulator,
-												   FrameStats& stats);
 
 /*********************************************************************************************
 	Private

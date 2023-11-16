@@ -12,13 +12,19 @@
 namespace ae {
 
 
-	class PhysicsSimulator;
+//	class PhysicsSimulator;
 
 
 	class PhysicsBodyResources {
 
-		virtual void	update(PhysicsSimulator& simulator,
-							   FrameStats& stats) = 0;
+		virtual void _abstract() = 0;
+		
+//	protected:
+//
+//		virtual ~PhysicsBodyResources() = 0;
+
+//		virtual void	update(PhysicsSimulator& simulator,
+//							   FrameStats& stats) = 0;
 	};
 }
 

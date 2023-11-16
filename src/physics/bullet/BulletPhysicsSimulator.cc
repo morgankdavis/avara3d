@@ -236,6 +236,54 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 	PhysicsSimulator::endUpdate(scene);
 }
 
+
+
+
+
+void PhysicsSimulator::update(Scene& scene) {
+	PhysicsSimulator::update(scene);
+}
+
+void PhysicsSimulator::sync(Scene& scene,
+							FrameStats& stats) {
+	PhysicsSimulator::sync(scene, stats);
+}
+
+void PhysicsSimulator::update(PhysicsBody& body) {
+	PhysicsSimulator::update(body);
+
+
+}
+
+void PhysicsSimulator::sync(PhysicsBody& body,
+							Node& node,
+							mat4 localTransform,
+							FrameStats& stats) {
+	PhysicsSimulator::sync(body, node, localTransform, stats);
+
+
+}
+
+void PhysicsSimulator::update(PhysicsShape& shape) {
+	PhysicsSimulator::update(shape);
+
+
+}
+
+void PhysicsSimulator::sync(PhysicsShape& shape,
+							FrameStats& stats) {
+	PhysicsSimulator::sync(shape, stats);
+
+
+}
+
+
+
+
+
+
+
+
 void BulletPhysicsSimulator::update(PASS pass,
 									Scene& scene,
 									const DEBUG_OPTIONS& debugOptions) {
@@ -469,7 +517,7 @@ void GetPhysicsBodyBTModels(shared_ptr<Node> node,
 		// out parameters
 		*btBody = newBody;
 		*btMotionState = newMotionState;
-		bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
+		// REWORK bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
 
 		body->dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body->dirtyMask(),
 													   PHYSICS_BODY_DIRTY_MASK::TYPE));
@@ -819,8 +867,8 @@ void GetPhysicsShapeBTModels(shared_ptr<PhysicsShape> shape,
 			// out parameters
 			*btShape = newShape;
 //			btChildShapes.insert(btChildShapes.end(), btShapes.begin(), btShapes.end());
-			btShapeMapping[shape] = make_shared<BulletShapeResources>(btShapes,
-																	  btIndexVertexArrays);
+			// REWORK btShapeMapping[shape] = make_shared<BulletShapeResources>(btShapes,
+																	  //btIndexVertexArrays);
 			newlyCreated = true;
 
 			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),

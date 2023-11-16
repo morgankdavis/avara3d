@@ -322,6 +322,13 @@ namespace ae {
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
+
+		unsigned	dynamicBodies;
+		unsigned	kinematicBodies;
+		unsigned	staticBodies;
+		unsigned	boundingBoxShapes;
+		unsigned	convexHullShapes;
+		unsigned	concavePolyhedronShapes;
 	} FrameStats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {

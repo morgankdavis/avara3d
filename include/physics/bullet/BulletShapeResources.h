@@ -60,8 +60,8 @@ namespace ae {
 //x		 - if 'shape' type is CONVEX_POLYHEDRON attached to a dynamic body, 'hacdGeometry'
 //x		 will contain the HACD data for the mesh.
 
-		std::vector<std::shared_ptr<btCollisionShape>>&				shapes();
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	indexVertexArrays();
+		std::vector<std::shared_ptr<btCollisionShape>>				shapes();
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	indexVertexArrays();
 
 //		std::shared_ptr<btCollisionShape>&							shape();
 //		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();
@@ -69,10 +69,10 @@ namespace ae {
 //		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	childIndexVertexArrays();
 //		std::shared_ptr<Geometry>&									hacdGeometry();
 
-		void									get(PhysicsSimulator& simulator,
-													std::shared_ptr<PhysicsShape>* shape,
-													bool& newlyCreated,
-													FrameStats& stats) override;
+//		void									get(PhysicsSimulator& simulator,
+//													std::shared_ptr<PhysicsShape>* shape,
+//													bool& newlyCreated,
+//													FrameStats& stats) override;
 
 /*********************************************************************************************
 	 Private

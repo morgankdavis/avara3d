@@ -721,6 +721,7 @@ void Node::update(PhysicsSimulator& simulator,
 
 		if (_physicsBody) {
 			_physicsBody->update(simulator,
+								 *this,
 								 stats);
 		}
 
@@ -738,16 +739,18 @@ void Node::update(PhysicsSimulator& simulator,
 
 void Node::sync(PhysicsSimulator& simulator,
 				FrameStats& stats,
-				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[shared_from_this()]) {
 
 		// apply physics model to visual
 
+		auto tranform = mat4(1.0);
+
 		if (_physicsBody) {
 			_physicsBody->sync(simulator,
 							   *this,
+							   tranform,
 							   stats);
 		}
 
@@ -764,7 +767,6 @@ void Node::draw(Renderer& renderer,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
 				FrameStats& stats,
-				//shared_ptr<Node> parentNode,
 				map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[shared_from_this()]) {

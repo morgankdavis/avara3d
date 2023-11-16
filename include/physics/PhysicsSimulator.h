@@ -21,6 +21,8 @@ namespace ae {
 	
 	
 	class Node;
+	class PhysicsBody;
+	class PhysicsShape;
 	class Scene;
 	
 
@@ -59,12 +61,27 @@ namespace ae {
 		virtual void 			beginUpdate(const Scene& scene);
 		virtual void 			endUpdate(const Scene& scene);
 
+		virtual void			update(Scene& scene);
+		virtual void			sync(Scene& scene,
+									 FrameStats& stats);
+
+		virtual void			update(PhysicsBody& body);
+		virtual void			sync(PhysicsBody& body,
+									 Node& node,
+									 glm::mat4 localTransform,
+									 FrameStats& stats);
+
+		virtual void			update(PhysicsShape& shape);
+		virtual void			sync(PhysicsShape& shape,
+									 FrameStats& stats);
+
 		virtual void 			update(PASS pass,
 									   Scene& scene,
 									   const DEBUG_OPTIONS& debugOptions);
 		virtual void 			update(PASS pass,
 									   std::shared_ptr<Node> node,
 									   const DEBUG_OPTIONS& debugOptions);
+
 		virtual void 			step(float time);
 		
 /*********************************************************************************************

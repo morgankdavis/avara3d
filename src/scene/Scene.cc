@@ -221,20 +221,19 @@ void Scene::update(Renderer& renderer,
 	auto physicsSimulator = renderContext->physicsSimulator();
 	static auto visited = map<shared_ptr<Node>, bool>();
 
-//	if (_physicsWorld) {
-//		physicsSimulator->beginUpdate(*this);
-//
-//		// TODO: move here
+	if (_physicsWorld) {
+		physicsSimulator->beginUpdate(*this);
+
+		// TODO: move here
 //		physicsSimulator->update(PhysicsSimulator::PASS::STEP,
 //								 *this,
 //								 debugOptions);
-//	}
+	}
 
 	visited.clear();
 	_rootNode->update(*physicsSimulator,
 					  stats,
 					  visited);
-
 
 //	if (_physicsWorld) {
 //		physicsSimulator->endUpdate(*this);
@@ -266,12 +265,12 @@ void Scene::update(Renderer& renderer,
 					//_rootNode,
 					visited);
 
-//	if (_physicsWorld) {
-//		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-//		if (bulletSimulator) {
-//			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
-//		}
-//	}
+	if (_physicsWorld) {
+		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+		if (bulletSimulator) {
+			bulletSimulator->drawDebug(renderer, viewMat, projectionMat, debugOptions);
+		}
+	}
 }
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {
