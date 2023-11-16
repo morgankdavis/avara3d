@@ -30,7 +30,9 @@
 #include "geometry/primitives/Sphere.h"
 #include "physics/ConvexDecomposer.h"
 #include "physics/PhysicsBody.h"
+#include "physics/PhysicsBodyResources.h"
 #include "physics/PhysicsShape.h"
+#include "physics/PhysicsShapeResources.h"
 #include "physics/PhysicsWorld.h"
 #include "physics/bullet/BulletBodyResources.h"
 #include "physics/bullet/BulletDebugDrawer.h"
@@ -264,15 +266,156 @@ void BulletPhysicsSimulator::sync(PhysicsBody& body,
 
 }
 
-void BulletPhysicsSimulator::update(PhysicsShape& shape) {
-	PhysicsSimulator::update(shape);
+void BulletPhysicsSimulator::update(PhysicsShape& shape,
+									PHYSICS_BODY_TYPE bodyType,
+									bool& updated) {
+	PhysicsSimulator::update(shape, bodyType, updated);
+
+	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape.dirtyMask(),
+										  PHYSICS_SHAPE_DIRTY_MASK::MODEL)) {
+
+		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
+
+		shared_ptr<btCollisionShape> newShape = nullptr;
 
 
+		auto btShapes = vector<shared_ptr<btCollisionShape>>();
+		auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+
+		auto sourceObject = shape.sourceObject();
+
+		if (std::holds_alternative<weak_ptr<Geometry>>(sourceObject)) {
+			auto sourceGeometryWeak = std::get<weak_ptr<Geometry>>(sourceObject);
+			if (auto sourceGeometry = sourceGeometryWeak.lock()) {
+
+
+
+				// ********* REPLACE WITH BTShapeFromGeometry() ? *********
+
+				if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
+					&& shape.type() == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
+					// HACD
+				}
+				else if (sourceGeometry->elements().size() == 1) {
+					// make a single shape
+
+					auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+					newShape = BTShapeFromGeometryElement(sourceGeometry->elements().front(),
+														  sourceGeometry,
+														  shape.type(),
+														  bodyType,
+														  indexVertexArray);
+					btShapes.push_back(newShape);
+					btIndexVertexArrays.push_back(indexVertexArray);
+
+
+				}
+				else if (sourceGeometry->elements().size() > 1) {
+					// make compound shape, loop BTShapeFromGeometryElement()
+
+					auto compoundShape = make_shared<btCompoundShape>(true);
+
+					for (auto& element : sourceGeometry->elements()) {
+						auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+						auto componentShape = BTShapeFromGeometryElement(sourceGeometry->elements().front(),
+																		 sourceGeometry,
+																		 shape.type(),
+																		 bodyType,
+																		 indexVertexArray);
+
+						// the Geometry's transform is added to the btRigidBody's localInertia
+						compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
+
+						btShapes.push_back(componentShape);
+						btIndexVertexArrays.push_back(indexVertexArray);
+					}
+
+					newShape = dynamic_pointer_cast<btCollisionShape>(compoundShape);
+
+
+				}
+				else {
+					AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
+							 (void*)sourceGeometry.get());
+				}
+
+				// *******************************************************
+
+
+			}
+		}
+
+		else if (std::holds_alternative<weak_ptr<Node>>(sourceObject)) {
+			auto sourceNodeWeak = std::get<weak_ptr<Node>>(sourceObject);
+			if (auto sourceNode = sourceNodeWeak.lock()) {
+
+
+
+				// ********* REPLACE WITH BTShapeFromNode() ? ***********
+
+
+				auto compoundShape = make_shared<btCompoundShape>(true);
+
+				// add the root geometry
+				if (sourceNode->geometry()) {
+
+					auto rootShape = BTShapeFromGeometry(sourceNode->geometry(),
+														 sourceNode,
+														 shape.type(),
+														 bodyType,
+														 btShapes,
+														 btIndexVertexArrays);
+					compoundShape->addChildShape(BTIdentityTransform(), rootShape.get());
+
+				}
+
+				// add child geometries recursively
+				auto children = sourceNode->children(false);
+				for (auto& childNode : children) {
+					AddBTShapeFromNodeRec(sourceNode,
+										  shape.type(),
+										  bodyType,
+										  compoundShape,
+										  btShapes,
+										  btIndexVertexArrays);
+//					compoundShape->addChildShape(BTIdentityTransform(), childShape.get());
+				}
+
+				newShape = dynamic_pointer_cast<btCollisionShape>(compoundShape);
+
+				// *******************************************************
+
+
+			}
+		}
+
+		if (newShape) {
+			// out parameters
+			//*btShape = newShape;
+			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
+			shapeResources->shapes().clear();
+			shapeResources->shapes().push_back(newShape);
+			updated = true;
+
+			shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
+															PHYSICS_SHAPE_DIRTY_MASK::MODEL));
+		}
+		else {
+			//btShape = nullptr;
+			updated = false;
+			AE_LOG_E("PhysicsShape with no geometry or source node.");
+		}
+	}
+	else {
+		//*btShape = resources->shapes().front();
+		updated = false;
+	}
 }
 
 void BulletPhysicsSimulator::sync(PhysicsShape& shape,
-							FrameStats& stats) {
-	PhysicsSimulator::sync(shape, stats);
+								  PHYSICS_BODY_TYPE bodyType,
+								  FrameStats& stats) {
+	PhysicsSimulator::sync(shape, bodyType, stats);
 
 
 }

@@ -85,11 +85,14 @@ void PhysicsSimulator::sync(PhysicsBody& body,
 	}
 }
 
-void PhysicsSimulator::update(PhysicsShape& shape) {
+void PhysicsSimulator::update(PhysicsShape& shape,
+							  PHYSICS_BODY_TYPE bodyType,
+							  bool& updated) {
 
 }
 
 void PhysicsSimulator::sync(PhysicsShape& shape,
+							PHYSICS_BODY_TYPE bodyType,
 							FrameStats& stats) {
 
 	switch (shape.type()) {

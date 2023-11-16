@@ -3,3 +3,10 @@
 //
 
 #include "physics/PhysicsShapeResources.h"
+
+
+using namespace ae;
+
+
+//PhysicsShapeResources::PhysicsShapeResources() {}
+//PhysicsShapeResources::~PhysicsShapeResources() {}

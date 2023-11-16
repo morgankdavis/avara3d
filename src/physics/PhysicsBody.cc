@@ -310,6 +310,10 @@ void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
 	}
 }
 
+shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
+	return _resources;
+}
+
 void PhysicsBody::update(PhysicsSimulator& simulator,
 						 Node& node,
 						 FrameStats& stats) {

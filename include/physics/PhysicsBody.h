@@ -22,7 +22,7 @@ namespace ae {
 
 	class Geometry;
 	class Node;
-	class PhysicsBodyResourses;
+	class PhysicsBodyResources;
 	class PhysicsShape;
 	class PhysicsSimulator;
 	
@@ -127,7 +127,7 @@ namespace ae {
 		void 								attachedToNode(std::shared_ptr<Node> node);
 		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
 
-		std::shared_ptr<PhysicsBodyResourses>	resources();
+		std::shared_ptr<PhysicsBodyResources>	resources();
 
 		void								update(PhysicsSimulator& simulator,
 												   Node& node,
@@ -170,7 +170,7 @@ namespace ae {
 
 		PHYSICS_BODY_DIRTY_MASK 				_dirtyMask;
 
-		std::shared_ptr<PhysicsBodyResourses>	_resources;
+		std::shared_ptr<PhysicsBodyResources>	_resources;
 	};
 }
 

@@ -23,7 +23,7 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicsBody;
-	class PhysicsShapeResourses;
+	class PhysicsShapeResources;
 	class PhysicsSimulator;
 	
 
@@ -54,7 +54,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		std::shared_ptr<PhysicsShapeResourses>	resources();
+		std::shared_ptr<PhysicsShapeResources>	resources();
 
 		void								update(PhysicsSimulator& simulator,
 												   Node& node,
@@ -80,7 +80,7 @@ namespace ae {
 		PHYSICS_SHAPE_TYPE 						_type;
 		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 
-		std::shared_ptr<PhysicsShapeResourses>	_resources;
+		std::shared_ptr<PhysicsShapeResources>	_resources;
 	};
 }
 

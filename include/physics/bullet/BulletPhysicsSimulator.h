@@ -107,8 +107,11 @@ namespace ae {
 						 glm::mat4 localTransform,
 						 FrameStats& stats) override;
 
-		void		update(PhysicsShape& shape) override;
+		void		update(PhysicsShape& shape,
+						   PHYSICS_BODY_TYPE bodyType,
+						   bool& updated) override;
 		void		sync(PhysicsShape& shape,
+						 PHYSICS_BODY_TYPE bodyType,
 						 FrameStats& stats) override;
 
 

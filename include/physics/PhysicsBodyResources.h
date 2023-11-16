@@ -13,6 +13,9 @@ namespace ae {
 
 	class PhysicsBodyResources {
 
+	public:
+
+//		PhysicsBodyResources();
 		virtual void _abstract() = 0;
 	};
 }

@@ -13,6 +13,10 @@ namespace ae {
 
 	class PhysicsShapeResources {
 
+	public:
+
+//		PhysicsShapeResources();
+//		~PhysicsShapeResources();
 		virtual void _abstract() = 0;
 	};
 }

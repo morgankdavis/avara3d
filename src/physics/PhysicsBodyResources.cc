@@ -3,3 +3,9 @@
 //
 
 #include "physics/PhysicsBodyResources.h"
+
+
+using namespace ae;
+
+
+//PhysicsBodyResources::PhysicsBodyResources() {}

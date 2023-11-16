@@ -14,6 +14,7 @@
 #include "geometry/Geometry.h"
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
+#include "physics/PhysicsShapeResources.h"
 #include "physics/PhysicsSimulator.h"
 #include "scene/Node.h"
 
@@ -30,6 +31,7 @@ using namespace std;
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
 		_sourceObject(geometry),
 		_type(type),
+		//_resources(make_shared<PhysicsShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -99,21 +101,28 @@ void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sour
 //	}
 //}
 
-void  PhysicsShape::update(PhysicsSimulator& simulator,
+shared_ptr<PhysicsShapeResources> PhysicsShape::resources() {
+	return _resources;
+}
+
+void PhysicsShape::update(PhysicsSimulator& simulator,
 						   Node& node,
 						   PhysicsBody& body,
 						   bool& updated,
 						   FrameStats& stats) {
 
-	simulator.update(*this);
+	simulator.update(*this,
+					 body.type(),
+					 updated);
 }
 
-void  PhysicsShape::sync(PhysicsSimulator& simulator,
+void PhysicsShape::sync(PhysicsSimulator& simulator,
 						 Node& node,
 						 PhysicsBody& body,
 						 FrameStats& stats) {
 
 	simulator.sync(*this,
+				   body.type(),
 				   stats);
 }
 

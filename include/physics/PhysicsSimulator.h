@@ -71,8 +71,11 @@ namespace ae {
 									 glm::mat4 localTransform,
 									 FrameStats& stats);
 
-		virtual void			update(PhysicsShape& shape);
+		virtual void			update(PhysicsShape& shape,
+									   PHYSICS_BODY_TYPE bodyType,
+									   bool& updated);
 		virtual void			sync(PhysicsShape& shape,
+									 PHYSICS_BODY_TYPE bodyType,
 									 FrameStats& stats);
 
 		virtual void 			update(PASS pass,
