@@ -161,7 +161,7 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 												  _btBroadphase.get(),
 												  _btSolver.get(),
 												  _btCollisionConfiguration.get())),
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	_debugDrawer(make_shared<BulletDebugDrawer>()),
 #endif
 	_bodyBTMapping(PhysicsBodyBTMapping()),
@@ -171,7 +171,7 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 
 		AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		_btWorld.get()->setDebugDrawer(_debugDrawer.get());
 #endif
 }
@@ -194,7 +194,7 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 									   const mat4& viewMat,
 									   const mat4& projectionMat,
 									   const DEBUG_OPTIONS& debugOptions) {
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
 	_debugDrawer->setDebugMode(btDebugModes);
 	_debugDrawer->clear();

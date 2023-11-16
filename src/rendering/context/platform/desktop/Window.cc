@@ -59,7 +59,7 @@ Window::Window(bool fullScreen,
 	_cursorCaptured(false) {
 
 	if (InitializeGLFW()) {
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);

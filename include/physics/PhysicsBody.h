@@ -134,7 +134,7 @@ namespace ae {
 												   FrameStats& stats);
 		void								sync(PhysicsSimulator& simulator,
 												 Node& node,
-												 glm::mat4& transform,
+												 glm::mat4& localTransform,
 												 FrameStats& stats);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;

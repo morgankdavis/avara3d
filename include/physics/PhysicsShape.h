@@ -64,7 +64,6 @@ namespace ae {
 		void								sync(PhysicsSimulator& simulator,
 												 Node& node,
 												 PhysicsBody& body,
-												 glm::mat4& transform,
 												 FrameStats& stats);
 
 		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;

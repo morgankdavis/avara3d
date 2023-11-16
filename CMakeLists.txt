@@ -135,12 +135,12 @@ endif()
 
 if (ANDROID OR RPI)
 	message("Using OpenGL ES.")
-	set(GL_ES TRUE)
-	add_definitions("-DGL_ES")
+	set(OPENGL_ES TRUE)
+	add_definitions("-DOPENGL_ES")
 else ()
 	message("Using full OpenGL.")
-	set(GL_FULL TRUE)
-	add_definitions("-DGL_FULL")
+	set(OPENGL_CORE TRUE)
+	add_definitions("-DOPENGL_CORE")
 endif ()
 
 # libraries (headers...) that the test apps depend on
@@ -226,7 +226,7 @@ else()
 
 endif() # NOT ANDROID
 
-if (GL_FULL)
+if (OPENGL_CORE)
 
 	# imgui
 

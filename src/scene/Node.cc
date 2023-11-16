@@ -728,12 +728,12 @@ void Node::sync(PhysicsSimulator& simulator,
 
 		// apply physics model to visual
 
-		auto tranform = mat4(1.0);
+		auto localTranform = mat4(1.0);
 
 		if (_physicsBody) {
 			_physicsBody->sync(simulator,
 							   *this,
-							   tranform,
+							   localTranform,
 							   stats);
 		}
 

@@ -14,6 +14,7 @@
 #include "geometry/Geometry.h"
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
+#include "physics/PhysicsSimulator.h"
 #include "scene/Node.h"
 
 
@@ -104,14 +105,16 @@ void  PhysicsShape::update(PhysicsSimulator& simulator,
 						   bool& updated,
 						   FrameStats& stats) {
 
+	simulator.update(*this);
 }
 
 void  PhysicsShape::sync(PhysicsSimulator& simulator,
 						 Node& node,
 						 PhysicsBody& body,
-						 mat4& transform,
 						 FrameStats& stats) {
 
+	simulator.sync(*this,
+				   stats);
 }
 
 PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {

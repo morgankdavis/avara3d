@@ -12,6 +12,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsShape.h"
+#include "physics/PhysicsSimulator.h"
 #include "scene/Node.h"
 
 
@@ -313,28 +314,30 @@ void PhysicsBody::update(PhysicsSimulator& simulator,
 						 Node& node,
 						 FrameStats& stats) {
 
-	// get/create/update the body
+	bool shapeUpdated;
+	_shape->update(simulator,
+				   node,
+				   *this,
+				   shapeUpdated,
+				   stats);
 
-	if (_type == PHYSICS_BODY_TYPE::KINEMATIC) {
-
-//		auto toTransform = BTTransformFromGLMMat4(node->worldTransform());
-//		auto motionState = btBody->getMotionState();
-//		motionState->setWorldTransform(toTransform); // and this kinematic...
-//		btBody->setMotionState(motionState);
-//
-//		btBody->setActivationState(ACTIVE_TAG);
-	}
-
-	if (_shape) {
-
-	}
+	simulator.update(*this);
 }
 
 void PhysicsBody::sync(PhysicsSimulator& simulator,
 					   Node& node,
-					   mat4& transform,
+					   mat4& localTransform,
 					   FrameStats& stats) {
 
+	_shape->sync(simulator,
+				   node,
+				   *this,
+				   stats);
+
+	simulator.sync(*this,
+				   node,
+				   localTransform,
+				   stats);
 }
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {

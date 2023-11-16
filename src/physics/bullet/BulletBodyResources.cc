@@ -32,11 +32,11 @@ BulletBodyResources::~BulletBodyResources() {
 	Public
  *********************************************************************************************/
 
-shared_ptr<btRigidBody> BulletBodyResources::body() {
+shared_ptr<btRigidBody>& BulletBodyResources::body() {
 	return _body;
 }
 
-shared_ptr<btDefaultMotionState> BulletBodyResources::motionState() {
+shared_ptr<btDefaultMotionState>& BulletBodyResources::motionState() {
 	return _motionState;
 }
 

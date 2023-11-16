@@ -34,8 +34,8 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<btRigidBody>			body();
-		std::shared_ptr<btDefaultMotionState>	motionState();
+		std::shared_ptr<btRigidBody>&			body();
+		std::shared_ptr<btDefaultMotionState>&	motionState();
 
 //		void	update(PhysicsSimulator& simulator,
 //					   FrameStats& stats) override;

@@ -221,27 +221,34 @@ void Scene::update(Renderer& renderer,
 	auto physicsSimulator = renderContext->physicsSimulator();
 	static auto visited = map<shared_ptr<Node>, bool>();
 
-//	if (_physicsWorld) {
-//		physicsSimulator->beginUpdate(*this);
-//
-//		visited.clear();
-//		_rootNode->update(*physicsSimulator,
-//						  stats,
-//						  visited);
-//
-//		physicsSimulator->step(_renderContext.lock()->sceneTime());
-//
-//		visited.clear();
-//		_rootNode->sync(*physicsSimulator,
-//						stats,
-//						visited);
-//
-//		physicsSimulator->endUpdate(*this);
-//
-//		if (renderContext->didSimulatePhysicsCallback()) {
-//			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
-//		}
-//	}
+	if (physicsSimulator) {
+
+		physicsSimulator->beginUpdate(*this);
+		physicsSimulator->update(*this);
+	}
+
+	visited.clear();
+	_rootNode->update(*physicsSimulator,
+					  stats,
+					  visited);
+
+	if (_physicsWorld) {
+
+		physicsSimulator->step(_renderContext.lock()->sceneTime());
+
+		physicsSimulator->sync(*this, stats);
+
+		visited.clear();
+		_rootNode->sync(*physicsSimulator,
+						stats,
+						visited);
+
+		physicsSimulator->endUpdate(*this);
+
+		if (renderContext->didSimulatePhysicsCallback()) {
+			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		}
+	}
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
@@ -254,15 +261,16 @@ void Scene::update(Renderer& renderer,
 					stats,
 					visited);
 
-//	if (_physicsWorld) {
-//		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-//		if (bulletSimulator) {
-//			bulletSimulator->drawDebug(renderer,
-//									   viewMat,
-//									   projectionMat,
-//									   debugOptions);
-//		}
-//	}
+	if (_physicsWorld) {
+
+		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+		if (bulletSimulator) {
+			bulletSimulator->drawDebug(renderer,
+									   viewMat,
+									   projectionMat,
+									   debugOptions);
+		}
+	}
 }
 
 shared_ptr<Geometry> Scene::skyboxGeometry() const {

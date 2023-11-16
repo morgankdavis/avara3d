@@ -58,11 +58,11 @@ BulletShapeResources::~BulletShapeResources() {
  *********************************************************************************************/
 
 
-vector <shared_ptr<btCollisionShape>> BulletShapeResources::shapes() {
+vector <shared_ptr<btCollisionShape>>& BulletShapeResources::shapes() {
 	return _shapes;
 }
 
-vector <shared_ptr<btTriangleIndexVertexArray>> BulletShapeResources::indexVertexArrays() {
+vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeResources::indexVertexArrays() {
 	return _indexVertexArrays;
 }
 

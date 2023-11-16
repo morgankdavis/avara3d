@@ -56,8 +56,10 @@ void GeometryElement::draw(Renderer& renderer,
 					projectionMat,
 					debugOptions,
 					stats);
-	
+
 	++stats.meshes;
+	static const unsigned polygons = _faces.size();
+	stats.polygons += polygons;
 }
 
 void GeometryElement::burnTransform(const mat4& transform, bool normals) {

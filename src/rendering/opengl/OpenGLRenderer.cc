@@ -14,14 +14,14 @@
 #include <set>
 #include <vector>
 
-#ifdef GL_ES
+#ifdef OPENGL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include "GL/glew.h"
 #endif
 
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 // TODO: why are these using quotation marks?
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -252,7 +252,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -273,7 +273,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	
 	// setup Imgui for stats overlay
 	
@@ -311,7 +311,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		}
 	}
 
-#endif // GL_FULL
+#endif // OPENGL_CORE
 	
 	return true;
 }
@@ -463,7 +463,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// update
 
 	DrawGeometryElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
-	stats.polygons += element->faces().size();
+	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
 	_activeGeometryElements.emplace(element);
@@ -1511,13 +1511,13 @@ static void SetMaterialOpenGLState(const Material& material,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//_program = Program::Wireframe();
 		
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1542,7 +1542,7 @@ static void SetMaterialOpenGLState(const Material& material,
 static void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1552,7 +1552,7 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
@@ -1561,7 +1561,7 @@ static void SetLineSetGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -1900,7 +1900,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 
 	auto renderContext = scene.renderContext().lock();
 
@@ -1981,7 +1981,7 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-#endif // GL_FULL
+#endif // OPENGL_CORE
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
@@ -2021,7 +2021,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
@@ -2078,7 +2078,7 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
 #endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
@@ -2087,7 +2087,7 @@ static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef GL_FULL
+#ifdef OPENGL_CORE
 		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
 #endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;
