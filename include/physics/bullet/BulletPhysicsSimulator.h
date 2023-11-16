@@ -95,6 +95,8 @@ namespace ae {
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
 
+
+
 		void		update(Scene& scene) override;
 		void		sync(Scene& scene,
 						 FrameStats& stats) override;
@@ -108,6 +110,8 @@ namespace ae {
 		void		update(PhysicsShape& shape) override;
 		void		sync(PhysicsShape& shape,
 						 FrameStats& stats) override;
+
+
 
 		void 		update(PASS pass,
 						   Scene& scene,

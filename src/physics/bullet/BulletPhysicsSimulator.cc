@@ -240,22 +240,22 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 
 
 
-void PhysicsSimulator::update(Scene& scene) {
+void BulletPhysicsSimulator::update(Scene& scene) {
 	PhysicsSimulator::update(scene);
 }
 
-void PhysicsSimulator::sync(Scene& scene,
+void BulletPhysicsSimulator::sync(Scene& scene,
 							FrameStats& stats) {
 	PhysicsSimulator::sync(scene, stats);
 }
 
-void PhysicsSimulator::update(PhysicsBody& body) {
+void BulletPhysicsSimulator::update(PhysicsBody& body) {
 	PhysicsSimulator::update(body);
 
 
 }
 
-void PhysicsSimulator::sync(PhysicsBody& body,
+void BulletPhysicsSimulator::sync(PhysicsBody& body,
 							Node& node,
 							mat4 localTransform,
 							FrameStats& stats) {
@@ -264,13 +264,13 @@ void PhysicsSimulator::sync(PhysicsBody& body,
 
 }
 
-void PhysicsSimulator::update(PhysicsShape& shape) {
+void BulletPhysicsSimulator::update(PhysicsShape& shape) {
 	PhysicsSimulator::update(shape);
 
 
 }
 
-void PhysicsSimulator::sync(PhysicsShape& shape,
+void BulletPhysicsSimulator::sync(PhysicsShape& shape,
 							FrameStats& stats) {
 	PhysicsSimulator::sync(shape, stats);
 

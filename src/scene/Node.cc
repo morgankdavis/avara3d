@@ -695,26 +695,9 @@ void Node::attachedToParent(weak_ptr<Node> parent) {
 
 void Node::update(PhysicsSimulator& simulator,
 				  FrameStats& stats,
-				  //shared_ptr<Node> parentNode,
 				  map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[shared_from_this()]) {
-
-		// - world transform dirty? -> update
-
-		//updateWorldTransform(parentWorldTransform);
-		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-			//AE_LOG_I("UPDATING WORLD in update()");
-
-			static const auto mat4Identity = mat4(1.0);
-			auto parentNode = _parent.lock();
-			mat4 parentWorldTransform = (parentNode
-										 ? parentNode->worldTransform()
-										 : mat4Identity);
-
-			_worldTransform = parentWorldTransform * transform();
-			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-		}
 
 		// physics body or physics body dirty?
 		//		create/update
@@ -770,6 +753,22 @@ void Node::draw(Renderer& renderer,
 				map<shared_ptr<Node>, bool>& visited) {
 
 	if (!visited[shared_from_this()]) {
+
+		// - world transform dirty? -> update
+
+		//updateWorldTransform(parentWorldTransform);
+		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
+			//AE_LOG_I("UPDATING WORLD in update()");
+
+			static const auto mat4Identity = mat4(1.0);
+			auto parentNode = _parent.lock();
+			mat4 parentWorldTransform = (parentNode
+										 ? parentNode->worldTransform()
+										 : mat4Identity);
+
+			_worldTransform = parentWorldTransform * transform();
+			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
+		}
 
 		if (_geometry && !_hidden) {
 			_geometry->draw(renderer,
