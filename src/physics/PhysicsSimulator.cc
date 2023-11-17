@@ -69,7 +69,8 @@ void PhysicsSimulator::sync(Scene& scene,
 
 }
 
-void PhysicsSimulator::update(PhysicsBody& body) {
+void PhysicsSimulator::update(PhysicsBody& body,
+							  Node& node) {
 
 }
 

@@ -33,9 +33,9 @@ namespace ae {
 
 	public:
 
-//		BulletShapeResources(shared_ptr<btCollisionShape> shape);
-		BulletShapeResources(std::vector<std::shared_ptr<btCollisionShape>> shapes,
-							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
+		BulletShapeResources();
+//		BulletShapeResources(std::vector<std::shared_ptr<btCollisionShape>> shapes,
+//							 std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
 
 //		BulletShapeResources(std::shared_ptr<btCollisionShape> shape,
 //							 std::shared_ptr<btTriangleIndexVertexArray> indexVertexArray,

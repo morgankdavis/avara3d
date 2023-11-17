@@ -15,13 +15,16 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> shapes,
-										   vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays):
-		_shapes(shapes),
-		_indexVertexArrays(indexVertexArrays) {
+BulletShapeResources::BulletShapeResources():
+		_shapes(vector<shared_ptr<btCollisionShape>>()),
+		_indexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) { }
 
-
-}
+//BulletShapeResources::BulletShapeResources(vector<shared_ptr<btCollisionShape>> shapes,
+//										   vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays):
+//		_shapes(shapes),
+//		_indexVertexArrays(indexVertexArrays) {
+//
+//}
 
 //	BulletShapeResources::BulletShapeResources(shared_ptr <btCollisionShape> shape,
 //											   shared_ptr <btTriangleIndexVertexArray> indexVertexArray,

@@ -43,31 +43,37 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	sourceObject() const;
 
-		PHYSICS_SHAPE_TYPE 					type() const;
-		void 								type(PHYSICS_SHAPE_TYPE type);
 
-		void sourceObject(std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> sourceObject);
+		PHYSICS_SHAPE_TYPE 						type() const;
+		void 									type(PHYSICS_SHAPE_TYPE type);
+
+		std::variant<
+				std::weak_ptr<Geometry>,
+				std::weak_ptr<Node>> 			sourceObject() const;
+
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
+		void 									sourceObject(std::variant<
+															std::weak_ptr<Geometry>,
+															std::weak_ptr<Node>> sourceObject);
+
+		void									update(PhysicsSimulator& simulator,
+													   Node& node,
+													   PhysicsBody& body,
+													   FrameStats& stats);
+		void									sync(PhysicsSimulator& simulator,
+													 Node& node,
+													 PhysicsBody& body,
+													 FrameStats& stats);
+
+		PHYSICS_SHAPE_DIRTY_MASK 				dirtyMask() const;
+		void 									dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
+
 		std::shared_ptr<PhysicsShapeResources>	resources();
-
-		void								update(PhysicsSimulator& simulator,
-												   Node& node,
-												   PhysicsBody& body,
-												   bool& updated,
-												   FrameStats& stats);
-		void								sync(PhysicsSimulator& simulator,
-												 Node& node,
-												 PhysicsBody& body,
-												 FrameStats& stats);
-
-		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -75,12 +81,12 @@ namespace ae {
 
 	private:
 
-		std::variant<std::weak_ptr<Geometry>, std::weak_ptr<Node>> 	_sourceObject;
-
+		std::variant<
+				std::weak_ptr<Geometry>,
+				std::weak_ptr<Node>> 			_sourceObject;
 		PHYSICS_SHAPE_TYPE 						_type;
-		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
-
 		std::shared_ptr<PhysicsShapeResources>	_resources;
+		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 	};
 }
 

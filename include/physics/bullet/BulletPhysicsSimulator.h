@@ -101,7 +101,8 @@ namespace ae {
 		void		sync(Scene& scene,
 						 FrameStats& stats) override;
 
-		void		update(PhysicsBody& body) override;
+		void		update(PhysicsBody& body,
+						   Node& node) override;
 		void		sync(PhysicsBody& body,
 						 Node& node,
 						 glm::mat4 localTransform,

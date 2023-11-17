@@ -221,7 +221,7 @@ void Scene::update(Renderer& renderer,
 	auto physicsSimulator = renderContext->physicsSimulator();
 	static auto visited = map<shared_ptr<Node>, bool>();
 
-	if (physicsSimulator) {
+	if (_physicsWorld) {
 
 		physicsSimulator->beginUpdate(*this);
 		physicsSimulator->update(*this);

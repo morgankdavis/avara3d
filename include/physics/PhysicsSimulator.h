@@ -65,7 +65,8 @@ namespace ae {
 		virtual void			sync(Scene& scene,
 									 FrameStats& stats);
 
-		virtual void			update(PhysicsBody& body);
+		virtual void			update(PhysicsBody& body,
+									   Node& node);
 		virtual void			sync(PhysicsBody& body,
 									 Node& node,
 									 glm::mat4 localTransform,

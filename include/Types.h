@@ -322,10 +322,9 @@ namespace ae {
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
-
+		unsigned	staticBodies;
 		unsigned	dynamicBodies;
 		unsigned	kinematicBodies;
-		unsigned	staticBodies;
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;

@@ -1940,6 +1940,15 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"\n" \
 					"%-14s (%.1f %.1f %.1f)\n" \
 					"\n" \
 					"%-14s %d %s\n",
@@ -1951,6 +1960,16 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 					"meshes", stats.meshes,
 					"polygons", stats.polygons,
 					"lights", stats.lights,
+
+					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+					" static", stats.staticBodies,
+					" dynamic", stats.dynamicBodies,
+					" kinematic", stats.kinematicBodies,
+					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+					" bounding box", stats.boundingBoxShapes,
+					" convex hull", stats.convexHullShapes,
+					" concave polyhedron", stats.concavePolyhedronShapes,
+
 					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
@@ -1958,6 +1977,15 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 		ImGui::Text("%-14s %.1f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
+					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -1973,6 +2001,16 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 					"meshes", stats.meshes,
 					"polygons", stats.polygons,
 					"lights", stats.lights,
+
+					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+					" static", stats.staticBodies,
+					" dynamic", stats.dynamicBodies,
+					" kinematic", stats.kinematicBodies,
+					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+					" bounding box", stats.boundingBoxShapes,
+					" convex hull", stats.convexHullShapes,
+					" concave polyhedron", stats.concavePolyhedronShapes,
+
 					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	}
 

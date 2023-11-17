@@ -16,6 +16,7 @@
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicsShapeResources.h"
 #include "physics/PhysicsSimulator.h"
+#include "physics/bullet/BulletShapeResources.h"
 #include "scene/Node.h"
 
 
@@ -31,7 +32,7 @@ using namespace std;
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
 		_sourceObject(geometry),
 		_type(type),
-		//_resources(make_shared<PhysicsShapeResources>()),
+		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -48,6 +49,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 		_sourceObject(node),
 		_type(type),
+		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
@@ -108,12 +110,20 @@ shared_ptr<PhysicsShapeResources> PhysicsShape::resources() {
 void PhysicsShape::update(PhysicsSimulator& simulator,
 						   Node& node,
 						   PhysicsBody& body,
-						   bool& updated,
 						   FrameStats& stats) {
 
+	bool updated;
 	simulator.update(*this,
 					 body.type(),
 					 updated);
+
+	if (updated) {
+		// when PhysicsBody calls PhysicsSimulator::update() the simulator needs
+		// to know that the underlying model's shape has changed
+		auto dirtyMask = body.dirtyMask();
+		PHYSICS_BODY_DIRTY_MASK_ADD(dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
+		body.dirtyMask(dirtyMask);
+	}
 }
 
 void PhysicsShape::sync(PhysicsSimulator& simulator,

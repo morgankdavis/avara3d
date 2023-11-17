@@ -13,6 +13,7 @@
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicsSimulator.h"
+#include "physics/bullet/BulletBodyResources.h"
 #include "scene/Node.h"
 
 
@@ -61,9 +62,8 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_allowsResting(true),
 		_affectedByGravity(true),
 		_resting(false),
-		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL) {
-
-}
+		_resources(make_shared<BulletBodyResources>()),
+		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL) { }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -318,14 +318,13 @@ void PhysicsBody::update(PhysicsSimulator& simulator,
 						 Node& node,
 						 FrameStats& stats) {
 
-	bool shapeUpdated;
 	_shape->update(simulator,
 				   node,
 				   *this,
-				   shapeUpdated,
 				   stats);
 
-	simulator.update(*this);
+	simulator.update(*this,
+					 node);
 }
 
 void PhysicsBody::sync(PhysicsSimulator& simulator,

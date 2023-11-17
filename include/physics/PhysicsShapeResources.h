@@ -17,7 +17,7 @@ namespace ae {
 
 //		PhysicsShapeResources();
 //		~PhysicsShapeResources();
-		virtual void _abstract() = 0;
+		//virtual void _abstract() = 0;
 	};
 }
 

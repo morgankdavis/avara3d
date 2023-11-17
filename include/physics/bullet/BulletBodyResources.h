@@ -26,16 +26,22 @@ namespace ae {
 
 	public:
 
-		BulletBodyResources(std::shared_ptr<btRigidBody> body,
-							std::shared_ptr<btDefaultMotionState> motionState);
+		BulletBodyResources();
+//		BulletBodyResources(std::shared_ptr<btRigidBody> body,
+//							std::shared_ptr<btDefaultMotionState> motionState);
+//		BulletBodyResources(std::shared_ptr<btRigidBody> body,
+//							std::shared_ptr<btDefaultMotionState> motionState);
 		~BulletBodyResources();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<btRigidBody>&			body();
-		std::shared_ptr<btDefaultMotionState>&	motionState();
+		std::shared_ptr<btRigidBody>			body();
+		void									body(std::shared_ptr<btRigidBody> body);
+
+		std::shared_ptr<btDefaultMotionState>	motionState();
+		void									motionState(std::shared_ptr<btDefaultMotionState> motionState);
 
 //		void	update(PhysicsSimulator& simulator,
 //					   FrameStats& stats) override;
