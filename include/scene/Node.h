@@ -136,9 +136,7 @@ namespace ae {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void	 								unrollWorldTransform(glm::mat4 transform);
-		
+
 		//void 									updateWorldTransform();
 //		void 									updateWorldTransform(glm::mat4& parentWorldTransform);
 		bool 									containsChild(std::shared_ptr<Node> node);
@@ -177,6 +175,8 @@ namespace ae {
 
 	private:
 
+		void	 								unrollWorldTransform(glm::mat4 transform);
+
 		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
 		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
 		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
@@ -207,7 +207,7 @@ namespace ae {
 		glm::quat								_orientation;
 		glm::vec3								_scale;
 //		glm::mat4								_pivot;
-		glm::mat4								_worldTransform;
+//		glm::mat4								_worldTransform;
 		
 		std::shared_ptr<PhysicsBody>			_physicsBody;
 		

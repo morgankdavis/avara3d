@@ -172,7 +172,7 @@ int Example::run(const vector<string>& args) {
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-	
+
 	auto planePhysicsBody = PhysicsBody::StaticBody();
 	planeNode->physicsBody(planePhysicsBody);
 	planePhysicsBody->mass(0);
@@ -189,24 +189,24 @@ int Example::run(const vector<string>& args) {
 
 	// add the palm tree
 
-//	auto palmScene = SceneNamed("palm2/palm2", "obj");
-//	_palmNode = palmScene->rootNode();
-//	_palmNode->name("Palm node");
-//	for (auto n : palmScene->rootNode()->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-//
-//	auto palmPhysicsBody = PhysicsBody::StaticBody();
-//	palmPhysicsBody->mass(0);
-//	palmPhysicsBody->friction(1);
-//	palmPhysicsBody->restitution(0.25);
-//	_palmNode->physicsBody(palmPhysicsBody);
-//
-//	scene->rootNode()->addChild(palmScene->rootNode());
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	_palmNode = palmScene->rootNode();
+	_palmNode->name("Palm node");
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
 
 
 	// add the duck
@@ -246,23 +246,23 @@ int Example::run(const vector<string>& args) {
 
 	// add the paddle
 
-//	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
-//	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
-//	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-//	_paddleNode->geometry()->addMaterial(paddleMaterial);
-//	_paddleNode->position({15 - .25, 2.5, 0});
-//	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
-////	paddlePhysicsBody->friction(100);
-//	paddlePhysicsBody->restitution(0.25);
-//	_paddleNode->physicsBody(paddlePhysicsBody);
-//	scene->rootNode()->addChild(_paddleNode);
-//
-//
-//	// add cardboard boxes
-//	AddCardboardBoxes(*scene);
-//
-//	// add slurms
-//	AddSlurms(*scene);
+	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
+	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
+	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
+	_paddleNode->geometry()->addMaterial(paddleMaterial);
+	_paddleNode->position({15 - .25, 2.5, 0});
+	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+//	paddlePhysicsBody->friction(100);
+	paddlePhysicsBody->restitution(0.25);
+	_paddleNode->physicsBody(paddlePhysicsBody);
+	scene->rootNode()->addChild(_paddleNode);
+
+
+	// add cardboard boxes
+	AddCardboardBoxes(*scene);
+
+	// add slurms
+	AddSlurms(*scene);
 
 
 
@@ -708,9 +708,9 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 		// *** without this a compound body would be maade including 'sphereGeometry' below
 		// this way we are telling AE to make the physics body based solely on this particular geometry
-		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
-											   node->children(false).front()->geometry());
-		physicsBody->shape(shape);
+//		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
+//											   node->children(false).front()->geometry());
+//		physicsBody->shape(shape);
 		///////////////////
 
 
@@ -728,11 +728,11 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 
 		// add a visual-only child
-		auto sphereGeometry = make_shared<Sphere>(.5f, 16);
-		//auto sphereNode =
-		auto sphereNode = Node::GeometryNode(sphereGeometry);
-		sphereNode->position({1, 0, 0});
-		node->addChild(sphereNode);
+//		auto sphereGeometry = make_shared<Sphere>(.5f, 16);
+//		//auto sphereNode =
+//		auto sphereNode = Node::GeometryNode(sphereGeometry);
+//		sphereNode->position({1, 0, 0});
+//		node->addChild(sphereNode);
 
 
 		
@@ -783,8 +783,9 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 		canNode->geometry()->addMaterial(m);
 	}
 
-	auto node = make_shared<Node>("Slurm");
-	node->addChild(canNode);
+	//auto node = make_shared<Node>("Slurm");
+	//node->addChild(canNode);
+	auto node = canNode;
 
 	node->position(location);
 	node->rotation(axis, angle);
@@ -800,52 +801,120 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
-	
+
 	float time = scene.renderContext().lock()->sceneTime();
 	static float lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
-		static shared_ptr<Color> colors[] = {
-			Color::White(),
-			Color::Red(),
-			Color::Orange(),
-			Color::Yellow(),
-			Color::Lime(),
-			Color::Blue()
-		};
-		auto color = colors[Uniform(0, 5)];
-		
-		
-		constexpr float BALL_RADIUS = 0.55;
-		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-		auto node = Node::GeometryNode(sphereGrometry);
-		auto diffuseProperty = make_shared<MaterialProperty>(color);
-		auto specularProperty = make_shared<MaterialProperty>(Color::White());
-		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-		material->specularExponent(125.0);
-		node->geometry()->addMaterial(material);
-		node->position(location);
-		
-		
-//		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
+//		static shared_ptr<Color> colors[] = {
+//				Color::White(),
+//				Color::Red(),
+//				Color::Orange(),
+//				Color::Yellow(),
+//				Color::Lime(),
+//				Color::Blue()
+//		};
+//		auto color = colors[Uniform(0, 5)];
+//
+//
+//		constexpr float BALL_RADIUS = 0.55;
+//		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+//		auto node = Node::GeometryNode(sphereGrometry);
+//		auto diffuseProperty = make_shared<MaterialProperty>(color);
+//		auto specularProperty = make_shared<MaterialProperty>(Color::White());
+//		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+//		material->specularExponent(125.0);
+//		node->geometry()->addMaterial(material);
 //		node->position(location);
-		
-		
+//
+//
+////		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
+////		node->position(location);
+//
+//
+//		auto physicsBody = PhysicsBody::DynamicBody();
+//		physicsBody->mass(0.2); // vollyball
+//		physicsBody->restitution(1.0);
+//		physicsBody->friction(0.015);
+//		physicsBody->rollingFriction(0.15);
+////		physicsBody->friction(0);
+////		physicsBody->rollingFriction(0);
+//
+
+
+
+
+
+
+
+		static auto fileScene = SceneNamed("slurm/slurm", "obj");
+		static auto fileNode = fileScene->rootNode();
+		static auto fileCanNode = fileNode->child("g slurm", false);
+		static auto fileMaterials = fileCanNode->geometry()->materials();
+
+		auto canNode = Node::GeometryNode(fileCanNode->geometry());
+		for (auto& m : fileMaterials) {
+			canNode->geometry()->addMaterial(m);
+		}
+
+		//auto node = make_shared<Node>("Slurm");
+		//node->addChild(canNode);
+		auto node = canNode;
+
+		node->position(location);
 		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->mass(0.2); // vollyball
+		physicsBody->mass(.354); // 12fl oz water 70F
+//	physicsBody->friction(5);
+///
 		physicsBody->restitution(1.0);
 		physicsBody->friction(0.015);
 		physicsBody->rollingFriction(0.15);
-//		physicsBody->friction(0);
-//		physicsBody->rollingFriction(0);
-		
+		///
+		//node->physicsBody(physicsBody);
+
+
+
+
+
+
+
+		// add random factor
+
+		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
+		float heading = Uniform(0.0f, 2*PI);
+		float pitch = Uniform(0.0f, 2*PI);
+		float roll = Uniform(0.0f, 2*PI);
+
+		node->eulerAngles({heading, pitch, roll});
+
+//		float linearVelocityX = Uniform(-2.0f, 2.0f);
+//		float linearVelocityY = Uniform(5.0f, 12.0f);
+//		float linearVelocityZ = Uniform(-2.0f, 2.0f);
+//
+//		physicsBody->linearVelocity({linearVelocityX, linearVelocityY, linearVelocityZ});
+
+		constexpr float ANGULAR_VARIANCE = 270.0; // deg/sec
+		float angularVelocityX = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
+		float angularVelocityY = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
+		float angularVelocityZ = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
+
+		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
+
+		node->physicsBody(physicsBody);
+		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+
+		scene.rootNode()->addChild(node);
+
+
+
+
 		constexpr float BALL_VELOCITY = 45.0;
-		constexpr float DIRECTION_VARIATION = 0.035f;
+		constexpr float DIRECTION_VARIATION = 0.025f;
 		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
 		physicsBody->linearVelocity(normalize(variedDirection) * BALL_VELOCITY);
-		
+
 //		physicsBody->linearVelocity(normalize(direction) * BALL_VELOCITY);
 
 //		constexpr float velocityVariation = 0.05f;
@@ -856,18 +925,90 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
 //										  Uniform(-angularVelocityVariation, angularVelocityVariation),
 //										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
-		
+
 		node->physicsBody(physicsBody);
-		
-		scene.rootNode()->addChild(node);
-		
+
+//		scene.rootNode()->addChild(node);
+
 		lastShootTime = time;
-		
+
 		return node;
 	}
-	
+
 	return nullptr;
 }
+
+//shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
+//
+//	constexpr float SHOOT_RATE = 20; // balls/sec
+//
+//	float time = scene.renderContext().lock()->sceneTime();
+//	static float lastShootTime = 0;
+//	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
+//
+//		static shared_ptr<Color> colors[] = {
+//			Color::White(),
+//			Color::Red(),
+//			Color::Orange(),
+//			Color::Yellow(),
+//			Color::Lime(),
+//			Color::Blue()
+//		};
+//		auto color = colors[Uniform(0, 5)];
+//
+//
+//		constexpr float BALL_RADIUS = 0.55;
+//		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+//		auto node = Node::GeometryNode(sphereGrometry);
+//		auto diffuseProperty = make_shared<MaterialProperty>(color);
+//		auto specularProperty = make_shared<MaterialProperty>(Color::White());
+//		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+//		material->specularExponent(125.0);
+//		node->geometry()->addMaterial(material);
+//		node->position(location);
+//
+//
+////		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
+////		node->position(location);
+//
+//
+//		auto physicsBody = PhysicsBody::DynamicBody();
+//		physicsBody->mass(0.2); // vollyball
+//		physicsBody->restitution(1.0);
+//		physicsBody->friction(0.015);
+//		physicsBody->rollingFriction(0.15);
+////		physicsBody->friction(0);
+////		physicsBody->rollingFriction(0);
+//
+//		constexpr float BALL_VELOCITY = 45.0;
+//		constexpr float DIRECTION_VARIATION = 0.035f;
+//		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
+//												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
+//												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
+//		physicsBody->linearVelocity(normalize(variedDirection) * BALL_VELOCITY);
+//
+////		physicsBody->linearVelocity(normalize(direction) * BALL_VELOCITY);
+//
+////		constexpr float velocityVariation = 0.05f;
+////		physicsBody->linearVelocity(direction + vec3(Uniform(-velocityVariation, velocityVariation),
+////													 Uniform(-velocityVariation, velocityVariation),
+////													 Uniform(-velocityVariation, velocityVariation)));
+////		constexpr float angularVelocityVariation = radians(15.0f); // deg/sec
+////		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
+////										  Uniform(-angularVelocityVariation, angularVelocityVariation),
+////										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
+//
+//		node->physicsBody(physicsBody);
+//
+//		scene.rootNode()->addChild(node);
+//
+//		lastShootTime = time;
+//
+//		return node;
+//	}
+//
+//	return nullptr;
+//}
 
 shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	
@@ -881,6 +1022,10 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 	physicsBody->mass(1.0);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
+
+	auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX,
+												  node->geometry());
+	physicsBody->shape(physicsShape);
 	
 	node->physicsBody(physicsBody);
 	
@@ -960,9 +1105,10 @@ void AddBoxes(Scene& scene) {
 	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				auto color = colors[colorIndex + 4];
-				++colorIndex;
-				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+//				auto color = colors[colorIndex + 4];
+//				++colorIndex;
+//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
+				auto color = colors[Uniform(0, colors.size()-1)];
 				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
 					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
 					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET};

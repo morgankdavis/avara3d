@@ -24,9 +24,11 @@
 #include "physics/PhysicsShape.h"
 #include "rendering/Light.h"
 #include "rendering/camera/Camera.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace std;
 using namespace glm;
 
@@ -74,7 +76,7 @@ Node::Node():
 		_position({0.0f, 0.0f, 0.0f}),
 		_orientation(quat()),
 		_scale({1.0f, 1.0f, 1.0f}),
-		_worldTransform(mat4(1.0f)),
+		//_worldTransform(mat4(1.0f)),
 		_physicsBody(nullptr),
 		_parent({}),
 //	_scene({}),
@@ -399,8 +401,20 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() {
-	auto world = worldTransform();	
-	return vec3(world[3][0], world[3][1], world[3][2]);
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+
+	decompose(worldTransform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+
+	return translation;
 }
 
 vec4 Node::worldRotation() {
@@ -414,15 +428,13 @@ vec3 Node::worldEulerAngles() {
 }
 
 quat Node::worldOrientation() {
-	auto world = worldTransform();
-	
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
 	vec3 skew;
 	vec4 perspective;
 	
-	decompose(world,
+	decompose(worldTransform(),
 			  scale,
 			  orientation,
 			  translation,
@@ -510,7 +522,7 @@ vec3 Node::worldRight() {
 
 mat4 Node::worldTransform() {
 
-	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
+//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 
 		//AE_LOG_I("DIRTY UPDATING WORLD");
 
@@ -523,13 +535,13 @@ mat4 Node::worldTransform() {
 			shared_ptr<Node> node = *iter;
 			t = t * node->transform();
 		}
-		
-		_worldTransform = t * transform();
 
-		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-	}
-	
-	return _worldTransform;
+		//_worldTransform = t * transform();
+
+//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
+//	}
+
+	return t * transform();
 }
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
@@ -728,13 +740,15 @@ void Node::sync(PhysicsSimulator& simulator,
 
 		// apply physics model to visual
 
-		auto localTranform = mat4(1.0);
+		auto worldTransform = mat4(1.0);
 
 		if (_physicsBody) {
 			_physicsBody->sync(simulator,
 							   *this,
-							   localTranform,
+							   worldTransform,
 							   stats);
+
+			unrollWorldTransform(worldTransform);
 		}
 
 		for (auto& child : _children) {
@@ -757,22 +771,32 @@ void Node::draw(Renderer& renderer,
 		// - world transform dirty? -> update
 
 		//updateWorldTransform(parentWorldTransform);
-		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-			//AE_LOG_I("UPDATING WORLD in update()");
+//		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
+//			//AE_LOG_I("UPDATING WORLD in update()");
+//
+//			static const auto mat4Identity = mat4(1.0);
+//			auto parentNode = _parent.lock();
+//			mat4 parentWorldTransform = (parentNode
+//										 ? parentNode->worldTransform()
+//										 : mat4Identity);
+//
+//			_worldTransform = parentWorldTransform * transform();
+//			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
+//		}
 
-			static const auto mat4Identity = mat4(1.0);
-			auto parentNode = _parent.lock();
-			mat4 parentWorldTransform = (parentNode
-										 ? parentNode->worldTransform()
-										 : mat4Identity);
-
-			_worldTransform = parentWorldTransform * transform();
-			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-		}
+//		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
+//			if (auto p = parent().lock()) {
+//				_worldTransform = p->worldTransform() * transform();
+//			}
+//
+//			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
+//		}
 
 		if (_geometry && !_hidden) {
+
 			_geometry->draw(renderer,
-							_worldTransform,
+							//_worldTransform, // duck moves, dynamic bodies don't
+							worldTransform(), // duck still, simple dynamics work
 							viewMat,
 							projectionMat,
 							debugOptions,

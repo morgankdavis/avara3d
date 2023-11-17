@@ -101,7 +101,7 @@ namespace ae {
 						   Node& node) override;
 		void		sync(PhysicsBody& body,
 						 Node& node,
-						 glm::mat4 localTransform,
+						 glm::mat4& worldTransform,
 						 FrameStats& stats) override;
 
 		void		update(PhysicsShape& shape,

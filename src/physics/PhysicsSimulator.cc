@@ -76,7 +76,7 @@ void PhysicsSimulator::update(PhysicsBody& body,
 
 void PhysicsSimulator::sync(PhysicsBody& body,
 							Node& node,
-							mat4 localTransform,
+							mat4& worldTransform,
 							FrameStats& stats) {
 
 	switch (body.type()) {

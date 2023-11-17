@@ -289,7 +289,7 @@ AABB Scene::aabb() const {
 				  {minFloat, minFloat, minFloat} };
 
 	for (const auto node : _rootNode->children(true)) {
-		if (node->geometry() && !node->light()) {
+		if (node->geometry()) {
 			auto geoAABB = node->geometry()->aabb(node);
 			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
 			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);

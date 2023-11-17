@@ -326,7 +326,7 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 
 		//auto collisionShape = dynamic_pointer_cast<btCollisionShape>(*btShape);
 
-		btVector3 localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
+		auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
 
 		auto mass = body.mass();
 
@@ -532,10 +532,10 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 }
 
 void BulletPhysicsSimulator::sync(PhysicsBody& body,
-							Node& node,
-							mat4 localTransform,
-							FrameStats& stats) {
-	PhysicsSimulator::sync(body, node, localTransform, stats);
+								  Node& node,
+								  mat4& worldTransform,
+								  FrameStats& stats) {
+	PhysicsSimulator::sync(body, node, worldTransform, stats);
 
 	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
 	auto btBody = bodyResources->body();
@@ -547,14 +547,7 @@ void BulletPhysicsSimulator::sync(PhysicsBody& body,
 	//btMotionState->getWorldTransform(btWorldTransform); // crash?
 	btBody->getMotionState()->getWorldTransform(btWorldTransform);
 
-	auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
-	node.unrollWorldTransform(worldMat);
-	if (node.name() != nullopt
-		&& *node.name() != "Ground plane node"
-		&& *node.name() != "g duck") {
-		AE_LOG_I("Unrolling world transform for '{}':\n{}",
-				 *node.name(), utils::StringFromGLMMat4(node.worldTransform()));
-	}
+	worldTransform = GLMMat4FromBTTransform(btWorldTransform);
 }
 
 void BulletPhysicsSimulator::update(PhysicsShape& shape,
@@ -644,13 +637,12 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 														 btShapes,
 														 btIndexVertexArrays);
 					compoundShape->addChildShape(BTIdentityTransform(), rootShape.get());
-
 				}
 
 				// add child geometries recursively
 				auto children = sourceNode->children(false);
 				for (auto& childNode : children) {
-					AddBTShapeFromNodeRec(sourceNode,
+					AddBTShapeFromNodeRec(childNode,
 										  shape.type(),
 										  bodyType,
 										  compoundShape,
@@ -1437,26 +1429,23 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 	if (geometry) {
 		for (auto& element : node->geometry()->elements()) {
 			auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-			auto componentShape = BTShapeFromGeometryElement(geometry->elements().front(),
+			auto componentShape = BTShapeFromGeometryElement(element,
 															 geometry,
 															 shapeType,
 															 bodyType,
 															 indexVertexArray);
 
-			auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
-			/* MKD bt_tree_rework */ //compoundShape->addChildShape(localTransform, childShape.get());
-			compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
+			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
+			//compoundShape->addChildShape(localTransform, componentShape.get());
+			//compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
+			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
+			auto localTransform = BTTransformFromGLMMat4(node->transform());
+			compoundShape->addChildShape(localTransform, componentShape.get());
 
 			btShapes.push_back(componentShape);
 			btIndexVertexArrays.push_back(indexVertexArray);
 		}
 	}
-
-	//newShape = dynamic_pointer_cast<btCollisionShape>(compoundShape);
-
-//	auto shape = BTShapeFromGeometryElement()
-
-
 
 	// add child geometries recursively
 	auto children = node->children(false);

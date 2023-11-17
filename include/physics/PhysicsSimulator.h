@@ -69,7 +69,7 @@ namespace ae {
 									   Node& node);
 		virtual void			sync(PhysicsBody& body,
 									 Node& node,
-									 glm::mat4 localTransform,
+									 glm::mat4& worldTransform,
 									 FrameStats& stats);
 
 		virtual void			update(PhysicsShape& shape,
