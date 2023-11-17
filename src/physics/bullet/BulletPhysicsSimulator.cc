@@ -659,27 +659,14 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 
 		if (newShape) {
 			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
-//			BulletShapeResources* res = shapeResources.get();
-//			res->shapes(btShapes);
 			shapeResources->shapes(btShapes);
-//			shapeResources->shapes().clear();
-//			shapeResources->shapes().insert(shapeResources->shapes().end(),
-//											btShapes.begin(),
-//											btShapes.end());
-//			res->indexVertexArrays(btIndexVertexArrays);
 			shapeResources->indexVertexArrays(btIndexVertexArrays);
-//			shapeResources->indexVertexArrays().clear();
-//			shapeResources->indexVertexArrays().insert(shapeResources->indexVertexArrays().end(),
-//													   btIndexVertexArrays.begin(),
-//													   btIndexVertexArrays.end());
 			updated = true;
 
 			shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
 															PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 		}
 		else {
-//			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
-//			shapeResources->shapes().clear();
 			updated = false;
 			AE_LOG_E("PhysicsShape with no geometry or source node.");
 		}
