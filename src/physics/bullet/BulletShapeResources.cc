@@ -65,8 +65,16 @@ vector <shared_ptr<btCollisionShape>>& BulletShapeResources::shapes() {
 	return _shapes;
 }
 
+void BulletShapeResources::shapes(vector<shared_ptr<btCollisionShape>> shapes) {
+	_shapes = shapes;
+}
+
 vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeResources::indexVertexArrays() {
 	return _indexVertexArrays;
+}
+
+void BulletShapeResources::indexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
+	_indexVertexArrays = indexVertexArrays;
 }
 
 //	shared_ptr <btCollisionShape> &BulletShapeResources::shape() {

@@ -170,8 +170,8 @@ void Geometry::draw(Renderer& renderer,
 
 AABB Geometry::aabb(const shared_ptr<Node> convertToNode) const {
 
-	const float maxFloat = numeric_limits<float>::max();
-	const float minFloat = numeric_limits<float>::min();
+	static const float maxFloat = numeric_limits<float>::max();
+	static const float minFloat = numeric_limits<float>::min();
 
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };

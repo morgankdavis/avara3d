@@ -62,7 +62,10 @@ namespace ae {
 //x		 will contain the HACD data for the mesh.
 
 		std::vector<std::shared_ptr<btCollisionShape>>&				shapes();
+		void shapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
+
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	indexVertexArrays();
+		void indexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
 
 //		std::shared_ptr<btCollisionShape>&							shape();
 //		std::shared_ptr<btTriangleIndexVertexArray>&				indexVertexArray();

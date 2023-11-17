@@ -53,6 +53,8 @@ namespace ae {
 		
 		Node();
 		Node(const std::string& name);
+//		Node(const Node& other) = delete; // copy constructor
+//		Node& operator=(const Node& other) = delete; // copy assignment
 		~Node();
 
 /*********************************************************************************************

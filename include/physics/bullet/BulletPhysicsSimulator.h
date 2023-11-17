@@ -68,10 +68,8 @@ namespace ae {
  *********************************************************************************************/
 		
 		BulletPhysicsSimulator();
-		
 		BulletPhysicsSimulator(const BulletPhysicsSimulator& other) = delete; // copy constructor
 		BulletPhysicsSimulator& operator=(const BulletPhysicsSimulator& other) = delete; // copy assignment
-		
 		virtual ~BulletPhysicsSimulator();
 		
 /*********************************************************************************************
@@ -95,8 +93,6 @@ namespace ae {
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
 
-
-
 		void		update(Scene& scene) override;
 		void		sync(Scene& scene,
 						 FrameStats& stats) override;
@@ -115,14 +111,12 @@ namespace ae {
 						 PHYSICS_BODY_TYPE bodyType,
 						 FrameStats& stats) override;
 
-
-
-		void 		update(PASS pass,
-						   Scene& scene,
-						   const DEBUG_OPTIONS& debugOptions) override;
-		void 		update(PASS pass,
-						   std::shared_ptr<Node> node,
-						   const DEBUG_OPTIONS& debugOptions) override;
+//		void 		update(PASS pass,
+//						   Scene& scene,
+//						   const DEBUG_OPTIONS& debugOptions) override;
+//		void 		update(PASS pass,
+//						   std::shared_ptr<Node> node,
+//						   const DEBUG_OPTIONS& debugOptions) override;
 
 		void 		step(float time) override;
 		
@@ -143,7 +137,7 @@ namespace ae {
 		
 		PhysicsBodyBTMapping									_bodyBTMapping;
 		PhysicsShapeBTMapping									_shapeBTMapping;
-		
+
 		std::unordered_set<std::shared_ptr<PhysicsBody>>	_activeBodies;
 		std::unordered_set<std::shared_ptr<PhysicsShape>>	_activeShapes;
 	};

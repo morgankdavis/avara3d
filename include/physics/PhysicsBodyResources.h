@@ -16,7 +16,6 @@ namespace ae {
 	public:
 
 //		PhysicsBodyResources();
-		//virtual void _abstract() = 0;
 	};
 }
 

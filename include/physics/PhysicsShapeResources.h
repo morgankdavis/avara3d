@@ -17,10 +17,8 @@ namespace ae {
 
 //		PhysicsShapeResources();
 //		~PhysicsShapeResources();
-		//virtual void _abstract() = 0;
 	};
 }
 
 
 #endif //AVARA_ENGINE_PHYSICSSHAPERESOURCES_H
-

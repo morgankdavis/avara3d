@@ -78,14 +78,14 @@ namespace ae {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
+		std::shared_ptr<PhysicsShapeResources>	_resources;
 	private:
 
 		std::variant<
 				std::weak_ptr<Geometry>,
 				std::weak_ptr<Node>> 			_sourceObject;
 		PHYSICS_SHAPE_TYPE 						_type;
-		std::shared_ptr<PhysicsShapeResources>	_resources;
+
 		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 	};
 }

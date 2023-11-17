@@ -238,10 +238,6 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 	PhysicsSimulator::endUpdate(scene);
 }
 
-
-
-
-
 void BulletPhysicsSimulator::update(Scene& scene) {
 	PhysicsSimulator::update(scene);
 
@@ -272,7 +268,6 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 									Node& node) {
 	PhysicsSimulator::update(body, node);
 
-	//auto type = body.type();
 	auto shape = body.shape();
 	auto dirtyMask = body.dirtyMask();
 
@@ -369,10 +364,7 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 
 		_btWorld->addRigidBody(newBody.get());
 
-		// out parameters
 		btBody = newBody;
-//		*btMotionState = newMotionState;
-		// REWORK bodyBTMapping[body] = make_shared<BulletBodyResources>(newBody, newMotionState);
 		bodyResources->body(btBody);
 		bodyResources->motionState(newMotionState);
 
@@ -390,9 +382,6 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 													  PHYSICS_BODY_DIRTY_MASK::RESTITUTION));
 	}
 	else {
-//		auto resources = bodyBTMapping[body];
-//		*btBody = resources->body();
-//		*btMotionState = resources->motionState();
 		btBody = bodyResources->body();
 	}
 
@@ -527,16 +516,19 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 
 
 
-// if dynamic or kinematic, put their scene graph transforms into bullet model
+// if kinematic, apply visual transform to bullet model
 
-	auto toTransform = BTTransformFromGLMMat4(node.worldTransform());
-//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-	auto motionState = btBody->getMotionState();
-	motionState->setWorldTransform(toTransform); // and this kinematic...
-	btBody->setMotionState(motionState);
+	if (body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
 
-	btBody->setActivationState(ACTIVE_TAG);
-//	btBody->forceActivationState(ACTIVE_TAG);
+		auto toTransform = BTTransformFromGLMMat4(node.worldTransform());
+		//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+		auto motionState = btBody->getMotionState();
+		motionState->setWorldTransform(toTransform); // and this kinematic...
+		btBody->setMotionState(motionState);
+
+		btBody->setActivationState(ACTIVE_TAG);
+		//	btBody->forceActivationState(ACTIVE_TAG);
+	}
 }
 
 void BulletPhysicsSimulator::sync(PhysicsBody& body,
@@ -557,6 +549,12 @@ void BulletPhysicsSimulator::sync(PhysicsBody& body,
 
 	auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
 	node.unrollWorldTransform(worldMat);
+	if (node.name() != nullopt
+		&& *node.name() != "Ground plane node"
+		&& *node.name() != "g duck") {
+		AE_LOG_I("Unrolling world transform for '{}':\n{}",
+				 *node.name(), utils::StringFromGLMMat4(node.worldTransform()));
+	}
 }
 
 void BulletPhysicsSimulator::update(PhysicsShape& shape,
@@ -668,28 +666,33 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 		}
 
 		if (newShape) {
-			// out parameters
-			//*btShape = newShape;
 			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
-			shapeResources->shapes().clear();
-			shapeResources->shapes().insert(shapeResources->shapes().end(),
-											btShapes.begin(),
-											btShapes.end());
+//			BulletShapeResources* res = shapeResources.get();
+//			res->shapes(btShapes);
+			shapeResources->shapes(btShapes);
+//			shapeResources->shapes().clear();
+//			shapeResources->shapes().insert(shapeResources->shapes().end(),
+//											btShapes.begin(),
+//											btShapes.end());
+//			res->indexVertexArrays(btIndexVertexArrays);
+			shapeResources->indexVertexArrays(btIndexVertexArrays);
+//			shapeResources->indexVertexArrays().clear();
+//			shapeResources->indexVertexArrays().insert(shapeResources->indexVertexArrays().end(),
+//													   btIndexVertexArrays.begin(),
+//													   btIndexVertexArrays.end());
 			updated = true;
 
 			shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
 															PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 		}
 		else {
-			//btShape = nullptr;
-			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
-			shapeResources->shapes().clear();
+//			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
+//			shapeResources->shapes().clear();
 			updated = false;
 			AE_LOG_E("PhysicsShape with no geometry or source node.");
 		}
 	}
 	else {
-		//*btShape = resources->shapes().front();
 		updated = false;
 	}
 }
@@ -699,115 +702,107 @@ void BulletPhysicsSimulator::sync(PhysicsShape& shape,
 								  FrameStats& stats) {
 	PhysicsSimulator::sync(shape, bodyType, stats);
 
-
 }
 
-
-
-
-
-
-
-
-void BulletPhysicsSimulator::update(PASS pass,
-									Scene& scene,
-									const DEBUG_OPTIONS& debugOptions) {
-
-	if (pass == BulletPhysicsSimulator::PASS::STEP) {
-		auto world = scene.physicsWorld();
-
-		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
-			_timestep = world->timestep();
-
-			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
-															 PHYSICS_WORLD_DIRTY_MASK::TIMESTEP));
-		}
-
-		#warning set this gravity for all physics objects, too...
-		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::GRAVITY)) {
-			_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
-
-			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
-															 PHYSICS_WORLD_DIRTY_MASK::GRAVITY));
-		}
-	}
-}
-
-void BulletPhysicsSimulator::update(PASS pass,
-									shared_ptr<Node> node,
-									const DEBUG_OPTIONS& debugOptions) {
-
-	auto body = node->physicsBody();
-	if (body) {
-
-		// creates and updates bullet models as needed
-		// for PASS::STEP this checks everything gets ready for the simulation step
-		// for PASS::SYNC, it simply gets the handles for the BT models we're driving our graph from
-
-		if (body->shape()) {
-
-			shared_ptr<btRigidBody> btBody = nullptr;
-			shared_ptr<btDefaultMotionState> btMotionState = nullptr;
-			shared_ptr<btCollisionShape> btShape = nullptr;
-			auto btChildShapes = vector<shared_ptr<btCollisionShape>>();
-
-			GetPhysicsBodyBTModels(node,
-								   body,
-								   &btBody, &btMotionState, &btShape, btChildShapes,
-								   *_btWorld,
-								   _bodyBTMapping,
-								   _shapeBTMapping);
-
-			// if the body isn't complete (doesn't have a source geometry or source node?)
-			// we can't make a BT model for it
-
-			if (btBody) {
-
-				if (pass == PASS::STEP) {
-
-					// if dynamic or kinematic, put their scene graph transforms into bullet model
-
-//					if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC
-//						|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-
-					if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-
-						auto toTransform = BTTransformFromGLMMat4(node->worldTransform());
-//						btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-						auto motionState = btBody->getMotionState();
-						motionState->setWorldTransform(toTransform); // and this kinematic...
-						btBody->setMotionState(motionState);
-
-						btBody->setActivationState(ACTIVE_TAG);
-//						btBody->forceActivationState(ACTIVE_TAG);
-					}
-				}
-				else if (pass == PASS::SYNC) {
-
-					// get body transforms and apply back to scene graph
-
-					btTransform btWorldTransform;
-					btWorldTransform.setIdentity();
-					//btMotionState->getWorldTransform(btWorldTransform); // crash?
-					btBody->getMotionState()->getWorldTransform(btWorldTransform);
-
-					auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
-					node->unrollWorldTransform(worldMat);
-				}
-			}
-
-			// save reference for housekeeping
-			_activeShapes.emplace(body->shape());
-		}
-		else {
-			AE_LOG_W("No PhysicsShape attached to PhysicsBody.");
-			//throw Exception("No PhysicsShape attached to PhysicsBody.");
-		}
-
-		// save reference for housekeeping
-		/* MKD bt_tree_rework */ // activeBodies.emplace(body);
-	}
-}
+//void BulletPhysicsSimulator::update(PASS pass,
+//									Scene& scene,
+//									const DEBUG_OPTIONS& debugOptions) {
+//
+//	if (pass == BulletPhysicsSimulator::PASS::STEP) {
+//		auto world = scene.physicsWorld();
+//
+//		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
+//			_timestep = world->timestep();
+//
+//			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
+//															 PHYSICS_WORLD_DIRTY_MASK::TIMESTEP));
+//		}
+//
+//		#warning set this gravity for all physics objects, too...
+//		if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::GRAVITY)) {
+//			_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
+//
+//			world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
+//															 PHYSICS_WORLD_DIRTY_MASK::GRAVITY));
+//		}
+//	}
+//}
+//
+//void BulletPhysicsSimulator::update(PASS pass,
+//									shared_ptr<Node> node,
+//									const DEBUG_OPTIONS& debugOptions) {
+//
+//	auto body = node->physicsBody();
+//	if (body) {
+//
+//		// creates and updates bullet models as needed
+//		// for PASS::STEP this checks everything gets ready for the simulation step
+//		// for PASS::SYNC, it simply gets the handles for the BT models we're driving our graph from
+//
+//		if (body->shape()) {
+//
+//			shared_ptr<btRigidBody> btBody = nullptr;
+//			shared_ptr<btDefaultMotionState> btMotionState = nullptr;
+//			shared_ptr<btCollisionShape> btShape = nullptr;
+//			auto btChildShapes = vector<shared_ptr<btCollisionShape>>();
+//
+//			GetPhysicsBodyBTModels(node,
+//								   body,
+//								   &btBody, &btMotionState, &btShape, btChildShapes,
+//								   *_btWorld,
+//								   _bodyBTMapping,
+//								   _shapeBTMapping);
+//
+//			// if the body isn't complete (doesn't have a source geometry or source node?)
+//			// we can't make a BT model for it
+//
+//			if (btBody) {
+//
+//				if (pass == PASS::STEP) {
+//
+//					// if dynamic or kinematic, put their scene graph transforms into bullet model
+//
+////					if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC
+////						|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//
+//					if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//
+//						auto toTransform = BTTransformFromGLMMat4(node->worldTransform());
+////						btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+//						auto motionState = btBody->getMotionState();
+//						motionState->setWorldTransform(toTransform); // and this kinematic...
+//						btBody->setMotionState(motionState);
+//
+//						btBody->setActivationState(ACTIVE_TAG);
+////						btBody->forceActivationState(ACTIVE_TAG);
+//					}
+//				}
+//				else if (pass == PASS::SYNC) {
+//
+//					// get body transforms and apply back to scene graph
+//
+//					btTransform btWorldTransform;
+//					btWorldTransform.setIdentity();
+//					//btMotionState->getWorldTransform(btWorldTransform); // crash?
+//					btBody->getMotionState()->getWorldTransform(btWorldTransform);
+//
+//					auto worldMat = GLMMat4FromBTTransform(btWorldTransform);
+//					node->unrollWorldTransform(worldMat);
+//				}
+//			}
+//
+//			// save reference for housekeeping
+//			_activeShapes.emplace(body->shape());
+//		}
+//		else {
+//			AE_LOG_W("No PhysicsShape attached to PhysicsBody.");
+//			//throw Exception("No PhysicsShape attached to PhysicsBody.");
+//		}
+//
+//		// save reference for housekeeping
+//		/* MKD bt_tree_rework */ // activeBodies.emplace(body);
+//	}
+//}
 
 void BulletPhysicsSimulator::step(float time) {
 	AE_LOG_T("");

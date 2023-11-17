@@ -189,24 +189,24 @@ int Example::run(const vector<string>& args) {
 
 	// add the palm tree
 
-	auto palmScene = SceneNamed("palm2/palm2", "obj");
-	_palmNode = palmScene->rootNode();
-	_palmNode->name("Palm node");
-	for (auto n : palmScene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
-
-	auto palmPhysicsBody = PhysicsBody::StaticBody();
-	palmPhysicsBody->mass(0);
-	palmPhysicsBody->friction(1);
-	palmPhysicsBody->restitution(0.25);
-	_palmNode->physicsBody(palmPhysicsBody);
-
-	scene->rootNode()->addChild(palmScene->rootNode());
+//	auto palmScene = SceneNamed("palm2/palm2", "obj");
+//	_palmNode = palmScene->rootNode();
+//	_palmNode->name("Palm node");
+//	for (auto n : palmScene->rootNode()->children(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
+//
+//	auto palmPhysicsBody = PhysicsBody::StaticBody();
+//	palmPhysicsBody->mass(0);
+//	palmPhysicsBody->friction(1);
+//	palmPhysicsBody->restitution(0.25);
+//	_palmNode->physicsBody(palmPhysicsBody);
+//
+//	scene->rootNode()->addChild(palmScene->rootNode());
 
 
 	// add the duck
@@ -246,23 +246,23 @@ int Example::run(const vector<string>& args) {
 
 	// add the paddle
 
-	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
-	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
-	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-	_paddleNode->geometry()->addMaterial(paddleMaterial);
-	_paddleNode->position({15 - .25, 2.5, 0});
-	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
-//	paddlePhysicsBody->friction(100);
-	paddlePhysicsBody->restitution(0.25);
-	_paddleNode->physicsBody(paddlePhysicsBody);
-	scene->rootNode()->addChild(_paddleNode);
-	
-	
-	// add cardboard boxes
-	AddCardboardBoxes(*scene);
-	
-	// add slurms
-	AddSlurms(*scene);
+//	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
+//	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
+//	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
+//	_paddleNode->geometry()->addMaterial(paddleMaterial);
+//	_paddleNode->position({15 - .25, 2.5, 0});
+//	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+////	paddlePhysicsBody->friction(100);
+//	paddlePhysicsBody->restitution(0.25);
+//	_paddleNode->physicsBody(paddlePhysicsBody);
+//	scene->rootNode()->addChild(_paddleNode);
+//
+//
+//	// add cardboard boxes
+//	AddCardboardBoxes(*scene);
+//
+//	// add slurms
+//	AddSlurms(*scene);
 
 
 
@@ -909,7 +909,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-//	auto phyicsShape = PhysicsShape::BoundingBoxShape();
+//	auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX, boxNode->geometry());
 //	physicsBody->shape(phyicsShape);
 
  	// this SHOULD work but doesn't

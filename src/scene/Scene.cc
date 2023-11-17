@@ -237,11 +237,14 @@ void Scene::update(Renderer& renderer,
 		physicsSimulator->step(_renderContext.lock()->sceneTime());
 
 		physicsSimulator->sync(*this, stats);
+	}
 
 		visited.clear();
 		_rootNode->sync(*physicsSimulator,
 						stats,
 						visited);
+
+	if (_physicsWorld) {
 
 		physicsSimulator->endUpdate(*this);
 
@@ -279,8 +282,8 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 
 AABB Scene::aabb() const {
 
-	const float maxFloat = numeric_limits<float>::max();
-	const float minFloat = numeric_limits<float>::min();
+	static const float maxFloat = numeric_limits<float>::max();
+	static const float minFloat = numeric_limits<float>::min();
 
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };
