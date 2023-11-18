@@ -58,6 +58,7 @@ static void SpawnHACDTeapot(Scene& scene);
 static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
+static void TestThing(Scene& scene);
 
 /***************************************************************************************
 	Public
@@ -405,6 +406,10 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		if (!_fruit1Node) {
 			_fruit1Node = fruitNode;
 		}
+	}
+
+	if (keysPressed.count(KEY::L)) {
+		TestThing(*scene);
 	}
 
 	if (keysPressed.count(KEY::J)) {
@@ -1159,4 +1164,15 @@ void AddSlurms(Scene& scene) {
 		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)Uniform(0, 359)));
 		z += 1;
 	}
+}
+
+static void TestThing(Scene& scene) {
+
+	auto node = Node::NamedNode("Torus Node");
+	auto geometry = make_shared<Torus>(0.5, 1.0, 16, 16);
+	auto physicsBody = PhysicsBody::DynamicBody();
+	node->geometry(geometry);
+	node->physicsBody(physicsBody);
+	node->position({0, 15, 0});
+	scene.rootNode()->addChild(node);
 }
