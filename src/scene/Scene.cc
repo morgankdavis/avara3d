@@ -236,13 +236,13 @@ void Scene::update(Renderer& renderer,
 
 		physicsSimulator->step(_renderContext.lock()->sceneTime());
 
-		physicsSimulator->sync(*this, stats);
+		physicsSimulator->sync(*this);
 	}
 
-		visited.clear();
-		_rootNode->sync(*physicsSimulator,
-						stats,
-						visited);
+	visited.clear();
+	_rootNode->sync(*physicsSimulator,
+					stats,
+					visited);
 
 	if (_physicsWorld) {
 

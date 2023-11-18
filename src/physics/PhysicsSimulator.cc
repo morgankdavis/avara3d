@@ -27,9 +27,7 @@ using namespace std;
 PhysicsSimulator::PhysicsSimulator():
 	_gravity({0, -9.807, 0}),
 	_speed(1.0),
-	_timestep(1.0/60.0) {
-		
-}
+	_timestep(1.0/60.0) { }
 
 PhysicsSimulator::~PhysicsSimulator() {
 	AE_LOG_D("Destroying PhysicsSimulator {:p}", (void*)this);
@@ -39,87 +37,27 @@ PhysicsSimulator::~PhysicsSimulator() {
 	Internal
  *********************************************************************************************/
 
-//void PhysicsSimulator::beginUpdate(PASS pass,
-//								   const Scene& scene) {
-//
-//}
-//
-//void PhysicsSimulator::endUpdate(PASS pass,
-//								 const Scene& scene) {
-//
-//}
-void PhysicsSimulator::beginUpdate(const Scene& scene) {
+void PhysicsSimulator::beginUpdate(const Scene& scene) { }
 
-}
+void PhysicsSimulator::endUpdate(const Scene& scene) { }
 
-void PhysicsSimulator::endUpdate(const Scene& scene) {
+void PhysicsSimulator::update(Scene& scene) { }
 
-}
-
-
-
-
-
-void PhysicsSimulator::update(Scene& scene) {
-
-}
-
-void PhysicsSimulator::sync(Scene& scene,
-							FrameStats& stats) {
-
-}
+void PhysicsSimulator::sync(Scene& scene) { }
 
 void PhysicsSimulator::update(PhysicsBody& body,
-							  Node& node) {
-
-}
+							  Node& node) { }
 
 void PhysicsSimulator::sync(PhysicsBody& body,
 							Node& node,
-							mat4& worldTransform,
-							FrameStats& stats) {
-
-	switch (body.type()) {
-		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
-		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
-		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
-	}
-}
+							mat4& worldTransform) { }
 
 void PhysicsSimulator::update(PhysicsShape& shape,
 							  PHYSICS_BODY_TYPE bodyType,
-							  bool& updated) {
-
-}
+							  bool& updated) { }
 
 void PhysicsSimulator::sync(PhysicsShape& shape,
-							PHYSICS_BODY_TYPE bodyType,
-							FrameStats& stats) {
+							PHYSICS_BODY_TYPE bodyType) { }
 
-	switch (shape.type()) {
-		case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX): ++stats.boundingBoxShapes; break;
-		case (PHYSICS_SHAPE_TYPE::CONVEX_HULL): ++stats.convexHullShapes; break;
-		case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON): ++stats.concavePolyhedronShapes; break;
-	}
-}
-
-
-
-
-
-void PhysicsSimulator::update(PASS pass,
-							  Scene& scene,
-							  const DEBUG_OPTIONS& debugOptions) {
-	
-}
-
-void PhysicsSimulator::update(PASS pass,
-							  shared_ptr<Node> node,
-							  const DEBUG_OPTIONS& debugOptions) {
-	
-}
-
-void PhysicsSimulator::step(float time) {
-	
-}
+void PhysicsSimulator::step(float time) { }
 

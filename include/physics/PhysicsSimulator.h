@@ -27,22 +27,13 @@ namespace ae {
 	
 
 	class PhysicsSimulator {
-		
+
 /*********************************************************************************************
-	Types
+	Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		enum class PASS {
-			STEP, // update internal model and step simulation
-			SYNC // sync scene graph to model state
-		};
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-		
 		PhysicsSimulator();
 		
 		PhysicsSimulator(const PhysicsSimulator& other) = delete; // copy constructor
@@ -54,37 +45,23 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-//		virtual void 			beginUpdate(PASS pass,
-//											const Scene& scene);
-//		virtual void 			endUpdate(PASS pass,
-//										  const Scene& scene);
 		virtual void 			beginUpdate(const Scene& scene);
 		virtual void 			endUpdate(const Scene& scene);
 
 		virtual void			update(Scene& scene);
-		virtual void			sync(Scene& scene,
-									 FrameStats& stats);
+		virtual void			sync(Scene& scene);
 
 		virtual void			update(PhysicsBody& body,
 									   Node& node);
 		virtual void			sync(PhysicsBody& body,
 									 Node& node,
-									 glm::mat4& worldTransform,
-									 FrameStats& stats);
+									 glm::mat4& worldTransform);
 
 		virtual void			update(PhysicsShape& shape,
 									   PHYSICS_BODY_TYPE bodyType,
 									   bool& updated);
 		virtual void			sync(PhysicsShape& shape,
-									 PHYSICS_BODY_TYPE bodyType,
-									 FrameStats& stats);
-
-		virtual void 			update(PASS pass,
-									   Scene& scene,
-									   const DEBUG_OPTIONS& debugOptions);
-		virtual void 			update(PASS pass,
-									   std::shared_ptr<Node> node,
-									   const DEBUG_OPTIONS& debugOptions);
+									 PHYSICS_BODY_TYPE bodyType);
 
 		virtual void 			step(float time);
 		

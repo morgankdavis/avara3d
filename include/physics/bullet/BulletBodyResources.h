@@ -27,10 +27,6 @@ namespace ae {
 	public:
 
 		BulletBodyResources();
-//		BulletBodyResources(std::shared_ptr<btRigidBody> body,
-//							std::shared_ptr<btDefaultMotionState> motionState);
-//		BulletBodyResources(std::shared_ptr<btRigidBody> body,
-//							std::shared_ptr<btDefaultMotionState> motionState);
 		~BulletBodyResources();
 
 /*********************************************************************************************
@@ -43,9 +39,6 @@ namespace ae {
 		std::shared_ptr<btDefaultMotionState>	motionState();
 		void									motionState(std::shared_ptr<btDefaultMotionState> motionState);
 
-//		void	update(PhysicsSimulator& simulator,
-//					   FrameStats& stats) override;
-
 /*********************************************************************************************
 	 Private
  *********************************************************************************************/
@@ -54,8 +47,6 @@ namespace ae {
 
 		std::shared_ptr<btRigidBody>			_body;
 		std::shared_ptr<btDefaultMotionState>	_motionState;
-
-//		std::weak_ptr<BulletPhysicsSimulator>	_simulator;
 	};
 }
 

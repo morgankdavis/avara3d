@@ -132,8 +132,13 @@ void PhysicsShape::sync(PhysicsSimulator& simulator,
 						 FrameStats& stats) {
 
 	simulator.sync(*this,
-				   body.type(),
-				   stats);
+				   body.type());
+
+	switch (type()) {
+		case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX): ++stats.boundingBoxShapes; break;
+		case (PHYSICS_SHAPE_TYPE::CONVEX_HULL): ++stats.convexHullShapes; break;
+		case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON): ++stats.concavePolyhedronShapes; break;
+	}
 }
 
 PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {

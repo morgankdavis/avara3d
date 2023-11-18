@@ -50,23 +50,13 @@ namespace ae {
 
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
-		
-/*********************************************************************************************
-	Types
- *********************************************************************************************/
-
-	public:
-
-		using PhysicsBodyBTMapping =
-				std::map<std::shared_ptr<PhysicsBody>, std::shared_ptr<BulletBodyResources>>;
-
-		using PhysicsShapeBTMapping =
-				std::map<std::shared_ptr<PhysicsShape>, std::shared_ptr<BulletShapeResources>>;
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
+	public:
+
 		BulletPhysicsSimulator();
 		BulletPhysicsSimulator(const BulletPhysicsSimulator& other) = delete; // copy constructor
 		BulletPhysicsSimulator& operator=(const BulletPhysicsSimulator& other) = delete; // copy assignment
@@ -85,38 +75,23 @@ namespace ae {
 	PhysicsSimulator
  *********************************************************************************************/
 
-//		void 		beginUpdate(PASS pass,
-//								const Scene& scene) override;
-//		void 		endUpdate(PASS pass,
-//							  const Scene& scene) override;
-
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
 
 		void		update(Scene& scene) override;
-		void		sync(Scene& scene,
-						 FrameStats& stats) override;
+		void		sync(Scene& scene) override;
 
 		void		update(PhysicsBody& body,
 						   Node& node) override;
 		void		sync(PhysicsBody& body,
 						 Node& node,
-						 glm::mat4& worldTransform,
-						 FrameStats& stats) override;
+						 glm::mat4& worldTransform) override;
 
 		void		update(PhysicsShape& shape,
 						   PHYSICS_BODY_TYPE bodyType,
 						   bool& updated) override;
 		void		sync(PhysicsShape& shape,
-						 PHYSICS_BODY_TYPE bodyType,
-						 FrameStats& stats) override;
-
-//		void 		update(PASS pass,
-//						   Scene& scene,
-//						   const DEBUG_OPTIONS& debugOptions) override;
-//		void 		update(PASS pass,
-//						   std::shared_ptr<Node> node,
-//						   const DEBUG_OPTIONS& debugOptions) override;
+						 PHYSICS_BODY_TYPE bodyType) override;
 
 		void 		step(float time) override;
 		
@@ -134,12 +109,6 @@ namespace ae {
 #ifdef DESKTOP
 		std::shared_ptr<BulletDebugDrawer>						_debugDrawer;
 #endif
-		
-		PhysicsBodyBTMapping									_bodyBTMapping;
-		PhysicsShapeBTMapping									_shapeBTMapping;
-
-		std::unordered_set<std::shared_ptr<PhysicsBody>>	_activeBodies;
-		std::unordered_set<std::shared_ptr<PhysicsShape>>	_activeShapes;
 	};
 }
 

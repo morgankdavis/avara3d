@@ -339,8 +339,13 @@ void PhysicsBody::sync(PhysicsSimulator& simulator,
 
 	simulator.sync(*this,
 				   node,
-				   localTransform,
-				   stats);
+				   localTransform);
+
+	switch (type()) {
+		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
+		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
+		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
+	}
 }
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
