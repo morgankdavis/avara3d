@@ -55,6 +55,18 @@ constexpr unsigned MAX_SUBSTEPS = 20;
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
+BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
+						  PHYSICS_SHAPE_TYPE shapeType,
+						  PHYSICS_BODY_TYPE bodyType,
+						  vector<shared_ptr<btCollisionShape>>& btShapes,
+						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+static shared_ptr<btCollisionShape>
+BTShapeFromSourceNode(shared_ptr<Node> node,
+					  PHYSICS_SHAPE_TYPE shapeType,
+					  PHYSICS_BODY_TYPE bodyType,
+					  vector<shared_ptr<btCollisionShape>>& btShapes,
+					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+static shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   shared_ptr<Geometry> geometry,
 						   PHYSICS_SHAPE_TYPE shapeType,
@@ -476,84 +488,31 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 
 		auto sourceObject = shape.sourceObject();
 
-		if (std::holds_alternative<weak_ptr<Geometry>>(sourceObject)) {
-			auto sourceGeometryWeak = std::get<weak_ptr<Geometry>>(sourceObject);
-			if (auto sourceGeometry = sourceGeometryWeak.lock()) {
+		if (holds_alternative<weak_ptr<Geometry>>(sourceObject)) {
+			if (auto sourceGeometry = get<weak_ptr<Geometry>>(sourceObject).lock()) {
 
-				// REPLACE with BTShapeFromSourceGeometry()
-
-				if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
-					&& shape.type() == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-					// HACD
-				}
-				else if (sourceGeometry->elements().size() == 1) {
-					// make a single shape
-
-					auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-					newShape = BTShapeFromGeometryElement(sourceGeometry->elements().front(),
-														  sourceGeometry,
-														  shape.type(),
-														  bodyType,
-														  indexVertexArray);
-					btShapes.push_back(newShape);
-					btIndexVertexArrays.push_back(indexVertexArray);
-				}
-				else if (sourceGeometry->elements().size() > 1) {
-					// make compound shape, loop BTShapeFromGeometryElement()
-
-					newShape = BTShapeFromGeometry(sourceGeometry,
-															 shape.type(),
-															 bodyType,
-															 btShapes,
-															 btIndexVertexArrays);
-				}
-				else {
-					AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
-							 (void*)sourceGeometry.get());
-				}
+				newShape = BTShapeFromSourceGeometry(sourceGeometry,
+													 shape.type(),
+													 bodyType,
+													 btShapes,
+													 btIndexVertexArrays);
 			}
 		}
 
-		else if (std::holds_alternative<weak_ptr<Node>>(sourceObject)) {
-			auto sourceNodeWeak = std::get<weak_ptr<Node>>(sourceObject);
-			if (auto sourceNode = sourceNodeWeak.lock()) {
+		else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
+			if (auto sourceNode = get<weak_ptr<Node>>(sourceObject).lock()) {
 
-				// REPLACE with BTShapeFromSourceNode()
-
-				auto compoundShape = make_shared<btCompoundShape>(true);
-
-				// add the root geometry
-				if (sourceNode->geometry()) {
-
-					auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-					auto rootNodeShape = BTShapeFromGeometry(sourceNode->geometry(),
-															 shape.type(),
-															 bodyType,
-															 btShapes,
-															 btIndexVertexArrays);
-					compoundShape->addChildShape(BTIdentityTransform(), rootNodeShape.get());
-				}
-				else {
-					// TODO: wtf?
-					btShapes.push_back(compoundShape);
-				}
-
-				// add child geometries recursively
-				auto children = sourceNode->children(false);
-				for (auto& childNode : children) {
-					AddBTShapeFromNodeRec(childNode,
-										  shape.type(),
-										  bodyType,
-										  compoundShape,
-										  btShapes,
-										  btIndexVertexArrays);
-				}
-
-				newShape = dynamic_pointer_cast<btCollisionShape>(compoundShape);
+				newShape = BTShapeFromSourceNode(sourceNode,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
 			}
 		}
 
 		if (newShape) {
+			btShapes.insert(btShapes.begin(), newShape);
+
 			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
 			shapeResources->shapes(btShapes);
 			shapeResources->indexVertexArrays(btIndexVertexArrays);
@@ -595,6 +554,86 @@ void BulletPhysicsSimulator::step(float time) {
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
+
+static shared_ptr<btCollisionShape>
+BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
+						  PHYSICS_SHAPE_TYPE shapeType,
+						  PHYSICS_BODY_TYPE bodyType,
+						  vector<shared_ptr<btCollisionShape>>& btShapes,
+						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+
+	shared_ptr<btCollisionShape> newShape = nullptr;
+
+	if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
+		&& shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
+		// HACD
+	}
+	else if (geometry->elements().size() == 1) {
+		// make a single shape
+
+		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+		newShape = BTShapeFromGeometryElement(geometry->elements().front(),
+											  geometry,
+											  shapeType,
+											  bodyType,
+											  indexVertexArray);
+		btShapes.push_back(newShape);
+		btIndexVertexArrays.push_back(indexVertexArray);
+	}
+	else if (geometry->elements().size() > 1) {
+		// make compound shape, loop BTShapeFromGeometryElement()
+
+		newShape = BTShapeFromGeometry(geometry,
+									   shapeType,
+									   bodyType,
+									   btShapes,
+									   btIndexVertexArrays);
+	}
+	else {
+		AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
+				 (void*)geometry.get());
+	}
+
+	return newShape;
+}
+
+static shared_ptr<btCollisionShape>
+BTShapeFromSourceNode(shared_ptr<Node> node,
+					  PHYSICS_SHAPE_TYPE shapeType,
+					  PHYSICS_BODY_TYPE bodyType,
+					  vector<shared_ptr<btCollisionShape>>& btShapes,
+					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+
+	auto newShape = make_shared<btCompoundShape>(true);
+
+	// add the root geometry
+	if (node->geometry()) {
+
+		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+		auto rootNodeShape = BTShapeFromGeometry(node->geometry(),
+												 shapeType,
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
+		static_pointer_cast<btCompoundShape>(newShape)->addChildShape(BTIdentityTransform(),
+																	  rootNodeShape.get());
+
+		btShapes.push_back(rootNodeShape);
+	}
+
+	// add child geometries recursively
+	auto children = node->children(false);
+	for (auto& childNode : children) {
+		AddBTShapeFromNodeRec(childNode,
+							  shapeType,
+							  bodyType,
+							  static_pointer_cast<btCompoundShape>(newShape),
+							  btShapes,
+							  btIndexVertexArrays);
+	}
+
+	return newShape;
+}
 
 shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 														shared_ptr<Geometry> geometry,
@@ -779,57 +818,6 @@ shared_ptr<btCollisionShape> BTCompoundShapeFromGeometry(shared_ptr<Geometry> ge
 
 		childShapes.push_back(shape);
 		childIndexVertexArrays.push_back(indexVertexArray);
-	}
-
-	return compoundShape;
-}
-
-shared_ptr<btCollisionShape> BTCompoundShapeFromNode(shared_ptr<Node> node,
-													 PHYSICS_SHAPE_TYPE shapeType,
-													 PHYSICS_BODY_TYPE bodyType,
-													 vector<shared_ptr<btCollisionShape>>& childShapes,
-													 vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
-
-	AE_LOG_I("Creating compound physics shape for node {:p}...", (void*)node.get());
-
-	auto componentGeometryNodes = vector<shared_ptr<Node>>();
-	if (node->geometry()) componentGeometryNodes.push_back(node);
-	for (auto childNode : node->children(true)) {
-		if (auto geometry = childNode->geometry()) {
-			componentGeometryNodes.push_back(childNode);
-		}
-	}
-
-	auto compoundShape = make_shared<btCompoundShape>(true, componentGeometryNodes.size());
-
-	for (auto geometryNode : componentGeometryNodes) {
-		auto geometry = geometryNode->geometry();
-
-		auto childIndexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		/* MKD bt_tree_rework */
-//		auto childCollisionShape = BTShapeFromGeometry(geometry,
-//													   shapeType,
-//													   bodyType,
-//													   childIndexVertexArray);
-//
-//		childShapes.push_back(childCollisionShape);
-//		childIndexVertexArrays.push_back(childIndexVertexArray);
-//
-//		// if the geometry is for the compound shape's root node, don't add a local transform here.
-//		// it's added in the btRigidBody's localInertia.
-//		if (geometryNode == node) {
-//			static auto identityTransform = btTransform();
-//			identityTransform.setIdentity(); // meh
-//			compoundShape->addChildShape(identityTransform, childCollisionShape.get());
-//		}
-//		else {
-//			bool wasScaled = false;
-//			auto unscaledTransform = TransformByRemovingScale(geometryNode->transform(), wasScaled);
-//			if (wasScaled) {
-//				AE_LOG_W("Ignorning (child) scale for Node {:p}.", (void *) node.get());
-//			}
-//			compoundShape->addChildShape(BTTransformFromGLMMat4(unscaledTransform), childCollisionShape.get());
-//		}
 	}
 
 	return compoundShape;
@@ -1095,4 +1083,3 @@ btTransform& BTIdentityTransform() {
 	identityTransform.setIdentity();
 	return identityTransform;
 }
-

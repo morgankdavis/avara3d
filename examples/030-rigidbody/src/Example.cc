@@ -876,8 +876,8 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //	physicsBody->friction(5);
 ///
 		physicsBody->restitution(1.0);
-		physicsBody->friction(0.015);
-		physicsBody->rollingFriction(0.15);
+		physicsBody->friction(0.35);
+		physicsBody->rollingFriction(0.05);
 		///
 		//node->physicsBody(physicsBody);
 
