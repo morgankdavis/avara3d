@@ -534,6 +534,7 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 					compoundShape->addChildShape(BTIdentityTransform(), rootNodeShape.get());
 				}
 				else {
+					// TODO: wtf?
 					btShapes.push_back(compoundShape);
 				}
 

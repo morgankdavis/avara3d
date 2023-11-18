@@ -1063,8 +1063,8 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-//	auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX, boxNode->geometry());
-//	physicsBody->shape(phyicsShape);
+	auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX, boxNode->geometry());
+	physicsBody->shape(phyicsShape);
 
  	// this SHOULD work but doesn't
 //	auto physicsShape = PhysicsShape::BoundingBoxShape();
