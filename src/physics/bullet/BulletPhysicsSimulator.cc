@@ -200,6 +200,7 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
 
 	auto shapeResources = static_pointer_cast<BulletShapeResources>(body.shape()->resources());
+	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 	auto btShape = shapeResources->shapes().front();
 
 	shared_ptr<btRigidBody> btBody = nullptr;
@@ -544,6 +545,7 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 				// add the root geometry
 				if (sourceNode->geometry()) {
 
+					// TODO: this is borken
 					auto rootShape = BTShapeFromGeometry(sourceNode->geometry(),
 														 sourceNode,
 														 shape.type(),
@@ -551,6 +553,9 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 														 btShapes,
 														 btIndexVertexArrays);
 					compoundShape->addChildShape(BTIdentityTransform(), rootShape.get());
+				}
+				else {
+					btShapes.push_back(compoundShape);
 				}
 
 				// add child geometries recursively
@@ -562,7 +567,6 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 										  compoundShape,
 										  btShapes,
 										  btIndexVertexArrays);
-//					compoundShape->addChildShape(BTIdentityTransform(), childShape.get());
 				}
 
 				newShape = dynamic_pointer_cast<btCollisionShape>(compoundShape);
@@ -744,6 +748,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 			//compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
 			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
 			auto localTransform = BTTransformFromGLMMat4(node->transform());
+			//auto localTransform = BTIdentityTransform();
 			compoundShape->addChildShape(localTransform, componentShape.get());
 
 			btShapes.push_back(componentShape);
