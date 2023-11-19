@@ -662,6 +662,23 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 	Internal
  *********************************************************************************************/
 
+void Node::getAABBRec(AABB& aabb) {
+
+	if (_geometry) {
+		auto geoAABB = _geometry->aabb(shared_from_this());
+		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
+		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
+		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
+		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
+		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
+		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
+	}
+
+	for (auto& child : _children) {
+		child->getAABBRec(aabb);
+	}
+}
+
 void Node::unrollWorldTransform(mat4 transform) {
 	// used for physics simulation to update local transform relative to parent
 	
@@ -750,6 +767,19 @@ void Node::attachedToParent(weak_ptr<Node> parent) {
 //void Node::attachedToModel(shared_ptr<Node> model) {
 //	_model = model;
 //}
+
+AABB Node::aabb() {
+
+	static const float maxFloat = numeric_limits<float>::max();
+	static const float minFloat = numeric_limits<float>::min();
+
+	AABB aabb = { {maxFloat, maxFloat, maxFloat},
+				  {minFloat, minFloat, minFloat} };
+
+	getAABBRec(aabb);
+
+	return aabb;
+}
 
 void Node::update(PhysicsSimulator& simulator,
 				  FrameStats& stats,

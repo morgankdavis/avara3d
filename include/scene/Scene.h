@@ -92,7 +92,7 @@ namespace ae {
 
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		
-		AABB									aabb() const;
+//		AABB									aabb() const;
 		glm::vec3 								extent() const;
 		
 		void 									attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);

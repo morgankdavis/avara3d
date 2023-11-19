@@ -150,6 +150,8 @@ namespace ae {
 //		std::weak_ptr<Node> 					model() const;
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
+		AABB									aabb();
+
 		void 									update(PhysicsSimulator& simulator,
 													   FrameStats& stats,
 													   std::map<std::shared_ptr<Node>, bool>& visited);
@@ -179,6 +181,8 @@ namespace ae {
  *********************************************************************************************/
 
 	private:
+
+		void									getAABBRec(AABB& aabb);
 
 		void	 								unrollWorldTransform(glm::mat4 transform);
 

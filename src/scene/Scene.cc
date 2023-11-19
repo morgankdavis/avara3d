@@ -280,31 +280,33 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 	return _skyboxGeometry;
 }
 
-AABB Scene::aabb() const {
-
-	static const float maxFloat = numeric_limits<float>::max();
-	static const float minFloat = numeric_limits<float>::min();
-
-	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-				  {minFloat, minFloat, minFloat} };
-
-	for (const auto node : _rootNode->children(true)) {
-		if (node->geometry()) {
-			auto geoAABB = node->geometry()->aabb(node);
-			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
-			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
-			aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
-			aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
-			aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
-			aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
-		}
-	}
-
-	return aabb;
-}
+//AABB Scene::aabb() const {
+//
+////	static const float maxFloat = numeric_limits<float>::max();
+////	static const float minFloat = numeric_limits<float>::min();
+////
+////	AABB aabb = { {maxFloat, maxFloat, maxFloat},
+////				  {minFloat, minFloat, minFloat} };
+////
+////	for (const auto node : _rootNode->children(true)) {
+////		if (node->geometry()) {
+////			auto geoAABB = node->geometry()->aabb(node);
+////			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
+////			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
+////			aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
+////			aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
+////			aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
+////			aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
+////		}
+////	}
+////
+////	return aabb;
+//
+//	return _rootNode->aabb();
+//}
 
 vec3 Scene::extent() const {
-	auto aabb = Scene::aabb();
+	auto aabb = _rootNode->aabb();
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,
 			aabb.max.z - aabb.min.z};

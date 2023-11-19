@@ -463,7 +463,7 @@ shared_ptr<Node> RenderContext::defaultPointOfView() {
 	camera->name("default camera");
 	cameraNode->camera(camera);
 
-	auto aabb = scene()->aabb();
+	auto aabb = scene()->rootNode()->aabb();
 
 	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
 	float w = width();
