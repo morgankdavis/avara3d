@@ -58,7 +58,7 @@ static void SpawnHACDTeapot(Scene& scene);
 static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
-static void TestThing(Scene& scene);
+static void AddRing(Scene& scene);
 
 /***************************************************************************************
 	Public
@@ -266,41 +266,6 @@ int Example::run(const vector<string>& args) {
 	AddSlurms(*scene);
 
 
-
-
-
-
-
-//	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-////	auto teapotNode = SceneNamed("cartoon_palm_tree", "obj")->rootNode()->children(false)[1];
-//	ConvexDecomposer::Options options;
-//	vector<shared_ptr<GeometryElement>> elements = teapotNode->geometry()->elements();
-//	auto decomposer = ConvexDecomposer(elements, options);
-//	auto decomponsedElements = decomposer.decompose();
-//
-//	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
-//	decomposedTeapotMaterials.reserve(decomponsedElements.size());
-//	for (int m=0; m<decomponsedElements.size(); ++m) {
-//		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
-//		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
-//																  nullptr,
-//																  nullptr,
-//																  randomColorProperty));
-//	}
-//
-//	auto hacdTeapotGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
-//	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
-//	decomposedTeapotNode->scale({.25, .25, .25});
-//	decomposedTeapotNode->rotation({1, 0, 0, radians(-90.0)});
-//	decomposedTeapotNode->position({0, 0, 4});
-//	scene->rootNode()->addChild(decomposedTeapotNode);
-
-
-
-
-
-	
-
 	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 	//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
 	auto background = make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
@@ -409,7 +374,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 
 	if (keysPressed.count(KEY::L)) {
-		TestThing(*scene);
+		AddRing(*scene);
 	}
 
 	if (keysPressed.count(KEY::J)) {
@@ -421,7 +386,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	if (keysPressed.count(KEY::H)) {
 		SpawnHACDTeapot(*scene);
 	}
-	
+
 	// move paddle
 	
 	static const float PADDLE_SPEED = 5.0; // m/s
@@ -661,11 +626,13 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 		
 		unsigned fruitNum = Uniform(0, 5);
 		shared_ptr<Node> node = nullptr;
+		//shared_ptr<PhysicsShape> physicsShape = nullptr;
 		float mass = 1;
 
 		switch (fruitNum) {
 			case 0: {
 				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
+				//physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node);
 				mass = 0.05;
 				break;
 			}
@@ -800,6 +767,8 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 	node->rotation(axis, angle);
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(.4);
+	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node);
+	physicsBody->shape(physicsShape);
 //	physicsBody->friction(5);
 	node->physicsBody(physicsBody);
 	scene.rootNode()->addChild(node);
@@ -918,7 +887,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 
 		constexpr float BALL_VELOCITY = 50.0;
-		constexpr float DIRECTION_VARIATION = 0.025f;
+		constexpr float DIRECTION_VARIATION = 0.015f;
 		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
@@ -1032,7 +1001,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 
-	auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX,
+	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX,
 												  node->geometry());
 	physicsBody->shape(physicsShape);
 	
@@ -1063,7 +1032,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-	auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX, boxNode->geometry());
+	static auto phyicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX, boxNode->geometry());
 	physicsBody->shape(phyicsShape);
 
  	// this SHOULD work but doesn't
@@ -1083,19 +1052,40 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 
 void SpawnHACDTeapot(Scene& scene) {
 
-		//auto node = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-		auto node = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
-		node->position({5, 10, 0.0});
+	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
 
-		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->mass(10);
-		physicsBody->restitution(0.25);
-		physicsBody->friction(1);
+	ConvexDecomposer::Options options;
+	options.maxConvexHulls = options.maxConvexHulls / 2;
+	options.resolution = options.resolution / 2;
+	options.maxRecursionDepth = options.maxRecursionDepth / 2;
+	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
 
-		node->physicsBody(physicsBody);
-		node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
 
-		scene.rootNode()->addChild(node);
+	for (auto& element : teapotNode->geometry()->elements()) {
+		auto decomposer = ConvexDecomposer(element, options);
+		auto elements = decomposer.decompose();
+		decomposedElements.insert(decomposedElements.begin(),
+								  elements.begin(),
+								  elements.end());
+	}
+
+	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+	decomposedTeapotMaterials.reserve(decomposedElements.size());
+	for (int m=0; m<decomposedElements.size(); ++m) {
+		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
+		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
+																  nullptr,
+																  nullptr,
+																  randomColorProperty));
+	}
+
+	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
+	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+	decomposedTeapotNode->scale({.25, .25, .25});
+	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
+	decomposedTeapotNode->position({0, 0, 4});
+	scene.rootNode()->addChild(decomposedTeapotNode);
 }
 
 void AddBoxes(Scene& scene) {
@@ -1110,14 +1100,10 @@ void AddBoxes(Scene& scene) {
 	unsigned SPACING = 1.0;
 	unsigned DROP_HEIGHT = 40.0;
 	unsigned colorIndex = 0;
-	auto colors = Color::Rainbow();
 	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-//				auto color = colors[colorIndex + 4];
-//				++colorIndex;
-//				if (colorIndex + 4 > colors.size() -1 ) colorIndex = 0;
-				auto color = colors[Uniform(0, colors.size()-1)];
+				auto color = Color::Random();
 				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
 					DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
 					SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET};
@@ -1166,12 +1152,18 @@ void AddSlurms(Scene& scene) {
 	}
 }
 
-static void TestThing(Scene& scene) {
+static void AddRing(Scene& scene) {
 
 	auto node = Node::NamedNode("Torus Node");
-	auto geometry = make_shared<Torus>(0.5, 1.0, 16, 16);
-	auto physicsBody = PhysicsBody::DynamicBody();
+	static auto geometry = make_shared<Torus>(0.25, 1.0, 16, 16);
+	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON,
+												  geometry);
+	//auto physicsBody = PhysicsBody::DynamicBody();
+	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 	node->geometry(geometry);
+	static auto materialProperty = make_shared<MaterialProperty>(Color::Yellow());
+	static auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	node->geometry()->addMaterial(material);
 	node->physicsBody(physicsBody);
 	node->position({0, 15, 0});
 	scene.rootNode()->addChild(node);

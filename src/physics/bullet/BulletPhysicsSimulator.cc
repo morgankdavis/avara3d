@@ -71,13 +71,9 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   shared_ptr<Geometry> geometry,
 						   PHYSICS_SHAPE_TYPE shapeType,
 						   PHYSICS_BODY_TYPE bodyType,
+						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
-static shared_ptr<btCollisionShape>
-BTShapeFromHACDGeometryElement(shared_ptr<GeometryElement> element,
-							   shared_ptr<Geometry> geometry,
-							   PHYSICS_SHAPE_TYPE shapeType,
-							   PHYSICS_BODY_TYPE bodyType,
-							   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
+
 static shared_ptr<btCompoundShape>
 BTShapeFromGeometry(shared_ptr<Geometry> geometry,
 					//shared_ptr<Node> node,
@@ -92,16 +88,25 @@ AddBTShapeFromNodeRec(shared_ptr<Node> node,
 					  shared_ptr<btCompoundShape> compoundShape,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+
 static shared_ptr<btConvexHullShape>
 BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element);
-static shared_ptr<btConvexHullShape>
-BTConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element);
+
 static shared_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+
 static shared_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+
+static shared_ptr<btCompoundShape>
+BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+												 vector<shared_ptr<btCollisionShape>>& btShapes);
+
+static vector<shared_ptr<GeometryElement>>
+HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
+
 static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
 static vec3 							GLMVec3FromBTVector3(const btVector3& from);
 static vec4 							GLMVec4FromBTVector4(const btVector4& from);
@@ -112,6 +117,9 @@ static btQuaternion 					BTQuaternionFromGLMQuat(const quat& from);
 static btTransform 						BTTransformFromGLMMat4(const mat4& from);
 static mat4 							TransformByRemovingScale(const mat4& m, bool& scaled);
 static btTransform&						BTIdentityTransform();
+
+
+
 
 /*********************************************************************************************
 	Lifescycle
@@ -127,13 +135,11 @@ BulletPhysicsSimulator::BulletPhysicsSimulator():
 													  _btBroadphase.get(),
 													  _btSolver.get(),
 													  _btCollisionConfiguration.get())) {
-#ifdef OPENGL_CORE
-	_debugDrawer = make_shared<BulletDebugDrawer>();
-#endif
 
 	AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
 #ifdef OPENGL_CORE
+	_debugDrawer = make_shared<BulletDebugDrawer>();
 	_btWorld.get()->setDebugDrawer(_debugDrawer.get());
 #endif
 }
@@ -564,11 +570,7 @@ BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
 
 	shared_ptr<btCollisionShape> newShape = nullptr;
 
-	if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC
-		&& shapeType == PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON) {
-		// HACD
-	}
-	else if (geometry->elements().size() == 1) {
+	if (geometry->elements().size() == 1) {
 		// make a single shape
 
 		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
@@ -576,6 +578,7 @@ BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
 											  geometry,
 											  shapeType,
 											  bodyType,
+											  btShapes,
 											  indexVertexArray);
 		btShapes.push_back(newShape);
 		btIndexVertexArrays.push_back(indexVertexArray);
@@ -639,6 +642,7 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 														shared_ptr<Geometry> geometry,
 														PHYSICS_SHAPE_TYPE shapeType,
 														PHYSICS_BODY_TYPE bodyType,
+														vector<shared_ptr<btCollisionShape>>& btShapes,
 														shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
@@ -702,7 +706,7 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 	}
 	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC) {
 
-		return BTConvexHullHACDShapeFromGeometryElement(element);
+		return BTCompoundConvexHullHACDShapeFromGeometryElement(element, btShapes);
 	}
 	else if (bodyType == PHYSICS_BODY_TYPE::KINEMATIC) {
 
@@ -714,14 +718,6 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 	}
 
 	return nullptr;
-}
-
-shared_ptr<btCollisionShape> BTShapeFromHACDGeometryElement(shared_ptr<GeometryElement> element,
-															shared_ptr<Geometry> geometry,
-															PHYSICS_SHAPE_TYPE shapeType,
-															PHYSICS_BODY_TYPE bodyType,
-															shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray) {
-	// DO IT
 }
 
 shared_ptr<btCompoundShape> BTShapeFromGeometry(shared_ptr<Geometry> geometry,
@@ -739,6 +735,7 @@ shared_ptr<btCompoundShape> BTShapeFromGeometry(shared_ptr<Geometry> geometry,
 														 geometry,
 														 shapeType,
 														 bodyType,
+														 btShapes,
 														 indexVertexArray);
 
 		// the Geometry's transform is added to the btRigidBody's localInertia
@@ -768,6 +765,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 															 geometry,
 															 shapeType,
 															 bodyType,
+															 btShapes,
 															 indexVertexArray);
 
 			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
@@ -795,35 +793,37 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 	}
 }
 
-shared_ptr<btCollisionShape> BTCompoundShapeFromGeometry(shared_ptr<Geometry> geometry,
-														 PHYSICS_SHAPE_TYPE shapeType,
-														 PHYSICS_BODY_TYPE bodyType,
-														 vector<shared_ptr<btCollisionShape>>& childShapes,
-														 vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
+//shared_ptr<btCollisionShape>
+//BTCompoundShapeFromGeometry(shared_ptr<Geometry> geometry,
+//							PHYSICS_SHAPE_TYPE shapeType,
+//							PHYSICS_BODY_TYPE bodyType,
+//							vector<shared_ptr<btCollisionShape>>& childShapes,
+//							vector<shared_ptr<btTriangleIndexVertexArray>>& childIndexVertexArrays) {
+//
+//	auto& elements = geometry->elements();
+//	auto compoundShape = make_shared<btCompoundShape>(true, elements.size());
+//	for (auto& element : elements) {
+//		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+//		auto shape = BTShapeFromGeometryElement(element,
+//												geometry,
+//												shapeType,
+//												bodyType,
+//												indexVertexArray);
+//
+//		// the Geometry's transform is added to the btRigidBody's localInertia
+//		static auto identityTransform = btTransform();
+//		identityTransform.setIdentity(); // meh
+//		compoundShape->addChildShape(identityTransform, shape.get());
+//
+//		childShapes.push_back(shape);
+//		childIndexVertexArrays.push_back(indexVertexArray);
+//	}
+//
+//	return compoundShape;
+//}
 
-	auto& elements = geometry->elements();
-	auto compoundShape = make_shared<btCompoundShape>(true, elements.size());
-	for (auto& element : elements) {
-		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		auto shape = BTShapeFromGeometryElement(element,
-												geometry,
-												shapeType,
-												bodyType,
-												indexVertexArray);
-
-		// the Geometry's transform is added to the btRigidBody's localInertia
-		static auto identityTransform = btTransform();
-		identityTransform.setIdentity(); // meh
-		compoundShape->addChildShape(identityTransform, shape.get());
-
-		childShapes.push_back(shape);
-		childIndexVertexArrays.push_back(indexVertexArray);
-	}
-
-	return compoundShape;
-}
-
-shared_ptr<btConvexHullShape> BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
+shared_ptr<btConvexHullShape>
+BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", (void*)element.get());
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
@@ -855,26 +855,9 @@ shared_ptr<btConvexHullShape> BTConvexHullShapeFromGeometryElement(shared_ptr<Ge
 	return reducedShape;
 }
 
-shared_ptr<btConvexHullShape> BTConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
-	AE_LOG_I("Creating HACD concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
-
-	ConvexDecomposer::Options options;
-//	options.maxConvexHulls = options.maxConvexHulls / 4;
-//	options.resolution = options.resolution / 2;
-//	options.maxRecursionDepth = options.maxRecursionDepth / 2;
-//	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 4;
-//	vector<shared_ptr<GeometryElement>> elements = geometry->elements();
-	auto decomposer = ConvexDecomposer(element, options);
-	auto decomponsedElements = decomposer.decompose();
-
-//	auto hacdGeometry = make_shared<Geometry>(decomponsedElements, decomposedTeapotMaterials);
-
-/* MKD bt_tree_rework */
-	//return BTConvexHullShapeFromGeometryElement(hacdGeometry);
-}
-
-shared_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-																	 shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+shared_ptr<btGImpactMeshShape>
+BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -910,8 +893,9 @@ shared_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromGeometryElement(shared_ptr<
 	return gImpactMeshShape;
 }
 
-shared_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-																			 shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+shared_ptr<btBvhTriangleMeshShape>
+BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
@@ -947,6 +931,38 @@ shared_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromGeometryElement(sha
 	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
 
 	return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+}
+
+shared_ptr<btCompoundShape>
+BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+												 vector<shared_ptr<btCollisionShape>>& btShapes) {
+	AE_LOG_I("Creating convex hull compound physics shape for HACD GeometryElement {:p}...",
+			 (void*)element.get());
+
+	auto compoundShape = make_shared<btCompoundShape>(true);
+
+	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
+	for (auto& hacdElement : hacdElements) {
+		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
+		compoundShape->addChildShape(BTIdentityTransform(), convextHullShape.get());
+		btShapes.push_back(convextHullShape);
+	}
+
+	return compoundShape;
+}
+
+vector<shared_ptr<GeometryElement>>
+HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element) {
+	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", (void*)element.get());
+
+	ConvexDecomposer::Options options;
+	options.maxConvexHulls = options.maxConvexHulls / 8;
+	options.resolution = options.resolution / 8;
+	options.maxRecursionDepth = options.maxRecursionDepth / 4;
+	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
+
+	auto decomposer = ConvexDecomposer(element, options);
+	return decomposer.decompose();
 }
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
