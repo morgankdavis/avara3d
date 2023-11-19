@@ -589,12 +589,24 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 	// if resursive, returns all descendants in topological order
 
 	if (resursive) {
-		return preorderChildren(shared_from_this());
+		return children(shared_from_this());
 	}
 	else {
 		return _children;
 	}
 }
+
+//vector<shared_ptr<Node>> Node::children(bool resursive) {
+//	// if !resursive, returns immediate children in no particular order
+//	// if resursive, returns all descendants in topological order
+//
+//	if (resursive) {
+//		return preorderChildren(shared_from_this());
+//	}
+//	else {
+//		return _children;
+//	}
+//}
 
 shared_ptr<Node> Node::child(const string& name, bool resursive) {
 	for (auto child : children(resursive)) {
@@ -814,34 +826,50 @@ void Node::draw(Renderer& renderer,
 	}
 }
 
-void Node::_printPreorder() {
+void Node::_debugPrint() {
 
 	int level = 0;
-	auto visited = map<shared_ptr<Node>, bool>();
+	_debugPrintRec(*this, level);
+}
 
-	// don't include the root
-	//visited[shared_from_this()] = true;
-	for (auto child : children(false)) {
-		_printPreorderRec(child, level, visited);
+void Node::_debugPrintRec(Node& node,
+						  int level) {
+
+	AE_LOG_I("[{}] {}", level, *node.name());
+
+	for (auto& child : node._children) {
+		_debugPrintRec(*child, level + 1);
 	}
 }
 
-void Node::_printPreorderRec(shared_ptr<Node> node,
-							 int level,
-							 map<shared_ptr<Node>, bool>& visited) {
-
-	if (!visited[node]) {
-		visited[node] = true;
-
-		AE_LOG_I("[{}] {}", level, *node->name());
-
-
-
-		for (auto child : node->_children) {
-			_printPreorderRec(child, level+1, visited);
-		}
-	}
-}
+//void Node::_debugPrint() {
+//
+//	int level = 0;
+//	auto visited = map<shared_ptr<Node>, bool>();
+//
+//	// don't include the root
+//	//visited[shared_from_this()] = true;
+//	for (auto child : children(false)) {
+//		_debugPrintRec(child, level, visited);
+//	}
+//}
+//
+//void Node::_debugPrintRec(shared_ptr<Node> node,
+//							 int level,
+//							 map<shared_ptr<Node>, bool>& visited) {
+//
+//	if (!visited[node]) {
+//		visited[node] = true;
+//
+//		AE_LOG_I("[{}] {}", level, *node->name());
+//
+//
+//
+//		for (auto child : node->_children) {
+//			_debugPrintRec(child, level+1, visited);
+//		}
+//	}
+//}
 
 /*********************************************************************************************
 	Private
@@ -889,41 +917,66 @@ void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
 	}
 }
 
-vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
-	
-	auto visited = map<shared_ptr<Node>, bool>();
-	auto stack = std::stack<shared_ptr<Node>>();
+vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
 
-	// don't include the root
-	//preorderChildrenRec(root, visited, stack);
-	for (auto child : root->children(false)) {
-		preorderChildrenRec(child, visited, stack);
+	auto l = list<shared_ptr<Node>>();
+
+	for (auto child : root->_children) {
+		childrenRec(child, l);
 	}
-	
-	// probably a better way to do this
-	auto vec = vector<shared_ptr<Node>>();
-	vec.reserve(stack.size());
-	while (!stack.empty()) {
-		vec.emplace_back(stack.top());
-		stack.pop();
-	}
-	return vec;
+
+	return { std::make_move_iterator(std::begin(l)),
+			 std::make_move_iterator(std::end(l)) };
 }
 
-void Node::preorderChildrenRec(shared_ptr<Node> node,
-							   map<shared_ptr<Node>, bool>& visited,
-							   stack<shared_ptr<Node>>& stack) {
-	
-	visited[node] = true;
-	
-	for (auto child : node->_children) {
-		if (!visited[child]) {
-			preorderChildrenRec(child, visited, stack);
-		}
+void Node::childrenRec(shared_ptr<Node> node,
+					   list<shared_ptr<Node>>& list) {
+
+	//list.push_back(node);
+	//list.push_front(node);
+
+	for (auto& child : node->_children) {
+			childrenRec(child, list);
 	}
 
-	stack.push(node);
+	list.push_front(node);
 }
+
+//vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
+//
+//	auto visited = map<shared_ptr<Node>, bool>();
+//	auto stack = std::stack<shared_ptr<Node>>();
+//
+//	// don't include the root
+//	//preorderChildrenRec(root, visited, stack);
+//	for (auto child : root->children(false)) {
+//		preorderChildrenRec(child, visited, stack);
+//	}
+//
+//	// probably a better way to do this
+//	auto vec = vector<shared_ptr<Node>>();
+//	vec.reserve(stack.size());
+//	while (!stack.empty()) {
+//		vec.emplace_back(stack.top());
+//		stack.pop();
+//	}
+//	return vec;
+//}
+//
+//void Node::preorderChildrenRec(shared_ptr<Node> node,
+//							   map<shared_ptr<Node>, bool>& visited,
+//							   stack<shared_ptr<Node>>& stack) {
+//
+//	visited[node] = true;
+//
+//	for (auto child : node->_children) {
+//		if (!visited[child]) {
+//			preorderChildrenRec(child, visited, stack);
+//		}
+//	}
+//
+//	stack.push(node);
+//}
 
 //void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
 //	// check if the physics shape needs to be scaled

@@ -129,8 +129,34 @@ int Example::run(const vector<string>& args) {
 
 		a->addChild(d);
 
-		a->_printPreorder();
+		a->_debugPrint();
 
+		for (auto& c : a->children(true)) {
+			AE_LOG_I("c: {}", *c->name());
+		}
+
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] c
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] f
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] g
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] n
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] t
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [4] u
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [5] v
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [5] w
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] b
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] e
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] j
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] k
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] q
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] r
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] l
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] m
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] s
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] d
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] h
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] o
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] p
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] i
 
 	}
 	else if (_test == TEST::MATRIX) {
