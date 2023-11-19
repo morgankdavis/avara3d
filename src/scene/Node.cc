@@ -151,7 +151,7 @@ vec3 Node::position() const {
 void Node::position(const vec3& position) {
 	_position = position;
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
@@ -217,7 +217,7 @@ void Node::rotation(const vec3& axis, float angle) {
 	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
 	_orientation = angleAxis(angle, axisNormalized);
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 }
 
@@ -335,7 +335,7 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
@@ -345,7 +345,7 @@ quat Node::orientation() const {
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
@@ -358,7 +358,7 @@ void Node::scale(const glm::vec3& scale) {
 	
 	_scale = scale;
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
@@ -397,7 +397,7 @@ void Node::transform(const mat4& transform) {
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
 
-	addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::worldPosition() {
@@ -926,36 +926,56 @@ void Node::_debugPrintRec(Node& node,
 //	return parents;
 //}
 
-void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
-
+//void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
+//
+////	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+//
+//	auto l = list<shared_ptr<Node>>();
+//	addChildrenDirtyMaskRec(mask, shared_from_this(), l);
+//}
+//
+//void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
+//								   shared_ptr<Node> node,
+//								   list<shared_ptr<Node>>& list) {
 //	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+//
+//	list.push_back(node); // stack overflow
+//
+//	for (auto child : node->_children) {
+//		addChildrenDirtyMaskRec(mask, node, list);
+//	}
+//}
 
-	auto visited = map<shared_ptr<Node>, bool>();
-	auto stack = std::stack<shared_ptr<Node>>();
-	addChildrenDirtyMaskRec(mask, shared_from_this(), visited, stack);
-}
-
-void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-								   std::shared_ptr<Node> node,
-								   std::map<std::shared_ptr<Node>, bool>& visited,
-								   std::stack<std::shared_ptr<Node>>& stack) {
-
-	if (!visited[node]) {
-		visited[node] = true;
-
-		_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
-
-		for (auto child : node->_children) {
-			addChildrenDirtyMaskRec(mask, node, visited, stack);
-		}
-	}
-}
+//void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
+//
+////	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+//
+//	auto visited = map<shared_ptr<Node>, bool>();
+//	auto stack = std::stack<shared_ptr<Node>>();
+//	addChildrenDirtyMaskRec(mask, shared_from_this(), visited, stack);
+//}
+//
+//void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
+//								   std::shared_ptr<Node> node,
+//								   std::map<std::shared_ptr<Node>, bool>& visited,
+//								   std::stack<std::shared_ptr<Node>>& stack) {
+//
+//	if (!visited[node]) {
+//		visited[node] = true;
+//
+//		_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
+//
+//		for (auto child : node->_children) {
+//			addChildrenDirtyMaskRec(mask, node, visited, stack);
+//		}
+//	}
+//}
 
 vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
 
 	auto l = list<shared_ptr<Node>>();
 
-	for (auto child : root->_children) {
+	for (auto& child : root->_children) {
 		childrenRec(child, l);
 	}
 

@@ -184,11 +184,16 @@ namespace ae {
 
 //		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
 
-		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
-		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-																		std::shared_ptr<Node> node,
-																		std::map<std::shared_ptr<Node>, bool>& visited,
-																		std::stack<std::shared_ptr<Node>>& stack);
+//		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
+//		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
+//																		std::shared_ptr<Node> node,
+//																		std::list<std::shared_ptr<Node>>& list);
+
+//		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
+//		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
+//																		std::shared_ptr<Node> node,
+//																		std::map<std::shared_ptr<Node>, bool>& visited,
+//																		std::stack<std::shared_ptr<Node>>& stack);
 
 		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
 		void 									childrenRec(std::shared_ptr<Node> node,
