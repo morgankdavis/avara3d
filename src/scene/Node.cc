@@ -523,7 +523,7 @@ vec3 Node::worldRight() {
 mat4 Node::worldTransform() {
 
 	if (auto parent = _parent.lock()) {
-		return parent->transform() * transform();
+		return parent->worldTransform() * transform();
 	}
 	else {
 		// base case, at root node

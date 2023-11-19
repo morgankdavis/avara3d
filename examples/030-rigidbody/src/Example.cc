@@ -59,6 +59,8 @@ static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
 static void AddRing(Scene& scene);
+static shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name);
+static void SpawnRecursiveTestTree(Scene& scene);
 
 /***************************************************************************************
 	Public
@@ -375,6 +377,10 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 
 	if (keysPressed.count(KEY::L)) {
 		AddRing(*scene);
+	}
+
+	if (keysPressed.count(KEY::O)) {
+		SpawnRecursiveTestTree(*scene);
 	}
 
 	if (keysPressed.count(KEY::J)) {
@@ -1167,4 +1173,69 @@ static void AddRing(Scene& scene) {
 	node->physicsBody(physicsBody);
 	node->position({0, 15, 0});
 	scene.rootNode()->addChild(node);
+}
+
+shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name) {
+	auto sphereGeometry = make_shared<Sphere>(.25, 8);
+	auto sphereElement = sphereGeometry->elements().front();
+
+	auto colorProperty = make_shared<MaterialProperty>(color);
+	auto colorMaterial = make_shared<Material>(nullptr, colorProperty, nullptr);
+
+//	auto geo = make_shared<Geometry>(sphereElement, colorMaterial);
+//	auto node = Node::GeometryNode(geo);
+//	node->name(name);
+//
+//	return node;
+	sphereGeometry->addMaterial(colorMaterial);
+	auto node = Node::GeometryNode(sphereGeometry);
+	node->name(name);
+
+	return node;
+}
+
+void SpawnRecursiveTestTree(Scene& scene) {
+
+	auto a = ColoredSphereNode(Color::White(), "a");
+	auto b = ColoredSphereNode(Color::Green(), "b");
+	auto c = ColoredSphereNode(Color::Blue(), "c");
+	auto d = ColoredSphereNode(Color::Yellow(), "d");
+	auto e = ColoredSphereNode(Color::Orange(), "e");
+	auto f = ColoredSphereNode(Color::Purple(), "f");
+	auto g = ColoredSphereNode(Color::Lime(), "g");
+	auto h = ColoredSphereNode(Color::Magenta(), "h");
+	auto i = ColoredSphereNode(Color::Cyan(), "i");
+	auto j = ColoredSphereNode(Color::Teal(), "j");
+
+	a->addChild(b);
+	b->addChild(c);
+	c->addChild(d);
+
+	a->addChild(e);
+	e->addChild(f);
+	f->addChild(g);
+
+	a->addChild(h);
+	h->addChild(i);
+	i->addChild(j);
+
+	a->position({0, 15, 0});
+
+	b->position({5, 0, 0});
+	c->position({5, 0, 0});
+	d->position({5, 0, 0});
+
+	e->position({0, 5, 0});
+	f->position({0, 5, 0});
+	g->position({0, 5, 0});
+
+	h->position({0, 0, -5});
+	i->position({0, 0, -5});
+	j->position({0, 0, -5});
+
+//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, a);
+//	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+//	a->physicsBody(physicsBody);
+
+	scene.rootNode()->addChild(a);
 }
