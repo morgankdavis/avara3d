@@ -522,27 +522,61 @@ vec3 Node::worldRight() {
 
 mat4 Node::worldTransform() {
 
+	if (auto parent = _parent.lock()) {
+		return parent->transform() * transform();
+	}
+	else {
+		// base case, at root node
+		return mat4(1.0);
+	}
+
 //	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
 
-		//AE_LOG_I("DIRTY UPDATING WORLD");
+	//AE_LOG_I("DIRTY UPDATING WORLD");
 
-		auto t = mat4(1.0f);
-		auto path = pathToRoot();
-		
-		auto iter = path.end();
-		while (iter != path.begin()) {
-			--iter;
-			shared_ptr<Node> node = *iter;
-			t = t * node->transform();
-		}
+//	auto t = mat4(1.0f);
+//	auto path = pathToRoot();
+//
+//	auto iter = path.end();
+//	while (iter != path.begin()) {
+//		--iter;
+//		shared_ptr<Node> node = *iter;
+//		t = t * node->transform();
+//	}
 
-		//_worldTransform = t * transform();
+	//_worldTransform = t * transform();
 
 //		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 
-	return t * transform();
+//	return t * transform();
 }
+
+
+
+//mat4 Node::worldTransform() {
+//
+////	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
+//
+//		//AE_LOG_I("DIRTY UPDATING WORLD");
+//
+//		auto t = mat4(1.0f);
+//		auto path = pathToRoot();
+//
+//		auto iter = path.end();
+//		while (iter != path.begin()) {
+//			--iter;
+//			shared_ptr<Node> node = *iter;
+//			t = t * node->transform();
+//		}
+//
+//		//_worldTransform = t * transform();
+//
+////		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
+////	}
+//
+//	return t * transform();
+//}
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {
@@ -875,22 +909,22 @@ void Node::_debugPrintRec(Node& node,
 	Private
  *********************************************************************************************/
 
-vector<shared_ptr<Node>> Node::pathToRoot() const {
-	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
-	
-	auto parents = vector<shared_ptr<Node>>();
-	
-	if (auto p = _parent.lock()) {
-		if (auto p = _parent.lock()) {
-			do {
-				parents.push_back(p);
-				p = p->parent().lock();
-			} while (p != nullptr);
-		}
-	}
-	
-	return parents;
-}
+//vector<shared_ptr<Node>> Node::pathToRoot() const {
+//	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
+//
+//	auto parents = vector<shared_ptr<Node>>();
+//
+//	if (auto p = _parent.lock()) {
+//		if (auto p = _parent.lock()) {
+//			do {
+//				parents.push_back(p);
+//				p = p->parent().lock();
+//			} while (p != nullptr);
+//		}
+//	}
+//
+//	return parents;
+//}
 
 void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
 

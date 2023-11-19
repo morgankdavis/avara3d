@@ -182,7 +182,7 @@ namespace ae {
 
 		void	 								unrollWorldTransform(glm::mat4 transform);
 
-		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
+//		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
 
 		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
 		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
