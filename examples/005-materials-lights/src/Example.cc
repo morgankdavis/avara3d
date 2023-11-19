@@ -92,8 +92,8 @@ int Example::run(const vector<string>& args) {
 
 	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
 //	auto palletNode = palletScene->rootNode()->children(true)[1];
-	auto palletNode = palletScene->rootNode()->children(true)[0];
-	palletNode->name("Pallet node");
+	//auto palletNode = palletScene->rootNode()->children(true)[0];
+	auto palletNode = palletScene->rootNode()->child("Pallet", true);
 	_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);

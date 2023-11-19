@@ -643,8 +643,10 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 //}
 
 shared_ptr<Node> Node::child(const string& name, bool resursive) {
-	for (auto child : children(resursive)) {
-		if (child->name() == name) return child;
+	for (auto& child : children(resursive)) {
+		if (child->name() != nullopt && *child->name() == name) {
+			return child;
+		}
 	}
 	return nullptr;
 }
@@ -1016,14 +1018,14 @@ vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
 void Node::childrenRec(shared_ptr<Node> node,
 					   list<shared_ptr<Node>>& list) {
 
-	//list.push_back(node);
+	list.push_back(node);
 	//list.push_front(node);
 
 	for (auto& child : node->_children) {
 			childrenRec(child, list);
 	}
 
-	list.push_front(node);
+	//list.push_front(node);
 }
 
 //vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {

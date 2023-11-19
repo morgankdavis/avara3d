@@ -85,12 +85,12 @@ int Example::run(const vector<string>& args) {
 	
 
 	auto teapotScene = SceneNamed("teapot");
-	auto teapotNode = teapotScene->rootNode()->children(true)[1];
+	auto teapotNode = teapotScene->rootNode()->child("teapot", true);
     teapotNode->rotation({1, 0, 0}, radians(30.0));
 	scene->rootNode()->addChild(teapotNode);
 
 	auto dragonScene = SceneNamed("dragon", "obj");
-	auto dragonNode = dragonScene->rootNode()->children(true)[0];
+	auto dragonNode = dragonScene->rootNode()->child("g default", true);
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 	scene->rootNode()->addChild(dragonNode);
