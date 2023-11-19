@@ -840,7 +840,10 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 		auto node = canNode;
 
 		node->position(location);
-		auto physicsBody = PhysicsBody::DynamicBody();
+		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
+														   fileCanNode->geometry());
+		auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
+//		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F
 //	physicsBody->friction(5);
 ///
