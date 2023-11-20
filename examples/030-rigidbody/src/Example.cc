@@ -165,15 +165,25 @@ int Example::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
 	auto gridImage = ImageNamed("grid10");
-//	auto inverted = gridImage->inverted();
+	auto inverted = gridImage->inverted();
+	//gridImage->writePNG("thing.png");
 	//auto gridImage = ImageNamed("grid10_512");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	//auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	auto planeMaterialProperty = make_shared<MaterialProperty>(inverted);
+	//auto specularMaterialProperty = make_shared<MaterialProperty>(Color::Gray());
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
 	planeMaterialProperty->maxAnisotropy(16);
 	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
 	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-	auto planeMaterial = make_shared<Material>(nullptr, planeMaterialProperty, nullptr);
+//	auto planeMaterial = make_shared<Material>(planeMaterialProperty,
+//											   planeMaterialProperty,
+//											   planeMaterialProperty,
+//											   planeMaterialProperty);
+	auto planeMaterial = make_shared<Material>(nullptr,
+											   nullptr,
+											   nullptr,
+											   planeMaterialProperty);
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
@@ -279,7 +289,8 @@ int Example::run(const vector<string>& args) {
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
 //	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185));
+	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)); // sunset
+	 auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
@@ -1179,7 +1190,7 @@ void AddSlurms(Scene& scene) {
 static void AddRing(Scene& scene) {
 
 	auto node = Node::NamedNode("Torus Node");
-	static auto geometry = make_shared<Torus>(0.25, 1.0, 16, 16);
+	static auto geometry = make_shared<Torus>(.75, 1.0, 16, 16);
 	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON,
 												  geometry);
 	//auto physicsBody = PhysicsBody::DynamicBody();
@@ -1444,73 +1455,126 @@ shared_ptr<Node> PhysicsChainElement(float minorRadius, float majorRadius) {
 	return node;
 }
 
+//void SpawnChainMail(Scene& scene) {
+//
+//	static const float TORUS_MINOR_RADIUS = .9;
+//	static const float TORUS_MAJOR_RADIUS = 1;
+//
+//	static bool once = false;
+//	if (!once) {
+//		once = true;
+//
+//		static const float TWO_PI = 2 * 3.14159265358;
+//
+//
+////	scene.rootNode()->addChild(PhysicsChainElement(TORUS_MINOR_RADIUS,
+////												   TORUS_MAJOR_RADIUS));
+//
+//		auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
+//		//auto ringVisualNode =
+//
+//		static const float CAPSULE_RADIUS = .1;
+////	static const float CAPSULE_HEIGHT = (TWO_PI * 1) / 8;
+//		static const float TORUS_MID_RADIUS = TORUS_MAJOR_RADIUS - (TORUS_MAJOR_RADIUS - TORUS_MINOR_RADIUS);
+//		static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0;
+////	static auto partShape = make_shared<CapsulePhysicsShape>(CAPSULE_RADIUS,
+////															 CAPSULE_HEIGHT);
+//		static auto visualGeo = make_shared<Capsule>(CAPSULE_RADIUS,
+//													 CAPSULE_HEIGHT,
+//													 16, 16, 16);
+//
+//		for (int s = 0; s < 8; ++s) {
+//
+//			float angle = (TWO_PI / 8.0) * (float) s;
+//
+//			auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
+//			partNode->geometry(visualGeo);
+//
+//			quat rotation = angleAxis(angle, vec3(0, 0, 1));
+//			mat4 rotMatrix = mat4_cast(rotation);
+//			mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
+//			mat4 transform = rotMatrix * translation;
+//			partNode->transform(transform);
+//
+//			partNode->hidden(true);
+//
+//			ringPhysicsNode->addChild(partNode);
+//		}
+//
+//		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, ringPhysicsNode);
+//		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+//		//body->affectedByGravity(false);
+//		ringPhysicsNode->physicsBody(body);
+//
+//		ringPhysicsNode->position({0, 1, 0});
+//
+////	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+////	body->affectedByGravity(false);
+////	node->physicsBody(body);
+////	node->position({0, 5, 0});
+//
+//		scene.rootNode()->addChild(ringPhysicsNode);
+//	}
+//	else {
+//		auto ringPhysicsNode = scene.rootNode()->child("Ring physics shape node", true);
+//
+//		auto geometry = make_shared<Torus>(TORUS_MINOR_RADIUS+(TORUS_MINOR_RADIUS/32.0),
+//										   TORUS_MAJOR_RADIUS+(TORUS_MAJOR_RADIUS/32.0), 128, 128);
+//		auto ringVisualNode = Node::GeometryNode(geometry);
+//
+//		ringPhysicsNode->addChild(ringVisualNode);
+//	}
+//}
+
 void SpawnChainMail(Scene& scene) {
 
 	static const float TORUS_MINOR_RADIUS = .9;
 	static const float TORUS_MAJOR_RADIUS = 1;
 
-	static bool once = false;
-	if (!once) {
-		once = true;
+	static const float TWO_PI = 2 * 3.14159265358;
 
-		static const float TWO_PI = 2 * 3.14159265358;
+	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
 
+	static const float CAPSULE_RADIUS = .1;
+	static const float TORUS_MID_RADIUS = TORUS_MAJOR_RADIUS - (TORUS_MAJOR_RADIUS - TORUS_MINOR_RADIUS);
+	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0;
+	static auto visualGeo = make_shared<Capsule>(CAPSULE_RADIUS,
+												 CAPSULE_HEIGHT,
+												 16, 16, 16);
 
-//	scene.rootNode()->addChild(PhysicsChainElement(TORUS_MINOR_RADIUS,
-//												   TORUS_MAJOR_RADIUS));
+	for (int s = 0; s < 8; ++s) {
 
-		auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
-		//auto ringVisualNode =
+		float angle = (TWO_PI / 8.0) * (float) s;
 
-		static const float CAPSULE_RADIUS = .1;
-//	static const float CAPSULE_HEIGHT = (TWO_PI * 1) / 8;
-		static const float TORUS_MID_RADIUS = TORUS_MAJOR_RADIUS - (TORUS_MAJOR_RADIUS - TORUS_MINOR_RADIUS);
-		static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0;
-//	static auto partShape = make_shared<CapsulePhysicsShape>(CAPSULE_RADIUS,
-//															 CAPSULE_HEIGHT);
-		static auto visualGeo = make_shared<Capsule>(CAPSULE_RADIUS,
-													 CAPSULE_HEIGHT,
-													 16, 16, 16);
+		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
+		partNode->geometry(visualGeo);
 
-		for (int s = 0; s < 8; ++s) {
+		quat rotation = angleAxis(angle, vec3(0, 0, 1));
+		mat4 rotMatrix = mat4_cast(rotation);
+		mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
+		mat4 transform = rotMatrix * translation;
+		partNode->transform(transform);
 
-			float angle = (TWO_PI / 8.0) * (float) s;
+		//partNode->hidden(true);
 
-			auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
-			partNode->geometry(visualGeo);
-
-			quat rotation = angleAxis(angle, vec3(0, 0, 1));
-			mat4 rotMatrix = mat4_cast(rotation);
-			mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
-			mat4 transform = rotMatrix * translation;
-			partNode->transform(transform);
-
-			partNode->hidden(true);
-
-			ringPhysicsNode->addChild(partNode);
-		}
-
-		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, ringPhysicsNode);
-		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
-		//body->affectedByGravity(false);
-		ringPhysicsNode->physicsBody(body);
-
-		ringPhysicsNode->position({0, 1, 0});
-
-//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
-//	body->affectedByGravity(false);
-//	node->physicsBody(body);
-//	node->position({0, 5, 0});
-
-		scene.rootNode()->addChild(ringPhysicsNode);
+		ringPhysicsNode->addChild(partNode);
 	}
-	else {
-		auto ringPhysicsNode = scene.rootNode()->child("Ring physics shape node", true);
 
-		auto geometry = make_shared<Torus>(TORUS_MINOR_RADIUS+(TORUS_MINOR_RADIUS/32.0),
-										   TORUS_MAJOR_RADIUS+(TORUS_MAJOR_RADIUS/32.0), 128, 128);
-		auto ringVisualNode = Node::GeometryNode(geometry);
+	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, ringPhysicsNode);
 
-		ringPhysicsNode->addChild(ringVisualNode);
-	}
+	auto torusGeometry = make_shared<Torus>(TORUS_MINOR_RADIUS+(TORUS_MINOR_RADIUS/32.0),
+											TORUS_MAJOR_RADIUS+(TORUS_MAJOR_RADIUS/32.0), 128, 128);
+	auto ringVisualNode = Node::GeometryNode(torusGeometry);
+
+	auto colorProperty = make_shared<MaterialProperty>(Color::LightGray());
+	auto colorMaterial = make_shared<Material>(nullptr, colorProperty, nullptr);
+	torusGeometry->addMaterial(colorMaterial);
+
+	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+	//body->affectedByGravity(false);
+	ringVisualNode->physicsBody(body);
+
+	ringVisualNode->position({0, 1, 0});
+
+	scene.rootNode()->addChild(ringVisualNode);
 }

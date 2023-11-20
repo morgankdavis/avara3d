@@ -88,23 +88,28 @@ unsigned Image::bytesPerPixel() const {
 }
 
 shared_ptr<Image> Image::inverted() const {
+
 	int widthInBytes = _width * _bytesPerPixel;
 	int size = widthInBytes * _height;
 
-	std::byte buf[size];
+	//unsigned char buf[size]; // CRASH??????????????????????
+	auto buf = (unsigned char*)malloc(size);
 
-	unsigned char* existing = _data->pointer();
+	auto existing = _data->pointer();
 	for (int r=0; r<_height; ++r) {
 		for (int c=0; c<widthInBytes; ++c) {
-			buf[widthInBytes*r + c] = (std::byte)existing[widthInBytes*r + c];
+			buf[widthInBytes*r + c] = 255 - existing[widthInBytes*r + c];
 		}
 	}
 
-	return make_shared<Image>(make_shared<Buffer>((unsigned char*)buf, size),
+	auto inverted = make_shared<Image>(make_shared<Buffer>((unsigned char*)buf, size),
 							  _width,
 							  _height,
 							  _bytesPerPixel,
 							  false);
+	free(buf);
+
+	return inverted;
 }
 
 bool Image::writePNG(filesystem::path path) const {
