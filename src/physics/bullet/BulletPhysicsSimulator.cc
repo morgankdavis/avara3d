@@ -870,7 +870,7 @@ BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	auto originalShape = make_shared<btConvexHullShape>();
-	for (auto& vertex : element->vertices()) {
+	for (const auto& vertex : element->vertices()) {
 		originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
 	}
 	originalShape->recalcLocalAabb();
@@ -911,16 +911,19 @@ BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
 
 	// see notes above under PHYSICS_BODY_TYPE::STATIC
-	auto vertsBase = element->vertices().data();
-	auto facesBase = element->faces().data();
+//	const auto& vertsBase = element->vertices().data();
+//	const auto& facesBase = element->faces().data();
+
+	const auto& verts = element->vertices();
+	const auto& faces = element->faces();
 
 	auto indexedMesh = make_shared<btIndexedMesh>();
 
-	indexedMesh->m_numTriangles = (int)element->faces().size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
+	indexedMesh->m_numTriangles = (int)faces.size();
+	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
 	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)element->vertices().size();
-	indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
+	indexedMesh->m_numVertices = (int)verts.size();
+	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
 	indexedMesh->m_vertexStride = sizeof(Vertex);
 	indexedMesh->m_vertexType = PHY_FLOAT;
 
@@ -941,30 +944,19 @@ BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 
-	// WORKS
-	auto vertsBase = element->vertices().data();
-	auto facesBase = element->faces().data();
-
-	// WORKS
-//	auto vertsBase = &element->vertices()[0];
-//	auto facesBase = &element->faces()[0];
-
-	// DOES NOT WORK
-//	auto verts = element->vertices();
-//	auto faces = element->faces();
-//	auto vertsBase = verts.data();
-//	auto facesBase = faces.data();
+	const auto& verts = element->vertices();
+	const auto& faces = element->faces();
 
 	// ^^ asked about on Bullet forum:
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
 
 	auto indexedMesh = make_shared<btIndexedMesh>();
 
-	indexedMesh->m_numTriangles = (int)element->faces().size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)facesBase;
+	indexedMesh->m_numTriangles = (int)faces.size();
+	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
 	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)element->vertices().size();
-	indexedMesh->m_vertexBase = (const unsigned char *)vertsBase;
+	indexedMesh->m_numVertices = (int)verts.size();
+	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
 	indexedMesh->m_vertexStride = sizeof(Vertex);
 	indexedMesh->m_vertexType = PHY_FLOAT;
 

@@ -35,8 +35,8 @@ namespace ae {
 
 	public:
 
-		GeometryElement(std::vector<Vertex>& verticies,
-						std::vector<Face>& faces);
+		GeometryElement(const std::vector<Vertex>& verticies,
+						const std::vector<Face>& faces);
 		~GeometryElement();
 
 /*********************************************************************************************
