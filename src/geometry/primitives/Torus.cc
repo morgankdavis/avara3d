@@ -48,7 +48,8 @@ Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
 		/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 		/// @param majorSweep Counterclockwise angle around the z-axis.
 
-		TorusMesh torus{minorRadius, majorRadius, slices, segments};
+		//TorusMesh torus{minorRadius, majorRadius, slices, segments};
+		TorusMesh torus{majorRadius-minorRadius, majorRadius, slices, segments};
 		
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : torus.vertices()) {

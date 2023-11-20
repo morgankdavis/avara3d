@@ -223,6 +223,10 @@ void Node::rotation(const vec3& axis, float angle) {
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 
+	// glm::eulerAngleYXZ()
+	// glm::yawPitchRoll()
+	// https://glm.g-truc.net/0.9.3/api/a00164.html#ga4c297724e663cb77cc2cf7e4ab89b77e
+
 	// !? https://glm.g-truc.net/0.9.0/api/a00151.html
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
