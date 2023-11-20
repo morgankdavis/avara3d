@@ -851,8 +851,8 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	
 	program.use();
 	
-	auto verticies = element.vertices();
-	auto faces = element.faces();
+	const auto& verticies = element.vertices();
+	const auto& faces = element.faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -910,8 +910,8 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	program.use();
 	
 	auto element = skyboxGeometry.elements().front();
-	auto verts = element->vertices();
-	auto faces = element->faces();
+	const auto& verts = element->vertices();
+	const auto& faces = element->faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -1614,7 +1614,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	
 	// update
 	
-	auto faces = element.faces();
+	const auto& faces = element.faces();
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);

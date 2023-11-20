@@ -90,12 +90,12 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 	faces.reserve((sizeof(uint32_t)*3) * numFaces);
 
 //	for (auto& element : _sourceElements) {
-		for (auto& vert : element->vertices()) {
+		for (const auto& vert : element->vertices()) {
 			verts.push_back(vert.position.x);
 			verts.push_back(vert.position.y);
 			verts.push_back(vert.position.z);
 		}
-		for (auto& face : element->faces()) {
+		for (const auto& face : element->faces()) {
 			faces.push_back((uint32_t)face.a);
 			faces.push_back((uint32_t)face.b);
 			faces.push_back((uint32_t)face.c);

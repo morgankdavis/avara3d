@@ -25,8 +25,8 @@ using namespace glm;
 	Lifecycle
  *********************************************************************************************/
 
-GeometryElement::GeometryElement(vector<Vertex>& verticies,
-								 vector<Face>& faces):
+GeometryElement::GeometryElement(const vector<Vertex>& verticies,
+								 const vector<Face>& faces):
 		_vertices(verticies),
 		_faces(faces),
 		_dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK::ALL) {
@@ -94,7 +94,7 @@ AABB GeometryElement::aabb(const std::shared_ptr<Node> convertToNode) const {
 									 ? convertToNode->worldTransform()
 									 : mat4(1.0));
 
-		for (auto v : vertices()) {
+		for (const auto& v : vertices()) {
 			vec3 p = (convertToNode
 					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
 					  : v.position);

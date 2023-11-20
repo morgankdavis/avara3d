@@ -326,7 +326,9 @@ void RenderContext::update() { // pure virtual
 
 	swapBuffers();
 
-	if (_recordingGIF) saveGIFFrame(sceneTime());
+	if (_recordingGIF) {
+		saveGIFFrame(sceneTime());
+	}
 
 	if (didRenderCallback()) {
 		(didRenderCallback())(*this, sceneTime());
@@ -370,7 +372,7 @@ void RenderContext::framebufferHeight(unsigned height) {
  *********************************************************************************************/
 
 void RenderContext::saveGIFFrame(float time) {
-	
+
 //	float time = sceneTime();
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;

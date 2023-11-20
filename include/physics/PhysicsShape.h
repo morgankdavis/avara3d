@@ -35,6 +35,8 @@ namespace ae {
 
 	public:
 
+		PhysicsShape();
+		PhysicsShape(PHYSICS_SHAPE_TYPE type);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<Geometry> geometry);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<Node> node);
 		~PhysicsShape();
@@ -43,15 +45,13 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-
-
-		PHYSICS_SHAPE_TYPE 						type() const;
-		void 									type(PHYSICS_SHAPE_TYPE type);
+		virtual PHYSICS_SHAPE_TYPE 				type() const;
+		virtual void 							type(PHYSICS_SHAPE_TYPE type);
 
 		std::variant<
 				std::weak_ptr<Geometry>,
-				std::weak_ptr<Node>> 			sourceObject() const;
-
+				std::weak_ptr<Node>,
+				std::monostate> 				sourceObject() const;
 
 /*********************************************************************************************
 	Internal
@@ -59,7 +59,8 @@ namespace ae {
 
 		void 									sourceObject(std::variant<
 															std::weak_ptr<Geometry>,
-															std::weak_ptr<Node>> sourceObject);
+															std::weak_ptr<Node>,
+															std::monostate> sourceObject);
 
 		void									update(PhysicsSimulator& simulator,
 													   Node& node,
@@ -75,17 +76,22 @@ namespace ae {
 
 		std::shared_ptr<PhysicsShapeResources>	resources();
 
+	protected:
+
+		PHYSICS_SHAPE_TYPE 						_type;
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-		std::shared_ptr<PhysicsShapeResources>	_resources;
+
 	private:
 
 		std::variant<
 				std::weak_ptr<Geometry>,
-				std::weak_ptr<Node>> 			_sourceObject;
-		PHYSICS_SHAPE_TYPE 						_type;
-
+				std::weak_ptr<Node>,
+				std::monostate> 				_sourceObject;
+//		PHYSICS_SHAPE_TYPE 						_type;
+		std::shared_ptr<PhysicsShapeResources>	_resources;
 		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 	};
 }
