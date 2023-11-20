@@ -44,6 +44,7 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
+constexpr bool					DARK =					true;
 
 /***************************************************************************************
 	Static Prototypes
@@ -160,16 +161,15 @@ int Example::run(const vector<string>& args) {
 
 	// ground plane
 	
-	const float PLANE_LENGTH = 40.0;
-	const float PLANE_WIDTH = 40.0;
+	const float PLANE_LENGTH = 50.0;
+	const float PLANE_WIDTH = 50.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
-	auto gridImage = ImageNamed("grid10");
-	auto inverted = gridImage->inverted();
+	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	//gridImage->writePNG("thing.png");
 	//auto gridImage = ImageNamed("grid10_512");
 	//auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	auto planeMaterialProperty = make_shared<MaterialProperty>(inverted);
+	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	//auto specularMaterialProperty = make_shared<MaterialProperty>(Color::Gray());
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
@@ -283,14 +283,19 @@ int Example::run(const vector<string>& args) {
 
 	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 	//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
-	auto background = make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+	auto background = DARK
+					  ? make_shared<MaterialProperty>(Color::Black())
+					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
 	scene->background(background);
 
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
 //	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)); // sunset
-	 auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
+	auto ambientLight = DARK
+						? make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)) // sunset
+						: make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
+
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
