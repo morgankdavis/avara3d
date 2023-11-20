@@ -61,6 +61,8 @@ static void AddSlurms(Scene& scene);
 static void AddRing(Scene& scene);
 static shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name);
 static void SpawnRecursiveTestTree(Scene& scene);
+static void SpawnPrimitives(Scene& scene);
+static void SpawnChainMail(Scene& scene);
 
 /***************************************************************************************
 	Public
@@ -376,6 +378,14 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 
 	if (keysPressed.count(KEY::L)) {
 		AddRing(*scene);
+	}
+
+	if (keysPressed.count(KEY::Q)) {
+		SpawnPrimitives(*scene);
+	}
+
+	if (keysPressed.count(KEY::M)) {
+		SpawnChainMail(*scene);
 	}
 
 	if (keysPressed.count(KEY::O)) {
@@ -1175,17 +1185,16 @@ static void AddRing(Scene& scene) {
 }
 
 shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name) {
+
 	auto sphereGeometry = make_shared<Sphere>(.25, 8);
-	auto sphereElement = sphereGeometry->elements().front();
 
 	auto colorProperty = make_shared<MaterialProperty>(color);
 	auto colorMaterial = make_shared<Material>(nullptr, colorProperty, nullptr);
 
-	auto geo = make_shared<Geometry>(sphereElement, colorMaterial);
-	auto node = Node::GeometryNode(geo);
-	node->name(name);
+	sphereGeometry->addMaterial(colorMaterial);
 
-	return node;
+	auto node = Node::GeometryNode(sphereGeometry);
+	node->name(name);
 
 	return node;
 }
@@ -1265,4 +1274,83 @@ void SpawnRecursiveTestTree(Scene& scene) {
 	a->physicsBody(physicsBody);
 
 	scene.rootNode()->addChild(a);
+}
+
+void SpawnPrimitives(Scene& scene) {
+
+	{ // box
+		auto geometry = make_shared<Box>(1, 1, 1);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({5, 0, 0});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+
+	{ // capsule
+		auto geometry = make_shared<Capsule>(.5, 2, 8, 8, 8);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({0, 5, 0});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+
+	{ // cone
+		auto geometry = make_shared<Cone>(1, 1, 8, 8);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({0, 0, -5});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+
+	{ // cylinder
+		auto geometry = make_shared<Cylinder>(.5, 1, 8, 8);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({-5, 0, 0});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+
+	{ // plane
+		auto geometry = make_shared<Plane>(1, 1);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({0, -5, 0});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+
+	{ // sphere
+		auto geometry = make_shared<Sphere>(1, 8);
+		auto node = Node::GeometryNode(geometry);
+		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry);
+		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+		node->physicsBody(body);
+		node->position({0, 0, 5});
+		node->position({node->position().x, node->position().y+10, node->position().y});
+
+		scene.rootNode()->addChild(node);
+	}
+}
+
+void SpawnChainMail(Scene& scene) {
+
 }

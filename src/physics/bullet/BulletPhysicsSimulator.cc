@@ -910,10 +910,6 @@ BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
 	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
 
-	// see notes above under PHYSICS_BODY_TYPE::STATIC
-//	const auto& vertsBase = element->vertices().data();
-//	const auto& facesBase = element->faces().data();
-
 	const auto& verts = element->vertices();
 	const auto& faces = element->faces();
 
