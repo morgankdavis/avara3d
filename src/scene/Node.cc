@@ -527,7 +527,8 @@ mat4 Node::worldTransform() {
 	}
 	else {
 		// base case, at root node
-		return mat4(1.0);
+		static const auto idMat4 = mat4(1.0);
+		return idMat4;
 	}
 
 //	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
