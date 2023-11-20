@@ -675,14 +675,10 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
 				 (void*)element.get());
 
-		// TODO: this isn't right
 		auto extent = element->extent();
-		float width = extent.x;
-		float height = extent.y;
-		float length = extent.z;
-		return make_shared<btBoxShape>(btVector3((btScalar)width/2.0f,
-												 (btScalar)height/2.0f,
-												 (btScalar)length/2.0f));
+		return make_shared<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
+												 (btScalar)extent.y/2.0f,
+												 (btScalar)extent.z/2.0f));
 	}
 	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
