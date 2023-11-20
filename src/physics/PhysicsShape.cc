@@ -17,6 +17,12 @@
 #include "physics/PhysicsShapeResources.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/bullet/BulletShapeResources.h"
+#include "physics/shape_primitives/BoxPhysicsShape.h"
+#include "physics/shape_primitives/CapsulePhysicsShape.h"
+#include "physics/shape_primitives/ConePhysicsShape.h"
+#include "physics/shape_primitives/CylinderPhysicsShape.h"
+#include "physics/shape_primitives/PlanePhysicsShape.h"
+#include "physics/shape_primitives/SpherePhysicsShape.h"
 #include "scene/Node.h"
 
 
@@ -28,6 +34,17 @@ using namespace std;
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+PhysicsShape::PhysicsShape():
+		_sourceObject(monostate{}),
+		_resources(make_shared<BulletShapeResources>()),
+		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
+
+PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
+		_sourceObject(monostate{}),
+		_type(type),
+		_resources(make_shared<BulletShapeResources>()),
+		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
 		_sourceObject(geometry),
@@ -70,7 +87,7 @@ PhysicsShape::~PhysicsShape() {
 	Public
  *********************************************************************************************/
 
-variant<weak_ptr<Geometry>, weak_ptr<Node>> PhysicsShape::sourceObject() const {
+variant<weak_ptr<Geometry>, weak_ptr<Node>, monostate> PhysicsShape::sourceObject() const {
 	return _sourceObject;
 }
 
@@ -87,7 +104,10 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	Internal
  *********************************************************************************************/
 
-void PhysicsShape::sourceObject(variant<weak_ptr<Geometry>, weak_ptr<Node>> sourceObject) {
+void PhysicsShape::sourceObject(variant<
+		weak_ptr<Geometry>,
+		weak_ptr<Node>,
+		monostate> sourceObject) {
 	_sourceObject = sourceObject;
 	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
@@ -127,17 +147,35 @@ void PhysicsShape::update(PhysicsSimulator& simulator,
 }
 
 void PhysicsShape::sync(PhysicsSimulator& simulator,
-						 Node& node,
-						 PhysicsBody& body,
-						 FrameStats& stats) {
+						Node& node,
+						PhysicsBody& body,
+						FrameStats& stats) {
 
 	simulator.sync(*this,
 				   body.type());
 
-	switch (type()) {
-		case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX): ++stats.boundingBoxShapes; break;
-		case (PHYSICS_SHAPE_TYPE::CONVEX_HULL): ++stats.convexHullShapes; break;
-		case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON): ++stats.concavePolyhedronShapes; break;
+	// this is probably slow
+	if (dynamic_cast<BoxPhysicsShape*>(this)
+		|| dynamic_cast<CapsulePhysicsShape*>(this)
+		|| dynamic_cast<ConePhysicsShape*>(this)
+		|| dynamic_cast<CylinderPhysicsShape*>(this)
+		|| dynamic_cast<PlanePhysicsShape*>(this)
+		|| dynamic_cast<SpherePhysicsShape*>(this)) {
+
+		// TODO: PUT IN SUBCLASS
+	}
+	else {
+		switch (type()) {
+			case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX):
+				++stats.boundingBoxShapes;
+				break;
+			case (PHYSICS_SHAPE_TYPE::CONVEX_HULL):
+				++stats.convexHullShapes;
+				break;
+			case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON):
+				++stats.concavePolyhedronShapes;
+				break;
+		}
 	}
 }
 

@@ -36,6 +36,12 @@
 #include "physics/bullet/BulletBodyResources.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletShapeResources.h"
+#include "physics/shape_primitives/BoxPhysicsShape.h"
+#include "physics/shape_primitives/CapsulePhysicsShape.h"
+#include "physics/shape_primitives/ConePhysicsShape.h"
+#include "physics/shape_primitives/CylinderPhysicsShape.h"
+#include "physics/shape_primitives/PlanePhysicsShape.h"
+#include "physics/shape_primitives/SpherePhysicsShape.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 #include "utilities/Utilities.h"
@@ -66,6 +72,9 @@ BTShapeFromSourceNode(shared_ptr<Node> node,
 					  PHYSICS_BODY_TYPE bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+static shared_ptr<btCollisionShape>
+BTShapeFromPrimitiveShape(PhysicsShape& shape,
+						  PHYSICS_BODY_TYPE bodyType);
 static shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   shared_ptr<Geometry> geometry,
@@ -250,7 +259,8 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 //		}
 
 		bool wasScaled = false;
-		auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node.worldTransform(), wasScaled));
+		auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node.worldTransform(),
+																		 wasScaled));
 		if (wasScaled) {
 			// TODO: should address this.
 			// can hold a burned transformed vertex data in the physics body/shape?
@@ -365,9 +375,12 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
 													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING));
 	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD)) {
-		btBody->setSleepingThresholds(body.linearSleepingThreshold(), body.angularSleepingThreshold());
+	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
+										 PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD)
+		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
+											PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD)) {
+		btBody->setSleepingThresholds(body.linearSleepingThreshold(),
+									  body.angularSleepingThreshold());
 
 //		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
 //		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
@@ -539,6 +552,12 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 			}
 		}
 
+		// primitive subclass
+		else if (holds_alternative<monostate>(sourceObject)) {
+
+			newShape = BTShapeFromPrimitiveShape(shape, bodyType);
+		}
+
 		if (newShape) {
 			btShapes.insert(btShapes.begin(), newShape);
 
@@ -664,12 +683,61 @@ BTShapeFromSourceNode(shared_ptr<Node> node,
 	return rootShape;
 }
 
-shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-														shared_ptr<Geometry> geometry,
-														PHYSICS_SHAPE_TYPE shapeType,
-														PHYSICS_BODY_TYPE bodyType,
-														vector<shared_ptr<btCollisionShape>>& btShapes,
-														shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+static shared_ptr<btCollisionShape>
+BTShapeFromPrimitiveShape(PhysicsShape& shape,
+						  PHYSICS_BODY_TYPE bodyType) {
+
+	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
+		AE_LOG_I("BoxPhysicsShape");
+
+		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
+												 (btScalar)boxShape->height()/2.0f,
+												 (btScalar)boxShape->length()/2.0f));
+	}
+	else if (auto capsuleShape = dynamic_cast<CapsulePhysicsShape*>(&shape)) {
+		AE_LOG_I("CapsulePhysicsShape");
+
+		return make_shared<btCapsuleShape>((btScalar)capsuleShape->radius(),
+										   (btScalar)capsuleShape->height());
+	}
+	else if (auto coneShape = dynamic_cast<ConePhysicsShape*>(&shape)) {
+		AE_LOG_I("ConePhysicsShape");
+
+		return make_shared<btConeShape>((btScalar)coneShape->radius(),
+										(btScalar)coneShape->height());
+	}
+	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
+		AE_LOG_I("CylinderPhysicsShape");
+
+		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
+													  (btScalar)cylinderShape->height()/2.0,
+													  (btScalar)cylinderShape->radius()));
+	}
+	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
+		AE_LOG_I("PlanePhysicsShape");
+
+		return make_shared<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
+												 (btScalar)planeShape->height()/2.0f,
+												 (btScalar)0));
+	}
+	else if (auto sphereShape = dynamic_cast<SpherePhysicsShape*>(&shape)) {
+		AE_LOG_I("SpherePhysicsShape");
+
+		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
+	}
+	else {
+		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
+				 (void*)&shape);
+	}
+}
+
+shared_ptr<btCollisionShape>
+BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+						   shared_ptr<Geometry> geometry,
+						   PHYSICS_SHAPE_TYPE shapeType,
+						   PHYSICS_BODY_TYPE bodyType,
+						   vector<shared_ptr<btCollisionShape>>& btShapes,
+						   shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 
 	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
@@ -681,7 +749,8 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 												 (btScalar)extent.z/2.0f));
 	}
 	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
+		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... " \
+		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
 		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
@@ -689,21 +758,24 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 												 (btScalar)box->length()/2.0f));
 	}
 	else if (auto capsule = dynamic_cast<Capsule*>(geometry.get())) {
-		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
+		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
+		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
 	else if (auto cone  = dynamic_cast<Cone*>(geometry.get())) {
-		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
+		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... " \
+		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
 	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry.get())) {
-		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
+		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... " \
+		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
@@ -717,7 +789,8 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 												 (btScalar)0));
 	}
 	else if (auto sphere = dynamic_cast<Sphere*>(geometry.get())) {
-		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... (ignoring physics shape type '{}')",
+		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... " \
+		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
@@ -743,12 +816,13 @@ shared_ptr<btCollisionShape> BTShapeFromGeometryElement(shared_ptr<GeometryEleme
 	return nullptr;
 }
 
-shared_ptr<btCompoundShape> BTShapeFromGeometry(shared_ptr<Geometry> geometry,
-//												 shared_ptr<Node> node,
-												PHYSICS_SHAPE_TYPE shapeType,
-												PHYSICS_BODY_TYPE bodyType,
-												vector<shared_ptr<btCollisionShape>>& btShapes,
-												vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+shared_ptr<btCompoundShape>
+BTShapeFromGeometry(shared_ptr<Geometry> geometry,
+//					shared_ptr<Node> node,
+					PHYSICS_SHAPE_TYPE shapeType,
+					PHYSICS_BODY_TYPE bodyType,
+					vector<shared_ptr<btCollisionShape>>& btShapes,
+					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
 	auto newShape = make_shared<btCompoundShape>(true); // added to btShapes bt caller
 
