@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "glm/gtc/matrix_transform.hpp"
+//#include "glm/gtc/matrix_transform.hpp"
 
 #include "Types.h"
 
@@ -93,7 +93,7 @@ namespace ae {
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		
 //		AABB									aabb() const;
-		glm::vec3 								extent() const;
+//		glm::vec3 								extent() const;
 		
 		void 									attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);
 

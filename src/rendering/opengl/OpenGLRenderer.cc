@@ -1364,7 +1364,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 //		auto detaultPoint = Light::PointNode();
 		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
 		// set position based on scene extent...
-		static vec3 sceneExtent = scene.extent(); // only doing this once or it runs reallll slow
+		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
 		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
 			sceneExtent.y + sceneExtent.y/4.0,
 			sceneExtent.z + sceneExtent.z/4.0});
@@ -1496,10 +1496,17 @@ static void SetMaterialOpenGLState(const Material& material,
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
+//	if (material.blendFunction() == BLEND_FUNCTION::THING) {
+//	https://developer.apple.com/documentation/scenekit/scnblendmode
+//	https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendFunc.xhtml
+//		glEnable(GL_BLEND);
+//		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // param 0 was "GL_SRC_ALPHA" (?), GL_ONE_MINUS_SRC_ALPHA
+//	}
+//	else {
+//		glDisable(GL_BLEND);
+//	}
+
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
@@ -1546,6 +1553,7 @@ static void SetSkyboxOpenGLState() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
+//	glDisable(GL_BLEND);
 }
 
 static void SetAABBOpenGLState() {

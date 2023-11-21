@@ -40,27 +40,19 @@ using namespace glm;
  *********************************************************************************************/
 
 shared_ptr<Node> Node::NamedNode(std::string name) {
-	auto node = make_shared<Node>();
-	node->name(name);
-	return node;
+	return make_shared<Node>(name);
 }
 
 shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
-	auto node = make_shared<Node>();
-	node->geometry(geometry);
-	return node;
+	return make_shared<Node>(geometry);
 }
 
 shared_ptr<Node> Node::LightNode(shared_ptr<Light> light) {
-	auto node = make_shared<Node>();
-	node->light(light);
-	return node;
+	return make_shared<Node>(light);
 }
 
 shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
-	auto node = make_shared<Node>();
-	node->camera(camera);
-	return node;
+	return make_shared<Node>(camera);
 }
 
 /*********************************************************************************************
@@ -86,8 +78,22 @@ Node::Node():
 
 Node::Node(const string& name):
 	Node() {
-
 		_name = name;
+}
+
+Node::Node(shared_ptr<Geometry> geometry):
+		Node() {
+	_geometry = geometry;
+}
+
+Node::Node(shared_ptr<Light> light):
+		Node() {
+	_light = light;
+}
+
+Node::Node(shared_ptr<Camera> camera):
+		Node() {
+	_camera = camera;
 }
 
 Node::~Node() {
@@ -786,6 +792,13 @@ AABB Node::aabb() {
 	getAABBRec(aabb);
 
 	return aabb;
+}
+
+vec3 Node::extent() {
+	auto aabb = Node::aabb();
+	return {aabb.max.x - aabb.min.x,
+			aabb.max.y - aabb.min.y,
+			aabb.max.z - aabb.min.z};
 }
 
 void Node::update(PhysicsSimulator& simulator,

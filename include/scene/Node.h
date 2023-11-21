@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+//#include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 #include "Scene.h"
@@ -54,6 +55,9 @@ namespace ae {
 		
 		Node();
 		Node(const std::string& name);
+		Node(std::shared_ptr<Geometry> geometry);
+		Node(std::shared_ptr<Light> light);
+		Node(std::shared_ptr<Camera> camera);
 //		Node(const Node& other) = delete; // copy constructor
 //		Node& operator=(const Node& other) = delete; // copy assignment
 		~Node();
@@ -151,6 +155,7 @@ namespace ae {
 //		void 									attachedToModel(std::shared_ptr<Node> model);
 
 		AABB									aabb();
+		glm::vec3								extent();
 
 		void 									update(PhysicsSimulator& simulator,
 													   FrameStats& stats,

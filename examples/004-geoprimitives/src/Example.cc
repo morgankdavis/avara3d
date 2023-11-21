@@ -83,7 +83,7 @@ int Example::run(const vector<string>& args) {
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 	
 	
-	auto torusGeo = make_shared<Torus>(0.25f, 1.0f, 64, 128);
+	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
 	auto torusNode = make_shared<Node>();
 	torusGeo->name("torus");
 	torusNode->geometry(torusGeo);

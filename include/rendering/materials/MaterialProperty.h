@@ -26,7 +26,15 @@ namespace ae {
 	
 	
 	class MaterialProperty {
-		
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+//	public:
+//
+//		static std::shared_ptr<MaterialProperty> ColorProperty(std::shared_ptr<Color> color);
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -34,6 +42,7 @@ namespace ae {
 	public:
 
 		MaterialProperty();
+		//MaterialProperty(std::shared_ptr<Color> contents);
 		MaterialProperty(std::shared_ptr<MaterialPropertyContents> contents);
 		~MaterialProperty();
 		

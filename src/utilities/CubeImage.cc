@@ -29,6 +29,16 @@ CubeImage::CubeImage(shared_ptr<Image> posX, shared_ptr<Image> negX,
 	
 }
 
+CubeImage::CubeImage(shared_ptr<Image> one):
+	_posX(one),
+	_negX(one),
+	_posY(one),
+	_negY(one),
+	_posZ(one),
+	_negZ(one) {
+
+}
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/

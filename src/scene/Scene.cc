@@ -305,12 +305,12 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 //	return _rootNode->aabb();
 //}
 
-vec3 Scene::extent() const {
-	auto aabb = _rootNode->aabb();
-	return {aabb.max.x - aabb.min.x,
-			aabb.max.y - aabb.min.y,
-			aabb.max.z - aabb.min.z};
-}
+//vec3 Scene::extent() const {
+//	auto aabb = _rootNode->aabb();
+//	return {aabb.max.x - aabb.min.x,
+//			aabb.max.y - aabb.min.y,
+//			aabb.max.z - aabb.min.z};
+//}
 
 void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
 	_renderContext = renderContext;

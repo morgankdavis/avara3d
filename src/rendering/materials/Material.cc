@@ -13,6 +13,7 @@
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
 #include "rendering/materials/MaterialProperty.h"
+#include "rendering/materials/MaterialPropertyContents.h"
 #include "utilities/Color.h"
 
 
@@ -35,6 +36,11 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
+shared_ptr<Material> EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
+	auto property = make_shared<MaterialProperty>(contents);
+	return make_shared<Material>(nullptr, nullptr, nullptr, property);
+}
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -50,6 +56,7 @@ Material::Material():
 		_doubleSided(false),
 		_fillMode(FILL_MODE::FILL),
 		_uvScale(1.0f),
+		_blendFunction(BLEND_FUNCTION::DISABLED),
 		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
 
 	AE_LOG_D("Creating Material {:p}", (void*)this);
@@ -173,6 +180,14 @@ float Material::uvScale() const {
 
 void Material::uvScale(float scale) {
 	_uvScale = scale;
+}
+
+BLEND_FUNCTION Material::blendFunction() const {
+	return _blendFunction;
+}
+
+void Material::blendFunction(BLEND_FUNCTION function) {
+	_blendFunction = function;
 }
 
 /*********************************************************************************************

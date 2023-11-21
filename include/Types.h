@@ -91,6 +91,11 @@ namespace ae {
 		MIRRORED_REPEAT
 	};
 
+	enum class BLEND_FUNCTION {
+		DISABLED,
+		THING
+	};
+
 	enum class LIGHT_TYPE {
 		AMBIENT,
 		POINT,

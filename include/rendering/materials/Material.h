@@ -21,6 +21,7 @@ namespace ae {
 
 
 	class MaterialProperty;
+	class MaterialPropertyContents;
 
 
 	class Material {
@@ -32,6 +33,7 @@ namespace ae {
 	public:
 
 		static std::shared_ptr<Material> DefaultMaterial();
+		static std::shared_ptr<Material> EmissiveMaterial(std::shared_ptr<MaterialPropertyContents> contents);
 		
 /*********************************************************************************************
 	Lifecycle
@@ -80,6 +82,9 @@ namespace ae {
 		
 		float 									uvScale() const;
 		void 									uvScale(float scale);
+
+		BLEND_FUNCTION							blendFunction() const;
+		void 									blendFunction(BLEND_FUNCTION function);
 		
 /*********************************************************************************************
 	Internal
@@ -106,6 +111,7 @@ namespace ae {
 		bool 									_doubleSided;
 		FILL_MODE 								_fillMode;
 		float 									_uvScale;
+		BLEND_FUNCTION							_blendFunction;
 
 		MATERIAL_DIRTY_MASK						_dirtyMask;
 	};

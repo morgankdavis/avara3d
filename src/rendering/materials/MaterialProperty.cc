@@ -17,6 +17,14 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Pulic Static
+ *********************************************************************************************/
+
+//shared_ptr<MaterialProperty> MaterialProperty::ColorProperty(shared_ptr<Color> color) {
+//	return make_shared<MaterialProperty>(color);
+//}
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
@@ -33,10 +41,16 @@ MaterialProperty::MaterialProperty():
 		AE_LOG_D("Creating MaterialProperty {:p}", (void*)this);
 }
 
-MaterialProperty::MaterialProperty(shared_ptr<MaterialPropertyContents> contents):
-	MaterialProperty() {
-		
-		_contents = contents;
+//MaterialProperty::MaterialProperty(shared_ptr<Color> contents):
+//	MaterialProperty() {
+//
+//		_contents = contents;
+//}
+
+MaterialProperty::MaterialProperty(std::shared_ptr<MaterialPropertyContents> contents):
+		MaterialProperty() {
+
+	_contents = contents;
 }
 
 MaterialProperty::~MaterialProperty() {
