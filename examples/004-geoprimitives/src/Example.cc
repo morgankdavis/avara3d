@@ -254,8 +254,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		// move
 		
-		static float MOVE_SPEED = 0;
-		if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
+		static float MOVE_SPEED = Max(scene->rootNode()->extent());
 		
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

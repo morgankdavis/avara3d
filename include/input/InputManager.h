@@ -72,7 +72,7 @@ namespace ae {
 		glm::vec2  						_mousePositionDelta;
 		glm::vec2  						_mouseScrollWheelDelta;
 
-		void			 				clearMousePositionDelta(); // called after mouseMoveDelta()
+		void			 				clearMousePositionDelta(); // called after mousePositionDelta()
 		void 							clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
 	};
 }

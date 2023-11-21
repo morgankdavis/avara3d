@@ -246,10 +246,8 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 		
 		// move
-		
-		//		const static float MOVE_SPEED = 5.0f; // units/sec
-		static float MOVE_SPEED = 0;
-		if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
+
+		static float MOVE_SPEED = Max(scene->rootNode()->extent());
 		
 		auto keysDown = _inputManager->keysDown();
 		

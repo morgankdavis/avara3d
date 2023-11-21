@@ -42,7 +42,7 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/45.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/60.0;
 
 constexpr bool					DARK =					true;
 
@@ -630,8 +630,12 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			}
 			
 			if (keysDown.count(KEY::SPACE)) {
+				float direction = 1;
+				if (keysDown.count(KEY::LEFT_SHIFT) && keysDown.count(KEY::LEFT_CONTROL)) {
+						direction = -1;
+				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				_cameraNode->position(_cameraNode->position() + positionDelta * direction);
 			}
 		}
 	}
@@ -1584,7 +1588,7 @@ void SpawnChainMail(Scene& scene) {
 	static const float TORUS_MAJOR_RADIUS = 1;
 
 	static const int CHAINMAIL_WIDTH = 3;
-	static const int CHAINMAIL_HEIGHT = 4;
+	static const int CHAINMAIL_HEIGHT = 3;
 
 	static const int GROUND_OFFSET = 25;
 

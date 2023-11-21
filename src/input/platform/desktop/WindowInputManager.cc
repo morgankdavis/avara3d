@@ -11,9 +11,7 @@
 
 #include "input/platform/desktop/WindowInputManager.h"
 
-#include <iostream>
-
-#include "glfw-3.3.8/include/GLFW/glfw3.h"
+#include "GLFW/glfw3.h"
 #include "manymouse.h"
 
 #include "diagnostic/Exception.h"
@@ -99,7 +97,7 @@ void WindowInputManager::update() {
 	GLFW Callbacks
  *********************************************************************************************/
 
-void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int button, int action, int mods) {
+void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
@@ -120,7 +118,7 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow *glfwWindow, int but
 	}
 }
 
-void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow *glfwWindow, double xPos, double yPos) {
+void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
 	// ignoring in favor of ManyMouse
 
 	//AE_LOG_D("GLFWCursorPositionCallback(): ({}, {})", xPos, yPos);
@@ -142,13 +140,13 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow *glfwWindow, doub
 	lastYPos = yPos;
 }
 
-void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow *glfwWindow, double xOffset, double yOffset) {
+void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
 	// ignoring in favor of ManyMouse
 
 	// TODO: use GLFW if using GLFW for raw mouse
 }
 
-void WindowInputManager::GLFWKeyCallback(GLFWwindow *glfwWindow, int key, int scancode, int action, int mods) {
+void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
 	//cout << "GLFWKeyCallback()" << endl;
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
@@ -217,6 +215,7 @@ void WindowInputManager::quitManyMouse() {
 }
 
 void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
+
 	glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::GLFWMouseButtonCallback);
 	glfwSetKeyCallback(glfwWindow, WindowInputManager::GLFWKeyCallback);
 
