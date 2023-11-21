@@ -40,10 +40,8 @@ namespace ae {
  *********************************************************************************************/
 
 		WindowInputManager(std::shared_ptr<Window> window);
-		
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
 		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
-		
 		~WindowInputManager();
 
 /*********************************************************************************************

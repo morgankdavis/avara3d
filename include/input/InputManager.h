@@ -20,6 +20,9 @@
 
 namespace ae {
 
+
+	class RenderContext;
+
 	
 	class InputManager {
 		
@@ -29,11 +32,10 @@ namespace ae {
 
 	public:
 
+		//InputManager(std::weak_ptr<RenderContext> renderContext);
 		InputManager();
-		
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
-		
 		~InputManager();
 
 /*********************************************************************************************
@@ -63,6 +65,9 @@ namespace ae {
 
 	protected:
 
+		void			 				clearMousePositionDelta(); // called after mousePositionDelta()
+		void 							clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+
 		std::set<KEY> 					_keysDown;
 		std::set<MOUSE_BUTTON> 			_mouseButtonsDown;
 		std::set<KEY> 					_keysPressed;
@@ -72,8 +77,7 @@ namespace ae {
 		glm::vec2  						_mousePositionDelta;
 		glm::vec2  						_mouseScrollWheelDelta;
 
-		void			 				clearMousePositionDelta(); // called after mousePositionDelta()
-		void 							clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+//		std::weak_ptr<RenderContext> 	_renderContext;
 	};
 }
 

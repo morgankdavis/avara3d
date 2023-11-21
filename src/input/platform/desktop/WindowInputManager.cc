@@ -125,19 +125,24 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, doub
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
-	static double lastXPos = xPos;
-	static double lastYPos = yPos;
+	if (auto window = inputManager->_window.lock()) {
+		if (window->cursorCaptured()) {
 
-	double xDelta = lastXPos - xPos;
-	double yDelta = lastYPos - yPos;
+			static double lastXPos = xPos;
+			static double lastYPos = yPos;
 
-	//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
+			double xDelta = lastXPos - xPos;
+			double yDelta = lastYPos - yPos;
 
-	inputManager->_mousePositionDelta.x -= xDelta;
-	inputManager->_mousePositionDelta.y += yDelta;
+			//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
 
-	lastXPos = xPos;
-	lastYPos = yPos;
+			inputManager->_mousePositionDelta.x -= xDelta;
+			inputManager->_mousePositionDelta.y += yDelta;
+
+			lastXPos = xPos;
+			lastYPos = yPos;
+		}
+	}
 }
 
 void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {

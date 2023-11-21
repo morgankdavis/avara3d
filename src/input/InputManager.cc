@@ -8,10 +8,7 @@
 
 #include "input/InputManager.h"
 
-#include <iostream>
-
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
+#include "rendering/context/RenderContext.h"
 
 
 using namespace ae;
@@ -23,17 +20,18 @@ using namespace glm;
 	Lifecycle
  *********************************************************************************************/
 
+//InputManager::InputManager(weak_ptr<RenderContext> renderContext):
+//		_renderContext(renderContext),
 InputManager::InputManager():
-	_keysDown(set<KEY>()),
-	_mouseButtonsDown(set<MOUSE_BUTTON>()),
-	_keysPressed(set<KEY>()),
-	_keysPressedCleared(set<KEY>()),
-	_mouseButtonsPressed(set<MOUSE_BUTTON>()),
-	_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
-	_mousePositionDelta(vec2(0.0f, 0.0f)),
-	_mouseScrollWheelDelta(vec2(0.0f, 0.0f)) {
+		_keysDown(set<KEY>()),
+		_mouseButtonsDown(set<MOUSE_BUTTON>()),
+		_keysPressed(set<KEY>()),
+		_keysPressedCleared(set<KEY>()),
+		_mouseButtonsPressed(set<MOUSE_BUTTON>()),
+		_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
+		_mousePositionDelta(vec2(0.0f, 0.0f)),
+		_mouseScrollWheelDelta(vec2(0.0f, 0.0f)) {
 
-		//inputManager = this;
 }
 
 InputManager::~InputManager() {
