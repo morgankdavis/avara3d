@@ -32,8 +32,8 @@ namespace example {
 		
 	private:
 		
-		std::shared_ptr<ae::Logger>		m_logger;
-		std::shared_ptr<ae::Node> 		m_parentNode;
+		std::shared_ptr<ae::Logger>		_logger;
+		std::shared_ptr<ae::Node> 		_parentNode;
 	};
 }
 

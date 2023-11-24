@@ -12,7 +12,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;
@@ -38,21 +38,21 @@ constexpr bool					CAPTURE_CURSOR =		true;
 
 int Example::run(const vector<string>& args) {
 	AE_INIT();
+
+	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	
-	m_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	
-	LOG_I(m_logger, "Example::run()");
-	
-	m_window = make_shared<Window>(FULLSCREEN,
-								   WINDOW_WIDTH, WINDOW_HEIGHT,
-								   USE_HIGH_DPI,
-								   ANTIALIAS_MODE,
-								   RENDER_API::OPENGL);
-	m_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	m_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	m_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	m_window->enableVSync(ENABLE_VSYNC);
-	m_window->captureCursor(CAPTURE_CURSOR);
+	LOG_I(_logger, "Example::run()");
+
+	_window = make_shared<Window>(FULLSCREEN,
+								  WINDOW_WIDTH, WINDOW_HEIGHT,
+								  USE_HIGH_DPI,
+								  ANTIALIAS_MODE,
+								  RENDER_API::OPENGL);
+	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
+	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
+	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
+	_window->enableVSync(ENABLE_VSYNC);
+	_window->captureCursor(CAPTURE_CURSOR);
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
@@ -62,7 +62,7 @@ int Example::run(const vector<string>& args) {
 	planeGeo->name("plane");
 	planeNode->geometry(planeGeo);
 	scene->rootNode()->addChild(planeNode);
-	planeNode->rotation(vec4(-1.0f, 0.0f, 0.0f, radians(90.0f)));
+	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
 
@@ -71,7 +71,7 @@ int Example::run(const vector<string>& args) {
 	boxGeo->name("box");
 	boxNode->geometry(boxGeo);
 	scene->rootNode()->addChild(boxNode);
-	boxNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(-70.0f)));
+	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
 
 
@@ -83,12 +83,12 @@ int Example::run(const vector<string>& args) {
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 	
 	
-	auto torusGeo = make_shared<Torus>(0.25f, 1.0f, 64, 128);
+	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
 	auto torusNode = make_shared<Node>();
 	torusGeo->name("torus");
 	torusNode->geometry(torusGeo);
 	scene->rootNode()->addChild(torusNode);
-	torusNode->rotation(vec4(0.0f, 1.0f, 0.0f, radians(45.0f)));
+	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
 	
 	
@@ -97,7 +97,7 @@ int Example::run(const vector<string>& args) {
 	tubeGeo->name("tube");
 	tubeNode->geometry(tubeGeo);
 	scene->rootNode()->addChild(tubeNode);
-	tubeNode->rotation(vec4(1.0f, -1.0f, 0.0f, radians(-45.0f)));
+	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
 	
 	
@@ -151,9 +151,9 @@ int Example::run(const vector<string>& args) {
 	
 	
 
-	m_window->scene(scene);
-	m_inputManager = m_window->inputManager();
-	m_window->display();
+	_window->scene(scene);
+	_inputManager = _window->inputManager();
+	_window->display();
 	
 	return 0;
 }
@@ -172,28 +172,28 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	// get input
 	
-	auto keysDown = m_inputManager->keysDown();
+	auto keysDown = _inputManager->keysDown();
 	
 	if (keysDown.count(KEY::ESCAPE)) {
 		exit(0);
 	}
 	
-//	for (auto mb : m_inputManager->mouseButtonsDown()) {
+//	for (auto mb : _inputManager->mouseButtonsDown()) {
 //		cout << "Mouse button: " << mb << endl;
 //	}
 	
-	vec2 mousePositionDelta = m_inputManager->mousePositionDelta();
+	vec2 mousePositionDelta = _inputManager->mousePositionDelta();
 	//	if (mousePositionDelta.x || mousePositionDelta.y) {
 	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
 	//	}
 	
-//	vec2 mouseScrollWheelDelta = m_inputManager->mouseScrollWheelDelta();
+//	vec2 mouseScrollWheelDelta = _inputManager->mouseScrollWheelDelta();
 //	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
 //		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
 //	}
 	
 	
-	auto keysPressed = m_inputManager->keysPressed();
+	auto keysPressed = _inputManager->keysPressed();
 	if (keysPressed.count(KEY::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
@@ -218,22 +218,22 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	//const static float mouseSensitivity = 0.5f;
 	const static float mouseSensitivity = (1.0f / 0.5f);
 	
-	if (!m_cameraNode) {
+	if (!_cameraNode) {
 		for (auto n : scene->rootNode()->children(false)) {
 			if (n->camera()) {
-				m_cameraNode = n;
+				_cameraNode = n;
 				break;
 			}
 		}
 	}
 	
-	if (m_cameraNode) {
+	if (_cameraNode) {
 		
 		// look
 		
-		vec3 camForward = m_cameraNode->worldForward();
-		vec3 camRight = m_cameraNode->worldRight();
-		vec3 camUp = m_cameraNode->worldUp();
+		vec3 camForward = _cameraNode->worldForward();
+		vec3 camRight = _cameraNode->worldRight();
+		vec3 camUp = _cameraNode->worldUp();
 		
 		
 		//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
@@ -245,39 +245,38 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 		
-		vec3 angles = m_cameraNode->eulerAngles();
+		vec3 angles = _cameraNode->eulerAngles();
 		// weird angles
-		//m_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
+		//_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
 		// pitch, yaw, roll
-		m_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+		_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 		
 		
 		// move
 		
-		static float MOVE_SPEED = 0;
-		if (!MOVE_SPEED) MOVE_SPEED = Max(scene->extent());
+		static float MOVE_SPEED = Max(scene->rootNode()->extent());
 		
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			m_cameraNode->position(m_cameraNode->position() + positionDelta);
+			_cameraNode->position(_cameraNode->position() + positionDelta);
 		}
 	}
 }

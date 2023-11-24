@@ -135,21 +135,19 @@ endif()
 
 if (ANDROID OR RPI)
 	message("Using OpenGL ES.")
-	set(GL_ES TRUE)
-	add_definitions("-DGL_ES")
+	set(OPENGL_ES TRUE)
+	add_definitions("-DOPENGL_ES")
 else ()
 	message("Using full OpenGL.")
-	set(GL_FULL TRUE)
-	add_definitions("-DGL_FULL")
+	set(OPENGL_CORE TRUE)
+	add_definitions("-DOPENGL_CORE")
 endif ()
-
 
 # libraries (headers...) that the test apps depend on
 
 # GLM
 
 include_directories(external/glm-0.9.9.8)
-
 
 # fmt
 
@@ -158,13 +156,11 @@ include_directories(external/fmt-5.2.0/include)
 #set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
 #set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
 
-
 # android things
 
 if (ANDROID)
 	add_subdirectory(android)
 endif()
-
 
 # install location
 
@@ -179,6 +175,7 @@ endif()
 	add_subdirectory(examples)
 #endif()
 
+# external (?)
 
 include_directories(external)
 
@@ -194,7 +191,7 @@ else()
 	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
 	set(OpenGL_GL_PREFERENCE GLVND)
 
-	# GLFW
+	# glfw
 
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -203,7 +200,7 @@ else()
 	add_subdirectory(external/glfw-3.3.8)
 	include_directories(external/glfw-3.3.8/include)
 
-	# GLEW
+	# glew
 
 	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
@@ -229,7 +226,7 @@ else()
 
 endif() # NOT ANDROID
 
-if (GL_FULL)
+if (OPENGL_CORE)
 
 	# imgui
 
@@ -239,7 +236,6 @@ if (GL_FULL)
 
 endif ()
 
-
 #if (MINGW)# AND UBUNTU_CROSS)
 
 	# bzip2
@@ -248,7 +244,6 @@ endif ()
 #	include_directories(external/bzip2/include)
 
 #endif() # MINGW
-
 
 # generator
 
@@ -263,6 +258,10 @@ include_directories(external/gif-h)
 
 include_directories(external/stb)
 
+# v-hacd
+
+include_directories(external/v-hacd-4.1.0)
+
 # bullet
 
 add_subdirectory(external/bullet-3.17)
@@ -270,13 +269,64 @@ include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 
+# magic_enmum
+
+include_directories(external/magic_enum-0.9.3/include)
 
 # ae
 
-file(GLOB HEADERS include/*.h)
-file(GLOB SOURCES src/*.c*)
+#include_directories(include)
+#file(GLOB HEADERS include/*.h)
+#file(GLOB SOURCES src/*.c*)
+
 include_directories(include)
-add_library(ae STATIC ${HEADERS} ${SOURCES})
+
+#include_directories(
+#		include
+#
+#		include/diagnostic
+#		include/diagnostic/logging
+#
+#		include/geometry
+#		include/geometry/primitives
+#
+#		include/input
+#		include/input/platform
+#		include/input/platform/android
+#		include/input/platform/desktop
+#
+#		include/physics
+#		include/physics/bullet
+#
+#		include/rendering
+#		include/rendering/camera
+#		include/rendering/context/platform/android
+#		include/rendering/context/platform/desktop
+#		include/rendering/materials
+#		include/rendering/opengl
+#
+#		include/scene
+#
+#		include/utilities)
+
+#target_sources(
+#		ae
+#		PUBLIC
+#		include/*.h
+#		src/*.c*
+#		include/diagnostic
+#		src/diagnostic
+#		include/diagnostic/logging
+#		src/diagnostic/logging
+#)
+
+
+file(GLOB_RECURSE HEADERS include/*.h)
+file(GLOB_RECURSE SOURCES src/*.c*)
+
+add_library(ae STATIC ${HEADERS} ${SOURCES}
+		src/physics/PhysicsBodyResources.cc
+		include/physics/PhysicsBodyResources.h)
 
 
 # this is causing external library headers to not be found. ?
@@ -301,11 +351,13 @@ target_link_libraries(ae
 	
 
 if (DESKTOP)
+
 	target_link_libraries(ae
 		manymouse
 		glfw
 		glew_s
 		assimp)
+
 endif()
 
 if (MACOS)

@@ -15,7 +15,7 @@
 //#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;
@@ -59,8 +59,8 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode(make_shared<Node>());
 	
 	auto testScene = SceneNamed("importTest");
-	m_parentNode = testScene->rootNode();
-	scene->rootNode()->addChild(m_parentNode);
+	_parentNode = testScene->rootNode();
+	scene->rootNode()->addChild(_parentNode);
 	
 	// ******** make everything look like it did before materials worked ********
 	
@@ -98,9 +98,9 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	m_parentNode->transform(rotate(m_parentNode->transform(),
-								   radians(rotationDeg),
-								   vec3(0.0f, 1.0f, 0.0f)));	
+	_parentNode->transform(rotate(_parentNode->transform(),
+								  radians(rotationDeg),
+								  vec3(0.0f, 1.0f, 0.0f)));
 }
 
 void Example::willRenderCallback(RenderContext& renderContext, float time) {

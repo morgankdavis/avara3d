@@ -32,11 +32,11 @@ namespace example {
 		
 	private:
 		
-		std::shared_ptr<ae::Logger>				m_logger;
+		std::shared_ptr<ae::Logger>				_logger;
 
-		std::shared_ptr<ae::Window>				m_window;
-		std::shared_ptr<ae::InputManager>		m_inputManager;
-		std::shared_ptr<ae::Node>				m_cameraNode;
+		std::shared_ptr<ae::Window>				_window;
+		std::shared_ptr<ae::InputManager>		_inputManager;
+		std::shared_ptr<ae::Node>				_cameraNode;
 	};
 }
 

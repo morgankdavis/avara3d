@@ -10,7 +10,7 @@
 #include "kernels/RadixSort32KernelsCL.h"
 
 b3RadixSort32CL::b3RadixSort32CL(cl_context ctx, cl_device_id device, cl_command_queue queue, int initialCapacity)
-	: m_commandQueue(queue)
+		: m_commandQueue(queue)
 {
 	b3OpenCLDeviceInfo info;
 	b3OpenCLUtils::getDeviceInfo(device, &info);
@@ -41,31 +41,31 @@ b3RadixSort32CL::b3RadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	const char* kernelSource = radixSort32KernelsCL;
 
 	cl_program sortProg = b3OpenCLUtils::compileCLProgramFromString(ctx, device, kernelSource, &pErrNum, additionalMacros, RADIXSORT32_PATH);
-	b3Assert(sortProg);
+			b3Assert(sortProg);
 
 	m_streamCountSortDataKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "StreamCountSortDataKernel", &pErrNum, sortProg, additionalMacros);
-	b3Assert(m_streamCountSortDataKernel);
+			b3Assert(m_streamCountSortDataKernel);
 
 	m_streamCountKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "StreamCountKernel", &pErrNum, sortProg, additionalMacros);
-	b3Assert(m_streamCountKernel);
+			b3Assert(m_streamCountKernel);
 
 	if (m_deviceCPU)
 	{
 		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "SortAndScatterSortDataKernelSerial", &pErrNum, sortProg, additionalMacros);
-		b3Assert(m_sortAndScatterSortDataKernel);
+				b3Assert(m_sortAndScatterSortDataKernel);
 		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "SortAndScatterKernelSerial", &pErrNum, sortProg, additionalMacros);
-		b3Assert(m_sortAndScatterKernel);
+				b3Assert(m_sortAndScatterKernel);
 	}
 	else
 	{
 		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "SortAndScatterSortDataKernel", &pErrNum, sortProg, additionalMacros);
-		b3Assert(m_sortAndScatterSortDataKernel);
+				b3Assert(m_sortAndScatterSortDataKernel);
 		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "SortAndScatterKernel", &pErrNum, sortProg, additionalMacros);
-		b3Assert(m_sortAndScatterKernel);
+				b3Assert(m_sortAndScatterKernel);
 	}
 
 	m_prefixScanKernel = b3OpenCLUtils::compileCLKernelFromString(ctx, device, kernelSource, "PrefixScanKernel", &pErrNum, sortProg, additionalMacros);
-	b3Assert(m_prefixScanKernel);
+			b3Assert(m_prefixScanKernel);
 }
 
 b3RadixSort32CL::~b3RadixSort32CL()
@@ -149,7 +149,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 
 	if (count & 1)
 	{
-		b3Assert(0);  //need to copy
+				b3Assert(0);  //need to copy
 	}
 }
 
@@ -220,7 +220,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 		m_workBuffer4->resize(0);
 	}
 
-	b3Assert(workingSize % DATA_ALIGNMENT == 0);
+			b3Assert(workingSize % DATA_ALIGNMENT == 0);
 	int minCap = NUM_BUCKET * NUM_WGS;
 
 	int n = workingSize;
@@ -229,9 +229,9 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 	m_workBuffer3->resize(workingSize);
 
 	//	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
-	b3Assert(BITS_PER_PASS == 4);
-	b3Assert(WG_SIZE == 64);
-	b3Assert((sortBits & 0x3) == 0);
+			b3Assert(BITS_PER_PASS == 4);
+			b3Assert(WG_SIZE == 64);
+			b3Assert((sortBits & 0x3) == 0);
 
 	b3OpenCLArray<b3SortData>* dst = m_workBuffer3;
 
@@ -496,7 +496,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 
 	if (count & 1)
 	{
-		b3Assert(0);  //need to copy from workbuffer to keyValuesInOut
+				b3Assert(0);  //need to copy from workbuffer to keyValuesInOut
 	}
 
 	if (m_workBuffer4->size())
@@ -543,7 +543,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 		m_workBuffer4a->resize(0);
 	}
 
-	b3Assert(workingSize % DATA_ALIGNMENT == 0);
+			b3Assert(workingSize % DATA_ALIGNMENT == 0);
 	int minCap = NUM_BUCKET * NUM_WGS;
 
 	int n = workingSize;
@@ -553,9 +553,9 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 	m_workBuffer3a->resize(workingSize);
 
 	//	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
-	b3Assert(BITS_PER_PASS == 4);
-	b3Assert(WG_SIZE == 64);
-	b3Assert((sortBits & 0x3) == 0);
+			b3Assert(BITS_PER_PASS == 4);
+			b3Assert(WG_SIZE == 64);
+			b3Assert((sortBits & 0x3) == 0);
 
 	b3OpenCLArray<unsigned int>* dst = m_workBuffer3a;
 
@@ -635,7 +635,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 
 	if (count & 1)
 	{
-		b3Assert(0);  //need to copy from workbuffer to keyValuesInOut
+				b3Assert(0);  //need to copy from workbuffer to keyValuesInOut
 	}
 
 	if (m_workBuffer4a->size())

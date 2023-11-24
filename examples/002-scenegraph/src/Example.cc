@@ -16,7 +16,7 @@
 //#define GLM_ENABLE_EXPERIMENTAL
 //#include <glm/gtx/string_cast.hpp>
 
-#include "Utilities.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;
@@ -59,15 +59,107 @@ int Example::run(const vector<string>& args) {
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
-	
 
-	
-	TEST = MatrixTestCase;
 
-	
-	
 
-	if (TEST == MatrixTestCase) {
+	_test = TEST::TRAVERSAL;
+
+
+
+
+	if (_test == TEST::TRAVERSAL) {
+
+		auto a = Node::NamedNode("a");
+		auto b = Node::NamedNode("b");
+		auto c = Node::NamedNode("c");
+		auto d = Node::NamedNode("d");
+		auto e = Node::NamedNode("e");
+		auto f = Node::NamedNode("f");
+		auto g = Node::NamedNode("g");
+		auto h = Node::NamedNode("h");
+		auto i = Node::NamedNode("i");
+		auto j = Node::NamedNode("j");
+		auto k = Node::NamedNode("k");
+		auto l = Node::NamedNode("l");
+		auto m = Node::NamedNode("m");
+		auto n = Node::NamedNode("n");
+		auto o = Node::NamedNode("o");
+		auto p = Node::NamedNode("p");
+		auto q = Node::NamedNode("q");
+		auto r = Node::NamedNode("r");
+		auto s = Node::NamedNode("s");
+		auto t = Node::NamedNode("t");
+		auto u = Node::NamedNode("u");
+		auto v = Node::NamedNode("v");
+		auto w = Node::NamedNode("w");
+
+		u->addChild(v);
+		u->addChild(w);
+
+		t->addChild(u);
+
+		n->addChild(t);
+
+		g->addChild(n);
+
+		c->addChild(f);
+		c->addChild(g);
+
+		a->addChild(c);
+
+		k->addChild(q);
+		k->addChild(r);
+
+		m->addChild(s);
+
+		e->addChild(j);
+		e->addChild(k);
+		e->addChild(l);
+		e->addChild(m);
+
+		b->addChild(e);
+
+		a->addChild(b);
+
+		h->addChild(o);
+		h->addChild(p);
+
+		d->addChild(h);
+		d->addChild(i);
+
+		a->addChild(d);
+
+		a->_debugPrint();
+
+		for (auto& c : a->children(true)) {
+			AE_LOG_I("c: {}", *c->name());
+		}
+
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] c
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] f
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] g
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] n
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] t
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [4] u
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [5] v
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [5] w
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] b
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] e
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] j
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] k
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] q
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] r
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] l
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] m
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [3] s
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] d
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] h
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] o
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [2] p
+//		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [1] i
+
+	}
+	else if (_test == TEST::MATRIX) {
 	
 	// test using raw matrix manipulation
 		
@@ -180,7 +272,7 @@ int Example::run(const vector<string>& args) {
 //		window.display();
 		
 	}
-	else if (TEST == Convenience1TestCase) {
+	else if (_test == TEST::CONVENIENCE) {
 		
 		// test using constituent parts manipulation
 		
@@ -193,7 +285,7 @@ int Example::run(const vector<string>& args) {
 		aNode->name("A");
 		aNode->position(vec3(20.0f, 0.0f, 0.0f));
 		aNode->scale(vec3(2.0f, 3.0f, 2.0f));
-		aNode->rotation(vec4(0.0f, 1.0f, 3.0f, (float)radians(45.0f)));
+		aNode->rotation({0.0f, 1.0f, 3.0f}, (float)radians(45.0f));
 		xNode->addChild(aNode);
 		
 		
@@ -202,7 +294,7 @@ int Example::run(const vector<string>& args) {
 		auto bNode = bScene->rootNode();
 		bNode->name("B");
 		bNode->position(vec3(0.0f, -3.0f, 0.0f));
-		bNode->rotation(vec4(3.0f, 1.0f, 2.0f, (float)radians(574.0f)));
+		bNode->rotation({3.0f, 1.0f, 2.0f}, (float)radians(574.0f));
 		bNode->scale(vec3(15.0f, 1.0f, 1.0f));
 		aNode->addChild(bNode);
 		cout << "bNode->rotation(): " << bNode->rotation() << endl;
@@ -212,7 +304,7 @@ int Example::run(const vector<string>& args) {
 		auto cScene = SceneNamed("cartoon_palm_tree", "obj");
 		auto cNode = cScene->rootNode();
 		cNode->name("C");
-		cNode->rotation(vec4(3.0f, 13.0f, 3.0f, (float)radians(-110.0f)));
+		cNode->rotation({3.0f, 13.0f, 3.0f}, (float)radians(-110.0f));
 		cNode->scale(vec3(0.5f, 0.5f, -2.0f));
 		cNode->position(vec3(-2.0f, 1.0f, -2.0f));
 		bNode->addChild(cNode);
@@ -248,7 +340,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == EulerTestCase) {
+	else if (_test == TEST::EULER) {
 		
 		auto rootNode = make_shared<Node>();
 		
@@ -318,7 +410,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == ReverseEulerTestCase) {
+	else if (_test == TEST::REVERSE_EULER) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -397,7 +489,7 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	else if (TEST == RotationAnimationTestCase) {
+	else if (_test == TEST::ROTATION) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
@@ -468,7 +560,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	if (TEST == RotationAnimationTestCase) {
+	if (_test == TEST::ROTATION) {
 		auto node = renderContext.scene()->rootNode()->child("A", true);
 		
 		// we WANT this to work (this is how scene kit works)
@@ -480,7 +572,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		newAngle = (newAngle > 0 ?
 					fmod(newAngle, 2.0f*M_PI) :
 					fmod(newAngle, 2.0f*M_PI));
-		node->rotation(vec4(1.0f, 0.0f, 0.0f, newAngle));
+		node->rotation({1.0f, 0.0f, 0.0f}, newAngle);
 		
 		cout << "node transform:\n" << node->transform() << endl;
 	}
