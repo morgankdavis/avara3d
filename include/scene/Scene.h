@@ -11,6 +11,7 @@
 
 
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -24,10 +25,11 @@ namespace ae {
 
 	class Color;
 	class Geometry;
+	class InputManager;
 	class MaterialProperty;
 	class Node;
 	class PhysicsSimulator;
-	class PhysicsWorld;
+	class PhysicalWorld;
 	class Renderer;
 	class RenderContext;
 	class VisualWorld;
@@ -36,13 +38,19 @@ namespace ae {
 	class Scene {
 
 /*********************************************************************************************
-	Public Static
+	Types
  *********************************************************************************************/
 
 	public:
 
+		using UpdateCallback =					std::function<void(Scene& scene, float time)>;
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
 #ifndef ANDROID
-		static std::shared_ptr<Scene> 			LoadFromFile(const std::filesystem::path& path);
+		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path &path);
 #endif
 //		static std::shared_ptr<Scene> LoadFromData(const std::vector<unsigned char>& data);
 
@@ -51,8 +59,11 @@ namespace ae {
  *********************************************************************************************/
 		
 		Scene();
-		Scene(std::shared_ptr<VisualWorld> visualWorld, std::shared_ptr<PhysicsWorld> physicsWorld);
+		Scene(std::shared_ptr<VisualWorld> visualWorld,
+			  std::shared_ptr<PhysicalWorld> physicsWorld,
+			  std::shared_ptr<InputManager> inputManager);
 		~Scene();
+
 
 /*********************************************************************************************
 	Public
@@ -79,11 +90,16 @@ namespace ae {
 		std::shared_ptr<VisualWorld> 			visualWorld() const;
 		void 									visualWorld(std::shared_ptr<VisualWorld> world);
 		
-		std::shared_ptr<VisualWorld> 			physicsWorld() const;
-		void 									physicsWorld(std::shared_ptr<PhysicsWorld> world);
+		std::shared_ptr<PhysicalWorld> 			physicalWorld() const;
+		void 									physicalWorld(std::shared_ptr<PhysicalWorld> world);
 
-		std::shared_ptr<InputManager> 			inputManager();
+		std::shared_ptr<InputManager> 			inputManager() const;
 		void 									inputManager(std::shared_ptr<InputManager> inputManager);
+
+		float 									time() const;
+
+		UpdateCallback 							update() const;
+		void 									update(UpdateCallback function);
 		
 /*********************************************************************************************
 	Internal
@@ -119,23 +135,25 @@ namespace ae {
 //		float									_fogEndDistance;
 //		float									_fogDensityExponent;
 //		std::shared_ptr<Color>					_fogColor;
-//		std::shared_ptr<PhysicsWorld> 			_physicsWorld;
+//		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
 //		std::weak_ptr<RenderContext>			_renderContext;
 //		RenderContext&	thing;
 
 //		RenderContext -> Window
 //				Renderer -> OpenGLRenderer
 //				InputManager -> WindowInputManager
-//		PhysicsWorld ("PhysicsEnvironment" ?)
+//		PhysicalWorld ("PhysicsEnvironment" ?)
 //		PhysicsSimulator -> BulletPhysicsSimulator
 //				Background, fog, etc ("VisualEnvironment" ?)
 
 //		std::unique_ptr<RenderContext>			_renderContext;
 //		std::unique_ptr<Renderer>				_renderer;
 		std::shared_ptr<VisualWorld> 			_visualWorld;
-		std::shared_ptr<PhysicsWorld> 			_physicsWorld;
+		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
 //		std::unique_ptr<PhysicsSimulator>		_physicsSimulator;
 		std::shared_ptr<InputManager>			_inputManager;
+
+		UpdateCallback							_update;
 	};
 }
 

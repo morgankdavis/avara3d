@@ -7,6 +7,7 @@
 
 #include "glm/glm.hpp"
 
+#include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
 #include "rendering/camera/PerspectiveCamera.h"
@@ -40,7 +41,14 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context)://, RENDER_API 
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
 		_fogDensityExponent(0.0),
-		_fogColor(nullptr) { }
+		_fogColor(nullptr),
+		_pointOfView(nullptr),
+		_willRender(nullptr),
+		_didRender(nullptr) { }
+
+VisualWorld::~VisualWorld() {
+	AE_LOG_D("Destroying VisualWorld {:p}", (void*)this);
+}
 
 /*********************************************************************************************
 	Public
@@ -145,11 +153,27 @@ void VisualWorld::renderContext(shared_ptr<RenderContext> context) {
 //	return _renderAPI;
 //}
 
-std::weak_ptr<Scene> VisualWorld::scene() const {
+VisualWorld::WillRenderCallback VisualWorld::willRender() const {
+	return _willRender;
+}
+
+void VisualWorld::willRender(WillRenderCallback function) {
+	_willRender = function;
+}
+
+VisualWorld::DidRenderCallback VisualWorld::didRender() const {
+	return _didRender;
+}
+
+void VisualWorld::didRender(DidRenderCallback function) {
+	_didRender = function;
+}
+
+weak_ptr<Scene> VisualWorld::scene() const {
 	return _scene;
 }
 
-void VisualWorld::scene(std::weak_ptr<Scene> scene) {
+void VisualWorld::scene(weak_ptr<Scene> scene) {
 	_scene = scene;
 }
 

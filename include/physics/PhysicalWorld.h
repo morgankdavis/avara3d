@@ -1,5 +1,5 @@
 //
-//  PhysicsWorld.h
+//  PhysicalWorld.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 1/26/18.
@@ -25,10 +25,11 @@ namespace ae {
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
+	class PhysicsSimulator;
 	class Scene;
 	
 	
-	class PhysicsWorld {
+	class PhysicalWorld {
 		
 /*********************************************************************************************
 	Types
@@ -36,16 +37,19 @@ namespace ae {
 
 	public:
 
-		using DidBeginContactFunction = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using DidUpdateContactFunction = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using DidEndContactFunction = 		std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, float time)>;
+		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
+		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
+		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
-		PhysicsWorld(PHYSICS_SIMULATION_ENGINE engine);
-		~PhysicsWorld();
+		PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine);
+		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
+		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
+		~PhysicalWorld();
 		
 /*********************************************************************************************
 	Public
@@ -68,6 +72,21 @@ namespace ae {
 														   const glm::mat4& fromMat,
 														   const glm::mat4& toMat); // may add options
 
+		DidSimulateCallback						didSimulate() const;
+		void									didSimulate(DidSimulateCallback function);
+
+		PhysicalWorld::BeginContactCallback 	beginContact() const;
+		void 									beginContact(PhysicalWorld::BeginContactCallback function);
+
+		PhysicalWorld::ContinueContactCallback	continueContact() const;
+		void 									continueContact(PhysicalWorld::ContinueContactCallback function);
+
+		PhysicalWorld::EndContactCallback 		endContact() const;
+		void 									endContact(PhysicalWorld::EndContactCallback function);
+
+		std::weak_ptr<Scene>					scene() const;
+		void									scene(std::weak_ptr<Scene> scene);
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -77,7 +96,10 @@ namespace ae {
 
 		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
-		
+
+		std::shared_ptr<PhysicsSimulator>	simulator() const;
+		void								simulator(std::shared_ptr<PhysicsSimulator> simulator);
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -88,6 +110,15 @@ namespace ae {
 		float 								_timestep;
 //		std::weak_ptr<Scene> 				_scene;
 		PHYSICS_WORLD_DIRTY_MASK			_dirtyMask;
+
+		DidSimulateCallback					_didSimulate;
+		BeginContactCallback				_beginContact;
+		ContinueContactCallback				_continueContact;
+		EndContactCallback					_endContact;
+
+		std::shared_ptr<PhysicsSimulator>	_simulator;
+
+		std::weak_ptr<Scene>				_scene;
 	};
 }
 

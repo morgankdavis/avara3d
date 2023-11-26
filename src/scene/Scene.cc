@@ -8,6 +8,7 @@
 
 #include "scene/Scene.h"
 
+#include <chrono>
 #include <filesystem>
 #include <optional>
 
@@ -21,13 +22,16 @@
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/GeometryElement.h"
+#include "input/platform/desktop/WindowInputManager.h"
 #include "geometry/primitives/Box.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/context/RenderContext.h"
+#include "rendering/context/platform/desktop/Window.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/materials/Material.h"
 #include "rendering/materials/MaterialProperty.h"
@@ -49,13 +53,18 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Public Static Prototypes
+ *********************************************************************************************/
+
+static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
+
+/*********************************************************************************************
+	Private Static Prototypes
  *********************************************************************************************/
 
 //static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
-static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 //static void 						LoadData(Scene& scene, const vector<unsigned char>& data);
 static void 						AddAIGeometryNodes(Scene& scene,
 													  const aiScene* aiScene,
@@ -88,7 +97,7 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::LoadFromFile(const filesystem::path& path) {
+shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));
 	LoadFile(*scene, path);
@@ -108,19 +117,25 @@ shared_ptr<Scene> Scene::LoadFromFile(const filesystem::path& path) {
  *********************************************************************************************/
 
 Scene::Scene():
-	_rootNode(nullptr),
+		_rootNode(nullptr),
 //	_background(nullptr),
 //	_fogStartDistance(0.0),
 //	_fogEndDistance(0.0),
 //	_fogDensityExponent(0.0),
 //	_fogColor(nullptr),
-	_physicsWorld(nullptr)
+		_visualWorld(nullptr),
+		_physicalWorld(nullptr),
+		_inputManager(nullptr),
+		_update(nullptr)
 /*_renderContext({})*/ { }
 
-Scene::Scene(shared_ptr<VisualWorld> visualWorld, shared_ptr<PhysicsWorld> physicsWorld):
+Scene::Scene(shared_ptr<VisualWorld> visualWorld,
+			 shared_ptr<PhysicalWorld> physicsWorld,
+			 shared_ptr<InputManager> inputManager):
 		_rootNode(make_shared<Node>("root")),
 		_visualWorld(visualWorld),
-		_physicsWorld(physicsWorld) { }
+		_physicalWorld(physicsWorld),
+		_inputManager(inputManager) { }
 
 Scene::~Scene() {
 	AE_LOG_D("Destroying Scene {:p}", (void*)this);
@@ -206,26 +221,53 @@ void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 	_visualWorld = world;
 }
 
-shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
-	return _physicsWorld;
+shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
+	return _physicalWorld;
 }
 
-void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
-	_physicsWorld = world;
-//	_physicsWorld->attachedToScene(shared_from_this());
+void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
+	_physicalWorld = world;
+//	_physicalWorld->attachedToScene(shared_from_this());
 }
 
-shared_ptr<InputManager> Scene::inputManager() {
-	if (_inputManager == nullptr) {
-		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
-		auto inputManager = make_shared<WindowInputManager>(window);
-		_inputManager = static_pointer_cast<InputManager>(inputManager);
-	}
+shared_ptr<InputManager> Scene::inputManager() const {
+
+//	if (_inputManager == nullptr) {
+//		if (_visualWorld != nullptr) {
+//			auto renderContext = _visualWorld->renderContext();
+//			if (renderContext != nullptr) {
+//				shared_ptr<Window> window = static_pointer_cast<Window>(renderContext);
+//				auto inputManager = make_shared<WindowInputManager>(window);
+//				_inputManager = static_pointer_cast<InputManager>(inputManager);
+//			}
+//			else {
+//				AE_LOG_W("renderContext is null.");
+//			}
+//		}
+//		else {
+//			AE_LOG_W("_visualWorld is null.");
+//		}
+//	}
 	return _inputManager;
 }
 
-void Scene::inputManager(std::shared_ptr<InputManager> inputManager) {
+void Scene::inputManager(shared_ptr<InputManager> inputManager) {
+	_inputManager = inputManager;
+}
 
+float Scene::time() const {
+	// should probably override in subclass to use library's time utilities (GLFW, for example)
+	static auto startDate = chrono::high_resolution_clock::now();
+	auto nowDate = chrono::high_resolution_clock::now();
+	return (chrono::duration<float>(nowDate - startDate)).count();
+}
+
+Scene::UpdateCallback Scene::update() const {
+	return _update;
+}
+
+void Scene::update(UpdateCallback function) {
+	_update = function;
 }
 
 /*********************************************************************************************
@@ -241,55 +283,56 @@ void Scene::update(Renderer& renderer,
 
 	renderer.render(*this, debugOptions, stats);
 
-	auto renderContext = _renderContext.lock();
-	auto physicsSimulator = renderContext->physicsSimulator();
-	static auto visited = map<shared_ptr<Node>, bool>();
+	shared_ptr<RenderContext> renderContext = nullptr;
+	if (_visualWorld
+		&& _visualWorld->renderContext()) {
+		renderContext = _visualWorld->renderContext();
+	}
 
-	if (_physicsWorld) {
+	shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
+	if (_physicalWorld
+		&& _physicalWorld->simulator()) {
+		physicsSimulator = _physicalWorld->simulator();
+	}
+	//static auto visited = map<shared_ptr<Node>, bool>();
 
+	if (_physicalWorld) {
 		physicsSimulator->beginUpdate(*this);
 		physicsSimulator->update(*this);
 	}
 
-	visited.clear();
+	//visited.clear();
 	_rootNode->update(*physicsSimulator,
-					  stats,
-					  visited);
+					  stats);
 
-	if (_physicsWorld) {
-
-		physicsSimulator->step(_renderContext.lock()->sceneTime());
-
+	if (_physicalWorld) {
+		physicsSimulator->step(time());
 		physicsSimulator->sync(*this);
 	}
 
-	visited.clear();
+	//visited.clear();
 	_rootNode->sync(*physicsSimulator,
-					stats,
-					visited);
+					stats);
 
-	if (_physicsWorld) {
-
+	if (_physicalWorld) {
 		physicsSimulator->endUpdate(*this);
 
-		if (renderContext->didSimulatePhysicsCallback()) {
-			(renderContext->didSimulatePhysicsCallback())(*renderContext, renderContext->sceneTime());
+		if (_physicalWorld->didSimulate()) {
+			(_physicalWorld->didSimulate())(*_physicalWorld, time());
 		}
 	}
 	
 	auto viewMat = pointOfView.worldTransform();
 	auto projectionMat = pointOfView.camera()->projection();
 
-	visited.clear();
+	//visited.clear();
 	_rootNode->draw(renderer,
 					viewMat,
 					projectionMat,
 					debugOptions,
-					stats,
-					visited);
+					stats);
 
-	if (_physicsWorld) {
-
+	if (_physicalWorld) {
 		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
 		if (bulletSimulator) {
 			bulletSimulator->drawDebug(renderer,
@@ -338,8 +381,8 @@ void Scene::update(Renderer& renderer,
 
 //void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
 //	_renderContext = renderContext;
-////	if (_physicsWorld) {
-////		_physicsWorld->attachedToScene(shared_from_this());
+////	if (_physicalWorld) {
+////		_physicalWorld->attachedToScene(shared_from_this());
 ////	}
 //}
 
@@ -352,7 +395,217 @@ void Scene::update(Renderer& renderer,
 //}
 
 /*********************************************************************************************
-	Static
+	Public Static Prototypes
+ *********************************************************************************************/
+
+#ifndef ANDROID
+static void LoadFile(Scene& scene, const filesystem::path& importPath) {
+
+	AE_LOG_I("Assimp version: {}.{}.{}",
+			 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
+
+	AE_LOG_I("Loading scene: {}", importPath.string());
+
+	unsigned int assimpFlags = aiProcess_Triangulate
+							   | aiProcess_SortByPType
+							   | aiProcess_GenSmoothNormals
+							   // "This will, in fact, reduce the number of update calls."
+							   // http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410af5fe0d6ee720c91359dc61cb849f2ebf
+							   | aiProcess_OptimizeMeshes
+							   // "If this flag is not specified, no vertices are referenced by more than one face and no index buffer is required for rendering."
+							   // http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410a444a6c9d8b63e6dc9e1e2e1edd3cbcd4
+							   | aiProcess_JoinIdenticalVertices
+							   | aiProcess_ImproveCacheLocality
+							   | aiProcess_ValidateDataStructure;
+
+	const aiScene* aiScene = aiImportFile(importPath.string().c_str(), assimpFlags);
+
+	if (aiScene) {
+
+		// copy all the meshes and materials out of the aiScene
+		// use them to construct our GeometryElements
+		// (we are not keeping a master list)
+		auto importElements = vector<shared_ptr<GeometryElement>>();
+		auto importMaterials = vector<shared_ptr<Material>>();
+
+		// ********** meshes (GeometryElement) **********
+
+		int numMeshes = aiScene->mNumMeshes;
+		for (int m=0; m<numMeshes; ++m) {
+			AE_LOG_D("Processing mesh {}...:", m);
+
+			aiMesh *mesh = aiScene->mMeshes[m];
+
+			// should be set for parent Geometry
+			aiString name = mesh->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				AE_LOG_D("Mesh name: {}", name.C_Str());
+			}
+
+			auto verts = vector<Vertex>();
+
+			bool hasNormals = mesh->HasNormals();
+			bool hasTextureCoordinates = mesh->HasTextureCoords(0);
+
+			unsigned int numVerts = mesh->mNumVertices;
+			for (unsigned int v=0; v<numVerts; ++v) {
+				aiVector3D position = mesh->mVertices[v];
+				aiVector3D normal = aiVector3D(0, 0, 0);
+				aiVector3D texCoord = aiVector3D(0, 0, 0);
+
+				if (hasNormals) normal = mesh->mNormals[v];
+				if (hasTextureCoordinates) texCoord = mesh->mTextureCoords[0][v];
+
+				Vertex vert = {GLMVec3FromAIVector3D(position),
+							   GLMVec3FromAIVector3D(normal),
+							   vec2(texCoord.x, texCoord.y)};
+				verts.push_back(vert);
+			}
+
+			auto faces = vector<Face>();
+			unsigned int numFaces = mesh->mNumFaces;
+			for (unsigned int f=0; f<numFaces; ++f) {
+				aiFace face = mesh->mFaces[f];
+				faces.push_back({static_cast<int>(face.mIndices[0]),
+								 static_cast<int>(face.mIndices[1]),
+								 static_cast<int>(face.mIndices[2])});
+			}
+
+			auto element = make_shared<GeometryElement>(verts, faces);
+			//geometryElements().push_back(element);
+			importElements.push_back(element);
+		}
+
+
+		// ********** materials **********
+
+		AE_LOG_D("Number of materials: {}", aiScene->mNumMaterials);
+
+		for (unsigned int m=0; m < aiScene->mNumMaterials; ++m) {
+
+			AE_LOG_D("Processing material {}...:", m);
+
+			aiMaterial* aiMaterial = aiScene->mMaterials[m];
+
+			string basePath = path(importPath).parent_path().string();
+
+			auto ambientProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_AMBIENT, basePath);
+			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
+			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
+			// not sure why, but some models have emissive colors that are messing everything up...
+			//auto emissiveProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_EMISSIVE, basePath);
+
+			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+			//material->emissive(emissiveProperty);
+
+			aiString name;
+			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
+				if (strcmp(name.C_Str(), "") != 0) {
+					AE_LOG_D("Name: {}", name.C_Str());
+					material->name(name.C_Str());
+					if (*(material->name()) == AI_DEFAULT_MATERIAL_NAME) {
+						// https://sourceforge.net/p/assimp/discussion/817654/thread/0729fb73/
+						// it appears that OBJ add a "default material". donno why. it doesn't get used
+						// and thus the created MaterialProperties and Material will be deallocated after import
+						AE_LOG_I("AI_DEFAULT_MATERIAL_NAME");
+					}
+				}
+			}
+
+			// specular exponent
+			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
+			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
+			float shininess = 0;
+			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+				AE_LOG_D("Specular exponent: {}", shininess);
+			}
+			material->specularExponent(shininess);
+
+			AE_LOG_D("ADDING MATERIAL: {:p}", (void*)material.get());
+			importMaterials.push_back(material);
+		}
+
+		AE_LOG_D("DONE WITH MATERIALS. COUNT: {}", importMaterials.size());
+
+		// ********** nodes (Geometry) **********
+
+		// in AI terminology, a "node" is what we call a "geometry"
+		// also in AI terminology, a "mesh" is what we call a "geometry element"
+
+		auto filename = importPath.filename().string();
+		scene.rootNode()->name(filename + " ROOT");
+
+		AddAIGeometryNodes(scene, aiScene, scene.rootNode(), importElements, importMaterials);
+
+		// ********** lights **********
+
+		for (unsigned int l=0; l<aiScene->mNumLights; --l) {
+			break; // disabling for now...
+
+			aiLight* aiLight = aiScene->mLights[l];
+
+			Color color = ColorFromAIColor3D(aiLight->mColorDiffuse);
+
+			auto light = make_shared<Light>(LightTypeForAILightType(aiLight->mType),
+											make_shared<Color>(color));
+
+			aiString name = aiLight->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				light->name(name.C_Str());
+			}
+
+			//cout << "Adding light: " << light << endl;
+
+			auto lightNode = make_shared<Node>("Light");
+			lightNode->light(light);
+			//rootNode()->addChild(lightNode);
+			scene.rootNode()->addChild(lightNode);
+		}
+
+		// ********** cameras **********
+
+		for (unsigned int c=0; c<aiScene->mNumCameras; --c) {
+			break; // disabling for now...
+
+			aiCamera* aiCamera = aiScene->mCameras[c];
+
+			auto camera = make_shared<PerspectiveCamera>(aiCamera->mName.C_Str(),
+														 aiCamera->mClipPlaneNear,
+														 aiCamera->mClipPlaneFar,
+														 aiCamera->mHorizontalFOV);
+
+			aiString name = aiCamera->mName;
+			if (strcmp(name.C_Str(), "") != 0) {
+				camera->name(name.C_Str());
+			}
+
+			//cout << "Adding camera: " << camera << endl;
+
+			auto cameraNode = make_shared<Node>("Camera");
+			cameraNode->camera(camera);
+
+			aiNode* aiCamNode = aiScene->mRootNode->FindNode(aiCamera->mName);
+
+			auto viewMat = GLMMat4FromAIMaxtrix4x4(aiCamNode->mTransformation);
+
+			cameraNode->transform(viewMat);
+
+			scene.rootNode()->addChild(cameraNode);
+		}
+	}
+	else {
+		//AE_LOG_E("Error importing scene: {}", aiGetErrorString());
+
+		char errMsg[1024];
+		sprintf(errMsg, "Error importing scene: %s\n",  aiGetErrorString());
+		throw Exception(errMsg);
+	}
+
+	aiReleaseImport(aiScene);
+}
+
+/*********************************************************************************************
+	Private Static
  *********************************************************************************************/
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
@@ -378,212 +631,6 @@ static shared_ptr<Image> MissingTextureImage() {
 //		}
 	}
 	return image;
-}
-
-#ifndef ANDROID
-static void LoadFile(Scene& scene, const filesystem::path& importPath) {
-	
-	AE_LOG_I("Assimp version: {}.{}.{}",
-				 aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
-	
-	AE_LOG_I("Loading scene: {}", importPath.string());
-	
-	unsigned int assimpFlags = aiProcess_Triangulate
-	| aiProcess_SortByPType
-	| aiProcess_GenSmoothNormals
-	// "This will, in fact, reduce the number of update calls."
-	// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410af5fe0d6ee720c91359dc61cb849f2ebf
-	| aiProcess_OptimizeMeshes
-	// "If this flag is not specified, no vertices are referenced by more than one face and no index buffer is required for rendering."
-	// http://assimp.sourceforge.net/lib_html/postprocess_8h.html#a64795260b95f5a4b3f3dc1be4f52e410a444a6c9d8b63e6dc9e1e2e1edd3cbcd4
-	| aiProcess_JoinIdenticalVertices
-	| aiProcess_ImproveCacheLocality
-	| aiProcess_ValidateDataStructure;
-	
-	const aiScene* aiScene = aiImportFile(importPath.string().c_str(), assimpFlags);
-	
-	if (aiScene) {
-		
-		// copy all the meshes and materials out of the aiScene
-		// use them to construct our GeometryElements
-		// (we are not keeping a master list)
-		auto importElements = vector<shared_ptr<GeometryElement>>();
-		auto importMaterials = vector<shared_ptr<Material>>();
-		
-		// ********** meshes (GeometryElement) **********
-		
-		int numMeshes = aiScene->mNumMeshes;
-		for (int m=0; m<numMeshes; ++m) {
-			AE_LOG_D("Processing mesh {}...:", m);
-			
-			aiMesh *mesh = aiScene->mMeshes[m];
-			
-			// should be set for parent Geometry
-			aiString name = mesh->mName;
-			if (strcmp(name.C_Str(), "") != 0) {
-				AE_LOG_D("Mesh name: {}", name.C_Str());
-			}
-			
-			auto verts = vector<Vertex>();
-			
-			bool hasNormals = mesh->HasNormals();
-			bool hasTextureCoordinates = mesh->HasTextureCoords(0);
-			
-			unsigned int numVerts = mesh->mNumVertices;
-			for (unsigned int v=0; v<numVerts; ++v) {
-				aiVector3D position = mesh->mVertices[v];
-				aiVector3D normal = aiVector3D(0, 0, 0);
-				aiVector3D texCoord = aiVector3D(0, 0, 0);
-				
-				if (hasNormals) normal = mesh->mNormals[v];
-				if (hasTextureCoordinates) texCoord = mesh->mTextureCoords[0][v];
-				
-				Vertex vert = {GLMVec3FromAIVector3D(position),
-					GLMVec3FromAIVector3D(normal),
-					vec2(texCoord.x, texCoord.y)};
-				verts.push_back(vert);
-			}
-			
-			auto faces = vector<Face>();
-			unsigned int numFaces = mesh->mNumFaces;
-			for (unsigned int f=0; f<numFaces; ++f) {
-				aiFace face = mesh->mFaces[f];
-				faces.push_back({static_cast<int>(face.mIndices[0]),
-					static_cast<int>(face.mIndices[1]),
-					static_cast<int>(face.mIndices[2])});
-			}
-			
-			auto element = make_shared<GeometryElement>(verts, faces);
-			//geometryElements().push_back(element);
-			importElements.push_back(element);
-		}
-		
-		
-		// ********** materials **********
-		
-		AE_LOG_D("Number of materials: {}", aiScene->mNumMaterials);
-		
-		for (unsigned int m=0; m < aiScene->mNumMaterials; ++m) {
-			
-			AE_LOG_D("Processing material {}...:", m);
-			
-			aiMaterial* aiMaterial = aiScene->mMaterials[m];
-			
-			string basePath = path(importPath).parent_path().string();
-			
-			auto ambientProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_AMBIENT, basePath);
-			auto diffuseProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_DIFFUSE, basePath);
-			auto specularProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_SPECULAR, basePath);
-			// not sure why, but some models have emissive colors that are messing everything up...
-			//auto emissiveProperty = MaterialPropertyFromAIMaterial(aiMaterial, aiTextureType_EMISSIVE, basePath);
-			
-			auto material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
-			//material->emissive(emissiveProperty);
-			
-			aiString name;
-			if (aiMaterial->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
-				if (strcmp(name.C_Str(), "") != 0) {
-					AE_LOG_D("Name: {}", name.C_Str());
-					material->name(name.C_Str());
-					if (*(material->name()) == AI_DEFAULT_MATERIAL_NAME) {
-						// https://sourceforge.net/p/assimp/discussion/817654/thread/0729fb73/
-						// it appears that OBJ add a "default material". donno why. it doesn't get used
-						// and thus the created MaterialProperties and Material will be deallocated after import
-						AE_LOG_I("AI_DEFAULT_MATERIAL_NAME");
-					}
-				}
-			}
-			
-			// specular exponent
-			// https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/
-			// submissions/27982/versions/5/previews/help%20file%20format/MTL_format.html
-			float shininess = 0;
-			if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-				AE_LOG_D("Specular exponent: {}", shininess);
-			}
-			material->specularExponent(shininess);
-			
-			AE_LOG_D("ADDING MATERIAL: {:p}", (void*)material.get());
-			importMaterials.push_back(material);
-		}
-		
-		AE_LOG_D("DONE WITH MATERIALS. COUNT: {}", importMaterials.size());
-		
-		// ********** nodes (Geometry) **********
-		
-		// in AI terminology, a "node" is what we call a "geometry"
-		// also in AI terminology, a "mesh" is what we call a "geometry element"
-		
-		auto filename = importPath.filename().string();
-		scene.rootNode()->name(filename + " ROOT");
-		
-		AddAIGeometryNodes(scene, aiScene, scene.rootNode(), importElements, importMaterials);
-		
-		// ********** lights **********
-		
-		for (unsigned int l=0; l<aiScene->mNumLights; --l) {
-			break; // disabling for now...
-			
-			aiLight* aiLight = aiScene->mLights[l];
-			
-			Color color = ColorFromAIColor3D(aiLight->mColorDiffuse);
-			
-			auto light = make_shared<Light>(LightTypeForAILightType(aiLight->mType),
-											make_shared<Color>(color));
-			
-			aiString name = aiLight->mName;
-			if (strcmp(name.C_Str(), "") != 0) {
-				light->name(name.C_Str());
-			}
-			
-			//cout << "Adding light: " << light << endl;
-			
-			auto lightNode = make_shared<Node>("Light");
-			lightNode->light(light);
-			//rootNode()->addChild(lightNode);
-			scene.rootNode()->addChild(lightNode);
-		}
-		
-		// ********** cameras **********
-		
-		for (unsigned int c=0; c<aiScene->mNumCameras; --c) {
-			break; // disabling for now...
-			
-			aiCamera* aiCamera = aiScene->mCameras[c];
-
-			auto camera = make_shared<PerspectiveCamera>(aiCamera->mName.C_Str(),
-														 aiCamera->mClipPlaneNear,
-														 aiCamera->mClipPlaneFar,
-														 aiCamera->mHorizontalFOV);
-			
-			aiString name = aiCamera->mName;
-			if (strcmp(name.C_Str(), "") != 0) {
-				camera->name(name.C_Str());
-			}
-			
-			//cout << "Adding camera: " << camera << endl;
-			
-			auto cameraNode = make_shared<Node>("Camera");
-			cameraNode->camera(camera);
-			
-			aiNode* aiCamNode = aiScene->mRootNode->FindNode(aiCamera->mName);
-			
-			auto viewMat = GLMMat4FromAIMaxtrix4x4(aiCamNode->mTransformation);
-			
-			cameraNode->transform(viewMat);
-			
-			scene.rootNode()->addChild(cameraNode);
-		}
-	}
-	else {
-		//AE_LOG_E("Error importing scene: {}", aiGetErrorString());
-		
-		char errMsg[1024];
-		sprintf(errMsg, "Error importing scene: %s\n",  aiGetErrorString());
-		throw Exception(errMsg);
-	}
-	
-	aiReleaseImport(aiScene);
 }
 
 static void AddAIGeometryNodes(Scene& scene,

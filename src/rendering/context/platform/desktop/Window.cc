@@ -25,7 +25,7 @@
 #include "Global.h"
 #include "diagnostic/logging/Logger.h"
 #include "input/platform/desktop/WindowInputManager.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "rendering/Renderer.h"
 #include "rendering/camera/Camera.h"
 #include "scene/Node.h"
@@ -135,7 +135,8 @@ static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 
 Window::Window(RENDER_API renderAPI,
 			   bool fullScreen,
-			   unsigned width, unsigned height,
+			   unsigned width,
+			   unsigned height,
 			   bool enableHighDPI,
 			   ANTIALIASING_MODE antialiasingMode):
 		RenderContext(renderAPI),
@@ -234,7 +235,7 @@ Window::~Window() {
 void Window::display() {
 	AE_LOG_D("display()");
 	
-	if (_scene) {
+	if (_scene.lock()) {
 		glfwMakeContextCurrent(_glfwWindow);
 		
 		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
@@ -283,8 +284,8 @@ GLFWwindow* Window::glfwWindow() const {
 //
 //	AE_LOG_T("-------------------------------------------------------------------------------");
 //
-//	if (updateCallback()) {
-//		(updateCallback())(*this, sceneTime());
+//	if (update()) {
+//		(update())(*this, sceneTime());
 //	}
 //
 //	_renderer->beginFrame(*this);
@@ -293,16 +294,16 @@ GLFWwindow* Window::glfwWindow() const {
 //	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
 //	pov->camera()->aspectRatio(aspectRatio);
 //
-//	_renderer->renderStats().cameraPosition = pov->position();
+//	_renderer->frameStats().cameraPosition = pov->position();
 //
-//	if (willRenderCallback()) {
-//		(willRenderCallback())(*this, sceneTime());
+//	if (willRender()) {
+//		(willRender())(*this, sceneTime());
 //	}
 //
 //	_scene->update(*RenderContext::renderer(),
 //				  _framebufferWidth, _framebufferHeight,
 //				  *pov,
-//				  _debugOptions, _renderer->renderStats());
+//				  _debugOptions, _renderer->frameStats());
 //
 //	_renderer->endFrame(*this);
 //
@@ -310,8 +311,8 @@ GLFWwindow* Window::glfwWindow() const {
 //
 //	if (_recordingGIF) saveGIFFrame(sceneTime());
 //
-//	if (didRenderCallback()) {
-//		(didRenderCallback())(*this, sceneTime());
+//	if (didRender()) {
+//		(didRender())(*this, sceneTime());
 //	}
 //
 //	glfwPollEvents();
@@ -344,8 +345,8 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
 //#warning Refactor this
-//	if (_scene && _scene->physicsWorld()) {
-//		_scene->physicsWorld()->debugOptions(_debugOptions);
+//	if (_scene && _scene->physicalWorld()) {
+//		_scene->physicalWorld()->debugOptions(_debugOptions);
 //	}
 }
 
@@ -358,9 +359,9 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 //	return _inputManager;
 //}
 
-float Window::sceneTime() const {
-	return glfwGetTime();
-}
+//float Window::sceneTime() const {
+//	return glfwGetTime();
+//}
 
 /*********************************************************************************************
 	GLFW Callbacks

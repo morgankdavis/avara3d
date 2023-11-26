@@ -36,6 +36,7 @@
 #include "geometry/Line.h"
 #include "geometry/Point.h"
 #include "rendering/Light.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/camera/Camera.h"
 #include "rendering/context/RenderContext.h"
 #include "rendering/context/platform/desktop/Window.h"
@@ -331,9 +332,9 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	auto debugOptions = context.debugOptions();
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-		DrawStatsOverlay(Renderer::renderStats(),
-						   context.sceneTime(),
-						   *context.scene());
+		DrawStatsOverlay(Renderer::frameStats(),
+						   context.scene().lock()->time(),
+						   *context.scene().lock());
 	}
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
@@ -348,7 +349,7 @@ void OpenGLRenderer::render(Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
 							FrameStats& stats) {
 
-	auto renderContext = scene.renderContext().lock();
+	auto renderContext = scene.visualWorld()->renderContext();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
@@ -359,10 +360,10 @@ void OpenGLRenderer::render(Scene& scene,
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (scene.background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene.background()->contents())) {
-			auto skyboxGeometry = scene.skyboxGeometry();
-			auto pointOfView = renderContext->pointOfView();
+	if (scene.visualWorld()->background()) {
+		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
+			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+			auto pointOfView = scene.visualWorld()->pointOfView();
 
 			RenderSkybox(skyboxGeometry,
 						 *pointOfView,
@@ -375,8 +376,8 @@ void OpenGLRenderer::render(Scene& scene,
 			// save reference for housekeeping
 			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}
-		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
+		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
+			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
@@ -1340,7 +1341,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		// find all light distances from the camera
 		
 		auto lightsUnsorted = map<shared_ptr<Node>, float>();
-		vec3 cameraPos_world = scene.renderContext().lock()->pointOfView()->worldPosition();
+		vec3 cameraPos_world = scene.visualWorld()->pointOfView()->worldPosition();
 		for (auto lightNode: lights) {
 			auto lightPos_world = lightNode->worldPosition();
 			auto lightToCamera = lightPos_world - cameraPos_world;
@@ -1392,14 +1393,18 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	}
 	
 	// fog
-	
+
+	auto visualWorld = scene.visualWorld();
 	FogGLSLStruct fogStruct;
-	fogStruct.startDistance = scene.fogStartDistance();
-	fogStruct.endDistance = scene.fogEndDistance();
-	fogStruct.densityExponent = scene.fogDensityExponent();
-	fogStruct.startDistance = scene.fogStartDistance();
-	if (scene.fogColor()) fogStruct.color = vec4(scene.fogColor()->r, scene.fogColor()->g, scene.fogColor()->b,
-												 scene.fogColor()->a);
+	fogStruct.startDistance = visualWorld->fogStartDistance();
+	fogStruct.endDistance = visualWorld->fogEndDistance();
+	fogStruct.densityExponent = visualWorld->fogDensityExponent();
+	fogStruct.startDistance = visualWorld->fogStartDistance();
+	auto fogColor = visualWorld->fogColor();
+	if (visualWorld->fogColor()) fogStruct.color = vec4(fogColor->r,
+														fogColor->g,
+														fogColor->b,
+														fogColor->a);
 	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
 	
 	// block
@@ -1910,7 +1915,7 @@ void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
 
 #ifdef OPENGL_CORE
 
-	auto renderContext = scene.renderContext().lock();
+	auto renderContext = scene.visualWorld()->renderContext();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

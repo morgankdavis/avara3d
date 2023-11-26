@@ -45,7 +45,7 @@ void Renderer::beginFrame(const RenderContext& context) {
 }
 
 void Renderer::endFrame(const RenderContext& context) {
-	updateFrametimeStats(renderStats(), context.sceneTime());
+	updateFrametimeStats(frameStats(), context.scene().lock()->time());
 }
 
 void Renderer::render(Scene& scene,
@@ -106,9 +106,21 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	return nullptr;
 }
 
-FrameStats& Renderer::renderStats() {
+FrameStats& Renderer::frameStats() {
 	return _renderStats;
 }
+
+weak_ptr<RenderContext> Renderer::context() const {
+	return _context;
+}
+
+void Renderer::context(weak_ptr<RenderContext> context) {
+	_context = context;
+}
+
+/**************************************************************************************
+	Protected
+ **************************************************************************************/
 
 void Renderer::updateFrametimeStats(FrameStats& stats, float time) {
 

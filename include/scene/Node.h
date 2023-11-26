@@ -158,19 +158,19 @@ namespace ae {
 		glm::vec3								extent();
 
 		void 									update(PhysicsSimulator& simulator,
-													   FrameStats& stats,
-													   std::map<std::shared_ptr<Node>, bool>& visited);
+													   FrameStats& stats);
+//													   std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									sync(PhysicsSimulator& simulator,
-													 FrameStats& stats,
-													 std::map<std::shared_ptr<Node>, bool>& visited);
+													 FrameStats& stats);
+//													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
 													 const DEBUG_OPTIONS& debugOptions,
-													 FrameStats& stats,
-													 std::map<std::shared_ptr<Node>, bool>& visited);
+													 FrameStats& stats);
+//													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void									_debugPrint(); // testing
 		void									_debugPrintRec(Node& node,
@@ -180,6 +180,9 @@ namespace ae {
 //		void									_debugPrintRec(std::shared_ptr<Node> node,
 //																  int level,
 //																  std::map<std::shared_ptr<Node>, bool>& visited);
+
+		std::weak_ptr<Scene>					scene() const;
+		void									scene(std::weak_ptr<Scene> scene);
 
 /*********************************************************************************************
 	Private
@@ -245,6 +248,8 @@ namespace ae {
 		std::weak_ptr<Node>						_parent;
 		
 		NODE_DIRTY_MASK							_dirtyMask;
+
+		std::weak_ptr<Scene>					_scene;
 	};
 }
 

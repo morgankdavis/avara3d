@@ -34,11 +34,12 @@
 #include "geometry/primitives/Torus.h"
 #include "geometry/primitives/Tube.h"
 #include "input/InputManager.h"
+#include "input/platform/desktop/WindowInputManager.h" // remove?
 #include "physics/HitTestResult.h"
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicsContact.h"
 #include "physics/PhysicsShape.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
 #include "physics/shape_primitives/ConePhysicsShape.h"

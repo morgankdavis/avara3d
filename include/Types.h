@@ -40,6 +40,7 @@ namespace ae {
 
 	enum class RENDER_API {
 		OPENGL,
+		OPENGL_ES,
 		VULKAN
 	};
 

@@ -24,8 +24,8 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-PhysicsSimulator::PhysicsSimulator(PHYSICS_SIMULATION_ENGINE engine):
-		_simulationEngine(engine),
+PhysicsSimulator::PhysicsSimulator():
+		//_simulationEngine(engine),
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0) { }
@@ -34,13 +34,13 @@ PhysicsSimulator::~PhysicsSimulator() {
 	AE_LOG_D("Destroying PhysicsSimulator {:p}", (void*)this);
 }
 
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
-PHYSICS_SIMULATION_ENGINE PhysicsSimulator::simulationEngine() const {
-	return _simulationEngine;
-}
+///*********************************************************************************************
+//	Public
+// *********************************************************************************************/
+//
+//PHYSICS_SIMULATION_ENGINE PhysicsSimulator::simulationEngine() const {
+//	return _simulationEngine;
+//}
 
 /*********************************************************************************************
 	Internal

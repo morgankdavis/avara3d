@@ -6,6 +6,7 @@
 #define AVARA_ENGINE_VISUALWORLD_H
 
 
+#include <functional>
 #include <memory>
 
 #include "Types.h"
@@ -19,20 +20,28 @@ namespace ae {
 	class MaterialProperty;
 	class Node;
 	class RenderContext;
+	class Renderer;
 	class Scene;
 
 
 	class VisualWorld {
 
 /*********************************************************************************************
-	Lifecycle
+	Types
  *********************************************************************************************/
 
 	public:
 
-		VisualWorld(std::shared_ptr<RenderContext> context);//, RENDER_API api);
-		VisualWorld(const Renderer& other) = delete; // copy constructor
-		VisualWorld& operator=(const Renderer& other) = delete; // copy assignment
+		using WillRenderCallback = 		std::function<void(VisualWorld& world, float time)>;
+		using DidRenderCallback = 		std::function<void(VisualWorld& world, float time)>;
+
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
+		VisualWorld(std::shared_ptr<RenderContext> context);
+		VisualWorld(const VisualWorld& other) = delete; // copy constructor
+		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
@@ -62,6 +71,15 @@ namespace ae {
 
 //		RENDER_API								renderAPI() const;
 
+//		std::weak_ptr<Scene>					scene() const;
+//		void									scene(std::weak_ptr<Scene> scene);
+
+		WillRenderCallback 						willRender() const;
+		void 									willRender(WillRenderCallback function);
+
+		DidRenderCallback 						didRender() const;
+		void 									didRender(DidRenderCallback function);
+
 		std::weak_ptr<Scene>					scene() const;
 		void									scene(std::weak_ptr<Scene> scene);
 
@@ -89,6 +107,9 @@ namespace ae {
 
 		std::shared_ptr<RenderContext>			_renderContext;
 //		RENDER_API								_renderAPI;
+
+		WillRenderCallback 						_willRender;
+		DidRenderCallback 						_didRender;
 
 		std::weak_ptr<Scene>					_scene;
 	};

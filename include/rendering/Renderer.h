@@ -37,6 +37,8 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 
+	public:
+
 		Renderer();
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
@@ -81,10 +83,13 @@ namespace ae {
 
 		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
 		
-		FrameStats& 						renderStats();
+		FrameStats& 						frameStats();
+
+		std::weak_ptr<RenderContext> 		context() const;
+		void 								context(std::weak_ptr<RenderContext> context);
 
 /**************************************************************************************
-	Internal
+	Protected
  **************************************************************************************/
 
 	protected:
@@ -99,6 +104,8 @@ namespace ae {
 
 		float								_frametimeAveragingInterval;
 		FrameStats							_renderStats;
+
+		std::weak_ptr<RenderContext>		_context;
 	};
 }
 

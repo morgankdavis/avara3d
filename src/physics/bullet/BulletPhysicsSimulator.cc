@@ -32,7 +32,7 @@
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicsBodyResources.h"
 #include "physics/PhysicsShape.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletBodyResources.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletShapeResources.h"
@@ -178,6 +178,10 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 	PhysicsSimulator
  *********************************************************************************************/
 
+PHYSICS_SIMULATION_ENGINE BulletPhysicsSimulator::simulationEngine() const {
+	return PHYSICS_SIMULATION_ENGINE::BULLET;
+}
+
 void BulletPhysicsSimulator::beginUpdate(const Scene& scene) {
 	PhysicsSimulator::beginUpdate(scene);
 }
@@ -189,7 +193,7 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 void BulletPhysicsSimulator::update(Scene& scene) {
 	PhysicsSimulator::update(scene);
 
-	auto world = scene.physicsWorld();
+	auto world = scene.physicalWorld();
 
 	if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
 		_timestep = world->timestep();

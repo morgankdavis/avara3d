@@ -48,7 +48,8 @@ namespace ae {
 //			   RENDER_API renderAPI = RENDER_API::OPENGL);
 		Window(RENDER_API renderAPI,
 			   bool fullScreen,
-			   unsigned width, unsigned height,
+			   unsigned width,
+			   unsigned height,
 			   bool useHighDPI = true,
 			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 
@@ -84,7 +85,7 @@ namespace ae {
 		void 								enableVSync(bool enabled) override;
 		void 								debugOptions(DEBUG_OPTIONS options) override;
 //		std::shared_ptr<InputManager> 		inputManager() override;
-		float 								sceneTime() const override;
+//		float 								sceneTime() const override;
 		
 /*********************************************************************************************
 	GLFW Callbacks

@@ -34,6 +34,7 @@ namespace ae {
 	class Renderer;
 	class RenderContext;
 	class Scene;
+	class VisualWorld;
 
 	
 	class RenderContext : public std::enable_shared_from_this<RenderContext> {
@@ -44,10 +45,10 @@ namespace ae {
 
 	public:
 
-		using UpdateFunction = 				std::function<void(RenderContext& renderContext, float time)>;
-		using DidSimulatePhysicsFunction = 	std::function<void(RenderContext& renderContext, float time)>;
-		using WillRenderFunction = 			std::function<void(RenderContext& renderContext, float time)>;
-		using DidRenderFunction = 			std::function<void(RenderContext& renderContext, float time)>;
+//		using UpdateCallback = 				std::function<void(RenderContext& renderContext, float time)>;
+//		using DidSimulateCallback = 	std::function<void(RenderContext& renderContext, float time)>;
+//		using WillRenderCallback = 			std::function<void(RenderContext& renderContext, float time)>;
+//		using DidRenderCallback = 			std::function<void(RenderContext& renderContext, float time)>;
 		
 /*********************************************************************************************
 	Lifecycle
@@ -64,8 +65,8 @@ namespace ae {
 		
 		RENDER_API 									renderAPI() const;
 		
-		std::shared_ptr<Scene> 						scene() const;
-		void 										scene(const std::shared_ptr<Scene> scene);
+//		std::shared_ptr<Scene> 						scene() const;
+//		void 										scene(const std::shared_ptr<Scene> scene);
 		
 		unsigned 									width() const;
 		unsigned 									height() const;
@@ -86,7 +87,7 @@ namespace ae {
 		
 		ANTIALIASING_MODE 							antialiasingMode() const;
 		
-		virtual float 								sceneTime() const;
+//		virtual float 								sceneTime() const;
 		
 		std::shared_ptr<Image> 						snapshot() const;
 		
@@ -96,18 +97,24 @@ namespace ae {
 		virtual unsigned 							recordedGIFFrames() const;
 		virtual void 								stopGIFRecording();
 		
-		UpdateFunction 								updateCallback() const;
-		void 										updateCallback(UpdateFunction function);
+//		UpdateCallback 								update() const;
+//		void 										update(UpdateCallback function);
 		
-		DidSimulatePhysicsFunction 					didSimulatePhysicsCallback() const;
-		void 										didSimulatePhysicsCallback(DidSimulatePhysicsFunction function);
+//		DidSimulateCallback 					didSimulate() const;
+//		void 										didSimulate(DidSimulateCallback function);
 		
-		WillRenderFunction 							willRenderCallback() const;
-		void 										willRenderCallback(WillRenderFunction function);
-		
-		DidRenderFunction 							didRenderCallback() const;
-		void 										didRenderCallback(DidRenderFunction function);
-		
+//		WillRenderCallback 							willRender() const;
+//		void 										willRender(WillRenderCallback function);
+//
+//		DidRenderCallback 							didRender() const;
+//		void 										didRender(DidRenderCallback function);
+
+		std::weak_ptr<Scene>						scene() const;
+		void										scene(std::weak_ptr<Scene> scene);
+
+		std::weak_ptr<VisualWorld>					visualWorld() const;
+		void										visualWorld(std::weak_ptr<VisualWorld> world);
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -142,7 +149,7 @@ namespace ae {
 		RENDER_API 									_renderAPI;
 		std::shared_ptr<Renderer>					_renderer;
 //		std::shared_ptr<PhysicsSimulator>			_physicsSimulator;
-		std::shared_ptr<Scene>						_scene;
+//		std::shared_ptr<Scene>						_scene;
 		unsigned									_width;
 		unsigned									_height;
 		float										_framebufferScale;
@@ -160,10 +167,13 @@ namespace ae {
 		unsigned									_gifRecordingMaxFramerate;
 		unsigned									_gifRecordedFrames;
 		
-		UpdateFunction								_updateCallback;
-		DidSimulatePhysicsFunction					_didSimulatePhysicsCallback;
-		WillRenderFunction 							_willRenderCallback;
-		DidRenderFunction 							_didRenderCallback;
+//		UpdateCallback								_update;
+//		DidSimulateCallback					_didSimulate;
+//		WillRenderCallback 							_willRender;
+//		DidRenderCallback 							_didRender;
+
+		std::weak_ptr<Scene>						_scene;
+		std::weak_ptr<VisualWorld>					_visualWorld;
 	};
 }
 

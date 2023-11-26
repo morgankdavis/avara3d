@@ -40,7 +40,7 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 
-		PhysicsSimulator(PHYSICS_SIMULATION_ENGINE engine);
+		PhysicsSimulator();
 		PhysicsSimulator(const PhysicsSimulator& other) = delete; // copy constructor
 		PhysicsSimulator& operator=(const PhysicsSimulator& other) = delete; // copy assignment
 		virtual ~PhysicsSimulator();
@@ -49,7 +49,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		PHYSICS_SIMULATION_ENGINE	simulationEngine() const;
+		virtual PHYSICS_SIMULATION_ENGINE	simulationEngine() const = 0;
 
 /*********************************************************************************************
 	Internal

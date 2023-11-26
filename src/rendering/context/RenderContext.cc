@@ -8,7 +8,7 @@
 
 #include "rendering/context/RenderContext.h"
 
-#include <chrono>
+//#include <chrono>
 
 #include "gif.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -39,7 +39,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 	_renderAPI(renderAPI),
 	_renderer(nullptr),
 //	_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
-	_scene(nullptr),
+//	_scene(nullptr),
 	_width(0),
 	_height(0),
 	_framebufferScale(1),
@@ -48,17 +48,17 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 	_vSyncEnabled(false),
 	_antialiasingMode(ANTIALIASING_MODE::NONE),
 	_debugOptions(DEBUG_OPTIONS::NONE),
-	_pointOfView(nullptr),
+//	_pointOfView(nullptr),
 	_gifWriter(nullptr),
 	_recordingGIF(false),
 	_gifRecordingWidth(0),
 	_gifRecordingHeight(0),
 	_gifRecordingMaxFramerate(0),
-	_gifRecordedFrames(0),
-	_updateCallback(nullptr),
-	_didSimulatePhysicsCallback(nullptr),
-	_willRenderCallback(nullptr),
-	_didRenderCallback(nullptr) {
+	_gifRecordedFrames(0) {
+//	_update(nullptr),
+//	_didSimulate(nullptr),
+//	_willRender(nullptr),
+//	_didRender(nullptr) {
 
 		switch (_renderAPI) {
 			case RENDER_API::OPENGL: {
@@ -86,20 +86,20 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-RenderContext::RENDER_API RenderContext::renderAPI() const {
+RENDER_API RenderContext::renderAPI() const {
 	return _renderAPI;
 }
 
-shared_ptr<Scene> RenderContext::scene() const {
-	//return _renderer->scene();
-	return _scene;
-}
-
-void RenderContext::scene(const shared_ptr<Scene> scene) {
-	//_renderer->scene(scene);
-	_scene = scene;
-	scene->attachedToRenderContext(shared_from_this());
-}
+//shared_ptr<Scene> RenderContext::scene() const {
+//	//return _renderer->scene();
+//	return _scene;
+//}
+//
+//void RenderContext::scene(const shared_ptr<Scene> scene) {
+//	//_renderer->scene(scene);
+//	_scene = scene;
+////	scene->attachedToRenderContext(shared_from_this());
+//}
 
 unsigned RenderContext::width() const {
 	return _width;
@@ -146,8 +146,8 @@ void RenderContext::debugOptions(DEBUG_OPTIONS options) {
 	
 	_debugOptions = options;
 	
-//	if (_scene && _scene->physicsWorld()) {
-//		_scene->physicsWorld()->debugOptions(_debugOptions);
+//	if (_scene && _scene->physicalWorld()) {
+//		_scene->physicalWorld()->debugOptions(_debugOptions);
 //	}
 }
 
@@ -186,12 +186,12 @@ ANTIALIASING_MODE RenderContext::antialiasingMode() const {
 //	return nullptr;
 //}
 
-float RenderContext::sceneTime() const {
-	// should probably override in subclass to use library's time utilities (GLFW, for example)
-	static auto startDate = chrono::high_resolution_clock::now();
-	auto nowDate = chrono::high_resolution_clock::now();
-	return (chrono::duration<float>(nowDate - startDate)).count();
-}
+//float RenderContext::sceneTime() const {
+//	// should probably override in subclass to use library's time utilities (GLFW, for example)
+//	static auto startDate = chrono::high_resolution_clock::now();
+//	auto nowDate = chrono::high_resolution_clock::now();
+//	return (chrono::duration<float>(nowDate - startDate)).count();
+//}
 
 shared_ptr<Image> RenderContext::snapshot() const {
 	if (_renderer) {
@@ -254,36 +254,52 @@ void RenderContext::stopGIFRecording() {
 	}
 }
 
-RenderContext::UpdateFunction RenderContext::updateCallback() const {
-	return _updateCallback;
+//RenderContext::UpdateCallback RenderContext::update() const {
+//	return _update;
+//}
+//
+//void RenderContext::update(RenderContext::UpdateCallback function) {
+//	_update = function;
+//}
+
+//RenderContext::DidSimulateCallback RenderContext::didSimulate() const {
+//	return _didSimulate;
+//}
+//
+//void RenderContext::didSimulate(RenderContext::DidSimulateCallback function) {
+//	_didSimulate = function;
+//}
+
+//RenderContext::WillRenderCallback RenderContext::willRender() const {
+//	return _willRender;
+//}
+//
+//void RenderContext::willRender(RenderContext::WillRenderCallback function) {
+//	_willRender = function;
+//}
+//
+//RenderContext::DidRenderCallback RenderContext::didRender() const {
+//	return _didRender;
+//}
+//
+//void RenderContext::didRender(RenderContext::DidRenderCallback function) {
+//	_didRender = function;
+//}
+
+weak_ptr<Scene> RenderContext::scene() const {
+	return _scene;
 }
 
-void RenderContext::updateCallback(RenderContext::UpdateFunction function) {
-	_updateCallback = function;
+void RenderContext::scene(weak_ptr<Scene> scene) {
+	_scene = scene;
 }
 
-RenderContext::DidSimulatePhysicsFunction RenderContext::didSimulatePhysicsCallback() const {
-	return _didSimulatePhysicsCallback;
+weak_ptr<VisualWorld> RenderContext::visualWorld() const {
+	return _visualWorld;
 }
 
-void RenderContext::didSimulatePhysicsCallback(RenderContext::DidSimulatePhysicsFunction function) {
-	_didSimulatePhysicsCallback = function;
-}
-
-RenderContext::WillRenderFunction RenderContext::willRenderCallback() const {
-	return _willRenderCallback;
-}
-
-void RenderContext::willRenderCallback(RenderContext::WillRenderFunction function) {
-	_willRenderCallback = function;
-}
-
-RenderContext::DidRenderFunction RenderContext::didRenderCallback() const {
-	return _didRenderCallback;
-}
-
-void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function) {
-	_didRenderCallback = function;
+void RenderContext::visualWorld(weak_ptr<VisualWorld> world) {
+	_visualWorld = world;
 }
 
 /*********************************************************************************************
@@ -299,45 +315,45 @@ shared_ptr<Renderer> RenderContext::renderer() const {
 //}
 
 void RenderContext::update() { // pure virtual
-	//AE_LOG_T("-------------------------------------------------------------------------------");
-
-	if (updateCallback()) {
-		(updateCallback())(*this, sceneTime());
-	}
-
-	//_renderStats = (FrameStats){};
-
-	_renderer->beginFrame(*this);
-
-	auto pov = pointOfView();
-	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
-	static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-
-	_renderer->renderStats().cameraPosition = pov->position();
-
-	if (willRenderCallback()) {
-		(willRenderCallback())(*this, sceneTime());
-	}
-
-	_scene->update(*RenderContext::renderer(),
-				   _framebufferWidth, _framebufferHeight,
-				   *pov,
-				   _debugOptions,
-				   _renderer->renderStats());
-
-	_renderer->endFrame(*this);
-
-	swapBuffers();
-
-	if (_recordingGIF) {
-		saveGIFFrame(sceneTime());
-	}
-
-	if (didRenderCallback()) {
-		(didRenderCallback())(*this, sceneTime());
-	}
-
-	pollInput();
+//	//AE_LOG_T("-------------------------------------------------------------------------------");
+//
+//	if (updateCallback()) {
+//		(updateCallback())(*this, sceneTime());
+//	}
+//
+//	//_renderStats = (FrameStats){};
+//
+//	_renderer->beginFrame(*this);
+//
+//	auto pov = pointOfView();
+//	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
+//	static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+//
+//	_renderer->frameStats().cameraPosition = pov->position();
+//
+//	if (willRenderCallback()) {
+//		(willRenderCallback())(*this, sceneTime());
+//	}
+//
+//	_scene->update(*RenderContext::renderer(),
+//				   _framebufferWidth, _framebufferHeight,
+//				   *pov,
+//				   _debugOptions,
+//				   _renderer->frameStats());
+//
+//	_renderer->endFrame(*this);
+//
+//	swapBuffers();
+//
+//	if (_recordingGIF) {
+//		saveGIFFrame(sceneTime());
+//	}
+//
+//	if (didRenderCallback()) {
+//		(didRenderCallback())(*this, sceneTime());
+//	}
+//
+//	pollInput();
 }
 //
 //shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {

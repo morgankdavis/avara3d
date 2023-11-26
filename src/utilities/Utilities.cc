@@ -568,7 +568,7 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
 		AE_LOG_T("Found scene at path: {}", (*path).string());
-		return Scene::LoadFromFile(*path);
+		return Scene::FromFile(*path);
 	}
 	return nullptr;
 }
