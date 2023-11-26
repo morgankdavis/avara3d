@@ -49,14 +49,98 @@ static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 	Lifescycle
  *********************************************************************************************/
 
-Window::Window(bool fullScreen,
+//Window::Window(bool fullScreen,
+//			   unsigned width, unsigned height,
+//			   bool enableHighDPI,
+//			   ANTIALIASING_MODE antialiasingMode,
+//			   RENDER_API renderAPI):
+//	RenderContext(renderAPI),
+//	_inputManager(nullptr),
+//	_cursorCaptured(false) {
+//
+//	if (InitializeGLFW()) {
+//#ifdef OPENGL_CORE
+//		// TODO: move these version numbers
+//		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+//		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+//		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+//		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//		glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
+//#else // OpenGL ES
+//		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+//		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+//#endif
+//
+//
+//		#warning THIS
+//			//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+//
+//
+//		int viewportWidth = width;
+//		int viewportHeight = height;
+//
+//		float scaleFactor = 1.0;
+//
+//		if (fullScreen) {
+//			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+//			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+//			_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+//			viewportWidth = vmode->width;
+//			viewportHeight = vmode->height;
+//
+//			scaleFactor = ScreenScaleFactor(monitor);
+//		}
+//		else {
+//			_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
+//
+//			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
+//			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
+//			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
+//		}
+//
+//		if (_glfwWindow) {
+//			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
+//
+//			glfwMakeContextCurrent(_glfwWindow);
+//			enableVSync(false);
+//
+//			if (InitializeGLEW()) {
+//				RenderContext::renderer()->initialize(*this);
+//
+//				_width = viewportWidth;
+//				_height = viewportHeight;
+//
+//				_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //_framebufferScale = 1;
+//				_framebufferWidth = _width * _framebufferScale;
+//				_framebufferHeight = _height * _framebufferScale;
+//			}
+//			else {
+//				AE_LOG_C("Failed to initialize GLEW.");
+//				glfwTerminate();
+//				// exception
+//			}
+//		}
+//		else {
+//			AE_LOG_C("Couldn't create GLFW Window.");
+//			glfwTerminate();
+//			// exception
+//		}
+//	}
+//	else {
+//		AE_LOG_C("Failed to initializing GLFW.");
+//		// exception
+//	}
+//}
+
+Window::Window(RENDER_API renderAPI,
+			   bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool enableHighDPI,
-			   ANTIALIASING_MODE antialiasingMode,
-			   RENDER_API renderAPI):
-	RenderContext(renderAPI),
-	_inputManager(nullptr),
-	_cursorCaptured(false) {
+			   ANTIALIASING_MODE antialiasingMode):
+		RenderContext(renderAPI),
+		_inputManager(nullptr),
+		_cursorCaptured(false) {
 
 	if (InitializeGLFW()) {
 #ifdef OPENGL_CORE
@@ -73,8 +157,8 @@ Window::Window(bool fullScreen,
 #endif
 
 
-		#warning THIS
-			//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#warning THIS
+		//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 
 		int viewportWidth = width;
@@ -116,12 +200,14 @@ Window::Window(bool fullScreen,
 				_framebufferHeight = _height * _framebufferScale;
 			}
 			else {
+				// TODO: exception
 				AE_LOG_C("Failed to initialize GLEW.");
 				glfwTerminate();
 				// exception
 			}
 		}
 		else {
+			// TODO: exception
 			AE_LOG_C("Couldn't create GLFW Window.");
 			glfwTerminate();
 			// exception
@@ -263,14 +349,14 @@ void Window::debugOptions(DEBUG_OPTIONS options) {
 //	}
 }
 
-shared_ptr<InputManager> Window::inputManager() {
-	if (_inputManager == nullptr) {
-		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
-		auto inputManager = make_shared<WindowInputManager>(window);
-		_inputManager = static_pointer_cast<InputManager>(inputManager);
-	}
-	return _inputManager;
-}
+//shared_ptr<InputManager> Window::inputManager() {
+//	if (_inputManager == nullptr) {
+//		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
+//		auto inputManager = make_shared<WindowInputManager>(window);
+//		_inputManager = static_pointer_cast<InputManager>(inputManager);
+//	}
+//	return _inputManager;
+//}
 
 float Window::sceneTime() const {
 	return glfwGetTime();

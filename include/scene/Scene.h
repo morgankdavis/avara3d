@@ -16,8 +16,6 @@
 #include <string>
 #include <vector>
 
-//#include "glm/gtc/matrix_transform.hpp"
-
 #include "Types.h"
 
 
@@ -32,6 +30,7 @@ namespace ae {
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
+	class VisualWorld;
 
 	
 	class Scene {
@@ -52,6 +51,7 @@ namespace ae {
  *********************************************************************************************/
 		
 		Scene();
+		Scene(std::shared_ptr<VisualWorld> visualWorld, std::shared_ptr<PhysicsWorld> physicsWorld);
 		~Scene();
 
 /*********************************************************************************************
@@ -61,23 +61,29 @@ namespace ae {
 		std::shared_ptr<Node> 					rootNode() const;
 		void 									rootNode(std::shared_ptr<Node> node);
 		
-		std::shared_ptr<MaterialProperty>		background() const;
-		void 									background(std::shared_ptr<MaterialProperty> background);
+//		std::shared_ptr<MaterialProperty>		background() const;
+//		void 									background(std::shared_ptr<MaterialProperty> background);
+//
+//		float 									fogStartDistance() const;
+//		void 									fogStartDistance(float distance);
+//		float 									fogEndDistance() const;
+//		void 									fogEndDistance(float distance);
+//		float 									fogDensityExponent() const;
+//		void 									fogDensityExponent(float exponent);
+//													// 0 = constant, alpha respected
+//													// 1 = linear, alpha ignored
+//													// >=2 = exponential, alpha ignored
+//		std::shared_ptr<Color> 					fogColor() const;
+//		void 									fogColor(std::shared_ptr<Color> color);
+
+		std::shared_ptr<VisualWorld> 			visualWorld() const;
+		void 									visualWorld(std::shared_ptr<VisualWorld> world);
 		
-		float 									fogStartDistance() const;
-		void 									fogStartDistance(float distance);
-		float 									fogEndDistance() const;
-		void 									fogEndDistance(float distance);
-		float 									fogDensityExponent() const;
-		void 									fogDensityExponent(float exponent);
-													// 0 = constant, alpha respected
-													// 1 = linear, alpha ignored
-													// >=2 = exponential, alpha ignored
-		std::shared_ptr<Color> 					fogColor() const;
-		void 									fogColor(std::shared_ptr<Color> color);
-		
-		std::shared_ptr<PhysicsWorld> 			physicsWorld() const;
+		std::shared_ptr<VisualWorld> 			physicsWorld() const;
 		void 									physicsWorld(std::shared_ptr<PhysicsWorld> world);
+
+		std::shared_ptr<InputManager> 			inputManager();
+		void 									inputManager(std::shared_ptr<InputManager> inputManager);
 		
 /*********************************************************************************************
 	Internal
@@ -90,15 +96,15 @@ namespace ae {
 													   const DEBUG_OPTIONS& debugOptions,
 													   FrameStats& stats);
 
-		std::shared_ptr<Geometry>				skyboxGeometry() const;
+//		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		
 //		AABB									aabb() const;
 //		glm::vec3 								extent() const;
 		
-		void 									attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);
+//		void 									attachedToRenderContext(std::shared_ptr<RenderContext> renderContext);
 
-		std::weak_ptr<RenderContext> 			renderContext() const;
-		void 									renderContext(std::shared_ptr<RenderContext> context);
+//		std::weak_ptr<RenderContext> 			renderContext() const;
+//		void 									renderContext(std::shared_ptr<RenderContext> context);
 		
 /*********************************************************************************************
 	Private
@@ -107,14 +113,29 @@ namespace ae {
 	private:
 
 		std::shared_ptr<Node>					_rootNode;
-		std::shared_ptr<MaterialProperty>		_background;
-		std::shared_ptr<Geometry>				_skyboxGeometry;
-		float									_fogStartDistance;
-		float									_fogEndDistance;
-		float									_fogDensityExponent;
-		std::shared_ptr<Color>					_fogColor;
+//		std::shared_ptr<MaterialProperty>		_background;
+//		std::shared_ptr<Geometry>				_skyboxGeometry;
+//		float									_fogStartDistance;
+//		float									_fogEndDistance;
+//		float									_fogDensityExponent;
+//		std::shared_ptr<Color>					_fogColor;
+//		std::shared_ptr<PhysicsWorld> 			_physicsWorld;
+//		std::weak_ptr<RenderContext>			_renderContext;
+//		RenderContext&	thing;
+
+//		RenderContext -> Window
+//				Renderer -> OpenGLRenderer
+//				InputManager -> WindowInputManager
+//		PhysicsWorld ("PhysicsEnvironment" ?)
+//		PhysicsSimulator -> BulletPhysicsSimulator
+//				Background, fog, etc ("VisualEnvironment" ?)
+
+//		std::unique_ptr<RenderContext>			_renderContext;
+//		std::unique_ptr<Renderer>				_renderer;
+		std::shared_ptr<VisualWorld> 			_visualWorld;
 		std::shared_ptr<PhysicsWorld> 			_physicsWorld;
-		std::weak_ptr<RenderContext>			_renderContext;
+//		std::unique_ptr<PhysicsSimulator>		_physicsSimulator;
+		std::shared_ptr<InputManager>			_inputManager;
 	};
 }
 

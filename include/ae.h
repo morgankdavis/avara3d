@@ -47,6 +47,7 @@
 #include "physics/shape_primitives/SpherePhysicsShape.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/camera/Camera.h"
 #include "rendering/camera/OrthographicCamera.h"
 #include "rendering/camera/PerspectiveCamera.h"

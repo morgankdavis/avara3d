@@ -41,11 +41,16 @@ namespace ae {
 
 	public:
 
-		Window(bool fullScreen,
+//		Window(bool fullScreen,
+//			   unsigned width, unsigned height,
+//			   bool useHighDPI = true,
+//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE,
+//			   RENDER_API renderAPI = RENDER_API::OPENGL);
+		Window(RENDER_API renderAPI,
+			   bool fullScreen,
 			   unsigned width, unsigned height,
 			   bool useHighDPI = true,
-			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE,
-			   RENDER_API renderAPI = RENDER_API::OPENGL);
+			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 
 		Window(const Window& other) = delete; // copy constructor
 		Window& operator=(const Window& other) = delete; // copy assignment
@@ -78,7 +83,7 @@ namespace ae {
 		void 								pollInput() override;
 		void 								enableVSync(bool enabled) override;
 		void 								debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<InputManager> 		inputManager() override;
+//		std::shared_ptr<InputManager> 		inputManager() override;
 		float 								sceneTime() const override;
 		
 /*********************************************************************************************

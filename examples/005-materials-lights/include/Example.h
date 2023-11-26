@@ -19,7 +19,6 @@
 
 namespace example {
 
-
 	class Example {
 		
 	public:

@@ -29,41 +29,51 @@ namespace ae {
 	class PhysicsSimulator {
 
 /*********************************************************************************************
-	Lifecycle
+	Types
  *********************************************************************************************/
 
 	public:
 
-		PhysicsSimulator();
-		
+
+
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
+		PhysicsSimulator(PHYSICS_SIMULATION_ENGINE engine);
 		PhysicsSimulator(const PhysicsSimulator& other) = delete; // copy constructor
 		PhysicsSimulator& operator=(const PhysicsSimulator& other) = delete; // copy assignment
-		
 		virtual ~PhysicsSimulator();
-		
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
+
+		PHYSICS_SIMULATION_ENGINE	simulationEngine() const;
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		virtual void 			beginUpdate(const Scene& scene);
-		virtual void 			endUpdate(const Scene& scene);
+		virtual void 				beginUpdate(const Scene& scene);
+		virtual void 				endUpdate(const Scene& scene);
 
-		virtual void			update(Scene& scene);
-		virtual void			sync(Scene& scene);
+		virtual void				update(Scene& scene);
+		virtual void				sync(Scene& scene);
 
-		virtual void			update(PhysicsBody& body,
-									   Node& node);
-		virtual void			sync(PhysicsBody& body,
-									 Node& node,
-									 glm::mat4& worldTransform);
+		virtual void				update(PhysicsBody& body,
+										   Node& node);
+		virtual void				sync(PhysicsBody& body,
+										 Node& node,
+										 glm::mat4& worldTransform);
 
-		virtual void			update(PhysicsShape& shape,
-									   PHYSICS_BODY_TYPE bodyType,
-									   bool& updated);
-		virtual void			sync(PhysicsShape& shape,
-									 PHYSICS_BODY_TYPE bodyType);
+		virtual void				update(PhysicsShape& shape,
+										   PHYSICS_BODY_TYPE bodyType,
+										   bool& updated);
+		virtual void				sync(PhysicsShape& shape,
+										 PHYSICS_BODY_TYPE bodyType);
 
-		virtual void 			step(float time);
+		virtual void 				step(float time);
 		
 /*********************************************************************************************
 	Protected
@@ -71,9 +81,11 @@ namespace ae {
 
 	protected:
 
-		glm::vec3 				_gravity;
-		float 					_speed;
-		float					_timestep;
+		glm::vec3 					_gravity;
+		float 						_speed;
+		float						_timestep;
+
+		PHYSICS_SIMULATION_ENGINE	_simulationEngine;
 	};
 }
 

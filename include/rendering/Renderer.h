@@ -37,13 +37,9 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 
-	public:
-
 		Renderer();
-		
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
-		
 		virtual ~Renderer();
 		
 /*********************************************************************************************

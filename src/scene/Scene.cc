@@ -52,7 +52,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+//static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
 static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
@@ -109,15 +109,18 @@ shared_ptr<Scene> Scene::LoadFromFile(const filesystem::path& path) {
 
 Scene::Scene():
 	_rootNode(nullptr),
-	_background(nullptr),
-	_fogStartDistance(0.0),
-	_fogEndDistance(0.0),
-	_fogDensityExponent(0.0),
-	_fogColor(nullptr),
-	_physicsWorld(nullptr),
-	_renderContext({}) {
-		
-}
+//	_background(nullptr),
+//	_fogStartDistance(0.0),
+//	_fogEndDistance(0.0),
+//	_fogDensityExponent(0.0),
+//	_fogColor(nullptr),
+	_physicsWorld(nullptr)
+/*_renderContext({})*/ { }
+
+Scene::Scene(shared_ptr<VisualWorld> visualWorld, shared_ptr<PhysicsWorld> physicsWorld):
+		_rootNode(make_shared<Node>("root")),
+		_visualWorld(visualWorld),
+		_physicsWorld(physicsWorld) { }
 
 Scene::~Scene() {
 	AE_LOG_D("Destroying Scene {:p}", (void*)this);
@@ -136,63 +139,71 @@ void Scene::rootNode(shared_ptr<Node> node) {
 	_rootNode = node;
 }
 
-shared_ptr<MaterialProperty> Scene::background() const {
-	return _background;
+//shared_ptr<MaterialProperty> Scene::background() const {
+//	return _background;
+//}
+//
+//void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
+//
+//	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
+//		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
+//
+//		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
+//		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
+//		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
+//
+//		// generate the skybox geometry if it hasn't already been
+//		if (!_skyboxGeometry) {
+//			// MKD: u_s_ptr_aliases
+//			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
+//		}
+//		else {
+//			// we already have the geometry, just update its material
+//			_skyboxGeometry->replaceMaterial(0, material);
+//		}
+//	}
+//
+//	_background = backgroundProperty;
+//}
+//
+//float Scene::fogStartDistance() const {
+//	return _fogStartDistance;
+//}
+//
+//void Scene::fogStartDistance(float distance) {
+//	_fogStartDistance = distance;
+//}
+//
+//float Scene::fogEndDistance() const {
+//	return _fogEndDistance;
+//}
+//
+//void Scene::fogEndDistance(float distance) {
+//	_fogEndDistance = distance;
+//}
+//
+//float Scene::fogDensityExponent() const {
+//	return _fogDensityExponent;
+//}
+//
+//void Scene::fogDensityExponent(float exponent) {
+//	_fogDensityExponent = exponent;
+//}
+//
+//shared_ptr<Color> Scene::fogColor() const {
+//	return _fogColor;
+//}
+//
+//void Scene::fogColor(shared_ptr<Color> color) {
+//	_fogColor = color;
+//}
+
+std::shared_ptr<VisualWorld> Scene::visualWorld() const {
+	return _visualWorld;
 }
 
-void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
-	
-	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
-		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
-
-		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
-		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
-		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
-
-		// generate the skybox geometry if it hasn't already been
-		if (!_skyboxGeometry) {
-			// MKD: u_s_ptr_aliases
-			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
-		}
-		else {
-			// we already have the geometry, just update its material
-			_skyboxGeometry->replaceMaterial(0, material);
-		}
-	}
-
-	_background = backgroundProperty;
-}
-
-float Scene::fogStartDistance() const {
-	return _fogStartDistance;
-}
-
-void Scene::fogStartDistance(float distance) {
-	_fogStartDistance = distance;
-}
-
-float Scene::fogEndDistance() const {
-	return _fogEndDistance;
-}
-
-void Scene::fogEndDistance(float distance) {
-	_fogEndDistance = distance;
-}
-
-float Scene::fogDensityExponent() const {
-	return _fogDensityExponent;
-}
-
-void Scene::fogDensityExponent(float exponent) {
-	_fogDensityExponent = exponent;
-}
-
-shared_ptr<Color> Scene::fogColor() const {
-	return _fogColor;
-}
-
-void Scene::fogColor(shared_ptr<Color> color) {
-	_fogColor = color;
+void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
+	_visualWorld = world;
 }
 
 shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
@@ -202,6 +213,19 @@ shared_ptr<PhysicsWorld> Scene::physicsWorld() const {
 void Scene::physicsWorld(shared_ptr<PhysicsWorld> world) {
 	_physicsWorld = world;
 //	_physicsWorld->attachedToScene(shared_from_this());
+}
+
+shared_ptr<InputManager> Scene::inputManager() {
+	if (_inputManager == nullptr) {
+		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
+		auto inputManager = make_shared<WindowInputManager>(window);
+		_inputManager = static_pointer_cast<InputManager>(inputManager);
+	}
+	return _inputManager;
+}
+
+void Scene::inputManager(std::shared_ptr<InputManager> inputManager) {
+
 }
 
 /*********************************************************************************************
@@ -276,9 +300,9 @@ void Scene::update(Renderer& renderer,
 	}
 }
 
-shared_ptr<Geometry> Scene::skyboxGeometry() const {
-	return _skyboxGeometry;
-}
+//shared_ptr<Geometry> Scene::skyboxGeometry() const {
+//	return _skyboxGeometry;
+//}
 
 //AABB Scene::aabb() const {
 //
@@ -312,20 +336,20 @@ shared_ptr<Geometry> Scene::skyboxGeometry() const {
 //			aabb.max.z - aabb.min.z};
 //}
 
-void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
-	_renderContext = renderContext;
-//	if (_physicsWorld) {
-//		_physicsWorld->attachedToScene(shared_from_this());
-//	}
-}
+//void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
+//	_renderContext = renderContext;
+////	if (_physicsWorld) {
+////		_physicsWorld->attachedToScene(shared_from_this());
+////	}
+//}
 
-weak_ptr<RenderContext> Scene::renderContext() const {
-	return _renderContext;
-}
-
-void Scene::renderContext(shared_ptr<RenderContext> context) {
-	_renderContext = context;
-}
+//weak_ptr<RenderContext> Scene::renderContext() const {
+//	return _renderContext;
+//}
+//
+//void Scene::renderContext(shared_ptr<RenderContext> context) {
+//	_renderContext = context;
+//}
 
 /*********************************************************************************************
 	Static

@@ -38,7 +38,7 @@ using namespace std;
 RenderContext::RenderContext(RENDER_API renderAPI):
 	_renderAPI(renderAPI),
 	_renderer(nullptr),
-	_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
+//	_physicsSimulator(make_shared<BulletPhysicsSimulator>()),
 	_scene(nullptr),
 	_width(0),
 	_height(0),
@@ -65,8 +65,11 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 				auto renderer = make_shared<OpenGLRenderer>();
 				_renderer = static_pointer_cast<Renderer>(renderer);
 				break; }
+			case RENDER_API::OPENGL_ES: {
+				throw Exception("Unsupported render API: OPENGL_ES");
+				break; }
 			case RENDER_API::VULKAN: {
-				throw Exception("Unsupported render API: Vulkan");
+				throw Exception("Unsupported render API: VULKAN");
 				break; }
 		}		
 }
@@ -83,16 +86,8 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-RENDER_API RenderContext::renderAPI() const {
+RenderContext::RENDER_API RenderContext::renderAPI() const {
 	return _renderAPI;
-}
-
-shared_ptr<Renderer> RenderContext::renderer() const {
-	return _renderer;
-}
-
-void RenderContext::renderer(shared_ptr<Renderer> renderer) {
-	_renderer = renderer;
 }
 
 shared_ptr<Scene> RenderContext::scene() const {
@@ -156,31 +151,31 @@ void RenderContext::debugOptions(DEBUG_OPTIONS options) {
 //	}
 }
 
-shared_ptr<Node> RenderContext::pointOfView() {
-	
-	if (_pointOfView) {
-		return _pointOfView;
-	}
-	else {
-		// try to assign one from the scene
-		for (auto node: _scene->rootNode()->children(true)) {
-			if (node->camera()) {
-				_pointOfView = node;
-				return _pointOfView;
-			}
-		}
-	}
-	if (!_pointOfView) {
-		// still no POV. add a default one.
-		_pointOfView = defaultPointOfView();
-	}
-	
-	return _pointOfView;
-}
-
-void RenderContext::pointOfView(const shared_ptr<Node> camera) {
-	_pointOfView = camera;
-}
+//shared_ptr<Node> RenderContext::pointOfView() {
+//
+//	if (_pointOfView) {
+//		return _pointOfView;
+//	}
+//	else {
+//		// try to assign one from the scene
+//		for (auto node: _scene->rootNode()->children(true)) {
+//			if (node->camera()) {
+//				_pointOfView = node;
+//				return _pointOfView;
+//			}
+//		}
+//	}
+//	if (!_pointOfView) {
+//		// still no POV. add a default one.
+//		_pointOfView = defaultPointOfView();
+//	}
+//
+//	return _pointOfView;
+//}
+//
+//void RenderContext::pointOfView(const shared_ptr<Node> camera) {
+//	_pointOfView = camera;
+//}
 
 ANTIALIASING_MODE RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
@@ -295,6 +290,14 @@ void RenderContext::didRenderCallback(RenderContext::DidRenderFunction function)
 	Internal
  *********************************************************************************************/
 
+shared_ptr<Renderer> RenderContext::renderer() const {
+	return _renderer;
+}
+
+//void RenderContext::renderer(shared_ptr<Renderer> renderer) {
+//	_renderer = renderer;
+//}
+
 void RenderContext::update() { // pure virtual
 	//AE_LOG_T("-------------------------------------------------------------------------------");
 
@@ -336,14 +339,14 @@ void RenderContext::update() { // pure virtual
 
 	pollInput();
 }
-
-shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {
-	return _physicsSimulator;
-}
-
-void RenderContext::physicsSimulator(shared_ptr<PhysicsSimulator> physicsSimulator) {
-	_physicsSimulator = physicsSimulator;
-}
+//
+//shared_ptr<PhysicsSimulator> RenderContext::physicsSimulator() const {
+//	return _physicsSimulator;
+//}
+//
+//void RenderContext::physicsSimulator(shared_ptr<PhysicsSimulator> physicsSimulator) {
+//	_physicsSimulator = physicsSimulator;
+//}
 
 void RenderContext::width(unsigned width) {
 	_width = width;
@@ -457,52 +460,52 @@ void RenderContext::saveGIFFrame(float time) {
 //	return cameraNode;
 //}
 
-shared_ptr<Node> RenderContext::defaultPointOfView() {
-
-	auto cameraNode = make_shared<Node>();
-	//_scene->rootNode()->addChild(cameraNode); // done below
-	auto camera = make_shared<PerspectiveCamera>();
-	camera->name("default camera");
-	cameraNode->camera(camera);
-
-	auto aabb = scene()->rootNode()->aabb();
-
-	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
-	float w = width();
-	float h = height();
-	float aspectRatio = w/h;
-	float inverseAspectRatio = 1.0f/aspectRatio;
-	float fovV = fovH * inverseAspectRatio;
-
-	// tan(angle) = x/z
-	// ztan(angle) = x
-	// z = x/tan(angle)
-
-	float maxZ = abs(aabb.max.z);
-
-	float xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
-	float angleH = fovH / 2.0;
-	float zH = xH / tan(angleH);
-
-	float xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
-	float angleV = fovV / 2.0;
-	float zV = xV / tan(angleV);
-
-	zH += maxZ;
-	zV += maxZ;
-
-	float z = fmax(zH, zV);
-	float midX = (aabb.min.x + aabb.max.x) / 2.0f;
-	float midY = (aabb.min.y + aabb.max.y) / 2.0f;
-
-	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
-	//vec3 eye = vec3(midX, midY, z);
-
-	mat4 viewMat = translate(mat4(1.0f), eye);
-	cameraNode->transform(viewMat);
-
-	scene()->rootNode()->addChild(cameraNode);
-	pointOfView(cameraNode);
-
-	return cameraNode;
-}
+//shared_ptr<Node> RenderContext::defaultPointOfView() {
+//
+//	auto cameraNode = make_shared<Node>();
+//	//_scene->rootNode()->addChild(cameraNode); // done below
+//	auto camera = make_shared<PerspectiveCamera>();
+//	camera->name("default camera");
+//	cameraNode->camera(camera);
+//
+//	auto aabb = scene()->rootNode()->aabb();
+//
+//	float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
+//	float w = width();
+//	float h = height();
+//	float aspectRatio = w/h;
+//	float inverseAspectRatio = 1.0f/aspectRatio;
+//	float fovV = fovH * inverseAspectRatio;
+//
+//	// tan(angle) = x/z
+//	// ztan(angle) = x
+//	// z = x/tan(angle)
+//
+//	float maxZ = abs(aabb.max.z);
+//
+//	float xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
+//	float angleH = fovH / 2.0;
+//	float zH = xH / tan(angleH);
+//
+//	float xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
+//	float angleV = fovV / 2.0;
+//	float zV = xV / tan(angleV);
+//
+//	zH += maxZ;
+//	zV += maxZ;
+//
+//	float z = fmax(zH, zV);
+//	float midX = (aabb.min.x + aabb.max.x) / 2.0f;
+//	float midY = (aabb.min.y + aabb.max.y) / 2.0f;
+//
+//	vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
+//	//vec3 eye = vec3(midX, midY, z);
+//
+//	mat4 viewMat = translate(mat4(1.0f), eye);
+//	cameraNode->transform(viewMat);
+//
+//	scene()->rootNode()->addChild(cameraNode);
+//	pointOfView(cameraNode);
+//
+//	return cameraNode;
+//}

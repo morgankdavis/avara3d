@@ -12,26 +12,16 @@
 
 #include <glm/glm.hpp>
 
+//#include "physics/ConvexDecomposer.h" // TEMPORARY
 #include "utilities/Utilities.h"
 
-
-
-// TEMPORARY (not a public class)
-#include "physics/ConvexDecomposer.h"
-
-
-// TEMPORARY
-//#ifdef WINDOWS
-//#include <windows.h>
-//#include <libloaderapi.h>
-//#endif
 
 using namespace ae;
 using namespace ae::utils;
 using namespace example;
+using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-using namespace glm;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -71,41 +61,18 @@ static void SpawnChainMail(Scene& scene);
 	Public
  ***************************************************************************************/
 
-// https://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
-//std::wstring s2ws(const std::string& s)
-//{
-//    int len;
-//    int slength = (int)s.length() + 1;
-//    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-//    wchar_t* buf = new wchar_t[len];
-//    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-//    std::wstring r(buf);
-//    delete[] buf;
-//    return r;
-//}
-
 int Example::run(const vector<string>& args) {
-
-//// TEMPORARY
-//#ifdef WINDOWS
-////    DLL_DIRECTORY_COOKIE AddDllDirectory(
-////  PCWSTR NewDirectory
-////);
-//
-//DLL_DIRECTORY_COOKIE ret = AddDllDirectory(s2ws(boost::filesystem::path(*ExecutableDirectory() / std::string("lib")).string()).c_str());
-//#endif
-
 
 	AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "Example::run()");
 
-	_window = make_shared<Window>(FULLSCREEN,
+	_window = make_shared<Window>(RENDER_API::OPENGL,
+								  FULLSCREEN,
 								  WINDOW_WIDTH, WINDOW_HEIGHT,
 								  USE_HIGH_DPI,
-								  MSAA_MODE,
-								  RENDER_API::OPENGL);
+								  MSAA_MODE);
 	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
 	_window->didSimulatePhysicsCallback(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
 	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
@@ -113,6 +80,19 @@ int Example::run(const vector<string>& args) {
 	_window->enableVSync(ENABLE_VSYNC);
 	_window->captureCursor(CAPTURE_CURSOR);
 	_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+
+	auto visualWorld = make_shared<VisualWorld>(_window);
+	visualWorld->fogStartDistance(50.0);
+	visualWorld->fogEndDistance(400.0);
+	visualWorld->fogDensityExponent(1.0);
+	visualWorld->fogColor(Color::LightGray());
+
+	auto physicsWorld = make_shared<PhysicsWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	physicsWorld->timestep(PHYSICS_TIMESTEP);
+
+	_scene = make_shared<Scene>(visualWorld, physicsWorld);
+
+
 	
 //	auto renderContext = static_pointer_cast<RenderContext>(_window);
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
@@ -124,12 +104,12 @@ int Example::run(const vector<string>& args) {
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 //	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 	
-	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
+//	auto scene = make_shared<Scene>();
+//	scene->rootNode(make_shared<Node>("Root node"));
 	
-	auto physicsWorld = make_shared<PhysicsWorld>();
-	physicsWorld->timestep(PHYSICS_TIMESTEP);
-	scene->physicsWorld(physicsWorld);
+//	auto physicsWorld = make_shared<PhysicsWorld>();
+//	physicsWorld->timestep(PHYSICS_TIMESTEP);
+//	scene->physicsWorld(physicsWorld);
 
 
 	// box
@@ -311,10 +291,10 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position(vec3(35, 20, 7) * vec3(2.5, 2.5, 2.5));
 
-	scene->fogStartDistance(50.0);
-	scene->fogEndDistance(400.0);
-	scene->fogDensityExponent(1.0);
-	scene->fogColor(Color::LightGray());
+//	scene->fogStartDistance(50.0);
+//	scene->fogEndDistance(400.0);
+//	scene->fogDensityExponent(1.0);
+//	scene->fogColor(Color::LightGray());
 	
 	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 

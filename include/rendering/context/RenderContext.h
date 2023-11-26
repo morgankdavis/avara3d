@@ -54,10 +54,8 @@ namespace ae {
  *********************************************************************************************/
 
 		RenderContext(RENDER_API renderAPI);
-		
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
-		
 		virtual ~RenderContext();
 		
 /*********************************************************************************************
@@ -65,9 +63,6 @@ namespace ae {
  *********************************************************************************************/
 		
 		RENDER_API 									renderAPI() const;
-		
-		std::shared_ptr<Renderer> 					renderer() const;
-		/* REMOVE? */ void 							renderer(std::shared_ptr<Renderer> renderer);
 		
 		std::shared_ptr<Scene> 						scene() const;
 		void 										scene(const std::shared_ptr<Scene> scene);
@@ -85,13 +80,11 @@ namespace ae {
 		
 		virtual DEBUG_OPTIONS 						debugOptions() const;
 		virtual void 								debugOptions(DEBUG_OPTIONS options);
-		
-		virtual std::shared_ptr<Node>				pointOfView();
-		virtual void 								pointOfView(const std::shared_ptr<Node> camera);
+//
+//		virtual std::shared_ptr<Node>				pointOfView();
+//		virtual void 								pointOfView(const std::shared_ptr<Node> camera);
 		
 		ANTIALIASING_MODE 							antialiasingMode() const;
-		
-		virtual std::shared_ptr<InputManager> 		inputManager() = 0;
 		
 		virtual float 								sceneTime() const;
 		
@@ -119,12 +112,15 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
+		std::shared_ptr<Renderer> 					renderer() const;
+//		/* REMOVE? */ void 							renderer(std::shared_ptr<Renderer> renderer);
+
 		virtual void 								update();
 		virtual void 								swapBuffers() = 0;
 		virtual void 								pollInput() = 0;
 		
-		std::shared_ptr<PhysicsSimulator> 			physicsSimulator() const;
-		/* REMOVE? */ void 							physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
+//		std::shared_ptr<PhysicsSimulator> 			physicsSimulator() const;
+//		/* REMOVE? */ void 							physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
 		
 		void 										width(unsigned width);
 		void 										height(unsigned height);
@@ -140,12 +136,12 @@ namespace ae {
 
 	protected:
 
-		virtual std::shared_ptr<Node> 				defaultPointOfView();
+//		virtual std::shared_ptr<Node> 				defaultPointOfView();
 		virtual void 								saveGIFFrame(float time);
 
 		RENDER_API 									_renderAPI;
 		std::shared_ptr<Renderer>					_renderer;
-		std::shared_ptr<PhysicsSimulator>			_physicsSimulator;
+//		std::shared_ptr<PhysicsSimulator>			_physicsSimulator;
 		std::shared_ptr<Scene>						_scene;
 		unsigned									_width;
 		unsigned									_height;
@@ -155,7 +151,7 @@ namespace ae {
 		bool										_vSyncEnabled;
 		ANTIALIASING_MODE							_antialiasingMode;
 		DEBUG_OPTIONS								_debugOptions;
-		std::shared_ptr<Node>						_pointOfView;
+//		std::shared_ptr<Node>						_pointOfView;
 		
 		std::shared_ptr<GifWriter>					_gifWriter;
 		bool										_recordingGIF;

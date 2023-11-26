@@ -37,10 +37,14 @@ namespace ae {
 		CRITICAL_ = 	5,
 		OFF_ = 		6
 	};
-		
+
 	enum class RENDER_API {
 		OPENGL,
 		VULKAN
+	};
+
+	enum class PHYSICS_SIMULATION_ENGINE {
+		BULLET
 	};
 		
 	enum class FONT_TYPE : unsigned {
