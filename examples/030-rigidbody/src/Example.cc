@@ -66,7 +66,7 @@ int Example::run(const vector<string>& args) {
 	AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	LOG_I(_logger, "Example::run()");
+	LOG_I(_logger, "");
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
@@ -74,10 +74,6 @@ int Example::run(const vector<string>& args) {
 									  WINDOW_HEIGHT,
 									  USE_HIGH_DPI,
 									  MSAA_MODE);
-//	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-//	_window->didSimulatePhysicsCallback(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
-//	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-//	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	window->enableVSync(ENABLE_VSYNC);
 	window->captureCursor(CAPTURE_CURSOR);
 
@@ -96,10 +92,6 @@ int Example::run(const vector<string>& args) {
 	auto inputManager = make_shared<WindowInputManager>(window); // replace with RenderContext::DefaultInputManager()?
 
 	_scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
-//	_scene = make_shared<Scene>();
-//	_scene->visualWorld(visualWorld);
-//	_scene->physicalWorld(physicalWorld);
-//	_scene->inputManager(inputManager);
 	_scene->update(bind(&Example::updateCallback, this, _1, _2));
 	_scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
@@ -187,7 +179,6 @@ int Example::run(const vector<string>& args) {
 	planePhysicsBody->restitution(0.25);
 
 	_scene->rootNode()->addChild(planeNode);
-
 
 
 
@@ -301,11 +292,6 @@ int Example::run(const vector<string>& args) {
 	_scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position(vec3(35, 20, 7) * vec3(2.5, 2.5, 2.5));
 
-//	scene->fogStartDistance(50.0);
-//	scene->fogEndDistance(400.0);
-//	scene->fogDensityExponent(1.0);
-//	scene->fogColor(Color::LightGray());
-	
 	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(_scene->rootNode()->extent()));
 
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
@@ -322,9 +308,6 @@ int Example::run(const vector<string>& args) {
 //			AE_LOG_I("\t{:p}", (void*)child.get());
 //		}
 //	}
-	
-	//window->scene(_scene.get()); // eh?
-//	inputManager = window->inputManager();
 
 	window->display();
 	_scene->run();
