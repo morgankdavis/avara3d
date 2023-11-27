@@ -62,10 +62,9 @@ static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 	Private Static Prototypes
  *********************************************************************************************/
 
-//static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
-//static void 						LoadData(Scene& scene, const vector<unsigned char>& data);
 static void 						AddAIGeometryNodes(Scene& scene,
 													  const aiScene* aiScene,
 													  shared_ptr<Node> aeRootNode,
@@ -105,13 +104,6 @@ shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
 }
 #endif
 
-//shared_ptr<Scene> Scene::LoadFromData(const vector<unsigned char>& data) {
-//	auto scene = make_shared<Scene>();
-//	scene->rootNode(make_shared<Node>("Root node"));
-//	LoadData(*scene, data);
-//	return scene;
-//}
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -121,8 +113,9 @@ Scene::Scene():
 		_visualWorld(nullptr),
 		_physicalWorld(nullptr),
 		_inputManager(nullptr),
-		_update(nullptr),
-		_debugOptions(DEBUG_OPTIONS::NONE) { }
+		_debugOptions(DEBUG_OPTIONS::NONE),
+		_stats({}),
+		_update(nullptr) { }
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 			 shared_ptr<PhysicalWorld> physicsWorld,
@@ -131,8 +124,9 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_visualWorld(visualWorld),
 		_physicalWorld(physicsWorld),
 		_inputManager(inputManager),
-		_update(nullptr),
-		_debugOptions(DEBUG_OPTIONS::NONE) {
+		_debugOptions(DEBUG_OPTIONS::NONE),
+		_stats({}),
+		_update(nullptr) {
 
 	_visualWorld->attachedToScene(this);
 	_physicalWorld->attachedToScene(this);
@@ -152,68 +146,9 @@ shared_ptr<Node> Scene::rootNode() const {
 }
 
 void Scene::rootNode(shared_ptr<Node> node) {
-//	node->attachedToScene(shared_from_this());
 	_rootNode = node;
+//	node->attachedToScene(shared_from_this());
 }
-
-//shared_ptr<MaterialProperty> Scene::background() const {
-//	return _background;
-//}
-//
-//void Scene::background(shared_ptr<MaterialProperty> backgroundProperty) {
-//
-//	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
-//		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
-//
-//		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
-//		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
-//		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
-//
-//		// generate the skybox geometry if it hasn't already been
-//		if (!_skyboxGeometry) {
-//			// MKD: u_s_ptr_aliases
-//			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
-//		}
-//		else {
-//			// we already have the geometry, just update its material
-//			_skyboxGeometry->replaceMaterial(0, material);
-//		}
-//	}
-//
-//	_background = backgroundProperty;
-//}
-//
-//float Scene::fogStartDistance() const {
-//	return _fogStartDistance;
-//}
-//
-//void Scene::fogStartDistance(float distance) {
-//	_fogStartDistance = distance;
-//}
-//
-//float Scene::fogEndDistance() const {
-//	return _fogEndDistance;
-//}
-//
-//void Scene::fogEndDistance(float distance) {
-//	_fogEndDistance = distance;
-//}
-//
-//float Scene::fogDensityExponent() const {
-//	return _fogDensityExponent;
-//}
-//
-//void Scene::fogDensityExponent(float exponent) {
-//	_fogDensityExponent = exponent;
-//}
-//
-//shared_ptr<Color> Scene::fogColor() const {
-//	return _fogColor;
-//}
-//
-//void Scene::fogColor(shared_ptr<Color> color) {
-//	_fogColor = color;
-//}
 
 std::shared_ptr<VisualWorld> Scene::visualWorld() const {
 	return _visualWorld;
@@ -230,7 +165,6 @@ shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
 
 void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
 	_physicalWorld = world;
-//	_physicalWorld->attachedToScene(shared_from_this());
 	_physicalWorld->attachedToScene(this);
 }
 
@@ -268,14 +202,6 @@ float Scene::time() const {
 	return (chrono::duration<float>(nowDate - startDate)).count();
 }
 
-Scene::UpdateCallback Scene::update() const {
-	return _update;
-}
-
-void Scene::update(UpdateCallback function) {
-	_update = function;
-}
-
 DEBUG_OPTIONS Scene::debugOptions() const {
 	return _debugOptions;
 }
@@ -292,16 +218,13 @@ void Scene::debugOptions(DEBUG_OPTIONS options) {
 #endif
 
 	_debugOptions = options;
-
-//	if (_scene && _scene->physicalWorld()) {
-//		_scene->physicalWorld()->debugOptions(_debugOptions);
-//	}
 }
 
-// ported from Window::display(), RenderContext::update(), and Scene::update()
+const Stats& Scene::stats() const {
+	return _stats;
+}
+
 void Scene::run() {
-
-
 
 	shared_ptr<RenderContext> renderContext = nullptr;
 	shared_ptr<Renderer> renderer = nullptr;
@@ -313,8 +236,7 @@ void Scene::run() {
 	}
 
 	do {
-
-		AE_LOG_T("-------------------------------------------------------------------------------");
+		memset(&_stats, 0, sizeof(Stats));
 
 		// from Window::display()
 //	if (_scene.lock()) {
@@ -323,7 +245,7 @@ void Scene::run() {
 //		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
 //		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
 //
-//		captureCursor(cursorCaptured()); // needs to be set after windows is made current
+//		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
 //
 //		while (!glfwWindowShouldClose(_glfwWindow)) {
 //			update();
@@ -336,28 +258,13 @@ void Scene::run() {
 //	}
 
 
-
-
-
-
 		const float t = time();
 
 		if (_update) {
 			(_update)(*this, t);
 		}
 
-		//_renderStats = (FrameStats){};
-
-//		shared_ptr<RenderContext> renderContext = nullptr;
-//		shared_ptr<Renderer> renderer = nullptr;
-//		if (_visualWorld) {
-//			renderContext = _visualWorld->renderContext();
-//			if (renderContext) {
-//				renderer = renderContext->renderer();
-//			}
-//		}
-
-		renderer->beginFrame(*renderContext);
+		renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
 
 		const auto framebufferWidth = renderContext->framebufferWidth();
 		const auto framebufferHeight = renderContext->framebufferHeight();
@@ -370,55 +277,37 @@ void Scene::run() {
 		auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
 		static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
-		auto frameStats = &renderer->frameStats();
+		//auto frameStats = &renderer->frameStats();
 
-		frameStats->cameraPosition = pov->position(); // MOVE
+		_stats.cameraPosition = pov->position(); // MOVE
 
 		if (_visualWorld->willRender()) { // MOVE
 			(_visualWorld->willRender())(*_visualWorld, t);
 		}
 
-		// ---------------------------------------------------------------------------------
-		// (moved from Scene::update()
-//	update(renderer,
-//		   framebufferWidth,
-//		   framebufferHeight,
-//		   *pov,
-//		   _debugOptions,
-//		   renderer->frameStats());
-
-		renderer->render(*this, _debugOptions, *frameStats);
-
-//	shared_ptr<RenderContext> renderContext = nullptr;
-//	if (_visualWorld
-//		&& _visualWorld->renderContext()) {
-//		renderContext = _visualWorld->renderContext();
-//	}
+		renderer->render(*this, _debugOptions, _stats);
 
 		shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
 		if (_physicalWorld
 			&& _physicalWorld->simulator()) {
 			physicsSimulator = _physicalWorld->simulator();
 		}
-		//static auto visited = map<shared_ptr<Node>, bool>();
 
 		if (_physicalWorld) {
 			physicsSimulator->beginUpdate(*this);
 			physicsSimulator->update(*this);
 		}
 
-		//visited.clear();
 		_rootNode->update(*physicsSimulator,
-						  *frameStats);
+						  _stats);
 
 		if (_physicalWorld) {
 			physicsSimulator->step(t);
 			physicsSimulator->sync(*this);
 		}
 
-		//visited.clear();
 		_rootNode->sync(*physicsSimulator,
-						*frameStats);
+						_stats);
 
 		if (_physicalWorld) {
 			physicsSimulator->endUpdate(*this);
@@ -431,12 +320,11 @@ void Scene::run() {
 		auto viewMat = pov->worldTransform();
 		auto projectionMat = pov->camera()->projection();
 
-		//visited.clear();
 		_rootNode->draw(*renderer,
 						viewMat,
 						projectionMat,
 						_debugOptions,
-						*frameStats);
+						_stats);
 
 		if (_physicalWorld) {
 			auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
@@ -448,9 +336,7 @@ void Scene::run() {
 			}
 		}
 
-		// ---------------------------------------------------------------------------------
-
-		renderer->endFrame(*renderContext);
+		renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
 
 		renderContext->swapBuffers();
 
@@ -467,121 +353,13 @@ void Scene::run() {
 	} while (!static_pointer_cast<Window>(renderContext)->wantsClose()); // change
 }
 
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
+Scene::UpdateCallback Scene::update() const {
+	return _update;
+}
 
-//void Scene::update(Renderer& renderer,
-//				   unsigned framebufferWidth,
-//				   unsigned framebufferHeight,
-//				   Node& pointOfView,
-//				   const DEBUG_OPTIONS& debugOptions,
-//				   FrameStats& stats) {
-//
-//	renderer.render(*this, debugOptions, stats);
-//
-//	shared_ptr<RenderContext> renderContext = nullptr;
-//	if (_visualWorld
-//		&& _visualWorld->renderContext()) {
-//		renderContext = _visualWorld->renderContext();
-//	}
-//
-//	shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
-//	if (_physicalWorld
-//		&& _physicalWorld->simulator()) {
-//		physicsSimulator = _physicalWorld->simulator();
-//	}
-//	//static auto visited = map<shared_ptr<Node>, bool>();
-//
-//	if (_physicalWorld) {
-//		physicsSimulator->beginUpdate(*this);
-//		physicsSimulator->update(*this);
-//	}
-//
-//	//visited.clear();
-//	_rootNode->update(*physicsSimulator,
-//					  stats);
-//
-//	if (_physicalWorld) {
-//		physicsSimulator->step(time());
-//		physicsSimulator->sync(*this);
-//	}
-//
-//	//visited.clear();
-//	_rootNode->sync(*physicsSimulator,
-//					stats);
-//
-//	if (_physicalWorld) {
-//		physicsSimulator->endUpdate(*this);
-//
-//		if (_physicalWorld->didSimulate()) {
-//			(_physicalWorld->didSimulate())(*_physicalWorld, time());
-//		}
-//	}
-//
-//	auto viewMat = pointOfView.worldTransform();
-//	auto projectionMat = pointOfView.camera()->projection();
-//
-//	//visited.clear();
-//	_rootNode->draw(renderer,
-//					viewMat,
-//					projectionMat,
-//					debugOptions,
-//					stats);
-//
-//	if (_physicalWorld) {
-//		auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-//		if (bulletSimulator) {
-//			bulletSimulator->drawDebug(renderer,
-//									   viewMat,
-//									   projectionMat,
-//									   debugOptions);
-//		}
-//	}
-//}
-
-//shared_ptr<Geometry> Scene::skyboxGeometry() const {
-//	return _skyboxGeometry;
-//}
-
-//AABB Scene::aabb() const {
-//
-////	static const float maxFloat = numeric_limits<float>::max();
-////	static const float minFloat = numeric_limits<float>::min();
-////
-////	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-////				  {minFloat, minFloat, minFloat} };
-////
-////	for (const auto node : _rootNode->children(true)) {
-////		if (node->geometry()) {
-////			auto geoAABB = node->geometry()->aabb(node);
-////			aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
-////			aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
-////			aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
-////			aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
-////			aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
-////			aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
-////		}
-////	}
-////
-////	return aabb;
-//
-//	return _rootNode->aabb();
-//}
-
-//vec3 Scene::extent() const {
-//	auto aabb = _rootNode->aabb();
-//	return {aabb.max.x - aabb.min.x,
-//			aabb.max.y - aabb.min.y,
-//			aabb.max.z - aabb.min.z};
-//}
-
-//void Scene::attachedToRenderContext(shared_ptr<RenderContext> renderContext) {
-//	_renderContext = renderContext;
-////	if (_physicalWorld) {
-////		_physicalWorld->attachedToScene(shared_from_this());
-////	}
-//}
+void Scene::update(UpdateCallback function) {
+	_update = function;
+}
 
 /*********************************************************************************************
 	Public Static Prototypes

@@ -73,7 +73,7 @@ int Example::run(const vector<string>& args) {
 	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
 	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	_window->enableVSync(ENABLE_VSYNC);
-	_window->captureCursor(CAPTURE_CURSOR);
+	_window->cursorCaptured(CAPTURE_CURSOR);
 	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);

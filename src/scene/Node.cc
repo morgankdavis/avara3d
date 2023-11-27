@@ -802,7 +802,7 @@ vec3 Node::extent() {
 }
 
 void Node::update(PhysicsSimulator& simulator,
-				  FrameStats& stats) {
+				  Stats& stats) {
 //				  map<shared_ptr<Node>, bool>& visited) {
 
 //	if (!visited[shared_from_this()]) {
@@ -828,7 +828,7 @@ void Node::update(PhysicsSimulator& simulator,
 }
 
 void Node::sync(PhysicsSimulator& simulator,
-				FrameStats& stats) {
+				Stats& stats) {
 //				map<shared_ptr<Node>, bool>& visited) {
 
 //	if (!visited[shared_from_this()]) {
@@ -857,7 +857,7 @@ void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
-				FrameStats& stats) {
+				Stats& stats) {
 //				map<shared_ptr<Node>, bool>& visited) {
 
 //	if (!visited[shared_from_this()]) {

@@ -35,13 +35,15 @@ static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> mate
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
-		_renderContext(context),
 		_background(nullptr),
+		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
 		_fogDensityExponent(0.0),
 		_fogColor(nullptr),
 		_pointOfView(nullptr),
+		_renderContext(context),
+		_scene(nullptr),
 		_willRender(nullptr),
 		_didRender(nullptr) {
 
@@ -55,32 +57,6 @@ VisualWorld::~VisualWorld() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-
-shared_ptr<Node> VisualWorld::pointOfView() {
-
-	if (_pointOfView) {
-		return _pointOfView;
-	}
-	else {
-		// try to assign one from the scene
-		for (auto node: _scene->rootNode()->children(true)) {
-			if (node->camera()) {
-				_pointOfView = node;
-				return _pointOfView;
-			}
-		}
-	}
-	if (!_pointOfView) {
-		// still no POV. add a default one.
-		_pointOfView = defaultPointOfView();
-	}
-
-	return _pointOfView;
-}
-
-void VisualWorld::pointOfView(const shared_ptr<Node> camera) {
-	_pointOfView = camera;
-}
 
 shared_ptr<MaterialProperty> VisualWorld::background() const {
 	return _background;
@@ -141,18 +117,39 @@ void VisualWorld::fogColor(shared_ptr<Color> color) {
 	_fogColor = color;
 }
 
+shared_ptr<Node> VisualWorld::pointOfView() {
+
+	if (_pointOfView) {
+		return _pointOfView;
+	}
+	else {
+		// try to assign one from the scene
+		for (auto node: _scene->rootNode()->children(true)) {
+			if (node->camera()) {
+				_pointOfView = node;
+				return _pointOfView;
+			}
+		}
+	}
+	if (!_pointOfView) {
+		// still no POV. add a default one.
+		_pointOfView = defaultPointOfView();
+	}
+
+	return _pointOfView;
+}
+
+void VisualWorld::pointOfView(const shared_ptr<Node> camera) {
+	_pointOfView = camera;
+}
+
 shared_ptr<RenderContext> VisualWorld::renderContext() const {
 	return _renderContext;
 }
 
-void VisualWorld::renderContext(shared_ptr<RenderContext> context) {
-	_renderContext = context;
-	context->attachedToVisualWorld(this);
+Scene* VisualWorld::scene() const {
+	return _scene;
 }
-
-//RENDER_API VisualWorld::renderAPI() const {
-//	return _renderAPI;
-//}
 
 VisualWorld::WillRenderCallback VisualWorld::willRender() const {
 	return _willRender;
@@ -170,25 +167,13 @@ void VisualWorld::didRender(DidRenderCallback function) {
 	_didRender = function;
 }
 
-//weak_ptr<Scene> VisualWorld::scene() const {
-//	return _scene;
-//}
-//
-//void VisualWorld::scene(weak_ptr<Scene> scene) {
-//	_scene = scene;
-//}
-
-Scene* VisualWorld::scene() const {
-	return _scene;
-}
-
-//void VisualWorld::scene(Scene* scene) {
-//	_scene = scene;
-//}
-
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
+
+void VisualWorld::attachedToScene(Scene* scene) {
+	_scene = scene;
+}
 
 shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
 	return _skyboxGeometry;
@@ -250,10 +235,6 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	}
 
 	return nullptr;
-}
-
-void VisualWorld::attachedToScene(Scene* scene) {
-	_scene = scene;
 }
 
 /*********************************************************************************************

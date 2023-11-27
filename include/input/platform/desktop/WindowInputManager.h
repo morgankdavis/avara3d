@@ -33,11 +33,13 @@ namespace ae {
 	
 	class WindowInputManager : public InputManager {
 
-	public:
-		
+		static std::shared_ptr<WindowInputManager>	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		WindowInputManager(std::shared_ptr<Window> window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
@@ -48,47 +50,46 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void 										update();
+		void 							update();
 
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
 
-		static void 								GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-																		   int button,
-																		   int action,
-																		   int mods);
-		static void 								GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-																			  double xPos,
-																			  double yPos);
-		static void 								GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-																		   double xOffset,
-																		   double yOffset);
-		static void 								GLFWKeyCallback(GLFWwindow* glfwWindow,
-																   int key,
-																   int scancode,
-																   int action,
-																   int mods);
-		static std::shared_ptr<WindowInputManager>	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
-		
-	private:
+		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+															   int button,
+															   int action,
+															   int mods);
+		static void 					GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+																  double xPos,
+																  double yPos);
+		static void 					GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+															   double xOffset,
+															   double yOffset);
+		static void 					GLFWKeyCallback(GLFWwindow* glfwWindow,
+													   int key,
+													   int scancode,
+													   int action,
+													   int mods);
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-		void 										initMouseMotionInput();
-		void 										initManyMouse();
-		void 										quitManyMouse();
-		void 										registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void 										unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+	private:
 
-		std::weak_ptr<Window>						_window;
-		bool										_usingManyMouse;
+		void 							initMouseMotionInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
+		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+
+		bool							_usingManyMouse;
+		std::weak_ptr<Window>			_window;
 	};
 }
 
 #endif // DESKTOP
 
-#endif /* WindowInputManager_h */
 
+#endif /* WindowInputManager_h */

@@ -24,9 +24,13 @@ using namespace std;
 PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
 		_gravity({0, -9.807, 0}),
 		_timestep(1.0/60.0),
-//	_scene({}),
-	_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
-	_simulator(make_shared<BulletPhysicsSimulator>()) { }
+		_simulator(make_shared<BulletPhysicsSimulator>()),
+		_scene(nullptr),
+		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
+		_didSimulate(nullptr),
+		_beginContact(nullptr),
+		_continueContact(nullptr),
+		_endContact(nullptr) { }
 
 PhysicalWorld::~PhysicalWorld() {
 	AE_LOG_D("Destroying PhysicalWorld {:p}", (void*)this);
@@ -54,11 +58,6 @@ void PhysicalWorld::timestep(float timestep) {
 	_timestep = timestep;
 
 	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::TIMESTEP);
-}
-
-void PhysicalWorld::updateCollisionPairs() {
-	#warning FIX
-	//_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
 shared_ptr<PhysicsContact> PhysicalWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
@@ -90,6 +89,15 @@ shared_ptr<PhysicsContact> PhysicalWorld::convexSweepTest(shared_ptr<PhysicsCont
 	// convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const 
 
 	return nullptr;
+}
+
+void PhysicalWorld::updateCollisionPairs() {
+#warning FIX
+	//_btWorld->getCollisionWorld()->computeOverlappingPairs();
+}
+
+Scene* PhysicalWorld::scene() const {
+	return _scene;
 }
 
 PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulate() const {
@@ -124,13 +132,17 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 	_endContact = function;
 }
 
-Scene* PhysicalWorld::scene() const {
-	return _scene;
-}
-
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
+
+void PhysicalWorld::attachedToScene(Scene* scene) {
+	_scene = scene;
+}
+
+shared_ptr<PhysicsSimulator> PhysicalWorld::simulator() const {
+	return _simulator;
+}
 
 PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
 	return _dirtyMask;
@@ -138,16 +150,4 @@ PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
 
 void PhysicalWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
 	_dirtyMask = mask;
-}
-
-shared_ptr<PhysicsSimulator> PhysicalWorld::simulator() const {
-	return _simulator;
-}
-
-void PhysicalWorld::simulator(shared_ptr<PhysicsSimulator> simulator) {
-	_simulator = simulator;
-}
-
-void PhysicalWorld::attachedToScene(Scene* scene) {
-	_scene = scene;
 }

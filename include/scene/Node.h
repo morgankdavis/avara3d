@@ -158,18 +158,18 @@ namespace ae {
 		glm::vec3								extent();
 
 		void 									update(PhysicsSimulator& simulator,
-													   FrameStats& stats);
+													   Stats& stats);
 //													   std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									sync(PhysicsSimulator& simulator,
-													 FrameStats& stats);
+													 Stats& stats);
 //													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
 													 const DEBUG_OPTIONS& debugOptions,
-													 FrameStats& stats);
+													 Stats& stats);
 //													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void									_debugPrint(); // testing

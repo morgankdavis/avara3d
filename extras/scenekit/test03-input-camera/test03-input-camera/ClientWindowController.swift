@@ -131,7 +131,7 @@ public class ClientWindowController: NSWindowController, NSWindowDelegate {
     
     public func windowDidBecomeKey(notification: NSNotification) {
         NSLog("windowDidBecomeKey()")
-        captureCursor()
+        cursorCaptured()
     }
     
     public func windowWillClose(notification: NSNotification) {

@@ -57,52 +57,54 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		void 								display();
+		void 							display();
 
-		bool 								cursorCaptured() const;
-		void 								captureCursor(bool captured);
+		bool 							cursorCaptured() const;
+		void 							cursorCaptured(bool captured);
 		
-		void 								setShouldClose();
+		void 							setShouldClose();
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		GLFWwindow* 						glfwWindow() const;
-		bool 								wantsClose() const; // *** temporary? ***
+		bool 							wantsClose() const; // *** temporary? ***
+		GLFWwindow* 					glfwWindow() const;
 
 /*********************************************************************************************
 	RenderContext
  *********************************************************************************************/
 
-		void 								swapBuffers() override;
-		void 								pollInput() override;
-		void 								enableVSync(bool enabled) override;
-		
+		void 							swapBuffers() override;
+		void 							pollInput() override;
+		bool 							vSyncEnabled() const override; // why is this necessary?
+		void 							vSyncEnabled(bool enabled) override;
+
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
-		
-		static void 						glfwWindowSizeCallback(GLFWwindow* glfwWindow,
-																   int width,
-																   int height);
-		static void							glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
-																		   int width,
-																		   int height);
-		static void 						glfwErrorCallback(int error,
-															  const char* description);
-		
+
+		static void 					glfwWindowSizeCallback(GLFWwindow* glfwWindow,
+															  int width,
+															  int height);
+		static void						glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
+																	   int width,
+																	   int height);
+		static void 					glfwErrorCallback(int error,
+														 const char* description);
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		GLFWwindow*							_glfwWindow;
-		std::shared_ptr<InputManager> 		_inputManager;
-		bool								_cursorCaptured;
+		GLFWwindow*						_glfwWindow;
+		std::shared_ptr<InputManager> 	_inputManager;
+		bool							_cursorCaptured;
 	};
 }
+
 
 #endif // DESKTOP
 

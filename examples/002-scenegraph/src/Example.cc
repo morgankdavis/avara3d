@@ -54,7 +54,7 @@ int Example::run(const vector<string>& args) {
 	window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
 	window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	window->enableVSync(ENABLE_VSYNC);
-	window->captureCursor(CAPTURE_CURSOR);
+	window->cursorCaptured(CAPTURE_CURSOR);
 
 	
 	auto scene = make_shared<Scene>();

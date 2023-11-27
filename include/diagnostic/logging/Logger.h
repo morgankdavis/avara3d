@@ -35,7 +35,7 @@
 // https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 
 // __PRETTY_FUNCTION__ gives something like:
-// "virtual void Renderer::updateFrametimeStats(FrameStats &, float)"
+// "virtual void Renderer::updateFrametimeStats(Stats &, float)"
 // __FUNCTION_NAME__: https://stackoverflow.com/questions/15305310/predefined-macros-for-function-name-func
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)

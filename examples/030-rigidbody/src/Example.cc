@@ -74,8 +74,8 @@ int Example::run(const vector<string>& args) {
 									  WINDOW_HEIGHT,
 									  USE_HIGH_DPI,
 									  MSAA_MODE);
-	window->enableVSync(ENABLE_VSYNC);
-	window->captureCursor(CAPTURE_CURSOR);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	visualWorld->fogStartDistance(50.0);
@@ -510,7 +510,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::V)) {
-		window->enableVSync(!(window->vSyncEnabled()));
+		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
@@ -518,7 +518,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 	
 	if (keysPressed.count(KEY::SLASH)) {
-		window->captureCursor(!(window->cursorCaptured()));
+		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 	
 	if (keysPressed.count(KEY::R)) {

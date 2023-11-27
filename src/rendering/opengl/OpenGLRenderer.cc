@@ -68,7 +68,7 @@ using namespace std;
 static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								Node& pointOfView,
 								const DEBUG_OPTIONS& debugOptions,
-								FrameStats& stats,
+								Stats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
@@ -118,7 +118,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -165,7 +165,7 @@ static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
-static void 		DrawStatsOverlay(FrameStats& stats, float time, Scene& scene);
+static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -223,19 +223,17 @@ typedef struct {
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
-	Renderer(),
-	_geometryElementGLMapping(GeometryElementGLMapping()),
-	_materialPropertyGLMapping(MaterialPropertyGLMapping()),
-	_lineSetGLMapping(LineSetGLMapping()),
-	_pointSetGLMapping(PointSetGLMapping()),
-	_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-	_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
-	_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
-	_activePointSets(unordered_set<shared_ptr<PointSet>>()),
-	_glEnvironmentUBO(0),
-	_overlayFont(nullptr) {
-
-}
+		Renderer(),
+		_geometryElementGLMapping(GeometryElementGLMapping()),
+		_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+		_lineSetGLMapping(LineSetGLMapping()),
+		_pointSetGLMapping(PointSetGLMapping()),
+		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
+		_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
+		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
+		_glEnvironmentUBO(0),
+		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
@@ -265,7 +263,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	AE_LOG_T("OpenGLRenderer::initialize()");
+	AE_LOG_T("");
 	
 	// create environment UBO
 	
@@ -316,8 +314,11 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	return true;
 }
 	
-void OpenGLRenderer::beginFrame(const RenderContext& context) {
-	Renderer::beginFrame(context);
+void OpenGLRenderer::beginFrame(const Scene& scene,
+								const RenderContext& context,
+								const DEBUG_OPTIONS& debugOptions,
+								Stats& stats) {
+	Renderer::beginFrame(scene, context, debugOptions, stats);
 
 	_activeGeometryElements.clear();
 	_activeMaterialProperties.clear();
@@ -325,15 +326,15 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	_activePointSets.clear();
 }
 
-void OpenGLRenderer::endFrame(const RenderContext& context) {
-	Renderer::endFrame(context);
+void OpenGLRenderer::endFrame(const Scene& scene,
+							  const RenderContext& context,
+							  const DEBUG_OPTIONS& debugOptions,
+							  Stats& stats) {
+	Renderer::endFrame(scene, context, debugOptions, stats);
 
-	// TODO: check
-	auto debugOptions = context.visualWorld()->scene()->debugOptions();
-	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 		auto scene = context.visualWorld()->scene();
-		DrawStatsOverlay(Renderer::frameStats(),
+		DrawStatsOverlay(stats,
 						 scene->time(),
 						 *scene);
 	}
@@ -348,7 +349,7 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 
 void OpenGLRenderer::render(Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
 	auto renderContext = scene.visualWorld()->renderContext();
 	
@@ -394,7 +395,7 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
@@ -423,7 +424,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
 	shared_ptr<Program> program = nullptr;
 
@@ -526,7 +527,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
-						 FrameStats& stats,
+						 Stats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
@@ -1313,7 +1314,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
 	
 	// program "Default" must be active
 	
@@ -1912,7 +1913,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	return sortedVector;
 }
 	
-void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
+void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 #ifdef OPENGL_CORE
 

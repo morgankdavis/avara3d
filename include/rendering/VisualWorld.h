@@ -67,7 +67,8 @@ namespace ae {
 		void 									pointOfView(const std::shared_ptr<Node> camera);
 
 		std::shared_ptr<RenderContext> 			renderContext() const;
-		void 									renderContext(std::shared_ptr<RenderContext> context);
+
+		Scene*									scene() const;
 
 		WillRenderCallback 						willRender() const;
 		void 									willRender(WillRenderCallback function);
@@ -75,15 +76,13 @@ namespace ae {
 		DidRenderCallback 						didRender() const;
 		void 									didRender(DidRenderCallback function);
 
-		Scene*									scene() const;
-
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
+		void									attachedToScene(Scene* scene);
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		std::shared_ptr<Node> 					defaultPointOfView();
-		void									attachedToScene(Scene* scene);
 
 /*********************************************************************************************
 	Private
@@ -97,15 +96,11 @@ namespace ae {
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
 		std::shared_ptr<Color>					_fogColor;
-
 		std::shared_ptr<Node>					_pointOfView;
-
 		std::shared_ptr<RenderContext>			_renderContext;
-
+		Scene*									_scene;
 		WillRenderCallback 						_willRender;
 		DidRenderCallback 						_didRender;
-
-		Scene*									_scene;
 	};
 }
 

@@ -34,34 +34,35 @@ using namespace std;
  *********************************************************************************************/
 
 RenderContext::RenderContext(RENDER_API renderAPI):
-	_renderAPI(renderAPI),
-	_renderer(nullptr),
-	_width(0),
-	_height(0),
-	_framebufferScale(1),
-	_framebufferWidth(0),
-	_framebufferHeight(0),
-	_vSyncEnabled(false),
-	_antialiasingMode(ANTIALIASING_MODE::NONE),
-	_gifWriter(nullptr),
-	_recordingGIF(false),
-	_gifRecordingWidth(0),
-	_gifRecordingHeight(0),
-	_gifRecordingMaxFramerate(0),
-	_gifRecordedFrames(0) {
+		_renderAPI(renderAPI),
+		_renderer(nullptr),
+		_width(0),
+		_height(0),
+		_framebufferWidth(0),
+		_framebufferHeight(0),
+		_framebufferScale(1.0),
+		_vSyncEnabled(false),
+		_antialiasingMode(ANTIALIASING_MODE::NONE),
+		_gifWriter(nullptr),
+		_recordingGIF(false),
+		_gifRecordingWidth(0),
+		_gifRecordingHeight(0),
+		_gifRecordingMaxFramerate(0),
+		_gifRecordedFrames(0),
+		_visualWorld(nullptr) {
 
-		switch (_renderAPI) {
-			case RENDER_API::OPENGL: {
-				auto renderer = make_shared<OpenGLRenderer>();
-				_renderer = static_pointer_cast<Renderer>(renderer);
-				break; }
-			case RENDER_API::OPENGL_ES: {
-				throw Exception("Unsupported render API: OPENGL_ES");
-				break; }
-			case RENDER_API::VULKAN: {
-				throw Exception("Unsupported render API: VULKAN");
-				break; }
-		}		
+	switch (_renderAPI) {
+		case RENDER_API::OPENGL: {
+			auto renderer = make_shared<OpenGLRenderer>();
+			_renderer = static_pointer_cast<Renderer>(renderer);
+			break; }
+		case RENDER_API::OPENGL_ES: {
+			throw Exception("Unsupported render API: OPENGL_ES");
+			break; }
+		case RENDER_API::VULKAN: {
+			throw Exception("Unsupported render API: VULKAN");
+			break; }
+	}
 }
 
 RenderContext::~RenderContext() {
@@ -88,10 +89,6 @@ unsigned RenderContext::height() const {
 	return _height;
 }
 
-float RenderContext::framebufferScale() const {
-	return _framebufferScale;
-}
-
 unsigned RenderContext::framebufferWidth() const {
 	return _framebufferWidth;
 }
@@ -100,11 +97,15 @@ unsigned RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
+float RenderContext::framebufferScale() const {
+	return _framebufferScale;
+}
+
 bool RenderContext::vSyncEnabled() const {
 	return _vSyncEnabled;
 }
 
-void RenderContext::enableVSync(bool enabled) {
+void RenderContext::vSyncEnabled(bool enabled) {
 	_vSyncEnabled = enabled;
 }
 
@@ -195,10 +196,6 @@ void RenderContext::height(unsigned height) {
 	framebufferHeight(_height * _framebufferScale);
 }
 
-void RenderContext::framebufferScale(float scale) {
-	_framebufferScale = scale;
-}
-
 void RenderContext::framebufferWidth(unsigned width) {
 	_framebufferWidth = width;
 }
@@ -207,9 +204,9 @@ void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
-/*********************************************************************************************
-	Protected
- *********************************************************************************************/
+void RenderContext::framebufferScale(float scale) {
+	_framebufferScale = scale;
+}
 
 void RenderContext::saveGIFFrame(float time) {
 
@@ -217,31 +214,31 @@ void RenderContext::saveGIFFrame(float time) {
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-	
+
 	static float secondsAccum = 0;
 	secondsAccum += deltaSeconds;
-	
+
 	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
 	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-	
+
 	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
-	
+
 	if (secondsAccum >= frameTimeMS/1000.0) {
-		
+
 		auto frame = snapshot();
-		
+
 		unsigned char* resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
 		stbir_resize_uint8(frame->data()->pointer(), frame->width(), frame->height(), 0,
 						   resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0, 4);
-		
+
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(_gifWriter.get(), resizedFrameData,
 					  _gifRecordingWidth, _gifRecordingHeight,
 					  (secondsAccum*1000.0)/10.0);
-		
+
 		++_gifRecordedFrames;
-		
+
 		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		secondsAccum = 0;
 	}

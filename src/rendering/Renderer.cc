@@ -25,9 +25,7 @@ using namespace std;
  *********************************************************************************************/
 
 Renderer::Renderer():
-		_frametimeAveragingInterval(.25) {
-		
-}
+		_frametimeAveragingInterval(.25) { }
 
 Renderer::~Renderer() {
 	AE_LOG_D("Destroying Renderer {:p}", (void*)this);
@@ -41,17 +39,22 @@ bool Renderer::initialize(const RenderContext& context) {
 	return true;
 }
 
-void Renderer::beginFrame(const RenderContext& context) {
-	_renderStats = (FrameStats){};
+void Renderer::beginFrame(const Scene& scene,
+						  const RenderContext& context,
+						  const DEBUG_OPTIONS& debugOptions,
+						  Stats& stats) {
 }
 
-void Renderer::endFrame(const RenderContext& context) {
-	updateFrametimeStats(frameStats(), context.visualWorld()->scene()->time());
+void Renderer::endFrame(const Scene& scene,
+						const RenderContext& context,
+						const DEBUG_OPTIONS& debugOptions,
+						Stats& stats) {
+	updateFrametimeStats(stats, context.visualWorld()->scene()->time());
 }
 
 void Renderer::render(Scene& scene,
 					  const DEBUG_OPTIONS& debugOptions,
-					  FrameStats& stats) {
+					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
@@ -61,7 +64,7 @@ void Renderer::render(shared_ptr<Geometry> geometry,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const DEBUG_OPTIONS& debugOptions,
-					  FrameStats& stats) {
+					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
 }
@@ -72,7 +75,7 @@ void Renderer::render(shared_ptr<GeometryElement> element,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
 					  const DEBUG_OPTIONS& debugOptions,
-					  FrameStats& stats) {
+					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<GeometryElement>) should be overidden in derived class.");
 }
@@ -107,23 +110,11 @@ shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	return nullptr;
 }
 
-FrameStats& Renderer::frameStats() {
-	return _renderStats;
-}
-
-//RenderContext* Renderer::context() const {
-//	return _context;
-//}
-//
-//void Renderer::context(RenderContext* context) {
-//	_context = context;
-//}
-
 /**************************************************************************************
 	Protected
  **************************************************************************************/
 
-void Renderer::updateFrametimeStats(FrameStats& stats, float time) {
+void Renderer::updateFrametimeStats(Stats& stats, float time) {
 
 	static float fpsAvg = 0.0;
 	static float msAvg = 0.0;

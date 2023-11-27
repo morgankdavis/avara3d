@@ -92,7 +92,7 @@
 /// for them.
 ///
 /// Even if it's highly unrecommended, it's possible to include all the extensions
-/// at once by including <glm/ext.hpp>. Otherwise, each extension needs to be
+/// at  once by including <glm/ext.hpp>. Otherwise, each extension needs to be
 /// included  a specific file.
 ///
 /// @mainpage OpenGL Mathematics (GLM)

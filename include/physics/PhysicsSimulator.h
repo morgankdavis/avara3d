@@ -29,27 +29,15 @@ namespace ae {
 	class PhysicsSimulator {
 
 /*********************************************************************************************
-	Types
+	Lifecycle
  *********************************************************************************************/
 
 	public:
-
-
-
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
 
 		PhysicsSimulator();
 		PhysicsSimulator(const PhysicsSimulator& other) = delete; // copy constructor
 		PhysicsSimulator& operator=(const PhysicsSimulator& other) = delete; // copy assignment
 		virtual ~PhysicsSimulator();
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
-		//virtual PHYSICS_SIMULATION_ENGINE	simulationEngine() const = 0;
 
 /*********************************************************************************************
 	Internal
@@ -84,8 +72,6 @@ namespace ae {
 		glm::vec3 					_gravity;
 		float 						_speed;
 		float						_timestep;
-
-		//PHYSICS_SIMULATION_ENGINE	_simulationEngine;
 	};
 }
 

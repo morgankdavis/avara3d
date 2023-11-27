@@ -128,9 +128,9 @@ shared_ptr<PhysicsShapeResources> PhysicsShape::resources() {
 }
 
 void PhysicsShape::update(PhysicsSimulator& simulator,
-						   Node& node,
-						   PhysicsBody& body,
-						   FrameStats& stats) {
+						  Node& node,
+						  PhysicsBody& body,
+						  Stats& stats) {
 
 	bool updated;
 	simulator.update(*this,
@@ -149,7 +149,7 @@ void PhysicsShape::update(PhysicsSimulator& simulator,
 void PhysicsShape::sync(PhysicsSimulator& simulator,
 						Node& node,
 						PhysicsBody& body,
-						FrameStats& stats) {
+						Stats& stats) {
 
 	simulator.sync(*this,
 				   body.type());

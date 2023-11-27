@@ -76,7 +76,7 @@ namespace ae {
 														 const glm::mat4& viewMat,
 														 const glm::mat4& projectionMat,
 														 const DEBUG_OPTIONS& debugOptions,
-														 FrameStats& stats);
+														 Stats& stats);
 
 		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
 		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;

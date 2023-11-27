@@ -41,8 +41,8 @@ using namespace ae;
 	Static Prototypes
  *********************************************************************************************/
 
-static bool 	InitializeGLFW();
-static bool 	InitializeGLEW();
+static bool 	InitGLFW();
+static bool 	InitGLEW();
 static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 
@@ -57,10 +57,11 @@ Window::Window(RENDER_API renderAPI,
 			   bool enableHighDPI,
 			   ANTIALIASING_MODE antialiasingMode):
 		RenderContext(renderAPI),
+		_glfwWindow(nullptr),
 		_inputManager(nullptr),
 		_cursorCaptured(false) {
 
-	if (InitializeGLFW()) {
+	if (InitGLFW()) {
 #ifdef OPENGL_CORE
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -79,8 +80,8 @@ Window::Window(RENDER_API renderAPI,
 		//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 
-		int viewportWidth = width;
-		int viewportHeight = height;
+		auto viewportWidth = width;
+		auto viewportHeight = height;
 
 		float scaleFactor = 1.0;
 
@@ -105,9 +106,9 @@ Window::Window(RENDER_API renderAPI,
 			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
 
 			glfwMakeContextCurrent(_glfwWindow);
-			enableVSync(false);
+			vSyncEnabled(false);
 
-			if (InitializeGLEW()) {
+			if (InitGLEW()) {
 				RenderContext::renderer()->initialize(*this);
 
 				_width = viewportWidth;
@@ -157,8 +158,8 @@ void Window::display() {
 		
 		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
 		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
-		
-        captureCursor(cursorCaptured()); // needs to be set after windows is made current
+
+		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
         
 //		while (!glfwWindowShouldClose(_glfwWindow)) {
 //			update();
@@ -175,7 +176,7 @@ bool Window::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
-void Window::captureCursor(bool captured) {
+void Window::cursorCaptured(bool captured) {
 	_cursorCaptured = captured;
 	glfwSetInputMode(_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
@@ -188,12 +189,12 @@ void Window::setShouldClose() {
 	Internal
  *********************************************************************************************/
 
-GLFWwindow* Window::glfwWindow() const {
-	return _glfwWindow;
-}
-
 bool Window::wantsClose() const {
 	return glfwWindowShouldClose(_glfwWindow);
+}
+
+GLFWwindow* Window::glfwWindow() const {
+	return _glfwWindow;
 }
 
 /*********************************************************************************************
@@ -212,11 +213,19 @@ void Window::pollInput() {
 	}
 }
 
-void Window::enableVSync(bool enabled) {
-	RenderContext::enableVSync(enabled);
+bool Window::vSyncEnabled() const {
+	return _vSyncEnabled;
+}
+
+void Window::vSyncEnabled(bool enabled) {
+	RenderContext::vSyncEnabled(enabled);
 	
-	if (!enabled) glfwSwapInterval(0);
-	else glfwSwapInterval(1);
+	if (enabled) {
+		glfwSwapInterval(1);
+	}
+	else {
+		glfwSwapInterval(0);
+	}
 }
 
 /*********************************************************************************************
@@ -249,11 +258,11 @@ void Window::glfwErrorCallback(int error, const char* description) {
 	Static
  *********************************************************************************************/
 
-static bool InitializeGLFW() {
+static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		AE_LOG_T("InitializeGLFW()");
+		AE_LOG_T("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
@@ -277,7 +286,8 @@ static bool InitializeGLFW() {
 	return true;
 }
 
-static bool InitializeGLEW() {
+static bool InitGLEW() {
+	AE_LOG_T("");
 
 	// NOTE: OpenGL context must be setup first
 	

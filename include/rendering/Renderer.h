@@ -50,25 +50,31 @@ namespace ae {
 
 		virtual bool 						initialize(const RenderContext& context);
 		
-		virtual void 						beginFrame(const RenderContext& context);
-		virtual void 						endFrame(const RenderContext& context);
+		virtual void 						beginFrame(const Scene& scene,
+													   const RenderContext& context,
+													   const DEBUG_OPTIONS& debugOptions,
+													   Stats& stats);
+		virtual void 						endFrame(const Scene& scene,
+													 const RenderContext& context,
+													 const DEBUG_OPTIONS& debugOptions,
+													 Stats& stats);
 
 		virtual void 						render(Scene& scene,
 												   const DEBUG_OPTIONS& debugOptions,
-												   FrameStats& stats);
+												   Stats& stats);
 		virtual void 						render(std::shared_ptr<Geometry> geometry,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DEBUG_OPTIONS& debugOptions,
-												   FrameStats& stats);
+												   Stats& stats);
 		virtual void 						render(std::shared_ptr<GeometryElement> element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DEBUG_OPTIONS& debugOptions,
-												   FrameStats& stats);
+												   Stats& stats);
 		virtual void 						render(std::shared_ptr<LineSet> lines,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
@@ -78,17 +84,10 @@ namespace ae {
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);
 
+		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
+
 		float 								frametimeAveragingInterval() const;
 		void 								frametimeAveragingInterval(float interval);
-
-		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
-		
-		FrameStats& 						frameStats();
-
-		RenderContext* 						context() const;
-		void 								context(RenderContext* context);
-
-//		void								attachedToRenderContext(RenderContext* context);
 
 /**************************************************************************************
 	Protected
@@ -96,7 +95,7 @@ namespace ae {
 
 	protected:
 
-		virtual void						updateFrametimeStats(FrameStats& stats, float time);
+		virtual void						updateFrametimeStats(Stats& stats, float time);
 		
 /**************************************************************************************
 	Private
@@ -105,9 +104,6 @@ namespace ae {
 	private:
 
 		float								_frametimeAveragingInterval;
-		FrameStats							_renderStats;
-
-//		RenderContext*						_context;
 	};
 }
 

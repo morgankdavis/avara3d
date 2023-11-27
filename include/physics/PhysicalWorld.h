@@ -61,8 +61,6 @@ namespace ae {
 		float 								timestep() const;
 		void 								timestep(float timestep);
 
-		void 								updateCollisionPairs();
-
 		std::shared_ptr<PhysicsContact> 	contactTest(std::shared_ptr<PhysicsBody> bodyA,
 													   std::shared_ptr<PhysicsBody> bodyB); // may add options
 		std::shared_ptr<PhysicsContact> 	contactTest(std::shared_ptr<PhysicsBody> body); // may add options
@@ -72,31 +70,32 @@ namespace ae {
 														   const glm::mat4& fromMat,
 														   const glm::mat4& toMat); // may add options
 
-		DidSimulateCallback						didSimulate() const;
-		void									didSimulate(DidSimulateCallback function);
+		void 								updateCollisionPairs();
 
-		PhysicalWorld::BeginContactCallback 	beginContact() const;
-		void 									beginContact(PhysicalWorld::BeginContactCallback function);
+		Scene*								scene() const;
 
-		PhysicalWorld::ContinueContactCallback	continueContact() const;
-		void 									continueContact(PhysicalWorld::ContinueContactCallback function);
+		DidSimulateCallback					didSimulate() const;
+		void								didSimulate(DidSimulateCallback function);
 
-		PhysicalWorld::EndContactCallback 		endContact() const;
-		void 									endContact(PhysicalWorld::EndContactCallback function);
+		BeginContactCallback 				beginContact() const;
+		void 								beginContact(PhysicalWorld::BeginContactCallback function);
 
-		Scene*									scene() const;
+		ContinueContactCallback				continueContact() const;
+		void 								continueContact(PhysicalWorld::ContinueContactCallback function);
+
+		EndContactCallback 					endContact() const;
+		void 								endContact(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		PHYSICS_WORLD_DIRTY_MASK 				dirtyMask() const;
-		void 									dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
+		void								attachedToScene(Scene* scene);
 
-		std::shared_ptr<PhysicsSimulator>		simulator() const;
-		void									simulator(std::shared_ptr<PhysicsSimulator> simulator);
+		std::shared_ptr<PhysicsSimulator>	simulator() const;
 
-		void									attachedToScene(Scene* scene);
+		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
+		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -106,16 +105,13 @@ namespace ae {
 
 		glm::vec3 								_gravity;
 		float 									_timestep;
+		std::shared_ptr<PhysicsSimulator>		_simulator;
+		Scene*									_scene;
 		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
-
 		DidSimulateCallback						_didSimulate;
 		BeginContactCallback					_beginContact;
 		ContinueContactCallback					_continueContact;
 		EndContactCallback						_endContact;
-
-		std::shared_ptr<PhysicsSimulator>		_simulator;
-
-		Scene*									_scene;
 	};
 }
 

@@ -32,11 +32,18 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 
 /*********************************************************************************************
+	Static Prototypes
+ *********************************************************************************************/
+
+static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	InputManager(),
+	_usingManyMouse(false),
 	_window(window) {
 
 		registerGLFWCallbacks(window->glfwWindow());
@@ -44,9 +51,10 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 }
 
 WindowInputManager::~WindowInputManager() {
+	AE_LOG_D("Destroying WindowInputManager {:p}", (void*)this);
+
 	quitManyMouse();
-	auto window = _window.lock();
-	if (window) {
+	if (auto window = _window.lock()) {
 		unregisterGLFWCallbacks(window->glfwWindow());
 	}
 }
@@ -184,12 +192,6 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	}
 }
 
-shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
-
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
-}
-
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -251,5 +253,16 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	// TODO: refactor
 	glfwSetCursorPosCallback(glfwWindow, NULL);
 }
+
+/*********************************************************************************************
+	Static
+ *********************************************************************************************/
+
+shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
+}
+
 
 #endif // DESKTOP

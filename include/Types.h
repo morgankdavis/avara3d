@@ -338,7 +338,7 @@ namespace ae {
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
-	} FrameStats;
+	} Stats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {
 		NONE =					0,

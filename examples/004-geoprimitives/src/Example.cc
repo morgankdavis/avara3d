@@ -52,7 +52,7 @@ int Example::run(const vector<string>& args) {
 	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
 	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	_window->enableVSync(ENABLE_VSYNC);
-	_window->captureCursor(CAPTURE_CURSOR);
+	_window->cursorCaptured(CAPTURE_CURSOR);
 	
 	auto scene = make_shared<Scene>();
 	scene->rootNode(make_shared<Node>("Root node"));

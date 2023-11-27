@@ -8,7 +8,7 @@
 
 #include "input/InputManager.h"
 
-#include "rendering/context/RenderContext.h"
+#include "diagnostic/logging/Logger.h"
 
 
 using namespace ae;
@@ -20,8 +20,6 @@ using namespace glm;
 	Lifecycle
  *********************************************************************************************/
 
-//InputManager::InputManager(weak_ptr<RenderContext> renderContext):
-//		_renderContext(renderContext),
 InputManager::InputManager():
 		_keysDown(set<KEY>()),
 		_mouseButtonsDown(set<MOUSE_BUTTON>()),
@@ -30,12 +28,11 @@ InputManager::InputManager():
 		_mouseButtonsPressed(set<MOUSE_BUTTON>()),
 		_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
 		_mousePositionDelta(vec2(0.0f, 0.0f)),
-		_mouseScrollWheelDelta(vec2(0.0f, 0.0f)) {
-
-}
+		_mouseScrollWheelDelta(vec2(0.0f, 0.0f)),
+		_scene(nullptr) { }
 
 InputManager::~InputManager() {
-
+	AE_LOG_D("Destroying InputManager {:p}", (void*)this);
 }
 
 /*********************************************************************************************
@@ -91,10 +88,6 @@ set<MOUSE_BUTTON> InputManager::mouseButtonsPressed() {
 }
 
 vec2 InputManager::mousePositionDelta() {
-//	if (_mousePositionDelta.x != 0 && _mousePositionDelta.y != 0) {
-//		AE_LOG_D("MOUSE DELTA: ({}, {})", _mousePositionDelta.x, _mousePositionDelta.y);
-//	}
-
 	auto mouseMoveDeltaCopy = _mousePositionDelta;
 	clearMousePositionDelta();
 	return mouseMoveDeltaCopy;
@@ -106,21 +99,9 @@ vec2 InputManager::mouseScrollWheelDelta() {
 	return mouseScrollWheelDeltaCopy;
 }
 
-//weak_ptr<Scene> InputManager::scene() const {
-//	return _scene;
-//}
-//
-//void InputManager::scene(weak_ptr<Scene> scene) {
-//	_scene = scene;
-//}
-
 Scene* InputManager::scene() const {
 	return _scene;
 }
-
-//void InputManager::scene(Scene* scene) {
-//	_scene = scene;
-//}
 
 /*********************************************************************************************
 	Internal
@@ -131,7 +112,7 @@ void InputManager::attachedToScene(Scene* scene) {
 }
 
 /*********************************************************************************************
-	Protexted
+	Private
  *********************************************************************************************/
 
 void InputManager::clearMousePositionDelta() {

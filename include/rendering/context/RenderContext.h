@@ -54,51 +54,50 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		RENDER_API 									renderAPI() const;
+		RENDER_API 							renderAPI() const;
 
-		unsigned 									width() const;
-		unsigned 									height() const;
-		
-		float 										framebufferScale() const;
-		
-		unsigned 									framebufferWidth() const;
-		unsigned 									framebufferHeight() const;
-		
-		virtual bool 								vSyncEnabled() const;
-		virtual void 								enableVSync(bool enabled);
+		unsigned 							width() const;
+		unsigned 							height() const;
 
-		ANTIALIASING_MODE 							antialiasingMode() const;
-
-		std::shared_ptr<Image> 						snapshot() const;
+		unsigned 							framebufferWidth() const;
+		unsigned 							framebufferHeight() const;
+		float 								framebufferScale() const;
 		
-		virtual bool 								recordingGIF() const;
-		virtual void 								startGIFRecording(const std::filesystem::path& path,
-																	  unsigned maxHeight, unsigned maxFramerate);
-		virtual unsigned 							recordedGIFFrames() const;
-		virtual void 								stopGIFRecording();
+		virtual bool 						vSyncEnabled() const;
+		virtual void 						vSyncEnabled(bool enabled);
 
-		VisualWorld*								visualWorld() const;
+		ANTIALIASING_MODE 					antialiasingMode() const;
+
+		std::shared_ptr<Image> 				snapshot() const;
+
+		virtual bool 						recordingGIF() const;
+		virtual void 						startGIFRecording(const std::filesystem::path& path,
+															  unsigned maxHeight,
+															  unsigned maxFramerate);
+		virtual unsigned 					recordedGIFFrames() const;
+		virtual void 						stopGIFRecording();
+
+		VisualWorld*						visualWorld() const;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::shared_ptr<Renderer> 					renderer() const;
+		std::shared_ptr<Renderer> 			renderer() const;
 
-		virtual void 								swapBuffers() = 0;
-		virtual void 								pollInput() = 0;
+		virtual void 						swapBuffers() = 0;
+		virtual void 						pollInput() = 0;
 
-		void 										width(unsigned width);
-		void 										height(unsigned height);
-		
-		void 										framebufferScale(float scale);
-		
-		void 										framebufferWidth(unsigned width);
-		void 										framebufferHeight(unsigned height);
+		void 								width(unsigned width);
+		void 								height(unsigned height);
 
-		virtual void 								saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
+		void 								framebufferWidth(unsigned width);
+		void 								framebufferHeight(unsigned height);
+		void 								framebufferScale(float scale);
 
-		void										attachedToVisualWorld(VisualWorld* world);
+		virtual void 						saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
+
+		void								attachedToVisualWorld(VisualWorld* world);
 		
 /*********************************************************************************************
 	Protected
@@ -106,28 +105,25 @@ namespace ae {
 
 	protected:
 
-//		virtual std::shared_ptr<Node> 				defaultPointOfView();
-//		virtual void 								saveGIFFrame(float time);
+		RENDER_API 							_renderAPI;
+		std::shared_ptr<Renderer>			_renderer;
 
-		RENDER_API 									_renderAPI;
-		std::shared_ptr<Renderer>					_renderer;
-
-		unsigned									_width;
-		unsigned									_height;
-		float										_framebufferScale;
-		unsigned									_framebufferWidth;
-		unsigned									_framebufferHeight;
-		bool										_vSyncEnabled;
-		ANTIALIASING_MODE							_antialiasingMode;
+		unsigned							_width;
+		unsigned							_height;
+		unsigned							_framebufferWidth;
+		unsigned							_framebufferHeight;
+		float								_framebufferScale;
+		bool								_vSyncEnabled;
+		ANTIALIASING_MODE					_antialiasingMode;
 		
-		std::shared_ptr<GifWriter>					_gifWriter;
-		bool										_recordingGIF;
-		unsigned									_gifRecordingWidth;
-		unsigned									_gifRecordingHeight;
-		unsigned									_gifRecordingMaxFramerate;
-		unsigned									_gifRecordedFrames;
+		std::shared_ptr<GifWriter>			_gifWriter;
+		bool								_recordingGIF;
+		unsigned							_gifRecordingWidth;
+		unsigned							_gifRecordingHeight;
+		unsigned							_gifRecordingMaxFramerate;
+		unsigned							_gifRecordedFrames;
 
-		VisualWorld*								_visualWorld;
+		VisualWorld*						_visualWorld;
 	};
 }
 

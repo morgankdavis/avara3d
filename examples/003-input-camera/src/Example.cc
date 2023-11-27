@@ -50,7 +50,7 @@ int Example::run(const vector<string>& args) {
 	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
 	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	_window->enableVSync(ENABLE_VSYNC);
-	_window->captureCursor(CAPTURE_CURSOR);
+	_window->cursorCaptured(CAPTURE_CURSOR);
 	
 	auto scene = SceneNamed("importTest");
 
@@ -101,7 +101,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 
 	if (keysDown.count(KEY::SLASH)) {
-		_window->captureCursor(!(_window->cursorCaptured()));
+		_window->cursorCaptured(!(_window->cursorCaptured()));
 	}
 	
 	if (keysDown.count(KEY::ESCAPE)) {
