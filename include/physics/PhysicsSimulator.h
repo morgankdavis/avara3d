@@ -49,7 +49,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		virtual PHYSICS_SIMULATION_ENGINE	simulationEngine() const = 0;
+		//virtual PHYSICS_SIMULATION_ENGINE	simulationEngine() const = 0;
 
 /*********************************************************************************************
 	Internal
@@ -85,7 +85,7 @@ namespace ae {
 		float 						_speed;
 		float						_timestep;
 
-		PHYSICS_SIMULATION_ENGINE	_simulationEngine;
+		//PHYSICS_SIMULATION_ENGINE	_simulationEngine;
 	};
 }
 

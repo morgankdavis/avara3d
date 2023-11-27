@@ -10,6 +10,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "geometry/GeometryElement.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/context/RenderContext.h"
 #include "rendering/materials/Material.h"
 #include "scene/Scene.h"
@@ -45,7 +46,7 @@ void Renderer::beginFrame(const RenderContext& context) {
 }
 
 void Renderer::endFrame(const RenderContext& context) {
-	updateFrametimeStats(frameStats(), context.scene()->time());
+	updateFrametimeStats(frameStats(), context.visualWorld()->scene()->time());
 }
 
 void Renderer::render(Scene& scene,
@@ -110,13 +111,13 @@ FrameStats& Renderer::frameStats() {
 	return _renderStats;
 }
 
-weak_ptr<RenderContext> Renderer::context() const {
-	return _context;
-}
-
-void Renderer::context(weak_ptr<RenderContext> context) {
-	_context = context;
-}
+//RenderContext* Renderer::context() const {
+//	return _context;
+//}
+//
+//void Renderer::context(RenderContext* context) {
+//	_context = context;
+//}
 
 /**************************************************************************************
 	Protected

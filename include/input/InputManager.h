@@ -33,7 +33,6 @@ namespace ae {
 
 	public:
 
-		//InputManager(std::weak_ptr<RenderContext> renderContext);
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
@@ -60,11 +59,13 @@ namespace ae {
 		glm::vec2 						mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 						mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
-//		std::weak_ptr<Scene>			scene() const;
-//		void							scene(std::weak_ptr<Scene> scene);
-
 		Scene*							scene() const;
-		void							scene(Scene* scene);
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		void							attachedToScene(Scene* scene);
 
 /*********************************************************************************************
 	Protected
@@ -84,9 +85,6 @@ namespace ae {
 		glm::vec2  						_mousePositionDelta;
 		glm::vec2  						_mouseScrollWheelDelta;
 
-//		std::weak_ptr<RenderContext> 	_renderContext;
-
-//		std::weak_ptr<Scene>			_scene;
 		Scene*							_scene;
 	};
 }

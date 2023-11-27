@@ -38,21 +38,12 @@ namespace ae {
 
 	
 	class RenderContext : public std::enable_shared_from_this<RenderContext> {
-		
-/*********************************************************************************************
-	Types
- *********************************************************************************************/
 
-	public:
-
-//		using UpdateCallback = 				std::function<void(RenderContext& renderContext, float time)>;
-//		using DidSimulateCallback = 	std::function<void(RenderContext& renderContext, float time)>;
-//		using WillRenderCallback = 			std::function<void(RenderContext& renderContext, float time)>;
-//		using DidRenderCallback = 			std::function<void(RenderContext& renderContext, float time)>;
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		RenderContext(RENDER_API renderAPI);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
@@ -64,10 +55,7 @@ namespace ae {
  *********************************************************************************************/
 		
 		RENDER_API 									renderAPI() const;
-		
-//		std::shared_ptr<Scene> 						scene() const;
-//		void 										scene(const std::shared_ptr<Scene> scene);
-		
+
 		unsigned 									width() const;
 		unsigned 									height() const;
 		
@@ -78,17 +66,9 @@ namespace ae {
 		
 		virtual bool 								vSyncEnabled() const;
 		virtual void 								enableVSync(bool enabled);
-		
-//		virtual DEBUG_OPTIONS 						debugOptions() const;
-//		virtual void 								debugOptions(DEBUG_OPTIONS options);
-//
-//		virtual std::shared_ptr<Node>				pointOfView();
-//		virtual void 								pointOfView(const std::shared_ptr<Node> camera);
-		
+
 		ANTIALIASING_MODE 							antialiasingMode() const;
-		
-//		virtual float 								sceneTime() const;
-		
+
 		std::shared_ptr<Image> 						snapshot() const;
 		
 		virtual bool 								recordingGIF() const;
@@ -96,45 +76,18 @@ namespace ae {
 																	  unsigned maxHeight, unsigned maxFramerate);
 		virtual unsigned 							recordedGIFFrames() const;
 		virtual void 								stopGIFRecording();
-		
-//		UpdateCallback 								update() const;
-//		void 										update(UpdateCallback function);
-		
-//		DidSimulateCallback 					didSimulate() const;
-//		void 										didSimulate(DidSimulateCallback function);
-		
-//		WillRenderCallback 							willRender() const;
-//		void 										willRender(WillRenderCallback function);
-//
-//		DidRenderCallback 							didRender() const;
-//		void 										didRender(DidRenderCallback function);
-
-//		std::weak_ptr<Scene>						scene() const;
-//		void										scene(std::weak_ptr<Scene> scene);
-
-		Scene*										scene() const;
-		void										scene(Scene* scene);
-
-//		std::weak_ptr<VisualWorld>					visualWorld() const;
-//		void										visualWorld(std::weak_ptr<VisualWorld> world);
 
 		VisualWorld*								visualWorld() const;
-		void										visualWorld(VisualWorld* world);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
 		std::shared_ptr<Renderer> 					renderer() const;
-//		/* REMOVE? */ void 							renderer(std::shared_ptr<Renderer> renderer);
 
-		virtual void 								update();
 		virtual void 								swapBuffers() = 0;
 		virtual void 								pollInput() = 0;
-		
-//		std::shared_ptr<PhysicsSimulator> 			physicsSimulator() const;
-//		/* REMOVE? */ void 							physicsSimulator(std::shared_ptr<PhysicsSimulator> physicsSimulator);
-		
+
 		void 										width(unsigned width);
 		void 										height(unsigned height);
 		
@@ -144,6 +97,8 @@ namespace ae {
 		void 										framebufferHeight(unsigned height);
 
 		virtual void 								saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
+
+		void										attachedToVisualWorld(VisualWorld* world);
 		
 /*********************************************************************************************
 	Protected
@@ -156,8 +111,7 @@ namespace ae {
 
 		RENDER_API 									_renderAPI;
 		std::shared_ptr<Renderer>					_renderer;
-//		std::shared_ptr<PhysicsSimulator>			_physicsSimulator;
-//		std::shared_ptr<Scene>						_scene;
+
 		unsigned									_width;
 		unsigned									_height;
 		float										_framebufferScale;
@@ -165,8 +119,6 @@ namespace ae {
 		unsigned									_framebufferHeight;
 		bool										_vSyncEnabled;
 		ANTIALIASING_MODE							_antialiasingMode;
-//		DEBUG_OPTIONS								_debugOptions;
-//		std::shared_ptr<Node>						_pointOfView;
 		
 		std::shared_ptr<GifWriter>					_gifWriter;
 		bool										_recordingGIF;
@@ -174,15 +126,7 @@ namespace ae {
 		unsigned									_gifRecordingHeight;
 		unsigned									_gifRecordingMaxFramerate;
 		unsigned									_gifRecordedFrames;
-		
-//		UpdateCallback								_update;
-//		DidSimulateCallback					_didSimulate;
-//		WillRenderCallback 							_willRender;
-//		DidRenderCallback 							_didRender;
 
-//		std::weak_ptr<Scene>						_scene;
-		Scene*										_scene;
-//		std::weak_ptr<VisualWorld>					_visualWorld;
 		VisualWorld*								_visualWorld;
 	};
 }

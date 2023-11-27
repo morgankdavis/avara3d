@@ -69,22 +69,13 @@ namespace ae {
 		std::shared_ptr<RenderContext> 			renderContext() const;
 		void 									renderContext(std::shared_ptr<RenderContext> context);
 
-//		RENDER_API								renderAPI() const;
-
-//		std::weak_ptr<Scene>					scene() const;
-//		void									scene(std::weak_ptr<Scene> scene);
-
 		WillRenderCallback 						willRender() const;
 		void 									willRender(WillRenderCallback function);
 
 		DidRenderCallback 						didRender() const;
 		void 									didRender(DidRenderCallback function);
 
-//		std::weak_ptr<Scene>					scene() const;
-//		void									scene(std::weak_ptr<Scene> scene);
-
 		Scene*									scene() const;
-		void									scene(Scene* scene);
 
 /*********************************************************************************************
 	Internal
@@ -92,6 +83,7 @@ namespace ae {
 
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		std::shared_ptr<Node> 					defaultPointOfView();
+		void									attachedToScene(Scene* scene);
 
 /*********************************************************************************************
 	Private
@@ -109,12 +101,10 @@ namespace ae {
 		std::shared_ptr<Node>					_pointOfView;
 
 		std::shared_ptr<RenderContext>			_renderContext;
-//		RENDER_API								_renderAPI;
 
 		WillRenderCallback 						_willRender;
 		DidRenderCallback 						_didRender;
 
-		//std::weak_ptr<Scene>					_scene;
 		Scene*									_scene;
 	};
 }

@@ -75,8 +75,6 @@ namespace ae {
 	PhysicsSimulator
  *********************************************************************************************/
 
-		PHYSICS_SIMULATION_ENGINE simulationEngine() const override;
-
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
 

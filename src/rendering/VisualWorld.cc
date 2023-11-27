@@ -34,9 +34,8 @@ static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> mate
 	Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context)://, RENDER_API api):
+VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 		_renderContext(context),
-//		_renderAPI(api),
 		_background(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
@@ -46,7 +45,7 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context)://, RENDER_API 
 		_willRender(nullptr),
 		_didRender(nullptr) {
 
-	_renderContext->visualWorld(this);
+	_renderContext->attachedToVisualWorld(this);
 }
 
 VisualWorld::~VisualWorld() {
@@ -148,6 +147,7 @@ shared_ptr<RenderContext> VisualWorld::renderContext() const {
 
 void VisualWorld::renderContext(shared_ptr<RenderContext> context) {
 	_renderContext = context;
+	context->attachedToVisualWorld(this);
 }
 
 //RENDER_API VisualWorld::renderAPI() const {
@@ -182,9 +182,9 @@ Scene* VisualWorld::scene() const {
 	return _scene;
 }
 
-void VisualWorld::scene(Scene* scene) {
-	_scene = scene;
-}
+//void VisualWorld::scene(Scene* scene) {
+//	_scene = scene;
+//}
 
 /*********************************************************************************************
 	Internal
@@ -250,6 +250,10 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	}
 
 	return nullptr;
+}
+
+void VisualWorld::attachedToScene(Scene* scene) {
+	_scene = scene;
 }
 
 /*********************************************************************************************

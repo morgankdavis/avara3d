@@ -118,17 +118,11 @@ shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
 
 Scene::Scene():
 		_rootNode(make_shared<Node>("root node")),
-//	_background(nullptr),
-//	_fogStartDistance(0.0),
-//	_fogEndDistance(0.0),
-//	_fogDensityExponent(0.0),
-//	_fogColor(nullptr),
 		_visualWorld(nullptr),
 		_physicalWorld(nullptr),
 		_inputManager(nullptr),
 		_update(nullptr),
-		_debugOptions(DEBUG_OPTIONS::NONE)
-/*_renderContext({})*/ { }
+		_debugOptions(DEBUG_OPTIONS::NONE) { }
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 			 shared_ptr<PhysicalWorld> physicsWorld,
@@ -140,9 +134,9 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_update(nullptr),
 		_debugOptions(DEBUG_OPTIONS::NONE) {
 
-	_visualWorld->scene(this);
-	_physicalWorld->scene(this);
-	_inputManager->scene(this);
+	_visualWorld->attachedToScene(this);
+	_physicalWorld->attachedToScene(this);
+	_inputManager->attachedToScene(this);
 }
 
 Scene::~Scene() {
@@ -227,7 +221,7 @@ std::shared_ptr<VisualWorld> Scene::visualWorld() const {
 
 void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 	_visualWorld = world;
-	_visualWorld->scene(this);
+	_visualWorld->attachedToScene(this);
 }
 
 shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
@@ -237,7 +231,7 @@ shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
 void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
 	_physicalWorld = world;
 //	_physicalWorld->attachedToScene(shared_from_this());
-	_physicalWorld->scene(this);
+	_physicalWorld->attachedToScene(this);
 }
 
 shared_ptr<InputManager> Scene::inputManager() const {
@@ -263,7 +257,7 @@ shared_ptr<InputManager> Scene::inputManager() const {
 
 void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 	_inputManager = inputManager;
-	_inputManager->scene(this);
+	_inputManager->attachedToScene(this);
 
 }
 
@@ -587,14 +581,6 @@ void Scene::run() {
 ////	if (_physicalWorld) {
 ////		_physicalWorld->attachedToScene(shared_from_this());
 ////	}
-//}
-
-//weak_ptr<RenderContext> Scene::renderContext() const {
-//	return _renderContext;
-//}
-//
-//void Scene::renderContext(shared_ptr<RenderContext> context) {
-//	_renderContext = context;
 //}
 
 /*********************************************************************************************

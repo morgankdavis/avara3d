@@ -41,11 +41,6 @@ namespace ae {
 
 	public:
 
-//		Window(bool fullScreen,
-//			   unsigned width, unsigned height,
-//			   bool useHighDPI = true,
-//			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE,
-//			   RENDER_API renderAPI = RENDER_API::OPENGL);
 		Window(RENDER_API renderAPI,
 			   bool fullScreen,
 			   unsigned width,
@@ -79,22 +74,23 @@ namespace ae {
 /*********************************************************************************************
 	RenderContext
  *********************************************************************************************/
-		
-		//void 								update() override;
+
 		void 								swapBuffers() override;
 		void 								pollInput() override;
 		void 								enableVSync(bool enabled) override;
-//		void 								debugOptions(DEBUG_OPTIONS options) override;
-//		std::shared_ptr<InputManager> 		inputManager() override;
-//		float 								sceneTime() const override;
 		
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
 		
-		static void 						glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
-		static void							glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
-		static void 						glfwErrorCallback(int error, const char* description);
+		static void 						glfwWindowSizeCallback(GLFWwindow* glfwWindow,
+																   int width,
+																   int height);
+		static void							glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
+																		   int width,
+																		   int height);
+		static void 						glfwErrorCallback(int error,
+															  const char* description);
 		
 /*********************************************************************************************
 	Private

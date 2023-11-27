@@ -124,37 +124,13 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 	_endContact = function;
 }
 
-//weak_ptr<Scene> PhysicalWorld::scene() const {
-//	return _scene;
-//}
-//
-//void PhysicalWorld::scene(weak_ptr<Scene> scene) {
-//	_scene = scene;
-//}
-
 Scene* PhysicalWorld::scene() const {
 	return _scene;
-}
-
-void PhysicalWorld::scene(Scene* scene) {
-	_scene = scene;
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-
-//void PhysicalWorld::attachedToScene(shared_ptr<Scene> scene) {
-//	_scene = scene;
-////	if (auto window = scene->window().lock()) {
-////		debugOptions(window->debugOptions());
-////	}
-////#ifdef DESKTOP
-////	if (auto renderer = scene->renderContext().lock()) {
-////		debugOptions(renderer->debugOptions());
-////	}
-////#endif
-//}
 
 PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
 	return _dirtyMask;
@@ -170,4 +146,8 @@ shared_ptr<PhysicsSimulator> PhysicalWorld::simulator() const {
 
 void PhysicalWorld::simulator(shared_ptr<PhysicsSimulator> simulator) {
 	_simulator = simulator;
+}
+
+void PhysicalWorld::attachedToScene(Scene* scene) {
+	_scene = scene;
 }

@@ -27,6 +27,7 @@
 #include "input/platform/desktop/WindowInputManager.h"
 #include "physics/PhysicalWorld.h"
 #include "rendering/Renderer.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/camera/Camera.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
@@ -48,90 +49,6 @@ static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 /*********************************************************************************************
 	Lifescycle
  *********************************************************************************************/
-
-//Window::Window(bool fullScreen,
-//			   unsigned width, unsigned height,
-//			   bool enableHighDPI,
-//			   ANTIALIASING_MODE antialiasingMode,
-//			   RENDER_API renderAPI):
-//	RenderContext(renderAPI),
-//	_inputManager(nullptr),
-//	_cursorCaptured(false) {
-//
-//	if (InitializeGLFW()) {
-//#ifdef OPENGL_CORE
-//		// TODO: move these version numbers
-//		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-//		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-//		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//		glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
-//#else // OpenGL ES
-//		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-//		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-//#endif
-//
-//
-//		#warning THIS
-//			//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-//
-//
-//		int viewportWidth = width;
-//		int viewportHeight = height;
-//
-//		float scaleFactor = 1.0;
-//
-//		if (fullScreen) {
-//			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-//			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-//			_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
-//			viewportWidth = vmode->width;
-//			viewportHeight = vmode->height;
-//
-//			scaleFactor = ScreenScaleFactor(monitor);
-//		}
-//		else {
-//			_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
-//
-//			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-//			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-//			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
-//		}
-//
-//		if (_glfwWindow) {
-//			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
-//
-//			glfwMakeContextCurrent(_glfwWindow);
-//			enableVSync(false);
-//
-//			if (InitializeGLEW()) {
-//				RenderContext::renderer()->initialize(*this);
-//
-//				_width = viewportWidth;
-//				_height = viewportHeight;
-//
-//				_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //_framebufferScale = 1;
-//				_framebufferWidth = _width * _framebufferScale;
-//				_framebufferHeight = _height * _framebufferScale;
-//			}
-//			else {
-//				AE_LOG_C("Failed to initialize GLEW.");
-//				glfwTerminate();
-//				// exception
-//			}
-//		}
-//		else {
-//			AE_LOG_C("Couldn't create GLFW Window.");
-//			glfwTerminate();
-//			// exception
-//		}
-//	}
-//	else {
-//		AE_LOG_C("Failed to initializing GLFW.");
-//		// exception
-//	}
-//}
 
 Window::Window(RENDER_API renderAPI,
 			   bool fullScreen,
@@ -233,9 +150,9 @@ Window::~Window() {
  *********************************************************************************************/
 
 void Window::display() {
-	AE_LOG_D("display()");
+	AE_LOG_T("");
 	
-	if (_scene) {
+	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow);
 		
 		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
@@ -283,49 +200,6 @@ bool Window::wantsClose() const {
 	RenderContext
  *********************************************************************************************/
 
-//void Window::update() {
-//	//RenderContext::update();
-//
-//	AE_LOG_T("-------------------------------------------------------------------------------");
-//
-//	if (update()) {
-//		(update())(*this, sceneTime());
-//	}
-//
-//	_renderer->beginFrame(*this);
-//
-//	auto pov = pointOfView();
-//	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
-//	pov->camera()->aspectRatio(aspectRatio);
-//
-//	_renderer->frameStats().cameraPosition = pov->position();
-//
-//	if (willRender()) {
-//		(willRender())(*this, sceneTime());
-//	}
-//
-//	_scene->update(*RenderContext::renderer(),
-//				  _framebufferWidth, _framebufferHeight,
-//				  *pov,
-//				  _debugOptions, _renderer->frameStats());
-//
-//	_renderer->endFrame(*this);
-//
-//	glfwSwapBuffers(_glfwWindow);
-//
-//	if (_recordingGIF) saveGIFFrame(sceneTime());
-//
-//	if (didRender()) {
-//		(didRender())(*this, sceneTime());
-//	}
-//
-//	glfwPollEvents();
-//
-//	if (_inputManager) {
-//		static_pointer_cast<WindowInputManager>(_inputManager)->update();
-//	}
-//}
-
 void Window::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow);
 }
@@ -345,43 +219,21 @@ void Window::enableVSync(bool enabled) {
 	else glfwSwapInterval(1);
 }
 
-//void Window::debugOptions(DEBUG_OPTIONS options) {
-//	RenderContext::debugOptions(options);
-	
-//#warning Refactor this
-//	if (_scene && _scene->physicalWorld()) {
-//		_scene->physicalWorld()->debugOptions(_debugOptions);
-//	}
-//}
-
-//shared_ptr<InputManager> Window::inputManager() {
-//	if (_inputManager == nullptr) {
-//		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
-//		auto inputManager = make_shared<WindowInputManager>(window);
-//		_inputManager = static_pointer_cast<InputManager>(inputManager);
-//	}
-//	return _inputManager;
-//}
-
-//float Window::sceneTime() const {
-//	return glfwGetTime();
-//}
-
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
 
-void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG_T("glfwWindowSizeCallback()");
+void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
 	
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	
-	window->width(aWidth);
-	window->height(aHeight);
+	window->width(width);
+	window->height(height);
 }
 
-void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG_T("glfwFramebufferSizeCallback()");
+void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
 	
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	
@@ -390,7 +242,7 @@ void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int
 }
 
 void Window::glfwErrorCallback(int error, const char* description) {
-	AE_LOG_E("glfwErrorCallback(): error: {}, description: {}", error, description);
+	AE_LOG_E("error: {}, description: {}", error, description);
 }
 
 /*********************************************************************************************

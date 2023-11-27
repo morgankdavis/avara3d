@@ -323,7 +323,7 @@ int Example::run(const vector<string>& args) {
 //		}
 //	}
 	
-	window->scene(_scene.get()); // eh?
+	//window->scene(_scene.get()); // eh?
 //	inputManager = window->inputManager();
 
 	window->display();

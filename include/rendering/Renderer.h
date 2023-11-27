@@ -85,8 +85,10 @@ namespace ae {
 		
 		FrameStats& 						frameStats();
 
-		std::weak_ptr<RenderContext> 		context() const;
-		void 								context(std::weak_ptr<RenderContext> context);
+		RenderContext* 						context() const;
+		void 								context(RenderContext* context);
+
+//		void								attachedToRenderContext(RenderContext* context);
 
 /**************************************************************************************
 	Protected
@@ -105,7 +107,7 @@ namespace ae {
 		float								_frametimeAveragingInterval;
 		FrameStats							_renderStats;
 
-		std::weak_ptr<RenderContext>		_context;
+//		RenderContext*						_context;
 	};
 }
 

@@ -6,8 +6,8 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsWorld_h
-#define PhysicsWorld_h
+#ifndef PhysicalWorld_h
+#define PhysicalWorld_h
 
 
 #include <functional>
@@ -84,24 +84,19 @@ namespace ae {
 		PhysicalWorld::EndContactCallback 		endContact() const;
 		void 									endContact(PhysicalWorld::EndContactCallback function);
 
-//		std::weak_ptr<Scene>					scene() const;
-//		void									scene(std::weak_ptr<Scene> scene);
-
 		Scene*									scene() const;
-		void									scene(Scene* scene);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-//		void 								attachedToScene(std::shared_ptr<Scene> scene);
-		//void 								debugOptions(DEBUG_OPTIONS options);
 
-		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
+		PHYSICS_WORLD_DIRTY_MASK 				dirtyMask() const;
+		void 									dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
 
-		std::shared_ptr<PhysicsSimulator>	simulator() const;
-		void								simulator(std::shared_ptr<PhysicsSimulator> simulator);
+		std::shared_ptr<PhysicsSimulator>		simulator() const;
+		void									simulator(std::shared_ptr<PhysicsSimulator> simulator);
+
+		void									attachedToScene(Scene* scene);
 
 /*********************************************************************************************
 	Private
@@ -109,22 +104,20 @@ namespace ae {
 
 	private:
 
-		glm::vec3 							_gravity;
-		float 								_timestep;
-//		std::weak_ptr<Scene> 				_scene;
-		PHYSICS_WORLD_DIRTY_MASK			_dirtyMask;
+		glm::vec3 								_gravity;
+		float 									_timestep;
+		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
 
-		DidSimulateCallback					_didSimulate;
-		BeginContactCallback				_beginContact;
-		ContinueContactCallback				_continueContact;
-		EndContactCallback					_endContact;
+		DidSimulateCallback						_didSimulate;
+		BeginContactCallback					_beginContact;
+		ContinueContactCallback					_continueContact;
+		EndContactCallback						_endContact;
 
-		std::shared_ptr<PhysicsSimulator>	_simulator;
+		std::shared_ptr<PhysicsSimulator>		_simulator;
 
-//		std::weak_ptr<Scene>				_scene;
-		Scene*								_scene;
+		Scene*									_scene;
 	};
 }
 
 
-#endif /* PhysicsWorld_h */
+#endif /* PhysicalWorld_h */

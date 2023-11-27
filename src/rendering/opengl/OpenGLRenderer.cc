@@ -22,7 +22,6 @@
 #endif
 
 #ifdef OPENGL_CORE
-// TODO: why are these using quotation marks?
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -333,9 +332,10 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 	auto debugOptions = context.visualWorld()->scene()->debugOptions();
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+		auto scene = context.visualWorld()->scene();
 		DrawStatsOverlay(Renderer::frameStats(),
-						   context.scene()->time(),
-						   *context.scene());
+						 scene->time(),
+						 *scene);
 	}
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);

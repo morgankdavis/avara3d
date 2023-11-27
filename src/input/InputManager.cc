@@ -118,7 +118,15 @@ Scene* InputManager::scene() const {
 	return _scene;
 }
 
-void InputManager::scene(Scene* scene) {
+//void InputManager::scene(Scene* scene) {
+//	_scene = scene;
+//}
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+void InputManager::attachedToScene(Scene* scene) {
 	_scene = scene;
 }
 

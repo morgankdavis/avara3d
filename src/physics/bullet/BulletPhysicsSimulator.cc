@@ -178,9 +178,9 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 	PhysicsSimulator
  *********************************************************************************************/
 
-PHYSICS_SIMULATION_ENGINE BulletPhysicsSimulator::simulationEngine() const {
-	return PHYSICS_SIMULATION_ENGINE::BULLET;
-}
+//PHYSICS_SIMULATION_ENGINE BulletPhysicsSimulator::simulationEngine() const {
+//	return PHYSICS_SIMULATION_ENGINE::BULLET;
+//}
 
 void BulletPhysicsSimulator::beginUpdate(const Scene& scene) {
 	PhysicsSimulator::beginUpdate(scene);

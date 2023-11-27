@@ -16,6 +16,7 @@
 
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/context/platform/desktop/Window.h"
 #include "scene/Scene.h"
 
@@ -186,7 +187,7 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->scene()->inputManager());
+	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
 }
 
 /*********************************************************************************************
