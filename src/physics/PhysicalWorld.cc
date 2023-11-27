@@ -124,11 +124,19 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 	_endContact = function;
 }
 
-weak_ptr<Scene> PhysicalWorld::scene() const {
+//weak_ptr<Scene> PhysicalWorld::scene() const {
+//	return _scene;
+//}
+//
+//void PhysicalWorld::scene(weak_ptr<Scene> scene) {
+//	_scene = scene;
+//}
+
+Scene* PhysicalWorld::scene() const {
 	return _scene;
 }
 
-void PhysicalWorld::scene(weak_ptr<Scene> scene) {
+void PhysicalWorld::scene(Scene* scene) {
 	_scene = scene;
 }
 

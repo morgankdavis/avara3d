@@ -328,13 +328,14 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 
 void OpenGLRenderer::endFrame(const RenderContext& context) {
 	Renderer::endFrame(context);
-	
-	auto debugOptions = context.debugOptions();
+
+	// TODO: check
+	auto debugOptions = context.visualWorld()->scene()->debugOptions();
 	
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 		DrawStatsOverlay(Renderer::frameStats(),
-						   context.scene().lock()->time(),
-						   *context.scene().lock());
+						   context.scene()->time(),
+						   *context.scene());
 	}
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);

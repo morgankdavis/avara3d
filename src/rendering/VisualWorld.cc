@@ -44,7 +44,10 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context)://, RENDER_API 
 		_fogColor(nullptr),
 		_pointOfView(nullptr),
 		_willRender(nullptr),
-		_didRender(nullptr) { }
+		_didRender(nullptr) {
+
+	_renderContext->visualWorld(this);
+}
 
 VisualWorld::~VisualWorld() {
 	AE_LOG_D("Destroying VisualWorld {:p}", (void*)this);
@@ -61,12 +64,10 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 	}
 	else {
 		// try to assign one from the scene
-		if (auto scene = _scene.lock()) {
-			for (auto node: scene->rootNode()->children(true)) {
-				if (node->camera()) {
-					_pointOfView = node;
-					return _pointOfView;
-				}
+		for (auto node: _scene->rootNode()->children(true)) {
+			if (node->camera()) {
+				_pointOfView = node;
+				return _pointOfView;
 			}
 		}
 	}
@@ -169,11 +170,19 @@ void VisualWorld::didRender(DidRenderCallback function) {
 	_didRender = function;
 }
 
-weak_ptr<Scene> VisualWorld::scene() const {
+//weak_ptr<Scene> VisualWorld::scene() const {
+//	return _scene;
+//}
+//
+//void VisualWorld::scene(weak_ptr<Scene> scene) {
+//	_scene = scene;
+//}
+
+Scene* VisualWorld::scene() const {
 	return _scene;
 }
 
-void VisualWorld::scene(weak_ptr<Scene> scene) {
+void VisualWorld::scene(Scene* scene) {
 	_scene = scene;
 }
 
@@ -187,7 +196,7 @@ shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
 
 shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
-	if (auto scene = _scene.lock()) {
+	if (_scene) {
 
 		auto cameraNode = make_shared<Node>();
 		//_scene->rootNode()->addChild(cameraNode); // done below
@@ -195,7 +204,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		camera->name("default camera");
 		cameraNode->camera(camera);
 
-		auto aabb = scene->rootNode()->aabb();
+		auto aabb = _scene->rootNode()->aabb();
 
 		float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
 		float w = _renderContext->width();
@@ -231,10 +240,13 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		mat4 viewMat = translate(mat4(1.0f), eye);
 		cameraNode->transform(viewMat);
 
-		scene->rootNode()->addChild(cameraNode);
+		_scene->rootNode()->addChild(cameraNode);
 		pointOfView(cameraNode);
 
 		return cameraNode;
+	}
+	else {
+		AE_LOG_W("Can't create default camera: scene is null.");
 	}
 
 	return nullptr;

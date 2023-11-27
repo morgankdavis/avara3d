@@ -47,7 +47,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 	_framebufferHeight(0),
 	_vSyncEnabled(false),
 	_antialiasingMode(ANTIALIASING_MODE::NONE),
-	_debugOptions(DEBUG_OPTIONS::NONE),
+//	_debugOptions(DEBUG_OPTIONS::NONE),
 //	_pointOfView(nullptr),
 	_gifWriter(nullptr),
 	_recordingGIF(false),
@@ -129,27 +129,27 @@ void RenderContext::enableVSync(bool enabled) {
 	_vSyncEnabled = enabled;
 }
 
-DEBUG_OPTIONS RenderContext::debugOptions() const {
-	return _debugOptions;
-}
-
-void RenderContext::debugOptions(DEBUG_OPTIONS options) {
-	
-#ifdef ANDROID
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-		throw Exception("DEBUG_OPTIONS::SHOW_BOUNDING_BOXES not supported on this platform.");
-	}
-#endif
-	
-	_debugOptions = options;
-	
-//	if (_scene && _scene->physicalWorld()) {
-//		_scene->physicalWorld()->debugOptions(_debugOptions);
+//DEBUG_OPTIONS RenderContext::debugOptions() const {
+//	return _debugOptions;
+//}
+//
+//void RenderContext::debugOptions(DEBUG_OPTIONS options) {
+//
+//#ifdef ANDROID
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+//		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
 //	}
-}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+//		throw Exception("DEBUG_OPTIONS::SHOW_BOUNDING_BOXES not supported on this platform.");
+//	}
+//#endif
+//
+//	_debugOptions = options;
+//
+////	if (_scene && _scene->physicalWorld()) {
+////		_scene->physicalWorld()->debugOptions(_debugOptions);
+////	}
+//}
 
 //shared_ptr<Node> RenderContext::pointOfView() {
 //
@@ -286,19 +286,35 @@ void RenderContext::stopGIFRecording() {
 //	_didRender = function;
 //}
 
-weak_ptr<Scene> RenderContext::scene() const {
+//weak_ptr<Scene> RenderContext::scene() const {
+//	return _scene;
+//}
+//
+//void RenderContext::scene(weak_ptr<Scene> scene) {
+//	_scene = scene;
+//}
+
+Scene* RenderContext::scene() const {
 	return _scene;
 }
 
-void RenderContext::scene(weak_ptr<Scene> scene) {
+void RenderContext::scene(Scene* scene) {
 	_scene = scene;
 }
 
-weak_ptr<VisualWorld> RenderContext::visualWorld() const {
+//weak_ptr<VisualWorld> RenderContext::visualWorld() const {
+//	return _visualWorld;
+//}
+//
+//void RenderContext::visualWorld(weak_ptr<VisualWorld> world) {
+//	_visualWorld = world;
+//}
+
+VisualWorld* RenderContext::visualWorld() const {
 	return _visualWorld;
 }
 
-void RenderContext::visualWorld(weak_ptr<VisualWorld> world) {
+void RenderContext::visualWorld(VisualWorld* world) {
 	_visualWorld = world;
 }
 

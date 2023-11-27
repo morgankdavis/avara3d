@@ -79,8 +79,8 @@ namespace ae {
 		virtual bool 								vSyncEnabled() const;
 		virtual void 								enableVSync(bool enabled);
 		
-		virtual DEBUG_OPTIONS 						debugOptions() const;
-		virtual void 								debugOptions(DEBUG_OPTIONS options);
+//		virtual DEBUG_OPTIONS 						debugOptions() const;
+//		virtual void 								debugOptions(DEBUG_OPTIONS options);
 //
 //		virtual std::shared_ptr<Node>				pointOfView();
 //		virtual void 								pointOfView(const std::shared_ptr<Node> camera);
@@ -109,11 +109,17 @@ namespace ae {
 //		DidRenderCallback 							didRender() const;
 //		void 										didRender(DidRenderCallback function);
 
-		std::weak_ptr<Scene>						scene() const;
-		void										scene(std::weak_ptr<Scene> scene);
+//		std::weak_ptr<Scene>						scene() const;
+//		void										scene(std::weak_ptr<Scene> scene);
 
-		std::weak_ptr<VisualWorld>					visualWorld() const;
-		void										visualWorld(std::weak_ptr<VisualWorld> world);
+		Scene*										scene() const;
+		void										scene(Scene* scene);
+
+//		std::weak_ptr<VisualWorld>					visualWorld() const;
+//		void										visualWorld(std::weak_ptr<VisualWorld> world);
+
+		VisualWorld*								visualWorld() const;
+		void										visualWorld(VisualWorld* world);
 
 /*********************************************************************************************
 	Internal
@@ -136,6 +142,8 @@ namespace ae {
 		
 		void 										framebufferWidth(unsigned width);
 		void 										framebufferHeight(unsigned height);
+
+		virtual void 								saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
 		
 /*********************************************************************************************
 	Protected
@@ -144,7 +152,7 @@ namespace ae {
 	protected:
 
 //		virtual std::shared_ptr<Node> 				defaultPointOfView();
-		virtual void 								saveGIFFrame(float time);
+//		virtual void 								saveGIFFrame(float time);
 
 		RENDER_API 									_renderAPI;
 		std::shared_ptr<Renderer>					_renderer;
@@ -157,7 +165,7 @@ namespace ae {
 		unsigned									_framebufferHeight;
 		bool										_vSyncEnabled;
 		ANTIALIASING_MODE							_antialiasingMode;
-		DEBUG_OPTIONS								_debugOptions;
+//		DEBUG_OPTIONS								_debugOptions;
 //		std::shared_ptr<Node>						_pointOfView;
 		
 		std::shared_ptr<GifWriter>					_gifWriter;
@@ -172,8 +180,10 @@ namespace ae {
 //		WillRenderCallback 							_willRender;
 //		DidRenderCallback 							_didRender;
 
-		std::weak_ptr<Scene>						_scene;
-		std::weak_ptr<VisualWorld>					_visualWorld;
+//		std::weak_ptr<Scene>						_scene;
+		Scene*										_scene;
+//		std::weak_ptr<VisualWorld>					_visualWorld;
+		VisualWorld*								_visualWorld;
 	};
 }
 

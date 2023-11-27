@@ -74,6 +74,7 @@ namespace ae {
  *********************************************************************************************/
 
 		GLFWwindow* 						glfwWindow() const;
+		bool 								wantsClose() const; // *** temporary? ***
 
 /*********************************************************************************************
 	RenderContext
@@ -83,7 +84,7 @@ namespace ae {
 		void 								swapBuffers() override;
 		void 								pollInput() override;
 		void 								enableVSync(bool enabled) override;
-		void 								debugOptions(DEBUG_OPTIONS options) override;
+//		void 								debugOptions(DEBUG_OPTIONS options) override;
 //		std::shared_ptr<InputManager> 		inputManager() override;
 //		float 								sceneTime() const override;
 		

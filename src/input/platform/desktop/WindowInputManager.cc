@@ -186,7 +186,7 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->scene().lock()->inputManager());
+	return static_pointer_cast<WindowInputManager>(window->scene()->inputManager());
 }
 
 /*********************************************************************************************

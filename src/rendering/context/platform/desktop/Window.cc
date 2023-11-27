@@ -235,7 +235,7 @@ Window::~Window() {
 void Window::display() {
 	AE_LOG_D("display()");
 	
-	if (_scene.lock()) {
+	if (_scene) {
 		glfwMakeContextCurrent(_glfwWindow);
 		
 		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
@@ -243,11 +243,11 @@ void Window::display() {
 		
         captureCursor(cursorCaptured()); // needs to be set after windows is made current
         
-		while (!glfwWindowShouldClose(_glfwWindow)) {
-			update();
-		}
+//		while (!glfwWindowShouldClose(_glfwWindow)) {
+//			update();
+//		}
 		
-		stopGIFRecording();
+		//stopGIFRecording();
 	}
 	else {
 		throw Exception("Window has no scene.");
@@ -273,6 +273,10 @@ void Window::setShouldClose() {
 
 GLFWwindow* Window::glfwWindow() const {
 	return _glfwWindow;
+}
+
+bool Window::wantsClose() const {
+	return glfwWindowShouldClose(_glfwWindow);
 }
 
 /*********************************************************************************************
@@ -341,14 +345,14 @@ void Window::enableVSync(bool enabled) {
 	else glfwSwapInterval(1);
 }
 
-void Window::debugOptions(DEBUG_OPTIONS options) {
-	RenderContext::debugOptions(options);
+//void Window::debugOptions(DEBUG_OPTIONS options) {
+//	RenderContext::debugOptions(options);
 	
 //#warning Refactor this
 //	if (_scene && _scene->physicalWorld()) {
 //		_scene->physicalWorld()->debugOptions(_debugOptions);
 //	}
-}
+//}
 
 //shared_ptr<InputManager> Window::inputManager() {
 //	if (_inputManager == nullptr) {

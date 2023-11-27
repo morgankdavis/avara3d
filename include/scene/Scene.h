@@ -100,17 +100,22 @@ namespace ae {
 
 		UpdateCallback 							update() const;
 		void 									update(UpdateCallback function);
+
+		DEBUG_OPTIONS 						debugOptions() const;
+		void 								debugOptions(DEBUG_OPTIONS options);
+
+		void									run();
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 									update(Renderer& renderer,
-													   unsigned framebufferWidth,
-													   unsigned framebufferHeight,
-													   Node& pointOfView,
-													   const DEBUG_OPTIONS& debugOptions,
-													   FrameStats& stats);
+//		void 									update(Renderer& renderer,
+//													   unsigned framebufferWidth,
+//													   unsigned framebufferHeight,
+//													   Node& pointOfView,
+//													   const DEBUG_OPTIONS& debugOptions,
+//													   FrameStats& stats);
 
 //		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		
@@ -154,6 +159,8 @@ namespace ae {
 		std::shared_ptr<InputManager>			_inputManager;
 
 		UpdateCallback							_update;
+
+		DEBUG_OPTIONS								_debugOptions;
 	};
 }
 

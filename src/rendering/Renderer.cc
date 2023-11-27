@@ -45,7 +45,7 @@ void Renderer::beginFrame(const RenderContext& context) {
 }
 
 void Renderer::endFrame(const RenderContext& context) {
-	updateFrametimeStats(frameStats(), context.scene().lock()->time());
+	updateFrametimeStats(frameStats(), context.scene()->time());
 }
 
 void Renderer::render(Scene& scene,

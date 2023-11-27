@@ -80,7 +80,6 @@ int Example::run(const vector<string>& args) {
 //	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
 	window->enableVSync(ENABLE_VSYNC);
 	window->captureCursor(CAPTURE_CURSOR);
-	window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	visualWorld->fogStartDistance(50.0);
@@ -90,14 +89,19 @@ int Example::run(const vector<string>& args) {
 	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
 
-	auto physicsWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
-	physicsWorld->timestep(PHYSICS_TIMESTEP);
-	physicsWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
+	auto physicalWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	physicalWorld->timestep(PHYSICS_TIMESTEP);
+	physicalWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window); // replace with RenderContext::DefaultInputManager()?
 
-	_scene = make_shared<Scene>(visualWorld, physicsWorld, inputManager);
+	_scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+//	_scene = make_shared<Scene>();
+//	_scene->visualWorld(visualWorld);
+//	_scene->physicalWorld(physicalWorld);
+//	_scene->inputManager(inputManager);
 	_scene->update(bind(&Example::updateCallback, this, _1, _2));
+	_scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 
 	
 //	auto renderContext = static_pointer_cast<RenderContext>(_window);
@@ -319,10 +323,11 @@ int Example::run(const vector<string>& args) {
 //		}
 //	}
 	
-	window->scene(_scene);
+	window->scene(_scene.get()); // eh?
 //	inputManager = window->inputManager();
 
-	window->display(); // EH
+	window->display();
+	_scene->run();
 	
 	return 0;
 }
@@ -451,73 +456,73 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 	if (keysPressed.count(KEY::P)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::G)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::C)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 	}
 	if (keysPressed.count(KEY::N)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-			renderContext->debugOptions(DEBUG_OPTIONS_REMOVE(renderContext->debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 		else {
-			renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 	}
 

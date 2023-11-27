@@ -106,11 +106,19 @@ vec2 InputManager::mouseScrollWheelDelta() {
 	return mouseScrollWheelDeltaCopy;
 }
 
-weak_ptr<Scene> InputManager::scene() const {
+//weak_ptr<Scene> InputManager::scene() const {
+//	return _scene;
+//}
+//
+//void InputManager::scene(weak_ptr<Scene> scene) {
+//	_scene = scene;
+//}
+
+Scene* InputManager::scene() const {
 	return _scene;
 }
 
-void InputManager::scene(weak_ptr<Scene> scene) {
+void InputManager::scene(Scene* scene) {
 	_scene = scene;
 }
 

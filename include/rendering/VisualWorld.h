@@ -80,8 +80,11 @@ namespace ae {
 		DidRenderCallback 						didRender() const;
 		void 									didRender(DidRenderCallback function);
 
-		std::weak_ptr<Scene>					scene() const;
-		void									scene(std::weak_ptr<Scene> scene);
+//		std::weak_ptr<Scene>					scene() const;
+//		void									scene(std::weak_ptr<Scene> scene);
+
+		Scene*									scene() const;
+		void									scene(Scene* scene);
 
 /*********************************************************************************************
 	Internal
@@ -111,7 +114,8 @@ namespace ae {
 		WillRenderCallback 						_willRender;
 		DidRenderCallback 						_didRender;
 
-		std::weak_ptr<Scene>					_scene;
+		//std::weak_ptr<Scene>					_scene;
+		Scene*									_scene;
 	};
 }
 

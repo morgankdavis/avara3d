@@ -84,8 +84,11 @@ namespace ae {
 		PhysicalWorld::EndContactCallback 		endContact() const;
 		void 									endContact(PhysicalWorld::EndContactCallback function);
 
-		std::weak_ptr<Scene>					scene() const;
-		void									scene(std::weak_ptr<Scene> scene);
+//		std::weak_ptr<Scene>					scene() const;
+//		void									scene(std::weak_ptr<Scene> scene);
+
+		Scene*									scene() const;
+		void									scene(Scene* scene);
 
 /*********************************************************************************************
 	Internal
@@ -118,7 +121,8 @@ namespace ae {
 
 		std::shared_ptr<PhysicsSimulator>	_simulator;
 
-		std::weak_ptr<Scene>				_scene;
+//		std::weak_ptr<Scene>				_scene;
+		Scene*								_scene;
 	};
 }
 
