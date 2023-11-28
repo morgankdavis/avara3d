@@ -68,7 +68,6 @@ Window::Window(RENDER_API renderAPI,
 			   ANTIALIASING_MODE antialiasingMode):
 		RenderContext(renderAPI),
 		_glfwWindow(nullptr),
-		_inputManager(nullptr),
 		_cursorCaptured(false) {
 
 	if (InitGLFW()) {
@@ -173,12 +172,6 @@ void Window::open() {
 		glfwSetFramebufferSizeCallback(_glfwWindow, GLFWFramebufferSizeCallback);
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
-        
-//		while (!glfwWindowShouldClose(_glfwWindow)) {
-//			update();
-//		}
-		
-		//stopGIFRecording();
 	}
 	else {
 		throw Exception("Window has no scene.");
@@ -221,31 +214,11 @@ void Window::setShouldClose() {
 }
 
 /*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//bool Window::wantsClose() const {
-//	return glfwWindowShouldClose(_glfwWindow);
-//}
-
-GLFWwindow* Window::glfwWindow() const {
-	return _glfwWindow;
-}
-
-/*********************************************************************************************
 	RenderContext
  *********************************************************************************************/
 
 void Window::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow);
-}
-
-void Window::pollInput() {
-	glfwPollEvents();
-
-	if (_inputManager) {
-		static_pointer_cast<WindowInputManager>(_inputManager)->update();
-	}
 }
 
 bool Window::vSyncEnabled() const {
@@ -254,7 +227,7 @@ bool Window::vSyncEnabled() const {
 
 void Window::vSyncEnabled(bool enabled) {
 	RenderContext::vSyncEnabled(enabled);
-	
+
 	if (enabled) {
 		glfwSwapInterval(1);
 	}
@@ -264,34 +237,16 @@ void Window::vSyncEnabled(bool enabled) {
 }
 
 /*********************************************************************************************
-	GLFW Callbacks
+	Internal
  *********************************************************************************************/
 
-//void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	AE_LOG_T("width: {}, height: {}", width, height);
-//
-//	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-//
-//	window->width(width);
-//	window->height(height);
-//}
-//
-//void Window::glfwWindowCloseCallback(GLFWwindow* glfwWindow) {
-//	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
-//}
-//
-//void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	AE_LOG_T("width: {}, height: {}", width, height);
-//
-//	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-//
-//	window->framebufferWidth(window->width() * window->framebufferScale());
-//	window->framebufferHeight(window->height() * window->framebufferScale());
-//}
-//
-//void Window::glfwErrorCallback(int error, const char* description) {
-//	AE_LOG_E("error: {}, description: {}", error, description);
-//}
+void Window::pollInput() {
+	glfwPollEvents();
+}
+
+GLFWwindow* Window::glfwWindow() const {
+	return _glfwWindow;
+}
 
 /*********************************************************************************************
 	Static

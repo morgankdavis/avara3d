@@ -66,34 +66,19 @@ namespace ae {
 		void 							setShouldClose();
 
 /*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//		bool 							wantsClose() const; // *** temporary? ***
-		GLFWwindow* 					glfwWindow() const;
-
-/*********************************************************************************************
 	RenderContext
  *********************************************************************************************/
 
 		void 							swapBuffers() override;
-		void 							pollInput() override;
 		bool 							vSyncEnabled() const override; // why is this necessary?
 		void 							vSyncEnabled(bool enabled) override;
 
-///*********************************************************************************************
-//	GLFW Callbacks
-// *********************************************************************************************/
-//
-//		static void 					glfwWindowSizeCallback(GLFWwindow* glfwWindow,
-//															  int width,
-//															  int height);
-//		static void						glfwWindowCloseCallback(GLFWwindow* glfwWindow);
-//		static void						glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
-//																	   int width,
-//																	   int height);
-//		static void 					glfwErrorCallback(int error,
-//														 const char* description);
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		void 							pollInput();
+		GLFWwindow* 					glfwWindow() const;
 
 /*********************************************************************************************
 	Private
@@ -102,7 +87,6 @@ namespace ae {
 	private:
 
 		GLFWwindow*						_glfwWindow;
-		std::shared_ptr<InputManager> 	_inputManager;
 		bool							_cursorCaptured;
 	};
 }

@@ -81,7 +81,7 @@ int Example::run(const vector<string>& args) {
 	visualWorld->fogStartDistance(50.0);
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
-	visualWorld->fogColor(Color::LightGray());
+	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
 	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
 
@@ -146,7 +146,7 @@ int Example::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, .25));
+		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	//gridImage->writePNG("thing.png");
 	//auto gridImage = ImageNamed("grid10_512");
@@ -158,14 +158,19 @@ int Example::run(const vector<string>& args) {
 	planeMaterialProperty->maxAnisotropy(16);
 	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
 	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	auto planeMaterial = make_shared<Material>(planeMaterialProperty,
-//											   planeMaterialProperty,
-//											   planeMaterialProperty,
-//											   planeMaterialProperty);
-	auto planeMaterial = make_shared<Material>(nullptr,
-											   nullptr,
-											   nullptr,
-											   planeMaterialProperty);
+	shared_ptr<Material> planeMaterial = nullptr;
+	if (DARK) {
+		planeMaterial = make_shared<Material>(nullptr,
+											  nullptr,
+											  nullptr,
+											  planeMaterialProperty);
+	}
+	else {
+		planeMaterial = make_shared<Material>(nullptr,
+											  planeMaterialProperty,
+											  make_shared<MaterialProperty>(Color::Gray()));
+	}
+
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
@@ -264,12 +269,14 @@ int Example::run(const vector<string>& args) {
 
 
 
-	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
-	//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-	_scene->visualWorld()->background(background);
+	if (_scene->visualWorld()) {
+		//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
+		//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
+		auto background = DARK
+						  ? make_shared<MaterialProperty>(Color::Black())
+						  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+		_scene->visualWorld()->background(background);
+	}
 
 //	auto gridCube = make_shared<CubeImage>(ImageNamed("grid10", "png", false)->inverted());
 //	scene->background(make_shared<MaterialProperty>(gridCube));
@@ -278,19 +285,23 @@ int Example::run(const vector<string>& args) {
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
 //	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
 	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)); // sunset
-	auto ambientLight = DARK
-						? make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)) // sunset
-						: make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
-
+	auto ambientColor = DARK
+						? Color::White()
+						: make_shared<Color>(233, 218, 185); // sunset
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	_scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::DarkGray());
+	auto pointColor = DARK
+					  ? Color::DarkGray()
+					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
 	//pointLight->attenuationFactor(0.000000015);
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = Node::LightNode(pointLight);
+	//pointLightNode->geometry(make_shared<Sphere>(1.0, 16));
 	_scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position(vec3(35, 20, 7) * vec3(2.5, 2.5, 2.5));
+	pointLightNode->position(vec3(35, 20, -35) * vec3(2.5, 2.5, 2.5));
 
 	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(_scene->rootNode()->extent()));
 
@@ -327,10 +338,14 @@ void Example::updateCallback(Scene& scene, float time) {
 	previousSeconds = time;
 
 	auto inputManager = scene.inputManager();
-	auto renderContext = scene.visualWorld()->renderContext();
-	auto window = dynamic_pointer_cast<Window>(renderContext);
-	
-	
+
+	//shared_ptr<RenderContext> renderContext = nullptr;
+	shared_ptr<Window> window = nullptr;
+	if (scene.visualWorld()) {
+		//renderContext = scene.visualWorld()->renderContext();
+		window = dynamic_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	}
+
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
 	
@@ -340,6 +355,22 @@ void Example::updateCallback(Scene& scene, float time) {
 		auto duckSpinnerEuler = _duckSpinnerNode->eulerAngles();
 		_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
+
+
+
+
+
+	for (auto& c : scene.rootNode()->children(true)) {
+		if (c->geometry()) {
+			if (dynamic_pointer_cast<Cylinder>(c->geometry())) {
+				AE_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
+			}
+		}
+	}
+
+
+
+
 	
 
 	// get input
@@ -349,7 +380,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	auto keysDown = inputManager->keysDown();
 	auto keysPressed = inputManager->keysPressed();
 	auto cursorCaptured = true;
-	if (auto window = dynamic_pointer_cast<Window>(renderContext)) {
+	if (window) {
 		cursorCaptured = window->cursorCaptured();
 	}
 	
@@ -423,7 +454,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 	
 	
-	if (cursorCaptured) {
+	if (scene.visualWorld() && cursorCaptured) {
 		if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
 			auto pov = scene.visualWorld()->pointOfView();
 			ShootBall(scene,

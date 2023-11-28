@@ -60,6 +60,7 @@ namespace ae {
 		Color(int r, int g, int b);
 		Color(int r, int g, int b, int a);
 		Color(float black);
+		Color(uint32_t color);
 		//Color(const Color& color); // copy
 		
 /*********************************************************************************************

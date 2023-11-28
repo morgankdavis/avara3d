@@ -86,7 +86,6 @@ namespace ae {
 		std::shared_ptr<Renderer> 			renderer() const;
 
 		virtual void 						swapBuffers() = 0;
-		virtual void 						pollInput() = 0;
 
 		void 								width(unsigned width);
 		void 								height(unsigned height);

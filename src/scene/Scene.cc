@@ -128,9 +128,9 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_stats({}),
 		_update(nullptr) {
 
-	_visualWorld->attachedToScene(this);
-	_physicalWorld->attachedToScene(this);
-	_inputManager->attachedToScene(this);
+	if (_visualWorld) _visualWorld->attachedToScene(this);
+	if (_physicalWorld) _physicalWorld->attachedToScene(this);
+	if (_inputManager) _inputManager->attachedToScene(this);
 }
 
 Scene::~Scene() {
@@ -237,8 +237,18 @@ void Scene::run() {
 		}
 	}
 
+	shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
+	if (_physicalWorld
+		&& _physicalWorld->simulator()) {
+		physicsSimulator = _physicalWorld->simulator();
+	}
+
 	do {
 		memset(&_stats, 0, sizeof(Stats));
+
+		if (_inputManager) {
+			_inputManager->update();
+		}
 
 		const float t = time();
 
@@ -246,85 +256,75 @@ void Scene::run() {
 			(_update)(*this, t);
 		}
 
-		renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
+		if (_visualWorld) {
+			renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
 
-		const auto framebufferWidth = renderContext->framebufferWidth();
-		const auto framebufferHeight = renderContext->framebufferHeight();
+			const auto framebufferWidth = renderContext->framebufferWidth();
+			const auto framebufferHeight = renderContext->framebufferHeight();
 
-		auto pov = visualWorld()->pointOfView();
-		auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-		static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+			auto pov = visualWorld()->pointOfView();
+			auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
+			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
-		_stats.cameraPosition = pov->position(); // MOVE
+			_stats.cameraPosition = pov->position();
 
-		if (_visualWorld->willRender()) { // MOVE
-			(_visualWorld->willRender())(*_visualWorld, t);
-		}
+			if (_visualWorld->willRender()) { // MOVE?
+				(_visualWorld->willRender())(*_visualWorld, t);
+			}
 
-		renderer->render(*this, _debugOptions, _stats);
-
-		shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
-		if (_physicalWorld
-			&& _physicalWorld->simulator()) {
-			physicsSimulator = _physicalWorld->simulator();
+			renderer->render(*this, _debugOptions, _stats);
 		}
 
 		if (_physicalWorld) {
 			physicsSimulator->beginUpdate(*this);
 			physicsSimulator->update(*this);
-		}
-
-		_rootNode->update(*physicsSimulator,
-						  _stats);
-
-		if (_physicalWorld) {
+			_rootNode->update(*physicsSimulator,
+							  _stats);
 			physicsSimulator->step(t);
 			physicsSimulator->sync(*this);
-		}
-
-		_rootNode->sync(*physicsSimulator,
-						_stats);
-
-		if (_physicalWorld) {
+			_rootNode->sync(*physicsSimulator,
+							_stats);
 			physicsSimulator->endUpdate(*this);
 
-			if (_physicalWorld->didSimulate()) {
+			if (_physicalWorld->didSimulate()) { // MOVE?
 				(_physicalWorld->didSimulate())(*_physicalWorld, t);
 			}
 		}
 
-		auto viewMat = pov->worldTransform();
-		auto projectionMat = pov->camera()->projection();
+		if (_visualWorld) {
+			auto pov = visualWorld()->pointOfView();
 
-		_rootNode->draw(*renderer,
-						viewMat,
-						projectionMat,
-						_debugOptions,
-						_stats);
+			auto viewMat = pov->worldTransform();
+			auto projectionMat = pov->camera()->projection();
 
-		if (_physicalWorld) {
-			auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-			if (bulletSimulator) {
-				bulletSimulator->drawDebug(*renderer,
-										   viewMat,
-										   projectionMat,
-										   _debugOptions);
+			_rootNode->draw(*renderer,
+							viewMat,
+							projectionMat,
+							_debugOptions,
+							_stats);
+
+			if (_physicalWorld) {
+				auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+				if (bulletSimulator) {
+					bulletSimulator->drawDebug(*renderer,
+											   viewMat,
+											   projectionMat,
+											   _debugOptions);
+				}
+			}
+
+			renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
+
+			renderContext->swapBuffers();
+
+			if (renderContext->recordingGIF()) { // MOVE?
+				renderContext->saveGIFFrame(t);
+			}
+
+			if (_visualWorld->didRender()) { // MOVE?
+				(_visualWorld->didRender())(*_visualWorld, t);
 			}
 		}
-
-		renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
-
-		renderContext->swapBuffers();
-
-		if (renderContext->recordingGIF()) { // MOVE
-			renderContext->saveGIFFrame(t);
-		}
-
-		if (_visualWorld->didRender()) { // MOVE
-			(_visualWorld->didRender())(*_visualWorld, t);
-		}
-
-		renderContext->pollInput();
 
 	} while (_isRunning);// && !static_pointer_cast<Window>(renderContext)->wantsClose()); // change
 }
