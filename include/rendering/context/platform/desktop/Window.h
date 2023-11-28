@@ -57,7 +57,8 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		void 							display();
+		void 							open();
+		void							close();
 
 		bool 							cursorCaptured() const;
 		void 							cursorCaptured(bool captured);
@@ -68,7 +69,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		bool 							wantsClose() const; // *** temporary? ***
+//		bool 							wantsClose() const; // *** temporary? ***
 		GLFWwindow* 					glfwWindow() const;
 
 /*********************************************************************************************
@@ -80,18 +81,19 @@ namespace ae {
 		bool 							vSyncEnabled() const override; // why is this necessary?
 		void 							vSyncEnabled(bool enabled) override;
 
-/*********************************************************************************************
-	GLFW Callbacks
- *********************************************************************************************/
-
-		static void 					glfwWindowSizeCallback(GLFWwindow* glfwWindow,
-															  int width,
-															  int height);
-		static void						glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
-																	   int width,
-																	   int height);
-		static void 					glfwErrorCallback(int error,
-														 const char* description);
+///*********************************************************************************************
+//	GLFW Callbacks
+// *********************************************************************************************/
+//
+//		static void 					glfwWindowSizeCallback(GLFWwindow* glfwWindow,
+//															  int width,
+//															  int height);
+//		static void						glfwWindowCloseCallback(GLFWwindow* glfwWindow);
+//		static void						glfwFramebufferSizeCallback(GLFWwindow* glfwWindow,
+//																	   int width,
+//																	   int height);
+//		static void 					glfwErrorCallback(int error,
+//														 const char* description);
 
 /*********************************************************************************************
 	Private

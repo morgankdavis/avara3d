@@ -226,6 +226,8 @@ const Stats& Scene::stats() const {
 
 void Scene::run() {
 
+	_isRunning = true;
+
 	shared_ptr<RenderContext> renderContext = nullptr;
 	shared_ptr<Renderer> renderer = nullptr;
 	if (_visualWorld) {
@@ -350,7 +352,21 @@ void Scene::run() {
 
 		renderContext->pollInput();
 
-	} while (!static_pointer_cast<Window>(renderContext)->wantsClose()); // change
+	} while (_isRunning);// && !static_pointer_cast<Window>(renderContext)->wantsClose()); // change
+}
+
+void Scene::stop() {
+
+	if (_isRunning) {
+		_isRunning = false;
+	}
+	else {
+		AE_LOG_W("Attempting to stop when Scene not running.");
+	}
+}
+
+bool Scene::isRunning() const {
+	return _isRunning;
 }
 
 Scene::UpdateCallback Scene::update() const {

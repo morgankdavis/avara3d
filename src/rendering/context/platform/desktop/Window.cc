@@ -46,6 +46,16 @@ static bool 	InitGLEW();
 static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 
+static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
+									  int width,
+									  int height);
+static void		GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
+static void		GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow,
+											   int width,
+											   int height);
+static void 	GLFWErrorCallback(int error,
+								 const char* description);
+
 /*********************************************************************************************
 	Lifescycle
  *********************************************************************************************/
@@ -150,14 +160,15 @@ Window::~Window() {
 	Public
  *********************************************************************************************/
 
-void Window::display() {
+void Window::open() {
 	AE_LOG_T("");
 	
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow);
 		
-		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
-		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
+		glfwSetWindowSizeCallback(_glfwWindow, GLFWWindowSizeCallback);
+		glfwSetWindowCloseCallback(_glfwWindow, GLFWWindowCloseCallback);
+		glfwSetFramebufferSizeCallback(_glfwWindow, GLFWFramebufferSizeCallback);
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
         
@@ -170,6 +181,24 @@ void Window::display() {
 	else {
 		throw Exception("Window has no scene.");
 	}
+}
+
+void Window::close() {
+
+	if (_visualWorld && _visualWorld->scene()) {
+		auto scene = _visualWorld->scene();
+		if (scene->isRunning()) {
+			scene->stop();
+		}
+	}
+
+	glfwSetWindowSizeCallback(_glfwWindow, nullptr);
+	glfwSetWindowCloseCallback(_glfwWindow, nullptr);
+	glfwSetFramebufferSizeCallback(_glfwWindow, nullptr);
+
+	cursorCaptured(false);
+
+	glfwSetWindowShouldClose(_glfwWindow, true);
 }
 
 bool Window::cursorCaptured() const {
@@ -189,9 +218,9 @@ void Window::setShouldClose() {
 	Internal
  *********************************************************************************************/
 
-bool Window::wantsClose() const {
-	return glfwWindowShouldClose(_glfwWindow);
-}
+//bool Window::wantsClose() const {
+//	return glfwWindowShouldClose(_glfwWindow);
+//}
 
 GLFWwindow* Window::glfwWindow() const {
 	return _glfwWindow;
@@ -232,27 +261,31 @@ void Window::vSyncEnabled(bool enabled) {
 	GLFW Callbacks
  *********************************************************************************************/
 
-void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	AE_LOG_T("width: {}, height: {}", width, height);
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->width(width);
-	window->height(height);
-}
-
-void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	AE_LOG_T("width: {}, height: {}", width, height);
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
-}
-
-void Window::glfwErrorCallback(int error, const char* description) {
-	AE_LOG_E("error: {}, description: {}", error, description);
-}
+//void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+//	AE_LOG_T("width: {}, height: {}", width, height);
+//
+//	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+//
+//	window->width(width);
+//	window->height(height);
+//}
+//
+//void Window::glfwWindowCloseCallback(GLFWwindow* glfwWindow) {
+//	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
+//}
+//
+//void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+//	AE_LOG_T("width: {}, height: {}", width, height);
+//
+//	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+//
+//	window->framebufferWidth(window->width() * window->framebufferScale());
+//	window->framebufferHeight(window->height() * window->framebufferScale());
+//}
+//
+//void Window::glfwErrorCallback(int error, const char* description) {
+//	AE_LOG_E("error: {}, description: {}", error, description);
+//}
 
 /*********************************************************************************************
 	Static
@@ -269,7 +302,7 @@ static bool InitGLFW() {
 		AE_LOG_I("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must move to support multiple windows
-		glfwSetErrorCallback(Window::glfwErrorCallback);
+		glfwSetErrorCallback(GLFWErrorCallback);
 		
 		if (glfwInit()) {
 			AE_LOG_I("GLFW Initialized.");
@@ -400,5 +433,36 @@ static float ScreenScaleFactor(GLFWmonitor* monitor) {
 #endif
 	return 1.0;
 }
+
+void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->width(width);
+	window->height(height);
+}
+
+void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
+	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->close();
+}
+
+void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->framebufferWidth(window->width() * window->framebufferScale());
+	window->framebufferHeight(window->height() * window->framebufferScale());
+}
+
+void GLFWErrorCallback(int error, const char* description) {
+	AE_LOG_E("error: {}, description: {}", error, description);
+}
+
 
 #endif // DESKTOP

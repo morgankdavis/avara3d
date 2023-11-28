@@ -149,7 +149,7 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 			double xDelta = lastXPos - xPos;
 			double yDelta = lastYPos - yPos;
 
-			//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
+			//AE_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
 
 			inputManager->_mousePositionDelta.x -= xDelta;
 			inputManager->_mousePositionDelta.y += yDelta;
@@ -173,7 +173,6 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 										 int scancode,
 										 int action,
 										 int mods) {
-	//cout << "GLFWKeyCallback()" << endl;
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
@@ -245,13 +244,13 @@ void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	
-	glfwSetMouseButtonCallback(glfwWindow, NULL);
-	glfwSetCursorPosCallback(glfwWindow, NULL);
-	glfwSetScrollCallback(glfwWindow, NULL);
-	glfwSetKeyCallback(glfwWindow, NULL);
+	glfwSetMouseButtonCallback(glfwWindow, nullptr);
+	glfwSetCursorPosCallback(glfwWindow, nullptr);
+	glfwSetScrollCallback(glfwWindow, nullptr);
+	glfwSetKeyCallback(glfwWindow, nullptr);
 
 	// TODO: refactor
-	glfwSetCursorPosCallback(glfwWindow, NULL);
+	glfwSetCursorPosCallback(glfwWindow, nullptr);
 }
 
 /*********************************************************************************************

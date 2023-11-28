@@ -309,7 +309,7 @@ int Example::run(const vector<string>& args) {
 //		}
 //	}
 
-	window->display();
+	window->open();
 	_scene->run();
 	
 	return 0;
@@ -354,7 +354,8 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		window->setShouldClose();
+		//window->setShouldClose();
+		scene.stop();
 	}
 	
 	if (keysPressed.count(KEY::T)) {

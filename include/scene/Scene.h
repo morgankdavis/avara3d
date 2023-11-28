@@ -87,6 +87,9 @@ namespace ae {
 		const Stats&							stats() const;
 
 		void									run();
+		void									stop();
+
+		bool									isRunning() const;
 
 		UpdateCallback 							update() const;
 		void 									update(UpdateCallback function);
@@ -103,6 +106,7 @@ namespace ae {
 		std::shared_ptr<InputManager>			_inputManager;
 		DEBUG_OPTIONS							_debugOptions;
 		Stats									_stats;
+		bool									_isRunning;
 		UpdateCallback							_update;
 	};
 }
