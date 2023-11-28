@@ -134,17 +134,17 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 													double xPos,
 													double yPos) {
-	// ignoring in favor of ManyMouse
-
-	//AE_LOG_D("GLFWCursorPositionCallback(): ({}, {})", xPos, yPos);
+	//AE_LOG_D("xPos: {}, yPos: {}", xPos, yPos);
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
+	// keep "lastPos" outside cursorCaptured() check to keep it from
+	// jumping when re-capturing the cursor
+	static double lastXPos = xPos;
+	static double lastYPos = yPos;
+
 	if (auto window = inputManager->_window.lock()) {
 		if (window->cursorCaptured()) {
-
-			static double lastXPos = xPos;
-			static double lastYPos = yPos;
 
 			double xDelta = lastXPos - xPos;
 			double yDelta = lastYPos - yPos;
@@ -153,11 +153,11 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 
 			inputManager->_mousePositionDelta.x -= xDelta;
 			inputManager->_mousePositionDelta.y += yDelta;
-
-			lastXPos = xPos;
-			lastYPos = yPos;
 		}
 	}
+
+	lastXPos = xPos;
+	lastYPos = yPos;
 }
 
 void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
