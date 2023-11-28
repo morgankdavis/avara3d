@@ -728,13 +728,13 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 												 (btScalar)extent.z/2.0f));
 	}
 	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... " \
+		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
-		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
-												 (btScalar)box->height()/2.0f,
-												 (btScalar)box->length()/2.0f));
+		return make_shared<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
+												 (btScalar)box->width()/2.0f,
+												 (btScalar)box->height()/2.0f));
 	}
 	else if (auto capsule = dynamic_cast<Capsule*>(geometry.get())) {
 		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \

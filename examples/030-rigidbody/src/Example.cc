@@ -32,7 +32,7 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/90.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
 constexpr bool					DARK =					true;
 
@@ -146,7 +146,7 @@ int Example::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
+		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, .25));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	//gridImage->writePNG("thing.png");
 	//auto gridImage = ImageNamed("grid10_512");
@@ -869,8 +869,10 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 		auto node = canNode;
 
 		node->position(location);
-		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
-														   fileCanNode->geometry());
+//		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
+//														   fileCanNode->geometry());
+		static auto canExtent = canNode->extent();
+		static auto physicsShape = make_shared<CylinderPhysicsShape>(canExtent.x/2.0, canExtent.y);
 		auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 //		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F
@@ -1034,7 +1036,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 	physicsBody->friction(0.25);
 
 	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX,
-												  node->geometry());
+														 node->geometry());
 	physicsBody->shape(physicsShape);
 	
 	node->physicsBody(physicsBody);
