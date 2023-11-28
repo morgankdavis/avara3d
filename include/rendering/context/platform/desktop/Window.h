@@ -62,8 +62,6 @@ namespace ae {
 
 		bool 							cursorCaptured() const;
 		void 							cursorCaptured(bool captured);
-		
-		void 							setShouldClose();
 
 /*********************************************************************************************
 	RenderContext

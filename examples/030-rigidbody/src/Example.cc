@@ -63,7 +63,7 @@ static void SpawnChainMail(Scene& scene);
 
 int Example::run(const vector<string>& args) {
 
-	AE_INIT();
+	//AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "");
@@ -91,9 +91,9 @@ int Example::run(const vector<string>& args) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	_scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
-	_scene->update(bind(&Example::updateCallback, this, _1, _2));
-	_scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
 	
 //	auto renderContext = static_pointer_cast<RenderContext>(_window);
@@ -183,7 +183,7 @@ int Example::run(const vector<string>& args) {
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
 
-	_scene->rootNode()->addChild(planeNode);
+	scene->rootNode()->addChild(planeNode);
 
 
 
@@ -243,7 +243,7 @@ int Example::run(const vector<string>& args) {
 
 	_duckSpinnerNode = make_shared<Node>("duck spinner");
 	_duckSpinnerNode->addChild(_duckNode);
-	_scene->rootNode()->addChild(_duckSpinnerNode);
+	scene->rootNode()->addChild(_duckSpinnerNode);
 //
 //
 //
@@ -269,13 +269,13 @@ int Example::run(const vector<string>& args) {
 
 
 
-	if (_scene->visualWorld()) {
+	if (scene->visualWorld()) {
 		//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
 		//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
 		auto background = DARK
 						  ? make_shared<MaterialProperty>(Color::Black())
 						  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-		_scene->visualWorld()->background(background);
+		scene->visualWorld()->background(background);
 	}
 
 //	auto gridCube = make_shared<CubeImage>(ImageNamed("grid10", "png", false)->inverted());
@@ -290,7 +290,7 @@ int Example::run(const vector<string>& args) {
 						: make_shared<Color>(233, 218, 185); // sunset
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	_scene->rootNode()->addChild(ambientLightNode);
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointColor = DARK
 					  ? Color::DarkGray()
@@ -300,10 +300,10 @@ int Example::run(const vector<string>& args) {
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = Node::LightNode(pointLight);
 	//pointLightNode->geometry(make_shared<Sphere>(1.0, 16));
-	_scene->rootNode()->addChild(pointLightNode);
+	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position(vec3(35, 20, -35) * vec3(2.5, 2.5, 2.5));
 
-	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(_scene->rootNode()->extent()));
+	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
@@ -321,7 +321,7 @@ int Example::run(const vector<string>& args) {
 //	}
 
 	window->open();
-	_scene->run();
+	scene->run();
 	
 	return 0;
 }
@@ -343,7 +343,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	shared_ptr<Window> window = nullptr;
 	if (scene.visualWorld()) {
 		//renderContext = scene.visualWorld()->renderContext();
-		window = dynamic_pointer_cast<Window>(scene.visualWorld()->renderContext());
+		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
 	}
 
 	// rotate the duck
@@ -385,8 +385,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		//window->setShouldClose();
-		scene.stop();
+		window->close();
 	}
 	
 	if (keysPressed.count(KEY::T)) {
@@ -584,24 +583,15 @@ void Example::updateCallback(Scene& scene, float time) {
 		vec2 mousePositionDelta = inputManager->mousePositionDelta();
 		
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
-		
-		if (!_cameraNode) {
-			for (auto n : scene.rootNode()->children(false)) {
-				if (n->camera()) {
-					_cameraNode = n;
-					//_cameraNode->camera()->fov(M_PI);
-					break;
-				}
-			}
-		}
-		
-		if (_cameraNode) {
+
+		auto cameraNode = scene.visualWorld()->pointOfView();
+		if (cameraNode) {
 			
 			// look
 			
-			vec3 camForward = _cameraNode->worldForward();
-			vec3 camRight = _cameraNode->worldRight();
-			vec3 camUp = _cameraNode->worldUp();
+			vec3 camForward = cameraNode->worldForward();
+			vec3 camRight = cameraNode->worldRight();
+			vec3 camUp = cameraNode->worldUp();
 			
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -609,8 +599,8 @@ void Example::updateCallback(Scene& scene, float time) {
 			//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 			//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 			
-			vec3 angles = _cameraNode->eulerAngles();
-			_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = cameraNode->eulerAngles();
+			cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 			
 			// move
 			
@@ -627,20 +617,20 @@ void Example::updateCallback(Scene& scene, float time) {
 			
 			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::SPACE)) {
@@ -649,7 +639,7 @@ void Example::updateCallback(Scene& scene, float time) {
 						direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
-				_cameraNode->position(_cameraNode->position() + positionDelta * direction);
+				cameraNode->position(cameraNode->position() + positionDelta * direction);
 			}
 		}
 	}

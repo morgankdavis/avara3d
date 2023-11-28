@@ -26,16 +26,9 @@ namespace example {
 		
 		int run(const std::vector<std::string>& args);
 
-		void updateCallback(ae::RenderContext& renderContext, float time);
-		void willRenderCallback(ae::RenderContext& renderContext, float time);
-		void didRenderCallback(ae::RenderContext& renderContext, float time);
-		
-	private:
-
-		std::shared_ptr<ae::Logger>				_logger;
-		std::shared_ptr<ae::Window>				_window;
-		std::shared_ptr<ae::InputManager>		_inputManager;
-		std::shared_ptr<ae::Node>				_cameraNode;
+		void updateCallback(ae::Scene& scene, float time);
+		void willRenderCallback(ae::VisualWorld& world, float time);
+		void didRenderCallback(ae::VisualWorld& world, float time);
 	};
 }
 

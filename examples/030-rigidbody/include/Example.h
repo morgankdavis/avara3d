@@ -35,11 +35,6 @@ namespace example {
 
 		std::shared_ptr<ae::Logger>			_logger;
 
-		std::shared_ptr<ae::Scene>			_scene;
-//		std::shared_ptr<ae::Window>			_window;
-//		std::shared_ptr<ae::InputManager>	_inputManager;
-		std::shared_ptr<ae::Node>			_cameraNode;
-
 		std::shared_ptr<ae::Node>			_palmNode;
 		std::shared_ptr<ae::Node>			_duckSpinnerNode;
 		std::shared_ptr<ae::Node>			_duckNode;

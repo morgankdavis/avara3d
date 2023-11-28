@@ -45,28 +45,38 @@ static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
  ***************************************************************************************/
 
 int Example::run(const vector<string>& args) {
-	AE_INIT();
+
+	//AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	_logger->level(LOG_LEVEL::TRACE_);
 	Logger::MainLogger()->level(LOG_LEVEL::TRACE_);
 	
-	LOG_I(_logger, "Example::run()");
+	LOG_I(_logger, "");
 
-	_window = make_shared<Window>(FULLSCREEN,
-								  WINDOW_WIDTH, WINDOW_HEIGHT,
-								  USE_HIGH_DPI,
-								  ANTIALIAS_MODE,
-								  RENDER_API::OPENGL);
-	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	_window->enableVSync(ENABLE_VSYNC);
-	_window->cursorCaptured(CAPTURE_CURSOR);
-	_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
+									  USE_HIGH_DPI,
+									  ANTIALIAS_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
+	auto visualWorld = make_shared<VisualWorld>(window);
+	visualWorld->fogStartDistance(500.0);
+	visualWorld->fogEndDistance(5000.0);
+	visualWorld->fogDensityExponent(1.0);
+	visualWorld->fogColor(Color::LightGray());
+	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png")));
+
+	auto inputManager = make_shared<WindowInputManager>(window);
+
+	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
+	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -120,11 +130,6 @@ int Example::run(const vector<string>& args) {
 			}
 		}
 	}
-	
-	auto background = make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png"));
-//	auto background = make_shared<MaterialProperty>(Color::Navy());
-	scene->background(background);
-
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
@@ -178,17 +183,12 @@ int Example::run(const vector<string>& args) {
 //
 //		scene->rootNode()->addChild(lightNode);
 //	}
-	
-	
-	scene->fogStartDistance(500.0);
-	scene->fogEndDistance(5000.0);
-	scene->fogDensityExponent(1.0);
-	scene->fogColor(Color::LightGray());
-	
 
-	_window->scene(scene);
-	_inputManager = _window->inputManager();
-	_window->display();
+
+
+
+	window->open();
+	scene->run();
 	
 	return 0;
 }
@@ -197,42 +197,37 @@ int Example::run(const vector<string>& args) {
 	RenderContext Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(RenderContext& renderContext, float time) {
+
+void Example::updateCallback(Scene& scene, float time) {
+	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	if (!_cameraNode) {
-		for (auto n : renderContext.scene()->rootNode()->children(false)) {
-			if (n->camera()) {
-				_cameraNode = n;
-				break;
-			}
-		}
-	}
-	
+	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+
 	// get input
 	
-	auto keysPressed = _inputManager->keysPressed();
+	auto keysPressed = scene.inputManager()->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		_window->setShouldClose();
+		window->close();
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 	
-	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, *(renderContext.scene()));
+	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, scene);
+	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, scene);
+	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, scene);
+	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, scene);
+	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
+	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
 	
-	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, *(renderContext.scene()));
-	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, *(renderContext.scene()));
+	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
 	
 	if 		(keysPressed.count(KEY::F10)) 	_ambientLightNode->light()->color(make_shared<Color>(0.1f, 0.1, 0.1, 1.0));
 	else if (keysPressed.count(KEY::F11)) 	_ambientLightNode->light()->color(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
@@ -243,49 +238,49 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	else if (keysPressed.count(KEY::F3)) 	_pointLightNode->light()->attenuationFactor(0.00005);
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 	
 	if (keysPressed.count(KEY::V)) {
-		_window->enableVSync(!(_window->vSyncEnabled()));
+		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
-		SaveSnapshot(*_window);
+		SaveSnapshot(*window);
 	}
 	
 	if (keysPressed.count(KEY::R)) {
-		if (!_window->recordingGIF()) {
-			StartGIFRecording(*_window, 240, 8);
+		if (!window->recordingGIF()) {
+			StartGIFRecording(*window, 240, 8);
 		}
 		else {
-			StopGIFRecording(*_window);
+			StopGIFRecording(*window);
 		}
 	}
 	
 	if (keysPressed.count(KEY::SLASH)) {
-		_window->cursorCaptured(!(_window->cursorCaptured()));
+		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 	
 	if (keysPressed.count(KEY::U)) {
@@ -340,72 +335,69 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		_siameseNode->geometry(teapot->rootNode()->children(false)[1]->geometry());
 	}
 
-	if (_window->cursorCaptured()) {
+	if (window->cursorCaptured()) {
 		
-		vec2 mousePositionDelta = _inputManager->mousePositionDelta();
+		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 		
 		// move camera
-		
-		if (_cameraNode) {
+
+		auto pov = scene.visualWorld()->pointOfView();
+		if (pov) {
 
 			const static float mouseSensitivity = (1.0f / 0.5f);
 
-			vec2 mouseScrollWheelDelta = _inputManager->mouseScrollWheelDelta();
+			vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 				AE_LOG_I("mouseScrollWheelDelta");
 				static float FOV_SPEED = 2.5; // degrees/roll
-				if (_cameraNode) {
-					AE_LOG_I("_cameraNode");
-					shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(camera);
-					auto fov = camera->fov();
-					AE_LOG_I("oldFOV: {}", fov);
-					fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-					AE_LOG_I("newFOV: {}", fov);
-					camera->fov(fov);
-				}
+
+				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(camera);
+				auto fov = camera->fov();
+				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
+				camera->fov(fov);
 			}
 
 			//cout << "Camera distance: " << length(_cameraNode->position()) << endl;
 			
 			// look
 			
-			vec3 camForward = _cameraNode->worldForward();
-			vec3 camRight = _cameraNode->worldRight();
-			vec3 camUp = _cameraNode->worldUp();
+			vec3 camForward = pov->worldForward();
+			vec3 camRight = pov->worldRight();
+			vec3 camUp = pov->worldUp();
 			
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 			
-			vec3 angles = _cameraNode->eulerAngles();
-			_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = pov->eulerAngles();
+			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 			
 			// move
 			
-			auto keysDown = _inputManager->keysDown();
+			auto keysDown = scene.inputManager()->keysDown();
 
-			static float MOVE_SPEED = Max(renderContext.scene()->rootNode()->extent());
+			static float MOVE_SPEED = Max(scene.rootNode()->extent());
 			
 			if(keysDown.count(KEY::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(KEY::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			
 			if(keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(KEY::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			
 			if(keysDown.count(KEY::SPACE)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 		}
 	}
@@ -430,12 +422,12 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 }
 
-void Example::willRenderCallback(RenderContext& renderContext, float time) {
-
+void Example::willRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(RenderContext& renderContext, float time) {
-
+void Example::didRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -443,7 +435,7 @@ void Example::didRenderCallback(RenderContext& renderContext, float time) {
  ***************************************************************************************/
 
 void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
-	
+
 	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
 	
 	for (auto node : scene.rootNode()->children(true)) {

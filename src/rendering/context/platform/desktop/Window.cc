@@ -209,10 +209,6 @@ void Window::cursorCaptured(bool captured) {
 	glfwSetInputMode(_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
-void Window::setShouldClose() {
-	glfwSetWindowShouldClose(_glfwWindow, true);
-}
-
 /*********************************************************************************************
 	RenderContext
  *********************************************************************************************/

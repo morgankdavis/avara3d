@@ -38,11 +38,12 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
  ***************************************************************************************/
 
 int Example::run(const vector<string>& args) {
-	AE_INIT();
 
-	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	//AE_INIT();
+
+	auto logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	
-	LOG_I(_logger, "Example::run()");
+	LOG_I(logger, "");
 
 	
 //	auto nodeA = make_shared<Node>();
@@ -62,27 +63,33 @@ int Example::run(const vector<string>& args) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
 
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
+									  USE_HIGH_DPI,
+									  ANTIALIAS_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
 
+	auto visualWorld = make_shared<VisualWorld>(window);
+	visualWorld->fogStartDistance(500.0);
+	visualWorld->fogEndDistance(5000.0);
+	visualWorld->fogDensityExponent(1.0);
+	visualWorld->fogColor(Color::LightGray());
+	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("sky1", "png")));
 
-	_window = make_shared<Window>(FULLSCREEN,
-								  WINDOW_WIDTH, WINDOW_HEIGHT,
-								  USE_HIGH_DPI,
-								  ANTIALIAS_MODE,
-								  RENDER_API::OPENGL);
-	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	_window->enableVSync(ENABLE_VSYNC);
-	_window->cursorCaptured(CAPTURE_CURSOR);
+	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+
+	auto inputManager = make_shared<WindowInputManager>(window);
+
+	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
 	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);
-	_window->debugOptions(debugOptions);
-	
-
-	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
-	
+	scene->debugOptions(debugOptions);
+	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
 	auto teapotScene = SceneNamed("teapot");
 	auto teapotNode = teapotScene->rootNode()->child("teapot", true);
@@ -93,9 +100,9 @@ int Example::run(const vector<string>& args) {
 	auto dragonNode = dragonScene->rootNode()->child("g default", true);
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
+
 	scene->rootNode()->addChild(dragonNode);
-	
-	
+
 	// test exception
 	try {
 		scene->rootNode()->addChild(teapotNode);
@@ -105,10 +112,6 @@ int Example::run(const vector<string>& args) {
 //		LOG_E(_logger, e.what());
 		//logger->error(e.what());
 	}
-	
-
-	auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
-	scene->background(background);
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>("Ambient light");
@@ -131,16 +134,8 @@ int Example::run(const vector<string>& args) {
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
 
-
-	scene->fogStartDistance(500.0);
-	scene->fogEndDistance(5000.0);
-	scene->fogDensityExponent(1.0);
-	scene->fogColor(Color::LightGray());
-
-	
-	_window->scene(scene);
-	_inputManager = _window->inputManager();
-	_window->display();
+	window->open();
+	scene->run();
 	
 	return 0;
 }
@@ -149,92 +144,84 @@ int Example::run(const vector<string>& args) {
 	RenderContext Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(RenderContext& renderContext, float time) {
+void Example::updateCallback(Scene& scene, float time) {
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
-	
-	auto scene = renderContext.scene();
-	
+
+	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+
 	// get input
 	
-	auto keysPressed = _inputManager->keysPressed();
+	auto keysPressed = scene.inputManager()->keysPressed();
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		_window->setShouldClose();
+		window->close();
 	}
-	
+
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 
 	if (keysPressed.count(KEY::V)) {
-		_window->enableVSync(!(_window->vSyncEnabled()));
+		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
-		SaveSnapshot(*_window);
+		SaveSnapshot(*window);
 	}
 	
 	if (keysPressed.count(KEY::R)) {
-		if (!_window->recordingGIF()) {
-			StartGIFRecording(*_window, 240, 8);
+		if (!window->recordingGIF()) {
+			StartGIFRecording(*window, 240, 8);
 		}
 		else {
-			StopGIFRecording(*_window);
+			StopGIFRecording(*window);
 		}
 	}
 	
 	// mouselook
 	
-	vec2 mousePositionDelta = _inputManager->mousePositionDelta();
+	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 	
 	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 	
-	if (!_cameraNode) {
-		for (auto n : scene->rootNode()->children(false)) {
-			if (n->camera()) {
-				_cameraNode = n;
-				break;
-			}
-		}
-	}
-	
-	if (_cameraNode) {
+	auto pov = scene.visualWorld()->pointOfView();
+	if (pov) {
 		
 		// look
 		
-		vec3 camForward = _cameraNode->worldForward();
-		vec3 camRight = _cameraNode->worldRight();
-		vec3 camUp = _cameraNode->worldUp();
+		vec3 camForward = pov->worldForward();
+		vec3 camRight = pov->worldRight();
+		vec3 camUp = pov->worldUp();
 		
 		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -242,46 +229,45 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 //		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 //		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 		
-		vec3 angles = _cameraNode->eulerAngles();
-		_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+		vec3 angles = pov->eulerAngles();
+		pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 		
 		// move
 
-		static float MOVE_SPEED = Max(scene->rootNode()->extent());
+		static float MOVE_SPEED = Max(scene.rootNode()->extent());
 		
-		auto keysDown = _inputManager->keysDown();
+		auto keysDown = scene.inputManager()->keysDown();
 		
 		if(keysDown.count(KEY::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			_cameraNode->position(_cameraNode->position() + positionDelta);
+			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			_cameraNode->position(_cameraNode->position() + positionDelta);
+			pov->position(pov->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			_cameraNode->position(_cameraNode->position() + positionDelta);
+			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(KEY::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			_cameraNode->position(_cameraNode->position() + positionDelta);
+			pov->position(pov->position() + positionDelta);
 		}
 		
 		if(keysDown.count(KEY::SPACE)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			_cameraNode->position(_cameraNode->position() + positionDelta);
+			pov->position(pov->position() + positionDelta);
 		}
 	}
 }
+void Example::willRenderCallback(VisualWorld& world, float time) {
 
-void Example::willRenderCallback(RenderContext& renderContext, float time) {
-	
 }
 
-void Example::didRenderCallback(RenderContext& renderContext, float time) {
-	
+void Example::didRenderCallback(VisualWorld& world, float time) {
+
 }
 
 
