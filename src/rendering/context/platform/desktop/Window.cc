@@ -151,6 +151,8 @@ Window::Window(RENDER_API renderAPI,
 Window::~Window() {
 	AE_LOG_D("Destroying Window {:p}", (void*)this);
 
+	close(); // meh?
+
 	// TODO: must move to support multiple windows
 	glfwSetErrorCallback(NULL);
 	glfwTerminate();
@@ -184,6 +186,10 @@ void Window::open() {
 }
 
 void Window::close() {
+
+	if (_recordingGIF) {
+		stopGIFRecording();
+	}
 
 	if (_visualWorld && _visualWorld->scene()) {
 		auto scene = _visualWorld->scene();

@@ -127,7 +127,7 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 		for (auto node: _scene->rootNode()->children(true)) {
 			if (node->camera()) {
 				_pointOfView = node;
-				return _pointOfView;
+				break;
 			}
 		}
 	}

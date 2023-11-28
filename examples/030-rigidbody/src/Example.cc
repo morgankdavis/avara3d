@@ -89,7 +89,7 @@ int Example::run(const vector<string>& args) {
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window); // replace with RenderContext::DefaultInputManager()?
+	auto inputManager = make_shared<WindowInputManager>(window);
 
 	_scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
 	_scene->update(bind(&Example::updateCallback, this, _1, _2));

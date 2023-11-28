@@ -240,26 +240,6 @@ void Scene::run() {
 	do {
 		memset(&_stats, 0, sizeof(Stats));
 
-		// from Window::display()
-//	if (_scene.lock()) {
-//		glfwMakeContextCurrent(_glfwWindow);
-//
-//		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
-//		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
-//
-//		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
-//
-//		while (!glfwWindowShouldClose(_glfwWindow)) {
-//			update();
-//		}
-//
-//		stopGIFRecording();
-//	}
-//	else {
-//		throw Exception("Window has no scene.");
-//	}
-
-
 		const float t = time();
 
 		if (_update) {
@@ -272,14 +252,8 @@ void Scene::run() {
 		const auto framebufferHeight = renderContext->framebufferHeight();
 
 		auto pov = visualWorld()->pointOfView();
-		// ******* temporary
-		if (!pov) visualWorld()->pointOfView(visualWorld()->defaultPointOfView());
-		pov = visualWorld()->pointOfView();
-		// *****************
 		auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
 		static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-
-		//auto frameStats = &renderer->frameStats();
 
 		_stats.cameraPosition = pov->position(); // MOVE
 
