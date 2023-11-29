@@ -137,7 +137,6 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 													double xPos,
 													double yPos) {
-	//AE_LOG_D("xPos: {}, yPos: {}", xPos, yPos);
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
@@ -166,9 +165,11 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 												 double xOffset,
 												 double yOffset) {
-	// ignoring in favor of ManyMouse
 
-	// TODO: use GLFW if using GLFW for raw mouse
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
+	inputManager->_mouseScrollWheelDelta.y += (float)yOffset;
 }
 
 void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
@@ -240,6 +241,8 @@ void WindowInputManager::quitManyMouse() {
 void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 	glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::GLFWMouseButtonCallback);
+	// glfwSetCursorPosCallback -> in initMouseMotionInput()
+	glfwSetScrollCallback(glfwWindow, WindowInputManager::GLFWScrollWheelCallback);
 	glfwSetKeyCallback(glfwWindow, WindowInputManager::GLFWKeyCallback);
 
 	// TODO: probably re-factor key callback creation code
@@ -251,9 +254,6 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	glfwSetCursorPosCallback(glfwWindow, nullptr);
 	glfwSetScrollCallback(glfwWindow, nullptr);
 	glfwSetKeyCallback(glfwWindow, nullptr);
-
-	// TODO: refactor
-	glfwSetCursorPosCallback(glfwWindow, nullptr);
 }
 
 /*********************************************************************************************
