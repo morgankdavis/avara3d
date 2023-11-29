@@ -97,7 +97,12 @@ Node::Node(shared_ptr<Camera> camera):
 }
 
 Node::~Node() {
-	AE_LOG_D("Destroying Node {:p}", (void*)this);
+	if (_name != nullopt) {
+		AE_LOG_D("Destroying Node {}", *_name);
+	}
+	else {
+		AE_LOG_D("Destroying Node {:p}", (void*)this);
+	}
 }
 
 /*********************************************************************************************

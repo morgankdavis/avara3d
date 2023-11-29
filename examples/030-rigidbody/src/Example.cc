@@ -82,6 +82,10 @@ int Example::run(const vector<string>& args) {
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
+	auto background = DARK
+					  ? make_shared<MaterialProperty>(Color::Black())
+					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+	visualWorld->background(background);
 	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
 
@@ -95,23 +99,21 @@ int Example::run(const vector<string>& args) {
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
-	
-//	auto renderContext = static_pointer_cast<RenderContext>(_window);
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-//												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-//												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
-	
-//	auto renderContext = static_pointer_cast<RenderContext>(_window);
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
-	
-//	auto scene = make_shared<Scene>();
-//	scene->rootNode(make_shared<Node>("Root node"));
-	
-//	auto physicalWorld = make_shared<PhysicalWorld>();
-//	physicalWorld->timestep(PHYSICS_TIMESTEP);
-//	scene->physicalWorld(physicalWorld);
+	auto ambientColor = DARK
+						? Color::LightGray()
+						: make_shared<Color>(233, 218, 185); // sunset
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
+	auto ambientLightNode = Node::LightNode(ambientLight);
+	scene->rootNode()->addChild(ambientLightNode);
+
+	auto pointColor = DARK
+					  ? Color::LightGray()
+					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+	pointLight->attenuationFactor(0.0);
+	auto pointLightNode = Node::LightNode(pointLight);
+	pointLightNode->position(vec3(35, 20, -35) * vec3(2.5, 2.5, 2.5));
+	scene->rootNode()->addChild(pointLightNode);
 
 
 	// box
@@ -148,11 +150,7 @@ int Example::run(const vector<string>& args) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	//gridImage->writePNG("thing.png");
-	//auto gridImage = ImageNamed("grid10_512");
-	//auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	//auto specularMaterialProperty = make_shared<MaterialProperty>(Color::Gray());
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
 	planeMaterialProperty->maxAnisotropy(16);
@@ -186,31 +184,28 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(planeNode);
 
 
-
-
-
 	// add the palm tree
 
-//	auto palmScene = SceneNamed("palm2/palm2", "obj");
-//	_palmNode = palmScene->rootNode();
-//	_palmNode->name("Palm node");
-//	for (auto n : palmScene->rootNode()->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-//
-//	auto palmPhysicsBody = PhysicsBody::StaticBody();
-//	palmPhysicsBody->mass(0);
-//	palmPhysicsBody->friction(1);
-//	palmPhysicsBody->restitution(0.25);
-//	_palmNode->physicsBody(palmPhysicsBody);
-//
-//	scene->rootNode()->addChild(palmScene->rootNode());
-//
-//
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	_palmNode = palmScene->rootNode();
+	_palmNode->name("Palm node");
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
+
+
 	// add the duck
 
 	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
@@ -244,9 +239,9 @@ int Example::run(const vector<string>& args) {
 	_duckSpinnerNode = make_shared<Node>("duck spinner");
 	_duckSpinnerNode->addChild(_duckNode);
 	scene->rootNode()->addChild(_duckSpinnerNode);
-//
-//
-//
+
+
+
 //	// add the paddle
 //
 //	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
@@ -268,40 +263,6 @@ int Example::run(const vector<string>& args) {
 //	AddSlurms(*scene);
 
 
-
-	if (scene->visualWorld()) {
-		//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
-		//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
-		auto background = DARK
-						  ? make_shared<MaterialProperty>(Color::Black())
-						  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-		scene->visualWorld()->background(background);
-	}
-
-//	auto gridCube = make_shared<CubeImage>(ImageNamed("grid10", "png", false)->inverted());
-//	scene->background(make_shared<MaterialProperty>(gridCube));
-
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
-//	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)); // sunset
-	auto ambientColor = DARK
-						? Color::White()
-						: make_shared<Color>(233, 218, 185); // sunset
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
-
-	auto pointColor = DARK
-					  ? Color::DarkGray()
-					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
-	//pointLight->attenuationFactor(0.000000015);
-	pointLight->attenuationFactor(0.0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	//pointLightNode->geometry(make_shared<Sphere>(1.0, 16));
-	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position(vec3(35, 20, -35) * vec3(2.5, 2.5, 2.5));
 
 	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 
@@ -327,7 +288,7 @@ int Example::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
 void Example::updateCallback(Scene& scene, float time) {
@@ -356,22 +317,13 @@ void Example::updateCallback(Scene& scene, float time) {
 		_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
 
-
-
-
-
-	for (auto& c : scene.rootNode()->children(true)) {
-		if (c->geometry()) {
-			if (dynamic_pointer_cast<Cylinder>(c->geometry())) {
-				AE_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
-			}
-		}
-	}
-
-
-
-
-	
+//	for (auto& c : scene.rootNode()->children(true)) {
+//		if (c->geometry()) {
+//			if (dynamic_pointer_cast<Cylinder>(c->geometry())) {
+//				AE_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
+//			}
+//		}
+//	}
 
 	// get input
 	
@@ -391,8 +343,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::T)) {
 		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
-	
-	
+
 	// spawn duck fruit
 	
 	if (keysPressed.count(KEY::GRAVE_ACCENT)) {
@@ -645,15 +596,23 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 }
 
-void Example::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
-}
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
 
 void Example::willRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 void Example::didRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	PhysicalWorld Callbacks
+ ***************************************************************************************/
+
+void Example::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 

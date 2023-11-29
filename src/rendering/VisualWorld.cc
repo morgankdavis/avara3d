@@ -10,6 +10,7 @@
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
+#include "rendering/Light.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/context/RenderContext.h"
 #include "rendering/materials/MaterialProperty.h"
@@ -42,6 +43,7 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 		_fogDensityExponent(0.0),
 		_fogColor(nullptr),
 		_pointOfView(nullptr),
+		_automaticallyAddDefaultLighting(true),
 		_renderContext(context),
 		_scene(nullptr),
 		_willRender(nullptr),
@@ -117,6 +119,14 @@ void VisualWorld::fogColor(shared_ptr<Color> color) {
 	_fogColor = color;
 }
 
+bool VisualWorld::automaticallyAddDefaultLighting() const {
+	return _automaticallyAddDefaultLighting;
+}
+
+void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
+	_automaticallyAddDefaultLighting = enabled;
+}
+
 shared_ptr<Node> VisualWorld::pointOfView() {
 
 	if (_pointOfView) {
@@ -173,6 +183,38 @@ void VisualWorld::didRender(DidRenderCallback function) {
 
 void VisualWorld::attachedToScene(Scene* scene) {
 	_scene = scene;
+}
+
+void VisualWorld::checkAddDefaultLighting() {
+
+	if (_automaticallyAddDefaultLighting && _scene) {
+
+		bool hasLights = false;
+
+		for (auto node : _scene->rootNode()->children(true)) {
+			if (!node->hidden()) {
+				if (node->light()) {
+					hasLights = true;
+					break;
+				}
+			}
+		}
+
+		if (!hasLights) {
+			AE_LOG_I("Adding default lighting.");
+
+			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
+			_scene->rootNode()->addChild(ambientNode);
+
+			auto pointNode = Node::LightNode(Light::DefaultPoint());
+			// set position based on scene extent...
+			auto sceneExtent = _scene->rootNode()->extent();
+			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
+								 sceneExtent.y + sceneExtent.y/4.0,
+								 sceneExtent.z + sceneExtent.z/4.0});
+			_scene->rootNode()->addChild(pointNode);
+		}
+	}
 }
 
 shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {

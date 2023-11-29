@@ -12,7 +12,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-//#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 #include "utilities/Utilities.h"
@@ -42,7 +41,7 @@ constexpr bool					CAPTURE_CURSOR =		false;
 int Example::run(const vector<string>& args) {
 	cout << "Example::run()\n" << endl;
 
-	AE_INIT();
+	//AE_INIT();
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
@@ -60,7 +59,6 @@ int Example::run(const vector<string>& args) {
 	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
 
-
 	auto scene = make_shared<Scene>();
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&Example::updateCallback, this, _1, _2));
@@ -69,21 +67,6 @@ int Example::run(const vector<string>& args) {
 	_importRoot = testScene->rootNode();
 	scene->rootNode()->addChild(_importRoot);
 
-	
-	// ******** make everything look like it did before materials worked ********
-	
-	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
-	
-	for (auto n : scene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			n->geometry()->replaceMaterial(0, material);
-		}
-	}
-
-	// **************************************************************************
-
 	window->open();
 	scene->run();
 	
@@ -91,7 +74,7 @@ int Example::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
 void Example::updateCallback(Scene& scene, float time) {
@@ -106,6 +89,10 @@ void Example::updateCallback(Scene& scene, float time) {
 								  radians(rotationDeg),
 								  vec3(0.0f, 1.0f, 0.0f)));
 }
+
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
 
 void Example::willRenderCallback(VisualWorld& world, float time) {
 

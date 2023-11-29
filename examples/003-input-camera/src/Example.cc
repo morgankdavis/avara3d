@@ -63,22 +63,6 @@ int Example::run(const vector<string>& args) {
 	scene->inputManager(inputManager);
 	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
-	
-	// ******** make everything look like it did before materials worked ********
-	
-	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
-	
-	for (auto n : scene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			n->geometry()->replaceMaterial(0, material);
-		}
-	}
-
-	// **************************************************************************
-
-
 	window->open();
 	scene->run();
 	
@@ -86,7 +70,7 @@ int Example::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
 void Example::updateCallback(Scene& scene, float time) {
@@ -189,8 +173,11 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 }
 
-void Example::willRenderCallback(VisualWorld& world, float time) {
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
 
+void Example::willRenderCallback(VisualWorld& world, float time) {
 }
 
 void Example::didRenderCallback(VisualWorld& world, float time) {

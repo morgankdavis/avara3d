@@ -118,7 +118,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -1314,7 +1314,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats) {
 	
 	// program "Default" must be active
 	
@@ -1324,12 +1324,11 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	shared_ptr<Node> ambientLightNode = nullptr;
 	
 	// find all lights in the scene
-	for (auto node: scene.rootNode()->children(true)) {
+	for (auto node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
-			auto light = node->light();
-			if (light != nullptr) {
+			if (auto light = node->light()) {
 				if (light->type() == LIGHT_TYPE::POINT) {
-					lights.emplace_back(node);
+					lights.push_back(node);
 				}
 				else if (light->type() == LIGHT_TYPE::AMBIENT) {
 					ambientLightNode = node;
@@ -1339,61 +1338,62 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	}
 	
 	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
-		
+
 		// find all light distances from the camera
-		
+
 		auto lightsUnsorted = map<shared_ptr<Node>, float>();
 		vec3 cameraPos_world = scene.visualWorld()->pointOfView()->worldPosition();
-		for (auto lightNode: lights) {
+		for (auto lightNode : lights) {
 			auto lightPos_world = lightNode->worldPosition();
 			auto lightToCamera = lightPos_world - cameraPos_world;
 			auto lightToCameraDistance = length(lightToCamera);
 			lightsUnsorted[lightNode] = lightToCameraDistance;
 		}
-		
+
 		lights = SortedLights(lightsUnsorted);
-		
+
 		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
-		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
-		vector<shared_ptr<Node>> lightsSlice(first, last);
-		
+		auto first = lights.begin() + 0;
+		auto last = lights.begin() + endIndex;
+		auto lightsSlice = vector<shared_ptr<Node>>(first, last);
+
 		lights = lightsSlice;
 	}
-	
+
 	// check for default lighting
-	
-	if (lights.size() == 0) {
-//		auto detaultPoint = Light::PointNode();
-		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
-		// set position based on scene extent...
-		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
-		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-			sceneExtent.y + sceneExtent.y/4.0,
-			sceneExtent.z + sceneExtent.z/4.0});
-		lights.emplace_back(detaultPointNode);
-	}
-	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
-	
-	lights.emplace_back(ambientLightNode);
-	
+	// * moved to VisualWorld::checkAddDefaultLighting() *
+
+//	if (lights.size() == 0) {
+////		auto detaultPoint = Light::PointNode();
+//		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
+//		// set position based on scene extent...
+//		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
+//		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
+//			sceneExtent.y + sceneExtent.y/4.0,
+//			sceneExtent.z + sceneExtent.z/4.0});
+//		lights.emplace_back(detaultPointNode);
+//	}
+//	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
+
+	lights.push_back(ambientLightNode);
+
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
-	
+
 	stats.lights = numLights;// - 1; // not counting ambient
-	
+
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
 		auto light = node->light();
-		
+
 		lightStruct[l].type = (unsigned)(light->type());
 		lightStruct[l].position_world = node->worldPosition();
 		lightStruct[l].attenuationFactor = light->attenuationFactor();
-		
+
 		auto color = *light->color();
 		lightStruct[l].color = vec3(color.r, color.g, color.b);
 	}
-	
+
 	// fog
 
 	auto visualWorld = scene.visualWorld();
@@ -1408,9 +1408,9 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 														fogColor->b,
 														fogColor->a);
 	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
-	
+
 	// block
-	
+
 	typedef struct {
 		int32_t 			numLights;
 		float32_t 			PADDING1;
@@ -1419,12 +1419,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
 		FogGLSLStruct		fog;
 	} EnvironmentBlock;
-	
+
 	EnvironmentBlock environmentBlock;
 	environmentBlock.numLights = numLights;
 	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
 	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
-	
+
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }

@@ -31,7 +31,6 @@
 #include "rendering/Renderer.h"
 #include "rendering/VisualWorld.h"
 #include "rendering/context/RenderContext.h"
-#include "rendering/context/platform/desktop/Window.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/materials/Material.h"
 #include "rendering/materials/MaterialProperty.h"
@@ -98,7 +97,6 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
 #ifndef ANDROID
 shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
 	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
 	LoadFile(*scene, path);
 	return scene;
 }
@@ -241,6 +239,10 @@ void Scene::run() {
 	if (_physicalWorld
 		&& _physicalWorld->simulator()) {
 		physicsSimulator = _physicalWorld->simulator();
+	}
+
+	if (_visualWorld) {
+		_visualWorld->checkAddDefaultLighting();
 	}
 
 	do {

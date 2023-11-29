@@ -27,9 +27,9 @@ namespace example {
 		int run(const std::vector<std::string>& args);
 
 		void updateCallback(ae::Scene& scene, float time);
-		void didSimulatePhysicsCallback(ae::PhysicalWorld& world, float time);
 		void willRenderCallback(ae::VisualWorld& world, float time);
 		void didRenderCallback(ae::VisualWorld& world, float time);
+		void didSimulatePhysicsCallback(ae::PhysicalWorld& world, float time);
 		
 	private:
 

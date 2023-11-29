@@ -49,8 +49,8 @@ int Example::run(const vector<string>& args) {
 	//AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	_logger->level(LOG_LEVEL::TRACE_);
-	Logger::MainLogger()->level(LOG_LEVEL::TRACE_);
+	_logger->level(LOG_LEVEL::DEBUG_);
+	Logger::MainLogger()->level(LOG_LEVEL::DEBUG_);
 	
 	LOG_I(_logger, "");
 
@@ -77,6 +77,28 @@ int Example::run(const vector<string>& args) {
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	scene->update(bind(&Example::updateCallback, this, _1, _2));
+
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	ambientLight->name("ambient");
+	auto ambientLightNode = Node::LightNode(ambientLight);
+	_ambientLightNode = ambientLightNode;
+	scene->rootNode()->addChild(ambientLightNode);
+
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	pointLight->name("point");
+	pointLight->attenuationFactor(0.00005);
+	auto pointLightNode = Node::LightNode(pointLight);
+	pointLightNode->position(vec3(50.0, 50.0, 50.0));
+	scene->rootNode()->addChild(pointLightNode);
+	pointLightNode->position(vec3(0.0, 0.0, 0.0));
+	_pointLightNode = pointLightNode;
+	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto material = make_shared<Material>();
+	material->name("LIGHT material");
+	material->emissive(materialProperty);
+	auto geometry = make_shared<Sphere>(3.5, 16);
+	geometry->addMaterial(material);
+	pointLightNode->geometry(geometry);
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -131,61 +153,31 @@ int Example::run(const vector<string>& args) {
 		}
 	}
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
-	ambientLight->name("ambient");
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	_ambientLightNode = ambientLightNode;
-	scene->rootNode()->addChild(ambientLightNode);
+	// random lights
+	const int NUM_RANDOM_LIGHTS = 100;
+	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
+		auto light = make_shared<Light>(LIGHT_TYPE::POINT);
+		light->attenuationFactor(0.0001);
+		auto lightNode = Node::LightNode(light);
+		int randX = Uniform(-150, 150);
+		int randY = Uniform(-150, 150);
+		int randZ = Uniform(-150, 150);
+		lightNode->position(vec3(randX, randY, randZ));
+		auto color = Color::Random();
+		light->color(color);
+		cout << "Adding random light with position: "
+		<< lightNode->position()<< ", color: " << *light->color() << endl;
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
-	pointLight->name("point");
-	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(50.0, 50.0, 50.0));
-	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	_pointLightNode = pointLightNode;
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
-	
-	
-//	// random lights
-//	const int NUM_RANDOM_LIGHTS = 100;
-//	auto colors = Color::Rainbow();
-//	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-//		auto light = make_shared<Light>(LIGHT_TYPE::POINT);
-//		light->attenuationFactor(0.0001);
-//		//auto lightNode = make_shared<Node>(light);
-////		auto lightNode = make_shared<Node>("Light");
-////		lightNode->light(light);
-//		auto lightNode = Node::LightNode(light);
-//		int randX = Random(-150, 150);
-//		int randY = Random(-150, 150);
-//		int randZ = Random(-150, 150);
-//		lightNode->position(vec3(randX, randY, randZ));
-//		auto color = colors[Random(4, colors.size()-1-4)];
-//		light->color(color);
-//		cout << "Adding random light with position: "
-//		<< lightNode->position()<< ", color: " << *light->color() << endl;
-//
-//		auto geometry = make_shared<Sphere>(3.5, 16);
-//
-//		auto materialProperty = make_shared<MaterialProperty>(color);
-//		auto material = make_shared<Material>();
-//		material->emissive(materialProperty);
-//		geometry->addMaterial(material);
-//		lightNode->geometry(geometry);
-//
-//		scene->rootNode()->addChild(lightNode);
-//	}
+		auto geometry = make_shared<Sphere>(3.5, 16);
 
+		auto materialProperty = make_shared<MaterialProperty>(color);
+		auto material = make_shared<Material>();
+		material->emissive(materialProperty);
+		geometry->addMaterial(material);
+		lightNode->geometry(geometry);
 
-
+		scene->rootNode()->addChild(lightNode);
+	}
 
 	window->open();
 	scene->run();
@@ -194,9 +186,8 @@ int Example::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
-
 
 void Example::updateCallback(Scene& scene, float time) {
 	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
@@ -421,6 +412,10 @@ void Example::updateCallback(Scene& scene, float time) {
 		_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
+
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
 
 void Example::willRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);

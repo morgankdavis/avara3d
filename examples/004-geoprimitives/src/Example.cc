@@ -74,7 +74,6 @@ int Example::run(const vector<string>& args) {
 	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
-
 	auto boxGeo = make_shared<Box>(3.0f, 2.0f, 1.0f);
 	auto boxNode = make_shared<Node>();
 	boxGeo->name("box");
@@ -83,15 +82,13 @@ int Example::run(const vector<string>& args) {
 	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
 
-
 	auto sphereGeo = make_shared<Sphere>(0.5, 24);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
 	sphereNode->geometry(sphereGeo);
 	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
-	
-	
+
 	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
 	auto torusNode = make_shared<Node>();
 	torusGeo->name("torus");
@@ -99,8 +96,7 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(torusNode);
 	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
-	
-	
+
 	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 2.0f, 128, 64);
 	auto tubeNode = make_shared<Node>();
 	tubeGeo->name("tube");
@@ -108,8 +104,7 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(tubeNode);
 	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
-	
-	
+
 	auto capsuleGeo = make_shared<Capsule>(0.5f, 1.0f, 128, 32, 64);
 	auto capsuleNode = make_shared<Node>();
 	capsuleGeo->name("capsule");
@@ -117,8 +112,7 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(capsuleNode);
 	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
-	
-	
+
 	auto cylinderGeo = make_shared<Cylinder>(0.5f, 2.0f, 128, 64);
 	auto cylinderNode = make_shared<Node>();
 	cylinderGeo->name("cylinder");
@@ -126,8 +120,7 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(cylinderNode);
 	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
-	
-	
+
 	auto coneGeo = make_shared<Cone>(1.0, 2.0f, 128, 64);
 	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
@@ -136,23 +129,6 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(coneNode);
 	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
-	
-
-	// ******** make everything look like it did before materials worked ********
-	
-	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
-	material->doubleSided(true);
-	
-	for (auto n : scene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			n->geometry()->replaceMaterial(0, material);
-		}
-	}
-	
-	// **************************************************************************
-
 
 	window->open();
 	scene->run();
@@ -161,7 +137,7 @@ int Example::run(const vector<string>& args) {
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
 void Example::updateCallback(Scene& scene, float time) {
@@ -273,6 +249,10 @@ void Example::updateCallback(Scene& scene, float time) {
 		}
 	}
 }
+
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
 
 void Example::willRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
