@@ -338,14 +338,14 @@ void Example::updateCallback(Scene& scene, float time) {
 		auto pov = scene.visualWorld()->pointOfView();
 		if (pov) {
 
-			const static float mouseSensitivity = (1.0f / 0.5f);
+			static const float mouseSensitivity = (1.0f / 0.5f);
 
 			vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
-				AE_LOG_I("mouseScrollWheelDelta");
-				static float FOV_SPEED = 2.5; // degrees/roll
 
-				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(camera);
+				static const float FOV_SPEED = 2.5; // degrees/roll
+
+				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(pov->camera());
 				auto fov = camera->fov();
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
 				camera->fov(fov);
