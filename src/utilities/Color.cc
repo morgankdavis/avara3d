@@ -128,42 +128,37 @@ shared_ptr<Color> Color::Random() {
  *********************************************************************************************/
 
 Color::Color():
-	r(0.0),
-	g(0.0),
-	b(0.0),
-	a(1.0) {
-		
-}
+		r(0.0),
+		g(0.0),
+		b(0.0),
+		a(1.0) { }
 
 Color::Color(float r, float g, float b):
-	Color(r, g, b, 1.0) {
-
-}
+		Color(r, g, b, 1.0) { }
 
 Color::Color(float r, float g, float b, float a):
-	r(r),
-	g(g),
-	b(b),
-	a(a) {
-}
+		r(r),
+		g(g),
+		b(b),
+		a(a) { }
 
 Color::Color(int r, int g, int b):
-		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, 1.0) {
-
-}
+		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, 1.0) { }
 
 Color::Color(int r, int g, int b, int a):
-		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, (float)a/255.0f) {
-
-}
+		Color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, (float)a/255.0f) { }
 
 Color::Color(float black):
-	r(black),
-	g(black),
-	b(black),
-	a(1.0) {
-	
-}
+		r(black),
+		g(black),
+		b(black),
+		a(1.0) { }
+
+Color::Color(uint32_t color):
+		r((float)((color & 0xFF000000) >> 24)/255.0f),
+		g((float)((color & 0x00FF0000) >> 16)/255.0f),
+		b((float)((color & 0x0000FF00) >> 8)/255.0f),
+		a((float)((color & 0x000000FF) >> 0)/255.0f) { }
 
 //Color::Color(const Color& color) {
 //	r = color.r;

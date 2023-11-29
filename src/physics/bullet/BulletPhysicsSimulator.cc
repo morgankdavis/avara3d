@@ -32,7 +32,7 @@
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicsBodyResources.h"
 #include "physics/PhysicsShape.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletBodyResources.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletShapeResources.h"
@@ -85,7 +85,6 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 
 static shared_ptr<btCompoundShape>
 BTShapeFromGeometry(shared_ptr<Geometry> geometry,
-					//shared_ptr<Node> node,
 					PHYSICS_SHAPE_TYPE shapeType,
 					PHYSICS_BODY_TYPE bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -178,6 +177,10 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 	PhysicsSimulator
  *********************************************************************************************/
 
+//PHYSICS_SIMULATION_ENGINE BulletPhysicsSimulator::simulationEngine() const {
+//	return PHYSICS_SIMULATION_ENGINE::BULLET;
+//}
+
 void BulletPhysicsSimulator::beginUpdate(const Scene& scene) {
 	PhysicsSimulator::beginUpdate(scene);
 }
@@ -189,7 +192,7 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 void BulletPhysicsSimulator::update(Scene& scene) {
 	PhysicsSimulator::update(scene);
 
-	auto world = scene.physicsWorld();
+	auto world = scene.physicalWorld();
 
 	if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
 		_timestep = world->timestep();
@@ -276,30 +279,6 @@ void BulletPhysicsSimulator::update(PhysicsBody& body,
 		}
 		else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
 			btShape->calculateLocalInertia(mass, localInertia);
-
-//			if (auto compoundShape = dynamic_pointer_cast<btCompoundShape>(btShape)) {
-//				for (int c=0; c<compoundShape->getNumChildShapes(); ++c) {
-//					auto child = compoundShape->getChildShape(c);
-//					child->calculateLocalInertia(mass, localInertia);
-//
-//					if (auto childCompoundShape = dynamic_cast<btCompoundShape*>(child)) {
-//						childCompoundShape->recalculateLocalAabb();
-//						childCompoundShape->createAabbTreeFromChildren();
-//						childCompoundShape->calculateLocalInertia(mass, localInertia);
-//
-//						for (int c2=0; c2<childCompoundShape->getNumChildShapes(); ++c2) {
-//							auto child2 = childCompoundShape->getChildShape(c2);
-//							child2->calculateLocalInertia(mass, localInertia);
-//
-//							if (auto childCompoundShape3 = dynamic_cast<btCompoundShape *>(child2)) {
-//								childCompoundShape3->recalculateLocalAabb();
-//								childCompoundShape3->createAabbTreeFromChildren();
-//								childCompoundShape3->calculateLocalInertia(mass, localInertia);
-//							}
-//						}
-//					}
-//				}
-//			}
 		}
 
 		auto newMotionState = make_shared<btDefaultMotionState>(transform);
@@ -749,13 +728,13 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 												 (btScalar)extent.z/2.0f));
 	}
 	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
-		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... " \
+		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
 
-		return make_shared<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
-												 (btScalar)box->height()/2.0f,
-												 (btScalar)box->length()/2.0f));
+		return make_shared<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
+												 (btScalar)box->width()/2.0f,
+												 (btScalar)box->height()/2.0f));
 	}
 	else if (auto capsule = dynamic_cast<Capsule*>(geometry.get())) {
 		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
@@ -818,7 +797,6 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 
 shared_ptr<btCompoundShape>
 BTShapeFromGeometry(shared_ptr<Geometry> geometry,
-//					shared_ptr<Node> node,
 					PHYSICS_SHAPE_TYPE shapeType,
 					PHYSICS_BODY_TYPE bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -886,51 +864,6 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 							  btIndexVertexArrays);
 	}
 }
-
-//void AddBTShapeFromNodeRec(shared_ptr<Node> node,
-//						   PHYSICS_SHAPE_TYPE shapeType,
-//						   PHYSICS_BODY_TYPE bodyType,
-//						   shared_ptr<btCompoundShape> compoundShape,
-//						   vector<shared_ptr<btCollisionShape>>& btShapes,
-//						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
-//
-//	//auto compoundShape = make_shared<btCompoundShape>(true);
-//
-//	auto geometry = node->geometry();
-//	if (geometry) {
-//		for (auto& element : node->geometry()->elements()) {
-//			auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-//			auto componentShape = BTShapeFromGeometryElement(element,
-//															 geometry,
-//															 shapeType,
-//															 bodyType,
-//															 btShapes,
-//															 indexVertexArray);
-//
-//			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
-//			//compoundShape->addChildShape(localTransform, componentShape.get());
-//			//compoundShape->addChildShape(BTIdentityTransform(), componentShape.get());
-//			//auto localTransform = BTTransformFromGLMMat4(node->transform() * node->parent().lock()->transform());
-//			auto localTransform = BTTransformFromGLMMat4(node->transform());
-//			//auto localTransform = BTIdentityTransform();
-//			compoundShape->addChildShape(localTransform, componentShape.get());
-//
-//			btShapes.push_back(componentShape);
-//			btIndexVertexArrays.push_back(indexVertexArray);
-//		}
-//	}
-//
-//	// add child geometries recursively
-//	auto children = node->children(false);
-//	for (auto& childNode : children) {
-//		AddBTShapeFromNodeRec(childNode,
-//							  shapeType,
-//							  bodyType,
-//							  compoundShape,
-//							  btShapes,
-//							  btIndexVertexArrays);
-//	}
-//}
 
 shared_ptr<btConvexHullShape>
 BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {

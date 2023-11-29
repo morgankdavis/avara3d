@@ -12,26 +12,16 @@
 
 #include <glm/glm.hpp>
 
+//#include "physics/ConvexDecomposer.h" // TEMPORARY
 #include "utilities/Utilities.h"
 
-
-
-// TEMPORARY (not a public class)
-#include "physics/ConvexDecomposer.h"
-
-
-// TEMPORARY
-//#ifdef WINDOWS
-//#include <windows.h>
-//#include <libloaderapi.h>
-//#endif
 
 using namespace ae;
 using namespace ae::utils;
 using namespace example;
+using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-using namespace glm;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -42,7 +32,7 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/90.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
 constexpr bool					DARK =					true;
 
@@ -55,7 +45,7 @@ static shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3&
 static shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction);
 static shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
 static shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
-static void SpawnHACDTeapot(Scene& scene);
+//static void SpawnHACDTeapot(Scene& scene);
 static void AddBoxes(Scene& scene);
 static void AddCardboardBoxes(Scene& scene);
 static void AddSlurms(Scene& scene);
@@ -71,65 +61,59 @@ static void SpawnChainMail(Scene& scene);
 	Public
  ***************************************************************************************/
 
-// https://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
-//std::wstring s2ws(const std::string& s)
-//{
-//    int len;
-//    int slength = (int)s.length() + 1;
-//    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-//    wchar_t* buf = new wchar_t[len];
-//    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-//    std::wstring r(buf);
-//    delete[] buf;
-//    return r;
-//}
-
 int Example::run(const vector<string>& args) {
 
-//// TEMPORARY
-//#ifdef WINDOWS
-////    DLL_DIRECTORY_COOKIE AddDllDirectory(
-////  PCWSTR NewDirectory
-////);
-//
-//DLL_DIRECTORY_COOKIE ret = AddDllDirectory(s2ws(boost::filesystem::path(*ExecutableDirectory() / std::string("lib")).string()).c_str());
-//#endif
-
-
-	AE_INIT();
+	//AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	LOG_I(_logger, "Example::run()");
+	LOG_I(_logger, "");
 
-	_window = make_shared<Window>(FULLSCREEN,
-								  WINDOW_WIDTH, WINDOW_HEIGHT,
-								  USE_HIGH_DPI,
-								  MSAA_MODE,
-								  RENDER_API::OPENGL);
-	_window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	_window->didSimulatePhysicsCallback(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
-	_window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	_window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	_window->enableVSync(ENABLE_VSYNC);
-	_window->captureCursor(CAPTURE_CURSOR);
-	_window->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	
-//	auto renderContext = static_pointer_cast<RenderContext>(_window);
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-//												  DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(),
-//												  DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
-	
-//	auto renderContext = static_pointer_cast<RenderContext>(_window);
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
-//	renderContext->debugOptions(DEBUG_OPTIONS_ADD(renderContext->debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
-	
-	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
-	
-	auto physicsWorld = make_shared<PhysicsWorld>();
-	physicsWorld->timestep(PHYSICS_TIMESTEP);
-	scene->physicsWorld(physicsWorld);
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
+									  USE_HIGH_DPI,
+									  MSAA_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
+
+	auto visualWorld = make_shared<VisualWorld>(window);
+	visualWorld->fogStartDistance(50.0);
+	visualWorld->fogEndDistance(400.0);
+	visualWorld->fogDensityExponent(1.0);
+	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
+	auto background = DARK
+					  ? make_shared<MaterialProperty>(Color::Black())
+					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+	visualWorld->background(background);
+	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+
+	auto physicalWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	physicalWorld->timestep(PHYSICS_TIMESTEP);
+	physicalWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
+
+	auto inputManager = make_shared<WindowInputManager>(window);
+
+	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->update(bind(&Example::updateCallback, this, _1, _2));
+
+	auto ambientColor = DARK
+						? Color::LightGray()
+						: make_shared<Color>(233, 218, 185); // sunset
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
+	auto ambientLightNode = Node::LightNode(ambientLight);
+	scene->rootNode()->addChild(ambientLightNode);
+
+	auto pointColor = DARK
+					  ? Color::LightGray()
+					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+	pointLight->attenuationFactor(0.0);
+	auto pointLightNode = Node::LightNode(pointLight);
+	pointLightNode->position(vec3(35, 20, -35) * vec3(2.5, 2.5, 2.5));
+	scene->rootNode()->addChild(pointLightNode);
 
 
 	// box
@@ -164,26 +148,27 @@ int Example::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-		planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH));
+		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	//gridImage->writePNG("thing.png");
-	//auto gridImage = ImageNamed("grid10_512");
-	//auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	//auto specularMaterialProperty = make_shared<MaterialProperty>(Color::Gray());
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
 	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
 	planeMaterialProperty->maxAnisotropy(16);
 	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
 	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	auto planeMaterial = make_shared<Material>(planeMaterialProperty,
-//											   planeMaterialProperty,
-//											   planeMaterialProperty,
-//											   planeMaterialProperty);
-	auto planeMaterial = make_shared<Material>(nullptr,
-											   nullptr,
-											   nullptr,
-											   planeMaterialProperty);
+	shared_ptr<Material> planeMaterial = nullptr;
+	if (DARK) {
+		planeMaterial = make_shared<Material>(nullptr,
+											  nullptr,
+											  nullptr,
+											  planeMaterialProperty);
+	}
+	else {
+		planeMaterial = make_shared<Material>(nullptr,
+											  planeMaterialProperty,
+											  make_shared<MaterialProperty>(Color::Gray()));
+	}
+
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
@@ -199,32 +184,28 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(planeNode);
 
 
-
-
-
-
 	// add the palm tree
 
-//	auto palmScene = SceneNamed("palm2/palm2", "obj");
-//	_palmNode = palmScene->rootNode();
-//	_palmNode->name("Palm node");
-//	for (auto n : palmScene->rootNode()->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-//
-//	auto palmPhysicsBody = PhysicsBody::StaticBody();
-//	palmPhysicsBody->mass(0);
-//	palmPhysicsBody->friction(1);
-//	palmPhysicsBody->restitution(0.25);
-//	_palmNode->physicsBody(palmPhysicsBody);
-//
-//	scene->rootNode()->addChild(palmScene->rootNode());
-//
-//
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	_palmNode = palmScene->rootNode();
+	_palmNode->name("Palm node");
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
+
+
 	// add the duck
 
 	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
@@ -258,9 +239,9 @@ int Example::run(const vector<string>& args) {
 	_duckSpinnerNode = make_shared<Node>("duck spinner");
 	_duckSpinnerNode->addChild(_duckNode);
 	scene->rootNode()->addChild(_duckSpinnerNode);
-//
-//
-//
+
+
+
 //	// add the paddle
 //
 //	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
@@ -283,39 +264,6 @@ int Example::run(const vector<string>& args) {
 
 
 
-	//auto background = make_shared<MaterialProperty>(CubeImageNamed("sky1", "png"));
-	//auto background = make_shared<MaterialProperty>(CubeImageNamed("shelf", "jpg"));
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-	scene->background(background);
-
-//	auto gridCube = make_shared<CubeImage>(ImageNamed("grid10", "png", false)->inverted());
-//	scene->background(make_shared<MaterialProperty>(gridCube));
-
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.65, 0.65, 0.65, 1.0));
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.75, 0.75, 0.75, 1.0));
-//	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(229, 206, 154));
-	//auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)); // sunset
-	auto ambientLight = DARK
-						? make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(233, 218, 185)) // sunset
-						: make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
-
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
-
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::DarkGray());
-	//pointLight->attenuationFactor(0.000000015);
-	pointLight->attenuationFactor(0.0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position(vec3(35, 20, 7) * vec3(2.5, 2.5, 2.5));
-
-	scene->fogStartDistance(50.0);
-	scene->fogEndDistance(400.0);
-	scene->fogDensityExponent(1.0);
-	scene->fogColor(Color::LightGray());
-	
 	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
@@ -332,29 +280,33 @@ int Example::run(const vector<string>& args) {
 //			AE_LOG_I("\t{:p}", (void*)child.get());
 //		}
 //	}
-	
-	_window->scene(scene);
-	_inputManager = _window->inputManager();
 
-	_window->display();
+	window->open();
+	scene->run();
 	
 	return 0;
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(RenderContext& renderContext, float time) {
-	LOG_T(_logger, "updateCallback(RenderContext&, float)");
+void Example::updateCallback(Scene& scene, float time) {
+	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	auto scene = renderContext.scene();
-	
-	
+	auto inputManager = scene.inputManager();
+
+	//shared_ptr<RenderContext> renderContext = nullptr;
+	shared_ptr<Window> window = nullptr;
+	if (scene.visualWorld()) {
+		//renderContext = scene.visualWorld()->renderContext();
+		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	}
+
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
 	
@@ -364,59 +316,65 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		auto duckSpinnerEuler = _duckSpinnerNode->eulerAngles();
 		_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
-	
+
+//	for (auto& c : scene.rootNode()->children(true)) {
+//		if (c->geometry()) {
+//			if (dynamic_pointer_cast<Cylinder>(c->geometry())) {
+//				AE_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
+//			}
+//		}
+//	}
 
 	// get input
 	
-	auto mouseButtonsDown = _inputManager->mouseButtonsDown();
-	auto mouseButtonsPressed = _inputManager->mouseButtonsPressed();
-	auto keysDown = _inputManager->keysDown();
-	auto keysPressed = _inputManager->keysPressed();
+	auto mouseButtonsDown = inputManager->mouseButtonsDown();
+	auto mouseButtonsPressed = inputManager->mouseButtonsPressed();
+	auto keysDown = inputManager->keysDown();
+	auto keysPressed = inputManager->keysPressed();
 	auto cursorCaptured = true;
-	if (dynamic_cast<Window*>(&renderContext)) {
-		cursorCaptured = dynamic_cast<Window*>(&renderContext)->cursorCaptured();
+	if (window) {
+		cursorCaptured = window->cursorCaptured();
 	}
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
-		_window->setShouldClose();
+		window->close();
 	}
 	
 	if (keysPressed.count(KEY::T)) {
-		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(renderContext.scene()->rootNode())));
+		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
-	
-	
+
 	// spawn duck fruit
 	
 	if (keysPressed.count(KEY::GRAVE_ACCENT)) {
-		AddBoxes(*scene);
+		AddBoxes(scene);
 	}
 	
 	if (keysDown.count(KEY::TAB)) {
-		auto fruitNode = SpawnDuckFruit(*scene, _duckNode);
+		auto fruitNode = SpawnDuckFruit(scene, _duckNode);
 		if (!_fruit1Node) {
 			_fruit1Node = fruitNode;
 		}
 	}
 
 	if (keysPressed.count(KEY::L)) {
-		AddRing(*scene);
+		AddRing(scene);
 	}
 
 	if (keysPressed.count(KEY::Q)) {
-		SpawnAutogeneratedPrimitives(*scene);
+		SpawnAutogeneratedPrimitives(scene);
 	}
 
 	if (keysPressed.count(KEY::Z)) {
-		SpawnInvisiblePrimitives(*scene);
+		SpawnInvisiblePrimitives(scene);
 	}
 
 	if (keysPressed.count(KEY::M)) {
-		SpawnChainMail(*scene);
+		SpawnChainMail(scene);
 	}
 
 	if (keysPressed.count(KEY::O)) {
-		SpawnRecursiveTestTree(*scene);
+		SpawnRecursiveTestTree(scene);
 	}
 
 	if (keysPressed.count(KEY::J)) {
@@ -425,20 +383,20 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::H)) {
-		SpawnHACDTeapot(*scene);
-	}
+//	if (keysPressed.count(KEY::H)) {
+//		SpawnHACDTeapot(scene);
+//	}
 
 	// move paddle
 	
 	static const float PADDLE_SPEED = 5.0; // m/s
-	if (_inputManager->keysDown().count(KEY::EQUAL)) {
+	if (keysDown.count(KEY::EQUAL)) {
 		if (_paddleNode) {
 			auto p = _paddleNode->position();
 			_paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
 		}
 	}
-	if (_inputManager->keysDown().count(KEY::MINUS)) {
+	if (keysDown.count(KEY::MINUS)) {
 		if (_paddleNode) {
 			auto p = _paddleNode->position();
 			_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
@@ -446,110 +404,116 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 	
 	
-	if (cursorCaptured) {
+	if (scene.visualWorld() && cursorCaptured) {
 		if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
-			ShootBall(*scene, _window->pointOfView()->worldPosition(), _window->pointOfView()->worldForward());
+			auto pov = scene.visualWorld()->pointOfView();
+			ShootBall(scene,
+					  pov->worldPosition(),
+					  pov->worldForward());
 		}
 		
 		if (mouseButtonsDown.count(MOUSE_BUTTON::TWO)) {
-			ShootBall(*scene, _window->pointOfView()->worldPosition(), _window->pointOfView()->worldForward());
+			auto pov = scene.visualWorld()->pointOfView();
+			ShootBall(scene,
+					  pov->worldPosition(),
+					  pov->worldForward());
 		}
 	}
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
 		}
 	}
 	if (keysPressed.count(KEY::P)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
 		}
 	}
 	if (keysPressed.count(KEY::G)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
 		}
 	}
 	if (keysPressed.count(KEY::C)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
 		}
 	}
 	if (keysPressed.count(KEY::N)) {
-		if (DEBUG_OPTIONS_CONTAINS(renderContext.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-			renderContext.debugOptions(DEBUG_OPTIONS_REMOVE(renderContext.debugOptions(),
-															DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 		else {
-			renderContext.debugOptions(DEBUG_OPTIONS_ADD(renderContext.debugOptions(),
-														 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
 		}
 	}
 
 	if (keysPressed.count(KEY::V)) {
-		_window->enableVSync(!(_window->vSyncEnabled()));
+		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 	
 	if (keysPressed.count(KEY::BACKSLASH)) {
-		SaveSnapshot(*_window);
+		SaveSnapshot(*window);
 	}
 	
 	if (keysPressed.count(KEY::SLASH)) {
-		_window->captureCursor(!(_window->cursorCaptured()));
+		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 	
 	if (keysPressed.count(KEY::R)) {
-		if (!_window->recordingGIF()) {
-			StartGIFRecording(*_window, 240, 8);
+		if (!window->recordingGIF()) {
+			StartGIFRecording(*window, 240, 8);
 		}
 		else {
-			StopGIFRecording(*_window);
+			StopGIFRecording(*window);
 		}
 	}
 	
 	if (keysPressed.count(KEY::U)) {
-		for (auto& n : scene->rootNode()->children(true)) {
+		for (auto& n : scene.rootNode()->children(true)) {
 			auto geometry = n->geometry();
 			if (geometry) {
 				auto physicsBody = n->physicsBody();
@@ -567,27 +531,18 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 		
 		// mouselook
 		
-		vec2 mousePositionDelta = _inputManager->mousePositionDelta();
+		vec2 mousePositionDelta = inputManager->mousePositionDelta();
 		
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
-		
-		if (!_cameraNode) {
-			for (auto n : scene->rootNode()->children(false)) {
-				if (n->camera()) {
-					_cameraNode = n;
-					//_cameraNode->camera()->fov(M_PI);
-					break;
-				}
-			}
-		}
-		
-		if (_cameraNode) {
+
+		auto cameraNode = scene.visualWorld()->pointOfView();
+		if (cameraNode) {
 			
 			// look
 			
-			vec3 camForward = _cameraNode->worldForward();
-			vec3 camRight = _cameraNode->worldRight();
-			vec3 camUp = _cameraNode->worldUp();
+			vec3 camForward = cameraNode->worldForward();
+			vec3 camRight = cameraNode->worldRight();
+			vec3 camUp = cameraNode->worldUp();
 			
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -595,16 +550,16 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 			//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 			
-			vec3 angles = _cameraNode->eulerAngles();
-			_cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = cameraNode->eulerAngles();
+			cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 			
 			// move
 			
 			//		const static float MOVE_SPEED = 5.0f; // units/sec
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = Max(scene->rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
 			
-			auto keysDown = _inputManager->keysDown();
+			//auto keysDown = _inputManager->keysDown();
 			
 			float moveMultiplier = 1.0;
 			if (keysDown.count(KEY::LEFT_SHIFT)) {
@@ -613,20 +568,20 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 			
 			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
-				_cameraNode->position(_cameraNode->position() + positionDelta);
+				cameraNode->position(cameraNode->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::SPACE)) {
@@ -635,22 +590,30 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 						direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
-				_cameraNode->position(_cameraNode->position() + positionDelta * direction);
+				cameraNode->position(cameraNode->position() + positionDelta * direction);
 			}
 		}
 	}
 }
 
-void Example::didSimulatePhysicsCallback(RenderContext& renderContext, float time) {
-	LOG_T(_logger, "didSimulatePhysicsCallback(RenderContext&, float)");
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
+
+void Example::willRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::willRenderCallback(RenderContext& renderContext, float time) {
-	LOG_T(_logger, "willRenderCallback(RenderContext&, float)");
+void Example::didRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(RenderContext& renderContext, float time) {
-	LOG_T(_logger, "didRenderCallback(RenderContext&, float)");
+/***************************************************************************************
+	PhysicalWorld Callbacks
+ ***************************************************************************************/
+
+void Example::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -661,7 +624,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 	
 	constexpr float SPAWN_RATE = 7.5; // pieces/sec
 	
-	float time = scene.renderContext().lock()->sceneTime();
+	float time = scene.time();
 	static float lastSSpawnTime = 0;
 	if ((time - lastSSpawnTime) >= (1.0/SPAWN_RATE)) {
 
@@ -826,7 +789,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
 
-	float time = scene.renderContext().lock()->sceneTime();
+	float time = scene.time();
 	static float lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
@@ -886,8 +849,10 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 		auto node = canNode;
 
 		node->position(location);
-		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
-														   fileCanNode->geometry());
+//		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
+//														   fileCanNode->geometry());
+		static auto canExtent = canNode->extent();
+		static auto physicsShape = make_shared<CylinderPhysicsShape>(canExtent.x/2.0, canExtent.y);
 		auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 //		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F
@@ -1051,7 +1016,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 	physicsBody->friction(0.25);
 
 	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::BOUNDING_BOX,
-												  node->geometry());
+														 node->geometry());
 	physicsBody->shape(physicsShape);
 	
 	node->physicsBody(physicsBody);
@@ -1099,43 +1064,43 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	return node;
 }
 
-void SpawnHACDTeapot(Scene& scene) {
-
-	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-
-	ConvexDecomposer::Options options;
-	options.maxConvexHulls = options.maxConvexHulls / 2;
-	options.resolution = options.resolution / 2;
-	options.maxRecursionDepth = options.maxRecursionDepth / 2;
-	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
-
-	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
-
-	for (auto& element : teapotNode->geometry()->elements()) {
-		auto decomposer = ConvexDecomposer(element, options);
-		auto elements = decomposer.decompose();
-		decomposedElements.insert(decomposedElements.begin(),
-								  elements.begin(),
-								  elements.end());
-	}
-
-	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
-	decomposedTeapotMaterials.reserve(decomposedElements.size());
-	for (int m=0; m<decomposedElements.size(); ++m) {
-		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
-		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
-																  nullptr,
-																  nullptr,
-																  randomColorProperty));
-	}
-
-	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
-	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
-	decomposedTeapotNode->scale({.25, .25, .25});
-	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
-	decomposedTeapotNode->position({0, 0, 4});
-	scene.rootNode()->addChild(decomposedTeapotNode);
-}
+//void SpawnHACDTeapot(Scene& scene) {
+//
+//	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
+//
+//	ConvexDecomposer::Options options;
+//	options.maxConvexHulls = options.maxConvexHulls / 2;
+//	options.resolution = options.resolution / 2;
+//	options.maxRecursionDepth = options.maxRecursionDepth / 2;
+//	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
+//
+//	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
+//
+//	for (auto& element : teapotNode->geometry()->elements()) {
+//		auto decomposer = ConvexDecomposer(element, options);
+//		auto elements = decomposer.decompose();
+//		decomposedElements.insert(decomposedElements.begin(),
+//								  elements.begin(),
+//								  elements.end());
+//	}
+//
+//	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+//	decomposedTeapotMaterials.reserve(decomposedElements.size());
+//	for (int m=0; m<decomposedElements.size(); ++m) {
+//		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
+//		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
+//																  nullptr,
+//																  nullptr,
+//																  randomColorProperty));
+//	}
+//
+//	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
+//	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+//	decomposedTeapotNode->scale({.25, .25, .25});
+//	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
+//	decomposedTeapotNode->position({0, 0, 4});
+//	scene.rootNode()->addChild(decomposedTeapotNode);
+//}
 
 void AddBoxes(Scene& scene) {
 	

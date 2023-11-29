@@ -23,26 +23,28 @@ namespace ae {
  *********************************************************************************************/
 
 	public:
-		
-		Box(float width, float height, float length);
+
+		// z, x, y?
+		Box(float length, float width, float height,
+			float lengthSegments = 1, float widthSegments = 1, float heightSegments = 1);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
+
+		float 		length() const;
 		float 		width() const;
 		float 		height() const;
-		float 		length() const;
-		
+
 /*********************************************************************************************
 	 Private
  *********************************************************************************************/
 
 	private:
 
+		float		_length;
 		float		_width;
 		float		_height;
-		float		_length;
 	};
 }
 

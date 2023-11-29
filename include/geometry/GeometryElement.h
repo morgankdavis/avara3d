@@ -49,7 +49,7 @@ namespace ae {
 												 const glm::mat4& viewMat,
 												 const glm::mat4& projectionMat,
 												 const DEBUG_OPTIONS& debugOptions,
-												 FrameStats& stats);
+												 Stats& stats);
 
 		void 								burnTransform(const glm::mat4& transform,
 														  bool normals);

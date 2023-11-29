@@ -43,26 +43,30 @@ constexpr bool					CAPTURE_CURSOR =		false;
 int Example::run(const vector<string>& args) {
 	cout << "Example::run()\n" << endl;
 	
-	AE_INIT();
+	//AE_INIT();
 
-	auto window = make_shared<Window>(FULLSCREEN,
-									  WINDOW_WIDTH, WINDOW_HEIGHT,
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
 									  USE_HIGH_DPI,
-									  ANTIALIAS_MODE,
-									  RENDER_API::OPENGL);
-	window->updateCallback(bind(&Example::updateCallback, this, _1, _2));
-	window->willRenderCallback(bind(&Example::willRenderCallback, this, _1, _2));
-	window->didRenderCallback(bind(&Example::didRenderCallback, this, _1, _2));
-	window->enableVSync(ENABLE_VSYNC);
-	window->captureCursor(CAPTURE_CURSOR);
+									  ANTIALIAS_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
 
-	
+	auto visualWorld = make_shared<VisualWorld>(window);
+	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+	visualWorld->background(make_shared<MaterialProperty>(backgroundColor));
+	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+
 	auto scene = make_shared<Scene>();
-	scene->rootNode(make_shared<Node>("Root node"));
+	scene->visualWorld(visualWorld);
+	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
 
 
-	_test = TEST::TRAVERSAL;
+	_test = TEST::CONVENIENCE;
 
 
 
@@ -176,8 +180,7 @@ int Example::run(const vector<string>& args) {
 		cout << "aNode orientation: " << aNode->orientation() << endl;
 		cout << "aNode rotation: " << aNode->rotation() << endl;
 		cout << "aNode eulerAngles: " << aNode->eulerAngles() << endl;
-		
-		
+
 		
 		auto bScene = SceneNamed("dragon", "obj");
 		auto bNode = bScene->rootNode()->children(false)[0];
@@ -194,9 +197,7 @@ int Example::run(const vector<string>& args) {
 		cout << "bNode eulerAngles: " << bNode->eulerAngles() << endl;
 		aNode->addChild(bNode);
 		
-		
-		
-		
+
 		auto fScene = SceneNamed("dragon", "obj");
 		auto fNode = fScene->rootNode()->children(false)[0];
 		fNode->name("F");
@@ -213,8 +214,6 @@ int Example::run(const vector<string>& args) {
 		bNode->addChild(fNode);
 		
 		
-		
-		
 		auto pScene = SceneNamed("cartoon_palm_tree", "obj");
 		auto pNode = pScene->rootNode();
 		pNode->name("P");
@@ -229,9 +228,7 @@ int Example::run(const vector<string>& args) {
 		cout << "pNode rotation: " << pNode->rotation() << endl;
 		cout << "pNode eulerAngles: " << pNode->eulerAngles() << endl;
 		fNode->addChild(pNode);
-		
-		
-		
+
 		
 		auto gScene = SceneNamed("ConvaliaBouquet", "obj");
 		auto gNode = gScene->rootNode();
@@ -247,10 +244,8 @@ int Example::run(const vector<string>& args) {
 		cout << "gNode rotation: " << gNode->rotation() << endl;
 		cout << "gNode eulerAngles: " << gNode->eulerAngles() << endl;
 		aNode->addChild(gNode);
-		
-		
-		
-		
+
+
 		scene->rootNode()->addChild(aNode);
 		
 		cout << "aNode worldTransform:\n" << aNode->worldTransform() << endl;
@@ -278,8 +273,8 @@ int Example::run(const vector<string>& args) {
 		
 		
 		auto xNode = make_shared<Node>();
-		
-		
+
+
 		auto aScene = SceneNamed("dragon", "obj");
 		auto aNode = aScene->rootNode()->children(false)[0];
 		aNode->name("A");
@@ -288,8 +283,7 @@ int Example::run(const vector<string>& args) {
 		aNode->rotation({0.0f, 1.0f, 3.0f}, (float)radians(45.0f));
 		xNode->addChild(aNode);
 		
-		
-		
+
 		auto bScene = SceneNamed("ConvaliaBouquet", "obj");
 		auto bNode = bScene->rootNode();
 		bNode->name("B");
@@ -298,7 +292,6 @@ int Example::run(const vector<string>& args) {
 		bNode->scale(vec3(15.0f, 1.0f, 1.0f));
 		aNode->addChild(bNode);
 		cout << "bNode->rotation(): " << bNode->rotation() << endl;
-
 
 
 		auto cScene = SceneNamed("cartoon_palm_tree", "obj");
@@ -317,8 +310,7 @@ int Example::run(const vector<string>& args) {
 		dNode->eulerAngles(vec3((float)radians(45.0f), (float)radians(60.0f), (float)radians(30.0f)));
 		xNode->addChild(dNode);
 		
-		
-		
+
 		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChild(xNode);
 		
@@ -377,8 +369,7 @@ int Example::run(const vector<string>& args) {
 		eNode->name("E");
 		eNode->position(vec3(0.0f, 0.0f, 0.0f));
 		eNode->eulerAngles(vec3((float)radians(-130.0f), (float)radians(70.0f), (float)radians(20.0f)));
-		
-		
+
 		
 		rootNode->addChild(aNode);
 		rootNode->addChild(bNode);
@@ -386,8 +377,7 @@ int Example::run(const vector<string>& args) {
 		rootNode->addChild(dNode);
 		rootNode->addChild(eNode);
 		
-		
-		
+
 		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChild(rootNode);
 		
@@ -427,8 +417,7 @@ int Example::run(const vector<string>& args) {
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->orientation(quat((float)radians(45.0f), 0.0f, 1.0f, 0.0f));
 		cout << "bNode eulerAngles: " << bNode->eulerAngles() << endl;
-		
-		
+
 		
 		auto cScene = SceneNamed("teapot");
 		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
@@ -437,8 +426,7 @@ int Example::run(const vector<string>& args) {
 		cNode->orientation(quat((float)radians(45.0f), 0.0f, 0.0f, 1.0f));
 		cout << "cNode eulerAngles: " << cNode->eulerAngles() << endl;
 		
-		
-		
+
 		auto dScene = SceneNamed("teapot");
 		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
 		dNode->name("D");
@@ -447,7 +435,7 @@ int Example::run(const vector<string>& args) {
 		cout << "dNode eulerAngles: " << dNode->eulerAngles() << endl;
 		
 		
-		// what does in comes out
+		// what goes in comes out
 		
 		auto uNode = make_shared<Node>();
 		uNode->eulerAngles(vec3((float)radians(40.0f), (float)radians(-35.0f), (float)radians(75.0f)));
@@ -456,16 +444,14 @@ int Example::run(const vector<string>& args) {
 		auto vNode = make_shared<Node>();
 		vNode->eulerAngles(vec3((float)radians(-10.0f), (float)radians(25.0f), (float)radians(30.0f)));
 		cout << "vNode->eulerAngles(): " << vNode->eulerAngles() << endl;
-		
-		
+
 		
 		rootNode->addChild(aNode);
 		rootNode->addChild(bNode);
 		rootNode->addChild(cNode);
 		rootNode->addChild(dNode);
 		//rootNode->addChild(eNode);
-		
-		
+
 		
 		//auto scene = make_shared<Scene>();
 		scene->rootNode()->addChild(rootNode);
@@ -497,10 +483,7 @@ int Example::run(const vector<string>& args) {
 		aNode->name("A");
 
 		
-		
-		
 		rootNode->addChild(aNode);
-		
 		
 		
 		//auto scene = make_shared<Scene>();
@@ -521,38 +504,18 @@ int Example::run(const vector<string>& args) {
 //		window.scene(scene);
 //		window.display();
 	}
-	
-	
-	// ******** make everything look like it did before materials worked ********
-	
-	auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-	auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-	auto material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
-	
-	for (auto n : scene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			n->geometry()->replaceMaterial(0, material);
-		}
-	}
-	
-	auto backgroundColor = make_shared<Color>(109.0f/256.0f, 136.0f/256.0f, 164.0f/256.0f, 1.0f);
-	auto background = make_shared<MaterialProperty>(backgroundColor);
-	scene->background(background);
-	
-	// **************************************************************************
-	
-	
-	window->scene(scene);
-	window->display();
+
+	window->open();
+	scene->run();
 	
 	return 0;
 }
 
 /***************************************************************************************
-	RenderContext Callbacks
+	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(RenderContext& renderContext, float time) {
+void Example::updateCallback(Scene& scene, float time) {
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -561,7 +524,7 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
 	if (_test == TEST::ROTATION) {
-		auto node = renderContext.scene()->rootNode()->child("A", true);
+		auto node = scene.rootNode()->child("A", true);
 		
 		// we WANT this to work (this is how scene kit works)
 		// but it locks after 2PI rotation
@@ -578,10 +541,14 @@ void Example::updateCallback(RenderContext& renderContext, float time) {
 	}
 }
 
-void Example::willRenderCallback(RenderContext& renderContext, float time) {
-	
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
+
+void Example::willRenderCallback(VisualWorld& world, float time) {
+
 }
 
-void Example::didRenderCallback(RenderContext& renderContext, float time) {
-	
+void Example::didRenderCallback(VisualWorld& world, float time) {
+
 }

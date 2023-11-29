@@ -65,11 +65,11 @@ namespace ae {
 		void									update(PhysicsSimulator& simulator,
 													   Node& node,
 													   PhysicsBody& body,
-													   FrameStats& stats);
+													   Stats& stats);
 		void									sync(PhysicsSimulator& simulator,
 													 Node& node,
 													 PhysicsBody& body,
-													 FrameStats& stats);
+													 Stats& stats);
 
 		PHYSICS_SHAPE_DIRTY_MASK 				dirtyMask() const;
 		void 									dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);

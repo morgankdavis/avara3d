@@ -27,37 +27,39 @@ using namespace std;
 	 	Lifecycle
 *********************************************************************************************/
 
-Box::Box(float width, float height, float length):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+Box::Box(float length, float width, float height,
+		 float lengthSegments, float widthSegments, float heightSegments):
+		Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()),
+		_length(length),
+		_width(width),
+		_height(height) {
 
-		_width = width;
-		_height = height;
-		_length = length;
+	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
+	/// @param segments The number of segments in x (0), y (1) and z (2)
 
-		/// @param size Half of the side length in x (0), y (1) and z (2) direction.
-		/// @param segments The number of segments in x (0), y (1) and z (2)
+	//BoxMesh box{{width/2.0, height/2.0, depth/2.0}, {4, 4, 4}};
+	BoxMesh box{{width/2.0, length/2.0, height/2.0},
+				{lengthSegments, widthSegments, heightSegments}};
+	//BoxMesh box{{width/2.0, height/2.0, length/2.0}, {(int)lround(width), (int)lround(height), (int)lround(length)}};
 
-		BoxMesh box{{width/2.0, height/2.0, length/2.0}, {1, 1, 1}};
-		//BoxMesh box{{width/2.0, height/2.0, length/2.0}, {(int)lround(width), (int)lround(height), (int)lround(length)}};
+	auto verts = vector<Vertex>();
+	for (const MeshVertex& v : box.vertices()) {
+		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
+						  vec3(v.normal[0], v.normal[1], v.normal[2]),
+						  vec2(v.texCoord[0], v.texCoord[1]) };
+		verts.push_back(vertex);
+	}
 
-		auto verts = vector<Vertex>();
-		for (const MeshVertex& v : box.vertices()) {
-			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
-				vec3(v.normal[0], v.normal[1], v.normal[2]),
-				vec2(v.texCoord[0], v.texCoord[1]) };
-			verts.push_back(vertex);
-		}
+	auto faces = vector<Face>();
+	for (const Triangle& t : box.triangles()) {
+		Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+		faces.push_back(face);
+	}
 
-		auto faces = vector<Face>();
-		for (const Triangle& t : box.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
-			faces.push_back(face);
-		}
+	auto element = make_shared<GeometryElement>(verts, faces);
+	_elements.push_back(element);
 
-		auto element = make_shared<GeometryElement>(verts, faces);
-		_elements.push_back(element);
-
-		//loadVertexData();
+	//loadVertexData();
 }
 
 //Box::Box(float width, float height, float length):
@@ -113,14 +115,14 @@ Box::Box(float width, float height, float length):
  	Public
  *********************************************************************************************/
 
+float Box::length() const {
+	return _length;
+}
+
 float Box::width() const {
 	return _width;
 }
 
 float Box::height() const {
 	return _height;
-}
-
-float Box::length() const {
-	return _length;
 }

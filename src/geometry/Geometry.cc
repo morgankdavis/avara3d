@@ -133,7 +133,7 @@ void Geometry::draw(Renderer& renderer,
 					const mat4& viewMat,
 					const mat4& projectionMat,
 					const DEBUG_OPTIONS& debugOptions,
-					FrameStats& stats) {
+					Stats& stats) {
 	
 	// forces Renderer to re-create AABB linesets next time they're turned on.
 	// this seems like hacky way to do it.

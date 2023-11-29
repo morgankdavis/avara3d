@@ -199,8 +199,8 @@ void Activity::update() {
 		//	if (physicsWorld) {
 		//		physicsWorld->step();
 		//		
-		//		if (didSimulatePhysicsCallback()) {
-		//			didSimulatePhysicsCallback()(*this, sceneTime());
+		//		if (didSimulate()) {
+		//			didSimulate()(*this, sceneTime());
 		//		}
 		//	}
 		
@@ -238,8 +238,8 @@ void Activity::debugOptions(DEBUG_OPTIONS options) {
 	RenderContext::debugOptions(options);
 	
 	//#warning Refactor this
-	//	if (_scene && _scene->physicsWorld()) {
-	//		_scene->physicsWorld()->debugOptions(_debugOptions);
+	//	if (_scene && _scene->physicalWorld()) {
+	//		_scene->physicalWorld()->debugOptions(_debugOptions);
 	//	}
 }
 

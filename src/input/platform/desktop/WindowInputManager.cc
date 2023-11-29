@@ -16,7 +16,9 @@
 
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/context/platform/desktop/Window.h"
+#include "scene/Scene.h"
 
 
 using namespace ae;
@@ -30,11 +32,18 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 
 /*********************************************************************************************
+	Static Prototypes
+ *********************************************************************************************/
+
+static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	InputManager(),
+	_usingManyMouse(false),
 	_window(window) {
 
 		registerGLFWCallbacks(window->glfwWindow());
@@ -42,9 +51,10 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 }
 
 WindowInputManager::~WindowInputManager() {
+	AE_LOG_D("Destroying WindowInputManager {:p}", (void*)this);
+
 	quitManyMouse();
-	auto window = _window.lock();
-	if (window) {
+	if (auto window = _window.lock()) {
 		unregisterGLFWCallbacks(window->glfwWindow());
 	}
 }
@@ -91,13 +101,19 @@ void WindowInputManager::update() {
 			}
 		}
 	}
+	else {
+		_window.lock()->pollInput();
+	}
 }
 
 /*********************************************************************************************
 	GLFW Callbacks
  *********************************************************************************************/
 
-void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
+void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+												 int button,
+												 int action,
+												 int mods) {
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
@@ -118,41 +134,48 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int but
 	}
 }
 
-void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
-	// ignoring in favor of ManyMouse
-
-	//AE_LOG_D("GLFWCursorPositionCallback(): ({}, {})", xPos, yPos);
+void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+													double xPos,
+													double yPos) {
+	//AE_LOG_D("xPos: {}, yPos: {}", xPos, yPos);
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	// keep "lastPos" outside cursorCaptured() check to keep it from
+	// jumping when re-capturing the cursor
+	static double lastXPos = xPos;
+	static double lastYPos = yPos;
 
 	if (auto window = inputManager->_window.lock()) {
 		if (window->cursorCaptured()) {
 
-			static double lastXPos = xPos;
-			static double lastYPos = yPos;
-
 			double xDelta = lastXPos - xPos;
 			double yDelta = lastYPos - yPos;
 
-			//AE_LOG_D("xDelta: ({}, yDelta {})", xDelta, yDelta);
+			//AE_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
 
 			inputManager->_mousePositionDelta.x -= xDelta;
 			inputManager->_mousePositionDelta.y += yDelta;
-
-			lastXPos = xPos;
-			lastYPos = yPos;
 		}
 	}
+
+	lastXPos = xPos;
+	lastYPos = yPos;
 }
 
-void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
+void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+												 double xOffset,
+												 double yOffset) {
 	// ignoring in favor of ManyMouse
 
 	// TODO: use GLFW if using GLFW for raw mouse
 }
 
-void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mods) {
-	//cout << "GLFWKeyCallback()" << endl;
+void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
+										 int key,
+										 int scancode,
+										 int action,
+										 int mods) {
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
@@ -171,12 +194,6 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int sc
 	}
 }
 
-shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
-
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->inputManager());
-}
-
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -186,7 +203,8 @@ void WindowInputManager::initMouseMotionInput() {
 	if (glfwRawMouseMotionSupported()) {
 		AE_LOG_I("Using GLFW raw mouse input.");
 		glfwSetInputMode(_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-		glfwSetCursorPosCallback(_window.lock()->glfwWindow(), WindowInputManager::GLFWCursorPositionCallback);
+		glfwSetCursorPosCallback(_window.lock()->glfwWindow(),
+								 WindowInputManager::GLFWCursorPositionCallback);
 		_usingManyMouse = false;
 	}
 	else {
@@ -229,13 +247,24 @@ void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	
-	glfwSetMouseButtonCallback(glfwWindow, NULL);
-	glfwSetCursorPosCallback(glfwWindow, NULL);
-	glfwSetScrollCallback(glfwWindow, NULL);
-	glfwSetKeyCallback(glfwWindow, NULL);
+	glfwSetMouseButtonCallback(glfwWindow, nullptr);
+	glfwSetCursorPosCallback(glfwWindow, nullptr);
+	glfwSetScrollCallback(glfwWindow, nullptr);
+	glfwSetKeyCallback(glfwWindow, nullptr);
 
 	// TODO: refactor
-	glfwSetCursorPosCallback(glfwWindow, NULL);
+	glfwSetCursorPosCallback(glfwWindow, nullptr);
 }
+
+/*********************************************************************************************
+	Static
+ *********************************************************************************************/
+
+shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
+}
+
 
 #endif // DESKTOP

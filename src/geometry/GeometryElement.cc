@@ -47,7 +47,7 @@ void GeometryElement::draw(Renderer& renderer,
 						   const mat4& viewMat,
 						   const mat4& projectionMat,
 						   const DEBUG_OPTIONS& debugOptions,
-						   FrameStats& stats) {
+						   Stats& stats) {
 	
 	renderer.render(shared_from_this(),
 					material,

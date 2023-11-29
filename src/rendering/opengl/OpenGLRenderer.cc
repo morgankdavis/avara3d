@@ -22,7 +22,6 @@
 #endif
 
 #ifdef OPENGL_CORE
-// TODO: why are these using quotation marks?
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -36,6 +35,7 @@
 #include "geometry/Line.h"
 #include "geometry/Point.h"
 #include "rendering/Light.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/camera/Camera.h"
 #include "rendering/context/RenderContext.h"
 #include "rendering/context/platform/desktop/Window.h"
@@ -68,7 +68,7 @@ using namespace std;
 static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								Node& pointOfView,
 								const DEBUG_OPTIONS& debugOptions,
-								FrameStats& stats,
+								Stats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
@@ -118,7 +118,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -165,7 +165,7 @@ static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
-static void 		DrawStatsOverlay(FrameStats& stats, float time, Scene& scene);
+static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -223,19 +223,17 @@ typedef struct {
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
-	Renderer(),
-	_geometryElementGLMapping(GeometryElementGLMapping()),
-	_materialPropertyGLMapping(MaterialPropertyGLMapping()),
-	_lineSetGLMapping(LineSetGLMapping()),
-	_pointSetGLMapping(PointSetGLMapping()),
-	_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-	_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
-	_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
-	_activePointSets(unordered_set<shared_ptr<PointSet>>()),
-	_glEnvironmentUBO(0),
-	_overlayFont(nullptr) {
-
-}
+		Renderer(),
+		_geometryElementGLMapping(GeometryElementGLMapping()),
+		_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+		_lineSetGLMapping(LineSetGLMapping()),
+		_pointSetGLMapping(PointSetGLMapping()),
+		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
+		_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
+		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
+		_glEnvironmentUBO(0),
+		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
@@ -265,7 +263,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	AE_LOG_T("OpenGLRenderer::initialize()");
+	AE_LOG_T("");
 	
 	// create environment UBO
 	
@@ -316,8 +314,11 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	return true;
 }
 	
-void OpenGLRenderer::beginFrame(const RenderContext& context) {
-	Renderer::beginFrame(context);
+void OpenGLRenderer::beginFrame(const Scene& scene,
+								const RenderContext& context,
+								const DEBUG_OPTIONS& debugOptions,
+								Stats& stats) {
+	Renderer::beginFrame(scene, context, debugOptions, stats);
 
 	_activeGeometryElements.clear();
 	_activeMaterialProperties.clear();
@@ -325,15 +326,17 @@ void OpenGLRenderer::beginFrame(const RenderContext& context) {
 	_activePointSets.clear();
 }
 
-void OpenGLRenderer::endFrame(const RenderContext& context) {
-	Renderer::endFrame(context);
-	
-	auto debugOptions = context.debugOptions();
-	
+void OpenGLRenderer::endFrame(const Scene& scene,
+							  const RenderContext& context,
+							  const DEBUG_OPTIONS& debugOptions,
+							  Stats& stats) {
+	Renderer::endFrame(scene, context, debugOptions, stats);
+
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-		DrawStatsOverlay(Renderer::renderStats(),
-						   context.sceneTime(),
-						   *context.scene());
+		auto scene = context.visualWorld()->scene();
+		DrawStatsOverlay(stats,
+						 scene->time(),
+						 *scene);
 	}
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
@@ -346,9 +349,9 @@ void OpenGLRenderer::endFrame(const RenderContext& context) {
 
 void OpenGLRenderer::render(Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
-	auto renderContext = scene.renderContext().lock();
+	auto renderContext = scene.visualWorld()->renderContext();
 	
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
@@ -359,10 +362,10 @@ void OpenGLRenderer::render(Scene& scene,
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (scene.background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene.background()->contents())) {
-			auto skyboxGeometry = scene.skyboxGeometry();
-			auto pointOfView = renderContext->pointOfView();
+	if (scene.visualWorld()->background()) {
+		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
+			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+			auto pointOfView = scene.visualWorld()->pointOfView();
 
 			RenderSkybox(skyboxGeometry,
 						 *pointOfView,
@@ -375,8 +378,8 @@ void OpenGLRenderer::render(Scene& scene,
 			// save reference for housekeeping
 			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 		}
-		else if (dynamic_pointer_cast<Color>(scene.background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene.background()->contents());
+		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
+			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
@@ -392,7 +395,7 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 
@@ -421,7 +424,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DEBUG_OPTIONS& debugOptions,
-							FrameStats& stats) {
+							Stats& stats) {
 
 	shared_ptr<Program> program = nullptr;
 
@@ -524,7 +527,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
 						 const DEBUG_OPTIONS& debugOptions,
-						 FrameStats& stats,
+						 Stats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
 						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
@@ -1311,7 +1314,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, FrameStats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats) {
 	
 	// program "Default" must be active
 	
@@ -1321,12 +1324,11 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	shared_ptr<Node> ambientLightNode = nullptr;
 	
 	// find all lights in the scene
-	for (auto node: scene.rootNode()->children(true)) {
+	for (auto node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
-			auto light = node->light();
-			if (light != nullptr) {
+			if (auto light = node->light()) {
 				if (light->type() == LIGHT_TYPE::POINT) {
-					lights.emplace_back(node);
+					lights.push_back(node);
 				}
 				else if (light->type() == LIGHT_TYPE::AMBIENT) {
 					ambientLightNode = node;
@@ -1336,74 +1338,79 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	}
 	
 	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
-		
+
 		// find all light distances from the camera
-		
+
 		auto lightsUnsorted = map<shared_ptr<Node>, float>();
-		vec3 cameraPos_world = scene.renderContext().lock()->pointOfView()->worldPosition();
-		for (auto lightNode: lights) {
+		vec3 cameraPos_world = scene.visualWorld()->pointOfView()->worldPosition();
+		for (auto lightNode : lights) {
 			auto lightPos_world = lightNode->worldPosition();
 			auto lightToCamera = lightPos_world - cameraPos_world;
 			auto lightToCameraDistance = length(lightToCamera);
 			lightsUnsorted[lightNode] = lightToCameraDistance;
 		}
-		
+
 		lights = SortedLights(lightsUnsorted);
-		
+
 		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-		vector<shared_ptr<Node>>::const_iterator first = lights.begin() + 0;
-		vector<shared_ptr<Node>>::const_iterator last = lights.begin() + endIndex;
-		vector<shared_ptr<Node>> lightsSlice(first, last);
-		
+		auto first = lights.begin() + 0;
+		auto last = lights.begin() + endIndex;
+		auto lightsSlice = vector<shared_ptr<Node>>(first, last);
+
 		lights = lightsSlice;
 	}
-	
+
 	// check for default lighting
-	
-	if (lights.size() == 0) {
-//		auto detaultPoint = Light::PointNode();
-		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
-		// set position based on scene extent...
-		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
-		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-			sceneExtent.y + sceneExtent.y/4.0,
-			sceneExtent.z + sceneExtent.z/4.0});
-		lights.emplace_back(detaultPointNode);
-	}
-	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
-	
-	lights.emplace_back(ambientLightNode);
-	
+	// * moved to VisualWorld::checkAddDefaultLighting() *
+
+//	if (lights.size() == 0) {
+////		auto detaultPoint = Light::PointNode();
+//		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
+//		// set position based on scene extent...
+//		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
+//		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
+//			sceneExtent.y + sceneExtent.y/4.0,
+//			sceneExtent.z + sceneExtent.z/4.0});
+//		lights.emplace_back(detaultPointNode);
+//	}
+//	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
+
+	lights.push_back(ambientLightNode);
+
 	unsigned numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
-	
+
 	stats.lights = numLights;// - 1; // not counting ambient
-	
+
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
 		auto light = node->light();
-		
+
 		lightStruct[l].type = (unsigned)(light->type());
 		lightStruct[l].position_world = node->worldPosition();
 		lightStruct[l].attenuationFactor = light->attenuationFactor();
-		
+
 		auto color = *light->color();
 		lightStruct[l].color = vec3(color.r, color.g, color.b);
 	}
-	
+
 	// fog
-	
+
+	auto visualWorld = scene.visualWorld();
 	FogGLSLStruct fogStruct;
-	fogStruct.startDistance = scene.fogStartDistance();
-	fogStruct.endDistance = scene.fogEndDistance();
-	fogStruct.densityExponent = scene.fogDensityExponent();
-	fogStruct.startDistance = scene.fogStartDistance();
-	if (scene.fogColor()) fogStruct.color = vec4(scene.fogColor()->r, scene.fogColor()->g, scene.fogColor()->b,
-												 scene.fogColor()->a);
+	fogStruct.startDistance = visualWorld->fogStartDistance();
+	fogStruct.endDistance = visualWorld->fogEndDistance();
+	fogStruct.densityExponent = visualWorld->fogDensityExponent();
+	fogStruct.startDistance = visualWorld->fogStartDistance();
+	auto fogColor = visualWorld->fogColor();
+	if (visualWorld->fogColor()) fogStruct.color = vec4(fogColor->r,
+														fogColor->g,
+														fogColor->b,
+														fogColor->a);
 	else fogStruct.color = vec4(0.0, 0.0, 0.0, 0.0);
-	
+
 	// block
-	
+
 	typedef struct {
 		int32_t 			numLights;
 		float32_t 			PADDING1;
@@ -1412,12 +1419,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
 		FogGLSLStruct		fog;
 	} EnvironmentBlock;
-	
+
 	EnvironmentBlock environmentBlock;
 	environmentBlock.numLights = numLights;
 	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
 	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
-	
+
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }
@@ -1906,11 +1913,11 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	return sortedVector;
 }
 	
-void DrawStatsOverlay(FrameStats& stats, float time, Scene& scene) {
+void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 #ifdef OPENGL_CORE
 
-	auto renderContext = scene.renderContext().lock();
+	auto renderContext = scene.visualWorld()->renderContext();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

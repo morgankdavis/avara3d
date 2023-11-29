@@ -131,11 +131,11 @@ namespace ae {
 
 		void								update(PhysicsSimulator& simulator,
 												   Node& node,
-												   FrameStats& stats);
+												   Stats& stats);
 		void								sync(PhysicsSimulator& simulator,
 												 Node& node,
 												 glm::mat4& localTransform,
-												 FrameStats& stats);
+												 Stats& stats);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);

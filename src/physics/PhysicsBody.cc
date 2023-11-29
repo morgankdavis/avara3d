@@ -316,7 +316,7 @@ shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
 
 void PhysicsBody::update(PhysicsSimulator& simulator,
 						 Node& node,
-						 FrameStats& stats) {
+						 Stats& stats) {
 
 	_shape->update(simulator,
 				   node,
@@ -330,7 +330,7 @@ void PhysicsBody::update(PhysicsSimulator& simulator,
 void PhysicsBody::sync(PhysicsSimulator& simulator,
 					   Node& node,
 					   mat4& localTransform,
-					   FrameStats& stats) {
+					   Stats& stats) {
 
 	_shape->sync(simulator,
 				   node,

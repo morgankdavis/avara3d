@@ -22,6 +22,7 @@ namespace ae {
 
 
 	class RenderContext;
+	class Scene;
 
 	
 	class InputManager {
@@ -32,7 +33,6 @@ namespace ae {
 
 	public:
 
-		//InputManager(std::weak_ptr<RenderContext> renderContext);
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
@@ -42,42 +42,57 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		bool 							keyDown(KEY key);
-		bool 							mouseButtonDown(MOUSE_BUTTON button);
+		bool 						keyDown(KEY key);
+		bool 						mouseButtonDown(MOUSE_BUTTON button);
 		
-		bool 							keyPressed(KEY key);
-		bool 							mouseButtonPressed(MOUSE_BUTTON button);
+		bool 						keyPressed(KEY key);
+		bool 						mouseButtonPressed(MOUSE_BUTTON button);
 
-		std::set<KEY> 					keysDown(); // keys currently down
-		std::set<MOUSE_BUTTON> 			mouseButtonsDown(); // mouse buttons currently down
+		std::set<KEY> 				keysDown(); // keys currently down
+		std::set<MOUSE_BUTTON> 		mouseButtonsDown(); // mouse buttons currently down
 		
 		// only reports keys down for one query until they are released
-		std::set<KEY> 					keysPressed();
+		std::set<KEY> 				keysPressed();
 		// only reports mouse buttons down for one query until they are released
-		std::set<MOUSE_BUTTON> 			mouseButtonsPressed();
+		std::set<MOUSE_BUTTON> 		mouseButtonsPressed();
 		
-		glm::vec2 						mousePositionDelta(); // mouse position delta since last query
-		glm::vec2 						mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
-		
+		glm::vec2 					mousePositionDelta(); // mouse position delta since last query
+		glm::vec2 					mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
+
+		Scene*						scene() const;
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		void						attachedToScene(Scene* scene);
+		virtual void				update() = 0;
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
 	protected:
 
-		void			 				clearMousePositionDelta(); // called after mousePositionDelta()
-		void 							clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+		std::set<KEY> 				_keysDown;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsDown;
+		std::set<KEY> 				_keysPressed;
+		std::set<KEY> 				_keysPressedCleared;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsPressed;
+		std::set<MOUSE_BUTTON> 		_mouseButtonsPressedCleared;
+		glm::vec2  					_mousePositionDelta;
+		glm::vec2  					_mouseScrollWheelDelta;
 
-		std::set<KEY> 					_keysDown;
-		std::set<MOUSE_BUTTON> 			_mouseButtonsDown;
-		std::set<KEY> 					_keysPressed;
-		std::set<KEY> 					_keysPressedCleared;
-		std::set<MOUSE_BUTTON> 			_mouseButtonsPressed;
-		std::set<MOUSE_BUTTON> 			_mouseButtonsPressedCleared;
-		glm::vec2  						_mousePositionDelta;
-		glm::vec2  						_mouseScrollWheelDelta;
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
 
-//		std::weak_ptr<RenderContext> 	_renderContext;
+	private:
+
+		void			 			clearMousePositionDelta(); // called after mousePositionDelta()
+		void 						clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+
+		Scene*						_scene;
 	};
 }
 

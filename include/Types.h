@@ -37,10 +37,15 @@ namespace ae {
 		CRITICAL_ = 	5,
 		OFF_ = 		6
 	};
-		
+
 	enum class RENDER_API {
 		OPENGL,
+		OPENGL_ES,
 		VULKAN
+	};
+
+	enum class PHYSICS_SIMULATION_ENGINE {
+		BULLET
 	};
 		
 	enum class FONT_TYPE : unsigned {
@@ -333,7 +338,7 @@ namespace ae {
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
-	} FrameStats;
+	} Stats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {
 		NONE =					0,

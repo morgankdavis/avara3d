@@ -97,7 +97,12 @@ Node::Node(shared_ptr<Camera> camera):
 }
 
 Node::~Node() {
-	AE_LOG_D("Destroying Node {:p}", (void*)this);
+	if (_name != nullopt) {
+		AE_LOG_D("Destroying Node {}", *_name);
+	}
+	else {
+		AE_LOG_D("Destroying Node {:p}", (void*)this);
+	}
 }
 
 /*********************************************************************************************
@@ -802,10 +807,10 @@ vec3 Node::extent() {
 }
 
 void Node::update(PhysicsSimulator& simulator,
-				  FrameStats& stats,
-				  map<shared_ptr<Node>, bool>& visited) {
+				  Stats& stats) {
+//				  map<shared_ptr<Node>, bool>& visited) {
 
-	if (!visited[shared_from_this()]) {
+//	if (!visited[shared_from_this()]) {
 
 		// physics body or physics body dirty?
 		//		create/update
@@ -820,19 +825,18 @@ void Node::update(PhysicsSimulator& simulator,
 
 		for (auto& child : _children) {
 			child->update(simulator,
-						  stats,
-						  visited);
+						  stats);
 		}
 
 		++stats.nodes;
-	}
+//	}
 }
 
 void Node::sync(PhysicsSimulator& simulator,
-				FrameStats& stats,
-				map<shared_ptr<Node>, bool>& visited) {
+				Stats& stats) {
+//				map<shared_ptr<Node>, bool>& visited) {
 
-	if (!visited[shared_from_this()]) {
+//	if (!visited[shared_from_this()]) {
 
 		// apply physics model to visual
 
@@ -849,20 +853,19 @@ void Node::sync(PhysicsSimulator& simulator,
 
 		for (auto& child : _children) {
 			child->sync(simulator,
-						stats,
-						visited);
+						stats);
 		}
-	}
+//	}
 }
 
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
-				FrameStats& stats,
-				map<shared_ptr<Node>, bool>& visited) {
+				Stats& stats) {
+//				map<shared_ptr<Node>, bool>& visited) {
 
-	if (!visited[shared_from_this()]) {
+//	if (!visited[shared_from_this()]) {
 
 		// - world transform dirty? -> update
 
@@ -904,10 +907,9 @@ void Node::draw(Renderer& renderer,
 						viewMat,
 						projectionMat,
 						debugOptions,
-						stats,
-						visited);
+						stats);
 		}
-	}
+//	}
 }
 
 void Node::_debugPrint() {
@@ -924,6 +926,14 @@ void Node::_debugPrintRec(Node& node,
 	for (auto& child : node._children) {
 		_debugPrintRec(*child, level + 1);
 	}
+}
+
+weak_ptr<Scene> Node::scene() const {
+	return _scene;
+}
+
+void Node::scene(weak_ptr<Scene> scene) {
+	_scene = scene;
 }
 
 //void Node::_debugPrint() {

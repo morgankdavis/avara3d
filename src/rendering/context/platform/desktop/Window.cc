@@ -25,8 +25,9 @@
 #include "Global.h"
 #include "diagnostic/logging/Logger.h"
 #include "input/platform/desktop/WindowInputManager.h"
-#include "physics/PhysicsWorld.h"
+#include "physics/PhysicalWorld.h"
 #include "rendering/Renderer.h"
+#include "rendering/VisualWorld.h"
 #include "rendering/camera/Camera.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
@@ -40,25 +41,36 @@ using namespace ae;
 	Static Prototypes
  *********************************************************************************************/
 
-static bool 	InitializeGLFW();
-static bool 	InitializeGLEW();
+static bool 	InitGLFW();
+static bool 	InitGLEW();
 static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
+
+static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
+									  int width,
+									  int height);
+static void		GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
+static void		GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow,
+											   int width,
+											   int height);
+static void 	GLFWErrorCallback(int error,
+								 const char* description);
 
 /*********************************************************************************************
 	Lifescycle
  *********************************************************************************************/
 
-Window::Window(bool fullScreen,
-			   unsigned width, unsigned height,
+Window::Window(RENDER_API renderAPI,
+			   bool fullScreen,
+			   unsigned width,
+			   unsigned height,
 			   bool enableHighDPI,
-			   ANTIALIASING_MODE antialiasingMode,
-			   RENDER_API renderAPI):
-	RenderContext(renderAPI),
-	_inputManager(nullptr),
-	_cursorCaptured(false) {
+			   ANTIALIASING_MODE antialiasingMode):
+		RenderContext(renderAPI),
+		_glfwWindow(nullptr),
+		_cursorCaptured(false) {
 
-	if (InitializeGLFW()) {
+	if (InitGLFW()) {
 #ifdef OPENGL_CORE
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -73,12 +85,12 @@ Window::Window(bool fullScreen,
 #endif
 
 
-		#warning THIS
-			//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#warning THIS
+		//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 
-		int viewportWidth = width;
-		int viewportHeight = height;
+		auto viewportWidth = width;
+		auto viewportHeight = height;
 
 		float scaleFactor = 1.0;
 
@@ -103,9 +115,9 @@ Window::Window(bool fullScreen,
 			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
 
 			glfwMakeContextCurrent(_glfwWindow);
-			enableVSync(false);
+			vSyncEnabled(false);
 
-			if (InitializeGLEW()) {
+			if (InitGLEW()) {
 				RenderContext::renderer()->initialize(*this);
 
 				_width = viewportWidth;
@@ -116,12 +128,14 @@ Window::Window(bool fullScreen,
 				_framebufferHeight = _height * _framebufferScale;
 			}
 			else {
+				// TODO: exception
 				AE_LOG_C("Failed to initialize GLEW.");
 				glfwTerminate();
 				// exception
 			}
 		}
 		else {
+			// TODO: exception
 			AE_LOG_C("Couldn't create GLFW Window.");
 			glfwTerminate();
 			// exception
@@ -136,6 +150,8 @@ Window::Window(bool fullScreen,
 Window::~Window() {
 	AE_LOG_D("Destroying Window {:p}", (void*)this);
 
+	close(); // meh?
+
 	// TODO: must move to support multiple windows
 	glfwSetErrorCallback(NULL);
 	glfwTerminate();
@@ -145,179 +161,105 @@ Window::~Window() {
 	Public
  *********************************************************************************************/
 
-void Window::display() {
-	AE_LOG_D("display()");
+void Window::open() {
+	AE_LOG_T("");
 	
-	if (_scene) {
+	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow);
 		
-		glfwSetWindowSizeCallback(_glfwWindow, Window::glfwWindowSizeCallback);
-		glfwSetFramebufferSizeCallback(_glfwWindow, Window::glfwFramebufferSizeCallback);
-		
-        captureCursor(cursorCaptured()); // needs to be set after windows is made current
-        
-		while (!glfwWindowShouldClose(_glfwWindow)) {
-			update();
-		}
-		
-		stopGIFRecording();
+		glfwSetWindowSizeCallback(_glfwWindow, GLFWWindowSizeCallback);
+		glfwSetWindowCloseCallback(_glfwWindow, GLFWWindowCloseCallback);
+		glfwSetFramebufferSizeCallback(_glfwWindow, GLFWFramebufferSizeCallback);
+
+		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
 	}
 	else {
 		throw Exception("Window has no scene.");
 	}
 }
 
+void Window::close() {
+
+	if (_recordingGIF) {
+		stopGIFRecording();
+	}
+
+	if (_visualWorld && _visualWorld->scene()) {
+		auto scene = _visualWorld->scene();
+		if (scene->isRunning()) {
+			scene->stop();
+		}
+	}
+
+	glfwSetWindowSizeCallback(_glfwWindow, nullptr);
+	glfwSetWindowCloseCallback(_glfwWindow, nullptr);
+	glfwSetFramebufferSizeCallback(_glfwWindow, nullptr);
+
+	cursorCaptured(false);
+
+	glfwSetWindowShouldClose(_glfwWindow, true);
+}
+
 bool Window::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
-void Window::captureCursor(bool captured) {
+void Window::cursorCaptured(bool captured) {
 	_cursorCaptured = captured;
 	glfwSetInputMode(_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
-}
-
-void Window::setShouldClose() {
-	glfwSetWindowShouldClose(_glfwWindow, true);
-}
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-GLFWwindow* Window::glfwWindow() const {
-	return _glfwWindow;
 }
 
 /*********************************************************************************************
 	RenderContext
  *********************************************************************************************/
 
-//void Window::update() {
-//	//RenderContext::update();
-//
-//	AE_LOG_T("-------------------------------------------------------------------------------");
-//
-//	if (updateCallback()) {
-//		(updateCallback())(*this, sceneTime());
-//	}
-//
-//	_renderer->beginFrame(*this);
-//
-//	auto pov = pointOfView();
-//	float aspectRatio = (float)_framebufferWidth/(float)_framebufferHeight;
-//	pov->camera()->aspectRatio(aspectRatio);
-//
-//	_renderer->renderStats().cameraPosition = pov->position();
-//
-//	if (willRenderCallback()) {
-//		(willRenderCallback())(*this, sceneTime());
-//	}
-//
-//	_scene->update(*RenderContext::renderer(),
-//				  _framebufferWidth, _framebufferHeight,
-//				  *pov,
-//				  _debugOptions, _renderer->renderStats());
-//
-//	_renderer->endFrame(*this);
-//
-//	glfwSwapBuffers(_glfwWindow);
-//
-//	if (_recordingGIF) saveGIFFrame(sceneTime());
-//
-//	if (didRenderCallback()) {
-//		(didRenderCallback())(*this, sceneTime());
-//	}
-//
-//	glfwPollEvents();
-//
-//	if (_inputManager) {
-//		static_pointer_cast<WindowInputManager>(_inputManager)->update();
-//	}
-//}
-
 void Window::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow);
 }
 
-void Window::pollInput() {
-	glfwPollEvents();
+bool Window::vSyncEnabled() const {
+	return _vSyncEnabled;
+}
 
-	if (_inputManager) {
-		static_pointer_cast<WindowInputManager>(_inputManager)->update();
+void Window::vSyncEnabled(bool enabled) {
+	RenderContext::vSyncEnabled(enabled);
+
+	if (enabled) {
+		glfwSwapInterval(1);
 	}
-}
-
-void Window::enableVSync(bool enabled) {
-	RenderContext::enableVSync(enabled);
-	
-	if (!enabled) glfwSwapInterval(0);
-	else glfwSwapInterval(1);
-}
-
-void Window::debugOptions(DEBUG_OPTIONS options) {
-	RenderContext::debugOptions(options);
-	
-//#warning Refactor this
-//	if (_scene && _scene->physicsWorld()) {
-//		_scene->physicsWorld()->debugOptions(_debugOptions);
-//	}
-}
-
-shared_ptr<InputManager> Window::inputManager() {
-	if (_inputManager == nullptr) {
-		shared_ptr<Window> window = static_pointer_cast<Window>(shared_from_this());
-		auto inputManager = make_shared<WindowInputManager>(window);
-		_inputManager = static_pointer_cast<InputManager>(inputManager);
+	else {
+		glfwSwapInterval(0);
 	}
-	return _inputManager;
-}
-
-float Window::sceneTime() const {
-	return glfwGetTime();
 }
 
 /*********************************************************************************************
-	GLFW Callbacks
+	Internal
  *********************************************************************************************/
 
-void Window::glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG_T("glfwWindowSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->width(aWidth);
-	window->height(aHeight);
+void Window::pollInput() {
+	glfwPollEvents();
 }
 
-void Window::glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight) {
-	AE_LOG_T("glfwFramebufferSizeCallback()");
-	
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
-}
-
-void Window::glfwErrorCallback(int error, const char* description) {
-	AE_LOG_E("glfwErrorCallback(): error: {}, description: {}", error, description);
+GLFWwindow* Window::glfwWindow() const {
+	return _glfwWindow;
 }
 
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
 
-static bool InitializeGLFW() {
+static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		AE_LOG_T("InitializeGLFW()");
+		AE_LOG_T("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		AE_LOG_I("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must move to support multiple windows
-		glfwSetErrorCallback(Window::glfwErrorCallback);
+		glfwSetErrorCallback(GLFWErrorCallback);
 		
 		if (glfwInit()) {
 			AE_LOG_I("GLFW Initialized.");
@@ -334,7 +276,8 @@ static bool InitializeGLFW() {
 	return true;
 }
 
-static bool InitializeGLEW() {
+static bool InitGLEW() {
+	AE_LOG_T("");
 
 	// NOTE: OpenGL context must be setup first
 	
@@ -447,5 +390,36 @@ static float ScreenScaleFactor(GLFWmonitor* monitor) {
 #endif
 	return 1.0;
 }
+
+void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->width(width);
+	window->height(height);
+}
+
+void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
+	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->close();
+}
+
+void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+	AE_LOG_T("width: {}, height: {}", width, height);
+
+	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+
+	window->framebufferWidth(window->width() * window->framebufferScale());
+	window->framebufferHeight(window->height() * window->framebufferScale());
+}
+
+void GLFWErrorCallback(int error, const char* description) {
+	AE_LOG_E("error: {}, description: {}", error, description);
+}
+
 
 #endif // DESKTOP

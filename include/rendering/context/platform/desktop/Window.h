@@ -41,11 +41,12 @@ namespace ae {
 
 	public:
 
-		Window(bool fullScreen,
-			   unsigned width, unsigned height,
+		Window(RENDER_API renderAPI,
+			   bool fullScreen,
+			   unsigned width,
+			   unsigned height,
 			   bool useHighDPI = true,
-			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE,
-			   RENDER_API renderAPI = RENDER_API::OPENGL);
+			   ANTIALIASING_MODE antialiasingMode = ANTIALIASING_MODE::NONE);
 
 		Window(const Window& other) = delete; // copy constructor
 		Window& operator=(const Window& other) = delete; // copy assignment
@@ -56,50 +57,38 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		void 								display();
+		void 							open();
+		void							close();
 
-		bool 								cursorCaptured() const;
-		void 								captureCursor(bool captured);
-		
-		void 								setShouldClose();
+		bool 							cursorCaptured() const;
+		void 							cursorCaptured(bool captured);
+
+/*********************************************************************************************
+	RenderContext
+ *********************************************************************************************/
+
+		void 							swapBuffers() override;
+		bool 							vSyncEnabled() const override; // why is this necessary?
+		void 							vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		GLFWwindow* 						glfwWindow() const;
+		void 							pollInput();
+		GLFWwindow* 					glfwWindow() const;
 
-/*********************************************************************************************
-	RenderContext
- *********************************************************************************************/
-		
-		//void 								update() override;
-		void 								swapBuffers() override;
-		void 								pollInput() override;
-		void 								enableVSync(bool enabled) override;
-		void 								debugOptions(DEBUG_OPTIONS options) override;
-		std::shared_ptr<InputManager> 		inputManager() override;
-		float 								sceneTime() const override;
-		
-/*********************************************************************************************
-	GLFW Callbacks
- *********************************************************************************************/
-		
-		static void 						glfwWindowSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
-		static void							glfwFramebufferSizeCallback(GLFWwindow* glfwWindow, int aWidth, int aHeight);
-		static void 						glfwErrorCallback(int error, const char* description);
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		GLFWwindow*							_glfwWindow;
-		std::shared_ptr<InputManager> 		_inputManager;
-		bool								_cursorCaptured;
+		GLFWwindow*						_glfwWindow;
+		bool							_cursorCaptured;
 	};
 }
+
 
 #endif // DESKTOP
 
