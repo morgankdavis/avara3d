@@ -11,6 +11,7 @@
 #include <chrono>
 #include <filesystem>
 #include <optional>
+#include <thread>
 
 #ifndef ANDROID
 #include "assimp-3.3.1/include/assimp/cimport.h"
@@ -113,6 +114,9 @@ Scene::Scene():
 		_inputManager(nullptr),
 		_debugOptions(DEBUG_OPTIONS::NONE),
 		_stats({}),
+		_running(false),
+		_paused(false),
+		_pauseTime(0.0),
 		_update(nullptr) { }
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
@@ -124,6 +128,9 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_inputManager(inputManager),
 		_debugOptions(DEBUG_OPTIONS::NONE),
 		_stats({}),
+		_running(false),
+		_paused(false),
+		_pauseTime(0.0),
 		_update(nullptr) {
 
 	if (_visualWorld) _visualWorld->attachedToScene(this);
@@ -224,7 +231,7 @@ const Stats& Scene::stats() const {
 
 void Scene::run() {
 
-	_isRunning = true;
+	_running = true;
 
 	shared_ptr<RenderContext> renderContext = nullptr;
 	shared_ptr<Renderer> renderer = nullptr;
@@ -246,103 +253,128 @@ void Scene::run() {
 	}
 
 	do {
+		const float t = time();
+		static float prevT = t;
+		float deltaT = t - prevT;
+		prevT = t;
+
+		float runT = t - _pauseTime;
+
+		static float prevRunT = runT;
+		float deltaRunT = runT - prevRunT;
+		prevRunT = runT;
+
+		if (_paused) _pauseTime += deltaT;
+
 		memset(&_stats, 0, sizeof(Stats));
 
 		if (_inputManager) {
 			_inputManager->update();
 		}
 
-		const float t = time();
-
 		if (_update) {
-			(_update)(*this, t);
+			(_update)(*this, runT);
 		}
 
-		if (_visualWorld) {
-			renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
+		if (!_paused) {
 
-			const auto framebufferWidth = renderContext->framebufferWidth();
-			const auto framebufferHeight = renderContext->framebufferHeight();
+			if (_visualWorld) {
+				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
 
-			auto pov = visualWorld()->pointOfView();
-			auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+				const auto framebufferWidth = renderContext->framebufferWidth();
+				const auto framebufferHeight = renderContext->framebufferHeight();
 
-			_stats.cameraPosition = pov->position();
+				auto pov = visualWorld()->pointOfView();
+				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
+				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
-			if (_visualWorld->willRender()) { // MOVE?
-				(_visualWorld->willRender())(*_visualWorld, t);
+				_stats.cameraPosition = pov->position();
+
+				if (_visualWorld->willRender()) { // MOVE?
+					(_visualWorld->willRender())(*_visualWorld, runT);
+				}
+
+				renderer->render(*this, _debugOptions, _stats);
 			}
-
-			renderer->render(*this, _debugOptions, _stats);
-		}
-
-		if (_physicalWorld) {
-			physicsSimulator->beginUpdate(*this);
-			physicsSimulator->update(*this);
-			_rootNode->update(*physicsSimulator,
-							  _stats);
-			physicsSimulator->step(t);
-			physicsSimulator->sync(*this);
-			_rootNode->sync(*physicsSimulator,
-							_stats);
-			physicsSimulator->endUpdate(*this);
-
-			if (_physicalWorld->didSimulate()) { // MOVE?
-				(_physicalWorld->didSimulate())(*_physicalWorld, t);
-			}
-		}
-
-		if (_visualWorld) {
-			auto pov = visualWorld()->pointOfView();
-
-			auto viewMat = pov->worldTransform();
-			auto projectionMat = pov->camera()->projection();
-
-			_rootNode->draw(*renderer,
-							viewMat,
-							projectionMat,
-							_debugOptions,
-							_stats);
 
 			if (_physicalWorld) {
-				auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-				if (bulletSimulator) {
-					bulletSimulator->drawDebug(*renderer,
-											   viewMat,
-											   projectionMat,
-											   _debugOptions);
+				physicsSimulator->beginUpdate(*this);
+				physicsSimulator->update(*this);
+				_rootNode->update(*physicsSimulator,
+								  _stats);
+				physicsSimulator->step(deltaRunT);
+				physicsSimulator->sync(*this);
+				_rootNode->sync(*physicsSimulator,
+								_stats);
+				physicsSimulator->endUpdate(*this);
+
+				if (_physicalWorld->didSimulate()) { // MOVE?
+					(_physicalWorld->didSimulate())(*_physicalWorld, runT);
 				}
 			}
 
-			renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
+			if (_visualWorld) {
+				auto pov = visualWorld()->pointOfView();
 
-			renderContext->swapBuffers();
+				auto viewMat = pov->worldTransform();
+				auto projectionMat = pov->camera()->projection();
 
-			if (renderContext->recordingGIF()) { // MOVE?
-				renderContext->saveGIFFrame(t);
-			}
+				_rootNode->draw(*renderer,
+								viewMat,
+								projectionMat,
+								_debugOptions,
+								_stats);
 
-			if (_visualWorld->didRender()) { // MOVE?
-				(_visualWorld->didRender())(*_visualWorld, t);
+				if (_physicalWorld) {
+					auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+					if (bulletSimulator) {
+						bulletSimulator->drawDebug(*renderer,
+												   viewMat,
+												   projectionMat,
+												   _debugOptions);
+					}
+				}
+
+				renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
+
+				renderContext->swapBuffers();
+
+				if (renderContext->recordingGIF()) { // MOVE?
+					renderContext->saveGIFFrame(t);
+				}
+
+				if (_visualWorld->didRender()) { // MOVE?
+					(_visualWorld->didRender())(*_visualWorld, runT);
+				}
 			}
 		}
+		else {
+			std::this_thread::sleep_for(std::chrono::microseconds(16667));
+		}
 
-	} while (_isRunning);// && !static_pointer_cast<Window>(renderContext)->wantsClose()); // change
+	} while (_running);// && !static_pointer_cast<Window>(renderContext)->wantsClose()); // change
 }
 
 void Scene::stop() {
 
-	if (_isRunning) {
-		_isRunning = false;
+	if (_running) {
+		_running = false;
 	}
 	else {
 		AE_LOG_W("Attempting to stop when Scene not running.");
 	}
 }
 
-bool Scene::isRunning() const {
-	return _isRunning;
+bool Scene::running() const {
+	return _running;
+}
+
+bool Scene::paused() const {
+	return _paused;
+}
+
+void Scene::paused(bool flag) {
+	_paused = flag;
 }
 
 Scene::UpdateCallback Scene::update() const {

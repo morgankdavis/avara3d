@@ -244,7 +244,7 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decomposedElements() const
 	return _decomposedElements;
 }
 
-//bool ConvexDecomposer::isRunning() const {
+//bool ConvexDecomposer::running() const {
 //
 //}
 //
