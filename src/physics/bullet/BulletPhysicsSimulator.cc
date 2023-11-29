@@ -564,19 +564,29 @@ void BulletPhysicsSimulator::sync(PhysicsShape& shape,
 
 }
 
-void BulletPhysicsSimulator::step(float time) {
+void BulletPhysicsSimulator::step(float deltaT) {
 	AE_LOG_T("");
 
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	int result = _btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, _timestep);
+	int result = _btWorld->stepSimulation(deltaT, MAX_SUBSTEPS, _timestep);
 
 	if (result == MAX_SUBSTEPS) {
 		AE_LOG_W("Physics simulation max substeps reached: {}", result);
 	}
 }
+
+//void BulletPhysicsSimulator::step(float time) {
+//	AE_LOG_T("");
+//
+//	static float previousSeconds = time;
+//	float deltaSeconds = time - previousSeconds;
+//	previousSeconds = time;
+//
+//	int result = _btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, _timestep);
+//
+//	if (result == MAX_SUBSTEPS) {
+//		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+//	}
+//}
 
 /*********************************************************************************************
 	Static

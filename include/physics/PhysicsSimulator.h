@@ -61,7 +61,7 @@ namespace ae {
 		virtual void				sync(PhysicsShape& shape,
 										 PHYSICS_BODY_TYPE bodyType);
 
-		virtual void 				step(float time);
+		virtual void 				step(float deltaT);
 		
 /*********************************************************************************************
 	Protected

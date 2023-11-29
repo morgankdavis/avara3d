@@ -236,6 +236,7 @@ void Example::updateCallback(Scene& scene, float time) {
 			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
 		}
 	}
+
 	if (keysPressed.count(KEY::B)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
@@ -244,6 +245,7 @@ void Example::updateCallback(Scene& scene, float time) {
 			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
 		}
 	}
+
 	if (keysPressed.count(KEY::I)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
@@ -277,6 +279,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::U)) {
 		_siameseNode->removeFromParent();
 	}
+
 	if (keysPressed.count(KEY::O)) {
 		_siameseNode = nullptr;
 	}

@@ -186,7 +186,7 @@ void Window::close() {
 
 	if (_visualWorld && _visualWorld->scene()) {
 		auto scene = _visualWorld->scene();
-		if (scene->isRunning()) {
+		if (scene->running()) {
 			scene->stop();
 		}
 	}

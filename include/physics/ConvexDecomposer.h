@@ -79,7 +79,7 @@ namespace ae {
 		std::vector<std::shared_ptr<GeometryElement>>	decompose();
 
 //		void 									run();
-//		bool  									isRunning() const;
+//		bool  									running() const;
 //		bool  									isAsync() const;
 //
 //		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
@@ -130,7 +130,7 @@ namespace ae {
 		std::shared_ptr<GeometryElement>					_sourceElement;
 		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
 
-//		bool												_isRunning;
+//		bool												_running;
 //		bool												_isAsync;
 
 //		ProgressFunction									_progressFunction;

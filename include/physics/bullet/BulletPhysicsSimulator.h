@@ -93,7 +93,7 @@ namespace ae {
 		void		sync(PhysicsShape& shape,
 						 PHYSICS_BODY_TYPE bodyType) override;
 
-		void 		step(float time) override;
+		void 		step(float deltaT) override;
 		
 /*********************************************************************************************
 	Private

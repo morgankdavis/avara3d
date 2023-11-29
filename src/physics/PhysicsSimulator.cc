@@ -59,5 +59,5 @@ void PhysicsSimulator::update(PhysicsShape& shape,
 void PhysicsSimulator::sync(PhysicsShape& shape,
 							PHYSICS_BODY_TYPE bodyType) { }
 
-void PhysicsSimulator::step(float time) { }
+void PhysicsSimulator::step(float deltaT) { }
 

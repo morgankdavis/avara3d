@@ -339,6 +339,10 @@ void Example::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
 	}
+
+	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+		scene.paused(!scene.paused());
+	}
 	
 	if (keysPressed.count(KEY::T)) {
 		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
