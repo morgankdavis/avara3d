@@ -255,13 +255,13 @@ void Scene::run() {
 	do {
 		const float t = time();
 		static float prevT = t;
-		float deltaT = t - prevT;
+		const float deltaT = t - prevT;
 		prevT = t;
 
 		float runT = t - _pauseTime;
 
 		static float prevRunT = runT;
-		float deltaRunT = runT - prevRunT;
+		const float deltaRunT = runT - prevRunT;
 		prevRunT = runT;
 
 		if (_paused) _pauseTime += deltaT;
@@ -352,7 +352,7 @@ void Scene::run() {
 			std::this_thread::sleep_for(std::chrono::microseconds(16667));
 		}
 
-	} while (_running);// && !static_pointer_cast<Window>(renderContext)->wantsClose()); // change
+	} while (_running);
 }
 
 void Scene::stop() {
