@@ -605,7 +605,7 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 	}
 }
 
-shared_ptr<Node> Node::child(const string& name, bool resursive) {
+shared_ptr<Node> Node::childNamed(const std::string &name, bool resursive) {
 	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;

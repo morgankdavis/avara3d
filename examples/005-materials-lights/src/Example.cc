@@ -27,7 +27,7 @@ constexpr bool					USE_HIGH_DPI =			true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr bool 					ORTHO_CAMERA =			false;
@@ -108,7 +108,7 @@ int Example::run(const vector<string>& args) {
 	}
 
 	auto siameseScene = SceneNamed("siamese/siamese");
-	auto siameseNode = siameseScene->rootNode()->child("Siamese", true);
+	auto siameseNode = siameseScene->rootNode()->childNamed("Siamese", true);
 	_siameseNode = siameseNode;
 	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
@@ -125,7 +125,7 @@ int Example::run(const vector<string>& args) {
 	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
 //	auto palletNode = palletScene->rootNode()->children(true)[1];
 	//auto palletNode = palletScene->rootNode()->children(true)[0];
-	auto palletNode = palletScene->rootNode()->child("Pallet", true);
+	auto palletNode = palletScene->rootNode()->childNamed("Pallet", true);
 	_palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 20.0f);
@@ -369,7 +369,13 @@ void Example::updateCallback(Scene& scene, float time) {
 			
 			auto keysDown = scene.inputManager()->keysDown();
 
-			static float MOVE_SPEED = Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = 0;
+			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
+
+			float moveMultiplier = 1.0;
+			if (keysDown.count(KEY::LEFT_CONTROL)) {
+				moveMultiplier = 2.0;
+			}
 			
 			if(keysDown.count(KEY::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
@@ -388,10 +394,14 @@ void Example::updateCallback(Scene& scene, float time) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			
-			if(keysDown.count(KEY::SPACE)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-				pov->position(pov->position() + positionDelta);
+
+			if (keysDown.count(KEY::SPACE)) {
+				float direction = 1;
+				if (keysDown.count(KEY::LEFT_SHIFT)) {
+					direction = -1;
+				}
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
+				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}

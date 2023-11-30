@@ -117,7 +117,7 @@ namespace ae {
 		void 									replaceChild(const Node& replace, const Node& with);
 
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
-		std::shared_ptr<Node> 					child(const std::string& name, bool resursive = false);
+		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
 
 		std::shared_ptr<PhysicsBody> 			physicsBody() const;
 		void 									physicsBody(std::shared_ptr<PhysicsBody> body);
