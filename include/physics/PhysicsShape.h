@@ -57,6 +57,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
+		void 									attachedToBody(std::shared_ptr<PhysicsBody> body);
+
 		void 									sourceObject(std::variant<
 															std::weak_ptr<Geometry>,
 															std::weak_ptr<Node>,

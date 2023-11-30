@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-//#include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 #include "Scene.h"
@@ -81,15 +80,6 @@ namespace ae {
 		bool 									hidden() const;
 		void 									hidden(const bool hidden);
 
-		float 									opacity() const;
-		void				 					opacity(const float opacity);
-
-		/* REMOVE? */ int 						renderOrder() const;
-		/* REMOVE? */ void 						renderOrder(const int renderOrder);
-
-		/* REMOVE? */ bool 						castsShadow() const;
-		/* REMOVE? */ void			 			castsShadow(const bool castsShadow);
-
 		glm::vec3 								position() const;
 		void 									position(const glm::vec3& position);
 
@@ -126,12 +116,15 @@ namespace ae {
 		void 									removeFromParent();
 		void 									replaceChild(const Node& replace, const Node& with);
 
-		std::weak_ptr<Node> 					parent() const;
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
 		std::shared_ptr<Node> 					child(const std::string& name, bool resursive = false);
 
 		std::shared_ptr<PhysicsBody> 			physicsBody() const;
 		void 									physicsBody(std::shared_ptr<PhysicsBody> body);
+
+		Scene*									scene() const;
+
+		Node* 									parent() const;
 
 //		glm::vec3 								convertPositionFromNode(const glm::vec3& position, const Node& fromNode);
 //		glm::vec3 								convertPositionToNode(const glm::vec3& position, const Node& toNode);
@@ -142,35 +135,24 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		//void 									updateWorldTransform();
-//		void 									updateWorldTransform(glm::mat4& parentWorldTransform);
-		bool 									containsChild(std::shared_ptr<Node> node);
-//		void 									attachedToScene(std::shared_ptr<Scene> scene);
-		void 									attachedToParent(std::weak_ptr<Node> parent);
-		
-//		std::shared_ptr<Node> 					root() const;
-//		std::weak_ptr<Scene> 					scene() const;
+		void 									attachedToParent(Node* parent);
 
-//		std::weak_ptr<Node> 					model() const;
-//		void 									attachedToModel(std::shared_ptr<Node> model);
+		bool 									containsChild(std::shared_ptr<Node> node);
 
 		AABB									aabb();
 		glm::vec3								extent();
 
 		void 									update(PhysicsSimulator& simulator,
 													   Stats& stats);
-//													   std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									sync(PhysicsSimulator& simulator,
 													 Stats& stats);
-//													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
 													 const DEBUG_OPTIONS& debugOptions,
 													 Stats& stats);
-//													 std::map<std::shared_ptr<Node>, bool>& visited);
 
 		void									_debugPrint(); // testing
 		void									_debugPrintRec(Node& node,
@@ -180,9 +162,6 @@ namespace ae {
 //		void									_debugPrintRec(std::shared_ptr<Node> node,
 //																  int level,
 //																  std::map<std::shared_ptr<Node>, bool>& visited);
-
-		std::weak_ptr<Scene>					scene() const;
-		void									scene(std::weak_ptr<Scene> scene);
 
 /*********************************************************************************************
 	Private
@@ -194,19 +173,6 @@ namespace ae {
 
 		void	 								unrollWorldTransform(glm::mat4 transform);
 
-//		std::vector<std::shared_ptr<Node>> 		pathToRoot() const;
-
-//		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
-//		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-//																		std::shared_ptr<Node> node,
-//																		std::list<std::shared_ptr<Node>>& list);
-
-//		void			 						addChildrenDirtyMask(NODE_DIRTY_MASK mask);
-//		void			 						addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-//																		std::shared_ptr<Node> node,
-//																		std::map<std::shared_ptr<Node>, bool>& visited,
-//																		std::stack<std::shared_ptr<Node>>& stack);
-
 		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
 		void 									childrenRec(std::shared_ptr<Node> node,
 															std::list<std::shared_ptr<Node>>& list);
@@ -216,16 +182,9 @@ namespace ae {
 //																	std::map<std::shared_ptr<Node>, bool>& visited,
 //																	std::stack<std::shared_ptr<Node>>& stack);
 
-//		std::vector<std::shared_ptr<Node>>		preorderChildren(std::shared_ptr<Node> root);
-//		void 									preorderChildrenRec(std::shared_ptr<Node> node,
-//																	std::map<std::shared_ptr<Node>, bool>& visited,
-//																	std::stack<std::shared_ptr<Node>>& stack);
-
-		//void 									checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale);
-		
 		NODE_DIRTY_MASK 						dirtyMask() const;
 		void 									dirtyMask(NODE_DIRTY_MASK mask);
-//
+
 		std::optional<std::string>				_name;
 		
 		std::shared_ptr<Light>					_light;
@@ -239,17 +198,14 @@ namespace ae {
 		glm::vec3								_position;
 		glm::quat								_orientation;
 		glm::vec3								_scale;
-//		glm::mat4								_pivot;
-//		glm::mat4								_worldTransform;
 		
 		std::shared_ptr<PhysicsBody>			_physicsBody;
-		
-//		std::weak_ptr<Scene> 					_scene;
-		std::weak_ptr<Node>						_parent;
-		
+
 		NODE_DIRTY_MASK							_dirtyMask;
 
-		std::weak_ptr<Scene>					_scene;
+		Scene*									_scene;
+
+		Node*									_parent;
 	};
 }
 
