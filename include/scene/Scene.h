@@ -103,6 +103,8 @@ namespace ae {
 
 	private:
 
+//		void									updateTimeStats(Stats& stats, float time);
+
 		std::shared_ptr<Node>					_rootNode;
 		std::shared_ptr<VisualWorld> 			_visualWorld;
 		std::shared_ptr<PhysicalWorld> 			_physicalWorld;

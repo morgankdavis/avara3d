@@ -45,7 +45,7 @@ namespace ae {
 		static std::shared_ptr<Color> 				Magenta();
 		static std::shared_ptr<Color>				Purple();
 		static std::shared_ptr<Color> 				Brown();
-		
+
 		static std::vector<std::shared_ptr<Color>> 	Rainbow();
 
 		static std::shared_ptr<Color> 				Random();

@@ -92,7 +92,6 @@ shared_ptr<Image> Image::inverted() const {
 	int widthInBytes = _width * _bytesPerPixel;
 	int size = widthInBytes * _height;
 
-	//unsigned char buf[size]; // CRASH??????????????????????
 	auto buf = (unsigned char*)malloc(size);
 
 	auto existing = _data->pointer();

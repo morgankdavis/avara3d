@@ -1923,20 +1923,20 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoScrollbar;
-//	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoNav;
-	window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+//	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoNav;
+	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGui::SetNextWindowBgAlpha(0);
-	bool* p_open = nullptr;
-	ImGui::Begin("Stats", p_open, window_flags);
+	ImGui::SetNextWindowBgAlpha(.5);
+	ImGui::Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
+	style.WindowRounding = 6;
 
 	static bool setInitialPosition = false;
 	if (!setInitialPosition) {

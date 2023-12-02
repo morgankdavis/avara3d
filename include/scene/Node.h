@@ -136,6 +136,16 @@ namespace ae {
  *********************************************************************************************/
 
 		void 									attachedToParent(Node* parent);
+		void									attachedToScene(Scene* scene);
+		void									visualWorldAttachedToScene(VisualWorld* world);
+		void									physicalWorldAttachedToScene(PhysicalWorld* world);
+
+		// ----------------------------------------------------
+		void 									detachedFromFromParent(Node* parent); // could be my parent or sombody's parent above
+		void									detachedFromScene(Scene* scene); // could be me or someone above
+		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		// ----------------------------------------------------
 
 		bool 									containsChild(std::shared_ptr<Node> node);
 

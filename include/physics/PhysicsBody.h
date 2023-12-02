@@ -124,8 +124,26 @@ namespace ae {
 		
 		void 								resting(bool resting);
 		
+//		void 								attachedToNode(Node* node);
+//		void 								geometryAttachedToNode(Geometry* geometry);
 		void 								attachedToNode(std::shared_ptr<Node> node);
 		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
+
+		// ----------------------------------------------------
+//		void 								nodeAttachedToParent(Node* node, Node* parent);
+//		void								nodeAttachedToScene(Node* node, Scene* scene);
+//		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+//		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+//
+//		void 								detachedFromNode(Node* node);
+//		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
+//		void 								nodeDetachedFromParent(Node* node, Node* parent);
+//		void								nodeDetachedFromScene(Node* node, Scene* scene);
+//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+//		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+
+		// ----------------------------------------------------
+
 
 		std::shared_ptr<PhysicsBodyResources>	resources();
 

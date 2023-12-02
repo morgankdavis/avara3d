@@ -650,6 +650,28 @@ void Node::attachedToParent(Node* parent) {
 	_parent = parent;
 }
 
+void Node::attachedToScene(Scene* scene) {
+	_scene = scene;
+
+	for (auto& child : _children) {
+		attachedToScene(scene);
+	}
+}
+
+void Node::visualWorldAttachedToScene(VisualWorld* world) {
+
+	for (auto& child : _children) {
+		visualWorldAttachedToScene(world);
+	}
+}
+
+void Node::physicalWorldAttachedToScene(PhysicalWorld* world) {
+
+	for (auto& child : _children) {
+		physicalWorldAttachedToScene(world);
+	}
+}
+
 void Node::unrollWorldTransform(mat4 transform) {
 	// used for physics simulation to update local transform relative to parent
 
