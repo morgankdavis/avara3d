@@ -52,6 +52,9 @@ using namespace glm;
 using namespace std;
 
 
+constexpr float FRAMETIME_AVERAGING_INTERVAL = .25;
+
+
 /*********************************************************************************************
 	Public Static Prototypes
  *********************************************************************************************/
@@ -62,6 +65,7 @@ static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 	Private Static Prototypes
  *********************************************************************************************/
 
+static void							UpdateTimeStats(Stats& stats, float time);
 static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
@@ -267,6 +271,7 @@ void Scene::run() {
 		if (_paused) _pauseTime += deltaT;
 
 		memset(&_stats, 0, sizeof(Stats));
+		UpdateTimeStats(_stats, runT);
 
 		if (_inputManager) {
 			_inputManager->update();
@@ -386,7 +391,44 @@ void Scene::update(UpdateCallback function) {
 }
 
 /*********************************************************************************************
-	Public Static Prototypes
+	Private
+ *********************************************************************************************/
+
+//void Scene::updateTimeStats(Stats& stats, float time) {
+//
+//	static float fpsAvg = 0.0;
+//	static float msAvg = 0.0;
+//
+//	static int elapsedFramesThisSample = 0;
+//
+//	static float lastSampleStartTime = time;
+//
+//	float elapsedSecondsSinceLastFrame = time - lastSampleStartTime;
+//
+//	float timeSinceBeginSample = time - lastSampleStartTime;
+//	if (timeSinceBeginSample >= FRAMETIME_AVERAGING_INTERVAL) {
+//
+//		fpsAvg = (float)elapsedFramesThisSample / timeSinceBeginSample;
+//		msAvg = (elapsedSecondsSinceLastFrame * 1000.0f) / elapsedFramesThisSample;
+//
+//		elapsedFramesThisSample = 0;
+//		lastSampleStartTime = time;
+//	}
+//	else {
+//		++elapsedFramesThisSample;
+//	}
+//
+//	stats.averageFramerate = fpsAvg;
+//	stats.averageFrametime = msAvg;
+//
+//	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
+//	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f; // is this wrong?
+//
+//	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
+//}
+
+/*********************************************************************************************
+	Public Static
  *********************************************************************************************/
 
 #ifndef ANDROID
@@ -598,6 +640,39 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 /*********************************************************************************************
 	Private Static
  *********************************************************************************************/
+
+void UpdateTimeStats(Stats& stats, float time) {
+
+	static float fpsAvg = 0.0;
+	static float msAvg = 0.0;
+
+	static int elapsedFramesThisSample = 0;
+
+	static float lastSampleStartTime = time;
+
+	float elapsedSecondsSinceLastFrame = time - lastSampleStartTime;
+
+	float timeSinceBeginSample = time - lastSampleStartTime;
+	if (timeSinceBeginSample >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		fpsAvg = (float)elapsedFramesThisSample / timeSinceBeginSample;
+		msAvg = (elapsedSecondsSinceLastFrame * 1000.0f) / elapsedFramesThisSample;
+
+		elapsedFramesThisSample = 0;
+		lastSampleStartTime = time;
+	}
+	else {
+		++elapsedFramesThisSample;
+	}
+
+	stats.averageFramerate = fpsAvg;
+	stats.averageFrametime = msAvg;
+
+	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
+	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f;
+
+	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
+}
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 	

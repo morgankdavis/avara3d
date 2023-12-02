@@ -1,3 +1,4 @@
+
 //
 //  Types.h
 //	avara-engine
@@ -316,28 +317,35 @@ namespace ae {
 	} Face;
 
 	typedef struct {
-		// the frame time as of the last frame
+		// the frame time as of the last frame in ms
 		float		currentFrametime;
-		// the framerate as of the last frame
+		// the framerate as of the last frame in frames/second
 		float		currentFramerate;
-		// the average of frame time over frametimeAveragingInterval
+		// the average of frame time over frametimeAveragingInterval in ms
 		float		averageFrametime;
-		// the average of frame rate over frametimeAveragingInterval
+		// the average of frame rate over frametimeAveragingInterval in frames/second
 		float		averageFramerate;
-		// time interval over which to average averageFrametime and averageFramerate over
+		// time interval over which to average averageFrametime and averageFramerate over in seconds
 		float 		frametimeAveragingInterval;
+
 		unsigned 	nodes;
 		unsigned 	geometries;
 		unsigned 	meshes;
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
+
 		unsigned	staticBodies;
 		unsigned	dynamicBodies;
 		unsigned	kinematicBodies;
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
+
+		float		currentPhysicstime;
+		float		currentDrawtime;
+		float 		averagePhysicstime;
+		float		averageDrawtime;
 	} Stats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {

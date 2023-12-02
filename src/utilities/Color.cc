@@ -97,7 +97,7 @@ std::shared_ptr<Color> Color::Brown() {
 }
 
 vector<std::shared_ptr<Color>> Color::Rainbow() {
-	return vector<std::shared_ptr<Color>>() = {
+	return vector<shared_ptr<Color>>() = {
 		Black(),
 		DarkGray(),
 		Gray(),
@@ -117,6 +117,28 @@ vector<std::shared_ptr<Color>> Color::Rainbow() {
 		Magenta(),
 		Purple(),
 		Brown() };
+
+//	auto v = vector<unique_ptr<Color>>();
+//	v.push_back(Black());
+//	v.push_back(DarkGray());
+//	v.push_back(Gray());
+//	v.push_back(LightGray());
+//	v.push_back(White());
+//	v.push_back(Maroon());
+//	v.push_back(Red());
+//	v.push_back(Orange());
+//	v.push_back(Yellow());
+//	v.push_back(Olive());
+//	v.push_back(Lime());
+//	v.push_back(Green());
+//	v.push_back(Cyan());
+//	v.push_back(Blue());
+//	v.push_back(Navy());
+//	v.push_back(Teal());
+//	v.push_back(Magenta());
+//	v.push_back(Purple());
+//	v.push_back(Brown());
+//	return v;
 }
 
 shared_ptr<Color> Color::Random() {

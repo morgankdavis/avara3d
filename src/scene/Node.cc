@@ -10,8 +10,6 @@
 
 #include <algorithm>
 
-// apparently we're not using anything experimental here since at least GLM .9.9.8
-//#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
@@ -68,10 +66,9 @@ Node::Node():
 		_position({0.0f, 0.0f, 0.0f}),
 		_orientation(quat()),
 		_scale({1.0f, 1.0f, 1.0f}),
-		//_worldTransform(mat4(1.0f)),
 		_physicsBody(nullptr),
-		_parent({}),
-//	_scene({}),
+		_scene(nullptr),
+		_parent(nullptr),
 	_dirtyMask(NODE_DIRTY_MASK::NONE) {
 
 }
@@ -349,8 +346,6 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 quat Node::orientation() const {
@@ -359,8 +354,6 @@ quat Node::orientation() const {
 
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::scale() const {
@@ -368,12 +361,7 @@ vec3 Node::scale() const {
 }
 
 void Node::scale(const glm::vec3& scale) {
-	
-	//checkPhysicsScale(_scale, scale);
-	
 	_scale = scale;
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 mat4 Node::transform() const {
@@ -411,8 +399,6 @@ void Node::transform(const mat4& transform) {
 	//
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec3 Node::worldPosition() {
@@ -537,38 +523,15 @@ vec3 Node::worldRight() {
 
 mat4 Node::worldTransform() {
 
-	if (auto parent = _parent.lock()) {
-		return parent->worldTransform() * transform();
+	if (_parent) {
+		return _parent->worldTransform() * transform();
 	}
 	else {
 		// base case, at root node
 		static const auto idMat4 = mat4(1.0);
 		return idMat4;
 	}
-
-//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-
-	//AE_LOG_I("DIRTY UPDATING WORLD");
-
-//	auto t = mat4(1.0f);
-//	auto path = pathToRoot();
-//
-//	auto iter = path.end();
-//	while (iter != path.begin()) {
-//		--iter;
-//		shared_ptr<Node> node = *iter;
-//		t = t * node->transform();
-//	}
-
-	//_worldTransform = t * transform();
-
-//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//	}
-
-//	return t * transform();
 }
-
-
 
 //mat4 Node::worldTransform() {
 //
@@ -606,7 +569,7 @@ void Node::addChild(shared_ptr<Node> node) {
 		throw Exception("Node already exists in tree.");
 	}
 	
-	node->attachedToParent(weak_from_this());
+	node->attachedToParent(this);
 	_children.push_back(node);
 }
 
@@ -615,23 +578,19 @@ void Node::insertChild(const Node& node, int index) {
 }
 
 void Node::removeFromParent() {
-	if (auto parent = _parent.lock()) {
+	if (_parent) {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-		auto vec = parent->_children;
+		auto vec = _parent->_children;
 		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
 // TODO: can we avoid the copy?
-		parent->_children = vec;
+		_parent->_children = vec;
 	}
 }
 
 void Node::replaceChild(const Node& replace, const Node& with) {
 	
-}
-
-weak_ptr<Node> Node::parent() const {
-	return _parent;
 }
 
 vector<shared_ptr<Node>> Node::children(bool resursive) {
@@ -646,19 +605,7 @@ vector<shared_ptr<Node>> Node::children(bool resursive) {
 	}
 }
 
-//vector<shared_ptr<Node>> Node::children(bool resursive) {
-//	// if !resursive, returns immediate children in no particular order
-//	// if resursive, returns all descendants in topological order
-//
-//	if (resursive) {
-//		return preorderChildren(shared_from_this());
-//	}
-//	else {
-//		return _children;
-//	}
-//}
-
-shared_ptr<Node> Node::child(const string& name, bool resursive) {
+shared_ptr<Node> Node::childNamed(const std::string &name, bool resursive) {
 	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
@@ -676,75 +623,17 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 	body->attachedToNode(shared_from_this());
 }
 
+Scene* Node::scene() const {
+	return _scene;
+}
+
+Node* Node::parent() const {
+	return _parent;
+}
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-
-void Node::getAABBRec(AABB& aabb) {
-
-	if (_geometry) {
-		auto geoAABB = _geometry->aabb(shared_from_this());
-		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
-		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
-		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
-		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
-		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
-		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
-	}
-
-	for (auto& child : _children) {
-		child->getAABBRec(aabb);
-	}
-}
-
-void Node::unrollWorldTransform(mat4 transform) {
-	// used for physics simulation to update local transform relative to parent
-	
-	//this->transform(transform * inverse(_parent.lock()->worldTransform()));
-	this->transform(inverse(_parent.lock()->worldTransform()) * transform);
-}
-
-//void Node::updateWorldTransform() {
-//	// gets called by Scene each frame.
-//	// before being called a topological sort if done on the scene, and each node's
-//	// updateWorldTransform() is called in order, guaranteeing that its parent's
-//	// world tranform is indeed a valid world transform
-//
-//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-//		if (auto p = parent().lock()) {
-//			//auto oldScale = scale();
-//			_worldTransform = p->worldTransform() * transform();
-//			//auto newScale = scale();
-//			//checkPhysicsScale(oldScale, newScale);
-//		}
-//
-//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//	}
-//}
-
-//void Node::updateWorldTransform(mat4& parentWorldTransform) {
-//
-//	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-//		_worldTransform = parentWorldTransform * transform();
-//		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//	}
-//}
-
-bool Node::containsChild(shared_ptr<Node> node) {
-//	auto top = root();
-//	if (!top) top = shared_from_this();
-//	auto sceneNodes = top->children(true);
-//	if (find(sceneNodes.begin(), sceneNodes.end(), node) != sceneNodes.end()) {
-//		return true;
-//	}
-//	return false;
-	
-	auto nodes = children(true);
-	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
-		return true;
-	}
-	return false;
-}
 
 //void Node::attachedToScene(shared_ptr<Scene> scene) {
 ////	if (!root()) {
@@ -757,34 +646,46 @@ bool Node::containsChild(shared_ptr<Node> node) {
 ////	}
 //}
 
-void Node::attachedToParent(weak_ptr<Node> parent) {
+void Node::attachedToParent(Node* parent) {
 	_parent = parent;
 }
 
-//shared_ptr<Node> Node::root() const {
-//	auto path = pathToRoot();
-//	if (path.size() > 0) {
-//		return path.back();
-//	}
-//	return nullptr;
-//}
+void Node::attachedToScene(Scene* scene) {
+	_scene = scene;
 
-//weak_ptr<Scene> Node::scene() const {
-//	if (root()) {
-//		return root()->scene();
-//	}
-//	else {
-//		return _scene;
-//	}
-//}
+	for (auto& child : _children) {
+		attachedToScene(scene);
+	}
+}
 
-//weak_ptr<Node> Node::model() const {
-//	return _model;
-//}
-//
-//void Node::attachedToModel(shared_ptr<Node> model) {
-//	_model = model;
-//}
+void Node::visualWorldAttachedToScene(VisualWorld* world) {
+
+	for (auto& child : _children) {
+		visualWorldAttachedToScene(world);
+	}
+}
+
+void Node::physicalWorldAttachedToScene(PhysicalWorld* world) {
+
+	for (auto& child : _children) {
+		physicalWorldAttachedToScene(world);
+	}
+}
+
+void Node::unrollWorldTransform(mat4 transform) {
+	// used for physics simulation to update local transform relative to parent
+
+	this->transform(inverse(_parent->worldTransform()) * transform);
+}
+
+bool Node::containsChild(shared_ptr<Node> node) {
+
+	auto nodes = children(true);
+	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
+		return true;
+	}
+	return false;
+}
 
 AABB Node::aabb() {
 
@@ -808,54 +709,46 @@ vec3 Node::extent() {
 
 void Node::update(PhysicsSimulator& simulator,
 				  Stats& stats) {
-//				  map<shared_ptr<Node>, bool>& visited) {
 
-//	if (!visited[shared_from_this()]) {
+	// physics body or physics body dirty?
+	//		create/update
 
-		// physics body or physics body dirty?
-		//		create/update
+	if (_physicsBody) {
+		_physicsBody->update(simulator,
+							 *this,
+							 stats);
+	}
 
-		if (_physicsBody) {
-			_physicsBody->update(simulator,
-								 *this,
-								 stats);
-		}
+	// apply visual to kinematic bodies (and static?)
 
-		// apply visual to kinematic bodies (and static?)
+	for (auto& child : _children) {
+		child->update(simulator,
+					  stats);
+	}
 
-		for (auto& child : _children) {
-			child->update(simulator,
-						  stats);
-		}
-
-		++stats.nodes;
-//	}
+	++stats.nodes;
 }
 
 void Node::sync(PhysicsSimulator& simulator,
 				Stats& stats) {
-//				map<shared_ptr<Node>, bool>& visited) {
 
-//	if (!visited[shared_from_this()]) {
+	// apply physics model to visual
 
-		// apply physics model to visual
+	auto worldTransform = mat4(1.0);
 
-		auto worldTransform = mat4(1.0);
+	if (_physicsBody) {
+		_physicsBody->sync(simulator,
+						   *this,
+						   worldTransform,
+						   stats);
 
-		if (_physicsBody) {
-			_physicsBody->sync(simulator,
-							   *this,
-							   worldTransform,
-							   stats);
+		unrollWorldTransform(worldTransform);
+	}
 
-			unrollWorldTransform(worldTransform);
-		}
-
-		for (auto& child : _children) {
-			child->sync(simulator,
-						stats);
-		}
-//	}
+	for (auto& child : _children) {
+		child->sync(simulator,
+					stats);
+	}
 }
 
 void Node::draw(Renderer& renderer,
@@ -863,33 +756,6 @@ void Node::draw(Renderer& renderer,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
 				Stats& stats) {
-//				map<shared_ptr<Node>, bool>& visited) {
-
-//	if (!visited[shared_from_this()]) {
-
-		// - world transform dirty? -> update
-
-		//updateWorldTransform(parentWorldTransform);
-//		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-//			//AE_LOG_I("UPDATING WORLD in update()");
-//
-//			static const auto mat4Identity = mat4(1.0);
-//			auto parentNode = _parent.lock();
-//			mat4 parentWorldTransform = (parentNode
-//										 ? parentNode->worldTransform()
-//										 : mat4Identity);
-//
-//			_worldTransform = parentWorldTransform * transform();
-//			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//		}
-
-//		if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-//			if (auto p = parent().lock()) {
-//				_worldTransform = p->worldTransform() * transform();
-//			}
-//
-//			_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//		}
 
 		if (_geometry && !_hidden) {
 
@@ -928,14 +794,6 @@ void Node::_debugPrintRec(Node& node,
 	}
 }
 
-weak_ptr<Scene> Node::scene() const {
-	return _scene;
-}
-
-void Node::scene(weak_ptr<Scene> scene) {
-	_scene = scene;
-}
-
 //void Node::_debugPrint() {
 //
 //	int level = 0;
@@ -969,67 +827,22 @@ void Node::scene(weak_ptr<Scene> scene) {
 	Private
  *********************************************************************************************/
 
-//vector<shared_ptr<Node>> Node::pathToRoot() const {
-//	// walks up the tree to the root node, returning a vector containing the nodes in ascending order
-//
-//	auto parents = vector<shared_ptr<Node>>();
-//
-//	if (auto p = _parent.lock()) {
-//		if (auto p = _parent.lock()) {
-//			do {
-//				parents.push_back(p);
-//				p = p->parent().lock();
-//			} while (p != nullptr);
-//		}
-//	}
-//
-//	return parents;
-//}
+void Node::getAABBRec(AABB& aabb) {
 
-//void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
-//
-////	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
-//
-//	auto l = list<shared_ptr<Node>>();
-//	addChildrenDirtyMaskRec(mask, shared_from_this(), l);
-//}
-//
-//void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-//								   shared_ptr<Node> node,
-//								   list<shared_ptr<Node>>& list) {
-//	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
-//
-//	list.push_back(node); // stack overflow
-//
-//	for (auto child : node->_children) {
-//		addChildrenDirtyMaskRec(mask, node, list);
-//	}
-//}
+	if (_geometry) {
+		auto geoAABB = _geometry->aabb(shared_from_this());
+		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
+		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
+		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
+		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
+		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
+		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
+	}
 
-//void Node::addChildrenDirtyMask(NODE_DIRTY_MASK mask) {
-//
-////	_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
-//
-//	auto visited = map<shared_ptr<Node>, bool>();
-//	auto stack = std::stack<shared_ptr<Node>>();
-//	addChildrenDirtyMaskRec(mask, shared_from_this(), visited, stack);
-//}
-//
-//void Node::addChildrenDirtyMaskRec(NODE_DIRTY_MASK mask,
-//								   std::shared_ptr<Node> node,
-//								   std::map<std::shared_ptr<Node>, bool>& visited,
-//								   std::stack<std::shared_ptr<Node>>& stack) {
-//
-//	if (!visited[node]) {
-//		visited[node] = true;
-//
-//		_dirtyMask = NODE_DIRTY_MASK_ADD(_dirtyMask, mask);
-//
-//		for (auto child : node->_children) {
-//			addChildrenDirtyMaskRec(mask, node, visited, stack);
-//		}
-//	}
-//}
+	for (auto& child : _children) {
+		child->getAABBRec(aabb);
+	}
+}
 
 vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
 
@@ -1090,18 +903,6 @@ void Node::childrenRec(shared_ptr<Node> node,
 //	}
 //
 //	stack.push(node);
-//}
-
-//void Node::checkPhysicsScale(const glm::vec3& oldScale, const glm::vec3& newScale) {
-//	// check if the physics shape needs to be scaled
-//
-//	if (_physicsBody && _physicsBody->shape()) {
-//		if (!Equal(oldScale, newScale)) {
-//			auto shape = _physicsBody->shape();
-//			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_ADD(shape->dirtyMask(),
-//														  PHYSICS_SHAPE_DIRTY_MASK::SCALE));
-//		}
-//	}
 //}
 
 NODE_DIRTY_MASK Node::dirtyMask() const {

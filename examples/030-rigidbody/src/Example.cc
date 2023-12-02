@@ -208,7 +208,7 @@ int Example::run(const vector<string>& args) {
 
 	// add the duck
 
-	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->child("g duck", false);
+	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
 	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
 	_duckNode->position({/*4.5*/0, 15, 0});
 
@@ -406,8 +406,7 @@ void Example::updateCallback(Scene& scene, float time) {
 			_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
 		}
 	}
-	
-	
+
 	if (scene.visualWorld() && cursorCaptured) {
 		if (mouseButtonsPressed.count(MOUSE_BUTTON::ONE)) {
 			auto pov = scene.visualWorld()->pointOfView();
@@ -539,14 +538,14 @@ void Example::updateCallback(Scene& scene, float time) {
 		
 		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 
-		auto cameraNode = scene.visualWorld()->pointOfView();
-		if (cameraNode) {
+		auto pov = scene.visualWorld()->pointOfView();
+		if (pov) {
 			
 			// look
 			
-			vec3 camForward = cameraNode->worldForward();
-			vec3 camRight = cameraNode->worldRight();
-			vec3 camUp = cameraNode->worldUp();
+			vec3 camForward = pov->worldForward();
+			vec3 camRight = pov->worldRight();
+			vec3 camUp = pov->worldUp();
 			
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
@@ -554,47 +553,44 @@ void Example::updateCallback(Scene& scene, float time) {
 			//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 			//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
 			
-			vec3 angles = cameraNode->eulerAngles();
-			cameraNode->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = pov->eulerAngles();
+			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 			
 			// move
-			
-			//		const static float MOVE_SPEED = 5.0f; // units/sec
+
 			static float MOVE_SPEED = 0;
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
-			
-			//auto keysDown = _inputManager->keysDown();
-			
+
 			float moveMultiplier = 1.0;
-			if (keysDown.count(KEY::LEFT_SHIFT)) {
+			if (keysDown.count(KEY::LEFT_CONTROL)) {
 				moveMultiplier = 2.0;
 			}
 			
 			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
-				cameraNode->position(cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
-				cameraNode->position(cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
-				cameraNode->position(cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(KEY::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
-				cameraNode->position(cameraNode->position() + positionDelta);
+				pov->position(pov->position() + positionDelta);
 			}
 			
 			if (keysDown.count(KEY::SPACE)) {
 				float direction = 1;
-				if (keysDown.count(KEY::LEFT_SHIFT) && keysDown.count(KEY::LEFT_CONTROL)) {
+				if (keysDown.count(KEY::LEFT_SHIFT)) {
 						direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
-				cameraNode->position(cameraNode->position() + positionDelta * direction);
+				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}
@@ -764,7 +760,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 	
 	static auto fileScene = SceneNamed("slurm/slurm", "obj");
 	static auto fileNode = fileScene->rootNode();
-	static auto fileCanNode = fileNode->child("g slurm", false);
+	static auto fileCanNode = fileNode->childNamed("g slurm", false);
 	static auto fileMaterials = fileCanNode->geometry()->materials();
 	
 	auto canNode = Node::GeometryNode(fileCanNode->geometry());
@@ -840,7 +836,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 		static auto fileScene = SceneNamed("slurm/slurm", "obj");
 		static auto fileNode = fileScene->rootNode();
-		static auto fileCanNode = fileNode->child("g slurm", false);
+		static auto fileCanNode = fileNode->childNamed("g slurm", false);
 		static auto fileMaterials = fileCanNode->geometry()->materials();
 
 		auto canNode = Node::GeometryNode(fileCanNode->geometry());
@@ -1034,8 +1030,8 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	
 	static auto fileScene = SceneNamed("cardboardBox2/cardboardBox2", "obj");
 	static auto fileNode = fileScene->rootNode();
-	static auto fileTapeNode = fileNode->child("g tape", false);
-	static auto fileBoxNode = fileNode->child("g box", false);
+	static auto fileTapeNode = fileNode->childNamed("g tape", false);
+	static auto fileBoxNode = fileNode->childNamed("g box", false);
 	
 	auto tapeNode = Node::GeometryNode(fileTapeNode->geometry());
 	tapeNode->geometry()->addMaterial(fileTapeNode->geometry()->firstMaterial());

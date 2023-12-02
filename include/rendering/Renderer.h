@@ -86,16 +86,16 @@ namespace ae {
 
 		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
 
-		float 								frametimeAveragingInterval() const;
-		void 								frametimeAveragingInterval(float interval);
+//		float 								frametimeAveragingInterval() const;
+//		void 								frametimeAveragingInterval(float interval);
 
 /**************************************************************************************
 	Protected
  **************************************************************************************/
 
-	protected:
-
-		virtual void						updateFrametimeStats(Stats& stats, float time);
+//	protected:
+//
+//		virtual void						updateTimeStats(Stats& stats, float time);
 		
 /**************************************************************************************
 	Private
@@ -103,7 +103,7 @@ namespace ae {
 
 	private:
 
-		float								_frametimeAveragingInterval;
+//		float								_frametimeAveragingInterval;
 	};
 }
 

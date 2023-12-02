@@ -337,35 +337,35 @@ int Example::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
-		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
+		auto aNode = aScene->rootNode()->childNamed("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
 		aNode->eulerAngles(vec3((float)radians(45.0f), 0, 0));
 		
 		
 		auto bScene = SceneNamed("teapot");
-		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
+		auto bNode = bScene->rootNode()->childNamed("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->eulerAngles(vec3(0, (float)radians(45.0f), 0));
 		
 		
 		auto cScene = SceneNamed("teapot");
-		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
+		auto cNode = cScene->rootNode()->childNamed("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
 		cNode->eulerAngles(vec3(0, 0, (float)radians(45.0f)));
 		
 		
 		auto dScene = SceneNamed("teapot");
-		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
+		auto dNode = dScene->rootNode()->childNamed("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
 		dNode->eulerAngles(vec3((float)radians(30.0f), (float)radians(45.0f), (float)radians(60.0f)));
 		
 		
 		auto eScene = SceneNamed("teapot");
-		auto eNode = eScene->rootNode()->child("ID20564224", true); // teapot
+		auto eNode = eScene->rootNode()->childNamed("ID20564224", true); // teapot
 		eNode->name("E");
 		eNode->position(vec3(0.0f, 0.0f, 0.0f));
 		eNode->eulerAngles(vec3((float)radians(-130.0f), (float)radians(70.0f), (float)radians(20.0f)));
@@ -404,7 +404,7 @@ int Example::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
-		auto aNode = aScene->rootNode()->child("ID20564224", true); // teapot
+		auto aNode = aScene->rootNode()->childNamed("ID20564224", true); // teapot
 		aNode->name("A");
 		aNode->position(vec3(-25.0f, 25.0f, 0.0f));
 		aNode->orientation(quat((float)radians(45.0f), 1.0f, 0.0f, 0.0f));
@@ -412,7 +412,7 @@ int Example::run(const vector<string>& args) {
 		
 		
 		auto bScene = SceneNamed("teapot");
-		auto bNode = bScene->rootNode()->child("ID20564224", true); // teapot
+		auto bNode = bScene->rootNode()->childNamed("ID20564224", true); // teapot
 		bNode->name("B");
 		bNode->position(vec3(25.0f, 25.0f, 0.0f));
 		bNode->orientation(quat((float)radians(45.0f), 0.0f, 1.0f, 0.0f));
@@ -420,7 +420,7 @@ int Example::run(const vector<string>& args) {
 
 		
 		auto cScene = SceneNamed("teapot");
-		auto cNode = cScene->rootNode()->child("ID20564224", true); // teapot
+		auto cNode = cScene->rootNode()->childNamed("ID20564224", true); // teapot
 		cNode->name("C");
 		cNode->position(vec3(-25.0f, -25.0f, 0.0f));
 		cNode->orientation(quat((float)radians(45.0f), 0.0f, 0.0f, 1.0f));
@@ -428,7 +428,7 @@ int Example::run(const vector<string>& args) {
 		
 
 		auto dScene = SceneNamed("teapot");
-		auto dNode = dScene->rootNode()->child("ID20564224", true); // teapot
+		auto dNode = dScene->rootNode()->childNamed("ID20564224", true); // teapot
 		dNode->name("D");
 		dNode->position(vec3(25.0f, -25.0f, 0.0f));
 		dNode->orientation(quat((float)radians(45.0f), 0.5f, 0.25f, 0.35f));
@@ -479,7 +479,7 @@ int Example::run(const vector<string>& args) {
 		auto rootNode = make_shared<Node>();
 		
 		auto aScene = SceneNamed("teapot");
-		auto aNode = aScene->rootNode()->child("teapot", true); // teapot
+		auto aNode = aScene->rootNode()->childNamed("teapot", true); // teapot
 		aNode->name("A");
 
 		
@@ -524,7 +524,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
 	if (_test == TEST::ROTATION) {
-		auto node = scene.rootNode()->child("A", true);
+		auto node = scene.rootNode()->childNamed("A", true);
 		
 		// we WANT this to work (this is how scene kit works)
 		// but it locks after 2PI rotation

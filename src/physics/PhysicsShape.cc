@@ -104,6 +104,10 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	Internal
  *********************************************************************************************/
 
+void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
+
+}
+
 void PhysicsShape::sourceObject(variant<
 		weak_ptr<Geometry>,
 		weak_ptr<Node>,
