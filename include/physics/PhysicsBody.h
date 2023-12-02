@@ -132,22 +132,34 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		void 								resting(bool resting);
+		void 									resting(bool resting);
 		
-		void 								attachedToNode(Node* node);
-		void 								detachedFromNode(Node* node);
+		void 									attachedToNode(Node* node);
+		void 									detachedFromNode(Node* node);
 
-		void 								geometryAttachedToOwningNode(Geometry* geometry);
-		void 								geometryDetachedFromOwningNode(Geometry* geometry);
+		void 									nodeAttachedToParent(Node* parent);
+		void 									nodeDetachedFromParent(Node* parent);
 
-		void 								ancestorAttachedToParent(Node* ancestor, Node* parent);
-		void 								ancestorDetachedFromParent(Node* ancestor, Node* parent);
+		void 									nodeAttachedToScene(Scene* scene);
+		void 									nodeDetachedFromScene(Scene* scene);
 
-		void								ancestorAttachedToScene(Node* ancestor, Scene* scene);
-		void								ancestorDetachedFromScene(Node* ancestor, Scene* scene);
+		void 									geometryAttachedToNode(Geometry* geometry);
+		void 									geometryDetachedFromNode(Geometry* geometry);
 
-		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
-		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		void 									ancestorAttachedToParent(Node* ancestor,
+																		 Node* parent);
+		void 									ancestorDetachedFromParent(Node* ancestor,
+																		   Node* parent);
+
+		void									ancestorAttachedToScene(Node* ancestor,
+																		Scene* scene);
+		void									ancestorDetachedFromScene(Node* ancestor,
+																		  Scene* scene);
+
+		void									physicalWorldAttachedToScene(PhysicalWorld* world,
+																			 Scene* scene);
+		void									physicalWorldDetachedFromScene(PhysicalWorld* world,
+																			   Scene* scene);
 
 //		Node*									node() const;
 

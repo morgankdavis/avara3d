@@ -119,7 +119,6 @@ shared_ptr<Light> Node::light() const {
 }
 
 void Node::light(const shared_ptr<Light> light) {
-	//light->attachedToNode(shared_from_this());
 	_light = light;
 }
 
@@ -128,7 +127,6 @@ shared_ptr<Camera> Node::camera() const {
 }
 
 void Node::camera(const shared_ptr<Camera> camera) {
-//	camera->attachedToNode(shared_from_this());
 	_camera = camera;
 }
 
@@ -137,10 +135,15 @@ shared_ptr<Geometry> Node::geometry() const {
 }
 
 void Node::geometry(const shared_ptr<Geometry> geometry) {
+
+	if (_physicsBody && _geometry) {
+		_physicsBody->geometryDetachedFromNode(geometry.get());
+	}
+
 	_geometry = geometry;
-//	geometry->attachedToNode(shared_from_this());
-	if (_physicsBody) {
-		_physicsBody->geometryAttachedToOwningNode(geometry.get());
+
+	if (_physicsBody && _geometry) {
+		_physicsBody->geometryAttachedToNode(geometry.get());
 	}
 }
 
@@ -534,30 +537,6 @@ mat4 Node::worldTransform() {
 	}
 }
 
-//mat4 Node::worldTransform() {
-//
-////	if (NODE_DIRTY_MASK_CONTAINS(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM)) {
-//
-//		//AE_LOG_I("DIRTY UPDATING WORLD");
-//
-//		auto t = mat4(1.0f);
-//		auto path = pathToRoot();
-//
-//		auto iter = path.end();
-//		while (iter != path.begin()) {
-//			--iter;
-//			shared_ptr<Node> node = *iter;
-//			t = t * node->transform();
-//		}
-//
-//		//_worldTransform = t * transform();
-//
-////		_dirtyMask = NODE_DIRTY_MASK_REMOVE(_dirtyMask, NODE_DIRTY_MASK::WORLD_TRANSFORM);
-////	}
-//
-//	return t * transform();
-//}
-
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 	for (auto node: nodes) {
 		addChild(node);
@@ -623,13 +602,15 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
-	auto oldBody = _physicsBody;
-	_physicsBody = body;
-	if (body) {
-		body->attachedToNode(this);
+
+	if (_physicsBody) {
+		_physicsBody->detachedFromNode(this);
 	}
-	else if (oldBody) {
-		oldBody->detachedFromNode(this);
+
+	_physicsBody = body;
+
+	if (_physicsBody) {
+		_physicsBody->attachedToNode(this);
 	}
 }
 
@@ -656,6 +637,10 @@ void Node::attachedToParent(Node* parent) {
 
 	_parent = parent;
 
+	if (_physicsBody) {
+		_physicsBody->nodeAttachedToParent(parent);
+	}
+
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(this, parent);
 	}
@@ -663,12 +648,20 @@ void Node::attachedToParent(Node* parent) {
 
 void Node::detachedFromParent(Node* parent) {
 
+	if (_physicsBody) {
+		_physicsBody->nodeDetachedFromParent(parent);
+	}
+
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(this, parent);
 	}
 }
 
 void Node::attachedToScene(Scene* scene) {
+
+	if (_physicsBody) {
+		_physicsBody->nodeAttachedToScene(scene);
+	}
 
 	_scene = scene;
 
@@ -679,12 +672,20 @@ void Node::attachedToScene(Scene* scene) {
 
 void Node::detachedFromScene(Scene* scene) {
 
+	if (_physicsBody) {
+		_physicsBody->nodeDetachedFromScene(scene);
+	}
+
 	for (auto& child : _children) {
 		child->ancestorDetachedFromScene(this, scene);
 	}
 }
 
 void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
+
+	if (_physicsBody) {
+		ancestorAttachedToParent(ancestor, parent);
+	}
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(ancestor, parent);
@@ -693,6 +694,10 @@ void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 
 void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 
+	if (_physicsBody) {
+		ancestorDetachedFromParent(ancestor, parent);
+	}
+
 	for (auto& child : _children) {
 		child->ancestorDetachedFromParent(ancestor, parent);
 	}
@@ -700,12 +705,20 @@ void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 
 void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
 
+	if (_physicsBody) {
+		ancestorAttachedToScene(ancestor, scene);
+	}
+
 	for (auto& child : _children) {
 		child->ancestorAttachedToScene(ancestor, scene);
 	}
 }
 
 void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
+
+	if (_physicsBody) {
+		ancestorDetachedFromScene(ancestor, scene);
+	}
 
 	for (auto& child : _children) {
 		child->ancestorDetachedFromScene(ancestor, scene);
@@ -728,13 +741,20 @@ void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
 
 void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
 
+	if (_physicsBody) {
+		physicalWorldAttachedToScene(world, scene);
+	}
+
 	for (auto& child : _children) {
 		child->physicalWorldAttachedToScene(world, scene);
 	}
 }
 
-
 void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
+
+	if (_physicsBody) {
+		physicalWorldDetachedFromScene(world, scene);
+	}
 
 	for (auto& child : _children) {
 		child->physicalWorldDetachedFromScene(world, scene);
