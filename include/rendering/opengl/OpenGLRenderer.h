@@ -91,7 +91,7 @@ namespace ae {
 											 const DEBUG_OPTIONS& debugOptions,
 											 Stats& stats) override;
 
-		void 						render(Scene& scene,
+		void 						render(const Scene& scene,
 										   const DEBUG_OPTIONS& debugOptions,
 										   Stats& stats) override;
 		void 						render(std::shared_ptr<Geometry> geometry,

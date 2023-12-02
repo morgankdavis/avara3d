@@ -169,6 +169,7 @@ vec4 Node::rotation() const {
 	/*
 		angle = 2 * acos(qw)
 		x = qx / sqrt(1-qw*qw)
+
 		y = qy / sqrt(1-qw*qw)
 		z = qz / sqrt(1-qw*qw)
 	 */

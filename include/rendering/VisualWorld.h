@@ -19,6 +19,7 @@ namespace ae {
 	class Geometry;
 	class MaterialProperty;
 	class Node;
+	class PhysicalWorld;
 	class RenderContext;
 	class Renderer;
 	class Scene;
@@ -84,7 +85,16 @@ namespace ae {
  *********************************************************************************************/
 
 		void									attachedToScene(Scene* scene);
+
 		void									checkAddDefaultLighting();
+
+		void									draw(const Scene& scene,
+													 const PhysicalWorld* physicalWorld,
+													 float runT,
+													 float deltaRunT,
+													 DEBUG_OPTIONS debugOptions,
+													 Stats& stats);
+
 		std::shared_ptr<Geometry>				skyboxGeometry() const;
 		std::shared_ptr<Node> 					defaultPointOfView();
 

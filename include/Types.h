@@ -318,15 +318,15 @@ namespace ae {
 
 	typedef struct {
 		// the frame time as of the last frame in ms
-		float		currentFrametime;
+		double		currentFrametime;
 		// the framerate as of the last frame in frames/second
-		float		currentFramerate;
+		double		currentFramerate;
 		// the average of frame time over frametimeAveragingInterval in ms
-		float		averageFrametime;
+		double		averageFrametime;
 		// the average of frame rate over frametimeAveragingInterval in frames/second
-		float		averageFramerate;
+		double		averageFramerate;
 		// time interval over which to average averageFrametime and averageFramerate over in seconds
-		float 		frametimeAveragingInterval;
+		double 		frametimeAveragingInterval;
 
 		unsigned 	nodes;
 		unsigned 	geometries;
@@ -342,10 +342,10 @@ namespace ae {
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
 
-		float		currentPhysicstime;
-		float		currentDrawtime;
-		float 		averagePhysicstime;
-		float		averageDrawtime;
+		double		currentPhysicstime;
+		double		currentDrawtime;
+		double 		averagePhysicstime;
+		double		averageDrawtime;
 	} Stats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {

@@ -546,7 +546,7 @@ void Example::updateCallback(Scene& scene, float time) {
 			vec3 camForward = pov->worldForward();
 			vec3 camRight = pov->worldRight();
 			vec3 camUp = pov->worldUp();
-			
+
 			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
 			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
 			

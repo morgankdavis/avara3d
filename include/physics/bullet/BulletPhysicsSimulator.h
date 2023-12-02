@@ -78,8 +78,8 @@ namespace ae {
 		void 		beginUpdate(const Scene& scene) override;
 		void 		endUpdate(const Scene& scene) override;
 
-		void		update(Scene& scene) override;
-		void		sync(Scene& scene) override;
+		void		update(const Scene& scene) override;
+		void		sync(const Scene& scene) override;
 
 		void		update(PhysicsBody& body,
 						   Node& node) override;

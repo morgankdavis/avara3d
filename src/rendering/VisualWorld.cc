@@ -10,7 +10,11 @@
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
+#include "physics/PhysicalWorld.h"
+#include "physics/PhysicsSimulator.h"
+#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/Light.h"
+#include "rendering/Renderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/context/RenderContext.h"
 #include "rendering/materials/MaterialProperty.h"
@@ -214,6 +218,78 @@ void VisualWorld::checkAddDefaultLighting() {
 								 sceneExtent.z + sceneExtent.z/4.0});
 			_scene->rootNode()->addChild(pointNode);
 		}
+	}
+}
+
+void VisualWorld::draw(const Scene& scene,
+					   const PhysicalWorld* physicalWorld,
+					   float runT,
+					   float deltaRunT,
+					   DEBUG_OPTIONS debugOptions,
+					   Stats& stats) {
+
+	if (_renderContext) {
+
+		auto renderer = _renderContext->renderer();
+		if (renderer) {
+
+			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+
+			const auto framebufferWidth = _renderContext->framebufferWidth();
+			const auto framebufferHeight = _renderContext->framebufferHeight();
+
+			auto pov = pointOfView();
+
+			auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
+			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+
+			stats.cameraPosition = pov->position();
+
+			if (willRender()) {
+				(willRender())(*this, runT);
+			}
+
+			renderer->render(scene, debugOptions, stats);
+
+			auto viewMat = pov->worldTransform();
+			auto projectionMat = pov->camera()->projection();
+
+			scene.rootNode()->draw(*renderer,
+								   viewMat,
+								   projectionMat,
+								   debugOptions,
+								   stats);
+
+			if (physicalWorld) {
+
+				auto physicsSimulator = physicalWorld->simulator();
+				auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
+				if (bulletSimulator) {
+					bulletSimulator->drawDebug(*renderer,
+											   viewMat,
+											   projectionMat,
+											   debugOptions);
+				}
+			}
+
+			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
+
+			_renderContext->swapBuffers();
+
+			if (_renderContext->recordingGIF()) {
+				_renderContext->saveGIFFrame(runT);
+			}
+
+			if (didRender()) {
+				(didRender())(*this, runT);
+			}
+		}
+		else {
+			AE_LOG_E("No Renderer attached to RenderContext {:p}", (void*)_renderContext.get());
+		}
+	}
+	else {
+		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", (void*)this);
 	}
 }
 

@@ -50,7 +50,7 @@ void Renderer::endFrame(const Scene& scene,
 						Stats& stats) {
 }
 
-void Renderer::render(Scene& scene,
+void Renderer::render(const Scene& scene,
 					  const DEBUG_OPTIONS& debugOptions,
 					  Stats& stats) {
 	

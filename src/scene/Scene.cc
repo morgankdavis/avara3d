@@ -65,11 +65,10 @@ static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 	Private Static Prototypes
  *********************************************************************************************/
 
-static void 						GetFrameTimes(float time, // time since whenever
-												 bool paused,
-												 float& deltaT, // delta from since last call
-												 float& runT, // time since whenever excluding paused time
-												 float& deltaRunT);//, // time since lat call excluding paused time
+static void 						GetRunTime(float time, // time since reference
+											  bool paused,
+											  float& runT, // time since reference excluding paused time
+											  float& deltaRunT); // time since last call excluding paused time
 static void							UpdateTimeStats(Stats& stats, float time);
 static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
@@ -125,7 +124,6 @@ Scene::Scene():
 		_stats({}),
 		_running(false),
 		_paused(false),
-//		_pauseTime(0.0),
 		_update(nullptr) { }
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
@@ -139,7 +137,6 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_stats({}),
 		_running(false),
 		_paused(false),
-//		_pauseTime(0.0),
 		_update(nullptr) {
 
 	if (_visualWorld) _visualWorld->attachedToScene(this);
@@ -285,143 +282,59 @@ const Stats& Scene::stats() const {
 
 void Scene::run() {
 
-	_running = true;
+	if (_rootNode) {
 
-	shared_ptr<RenderContext> renderContext = nullptr;
-	shared_ptr<Renderer> renderer = nullptr;
-	if (_visualWorld) {
-		renderContext = _visualWorld->renderContext();
-		if (renderContext) {
-			renderer = renderContext->renderer();
-		}
-	}
+		_running = true;
 
-	shared_ptr<PhysicsSimulator> physicsSimulator = nullptr;
-	if (_physicalWorld
-		&& _physicalWorld->simulator()) {
-		physicsSimulator = _physicalWorld->simulator();
-	}
-
-	if (_visualWorld) {
-		_visualWorld->checkAddDefaultLighting();
-	}
-
-	float deltaT;
-	float runT;
-	float deltaRunT;
-
-	do {
-
-		GetFrameTimes(time(),
-					  _paused,
-					  deltaT,
-					  runT,
-					  deltaRunT);
-
-		memset(&_stats, 0, sizeof(Stats));
-		UpdateTimeStats(_stats, runT);
-
-		if (_inputManager) {
-			_inputManager->update();
+		if (_visualWorld) {
+			_visualWorld->checkAddDefaultLighting();
 		}
 
-		if (_update) {
-			(_update)(*this, runT);
-		}
+		float deltaT, runT, deltaRunT;
 
-		if (!_paused) {
+		do {
 
-			// VisualWorld::predraw() ?
-			if (_visualWorld) {
-//				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
-//
-//				const auto framebufferWidth = renderContext->framebufferWidth();
-//				const auto framebufferHeight = renderContext->framebufferHeight();
-//
-//				auto pov = visualWorld()->pointOfView();
-//				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-//				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-//
-//				_stats.cameraPosition = pov->position();
-//
-//				if (_visualWorld->willRender()) { // MOVE?
-//					(_visualWorld->willRender())(*_visualWorld, runT);
-//				}
+			GetRunTime(time(),
+					   _paused,
+					   runT,
+					   deltaRunT);
+
+			memset(&_stats, 0, sizeof(Stats));
+			UpdateTimeStats(_stats, runT);
+
+			if (_inputManager) {
+				_inputManager->update();
 			}
 
-			// PhysicalWorld::simulate()
-			if (_physicalWorld) {
-				physicsSimulator->beginUpdate(*this);
-				physicsSimulator->update(*this);
-				_rootNode->update(*physicsSimulator,
-								  _stats);
-				physicsSimulator->step(deltaRunT);
-				physicsSimulator->sync(*this);
-				_rootNode->sync(*physicsSimulator,
-								_stats);
-				physicsSimulator->endUpdate(*this);
-
-				if (_physicalWorld->didSimulate()) { // MOVE?
-					(_physicalWorld->didSimulate())(*_physicalWorld, runT);
-				}
+			if (_update) {
+				(_update)(*this, runT);
 			}
 
-			// VisualWorld::draw() ?
-			if (_visualWorld) {
-				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
-
-				const auto framebufferWidth = renderContext->framebufferWidth();
-				const auto framebufferHeight = renderContext->framebufferHeight();
-
-				auto pov = visualWorld()->pointOfView();
-				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-
-				_stats.cameraPosition = pov->position();
-
-				if (_visualWorld->willRender()) { // MOVE?
-					(_visualWorld->willRender())(*_visualWorld, runT);
-				}
-
-				renderer->render(*this, _debugOptions, _stats);
-
-				auto viewMat = pov->worldTransform();
-				auto projectionMat = pov->camera()->projection();
-
-				_rootNode->draw(*renderer,
-								viewMat,
-								projectionMat,
-								_debugOptions,
-								_stats);
+			if (!_paused) {
 
 				if (_physicalWorld) {
-					auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-					if (bulletSimulator) {
-						bulletSimulator->drawDebug(*renderer,
-												   viewMat,
-												   projectionMat,
-												   _debugOptions);
-					}
+					_physicalWorld->simulate(*this, runT, deltaRunT, _stats);
 				}
 
-				renderer->endFrame(*this, *renderContext, _debugOptions, _stats);
+				if (_visualWorld) {
 
-				renderContext->swapBuffers();
-
-				if (renderContext->recordingGIF()) { // MOVE?
-					renderContext->saveGIFFrame(runT); // t?
-				}
-
-				if (_visualWorld->didRender()) { // MOVE?
-					(_visualWorld->didRender())(*_visualWorld, runT);
+					_visualWorld->draw(*this,
+									   (_physicalWorld ? _physicalWorld.get() : nullptr),
+									   runT,
+									   deltaRunT,
+									   _debugOptions,
+									   _stats);
 				}
 			}
-		}
-		else {
-			std::this_thread::sleep_for(std::chrono::microseconds(16667));
-		}
+			else {
+				std::this_thread::sleep_for(std::chrono::microseconds(16667));
+			}
 
-	} while (_running);
+		} while (_running);
+	}
+	else {
+		AE_LOG_E("No root node attached to Scene {:p}", (void*)this);
+	}
 }
 
 void Scene::stop() {
@@ -705,15 +618,14 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 	Private Static
  *********************************************************************************************/
 
-static void GetFrameTimes(float time, // time since reference
-						  bool paused,
-						  float& deltaT, // delta from since last call
-						  float& runT, // time since whenever excluding paused time
-						  float& deltaRunT) {//, // time since lat call excluding paused time
+static void GetRunTime(float time, // time since reference
+					   bool paused,
+					   float& runT, // time since reference excluding paused time
+					   float& deltaRunT) {//, // time since last call excluding paused time
 
 	const float t = time;
 	static float prevT = t;
-	deltaT = t - prevT;
+	float deltaT = t - prevT;
 	prevT = t;
 
 	static float pauseTime = 0;

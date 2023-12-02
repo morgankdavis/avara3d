@@ -46,8 +46,8 @@ namespace ae {
 		virtual void 				beginUpdate(const Scene& scene);
 		virtual void 				endUpdate(const Scene& scene);
 
-		virtual void				update(Scene& scene);
-		virtual void				sync(Scene& scene);
+		virtual void				update(const Scene& scene);
+		virtual void				sync(const Scene& scene);
 
 		virtual void				update(PhysicsBody& body,
 										   Node& node);

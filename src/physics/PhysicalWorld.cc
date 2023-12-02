@@ -10,6 +10,8 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
+#include "scene/Node.h"
+#include "scene/Scene.h"
 
 
 using namespace ae;
@@ -138,6 +140,34 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 
 void PhysicalWorld::attachedToScene(Scene* scene) {
 	_scene = scene;
+}
+
+void PhysicalWorld::simulate(const Scene& scene,
+							 float runT,
+							 float deltaRunT,
+							 Stats& stats) {
+
+	if (_simulator) {
+
+		auto rootNode = scene.rootNode();
+
+		_simulator->beginUpdate(scene);
+		_simulator->update(scene);
+		rootNode->update(*_simulator,
+						  stats);
+		_simulator->step(deltaRunT);
+		_simulator->sync(scene);
+		rootNode->sync(*_simulator,
+						stats);
+		_simulator->endUpdate(scene);
+
+		if (didSimulate()) {
+			(didSimulate())(*this, runT);
+		}
+	}
+	else {
+		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
+	}
 }
 
 shared_ptr<PhysicsSimulator> PhysicalWorld::simulator() const {

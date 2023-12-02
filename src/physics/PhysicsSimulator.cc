@@ -41,9 +41,9 @@ void PhysicsSimulator::beginUpdate(const Scene& scene) { }
 
 void PhysicsSimulator::endUpdate(const Scene& scene) { }
 
-void PhysicsSimulator::update(Scene& scene) { }
+void PhysicsSimulator::update(const Scene& scene) { }
 
-void PhysicsSimulator::sync(Scene& scene) { }
+void PhysicsSimulator::sync(const Scene& scene) { }
 
 void PhysicsSimulator::update(PhysicsBody& body,
 							  Node& node) { }

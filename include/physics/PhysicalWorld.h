@@ -92,6 +92,11 @@ namespace ae {
 
 		void								attachedToScene(Scene* scene);
 
+		void								simulate(const Scene& scene,
+													 float runT,
+													 float deltaRunT,
+													 Stats& stats);
+
 		std::shared_ptr<PhysicsSimulator>	simulator() const;
 
 		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;

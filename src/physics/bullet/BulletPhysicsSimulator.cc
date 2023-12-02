@@ -189,7 +189,7 @@ void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
 	PhysicsSimulator::endUpdate(scene);
 }
 
-void BulletPhysicsSimulator::update(Scene& scene) {
+void BulletPhysicsSimulator::update(const Scene& scene) {
 	PhysicsSimulator::update(scene);
 
 	auto world = scene.physicalWorld();
@@ -210,7 +210,7 @@ void BulletPhysicsSimulator::update(Scene& scene) {
 	}
 }
 
-void BulletPhysicsSimulator::sync(Scene& scene) {
+void BulletPhysicsSimulator::sync(const Scene& scene) {
 	PhysicsSimulator::sync(scene);
 }
 

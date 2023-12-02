@@ -59,7 +59,7 @@ namespace ae {
 													 const DEBUG_OPTIONS& debugOptions,
 													 Stats& stats);
 
-		virtual void 						render(Scene& scene,
+		virtual void 						render(const Scene& scene,
 												   const DEBUG_OPTIONS& debugOptions,
 												   Stats& stats);
 		virtual void 						render(std::shared_ptr<Geometry> geometry,

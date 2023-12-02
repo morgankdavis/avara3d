@@ -118,7 +118,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -347,7 +347,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	CheckGLError();
 }
 
-void OpenGLRenderer::render(Scene& scene,
+void OpenGLRenderer::render(const Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
 							Stats& stats) {
 
@@ -1314,7 +1314,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
 	
 	// program "Default" must be active
 	
