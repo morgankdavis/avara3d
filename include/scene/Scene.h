@@ -102,19 +102,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		// ----------------------------------------------------
-		void 								nodeAttachedToParent(Node* node, Node* parent);
-		void								nodeAttachedToScene(Node* node, Scene* scene);
-		void								geometryAttachedToNode(Geometry* geometry, Node* node);
-		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
 
-		void 								nodeDetachedFromParent(Node* node, Node* parent);
-		void								nodeDetachedFromScene(Node* node, Scene* scene);
-		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
-		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
-		// ----------------------------------------------------
 
 /*********************************************************************************************
 	Private

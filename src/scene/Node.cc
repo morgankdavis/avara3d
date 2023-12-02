@@ -140,7 +140,7 @@ void Node::geometry(const shared_ptr<Geometry> geometry) {
 	_geometry = geometry;
 //	geometry->attachedToNode(shared_from_this());
 	if (_physicsBody) {
-		_physicsBody->geometryAttachedToNode(geometry.get(), this);
+		_physicsBody->geometryAttachedToOwningNode(geometry.get());
 	}
 }
 
@@ -586,6 +586,9 @@ void Node::removeFromParent() {
 		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
 // TODO: can we avoid the copy?
 		_parent->_children = vec;
+
+		detachedFromParent(_parent);
+		_parent = nullptr;
 	}
 }
 
@@ -630,7 +633,14 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 }
 
 Scene* Node::scene() const {
-	return _scene;
+
+	if (_scene) {
+		return _scene;
+	}
+	else if (_parent) {
+		return _parent->scene();
+	}
+	return nullptr;
 }
 
 Node* Node::parent() const {
@@ -641,40 +651,92 @@ Node* Node::parent() const {
 	Internal
  *********************************************************************************************/
 
-//void Node::attachedToScene(shared_ptr<Scene> scene) {
-////	if (!root()) {
-////		_scene = scene;
-////	}
-////	else {
-////		for (auto child : children(true)) {
-////			child->attachedToScene(scene); // just in case they want to do something with it
-////		}
-////	}
-//}
-
 void Node::attachedToParent(Node* parent) {
+
 	_parent = parent;
+
+	for (auto& child : _children) {
+		child->ancestorAttachedToParent(this, parent);
+	}
+}
+
+void Node::detachedFromParent(Node* parent) {
+
+	for (auto& child : _children) {
+		child->ancestorAttachedToParent(this, parent);
+	}
 }
 
 void Node::attachedToScene(Scene* scene) {
+
 	_scene = scene;
 
 	for (auto& child : _children) {
-		attachedToScene(scene);
+		child->ancestorAttachedToScene(this, scene);
 	}
 }
 
-void Node::visualWorldAttachedToScene(VisualWorld* world) {
+void Node::detachedFromScene(Scene* scene) {
 
 	for (auto& child : _children) {
-		visualWorldAttachedToScene(world);
+		child->ancestorDetachedFromScene(this, scene);
 	}
 }
 
-void Node::physicalWorldAttachedToScene(PhysicalWorld* world) {
+void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 
 	for (auto& child : _children) {
-		physicalWorldAttachedToScene(world);
+		child->ancestorAttachedToParent(ancestor, parent);
+	}
+}
+
+void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
+
+	for (auto& child : _children) {
+		child->ancestorDetachedFromParent(ancestor, parent);
+	}
+}
+
+void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->ancestorAttachedToScene(ancestor, scene);
+	}
+}
+
+void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->ancestorDetachedFromScene(ancestor, scene);
+	}
+}
+
+void Node::visualWorldAttachedToScene(VisualWorld* world, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->visualWorldAttachedToScene(world, scene);
+	}
+}
+
+void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->visualWorldDetachedFromScene(world, scene);
+	}
+}
+
+void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->physicalWorldAttachedToScene(world, scene);
+	}
+}
+
+
+void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
+
+	for (auto& child : _children) {
+		child->physicalWorldDetachedFromScene(world, scene);
 	}
 }
 

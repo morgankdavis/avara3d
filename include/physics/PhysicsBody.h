@@ -56,70 +56,78 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		PHYSICS_BODY_TYPE 					type() const;
-		void 								type(PHYSICS_BODY_TYPE type);
+		PHYSICS_BODY_TYPE 						type() const;
+		void 									type(PHYSICS_BODY_TYPE type);
 
-		std::shared_ptr<PhysicsShape> 		shape() const;
-		void 								shape(std::shared_ptr<PhysicsShape> shape);
+		std::shared_ptr<PhysicsShape> 			shape() const;
+		void 									shape(std::shared_ptr<PhysicsShape> shape);
 
-		float 								mass() const;
-		void 								mass(float mass);
+		float 									mass() const;
+		void 									mass(float mass);
 		
-		glm::vec3 							momentOfInertia() const;
-		void 								momentOfInertia(glm::vec3 moment);
+		glm::vec3 								momentOfInertia() const;
+		void 									momentOfInertia(glm::vec3 moment);
 
-		float 								friction() const;
-		void 								friction(float friction);
+		float 									friction() const;
+		void 									friction(float friction);
 		
-		float 								rollingFriction() const;
-		void 								rollingFriction(float friction);
-		
-		float 								restitution() const;
-		void 								restitution(float restitution);
-		
-		glm::vec3 							linearVelocity() const;
-		void 								linearVelocity(glm::vec3 velocity, bool setDirty=true);
-		
-		glm::vec3 							angularVelocity() const;
-		void 								angularVelocity(glm::vec3 velocity, bool setDirty=true);
-		
-		glm::vec3 							linearFactor() const;
-		void 								linearFactor(glm::vec3 factor);
-		
-		glm::vec3 							angularFactor() const;
-		void 								angularFactor(glm::vec3 factor);
-		
-		float								linearDamping() const;
-		void 								linearDamping(float damping);
-		
-		float								angularDamping() const;
-		void 								angularDamping(float damping);
+		float 									rollingFriction() const;
+		void 									rollingFriction(float friction);
 
-		float								linearSleepingThreshold() const;
-		void 								linearSleepingThreshold(float threshold);
+		float 									restitution() const;
+		void 									restitution(float restitution);
+
+		glm::vec3 								linearVelocity() const;
+		void 									linearVelocity(glm::vec3 velocity,
+															   bool setDirty=true);
+
+		glm::vec3 								angularVelocity() const;
+		void 									angularVelocity(glm::vec3 velocity,
+																bool setDirty=true);
+
+		glm::vec3 								linearFactor() const;
+		void 									linearFactor(glm::vec3 factor);
+
+		glm::vec3 								angularFactor() const;
+		void 									angularFactor(glm::vec3 factor);
+
+		float									linearDamping() const;
+		void 									linearDamping(float damping);
+
+		float									angularDamping() const;
+		void 									angularDamping(float damping);
+
+		float									linearSleepingThreshold() const;
+		void 									linearSleepingThreshold(float threshold);
+
+		float									angularSleepingThreshold() const;
+		void 									angularSleepingThreshold(float threshold);
+
+		bool 									affectedByGravity() const;
+		void 									affectedByGravity(bool flag);
+
+		bool 									allowsResting() const;
+		void 									allowsResting(bool flag);
 		
-		float								angularSleepingThreshold() const;
-		void 								angularSleepingThreshold(float threshold);
-		
-		bool 								affectedByGravity() const;
-		void 								affectedByGravity(bool flag);
-		
-		bool 								allowsResting() const;
-		void 								allowsResting(bool flag);
-		
-		bool 								resting() const;
+		bool 									resting() const;
 		
 		// categoryBitmask
 		// contactTestBitmask
 		// collisionBitmask
-		
-		void 								applyForce(glm::vec3 force, bool impulse);
-		void 								applyForce(glm::vec3 force, glm::vec3 location, bool impulse);
-		void 								applyTorque(glm::vec3 torque, bool impulse);
-		void 								clearForces();
-		
-		void 								resetTransform();
-		
+
+		void 									applyForce(glm::vec3 force,
+														   bool impulse);
+		void 									applyForce(glm::vec3 force,
+														   glm::vec3 location,
+														   bool impulse);
+
+		void 									applyTorque(glm::vec3 torque,
+															bool impulse);
+
+		void 									clearForces();
+
+		void 									resetTransform();
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -128,25 +136,20 @@ namespace ae {
 		
 		void 								attachedToNode(Node* node);
 		void 								detachedFromNode(Node* node);
-//		void 								geometryAttached(Geometry* geometry);
-//		void 								attachedToNode(std::shared_ptr<Node> node);
-//		void 								geometryAttached(std::shared_ptr<Geometry> geometry);
 
-		// ----------------------------------------------------
-		void 								nodeAttachedToParent(Node* node, Node* parent);
-		void								nodeAttachedToScene(Node* node, Scene* scene);
-		void								geometryAttachedToNode(Geometry* geometry, Node* node);
-//		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+		void 								geometryAttachedToOwningNode(Geometry* geometry);
+		void 								geometryDetachedFromOwningNode(Geometry* geometry);
+
+		void 								ancestorAttachedToParent(Node* ancestor, Node* parent);
+		void 								ancestorDetachedFromParent(Node* ancestor, Node* parent);
+
+		void								ancestorAttachedToScene(Node* ancestor, Scene* scene);
+		void								ancestorDetachedFromScene(Node* ancestor, Scene* scene);
+
 		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
-
-		void 								nodeDetachedFromParent(Node* node, Node* parent);
-		void								nodeDetachedFromScene(Node* node, Scene* scene);
-		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
-//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
 		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
-		// ----------------------------------------------------
 
-		Node*									node() const;
+//		Node*									node() const;
 
 		std::shared_ptr<PhysicsBodyResources>	resources();
 
@@ -191,7 +194,7 @@ namespace ae {
 
 		PHYSICS_BODY_DIRTY_MASK 				_dirtyMask;
 
-		Node*									_node;
+//		Node*									_node;
 
 		std::shared_ptr<PhysicsBodyResources>	_resources;
 	};

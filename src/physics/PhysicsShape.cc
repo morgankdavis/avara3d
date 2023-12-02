@@ -109,7 +109,11 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody* body) {
+	// make?
+}
 
+void PhysicsShape::detachedFromBody(PhysicsBody* body) {
+	// cleanup?
 }
 
 void PhysicsShape::sourceObject(variant<

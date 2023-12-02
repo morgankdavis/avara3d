@@ -160,8 +160,24 @@ shared_ptr<Node> Scene::rootNode() const {
 }
 
 void Scene::rootNode(shared_ptr<Node> node) {
+
+	if (_rootNode) {
+
+		_rootNode->detachedFromScene(this);
+//		for (auto child : _rootNode->children(false)) {
+//			child->ancestorDetachedFromScene(_rootNode.get(), this);
+//		}
+	}
+
 	_rootNode = node;
-//	node->attachedToScene(shared_from_this());
+
+	if (_rootNode) {
+
+		_rootNode->attachedToScene(this);
+//		for (auto child : _rootNode->children(false)) {
+//			child->ancestorAttachedToScene(node.get(), this);
+//		}
+	}
 }
 
 std::shared_ptr<VisualWorld> Scene::visualWorld() const {
@@ -169,8 +185,32 @@ std::shared_ptr<VisualWorld> Scene::visualWorld() const {
 }
 
 void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
+
+	if (_visualWorld) {
+
+		if (_rootNode) {
+			_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
+		}
+
+		for (auto child : _rootNode->children(false)) {
+			child->visualWorldDetachedFromScene(_visualWorld.get(), this);
+		}
+	}
+
 	_visualWorld = world;
-	_visualWorld->attachedToScene(this);
+
+	if (_visualWorld) {
+
+		_visualWorld->attachedToScene(this);
+
+		if (_rootNode) {
+			_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
+		}
+
+		for (auto child : _rootNode->children(false)) {
+			child->visualWorldAttachedToScene(_visualWorld.get(), this);
+		}
+	}
 }
 
 shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
@@ -178,35 +218,41 @@ shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
 }
 
 void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
+
+	if (_physicalWorld) {
+
+		if (_rootNode) {
+			_rootNode->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
+		}
+
+		for (auto child : _rootNode->children(false)) {
+			child->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
+		}
+	}
+
 	_physicalWorld = world;
-	_physicalWorld->attachedToScene(this);
+
+	if (_physicalWorld) {
+
+		_physicalWorld->attachedToScene(this);
+
+		if (_rootNode) {
+			_rootNode->physicalWorldAttachedToScene(_physicalWorld.get(), this);
+		}
+
+		for (auto child : _rootNode->children(false)) {
+			child->physicalWorldAttachedToScene(_physicalWorld.get(), this);
+		}
+	}
 }
 
 shared_ptr<InputManager> Scene::inputManager() const {
-
-//	if (_inputManager == nullptr) {
-//		if (_visualWorld != nullptr) {
-//			auto renderContext = _visualWorld->renderContext();
-//			if (renderContext != nullptr) {
-//				shared_ptr<Window> window = static_pointer_cast<Window>(renderContext);
-//				auto inputManager = make_shared<WindowInputManager>(window);
-//				_inputManager = static_pointer_cast<InputManager>(inputManager);
-//			}
-//			else {
-//				AE_LOG_W("renderContext is null.");
-//			}
-//		}
-//		else {
-//			AE_LOG_W("_visualWorld is null.");
-//		}
-//	}
 	return _inputManager;
 }
 
 void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 	_inputManager = inputManager;
 	_inputManager->attachedToScene(this);
-
 }
 
 float Scene::time() const {
@@ -272,6 +318,9 @@ void Scene::run() {
 					  runT,
 					  deltaRunT);
 
+		memset(&_stats, 0, sizeof(Stats));
+		UpdateTimeStats(_stats, runT);
+
 		if (_inputManager) {
 			_inputManager->update();
 		}
@@ -280,29 +329,24 @@ void Scene::run() {
 			(_update)(*this, runT);
 		}
 
-		memset(&_stats, 0, sizeof(Stats));
-		UpdateTimeStats(_stats, runT);
-
 		if (!_paused) {
 
 			// VisualWorld::predraw() ?
 			if (_visualWorld) {
-				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
-
-				const auto framebufferWidth = renderContext->framebufferWidth();
-				const auto framebufferHeight = renderContext->framebufferHeight();
-
-				auto pov = visualWorld()->pointOfView();
-				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-
-				_stats.cameraPosition = pov->position();
-
-				if (_visualWorld->willRender()) { // MOVE?
-					(_visualWorld->willRender())(*_visualWorld, runT);
-				}
-
-				renderer->render(*this, _debugOptions, _stats);
+//				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
+//
+//				const auto framebufferWidth = renderContext->framebufferWidth();
+//				const auto framebufferHeight = renderContext->framebufferHeight();
+//
+//				auto pov = visualWorld()->pointOfView();
+//				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
+//				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+//
+//				_stats.cameraPosition = pov->position();
+//
+//				if (_visualWorld->willRender()) { // MOVE?
+//					(_visualWorld->willRender())(*_visualWorld, runT);
+//				}
 			}
 
 			// PhysicalWorld::simulate()
@@ -324,7 +368,22 @@ void Scene::run() {
 
 			// VisualWorld::draw() ?
 			if (_visualWorld) {
+				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
+
+				const auto framebufferWidth = renderContext->framebufferWidth();
+				const auto framebufferHeight = renderContext->framebufferHeight();
+
 				auto pov = visualWorld()->pointOfView();
+				auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
+				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+
+				_stats.cameraPosition = pov->position();
+
+				if (_visualWorld->willRender()) { // MOVE?
+					(_visualWorld->willRender())(*_visualWorld, runT);
+				}
+
+				renderer->render(*this, _debugOptions, _stats);
 
 				auto viewMat = pov->worldTransform();
 				auto projectionMat = pov->camera()->projection();

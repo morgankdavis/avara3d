@@ -50,10 +50,6 @@ namespace ae {
 		virtual PHYSICS_SHAPE_TYPE 				type() const;
 		virtual void 							type(PHYSICS_SHAPE_TYPE type);
 
-//		std::variant<
-//				std::weak_ptr<Geometry>,
-//				std::weak_ptr<Node>,
-//				std::monostate> 				sourceObject() const;
 		std::variant<
 				Geometry*,
 				Node*,
@@ -64,31 +60,19 @@ namespace ae {
  *********************************************************************************************/
 
 		void 									attachedToBody(PhysicsBody* body);
+		void 									detachedFromBody(PhysicsBody* body);
 
-		// ----------------------------------------------------
-		void 								nodeAttachedToParent(Node* node, Node* parent);
-		void								nodeAttachedToScene(Node* node, Scene* scene);
-		void								geometryAttachedToNode(Geometry* geometry, Node* node);
-//		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+		void 									ancestorAttachedToParent(Node* ancestor, Node* parent);
+		void 									ancestorDetachedFromParent(Node* node, Node* parent);
 
-		void 								nodeDetachedFromParent(Node* node, Node* parent);
-		void								nodeDetachedFromScene(Node* node, Scene* scene);
-		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
-//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
-		// ----------------------------------------------------
+		void									ancestorAttachedToScene(Node* ancestor, Scene* scene);
+		void									ancestorDetachedFromScene(Node* node, Scene* scene);
 
-//		void 									sourceObject(std::variant<
-//															std::weak_ptr<Geometry>,
-//															std::weak_ptr<Node>,
-//															std::monostate> sourceObject);
+		void									physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
 
-		void 									sourceObject(std::variant<
-				Geometry*,
-				Node*,
-				std::monostate>
-															 sourceObject);
+		void 									sourceObject(
+				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
 		void									update(PhysicsSimulator& simulator,
 													   Node& node,
@@ -114,15 +98,10 @@ namespace ae {
 
 	private:
 
-//		std::variant<
-//				std::weak_ptr<Geometry>,
-//				std::weak_ptr<Node>,
-//				std::monostate> 				_sourceObject;
 		std::variant<
 				Geometry*,
 				Node*,
 				std::monostate> 				_sourceObject;
-//		PHYSICS_SHAPE_TYPE 						_type;
 		std::shared_ptr<PhysicsShapeResources>	_resources;
 		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
 	};

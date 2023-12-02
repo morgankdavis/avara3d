@@ -93,8 +93,16 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 }
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
+
+	auto oldShape = _shape;
 	_shape = shape;
 	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
+	if (shape) {
+		shape->attachedToBody(this);
+	}
+	else if (oldShape) {
+		oldShape->detachedFromBody(this);
+	}
 }
 
 float PhysicsBody::mass() const {
@@ -300,7 +308,7 @@ void PhysicsBody::resting(bool resting) {
 
 void PhysicsBody::attachedToNode(Node* node) {
 	if (node) {
-		_node = node;
+//		_node = node;
 		checkAutocreateShape(node);
 	}
 }
@@ -315,19 +323,31 @@ void PhysicsBody::detachedFromNode(Node* node) {
 //	}
 //}
 
-void PhysicsBody::geometryAttachedToNode(Geometry* geometry, Node* node) {
-	if ((node && _node) && node == _node) {
-		if (geometry) {
-			checkAutocreateShape(geometry);
-		}
-	}
-}
-
 //void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
 //	if (node) {
 //		checkAutocreateShape(node);
 //	}
 //}
+
+void PhysicsBody::geometryAttachedToOwningNode(Geometry* geometry) {
+	if (geometry) {
+		checkAutocreateShape(geometry);
+	}
+}
+
+void PhysicsBody::geometryDetachedFromOwningNode(Geometry* geometry) {
+
+}
+
+//void PhysicsBody::geometryAttachedToNode(Geometry* geometry, Node* node) {
+//	if ((node && _node) && node == _node) {
+//		if (geometry) {
+//			checkAutocreateShape(geometry);
+//		}
+//	}
+//}
+
+
 //
 //void PhysicsBody::geometryAttached(shared_ptr<Geometry> geometry) {
 //	if (geometry) {

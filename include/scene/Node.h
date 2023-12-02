@@ -136,27 +136,25 @@ namespace ae {
  *********************************************************************************************/
 
 		void 									attachedToParent(Node* parent);
+		void 									detachedFromParent(Node* parent);
+
 		void									attachedToScene(Scene* scene);
-		void									visualWorldAttachedToScene(VisualWorld* world);
-		void									physicalWorldAttachedToScene(PhysicalWorld* world);
+		void									detachedFromScene(Scene* scene);
 
-		// ----------------------------------------------------
-//		void 									detachedFromFromParent(Node* parent); // could be my parent or sombody's parent above
-//		void									detachedFromScene(Scene* scene); // could be me or someone above
-//		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-//		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		void 									ancestorAttachedToParent(Node* ancestor, Node* parent);
+		void 									ancestorDetachedFromParent(Node* ancestor, Node* parent);
 
-		void 								nodeAttachedToParent(Node* node, Node* parent);
-		void								nodeAttachedToScene(Node* node, Scene* scene);
-		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+		void									ancestorAttachedToScene(Node* ancestor, Scene* scene);
+		void									ancestorDetachedFromScene(Node* ancestor, Scene* scene);
 
-		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
-		void 								nodeDetachedFromParent(Node* node, Node* parent);
-		void								nodeDetachedFromScene(Node* node, Scene* scene);
-		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
-		// ----------------------------------------------------
+//		void									geometryAttachedToNode(Geometry* geometry, Node* node);
+//		void 									geometryDetachedFromNode(Geometry* geometry, Node* node);
+
+		void									visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+
+		void									physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
 
 		bool 									containsChild(std::shared_ptr<Node> node);
 
