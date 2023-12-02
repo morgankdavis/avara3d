@@ -272,9 +272,6 @@ void Scene::run() {
 					  runT,
 					  deltaRunT);
 
-		memset(&_stats, 0, sizeof(Stats));
-		UpdateTimeStats(_stats, runT);
-
 		if (_inputManager) {
 			_inputManager->update();
 		}
@@ -282,6 +279,9 @@ void Scene::run() {
 		if (_update) {
 			(_update)(*this, runT);
 		}
+
+		memset(&_stats, 0, sizeof(Stats));
+		UpdateTimeStats(_stats, runT);
 
 		if (!_paused) {
 
