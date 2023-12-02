@@ -85,25 +85,6 @@ namespace ae {
 												   const glm::mat4& projectionMat);
 
 		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
-
-//		float 								frametimeAveragingInterval() const;
-//		void 								frametimeAveragingInterval(float interval);
-
-/**************************************************************************************
-	Protected
- **************************************************************************************/
-
-//	protected:
-//
-//		virtual void						updateTimeStats(Stats& stats, float time);
-		
-/**************************************************************************************
-	Private
- **************************************************************************************/
-
-	private:
-
-//		float								_frametimeAveragingInterval;
 	};
 }
 

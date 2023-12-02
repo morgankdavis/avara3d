@@ -140,7 +140,7 @@ void Node::geometry(const shared_ptr<Geometry> geometry) {
 	_geometry = geometry;
 //	geometry->attachedToNode(shared_from_this());
 	if (_physicsBody) {
-		_physicsBody->geometryAttachedToNode(geometry);
+		_physicsBody->geometryAttachedToNode(geometry.get(), this);
 	}
 }
 
@@ -619,8 +619,14 @@ shared_ptr<PhysicsBody> Node::physicsBody() const {
 }
 
 void Node::physicsBody(shared_ptr<PhysicsBody> body) {
+	auto oldBody = _physicsBody;
 	_physicsBody = body;
-	body->attachedToNode(shared_from_this());
+	if (body) {
+		body->attachedToNode(this);
+	}
+	else if (oldBody) {
+		oldBody->detachedFromNode(this);
+	}
 }
 
 Scene* Node::scene() const {

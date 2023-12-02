@@ -119,14 +119,6 @@ void VisualWorld::fogColor(shared_ptr<Color> color) {
 	_fogColor = color;
 }
 
-bool VisualWorld::automaticallyAddDefaultLighting() const {
-	return _automaticallyAddDefaultLighting;
-}
-
-void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
-	_automaticallyAddDefaultLighting = enabled;
-}
-
 shared_ptr<Node> VisualWorld::pointOfView() {
 
 	if (_pointOfView) {
@@ -151,6 +143,14 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 
 void VisualWorld::pointOfView(const shared_ptr<Node> camera) {
 	_pointOfView = camera;
+}
+
+bool VisualWorld::automaticallyAddDefaultLighting() const {
+	return _automaticallyAddDefaultLighting;
+}
+
+void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
+	_automaticallyAddDefaultLighting = enabled;
 }
 
 shared_ptr<RenderContext> VisualWorld::renderContext() const {

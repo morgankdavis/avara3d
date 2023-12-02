@@ -80,6 +80,7 @@ namespace ae {
 		void 									inputManager(std::shared_ptr<InputManager> inputManager);
 
 		float 									time() const;
+		float 									runTime() const;
 
 		DEBUG_OPTIONS 							debugOptions() const;
 		void 									debugOptions(DEBUG_OPTIONS options);
@@ -98,12 +99,28 @@ namespace ae {
 		void 									update(UpdateCallback function);
 
 /*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		// ----------------------------------------------------
+		void 								nodeAttachedToParent(Node* node, Node* parent);
+		void								nodeAttachedToScene(Node* node, Scene* scene);
+		void								geometryAttachedToNode(Geometry* geometry, Node* node);
+		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+
+		void 								nodeDetachedFromParent(Node* node, Node* parent);
+		void								nodeDetachedFromScene(Node* node, Scene* scene);
+		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
+		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		// ----------------------------------------------------
+
+/*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
-
-//		void									updateTimeStats(Stats& stats, float time);
 
 		std::shared_ptr<Node>					_rootNode;
 		std::shared_ptr<VisualWorld> 			_visualWorld;
@@ -113,7 +130,6 @@ namespace ae {
 		Stats									_stats;
 		bool									_running;
 		bool									_paused;
-		float 									_pauseTime;
 		UpdateCallback							_update;
 	};
 }

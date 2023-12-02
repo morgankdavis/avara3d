@@ -63,11 +63,11 @@ namespace ae {
 		std::shared_ptr<Color> 					fogColor() const;
 		void 									fogColor(std::shared_ptr<Color> color);
 
-		bool									automaticallyAddDefaultLighting() const;
-		void									automaticallyAddDefaultLighting(bool enabled);
-
 		std::shared_ptr<Node>					pointOfView();
 		void 									pointOfView(const std::shared_ptr<Node> camera);
+
+		bool									automaticallyAddDefaultLighting() const;
+		void									automaticallyAddDefaultLighting(bool enabled);
 
 		std::shared_ptr<RenderContext> 			renderContext() const;
 

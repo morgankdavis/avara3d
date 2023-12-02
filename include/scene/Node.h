@@ -141,10 +141,21 @@ namespace ae {
 		void									physicalWorldAttachedToScene(PhysicalWorld* world);
 
 		// ----------------------------------------------------
-		void 									detachedFromFromParent(Node* parent); // could be my parent or sombody's parent above
-		void									detachedFromScene(Scene* scene); // could be me or someone above
-		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+//		void 									detachedFromFromParent(Node* parent); // could be my parent or sombody's parent above
+//		void									detachedFromScene(Scene* scene); // could be me or someone above
+//		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+//		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+
+		void 								nodeAttachedToParent(Node* node, Node* parent);
+		void								nodeAttachedToScene(Node* node, Scene* scene);
+		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+
+		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
+		void 								nodeDetachedFromParent(Node* node, Node* parent);
+		void								nodeDetachedFromScene(Node* node, Scene* scene);
+		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
 		// ----------------------------------------------------
 
 		bool 									containsChild(std::shared_ptr<Node> node);

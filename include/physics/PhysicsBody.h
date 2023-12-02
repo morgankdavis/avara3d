@@ -22,9 +22,11 @@ namespace ae {
 
 	class Geometry;
 	class Node;
+	class PhysicalWorld;
 	class PhysicsBodyResources;
 	class PhysicsShape;
 	class PhysicsSimulator;
+	class Scene;
 	
 	
 	class PhysicsBody {
@@ -124,39 +126,40 @@ namespace ae {
 		
 		void 								resting(bool resting);
 		
-//		void 								attachedToNode(Node* node);
-//		void 								geometryAttachedToNode(Geometry* geometry);
-		void 								attachedToNode(std::shared_ptr<Node> node);
-		void 								geometryAttachedToNode(std::shared_ptr<Geometry> geometry);
+		void 								attachedToNode(Node* node);
+		void 								detachedFromNode(Node* node);
+//		void 								geometryAttached(Geometry* geometry);
+//		void 								attachedToNode(std::shared_ptr<Node> node);
+//		void 								geometryAttached(std::shared_ptr<Geometry> geometry);
 
 		// ----------------------------------------------------
-//		void 								nodeAttachedToParent(Node* node, Node* parent);
-//		void								nodeAttachedToScene(Node* node, Scene* scene);
+		void 								nodeAttachedToParent(Node* node, Node* parent);
+		void								nodeAttachedToScene(Node* node, Scene* scene);
+		void								geometryAttachedToNode(Geometry* geometry, Node* node);
 //		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
-//		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
-//
-//		void 								detachedFromNode(Node* node);
-//		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
-//		void 								nodeDetachedFromParent(Node* node, Node* parent);
-//		void								nodeDetachedFromScene(Node* node, Scene* scene);
-//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
 
+		void 								nodeDetachedFromParent(Node* node, Node* parent);
+		void								nodeDetachedFromScene(Node* node, Scene* scene);
+		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
+//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
 		// ----------------------------------------------------
 
+		Node*									node() const;
 
 		std::shared_ptr<PhysicsBodyResources>	resources();
 
-		void								update(PhysicsSimulator& simulator,
-												   Node& node,
-												   Stats& stats);
-		void								sync(PhysicsSimulator& simulator,
-												 Node& node,
-												 glm::mat4& localTransform,
-												 Stats& stats);
+		void									update(PhysicsSimulator& simulator,
+													   Node& node,
+													   Stats& stats);
+		void									sync(PhysicsSimulator& simulator,
+													 Node& node,
+													 glm::mat4& localTransform,
+													 Stats& stats);
 
-		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
+		PHYSICS_BODY_DIRTY_MASK 				dirtyMask() const;
+		void 									dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -164,8 +167,8 @@ namespace ae {
 
 	private:
 
-		void 									checkAutocreateShape(std::shared_ptr<Node> node);
-		void 									checkAutocreateShape(std::shared_ptr<Geometry> geometry);
+		void 									checkAutocreateShape(Node* node);
+		void 									checkAutocreateShape(Geometry* geometry);
 		
 		PHYSICS_BODY_TYPE 						_type;
 		std::shared_ptr<PhysicsShape>			_shape;
@@ -187,6 +190,8 @@ namespace ae {
 		bool 									_resting;
 
 		PHYSICS_BODY_DIRTY_MASK 				_dirtyMask;
+
+		Node*									_node;
 
 		std::shared_ptr<PhysicsBodyResources>	_resources;
 	};

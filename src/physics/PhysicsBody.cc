@@ -298,17 +298,42 @@ void PhysicsBody::resting(bool resting) {
 #warning need to update BT motion state?
 }
 
-void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
+void PhysicsBody::attachedToNode(Node* node) {
 	if (node) {
+		_node = node;
 		checkAutocreateShape(node);
 	}
 }
 
-void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
-	if (geometry) {
-		checkAutocreateShape(geometry);
+void PhysicsBody::detachedFromNode(Node* node) {
+	// CLEAN UP!
+}
+
+//void PhysicsBody::geometryAttached(Geometry* geometry) {
+//	if (geometry) {
+//		checkAutocreateShape(geometry);
+//	}
+//}
+
+void PhysicsBody::geometryAttachedToNode(Geometry* geometry, Node* node) {
+	if ((node && _node) && node == _node) {
+		if (geometry) {
+			checkAutocreateShape(geometry);
+		}
 	}
 }
+
+//void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
+//	if (node) {
+//		checkAutocreateShape(node);
+//	}
+//}
+//
+//void PhysicsBody::geometryAttached(shared_ptr<Geometry> geometry) {
+//	if (geometry) {
+//		checkAutocreateShape(geometry);
+//	}
+//}
 
 shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
 	return _resources;
@@ -360,22 +385,22 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 	Private
  *********************************************************************************************/
 
-void PhysicsBody::checkAutocreateShape(shared_ptr<Node> node) {
+void PhysicsBody::checkAutocreateShape(Node* node) {
 	if (!_shape) {
 		if (auto geometry = node->geometry()) {
 			// make a shape based on the geometry
-			checkAutocreateShape(geometry);
+			checkAutocreateShape(geometry.get());
 		}
 		else {
 			// make a shape based on the node
 			if (type() == PHYSICS_BODY_TYPE::STATIC) {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
+						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
 				_shape->sourceObject(node);
 			} else {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
+						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
 				_shape->sourceObject(node);
 			}
@@ -383,18 +408,18 @@ void PhysicsBody::checkAutocreateShape(shared_ptr<Node> node) {
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(shared_ptr<Geometry> geometry) {
+void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
 
 	if (!_shape) {
 		if (type() == PHYSICS_BODY_TYPE::STATIC) {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry.get());
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry);
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
 			_shape->sourceObject(geometry);
 		}
 		else {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry.get());
+					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry);
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
 			_shape->sourceObject(geometry);
 		}

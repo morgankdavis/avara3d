@@ -65,6 +65,11 @@ static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 	Private Static Prototypes
  *********************************************************************************************/
 
+static void 						GetFrameTimes(float time, // time since whenever
+												 bool paused,
+												 float& deltaT, // delta from since last call
+												 float& runT, // time since whenever excluding paused time
+												 float& deltaRunT);//, // time since lat call excluding paused time
 static void							UpdateTimeStats(Stats& stats, float time);
 static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
@@ -83,7 +88,7 @@ static void 						AddAIGeometryNodeRec(Scene& scene,
 static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMaterial* aiMaterial,
 																   aiTextureType type,
 																   string basePath);
-static optional<path> 			FilepathFromTextureFilename(const string& filename,
+static optional<path> 				FilepathFromTextureFilename(const string& filename,
 																  const string& basePath);
 static LIGHT_TYPE 					LightTypeForAILightType(aiLightSourceType aiType);
 
@@ -120,7 +125,7 @@ Scene::Scene():
 		_stats({}),
 		_running(false),
 		_paused(false),
-		_pauseTime(0.0),
+//		_pauseTime(0.0),
 		_update(nullptr) { }
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
@@ -134,7 +139,7 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_stats({}),
 		_running(false),
 		_paused(false),
-		_pauseTime(0.0),
+//		_pauseTime(0.0),
 		_update(nullptr) {
 
 	if (_visualWorld) _visualWorld->attachedToScene(this);
@@ -205,7 +210,6 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 }
 
 float Scene::time() const {
-	// should probably override in subclass to use library's time utilities (GLFW, for example)
 	static auto startDate = chrono::high_resolution_clock::now();
 	auto nowDate = chrono::high_resolution_clock::now();
 	return (chrono::duration<float>(nowDate - startDate)).count();
@@ -256,19 +260,17 @@ void Scene::run() {
 		_visualWorld->checkAddDefaultLighting();
 	}
 
+	float deltaT;
+	float runT;
+	float deltaRunT;
+
 	do {
-		const float t = time();
-		static float prevT = t;
-		const float deltaT = t - prevT;
-		prevT = t;
 
-		float runT = t - _pauseTime;
-
-		static float prevRunT = runT;
-		const float deltaRunT = runT - prevRunT;
-		prevRunT = runT;
-
-		if (_paused) _pauseTime += deltaT;
+		GetFrameTimes(time(),
+					  _paused,
+					  deltaT,
+					  runT,
+					  deltaRunT);
 
 		memset(&_stats, 0, sizeof(Stats));
 		UpdateTimeStats(_stats, runT);
@@ -283,6 +285,7 @@ void Scene::run() {
 
 		if (!_paused) {
 
+			// VisualWorld::predraw() ?
 			if (_visualWorld) {
 				renderer->beginFrame(*this, *renderContext, _debugOptions, _stats);
 
@@ -302,6 +305,7 @@ void Scene::run() {
 				renderer->render(*this, _debugOptions, _stats);
 			}
 
+			// PhysicalWorld::simulate()
 			if (_physicalWorld) {
 				physicsSimulator->beginUpdate(*this);
 				physicsSimulator->update(*this);
@@ -318,6 +322,7 @@ void Scene::run() {
 				}
 			}
 
+			// VisualWorld::draw() ?
 			if (_visualWorld) {
 				auto pov = visualWorld()->pointOfView();
 
@@ -345,7 +350,7 @@ void Scene::run() {
 				renderContext->swapBuffers();
 
 				if (renderContext->recordingGIF()) { // MOVE?
-					renderContext->saveGIFFrame(t);
+					renderContext->saveGIFFrame(runT); // t?
 				}
 
 				if (_visualWorld->didRender()) { // MOVE?
@@ -640,6 +645,27 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 /*********************************************************************************************
 	Private Static
  *********************************************************************************************/
+
+static void GetFrameTimes(float time, // time since reference
+						  bool paused,
+						  float& deltaT, // delta from since last call
+						  float& runT, // time since whenever excluding paused time
+						  float& deltaRunT) {//, // time since lat call excluding paused time
+
+	const float t = time;
+	static float prevT = t;
+	deltaT = t - prevT;
+	prevT = t;
+
+	static float pauseTime = 0;
+	runT = t - pauseTime;
+
+	static float prevRunT = runT;
+	deltaRunT = runT - prevRunT;
+	prevRunT = runT;
+
+	if (paused) pauseTime += deltaT;
+}
 
 void UpdateTimeStats(Stats& stats, float time) {
 

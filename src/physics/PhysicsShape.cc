@@ -46,7 +46,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
 		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometry):
+PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_type(type),
 		_resources(make_shared<BulletShapeResources>()),
@@ -58,12 +58,12 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Geometry> geometr
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {:p}...",
-				 magic_enum::enum_name(type), (void*)geometry.get());
+				 magic_enum::enum_name(type), (void*)geometry);
 	}
 }
 
 // construct a compound shape based on geometries under this node
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
+PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_type(type),
 		_resources(make_shared<BulletShapeResources>()),
@@ -75,7 +75,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, shared_ptr<Node> node):
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
-				 magic_enum::enum_name(type), (void*)node.get());
+				 magic_enum::enum_name(type), (void*)node);
 	}
 }
 
@@ -87,7 +87,11 @@ PhysicsShape::~PhysicsShape() {
 	Public
  *********************************************************************************************/
 
-variant<weak_ptr<Geometry>, weak_ptr<Node>, monostate> PhysicsShape::sourceObject() const {
+//variant<weak_ptr<Geometry>, weak_ptr<Node>, monostate> PhysicsShape::sourceObject() const {
+//	return _sourceObject;
+//}
+
+variant<Geometry*, Node*, monostate> PhysicsShape::sourceObject() const {
 	return _sourceObject;
 }
 
@@ -104,13 +108,13 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	Internal
  *********************************************************************************************/
 
-void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
+void PhysicsShape::attachedToBody(PhysicsBody* body) {
 
 }
 
 void PhysicsShape::sourceObject(variant<
-		weak_ptr<Geometry>,
-		weak_ptr<Node>,
+		Geometry*,
+		Node*,
 		monostate> sourceObject) {
 	_sourceObject = sourceObject;
 	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);

@@ -61,13 +61,13 @@ constexpr unsigned MAX_SUBSTEPS = 20;
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
+BTShapeFromSourceGeometry(Geometry* geometry,
 						  PHYSICS_SHAPE_TYPE shapeType,
 						  PHYSICS_BODY_TYPE bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
 						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(shared_ptr<Node> node,
+BTShapeFromSourceNode(Node* node,
 					  PHYSICS_SHAPE_TYPE shapeType,
 					  PHYSICS_BODY_TYPE bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -77,14 +77,14 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 						  PHYSICS_BODY_TYPE bodyType);
 static shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   shared_ptr<Geometry> geometry,
+						   Geometry* geometry,
 						   PHYSICS_SHAPE_TYPE shapeType,
 						   PHYSICS_BODY_TYPE bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
 
 static shared_ptr<btCompoundShape>
-BTShapeFromGeometry(shared_ptr<Geometry> geometry,
+BTShapeFromGeometry(Geometry* geometry,
 					PHYSICS_SHAPE_TYPE shapeType,
 					PHYSICS_BODY_TYPE bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -508,8 +508,8 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 		auto sourceObject = shape.sourceObject();
 
 		// souce GEOMETRY
-		if (holds_alternative<weak_ptr<Geometry>>(sourceObject)) {
-			if (auto sourceGeometry = get<weak_ptr<Geometry>>(sourceObject).lock()) {
+		if (holds_alternative<Geometry*>(sourceObject)) {
+			if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
 
 				newShape = BTShapeFromSourceGeometry(sourceGeometry,
 													 shape.type(),
@@ -520,8 +520,8 @@ void BulletPhysicsSimulator::update(PhysicsShape& shape,
 		}
 
 		// source NODE
-		else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
-			if (auto sourceNode = get<weak_ptr<Node>>(sourceObject).lock()) {
+		else if (holds_alternative<Node*>(sourceObject)) {
+			if (auto sourceNode = get<Node*>(sourceObject)) {
 
 				newShape = BTShapeFromSourceNode(sourceNode,
 												 shape.type(),
@@ -593,7 +593,7 @@ void BulletPhysicsSimulator::step(float deltaT) {
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
+BTShapeFromSourceGeometry(Geometry* geometry,
 						  PHYSICS_SHAPE_TYPE shapeType,
 						  PHYSICS_BODY_TYPE bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -625,14 +625,14 @@ BTShapeFromSourceGeometry(shared_ptr<Geometry> geometry,
 	}
 	else {
 		AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
-				 (void*)geometry.get());
+				 (void*)geometry);
 	}
 
 	return newShape;
 }
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(shared_ptr<Node> node,
+BTShapeFromSourceNode(Node* node,
 					  PHYSICS_SHAPE_TYPE shapeType,
 					  PHYSICS_BODY_TYPE bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -646,7 +646,7 @@ BTShapeFromSourceNode(shared_ptr<Node> node,
 	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
 
 	// add the root geometry
-	auto geometry = node->geometry();
+	auto geometry = node->geometry().get();
 	if (geometry) {
 
 		auto nodeGeoShape = BTShapeFromGeometry(geometry,
@@ -722,7 +722,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 
 shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   shared_ptr<Geometry> geometry,
+						   Geometry* geometry,
 						   PHYSICS_SHAPE_TYPE shapeType,
 						   PHYSICS_BODY_TYPE bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -737,7 +737,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 												 (btScalar)extent.y/2.0f,
 												 (btScalar)extent.z/2.0f));
 	}
-	else if (auto box = dynamic_cast<Box*>(geometry.get())) {
+	else if (auto box = dynamic_cast<Box*>(geometry)) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
@@ -746,7 +746,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 												 (btScalar)box->width()/2.0f,
 												 (btScalar)box->height()/2.0f));
 	}
-	else if (auto capsule = dynamic_cast<Capsule*>(geometry.get())) {
+	else if (auto capsule = dynamic_cast<Capsule*>(geometry)) {
 		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
@@ -754,7 +754,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
-	else if (auto cone  = dynamic_cast<Cone*>(geometry.get())) {
+	else if (auto cone  = dynamic_cast<Cone*>(geometry)) {
 		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
@@ -762,7 +762,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
-	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry.get())) {
+	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry)) {
 		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
@@ -771,13 +771,13 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 													  (btScalar)cylinder->height()/2.0,
 													  (btScalar)cylinder->radius()));
 	}
-	else if (auto plane = dynamic_cast<Plane*>(geometry.get())) {
+	else if (auto plane = dynamic_cast<Plane*>(geometry)) {
 		// ae::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
 		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
 												 (btScalar)plane->height()/2.0f,
 												 (btScalar)0));
 	}
-	else if (auto sphere = dynamic_cast<Sphere*>(geometry.get())) {
+	else if (auto sphere = dynamic_cast<Sphere*>(geometry)) {
 		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 (void*)element.get(), magic_enum::enum_name(shapeType));
@@ -806,7 +806,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 }
 
 shared_ptr<btCompoundShape>
-BTShapeFromGeometry(shared_ptr<Geometry> geometry,
+BTShapeFromGeometry(Geometry* geometry,
 					PHYSICS_SHAPE_TYPE shapeType,
 					PHYSICS_BODY_TYPE bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -848,7 +848,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 		AE_LOG_I("name: {}", *node->name());
 	}
 
-	auto geometry = node->geometry();
+	auto geometry = node->geometry().get();
 	if (geometry) {
 		auto nodeGeoShape = BTShapeFromGeometry(geometry,
 												shapeType,

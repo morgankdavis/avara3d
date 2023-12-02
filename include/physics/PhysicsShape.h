@@ -23,8 +23,10 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicsBody;
+	class PhysicalWorld;
 	class PhysicsShapeResources;
 	class PhysicsSimulator;
+	class Scene;
 	
 
 	class PhysicsShape {
@@ -37,8 +39,8 @@ namespace ae {
 
 		PhysicsShape();
 		PhysicsShape(PHYSICS_SHAPE_TYPE type);
-		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<Geometry> geometry);
-		PhysicsShape(PHYSICS_SHAPE_TYPE type, std::shared_ptr<Node> node);
+		PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry);
+		PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node);
 		~PhysicsShape();
 
 /*********************************************************************************************
@@ -48,21 +50,45 @@ namespace ae {
 		virtual PHYSICS_SHAPE_TYPE 				type() const;
 		virtual void 							type(PHYSICS_SHAPE_TYPE type);
 
+//		std::variant<
+//				std::weak_ptr<Geometry>,
+//				std::weak_ptr<Node>,
+//				std::monostate> 				sourceObject() const;
 		std::variant<
-				std::weak_ptr<Geometry>,
-				std::weak_ptr<Node>,
+				Geometry*,
+				Node*,
 				std::monostate> 				sourceObject() const;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 									attachedToBody(std::shared_ptr<PhysicsBody> body);
+		void 									attachedToBody(PhysicsBody* body);
+
+		// ----------------------------------------------------
+		void 								nodeAttachedToParent(Node* node, Node* parent);
+		void								nodeAttachedToScene(Node* node, Scene* scene);
+		void								geometryAttachedToNode(Geometry* geometry, Node* node);
+//		void								visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
+
+		void 								nodeDetachedFromParent(Node* node, Node* parent);
+		void								nodeDetachedFromScene(Node* node, Scene* scene);
+		void 								geometryDetachedFromNode(Geometry* geometry, Node* node);
+//		void								visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
+		void								physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+		// ----------------------------------------------------
+
+//		void 									sourceObject(std::variant<
+//															std::weak_ptr<Geometry>,
+//															std::weak_ptr<Node>,
+//															std::monostate> sourceObject);
 
 		void 									sourceObject(std::variant<
-															std::weak_ptr<Geometry>,
-															std::weak_ptr<Node>,
-															std::monostate> sourceObject);
+				Geometry*,
+				Node*,
+				std::monostate>
+															 sourceObject);
 
 		void									update(PhysicsSimulator& simulator,
 													   Node& node,
@@ -88,9 +114,13 @@ namespace ae {
 
 	private:
 
+//		std::variant<
+//				std::weak_ptr<Geometry>,
+//				std::weak_ptr<Node>,
+//				std::monostate> 				_sourceObject;
 		std::variant<
-				std::weak_ptr<Geometry>,
-				std::weak_ptr<Node>,
+				Geometry*,
+				Node*,
 				std::monostate> 				_sourceObject;
 //		PHYSICS_SHAPE_TYPE 						_type;
 		std::shared_ptr<PhysicsShapeResources>	_resources;
