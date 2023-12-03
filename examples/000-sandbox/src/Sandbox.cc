@@ -1,0 +1,378 @@
+//
+//  Sandbox.cc
+//	avara-engine
+//
+//  Created by Morgan Davis on 12/02/23.
+//  Copyright © 2023 Morgan K Davis. All rights reserved.
+//
+
+#include "Sandbox.h"
+
+#include <iostream>
+
+#include <glm/glm.hpp>
+
+#include "utilities/Utilities.h"
+
+
+using namespace ae;
+using namespace ae::utils;
+using namespace glm;
+using namespace std;
+using namespace sandbox;
+using namespace std::placeholders;
+
+
+constexpr bool					USE_HIGH_DPI =			true;
+constexpr unsigned				WINDOW_WIDTH =			1280;
+constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
+constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					CAPTURE_CURSOR =		false;
+constexpr float					MOUSE_SENSITIVITY =		0.5;
+constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
+
+constexpr bool					DARK =					true;
+
+/***************************************************************************************
+	Static Prototypes
+ ***************************************************************************************/
+
+
+
+/***************************************************************************************
+	Public
+ ***************************************************************************************/
+
+int Sandbox::run(const vector<string>& args) {
+
+	//AE_INIT();
+
+	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
+	LOG_I(_logger, "");
+
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
+									  USE_HIGH_DPI,
+									  MSAA_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
+
+	auto visualWorld = make_shared<VisualWorld>(window);
+	visualWorld->fogStartDistance(50.0);
+	visualWorld->fogEndDistance(400.0);
+	visualWorld->fogDensityExponent(1.0);
+	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
+	auto background = DARK
+					  ? make_shared<MaterialProperty>(Color::Black())
+					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+	visualWorld->background(background);
+	visualWorld->willRender(bind(&Sandbox::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Sandbox::didRenderCallback, this, _1, _2));
+
+	auto physicalWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	physicalWorld->timestep(PHYSICS_TIMESTEP);
+	physicalWorld->didSimulate(bind(&Sandbox::didSimulatePhysicsCallback, this, _1, _2));
+
+	auto inputManager = make_shared<WindowInputManager>(window);
+
+	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->update(bind(&Sandbox::updateCallback, this, _1, _2));
+
+	auto ambientColor = DARK
+						? Color::LightGray()
+						: Color::LightGray();
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
+	auto ambientLightNode = Node::LightNode(ambientLight);
+	scene->rootNode()->addChild(ambientLightNode);
+
+	auto pointColor = DARK
+					  ? Color::LightGray()
+					  : Color::LightGray();
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+	pointLight->attenuationFactor(0.0);
+	auto pointLightNode = Node::LightNode(pointLight);
+	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : 1.0 ) * 35) * vec3(2.5, 2.5, 2.5));
+	scene->rootNode()->addChild(pointLightNode);
+
+
+
+	// ground plane
+
+	const float PLANE_LENGTH = 50.0;
+	const float PLANE_WIDTH = 50.0;
+	auto planeNode = make_shared<Node>("Ground plane node");
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
+	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	planeMaterialProperty->maxAnisotropy(16);
+	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	shared_ptr<Material> planeMaterial = nullptr;
+	if (DARK) {
+		planeMaterial = make_shared<Material>(nullptr,
+											  nullptr,
+											  nullptr,
+											  planeMaterialProperty);
+	}
+	else {
+		planeMaterial = make_shared<Material>(nullptr,
+											  planeMaterialProperty,
+											  make_shared<MaterialProperty>(Color::Gray()));
+	}
+
+	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	planeMaterial->doubleSided(true);
+	planeNode->geometry()->addMaterial(planeMaterial);
+	planeNode->rotation({1, 0, 0}, radians(3*90.0));
+	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+
+	auto planePhysicsBody = PhysicsBody::StaticBody();
+	planeNode->physicsBody(planePhysicsBody);
+	planePhysicsBody->mass(0);
+	planePhysicsBody->friction(1);
+	planePhysicsBody->restitution(0.25);
+
+	scene->rootNode()->addChild(planeNode);
+
+
+
+	window->open();
+	scene->run();
+	
+	return 0;
+}
+
+/***************************************************************************************
+	Scene Callbacks
+ ***************************************************************************************/
+
+void Sandbox::updateCallback(Scene& scene, float time) {
+	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
+
+	static float previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+
+	auto inputManager = scene.inputManager();
+
+	shared_ptr<Window> window = nullptr;
+	if (scene.visualWorld()) {
+		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	}
+
+
+
+
+	// get input
+	
+	auto mouseButtonsDown = inputManager->mouseButtonsDown();
+	auto mouseButtonsPressed = inputManager->mouseButtonsPressed();
+	auto keysDown = inputManager->keysDown();
+	auto keysPressed = inputManager->keysPressed();
+	auto cursorCaptured = true;
+	if (window) {
+		cursorCaptured = window->cursorCaptured();
+	}
+	
+	if (keysPressed.count(KEY::ESCAPE)) {
+		window->close();
+	}
+
+	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+		scene.paused(!scene.paused());
+	}
+	
+	if (keysPressed.count(KEY::T)) {
+		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+	}
+
+
+	if (keysPressed.count(KEY::F)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		}
+	}
+	if (keysPressed.count(KEY::B)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		}
+	}
+	if (keysPressed.count(KEY::I)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		}
+	}
+	if (keysPressed.count(KEY::P)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+		}
+	}
+	if (keysPressed.count(KEY::G)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+		}
+	}
+	if (keysPressed.count(KEY::C)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+		}
+	}
+	if (keysPressed.count(KEY::N)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
+													DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		}
+		else {
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
+												 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+		}
+	}
+
+	if (keysPressed.count(KEY::V)) {
+		window->vSyncEnabled(!window->vSyncEnabled());
+	}
+	
+	if (keysPressed.count(KEY::BACKSLASH)) {
+		SaveSnapshot(*window);
+	}
+	
+	if (keysPressed.count(KEY::SLASH)) {
+		window->cursorCaptured(!(window->cursorCaptured()));
+	}
+	
+	if (keysPressed.count(KEY::R)) {
+		if (!window->recordingGIF()) {
+			StartGIFRecording(*window, 240, 8);
+		}
+		else {
+			StopGIFRecording(*window);
+		}
+	}
+
+	if (cursorCaptured) {
+		
+		// mouselook
+		
+		vec2 mousePositionDelta = inputManager->mousePositionDelta();
+		
+		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
+
+		auto pov = scene.visualWorld()->pointOfView();
+		if (pov) {
+			
+			// look
+			
+			vec3 camForward = pov->worldForward();
+			vec3 camRight = pov->worldRight();
+			vec3 camUp = pov->worldUp();
+
+			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
+			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+			
+			//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
+			//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
+			
+			vec3 angles = pov->eulerAngles();
+			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			
+			// move
+
+			static float MOVE_SPEED = 0;
+			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
+
+			float moveMultiplier = 1.0;
+			if (keysDown.count(KEY::LEFT_CONTROL)) {
+				moveMultiplier = 2.0;
+			}
+			
+			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
+				pov->position(pov->position() + positionDelta);
+			}
+			else if (keysDown.count(KEY::S)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
+				pov->position(pov->position() + positionDelta);
+			}
+			
+			if (keysDown.count(KEY::A)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
+				pov->position(pov->position() + positionDelta);
+			}
+			else if (keysDown.count(KEY::D)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
+				pov->position(pov->position() + positionDelta);
+			}
+			
+			if (keysDown.count(KEY::SPACE)) {
+				float direction = 1;
+				if (keysDown.count(KEY::LEFT_SHIFT)) {
+						direction = -1;
+				}
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
+				pov->position(pov->position() + positionDelta * direction);
+			}
+		}
+	}
+}
+
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
+
+void Sandbox::willRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+void Sandbox::didRenderCallback(VisualWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	PhysicalWorld Callbacks
+ ***************************************************************************************/
+
+void Sandbox::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
+	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	Static
+ ***************************************************************************************/
+
