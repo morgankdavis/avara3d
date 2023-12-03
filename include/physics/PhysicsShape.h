@@ -47,50 +47,64 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		virtual PHYSICS_SHAPE_TYPE 				type() const;
-		virtual void 							type(PHYSICS_SHAPE_TYPE type);
+		virtual PHYSICS_SHAPE_TYPE 			type() const;
+		virtual void 						type(PHYSICS_SHAPE_TYPE type);
 
 		std::variant<
 				Geometry*,
 				Node*,
-				std::monostate> 				sourceObject() const;
+				std::monostate> 			sourceObject() const;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 									attachedToBody(PhysicsBody* body);
-		void 									detachedFromBody(PhysicsBody* body);
+		void 								attachedToBody(PhysicsBody* body);
+		void 								detachedFromBody(PhysicsBody* body);
 
-		void 									ancestorAttachedToParent(Node* ancestor, Node* parent);
-		void 									ancestorDetachedFromParent(Node* node, Node* parent);
+		void								physicalWorldReachable(PhysicalWorld* world);
+		void								physicalWorldUnreachable(PhysicalWorld* world);
 
-		void									ancestorAttachedToScene(Node* ancestor, Scene* scene);
-		void									ancestorDetachedFromScene(Node* node, Scene* scene);
+//		void 								bodyAttachedToNode(Node* node); // body's owning node
+//		void 								bodyDetachedFromNode(Node* node);
+//
+//		void 								ancestorAttachedToParent(Node* ancestor,
+//																	  Node* parent);
+//		void 								ancestorDetachedFromParent(Node* node,
+//																		Node* parent);
+//
+//		void								ancestorAttachedToScene(Node* ancestor,
+//																	Scene* scene);
+//		void								ancestorDetachedFromScene(Node* node,
+//																	  Scene* scene);
+//
+//		void								physicalWorldAttachedToScene(PhysicalWorld* world,
+//																		 Scene* scene);
+//		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
+//																		   Scene* scene);
 
-		void									physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
-		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
-
-		void 									sourceObject(
+		void 								sourceObject(
 				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
-		void									update(PhysicsSimulator& simulator,
-													   Node& node,
-													   PhysicsBody& body,
-													   Stats& stats);
-		void									sync(PhysicsSimulator& simulator,
-													 Node& node,
-													 PhysicsBody& body,
-													 Stats& stats);
+//		PhysicalWorld*						physicalWorld() const;
 
-		PHYSICS_SHAPE_DIRTY_MASK 				dirtyMask() const;
-		void 									dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
+		void								update(PhysicsSimulator& simulator,
+												   Node& node,
+												   PhysicsBody& body,
+												   Stats& stats);
+		void								sync(PhysicsSimulator& simulator,
+												 Node& node,
+												 PhysicsBody& body,
+												 Stats& stats);
+
+		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
+		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
 
 		std::shared_ptr<PhysicsShapeResources>	resources();
 
 	protected:
 
-		PHYSICS_SHAPE_TYPE 						_type;
+		PHYSICS_SHAPE_TYPE 					_type;
 
 /*********************************************************************************************
 	Private
@@ -101,9 +115,9 @@ namespace ae {
 		std::variant<
 				Geometry*,
 				Node*,
-				std::monostate> 				_sourceObject;
+				std::monostate> 			_sourceObject;
 		std::shared_ptr<PhysicsShapeResources>	_resources;
-		PHYSICS_SHAPE_DIRTY_MASK 				_dirtyMask;
+		PHYSICS_SHAPE_DIRTY_MASK 			_dirtyMask;
 	};
 }
 

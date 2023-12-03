@@ -109,11 +109,19 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	// make?
+
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	// cleanup?
+
+}
+
+void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
+	AE_LOG_D("world: {:p}", (void*)world);
+}
+
+void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
+	AE_LOG_D("world: {:p}", (void*)world);
 }
 
 void PhysicsShape::sourceObject(variant<
@@ -123,6 +131,22 @@ void PhysicsShape::sourceObject(variant<
 	_sourceObject = sourceObject;
 	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
+
+//PhysicalWorld* PhysicsShape::physicalWorld() const {
+//
+//	if (_body) {
+//		if (_node) {
+//			auto scene = _node->scene();
+//			if (scene) {
+//				auto physicalWorld = scene->physicalWorld();
+//				if (physicalWorld) {
+//					return physicalWorld.get();
+//				}
+//			}
+//		}
+//	}
+//	return nullptr;
+//}
 
 //void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
 //
@@ -134,6 +158,7 @@ void PhysicsShape::sourceObject(variant<
 //		}
 //	}
 //}
+
 
 shared_ptr<PhysicsShapeResources> PhysicsShape::resources() {
 	return _resources;

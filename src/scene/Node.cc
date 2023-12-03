@@ -405,7 +405,7 @@ void Node::transform(const mat4& transform) {
 	_orientation = orientation;
 }
 
-vec3 Node::worldPosition() {
+vec3 Node::worldPosition() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -422,17 +422,17 @@ vec3 Node::worldPosition() {
 	return translation;
 }
 
-vec4 Node::worldRotation() {
+vec4 Node::worldRotation() const {
 	throw Exception("worldRotation() not implemented.");
 	return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
-vec3 Node::worldEulerAngles() {
+vec3 Node::worldEulerAngles() const {
 	throw Exception("worldEulerAngles() not implemented.");
 	return vec3(0.0, 0.0, 0.0);
 }
 
-quat Node::worldOrientation() {
+quat Node::worldOrientation() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -449,7 +449,7 @@ quat Node::worldOrientation() {
 	return orientation;
 }
 
-vec3 Node::worldScale() {
+vec3 Node::worldScale() const {
 	auto world = worldTransform();
 	
 	vec3 scale;
@@ -468,7 +468,7 @@ vec3 Node::worldScale() {
 	return scale;
 }
 
-vec3 Node::worldForward() {
+vec3 Node::worldForward() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -487,7 +487,7 @@ vec3 Node::worldForward() {
 	return normalize(rotationMat * vec4(0, 0, -1, 1));
 }
 
-vec3 Node::worldUp() {
+vec3 Node::worldUp() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -506,7 +506,7 @@ vec3 Node::worldUp() {
 	return normalize(rotationMat * vec4(0, 1, 0, 1));
 }
 
-vec3 Node::worldRight() {
+vec3 Node::worldRight() const {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -525,7 +525,7 @@ vec3 Node::worldRight() {
 	return normalize(rotationMat * vec4(1, 0, 0, 1));
 }
 
-mat4 Node::worldTransform() {
+mat4 Node::worldTransform() const {
 
 	if (_parent) {
 		return _parent->worldTransform() * transform();
@@ -538,7 +538,7 @@ mat4 Node::worldTransform() {
 }
 
 void Node::addChildren(vector<shared_ptr<Node>> nodes) {
-	for (auto node: nodes) {
+	for (auto& node : nodes) {
 		addChild(node);
 	}
 }
@@ -637,9 +637,15 @@ void Node::attachedToParent(Node* parent) {
 
 	_parent = parent;
 
-	if (_physicsBody) {
-		_physicsBody->nodeAttachedToParent(parent);
-	}
+//	if (_physicsBody) {
+//		//_physicsBody->nodeAttachedToParent(parent);
+//		auto physicalWorld = Node::physicalWorld();
+//		if (physicalWorld) {
+//			_physicsBody->physicalWorldReachable(physicalWorld);
+//		}
+//	}
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(this, parent);
@@ -648,9 +654,13 @@ void Node::attachedToParent(Node* parent) {
 
 void Node::detachedFromParent(Node* parent) {
 
-	if (_physicsBody) {
-		_physicsBody->nodeDetachedFromParent(parent);
-	}
+	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
+
+	_parent = nullptr;
+
+//	if (_physicsBody) {
+//		_physicsBody->nodeDetachedFromParent(parent);
+//	}
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(this, parent);
@@ -659,9 +669,11 @@ void Node::detachedFromParent(Node* parent) {
 
 void Node::attachedToScene(Scene* scene) {
 
-	if (_physicsBody) {
-		_physicsBody->nodeAttachedToScene(scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->nodeAttachedToScene(scene);
+//	}
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	_scene = scene;
 
@@ -672,9 +684,11 @@ void Node::attachedToScene(Scene* scene) {
 
 void Node::detachedFromScene(Scene* scene) {
 
-	if (_physicsBody) {
-		_physicsBody->nodeDetachedFromScene(scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->nodeDetachedFromScene(scene);
+//	}
+
+	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorDetachedFromScene(this, scene);
@@ -683,9 +697,11 @@ void Node::detachedFromScene(Scene* scene) {
 
 void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 
-	if (_physicsBody) {
-		ancestorAttachedToParent(ancestor, parent);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->ancestorAttachedToParent(ancestor, parent);
+//	}
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToParent(ancestor, parent);
@@ -694,9 +710,11 @@ void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 
 void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 
-	if (_physicsBody) {
-		ancestorDetachedFromParent(ancestor, parent);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
+//	}
+
+	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorDetachedFromParent(ancestor, parent);
@@ -705,9 +723,11 @@ void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 
 void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
 
-	if (_physicsBody) {
-		ancestorAttachedToScene(ancestor, scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->ancestorAttachedToScene(ancestor, scene);
+//	}
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToScene(ancestor, scene);
@@ -716,9 +736,11 @@ void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
 
 void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
 
-	if (_physicsBody) {
-		ancestorDetachedFromScene(ancestor, scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
+//	}
+
+	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorDetachedFromScene(ancestor, scene);
@@ -741,9 +763,11 @@ void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
 
 void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
 
-	if (_physicsBody) {
-		physicalWorldAttachedToScene(world, scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->physicalWorldAttachedToScene(world, scene);
+//	}
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->physicalWorldAttachedToScene(world, scene);
@@ -752,12 +776,60 @@ void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
 
 void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
 
-	if (_physicsBody) {
-		physicalWorldDetachedFromScene(world, scene);
-	}
+//	if (_physicsBody) {
+//		_physicsBody->physicalWorldDetachedFromScene(world, scene);
+//	}
+
+	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->physicalWorldDetachedFromScene(world, scene);
+	}
+}
+
+VisualWorld* Node::visualWorld() const {
+
+	auto scene = Node::scene();
+	if (scene) {
+		auto visualWorld = scene->visualWorld();
+		if (visualWorld) {
+			return visualWorld.get();
+		}
+	}
+	return nullptr;
+}
+
+PhysicalWorld* Node::physicalWorld() const {
+
+	auto scene = Node::scene();
+	if (scene) {
+		auto physicalWorld = scene->physicalWorld();
+		if (physicalWorld) {
+			return physicalWorld.get();
+		}
+	}
+	return nullptr;
+}
+
+void Node::checkNotifyPhysicsBodyOfReachablePhysicalWorld() const {
+
+	if (_physicsBody) {
+		auto physicalWorld = Node::physicalWorld();
+		if (physicalWorld) {
+			_physicsBody->physicalWorldReachable(physicalWorld);
+		}
+	}
+}
+
+void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
+	// called just before something in the upward path to the PhysicalWorld is broken.
+	// so if we HAVE a path to PhysicalWorld now, we won't mush longer.
+
+	if (_physicsBody) {
+		auto physicalWorld = Node::physicalWorld();
+		if (physicalWorld) {
+			_physicsBody->physicalWorldUnreachable(physicalWorld);
+		}
 	}
 }
 

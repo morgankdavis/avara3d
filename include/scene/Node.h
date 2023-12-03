@@ -98,17 +98,17 @@ namespace ae {
 		glm::mat4 								transform() const;
 		void 									transform(const glm::mat4& transform);
 
-		glm::vec3 								worldPosition();
-		glm::vec4 								worldRotation(); // axis-angle
-		glm::vec3 								worldEulerAngles(); // pitch, yaw, roll
-		glm::quat 								worldOrientation(); // angle == 1st component
-		glm::vec3 								worldScale();
+		glm::vec3 								worldPosition() const;
+		glm::vec4 								worldRotation() const; // axis-angle
+		glm::vec3 								worldEulerAngles() const; // pitch, yaw, roll
+		glm::quat 								worldOrientation() const; // angle == 1st component
+		glm::vec3 								worldScale() const;
 
-		glm::vec3 								worldForward();
-		glm::vec3 								worldUp();
-		glm::vec3 								worldRight();
+		glm::vec3 								worldForward() const;
+		glm::vec3 								worldUp() const;
+		glm::vec3 								worldRight() const;
 
-		glm::mat4 								worldTransform();
+		glm::mat4 								worldTransform() const;
 
 		void 									addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void 									addChild(std::shared_ptr<Node> node);
@@ -155,6 +155,12 @@ namespace ae {
 
 		void									physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene);
 		void									physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene);
+
+		VisualWorld*							visualWorld() const;
+		PhysicalWorld*							physicalWorld() const;
+
+		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
+		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
 		bool 									containsChild(std::shared_ptr<Node> node);
 

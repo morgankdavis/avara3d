@@ -62,8 +62,9 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_allowsResting(true),
 		_affectedByGravity(true),
 		_resting(false),
-		_resources(make_shared<BulletBodyResources>()),
-		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL) { }
+		_node(nullptr),
+		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL),
+		_resources(make_shared<BulletBodyResources>()){ }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -303,74 +304,103 @@ void PhysicsBody::resetTransform() {
 
 void PhysicsBody::resting(bool resting) {
 	_resting = resting;
-	
 #warning need to update BT motion state?
 }
 
 void PhysicsBody::attachedToNode(Node* node) {
-	if (node) {
-//		_node = node;
-		checkAutocreateShape(node);
-	}
+
+	_node = node;
+	checkAutocreateShape(node);
 }
 
 void PhysicsBody::detachedFromNode(Node* node) {
-	// CLEAN UP!
+	_node = nullptr;
 }
 
-void PhysicsBody::nodeAttachedToParent(Node* parent) {
-
-}
-
-void PhysicsBody::nodeDetachedFromParent(Node* parent) {
-
-}
-
-void PhysicsBody::nodeAttachedToScene(Scene* scene) {
-
-}
-
-void PhysicsBody::nodeDetachedFromScene(Scene* scene) {
-
-}
-
-//void PhysicsBody::geometryAttached(Geometry* geometry) {
-//	if (geometry) {
-//		checkAutocreateShape(geometry);
-//	}
+//void PhysicsBody::nodeAttachedToParent(Node* parent) {
+//
 //}
-
-//void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
-//	if (node) {
-//		checkAutocreateShape(node);
-//	}
+//
+//void PhysicsBody::nodeDetachedFromParent(Node* parent) {
+//
+//}
+//
+//void PhysicsBody::nodeAttachedToScene(Scene* scene) {
+//
+//}
+//
+//void PhysicsBody::nodeDetachedFromScene(Scene* scene) {
+//
 //}
 
 void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
-	if (geometry) {
-		checkAutocreateShape(geometry);
-	}
+
+	checkAutocreateShape(geometry);
 }
 
 void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
 
 }
 
-//void PhysicsBody::geometryAttachedToNode(Geometry* geometry, Node* node) {
-//	if ((node && _node) && node == _node) {
-//		if (geometry) {
-//			checkAutocreateShape(geometry);
-//		}
-//	}
-//}
+void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
+	AE_LOG_D("world: {:p}", (void*)world);
 
+	if (_shape) {
+		_shape->physicalWorldReachable(world);
+	}
+}
 
+void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
+	AE_LOG_D("world: {:p}", (void*)world);
+
+	if (_shape) {
+		_shape->physicalWorldUnreachable(world);
+	}
+}
+
+//void PhysicsBody::ancestorAttachedToParent(Node* ancestor,
+//										   Node* parent) {
 //
-//void PhysicsBody::geometryAttached(shared_ptr<Geometry> geometry) {
-//	if (geometry) {
-//		checkAutocreateShape(geometry);
-//	}
 //}
+//
+//void PhysicsBody::ancestorDetachedFromParent(Node* ancestor,
+//											 Node* parent) {
+//
+//}
+//
+//void PhysicsBody::ancestorAttachedToScene(Node* ancestor,
+//										  Scene* scene) {
+//
+//}
+//
+//void PhysicsBody::ancestorDetachedFromScene(Node* ancestor,
+//											Scene* scene) {
+//
+//}
+//
+//void PhysicsBody::physicalWorldAttachedToScene(PhysicalWorld* world,
+//											   Scene* scene) {
+//
+//}
+//
+//void PhysicsBody::physicalWorldDetachedFromScene(PhysicalWorld* world,
+//												 Scene* scene) {
+//
+//}
+
+PhysicalWorld* PhysicsBody::physicalWorld() const {
+
+	if (_node) {
+		auto scene = _node->scene();
+		if (scene) {
+			auto physicalWorld = scene->physicalWorld();
+			if (physicalWorld) {
+				return physicalWorld.get();
+			}
+		}
+	}
+	return nullptr;
+}
 
 shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
 	return _resources;
