@@ -80,40 +80,40 @@ int Example::run(const vector<string>& args) {
 	scene->debugOptions(debugOptions);
 	scene->update(bind(&Example::updateCallback, this, _1, _2));
 
-//	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-//	auto ambientLightNode = make_shared<Node>("Ambient light");
-//	ambientLightNode->light(ambientLight);
-//	scene->rootNode()->addChild(ambientLightNode);
-//
-//	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
-//	pointLight->attenuationFactor(0.0000015);
-//	auto pointLightNode = make_shared<Node>();
-//	pointLightNode->light(pointLight);
-//	scene->rootNode()->addChild(pointLightNode);
-//	pointLightNode->position({100.0, 20.0, 20.0});
+	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+	auto ambientLightNode = make_shared<Node>("Ambient light");
+	ambientLightNode->light(ambientLight);
+	scene->rootNode()->addChild(ambientLightNode);
 
-//	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
-//	auto material = make_shared<Material>();
-//	material->name("LIGHT material");
-//	material->emissive(materialProperty);
-//	auto geometry = make_shared<Sphere>(3.5, 16);
-//	geometry->addMaterial(material);
-//	pointLightNode->geometry(geometry);
+	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	pointLight->attenuationFactor(0.0000015);
+	auto pointLightNode = make_shared<Node>();
+	pointLightNode->light(pointLight);
+	scene->rootNode()->addChild(pointLightNode);
+	pointLightNode->position({100.0, 20.0, 20.0});
 
-//	auto teapotScene = SceneNamed("teapot");
-//	auto teapotNode = teapotScene->rootNode()->child("teapot", true);
-//    teapotNode->rotation({1, 0, 0}, radians(30.0));
-//	scene->rootNode()->addChild(teapotNode);
-//
-//	auto dragonScene = SceneNamed("dragon", "obj");
-//	auto dragonNode = dragonScene->rootNode()->child("g default", true);
-//	dragonNode->scale({2.5, 2.5, 2.5});
-//	dragonNode->position({50, 0, 0});
-//
-//	scene->rootNode()->addChild(dragonNode);
+	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto material = make_shared<Material>();
+	material->name("LIGHT material");
+	material->emissive(materialProperty);
+	auto geometry = make_shared<Sphere>(3.5, 16);
+	geometry->addMaterial(material);
+	pointLightNode->geometry(geometry);
 
-//	auto boxNode = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
-//	scene->rootNode()->addChild(boxNode);
+	auto teapotScene = SceneNamed("teapot");
+	auto teapotNode = teapotScene->rootNode()->childNamed("teapot", true);
+    teapotNode->rotation({1, 0, 0}, radians(30.0));
+	scene->rootNode()->addChild(teapotNode);
+
+	auto dragonScene = SceneNamed("dragon", "obj");
+	auto dragonNode = dragonScene->rootNode()->childNamed("g default", true);
+	dragonNode->scale({2.5, 2.5, 2.5});
+	dragonNode->position({50, 0, 0});
+
+	scene->rootNode()->addChild(dragonNode);
+
+	auto boxNode = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
+	scene->rootNode()->addChild(boxNode);
 
 	// test exception
 //	try {
@@ -147,6 +147,10 @@ void Example::updateCallback(Scene& scene, float time) {
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
+	}
+
+	if (keysPressed.count(KEY::SLASH)) {
+		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
 	if (keysPressed.count(KEY::F)) {
@@ -196,58 +200,59 @@ void Example::updateCallback(Scene& scene, float time) {
 			StopGIFRecording(*window);
 		}
 	}
-	
-	// mouselook
-	
-	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-	
-	static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
-	
-	auto pov = scene.visualWorld()->pointOfView();
-	if (pov) {
-		
-		// look
-		
-		vec3 camForward = pov->worldForward();
-		vec3 camRight = pov->worldRight();
-		vec3 camUp = pov->worldUp();
-		
-		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
-		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
-		
+
+	if (window->cursorCaptured()) {
+
+		// mouselook
+
+		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+
+		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
+
+		auto pov = scene.visualWorld()->pointOfView();
+		if (pov) {
+
+			// look
+
+			vec3 camForward = pov->worldForward();
+			vec3 camRight = pov->worldRight();
+			vec3 camUp = pov->worldUp();
+
+			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
+			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+
 //		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
 //		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
-		
-		vec3 angles = pov->eulerAngles();
-		pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-		
-		// move
 
-		static float MOVE_SPEED = Max(scene.rootNode()->extent());
-		
-		auto keysDown = scene.inputManager()->keysDown();
-		
-		if(keysDown.count(KEY::W)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
-			pov->position(pov->position() + positionDelta);
-		}
-		else if(keysDown.count(KEY::S)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
-			pov->position(pov->position() + positionDelta);
-		}
-		
-		if(keysDown.count(KEY::A)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
-			pov->position(pov->position() + positionDelta);
-		}
-		else if(keysDown.count(KEY::D)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
-			pov->position(pov->position() + positionDelta);
-		}
-		
-		if(keysDown.count(KEY::SPACE)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
-			pov->position(pov->position() + positionDelta);
+			vec3 angles = pov->eulerAngles();
+			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+
+			// move
+
+			static float MOVE_SPEED = Max(scene.rootNode()->extent());
+
+			auto keysDown = scene.inputManager()->keysDown();
+
+			if (keysDown.count(KEY::W)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				pov->position(pov->position() + positionDelta);
+			} else if (keysDown.count(KEY::S)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				pov->position(pov->position() + positionDelta);
+			}
+
+			if (keysDown.count(KEY::A)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				pov->position(pov->position() + positionDelta);
+			} else if (keysDown.count(KEY::D)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				pov->position(pov->position() + positionDelta);
+			}
+
+			if (keysDown.count(KEY::SPACE)) {
+				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+				pov->position(pov->position() + positionDelta);
+			}
 		}
 	}
 }

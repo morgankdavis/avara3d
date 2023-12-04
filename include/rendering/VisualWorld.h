@@ -65,7 +65,7 @@ namespace ae {
 		void 									fogColor(std::shared_ptr<Color> color);
 
 		std::shared_ptr<Node>					pointOfView();
-		void 									pointOfView(const std::shared_ptr<Node> camera);
+		void 									pointOfView(const std::shared_ptr<Node> cameraNode);
 
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);

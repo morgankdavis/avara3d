@@ -69,9 +69,7 @@ Node::Node():
 		_physicsBody(nullptr),
 		_scene(nullptr),
 		_parent(nullptr),
-	_dirtyMask(NODE_DIRTY_MASK::NONE) {
-
-}
+		_dirtyMask(NODE_DIRTY_MASK::NONE) { }
 
 Node::Node(const string& name):
 	Node() {
@@ -548,9 +546,9 @@ void Node::addChild(shared_ptr<Node> node) {
 	if (containsChild(node)) {
 		throw Exception("Node already exists in tree.");
 	}
-	
-	node->attachedToParent(this);
+
 	_children.push_back(node);
+	node->attachedToParent(this);
 }
 
 void Node::insertChild(const Node& node, int index) {
@@ -857,6 +855,16 @@ AABB Node::aabb() {
 				  {minFloat, minFloat, minFloat} };
 
 	getAABBRec(aabb);
+
+	if (aabb.min.x == maxFloat
+		|| aabb.min.y == maxFloat
+		|| aabb.min.z == maxFloat
+		|| aabb.max.x == minFloat
+		|| aabb.max.y == minFloat
+		|| aabb.max.z == minFloat) {
+		aabb = { {0, 0, 0},
+				 {0, 0, 0} };
+	}
 
 	return aabb;
 }

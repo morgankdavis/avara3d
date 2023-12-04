@@ -317,6 +317,7 @@ void Scene::run() {
 			if (!_paused) {
 
 				if (_physicalWorld) {
+
 					_physicalWorld->simulate(*this, runT, deltaRunT, _stats);
 				}
 

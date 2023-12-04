@@ -139,14 +139,14 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 	}
 	if (!_pointOfView) {
 		// still no POV. add a default one.
-		_pointOfView = defaultPointOfView();
+		_pointOfView  = defaultPointOfView();
 	}
 
 	return _pointOfView;
 }
 
-void VisualWorld::pointOfView(const shared_ptr<Node> camera) {
-	_pointOfView = camera;
+void VisualWorld::pointOfView(const shared_ptr<Node> cameraNode) {
+	_pointOfView = cameraNode;
 }
 
 bool VisualWorld::automaticallyAddDefaultLighting() const {
@@ -302,7 +302,6 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	if (_scene) {
 
 		auto cameraNode = make_shared<Node>();
-		//_scene->rootNode()->addChild(cameraNode); // done below
 		auto camera = make_shared<PerspectiveCamera>();
 		camera->name("default camera");
 		cameraNode->camera(camera);
@@ -344,7 +343,6 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		cameraNode->transform(viewMat);
 
 		_scene->rootNode()->addChild(cameraNode);
-		pointOfView(cameraNode);
 
 		return cameraNode;
 	}
