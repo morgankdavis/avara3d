@@ -673,9 +673,9 @@ void Node::attachedToScene(Scene* scene) {
 //		_physicsBody->nodeAttachedToScene(scene);
 //	}
 
-	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
-
 	_scene = scene;
+
+	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
 	for (auto& child : _children) {
 		child->ancestorAttachedToScene(this, scene);

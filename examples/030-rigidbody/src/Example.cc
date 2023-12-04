@@ -34,7 +34,7 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
-constexpr bool					DARK =					true;
+constexpr bool					DARK =					false;
 
 /***************************************************************************************
 	Static Prototypes

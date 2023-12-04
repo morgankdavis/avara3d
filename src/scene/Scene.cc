@@ -70,7 +70,6 @@ static void 						GetRunTime(float time, // time since reference
 											  float& runT, // time since reference excluding paused time
 											  float& deltaRunT); // time since last call excluding paused time
 static void							UpdateTimeStats(Stats& stats, float time);
-static shared_ptr<Geometry> 		MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
 static void 						AddAIGeometryNodes(Scene& scene,
@@ -124,7 +123,10 @@ Scene::Scene():
 		_stats({}),
 		_running(false),
 		_paused(false),
-		_update(nullptr) { }
+		_update(nullptr) {
+
+	_rootNode->attachedToScene(this);
+}
 
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 			 shared_ptr<PhysicalWorld> physicsWorld,
@@ -139,6 +141,7 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 		_paused(false),
 		_update(nullptr) {
 
+	_rootNode->attachedToScene(this);
 	if (_visualWorld) _visualWorld->attachedToScene(this);
 	if (_physicalWorld) _physicalWorld->attachedToScene(this);
 	if (_inputManager) _inputManager->attachedToScene(this);
@@ -158,6 +161,7 @@ shared_ptr<Node> Scene::rootNode() const {
 
 void Scene::rootNode(shared_ptr<Node> node) {
 
+//	if () // check they are not the same
 	if (_rootNode) {
 
 		_rootNode->detachedFromScene(this);
@@ -669,15 +673,6 @@ void UpdateTimeStats(Stats& stats, float time) {
 	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f;
 
 	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
-}
-
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
-	
-	auto geometry = make_shared<Box>(1, 1, 1);
-	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
-	geometry->insertMaterial(material, 0);
-	
-	return geometry;
 }
 
 static shared_ptr<Image> MissingTextureImage() {

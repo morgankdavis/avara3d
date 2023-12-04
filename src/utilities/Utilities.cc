@@ -510,14 +510,16 @@ shared_ptr<Font> ae::utils::FontNamed(const string& name,
 // ***  images ***
 
 shared_ptr<Image> ae::utils::ImageNamed(const string& name,
-										bool flipHorizontal) {
+										bool flipHorizontal,
+										bool flipVertical) {
 
-	return ImageNamed(name, "png", flipHorizontal);
+	return ImageNamed(name, "png", flipHorizontal, flipVertical);
 }
 
 shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 										const string& type,
-										bool flipHorizontal) {
+										bool flipHorizontal,
+										bool flipVertical) {
 	
 #ifdef ANDROID
 	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
@@ -526,7 +528,7 @@ shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
 		AE_LOG_D("Found image at path: {}", (*path).string());
-		return make_shared<Image>(*path, flipHorizontal);
+		return make_shared<Image>(*path, flipHorizontal, flipVertical);
 	}
 #endif
 	return nullptr;
@@ -540,18 +542,14 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name) {
 shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 												const string& type) {
 	
-	// NOTE: to get cubes created with Gear 360 + https://jaxry.github.io/panorama-to-cubemap/
-	// to work properly (not horizontally flipped) you have to horizontally flip each image,
-	// then swap pos x and neg x.
-	// to get zfight cubes to work properly, rotate posy 90 CCW, and negy 90 CW.q
-	
-	constexpr bool V_FLIP = false;
-	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, V_FLIP),
-								  ImageNamed(name + "_negx", type, V_FLIP),
-								  ImageNamed(name + "_posy", type, V_FLIP),
-								  ImageNamed(name + "_negy", type, V_FLIP),
-								  ImageNamed(name + "_posz", type, V_FLIP),
-								  ImageNamed(name + "_negz", type, V_FLIP));
+	// panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
+
+	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, false, true),
+								  ImageNamed(name + "_negx", type, false, true),
+								  ImageNamed(name + "_posy", type, true, false),
+								  ImageNamed(name + "_negy", type, true, false),
+								  ImageNamed(name + "_posz", type, false, true),
+								  ImageNamed(name + "_negz", type, false, true));
 }
 
 // *** scenes ***

@@ -40,7 +40,7 @@ namespace ae {
  *********************************************************************************************/
 		
 		Light(LIGHT_TYPE type);
-		Light(LIGHT_TYPE type, const std::shared_ptr<Color> color);
+		Light(LIGHT_TYPE type, std::shared_ptr<Color> color);
 		
 /*********************************************************************************************
 	Public

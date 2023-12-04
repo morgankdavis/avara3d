@@ -29,9 +29,12 @@ namespace ae {
 
 	public:
 
-		CubeImage(std::shared_ptr<Image> posX, std::shared_ptr<Image> negX,
-				  std::shared_ptr<Image> posY, std::shared_ptr<Image> negY,
-				  std::shared_ptr<Image> posZ, std::shared_ptr<Image> negZ);
+		CubeImage(std::shared_ptr<Image> posX,
+				  std::shared_ptr<Image> negX,
+				  std::shared_ptr<Image> posY,
+				  std::shared_ptr<Image> negY,
+				  std::shared_ptr<Image> posZ,
+				  std::shared_ptr<Image> negZ);
 		CubeImage(std::shared_ptr<Image> one);
 
 /*********************************************************************************************

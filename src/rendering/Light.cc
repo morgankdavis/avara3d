@@ -46,7 +46,7 @@ Light::Light(LIGHT_TYPE type):
 	
 }
 
-Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
+Light::Light(LIGHT_TYPE type, shared_ptr<Color> color):
 	_name(nullopt),
 	_type(type),
 	_color(color),

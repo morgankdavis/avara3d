@@ -36,17 +36,20 @@ namespace ae {
 
 #ifndef ANDROID
 		Image(const std::filesystem::path& path,
-			  bool flipVertical=true);
+			  bool flipVertical=true,
+			  bool flipHorizontal=false);
 #endif
 		// with header
 		Image(std::shared_ptr<Buffer> headerBuffer,
-			  bool flipVertical=true);
+			  bool flipVertical=true,
+			  bool flipHorizontal=false);
 		// raw
 		Image(std::shared_ptr<Buffer> rawBuffer,
 			  unsigned width,
 			  unsigned height,
 			  unsigned bytesPerPixel,
-			  bool flipVertical = true);
+			  bool flipVertical = true,
+			  bool flipHorizontal=false);
 		~Image();
 		
 /*********************************************************************************************
@@ -72,7 +75,9 @@ namespace ae {
 	private:
 
 		//void 							loadFile(const std::filesystem::path& path, bool flipHorizontal);
-		void 							loadBuffer(Buffer& buffer, bool flipVertical);
+		void 							loadBuffer(Buffer& buffer,
+													bool flipVertical,
+													bool flipHorizontal);
 		void 							flipVertical(); // "flip"
 		void 							flipHorizontal(); // "mirror"
 		

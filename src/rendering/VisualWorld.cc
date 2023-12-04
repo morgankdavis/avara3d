@@ -361,9 +361,10 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 
-	auto geometry = make_shared<Box>(1, 1, 1);
+	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
-	geometry->insertMaterial(material, 0);
+	material->doubleSided(false);
+	geometry->addMaterial(material);
 
 	return geometry;
 }

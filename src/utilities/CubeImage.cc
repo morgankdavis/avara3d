@@ -17,9 +17,12 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-CubeImage::CubeImage(shared_ptr<Image> posX, shared_ptr<Image> negX,
-					 shared_ptr<Image> posY, shared_ptr<Image> negY,
-					 shared_ptr<Image> posZ, shared_ptr<Image> negZ):
+CubeImage::CubeImage(shared_ptr<Image> posX,
+					 shared_ptr<Image> negX,
+					 shared_ptr<Image> posY,
+					 shared_ptr<Image> negY,
+					 shared_ptr<Image> posZ,
+					 shared_ptr<Image> negZ):
 	_posX(posX),
 	_negX(negX),
 	_posY(posY),

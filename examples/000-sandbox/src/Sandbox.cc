@@ -33,7 +33,7 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 
-constexpr bool					DARK =					true;
+constexpr bool					DARK =					false;
 
 /***************************************************************************************
 	Static Prototypes
@@ -66,10 +66,12 @@ int Sandbox::run(const vector<string>& args) {
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-	visualWorld->background(background);
+//	auto background = DARK
+//					  ? make_shared<MaterialProperty>(Color::Black())
+//					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+//	visualWorld->background(background);
+	//visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png")));
+	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png")));
 	visualWorld->willRender(bind(&Sandbox::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Sandbox::didRenderCallback, this, _1, _2));
 
@@ -101,10 +103,12 @@ int Sandbox::run(const vector<string>& args) {
 
 
 
+
+
 	// ground plane
 
-	const float PLANE_LENGTH = 50.0;
-	const float PLANE_WIDTH = 50.0;
+	const float PLANE_LENGTH = 100.0;
+	const float PLANE_WIDTH = 100.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
