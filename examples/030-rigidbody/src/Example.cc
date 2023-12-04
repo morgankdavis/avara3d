@@ -170,7 +170,7 @@ int Example::run(const vector<string>& args) {
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-	planeMaterial->doubleSided(true);
+	planeMaterial->doubleSided(false);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
