@@ -59,7 +59,7 @@ namespace ae {
 		Color(float r, float g, float b, float a);
 		Color(int r, int g, int b);
 		Color(int r, int g, int b, int a);
-		Color(float black);
+		Color(float white);
 		Color(uint32_t color);
 		//Color(const Color& color); // copy
 		

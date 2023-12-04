@@ -24,7 +24,8 @@ namespace ae {
 
 	public:
 
-		Plane(float width, float height);
+		Plane(float width, float height,
+			  unsigned widthSegements = 1, unsigned heightSegments = 1);
 		
 /*********************************************************************************************
  	Public

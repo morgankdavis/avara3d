@@ -27,7 +27,8 @@ using namespace std;
 	 	Lifecycle
 *********************************************************************************************/
 
-Plane::Plane(float width, float height):
+Plane::Plane(float width, float height,
+			 unsigned widthSegements, unsigned heightSegments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
 		_width = width;
@@ -38,7 +39,7 @@ Plane::Plane(float width, float height):
 
 		// subdivisions are good for Bullet (so they say...)
 		//PlaneMesh plane{{width/2.0, height/2.0}, {(int)lround(width), (int)lround(height)}};
-		PlaneMesh plane{{width/2.0, height/2.0}, {1, 1}};
+		PlaneMesh plane{{width/2.0, height/2.0}, {widthSegements, heightSegments}};
 
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : plane.vertices()) {

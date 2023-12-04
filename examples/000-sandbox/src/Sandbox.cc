@@ -62,16 +62,16 @@ int Sandbox::run(const vector<string>& args) {
 	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_shared<VisualWorld>(window);
-	visualWorld->fogStartDistance(50.0);
-	visualWorld->fogEndDistance(400.0);
-	visualWorld->fogDensityExponent(1.0);
-	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-//	auto background = DARK
-//					  ? make_shared<MaterialProperty>(Color::Black())
-//					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
-//	visualWorld->background(background);
+//	visualWorld->fogStartDistance(50.0);
+//	visualWorld->fogEndDistance(400.0);
+//	visualWorld->fogDensityExponent(1.0);
+//	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
+	auto background = DARK
+					  ? make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
+					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
+	visualWorld->background(background);
 	//visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png")));
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png")));
+//	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png")));
 	visualWorld->willRender(bind(&Sandbox::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Sandbox::didRenderCallback, this, _1, _2));
 
@@ -87,18 +87,18 @@ int Sandbox::run(const vector<string>& args) {
 
 	auto ambientColor = DARK
 						? Color::LightGray()
-						: Color::LightGray();
+						: make_shared<Color>(.85f);
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointColor = DARK
 					  ? Color::LightGray()
-					  : Color::LightGray();
+					  : Color::Gray();
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
-	pointLight->attenuationFactor(0.0);
+	pointLight->attenuationFactor(0);
 	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : 1.0 ) * 35) * vec3(2.5, 2.5, 2.5));
+	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
 	scene->rootNode()->addChild(pointLightNode);
 
 
@@ -110,7 +110,8 @@ int Sandbox::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 100.0;
 	const float PLANE_WIDTH = 100.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0.01));
+	//planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH, 10, 10));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -128,10 +129,11 @@ int Sandbox::run(const vector<string>& args) {
 	else {
 		planeMaterial = make_shared<Material>(nullptr,
 											  planeMaterialProperty,
-											  make_shared<MaterialProperty>(Color::Gray()));
+											  nullptr);//make_shared<MaterialProperty>(make_shared<Color>(.1f)));
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	//if (DARK) planeMaterial->specularExponent(1000);
 	planeMaterial->doubleSided(true);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));

@@ -862,8 +862,9 @@ AABB Node::aabb() {
 		|| aabb.max.x == minFloat
 		|| aabb.max.y == minFloat
 		|| aabb.max.z == minFloat) {
-		aabb = { {0, 0, 0},
-				 {0, 0, 0} };
+		static AABB zeroAABB = { {0, 0, 0},
+								 {0, 0, 0} };
+		return zeroAABB;
 	}
 
 	return aabb;

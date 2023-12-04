@@ -187,31 +187,34 @@ std::shared_ptr<VisualWorld> Scene::visualWorld() const {
 
 void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 
-	if (_visualWorld) {
+//	if (world != _visualWorld) { // will be unique_ptr
 
-		if (_rootNode) {
-			_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
+		if (_visualWorld) {
+
+			if (_rootNode) {
+				_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
+			}
+
+			for (auto child: _rootNode->children(false)) {
+				child->visualWorldDetachedFromScene(_visualWorld.get(), this);
+			}
 		}
 
-		for (auto child : _rootNode->children(false)) {
-			child->visualWorldDetachedFromScene(_visualWorld.get(), this);
+		_visualWorld = world;
+
+		if (_visualWorld) {
+
+			_visualWorld->attachedToScene(this);
+
+			if (_rootNode) {
+				_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
+			}
+
+			for (auto child: _rootNode->children(false)) {
+				child->visualWorldAttachedToScene(_visualWorld.get(), this);
+			}
 		}
-	}
-
-	_visualWorld = world;
-
-	if (_visualWorld) {
-
-		_visualWorld->attachedToScene(this);
-
-		if (_rootNode) {
-			_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
-		}
-
-		for (auto child : _rootNode->children(false)) {
-			child->visualWorldAttachedToScene(_visualWorld.get(), this);
-		}
-	}
+//	}
 }
 
 shared_ptr<PhysicalWorld> Scene::physicalWorld() const {

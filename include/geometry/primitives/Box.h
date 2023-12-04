@@ -26,7 +26,7 @@ namespace ae {
 
 		// z, x, y?
 		Box(float length, float width, float height,
-			float lengthSegments = 1, float widthSegments = 1, float heightSegments = 1);
+			unsigned lengthSegments = 1, unsigned widthSegments = 1, unsigned heightSegments = 1);
 		
 /*********************************************************************************************
 	Public

@@ -28,7 +28,7 @@ using namespace std;
 *********************************************************************************************/
 
 Box::Box(float length, float width, float height,
-		 float lengthSegments, float widthSegments, float heightSegments):
+		 unsigned lengthSegments, unsigned widthSegments, unsigned heightSegments):
 		Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()),
 		_length(length),
 		_width(width),

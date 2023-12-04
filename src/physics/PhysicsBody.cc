@@ -85,8 +85,12 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 }
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
-	_type = type;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE);
+
+	if (type != _type) {
+
+		_type = type;
+		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE);
+	}
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
@@ -95,16 +99,19 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 
-	if (_shape) {
-		_shape->detachedFromBody(this);
-	}
+//	if (shape != _shape) {
 
-	_shape = shape;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
+		if (_shape) {
+			_shape->detachedFromBody(this);
+		}
 
-	if (_shape) {
-		_shape->attachedToBody(this);
-	}
+		_shape = shape;
+		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
+
+		if (_shape) {
+			_shape->attachedToBody(this);
+		}
+//	}
 }
 
 float PhysicsBody::mass() const {
@@ -112,6 +119,7 @@ float PhysicsBody::mass() const {
 }
 
 void PhysicsBody::mass(float mass) {
+
 	_mass = mass;
 	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MASS);
 }
@@ -304,7 +312,7 @@ void PhysicsBody::resetTransform() {
 
 void PhysicsBody::resting(bool resting) {
 	_resting = resting;
-#warning need to update BT motion state?
+#warning probably want to actually DO something with this...
 }
 
 void PhysicsBody::attachedToNode(Node* node) {

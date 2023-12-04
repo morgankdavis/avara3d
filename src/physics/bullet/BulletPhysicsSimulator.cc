@@ -201,7 +201,7 @@ void BulletPhysicsSimulator::update(const Scene& scene) {
 														 PHYSICS_WORLD_DIRTY_MASK::TIMESTEP));
 	}
 
-#warning set this gravity for all physics objects, too...
+#warning set this gravity for all physics objects, too... (?)
 	if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::GRAVITY)) {
 		_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
 
