@@ -128,8 +128,8 @@ void Example::updateCallback(Scene& scene, float time) {
 		// tanA = mouseDelta / distance
 		// A = atan(mouseDelta / distance)
 
-		static const float MOUSE_SPEED_SCALER = .002;
-		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALER;
+		static const float MOUSE_SPEED_SCALAR = .002;
+		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
 		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
