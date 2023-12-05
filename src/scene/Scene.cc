@@ -659,9 +659,9 @@ void UpdateTimeStats(Stats& stats, float time) {
 	stats.currentFrametime = deltaTime * 1000.0f;
 
 	// *** every 5 seconds something slows a frame down significantly ***
-	if (stats.currentFrametime > 15) {
-		AE_LOG_W("currentFrametime: {}", stats.currentFrametime);
-	}
+//	if (stats.currentFrametime > 15) {
+//		AE_LOG_W("currentFrametime: {}", stats.currentFrametime);
+//	}
 
 	// average
 	static float fpsAvg = 0.0;

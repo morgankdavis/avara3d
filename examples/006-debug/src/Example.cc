@@ -207,8 +207,6 @@ void Example::updateCallback(Scene& scene, float time) {
 
 		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 
-		static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
-
 		auto pov = scene.visualWorld()->pointOfView();
 		if (pov) {
 
@@ -218,11 +216,11 @@ void Example::updateCallback(Scene& scene, float time) {
 			vec3 camRight = pov->worldRight();
 			vec3 camUp = pov->worldUp();
 
-			float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
-			float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+			static const float MOUSE_SPEED_SCALER = .002;
+			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALER;
 
-//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
-//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
+			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));

@@ -30,6 +30,7 @@ constexpr bool					FULLSCREEN =			false;
 constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		true;
+constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
 /***************************************************************************************
@@ -191,10 +192,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	
 	
 	// move camera
-	
-	//const static float mouseSensitivity = 0.5f;
-	const static float mouseSensitivity = (1.0f / 0.5f);
-	
+
 	auto pov = scene.visualWorld()->pointOfView();
 	if (pov) {
 		
@@ -203,16 +201,15 @@ void Example::updateCallback(Scene& scene, float time) {
 		vec3 camForward = pov->worldForward();
 		vec3 camRight = pov->worldRight();
 		vec3 camUp = pov->worldUp();
-		
-		
-		//		float deltaRotX = deltaSeconds * mouseSensitivity * mousePositionDelta.x;
-		//		float deltaRotY = deltaSeconds * mouseSensitivity * mousePositionDelta.y;
-		
+
 		// tanA = mouseDelta / distance
 		// A = atan(mouseDelta / distance)
-		
-		float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
-		float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+
+		static const float MOUSE_SPEED_SCALER = .002;
+		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALER;
+
+		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
+		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 		
 		vec3 angles = pov->eulerAngles();
 		// weird angles

@@ -536,13 +536,19 @@ void Example::updateCallback(Scene& scene, float time) {
 			}
 		}
 
+		vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+		if (mouseScrollWheelDelta.y) {
+
+			auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
+									   0.1, 1.0);
+			scene.physicalWorld()->speed(newSpeed);
+		}
+
 		if (cursorCaptured) {
 
 			// mouselook
 
 			vec2 mousePositionDelta = inputManager->mousePositionDelta();
-
-			//static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 
 			auto pov = scene.visualWorld()->pointOfView();
 			if (pov) {
@@ -553,11 +559,11 @@ void Example::updateCallback(Scene& scene, float time) {
 				vec3 camRight = pov->worldRight();
 				vec3 camUp = pov->worldUp();
 
-				float deltaRotX = atan((deltaSeconds * mousePositionDelta.x) * MOUSE_SENSITIVITY);
-				float deltaRotY = atan((deltaSeconds * mousePositionDelta.y) * MOUSE_SENSITIVITY);
+				static const float MOUSE_SPEED_SCALER = .002;
+				static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALER;
 
-//				float deltaRotX = (deltaSeconds * mousePositionDelta.x) * MOUSE_SENSITIVITY;
-//				float deltaRotY = (deltaSeconds * mousePositionDelta.y) * MOUSE_SENSITIVITY;
+				float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
+				float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
 				vec3 angles = pov->eulerAngles();
 				pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
@@ -1557,7 +1563,7 @@ void SpawnChainMail(Scene& scene) {
 	static const float TORUS_MAJOR_RADIUS = 1;
 
 	static const int CHAINMAIL_WIDTH = 3;
-	static const int CHAINMAIL_HEIGHT = 3;
+	static const int CHAINMAIL_HEIGHT = 4;
 
 	static const int GROUND_OFFSET = 25;
 
