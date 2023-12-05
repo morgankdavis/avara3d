@@ -25,6 +25,7 @@ using namespace std;
 
 PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
 		_gravity({0, -9.807, 0}),
+		_speed(1.0),
 		_timestep(1.0/60.0),
 		_simulator(make_shared<BulletPhysicsSimulator>()),
 		_scene(nullptr),
@@ -50,6 +51,14 @@ void PhysicalWorld::gravity(vec3 gravity) {
 	_gravity = gravity;
 
 	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::GRAVITY);
+}
+
+float PhysicalWorld::speed() const {
+	return _speed;
+}
+
+void PhysicalWorld::speed(float speed) {
+	_speed = speed;
 }
 
 float PhysicalWorld::timestep() const {
@@ -155,7 +164,7 @@ void PhysicalWorld::simulate(const Scene& scene,
 		_simulator->update(scene);
 		rootNode->update(*_simulator,
 						  stats);
-		_simulator->step(deltaRunT);
+		_simulator->step(deltaRunT * _speed);
 		_simulator->sync(scene);
 		rootNode->sync(*_simulator,
 						stats);

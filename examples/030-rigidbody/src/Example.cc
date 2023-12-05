@@ -391,6 +391,18 @@ void Example::updateCallback(Scene& scene, float time) {
 			SpawnRecursiveTestTree(scene);
 		}
 
+		if (keysPressed.count(KEY::ONE)) {
+			scene.physicalWorld()->speed(0.1);
+		}
+
+		if (keysPressed.count(KEY::ZERO)) {
+			scene.physicalWorld()->speed(1.0);
+		}
+
+		if (keysPressed.count(KEY::TWO)) {
+			scene.physicalWorld()->speed(2.0);
+		}
+
 		if (keysPressed.count(KEY::J)) {
 			if (_fruit1Node) {
 				_fruit1Node->physicsBody()->affectedByGravity(!(_fruit1Node->physicsBody()->affectedByGravity()));
@@ -530,7 +542,7 @@ void Example::updateCallback(Scene& scene, float time) {
 
 			vec2 mousePositionDelta = inputManager->mousePositionDelta();
 
-			static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
+			//static const float mouseSensitivity = (1.0f / MOUSE_SENSITIVITY);
 
 			auto pov = scene.visualWorld()->pointOfView();
 			if (pov) {
@@ -541,19 +553,18 @@ void Example::updateCallback(Scene& scene, float time) {
 				vec3 camRight = pov->worldRight();
 				vec3 camUp = pov->worldUp();
 
-				float deltaRotX = atan(deltaSeconds * mousePositionDelta.x / mouseSensitivity);
-				float deltaRotY = atan(deltaSeconds * mousePositionDelta.y / mouseSensitivity);
+				float deltaRotX = atan((deltaSeconds * mousePositionDelta.x) * MOUSE_SENSITIVITY);
+				float deltaRotY = atan((deltaSeconds * mousePositionDelta.y) * MOUSE_SENSITIVITY);
 
-				//		float deltaRotX = deltaSeconds * mousePositionDelta.x / mouseSensitivity;
-				//		float deltaRotY = deltaSeconds * mousePositionDelta.y / mouseSensitivity;
+//				float deltaRotX = (deltaSeconds * mousePositionDelta.x) * MOUSE_SENSITIVITY;
+//				float deltaRotY = (deltaSeconds * mousePositionDelta.y) * MOUSE_SENSITIVITY;
 
 				vec3 angles = pov->eulerAngles();
 				pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 				// move
 
-				static float MOVE_SPEED = 0;
-				if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
+				static float MOVE_SPEED = Max(scene.rootNode()->extent());
 
 				float moveMultiplier = 1.0;
 				if (keysDown.count(KEY::LEFT_CONTROL)) {

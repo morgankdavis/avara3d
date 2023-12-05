@@ -321,7 +321,10 @@ void Scene::run() {
 
 				if (_physicalWorld) {
 
-					_physicalWorld->simulate(*this, runT, deltaRunT, _stats);
+					_physicalWorld->simulate(*this,
+											 runT,
+											 deltaRunT,
+											 _stats);
 				}
 
 				if (_visualWorld) {
@@ -648,34 +651,37 @@ static void GetRunTime(float time, // time since reference
 
 void UpdateTimeStats(Stats& stats, float time) {
 
+	// current
+	static float previousTime = time;
+	float deltaTime = time - previousTime;
+	previousTime = time;
+	stats.currentFramerate = 60.0f / deltaTime;
+	stats.currentFrametime = deltaTime * 1000.0f;
+
+	// *** every 5 seconds something slows a frame down significantly ***
+	if (stats.currentFrametime > 15) {
+		AE_LOG_W("currentFrametime: {}", stats.currentFrametime);
+	}
+
+	// average
 	static float fpsAvg = 0.0;
 	static float msAvg = 0.0;
+	static unsigned framesSinceSampleStart = 0;
+	static float sampleStartTime = time;
+	float elapsedTimeSinceSampleStart = time - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
 
-	static int elapsedFramesThisSample = 0;
+		fpsAvg = (float)framesSinceSampleStart / elapsedTimeSinceSampleStart;
+		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
 
-	static float lastSampleStartTime = time;
-
-	float elapsedSecondsSinceLastFrame = time - lastSampleStartTime;
-
-	float timeSinceBeginSample = time - lastSampleStartTime;
-	if (timeSinceBeginSample >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		fpsAvg = (float)elapsedFramesThisSample / timeSinceBeginSample;
-		msAvg = (elapsedSecondsSinceLastFrame * 1000.0f) / elapsedFramesThisSample;
-
-		elapsedFramesThisSample = 0;
-		lastSampleStartTime = time;
+		sampleStartTime = time;
+		framesSinceSampleStart = 0;
 	}
 	else {
-		++elapsedFramesThisSample;
+		++framesSinceSampleStart;
 	}
-
 	stats.averageFramerate = fpsAvg;
 	stats.averageFrametime = msAvg;
-
-	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
-	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f;
-
 	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }
 

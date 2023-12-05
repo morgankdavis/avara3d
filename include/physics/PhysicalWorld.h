@@ -58,6 +58,9 @@ namespace ae {
 		glm::vec3 							gravity() const;
 		void 								gravity(glm::vec3 gravity);
 
+		float								speed() const;
+		void 								speed(float speed);
+
 		float 								timestep() const;
 		void 								timestep(float timestep);
 
@@ -109,6 +112,7 @@ namespace ae {
 	private:
 
 		glm::vec3 								_gravity;
+		float 									_speed;
 		float 									_timestep;
 		std::shared_ptr<PhysicsSimulator>		_simulator;
 		Scene*									_scene;

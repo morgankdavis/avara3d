@@ -1946,7 +1946,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %.1f fps %s\n" \
+		ImGui::Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1989,7 +1989,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %.1f fps %s\n" \
+		ImGui::Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
