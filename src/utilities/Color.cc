@@ -96,51 +96,6 @@ std::shared_ptr<Color> Color::Brown() {
 	return make_shared<Color>(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
 }
 
-vector<std::shared_ptr<Color>> Color::Rainbow() {
-	return vector<shared_ptr<Color>>() = {
-		Black(),
-		DarkGray(),
-		Gray(),
-		LightGray(),
-		White(),
-		Maroon(),
-		Red(),
-		Orange(),
-		Yellow(),
-		Olive(),
-		Lime(),
-		Green(),
-		Cyan(),
-		Blue(),
-		Navy(),
-		Teal(),
-		Magenta(),
-		Purple(),
-		Brown() };
-
-//	auto v = vector<unique_ptr<Color>>();
-//	v.push_back(Black());
-//	v.push_back(DarkGray());
-//	v.push_back(Gray());
-//	v.push_back(LightGray());
-//	v.push_back(White());
-//	v.push_back(Maroon());
-//	v.push_back(Red());
-//	v.push_back(Orange());
-//	v.push_back(Yellow());
-//	v.push_back(Olive());
-//	v.push_back(Lime());
-//	v.push_back(Green());
-//	v.push_back(Cyan());
-//	v.push_back(Blue());
-//	v.push_back(Navy());
-//	v.push_back(Teal());
-//	v.push_back(Magenta());
-//	v.push_back(Purple());
-//	v.push_back(Brown());
-//	return v;
-}
-
 shared_ptr<Color> Color::Random() {
 	return make_shared<Color>(Uniform(0, 255), Uniform(0, 255), Uniform(0, 255));
 }
@@ -181,6 +136,11 @@ Color::Color(uint32_t color):
 		g((float)((color & 0x00FF0000) >> 16)/255.0f),
 		b((float)((color & 0x0000FF00) >> 8)/255.0f),
 		a((float)((color & 0x000000FF) >> 0)/255.0f) { }
+
+Color::Color(const string& hexString) {
+
+
+}
 
 //Color::Color(const Color& color) {
 //	r = color.r;

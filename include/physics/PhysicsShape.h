@@ -37,15 +37,20 @@ namespace ae {
 
 	public:
 
-		PhysicsShape();
-		PhysicsShape(PHYSICS_SHAPE_TYPE type);
+//		PhysicsShape();
+//		PhysicsShape(PHYSICS_SHAPE_TYPE type);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node);
 		~PhysicsShape();
 
+	protected:
+		PhysicsShape();
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+	public:
 
 		virtual PHYSICS_SHAPE_TYPE 			type() const;
 		virtual void 						type(PHYSICS_SHAPE_TYPE type);

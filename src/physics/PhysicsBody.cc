@@ -108,8 +108,8 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 		_shape = shape;
 		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
 
-		if (_shape) {
-			_shape->attachedToBody(this);
+		if (shape) {
+			shape->attachedToBody(this);
 		}
 //	}
 }
@@ -255,43 +255,43 @@ void PhysicsBody::allowsResting(bool flag) {
 }
 
 bool PhysicsBody::resting() const {
-	
+
 	return _resting;
 }
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
 	#warning fix
-	
+
 	//applyForce(force, {0, 0, 0}, impulse);
 //	void 	applyCentralImpulse (const btVector3 &impulse)
 //	void 	applyTorqueImpulse (const btVector3 &torque)
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
-	
+
 #warning save list of applied forces
-	
+
 //	if (_btRigidBody) {
 //		/**********
 //		if (impulse) _btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
 //		else _btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
 //		 *********/
 //	}
-	
+
 	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES);
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
-	
+
 #warning save list of applied torques
-	
+
 //	if (_btRigidBody) {
 //		/**********
 //		if (impulse) _btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
 //		else  _btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
 //		 *********/
 //	}
-	
+
 	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
 }
 
@@ -318,6 +318,7 @@ void PhysicsBody::resting(bool resting) {
 void PhysicsBody::attachedToNode(Node* node) {
 
 	_node = node;
+
 	checkAutocreateShape(node);
 }
 
@@ -473,7 +474,8 @@ void PhysicsBody::checkAutocreateShape(Node* node) {
 						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
 				_shape->sourceObject(node);
-			} else {
+			}
+			else {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
 						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));

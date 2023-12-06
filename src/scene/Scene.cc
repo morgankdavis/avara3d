@@ -187,16 +187,16 @@ std::shared_ptr<VisualWorld> Scene::visualWorld() const {
 
 void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 
-//	if (world != _visualWorld) { // will be unique_ptr
+//	if (world != _visualWorld) {
 
 		if (_visualWorld) {
 
 			if (_rootNode) {
 				_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
-			}
 
-			for (auto child: _rootNode->children(false)) {
-				child->visualWorldDetachedFromScene(_visualWorld.get(), this);
+//				for (auto child: _rootNode->children(false)) {
+//					child->visualWorldDetachedFromScene(_visualWorld.get(), this);
+//				}
 			}
 		}
 
@@ -208,10 +208,10 @@ void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 
 			if (_rootNode) {
 				_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
-			}
 
-			for (auto child: _rootNode->children(false)) {
-				child->visualWorldAttachedToScene(_visualWorld.get(), this);
+//				for (auto child: _rootNode->children(false)) {
+//					child->visualWorldAttachedToScene(_visualWorld.get(), this);
+//				}
 			}
 		}
 //	}
@@ -227,25 +227,25 @@ void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
 
 		if (_rootNode) {
 			_rootNode->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
-		}
 
-		for (auto child : _rootNode->children(false)) {
-			child->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
+//			for (auto child : _rootNode->children(false)) {
+//				child->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
+//			}
 		}
 	}
 
 	_physicalWorld = world;
 
-	if (_physicalWorld) {
+	if (world) {
 
-		_physicalWorld->attachedToScene(this);
+		world->attachedToScene(this);
 
 		if (_rootNode) {
-			_rootNode->physicalWorldAttachedToScene(_physicalWorld.get(), this);
-		}
+			_rootNode->physicalWorldAttachedToScene(world.get(), this);
 
-		for (auto child : _rootNode->children(false)) {
-			child->physicalWorldAttachedToScene(_physicalWorld.get(), this);
+//			for (auto child : _rootNode->children(false)) {
+//				child->physicalWorldAttachedToScene(world.get(), this);
+//			}
 		}
 	}
 }

@@ -93,7 +93,7 @@ Node::Node(shared_ptr<Camera> camera):
 
 Node::~Node() {
 	if (_name != nullopt) {
-		AE_LOG_D("Destroying Node {}", *_name);
+		AE_LOG_D("Destroying Node '{}'", *_name);
 	}
 	else {
 		AE_LOG_D("Destroying Node {:p}", (void*)this);
@@ -607,8 +607,8 @@ void Node::physicsBody(shared_ptr<PhysicsBody> body) {
 
 	_physicsBody = body;
 
-	if (_physicsBody) {
-		_physicsBody->attachedToNode(this);
+	if (body) {
+		body->attachedToNode(this);
 	}
 }
 
@@ -661,7 +661,7 @@ void Node::detachedFromParent(Node* parent) {
 //	}
 
 	for (auto& child : _children) {
-		child->ancestorAttachedToParent(this, parent);
+		child->ancestorDetachedFromParent(this, parent);
 	}
 }
 

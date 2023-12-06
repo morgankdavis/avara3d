@@ -40,11 +40,11 @@ PhysicsShape::PhysicsShape():
 		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
-		_sourceObject(monostate{}),
-		_type(type),
-		_resources(make_shared<BulletShapeResources>()),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
+//PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
+//		_sourceObject(monostate{}),
+//		_type(type),
+//		_resources(make_shared<BulletShapeResources>()),
+//		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),

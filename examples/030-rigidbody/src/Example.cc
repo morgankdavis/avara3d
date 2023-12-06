@@ -1181,7 +1181,7 @@ static void AddRing(Scene& scene) {
 	auto node = Node::NamedNode("Torus Node");
 	static auto geometry = make_shared<Torus>(.75, 1.0, 16, 16);
 	static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON,
-												  geometry.get());
+														 geometry.get());
 	//auto physicsBody = PhysicsBody::DynamicBody();
 	auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 	node->geometry(geometry);
