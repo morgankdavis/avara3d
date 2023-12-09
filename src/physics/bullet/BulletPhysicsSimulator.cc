@@ -222,7 +222,7 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
 	rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
 
-	shared_ptr<btRigidBody> btBody = make_shared<btRigidBody>(rigidBodyInfo);
+	auto btBody = make_shared<btRigidBody>(rigidBodyInfo);
 
 	switch (body.type()) {
 		case PHYSICS_BODY_TYPE::STATIC:
@@ -383,7 +383,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 		}
 	}
 
-		// source NODE
+	// source NODE
 	else if (holds_alternative<Node*>(sourceObject)) {
 		if (auto sourceNode = get<Node*>(sourceObject)) {
 
@@ -395,7 +395,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 		}
 	}
 
-		// primitive subclass
+	// primitive subclass
 	else if (holds_alternative<monostate>(sourceObject)) {
 
 		newShape = BTShapeFromPrimitiveShape(shape, bodyType);

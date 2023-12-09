@@ -20,7 +20,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletWorldResources::BulletWorldResources():
+BulletWorldResources::BulletWorldResources()/*:
 		_collisionConfiguration(make_unique<btDefaultCollisionConfiguration>()),
 		_collisionDispatcher(make_unique<btCollisionDispatcher>(_collisionConfiguration.get())),
 		_broadphase(make_unique<btDbvtBroadphase>()),
@@ -28,7 +28,20 @@ BulletWorldResources::BulletWorldResources():
 		_world(make_unique<btDiscreteDynamicsWorld>(_collisionDispatcher.get(),
 													_broadphase.get(),
 													_constraintSolver.get(),
-													_collisionConfiguration.get())) {
+													_collisionConfiguration.get()))*/ {
+
+	// putting this in the initializer list causes a SEGFAULT at btDiscreteDynamicsWorld::addRigidBody(). (?)
+
+	_collisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
+	_collisionDispatcher = make_unique<btCollisionDispatcher>(_collisionConfiguration.get());
+	_broadphase = make_unique<btDbvtBroadphase>();
+	_constraintSolver = make_unique<btSequentialImpulseConstraintSolver>();
+	_world = make_unique<btDiscreteDynamicsWorld>(_collisionDispatcher.get(),
+												  _broadphase.get(),
+												  _constraintSolver.get(),
+												  _collisionConfiguration.get());
+
+	AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
 #ifdef OPENGL_CORE
 	_debugDrawer = make_unique<BulletDebugDrawer>();
