@@ -161,6 +161,8 @@ void Node::position(const vec3& position) {
 	_position = position;
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 vec4 Node::rotation() const {
@@ -229,6 +231,8 @@ void Node::rotation(const vec3& axis, float angle) {
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -348,6 +352,8 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 quat Node::orientation() const {
@@ -356,6 +362,8 @@ quat Node::orientation() const {
 
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 vec3 Node::scale() const {
@@ -364,6 +372,8 @@ vec3 Node::scale() const {
 
 void Node::scale(const glm::vec3& scale) {
 	_scale = scale;
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 mat4 Node::transform() const {
@@ -401,6 +411,8 @@ void Node::transform(const mat4& transform) {
 	//
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
+
+	checkNotifyPhysicsBodyOfWorldTransformUpdate();
 }
 
 vec3 Node::worldPosition() const {
@@ -556,6 +568,7 @@ void Node::insertChild(const Node& node, int index) {
 }
 
 void Node::removeFromParent() {
+
 	if (_parent) {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
@@ -632,6 +645,7 @@ Node* Node::parent() const {
  *********************************************************************************************/
 
 void Node::attachedToParent(Node* parent) {
+	AE_LOG_T("parent: {:p}", (void*)parent);
 
 	_parent = parent;
 
@@ -651,6 +665,7 @@ void Node::attachedToParent(Node* parent) {
 }
 
 void Node::detachedFromParent(Node* parent) {
+	AE_LOG_T("parent: {:p}", (void*)parent);
 
 	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
@@ -666,6 +681,7 @@ void Node::detachedFromParent(Node* parent) {
 }
 
 void Node::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeAttachedToScene(scene);
@@ -681,6 +697,7 @@ void Node::attachedToScene(Scene* scene) {
 }
 
 void Node::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromScene(scene);
@@ -694,6 +711,7 @@ void Node::detachedFromScene(Scene* scene) {
 }
 
 void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
+	AE_LOG_T("ancestor: {:p}, parent: {:p}", (void*)ancestor, (void*)parent);
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorAttachedToParent(ancestor, parent);
@@ -707,6 +725,7 @@ void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 }
 
 void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
+	AE_LOG_T("ancestor: {:p}, parent: {:p}", (void*)ancestor, (void*)parent);
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
@@ -720,6 +739,7 @@ void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 }
 
 void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
+	AE_LOG_T("ancestor: {:p}, scene: {:p}", (void*)ancestor, (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorAttachedToScene(ancestor, scene);
@@ -733,6 +753,7 @@ void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
 }
 
 void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
+	AE_LOG_T("ancestor: {:p}, scene: {:p}", (void*)ancestor, (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
@@ -746,6 +767,7 @@ void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
 }
 
 void Node::visualWorldAttachedToScene(VisualWorld* world, Scene* scene) {
+	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
 
 	for (auto& child : _children) {
 		child->visualWorldAttachedToScene(world, scene);
@@ -753,6 +775,7 @@ void Node::visualWorldAttachedToScene(VisualWorld* world, Scene* scene) {
 }
 
 void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
+	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
 
 	for (auto& child : _children) {
 		child->visualWorldDetachedFromScene(world, scene);
@@ -760,6 +783,7 @@ void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
 }
 
 void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
+	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldAttachedToScene(world, scene);
@@ -773,6 +797,7 @@ void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
 }
 
 void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
+	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldDetachedFromScene(world, scene);
@@ -787,10 +812,8 @@ void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
 
 VisualWorld* Node::visualWorld() const {
 
-	auto scene = Node::scene();
-	if (scene) {
-		auto visualWorld = scene->visualWorld();
-		if (visualWorld) {
+	if (auto scene = Node::scene()) {
+		if (auto visualWorld = scene->visualWorld()) {
 			return visualWorld.get();
 		}
 	}
@@ -799,10 +822,8 @@ VisualWorld* Node::visualWorld() const {
 
 PhysicalWorld* Node::physicalWorld() const {
 
-	auto scene = Node::scene();
-	if (scene) {
-		auto physicalWorld = scene->physicalWorld();
-		if (physicalWorld) {
+	if (auto scene = Node::scene()) {
+		if (auto physicalWorld = scene->physicalWorld()) {
 			return physicalWorld.get();
 		}
 	}
@@ -812,8 +833,7 @@ PhysicalWorld* Node::physicalWorld() const {
 void Node::checkNotifyPhysicsBodyOfReachablePhysicalWorld() const {
 
 	if (_physicsBody) {
-		auto physicalWorld = Node::physicalWorld();
-		if (physicalWorld) {
+		if (auto physicalWorld = Node::physicalWorld()) {
 			_physicsBody->physicalWorldReachable(physicalWorld);
 		}
 	}
@@ -824,10 +844,16 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 	// so if we HAVE a path to PhysicalWorld now, we won't mush longer.
 
 	if (_physicsBody) {
-		auto physicalWorld = Node::physicalWorld();
-		if (physicalWorld) {
+		if (auto physicalWorld = Node::physicalWorld()) {
 			_physicsBody->physicalWorldUnreachable(physicalWorld);
 		}
+	}
+}
+
+void Node::checkNotifyPhysicsBodyOfWorldTransformUpdate() const {
+
+	if (_physicsBody) {
+		_physicsBody->worldTransformUpdated(worldTransform());
 	}
 }
 
@@ -877,27 +903,27 @@ vec3 Node::extent() {
 			aabb.max.z - aabb.min.z};
 }
 
-void Node::update(PhysicsSimulator& simulator,
-				  Stats& stats) {
-
-	// physics body or physics body dirty?
-	//		create/update
-
-	if (_physicsBody) {
-		_physicsBody->update(simulator,
-							 *this,
-							 stats);
-	}
-
-	// apply visual to kinematic bodies (and static?)
-
-	for (auto& child : _children) {
-		child->update(simulator,
-					  stats);
-	}
-
-	++stats.nodes;
-}
+//void Node::update(PhysicsSimulator& simulator,
+//				  Stats& stats) {
+//
+//	// physics body or physics body dirty?
+//	//		create/update
+//
+//	if (_physicsBody) {
+//		_physicsBody->update(simulator,
+//							 *this,
+//							 stats);
+//	}
+//
+//	// apply visual to kinematic bodies (and static?)
+//
+//	for (auto& child : _children) {
+//		child->update(simulator,
+//					  stats);
+//	}
+//
+//	++stats.nodes;
+//}
 
 void Node::sync(PhysicsSimulator& simulator,
 				Stats& stats) {
@@ -1022,8 +1048,8 @@ vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
 		childrenRec(child, l);
 	}
 
-	return { std::make_move_iterator(std::begin(l)),
-			 std::make_move_iterator(std::end(l)) };
+	return { make_move_iterator(std::begin(l)),
+			 make_move_iterator(std::end(l)) };
 }
 
 void Node::childrenRec(shared_ptr<Node> node,

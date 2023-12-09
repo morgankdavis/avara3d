@@ -21,6 +21,7 @@ namespace ae {
 	
 	
 	class Node;
+	class PhysicalWorld;
 	class PhysicsBody;
 	class PhysicsShape;
 	class Scene;
@@ -43,35 +44,48 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		virtual void 				beginUpdate(const Scene& scene);
-		virtual void 				endUpdate(const Scene& scene);
+//		virtual void			setTimestep(PhysicalWorld& world, float timestep);
+//		virtual void			setSpeed(PhysicalWorld& world, float speed);
+		virtual void			setGravity(PhysicalWorld& world, glm::vec3& gravity);
 
-		virtual void				update(const Scene& scene);
-		virtual void				sync(const Scene& scene);
+		virtual void			create(PhysicsBody& body);
+		virtual void			remove(PhysicsBody& body);
 
-		virtual void				update(PhysicsBody& body,
-										   Node& node);
-		virtual void				sync(PhysicsBody& body,
-										 Node& node,
-										 glm::mat4& worldTransform);
+		virtual void			setType(PhysicsBody& body, PHYSICS_BODY_TYPE type);
+		virtual void			setShape(PhysicsBody& body, PhysicsShape& shape);
+		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);
+		virtual void			setMass(PhysicsBody& body, float mass);
+		virtual void			setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment);
+		virtual void			setFriction(PhysicsBody& body, float friction);
+		virtual void			setRollingFriction(PhysicsBody& body, float friction);
+		virtual void			setRestitution(PhysicsBody& body, float restitution);
+		virtual void			setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity);
+		virtual void			setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity);
+		virtual void			setLinearFactor(PhysicsBody& body, const glm::vec3& factor);
+		virtual void			setAngularFactor(PhysicsBody& body, const glm::vec3& factor);
+		virtual void			setLinearDamping(PhysicsBody& body, float damping);
+		virtual void			setAngularDamping(PhysicsBody& body, float damping);
+		virtual void			setLinearSleepingThreshold(PhysicsBody& body, float threshold);
+		virtual void			setAngularSleepingThreshold(PhysicsBody& body, float threshold);
+		virtual void			setAffectedByGravity(PhysicsBody& body, bool flag);
+		virtual void			setAllowsResting(PhysicsBody& body, bool flag);
 
-		virtual void				update(PhysicsShape& shape,
-										   PHYSICS_BODY_TYPE bodyType,
-										   bool& updated);
-		virtual void				sync(PhysicsShape& shape,
-										 PHYSICS_BODY_TYPE bodyType);
+		virtual void			create(PhysicsShape& shape);
 
-		virtual void 				step(float deltaT);
-		
+		virtual void 			step(PhysicalWorld& world, float deltaT);
+
+		virtual void			sync(PhysicsBody& body,
+									 glm::mat4& worldTransform);
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
 	protected:
 
-		glm::vec3 					_gravity;
-		float 						_speed;
-		float						_timestep;
+//		glm::vec3 					_gravity;
+//		float 						_speed;
+//		float						_timestep;
 	};
 }
 

@@ -164,19 +164,24 @@ namespace ae {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
+		void								worldTransformUpdated(const glm::mat4& transform);
+
+		void								modelCreated(PhysicsShape& shape);
+
 		Node*								node() const;
 
 		PhysicalWorld*						physicalWorld() const;
+		PhysicsSimulator*					physicsSimulator() const;
 
-		std::shared_ptr<PhysicsBodyResources>	resources();
+		PhysicsBodyResources*				resources();
 
-		void								update(PhysicsSimulator& simulator,
-													   Node& node,
-													   Stats& stats);
+//		void								update(PhysicsSimulator& simulator,
+//												   Node& node,
+//												   Stats& stats);
 		void								sync(PhysicsSimulator& simulator,
-													 Node& node,
-													 glm::mat4& localTransform,
-													 Stats& stats);
+												 Node& node,
+												 glm::mat4& localTransform,
+												 Stats& stats);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);

@@ -162,13 +162,15 @@ namespace ae {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
+		void									checkNotifyPhysicsBodyOfWorldTransformUpdate() const;
+
 		bool 									containsChild(std::shared_ptr<Node> node);
 
 		AABB									aabb();
 		glm::vec3								extent();
 
-		void 									update(PhysicsSimulator& simulator,
-													   Stats& stats);
+//		void 									update(PhysicsSimulator& simulator,
+//													   Stats& stats);
 
 		void 									sync(PhysicsSimulator& simulator,
 													 Stats& stats);

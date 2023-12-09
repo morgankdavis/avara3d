@@ -10,6 +10,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
+#include "physics/bullet/BulletWorldResources.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 
@@ -27,13 +28,20 @@ PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		_simulator(make_shared<BulletPhysicsSimulator>()),
+		_resources(make_unique<BulletWorldResources>()),
+		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
 		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
 		_didSimulate(nullptr),
 		_beginContact(nullptr),
 		_continueContact(nullptr),
-		_endContact(nullptr) { }
+		_endContact(nullptr) {
+
+//#warning move?
+
+//	_simulator->setTimestep(_timestep);
+//	_simulator->setGravity(_gravity);
+}
 
 PhysicalWorld::~PhysicalWorld() {
 	AE_LOG_D("Destroying PhysicalWorld {:p}", (void*)this);
@@ -158,17 +166,10 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 	if (_simulator) {
 
-		auto rootNode = scene.rootNode();
-
-		_simulator->beginUpdate(scene);
-		_simulator->update(scene);
-		rootNode->update(*_simulator,
-						  stats);
-		_simulator->step(deltaRunT * _speed);
-		_simulator->sync(scene);
-		rootNode->sync(*_simulator,
-						stats);
-		_simulator->endUpdate(scene);
+		_simulator->step(*this, deltaRunT);
+//		_simulator->sync(scene);
+		scene.rootNode()->sync(*_simulator,
+							   stats);
 
 		if (didSimulate()) {
 			(didSimulate())(*this, runT);
@@ -179,8 +180,40 @@ void PhysicalWorld::simulate(const Scene& scene,
 	}
 }
 
-shared_ptr<PhysicsSimulator> PhysicalWorld::simulator() const {
-	return _simulator;
+//void PhysicalWorld::simulate(const Scene& scene,
+//							 float runT,
+//							 float deltaRunT,
+//							 Stats& stats) {
+//
+//	if (_simulator) {
+//
+//		auto rootNode = scene.rootNode();
+//
+//		_simulator->beginUpdate(scene);
+//		_simulator->update(scene);
+//		rootNode->update(*_simulator,
+//						  stats);
+//		_simulator->step(deltaRunT * _speed);
+//		_simulator->sync(scene);
+//		rootNode->sync(*_simulator,
+//						stats);
+//		_simulator->endUpdate(scene);
+//
+//		if (didSimulate()) {
+//			(didSimulate())(*this, runT);
+//		}
+//	}
+//	else {
+//		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
+//	}
+//}
+
+PhysicalWorldResources* PhysicalWorld::resources() const {
+	return  _resources.get();
+}
+
+PhysicsSimulator* PhysicalWorld::simulator() const {
+	return _simulator.get();
 }
 
 PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {

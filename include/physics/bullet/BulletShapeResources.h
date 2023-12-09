@@ -32,11 +32,11 @@ namespace ae {
 		~BulletShapeResources();
 
 /*********************************************************************************************
-	Public
+	Internal
  *********************************************************************************************/
 
 		std::vector<std::shared_ptr<btCollisionShape>>&				shapes();
-		void shapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
+		void shapes(std::vector<std::shared_ptr<btCollisionShape>> 	shapes);
 
 		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	indexVertexArrays();
 		void indexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);

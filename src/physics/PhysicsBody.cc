@@ -13,11 +13,14 @@
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicsSimulator.h"
+#include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletBodyResources.h"
 #include "scene/Node.h"
+#include "utilities/Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -85,6 +88,7 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 }
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
+	AE_LOG_T("type: {}", magic_enum::enum_name(type));
 
 	if (type != _type) {
 
@@ -98,6 +102,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 }
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
+	AE_LOG_T("shape: {:p}", (void*)shape.get());
 
 //	if (shape != _shape) {
 
@@ -316,13 +321,39 @@ void PhysicsBody::resting(bool resting) {
 }
 
 void PhysicsBody::attachedToNode(Node* node) {
+	AE_LOG_T("node: {:p}", (void*)node);
 
 	_node = node;
 
 	checkAutocreateShape(node);
+
+	if (auto world = physicalWorld()) {
+
+//		_shape->update(simulator,
+//					   node,
+//					   *this,
+//					   stats);
+//
+//		simulator.update(*this,
+//						 node);
+
+		world->simulator()->create(*this);
+	}
+	else {
+		AE_LOG_I("No reachable PhysicalWorld.");
+	}
 }
 
 void PhysicsBody::detachedFromNode(Node* node) {
+	AE_LOG_T("node: {:p}", (void*)node);
+
+	if (auto world = physicalWorld()) {
+		world->simulator()->remove(*this);
+	}
+	else {
+		AE_LOG_E("Attempting to remove PhysicsBody with no PhysicalWorld.");
+	}
+
 	_node = nullptr;
 }
 
@@ -343,24 +374,29 @@ void PhysicsBody::detachedFromNode(Node* node) {
 //}
 
 void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
+	AE_LOG_T("geometry: {:p}", (void*)geometry);
 
 	checkAutocreateShape(geometry);
 }
 
 void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
-
+	AE_LOG_T("geometry: {:p}", (void*)geometry);
 }
 
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
-	AE_LOG_D("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", (void*)world);
 
 	if (_shape) {
 		_shape->physicalWorldReachable(world);
 	}
+
+//	if (!_resources) { // meh?
+		world->simulator()->create(*this);
+//	}
 }
 
 void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
-	AE_LOG_D("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", (void*)world);
 
 	if (_shape) {
 		_shape->physicalWorldUnreachable(world);
@@ -397,13 +433,34 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 //
 //}
 
+void PhysicsBody::worldTransformUpdated(const glm::mat4& transform) {
+	AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
+
+	if (auto simulator = physicsSimulator()) {
+		simulator->setWorldTransform(*this, transform);
+	}
+}
+
+void PhysicsBody::modelCreated(PhysicsShape& shape) {
+	AE_LOG_I("shape: {:p}", (void*)&shape);
+
+#warning this may be redundant -- CHECK
+
+	if (auto simulator = physicsSimulator()) {
+		simulator->setShape(*this, shape);
+	}
+}
+
+Node* PhysicsBody::node() const {
+	return _node;
+}
+
+
 PhysicalWorld* PhysicsBody::physicalWorld() const {
 
 	if (_node) {
-		auto scene = _node->scene();
-		if (scene) {
-			auto physicalWorld = scene->physicalWorld();
-			if (physicalWorld) {
+		if (auto scene = _node->scene()) {
+			if (auto physicalWorld = scene->physicalWorld()) {
 				return physicalWorld.get();
 			}
 		}
@@ -411,35 +468,41 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 	return nullptr;
 }
 
-shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
-	return _resources;
+PhysicsSimulator* PhysicsBody::physicsSimulator() const {
+
+	if (auto world = physicalWorld()) {
+		return world->simulator();
+	}
 }
 
-void PhysicsBody::update(PhysicsSimulator& simulator,
-						 Node& node,
-						 Stats& stats) {
-
-	_shape->update(simulator,
-				   node,
-				   *this,
-				   stats);
-
-	simulator.update(*this,
-					 node);
+PhysicsBodyResources* PhysicsBody::resources() {
+	return _resources.get();
 }
+
+//void PhysicsBody::update(PhysicsSimulator& simulator,
+//						 Node& node,
+//						 Stats& stats) {
+//
+//	_shape->update(simulator,
+//				   node,
+//				   *this,
+//				   stats);
+//
+//	simulator.update(*this,
+//					 node);
+//}
 
 void PhysicsBody::sync(PhysicsSimulator& simulator,
 					   Node& node,
 					   mat4& localTransform,
 					   Stats& stats) {
 
-	_shape->sync(simulator,
-				   node,
-				   *this,
-				   stats);
+//	_shape->sync(simulator,
+//				   node,
+//				   *this,
+//				   stats);
 
 	simulator.sync(*this,
-				   node,
 				   localTransform);
 
 	switch (type()) {

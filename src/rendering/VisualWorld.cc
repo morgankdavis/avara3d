@@ -230,30 +230,25 @@ void VisualWorld::draw(const Scene& scene,
 
 	if (_renderContext) {
 
-		auto renderer = _renderContext->renderer();
-		if (renderer) {
-
-			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
-
-			const auto framebufferWidth = _renderContext->framebufferWidth();
-			const auto framebufferHeight = _renderContext->framebufferHeight();
-
-			auto pov = pointOfView();
-
-			auto aspectRatio = (float) framebufferWidth / (float) framebufferHeight;
-			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
-
-			stats.cameraPosition = pov->position();
+		if (auto renderer = _renderContext->renderer()) {
 
 			if (willRender()) {
 				(willRender())(*this, runT);
 			}
 
+			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+
+			auto pov = pointOfView();
+			stats.cameraPosition = pov->position();
+
+			auto aspectRatio = (float)_renderContext->framebufferWidth()
+							   / (float)_renderContext->framebufferHeight();
+			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+
 			renderer->render(scene, debugOptions, stats);
 
 			auto viewMat = pov->worldTransform();
 			auto projectionMat = pov->camera()->projection();
-
 			scene.rootNode()->draw(*renderer,
 								   viewMat,
 								   projectionMat,
@@ -263,8 +258,7 @@ void VisualWorld::draw(const Scene& scene,
 			if (physicalWorld) {
 
 				auto physicsSimulator = physicalWorld->simulator();
-				auto bulletSimulator = dynamic_pointer_cast<BulletPhysicsSimulator>(physicsSimulator);
-				if (bulletSimulator) {
+				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
 					bulletSimulator->drawDebug(*renderer,
 											   viewMat,
 											   projectionMat,

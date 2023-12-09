@@ -36,6 +36,7 @@
 #include "physics/bullet/BulletBodyResources.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletShapeResources.h"
+#include "physics/bullet/BulletWorldResources.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
 #include "physics/shape_primitives/ConePhysicsShape.h"
@@ -126,31 +127,12 @@ static btTransform 						BTTransformFromGLMMat4(const mat4& from);
 static mat4 							TransformByRemovingScale(const mat4& m, bool& scaled);
 static btTransform&						BTIdentityTransform();
 
-
-
-
 /*********************************************************************************************
 	Lifescycle
  *********************************************************************************************/
 
 BulletPhysicsSimulator::BulletPhysicsSimulator():
-		PhysicsSimulator(),
-		_btCollisionConfiguration(make_shared<btDefaultCollisionConfiguration>()),
-		_btDispatcher(make_shared<btCollisionDispatcher>(_btCollisionConfiguration.get())),
-		_btBroadphase(make_shared<btDbvtBroadphase>()),
-		_btSolver(make_shared<btSequentialImpulseConstraintSolver>()),
-		_btWorld(make_shared<btDiscreteDynamicsWorld>(_btDispatcher.get(),
-													  _btBroadphase.get(),
-													  _btSolver.get(),
-													  _btCollisionConfiguration.get())) {
-
-	AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
-
-#ifdef OPENGL_CORE
-	_debugDrawer = make_shared<BulletDebugDrawer>();
-	_btWorld.get()->setDebugDrawer(_debugDrawer.get());
-#endif
-}
+		PhysicsSimulator() { }
 
 BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	AE_LOG_D("Destroying BulletPhysicsSimulator {:p}", (void*)this);
@@ -164,323 +146,296 @@ void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
 									   const mat4& viewMat,
 									   const mat4& projectionMat,
 									   const DEBUG_OPTIONS& debugOptions) {
-#ifdef OPENGL_CORE
-	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
-	_debugDrawer->setDebugMode(btDebugModes);
-	_debugDrawer->clear();
-	_btWorld->debugDrawWorld();
-	_debugDrawer->draw(renderer, viewMat, projectionMat);
-#endif
+//#ifdef OPENGL_CORE
+//	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+//	_debugDrawer->setDebugMode(btDebugModes);
+//	_debugDrawer->clear();
+//	_btWorld->debugDrawWorld();
+//	_debugDrawer->draw(renderer, viewMat, projectionMat);
+//#endif
 }
 
 /*********************************************************************************************
 	PhysicsSimulator
  *********************************************************************************************/
 
-//PHYSICS_SIMULATION_ENGINE BulletPhysicsSimulator::simulationEngine() const {
-//	return PHYSICS_SIMULATION_ENGINE::BULLET;
+//void BulletPhysicsSimulator::setTimestep(PhysicalWorld& world, float timestep) {
+//
+//}
+//
+//void BulletPhysicsSimulator::setSpeed(PhysicalWorld& world, float speed) {
+//
 //}
 
-void BulletPhysicsSimulator::beginUpdate(const Scene& scene) {
-	PhysicsSimulator::beginUpdate(scene);
+void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
+
 }
 
-void BulletPhysicsSimulator::endUpdate(const Scene& scene) {
-	PhysicsSimulator::endUpdate(scene);
-}
+void BulletPhysicsSimulator::create(PhysicsBody& body) {
+	AE_LOG_D("body: {:p}", (void*)&body);
 
-void BulletPhysicsSimulator::update(const Scene& scene) {
-	PhysicsSimulator::update(scene);
-
-	auto world = scene.physicalWorld();
-
-	if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::TIMESTEP)) {
-		_timestep = world->timestep();
-
-		world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
-														 PHYSICS_WORLD_DIRTY_MASK::TIMESTEP));
-	}
-
-#warning set this gravity for all physics objects, too... (?)
-	if (PHYSICS_WORLD_DIRTY_MASK_CONTAINS(world->dirtyMask(), PHYSICS_WORLD_DIRTY_MASK::GRAVITY)) {
-		_btWorld->setGravity(BTVector3FromGLMVec3(world->gravity()));
-
-		world->dirtyMask(PHYSICS_WORLD_DIRTY_MASK_REMOVE(world->dirtyMask(),
-														 PHYSICS_WORLD_DIRTY_MASK::GRAVITY));
-	}
-}
-
-void BulletPhysicsSimulator::sync(const Scene& scene) {
-	PhysicsSimulator::sync(scene);
-}
-
-void BulletPhysicsSimulator::update(PhysicsBody& body,
-									Node& node) {
-	PhysicsSimulator::update(body, node);
-
+	auto world = body.physicalWorld();
+	auto resources = static_cast<BulletWorldResources*>(world->resources());
+	auto btWorld = resources->world();
+	auto node = body.node();
 	auto shape = body.shape();
 	auto dirtyMask = body.dirtyMask();
 
-	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
-	auto shapeResources = static_pointer_cast<BulletShapeResources>(body.shape()->resources());
+	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
+	auto shapeResources = static_cast<BulletShapeResources*>(body.shape()->resources());
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 	auto btShape = shapeResources->shapes().front();
 
-	shared_ptr<btRigidBody> btBody = nullptr;
+	AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
 
-	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
-	// we also re-create the body.
-	// additionally, since some physical properties have to be passed via btRigidBodyConstructionInfo,
-	// they require re-creating the rigid body.
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE)
-		// these properties only appear to be set-able via btRigidBodyConstructionInfo
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION)) {
+	bool wasScaled = false;
+	auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(),
+																	 wasScaled));
+	if (wasScaled) {
+		// TODO: do something about this
+		// can hold a burned transformed vertex data in the physics body/shape?
+		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+				 (void*)&node, (void*)&body);
+	}
 
-		AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
+	auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
+	auto mass = body.mass();
+	if (body.type() == PHYSICS_BODY_TYPE::STATIC
+		|| body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		mass = 0;
+	}
+	else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+		btShape->calculateLocalInertia(mass, localInertia);
+	}
 
-//		#warning experimental
-//		if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
-//											  PHYSICS_SHAPE_DIRTY_MASK::SCALE)) {
-//
-//			auto worldScale = shape->sourceNode().lock()->worldScale();
-//			AE_LOG_D("worldScale: {}", StringFromGLMVec3(worldScale));
-//			auto btScale = BTVector3FromGLMVec3(worldScale);
-//			(*btShape)->setLocalScaling(btScale);
-//
-////			for (auto& c : btChildShapes) {
-////				c->setLocalScaling(btScale);
-////			}
-//
-//			//btWorld.updateSingleAabb((*btBody).get());
-//
-////			shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
-////															 PHYSICS_SHAPE_DIRTY_MASK::SCALE));
-//		}
+	auto newMotionState = make_shared<btDefaultMotionState>(transform);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
+														   newMotionState.get(),
+														   btShape.get(),
+														   localInertia);
+	rigidBodyInfo.m_mass = mass;
+	rigidBodyInfo.m_linearDamping = body.linearDamping();
+	rigidBodyInfo.m_angularDamping = body.angularDamping();
+	rigidBodyInfo.m_friction = body.friction();
+	rigidBodyInfo.m_rollingFriction = body.rollingFriction();
+	rigidBodyInfo.m_restitution = body.restitution();
+	rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
+	rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
 
-		bool wasScaled = false;
-		auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node.worldTransform(),
-																		 wasScaled));
-		if (wasScaled) {
-			// TODO: should address this.
-			// can hold a burned transformed vertex data in the physics body/shape?
-			AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-					 (void*)&node, (void*)&body);
+	shared_ptr<btRigidBody> btBody = make_shared<btRigidBody>(rigidBodyInfo);
+
+	switch (body.type()) {
+		case PHYSICS_BODY_TYPE::STATIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+			break;
+		case PHYSICS_BODY_TYPE::KINEMATIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+			break;
+		case PHYSICS_BODY_TYPE::DYNAMIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+			break;
+	}
+
+	btWorld.addRigidBody(btBody.get());
+
+	bodyResources->body(btBody);
+	bodyResources->motionState(newMotionState);
+
+	// I'm a cheap bastard
+	setLinearFactor(body, body.linearFactor());
+	setAngularFactor(body, body.angularFactor());
+	setLinearDamping(body, body.linearDamping());
+	setAngularDamping(body, body.angularDamping());
+	setLinearSleepingThreshold(body, body.linearSleepingThreshold());
+	setAngularSleepingThreshold(body, body.angularSleepingThreshold());
+	setLinearVelocity(body, body.linearVelocity()); // ?
+	setAngularVelocity(body, body.angularVelocity()); // ?
+	setAffectedByGravity(body, body.affectedByGravity());
+	setAllowsResting(body, body.allowsResting());
+}
+
+void BulletPhysicsSimulator::remove(PhysicsBody& body) {
+	// *** DO IT ***
+}
+
+void BulletPhysicsSimulator::setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) {
+	// setCollisionFlags() ??
+}
+
+void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
+	// *** re-create body ***
+}
+
+void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
+
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto toTransform = BTTransformFromGLMMat4(transform);
+	//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+	auto motionState = btBody->getMotionState();
+	motionState->setWorldTransform(toTransform); // and this kinematic...
+	btBody->setMotionState(motionState);
+	btBody->setActivationState(ACTIVE_TAG);
+}
+
+void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
+	// *** re-create body ***
+	// **************** TEST THIS *************************
+	// I think it's right...
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setMassProps(mass, BTVector3FromGLMVec3(body.momentOfInertia()));
+}
+
+void BulletPhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) {
+	// *** re-create body ***
+}
+
+void BulletPhysicsSimulator::setFriction(PhysicsBody& body, float friction) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setFriction(friction);
+}
+
+void BulletPhysicsSimulator::setRollingFriction(PhysicsBody& body, float friction) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setRollingFriction(friction);
+}
+
+void BulletPhysicsSimulator::setRestitution(PhysicsBody& body, float restitution) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setRestitution(restitution);
+}
+
+void BulletPhysicsSimulator::setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
+}
+
+void BulletPhysicsSimulator::setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
+}
+
+void BulletPhysicsSimulator::setLinearFactor(PhysicsBody& body, const glm::vec3& factor) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
+}
+
+void BulletPhysicsSimulator::setAngularFactor(PhysicsBody& body, const glm::vec3& factor) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
+}
+
+void BulletPhysicsSimulator::setLinearDamping(PhysicsBody& body, float damping) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setDamping(damping, btBody->getAngularDamping());
+}
+
+void BulletPhysicsSimulator::setAngularDamping(PhysicsBody& body, float damping) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setDamping(btBody->getLinearDamping(), damping);
+}
+
+void BulletPhysicsSimulator::setLinearSleepingThreshold(PhysicsBody& body, float threshold) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setSleepingThresholds(threshold, btBody->getAngularSleepingThreshold());
+}
+
+void BulletPhysicsSimulator::setAngularSleepingThreshold(PhysicsBody& body, float threshold) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setSleepingThresholds(btBody->getLinearSleepingThreshold(), threshold);
+}
+
+void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btWorld = static_cast<BulletWorldResources*>(body.physicalWorld()->resources())->world();
+	btBody->setGravity(flag
+					   ? btWorld.getGravity()
+					   : btVector3{0, 0, 0});
+}
+
+void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
+	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	btBody->setActivationState(body.allowsResting()
+							   ? ACTIVE_TAG
+							   : DISABLE_DEACTIVATION);
+}
+
+void BulletPhysicsSimulator::create(PhysicsShape& shape) {
+	AE_LOG_D("shape: {:p}", (void*)&shape);
+
+	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
+
+	shared_ptr<btCollisionShape> newShape = nullptr;
+
+	auto btShapes = vector<shared_ptr<btCollisionShape>>();
+	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+
+	auto sourceObject = shape.sourceObject();
+
+	// souce GEOMETRY
+	if (holds_alternative<Geometry*>(sourceObject)) {
+		if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
+
+			newShape = BTShapeFromSourceGeometry(sourceGeometry,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
 		}
+	}
 
-		auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
-		auto mass = body.mass();
-		if (body.type() == PHYSICS_BODY_TYPE::STATIC
-			|| body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-			mass = 0;
+		// source NODE
+	else if (holds_alternative<Node*>(sourceObject)) {
+		if (auto sourceNode = get<Node*>(sourceObject)) {
+
+			newShape = BTShapeFromSourceNode(sourceNode,
+											 shape.type(),
+											 bodyType,
+											 btShapes,
+											 btIndexVertexArrays);
 		}
-		else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-			btShape->calculateLocalInertia(mass, localInertia);
-		}
+	}
 
-		auto newMotionState = make_shared<btDefaultMotionState>(transform);
-		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
-															   newMotionState.get(),
-															   btShape.get(),
-															   localInertia);
-		rigidBodyInfo.m_mass = mass;
-		rigidBodyInfo.m_linearDamping = body.linearDamping();
-		rigidBodyInfo.m_angularDamping = body.angularDamping();
-		rigidBodyInfo.m_friction = body.friction();
-		rigidBodyInfo.m_rollingFriction = body.rollingFriction();
-		rigidBodyInfo.m_restitution = body.restitution();
-		rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
-		rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
+		// primitive subclass
+	else if (holds_alternative<monostate>(sourceObject)) {
 
-		btBody = make_shared<btRigidBody>(rigidBodyInfo);
+		newShape = BTShapeFromPrimitiveShape(shape, bodyType);
+	}
 
-		switch (body.type()) {
-			case PHYSICS_BODY_TYPE::STATIC:
-				btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
-				break;
-			case PHYSICS_BODY_TYPE::KINEMATIC:
-				btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-				break;
-			case PHYSICS_BODY_TYPE::DYNAMIC:
-				btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
-				break;
-		}
+	if (newShape) {
+		btShapes.insert(btShapes.begin(), newShape);
 
-		_btWorld->addRigidBody(btBody.get());
+		auto shapeResources = static_cast<BulletShapeResources*>(shape.resources());
+		shapeResources->shapes(btShapes);
+		shapeResources->indexVertexArrays(btIndexVertexArrays);
+//		updated = true;
 
-		bodyResources->body(btBody);
-		bodyResources->motionState(newMotionState);
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::SHAPE));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::TYPE));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::FRICTION));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::RESTITUTION));
+		shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
+														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 	}
 	else {
-		btBody = bodyResources->body();
-	}
-
-	// check and set the rest of the properties
-
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR)) {
-		btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR)) {
-		btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING)) {
-		btBody->setDamping(body.linearDamping(), body.angularDamping());
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
-										 PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD)
-		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
-											PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD)) {
-		btBody->setSleepingThresholds(body.linearSleepingThreshold(),
-									  body.angularSleepingThreshold());
-
-//		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
-//		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD));
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY)) {
-		if (body.affectedByGravity()) {
-			btBody->setGravity(_btWorld->getGravity());
-		}
-		else {
-			// NOTE: setting world gravity resets this
-			btBody->setGravity({0, 0, 0});
-		}
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING)) {
-		if (body.allowsResting()) {
-			btBody->setActivationState(ACTIVE_TAG);
-		}
-		else {
-			btBody->setActivationState(DISABLE_DEACTIVATION);
-		}
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES)) {
-#warning TODO
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::FORCES));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES)) {
-#warning TODO
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::TORQUES));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY)) {
-		btBody->setLinearVelocity(BTVector3FromGLMVec3(body.linearVelocity()));
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY));
-	}
-	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY)) {
-		btBody->setAngularVelocity(BTVector3FromGLMVec3(body.angularVelocity()));
-
-		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
-													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY));
-	}
-
-//	if (body->type() == PHYSICS_BODY_TYPE::STATIC) {
-//		AE_LOG_D("STATIC");
-//	}
-//	else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-//		AE_LOG_D("DYNAMIC");
-//		(*btBody)->setGravity((btVector3){0, 0, 0});
-//	}
-//	else if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-//		AE_LOG_D("KINEMATIC");
-//	}
-//	AE_LOG_D("Gravity: {}", StringFromGLMVec3(GLMVec3FromBTVector3((*btBody)->getGravity())));
-
-	// update shape scale. done here instead of GetPhysicsShapeBTModels() because we need the rigidbody
-
-//	#warning experimental
-////	auto shape = body->shape();
-//	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape->dirtyMask(),
-//										  PHYSICS_SHAPE_DIRTY_MASK::SCALE)) {
-//
-////		auto btScale = BTVector3FromGLMVec3(shape->sourceNode().lock()->worldScale());
-////		(*btShape)->setLocalScaling(btScale);
-////
-////		for (auto& c : btChildShapes) {
-////			c->setLocalScaling(btScale);
-////		}
-//
-//		btWorld.updateSingleAabb((*btBody).get());
-//
-//		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
-//														 PHYSICS_SHAPE_DIRTY_MASK::SCALE));
-//	}
-
-	// back-fill PhysicsBody properties
-
-	// *** causing a loop canceling out any manual dynamic movement ***
-
-	body.linearVelocity(GLMVec3FromBTVector3(btBody->getLinearVelocity()), false);
-	body.angularVelocity(GLMVec3FromBTVector3(btBody->getAngularVelocity()), false);
-	body.resting(btBody->getActivationState() == (ISLAND_SLEEPING ? true : false));
-
-	// if kinematic, apply visual transform to bullet model
-
-	if (body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-
-		auto toTransform = BTTransformFromGLMMat4(node.worldTransform());
-		//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-		auto motionState = btBody->getMotionState();
-		motionState->setWorldTransform(toTransform); // and this kinematic...
-		btBody->setMotionState(motionState);
-
-		btBody->setActivationState(ACTIVE_TAG);
-		//	btBody->forceActivationState(ACTIVE_TAG);
+//		updated = false;
+		AE_LOG_E("PhysicsShape with no geometry or source node.");
 	}
 }
 
-void BulletPhysicsSimulator::sync(PhysicsBody& body,
-								  Node& node,
-								  mat4& worldTransform) {
-	PhysicsSimulator::sync(body, node, worldTransform);
+void BulletPhysicsSimulator::step(PhysicalWorld& world, float deltaT) {
 
-	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
+	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto btWorld = resources->world();
+
+	auto result = btWorld.stepSimulation(deltaT * world.speed(),
+										 MAX_SUBSTEPS,
+										 world.timestep());
+
+	if (result == MAX_SUBSTEPS) {
+		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+	}
+}
+
+void BulletPhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) {
+
+	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
 	auto btBody = bodyResources->body();
-
-	// get body transforms and apply back to scene graph
 
 	btTransform btWorldTransform;
 	btWorldTransform.setIdentity();
@@ -488,105 +443,356 @@ void BulletPhysicsSimulator::sync(PhysicsBody& body,
 	btBody->getMotionState()->getWorldTransform(btWorldTransform);
 
 	worldTransform = GLMMat4FromBTTransform(btWorldTransform);
+
+	// SYNC OTHER PROPERTIES?
+	//	velocities, etc
+	//	others?
 }
 
-void BulletPhysicsSimulator::update(PhysicsShape& shape,
-									PHYSICS_BODY_TYPE bodyType,
-									bool& updated) {
-	PhysicsSimulator::update(shape, bodyType, updated);
 
-	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape.dirtyMask(),
-										  PHYSICS_SHAPE_DIRTY_MASK::MODEL)) {
 
-		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
 
-		shared_ptr<btCollisionShape> newShape = nullptr;
 
-		auto btShapes = vector<shared_ptr<btCollisionShape>>();
-		auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
 
-		auto sourceObject = shape.sourceObject();
 
-		// souce GEOMETRY
-		if (holds_alternative<Geometry*>(sourceObject)) {
-			if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
 
-				newShape = BTShapeFromSourceGeometry(sourceGeometry,
-													 shape.type(),
-													 bodyType,
-													 btShapes,
-													 btIndexVertexArrays);
-			}
-		}
 
-		// source NODE
-		else if (holds_alternative<Node*>(sourceObject)) {
-			if (auto sourceNode = get<Node*>(sourceObject)) {
 
-				newShape = BTShapeFromSourceNode(sourceNode,
-												 shape.type(),
-												 bodyType,
-												 btShapes,
-												 btIndexVertexArrays);
-			}
-		}
 
-		// primitive subclass
-		else if (holds_alternative<monostate>(sourceObject)) {
 
-			newShape = BTShapeFromPrimitiveShape(shape, bodyType);
-		}
 
-		if (newShape) {
-			btShapes.insert(btShapes.begin(), newShape);
 
-			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
-			shapeResources->shapes(btShapes);
-			shapeResources->indexVertexArrays(btIndexVertexArrays);
-			updated = true;
 
-			shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
-															PHYSICS_SHAPE_DIRTY_MASK::MODEL));
-		}
-		else {
-			updated = false;
-			AE_LOG_E("PhysicsShape with no geometry or source node.");
-		}
-	}
-	else {
-		updated = false;
-	}
-}
 
-void BulletPhysicsSimulator::sync(PhysicsShape& shape,
-								  PHYSICS_BODY_TYPE bodyType) {
-	PhysicsSimulator::sync(shape, bodyType);
 
-}
-
-void BulletPhysicsSimulator::step(float deltaT) {
-	AE_LOG_T("");
-
-	int result = _btWorld->stepSimulation(deltaT, MAX_SUBSTEPS, _timestep);
-
-	if (result == MAX_SUBSTEPS) {
-		AE_LOG_W("Physics simulation max substeps reached: {}", result);
-	}
-}
-
-//void BulletPhysicsSimulator::step(float time) {
-//	AE_LOG_T("");
 //
-//	static float previousSeconds = time;
-//	float deltaSeconds = time - previousSeconds;
-//	previousSeconds = time;
+//void BulletPhysicsSimulator::update(PhysicsBody& body,
+//									Node& node) {
+//	PhysicsSimulator::update(body, node);
 //
-//	int result = _btWorld->stepSimulation(deltaSeconds, MAX_SUBSTEPS, _timestep);
+//	auto shape = body.shape();
+//	auto dirtyMask = body.dirtyMask();
 //
-//	if (result == MAX_SUBSTEPS) {
-//		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+//	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
+//	auto shapeResources = static_pointer_cast<BulletShapeResources>(body.shape()->resources());
+//	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
+//	auto btShape = shapeResources->shapes().front();
+//
+//	shared_ptr<btRigidBody> btBody = nullptr;
+//
+//	// since the BT body depends on the BT shape, if the shape was dirty (and re-created)
+//	// we also re-create the body.
+//	// additionally, since some physical properties have to be passed via btRigidBodyConstructionInfo,
+//	// they require re-creating the rigid body.
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE)
+//		// these properties only appear to be set-able via btRigidBodyConstructionInfo
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE)
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA)
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION) // CAN SET LIVE
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION) // CAN SET LIVE
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION)) { // CAN SET LIVE
+//
+//		AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
+//
+//		bool wasScaled = false;
+//		auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node.worldTransform(),
+//																		 wasScaled));
+//		if (wasScaled) {
+//			// TODO: should address this.
+//			// can hold a burned transformed vertex data in the physics body/shape?
+//			AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//					 (void*)&node, (void*)&body);
+//		}
+//
+//		auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
+//		auto mass = body.mass();
+//		if (body.type() == PHYSICS_BODY_TYPE::STATIC
+//			|| body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//			mass = 0;
+//		}
+//		else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//			btShape->calculateLocalInertia(mass, localInertia);
+//		}
+//
+//		auto newMotionState = make_shared<btDefaultMotionState>(transform);
+//		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
+//															   newMotionState.get(),
+//															   btShape.get(),
+//															   localInertia);
+//		rigidBodyInfo.m_mass = mass;
+//		rigidBodyInfo.m_linearDamping = body.linearDamping();
+//		rigidBodyInfo.m_angularDamping = body.angularDamping();
+//		rigidBodyInfo.m_friction = body.friction();
+//		rigidBodyInfo.m_rollingFriction = body.rollingFriction();
+//		rigidBodyInfo.m_restitution = body.restitution();
+//		rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
+//		rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
+//
+//		btBody = make_shared<btRigidBody>(rigidBodyInfo);
+//
+//		switch (body.type()) {
+//			case PHYSICS_BODY_TYPE::STATIC:
+//				btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+//				break;
+//			case PHYSICS_BODY_TYPE::KINEMATIC:
+//				btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+//				break;
+//			case PHYSICS_BODY_TYPE::DYNAMIC:
+//				btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+//				break;
+//		}
+//
+//		_btWorld->addRigidBody(btBody.get());
+//
+//		bodyResources->body(btBody);
+//		bodyResources->motionState(newMotionState);
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::SHAPE));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::TYPE));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::FRICTION));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::RESTITUTION));
+//	}
+//	else {
+//		btBody = bodyResources->body();
+//	}
+//
+//	// check and set the rest of the properties
+//
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR)) {
+//		btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR)) {
+//		btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING)
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING)) {
+//		btBody->setDamping(body.linearDamping(), body.angularDamping());
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
+//										 PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD)
+//		|| PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask,
+//											PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD)) {
+//		btBody->setSleepingThresholds(body.linearSleepingThreshold(),
+//									  body.angularSleepingThreshold());
+//
+////		AE_LOG_D("linearSleepingThreshold: {}", (*btBody)->getLinearSleepingThreshold());
+////		AE_LOG_D("angularSleepingThreshold: {}", (*btBody)->getAngularSleepingThreshold());
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD));
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY)) {
+//		if (body.affectedByGravity()) {
+//			btBody->setGravity(_btWorld->getGravity());
+//		}
+//		else {
+//			// NOTE: setting world gravity resets this
+//			btBody->setGravity({0, 0, 0});
+//		}
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING)) {
+//		if (body.allowsResting()) {
+//			btBody->setActivationState(ACTIVE_TAG);
+//		}
+//		else {
+//			btBody->setActivationState(DISABLE_DEACTIVATION);
+//		}
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES)) {
+//#warning TODO
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::FORCES));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES)) {
+//#warning TODO
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::TORQUES));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY)) {
+//		btBody->setLinearVelocity(BTVector3FromGLMVec3(body.linearVelocity()));
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY));
+//	}
+//	if (PHYSICS_BODY_DIRTY_MASK_CONTAINS(dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY)) {
+//		btBody->setAngularVelocity(BTVector3FromGLMVec3(body.angularVelocity()));
+//
+//		body.dirtyMask(PHYSICS_BODY_DIRTY_MASK_REMOVE(body.dirtyMask(),
+//													  PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY));
+//	}
+//
+//	// back-fill PhysicsBody properties
+//
+//	// *** causing a loop canceling out any manual dynamic movement ***
+//
+//	body.linearVelocity(GLMVec3FromBTVector3(btBody->getLinearVelocity()), false);
+//	body.angularVelocity(GLMVec3FromBTVector3(btBody->getAngularVelocity()), false);
+//	body.resting(btBody->getActivationState() == (ISLAND_SLEEPING ? true : false));
+//
+//	// if kinematic, apply visual transform to bullet model
+//
+//	if (body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//
+//		auto toTransform = BTTransformFromGLMMat4(node.worldTransform());
+//		//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+//		auto motionState = btBody->getMotionState();
+//		motionState->setWorldTransform(toTransform); // and this kinematic...
+//		btBody->setMotionState(motionState);
+//
+//		btBody->setActivationState(ACTIVE_TAG);
+//		//	btBody->forceActivationState(ACTIVE_TAG);
 //	}
 //}
+
+//void BulletPhysicsSimulator::sync(PhysicsBody& body,
+//								  mat4& worldTransform) {
+//	PhysicsSimulator::sync(body, worldTransform);
+//
+//	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
+//	auto btBody = bodyResources->body();
+//
+//	// get body transforms and apply back to scene graph
+//
+//	btTransform btWorldTransform;
+//	btWorldTransform.setIdentity();
+//	//btMotionState->getWorldTransform(btWorldTransform); // crash?
+//	btBody->getMotionState()->getWorldTransform(btWorldTransform);
+//
+//	worldTransform = GLMMat4FromBTTransform(btWorldTransform);
+//
+//	// GET OTHER PROPERTIES
+//	//	velocities, etc
+//	//	other properties?
+//}
+//
+//void BulletPhysicsSimulator::update(PhysicsShape& shape,
+//									PHYSICS_BODY_TYPE bodyType,
+//									bool& updated) {
+//	PhysicsSimulator::update(shape, bodyType, updated);
+//
+//	if (PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(shape.dirtyMask(),
+//										  PHYSICS_SHAPE_DIRTY_MASK::MODEL)) {
+//
+//		AE_LOG_D("Shape {:p} model dirty. Rebuilding.", (void*)&shape);
+//
+//		shared_ptr<btCollisionShape> newShape = nullptr;
+//
+//		auto btShapes = vector<shared_ptr<btCollisionShape>>();
+//		auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+//
+//		auto sourceObject = shape.sourceObject();
+//
+//		// souce GEOMETRY
+//		if (holds_alternative<Geometry*>(sourceObject)) {
+//			if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
+//
+//				newShape = BTShapeFromSourceGeometry(sourceGeometry,
+//													 shape.type(),
+//													 bodyType,
+//													 btShapes,
+//													 btIndexVertexArrays);
+//			}
+//		}
+//
+//		// source NODE
+//		else if (holds_alternative<Node*>(sourceObject)) {
+//			if (auto sourceNode = get<Node*>(sourceObject)) {
+//
+//				newShape = BTShapeFromSourceNode(sourceNode,
+//												 shape.type(),
+//												 bodyType,
+//												 btShapes,
+//												 btIndexVertexArrays);
+//			}
+//		}
+//
+//		// primitive subclass
+//		else if (holds_alternative<monostate>(sourceObject)) {
+//
+//			newShape = BTShapeFromPrimitiveShape(shape, bodyType);
+//		}
+//
+//		if (newShape) {
+//			btShapes.insert(btShapes.begin(), newShape);
+//
+//			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
+//			shapeResources->shapes(btShapes);
+//			shapeResources->indexVertexArrays(btIndexVertexArrays);
+//			updated = true;
+//
+//			shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
+//															PHYSICS_SHAPE_DIRTY_MASK::MODEL));
+//		}
+//		else {
+//			updated = false;
+//			AE_LOG_E("PhysicsShape with no geometry or source node.");
+//		}
+//	}
+//	else {
+//		updated = false;
+//	}
+//}
+//
+//void BulletPhysicsSimulator::sync(PhysicsShape& shape,
+//								  PHYSICS_BODY_TYPE bodyType) {
+//	PhysicsSimulator::sync(shape, bodyType);
+//
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*********************************************************************************************
 	Static

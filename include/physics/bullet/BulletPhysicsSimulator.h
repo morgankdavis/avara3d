@@ -10,43 +10,13 @@
 #define BulletPhysicsSimulator_h
 
 
-#include <map>
-#include <memory>
-#include <optional>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-
 #include "physics/PhysicsSimulator.h"
 
 
-struct btDefaultMotionState;
-struct btDbvtBroadphase;
-
-class btBvhTriangleMeshShape;
-class btCollisionDispatcher;
-class btCollisionShape;
-class btDefaultCollisionConfiguration;
-class btDiscreteDynamicsWorld;
-class btRigidBody;
-class btSequentialImpulseConstraintSolver;
-class btTriangleIndexVertexArray;
-class btTriangleMesh;
-
-
 namespace ae {
-	
 
-	class BulletBodyResources;
-#ifdef DESKTOP
-	class BulletDebugDrawer;
-#endif
-	class BulletShapeResources;
-	class Node;
-	class PhysicsBody;
-	class PhysicsShape;
+
 	class Renderer;
-	class Scene;
 
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
@@ -60,7 +30,7 @@ namespace ae {
 		BulletPhysicsSimulator();
 		BulletPhysicsSimulator(const BulletPhysicsSimulator& other) = delete; // copy constructor
 		BulletPhysicsSimulator& operator=(const BulletPhysicsSimulator& other) = delete; // copy assignment
-		virtual ~BulletPhysicsSimulator();
+		~BulletPhysicsSimulator();
 		
 /*********************************************************************************************
 	Internal
@@ -75,40 +45,45 @@ namespace ae {
 	PhysicsSimulator
  *********************************************************************************************/
 
-		void 		beginUpdate(const Scene& scene) override;
-		void 		endUpdate(const Scene& scene) override;
+//		void 		setTimestep(PhysicalWorld& world, float timestep) override;
+//		void		setSpeed(PhysicalWorld& world, float speed) override;
+		void 		setGravity(PhysicalWorld& world, glm::vec3& gravity) override;
 
-		void		update(const Scene& scene) override;
-		void		sync(const Scene& scene) override;
+		void		create(PhysicsBody& body) override;
+		void		remove(PhysicsBody& body) override;
 
-		void		update(PhysicsBody& body,
-						   Node& node) override;
+		void		setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) override;
+		void		setShape(PhysicsBody& body, PhysicsShape& shape) override;
+		void		setWorldTransform(PhysicsBody& body, const glm::mat4& transform) override;
+		void		setMass(PhysicsBody& body, float mass) override;
+		void		setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) override;
+		void		setFriction(PhysicsBody& body, float friction) override;
+		void		setRollingFriction(PhysicsBody& body, float friction) override;
+		void		setRestitution(PhysicsBody& body, float restitution) override;
+		void		setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) override;
+		void		setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) override;
+		void		setLinearFactor(PhysicsBody& body, const glm::vec3& factor) override;
+		void		setAngularFactor(PhysicsBody& body, const glm::vec3& factor) override;
+		void		setLinearDamping(PhysicsBody& body, float damping) override;
+		void		setAngularDamping(PhysicsBody& body, float damping) override;
+		void		setLinearSleepingThreshold(PhysicsBody& body, float threshold) override;
+		void		setAngularSleepingThreshold(PhysicsBody& body, float threshold) override;
+		void		setAffectedByGravity(PhysicsBody& body, bool flag) override;
+		void		setAllowsResting(PhysicsBody& body, bool flag) override;
+
+		void		create(PhysicsShape& shape) override;
+
+		void 		step(PhysicalWorld& world, float deltaT) override;
+
 		void		sync(PhysicsBody& body,
-						 Node& node,
 						 glm::mat4& worldTransform) override;
 
-		void		update(PhysicsShape& shape,
-						   PHYSICS_BODY_TYPE bodyType,
-						   bool& updated) override;
-		void		sync(PhysicsShape& shape,
-						 PHYSICS_BODY_TYPE bodyType) override;
-
-		void 		step(float deltaT) override;
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		std::shared_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
-		std::shared_ptr<btCollisionDispatcher>					_btDispatcher;
-		std::shared_ptr<btDbvtBroadphase>						_btBroadphase;
-		std::shared_ptr<btSequentialImpulseConstraintSolver>	_btSolver;
-		std::shared_ptr<btDiscreteDynamicsWorld>				_btWorld;
-#ifdef DESKTOP
-		std::shared_ptr<BulletDebugDrawer>						_debugDrawer;
-#endif
 	};
 }
 

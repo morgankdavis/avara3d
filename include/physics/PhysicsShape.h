@@ -11,6 +11,7 @@
 
 
 #include <memory>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -37,13 +38,12 @@ namespace ae {
 
 	public:
 
-//		PhysicsShape();
-//		PhysicsShape(PHYSICS_SHAPE_TYPE type);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry);
 		PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node);
 		~PhysicsShape();
 
 	protected:
+
 		PhysicsShape();
 
 /*********************************************************************************************
@@ -91,21 +91,26 @@ namespace ae {
 		void 								sourceObject(
 				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
-//		PhysicalWorld*						physicalWorld() const;
+		std::unordered_set<PhysicsBody*>	bodies() const;
 
-		void								update(PhysicsSimulator& simulator,
-												   Node& node,
-												   PhysicsBody& body,
-												   Stats& stats);
-		void								sync(PhysicsSimulator& simulator,
-												 Node& node,
-												 PhysicsBody& body,
-												 Stats& stats);
+//		PhysicalWorld*						physicalWorld() const;
+		PhysicsSimulator*					physicsSimulator() const;
+
+		void								checkCreateModel();
+
+//		void								update(PhysicsSimulator& simulator,
+//												   Node& node,
+//												   PhysicsBody& body,
+//												   Stats& stats);
+//		void								sync(PhysicsSimulator& simulator,
+//												 Node& node,
+//												 PhysicsBody& body,
+//												 Stats& stats);
+
+		PhysicsShapeResources*				resources();
 
 		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
-
-		std::shared_ptr<PhysicsShapeResources>	resources();
 
 	protected:
 
@@ -121,6 +126,7 @@ namespace ae {
 				Geometry*,
 				Node*,
 				std::monostate> 			_sourceObject;
+		std::unordered_set<PhysicsBody*>	_bodies;
 		std::shared_ptr<PhysicsShapeResources>	_resources;
 		PHYSICS_SHAPE_DIRTY_MASK 			_dirtyMask;
 	};
