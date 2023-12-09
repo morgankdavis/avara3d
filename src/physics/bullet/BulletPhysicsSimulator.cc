@@ -175,8 +175,8 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", (void*)&body);
 
 	auto world = body.physicalWorld();
-	auto resources = static_cast<BulletWorldResources*>(world->resources());
-	auto btWorld = resources->world();
+	auto worldResources = static_cast<BulletWorldResources*>(world->resources());
+	auto btWorld = worldResources->world();
 	auto node = body.node();
 	auto shape = body.shape();
 	auto dirtyMask = body.dirtyMask();
@@ -236,7 +236,7 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 			break;
 	}
 
-	btWorld.addRigidBody(btBody.get());
+	btWorld->addRigidBody(btBody.get());
 
 	bodyResources->body(btBody);
 	bodyResources->motionState(newMotionState);
@@ -348,7 +348,7 @@ void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) 
 	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
 	auto btWorld = static_cast<BulletWorldResources*>(body.physicalWorld()->resources())->world();
 	btBody->setGravity(flag
-					   ? btWorld.getGravity()
+					   ? btWorld->getGravity()
 					   : btVector3{0, 0, 0});
 }
 
@@ -423,7 +423,7 @@ void BulletPhysicsSimulator::step(PhysicalWorld& world, float deltaT) {
 	auto resources = static_cast<BulletWorldResources*>(world.resources());
 	auto btWorld = resources->world();
 
-	auto result = btWorld.stepSimulation(deltaT * world.speed(),
+	auto result = btWorld->stepSimulation(deltaT * world.speed(),
 										 MAX_SUBSTEPS,
 										 world.timestep());
 

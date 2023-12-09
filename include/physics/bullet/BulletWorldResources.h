@@ -42,13 +42,13 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		btDiscreteDynamicsWorld&				world() const;
-		btDefaultCollisionConfiguration&		collisionConfiguration() const;
-		btCollisionDispatcher&					collisionDispatcher() const;
-		btDbvtBroadphase&						broadphase() const;
-		btSequentialImpulseConstraintSolver&	constraintSolver() const;
+		btDiscreteDynamicsWorld*				world() const;
+		btDefaultCollisionConfiguration*		collisionConfiguration() const;
+		btCollisionDispatcher*					collisionDispatcher() const;
+		btDbvtBroadphase*						broadphase() const;
+		btSequentialImpulseConstraintSolver*	constraintSolver() const;
 #ifdef DESKTOP
-		BulletDebugDrawer&						debugDrawer() const;
+		BulletDebugDrawer*						debugDrawer() const;
 #endif
 
 /*********************************************************************************************

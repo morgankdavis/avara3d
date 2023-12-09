@@ -44,28 +44,28 @@ BulletWorldResources::~BulletWorldResources() {
 	Internal
  *********************************************************************************************/
 
-btDiscreteDynamicsWorld& BulletWorldResources::world() const {
-	return *_world;
+btDiscreteDynamicsWorld* BulletWorldResources::world() const {
+	return _world.get();
 }
 
-btDefaultCollisionConfiguration& BulletWorldResources::collisionConfiguration() const {
-	return *_collisionConfiguration;
+btDefaultCollisionConfiguration* BulletWorldResources::collisionConfiguration() const {
+	return _collisionConfiguration.get();
 }
 
-btCollisionDispatcher& BulletWorldResources::collisionDispatcher() const {
-	return *_collisionDispatcher;
+btCollisionDispatcher* BulletWorldResources::collisionDispatcher() const {
+	return _collisionDispatcher.get();
 }
 
-btDbvtBroadphase& BulletWorldResources::broadphase() const {
-	return *_broadphase;
+btDbvtBroadphase* BulletWorldResources::broadphase() const {
+	return _broadphase.get();
 }
 
-btSequentialImpulseConstraintSolver& BulletWorldResources::constraintSolver() const {
-	return *_constraintSolver;
+btSequentialImpulseConstraintSolver* BulletWorldResources::constraintSolver() const {
+	return _constraintSolver.get();
 }
 
 #ifdef DESKTOP
-BulletDebugDrawer& BulletWorldResources::debugDrawer() const {
-	return *_debugDrawer;
+BulletDebugDrawer* BulletWorldResources::debugDrawer() const {
+	return _debugDrawer.get();
 }
 #endif
