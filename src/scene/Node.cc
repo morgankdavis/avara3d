@@ -385,7 +385,7 @@ mat4 Node::transform() const {
 	return t * r * s;
 }
 
-void Node::transform(const mat4& transform) {
+void Node::transform(const mat4& transform, bool notifyPhysicsBodies) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -412,7 +412,9 @@ void Node::transform(const mat4& transform) {
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	if (notifyPhysicsBodies) {
+		checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	}
 }
 
 vec3 Node::worldPosition() const {
@@ -649,6 +651,12 @@ void Node::attachedToParent(Node* parent) {
 
 	_parent = parent;
 
+	// the only Node with a direct pointer to the Scene is the root node,
+	// and attachedToParent() is never called on the root node.
+	// if this is another Scene's root node being attached to these scene,
+	// we definitly don't want a stale pointer to the old scene.
+	_scene = nullptr;
+
 //	if (_physicsBody) {
 //		//_physicsBody->nodeAttachedToParent(parent);
 //		auto physicalWorld = Node::physicalWorld();
@@ -855,12 +863,16 @@ void Node::checkNotifyPhysicsBodyOfWorldTransformUpdate() const {
 	if (_physicsBody) {
 		_physicsBody->worldTransformUpdated(worldTransform());
 	}
+
+	for (auto& child : _children) {
+		child->checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	}
 }
 
 void Node::unrollWorldTransform(mat4 transform) {
 	// used for physics simulation to update local transform relative to parent
 
-	this->transform(inverse(_parent->worldTransform()) * transform);
+	this->transform(inverse(_parent->worldTransform()) * transform, false);
 }
 
 bool Node::containsChild(shared_ptr<Node> node) {

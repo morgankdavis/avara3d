@@ -96,7 +96,7 @@ namespace ae {
 		void 									scale(const glm::vec3& scale);
 
 		glm::mat4 								transform() const;
-		void 									transform(const glm::mat4& transform);
+		void 									transform(const glm::mat4& transform, bool notifyPhysicsBodies=true); // REFACTOR
 
 		glm::vec3 								worldPosition() const;
 		glm::vec4 								worldRotation() const; // axis-angle

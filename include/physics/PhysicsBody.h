@@ -192,6 +192,7 @@ namespace ae {
 
 	private:
 
+		void 								checkCreateModel();
 		void 								checkAutocreateShape(Node* node);
 		void 								checkAutocreateShape(Geometry* geometry);
 		

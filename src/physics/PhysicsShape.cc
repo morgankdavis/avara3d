@@ -109,7 +109,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	if (type != _type) {
 
 		_type = type;
-		_resources = nullptr;
+		//_resources = nullptr;
 		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 
 		checkCreateModel();
@@ -155,7 +155,7 @@ void PhysicsShape::sourceObject(variant<
 	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
 
-std::unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
+unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
 }
 
@@ -256,7 +256,7 @@ PhysicsShapeResources* PhysicsShape::resources() {
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
-	if (_resources) {
+//	if (_resources) {
 		if (auto simulator = physicsSimulator()) {
 			simulator->create(*this);
 
@@ -264,7 +264,7 @@ void PhysicsShape::checkCreateModel() {
 				body->modelCreated(*this);
 			}
 		}
-	}
+//	}
 }
 
 PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {

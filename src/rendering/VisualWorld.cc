@@ -232,8 +232,8 @@ void VisualWorld::draw(const Scene& scene,
 
 		if (auto renderer = _renderContext->renderer()) {
 
-			if (willRender()) {
-				(willRender())(*this, runT);
+			if (auto willRender = VisualWorld::willRender()) {
+				willRender(*this, runT);
 			}
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
@@ -274,8 +274,8 @@ void VisualWorld::draw(const Scene& scene,
 				_renderContext->saveGIFFrame(runT);
 			}
 
-			if (didRender()) {
-				(didRender())(*this, runT);
+			if (auto didRender = VisualWorld::didRender()) {
+				didRender(*this, runT);
 			}
 		}
 		else {

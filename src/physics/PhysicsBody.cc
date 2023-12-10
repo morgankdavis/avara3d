@@ -327,21 +327,23 @@ void PhysicsBody::attachedToNode(Node* node) {
 
 	checkAutocreateShape(node);
 
-	if (auto world = physicalWorld()) {
+	checkCreateModel();
 
-//		_shape->update(simulator,
-//					   node,
-//					   *this,
-//					   stats);
+//	if (auto world = physicalWorld()) {
 //
-//		simulator.update(*this,
-//						 node);
-
-		world->simulator()->create(*this);
-	}
-	else {
-		AE_LOG_I("No reachable PhysicalWorld.");
-	}
+////		_shape->update(simulator,
+////					   node,
+////					   *this,
+////					   stats);
+////
+////		simulator.update(*this,
+////						 node);
+//
+//		world->simulator()->create(*this);
+//	}
+//	else {
+//		AE_LOG_I("No reachable PhysicalWorld.");
+//	}
 }
 
 void PhysicsBody::detachedFromNode(Node* node) {
@@ -386,12 +388,17 @@ void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
 	AE_LOG_T("world: {:p}", (void*)world);
 
+	if (_node->name().has_value() && _node->name() == "g duck") {
+		AE_LOG_I("g duck!");
+	}
+
 	if (_shape) {
 		_shape->physicalWorldReachable(world);
 	}
 
+	checkCreateModel();
 //	if (!_resources) { // meh?
-		world->simulator()->create(*this);
+
 //	}
 }
 
@@ -434,7 +441,7 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 //}
 
 void PhysicsBody::worldTransformUpdated(const glm::mat4& transform) {
-	AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
+	//AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
 
 	if (auto simulator = physicsSimulator()) {
 		simulator->setWorldTransform(*this, transform);
@@ -473,6 +480,8 @@ PhysicsSimulator* PhysicsBody::physicsSimulator() const {
 	if (auto world = physicalWorld()) {
 		return world->simulator();
 	}
+
+	return nullptr;
 }
 
 PhysicsBodyResources* PhysicsBody::resources() {
@@ -524,6 +533,20 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 	Private
  *********************************************************************************************/
 
+void PhysicsBody::checkCreateModel() {
+	AE_LOG_T("");
+
+//	if (_resources) {
+		if (auto simulator = physicsSimulator()) {
+			simulator->create(*this);
+
+//			for (auto& body : _bodies) {
+//				body->modelCreated(*this);
+//			}
+		}
+//	}
+}
+
 void PhysicsBody::checkAutocreateShape(Node* node) {
 	if (!_shape) {
 		if (auto geometry = node->geometry()) {
@@ -536,13 +559,13 @@ void PhysicsBody::checkAutocreateShape(Node* node) {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
 						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
-				_shape->sourceObject(node);
+//				_shape->sourceObject(node);
 			}
 			else {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
 						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node);
 				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
-				_shape->sourceObject(node);
+//				_shape->sourceObject(node);
 			}
 		}
 	}
@@ -555,13 +578,13 @@ void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
 					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry);
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
-			_shape->sourceObject(geometry);
+//			_shape->sourceObject(geometry);
 		}
 		else {
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
 					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry);
 			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
-			_shape->sourceObject(geometry);
+//			_shape->sourceObject(geometry);
 		}
 	}
 	else {

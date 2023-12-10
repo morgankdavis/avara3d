@@ -183,6 +183,7 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 
 	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
 	auto shapeResources = static_cast<BulletShapeResources*>(body.shape()->resources());
+
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 	auto btShape = shapeResources->shapes().front();
 

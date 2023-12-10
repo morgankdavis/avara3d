@@ -29,6 +29,7 @@ PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
 		_speed(1.0),
 		_timestep(1.0/60.0),
 		_resources(make_unique<BulletWorldResources>()),
+		//_resources(nullptr),
 		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
 		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
@@ -168,11 +169,10 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 		_simulator->step(*this, deltaRunT);
 //		_simulator->sync(scene);
-		scene.rootNode()->sync(*_simulator,
-							   stats);
+		scene.rootNode()->sync(*_simulator, stats);
 
-		if (didSimulate()) {
-			(didSimulate())(*this, runT);
+		if (auto didSimulate = PhysicalWorld::didSimulate()) {
+			didSimulate(*this, runT);
 		}
 	}
 	else {
