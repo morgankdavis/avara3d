@@ -36,17 +36,17 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void 		drawDebug(Renderer& renderer,
-							  const glm::mat4& viewMat,
-							  const glm::mat4& projectionMat,
-							  const DEBUG_OPTIONS& debugOptions);
+		void
+		drawDebug(const PhysicalWorld &world,
+				  Renderer &renderer,
+				  const glm::mat4 &viewMat,
+				  const glm::mat4 &projectionMat,
+				  const DEBUG_OPTIONS &debugOptions);
 
 /*********************************************************************************************
 	PhysicsSimulator
  *********************************************************************************************/
 
-//		void 		setTimestep(PhysicalWorld& world, float timestep) override;
-//		void		setSpeed(PhysicalWorld& world, float speed) override;
 		void 		setGravity(PhysicalWorld& world, glm::vec3& gravity) override;
 
 		void		create(PhysicsBody& body) override;

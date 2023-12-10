@@ -142,30 +142,28 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	Internal
  *********************************************************************************************/
 
-void BulletPhysicsSimulator::drawDebug(Renderer& renderer,
-									   const mat4& viewMat,
-									   const mat4& projectionMat,
-									   const DEBUG_OPTIONS& debugOptions) {
-//#ifdef OPENGL_CORE
-//	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
-//	_debugDrawer->setDebugMode(btDebugModes);
-//	_debugDrawer->clear();
-//	_btWorld->debugDrawWorld();
-//	_debugDrawer->draw(renderer, viewMat, projectionMat);
-//#endif
+void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
+									   Renderer &renderer,
+									   const glm::mat4 &viewMat,
+									   const glm::mat4 &projectionMat,
+									   const DEBUG_OPTIONS &debugOptions) {
+#ifdef OPENGL_CORE
+	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto btWorld = resources->world();
+	auto debugDrawer = resources->debugDrawer();
+
+	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+
+	debugDrawer->setDebugMode(btDebugModes);
+	debugDrawer->clear();
+	btWorld->debugDrawWorld();
+	debugDrawer->draw(renderer, viewMat, projectionMat);
+#endif
 }
 
 /*********************************************************************************************
 	PhysicsSimulator
  *********************************************************************************************/
-
-//void BulletPhysicsSimulator::setTimestep(PhysicalWorld& world, float timestep) {
-//
-//}
-//
-//void BulletPhysicsSimulator::setSpeed(PhysicalWorld& world, float speed) {
-//
-//}
 
 void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
 

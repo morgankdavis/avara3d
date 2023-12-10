@@ -259,7 +259,8 @@ void VisualWorld::draw(const Scene& scene,
 
 				auto physicsSimulator = physicalWorld->simulator();
 				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
-					bulletSimulator->drawDebug(*renderer,
+					bulletSimulator->drawDebug(*physicalWorld,
+											   *renderer,
 											   viewMat,
 											   projectionMat,
 											   debugOptions);
