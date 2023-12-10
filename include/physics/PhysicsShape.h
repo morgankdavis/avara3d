@@ -107,7 +107,8 @@ namespace ae {
 //												 PhysicsBody& body,
 //												 Stats& stats);
 
-		PhysicsShapeResources*				resources();
+		PhysicsShapeResources*				resources() const;
+		void								resources(std::shared_ptr<PhysicsShapeResources> resources);
 
 		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);

@@ -174,6 +174,8 @@ void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity
 void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", (void*)&body);
 
+	body.resources(make_shared<BulletBodyResources>());
+
 	auto world = body.physicalWorld();
 	auto worldResources = static_cast<BulletWorldResources*>(world->resources());
 	auto btWorld = worldResources->world();
@@ -362,6 +364,8 @@ void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
 
 void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	AE_LOG_D("shape: {:p}", (void*)&shape);
+
+	shape.resources(make_shared<BulletShapeResources>());
 
 	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
 

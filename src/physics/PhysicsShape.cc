@@ -46,7 +46,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
-		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -64,7 +64,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
-		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
@@ -80,7 +80,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({}),
-		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeResources>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::~PhysicsShape() {
@@ -109,7 +109,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	if (type != _type) {
 
 		_type = type;
-		//_resources = nullptr;
+		_resources = nullptr;
 		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 
 		checkCreateModel();
@@ -197,8 +197,12 @@ PhysicsSimulator* PhysicsShape::physicsSimulator() const {
 //}
 
 
-PhysicsShapeResources* PhysicsShape::resources() {
+PhysicsShapeResources* PhysicsShape::resources() const {
 	return _resources.get();
+}
+
+void PhysicsShape::resources(std::shared_ptr<PhysicsShapeResources> resources) {
+	_resources = resources;
 }
 
 //void PhysicsShape::update(PhysicsSimulator& simulator,
@@ -256,7 +260,7 @@ PhysicsShapeResources* PhysicsShape::resources() {
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
-//	if (_resources) {
+	if (!_resources) {
 		if (auto simulator = physicsSimulator()) {
 			simulator->create(*this);
 
@@ -264,7 +268,7 @@ void PhysicsShape::checkCreateModel() {
 				body->modelCreated(*this);
 			}
 		}
-//	}
+	}
 }
 
 PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {

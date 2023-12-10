@@ -66,8 +66,8 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_affectedByGravity(true),
 		_resting(false),
 		_node(nullptr),
-		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL),
-		_resources(make_shared<BulletBodyResources>()){ }
+		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL)/*,
+		_resources(make_shared<BulletBodyResources>())*/{ }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -174,6 +174,10 @@ void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
 	if (setDirty) {
 		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY);
 	}
+
+	if (auto sim = physicsSimulator()) {
+		sim->setLinearVelocity(*this, velocity);
+	}
 }
 
 vec3 PhysicsBody::angularVelocity() const {
@@ -184,6 +188,10 @@ void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
 	_angularVelocity = velocity;
 	if (setDirty) {
 		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY);
+	}
+
+	if (auto sim = physicsSimulator()) {
+		sim->setAngularVelocity(*this, velocity);
 	}
 }
 
@@ -397,9 +405,6 @@ void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
 	}
 
 	checkCreateModel();
-//	if (!_resources) { // meh?
-
-//	}
 }
 
 void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
@@ -484,8 +489,12 @@ PhysicsSimulator* PhysicsBody::physicsSimulator() const {
 	return nullptr;
 }
 
-PhysicsBodyResources* PhysicsBody::resources() {
+PhysicsBodyResources* PhysicsBody::resources() const {
 	return _resources.get();
+}
+
+void PhysicsBody::resources(shared_ptr<PhysicsBodyResources> resources) {
+	_resources = resources;
 }
 
 //void PhysicsBody::update(PhysicsSimulator& simulator,
@@ -536,7 +545,7 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 void PhysicsBody::checkCreateModel() {
 	AE_LOG_T("");
 
-//	if (_resources) {
+	if (!_resources) {
 		if (auto simulator = physicsSimulator()) {
 			simulator->create(*this);
 
@@ -544,7 +553,7 @@ void PhysicsBody::checkCreateModel() {
 //				body->modelCreated(*this);
 //			}
 		}
-//	}
+	}
 }
 
 void PhysicsBody::checkAutocreateShape(Node* node) {

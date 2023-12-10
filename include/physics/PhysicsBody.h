@@ -173,7 +173,8 @@ namespace ae {
 		PhysicalWorld*						physicalWorld() const;
 		PhysicsSimulator*					physicsSimulator() const;
 
-		PhysicsBodyResources*				resources();
+		PhysicsBodyResources*				resources() const;
+		void								resources(std::shared_ptr<PhysicsBodyResources> resources);
 
 //		void								update(PhysicsSimulator& simulator,
 //												   Node& node,
