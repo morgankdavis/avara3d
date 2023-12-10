@@ -845,24 +845,20 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 
 		static auto fileScene = SceneNamed("slurm/slurm", "obj");
-		static auto fileNode = fileScene->rootNode();
-		static auto fileCanNode = fileNode->childNamed("g slurm", false);
+		static auto fileCanNode = fileScene->rootNode()->childNamed("g slurm", false);
 		static auto fileMaterials = fileCanNode->geometry()->materials();
 
-		auto canNode = Node::GeometryNode(fileCanNode->geometry());
+		// just copying the node?
+		auto node = Node::GeometryNode(fileCanNode->geometry());
 		for (auto& m : fileMaterials) {
-			canNode->geometry()->addMaterial(m);
+			node->geometry()->addMaterial(m);
 		}
-
-		//auto node = make_shared<Node>("Slurm");
-		//node->addChild(canNode);
-		auto node = canNode;
 
 		node->position(location);
 //		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
 //														   fileCanNode->geometry());
-		static auto canExtent = canNode->extent();
-		static auto physicsShape = make_shared<CylinderPhysicsShape>(canExtent.x/2.0, canExtent.y);
+		static auto extent = node->extent();
+		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
 		auto physicsBody = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, physicsShape);
 //		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F

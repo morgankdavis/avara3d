@@ -162,7 +162,7 @@ void Node::position(const vec3& position) {
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec4 Node::rotation() const {
@@ -232,7 +232,7 @@ void Node::rotation(const vec3& axis, float angle) {
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -353,7 +353,7 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 quat Node::orientation() const {
@@ -363,7 +363,7 @@ quat Node::orientation() const {
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec3 Node::scale() const {
@@ -373,7 +373,7 @@ vec3 Node::scale() const {
 void Node::scale(const glm::vec3& scale) {
 	_scale = scale;
 
-	checkNotifyPhysicsBodyOfWorldTransformUpdate();
+	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 mat4 Node::transform() const {
@@ -413,7 +413,7 @@ void Node::transform(const mat4& transform, bool notifyPhysicsBodies) {
 	_orientation = orientation;
 
 	if (notifyPhysicsBodies) {
-		checkNotifyPhysicsBodyOfWorldTransformUpdate();
+		checkNotifyPhysicsBodyOfTransformUpdate();
 	}
 }
 
@@ -858,19 +858,18 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 	}
 }
 
-void Node::checkNotifyPhysicsBodyOfWorldTransformUpdate() const {
+void Node::checkNotifyPhysicsBodyOfTransformUpdate() const {
 
 	if (_physicsBody) {
 		_physicsBody->worldTransformUpdated(worldTransform());
 	}
 
 	for (auto& child : _children) {
-		child->checkNotifyPhysicsBodyOfWorldTransformUpdate();
+		child->checkNotifyPhysicsBodyOfTransformUpdate();
 	}
 }
 
-void Node::unrollWorldTransform(mat4 transform) {
-	// used for physics simulation to update local transform relative to parent
+void Node::applyPhysicsTransform(mat4 transform) {
 
 	this->transform(inverse(_parent->worldTransform()) * transform, false);
 }
@@ -950,7 +949,7 @@ void Node::sync(PhysicsSimulator& simulator,
 						   worldTransform,
 						   stats);
 
-		unrollWorldTransform(worldTransform);
+		applyPhysicsTransform(worldTransform);
 	}
 
 	for (auto& child : _children) {

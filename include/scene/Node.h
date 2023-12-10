@@ -162,7 +162,7 @@ namespace ae {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-		void									checkNotifyPhysicsBodyOfWorldTransformUpdate() const;
+		void									checkNotifyPhysicsBodyOfTransformUpdate() const;
 
 		bool 									containsChild(std::shared_ptr<Node> node);
 
@@ -198,7 +198,7 @@ namespace ae {
 
 		void									getAABBRec(AABB& aabb);
 
-		void	 								unrollWorldTransform(glm::mat4 transform);
+		void	 								applyPhysicsTransform(glm::mat4 transform);
 
 		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
 		void 									childrenRec(std::shared_ptr<Node> node,
