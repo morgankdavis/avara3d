@@ -14,13 +14,19 @@
 #include <iostream>
 #include <sstream>
 
+// which conflicts with LOG_LEVEL::ERROR.  cmake defines "NOGDI" -- temporarily
+// re-define it here.
+// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+#undef NOGDI
 #define GLEW_STATIC // added for MinGW build... needed?
 #include "GL/glew.h"
+// both glew and glfw want wingdi on windows, but it defines a macro "ERROR"
 #include "GLFW/glfw3.h"
 #ifdef MACOS
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #include "GLFW/glfw3native.h"
+#define NOGDI
 
 #include "Global.h"
 #include "diagnostic/logging/Logger.h"

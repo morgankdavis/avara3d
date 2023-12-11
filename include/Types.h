@@ -32,7 +32,7 @@ namespace ae {
 // stops "ERROR" macro conflict with LOG_LEVEL::ERROR
 // https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 // this may break GDI (needed by GLFW) depending on include order...
-#undef ERROR
+//#undef ERROR
 	enum class LOG_LEVEL : unsigned {
 		TRACE_ =		0,
 		DEBUG_ =		1,
