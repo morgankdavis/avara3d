@@ -8,11 +8,11 @@
 
 #include "diagnostic/logging/Logger.h"
 
-#ifdef WINDOWS
-// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-	#define NOGDI
-#endifs
+//#ifdef WINDOWS
+//// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
+//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+//	#define NOGDI
+//#endifs
 #include <ctime>
 #include <iostream>
 

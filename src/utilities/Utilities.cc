@@ -9,11 +9,11 @@
 #include "utilities/Utilities.h"
 
 #include <algorithm>
-#ifdef WINDOWS
-	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-	#define NOGDI
-#endif
+//#ifdef WINDOWS
+//	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
+//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+//	#define NOGDI
+//#endif
 #include <ctime>
 #include <fstream>
 #include <memory>

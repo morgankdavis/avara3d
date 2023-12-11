@@ -102,6 +102,9 @@ elseif (LINUX)
 	add_definitions("-DLINUX")
 elseif (WINDOWS)
 	add_definitions("-DWINDOWS")
+	# stops "ERROR" macro conflict with LOG_LEVEL::ERROR
+	# https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+	add_definitions("-DNOGDI")
     if (MINGW)
         add_definitions("-DMINGW")
 	if (MINGW32)
