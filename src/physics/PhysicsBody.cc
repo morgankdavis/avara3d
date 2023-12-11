@@ -510,25 +510,25 @@ void PhysicsBody::resources(shared_ptr<PhysicsBodyResources> resources) {
 //					 node);
 //}
 
-void PhysicsBody::sync(PhysicsSimulator& simulator,
-					   Node& node,
-					   mat4& localTransform,
-					   Stats& stats) {
-
-//	_shape->sync(simulator,
-//				   node,
-//				   *this,
-//				   stats);
-
-	simulator.sync(*this,
-				   localTransform);
-
-	switch (type()) {
-		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
-		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
-		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
-	}
-}
+//void PhysicsBody::sync(PhysicsSimulator& simulator,
+//					   Node& node,
+//					   mat4& localTransform,
+//					   Stats& stats) {
+//
+////	_shape->sync(simulator,
+////				   node,
+////				   *this,
+////				   stats);
+//
+//	simulator.sync(*this,
+//				   localTransform);
+//
+//	switch (type()) {
+//		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
+//		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
+//		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
+//	}
+//}
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
 	return _dirtyMask;

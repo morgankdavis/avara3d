@@ -172,8 +172,8 @@ namespace ae {
 //		void 									update(PhysicsSimulator& simulator,
 //													   Stats& stats);
 
-		void 									sync(PhysicsSimulator& simulator,
-													 Stats& stats);
+//		void 									sync(PhysicsSimulator& simulator,
+//													 Stats& stats);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,

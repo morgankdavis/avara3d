@@ -904,27 +904,27 @@ vec3 Node::extent() {
 //	++stats.nodes;
 //}
 
-void Node::sync(PhysicsSimulator& simulator,
-				Stats& stats) {
-
-	// apply physics model to visual
-
-	auto worldTransform = mat4(1.0);
-
-	if (_physicsBody) {
-		_physicsBody->sync(simulator,
-						   *this,
-						   worldTransform,
-						   stats);
-
-		applyPhysicsTransform(worldTransform);
-	}
-
-	for (auto& child : _children) {
-		child->sync(simulator,
-					stats);
-	}
-}
+//void Node::sync(PhysicsSimulator& simulator,
+//				Stats& stats) {
+//
+//	// apply physics model to visual
+//
+//	auto worldTransform = mat4(1.0);
+//
+//	if (_physicsBody) {
+//		_physicsBody->sync(simulator,
+//						   *this,
+//						   worldTransform,
+//						   stats);
+//
+//		applyPhysicsTransform(worldTransform);
+//	}
+//
+//	for (auto& child : _children) {
+//		child->sync(simulator,
+//					stats);
+//	}
+//}
 
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,

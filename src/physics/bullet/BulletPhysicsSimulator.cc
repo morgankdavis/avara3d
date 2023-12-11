@@ -423,7 +423,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	}
 }
 
-void BulletPhysicsSimulator::update(PhysicalWorld& world) {
+void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 
 	auto resources = static_cast<BulletWorldResources*>(world.resources());
 	auto btWorld = resources->world();
@@ -435,15 +435,27 @@ void BulletPhysicsSimulator::update(PhysicalWorld& world) {
 		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
 			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
 
-			if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-				auto worldTransform = body->node()->worldTransform();
+			switch (body->type()) {
 
-				auto toTransform = BTTransformFromGLMMat4(worldTransform);
-				//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-				auto motionState = btBody->getMotionState();
-				motionState->setWorldTransform(toTransform); // and this kinematic...
-				btBody->setMotionState(motionState);
-				btBody->setActivationState(ACTIVE_TAG);
+				case PHYSICS_BODY_TYPE::DYNAMIC:
+					++stats.dynamicBodies;
+					break;
+
+				case PHYSICS_BODY_TYPE::KINEMATIC: {
+					++stats.kinematicBodies;
+
+					auto worldTransform = body->node()->worldTransform();
+					auto toTransform = BTTransformFromGLMMat4(worldTransform);
+					//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+					auto motionState = btBody->getMotionState();
+					motionState->setWorldTransform(toTransform); // and this kinematic...
+					btBody->setMotionState(motionState);
+					btBody->setActivationState(ACTIVE_TAG);
+					break; }
+
+				case PHYSICS_BODY_TYPE::STATIC:
+					++stats.staticBodies;
+					break;
 			}
 		}
 	}
@@ -474,39 +486,43 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 
 		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
 			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-			auto type = body->type();
 
-			if (type == PHYSICS_BODY_TYPE::DYNAMIC
-				|| type == PHYSICS_BODY_TYPE::KINEMATIC) {
+			switch (body->type()) {
 
-				btTransform btWorldTransform;
-				btWorldTransform.setIdentity();
-				//btMotionState->getWorldTransform(btWorldTransform); // crash?
-				btBody->getMotionState()->getWorldTransform(btWorldTransform);
+				case PHYSICS_BODY_TYPE::DYNAMIC:
+				case PHYSICS_BODY_TYPE::KINEMATIC:
+					static btTransform btWorldTransform;
+					btWorldTransform.setIdentity();
+					//btMotionState->getWorldTransform(btWorldTransform); // crash?
+					btBody->getMotionState()->getWorldTransform(btWorldTransform);
 
-				auto worldTransform = GLMMat4FromBTTransform(btWorldTransform);
-				body->node()->applyPhysicsTransform(worldTransform);
+//					auto worldTransform = ;
+					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
+					break;
+
+				case PHYSICS_BODY_TYPE::STATIC:
+					break;
 			}
 		}
 	}
 }
 
-void BulletPhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) {
-
-	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
-	auto btBody = bodyResources->body();
-
-	btTransform btWorldTransform;
-	btWorldTransform.setIdentity();
-	//btMotionState->getWorldTransform(btWorldTransform); // crash?
-	btBody->getMotionState()->getWorldTransform(btWorldTransform);
-
-	worldTransform = GLMMat4FromBTTransform(btWorldTransform);
-
-	// SYNC OTHER PROPERTIES?
-	//	velocities, etc
-	//	others?
-}
+//void BulletPhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) {
+//
+//	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
+//	auto btBody = bodyResources->body();
+//
+//	btTransform btWorldTransform;
+//	btWorldTransform.setIdentity();
+//	//btMotionState->getWorldTransform(btWorldTransform); // crash?
+//	btBody->getMotionState()->getWorldTransform(btWorldTransform);
+//
+//	worldTransform = GLMMat4FromBTTransform(btWorldTransform);
+//
+//	// SYNC OTHER PROPERTIES?
+//	//	velocities, etc
+//	//	others?
+//}
 
 
 

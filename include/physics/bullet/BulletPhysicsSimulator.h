@@ -72,12 +72,12 @@ namespace ae {
 
 		void		create(PhysicsShape& shape) override;
 
-		void		update(PhysicalWorld& world) override;
+		void		update(PhysicalWorld& world, Stats& stats) override;
 		void 		step(PhysicalWorld& world, float deltaT) override;
 		void		sync(PhysicalWorld& world) override;
 
-		void		sync(PhysicsBody& body,
-						 glm::mat4& worldTransform) override;
+//		void		sync(PhysicsBody& body,
+//						 glm::mat4& worldTransform) override;
 
 /*********************************************************************************************
 	Private

@@ -67,4 +67,4 @@ void PhysicsSimulator::create(PhysicsShape& shape) { }
 
 void PhysicsSimulator::step(PhysicalWorld& world, float deltaT) { }
 
-void PhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) { }
+//void PhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) { }

@@ -179,10 +179,10 @@ namespace ae {
 //		void								update(PhysicsSimulator& simulator,
 //												   Node& node,
 //												   Stats& stats);
-		void								sync(PhysicsSimulator& simulator,
-												 Node& node,
-												 glm::mat4& localTransform,
-												 Stats& stats);
+//		void								sync(PhysicsSimulator& simulator,
+//												 Node& node,
+//												 glm::mat4& localTransform,
+//												 Stats& stats);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
