@@ -34,7 +34,7 @@ namespace ae {
 		DEBUG_ =		1,
 		INFO_ =		2,
 		WARN_ =		3,
-		ERROR_ =		4,
+		ERROR =		4,
 		CRITICAL_ = 	5,
 		OFF_ = 		6
 	};

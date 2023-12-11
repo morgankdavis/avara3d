@@ -164,7 +164,7 @@ void Logger::error(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR_, format, args);
+	log(LOG_LEVEL::ERROR, format, args);
 	va_end(args);
 }
 
@@ -227,7 +227,7 @@ void Logger::error(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR_, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::ERROR, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -398,7 +398,7 @@ string StringFromLogLevel(LOG_LEVEL level) {
 		case LOG_LEVEL::DEBUG_: 	return "debug";
 		case LOG_LEVEL::INFO_: 		return "info";
 		case LOG_LEVEL::WARN_: 		return "WARN";
-		case LOG_LEVEL::ERROR_: 	return "ERROR";
+		case LOG_LEVEL::ERROR: 	return "ERROR";
 		case LOG_LEVEL::CRITICAL_: 	return "CRITICAL_";
 		case LOG_LEVEL::OFF_: 		return "off";
 	}

@@ -1932,17 +1932,16 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGui::SetNextWindowBgAlpha(.5);
+	ImGui::SetNextWindowBgAlpha(.15);
 	ImGui::Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
 	style.WindowRounding = 6;
 
-	static bool setInitialPosition = false;
-	if (!setInitialPosition) {
-		ImGui::SetWindowPos((ImVec2){10.0, 10.0});
-		setInitialPosition = true;
-	}
+//	ImGui::ShowDemoWindow(nullptr);
+//	ImGui::GetIO();
+
+	ImGui::SetWindowPos((ImVec2){10.0, 10.0});
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();

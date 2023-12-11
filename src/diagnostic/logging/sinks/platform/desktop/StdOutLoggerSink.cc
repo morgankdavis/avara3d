@@ -39,7 +39,7 @@ void StdOutLoggerSink::flush() {
 void StdOutLoggerSink::write(const char* message, LOG_LEVEL level) {
 
 	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR_)) {
+		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR)) {
 		fprintf(stderr, "%s\n", message);
 
 	} else {
