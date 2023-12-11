@@ -46,7 +46,7 @@ void PhysicsSimulator::remove(PhysicsBody& body) { }
 
 void PhysicsSimulator::setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) { }
 void PhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) { }
-void PhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) { }
+//void PhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) { }
 void PhysicsSimulator::setMass(PhysicsBody& body, float mass) { }
 void PhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) { }
 void PhysicsSimulator::setFriction(PhysicsBody& body, float friction) { }

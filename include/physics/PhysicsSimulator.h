@@ -53,7 +53,7 @@ namespace ae {
 
 		virtual void			setType(PhysicsBody& body, PHYSICS_BODY_TYPE type);
 		virtual void			setShape(PhysicsBody& body, PhysicsShape& shape);
-		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);
+//		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);
 		virtual void			setMass(PhysicsBody& body, float mass);
 		virtual void			setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment);
 		virtual void			setFriction(PhysicsBody& body, float friction);
@@ -72,7 +72,9 @@ namespace ae {
 
 		virtual void			create(PhysicsShape& shape);
 
-		virtual void 			step(PhysicalWorld& world, float deltaT);
+		virtual void			update(PhysicalWorld& world) = 0;
+		virtual void			step(PhysicalWorld& world, float deltaT);
+		virtual void			sync(PhysicalWorld& world) = 0;
 
 		virtual void			sync(PhysicsBody& body,
 									 glm::mat4& worldTransform);

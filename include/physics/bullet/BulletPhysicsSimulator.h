@@ -36,12 +36,11 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		void
-		drawDebug(const PhysicalWorld &world,
-				  Renderer &renderer,
-				  const glm::mat4 &viewMat,
-				  const glm::mat4 &projectionMat,
-				  const DEBUG_OPTIONS &debugOptions);
+		void 		drawDebug(const PhysicalWorld &world,
+							  Renderer &renderer,
+							  const glm::mat4 &viewMat,
+							  const glm::mat4 &projectionMat,
+							  const DEBUG_OPTIONS &debugOptions);
 
 /*********************************************************************************************
 	PhysicsSimulator
@@ -54,7 +53,7 @@ namespace ae {
 
 		void		setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) override;
 		void		setShape(PhysicsBody& body, PhysicsShape& shape) override;
-		void		setWorldTransform(PhysicsBody& body, const glm::mat4& transform) override;
+//		void		setWorldTransform(PhysicsBody& body, const glm::mat4& transform) override;
 		void		setMass(PhysicsBody& body, float mass) override;
 		void		setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) override;
 		void		setFriction(PhysicsBody& body, float friction) override;
@@ -73,7 +72,9 @@ namespace ae {
 
 		void		create(PhysicsShape& shape) override;
 
+		void		update(PhysicalWorld& world) override;
 		void 		step(PhysicalWorld& world, float deltaT) override;
+		void		sync(PhysicalWorld& world) override;
 
 		void		sync(PhysicsBody& body,
 						 glm::mat4& worldTransform) override;

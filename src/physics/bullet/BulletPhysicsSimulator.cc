@@ -224,6 +224,7 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
 
 	auto btBody = make_shared<btRigidBody>(rigidBodyInfo);
+	btBody->setUserPointer((void*)&body);
 
 	switch (body.type()) {
 		case PHYSICS_BODY_TYPE::STATIC:
@@ -267,16 +268,16 @@ void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
 	// *** re-create body ***
 }
 
-void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
-
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
-	auto toTransform = BTTransformFromGLMMat4(transform);
-	//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-	auto motionState = btBody->getMotionState();
-	motionState->setWorldTransform(toTransform); // and this kinematic...
-	btBody->setMotionState(motionState);
-	btBody->setActivationState(ACTIVE_TAG);
-}
+//void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
+//
+//	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+//	auto toTransform = BTTransformFromGLMMat4(transform);
+//	//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+//	auto motionState = btBody->getMotionState();
+//	motionState->setWorldTransform(toTransform); // and this kinematic...
+//	btBody->setMotionState(motionState);
+//	btBody->setActivationState(ACTIVE_TAG);
+//}
 
 void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
 	// *** re-create body ***
@@ -405,6 +406,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	}
 
 	if (newShape) {
+		newShape->setUserPointer((void*)&shape);
 		btShapes.insert(btShapes.begin(), newShape);
 
 		auto shapeResources = static_cast<BulletShapeResources*>(shape.resources());
@@ -421,6 +423,32 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	}
 }
 
+void BulletPhysicsSimulator::update(PhysicalWorld& world) {
+
+	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto btWorld = resources->world();
+
+	auto collisionObjects = btWorld->getCollisionObjectArray();
+	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
+		auto object = collisionObjects[o];
+
+		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+
+			if (body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+				auto worldTransform = body->node()->worldTransform();
+
+				auto toTransform = BTTransformFromGLMMat4(worldTransform);
+				//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+				auto motionState = btBody->getMotionState();
+				motionState->setWorldTransform(toTransform); // and this kinematic...
+				btBody->setMotionState(motionState);
+				btBody->setActivationState(ACTIVE_TAG);
+			}
+		}
+	}
+}
+
 void BulletPhysicsSimulator::step(PhysicalWorld& world, float deltaT) {
 
 	auto resources = static_cast<BulletWorldResources*>(world.resources());
@@ -432,6 +460,34 @@ void BulletPhysicsSimulator::step(PhysicalWorld& world, float deltaT) {
 
 	if (result == MAX_SUBSTEPS) {
 		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+	}
+}
+
+void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
+
+	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto btWorld = resources->world();
+
+	auto collisionObjects = btWorld->getCollisionObjectArray();
+	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
+		auto object = collisionObjects[o];
+
+		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+			auto type = body->type();
+
+			if (type == PHYSICS_BODY_TYPE::DYNAMIC
+				|| type == PHYSICS_BODY_TYPE::KINEMATIC) {
+
+				btTransform btWorldTransform;
+				btWorldTransform.setIdentity();
+				//btMotionState->getWorldTransform(btWorldTransform); // crash?
+				btBody->getMotionState()->getWorldTransform(btWorldTransform);
+
+				auto worldTransform = GLMMat4FromBTTransform(btWorldTransform);
+				body->node()->applyPhysicsTransform(worldTransform);
+			}
+		}
 	}
 }
 

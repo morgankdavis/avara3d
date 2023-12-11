@@ -79,11 +79,11 @@ namespace ae {
 
 		glm::vec3 							linearVelocity() const;
 		void 								linearVelocity(glm::vec3 velocity,
-															   bool setDirty=true);
+															   bool setDirty=true); // move
 
 		glm::vec3 							angularVelocity() const;
 		void 								angularVelocity(glm::vec3 velocity,
-																bool setDirty=true);
+																bool setDirty=true); // move
 
 		glm::vec3 							linearFactor() const;
 		void 								linearFactor(glm::vec3 factor);
@@ -164,7 +164,7 @@ namespace ae {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void								worldTransformUpdated(const glm::mat4& transform);
+//		void								worldTransformUpdated(const glm::mat4& transform);
 
 		void								modelCreated(PhysicsShape& shape);
 

@@ -12,18 +12,13 @@
 
 #include <set>
 
-#include "GL/glew.h"
-
 #include "utilities/Color.h"
 #include "geometry/Line.h"
 #include "diagnostic/logging/Logger.h"
-#include "rendering/opengl/Program.h"
 #include "rendering/Renderer.h"
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 

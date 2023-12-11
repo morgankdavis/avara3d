@@ -167,9 +167,10 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 	if (_simulator) {
 
+		_simulator->update(*this);
 		_simulator->step(*this, deltaRunT);
-//		_simulator->sync(scene);
-		scene.rootNode()->sync(*_simulator, stats);
+		_simulator->sync(*this);
+//		scene.rootNode()->sync(*_simulator, stats);
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
 			didSimulate(*this, runT);

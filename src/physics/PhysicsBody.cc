@@ -445,13 +445,13 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 //
 //}
 
-void PhysicsBody::worldTransformUpdated(const glm::mat4& transform) {
-	//AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
-
-	if (auto simulator = physicsSimulator()) {
-		simulator->setWorldTransform(*this, transform);
-	}
-}
+//void PhysicsBody::worldTransformUpdated(const glm::mat4& transform) {
+//	//AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
+//
+//	if (auto simulator = physicsSimulator()) {
+//		simulator->setWorldTransform(*this, transform);
+//	}
+//}
 
 void PhysicsBody::modelCreated(PhysicsShape& shape) {
 	AE_LOG_I("shape: {:p}", (void*)&shape);

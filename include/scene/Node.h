@@ -96,7 +96,7 @@ namespace ae {
 		void 									scale(const glm::vec3& scale);
 
 		glm::mat4 								transform() const;
-		void 									transform(const glm::mat4& transform, bool notifyPhysicsBodies=true); // REFACTOR
+		void 									transform(const glm::mat4& transform);
 
 		glm::vec3 								worldPosition() const;
 		glm::vec4 								worldRotation() const; // axis-angle
@@ -162,7 +162,7 @@ namespace ae {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-		void									checkNotifyPhysicsBodyOfTransformUpdate() const;
+//		void									checkNotifyPhysicsBodyOfTransformUpdate() const;
 
 		bool 									containsChild(std::shared_ptr<Node> node);
 
@@ -185,6 +185,8 @@ namespace ae {
 		void									_debugPrintRec(Node& node,
 															   int level);
 
+		void	 								applyPhysicsTransform(glm::mat4 transform);
+
 //		void									_debugPrint(); // testing
 //		void									_debugPrintRec(std::shared_ptr<Node> node,
 //																  int level,
@@ -197,8 +199,6 @@ namespace ae {
 	private:
 
 		void									getAABBRec(AABB& aabb);
-
-		void	 								applyPhysicsTransform(glm::mat4 transform);
 
 		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
 		void 									childrenRec(std::shared_ptr<Node> node,

@@ -22,11 +22,9 @@
 #include "physics/PhysicsShape.h"
 #include "rendering/Light.h"
 #include "rendering/camera/Camera.h"
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace std;
 using namespace glm;
 
@@ -161,8 +159,6 @@ void Node::position(const vec3& position) {
 	_position = position;
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
-
-	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec4 Node::rotation() const {
@@ -231,8 +227,6 @@ void Node::rotation(const vec3& axis, float angle) {
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
-
-	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -352,8 +346,6 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
 	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
 #endif
-
-	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 quat Node::orientation() const {
@@ -362,8 +354,6 @@ quat Node::orientation() const {
 
 void Node::orientation(const quat& orientation) {
 	_orientation = orientation;
-
-	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 vec3 Node::scale() const {
@@ -372,8 +362,6 @@ vec3 Node::scale() const {
 
 void Node::scale(const glm::vec3& scale) {
 	_scale = scale;
-
-	checkNotifyPhysicsBodyOfTransformUpdate();
 }
 
 mat4 Node::transform() const {
@@ -385,7 +373,7 @@ mat4 Node::transform() const {
 	return t * r * s;
 }
 
-void Node::transform(const mat4& transform, bool notifyPhysicsBodies) {
+void Node::transform(const mat4& transform) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -411,10 +399,6 @@ void Node::transform(const mat4& transform, bool notifyPhysicsBodies) {
 	//
 	//rotation=glm::conjugate(rotation);"
 	_orientation = orientation;
-
-	if (notifyPhysicsBodies) {
-		checkNotifyPhysicsBodyOfTransformUpdate();
-	}
 }
 
 vec3 Node::worldPosition() const {
@@ -858,22 +842,6 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 	}
 }
 
-void Node::checkNotifyPhysicsBodyOfTransformUpdate() const {
-
-	if (_physicsBody) {
-		_physicsBody->worldTransformUpdated(worldTransform());
-	}
-
-	for (auto& child : _children) {
-		child->checkNotifyPhysicsBodyOfTransformUpdate();
-	}
-}
-
-void Node::applyPhysicsTransform(mat4 transform) {
-
-	this->transform(inverse(_parent->worldTransform()) * transform, false);
-}
-
 bool Node::containsChild(shared_ptr<Node> node) {
 
 	auto nodes = children(true);
@@ -999,6 +967,11 @@ void Node::_debugPrintRec(Node& node,
 	for (auto& child : node._children) {
 		_debugPrintRec(*child, level + 1);
 	}
+}
+
+void Node::applyPhysicsTransform(mat4 transform) {
+
+	this->transform(inverse(_parent->worldTransform()) * transform);
 }
 
 //void Node::_debugPrint() {
