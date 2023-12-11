@@ -21,6 +21,12 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Static Prorotypes
+ *********************************************************************************************/
+
+static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
@@ -161,16 +167,19 @@ void PhysicalWorld::attachedToScene(Scene* scene) {
 }
 
 void PhysicalWorld::simulate(const Scene& scene,
-							 float runT,
-							 float deltaRunT,
+							 double runT,
+							 double deltaRunT,
 							 Stats& stats) {
 
 	if (_simulator) {
 
+		auto startTime = scene.time();
+
 		_simulator->update(*this, stats);
 		_simulator->step(*this, deltaRunT);
 		_simulator->sync(*this);
-//		scene.rootNode()->sync(*_simulator, stats);
+
+		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
 			didSimulate(*this, runT);
@@ -223,4 +232,36 @@ PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
 
 void PhysicalWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
 	_dirtyMask = mask;
+}
+
+/*********************************************************************************************
+	Static
+ *********************************************************************************************/
+
+void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
+
+	// current
+	auto ms = endTime - startTime;
+	stats.currentPhysicstime = ms * 1000.0f;
+
+	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+
+	// average
+	static double msAvg = 0.0;
+	static double sampleStartTime = startTime;
+	static unsigned stepsSinceSampleStart = 0;
+	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
+
+		sampleStartTime = startTime;
+		stepsSinceSampleStart = 0;
+	}
+	else {
+		++stepsSinceSampleStart;
+	}
+
+	stats.averagePhysicstime = msAvg;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

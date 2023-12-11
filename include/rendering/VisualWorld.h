@@ -33,8 +33,8 @@ namespace ae {
 
 	public:
 
-		using WillRenderCallback = 		std::function<void(VisualWorld& world, float time)>;
-		using DidRenderCallback = 		std::function<void(VisualWorld& world, float time)>;
+		using WillRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
+		using DidRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
 
 /*********************************************************************************************
 	Lifecycle

@@ -321,12 +321,18 @@ namespace ae {
 		double		currentFrametime;
 		// the framerate as of the last frame in frames/second
 		double		currentFramerate;
-		// the average of frame time over frametimeAveragingInterval in ms
+		// the average of frame time over averagingInterval in ms
 		double		averageFrametime;
-		// the average of frame rate over frametimeAveragingInterval in frames/second
+		// the average of frame rate over averagingInterval in frames/second
 		double		averageFramerate;
-		// time interval over which to average averageFrametime and averageFramerate over in seconds
-		double 		frametimeAveragingInterval;
+		// time interval over which to average averageFrametime, averageFramerate,
+		// averagePhysicstime, and averageDrawtime over in seconds
+		double 		averagingInterval;
+
+		double		currentPhysicstime;
+		double		currentDrawtime;
+		double 		averagePhysicstime;
+		double		averageDrawtime;
 
 		unsigned 	nodes;
 		unsigned 	geometries;
@@ -341,11 +347,6 @@ namespace ae {
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
-
-		double		currentPhysicstime;
-		double		currentDrawtime;
-		double 		averagePhysicstime;
-		double		averageDrawtime;
 	} Stats;
 		
 	enum class NODE_DIRTY_MASK : unsigned {

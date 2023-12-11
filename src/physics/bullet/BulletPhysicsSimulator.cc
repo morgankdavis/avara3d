@@ -461,7 +461,7 @@ void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 	}
 }
 
-void BulletPhysicsSimulator::step(PhysicalWorld& world, float deltaT) {
+void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
 
 	auto resources = static_cast<BulletWorldResources*>(world.resources());
 	auto btWorld = resources->world();

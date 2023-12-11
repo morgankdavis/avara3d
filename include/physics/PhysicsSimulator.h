@@ -73,7 +73,7 @@ namespace ae {
 		virtual void			create(PhysicsShape& shape);
 
 		virtual void			update(PhysicalWorld& world, Stats& status) = 0;
-		virtual void			step(PhysicalWorld& world, float deltaT);
+		virtual void			step(PhysicalWorld& world, double deltaT);
 		virtual void			sync(PhysicalWorld& world) = 0;
 
 //		virtual void			sync(PhysicsBody& body,

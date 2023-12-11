@@ -79,8 +79,8 @@ namespace ae {
 		std::shared_ptr<InputManager> 			inputManager() const;
 		void 									inputManager(std::shared_ptr<InputManager> inputManager);
 
-		float 									time() const;
-		float 									runTime() const;
+		double 									time() const;
+		double 									runTime() const;
 
 		DEBUG_OPTIONS 							debugOptions() const;
 		void 									debugOptions(DEBUG_OPTIONS options);

@@ -38,7 +38,7 @@ namespace ae {
 
 	public:
 
-		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, float time)>;
+		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
@@ -97,8 +97,8 @@ namespace ae {
 		void								attachedToScene(Scene* scene);
 
 		void								simulate(const Scene& scene,
-													 float runT,
-													 float deltaRunT,
+													 double runT,
+													 double deltaRunT,
 													 Stats& stats);
 
 		PhysicalWorldResources*				resources() const;

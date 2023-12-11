@@ -65,6 +65,6 @@ void PhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) { }
 
 void PhysicsSimulator::create(PhysicsShape& shape) { }
 
-void PhysicsSimulator::step(PhysicalWorld& world, float deltaT) { }
+void PhysicsSimulator::step(PhysicalWorld& world, double deltaT) { }
 
 //void PhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) { }

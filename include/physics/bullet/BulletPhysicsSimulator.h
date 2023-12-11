@@ -73,7 +73,7 @@ namespace ae {
 		void		create(PhysicsShape& shape) override;
 
 		void		update(PhysicalWorld& world, Stats& stats) override;
-		void 		step(PhysicalWorld& world, float deltaT) override;
+		void 		step(PhysicalWorld& world, double deltaT) override;
 		void		sync(PhysicalWorld& world) override;
 
 //		void		sync(PhysicsBody& body,

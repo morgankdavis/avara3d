@@ -190,7 +190,7 @@ int Example::run(const vector<string>& args) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(Scene& scene, float time) {
+void Example::updateCallback(Scene& scene, double time) {
 	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 	
 	static float previousSeconds = time;
@@ -432,11 +432,11 @@ void Example::updateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void Example::willRenderCallback(VisualWorld& world, float time) {
+void Example::willRenderCallback(VisualWorld& world, double time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(VisualWorld& world, float time) {
+void Example::didRenderCallback(VisualWorld& world, double time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 

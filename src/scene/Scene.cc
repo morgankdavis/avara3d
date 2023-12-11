@@ -65,11 +65,11 @@ static void 						LoadFile(Scene& scene, const filesystem::path& importPath);
 	Private Static Prototypes
  *********************************************************************************************/
 
-static void 						GetRunTime(float time, // time since reference
+static void 						GetRunTime(double time, // time since reference
 											  bool paused,
-											  float& runT, // time since reference excluding paused time
-											  float& deltaRunT); // time since last call excluding paused time
-static void							UpdateTimeStats(Stats& stats, float time);
+											  double& runT, // time since reference excluding paused time
+											  double& deltaRunT); // time since last call excluding paused time
+static void							UpdateTimeStats(Stats& stats, double time);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
 static void 						AddAIGeometryNodes(Scene& scene,
@@ -259,7 +259,7 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 	_inputManager->attachedToScene(this);
 }
 
-float Scene::time() const {
+double Scene::time() const {
 	static auto startDate = chrono::high_resolution_clock::now();
 	auto nowDate = chrono::high_resolution_clock::now();
 	return (chrono::duration<float>(nowDate - startDate)).count();
@@ -297,7 +297,7 @@ void Scene::run() {
 			_visualWorld->checkAddDefaultLighting();
 		}
 
-		float deltaT, runT, deltaRunT;
+		double deltaT, runT, deltaRunT;
 
 		do {
 
@@ -412,7 +412,7 @@ void Scene::update(UpdateCallback function) {
 //	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
 //	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f; // is this wrong?
 //
-//	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 //}
 
 /*********************************************************************************************
@@ -629,31 +629,31 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 	Private Static
  *********************************************************************************************/
 
-static void GetRunTime(float time, // time since reference
+static void GetRunTime(double time, // time since reference
 					   bool paused,
-					   float& runT, // time since reference excluding paused time
-					   float& deltaRunT) {//, // time since last call excluding paused time
+					   double& runT, // time since reference excluding paused time
+					   double& deltaRunT) {//, // time since last call excluding paused time
 
-	const float t = time;
-	static float prevT = t;
-	float deltaT = t - prevT;
+	const double t = time;
+	static double prevT = t;
+	double deltaT = t - prevT;
 	prevT = t;
 
-	static float pauseTime = 0;
+	static double pauseTime = 0;
 	runT = t - pauseTime;
 
-	static float prevRunT = runT;
+	static double prevRunT = runT;
 	deltaRunT = runT - prevRunT;
 	prevRunT = runT;
 
 	if (paused) pauseTime += deltaT;
 }
 
-void UpdateTimeStats(Stats& stats, float time) {
+void UpdateTimeStats(Stats& stats, double time) {
 
 	// current
-	static float previousTime = time;
-	float deltaTime = time - previousTime;
+	static double previousTime = time;
+	double deltaTime = time - previousTime;
 	previousTime = time;
 	stats.currentFramerate = 60.0f / deltaTime;
 	stats.currentFrametime = deltaTime * 1000.0f;
@@ -664,14 +664,14 @@ void UpdateTimeStats(Stats& stats, float time) {
 //	}
 
 	// average
-	static float fpsAvg = 0.0;
-	static float msAvg = 0.0;
+	static double fpsAvg = 0.0;
+	static double msAvg = 0.0;
 	static unsigned framesSinceSampleStart = 0;
-	static float sampleStartTime = time;
-	float elapsedTimeSinceSampleStart = time - sampleStartTime;
+	static double sampleStartTime = time;
+	double elapsedTimeSinceSampleStart = time - sampleStartTime;
 	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
 
-		fpsAvg = (float)framesSinceSampleStart / elapsedTimeSinceSampleStart;
+		fpsAvg = (double)framesSinceSampleStart / elapsedTimeSinceSampleStart;
 		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
 
 		sampleStartTime = time;
@@ -682,7 +682,7 @@ void UpdateTimeStats(Stats& stats, float time) {
 	}
 	stats.averageFramerate = fpsAvg;
 	stats.averageFrametime = msAvg;
-	stats.frametimeAveragingInterval = FRAMETIME_AVERAGING_INTERVAL;
+	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }
 
 static shared_ptr<Image> MissingTextureImage() {

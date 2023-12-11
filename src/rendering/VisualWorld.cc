@@ -34,6 +34,7 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
 	Lifecycle
@@ -236,6 +237,8 @@ void VisualWorld::draw(const Scene& scene,
 				willRender(*this, runT);
 			}
 
+			auto startTime = scene.time();
+
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
 			auto pov = pointOfView();
@@ -267,16 +270,18 @@ void VisualWorld::draw(const Scene& scene,
 				}
 			}
 
+			UpdateTimeStats(stats, startTime, scene.time());
+
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
 
 			_renderContext->swapBuffers();
 
-			if (_renderContext->recordingGIF()) {
-				_renderContext->saveGIFFrame(runT);
-			}
-
 			if (auto didRender = VisualWorld::didRender()) {
 				didRender(*this, runT);
+			}
+
+			if (_renderContext->recordingGIF()) {
+				_renderContext->saveGIFFrame(runT);
 			}
 		}
 		else {
@@ -361,3 +366,32 @@ static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> mate
 
 	return geometry;
 }
+
+void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
+
+	// current
+	auto ms = endTime - startTime;
+	stats.currentDrawtime = ms * 1000.0f;
+
+	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+
+	// average
+	static double msAvg = 0.0;
+	static double sampleStartTime = startTime;
+	static unsigned framesSinceSampleStart = 0;
+	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
+
+		sampleStartTime = startTime;
+		framesSinceSampleStart = 0;
+	}
+	else {
+		++framesSinceSampleStart;
+	}
+
+	stats.averageDrawtime = msAvg;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
+}
+
