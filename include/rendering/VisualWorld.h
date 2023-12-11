@@ -90,8 +90,8 @@ namespace ae {
 
 		void									draw(const Scene& scene,
 													 const PhysicalWorld* physicalWorld,
-													 float runT,
-													 float deltaRunT,
+													 double runT,
+													 double deltaRunT,
 													 DEBUG_OPTIONS debugOptions,
 													 Stats& stats);
 

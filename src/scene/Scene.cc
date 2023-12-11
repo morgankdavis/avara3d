@@ -262,7 +262,7 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 double Scene::time() const {
 	static auto startDate = chrono::high_resolution_clock::now();
 	auto nowDate = chrono::high_resolution_clock::now();
-	return (chrono::duration<float>(nowDate - startDate)).count();
+	return (chrono::duration<double>(nowDate - startDate)).count();
 }
 
 DEBUG_OPTIONS Scene::debugOptions() const {

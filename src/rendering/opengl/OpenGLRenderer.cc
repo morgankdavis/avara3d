@@ -1948,6 +1948,8 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 		auto numFrames = renderContext->recordedGIFFrames();
 		ImGui::Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -1970,6 +1972,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
+					"physicstime", stats.averagePhysicstime,
+					"drawtime", stats.averageDrawtime,
+
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
 					"meshes", stats.meshes,
@@ -1991,8 +1996,8 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	else {
 		ImGui::Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
-					"%-14s %.3f ms\n" \
-					"%-14s %.3f ms\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2015,6 +2020,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"frametime", stats.averageFrametime,
 					"physicstime", stats.averagePhysicstime,
 					"drawtime", stats.averageDrawtime,
+
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
 					"meshes", stats.meshes,

@@ -241,27 +241,32 @@ void PhysicalWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 
 	// current
-	auto ms = endTime - startTime;
-	stats.currentPhysicstime = ms * 1000.0f;
+	auto stepTime = endTime - startTime;
+	stats.currentPhysicstime = stepTime * 1000.0f;
+
+
 
 	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
 
 	// average
-	static double msAvg = 0.0;
+	static double avg = 0.0;
 	static double sampleStartTime = startTime;
 	static unsigned stepsSinceSampleStart = 0;
+	static double accumulatedStepTimeSinceSampleStart = 0;
 	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
 	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
 
-		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
+		avg = (accumulatedStepTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
 
 		sampleStartTime = startTime;
 		stepsSinceSampleStart = 0;
+		accumulatedStepTimeSinceSampleStart = 0;
 	}
 	else {
 		++stepsSinceSampleStart;
+		accumulatedStepTimeSinceSampleStart += stepTime;
 	}
 
-	stats.averagePhysicstime = msAvg;
+	stats.averagePhysicstime = avg;
 //	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

@@ -224,8 +224,8 @@ void VisualWorld::checkAddDefaultLighting() {
 
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
-					   float runT,
-					   float deltaRunT,
+					   double runT,
+					   double deltaRunT,
 					   DEBUG_OPTIONS debugOptions,
 					   Stats& stats) {
 
@@ -370,28 +370,32 @@ static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> mate
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 
 	// current
-	auto ms = endTime - startTime;
-	stats.currentDrawtime = ms * 1000.0f;
+	auto drawTime = endTime - startTime;
+	stats.currentDrawtime = drawTime * 1000.0f;
+
+
 
 	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
 
 	// average
-	static double msAvg = 0.0;
+	static double avg = 0.0;
 	static double sampleStartTime = startTime;
-	static unsigned framesSinceSampleStart = 0;
+	static unsigned drawsSinceSampleStart = 0;
+	static double accumulatedDrawTimeSinceSampleStart = 0;
 	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
 	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
 
-		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
+		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
 
 		sampleStartTime = startTime;
-		framesSinceSampleStart = 0;
+		drawsSinceSampleStart = 0;
+		accumulatedDrawTimeSinceSampleStart = 0;
 	}
 	else {
-		++framesSinceSampleStart;
+		++drawsSinceSampleStart;
+		accumulatedDrawTimeSinceSampleStart += drawTime;
 	}
 
-	stats.averageDrawtime = msAvg;
+	stats.averageDrawtime = avg;
 //	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }
-
