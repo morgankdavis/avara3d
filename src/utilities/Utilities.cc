@@ -10,7 +10,7 @@
 
 #include <algorithm>
 #ifdef WINDOWS
-	// stops "ERROR" macro conflic with LOG_LEVEL::ERROR
+	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
 	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 	#define NOGDI
 #endif
@@ -48,21 +48,21 @@
 
 #include "glm/gtc/quaternion.hpp"
 
-#include "utilities/Buffer.h"
-#include "rendering/camera/Camera.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
-#include "utilities/Font.h"
+#include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/GeometryElement.h"
-#include "utilities/Image.h"
 #include "rendering/Light.h"
-#include "diagnostic/logging/Logger.h"
+#include "rendering/camera/Camera.h"
+#include "rendering/context/RenderContext.h"
 #include "rendering/materials/Material.h"
 #include "rendering/materials/MaterialProperty.h"
 #include "scene/Node.h"
-#include "rendering/context/RenderContext.h"
 #include "scene/Scene.h"
+#include "utilities/Buffer.h"
+#include "utilities/Color.h"
+#include "utilities/CubeImage.h"
+#include "utilities/Font.h"
+#include "utilities/Image.h"
 
 
 using namespace ae;
