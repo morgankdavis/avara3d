@@ -29,18 +29,18 @@ namespace ae {
 	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
 	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
 
-// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
+// stops "ERROR" macro expansion from wingdi.h included by glfw on Windows.
 // https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-// this may break GDI (needed by GLFW) depending on include order...
-//#undef ERROR
+// this could break wingdi in the future depending on include order...
+#undef ERROR
 	enum class LOG_LEVEL : unsigned {
-		TRACE_ =		0,
-		DEBUG_ =		1,
-		INFO_ =		2,
+		TRACE =		0,
+		DEBUG =		1,
+		INFO =		2,
 		WARN_ =		3,
 		ERROR =		4,
-		CRITICAL_ = 	5,
-		OFF_ = 		6
+		CRITICAL = 	5,
+		OFF = 		6
 	};
 
 	enum class RENDER_API {

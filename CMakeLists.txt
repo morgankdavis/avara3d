@@ -105,7 +105,8 @@ elseif (WINDOWS)
 	# stops "ERROR" macro conflict with LOG_LEVEL::ERROR
 	# https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 	# update: does stop the conflict with LOG_LEVEL but breaks GLFW as it uses GDI.
-	add_definitions("-DNOGDI")
+	# see Types.h
+	# add_definitions("-DNOGDI")
     if (MINGW)
         add_definitions("-DMINGW")
 	if (MINGW32)

@@ -50,8 +50,8 @@ int Example::run(const vector<string>& args) {
 	//AE_INIT();
 
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	_logger->level(LOG_LEVEL::DEBUG_);
-	Logger::MainLogger()->level(LOG_LEVEL::DEBUG_);
+	_logger->level(LOG_LEVEL::DEBUG);
+	Logger::MainLogger()->level(LOG_LEVEL::DEBUG);
 	
 	LOG_I(_logger, "");
 
