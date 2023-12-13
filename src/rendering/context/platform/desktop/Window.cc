@@ -163,7 +163,7 @@ Window::~Window() {
 
 void Window::open() {
 	AE_LOG_T("");
-	
+
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow);
 		

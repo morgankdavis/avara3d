@@ -44,13 +44,13 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
+		virtual void			create(PhysicalWorld& world);
 //		virtual void			setTimestep(PhysicalWorld& world, float timestep);
 //		virtual void			setSpeed(PhysicalWorld& world, float speed);
 		virtual void			setGravity(PhysicalWorld& world, glm::vec3& gravity);
 
 		virtual void			create(PhysicsBody& body);
 		virtual void			remove(PhysicsBody& body);
-
 		virtual void			setType(PhysicsBody& body, PHYSICS_BODY_TYPE type);
 		virtual void			setShape(PhysicsBody& body, PhysicsShape& shape);
 //		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);

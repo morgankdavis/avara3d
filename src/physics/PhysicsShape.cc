@@ -17,13 +17,6 @@
 #include "physics/PhysicsShapeResources.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletShapeResources.h"
-//#include "physics/shape_primitives/BoxPhysicsShape.h"
-//#include "physics/shape_primitives/CapsulePhysicsShape.h"
-//#include "physics/shape_primitives/ConePhysicsShape.h"
-//#include "physics/shape_primitives/CylinderPhysicsShape.h"
-//#include "physics/shape_primitives/PlanePhysicsShape.h"
-//#include "physics/shape_primitives/SpherePhysicsShape.h"
 #include "scene/Node.h"
 
 
@@ -35,12 +28,6 @@ using namespace std;
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-//PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type):
-//		_sourceObject(monostate{}),
-//		_type(type),
-//		_resources(make_shared<BulletShapeResources>()),
-//		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
@@ -90,10 +77,6 @@ PhysicsShape::~PhysicsShape() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-
-//variant<weak_ptr<Geometry>, weak_ptr<Node>, monostate> PhysicsShape::sourceObject() const {
-//	return _sourceObject;
-//}
 
 variant<Geometry*, Node*, monostate> PhysicsShape::sourceObject() const {
 	return _sourceObject;
@@ -204,58 +187,6 @@ PhysicsShapeResources* PhysicsShape::resources() const {
 void PhysicsShape::resources(std::shared_ptr<PhysicsShapeResources> resources) {
 	_resources = resources;
 }
-
-//void PhysicsShape::update(PhysicsSimulator& simulator,
-//						  Node& node,
-//						  PhysicsBody& body,
-//						  Stats& stats) {
-//
-//	bool updated;
-//	simulator.update(*this,
-//					 body.type(),
-//					 updated);
-//
-//	if (updated) {
-//		// when PhysicsBody calls PhysicsSimulator::update() the simulator needs
-//		// to know that the underlying model's shape has changed
-//		auto dirtyMask = body.dirtyMask();
-//		PHYSICS_BODY_DIRTY_MASK_ADD(dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
-//		body.dirtyMask(dirtyMask);
-//	}
-//}
-//
-//void PhysicsShape::sync(PhysicsSimulator& simulator,
-//						Node& node,
-//						PhysicsBody& body,
-//						Stats& stats) {
-//
-//	simulator.sync(*this,
-//				   body.type());
-//
-//	// this is probably slow
-//	if (dynamic_cast<BoxPhysicsShape*>(this)
-//		|| dynamic_cast<CapsulePhysicsShape*>(this)
-//		|| dynamic_cast<ConePhysicsShape*>(this)
-//		|| dynamic_cast<CylinderPhysicsShape*>(this)
-//		|| dynamic_cast<PlanePhysicsShape*>(this)
-//		|| dynamic_cast<SpherePhysicsShape*>(this)) {
-//
-//		// TODO: PUT IN SUBCLASS
-//	}
-//	else {
-//		switch (type()) {
-//			case (PHYSICS_SHAPE_TYPE::BOUNDING_BOX):
-//				++stats.boundingBoxShapes;
-//				break;
-//			case (PHYSICS_SHAPE_TYPE::CONVEX_HULL):
-//				++stats.convexHullShapes;
-//				break;
-//			case (PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON):
-//				++stats.concavePolyhedronShapes;
-//				break;
-//		}
-//	}
-//}
 
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");

@@ -16,11 +16,9 @@
 #include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletBodyResources.h"
 #include "scene/Node.h"
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -336,22 +334,6 @@ void PhysicsBody::attachedToNode(Node* node) {
 	checkAutocreateShape(node);
 
 	checkCreateModel();
-
-//	if (auto world = physicalWorld()) {
-//
-////		_shape->update(simulator,
-////					   node,
-////					   *this,
-////					   stats);
-////
-////		simulator.update(*this,
-////						 node);
-//
-//		world->simulator()->create(*this);
-//	}
-//	else {
-//		AE_LOG_I("No reachable PhysicalWorld.");
-//	}
 }
 
 void PhysicsBody::detachedFromNode(Node* node) {
@@ -445,14 +427,6 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 //
 //}
 
-//void PhysicsBody::worldTransformUpdated(const glm::mat4& transform) {
-//	//AE_LOG_I("transform: {}", utils::StringFromGLMMat4(transform));
-//
-//	if (auto simulator = physicsSimulator()) {
-//		simulator->setWorldTransform(*this, transform);
-//	}
-//}
-
 void PhysicsBody::modelCreated(PhysicsShape& shape) {
 	AE_LOG_I("shape: {:p}", (void*)&shape);
 
@@ -496,39 +470,6 @@ PhysicsBodyResources* PhysicsBody::resources() const {
 void PhysicsBody::resources(shared_ptr<PhysicsBodyResources> resources) {
 	_resources = resources;
 }
-
-//void PhysicsBody::update(PhysicsSimulator& simulator,
-//						 Node& node,
-//						 Stats& stats) {
-//
-//	_shape->update(simulator,
-//				   node,
-//				   *this,
-//				   stats);
-//
-//	simulator.update(*this,
-//					 node);
-//}
-
-//void PhysicsBody::sync(PhysicsSimulator& simulator,
-//					   Node& node,
-//					   mat4& localTransform,
-//					   Stats& stats) {
-//
-////	_shape->sync(simulator,
-////				   node,
-////				   *this,
-////				   stats);
-//
-//	simulator.sync(*this,
-//				   localTransform);
-//
-//	switch (type()) {
-//		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
-//		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
-//		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
-//	}
-//}
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
 	return _dirtyMask;

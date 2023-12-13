@@ -637,17 +637,10 @@ void Node::attachedToParent(Node* parent) {
 
 	// the only Node with a direct pointer to the Scene is the root node,
 	// and attachedToParent() is never called on the root node.
-	// if this is another Scene's root node being attached to these scene,
-	// we definitly don't want a stale pointer to the old scene.
+	// if this is another Scene's root node being attached to this scene
+	// (such as a scene loaded from a file), we definitly don't want
+	// a stale pointer to the old scene.
 	_scene = nullptr;
-
-//	if (_physicsBody) {
-//		//_physicsBody->nodeAttachedToParent(parent);
-//		auto physicalWorld = Node::physicalWorld();
-//		if (physicalWorld) {
-//			_physicsBody->physicalWorldReachable(physicalWorld);
-//		}
-//	}
 
 	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
 
@@ -882,75 +875,29 @@ vec3 Node::extent() {
 			aabb.max.z - aabb.min.z};
 }
 
-//void Node::update(PhysicsSimulator& simulator,
-//				  Stats& stats) {
-//
-//	// physics body or physics body dirty?
-//	//		create/update
-//
-//	if (_physicsBody) {
-//		_physicsBody->update(simulator,
-//							 *this,
-//							 stats);
-//	}
-//
-//	// apply visual to kinematic bodies (and static?)
-//
-//	for (auto& child : _children) {
-//		child->update(simulator,
-//					  stats);
-//	}
-//
-//	++stats.nodes;
-//}
-
-//void Node::sync(PhysicsSimulator& simulator,
-//				Stats& stats) {
-//
-//	// apply physics model to visual
-//
-//	auto worldTransform = mat4(1.0);
-//
-//	if (_physicsBody) {
-//		_physicsBody->sync(simulator,
-//						   *this,
-//						   worldTransform,
-//						   stats);
-//
-//		applyPhysicsTransform(worldTransform);
-//	}
-//
-//	for (auto& child : _children) {
-//		child->sync(simulator,
-//					stats);
-//	}
-//}
-
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DEBUG_OPTIONS& debugOptions,
 				Stats& stats) {
 
-		if (_geometry && !_hidden) {
+	if (_geometry && !_hidden) {
 
-			_geometry->draw(renderer,
-							//_worldTransform, // duck moves, dynamic bodies don't
-							worldTransform(), // duck still, simple dynamics work
-							viewMat,
-							projectionMat,
-							debugOptions,
-							stats);
-		}
-
-		for (auto& child : _children) {
-			child->draw(renderer,
+		_geometry->draw(renderer,
+						worldTransform(),
 						viewMat,
 						projectionMat,
 						debugOptions,
 						stats);
-		}
-//	}
+	}
+
+	for (auto& child : _children) {
+		child->draw(renderer,
+					viewMat,
+					projectionMat,
+					debugOptions,
+					stats);
+	}
 }
 
 void Node::_debugPrint() {

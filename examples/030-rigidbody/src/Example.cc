@@ -89,7 +89,7 @@ int Example::run(const vector<string>& args) {
 	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
 
-	auto physicalWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	auto physicalWorld = make_shared<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
 

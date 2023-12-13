@@ -162,18 +162,10 @@ namespace ae {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-//		void									checkNotifyPhysicsBodyOfTransformUpdate() const;
-
 		bool 									containsChild(std::shared_ptr<Node> node);
 
 		AABB									aabb();
 		glm::vec3								extent();
-
-//		void 									update(PhysicsSimulator& simulator,
-//													   Stats& stats);
-
-//		void 									sync(PhysicsSimulator& simulator,
-//													 Stats& stats);
 
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
@@ -181,7 +173,7 @@ namespace ae {
 													 const DEBUG_OPTIONS& debugOptions,
 													 Stats& stats);
 
-		void									_debugPrint(); // testing
+		void									_debugPrint();
 		void									_debugPrintRec(Node& node,
 															   int level);
 

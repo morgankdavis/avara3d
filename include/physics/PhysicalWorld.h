@@ -47,7 +47,7 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 		
-		PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine);
+		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
@@ -102,6 +102,7 @@ namespace ae {
 													 Stats& stats);
 
 		PhysicalWorldResources*				resources() const;
+		void								resources(std::unique_ptr<PhysicalWorldResources> resources);
 
 		PhysicsSimulator*					simulator() const;
 

@@ -49,9 +49,9 @@ namespace ae {
 		VULKAN
 	};
 
-	enum class PHYSICS_SIMULATION_ENGINE {
-		BULLET
-	};
+//	enum class PHYSICS_SIMULATION_ENGINE {
+//		BULLET
+//	};
 		
 	enum class FONT_TYPE : unsigned {
 		UNKNOWN = 	0,

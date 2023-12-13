@@ -181,10 +181,10 @@ void Logger::critical(const char* format, ...) {
 	va_end(args);
 }
 
-//void Logger::trace(const char* filename, int line, const char* function) {
-//
-//	log_trace(filename, line, function);
-//}
+void Logger::crumb(const char* filename, int line, const char* function) {
+
+	log_crumb(filename, line, function);
+}
 
 void Logger::trace(bool useHeader,
 				   const char* filename, int line, const char* function,
@@ -277,11 +277,11 @@ void Logger::log(LOG_LEVEL level,
 	}
 }
 
-//void Logger::log_trace(const char* filename, int line, const char* function) {
-//
-//	dispatch(LOG_LEVEL::TRACE,
-//			 HeaderString(_name, LOG_LEVEL::TRACE, filename, line, function).c_str());
-//}
+void Logger::log_crumb(const char* filename, int line, const char* function) {
+
+	dispatch(LOG_LEVEL::TRACE,
+			 HeaderString(_name, LOG_LEVEL::TRACE, filename, line, function).c_str());
+}
 
 void Logger::construct(LOG_LEVEL level, const char* body) {
 

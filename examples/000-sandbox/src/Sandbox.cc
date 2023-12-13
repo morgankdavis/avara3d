@@ -70,12 +70,10 @@ int Sandbox::run(const vector<string>& args) {
 					  ? make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
 					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);
-	//visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png")));
-//	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png")));
 	visualWorld->willRender(bind(&Sandbox::willRenderCallback, this, _1, _2));
 	visualWorld->didRender(bind(&Sandbox::didRenderCallback, this, _1, _2));
 
-	auto physicalWorld = make_shared<PhysicalWorld>(PHYSICS_SIMULATION_ENGINE::BULLET);
+	auto physicalWorld = make_shared<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&Sandbox::didSimulatePhysicsCallback, this, _1, _2));
 
@@ -177,7 +175,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 
 
 	// get input
-	
+
 	auto mouseButtonsDown = inputManager->mouseButtonsDown();
 	auto mouseButtonsPressed = inputManager->mouseButtonsPressed();
 	auto keysDown = inputManager->keysDown();
@@ -186,7 +184,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 	if (window) {
 		cursorCaptured = window->cursorCaptured();
 	}
-	
+
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
 	}
@@ -194,7 +192,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::FORWARD_DELETE)) {
 		scene.paused(!scene.paused());
 	}
-	
+
 	if (keysPressed.count(KEY::T)) {
 		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
@@ -274,15 +272,15 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::V)) {
 		window->vSyncEnabled(!window->vSyncEnabled());
 	}
-	
+
 	if (keysPressed.count(KEY::BACKSLASH)) {
 		SaveSnapshot(*window);
 	}
-	
+
 	if (keysPressed.count(KEY::SLASH)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
-	
+
 	if (keysPressed.count(KEY::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 240, 8);
@@ -293,16 +291,16 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 	}
 
 	if (cursorCaptured) {
-		
+
 		// mouselook
-		
+
 		vec2 mousePositionDelta = inputManager->mousePositionDelta();
 
 		auto pov = scene.visualWorld()->pointOfView();
 		if (pov) {
-			
+
 			// look
-			
+
 			vec3 camForward = pov->worldForward();
 			vec3 camRight = pov->worldRight();
 			vec3 camUp = pov->worldUp();
@@ -312,10 +310,10 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 
 			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
-			
+
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-			
+
 			// move
 
 			static float MOVE_SPEED = 0;
@@ -325,7 +323,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 			if (keysDown.count(KEY::LEFT_CONTROL)) {
 				moveMultiplier = 2.0;
 			}
-			
+
 			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
@@ -334,7 +332,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
-			
+
 			if (keysDown.count(KEY::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
@@ -343,7 +341,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			
+
 			if (keysDown.count(KEY::SPACE)) {
 				float direction = 1;
 				if (keysDown.count(KEY::LEFT_SHIFT)) {

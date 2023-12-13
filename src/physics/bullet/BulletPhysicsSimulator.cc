@@ -165,6 +165,12 @@ void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
 	PhysicsSimulator
  *********************************************************************************************/
 
+void BulletPhysicsSimulator::create(PhysicalWorld& world) {
+
+	// meh.
+	world.resources(make_unique<BulletWorldResources>());
+}
+
 void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
 
 }
@@ -492,7 +498,7 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 				case PHYSICS_BODY_TYPE::DYNAMIC:
 				case PHYSICS_BODY_TYPE::KINEMATIC:
 					static btTransform btWorldTransform;
-					btWorldTransform.setIdentity();
+					//btWorldTransform.setIdentity();
 					//btMotionState->getWorldTransform(btWorldTransform); // crash?
 					btBody->getMotionState()->getWorldTransform(btWorldTransform);
 

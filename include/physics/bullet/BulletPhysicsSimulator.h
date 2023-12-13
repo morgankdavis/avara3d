@@ -46,6 +46,7 @@ namespace ae {
 	PhysicsSimulator
  *********************************************************************************************/
 
+		void		create(PhysicalWorld& world);
 		void 		setGravity(PhysicalWorld& world, glm::vec3& gravity) override;
 
 		void		create(PhysicsBody& body) override;

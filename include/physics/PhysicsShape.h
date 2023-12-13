@@ -98,15 +98,6 @@ namespace ae {
 
 		void								checkCreateModel();
 
-//		void								update(PhysicsSimulator& simulator,
-//												   Node& node,
-//												   PhysicsBody& body,
-//												   Stats& stats);
-//		void								sync(PhysicsSimulator& simulator,
-//												 Node& node,
-//												 PhysicsBody& body,
-//												 Stats& stats);
-
 		PhysicsShapeResources*				resources() const;
 		void								resources(std::shared_ptr<PhysicsShapeResources> resources);
 

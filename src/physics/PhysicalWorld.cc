@@ -30,12 +30,12 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 	Lifecycle
  *********************************************************************************************/
 
-PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
+PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		_resources(make_unique<BulletWorldResources>()),
-		//_resources(nullptr),
+		//_resources(make_unique<BulletWorldResources>()),
+		_resources(nullptr),
 		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
 		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
@@ -44,6 +44,7 @@ PhysicalWorld::PhysicalWorld(PHYSICS_SIMULATION_ENGINE engine):
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
+	_simulator->create(*this);
 //#warning move?
 
 //	_simulator->setTimestep(_timestep);
@@ -220,6 +221,10 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 PhysicalWorldResources* PhysicalWorld::resources() const {
 	return  _resources.get();
+}
+
+void PhysicalWorld::resources(std::unique_ptr<PhysicalWorldResources> resources) {
+	_resources = std::move(resources);
 }
 
 PhysicsSimulator* PhysicalWorld::simulator() const {

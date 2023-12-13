@@ -39,6 +39,7 @@
 // __FUNCTION_NAME__: https://stackoverflow.com/questions/15305310/predefined-macros-for-function-name-func
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
+#define AE_LOG_T() Logger::MainLogger()->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
@@ -53,7 +54,7 @@
 #define AE_LOG_H_E(useHeader, fmtStr, ...) Logger::MainLogger()->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_H_C(useHeader, fmtStr, ...) Logger::MainLogger()->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
-//#define LOG_T(logger) logger->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
+#define LOG_CRUMB(logger) logger->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define LOG_T(logger, fmtStr, ...) logger->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_D(logger, fmtStr, ...) logger->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_I(logger, fmtStr, ...) logger->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
@@ -69,7 +70,7 @@
 #define LOG_H_C(useHeader, logger, fmtStr, ...) logger->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 
 
-namespace ae {	
+namespace ae {
 
 	
 	class LoggerSink;
@@ -122,7 +123,7 @@ namespace ae {
 		void error(const char* format, ...);
 		void critical(const char* format, ...);
 
-//		void trace(const char* filename, int line, const char* function);
+		void crumb(const char* filename, int line, const char* function);
 		void trace(bool useHeader,
 				   const char* filename, int line, const char* function,
 				   const char* format, ...);
@@ -148,7 +149,7 @@ namespace ae {
 				 bool useHeader,
 				 const char* filename, int line, const char* function,
 				 const char* format, va_list args);
-//		void log_trace(const char* filename, int line, const char* function);
+		void log_crumb(const char* filename, int line, const char* function);
 
 		void construct(LOG_LEVEL level, const char* message);
 		void construct(LOG_LEVEL level,

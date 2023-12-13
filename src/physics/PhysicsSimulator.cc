@@ -37,6 +37,7 @@ PhysicsSimulator::~PhysicsSimulator() {
 	Internal
  *********************************************************************************************/
 
+void PhysicsSimulator::create(PhysicalWorld& world) {}
 //void PhysicsSimulator::setTimestep(PhysicalWorld& world, float timestep) { }
 //void PhysicsSimulator::setSpeed(PhysicalWorld& world, float speed) { }
 void PhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) { }
