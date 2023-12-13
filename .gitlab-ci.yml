@@ -61,7 +61,7 @@ build-windows: # bash
     - cd gitlab-build
     - cmake -T"ClangCL" ..
     # mkd: make maxCpuCount work...
-    - cmake --build . # -- -maxCpuCount:6
+    - cmake --build --parallel 6 . # -- -maxCpuCount:6
     - echo "Windows build complete."
 
 # build-windows10: # pwsh
