@@ -10,7 +10,15 @@
 #define BulletPhysicsSimulator_h
 
 
+#include "glm/glm.hpp"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
+//#include "LinearMath/btIDebugDraw.h"
+
 #include "physics/PhysicsSimulator.h"
+
+
 
 
 namespace ae {
@@ -21,11 +29,34 @@ namespace ae {
 	
 	class BulletPhysicsSimulator : public PhysicsSimulator {
 
+
+	public:
+
+
+
+
+//		static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
+		static glm::vec3 							GLMVec3FromBTVector3(const btVector3& from);
+		static glm::vec4 							GLMVec4FromBTVector4(const btVector4& from);
+		static glm::mat4 							GLMMat4FromBTTransform(const btTransform& from);
+		static btVector3 						BTVector3FromGLMVec3(const glm::vec3& from);
+		static btVector4 						BTVector4FromGLMVec4(const glm::vec4& from);
+		static btQuaternion 					BTQuaternionFromGLMQuat(const glm::quat& from);
+		static btTransform 						BTTransformFromGLMMat4(const glm::mat4& from);
+		static glm::mat4 							TransformByRemovingScale(const glm::mat4& m, bool& scaled);
+		static btTransform&						BTIdentityTransform();
+
+
+
+
+
+
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-	public:
+
 
 		BulletPhysicsSimulator();
 		BulletPhysicsSimulator(const BulletPhysicsSimulator& other) = delete; // copy constructor

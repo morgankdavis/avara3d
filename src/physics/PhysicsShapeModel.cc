@@ -8,5 +8,5 @@
 using namespace ae;
 
 
-//PhysicsShapeModel::PhysicsShapeModel() {}
-//PhysicsShapeModel::~PhysicsShapeModel() {}
+PhysicsShapeModel::PhysicsShapeModel(PhysicsShape* shape) { }
+PhysicsShapeModel::~PhysicsShapeModel() { }

@@ -6,3 +6,7 @@
 
 
 using namespace ae;
+
+
+PhysicalWorldModel::PhysicalWorldModel(PhysicalWorld* world) { }
+PhysicalWorldModel::~PhysicalWorldModel() { }

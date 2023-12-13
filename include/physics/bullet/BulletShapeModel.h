@@ -28,18 +28,18 @@ namespace ae {
 
 	public:
 
-		BulletShapeModel();
+		BulletShapeModel(PhysicsShape* shape);
 		~BulletShapeModel();
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<btCollisionShape>>&				shapes();
-		void shapes(std::vector<std::shared_ptr<btCollisionShape>> 	shapes);
+		std::vector<std::shared_ptr<btCollisionShape>>& btShapes();
+		void btShapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
 
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>&	indexVertexArrays();
-		void indexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays();
+		void btIndexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
 
 /*********************************************************************************************
 	 Private
@@ -47,8 +47,8 @@ namespace ae {
 
 	private:
 
-		std::vector<std::shared_ptr<btCollisionShape>>				_shapes;
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_indexVertexArrays;
+		std::vector<std::shared_ptr<btCollisionShape>>				_btShapes;
+		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
 	};
 }
 

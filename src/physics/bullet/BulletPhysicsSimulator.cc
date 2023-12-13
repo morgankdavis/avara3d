@@ -17,7 +17,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "LinearMath/btIDebugDraw.h"
-#include "LinearMath/btScalar.h" // btGetVersion() !
+//#include "LinearMath/btScalar.h" // btGetVersion() !
 #include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"
@@ -117,15 +117,15 @@ static vector<shared_ptr<GeometryElement>>
 HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
 
 static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
-static vec3 							GLMVec3FromBTVector3(const btVector3& from);
-static vec4 							GLMVec4FromBTVector4(const btVector4& from);
-static mat4 							GLMMat4FromBTTransform(const btTransform& from);
-static btVector3 						BTVector3FromGLMVec3(const vec3& from);
-static btVector4 						BTVector4FromGLMVec4(const vec4& from);
-static btQuaternion 					BTQuaternionFromGLMQuat(const quat& from);
-static btTransform 						BTTransformFromGLMMat4(const mat4& from);
-static mat4 							TransformByRemovingScale(const mat4& m, bool& scaled);
-static btTransform&						BTIdentityTransform();
+//static vec3 							GLMVec3FromBTVector3(const btVector3& from);
+//static vec4 							GLMVec4FromBTVector4(const btVector4& from);
+//static mat4 							GLMMat4FromBTTransform(const btTransform& from);
+//static btVector3 						BTVector3FromGLMVec3(const vec3& from);
+//static btVector4 						BTVector4FromGLMVec4(const vec4& from);
+//static btQuaternion 					BTQuaternionFromGLMQuat(const quat& from);
+//static btTransform 						BTTransformFromGLMMat4(const mat4& from);
+//static mat4 							TransformByRemovingScale(const mat4& m, bool& scaled);
+//static btTransform&						BTIdentityTransform();
 
 /*********************************************************************************************
 	Lifescycle
@@ -148,9 +148,9 @@ void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
 									   const glm::mat4 &projectionMat,
 									   const DEBUG_OPTIONS &debugOptions) {
 #ifdef OPENGL_CORE
-	auto resources = static_cast<BulletWorldModel*>(world.resources());
-	auto btWorld = resources->world();
-	auto debugDrawer = resources->debugDrawer();
+	auto resources = static_cast<BulletWorldModel*>(world.model());
+	auto btWorld = resources->btWorld();
+	auto debugDrawer = resources->btDebugDrawer();
 
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
 
@@ -168,7 +168,7 @@ void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
 void BulletPhysicsSimulator::create(PhysicalWorld& world) {
 
 	// meh.
-	world.resources(make_unique<BulletWorldModel>());
+	world.model(make_unique<BulletWorldModel>(&world));
 }
 
 void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
@@ -178,20 +178,20 @@ void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity
 void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", (void*)&body);
 
-	body.resources(make_shared<BulletBodyModel>());
+	body.model(make_shared<BulletBodyModel>(&body));
 
 	auto world = body.physicalWorld();
-	auto worldResources = static_cast<BulletWorldModel*>(world->resources());
-	auto btWorld = worldResources->world();
+	auto worldResources = static_cast<BulletWorldModel*>(world->model());
+	auto btWorld = worldResources->btWorld();
 	auto node = body.node();
 	auto shape = body.shape();
 	auto dirtyMask = body.dirtyMask();
 
-	auto bodyResources = static_cast<BulletBodyModel*>(body.resources());
-	auto shapeResources = static_cast<BulletShapeModel*>(body.shape()->resources());
+	auto bodyResources = static_cast<BulletBodyModel*>(body.model());
+	auto shapeResources = static_cast<BulletShapeModel*>(body.shape()->model());
 
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-	auto btShape = shapeResources->shapes().front();
+	auto btShape = shapeResources->btShapes().front();
 
 	AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
 
@@ -246,8 +246,8 @@ void BulletPhysicsSimulator::create(PhysicsBody& body) {
 
 	btWorld->addRigidBody(btBody.get());
 
-	bodyResources->body(btBody);
-	bodyResources->motionState(newMotionState);
+	bodyResources->btBody(btBody);
+	bodyResources->btMotionState(newMotionState);
 
 	// I'm a cheap bastard
 	setLinearFactor(body, body.linearFactor());
@@ -276,7 +276,7 @@ void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
 
 //void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
 //
-//	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+//	auto btBody = static_cast<BulletBodyModel*>(body.resources())->btBody();
 //	auto toTransform = BTTransformFromGLMMat4(transform);
 //	//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
 //	auto motionState = btBody->getMotionState();
@@ -289,7 +289,7 @@ void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
 	// *** re-create body ***
 	// **************** TEST THIS *************************
 	// I think it's right...
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setMassProps(mass, BTVector3FromGLMVec3(body.momentOfInertia()));
 }
 
@@ -298,70 +298,70 @@ void BulletPhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::ve
 }
 
 void BulletPhysicsSimulator::setFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setFriction(friction);
 }
 
 void BulletPhysicsSimulator::setRollingFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setRollingFriction(friction);
 }
 
 void BulletPhysicsSimulator::setRestitution(PhysicsBody& body, float restitution) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setRestitution(restitution);
 }
 
 void BulletPhysicsSimulator::setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 void BulletPhysicsSimulator::setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 void BulletPhysicsSimulator::setLinearFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
 }
 
 void BulletPhysicsSimulator::setAngularFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
 }
 
 void BulletPhysicsSimulator::setLinearDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setDamping(damping, btBody->getAngularDamping());
 }
 
 void BulletPhysicsSimulator::setAngularDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setDamping(btBody->getLinearDamping(), damping);
 }
 
 void BulletPhysicsSimulator::setLinearSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setSleepingThresholds(threshold, btBody->getAngularSleepingThreshold());
 }
 
 void BulletPhysicsSimulator::setAngularSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setSleepingThresholds(btBody->getLinearSleepingThreshold(), threshold);
 }
 
 void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
-	auto btWorld = static_cast<BulletWorldModel*>(body.physicalWorld()->resources())->world();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+	auto btWorld = static_cast<BulletWorldModel*>(body.physicalWorld()->model())->btWorld();
 	btBody->setGravity(flag
 					   ? btWorld->getGravity()
 					   : btVector3{0, 0, 0});
 }
 
 void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
 	btBody->setActivationState(body.allowsResting()
 							   ? ACTIVE_TAG
 							   : DISABLE_DEACTIVATION);
@@ -370,7 +370,7 @@ void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
 void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	AE_LOG_D("shape: {:p}", (void*)&shape);
 
-	shape.resources(make_shared<BulletShapeModel>());
+	shape.model(make_shared<BulletShapeModel>(&shape));
 
 	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
 
@@ -415,9 +415,9 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 		newShape->setUserPointer((void*)&shape);
 		btShapes.insert(btShapes.begin(), newShape);
 
-		auto shapeResources = static_cast<BulletShapeModel*>(shape.resources());
-		shapeResources->shapes(btShapes);
-		shapeResources->indexVertexArrays(btIndexVertexArrays);
+		auto shapeResources = static_cast<BulletShapeModel*>(shape.model());
+		shapeResources->btShapes(btShapes);
+		shapeResources->btIndexVertexArrays(btIndexVertexArrays);
 //		updated = true;
 
 		shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
@@ -431,8 +431,8 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 
 void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 
-	auto resources = static_cast<BulletWorldModel*>(world.resources());
-	auto btWorld = resources->world();
+	auto resources = static_cast<BulletWorldModel*>(world.model());
+	auto btWorld = resources->btWorld();
 
 	auto collisionObjects = btWorld->getCollisionObjectArray();
 	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
@@ -469,8 +469,8 @@ void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 
 void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
 
-	auto resources = static_cast<BulletWorldModel*>(world.resources());
-	auto btWorld = resources->world();
+	auto resources = static_cast<BulletWorldModel*>(world.model());
+	auto btWorld = resources->btWorld();
 
 	auto result = btWorld->stepSimulation(deltaT * world.speed(),
 										 MAX_SUBSTEPS,
@@ -483,8 +483,8 @@ void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
 
 void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 
-	auto resources = static_cast<BulletWorldModel*>(world.resources());
-	auto btWorld = resources->world();
+	auto resources = static_cast<BulletWorldModel*>(world.model());
+	auto btWorld = resources->btWorld();
 
 	auto collisionObjects = btWorld->getCollisionObjectArray();
 	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
@@ -941,7 +941,7 @@ BTShapeFromSourceNode(Node* node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		rootShape->addChildShape(BTIdentityTransform(),
+		rootShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
 								 nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
@@ -1112,7 +1112,7 @@ BTShapeFromGeometry(Geometry* geometry,
 													 indexVertexArray);
 
 		// the Geometry's transform is added to the btRigidBody's localInertia
-		newShape->addChildShape(BTIdentityTransform(),
+		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
 								childShape.get());
 
 		btShapes.push_back(childShape);
@@ -1142,12 +1142,12 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		newShape->addChildShape(BTIdentityTransform(),
+		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
 								nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
 
-	btParentShape->addChildShape(BTTransformFromGLMMat4(node->transform()),
+	btParentShape->addChildShape(BulletPhysicsSimulator::BTTransformFromGLMMat4(node->transform()),
 								 newShape.get());
 	btShapes.push_back(newShape);
 
@@ -1171,7 +1171,7 @@ BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	auto originalShape = make_shared<btConvexHullShape>();
 	for (const auto& vertex : element->vertices()) {
-		originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
+		originalShape->addPoint(BulletPhysicsSimulator::BTVector3FromGLMVec3(vertex.position), false);
 	}
 	originalShape->recalcLocalAabb();
 
@@ -1272,7 +1272,7 @@ BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> ele
 	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
 	for (auto& hacdElement : hacdElements) {
 		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
-		compoundShape->addChildShape(BTIdentityTransform(), convextHullShape.get());
+		compoundShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(), convextHullShape.get());
 		btShapes.push_back(convextHullShape);
 	}
 
@@ -1338,35 +1338,35 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIO
 	return btModes;
 }
 
-vec3 GLMVec3FromBTVector3(const btVector3& from) {
+vec3 BulletPhysicsSimulator::GLMVec3FromBTVector3(const btVector3& from) {
 	return vec3(from.x(), from.y(), from.z());
 }
 
-vec4 GLMVec4FromBTVector4(const btVector4& from) {
+vec4 BulletPhysicsSimulator::GLMVec4FromBTVector4(const btVector4& from) {
 	return vec4(from.x(), from.y(), from.z(), from.w());
 }
 
-mat4 GLMMat4FromBTTransform(const btTransform& from) {
+mat4 BulletPhysicsSimulator::GLMMat4FromBTTransform(const btTransform& from) {
 	mat4 glmMat;
 	from.getOpenGLMatrix(value_ptr(glmMat));
 	return glmMat;
 }
 
-btVector3 BTVector3FromGLMVec3(const vec3& from) {
+btVector3 BulletPhysicsSimulator::BTVector3FromGLMVec3(const vec3& from) {
 	return btVector3(from.x, from.y, from.z);
 }
 
-btVector4 BTVector4FromGLMVec4(const vec4& from) {
+btVector4 BulletPhysicsSimulator::BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-btQuaternion BTQuaternionFromGLMQuat(const quat& from) {
+btQuaternion BulletPhysicsSimulator::BTQuaternionFromGLMQuat(const quat& from) {
 	
 	return btQuaternion(from.x, from.y, from.z, from.w);
 	
 }
 
-btTransform BTTransformFromGLMMat4(const mat4& from) {
+btTransform BulletPhysicsSimulator::BTTransformFromGLMMat4(const mat4& from) {
 	
 	// this version (probably) does not strip scale & sheer
 	
@@ -1400,7 +1400,7 @@ btTransform BTTransformFromGLMMat4(const mat4& from) {
 //	return bulletTransform;
 }
 
-mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
+mat4 BulletPhysicsSimulator::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	// TODO: optimize
 
 	vec3 scale;
@@ -1421,7 +1421,7 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 	else return m;
 }
 
-btTransform& BTIdentityTransform() {
+btTransform& BulletPhysicsSimulator::BTIdentityTransform() {
 	// TODO: optimize
 	static auto identityTransform = btTransform();
 	identityTransform.setIdentity();

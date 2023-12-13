@@ -171,8 +171,8 @@ namespace ae {
 		PhysicalWorld*						physicalWorld() const;
 		PhysicsSimulator*					physicsSimulator() const;
 
-		PhysicsBodyModel*				resources() const;
-		void								resources(std::shared_ptr<PhysicsBodyModel> resources);
+		PhysicsBodyModel*					model() const;
+		void								model(std::shared_ptr<PhysicsBodyModel> model);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
@@ -210,7 +210,7 @@ namespace ae {
 
 		PHYSICS_BODY_DIRTY_MASK 			_dirtyMask;
 
-		std::shared_ptr<PhysicsBodyModel>	_resources;
+		std::shared_ptr<PhysicsBodyModel>	_model;
 	};
 }
 

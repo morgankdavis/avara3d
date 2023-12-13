@@ -8,4 +8,5 @@
 using namespace ae;
 
 
-//PhysicsBodyModel::PhysicsBodyModel() {}
+PhysicsBodyModel::PhysicsBodyModel(PhysicsBody* body) { }
+PhysicsBodyModel::~PhysicsBodyModel() { }

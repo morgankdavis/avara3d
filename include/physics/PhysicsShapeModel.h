@@ -11,12 +11,20 @@
 
 namespace ae {
 
+
+	class PhysicsShape;
+
+
 	class PhysicsShapeModel {
+
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
 
 	public:
 
-//		PhysicsShapeModel();
-//		~PhysicsShapeModel();
+		PhysicsShapeModel(PhysicsShape* shape);
+		~PhysicsShapeModel();
 	};
 }
 

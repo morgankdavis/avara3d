@@ -8,8 +8,31 @@
 
 namespace ae {
 
+
+	class PhysicalWorld;
+	class PhysicsBody;
+
+
 	class PhysicalWorldModel {
 
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
+	public:
+
+		PhysicalWorldModel(PhysicalWorld* world);
+		~PhysicalWorldModel();
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		virtual void 	add(PhysicsBody& body) = 0;
+		virtual void 	remove(PhysicsBody& body) = 0;
+
+		virtual float	gravity() const = 0;
+		virtual void	gravity(float gravity) = 0;
 	};
 }
 

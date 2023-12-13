@@ -34,8 +34,8 @@ PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		//_resources(make_unique<BulletWorldModel>()),
-		_resources(nullptr),
+		//_model(make_unique<BulletWorldModel>()),
+		_model(nullptr),
 		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
 		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
@@ -219,12 +219,12 @@ void PhysicalWorld::simulate(const Scene& scene,
 //	}
 //}
 
-PhysicalWorldModel* PhysicalWorld::resources() const {
-	return  _resources.get();
+PhysicalWorldModel* PhysicalWorld::model() const {
+	return  _model.get();
 }
 
-void PhysicalWorld::resources(std::unique_ptr<PhysicalWorldModel> resources) {
-	_resources = std::move(resources);
+void PhysicalWorld::model(std::unique_ptr<PhysicalWorldModel> model) {
+	_model = std::move(model);
 }
 
 PhysicsSimulator* PhysicalWorld::simulator() const {

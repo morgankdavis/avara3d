@@ -65,7 +65,7 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_resting(false),
 		_node(nullptr),
 		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL)/*,
-		_resources(make_shared<BulletBodyModel>())*/{ }
+		_model(make_shared<BulletBodyModel>())*/{ }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -463,12 +463,12 @@ PhysicsSimulator* PhysicsBody::physicsSimulator() const {
 	return nullptr;
 }
 
-PhysicsBodyModel* PhysicsBody::resources() const {
-	return _resources.get();
+PhysicsBodyModel* PhysicsBody::model() const {
+	return _model.get();
 }
 
-void PhysicsBody::resources(shared_ptr<PhysicsBodyModel> resources) {
-	_resources = resources;
+void PhysicsBody::model(shared_ptr<PhysicsBodyModel> model) {
+	_model = model;
 }
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
@@ -486,7 +486,7 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 void PhysicsBody::checkCreateModel() {
 	AE_LOG_T("");
 
-	if (!_resources) {
+	if (!_model) {
 		if (auto simulator = physicsSimulator()) {
 			simulator->create(*this);
 

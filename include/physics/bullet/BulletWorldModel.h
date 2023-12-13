@@ -35,20 +35,30 @@ namespace ae {
 
 	public:
 
-		BulletWorldModel();
+		BulletWorldModel(PhysicalWorld* world);
 		~BulletWorldModel();
+
+/*********************************************************************************************
+	PhysicalWorldModel
+ *********************************************************************************************/
+
+		void 	add(PhysicsBody& body) override;
+		void 	remove(PhysicsBody& body) override;
+
+		float	gravity() const override;
+		void	gravity(float gravity) override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		btDiscreteDynamicsWorld*				world() const;
-		btDefaultCollisionConfiguration*		collisionConfiguration() const;
-		btCollisionDispatcher*					collisionDispatcher() const;
-		btDbvtBroadphase*						broadphase() const;
-		btSequentialImpulseConstraintSolver*	constraintSolver() const;
+		btDiscreteDynamicsWorld*				btWorld() const;
+//		btDefaultCollisionConfiguration*		collisionConfiguration() const;
+//		btCollisionDispatcher*					collisionDispatcher() const;
+//		btDbvtBroadphase*						broadphase() const;
+//		btSequentialImpulseConstraintSolver*	constraintSolver() const;
 #ifdef DESKTOP
-		BulletDebugDrawer*						debugDrawer() const;
+		BulletDebugDrawer*						btDebugDrawer() const;
 #endif
 
 /*********************************************************************************************
@@ -57,13 +67,13 @@ namespace ae {
 
 	private:
 
-		std::unique_ptr<btDiscreteDynamicsWorld>				_world;
-		std::unique_ptr<btDefaultCollisionConfiguration> 		_collisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher>					_collisionDispatcher;
-		std::unique_ptr<btDbvtBroadphase>						_broadphase;
-		std::unique_ptr<btSequentialImpulseConstraintSolver>	_constraintSolver;
+		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
+		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
+		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
+		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
+		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
 #ifdef DESKTOP
-		std::unique_ptr<BulletDebugDrawer>						_debugDrawer;
+		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
 	};
 }

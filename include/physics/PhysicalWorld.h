@@ -101,8 +101,8 @@ namespace ae {
 													 double deltaRunT,
 													 Stats& stats);
 
-		PhysicalWorldModel*				resources() const;
-		void								resources(std::unique_ptr<PhysicalWorldModel> resources);
+		PhysicalWorldModel*					model() const;
+		void								model(std::unique_ptr<PhysicalWorldModel> model);
 
 		PhysicsSimulator*					simulator() const;
 
@@ -118,7 +118,7 @@ namespace ae {
 		glm::vec3 								_gravity;
 		float 									_speed;
 		float 									_timestep;
-		std::unique_ptr<PhysicalWorldModel>	_resources;
+		std::unique_ptr<PhysicalWorldModel>		_model;
 		std::unique_ptr<PhysicsSimulator>		_simulator;
 		Scene*									_scene;
 		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;

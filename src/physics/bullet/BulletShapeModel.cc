@@ -15,9 +15,10 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletShapeModel::BulletShapeModel():
-		_shapes(vector<shared_ptr<btCollisionShape>>()),
-		_indexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) { }
+BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
+		PhysicsShapeModel(shape),
+		_btShapes(vector<shared_ptr<btCollisionShape>>()),
+		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) { }
 
 BulletShapeModel::~BulletShapeModel() {
 	AE_LOG_D("Destroying BulletShapeModel {:p}", (void*)this);
@@ -28,18 +29,18 @@ BulletShapeModel::~BulletShapeModel() {
  *********************************************************************************************/
 
 
-vector <shared_ptr<btCollisionShape>>& BulletShapeModel::shapes() {
-	return _shapes;
+vector <shared_ptr<btCollisionShape>>& BulletShapeModel::btShapes() {
+	return _btShapes;
 }
 
-void BulletShapeModel::shapes(vector<shared_ptr<btCollisionShape>> shapes) {
-	_shapes = shapes;
+void BulletShapeModel::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
+	_btShapes = shapes;
 }
 
-vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeModel::indexVertexArrays() {
-	return _indexVertexArrays;
+vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeModel::btIndexVertexArrays() {
+	return _btIndexVertexArrays;
 }
 
-void BulletShapeModel::indexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
-	_indexVertexArrays = indexVertexArrays;
+void BulletShapeModel::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
+	_btIndexVertexArrays = indexVertexArrays;
 }

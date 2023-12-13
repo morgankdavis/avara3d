@@ -33,7 +33,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeModel>()),
+//		_model(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -51,7 +51,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeModel>()),
+//		_model(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
@@ -67,7 +67,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({}),
-//		_resources(make_shared<BulletShapeModel>()),
+//		_model(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::~PhysicsShape() {
@@ -92,7 +92,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	if (type != _type) {
 
 		_type = type;
-		_resources = nullptr;
+		_model = nullptr;
 		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 
 		checkCreateModel();
@@ -180,18 +180,18 @@ PhysicsSimulator* PhysicsShape::physicsSimulator() const {
 //}
 
 
-PhysicsShapeModel* PhysicsShape::resources() const {
-	return _resources.get();
+PhysicsShapeModel* PhysicsShape::model() const {
+	return _model.get();
 }
 
-void PhysicsShape::resources(std::shared_ptr<PhysicsShapeModel> resources) {
-	_resources = resources;
+void PhysicsShape::model(std::shared_ptr<PhysicsShapeModel> model) {
+	_model = model;
 }
 
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
-	if (!_resources) {
+	if (!_model) {
 		if (auto simulator = physicsSimulator()) {
 			simulator->create(*this);
 
