@@ -25,7 +25,7 @@ namespace ae {
 	class Node;
 	class PhysicsBody;
 	class PhysicalWorld;
-	class PhysicsShapeResources;
+	class PhysicsShapeModel;
 	class PhysicsSimulator;
 	class Scene;
 	
@@ -98,8 +98,8 @@ namespace ae {
 
 		void								checkCreateModel();
 
-		PhysicsShapeResources*				resources() const;
-		void								resources(std::shared_ptr<PhysicsShapeResources> resources);
+		PhysicsShapeModel*				resources() const;
+		void								resources(std::shared_ptr<PhysicsShapeModel> resources);
 
 		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
@@ -119,7 +119,7 @@ namespace ae {
 				Node*,
 				std::monostate> 			_sourceObject;
 		std::unordered_set<PhysicsBody*>	_bodies;
-		std::shared_ptr<PhysicsShapeResources>	_resources;
+		std::shared_ptr<PhysicsShapeModel>	_resources;
 		PHYSICS_SHAPE_DIRTY_MASK 			_dirtyMask;
 	};
 }

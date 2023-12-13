@@ -23,7 +23,7 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicalWorld;
-	class PhysicsBodyResources;
+	class PhysicsBodyModel;
 	class PhysicsShape;
 	class PhysicsSimulator;
 	class Scene;
@@ -171,8 +171,8 @@ namespace ae {
 		PhysicalWorld*						physicalWorld() const;
 		PhysicsSimulator*					physicsSimulator() const;
 
-		PhysicsBodyResources*				resources() const;
-		void								resources(std::shared_ptr<PhysicsBodyResources> resources);
+		PhysicsBodyModel*				resources() const;
+		void								resources(std::shared_ptr<PhysicsBodyModel> resources);
 
 		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
@@ -210,7 +210,7 @@ namespace ae {
 
 		PHYSICS_BODY_DIRTY_MASK 			_dirtyMask;
 
-		std::shared_ptr<PhysicsBodyResources>	_resources;
+		std::shared_ptr<PhysicsBodyModel>	_resources;
 	};
 }
 

@@ -2,7 +2,7 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "physics/bullet/BulletWorldResources.h"
+#include "physics/bullet/BulletWorldModel.h"
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -20,7 +20,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletWorldResources::BulletWorldResources()/*:
+BulletWorldModel::BulletWorldModel()/*:
 		_collisionConfiguration(make_unique<btDefaultCollisionConfiguration>()),
 		_collisionDispatcher(make_unique<btCollisionDispatcher>(_collisionConfiguration.get())),
 		_broadphase(make_unique<btDbvtBroadphase>()),
@@ -49,36 +49,36 @@ BulletWorldResources::BulletWorldResources()/*:
 #endif
 }
 
-BulletWorldResources::~BulletWorldResources() {
-	AE_LOG_D("Destroying BulletWorldResources {:p}", (void*)this);
+BulletWorldModel::~BulletWorldModel() {
+	AE_LOG_D("Destroying BulletWorldModel {:p}", (void*)this);
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-btDiscreteDynamicsWorld* BulletWorldResources::world() const {
+btDiscreteDynamicsWorld* BulletWorldModel::world() const {
 	return _world.get();
 }
 
-btDefaultCollisionConfiguration* BulletWorldResources::collisionConfiguration() const {
+btDefaultCollisionConfiguration* BulletWorldModel::collisionConfiguration() const {
 	return _collisionConfiguration.get();
 }
 
-btCollisionDispatcher* BulletWorldResources::collisionDispatcher() const {
+btCollisionDispatcher* BulletWorldModel::collisionDispatcher() const {
 	return _collisionDispatcher.get();
 }
 
-btDbvtBroadphase* BulletWorldResources::broadphase() const {
+btDbvtBroadphase* BulletWorldModel::broadphase() const {
 	return _broadphase.get();
 }
 
-btSequentialImpulseConstraintSolver* BulletWorldResources::constraintSolver() const {
+btSequentialImpulseConstraintSolver* BulletWorldModel::constraintSolver() const {
 	return _constraintSolver.get();
 }
 
 #ifdef DESKTOP
-BulletDebugDrawer* BulletWorldResources::debugDrawer() const {
+BulletDebugDrawer* BulletWorldModel::debugDrawer() const {
 	return _debugDrawer.get();
 }
 #endif

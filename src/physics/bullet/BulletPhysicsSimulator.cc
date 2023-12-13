@@ -30,13 +30,13 @@
 #include "geometry/primitives/Sphere.h"
 #include "physics/ConvexDecomposer.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsBodyResources.h"
+#include "physics/PhysicsBodyModel.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletBodyResources.h"
+#include "physics/bullet/BulletBodyModel.h"
 #include "physics/bullet/BulletDebugDrawer.h"
-#include "physics/bullet/BulletShapeResources.h"
-#include "physics/bullet/BulletWorldResources.h"
+#include "physics/bullet/BulletShapeModel.h"
+#include "physics/bullet/BulletWorldModel.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
 #include "physics/shape_primitives/ConePhysicsShape.h"
@@ -148,7 +148,7 @@ void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
 									   const glm::mat4 &projectionMat,
 									   const DEBUG_OPTIONS &debugOptions) {
 #ifdef OPENGL_CORE
-	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto resources = static_cast<BulletWorldModel*>(world.resources());
 	auto btWorld = resources->world();
 	auto debugDrawer = resources->debugDrawer();
 
@@ -168,7 +168,7 @@ void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
 void BulletPhysicsSimulator::create(PhysicalWorld& world) {
 
 	// meh.
-	world.resources(make_unique<BulletWorldResources>());
+	world.resources(make_unique<BulletWorldModel>());
 }
 
 void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
@@ -178,17 +178,17 @@ void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity
 void BulletPhysicsSimulator::create(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", (void*)&body);
 
-	body.resources(make_shared<BulletBodyResources>());
+	body.resources(make_shared<BulletBodyModel>());
 
 	auto world = body.physicalWorld();
-	auto worldResources = static_cast<BulletWorldResources*>(world->resources());
+	auto worldResources = static_cast<BulletWorldModel*>(world->resources());
 	auto btWorld = worldResources->world();
 	auto node = body.node();
 	auto shape = body.shape();
 	auto dirtyMask = body.dirtyMask();
 
-	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
-	auto shapeResources = static_cast<BulletShapeResources*>(body.shape()->resources());
+	auto bodyResources = static_cast<BulletBodyModel*>(body.resources());
+	auto shapeResources = static_cast<BulletShapeModel*>(body.shape()->resources());
 
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 	auto btShape = shapeResources->shapes().front();
@@ -276,7 +276,7 @@ void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
 
 //void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
 //
-//	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+//	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 //	auto toTransform = BTTransformFromGLMMat4(transform);
 //	//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
 //	auto motionState = btBody->getMotionState();
@@ -289,7 +289,7 @@ void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
 	// *** re-create body ***
 	// **************** TEST THIS *************************
 	// I think it's right...
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setMassProps(mass, BTVector3FromGLMVec3(body.momentOfInertia()));
 }
 
@@ -298,70 +298,70 @@ void BulletPhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::ve
 }
 
 void BulletPhysicsSimulator::setFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setFriction(friction);
 }
 
 void BulletPhysicsSimulator::setRollingFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setRollingFriction(friction);
 }
 
 void BulletPhysicsSimulator::setRestitution(PhysicsBody& body, float restitution) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setRestitution(restitution);
 }
 
 void BulletPhysicsSimulator::setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 void BulletPhysicsSimulator::setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 void BulletPhysicsSimulator::setLinearFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
 }
 
 void BulletPhysicsSimulator::setAngularFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
 }
 
 void BulletPhysicsSimulator::setLinearDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setDamping(damping, btBody->getAngularDamping());
 }
 
 void BulletPhysicsSimulator::setAngularDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setDamping(btBody->getLinearDamping(), damping);
 }
 
 void BulletPhysicsSimulator::setLinearSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setSleepingThresholds(threshold, btBody->getAngularSleepingThreshold());
 }
 
 void BulletPhysicsSimulator::setAngularSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setSleepingThresholds(btBody->getLinearSleepingThreshold(), threshold);
 }
 
 void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
-	auto btWorld = static_cast<BulletWorldResources*>(body.physicalWorld()->resources())->world();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
+	auto btWorld = static_cast<BulletWorldModel*>(body.physicalWorld()->resources())->world();
 	btBody->setGravity(flag
 					   ? btWorld->getGravity()
 					   : btVector3{0, 0, 0});
 }
 
 void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyResources*>(body.resources())->body();
+	auto btBody = static_cast<BulletBodyModel*>(body.resources())->body();
 	btBody->setActivationState(body.allowsResting()
 							   ? ACTIVE_TAG
 							   : DISABLE_DEACTIVATION);
@@ -370,7 +370,7 @@ void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
 void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 	AE_LOG_D("shape: {:p}", (void*)&shape);
 
-	shape.resources(make_shared<BulletShapeResources>());
+	shape.resources(make_shared<BulletShapeModel>());
 
 	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
 
@@ -415,7 +415,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 		newShape->setUserPointer((void*)&shape);
 		btShapes.insert(btShapes.begin(), newShape);
 
-		auto shapeResources = static_cast<BulletShapeResources*>(shape.resources());
+		auto shapeResources = static_cast<BulletShapeModel*>(shape.resources());
 		shapeResources->shapes(btShapes);
 		shapeResources->indexVertexArrays(btIndexVertexArrays);
 //		updated = true;
@@ -431,7 +431,7 @@ void BulletPhysicsSimulator::create(PhysicsShape& shape) {
 
 void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 
-	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto resources = static_cast<BulletWorldModel*>(world.resources());
 	auto btWorld = resources->world();
 
 	auto collisionObjects = btWorld->getCollisionObjectArray();
@@ -469,7 +469,7 @@ void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
 
 void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
 
-	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto resources = static_cast<BulletWorldModel*>(world.resources());
 	auto btWorld = resources->world();
 
 	auto result = btWorld->stepSimulation(deltaT * world.speed(),
@@ -483,7 +483,7 @@ void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
 
 void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 
-	auto resources = static_cast<BulletWorldResources*>(world.resources());
+	auto resources = static_cast<BulletWorldModel*>(world.resources());
 	auto btWorld = resources->world();
 
 	auto collisionObjects = btWorld->getCollisionObjectArray();
@@ -515,7 +515,7 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 
 //void BulletPhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) {
 //
-//	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
+//	auto bodyResources = static_cast<BulletBodyModel*>(body.resources());
 //	auto btBody = bodyResources->body();
 //
 //	btTransform btWorldTransform;
@@ -554,8 +554,8 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 //	auto shape = body.shape();
 //	auto dirtyMask = body.dirtyMask();
 //
-//	auto bodyResources = static_pointer_cast<BulletBodyResources>(body.resources());
-//	auto shapeResources = static_pointer_cast<BulletShapeResources>(body.shape()->resources());
+//	auto bodyResources = static_pointer_cast<BulletBodyModel>(body.resources());
+//	auto shapeResources = static_pointer_cast<BulletShapeModel>(body.shape()->resources());
 //	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 //	auto btShape = shapeResources->shapes().front();
 //
@@ -758,7 +758,7 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 //								  mat4& worldTransform) {
 //	PhysicsSimulator::sync(body, worldTransform);
 //
-//	auto bodyResources = static_cast<BulletBodyResources*>(body.resources());
+//	auto bodyResources = static_cast<BulletBodyModel*>(body.resources());
 //	auto btBody = bodyResources->body();
 //
 //	// get body transforms and apply back to scene graph
@@ -825,7 +825,7 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 //		if (newShape) {
 //			btShapes.insert(btShapes.begin(), newShape);
 //
-//			auto shapeResources = static_pointer_cast<BulletShapeResources>(shape.resources());
+//			auto shapeResources = static_pointer_cast<BulletShapeModel>(shape.resources());
 //			shapeResources->shapes(btShapes);
 //			shapeResources->indexVertexArrays(btIndexVertexArrays);
 //			updated = true;

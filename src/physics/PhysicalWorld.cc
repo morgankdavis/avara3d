@@ -10,7 +10,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
-#include "physics/bullet/BulletWorldResources.h"
+#include "physics/bullet/BulletWorldModel.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 
@@ -34,7 +34,7 @@ PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		//_resources(make_unique<BulletWorldResources>()),
+		//_resources(make_unique<BulletWorldModel>()),
 		_resources(nullptr),
 		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
@@ -219,11 +219,11 @@ void PhysicalWorld::simulate(const Scene& scene,
 //	}
 //}
 
-PhysicalWorldResources* PhysicalWorld::resources() const {
+PhysicalWorldModel* PhysicalWorld::resources() const {
 	return  _resources.get();
 }
 
-void PhysicalWorld::resources(std::unique_ptr<PhysicalWorldResources> resources) {
+void PhysicalWorld::resources(std::unique_ptr<PhysicalWorldModel> resources) {
 	_resources = std::move(resources);
 }
 

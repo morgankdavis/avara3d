@@ -2,7 +2,7 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "physics/bullet/BulletBodyResources.h"
+#include "physics/bullet/BulletBodyModel.h"
 
 #include "diagnostic/logging/Logger.h"
 
@@ -15,30 +15,30 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletBodyResources::BulletBodyResources():
+BulletBodyModel::BulletBodyModel():
 		_body(nullptr),
 		_motionState(nullptr) { }
 
-BulletBodyResources::~BulletBodyResources() {
-	AE_LOG_D("Destroying BulletBodyResources {:p}", (void*)this);
+BulletBodyModel::~BulletBodyModel() {
+	AE_LOG_D("Destroying BulletBodyModel {:p}", (void*)this);
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-shared_ptr<btRigidBody> BulletBodyResources::body() {
+shared_ptr<btRigidBody> BulletBodyModel::body() {
 	return _body;
 }
 
-void BulletBodyResources::body(shared_ptr<btRigidBody> body) {
+void BulletBodyModel::body(shared_ptr<btRigidBody> body) {
 	_body = body;
 }
 
-shared_ptr<btDefaultMotionState> BulletBodyResources::motionState() {
+shared_ptr<btDefaultMotionState> BulletBodyModel::motionState() {
 	return _motionState;
 }
 
-void BulletBodyResources::motionState(shared_ptr<btDefaultMotionState> motionState) {
+void BulletBodyModel::motionState(shared_ptr<btDefaultMotionState> motionState) {
 	_motionState = motionState;
 }

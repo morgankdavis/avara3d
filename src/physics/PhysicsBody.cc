@@ -14,7 +14,7 @@
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletBodyResources.h"
+#include "physics/bullet/BulletBodyModel.h"
 #include "scene/Node.h"
 
 
@@ -65,7 +65,7 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_resting(false),
 		_node(nullptr),
 		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL)/*,
-		_resources(make_shared<BulletBodyResources>())*/{ }
+		_resources(make_shared<BulletBodyModel>())*/{ }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -463,11 +463,11 @@ PhysicsSimulator* PhysicsBody::physicsSimulator() const {
 	return nullptr;
 }
 
-PhysicsBodyResources* PhysicsBody::resources() const {
+PhysicsBodyModel* PhysicsBody::resources() const {
 	return _resources.get();
 }
 
-void PhysicsBody::resources(shared_ptr<PhysicsBodyResources> resources) {
+void PhysicsBody::resources(shared_ptr<PhysicsBodyModel> resources) {
 	_resources = resources;
 }
 

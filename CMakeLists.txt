@@ -330,8 +330,8 @@ file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES}
-		src/physics/PhysicsBodyResources.cc
-		include/physics/PhysicsBodyResources.h)
+		src/physics/PhysicsBodyModel.cc
+		include/physics/PhysicsBodyModel.h)
 
 
 # this is causing external library headers to not be found. ?

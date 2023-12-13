@@ -2,13 +2,13 @@
 // Created by mkd on 12/8/23.
 //
 
-#ifndef AVARA_ENGINE_BULLETWORLDRESOURCES_H
-#define AVARA_ENGINE_BULLETWORLDRESOURCES_H
+#ifndef AVARA_ENGINE_BULLETWORLDMODEL_H
+#define AVARA_ENGINE_BULLETWORLDMODEL_H
 
 
 #include <memory>
 
-#include "physics/PhysicalWorldResources.h"
+#include "physics/PhysicalWorldModel.h"
 
 
 class btCollisionDispatcher;
@@ -27,7 +27,7 @@ namespace ae {
 #endif
 
 
-	class BulletWorldResources : public PhysicalWorldResources {
+	class BulletWorldModel : public PhysicalWorldModel {
 
 /*********************************************************************************************
 	Lifecycle
@@ -35,8 +35,8 @@ namespace ae {
 
 	public:
 
-		BulletWorldResources();
-		~BulletWorldResources();
+		BulletWorldModel();
+		~BulletWorldModel();
 
 /*********************************************************************************************
 	Internal
@@ -69,4 +69,4 @@ namespace ae {
 }
 
 
-#endif //AVARA_ENGINE_BULLETWORLDRESOURCES_H
+#endif //AVARA_ENGINE_BULLETWORLDMODEL_H

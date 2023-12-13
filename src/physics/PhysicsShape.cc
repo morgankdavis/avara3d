@@ -14,7 +14,7 @@
 #include "geometry/Geometry.h"
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsShapeResources.h"
+#include "physics/PhysicsShapeModel.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
 #include "scene/Node.h"
@@ -33,7 +33,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -51,7 +51,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
@@ -67,7 +67,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({}),
-//		_resources(make_shared<BulletShapeResources>()),
+//		_resources(make_shared<BulletShapeModel>()),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::~PhysicsShape() {
@@ -180,11 +180,11 @@ PhysicsSimulator* PhysicsShape::physicsSimulator() const {
 //}
 
 
-PhysicsShapeResources* PhysicsShape::resources() const {
+PhysicsShapeModel* PhysicsShape::resources() const {
 	return _resources.get();
 }
 
-void PhysicsShape::resources(std::shared_ptr<PhysicsShapeResources> resources) {
+void PhysicsShape::resources(std::shared_ptr<PhysicsShapeModel> resources) {
 	_resources = resources;
 }
 

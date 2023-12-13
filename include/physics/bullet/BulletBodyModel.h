@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "physics/PhysicsBodyResources.h"
+#include "physics/PhysicsBodyModel.h"
 
 
 struct btDefaultMotionState;
@@ -18,7 +18,7 @@ class btRigidBody;
 
 namespace ae {
 
-	class BulletBodyResources : public PhysicsBodyResources {
+	class BulletBodyModel : public PhysicsBodyModel {
 
 /*********************************************************************************************
 	Lifecycle
@@ -26,8 +26,8 @@ namespace ae {
 
 	public:
 
-		BulletBodyResources();
-		~BulletBodyResources();
+		BulletBodyModel();
+		~BulletBodyModel();
 
 /*********************************************************************************************
 	Public

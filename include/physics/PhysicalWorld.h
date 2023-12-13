@@ -25,7 +25,7 @@ namespace ae {
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
-	class PhysicalWorldResources;
+	class PhysicalWorldModel;
 	class PhysicsSimulator;
 	class Scene;
 	
@@ -101,8 +101,8 @@ namespace ae {
 													 double deltaRunT,
 													 Stats& stats);
 
-		PhysicalWorldResources*				resources() const;
-		void								resources(std::unique_ptr<PhysicalWorldResources> resources);
+		PhysicalWorldModel*				resources() const;
+		void								resources(std::unique_ptr<PhysicalWorldModel> resources);
 
 		PhysicsSimulator*					simulator() const;
 
@@ -118,7 +118,7 @@ namespace ae {
 		glm::vec3 								_gravity;
 		float 									_speed;
 		float 									_timestep;
-		std::unique_ptr<PhysicalWorldResources>	_resources;
+		std::unique_ptr<PhysicalWorldModel>	_resources;
 		std::unique_ptr<PhysicsSimulator>		_simulator;
 		Scene*									_scene;
 		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
