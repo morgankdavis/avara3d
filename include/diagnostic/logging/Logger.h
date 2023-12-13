@@ -20,13 +20,14 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#define FMT_HEADER_ONLY
-#include "fmt/format.h"
+//#define FMT_HEADER_ONLY
+//#include "fmt/format.h"
 
 #include "Types.h"
 #include "diagnostic/Exception.h"
@@ -40,34 +41,34 @@
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define AE_LOG_T() Logger::MainLogger()->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
-#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
 
-#define AE_LOG_H_T(useHeader, fmtStr, ...) Logger::MainLogger()->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_H_D(useHeader, fmtStr, ...) Logger::MainLogger()->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_H_I(useHeader, fmtStr, ...) Logger::MainLogger()->info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_H_W(useHeader, fmtStr, ...) Logger::MainLogger()->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_H_E(useHeader, fmtStr, ...) Logger::MainLogger()->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define AE_LOG_H_C(useHeader, fmtStr, ...) Logger::MainLogger()->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_T(useHeader, fmtStr, ...) Logger::MainLogger()->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_D(useHeader, fmtStr, ...) Logger::MainLogger()->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_I(useHeader, fmtStr, ...) Logger::MainLogger()->info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_W(useHeader, fmtStr, ...) Logger::MainLogger()->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_E(useHeader, fmtStr, ...) Logger::MainLogger()->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_H_C(useHeader, fmtStr, ...) Logger::MainLogger()->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
 
 #define LOG_CRUMB(logger) logger->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
-#define LOG_T(logger, fmtStr, ...) logger->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_D(logger, fmtStr, ...) logger->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_I(logger, fmtStr, ...) logger->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_W(logger, fmtStr, ...) logger->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_E(logger, fmtStr, ...) logger->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_C(logger, fmtStr, ...) logger->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_T(logger, fmtStr, ...) logger->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_D(logger, fmtStr, ...) logger->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_I(logger, fmtStr, ...) logger->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_W(logger, fmtStr, ...) logger->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_E(logger, fmtStr, ...) logger->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_C(logger, fmtStr, ...) logger->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
 
-#define LOG_H_T(useHeader, logger, fmtStr, ...) logger->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_D(useHeader, logger, fmtStr, ...) logger->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_I(useHeader, logger, fmtStr, ...) logger->info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_W(useHeader, logger, fmtStr, ...) logger->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_E(useHeader, logger, fmtStr, ...) logger->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_C(useHeader, logger, fmtStr, ...) logger->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_T(useHeader, logger, fmtStr, ...) logger->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_D(useHeader, logger, fmtStr, ...) logger->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_I(useHeader, logger, fmtStr, ...) logger->info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_W(useHeader, logger, fmtStr, ...) logger->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_E(useHeader, logger, fmtStr, ...) logger->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_H_C(useHeader, logger, fmtStr, ...) logger->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
 
 
 namespace ae {

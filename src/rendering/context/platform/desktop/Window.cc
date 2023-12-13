@@ -304,8 +304,8 @@ static void LogGLInfo()
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
-	AE_LOG_I("Renderer: {}", renderer);
-	AE_LOG_I("Version: {}", version);
+	AE_LOG_I("Renderer: {}", *renderer);
+	AE_LOG_I("Version: {}", *version);
 
 	// extensions
 
@@ -317,7 +317,7 @@ static void LogGLInfo()
 		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
 		if (e < numExtensions-1) extensionsStream << endl;
 	}
-	AE_LOG_I(extensionsStream.str());
+	AE_LOG_I("{}", extensionsStream.str());
 
 	// context info
 
@@ -374,7 +374,7 @@ static void LogGLInfo()
 	glGetBooleanv(contextParams[11], &stereo);
 	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
 
-	AE_LOG_I(contextParamsStream.str());
+	AE_LOG_I("{}", contextParamsStream.str());
 }
 
 static float ScreenScaleFactor(GLFWmonitor* monitor) {

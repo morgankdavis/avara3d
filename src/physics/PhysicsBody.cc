@@ -15,6 +15,7 @@
 #include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletBodyModel.h"
+#include "physics/bullet/BulletWorldModel.h"
 #include "scene/Node.h"
 
 
@@ -46,26 +47,26 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_type(type),
 		_shape({}),
-		_linearFactor({1.0, 1.0, 1.0}),
-		_angularFactor({1.0, 1.0, 1.0}),
-		_mass(1.0),
-		_friction(0.5),
-		_rollingFriction(0.0),
-		_restitution(0.0),
-		_linearDamping(0.0),
-		_angularDamping(0.0),
-		_momentOfInertia({0, 0, 0}),
-		//_momentOfInertia({1000, 1000, 1000}),
-		_linearVelocity({0, 0, 0}),
-		_angularVelocity({0, 0, 0}),
-		_linearSleepingThreshold(0.8),
-		_angularSleepingThreshold(1.0),
-		_allowsResting(true),
-		_affectedByGravity(true),
-		_resting(false),
+//		_linearFactor({1.0, 1.0, 1.0}),
+//		_angularFactor({1.0, 1.0, 1.0}),
+//		_mass(1.0),
+//		_friction(0.5),
+//		_rollingFriction(0.0),
+//		_restitution(0.0),
+//		_linearDamping(0.0),
+//		_angularDamping(0.0),
+//		_momentOfInertia({0, 0, 0}),
+//		//_momentOfInertia({1000, 1000, 1000}),
+//		_linearVelocity({0, 0, 0}),
+//		_angularVelocity({0, 0, 0}),
+//		_linearSleepingThreshold(0.8),
+//		_angularSleepingThreshold(1.0),
+//		_allowsResting(true),
+//		_affectedByGravity(true),
+//		_resting(false),
 		_node(nullptr),
-		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL)/*,
-		_model(make_shared<BulletBodyModel>())*/{ }
+		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL),
+		_model(make_unique<BulletBodyModel>(this)) { }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -114,161 +115,195 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 		if (shape) {
 			shape->attachedToBody(this);
 		}
+
+
+
+		_model->shape(shape->model());
 //	}
 }
 
 float PhysicsBody::mass() const {
-	return _mass;
+	return _model->mass();
 }
 
 void PhysicsBody::mass(float mass) {
 
-	_mass = mass;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MASS);
+//	_mass = mass;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MASS);
+	_model->mass(mass);
 }
 
 vec3 PhysicsBody::momentOfInertia() const {
-	return _momentOfInertia;
+	return _model->momentOfInertia();
+//	return _momentOfInertia;
 }
 
 void PhysicsBody::momentOfInertia(vec3 moment) {
-	_momentOfInertia = moment;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA);
+//	_momentOfInertia = moment;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA);
+	_model->momentOfInertia(moment);
 }
 
 float PhysicsBody::friction() const {
-	return _friction;
+//	return _friction;
+	return _model->friction();
 }
 
 void PhysicsBody::friction(float friction) {
-	_friction = friction;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION);
+//	_friction = friction;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION);
+	_model->friction(friction);
 }
 
 float PhysicsBody::rollingFriction() const {
-	return _rollingFriction;
+//	return _rollingFriction;
+	return _model->rollingFriction();
 }
 
 void PhysicsBody::rollingFriction(float friction) {
-	_rollingFriction = friction;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION);
+//	_rollingFriction = friction;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION);
+	_model->rollingFriction(friction);
 }
 
 float PhysicsBody::restitution() const {
-	return _restitution;
+//	return _restitution;
+	return _model->restitution();
 }
 
 void PhysicsBody::restitution(float restitution) {
-	_restitution = restitution;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION);
+//	_restitution = restitution;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION);
+	_model->restitution(restitution);
 }
 
 vec3 PhysicsBody::linearVelocity() const {
-	return _linearVelocity;
+//	return _linearVelocity;
+	return _model->linearVelocity();
 }
 
 void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
-	_linearVelocity = velocity;
-	if (setDirty) {
-		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY);
-	}
-
-	if (auto sim = physicsSimulator()) {
-		sim->setLinearVelocity(*this, velocity);
-	}
+	_model->linearVelocity(velocity);
+//	_linearVelocity = velocity;
+//	if (setDirty) {
+//		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY);
+//	}
+//
+//	if (auto sim = physicsSimulator()) {
+//		sim->setLinearVelocity(*this, velocity);
+//	}
 }
 
 vec3 PhysicsBody::angularVelocity() const {
-	return _angularVelocity;
+//	return _angularVelocity;
+	return _model->angularVelocity();
 }
 
 void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
-	_angularVelocity = velocity;
-	if (setDirty) {
-		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY);
-	}
-
-	if (auto sim = physicsSimulator()) {
-		sim->setAngularVelocity(*this, velocity);
-	}
+	_model->angularVelocity(velocity);
+//	_angularVelocity = velocity;
+//	if (setDirty) {
+//		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY);
+//	}
+//
+//	if (auto sim = physicsSimulator()) {
+//		sim->setAngularVelocity(*this, velocity);
+//	}
 }
 
 vec3 PhysicsBody::linearFactor() const {
-	return _linearFactor;
+//	return _linearFactor;
+	return _model->linearFactor();
 }
 
 void PhysicsBody::linearFactor(vec3 factor) {
-	_linearFactor = factor;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR);
+	_model->linearFactor(factor);
+//	_linearFactor = factor;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR);
 }
 
 vec3 PhysicsBody::angularFactor() const {
-	return _angularFactor;
+//	return _angularFactor;
+	return _model->angularFactor();
 }
 
 void PhysicsBody::angularFactor(vec3 factor) {
-	_angularFactor = factor;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR);
+	_model->angularFactor(factor);
+//	_angularFactor = factor;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR);
 }
 
 float PhysicsBody::linearDamping() const {
-	return _linearDamping;
+//	return _linearDamping;
+	return _model->linearDamping();
 }
 
 void PhysicsBody::linearDamping(float damping) {
-	_linearDamping = damping;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING);
+	_model->linearDamping(damping);
+//	_linearDamping = damping;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING);
 }
 
 float PhysicsBody::angularDamping() const {
-	return _angularDamping;
+//	return _angularDamping;
+	return _model->angularDamping();
 }
 
 void PhysicsBody::angularDamping(float damping) {
-	_angularDamping = damping;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING);
+//	_angularDamping = damping;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING);
+	_model->angularDamping(damping);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
-	return _linearSleepingThreshold;
+//	return _linearSleepingThreshold;
+	return _model->linearSleepingThreshold();
 }
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
-	_linearSleepingThreshold = threshold;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD);
+//	_linearSleepingThreshold = threshold;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD);
+	_model->linearSleepingThreshold(threshold);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
-	return _angularSleepingThreshold;
+//	return _angularSleepingThreshold;
+	return _model->angularSleepingThreshold();
 }
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
-	_angularSleepingThreshold = threshold;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD);
+//	_angularSleepingThreshold = threshold;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD);
+	_model->angularSleepingThreshold(threshold);
 }
 
 bool PhysicsBody::affectedByGravity() const {
-	return _affectedByGravity;
+//	return _affectedByGravity;
+	return _model->affectedByGravity();
 }
 
-void PhysicsBody::affectedByGravity(bool flag) {
-	_affectedByGravity = flag;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY);
+void PhysicsBody::affectedByGravity(bool affectedByGravity) {
+//	_affectedByGravity = flag;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY);
+	_model->affectedByGravity(affectedByGravity);
 }
 
 bool PhysicsBody::allowsResting() const {
-	return _allowsResting;
+//	return _allowsResting;
+	return _model->allowsResting();
 }
 
-void PhysicsBody::allowsResting(bool flag) {
-	_allowsResting = flag;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING);
+void PhysicsBody::allowsResting(bool allowsResting) {
+//	_allowsResting = flag;
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING);
+	_model->allowsResting(allowsResting);
 }
 
-bool PhysicsBody::resting() const {
-
-	return _resting;
-}
+//bool PhysicsBody::resting() const {
+//
+////	return _resting;
+//
+//}
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
 	#warning fix
@@ -321,10 +356,10 @@ void PhysicsBody::resetTransform() {
 	Internal
  *********************************************************************************************/
 
-void PhysicsBody::resting(bool resting) {
-	_resting = resting;
-#warning probably want to actually DO something with this...
-}
+//void PhysicsBody::resting(bool resting) {
+//	_resting = resting;
+//#warning probably want to actually DO something with this...
+//}
 
 void PhysicsBody::attachedToNode(Node* node) {
 	AE_LOG_T("node: {:p}", (void*)node);
@@ -340,7 +375,8 @@ void PhysicsBody::detachedFromNode(Node* node) {
 	AE_LOG_T("node: {:p}", (void*)node);
 
 	if (auto world = physicalWorld()) {
-		world->simulator()->remove(*this);
+//		world->simulator()->remove(*this);
+		world->model()->remove(*this);
 	}
 	else {
 		AE_LOG_E("Attempting to remove PhysicsBody with no PhysicalWorld.");
@@ -430,11 +466,11 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 void PhysicsBody::modelCreated(PhysicsShape& shape) {
 	AE_LOG_I("shape: {:p}", (void*)&shape);
 
-#warning this may be redundant -- CHECK
-
-	if (auto simulator = physicsSimulator()) {
-		simulator->setShape(*this, shape);
-	}
+//#warning this may be redundant -- CHECK
+//
+//	if (auto simulator = physicsSimulator()) {
+//		simulator->setShape(*this, shape);
+//	}
 }
 
 Node* PhysicsBody::node() const {
@@ -467,9 +503,9 @@ PhysicsBodyModel* PhysicsBody::model() const {
 	return _model.get();
 }
 
-void PhysicsBody::model(shared_ptr<PhysicsBodyModel> model) {
-	_model = model;
-}
+//void PhysicsBody::model(shared_ptr<PhysicsBodyModel> model) {
+//	_model = model;
+//}
 
 PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
 	return _dirtyMask;
@@ -488,7 +524,7 @@ void PhysicsBody::checkCreateModel() {
 
 	if (!_model) {
 		if (auto simulator = physicsSimulator()) {
-			simulator->create(*this);
+			//simulator->create(*this);
 
 //			for (auto& body : _bodies) {
 //				body->modelCreated(*this);

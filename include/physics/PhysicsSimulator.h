@@ -44,37 +44,37 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		virtual void			create(PhysicalWorld& world);
+//		virtual void			create(PhysicalWorld& world);
 //		virtual void			setTimestep(PhysicalWorld& world, float timestep);
 //		virtual void			setSpeed(PhysicalWorld& world, float speed);
-		virtual void			setGravity(PhysicalWorld& world, glm::vec3& gravity);
+//		virtual void			setGravity(PhysicalWorld& world, glm::vec3& gravity);
 
-		virtual void			create(PhysicsBody& body);
-		virtual void			remove(PhysicsBody& body);
-		virtual void			setType(PhysicsBody& body, PHYSICS_BODY_TYPE type);
-		virtual void			setShape(PhysicsBody& body, PhysicsShape& shape);
-//		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);
-		virtual void			setMass(PhysicsBody& body, float mass);
-		virtual void			setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment);
-		virtual void			setFriction(PhysicsBody& body, float friction);
-		virtual void			setRollingFriction(PhysicsBody& body, float friction);
-		virtual void			setRestitution(PhysicsBody& body, float restitution);
-		virtual void			setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity);
-		virtual void			setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity);
-		virtual void			setLinearFactor(PhysicsBody& body, const glm::vec3& factor);
-		virtual void			setAngularFactor(PhysicsBody& body, const glm::vec3& factor);
-		virtual void			setLinearDamping(PhysicsBody& body, float damping);
-		virtual void			setAngularDamping(PhysicsBody& body, float damping);
-		virtual void			setLinearSleepingThreshold(PhysicsBody& body, float threshold);
-		virtual void			setAngularSleepingThreshold(PhysicsBody& body, float threshold);
-		virtual void			setAffectedByGravity(PhysicsBody& body, bool flag);
-		virtual void			setAllowsResting(PhysicsBody& body, bool flag);
+//		virtual void			create(PhysicsBody& body);
+//		virtual void			remove(PhysicsBody& body);
+//		virtual void			setType(PhysicsBody& body, PHYSICS_BODY_TYPE type);
+//		virtual void			setShape(PhysicsBody& body, PhysicsShape& shape);
+////		virtual void			setWorldTransform(PhysicsBody& body, const glm::mat4& transform);
+//		virtual void			setMass(PhysicsBody& body, float mass);
+//		virtual void			setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment);
+//		virtual void			setFriction(PhysicsBody& body, float friction);
+//		virtual void			setRollingFriction(PhysicsBody& body, float friction);
+//		virtual void			setRestitution(PhysicsBody& body, float restitution);
+//		virtual void			setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity);
+//		virtual void			setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity);
+//		virtual void			setLinearFactor(PhysicsBody& body, const glm::vec3& factor);
+//		virtual void			setAngularFactor(PhysicsBody& body, const glm::vec3& factor);
+//		virtual void			setLinearDamping(PhysicsBody& body, float damping);
+//		virtual void			setAngularDamping(PhysicsBody& body, float damping);
+//		virtual void			setLinearSleepingThreshold(PhysicsBody& body, float threshold);
+//		virtual void			setAngularSleepingThreshold(PhysicsBody& body, float threshold);
+//		virtual void			setAffectedByGravity(PhysicsBody& body, bool flag);
+//		virtual void			setAllowsResting(PhysicsBody& body, bool flag);
 
-		virtual void			create(PhysicsShape& shape);
+//		virtual void			create(PhysicsShape& shape);
 
-		virtual void			update(PhysicalWorld& world, Stats& status) = 0;
-		virtual void			step(PhysicalWorld& world, double deltaT);
-		virtual void			sync(PhysicalWorld& world) = 0;
+//		virtual void			update(PhysicalWorld& world, Stats& status) = 0;
+//		virtual void			step(PhysicalWorld& world, double deltaT);
+//		virtual void			sync(PhysicalWorld& world) = 0;
 
 //		virtual void			sync(PhysicsBody& body,
 //									 glm::mat4& worldTransform);

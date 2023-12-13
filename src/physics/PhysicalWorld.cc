@@ -44,7 +44,9 @@ PhysicalWorld::PhysicalWorld():
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
-	_simulator->create(*this);
+	//_simulator->create(*this);
+
+	_model = make_unique<BulletWorldModel>(this);
 //#warning move?
 
 //	_simulator->setTimestep(_timestep);
@@ -172,13 +174,13 @@ void PhysicalWorld::simulate(const Scene& scene,
 							 double deltaRunT,
 							 Stats& stats) {
 
-	if (_simulator) {
+	if (_model) {
 
 		auto startTime = scene.time();
 
-		_simulator->update(*this, stats);
-		_simulator->step(*this, deltaRunT);
-		_simulator->sync(*this);
+		_model->update(stats);
+		_model->step(deltaRunT, _speed, _timestep);
+		_model->sync();
 
 		UpdateTimeStats(stats, startTime, scene.time());
 
@@ -190,6 +192,30 @@ void PhysicalWorld::simulate(const Scene& scene,
 		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
 	}
 }
+
+//void PhysicalWorld::simulate(const Scene& scene,
+//							 double runT,
+//							 double deltaRunT,
+//							 Stats& stats) {
+//
+//	if (_simulator) {
+//
+//		auto startTime = scene.time();
+//
+//		_simulator->update(*this, stats);
+//		_simulator->step(*this, deltaRunT);
+//		_simulator->sync(*this);
+//
+//		UpdateTimeStats(stats, startTime, scene.time());
+//
+//		if (auto didSimulate = PhysicalWorld::didSimulate()) {
+//			didSimulate(*this, runT);
+//		}
+//	}
+//	else {
+//		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
+//	}
+//}
 
 //void PhysicalWorld::simulate(const Scene& scene,
 //							 float runT,

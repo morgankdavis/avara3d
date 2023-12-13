@@ -19,6 +19,7 @@
 #include "assimp-3.3.1/include/assimp/scene.h"
 #include "assimp-3.3.1/include/assimp/version.h"
 #endif
+#include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
@@ -810,7 +811,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 			typeStr = "emissive";
 			break;
 		default:
-			AE_LOG_W("Unsupported material type: {}", type);
+			AE_LOG_W("Unsupported material type: {}", magic_enum::enum_name(type));
 			return nullptr;
 	}
 	

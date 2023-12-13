@@ -13,6 +13,7 @@
 #include "physics/PhysicalWorld.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
+#include "physics/bullet/BulletWorldModel.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
@@ -260,14 +261,21 @@ void VisualWorld::draw(const Scene& scene,
 
 			if (physicalWorld) {
 
-				auto physicsSimulator = physicalWorld->simulator();
-				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
-					bulletSimulator->drawDebug(*physicalWorld,
-											   *renderer,
-											   viewMat,
-											   projectionMat,
-											   debugOptions);
+				if (auto bulletWorldModel = dynamic_cast<BulletWorldModel*>(physicalWorld->model())) {
+					bulletWorldModel->drawDebug(*renderer,
+												viewMat,
+												projectionMat,
+												debugOptions);
 				}
+
+//				auto physicsSimulator = physicalWorld->simulator();
+//				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
+//					bulletSimulator->drawDebug(*physicalWorld,
+//											   *renderer,
+//											   viewMat,
+//											   projectionMat,
+//											   debugOptions);
+//				}
 			}
 
 			UpdateTimeStats(stats, startTime, scene.time());

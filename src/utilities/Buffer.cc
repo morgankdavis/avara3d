@@ -8,6 +8,8 @@
 
 #include "utilities/Buffer.h"
 
+#include <cstring>
+
 #include "diagnostic/logging/Logger.h"
 #include "utilities/Utilities.h"
 

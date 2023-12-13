@@ -13,6 +13,7 @@
 //	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 //	#define NOGDI
 //#endifs
+#include <cstdarg>
 #include <ctime>
 #include <iostream>
 

@@ -17,6 +17,7 @@
 #include "physics/PhysicsShapeModel.h"
 #include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
+#include "physics/bullet/BulletShapeModel.h"
 #include "scene/Node.h"
 
 
@@ -33,7 +34,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
-//		_model(make_shared<BulletShapeModel>()),
+//		_model(make_unique<BulletShapeModel>(this)),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = geometry->name()) {
@@ -51,7 +52,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
-//		_model(make_shared<BulletShapeModel>()),
+//		_model(make_unique<BulletShapeModel>(this)),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
 
 	if (auto name = node->name()) {
@@ -67,7 +68,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({}),
-//		_model(make_shared<BulletShapeModel>()),
+//		_model(make_unique<BulletShapeModel>(this)),
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::~PhysicsShape() {
@@ -184,21 +185,22 @@ PhysicsShapeModel* PhysicsShape::model() const {
 	return _model.get();
 }
 
-void PhysicsShape::model(std::shared_ptr<PhysicsShapeModel> model) {
-	_model = model;
-}
+//void PhysicsShape::model(std::shared_ptr<PhysicsShapeModel> model) {
+//	_model = model;
+//}
 
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
 	if (!_model) {
-		if (auto simulator = physicsSimulator()) {
-			simulator->create(*this);
+//		if (auto simulator = physicsSimulator()) {
+			//simulator->create(*this);
+			_model = make_unique<BulletShapeModel>(this);
 
 			for (auto& body : _bodies) {
 				body->modelCreated(*this);
 			}
-		}
+//		}
 	}
 }
 

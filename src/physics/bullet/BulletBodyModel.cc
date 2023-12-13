@@ -6,12 +6,28 @@
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "LinearMath/btIDebugDraw.h"
+//#include "LinearMath/btScalar.h" // btGetVersion() !
+#include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
+#include "geometry/Geometry.h"
+#include "physics/ConvexDecomposer.h"
+#include "physics/PhysicsBody.h"
+#include "physics/PhysicsBodyModel.h"
+#include "physics/PhysicsShape.h"
+#include "physics/PhysicalWorld.h"
+#include "physics/bullet/BulletDebugDrawer.h"
+#include "physics/bullet/BulletShapeModel.h"
+#include "physics/bullet/BulletWorldModel.h"
+#include "scene/Node.h"
+#include "scene/Scene.h"
 
 
 using namespace ae;
+using namespace glm;
 using namespace std;
 
 
@@ -22,7 +38,108 @@ using namespace std;
 BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		PhysicsBodyModel(body),
 		_btBody(nullptr),
-		_btMotionState(nullptr) { }
+		_btMotionState(nullptr) {
+
+	AE_LOG_D("body: {:p}", (void*)&body);
+
+	_body = body;
+
+	auto node = body->node();
+	auto shape = body->shape();
+
+	shared_ptr<btRigidBody> btBody = nullptr;
+
+	if (!shape || !node) {
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0,
+															   nullptr,
+															   nullptr);
+
+		btBody = make_shared<btRigidBody>(rigidBodyInfo);
+	}
+	else {
+
+		auto shapeModel = static_cast<BulletShapeModel*>(body->shape()->model());
+
+		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
+		auto btShape = shapeModel->btShapes().front();
+
+		AE_LOG_D("Creating rigid body for physics body {:p}...", (void *) body);
+
+		bool wasScaled = false;
+		auto transform = BulletWorldModel::BTTransformFromGLMMat4(
+				BulletWorldModel::TransformByRemovingScale(node->worldTransform(),
+														   wasScaled));
+		if (wasScaled) {
+			// TODO: do something about this
+			// can hold a burned transformed vertex data in the physics body/shape?
+			AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+					 (void *) &node, (void *) &body);
+		}
+
+		auto localInertia = BulletWorldModel::BTVector3FromGLMVec3(body->momentOfInertia());
+		auto mass = body->mass();
+		if (body->type() == PHYSICS_BODY_TYPE::STATIC
+			|| body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+			mass = 0;
+		}
+		else if (body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+			btShape->calculateLocalInertia(mass, localInertia);
+		}
+
+		auto newMotionState = make_shared<btDefaultMotionState>(transform);
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
+															   newMotionState.get(),
+															   btShape.get(),
+															   localInertia);
+
+		rigidBodyInfo.m_mass = mass;
+		rigidBodyInfo.m_linearDamping = body->linearDamping();
+		rigidBodyInfo.m_angularDamping = body->angularDamping();
+		rigidBodyInfo.m_friction = body->friction();
+		rigidBodyInfo.m_rollingFriction = body->rollingFriction();
+		rigidBodyInfo.m_restitution = body->restitution();
+		rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
+		rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
+
+		btBody = make_shared<btRigidBody>(rigidBodyInfo);
+
+		_btMotionState = newMotionState; // TEMPORARY
+	}
+
+	btBody->setUserPointer((void*)&body);
+
+	switch (body->type()) {
+		case PHYSICS_BODY_TYPE::STATIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+			break;
+		case PHYSICS_BODY_TYPE::KINEMATIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+			break;
+		case PHYSICS_BODY_TYPE::DYNAMIC:
+			btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+			break;
+	}
+
+//	btWorld->addRigidBody(btBody.get());
+
+//	bodyResources->btBody(btBody);
+//	bodyResources->btMotionState(newMotionState);
+
+	_btBody = btBody;
+//	_btMotionState = newMotionState;  // TEMPORARILY DISABLED
+
+	// I'm a cheap bastard
+//	linearFactor(body->linearFactor());
+//	angularFactor(body->angularFactor());
+//	linearDamping(body->linearDamping());
+//	angularDamping(body->angularDamping());
+//	linearSleepingThreshold(body->linearSleepingThreshold());
+//	angularSleepingThreshold(body->angularSleepingThreshold());
+//	linearVelocity(body->linearVelocity()); // ?
+//	angularVelocity(body->angularVelocity()); // ?
+//	affectedByGravity(body->affectedByGravity());
+//	allowsResting(body->allowsResting());
+}
 
 BulletBodyModel::~BulletBodyModel() {
 	AE_LOG_D("Destroying BulletBodyModel {:p}", (void*)this);
@@ -66,6 +183,67 @@ PhysicsShapeModel* BulletBodyModel::shape() const {
 
 void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 	// rebuild
+
+
+
+	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
+
+
+
+
+
+
+	auto shapeModel = static_cast<BulletShapeModel*>(shape);
+
+	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
+	auto btShape = shapeModel->btShapes().front();
+
+	AE_LOG_D("Creating rigid body for physics body {:p}...", (void *)_body);
+
+	bool wasScaled = false;
+	auto transform = BulletWorldModel::BTTransformFromGLMMat4(
+			BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(),
+													   wasScaled));
+	if (wasScaled) {
+		// TODO: do something about this
+		// can hold a burned transformed vertex data in the physics body/shape?
+		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+				 (void *)_body->node(), (void *)_body);
+	}
+
+	auto localInertia = BulletWorldModel::BTVector3FromGLMVec3(_body->momentOfInertia());
+	auto mass = _body->mass();
+	if (_body->type() == PHYSICS_BODY_TYPE::STATIC
+		|| _body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		mass = 0;
+	}
+	else if (_body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+		btShape->calculateLocalInertia(mass, localInertia);
+	}
+
+
+	_btBody->setCollisionShape(btShape.get());
+	_btBody->setMassProps(mass, localInertia);
+	_btBody->updateInertiaTensor();
+
+	auto newMotionState = make_shared<btDefaultMotionState>(transform);
+//	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
+//														   newMotionState.get(),
+//														   btShape.get(),
+//														   localInertia);
+
+//	rigidBodyInfo.m_mass = mass;
+//	rigidBodyInfo.m_linearDamping = body->linearDamping();
+//	rigidBodyInfo.m_angularDamping = body->angularDamping();
+//	rigidBodyInfo.m_friction = body->friction();
+//	rigidBodyInfo.m_rollingFriction = body->rollingFriction();
+//	rigidBodyInfo.m_restitution = body->restitution();
+//	rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
+//	rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
+
+	//_btBody = make_shared<btRigidBody>(rigidBodyInfo);
+
+	_btMotionState = newMotionState; // TEMPORARY
 }
 
 //glm::mat4 BulletBodyModel::worldTransform() const {
@@ -85,14 +263,14 @@ void BulletBodyModel::mass(float mass) {
 	// *** TEST THIS ***
 	// https://stackoverflow.com/questions/26229836/bullet-physics-library-switching-rigidbody-between-static-object-and-dynamic-obj
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
-	btVector3 inertia;
-	_btBody->getCollisionShape()->calculateLocalInertia(mass, inertia);
-	_btBody->setMassProps(mass, inertia);
-	_btBody->setActivationState(ACTIVE_TAG);
+//	btVector3 inertia;
+//	_btBody->getCollisionShape()->calculateLocalInertia(mass, inertia);
+//	_btBody->setMassProps(mass, inertia);
+//	_btBody->setActivationState(ACTIVE_TAG);
 }
 
 glm::vec3 BulletBodyModel::momentOfInertia() const {
-	return BulletPhysicsSimulator::GLMVec3FromBTVector3(_btBody->getLocalInertia());
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLocalInertia());
 }
 
 void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
@@ -124,35 +302,35 @@ void BulletBodyModel::restitution(float restitution) {
 }
 
 glm::vec3 BulletBodyModel::linearVelocity() const {
-	return BulletPhysicsSimulator::GLMVec3FromBTVector3(_btBody->getLinearVelocity());
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLinearVelocity());
 }
 
 void BulletBodyModel::linearVelocity(const glm::vec3& velocity) {
-	_btBody->setLinearVelocity(BulletPhysicsSimulator::BTVector3FromGLMVec3(velocity));
+	_btBody->setLinearVelocity(BulletWorldModel::BTVector3FromGLMVec3(velocity));
 }
 
 glm::vec3 BulletBodyModel::angularVelocity() const {
-	return BulletPhysicsSimulator::GLMVec3FromBTVector3(_btBody->getAngularVelocity());
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getAngularVelocity());
 }
 
 void BulletBodyModel::angularVelocity(const glm::vec3& velocity) {
-	_btBody->setAngularVelocity(BulletPhysicsSimulator::BTVector3FromGLMVec3(velocity));
+	_btBody->setAngularVelocity(BulletWorldModel::BTVector3FromGLMVec3(velocity));
 }
 
 glm::vec3 BulletBodyModel::linearFactor() const {
-	return BulletPhysicsSimulator::GLMVec3FromBTVector3(_btBody->getLinearFactor());
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLinearFactor());
 }
 
 void BulletBodyModel::linearFactor(const glm::vec3& factor) {
-	_btBody->setLinearFactor(BulletPhysicsSimulator::BTVector3FromGLMVec3(factor));
+	_btBody->setLinearFactor(BulletWorldModel::BTVector3FromGLMVec3(factor));
 }
 
 glm::vec3 BulletBodyModel::angularFactor() const {
-	return BulletPhysicsSimulator::GLMVec3FromBTVector3(_btBody->getAngularFactor());
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getAngularFactor());
 }
 
 void BulletBodyModel::angularFactor(const glm::vec3& factor) {
-	_btBody->setAngularFactor(BulletPhysicsSimulator::BTVector3FromGLMVec3(factor));
+	_btBody->setAngularFactor(BulletWorldModel::BTVector3FromGLMVec3(factor));
 }
 
 float BulletBodyModel::linearDamping() const {

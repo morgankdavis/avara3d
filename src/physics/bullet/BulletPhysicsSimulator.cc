@@ -54,69 +54,69 @@ using namespace glm;
 using namespace std;
 
 
-constexpr unsigned MAX_SUBSTEPS = 20;
+//constexpr unsigned MAX_SUBSTEPS = 20;
 
 
-/*********************************************************************************************
-	Static Prototypes
- *********************************************************************************************/
+///*********************************************************************************************
+//	Static Prototypes
+// *********************************************************************************************/
+//
+//static shared_ptr<btCollisionShape>
+//BTShapeFromSourceGeometry(Geometry* geometry,
+//						  PHYSICS_SHAPE_TYPE shapeType,
+//						  PHYSICS_BODY_TYPE bodyType,
+//						  vector<shared_ptr<btCollisionShape>>& btShapes,
+//						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+//static shared_ptr<btCollisionShape>
+//BTShapeFromSourceNode(Node* node,
+//					  PHYSICS_SHAPE_TYPE shapeType,
+//					  PHYSICS_BODY_TYPE bodyType,
+//					  vector<shared_ptr<btCollisionShape>>& btShapes,
+//					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+//static shared_ptr<btCollisionShape>
+//BTShapeFromPrimitiveShape(PhysicsShape& shape,
+//						  PHYSICS_BODY_TYPE bodyType);
+//static shared_ptr<btCollisionShape>
+//BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//						   Geometry* geometry,
+//						   PHYSICS_SHAPE_TYPE shapeType,
+//						   PHYSICS_BODY_TYPE bodyType,
+//						   vector<shared_ptr<btCollisionShape>>& btShapes,
+//						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
+//
+//static shared_ptr<btCompoundShape>
+//BTShapeFromGeometry(Geometry* geometry,
+//					PHYSICS_SHAPE_TYPE shapeType,
+//					PHYSICS_BODY_TYPE bodyType,
+//					vector<shared_ptr<btCollisionShape>>& btShapes,
+//					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+//static void
+//AddBTShapeFromNodeRec(shared_ptr<Node> node,
+//					  PHYSICS_SHAPE_TYPE shapeType,
+//					  PHYSICS_BODY_TYPE bodyType,
+//					  shared_ptr<btCompoundShape> compoundShape,
+//					  vector<shared_ptr<btCollisionShape>>& btShapes,
+//					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+//
+//static shared_ptr<btConvexHullShape>
+//BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element);
+//
+//static shared_ptr<btGImpactMeshShape>
+//BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+//
+//static shared_ptr<btBvhTriangleMeshShape>
+//BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+//
+//static shared_ptr<btCompoundShape>
+//BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//												 vector<shared_ptr<btCollisionShape>>& btShapes);
+//
+//static vector<shared_ptr<GeometryElement>>
+//HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
 
-static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(Geometry* geometry,
-						  PHYSICS_SHAPE_TYPE shapeType,
-						  PHYSICS_BODY_TYPE bodyType,
-						  vector<shared_ptr<btCollisionShape>>& btShapes,
-						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
-static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(Node* node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
-static shared_ptr<btCollisionShape>
-BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PHYSICS_BODY_TYPE bodyType);
-static shared_ptr<btCollisionShape>
-BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   Geometry* geometry,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
-						   vector<shared_ptr<btCollisionShape>>& btShapes,
-						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
-
-static shared_ptr<btCompoundShape>
-BTShapeFromGeometry(Geometry* geometry,
-					PHYSICS_SHAPE_TYPE shapeType,
-					PHYSICS_BODY_TYPE bodyType,
-					vector<shared_ptr<btCollisionShape>>& btShapes,
-					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
-static void
-AddBTShapeFromNodeRec(shared_ptr<Node> node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
-					  shared_ptr<btCompoundShape> compoundShape,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
-
-static shared_ptr<btConvexHullShape>
-BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element);
-
-static shared_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
-
-static shared_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
-
-static shared_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-												 vector<shared_ptr<btCollisionShape>>& btShapes);
-
-static vector<shared_ptr<GeometryElement>>
-HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
-
-static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
+//static btIDebugDraw::DebugDrawModes 	BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
 //static vec3 							GLMVec3FromBTVector3(const btVector3& from);
 //static vec4 							GLMVec4FromBTVector4(const btVector4& from);
 //static mat4 							GLMMat4FromBTTransform(const btTransform& from);
@@ -142,137 +142,137 @@ BulletPhysicsSimulator::~BulletPhysicsSimulator() {
 	Internal
  *********************************************************************************************/
 
-void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
-									   Renderer &renderer,
-									   const glm::mat4 &viewMat,
-									   const glm::mat4 &projectionMat,
-									   const DEBUG_OPTIONS &debugOptions) {
-#ifdef OPENGL_CORE
-	auto resources = static_cast<BulletWorldModel*>(world.model());
-	auto btWorld = resources->btWorld();
-	auto debugDrawer = resources->btDebugDrawer();
-
-	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
-
-	debugDrawer->setDebugMode(btDebugModes);
-	debugDrawer->clear();
-	btWorld->debugDrawWorld();
-	debugDrawer->draw(renderer, viewMat, projectionMat);
-#endif
-}
+//void BulletPhysicsSimulator::drawDebug(const PhysicalWorld &world,
+//									   Renderer &renderer,
+//									   const glm::mat4 &viewMat,
+//									   const glm::mat4 &projectionMat,
+//									   const DEBUG_OPTIONS &debugOptions) {
+//#ifdef OPENGL_CORE
+//	auto resources = static_cast<BulletWorldModel*>(world.model());
+//	auto btWorld = resources->btWorld();
+//	auto debugDrawer = resources->btDebugDrawer();
+//
+//	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+//
+//	debugDrawer->setDebugMode(btDebugModes);
+//	debugDrawer->clear();
+//	btWorld->debugDrawWorld();
+//	debugDrawer->draw(renderer, viewMat, projectionMat);
+//#endif
+//}
 
 /*********************************************************************************************
 	PhysicsSimulator
  *********************************************************************************************/
 
-void BulletPhysicsSimulator::create(PhysicalWorld& world) {
+//void BulletPhysicsSimulator::create(PhysicalWorld& world) {
+//
+//	// meh.
+//	world.model(make_unique<BulletWorldModel>(&world));
+//}
 
-	// meh.
-	world.model(make_unique<BulletWorldModel>(&world));
-}
+//void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
+//
+//}
 
-void BulletPhysicsSimulator::setGravity(PhysicalWorld& world, glm::vec3& gravity) {
+//void BulletPhysicsSimulator::create(PhysicsBody& body) {
+//	AE_LOG_D("body: {:p}", (void*)&body);
+//
+////	body.model(make_shared<BulletBodyModel>(&body));
+//
+//	auto world = body.physicalWorld();
+//	auto worldResources = static_cast<BulletWorldModel*>(world->model());
+//	auto btWorld = worldResources->btWorld();
+//	auto node = body.node();
+//	auto shape = body.shape();
+//	auto dirtyMask = body.dirtyMask();
+//
+//	auto bodyResources = static_cast<BulletBodyModel*>(body.model());
+//	auto shapeResources = static_cast<BulletShapeModel*>(body.shape()->model());
+//
+//	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
+//	auto btShape = shapeResources->btShapes().front();
+//
+//	AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
+//
+//	bool wasScaled = false;
+//	auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(),
+//																	 wasScaled));
+//	if (wasScaled) {
+//		// TODO: do something about this
+//		// can hold a burned transformed vertex data in the physics body/shape?
+//		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//				 (void*)&node, (void*)&body);
+//	}
+//
+//	auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
+//	auto mass = body.mass();
+//	if (body.type() == PHYSICS_BODY_TYPE::STATIC
+//		|| body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+//		mass = 0;
+//	}
+//	else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//		btShape->calculateLocalInertia(mass, localInertia);
+//	}
+//
+//	auto newMotionState = make_shared<btDefaultMotionState>(transform);
+//	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
+//														   newMotionState.get(),
+//														   btShape.get(),
+//														   localInertia);
+//	rigidBodyInfo.m_mass = mass;
+//	rigidBodyInfo.m_linearDamping = body.linearDamping();
+//	rigidBodyInfo.m_angularDamping = body.angularDamping();
+//	rigidBodyInfo.m_friction = body.friction();
+//	rigidBodyInfo.m_rollingFriction = body.rollingFriction();
+//	rigidBodyInfo.m_restitution = body.restitution();
+//	rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
+//	rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
+//
+//	auto btBody = make_shared<btRigidBody>(rigidBodyInfo);
+//	btBody->setUserPointer((void*)&body);
+//
+//	switch (body.type()) {
+//		case PHYSICS_BODY_TYPE::STATIC:
+//			btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+//			break;
+//		case PHYSICS_BODY_TYPE::KINEMATIC:
+//			btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+//			break;
+//		case PHYSICS_BODY_TYPE::DYNAMIC:
+//			btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+//			break;
+//	}
+//
+//	btWorld->addRigidBody(btBody.get());
+//
+//	bodyResources->btBody(btBody);
+//	bodyResources->btMotionState(newMotionState);
+//
+//	// I'm a cheap bastard
+//	setLinearFactor(body, body.linearFactor());
+//	setAngularFactor(body, body.angularFactor());
+//	setLinearDamping(body, body.linearDamping());
+//	setAngularDamping(body, body.angularDamping());
+//	setLinearSleepingThreshold(body, body.linearSleepingThreshold());
+//	setAngularSleepingThreshold(body, body.angularSleepingThreshold());
+//	setLinearVelocity(body, body.linearVelocity()); // ?
+//	setAngularVelocity(body, body.angularVelocity()); // ?
+//	setAffectedByGravity(body, body.affectedByGravity());
+//	setAllowsResting(body, body.allowsResting());
+//}
+//
+//void BulletPhysicsSimulator::remove(PhysicsBody& body) {
+//	// *** DO IT ***
+//}
 
-}
-
-void BulletPhysicsSimulator::create(PhysicsBody& body) {
-	AE_LOG_D("body: {:p}", (void*)&body);
-
-	body.model(make_shared<BulletBodyModel>(&body));
-
-	auto world = body.physicalWorld();
-	auto worldResources = static_cast<BulletWorldModel*>(world->model());
-	auto btWorld = worldResources->btWorld();
-	auto node = body.node();
-	auto shape = body.shape();
-	auto dirtyMask = body.dirtyMask();
-
-	auto bodyResources = static_cast<BulletBodyModel*>(body.model());
-	auto shapeResources = static_cast<BulletShapeModel*>(body.shape()->model());
-
-	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-	auto btShape = shapeResources->btShapes().front();
-
-	AE_LOG_D("Creating rigid body for physics body {:p}...", (void*)&body);
-
-	bool wasScaled = false;
-	auto transform = BTTransformFromGLMMat4(TransformByRemovingScale(node->worldTransform(),
-																	 wasScaled));
-	if (wasScaled) {
-		// TODO: do something about this
-		// can hold a burned transformed vertex data in the physics body/shape?
-		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-				 (void*)&node, (void*)&body);
-	}
-
-	auto localInertia = BTVector3FromGLMVec3(body.momentOfInertia());
-	auto mass = body.mass();
-	if (body.type() == PHYSICS_BODY_TYPE::STATIC
-		|| body.type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-		mass = 0;
-	}
-	else if (body.type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-		btShape->calculateLocalInertia(mass, localInertia);
-	}
-
-	auto newMotionState = make_shared<btDefaultMotionState>(transform);
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
-														   newMotionState.get(),
-														   btShape.get(),
-														   localInertia);
-	rigidBodyInfo.m_mass = mass;
-	rigidBodyInfo.m_linearDamping = body.linearDamping();
-	rigidBodyInfo.m_angularDamping = body.angularDamping();
-	rigidBodyInfo.m_friction = body.friction();
-	rigidBodyInfo.m_rollingFriction = body.rollingFriction();
-	rigidBodyInfo.m_restitution = body.restitution();
-	rigidBodyInfo.m_linearSleepingThreshold = body.linearSleepingThreshold();
-	rigidBodyInfo.m_angularSleepingThreshold = body.angularSleepingThreshold();
-
-	auto btBody = make_shared<btRigidBody>(rigidBodyInfo);
-	btBody->setUserPointer((void*)&body);
-
-	switch (body.type()) {
-		case PHYSICS_BODY_TYPE::STATIC:
-			btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
-			break;
-		case PHYSICS_BODY_TYPE::KINEMATIC:
-			btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-			break;
-		case PHYSICS_BODY_TYPE::DYNAMIC:
-			btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
-			break;
-	}
-
-	btWorld->addRigidBody(btBody.get());
-
-	bodyResources->btBody(btBody);
-	bodyResources->btMotionState(newMotionState);
-
-	// I'm a cheap bastard
-	setLinearFactor(body, body.linearFactor());
-	setAngularFactor(body, body.angularFactor());
-	setLinearDamping(body, body.linearDamping());
-	setAngularDamping(body, body.angularDamping());
-	setLinearSleepingThreshold(body, body.linearSleepingThreshold());
-	setAngularSleepingThreshold(body, body.angularSleepingThreshold());
-	setLinearVelocity(body, body.linearVelocity()); // ?
-	setAngularVelocity(body, body.angularVelocity()); // ?
-	setAffectedByGravity(body, body.affectedByGravity());
-	setAllowsResting(body, body.allowsResting());
-}
-
-void BulletPhysicsSimulator::remove(PhysicsBody& body) {
-	// *** DO IT ***
-}
-
-void BulletPhysicsSimulator::setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) {
-	// setCollisionFlags() ??
-}
-
-void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
-	// *** re-create body ***
-}
+//void BulletPhysicsSimulator::setType(PhysicsBody& body, PHYSICS_BODY_TYPE type) {
+//	// setCollisionFlags() ??
+//}
+//
+//void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
+//	// *** re-create body ***
+//}
 
 //void BulletPhysicsSimulator::setWorldTransform(PhysicsBody& body, const glm::mat4& transform) {
 //
@@ -285,233 +285,233 @@ void BulletPhysicsSimulator::setShape(PhysicsBody& body, PhysicsShape& shape) {
 //	btBody->setActivationState(ACTIVE_TAG);
 //}
 
-void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
-	// *** re-create body ***
-	// **************** TEST THIS *************************
-	// I think it's right...
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setMassProps(mass, BTVector3FromGLMVec3(body.momentOfInertia()));
-}
+//void BulletPhysicsSimulator::setMass(PhysicsBody& body, float mass) {
+//	// *** re-create body ***
+//	// **************** TEST THIS *************************
+//	// I think it's right...
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setMassProps(mass, BTVector3FromGLMVec3(body.momentOfInertia()));
+//}
+//
+//void BulletPhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) {
+//	// *** re-create body ***
+//}
+//
+//void BulletPhysicsSimulator::setFriction(PhysicsBody& body, float friction) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setFriction(friction);
+//}
+//
+//void BulletPhysicsSimulator::setRollingFriction(PhysicsBody& body, float friction) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setRollingFriction(friction);
+//}
+//
+//void BulletPhysicsSimulator::setRestitution(PhysicsBody& body, float restitution) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setRestitution(restitution);
+//}
+//
+//void BulletPhysicsSimulator::setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
+//}
+//
+//void BulletPhysicsSimulator::setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
+//}
+//
+//void BulletPhysicsSimulator::setLinearFactor(PhysicsBody& body, const glm::vec3& factor) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
+//}
+//
+//void BulletPhysicsSimulator::setAngularFactor(PhysicsBody& body, const glm::vec3& factor) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
+//}
+//
+//void BulletPhysicsSimulator::setLinearDamping(PhysicsBody& body, float damping) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setDamping(damping, btBody->getAngularDamping());
+//}
+//
+//void BulletPhysicsSimulator::setAngularDamping(PhysicsBody& body, float damping) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setDamping(btBody->getLinearDamping(), damping);
+//}
+//
+//void BulletPhysicsSimulator::setLinearSleepingThreshold(PhysicsBody& body, float threshold) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setSleepingThresholds(threshold, btBody->getAngularSleepingThreshold());
+//}
+//
+//void BulletPhysicsSimulator::setAngularSleepingThreshold(PhysicsBody& body, float threshold) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setSleepingThresholds(btBody->getLinearSleepingThreshold(), threshold);
+//}
+//
+//void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	auto btWorld = static_cast<BulletWorldModel*>(body.physicalWorld()->model())->btWorld();
+//	btBody->setGravity(flag
+//					   ? btWorld->getGravity()
+//					   : btVector3{0, 0, 0});
+//}
+//
+//void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
+//	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
+//	btBody->setActivationState(body.allowsResting()
+//							   ? ACTIVE_TAG
+//							   : DISABLE_DEACTIVATION);
+//}
 
-void BulletPhysicsSimulator::setMomentOfInertia(PhysicsBody& body, const glm::vec3& moment) {
-	// *** re-create body ***
-}
+//void BulletPhysicsSimulator::create(PhysicsShape& shape) {
+//	AE_LOG_D("shape: {:p}", (void*)&shape);
+//
+//	shape.model(make_shared<BulletShapeModel>(&shape));
+//
+//	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
+//
+//	shared_ptr<btCollisionShape> newShape = nullptr;
+//
+//	auto btShapes = vector<shared_ptr<btCollisionShape>>();
+//	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+//
+//	auto sourceObject = shape.sourceObject();
+//
+//	// souce GEOMETRY
+//	if (holds_alternative<Geometry*>(sourceObject)) {
+//		if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
+//
+//			newShape = BTShapeFromSourceGeometry(sourceGeometry,
+//												 shape.type(),
+//												 bodyType,
+//												 btShapes,
+//												 btIndexVertexArrays);
+//		}
+//	}
+//
+//	// source NODE
+//	else if (holds_alternative<Node*>(sourceObject)) {
+//		if (auto sourceNode = get<Node*>(sourceObject)) {
+//
+//			newShape = BTShapeFromSourceNode(sourceNode,
+//											 shape.type(),
+//											 bodyType,
+//											 btShapes,
+//											 btIndexVertexArrays);
+//		}
+//	}
+//
+//	// primitive subclass
+//	else if (holds_alternative<monostate>(sourceObject)) {
+//
+//		newShape = BTShapeFromPrimitiveShape(shape, bodyType);
+//	}
+//
+//	if (newShape) {
+//		newShape->setUserPointer((void*)&shape);
+//		btShapes.insert(btShapes.begin(), newShape);
+//
+//		auto shapeResources = static_cast<BulletShapeModel*>(shape.model());
+//		shapeResources->btShapes(btShapes);
+//		shapeResources->btIndexVertexArrays(btIndexVertexArrays);
+////		updated = true;
+//
+//		shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
+//														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
+//	}
+//	else {
+////		updated = false;
+//		AE_LOG_E("PhysicsShape with no geometry or source node.");
+//	}
+//}
 
-void BulletPhysicsSimulator::setFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setFriction(friction);
-}
-
-void BulletPhysicsSimulator::setRollingFriction(PhysicsBody& body, float friction) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setRollingFriction(friction);
-}
-
-void BulletPhysicsSimulator::setRestitution(PhysicsBody& body, float restitution) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setRestitution(restitution);
-}
-
-void BulletPhysicsSimulator::setLinearVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
-}
-
-void BulletPhysicsSimulator::setAngularVelocity(PhysicsBody& body, const glm::vec3& velocity) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
-}
-
-void BulletPhysicsSimulator::setLinearFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setLinearFactor(BTVector3FromGLMVec3(body.linearFactor()));
-}
-
-void BulletPhysicsSimulator::setAngularFactor(PhysicsBody& body, const glm::vec3& factor) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setAngularFactor(BTVector3FromGLMVec3(body.angularFactor()));
-}
-
-void BulletPhysicsSimulator::setLinearDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setDamping(damping, btBody->getAngularDamping());
-}
-
-void BulletPhysicsSimulator::setAngularDamping(PhysicsBody& body, float damping) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setDamping(btBody->getLinearDamping(), damping);
-}
-
-void BulletPhysicsSimulator::setLinearSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setSleepingThresholds(threshold, btBody->getAngularSleepingThreshold());
-}
-
-void BulletPhysicsSimulator::setAngularSleepingThreshold(PhysicsBody& body, float threshold) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setSleepingThresholds(btBody->getLinearSleepingThreshold(), threshold);
-}
-
-void BulletPhysicsSimulator::setAffectedByGravity(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	auto btWorld = static_cast<BulletWorldModel*>(body.physicalWorld()->model())->btWorld();
-	btBody->setGravity(flag
-					   ? btWorld->getGravity()
-					   : btVector3{0, 0, 0});
-}
-
-void BulletPhysicsSimulator::setAllowsResting(PhysicsBody& body, bool flag) {
-	auto btBody = static_cast<BulletBodyModel*>(body.model())->btBody();
-	btBody->setActivationState(body.allowsResting()
-							   ? ACTIVE_TAG
-							   : DISABLE_DEACTIVATION);
-}
-
-void BulletPhysicsSimulator::create(PhysicsShape& shape) {
-	AE_LOG_D("shape: {:p}", (void*)&shape);
-
-	shape.model(make_shared<BulletShapeModel>(&shape));
-
-	PHYSICS_BODY_TYPE bodyType = (*shape.bodies().begin())->type();
-
-	shared_ptr<btCollisionShape> newShape = nullptr;
-
-	auto btShapes = vector<shared_ptr<btCollisionShape>>();
-	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
-
-	auto sourceObject = shape.sourceObject();
-
-	// souce GEOMETRY
-	if (holds_alternative<Geometry*>(sourceObject)) {
-		if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
-
-			newShape = BTShapeFromSourceGeometry(sourceGeometry,
-												 shape.type(),
-												 bodyType,
-												 btShapes,
-												 btIndexVertexArrays);
-		}
-	}
-
-	// source NODE
-	else if (holds_alternative<Node*>(sourceObject)) {
-		if (auto sourceNode = get<Node*>(sourceObject)) {
-
-			newShape = BTShapeFromSourceNode(sourceNode,
-											 shape.type(),
-											 bodyType,
-											 btShapes,
-											 btIndexVertexArrays);
-		}
-	}
-
-	// primitive subclass
-	else if (holds_alternative<monostate>(sourceObject)) {
-
-		newShape = BTShapeFromPrimitiveShape(shape, bodyType);
-	}
-
-	if (newShape) {
-		newShape->setUserPointer((void*)&shape);
-		btShapes.insert(btShapes.begin(), newShape);
-
-		auto shapeResources = static_cast<BulletShapeModel*>(shape.model());
-		shapeResources->btShapes(btShapes);
-		shapeResources->btIndexVertexArrays(btIndexVertexArrays);
-//		updated = true;
-
-		shape.dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape.dirtyMask(),
-														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
-	}
-	else {
-//		updated = false;
-		AE_LOG_E("PhysicsShape with no geometry or source node.");
-	}
-}
-
-void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
-
-	auto resources = static_cast<BulletWorldModel*>(world.model());
-	auto btWorld = resources->btWorld();
-
-	auto collisionObjects = btWorld->getCollisionObjectArray();
-	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
-		auto object = collisionObjects[o];
-
-		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-
-			switch (body->type()) {
-
-				case PHYSICS_BODY_TYPE::DYNAMIC:
-					++stats.dynamicBodies;
-					break;
-
-				case PHYSICS_BODY_TYPE::KINEMATIC: {
-					++stats.kinematicBodies;
-
-					auto worldTransform = body->node()->worldTransform();
-					auto toTransform = BTTransformFromGLMMat4(worldTransform);
-					//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
-					auto motionState = btBody->getMotionState();
-					motionState->setWorldTransform(toTransform); // and this kinematic...
-					btBody->setMotionState(motionState);
-					btBody->setActivationState(ACTIVE_TAG);
-					break; }
-
-				case PHYSICS_BODY_TYPE::STATIC:
-					++stats.staticBodies;
-					break;
-			}
-		}
-	}
-}
-
-void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
-
-	auto resources = static_cast<BulletWorldModel*>(world.model());
-	auto btWorld = resources->btWorld();
-
-	auto result = btWorld->stepSimulation(deltaT * world.speed(),
-										 MAX_SUBSTEPS,
-										 world.timestep());
-
-	if (result == MAX_SUBSTEPS) {
-		AE_LOG_W("Physics simulation max substeps reached: {}", result);
-	}
-}
-
-void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
-
-	auto resources = static_cast<BulletWorldModel*>(world.model());
-	auto btWorld = resources->btWorld();
-
-	auto collisionObjects = btWorld->getCollisionObjectArray();
-	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
-		auto object = collisionObjects[o];
-
-		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-
-			switch (body->type()) {
-
-				case PHYSICS_BODY_TYPE::DYNAMIC:
-				case PHYSICS_BODY_TYPE::KINEMATIC:
-					static btTransform btWorldTransform;
-					//btWorldTransform.setIdentity();
-					//btMotionState->getWorldTransform(btWorldTransform); // crash?
-					btBody->getMotionState()->getWorldTransform(btWorldTransform);
-
-//					auto worldTransform = ;
-					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
-					break;
-
-				case PHYSICS_BODY_TYPE::STATIC:
-					break;
-			}
-		}
-	}
-}
+//void BulletPhysicsSimulator::update(PhysicalWorld& world, Stats& stats) {
+//
+//	auto resources = static_cast<BulletWorldModel*>(world.model());
+//	auto btWorld = resources->btWorld();
+//
+//	auto collisionObjects = btWorld->getCollisionObjectArray();
+//	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
+//		auto object = collisionObjects[o];
+//
+//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+//
+//			switch (body->type()) {
+//
+//				case PHYSICS_BODY_TYPE::DYNAMIC:
+//					++stats.dynamicBodies;
+//					break;
+//
+//				case PHYSICS_BODY_TYPE::KINEMATIC: {
+//					++stats.kinematicBodies;
+//
+//					auto worldTransform = body->node()->worldTransform();
+//					auto toTransform = BTTransformFromGLMMat4(worldTransform);
+//					//	btBody->proceedToTransform(toTransform); // this appears to affect dynamic bodies
+//					auto motionState = btBody->getMotionState();
+//					motionState->setWorldTransform(toTransform); // and this kinematic...
+//					btBody->setMotionState(motionState);
+//					btBody->setActivationState(ACTIVE_TAG);
+//					break; }
+//
+//				case PHYSICS_BODY_TYPE::STATIC:
+//					++stats.staticBodies;
+//					break;
+//			}
+//		}
+//	}
+//}
+//
+//void BulletPhysicsSimulator::step(PhysicalWorld& world, double deltaT) {
+//
+//	auto resources = static_cast<BulletWorldModel*>(world.model());
+//	auto btWorld = resources->btWorld();
+//
+//	auto result = btWorld->stepSimulation(deltaT * world.speed(),
+//										 MAX_SUBSTEPS,
+//										 world.timestep());
+//
+//	if (result == MAX_SUBSTEPS) {
+//		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+//	}
+//}
+//
+//void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
+//
+//	auto resources = static_cast<BulletWorldModel*>(world.model());
+//	auto btWorld = resources->btWorld();
+//
+//	auto collisionObjects = btWorld->getCollisionObjectArray();
+//	for (int o=0; o<btWorld->getNumCollisionObjects(); ++o) {
+//		auto object = collisionObjects[o];
+//
+//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+//
+//			switch (body->type()) {
+//
+//				case PHYSICS_BODY_TYPE::DYNAMIC:
+//				case PHYSICS_BODY_TYPE::KINEMATIC:
+//					static btTransform btWorldTransform;
+//					//btWorldTransform.setIdentity();
+//					//btMotionState->getWorldTransform(btWorldTransform); // crash?
+//					btBody->getMotionState()->getWorldTransform(btWorldTransform);
+//
+////					auto worldTransform = ;
+//					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
+//					break;
+//
+//				case PHYSICS_BODY_TYPE::STATIC:
+//					break;
+//			}
+//		}
+//	}
+//}
 
 //void BulletPhysicsSimulator::sync(PhysicsBody& body, mat4& worldTransform) {
 //
@@ -879,551 +879,551 @@ void BulletPhysicsSimulator::sync(PhysicalWorld& world) {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(Geometry* geometry,
-						  PHYSICS_SHAPE_TYPE shapeType,
-						  PHYSICS_BODY_TYPE bodyType,
-						  vector<shared_ptr<btCollisionShape>>& btShapes,
-						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
-
-	shared_ptr<btCollisionShape> newShape = nullptr;
-
-	if (geometry->elements().size() == 1) {
-		// make a single shape
-
-		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		newShape = BTShapeFromGeometryElement(geometry->elements().front(),
-											  geometry,
-											  shapeType,
-											  bodyType,
-											  btShapes,
-											  indexVertexArray);
-		btShapes.push_back(newShape);
-		btIndexVertexArrays.push_back(indexVertexArray);
-	}
-	else if (geometry->elements().size() > 1) {
-		// make compound shape, loop BTShapeFromGeometryElement()
-
-		newShape = BTShapeFromGeometry(geometry,
-									   shapeType,
-									   bodyType,
-									   btShapes,
-									   btIndexVertexArrays);
-	}
-	else {
-		AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
-				 (void*)geometry);
-	}
-
-	return newShape;
-}
-
-static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(Node* node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
-
-	// *** won't work for most static, kinematic? ***
-	// "adding the following shapes to a btCompoundShape is not supported: btTriangleShape,
-	// btBvhTriangleMeshShape, btGImpact*Shape, btStaticPlaneShape and a bunch more."
-	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=17718#p17718
-
-	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
-
-	// add the root geometry
-	auto geometry = node->geometry().get();
-	if (geometry) {
-
-		auto nodeGeoShape = BTShapeFromGeometry(geometry,
-												shapeType,
-												bodyType,
-												btShapes,
-												btIndexVertexArrays);
-		rootShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
-								 nodeGeoShape.get());
-		btShapes.push_back(nodeGeoShape);
-	}
-
-	// add child geometries recursively
-	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode,
-							  shapeType,
-							  bodyType,
-							  rootShape,
-							  btShapes,
-							  btIndexVertexArrays);
-	}
-
-	return rootShape;
-}
-
-static shared_ptr<btCollisionShape>
-BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PHYSICS_BODY_TYPE bodyType) {
-
-	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
-		AE_LOG_I("BoxPhysicsShape");
-
-		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
-												 (btScalar)boxShape->height()/2.0f,
-												 (btScalar)boxShape->length()/2.0f));
-	}
-	else if (auto capsuleShape = dynamic_cast<CapsulePhysicsShape*>(&shape)) {
-		AE_LOG_I("CapsulePhysicsShape");
-
-		return make_shared<btCapsuleShape>((btScalar)capsuleShape->radius(),
-										   (btScalar)capsuleShape->height());
-	}
-	else if (auto coneShape = dynamic_cast<ConePhysicsShape*>(&shape)) {
-		AE_LOG_I("ConePhysicsShape");
-
-		return make_shared<btConeShape>((btScalar)coneShape->radius(),
-										(btScalar)coneShape->height());
-	}
-	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
-		AE_LOG_I("CylinderPhysicsShape");
-
-		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
-													  (btScalar)cylinderShape->height()/2.0,
-													  (btScalar)cylinderShape->radius()));
-	}
-	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
-		AE_LOG_I("PlanePhysicsShape");
-
-		return make_shared<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
-												 (btScalar)planeShape->height()/2.0f,
-												 (btScalar)0));
-	}
-	else if (auto sphereShape = dynamic_cast<SpherePhysicsShape*>(&shape)) {
-		AE_LOG_I("SpherePhysicsShape");
-
-		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
-	}
-	else {
-		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
-				 (void*)&shape);
-	}
-}
-
-shared_ptr<btCollisionShape>
-BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   Geometry* geometry,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
-						   vector<shared_ptr<btCollisionShape>>& btShapes,
-						   shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-
-	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
-		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
-				 (void*)element.get());
-
-		auto extent = element->extent();
-		return make_shared<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
-												 (btScalar)extent.y/2.0f,
-												 (btScalar)extent.z/2.0f));
-	}
-	else if (auto box = dynamic_cast<Box*>(geometry)) {
-		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
-		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
-
-		return make_shared<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
-												 (btScalar)box->width()/2.0f,
-												 (btScalar)box->height()/2.0f));
-	}
-	else if (auto capsule = dynamic_cast<Capsule*>(geometry)) {
-		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
-		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
-
-		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
-										   (btScalar)capsule->height());
-	}
-	else if (auto cone  = dynamic_cast<Cone*>(geometry)) {
-		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... " \
-		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
-
-		return make_shared<btConeShape>((btScalar)cone->radius(),
-										(btScalar)cone->height());
-	}
-	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry)) {
-		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... " \
-		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
-
-		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)cylinder->height()/2.0,
-													  (btScalar)cylinder->radius()));
-	}
-	else if (auto plane = dynamic_cast<Plane*>(geometry)) {
-		// ae::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
-		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
-												 (btScalar)plane->height()/2.0f,
-												 (btScalar)0));
-	}
-	else if (auto sphere = dynamic_cast<Sphere*>(geometry)) {
-		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... " \
-		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
-
-		return make_shared<btSphereShape>((btScalar)sphere->radius());
-	}
-	// * no Bullet primitives for Torus or Tube *
-	else if (shapeType == PHYSICS_SHAPE_TYPE::CONVEX_HULL) {
-
-		return BTConvexHullShapeFromGeometryElement(element);
-	}
-	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC) {
-
-		return BTCompoundConvexHullHACDShapeFromGeometryElement(element, btShapes);
-	}
-	else if (bodyType == PHYSICS_BODY_TYPE::KINEMATIC) {
-
-		return BTGImpactMeshShapeFromGeometryElement(element, indexVertexArray);
-	}
-	else if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
-
-		return BTBvhTriangleMeshShapeFromGeometryElement(element, indexVertexArray);
-	}
-
-	return nullptr;
-}
-
-shared_ptr<btCompoundShape>
-BTShapeFromGeometry(Geometry* geometry,
-					PHYSICS_SHAPE_TYPE shapeType,
-					PHYSICS_BODY_TYPE bodyType,
-					vector<shared_ptr<btCollisionShape>>& btShapes,
-					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
-
-	auto newShape = make_shared<btCompoundShape>(true); // added to btShapes bt caller
-
-	for (auto& element : geometry->elements()) {
-
-		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		auto childShape = BTShapeFromGeometryElement(element,
-													 geometry,
-													 shapeType,
-													 bodyType,
-													 btShapes,
-													 indexVertexArray);
-
-		// the Geometry's transform is added to the btRigidBody's localInertia
-		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
-								childShape.get());
-
-		btShapes.push_back(childShape);
-		btIndexVertexArrays.push_back(indexVertexArray);
-	}
-
-	return newShape;
-}
-
-void AddBTShapeFromNodeRec(shared_ptr<Node> node,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
-						   shared_ptr<btCompoundShape> btParentShape,
-						   vector<shared_ptr<btCollisionShape>>& btShapes,
-						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
-
-	auto newShape = make_shared<btCompoundShape>(true);
-
-	if (node->name() != nullopt) {
-		AE_LOG_I("name: {}", *node->name());
-	}
-
-	auto geometry = node->geometry().get();
-	if (geometry) {
-		auto nodeGeoShape = BTShapeFromGeometry(geometry,
-												shapeType,
-												bodyType,
-												btShapes,
-												btIndexVertexArrays);
-		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
-								nodeGeoShape.get());
-		btShapes.push_back(nodeGeoShape);
-	}
-
-	btParentShape->addChildShape(BulletPhysicsSimulator::BTTransformFromGLMMat4(node->transform()),
-								 newShape.get());
-	btShapes.push_back(newShape);
-
-	// add child geometries recursively
-	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode,
-							  shapeType,
-							  bodyType,
-							  newShape,
-							  btShapes,
-							  btIndexVertexArrays);
-	}
-}
-
-shared_ptr<btConvexHullShape>
-BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
-	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", (void*)element.get());
-
-	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
-
-	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
-	auto originalShape = make_shared<btConvexHullShape>();
-	for (const auto& vertex : element->vertices()) {
-		originalShape->addPoint(BulletPhysicsSimulator::BTVector3FromGLMVec3(vertex.position), false);
-	}
-	originalShape->recalcLocalAabb();
-
-	// reduce number of verticies
-	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-	auto hull = btShapeHull(originalShape.get());
-	btScalar margin = originalShape->getMargin();
-	hull.buildHull((btScalar)margin);
-
-	auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
-													   hull.numVertices(),
-													   sizeof(btVector3));
-
-	reducedShape->optimizeConvexHull();
-
-	// for debug drawing
-	if (!reducedShape->initializePolyhedralFeatures()) {
-		AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
-	}
-
-	return reducedShape;
-}
-
-shared_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
-
-	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
-	// doesn't seem to want to collide with static shapes.
-	// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
-	// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
-	// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
-	// - GImpact shapes are well optimized for when you need dynamic concave shapes.
-	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
-	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
-
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
-
-	auto indexedMesh = make_shared<btIndexedMesh>();
-
-	indexedMesh->m_numTriangles = (int)faces.size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
-	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)verts.size();
-	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
-	indexedMesh->m_vertexStride = sizeof(Vertex);
-	indexedMesh->m_vertexType = PHY_FLOAT;
-
-	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
-
-	auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
-	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
-	gImpactMeshShape->updateBound();
-
-	return gImpactMeshShape;
-}
-
-shared_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
-
-	// static objects ALWAYS use btBvhTriangleMeshShape
-	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
-
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
-
-	// ^^ asked about on Bullet forum:
-	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
-
-	auto indexedMesh = make_shared<btIndexedMesh>();
-
-	indexedMesh->m_numTriangles = (int)faces.size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
-	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)verts.size();
-	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
-	indexedMesh->m_vertexStride = sizeof(Vertex);
-	indexedMesh->m_vertexType = PHY_FLOAT;
-
-	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
-
-	return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
-}
-
-shared_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-												 vector<shared_ptr<btCollisionShape>>& btShapes) {
-	AE_LOG_I("Creating convex hull compound physics shape for HACD GeometryElement {:p}...",
-			 (void*)element.get());
-
-	auto compoundShape = make_shared<btCompoundShape>(true);
-
-	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
-	for (auto& hacdElement : hacdElements) {
-		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
-		compoundShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(), convextHullShape.get());
-		btShapes.push_back(convextHullShape);
-	}
-
-	return compoundShape;
-}
-
-vector<shared_ptr<GeometryElement>>
-HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element) {
-	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", (void*)element.get());
-
-	ConvexDecomposer::Options options;
-	options.maxConvexHulls = options.maxConvexHulls / 8;
-	options.resolution = options.resolution / 8;
-	options.maxRecursionDepth = options.maxRecursionDepth / 4;
-	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
-
-	auto decomposer = ConvexDecomposer(element, options);
-	return decomposer.decompose();
-}
-
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
-	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
-
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
-	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
-		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
-	}
-
-	/* what do these do?
-	 
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_ProfileTimings);
-	 
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_DrawFeaturesText);
-	 
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_DrawFrames);
-	 
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_EnableCCD); */
-	
-	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
-	if (btModes != previousModes) {
-		AE_LOG_D("Bullet debug modes: {}", btModes);
-	}
-	previousModes = btModes;
-	
-	return btModes;
-}
-
-vec3 BulletPhysicsSimulator::GLMVec3FromBTVector3(const btVector3& from) {
-	return vec3(from.x(), from.y(), from.z());
-}
-
-vec4 BulletPhysicsSimulator::GLMVec4FromBTVector4(const btVector4& from) {
-	return vec4(from.x(), from.y(), from.z(), from.w());
-}
-
-mat4 BulletPhysicsSimulator::GLMMat4FromBTTransform(const btTransform& from) {
-	mat4 glmMat;
-	from.getOpenGLMatrix(value_ptr(glmMat));
-	return glmMat;
-}
-
-btVector3 BulletPhysicsSimulator::BTVector3FromGLMVec3(const vec3& from) {
-	return btVector3(from.x, from.y, from.z);
-}
-
-btVector4 BulletPhysicsSimulator::BTVector4FromGLMVec4(const vec4& from) {
-	return btVector4(from.x, from.y, from.z, from.w);
-}
-
-btQuaternion BulletPhysicsSimulator::BTQuaternionFromGLMQuat(const quat& from) {
-	
-	return btQuaternion(from.x, from.y, from.z, from.w);
-	
-}
-
-btTransform BulletPhysicsSimulator::BTTransformFromGLMMat4(const mat4& from) {
-	
-	// this version (probably) does not strip scale & sheer
-	
-	btTransform bulletTransform;
-	bulletTransform.setIdentity();
-	bulletTransform.setFromOpenGLMatrix(value_ptr(from));
-	return bulletTransform;
-	
-	
-//	// THIS VERSION STRIPS (hopefully!) scale & sheer
-//	
+//static shared_ptr<btCollisionShape>
+//BTShapeFromSourceGeometry(Geometry* geometry,
+//						  PHYSICS_SHAPE_TYPE shapeType,
+//						  PHYSICS_BODY_TYPE bodyType,
+//						  vector<shared_ptr<btCollisionShape>>& btShapes,
+//						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+//
+//	shared_ptr<btCollisionShape> newShape = nullptr;
+//
+//	if (geometry->elements().size() == 1) {
+//		// make a single shape
+//
+//		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+//		newShape = BTShapeFromGeometryElement(geometry->elements().front(),
+//											  geometry,
+//											  shapeType,
+//											  bodyType,
+//											  btShapes,
+//											  indexVertexArray);
+//		btShapes.push_back(newShape);
+//		btIndexVertexArrays.push_back(indexVertexArray);
+//	}
+//	else if (geometry->elements().size() > 1) {
+//		// make compound shape, loop BTShapeFromGeometryElement()
+//
+//		newShape = BTShapeFromGeometry(geometry,
+//									   shapeType,
+//									   bodyType,
+//									   btShapes,
+//									   btIndexVertexArrays);
+//	}
+//	else {
+//		AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
+//				 (void*)geometry);
+//	}
+//
+//	return newShape;
+//}
+//
+//static shared_ptr<btCollisionShape>
+//BTShapeFromSourceNode(Node* node,
+//					  PHYSICS_SHAPE_TYPE shapeType,
+//					  PHYSICS_BODY_TYPE bodyType,
+//					  vector<shared_ptr<btCollisionShape>>& btShapes,
+//					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+//
+//	// *** won't work for most static, kinematic? ***
+//	// "adding the following shapes to a btCompoundShape is not supported: btTriangleShape,
+//	// btBvhTriangleMeshShape, btGImpact*Shape, btStaticPlaneShape and a bunch more."
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=17718#p17718
+//
+//	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
+//
+//	// add the root geometry
+//	auto geometry = node->geometry().get();
+//	if (geometry) {
+//
+//		auto nodeGeoShape = BTShapeFromGeometry(geometry,
+//												shapeType,
+//												bodyType,
+//												btShapes,
+//												btIndexVertexArrays);
+//		rootShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
+//								 nodeGeoShape.get());
+//		btShapes.push_back(nodeGeoShape);
+//	}
+//
+//	// add child geometries recursively
+//	for (auto& childNode : node->children(false)) {
+//		AddBTShapeFromNodeRec(childNode,
+//							  shapeType,
+//							  bodyType,
+//							  rootShape,
+//							  btShapes,
+//							  btIndexVertexArrays);
+//	}
+//
+//	return rootShape;
+//}
+//
+//static shared_ptr<btCollisionShape>
+//BTShapeFromPrimitiveShape(PhysicsShape& shape,
+//						  PHYSICS_BODY_TYPE bodyType) {
+//
+//	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
+//		AE_LOG_I("BoxPhysicsShape");
+//
+//		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
+//												 (btScalar)boxShape->height()/2.0f,
+//												 (btScalar)boxShape->length()/2.0f));
+//	}
+//	else if (auto capsuleShape = dynamic_cast<CapsulePhysicsShape*>(&shape)) {
+//		AE_LOG_I("CapsulePhysicsShape");
+//
+//		return make_shared<btCapsuleShape>((btScalar)capsuleShape->radius(),
+//										   (btScalar)capsuleShape->height());
+//	}
+//	else if (auto coneShape = dynamic_cast<ConePhysicsShape*>(&shape)) {
+//		AE_LOG_I("ConePhysicsShape");
+//
+//		return make_shared<btConeShape>((btScalar)coneShape->radius(),
+//										(btScalar)coneShape->height());
+//	}
+//	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
+//		AE_LOG_I("CylinderPhysicsShape");
+//
+//		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
+//													  (btScalar)cylinderShape->height()/2.0,
+//													  (btScalar)cylinderShape->radius()));
+//	}
+//	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
+//		AE_LOG_I("PlanePhysicsShape");
+//
+//		return make_shared<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
+//												 (btScalar)planeShape->height()/2.0f,
+//												 (btScalar)0));
+//	}
+//	else if (auto sphereShape = dynamic_cast<SpherePhysicsShape*>(&shape)) {
+//		AE_LOG_I("SpherePhysicsShape");
+//
+//		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
+//	}
+//	else {
+//		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
+//				 (void*)&shape);
+//	}
+//}
+//
+//shared_ptr<btCollisionShape>
+//BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//						   Geometry* geometry,
+//						   PHYSICS_SHAPE_TYPE shapeType,
+//						   PHYSICS_BODY_TYPE bodyType,
+//						   vector<shared_ptr<btCollisionShape>>& btShapes,
+//						   shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+//
+//	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
+//		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
+//				 (void*)element.get());
+//
+//		auto extent = element->extent();
+//		return make_shared<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
+//												 (btScalar)extent.y/2.0f,
+//												 (btScalar)extent.z/2.0f));
+//	}
+//	else if (auto box = dynamic_cast<Box*>(geometry)) {
+//		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
+//		"(ignoring physics shape type '{}')",
+//				 (void*)element.get(), magic_enum::enum_name(shapeType));
+//
+//		return make_shared<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
+//												 (btScalar)box->width()/2.0f,
+//												 (btScalar)box->height()/2.0f));
+//	}
+//	else if (auto capsule = dynamic_cast<Capsule*>(geometry)) {
+//		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
+//		"(ignoring physics shape type '{}')",
+//				 (void*)element.get(), magic_enum::enum_name(shapeType));
+//
+//		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
+//										   (btScalar)capsule->height());
+//	}
+//	else if (auto cone  = dynamic_cast<Cone*>(geometry)) {
+//		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... " \
+//		"(ignoring physics shape type '{}')",
+//				 (void*)element.get(), magic_enum::enum_name(shapeType));
+//
+//		return make_shared<btConeShape>((btScalar)cone->radius(),
+//										(btScalar)cone->height());
+//	}
+//	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry)) {
+//		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... " \
+//		"(ignoring physics shape type '{}')",
+//				 (void*)element.get(), magic_enum::enum_name(shapeType));
+//
+//		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
+//													  (btScalar)cylinder->height()/2.0,
+//													  (btScalar)cylinder->radius()));
+//	}
+//	else if (auto plane = dynamic_cast<Plane*>(geometry)) {
+//		// ae::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
+//		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
+//												 (btScalar)plane->height()/2.0f,
+//												 (btScalar)0));
+//	}
+//	else if (auto sphere = dynamic_cast<Sphere*>(geometry)) {
+//		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... " \
+//		"(ignoring physics shape type '{}')",
+//				 (void*)element.get(), magic_enum::enum_name(shapeType));
+//
+//		return make_shared<btSphereShape>((btScalar)sphere->radius());
+//	}
+//	// * no Bullet primitives for Torus or Tube *
+//	else if (shapeType == PHYSICS_SHAPE_TYPE::CONVEX_HULL) {
+//
+//		return BTConvexHullShapeFromGeometryElement(element);
+//	}
+//	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC) {
+//
+//		return BTCompoundConvexHullHACDShapeFromGeometryElement(element, btShapes);
+//	}
+//	else if (bodyType == PHYSICS_BODY_TYPE::KINEMATIC) {
+//
+//		return BTGImpactMeshShapeFromGeometryElement(element, indexVertexArray);
+//	}
+//	else if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
+//
+//		return BTBvhTriangleMeshShapeFromGeometryElement(element, indexVertexArray);
+//	}
+//
+//	return nullptr;
+//}
+//
+//shared_ptr<btCompoundShape>
+//BTShapeFromGeometry(Geometry* geometry,
+//					PHYSICS_SHAPE_TYPE shapeType,
+//					PHYSICS_BODY_TYPE bodyType,
+//					vector<shared_ptr<btCollisionShape>>& btShapes,
+//					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+//
+//	auto newShape = make_shared<btCompoundShape>(true); // added to btShapes bt caller
+//
+//	for (auto& element : geometry->elements()) {
+//
+//		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+//		auto childShape = BTShapeFromGeometryElement(element,
+//													 geometry,
+//													 shapeType,
+//													 bodyType,
+//													 btShapes,
+//													 indexVertexArray);
+//
+//		// the Geometry's transform is added to the btRigidBody's localInertia
+//		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
+//								childShape.get());
+//
+//		btShapes.push_back(childShape);
+//		btIndexVertexArrays.push_back(indexVertexArray);
+//	}
+//
+//	return newShape;
+//}
+//
+//void AddBTShapeFromNodeRec(shared_ptr<Node> node,
+//						   PHYSICS_SHAPE_TYPE shapeType,
+//						   PHYSICS_BODY_TYPE bodyType,
+//						   shared_ptr<btCompoundShape> btParentShape,
+//						   vector<shared_ptr<btCollisionShape>>& btShapes,
+//						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+//
+//	auto newShape = make_shared<btCompoundShape>(true);
+//
+//	if (node->name() != nullopt) {
+//		AE_LOG_I("name: {}", *node->name());
+//	}
+//
+//	auto geometry = node->geometry().get();
+//	if (geometry) {
+//		auto nodeGeoShape = BTShapeFromGeometry(geometry,
+//												shapeType,
+//												bodyType,
+//												btShapes,
+//												btIndexVertexArrays);
+//		newShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(),
+//								nodeGeoShape.get());
+//		btShapes.push_back(nodeGeoShape);
+//	}
+//
+//	btParentShape->addChildShape(BulletPhysicsSimulator::BTTransformFromGLMMat4(node->transform()),
+//								 newShape.get());
+//	btShapes.push_back(newShape);
+//
+//	// add child geometries recursively
+//	for (auto& childNode : node->children(false)) {
+//		AddBTShapeFromNodeRec(childNode,
+//							  shapeType,
+//							  bodyType,
+//							  newShape,
+//							  btShapes,
+//							  btIndexVertexArrays);
+//	}
+//}
+//
+//shared_ptr<btConvexHullShape>
+//BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
+//	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", (void*)element.get());
+//
+//	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+//
+//	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
+//	auto originalShape = make_shared<btConvexHullShape>();
+//	for (const auto& vertex : element->vertices()) {
+//		originalShape->addPoint(BulletPhysicsSimulator::BTVector3FromGLMVec3(vertex.position), false);
+//	}
+//	originalShape->recalcLocalAabb();
+//
+//	// reduce number of verticies
+//	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+//	auto hull = btShapeHull(originalShape.get());
+//	btScalar margin = originalShape->getMargin();
+//	hull.buildHull((btScalar)margin);
+//
+//	auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
+//													   hull.numVertices(),
+//													   sizeof(btVector3));
+//
+//	reducedShape->optimizeConvexHull();
+//
+//	// for debug drawing
+//	if (!reducedShape->initializePolyhedralFeatures()) {
+//		AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
+//	}
+//
+//	return reducedShape;
+//}
+//
+//shared_ptr<btGImpactMeshShape>
+//BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+//	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
+//
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+//	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+//	// doesn't seem to want to collide with static shapes.
+//	// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
+//	// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
+//	// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
+//	// - GImpact shapes are well optimized for when you need dynamic concave shapes.
+//	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
+//	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
+//
+//	const auto& verts = element->vertices();
+//	const auto& faces = element->faces();
+//
+//	auto indexedMesh = make_shared<btIndexedMesh>();
+//
+//	indexedMesh->m_numTriangles = (int)faces.size();
+//	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
+//	indexedMesh->m_triangleIndexStride = sizeof(Face);
+//	indexedMesh->m_numVertices = (int)verts.size();
+//	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
+//	indexedMesh->m_vertexStride = sizeof(Vertex);
+//	indexedMesh->m_vertexType = PHY_FLOAT;
+//
+//	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+//
+//	auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
+//	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
+//	gImpactMeshShape->updateBound();
+//
+//	return gImpactMeshShape;
+//}
+//
+//shared_ptr<btBvhTriangleMeshShape>
+//BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+//	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
+//
+//	// static objects ALWAYS use btBvhTriangleMeshShape
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+//
+//	const auto& verts = element->vertices();
+//	const auto& faces = element->faces();
+//
+//	// ^^ asked about on Bullet forum:
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
+//
+//	auto indexedMesh = make_shared<btIndexedMesh>();
+//
+//	indexedMesh->m_numTriangles = (int)faces.size();
+//	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
+//	indexedMesh->m_triangleIndexStride = sizeof(Face);
+//	indexedMesh->m_numVertices = (int)verts.size();
+//	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
+//	indexedMesh->m_vertexStride = sizeof(Vertex);
+//	indexedMesh->m_vertexType = PHY_FLOAT;
+//
+//	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
+//
+//	return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+//}
+//
+//shared_ptr<btCompoundShape>
+//BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+//												 vector<shared_ptr<btCollisionShape>>& btShapes) {
+//	AE_LOG_I("Creating convex hull compound physics shape for HACD GeometryElement {:p}...",
+//			 (void*)element.get());
+//
+//	auto compoundShape = make_shared<btCompoundShape>(true);
+//
+//	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
+//	for (auto& hacdElement : hacdElements) {
+//		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
+//		compoundShape->addChildShape(BulletPhysicsSimulator::BTIdentityTransform(), convextHullShape.get());
+//		btShapes.push_back(convextHullShape);
+//	}
+//
+//	return compoundShape;
+//}
+//
+//vector<shared_ptr<GeometryElement>>
+//HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element) {
+//	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", (void*)element.get());
+//
+//	ConvexDecomposer::Options options;
+//	options.maxConvexHulls = options.maxConvexHulls / 8;
+//	options.resolution = options.resolution / 8;
+//	options.maxRecursionDepth = options.maxRecursionDepth / 4;
+//	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
+//
+//	auto decomposer = ConvexDecomposer(element, options);
+//	return decomposer.decompose();
+//}
+
+//btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
+//	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
+//
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
+//	}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
+//	}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
+//	}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
+//	}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
+//	}
+//	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
+//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
+//	}
+//
+//	/* what do these do?
+//
+//	 btModes = (btIDebugDraw::DebugDrawModes)
+//	 (btModes | btIDebugDraw::DBG_ProfileTimings);
+//
+//	 btModes = (btIDebugDraw::DebugDrawModes)
+//	 (btModes | btIDebugDraw::DBG_DrawFeaturesText);
+//
+//	 btModes = (btIDebugDraw::DebugDrawModes)
+//	 (btModes | btIDebugDraw::DBG_DrawFrames);
+//
+//	 btModes = (btIDebugDraw::DebugDrawModes)
+//	 (btModes | btIDebugDraw::DBG_EnableCCD); */
+//
+//	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
+//	if (btModes != previousModes) {
+//		AE_LOG_D("Bullet debug modes: {}", btModes);
+//	}
+//	previousModes = btModes;
+//
+//	return btModes;
+//}
+//
+//vec3 BulletPhysicsSimulator::GLMVec3FromBTVector3(const btVector3& from) {
+//	return vec3(from.x(), from.y(), from.z());
+//}
+//
+//vec4 BulletPhysicsSimulator::GLMVec4FromBTVector4(const btVector4& from) {
+//	return vec4(from.x(), from.y(), from.z(), from.w());
+//}
+//
+//mat4 BulletPhysicsSimulator::GLMMat4FromBTTransform(const btTransform& from) {
+//	mat4 glmMat;
+//	from.getOpenGLMatrix(value_ptr(glmMat));
+//	return glmMat;
+//}
+//
+//btVector3 BulletPhysicsSimulator::BTVector3FromGLMVec3(const vec3& from) {
+//	return btVector3(from.x, from.y, from.z);
+//}
+//
+//btVector4 BulletPhysicsSimulator::BTVector4FromGLMVec4(const vec4& from) {
+//	return btVector4(from.x, from.y, from.z, from.w);
+//}
+//
+//btQuaternion BulletPhysicsSimulator::BTQuaternionFromGLMQuat(const quat& from) {
+//
+//	return btQuaternion(from.x, from.y, from.z, from.w);
+//
+//}
+//
+//btTransform BulletPhysicsSimulator::BTTransformFromGLMMat4(const mat4& from) {
+//
+//	// this version (probably) does not strip scale & sheer
+//
 //	btTransform bulletTransform;
 //	bulletTransform.setIdentity();
-//	
+//	bulletTransform.setFromOpenGLMatrix(value_ptr(from));
+//	return bulletTransform;
+//
+//
+////	// THIS VERSION STRIPS (hopefully!) scale & sheer
+////
+////	btTransform bulletTransform;
+////	bulletTransform.setIdentity();
+////
+////	vec3 scale;
+////	quat orientation;
+////	vec3 translation;
+////	vec3 skew;
+////	vec4 perspective;
+////
+////	decompose(from,
+////			  scale,
+////			  orientation,
+////			  translation,
+////			  skew,
+////			  perspective);
+////
+////	bulletTransform.setOrigin(BTVector3FromGLMVec3(translation));
+////	bulletTransform.setRotation(BTQuaternionFromGLMQuat(orientation));
+////
+////	return bulletTransform;
+//}
+//
+//mat4 BulletPhysicsSimulator::TransformByRemovingScale(const mat4& m, bool& scaled) {
+//	// TODO: optimize
+//
 //	vec3 scale;
 //	quat orientation;
 //	vec3 translation;
 //	vec3 skew;
 //	vec4 perspective;
 //
-//	decompose(from,
+//	decompose(m,
 //			  scale,
 //			  orientation,
 //			  translation,
 //			  skew,
 //			  perspective);
-//	
-//	bulletTransform.setOrigin(BTVector3FromGLMVec3(translation));
-//	bulletTransform.setRotation(BTQuaternionFromGLMQuat(orientation));
-//	
-//	return bulletTransform;
-}
-
-mat4 BulletPhysicsSimulator::TransformByRemovingScale(const mat4& m, bool& scaled) {
-	// TODO: optimize
-
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(m,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	scaled = !Equal(scale, {1, 1, 1});
-	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
-	else return m;
-}
-
-btTransform& BulletPhysicsSimulator::BTIdentityTransform() {
-	// TODO: optimize
-	static auto identityTransform = btTransform();
-	identityTransform.setIdentity();
-	return identityTransform;
-}
+//
+//	scaled = !Equal(scale, {1, 1, 1});
+//	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
+//	else return m;
+//}
+//
+//btTransform& BulletPhysicsSimulator::BTIdentityTransform() {
+//	// TODO: optimize
+//	static auto identityTransform = btTransform();
+//	identityTransform.setIdentity();
+//	return identityTransform;
+//}
