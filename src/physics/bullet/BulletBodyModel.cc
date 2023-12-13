@@ -92,6 +92,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 															   btShape.get(),
 															   localInertia);
 
+		// TODO: add others
 		rigidBodyInfo.m_mass = mass;
 		rigidBodyInfo.m_linearDamping = body->linearDamping();
 		rigidBodyInfo.m_angularDamping = body->angularDamping();
@@ -100,6 +101,8 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		rigidBodyInfo.m_restitution = body->restitution();
 		rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
 		rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
+
+		//linearVelocity(body->linearVelocity());
 
 		btBody = make_shared<btRigidBody>(rigidBodyInfo);
 	}
