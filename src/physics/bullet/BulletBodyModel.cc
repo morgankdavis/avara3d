@@ -48,12 +48,12 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 	auto shape = body->shape();
 
 	shared_ptr<btRigidBody> btBody = nullptr;
+	shared_ptr<btDefaultMotionState> btMotionState = nullptr;
 
 	if (!shape || !node) {
-		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0,
-															   nullptr,
-															   nullptr);
 
+		btMotionState = make_shared<btDefaultMotionState>(BulletWorldModel::BTIdentityTransform());
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0, btMotionState.get(), nullptr);
 		btBody = make_shared<btRigidBody>(rigidBodyInfo);
 	}
 	else {
@@ -86,9 +86,9 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 			btShape->calculateLocalInertia(mass, localInertia);
 		}
 
-		auto newMotionState = make_shared<btDefaultMotionState>(transform);
+		btMotionState = make_shared<btDefaultMotionState>(transform);
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
-															   newMotionState.get(),
+															   btMotionState.get(),
 															   btShape.get(),
 															   localInertia);
 
@@ -102,8 +102,6 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
 
 		btBody = make_shared<btRigidBody>(rigidBodyInfo);
-
-		_btMotionState = newMotionState; // TEMPORARY
 	}
 
 	btBody->setUserPointer((void*)&body);
@@ -126,7 +124,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 //	bodyResources->btMotionState(newMotionState);
 
 	_btBody = btBody;
-//	_btMotionState = newMotionState;  // TEMPORARILY DISABLED
+	_btMotionState = btMotionState;
 
 	// I'm a cheap bastard
 //	linearFactor(body->linearFactor());
@@ -191,8 +189,6 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 
 
 
-
-
 	auto shapeModel = static_cast<BulletShapeModel*>(shape);
 
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
@@ -201,9 +197,10 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 	AE_LOG_D("Creating rigid body for physics body {:p}...", (void *)_body);
 
 	bool wasScaled = false;
-	auto transform = BulletWorldModel::BTTransformFromGLMMat4(
-			BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(),
-													   wasScaled));
+	// ********* is this right....................? ***********
+	auto transform = (_body->node()
+					  ? BulletWorldModel::BTTransformFromGLMMat4(BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(), wasScaled))
+					  : BulletWorldModel::BTIdentityTransform());
 	if (wasScaled) {
 		// TODO: do something about this
 		// can hold a burned transformed vertex data in the physics body/shape?
@@ -221,29 +218,15 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 		btShape->calculateLocalInertia(mass, localInertia);
 	}
 
-
 	_btBody->setCollisionShape(btShape.get());
 	_btBody->setMassProps(mass, localInertia);
+
+	auto btMotionState = make_shared<btDefaultMotionState>(transform);
+	_btBody->setMotionState(btMotionState.get());
+
 	_btBody->updateInertiaTensor();
 
-	auto newMotionState = make_shared<btDefaultMotionState>(transform);
-//	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(mass,
-//														   newMotionState.get(),
-//														   btShape.get(),
-//														   localInertia);
-
-//	rigidBodyInfo.m_mass = mass;
-//	rigidBodyInfo.m_linearDamping = body->linearDamping();
-//	rigidBodyInfo.m_angularDamping = body->angularDamping();
-//	rigidBodyInfo.m_friction = body->friction();
-//	rigidBodyInfo.m_rollingFriction = body->rollingFriction();
-//	rigidBodyInfo.m_restitution = body->restitution();
-//	rigidBodyInfo.m_linearSleepingThreshold = body->linearSleepingThreshold();
-//	rigidBodyInfo.m_angularSleepingThreshold = body->angularSleepingThreshold();
-
-	//_btBody = make_shared<btRigidBody>(rigidBodyInfo);
-
-	_btMotionState = newMotionState; // TEMPORARY
+	_btMotionState = btMotionState;
 }
 
 //glm::mat4 BulletBodyModel::worldTransform() const {

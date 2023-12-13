@@ -522,15 +522,21 @@ void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
 void PhysicsBody::checkCreateModel() {
 	AE_LOG_T("");
 
-	if (!_model) {
-		if (auto simulator = physicsSimulator()) {
-			//simulator->create(*this);
-
-//			for (auto& body : _bodies) {
-//				body->modelCreated(*this);
-//			}
+	if (auto world = physicalWorld()) {
+		if (auto model = world->model()) {
+			model->add(*this);
 		}
 	}
+
+//	if (!_model) {
+//		if (auto simulator = physicsSimulator()) {
+//			//simulator->create(*this);
+//
+////			for (auto& body : _bodies) {
+////				body->modelCreated(*this);
+////			}
+//		}
+//	}
 }
 
 void PhysicsBody::checkAutocreateShape(Node* node) {
