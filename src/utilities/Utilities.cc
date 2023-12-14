@@ -39,6 +39,7 @@
 #ifdef WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL
+#undef max
 #endif
 
 #ifdef ANDROID
