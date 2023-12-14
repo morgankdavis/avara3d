@@ -528,8 +528,9 @@ mat4 Node::worldTransform() const {
 	}
 	else {
 		// base case, at root node
-		static const auto idMat4 = mat4(1.0);
-		return idMat4;
+//		static const auto idMat4 = mat4(1.0);
+//		return idMat4;
+		return transform();
 	}
 }
 

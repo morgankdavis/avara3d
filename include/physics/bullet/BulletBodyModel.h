@@ -103,6 +103,8 @@ namespace ae {
 
 	private:
 
+		float _mass; // TEMPORARY
+
 		PhysicsBody*							_body;
 		std::shared_ptr<btRigidBody>			_btBody;
 		std::shared_ptr<btDefaultMotionState>	_btMotionState;
