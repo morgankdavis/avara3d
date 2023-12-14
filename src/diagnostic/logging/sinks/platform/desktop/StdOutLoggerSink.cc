@@ -4,6 +4,9 @@
 
 #include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
 
 using namespace ae;
 using namespace std;
