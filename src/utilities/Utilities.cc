@@ -37,7 +37,8 @@
 #endif
 
 #ifdef WINDOWS
-//#include <windows.h>
+#include <windows.h>
+#undef ERROR // see note at LOG_LEVEL
 #endif
 
 #ifdef ANDROID

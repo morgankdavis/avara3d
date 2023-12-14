@@ -6,7 +6,7 @@
 
 #ifdef WINDOWS
 #include <windows.h>
-#undef ERROR
+#undef ERROR // see note at LOG_LEVEL
 #endif
 
 using namespace ae;
