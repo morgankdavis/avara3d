@@ -6,6 +6,7 @@
 
 #ifdef WINDOWS
 #include <windows.h>
+#undef ERROR
 #endif
 
 using namespace ae;
@@ -54,7 +55,7 @@ void StdOutLoggerSink::write(const char* message, LOG_LEVEL level) {
 	//sprintf(newLined, "%s\n", message);
 	strcpy(newLined, message);
 	strcat(newLined, "\n");
-	OutputDebugStringA((const char*)newLined);
+	OutputDebugStringA((const char*)newLined); // this broke with C++20.  trying to include windows.h ^^
 	free(newLined);
 #endif
 }
