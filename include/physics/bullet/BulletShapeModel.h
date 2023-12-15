@@ -36,10 +36,10 @@ namespace ae {
  *********************************************************************************************/
 
 		std::vector<std::shared_ptr<btCollisionShape>>& btShapes();
-		void btShapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
+//		void btShapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
 
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays();
-		void btIndexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
+//		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays();
+//		void btIndexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
 
 /*********************************************************************************************
 	 Private

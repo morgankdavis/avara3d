@@ -78,7 +78,13 @@ BulletWorldModel::~BulletWorldModel() {
  *********************************************************************************************/
 
 void BulletWorldModel::add(PhysicsBody& body) {
+
 	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
+
+	// set initial position here (as opposed to inside BulletBodyModel) in case the parent
+	// node changes its transform after the body is attached.
+	bodyModel->worldTransform(body.node()->worldTransform());
+
 	_btWorld->addRigidBody(bodyModel->btBody().get());
 }
 
@@ -137,7 +143,7 @@ void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 										   timestep);
 
 	if (result == MAX_SUBSTEPS) {
-		AE_LOG_W("Physics simulation max substeps reached: {}", result);
+		AE_LOG_W("Max physics simulation substeps reached: {}", result);
 	}
 }
 
@@ -155,8 +161,6 @@ void BulletWorldModel::sync() {
 				case PHYSICS_BODY_TYPE::DYNAMIC:
 				case PHYSICS_BODY_TYPE::KINEMATIC:
 					static btTransform btWorldTransform;
-					//btWorldTransform.setIdentity();
-					//btMotionState->getWorldTransform(btWorldTransform); // crash?
 					btBody->getMotionState()->getWorldTransform(btWorldTransform);
 					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
 					break;

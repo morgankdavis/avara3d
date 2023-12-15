@@ -4,17 +4,13 @@
 
 #include "physics/bullet/BulletShapeModel.h"
 
-#include <unordered_set>
 #include <variant>
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
 #include "LinearMath/btIDebugDraw.h"
-//#include "LinearMath/btScalar.h" // btGetVersion() !
 #include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"
@@ -30,9 +26,7 @@
 #include "physics/PhysicsBodyModel.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletBodyModel.h"
 #include "physics/bullet/BulletDebugDrawer.h"
-#include "physics/bullet/BulletShapeModel.h"
 #include "physics/bullet/BulletWorldModel.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
@@ -41,13 +35,10 @@
 #include "physics/shape_primitives/PlanePhysicsShape.h"
 #include "physics/shape_primitives/SpherePhysicsShape.h"
 #include "scene/Node.h"
-#include "scene/Scene.h"
 #include "Types.h"
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -143,7 +134,7 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 		}
 	}
 
-		// source NODE
+	// source NODE
 	else if (holds_alternative<Node*>(sourceObject)) {
 		if (auto sourceNode = get<Node*>(sourceObject)) {
 
@@ -155,7 +146,7 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 		}
 	}
 
-		// primitive subclass
+	// primitive subclass
 	else if (holds_alternative<monostate>(sourceObject)) {
 
 		newShape = BTShapeFromPrimitiveShape(*shape, bodyType);
@@ -166,23 +157,15 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 		newShape->setUserPointer((void*)shape);
 		btShapes.insert(btShapes.begin(), newShape);
 
-//		auto shapeResources = static_cast<BulletShapeModel*>(shape->model());
-//		shapeResources->btShapes(btShapes);
-//		shapeResources->btIndexVertexArrays(btIndexVertexArrays);
-
 		_btShapes = btShapes;
 		_btIndexVertexArrays = btIndexVertexArrays;
-
-//		updated = true;
 
 		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
 														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 	}
 	else {
-//		updated = false;
 		AE_LOG_E("PhysicsShape with no geometry or source node.");
 	}
-
 }
 
 BulletShapeModel::~BulletShapeModel() {
@@ -193,22 +176,21 @@ BulletShapeModel::~BulletShapeModel() {
 	Public
  *********************************************************************************************/
 
-
 vector <shared_ptr<btCollisionShape>>& BulletShapeModel::btShapes() {
 	return _btShapes;
 }
 
-void BulletShapeModel::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
-	_btShapes = shapes;
-}
-
-vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeModel::btIndexVertexArrays() {
-	return _btIndexVertexArrays;
-}
-
-void BulletShapeModel::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
-	_btIndexVertexArrays = indexVertexArrays;
-}
+//void BulletShapeModel::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
+//	_btShapes = shapes;
+//}
+//
+//vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeModel::btIndexVertexArrays() {
+//	return _btIndexVertexArrays;
+//}
+//
+//void BulletShapeModel::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
+//	_btIndexVertexArrays = indexVertexArrays;
+//}
 
 /*********************************************************************************************
 	Static

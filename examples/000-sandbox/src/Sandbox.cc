@@ -14,6 +14,8 @@
 
 #include "utilities/Utilities.h"
 
+#include "physics/bullet/BulletBodyModel.h"
+
 
 using namespace ae;
 using namespace ae::utils;

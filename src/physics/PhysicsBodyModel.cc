@@ -8,5 +8,8 @@
 using namespace ae;
 
 
-PhysicsBodyModel::PhysicsBodyModel(PhysicsBody* body) { }
+PhysicsBodyModel::PhysicsBodyModel(PhysicsBody* body):
+		_body(body),
+		_shapeModel(nullptr) { }
+
 PhysicsBodyModel::~PhysicsBodyModel() { }

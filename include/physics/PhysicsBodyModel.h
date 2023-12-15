@@ -39,8 +39,8 @@ namespace ae {
 		virtual PhysicsShapeModel*	shape() const = 0;
 		virtual void				shape(PhysicsShapeModel* shape) = 0;
 
-//		virtual glm::mat4			worldTransform() const = 0;
-//		virtual void				worldTransform(const glm::mat4& transform) = 0;
+		virtual glm::mat4			worldTransform() const = 0;
+		virtual void				worldTransform(const glm::mat4& transform) = 0;
 
 		virtual float				mass() const = 0;
 		virtual void				mass(float mass) = 0;
@@ -93,7 +93,7 @@ namespace ae {
 
 	protected:
 
-		//PhysicsBody*				_body;
+		PhysicsBody*				_body;
 		PhysicsShapeModel*			_shapeModel;
 	};
 }

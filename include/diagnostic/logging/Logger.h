@@ -32,7 +32,6 @@
 #include "Types.h"
 #include "diagnostic/Exception.h"
 
-
 // https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 
 // __PRETTY_FUNCTION__ gives something like:

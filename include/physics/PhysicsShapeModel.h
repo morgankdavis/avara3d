@@ -24,7 +24,15 @@ namespace ae {
 	public:
 
 		PhysicsShapeModel(PhysicsShape* shape);
-		~PhysicsShapeModel();
+		virtual ~PhysicsShapeModel() = 0;
+
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
+
+	protected:
+
+		PhysicsShape*		_shape;
 	};
 }
 

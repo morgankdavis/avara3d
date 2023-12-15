@@ -39,8 +39,8 @@ namespace ae {
 		PhysicsShapeModel*	shape() const override;
 		void				shape(PhysicsShapeModel* shape) override;
 
-//		glm::mat4			worldTransform() const override;
-//		void				worldTransform(const glm::mat4& transform) override;
+		glm::mat4			worldTransform() const override;
+		void				worldTransform(const glm::mat4& transform) override;
 
 		float				mass() const override;
 		void				mass(float mass) override;
@@ -87,15 +87,23 @@ namespace ae {
 		bool				allowsResting() const override;
 		void				allowsResting(bool allowsResting) override;
 
+//		bool				autocalculatesMomentOfInertia() const override; // ADD ME
+//		void				autocalculatesMomentOfInertia(bool autocalculate); // ADD ME
+
+		void				recalculateMomentOfIntertia(); // maybe private?
+
+//							usesDefaultMomentOfInertia: Bool
+//							centerOfMassOffset: SCNVector3
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
 		std::shared_ptr<btRigidBody>			btBody();
-		void									btBody(std::shared_ptr<btRigidBody> body);
-
+//		void									btBody(std::shared_ptr<btRigidBody> body);
+//
 		std::shared_ptr<btDefaultMotionState>	btMotionState();
-		void									btMotionState(std::shared_ptr<btDefaultMotionState> motionState);
+//		void									btMotionState(std::shared_ptr<btDefaultMotionState> motionState);
 
 /*********************************************************************************************
 	 Private
@@ -103,9 +111,9 @@ namespace ae {
 
 	private:
 
-		float _mass; // TEMPORARY
+//		float _mass; // TEMPORARY
 
-		PhysicsBody*							_body;
+//		PhysicsBody*							_body;
 		std::shared_ptr<btRigidBody>			_btBody;
 		std::shared_ptr<btDefaultMotionState>	_btMotionState;
 	};

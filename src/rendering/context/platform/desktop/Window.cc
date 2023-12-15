@@ -304,8 +304,9 @@ static void LogGLInfo()
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
-	AE_LOG_I("Renderer: {}", *renderer);
-	AE_LOG_I("Version: {}", *version);
+	// is this cool?
+	AE_LOG_I("Renderer: {}", reinterpret_cast<const char*>(renderer));
+	AE_LOG_I("Version: {}", reinterpret_cast<const char*>(version));
 
 	// extensions
 

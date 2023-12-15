@@ -215,8 +215,8 @@ int Example::run(const vector<string>& args) {
 
 	// #0
 	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 
 	// #1
 //	_duckNode->physicsBody(PhysicsBody::KinematicBody());
