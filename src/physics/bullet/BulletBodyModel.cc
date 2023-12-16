@@ -18,9 +18,9 @@
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicsShapeModel.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletShapeModel.h"
 #include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 
@@ -44,7 +44,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
 
-	_btMotionState = make_shared<btDefaultMotionState>(BulletWorldModel::BTIdentityTransform());
+	_btMotionState = make_shared<btDefaultMotionState>(BTIdentityTransform());
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0,
 														   _btMotionState.get(),
 														   nullptr);
@@ -155,14 +155,14 @@ void BulletBodyModel::mass(float mass) {
 }
 
 glm::vec3 BulletBodyModel::momentOfInertia() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLocalInertia());
+	return GLMVec3FromBTVector3(_btBody->getLocalInertia());
 }
 
 void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
 
 	if (!_autocalculatesMomentOfInertia) {
 		_btBody->setMassProps(mass(),
-							  BulletWorldModel::BTVector3FromGLMVec3(moment));
+							  BTVector3FromGLMVec3(moment));
 		_btBody->updateInertiaTensor();
 	}
 	else {
@@ -171,12 +171,12 @@ void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
 }
 
 glm::vec3 BulletBodyModel::centerOfMass() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
+	return GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
 void BulletBodyModel::centerOfMass(const glm::vec3 offset) {
 	_btBody->setCenterOfMassTransform(
-			BulletWorldModel::BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
+			BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
 }
 
 float BulletBodyModel::friction() const {
@@ -204,35 +204,35 @@ void BulletBodyModel::restitution(float restitution) {
 }
 
 glm::vec3 BulletBodyModel::linearVelocity() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLinearVelocity());
+	return GLMVec3FromBTVector3(_btBody->getLinearVelocity());
 }
 
 void BulletBodyModel::linearVelocity(const glm::vec3& velocity) {
-	_btBody->setLinearVelocity(BulletWorldModel::BTVector3FromGLMVec3(velocity));
+	_btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 glm::vec3 BulletBodyModel::angularVelocity() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getAngularVelocity());
+	return GLMVec3FromBTVector3(_btBody->getAngularVelocity());
 }
 
 void BulletBodyModel::angularVelocity(const glm::vec3& velocity) {
-	_btBody->setAngularVelocity(BulletWorldModel::BTVector3FromGLMVec3(velocity));
+	_btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
 }
 
 glm::vec3 BulletBodyModel::linearFactor() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getLinearFactor());
+	return GLMVec3FromBTVector3(_btBody->getLinearFactor());
 }
 
 void BulletBodyModel::linearFactor(const glm::vec3& factor) {
-	_btBody->setLinearFactor(BulletWorldModel::BTVector3FromGLMVec3(factor));
+	_btBody->setLinearFactor(BTVector3FromGLMVec3(factor));
 }
 
 glm::vec3 BulletBodyModel::angularFactor() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getAngularFactor());
+	return GLMVec3FromBTVector3(_btBody->getAngularFactor());
 }
 
 void BulletBodyModel::angularFactor(const glm::vec3& factor) {
-	_btBody->setAngularFactor(BulletWorldModel::BTVector3FromGLMVec3(factor));
+	_btBody->setAngularFactor(BTVector3FromGLMVec3(factor));
 }
 
 float BulletBodyModel::linearDamping() const {
@@ -268,29 +268,29 @@ void BulletBodyModel::angularSleepingThreshold(float threshold) {
 }
 
 void BulletBodyModel::applyForce(const vec3& force, const vec3& location) {
-	_btBody->applyForce(BulletWorldModel::BTVector3FromGLMVec3(force),
-						BulletWorldModel::BTVector3FromGLMVec3(location));
+	_btBody->applyForce(BTVector3FromGLMVec3(force),
+						BTVector3FromGLMVec3(location));
 }
 
 void BulletBodyModel::applyCentralForce(const vec3& force) {
-	_btBody->applyCentralForce(BulletWorldModel::BTVector3FromGLMVec3(force));
+	_btBody->applyCentralForce(BTVector3FromGLMVec3(force));
 }
 
 void BulletBodyModel::applyImpulse(const vec3& impulse, const vec3& location) {
-	_btBody->applyImpulse(BulletWorldModel::BTVector3FromGLMVec3(impulse),
-						BulletWorldModel::BTVector3FromGLMVec3(location));
+	_btBody->applyImpulse(BTVector3FromGLMVec3(impulse),
+						BTVector3FromGLMVec3(location));
 }
 
 void BulletBodyModel::applyCentralImpulse(const vec3& impulse) {
-	_btBody->applyCentralImpulse(BulletWorldModel::BTVector3FromGLMVec3(impulse));
+	_btBody->applyCentralImpulse(BTVector3FromGLMVec3(impulse));
 }
 
 void BulletBodyModel::applyTorque(const vec3& torque) {
-	_btBody->applyTorque(BulletWorldModel::BTVector3FromGLMVec3(torque));
+	_btBody->applyTorque(BTVector3FromGLMVec3(torque));
 }
 
 void BulletBodyModel::applyTorqueImpulse(const vec3& torque) {
-	_btBody->applyTorqueImpulse(BulletWorldModel::BTVector3FromGLMVec3(torque));
+	_btBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
 }
 
 bool BulletBodyModel::affectedByGravity() const {
@@ -302,11 +302,11 @@ bool BulletBodyModel::affectedByGravity() const {
 }
 
 vec3 BulletBodyModel::totalForce() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getTotalForce());
+	return GLMVec3FromBTVector3(_btBody->getTotalForce());
 }
 
 vec3 BulletBodyModel::totalTorque() const {
-	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getTotalTorque());
+	return GLMVec3FromBTVector3(_btBody->getTotalTorque());
 }
 
 void BulletBodyModel::affectedByGravity(bool affectedByGravity) {
@@ -340,16 +340,16 @@ void BulletBodyModel::resting(bool resting) {
 
 glm::mat4 BulletBodyModel::worldTransform() const {
 
-	static auto transform = BulletWorldModel::BTIdentityTransform();
+	static auto transform = BTIdentityTransform();
 	_btBody->getMotionState()->getWorldTransform(transform);
-	return BulletWorldModel::GLMMat4FromBTTransform(transform);
+	return GLMMat4FromBTTransform(transform);
 }
 
 void BulletBodyModel::worldTransform(const glm::mat4& transform) {
 
 	bool wasScaled = false;
-	auto btTransform = BulletWorldModel::BTTransformFromGLMMat4(
-			BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
+	auto btTransform = BTTransformFromGLMMat4(
+			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
 
 	if (wasScaled) {
 		// TODO: do something about this

@@ -28,6 +28,7 @@
 #include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/Utilities.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
 #include "physics/shape_primitives/ConePhysicsShape.h"
@@ -258,7 +259,7 @@ BTShapeFromSourceNode(Node* node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		rootShape->addChildShape(BulletWorldModel::BTIdentityTransform(),
+		rootShape->addChildShape(BTIdentityTransform(),
 								 nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
@@ -429,7 +430,7 @@ BTShapeFromGeometry(Geometry* geometry,
 													 indexVertexArray);
 
 		// the Geometry's transform is added to the btRigidBody's localInertia
-		newShape->addChildShape(BulletWorldModel::BTIdentityTransform(),
+		newShape->addChildShape(BTIdentityTransform(),
 								childShape.get());
 
 		btShapes.push_back(childShape);
@@ -459,12 +460,12 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		newShape->addChildShape(BulletWorldModel::BTIdentityTransform(),
+		newShape->addChildShape(BTIdentityTransform(),
 								nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
 
-	btParentShape->addChildShape(BulletWorldModel::BTTransformFromGLMMat4(node->transform()),
+	btParentShape->addChildShape(BTTransformFromGLMMat4(node->transform()),
 								 newShape.get());
 	btShapes.push_back(newShape);
 
@@ -488,7 +489,7 @@ BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	auto originalShape = make_shared<btConvexHullShape>();
 	for (const auto& vertex : element->vertices()) {
-		originalShape->addPoint(BulletWorldModel::BTVector3FromGLMVec3(vertex.position), false);
+		originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
 	}
 	originalShape->recalcLocalAabb();
 
@@ -589,7 +590,7 @@ BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> ele
 	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
 	for (auto& hacdElement : hacdElements) {
 		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
-		compoundShape->addChildShape(BulletWorldModel::BTIdentityTransform(), convextHullShape.get());
+		compoundShape->addChildShape(BTIdentityTransform(), convextHullShape.get());
 		btShapes.push_back(convextHullShape);
 	}
 

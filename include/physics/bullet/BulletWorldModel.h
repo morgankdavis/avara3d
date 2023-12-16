@@ -34,28 +34,11 @@ namespace ae {
 
 	class BulletWorldModel : public PhysicalWorldModel {
 
-		// move?
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
-
-	public:
-
-		static glm::vec3 							GLMVec3FromBTVector3(const btVector3& from);
-		static glm::vec4 							GLMVec4FromBTVector4(const btVector4& from);
-		static glm::mat4 							GLMMat4FromBTTransform(const btTransform& from);
-		static btVector3 						BTVector3FromGLMVec3(const glm::vec3& from);
-		static btVector4 						BTVector4FromGLMVec4(const glm::vec4& from);
-		static btQuaternion 					BTQuaternionFromGLMQuat(const glm::quat& from);
-		static btTransform 						BTTransformFromGLMMat4(const glm::mat4& from);
-		static glm::mat4 							TransformByRemovingScale(const glm::mat4& m, bool& scaled);
-		static btTransform&						BTIdentityTransform();
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-//	public:
+	public:
 
 		BulletWorldModel(PhysicalWorld* world);
 		~BulletWorldModel();

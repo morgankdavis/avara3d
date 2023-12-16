@@ -39,8 +39,8 @@
 #ifdef WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL
-//C:\GitLab-Runner\builds\3M1dDRzU\0\mkd\avara-engine\src\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\GitLab-Runner\builds\3M1dDRzU\0\mkd\avara-engine\gitlab-build\ae.vcxproj]
-//C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(193,29): message : expanded from macro 'max' [C:\GitLab-Runner\builds\3M1dDRzU\0\mkd\avara-engine\gitlab-build\ae.vcxproj]
+// C:\...\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\...\ae.vcxproj]
+// C:\...\minwindef.h(193,29): message : expanded from macro 'max' [C:\G...\ae.vcxproj]
 #undef max
 #endif
 

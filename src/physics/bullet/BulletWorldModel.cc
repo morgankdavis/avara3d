@@ -8,7 +8,6 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
@@ -17,12 +16,11 @@
 #include "physics/bullet/BulletBodyModel.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletPhysicsSimulator.h"
+#include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -220,100 +218,6 @@ BulletDebugDrawer* BulletWorldModel::btDebugDrawer() const {
 	return _btDebugDrawer.get();
 }
 #endif
-
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
-
-vec3 BulletWorldModel::GLMVec3FromBTVector3(const btVector3& from) {
-	return vec3(from.x(), from.y(), from.z());
-}
-
-vec4 BulletWorldModel::GLMVec4FromBTVector4(const btVector4& from) {
-	return vec4(from.x(), from.y(), from.z(), from.w());
-}
-
-mat4 BulletWorldModel::GLMMat4FromBTTransform(const btTransform& from) {
-	mat4 glmMat;
-	from.getOpenGLMatrix(value_ptr(glmMat));
-	return glmMat;
-}
-
-btVector3 BulletWorldModel::BTVector3FromGLMVec3(const vec3& from) {
-	return btVector3(from.x, from.y, from.z);
-}
-
-btVector4 BulletWorldModel::BTVector4FromGLMVec4(const vec4& from) {
-	return btVector4(from.x, from.y, from.z, from.w);
-}
-
-btQuaternion BulletWorldModel::BTQuaternionFromGLMQuat(const quat& from) {
-
-	return btQuaternion(from.x, from.y, from.z, from.w);
-
-}
-
-btTransform BulletWorldModel::BTTransformFromGLMMat4(const mat4& from) {
-
-	// this version (probably) does not strip scale & sheer
-
-	btTransform bulletTransform;
-	bulletTransform.setIdentity();
-	bulletTransform.setFromOpenGLMatrix(value_ptr(from));
-	return bulletTransform;
-
-
-//	// THIS VERSION STRIPS (hopefully!) scale & sheer
-//
-//	btTransform bulletTransform;
-//	bulletTransform.setIdentity();
-//
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(from,
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	bulletTransform.setOrigin(BTVector3FromGLMVec3(translation));
-//	bulletTransform.setRotation(BTQuaternionFromGLMQuat(orientation));
-//
-//	return bulletTransform;
-}
-
-mat4 BulletWorldModel::TransformByRemovingScale(const mat4& m, bool& scaled) {
-	// TODO: optimize
-
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(m,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	scaled = !Equal(scale, {1, 1, 1});
-	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
-	else return m;
-}
-
-btTransform& BulletWorldModel::BTIdentityTransform() {
-	// TODO: optimize
-	static auto identityTransform = btTransform();
-	identityTransform.setIdentity();
-	return identityTransform;
-}
 
 /*********************************************************************************************
 	Static
