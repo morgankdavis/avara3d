@@ -301,6 +301,14 @@ bool BulletBodyModel::affectedByGravity() const {
 		   || (gravity.z() != 0);
 }
 
+vec3 BulletBodyModel::totalForce() const {
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getTotalForce());
+}
+
+vec3 BulletBodyModel::totalTorque() const {
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getTotalTorque());
+}
+
 void BulletBodyModel::affectedByGravity(bool affectedByGravity) {
 	// *** test this ***
 	_btBody->setGravity(affectedByGravity

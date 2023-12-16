@@ -347,6 +347,14 @@ void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 //	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
 }
 
+glm::vec3 PhysicsBody::totalForce() const {
+	return _model->totalForce();
+}
+
+glm::vec3 PhysicsBody::totalTorque() const {
+	return _model->totalTorque();
+}
+
 void PhysicsBody::clearForces() {
 	_model->clearForces();
 }

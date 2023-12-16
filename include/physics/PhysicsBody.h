@@ -116,6 +116,9 @@ namespace ae {
 		void 								applyTorque(glm::vec3 torque,
 														bool impulse);
 
+		glm::vec3 							totalForce() const;
+		glm::vec3 							totalTorque() const;
+
 		bool 								affectedByGravity() const;
 		void 								affectedByGravity(bool affectedByGravity);
 

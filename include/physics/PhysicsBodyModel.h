@@ -92,6 +92,9 @@ namespace ae {
 		virtual void				applyTorque(const glm::vec3& torque) = 0;
 		virtual void				applyTorqueImpulse(const glm::vec3& torque) = 0;
 
+		virtual glm::vec3 			totalForce() const = 0;
+		virtual glm::vec3 			totalTorque() const = 0;
+
 		virtual bool				affectedByGravity() const = 0;
 		virtual void				affectedByGravity(bool affectedByGravity) = 0;
 

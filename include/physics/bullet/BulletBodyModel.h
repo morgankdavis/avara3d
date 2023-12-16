@@ -89,6 +89,9 @@ namespace ae {
 		void				applyTorque(const glm::vec3& torque) override;
 		void				applyTorqueImpulse(const glm::vec3& torque) override;
 
+		glm::vec3 			totalForce() const override;
+		glm::vec3 			totalTorque() const override;
+
 		bool				affectedByGravity() const override;
 		void				affectedByGravity(bool affectedByGravity) override;
 
