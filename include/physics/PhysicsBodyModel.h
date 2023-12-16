@@ -87,6 +87,9 @@ namespace ae {
 		virtual bool				allowsResting() const = 0;
 		virtual void				allowsResting(bool allowsResting) = 0;
 
+		virtual bool				autocalculatesMomentOfInertia() const;
+		virtual void				autocalculatesMomentOfInertia(bool autocalculate);
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
@@ -95,6 +98,7 @@ namespace ae {
 
 		PhysicsBody*				_body;
 		PhysicsShapeModel*			_shapeModel;
+		bool						_autocalculatesMomentOfInertia;
 	};
 }
 

@@ -159,12 +159,12 @@ void BulletWorldModel::sync() {
 			switch (body->type()) {
 
 				case PHYSICS_BODY_TYPE::DYNAMIC:
-				case PHYSICS_BODY_TYPE::KINEMATIC:
 					static btTransform btWorldTransform;
 					btBody->getMotionState()->getWorldTransform(btWorldTransform);
 					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
 					break;
 
+				case PHYSICS_BODY_TYPE::KINEMATIC:
 				case PHYSICS_BODY_TYPE::STATIC:
 					break;
 			}

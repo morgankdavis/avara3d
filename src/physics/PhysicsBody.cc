@@ -180,7 +180,7 @@ vec3 PhysicsBody::linearVelocity() const {
 	return _model->linearVelocity();
 }
 
-void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
+void PhysicsBody::linearVelocity(vec3 velocity) {
 	_model->linearVelocity(velocity);
 //	_linearVelocity = velocity;
 //	if (setDirty) {
@@ -197,7 +197,7 @@ vec3 PhysicsBody::angularVelocity() const {
 	return _model->angularVelocity();
 }
 
-void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
+void PhysicsBody::angularVelocity(vec3 velocity) {
 	_model->angularVelocity(velocity);
 //	_angularVelocity = velocity;
 //	if (setDirty) {

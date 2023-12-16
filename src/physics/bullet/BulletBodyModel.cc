@@ -92,13 +92,8 @@ void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {
 			break;
 		case PHYSICS_BODY_TYPE::DYNAMIC:
 			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
-			if (auto btShape = dynamic_cast<BulletShapeModel*>(_shapeModel)->btShapes().front()) {
-//				btVector3 localInertia;
-//				auto mass = _body->mass();
-//				btShape->calculateLocalInertia(mass, localInertia);
-//				_btBody->setMassProps(mass, localInertia);
-//				_btBody->updateInertiaTensor();
-				recalculateMomentOfIntertia();
+			if (_autocalculatesMomentOfInertia) {
+				calculateMomentOfIntertia();
 			}
 			break;
 		case PHYSICS_BODY_TYPE::KINEMATIC:
@@ -129,18 +124,12 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 			case PHYSICS_BODY_TYPE::DYNAMIC:
 				break;
 		}
-		//mass = 1.0;
-		//auto localInertia = BulletWorldModel::BTVector3FromGLMVec3(_body->momentOfInertia());
-
-//		btVector3 localInertia;
-//		btShape->calculateLocalInertia(mass, localInertia);
-//		_btBody->setMassProps(mass, localInertia);
-//		_btBody->updateInertiaTensor();
-
 
 		_shapeModel = shape;
 
-		recalculateMomentOfIntertia();
+		if (_autocalculatesMomentOfInertia) {
+			calculateMomentOfIntertia();
+		}
 	}
 	else {
 		AE_LOG_E("Could not get shape resources.");
@@ -180,30 +169,12 @@ float BulletBodyModel::mass() const {
 
 void BulletBodyModel::mass(float mass) {
 
-//	if (_shapeModel) {
-//		if (auto btShapeModel = dynamic_cast<BulletShapeModel*>(_shapeModel)) {
-//			if (auto btShape = btShapeModel->btShapes().front()) {
-//				btVector3 localInertia;
-//				auto mass = _body->mass();
-//				btShape->calculateLocalInertia(mass, localInertia);
-//				_btBody->setMassProps(mass, localInertia);
-//			}
-//		}
-//	}
-//
-////	if (auto btShape = dynamic_cast<BulletShapeModel*>(_shapeModel)->btShapes().front()) {
-////		btVector3 localInertia;
-////		auto mass = _body->mass();
-////		btShape->calculateLocalInertia(mass, localInertia);
-////		_btBody->setMassProps(mass, localInertia);
-////		_btBody->updateInertiaTensor();
-////	}
+	_btBody->setMassProps(mass, _btBody->getLocalInertia());
 
-	_btBody->setMassProps(mass, {0,0,0});
-	recalculateMomentOfIntertia();
+	if (_autocalculatesMomentOfInertia) {
+		calculateMomentOfIntertia();
+	}
 
-//	_btBody->setMassProps(mass, _btBody->getLocalInertia());
-//	_btBody->setMassProps(1.0, {0,0,0});
 	_btBody->setActivationState(ACTIVE_TAG);
 }
 
@@ -212,9 +183,15 @@ glm::vec3 BulletBodyModel::momentOfInertia() const {
 }
 
 void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
-	_btBody->setMassProps(mass(),
-						  BulletWorldModel::BTVector3FromGLMVec3(moment));
-	_btBody->updateInertiaTensor();
+
+	if (!_autocalculatesMomentOfInertia) {
+		_btBody->setMassProps(mass(),
+							  BulletWorldModel::BTVector3FromGLMVec3(moment));
+		_btBody->updateInertiaTensor();
+	}
+	else {
+		AE_LOG_W("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
+	}
 }
 
 float BulletBodyModel::friction() const {
@@ -332,30 +309,6 @@ void BulletBodyModel::allowsResting(bool allowsResting) {
 							   : DISABLE_DEACTIVATION);
 }
 
-void BulletBodyModel::recalculateMomentOfIntertia() {
-
-	if (_shapeModel) {
-		if (auto btShapeModel = dynamic_cast<BulletShapeModel*>(_shapeModel)) {
-			if (auto btShape = btShapeModel->btShapes().front()) {
-				btVector3 localInertia;
-				auto mass = _body->mass();
-				btShape->calculateLocalInertia(mass, localInertia);
-				_btBody->setMassProps(mass, localInertia);
-				_btBody->updateInertiaTensor();
-			}
-			else{
-				AE_LOG_W("Missing btCollisionShape.");
-			}
-		}
-		else{
-			AE_LOG_W("Missing PhysicsShapeModel.");
-		}
-	}
-	else{
-		AE_LOG_W("Missing PhysicsShapeModel.");
-	}
-}
-
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -375,3 +328,26 @@ shared_ptr<btDefaultMotionState> BulletBodyModel::btMotionState() {
 //void BulletBodyModel::btMotionState(shared_ptr<btDefaultMotionState> motionState) {
 //	_btMotionState = motionState;
 //}
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+void BulletBodyModel::calculateMomentOfIntertia() {
+
+	if (auto btShapeModel = dynamic_cast<BulletShapeModel*>(_shapeModel)) {
+		if (auto btShape = btShapeModel->btShapes().front()) {
+			btVector3 localInertia;
+			auto mass = _body->mass();
+			btShape->calculateLocalInertia(mass, localInertia);
+			_btBody->setMassProps(mass, localInertia);
+			_btBody->updateInertiaTensor();
+		}
+		else{
+			AE_LOG_W("Missing btCollisionShape.");
+		}
+	}
+	else{
+		AE_LOG_W("Missing PhysicsShapeModel.");
+	}
+}

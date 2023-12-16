@@ -87,11 +87,6 @@ namespace ae {
 		bool				allowsResting() const override;
 		void				allowsResting(bool allowsResting) override;
 
-//		bool				autocalculatesMomentOfInertia() const override; // ADD ME
-//		void				autocalculatesMomentOfInertia(bool autocalculate); // ADD ME
-
-		void				recalculateMomentOfIntertia(); // maybe private?
-
 //							usesDefaultMomentOfInertia: Bool
 //							centerOfMassOffset: SCNVector3
 
@@ -110,6 +105,8 @@ namespace ae {
  *********************************************************************************************/
 
 	private:
+
+		void				calculateMomentOfIntertia();
 
 //		float _mass; // TEMPORARY
 

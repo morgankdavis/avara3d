@@ -78,12 +78,10 @@ namespace ae {
 		void 								restitution(float restitution);
 
 		glm::vec3 							linearVelocity() const;
-		void 								linearVelocity(glm::vec3 velocity,
-															   bool setDirty=true); // move
+		void 								linearVelocity(glm::vec3 velocity);
 
 		glm::vec3 							angularVelocity() const;
-		void 								angularVelocity(glm::vec3 velocity,
-																bool setDirty=true); // move
+		void 								angularVelocity(glm::vec3 velocity);
 
 		glm::vec3 							linearFactor() const;
 		void 								linearFactor(glm::vec3 factor);
@@ -127,6 +125,9 @@ namespace ae {
 		void 								clearForces();
 
 		void 								resetTransform();
+
+//		bool				autocalculatesMomentOfInertia() const override;
+//		void				autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
 	Internal
