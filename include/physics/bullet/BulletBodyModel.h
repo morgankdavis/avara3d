@@ -9,9 +9,9 @@
 #include <memory>
 
 #include "physics/PhysicsBodyModel.h"
+#include "physics/bullet/MotionState.h"
 
-
-struct btDefaultMotionState;
+//struct btDefaultMotionState;
 
 class btRigidBody;
 
@@ -101,8 +101,8 @@ namespace ae {
 		bool 				resting() const override;
 		void				resting(bool resting) override;
 
-		glm::mat4			worldTransform() const override;
-		void				worldTransform(const glm::mat4& transform) override;
+//		glm::mat4			worldTransform() const override;
+//		void				worldTransform(const glm::mat4& transform) override;
 
 		void				clearForces() override;
 
@@ -111,7 +111,8 @@ namespace ae {
  *********************************************************************************************/
 
 		std::shared_ptr<btRigidBody>			btBody();
-		std::shared_ptr<btDefaultMotionState>	btMotionState();
+		//std::shared_ptr<btDefaultMotionState>	btMotionState();
+		std::shared_ptr<MotionState>			motionState();
 
 /*********************************************************************************************
 	 Private
@@ -122,7 +123,8 @@ namespace ae {
 		void				calculateMomentOfIntertia();
 
 		std::shared_ptr<btRigidBody>			_btBody;
-		std::shared_ptr<btDefaultMotionState>	_btMotionState;
+		//std::shared_ptr<btDefaultMotionState>	_btMotionState;
+		std::shared_ptr<MotionState>			_motionState;
 	};
 }
 

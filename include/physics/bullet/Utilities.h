@@ -22,7 +22,7 @@ namespace ae {
 	btQuaternion	BTQuaternionFromGLMQuat(const glm::quat& from);
 	btTransform		BTTransformFromGLMMat4(const glm::mat4& from);
 	glm::mat4		TransformByRemovingScale(const glm::mat4& m, bool& scaled);
-	btTransform&	BTIdentityTransform();
+//	btTransform&	BTIdentityTransform();
 }
 
 

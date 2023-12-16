@@ -99,8 +99,8 @@ mat4 ae::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	else return m;
 }
 
-btTransform& ae::BTIdentityTransform() {
-	static auto identityTransform = btTransform();
-	identityTransform.setIdentity();
-	return identityTransform;
-}
+//btTransform& ae::BTIdentityTransform() {
+//	static auto identityTransform = btTransform();
+//	identityTransform.setIdentity();
+//	return identityTransform;
+//}

@@ -259,7 +259,7 @@ BTShapeFromSourceNode(Node* node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		rootShape->addChildShape(BTIdentityTransform(),
+		rootShape->addChildShape(btTransform::getIdentity(),
 								 nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
@@ -430,7 +430,7 @@ BTShapeFromGeometry(Geometry* geometry,
 													 indexVertexArray);
 
 		// the Geometry's transform is added to the btRigidBody's localInertia
-		newShape->addChildShape(BTIdentityTransform(),
+		newShape->addChildShape(btTransform::getIdentity(),
 								childShape.get());
 
 		btShapes.push_back(childShape);
@@ -460,7 +460,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 												bodyType,
 												btShapes,
 												btIndexVertexArrays);
-		newShape->addChildShape(BTIdentityTransform(),
+		newShape->addChildShape(btTransform::getIdentity(),
 								nodeGeoShape.get());
 		btShapes.push_back(nodeGeoShape);
 	}
@@ -590,7 +590,7 @@ BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> ele
 	auto hacdElements = HACDGeometryElementsFromGeometryElement(element);
 	for (auto& hacdElement : hacdElements) {
 		auto convextHullShape = BTConvexHullShapeFromGeometryElement(hacdElement);
-		compoundShape->addChildShape(BTIdentityTransform(), convextHullShape.get());
+		compoundShape->addChildShape(btTransform::getIdentity(), convextHullShape.get());
 		btShapes.push_back(convextHullShape);
 	}
 

@@ -37,16 +37,19 @@ using namespace std;
 BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		PhysicsBodyModel(body),
 		_btBody(nullptr),
-		_btMotionState(nullptr) {
+		/*_btMotionState(nullptr)*/
+		_motionState(nullptr) {
 
 	AE_LOG_D("body: {:p}", (void*)body);
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
 
-	_btMotionState = make_shared<btDefaultMotionState>(BTIdentityTransform());
+//	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
+//	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
+	_motionState = make_shared<MotionState>(body);
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0,
-														   _btMotionState.get(),
+														   _motionState.get(),
 														   nullptr);
 
 	_btBody = make_shared<btRigidBody>(rigidBodyInfo);
@@ -338,28 +341,31 @@ void BulletBodyModel::resting(bool resting) {
 								: ACTIVE_TAG);
 }
 
-glm::mat4 BulletBodyModel::worldTransform() const {
-
-	static auto transform = BTIdentityTransform();
-	_btBody->getMotionState()->getWorldTransform(transform);
-	return GLMMat4FromBTTransform(transform);
-}
-
-void BulletBodyModel::worldTransform(const glm::mat4& transform) {
-
-	bool wasScaled = false;
-	auto btTransform = BTTransformFromGLMMat4(
-			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
-
-	if (wasScaled) {
-		// TODO: do something about this
-		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-				 (void *)_body->node(), (void *)_body);
-	}
-
-	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
-	_btBody->setMotionState(_btMotionState.get());
-}
+//glm::mat4 BulletBodyModel::worldTransform() const {
+//
+//	static btTransform transform;
+//	_btBody->getMotionState()->getWorldTransform(transform);
+//	return GLMMat4FromBTTransform(transform);
+//}
+//
+//void BulletBodyModel::worldTransform(const glm::mat4& transform) {
+//
+//	bool wasScaled = false;
+//	auto btTransform = BTTransformFromGLMMat4(
+//			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
+//
+//	if (wasScaled) {
+//		// TODO: do something about this
+//		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//				 (void *)_body->node(), (void *)_body);
+//	}
+//
+////	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
+////	_btBody->setMotionState(_btMotionState.get());
+//
+//	_motionState = make_shared<MotionState>(_body, btTransform);
+//	_btBody->setMotionState(_motionState.get());
+//}
 
 void BulletBodyModel::clearForces() {
 	_btBody->clearForces();
@@ -373,8 +379,12 @@ shared_ptr<btRigidBody> BulletBodyModel::btBody() {
 	return _btBody;
 }
 
-shared_ptr<btDefaultMotionState> BulletBodyModel::btMotionState() {
-	return _btMotionState;
+//shared_ptr<btDefaultMotionState> BulletBodyModel::btMotionState() {
+//	return _btMotionState;
+//}
+
+shared_ptr<MotionState> BulletBodyModel::motionState() {
+	return _motionState;
 }
 
 /*********************************************************************************************
