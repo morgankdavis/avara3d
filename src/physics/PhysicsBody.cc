@@ -142,6 +142,14 @@ void PhysicsBody::momentOfInertia(vec3 moment) {
 	_model->momentOfInertia(moment);
 }
 
+vec3 PhysicsBody::centerOfMass() const {
+	return _model->centerOfMass();
+}
+
+void PhysicsBody::centerOfMass(const glm::vec3 offset) {
+	_model->centerOfMass(offset);
+}
+
 float PhysicsBody::friction() const {
 //	return _friction;
 	return _model->friction();
@@ -297,57 +305,58 @@ void PhysicsBody::allowsResting(bool allowsResting) {
 	_model->allowsResting(allowsResting);
 }
 
-//bool PhysicsBody::resting() const {
-//
-////	return _resting;
-//
-//}
+bool PhysicsBody::resting() const {
+	return _model->resting();
+}
+
+void PhysicsBody::resting(bool resting) {
+	_model->resting(resting);
+}
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
-	#warning fix
 
-	//applyForce(force, {0, 0, 0}, impulse);
-//	void 	applyCentralImpulse (const btVector3 &impulse)
-//	void 	applyTorqueImpulse (const btVector3 &torque)
+	if (impulse) {
+		_model->applyCentralImpulse(force);
+	}
+	else {
+		_model->applyCentralForce(force);
+	}
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 
-#warning save list of applied forces
+	if (impulse) {
+		_model->applyImpulse(force, location);
+	}
+	else {
+		_model->applyForce(force, location);
+	}
 
-//	if (_btRigidBody) {
-//		/**********
-//		if (impulse) _btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-//		else _btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-//		 *********/
-//	}
-
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES);
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES);
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 
-#warning save list of applied torques
+	if (impulse) {
+		_model->applyTorqueImpulse(torque);
+	}
+	else {
+		_model->applyTorque(torque);
+	}
 
-//	if (_btRigidBody) {
-//		/**********
-//		if (impulse) _btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
-//		else  _btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
-//		 *********/
-//	}
-
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
+//	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
 }
 
 void PhysicsBody::clearForces() {
-	#warning FIX
-	//if (_btRigidBody) _btRigidBody->clearForces();
+	_model->clearForces();
 }
 
-void PhysicsBody::resetTransform() {
-	#warning FIX
-	//_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TRANSFORM);
-	//proceedToTransform (const btTransform &newTrans)
+bool PhysicsBody::autocalculatesMomentOfInertia() const {
+	return _model->autocalculatesMomentOfInertia();
+}
+
+void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
+	_model->autocalculatesMomentOfInertia(autocalculate);
 }
 
 /*********************************************************************************************

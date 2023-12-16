@@ -48,6 +48,9 @@ namespace ae {
 		virtual glm::vec3			momentOfInertia() const = 0;
 		virtual void				momentOfInertia(const glm::vec3& moment) = 0;
 
+		virtual glm::vec3			centerOfMass() const = 0;
+		virtual void				centerOfMass(const glm::vec3 offset) = 0;
+
 		virtual float				friction() const = 0;
 		virtual void				friction(float friction) = 0;
 
@@ -81,14 +84,27 @@ namespace ae {
 		virtual float				angularSleepingThreshold() const = 0;
 		virtual void				angularSleepingThreshold(float threshold) = 0;
 
+		virtual void				applyForce(const glm::vec3& force, const glm::vec3& location) = 0;
+		virtual void				applyCentralForce(const glm::vec3& force) = 0;
+		virtual void				applyImpulse(const glm::vec3& impulse, const glm::vec3& location) = 0;
+		virtual void				applyCentralImpulse(const glm::vec3& impulse) = 0;
+
+		virtual void				applyTorque(const glm::vec3& torque) = 0;
+		virtual void				applyTorqueImpulse(const glm::vec3& torque) = 0;
+
 		virtual bool				affectedByGravity() const = 0;
 		virtual void				affectedByGravity(bool affectedByGravity) = 0;
 
 		virtual bool				allowsResting() const = 0;
 		virtual void				allowsResting(bool allowsResting) = 0;
 
+		virtual bool 				resting() const = 0;
+		virtual void				resting(bool resting) = 0;
+
 		virtual bool				autocalculatesMomentOfInertia() const;
 		virtual void				autocalculatesMomentOfInertia(bool autocalculate);
+
+		virtual void				clearForces() = 0;
 
 /*********************************************************************************************
 	Protected

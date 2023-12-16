@@ -402,20 +402,22 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return translation;
 
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	return translation;
+	return vec3(worldTransform()[3]);
 }
 
 vec4 Node::worldRotation() const {

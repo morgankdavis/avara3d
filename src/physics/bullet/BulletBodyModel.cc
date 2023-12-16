@@ -9,7 +9,6 @@
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "LinearMath/btIDebugDraw.h"
-//#include "LinearMath/btScalar.h" // btGetVersion() !
 
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
@@ -136,29 +135,6 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 	}
 }
 
-glm::mat4 BulletBodyModel::worldTransform() const {
-
-	static auto transform = BulletWorldModel::BTIdentityTransform();
-	_btBody->getMotionState()->getWorldTransform(transform);
-	return BulletWorldModel::GLMMat4FromBTTransform(transform);
-}
-
-void BulletBodyModel::worldTransform(const glm::mat4& transform) {
-
-	bool wasScaled = false;
-	auto btTransform = BulletWorldModel::BTTransformFromGLMMat4(
-			BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
-
-	if (wasScaled) {
-		// TODO: do something about this
-		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-				 (void *)_body->node(), (void *)_body);
-	}
-
-	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
-	_btBody->setMotionState(_btMotionState.get());
-}
-
 float BulletBodyModel::mass() const {
 //	return 1.0;
 	auto invMass = _btBody->getInvMass();
@@ -192,6 +168,15 @@ void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
 	else {
 		AE_LOG_W("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
 	}
+}
+
+glm::vec3 BulletBodyModel::centerOfMass() const {
+	return BulletWorldModel::GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
+}
+
+void BulletBodyModel::centerOfMass(const glm::vec3 offset) {
+	_btBody->setCenterOfMassTransform(
+			BulletWorldModel::BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
 }
 
 float BulletBodyModel::friction() const {
@@ -282,6 +267,32 @@ void BulletBodyModel::angularSleepingThreshold(float threshold) {
 	_btBody->setSleepingThresholds(_btBody->getLinearSleepingThreshold(), threshold);
 }
 
+void BulletBodyModel::applyForce(const vec3& force, const vec3& location) {
+	_btBody->applyForce(BulletWorldModel::BTVector3FromGLMVec3(force),
+						BulletWorldModel::BTVector3FromGLMVec3(location));
+}
+
+void BulletBodyModel::applyCentralForce(const vec3& force) {
+	_btBody->applyCentralForce(BulletWorldModel::BTVector3FromGLMVec3(force));
+}
+
+void BulletBodyModel::applyImpulse(const vec3& impulse, const vec3& location) {
+	_btBody->applyImpulse(BulletWorldModel::BTVector3FromGLMVec3(impulse),
+						BulletWorldModel::BTVector3FromGLMVec3(location));
+}
+
+void BulletBodyModel::applyCentralImpulse(const vec3& impulse) {
+	_btBody->applyCentralImpulse(BulletWorldModel::BTVector3FromGLMVec3(impulse));
+}
+
+void BulletBodyModel::applyTorque(const vec3& torque) {
+	_btBody->applyTorque(BulletWorldModel::BTVector3FromGLMVec3(torque));
+}
+
+void BulletBodyModel::applyTorqueImpulse(const vec3& torque) {
+	_btBody->applyTorqueImpulse(BulletWorldModel::BTVector3FromGLMVec3(torque));
+}
+
 bool BulletBodyModel::affectedByGravity() const {
 	// *** test this ***
 	auto gravity = _btBody->getGravity();
@@ -309,6 +320,43 @@ void BulletBodyModel::allowsResting(bool allowsResting) {
 							   : DISABLE_DEACTIVATION);
 }
 
+bool BulletBodyModel::resting() const {
+	return (_btBody->getActivationState() == ISLAND_SLEEPING);
+}
+
+void BulletBodyModel::resting(bool resting) {
+	_btBody->setActivationState(resting
+								? ISLAND_SLEEPING
+								: ACTIVE_TAG);
+}
+
+glm::mat4 BulletBodyModel::worldTransform() const {
+
+	static auto transform = BulletWorldModel::BTIdentityTransform();
+	_btBody->getMotionState()->getWorldTransform(transform);
+	return BulletWorldModel::GLMMat4FromBTTransform(transform);
+}
+
+void BulletBodyModel::worldTransform(const glm::mat4& transform) {
+
+	bool wasScaled = false;
+	auto btTransform = BulletWorldModel::BTTransformFromGLMMat4(
+			BulletWorldModel::TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
+
+	if (wasScaled) {
+		// TODO: do something about this
+		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+				 (void *)_body->node(), (void *)_body);
+	}
+
+	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
+	_btBody->setMotionState(_btMotionState.get());
+}
+
+void BulletBodyModel::clearForces() {
+	_btBody->clearForces();
+}
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
@@ -317,17 +365,9 @@ shared_ptr<btRigidBody> BulletBodyModel::btBody() {
 	return _btBody;
 }
 
-//void BulletBodyModel::btBody(shared_ptr<btRigidBody> body) {
-//	_btBody = body;
-//}
-
 shared_ptr<btDefaultMotionState> BulletBodyModel::btMotionState() {
 	return _btMotionState;
 }
-
-//void BulletBodyModel::btMotionState(shared_ptr<btDefaultMotionState> motionState) {
-//	_btMotionState = motionState;
-//}
 
 /*********************************************************************************************
 	Private

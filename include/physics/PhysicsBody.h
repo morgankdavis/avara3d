@@ -68,6 +68,9 @@ namespace ae {
 		glm::vec3 							momentOfInertia() const;
 		void 								momentOfInertia(glm::vec3 moment);
 
+		glm::vec3							centerOfMass() const;
+		void								centerOfMass(const glm::vec3 offset);
+
 		float 								friction() const;
 		void 								friction(float friction);
 		
@@ -100,14 +103,6 @@ namespace ae {
 
 		float								angularSleepingThreshold() const;
 		void 								angularSleepingThreshold(float threshold);
-
-		bool 								affectedByGravity() const;
-		void 								affectedByGravity(bool affectedByGravity);
-
-		bool 								allowsResting() const;
-		void 								allowsResting(bool allowsResting);
-		
-//		bool 								resting() const;
 		
 		// categoryBitmask
 		// contactTestBitmask
@@ -118,16 +113,22 @@ namespace ae {
 		void 								applyForce(glm::vec3 force,
 													   glm::vec3 location,
 													   bool impulse);
-
 		void 								applyTorque(glm::vec3 torque,
 														bool impulse);
 
+		bool 								affectedByGravity() const;
+		void 								affectedByGravity(bool affectedByGravity);
+
+		bool 								allowsResting() const;
+		void 								allowsResting(bool allowsResting);
+
+		bool 								resting() const;
+		void								resting(bool resting);
+
 		void 								clearForces();
 
-		void 								resetTransform();
-
-//		bool				autocalculatesMomentOfInertia() const override;
-//		void				autocalculatesMomentOfInertia(bool autocalculate);
+		bool								autocalculatesMomentOfInertia() const;
+		void								autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
 	Internal

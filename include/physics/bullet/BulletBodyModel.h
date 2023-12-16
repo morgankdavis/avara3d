@@ -39,14 +39,14 @@ namespace ae {
 		PhysicsShapeModel*	shape() const override;
 		void				shape(PhysicsShapeModel* shape) override;
 
-		glm::mat4			worldTransform() const override;
-		void				worldTransform(const glm::mat4& transform) override;
-
 		float				mass() const override;
 		void				mass(float mass) override;
 
 		glm::vec3			momentOfInertia() const override;
 		void				momentOfInertia(const glm::vec3& moment) override;
+
+		glm::vec3			centerOfMass() const override;
+		void				centerOfMass(const glm::vec3 offset) override;
 
 		float				friction() const override;
 		void				friction(float friction) override;
@@ -81,24 +81,34 @@ namespace ae {
 		float				angularSleepingThreshold() const override;
 		void				angularSleepingThreshold(float threshold) override;
 
+		void				applyForce(const glm::vec3& force, const glm::vec3& location) override;
+		void				applyCentralForce(const glm::vec3& force) override;
+		void				applyImpulse(const glm::vec3& impulse, const glm::vec3& location) override;
+		void				applyCentralImpulse(const glm::vec3& impulse) override;
+
+		void				applyTorque(const glm::vec3& torque) override;
+		void				applyTorqueImpulse(const glm::vec3& torque) override;
+
 		bool				affectedByGravity() const override;
 		void				affectedByGravity(bool affectedByGravity) override;
 
 		bool				allowsResting() const override;
 		void				allowsResting(bool allowsResting) override;
 
-//							usesDefaultMomentOfInertia: Bool
-//							centerOfMassOffset: SCNVector3
+		bool 				resting() const override;
+		void				resting(bool resting) override;
+
+		glm::mat4			worldTransform() const override;
+		void				worldTransform(const glm::mat4& transform) override;
+
+		void				clearForces() override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
 		std::shared_ptr<btRigidBody>			btBody();
-//		void									btBody(std::shared_ptr<btRigidBody> body);
-//
 		std::shared_ptr<btDefaultMotionState>	btMotionState();
-//		void									btMotionState(std::shared_ptr<btDefaultMotionState> motionState);
 
 /*********************************************************************************************
 	 Private
@@ -108,9 +118,6 @@ namespace ae {
 
 		void				calculateMomentOfIntertia();
 
-//		float _mass; // TEMPORARY
-
-//		PhysicsBody*							_body;
 		std::shared_ptr<btRigidBody>			_btBody;
 		std::shared_ptr<btDefaultMotionState>	_btMotionState;
 	};
