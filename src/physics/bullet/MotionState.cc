@@ -4,6 +4,7 @@
 
 #include "physics/bullet/MotionState.h"
 
+//#include "diagnostic/Logger.h"
 #include "physics/PhysicsBody.h"
 #include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
@@ -28,27 +29,25 @@ MotionState::MotionState(PhysicsBody* body/*,
 *********************************************************************************************/
 
 // synchronize world transform from graphics to physics
-void MotionState::getWorldTransform(btTransform & worldTrans) const {
+void MotionState::getWorldTransform(btTransform &transform) const {
 
-	if (_body) {
-		if (_body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-			if (auto node = _body->node()) {
-				worldTrans = BTTransformFromGLMMat4(node->worldTransform());
-			}
+//	if (_body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		if (auto node = _body->node()) {
+			transform = BTTransformFromGLMMat4(node->worldTransform());
 		}
-	}
+//	}
 }
 
 // synchronize world transform from physics to graphics
-void MotionState::setWorldTransform(const btTransform& worldTrans) {
+void MotionState::setWorldTransform(const btTransform& transform) {
 
-	if (_body) {
-		if (_body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
+//	if (_body) {
+//		if (_body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
 			if (auto node = _body->node()) {
-				node->applyPhysicsTransform(GLMMat4FromBTTransform(worldTrans));
+				node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
 			}
-		}
-	}
+//		}
+//	}
 }
 
 /*********************************************************************************************

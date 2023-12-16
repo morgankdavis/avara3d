@@ -6,7 +6,8 @@
 #define AVARA_ENGINE_BULLET_MOTIONSTATE_H
 
 
-#import "LinearMath/btDefaultMotionState.h"
+#import "LinearMath/btMotionState.h"
+//#include "../../../external/bullet-3.17/src/LinearMath/btMotionState.h"
 
 
 namespace ae {
@@ -30,8 +31,8 @@ namespace ae {
 	btMotionState
  *********************************************************************************************/
 
-		void getWorldTransform(btTransform& worldTrans) const override;
-		void setWorldTransform(const btTransform& worldTrans) override;
+		void getWorldTransform(btTransform& transform) const override;
+		void setWorldTransform(const btTransform& transform) override;
 
 /*********************************************************************************************
 	Internal
@@ -43,7 +44,7 @@ namespace ae {
 	Private
  *********************************************************************************************/
 
-//		btTransform 		_graphicsWorldTransform;
+		btTransform 		_graphicsWorldTransform;
 		PhysicsBody* 		_body;
 	};
 }

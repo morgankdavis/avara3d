@@ -375,6 +375,25 @@ void BulletBodyModel::clearForces() {
 	Internal
  *********************************************************************************************/
 
+//void BulletBodyModel::worldTransform(const glm::mat4& worldTransform) {
+//
+//	bool wasScaled = false;
+//	auto btTransform = BTTransformFromGLMMat4(
+//			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
+//
+//	if (wasScaled) {
+//		// TODO: do something about this
+//		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//				 (void *)_body->node(), (void *)_body);
+//	}
+//
+////	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
+////	_btBody->setMotionState(_btMotionState.get());
+//
+//	_motionState = make_shared<MotionState>(_body, btTransform);
+//	_btBody->setMotionState(_motionState.get());
+//}
+
 shared_ptr<btRigidBody> BulletBodyModel::btBody() {
 	return _btBody;
 }

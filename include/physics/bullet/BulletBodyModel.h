@@ -110,6 +110,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
+//		void				worldTransform(const glm::mat4& worldTransform);
+
 		std::shared_ptr<btRigidBody>			btBody();
 		//std::shared_ptr<btDefaultMotionState>	btMotionState();
 		std::shared_ptr<MotionState>			motionState();
