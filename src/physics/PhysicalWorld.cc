@@ -178,9 +178,9 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 		auto startTime = scene.time();
 
-		_model->update(stats);
+//		_model->update(stats);
 		_model->step(deltaRunT, _speed, _timestep);
-		_model->sync();
+//		_model->sync();
 
 		UpdateTimeStats(stats, startTime, scene.time());
 

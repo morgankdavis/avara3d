@@ -58,11 +58,12 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		case PHYSICS_BODY_TYPE::STATIC:
 			_btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
 			break;
-		case PHYSICS_BODY_TYPE::KINEMATIC:
-			_btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-			break;
 		case PHYSICS_BODY_TYPE::DYNAMIC:
 			_btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+			break;
+		case PHYSICS_BODY_TYPE::KINEMATIC:
+			_btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+			_btBody->setActivationState(DISABLE_DEACTIVATION);
 			break;
 	}
 
@@ -100,6 +101,7 @@ void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {
 			break;
 		case PHYSICS_BODY_TYPE::KINEMATIC:
 			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
+			_btBody->setActivationState(DISABLE_DEACTIVATION);
 			break;
 	}
 	_btBody->setCollisionFlags(flags);
@@ -326,9 +328,15 @@ bool BulletBodyModel::allowsResting() const {
 
 void BulletBodyModel::allowsResting(bool allowsResting) {
 	// *** test this ***
-	_btBody->setActivationState(allowsResting
-							   ? ACTIVE_TAG
-							   : DISABLE_DEACTIVATION);
+	if (allowsResting
+	&& type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		AE_LOG_E("Cannot enable resting for kinematic bodies.");
+	}
+	else {
+		_btBody->setActivationState(allowsResting
+									? ACTIVE_TAG
+									: DISABLE_DEACTIVATION);
+	}
 }
 
 bool BulletBodyModel::resting() const {

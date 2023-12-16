@@ -79,8 +79,8 @@ void BulletWorldModel::add(PhysicsBody& body) {
 
 	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
 
-	// set initial position here (as opposed to inside BulletBodyModel) in case the parent
-	// node changes its transform after the body is attached.
+	// often times the body (and MotionState) are created either before the body is attached
+	// to a node, or before the node's start transform is set.  so set the transform here.
 //	bodyModel->worldTransform(body.node()->worldTransform());
 	bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
 
@@ -100,43 +100,43 @@ void BulletWorldModel::gravity(float gravity) {
 	_btWorld->setGravity({0, gravity, 0});
 }
 
-void BulletWorldModel::update(Stats& stats) {
-
-	auto collisionObjects = _btWorld->getCollisionObjectArray();
-	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
-		auto object = collisionObjects[o];
-
-		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-
-			switch (body->type()) {
-
-				case PHYSICS_BODY_TYPE::DYNAMIC:
-					++stats.dynamicBodies;
-					break;
-
-				case PHYSICS_BODY_TYPE::KINEMATIC: {
-					++stats.kinematicBodies;
-
-					auto worldTransform = body->node()->worldTransform();
-					auto toTransform = BTTransformFromGLMMat4(worldTransform);
-
-					btBody->setWorldTransform(toTransform);
-
-					// works
-//					auto motionState = btBody->getMotionState();
-//					motionState->setWorldTransform(toTransform); // and this kinematic...
-//					btBody->setMotionState(motionState);
-//					btBody->setActivationState(ACTIVE_TAG);
-					break; }
-
-				case PHYSICS_BODY_TYPE::STATIC:
-					++stats.staticBodies;
-					break;
-			}
-		}
-	}
-}
+//void BulletWorldModel::update(Stats& stats) {
+//
+////	auto collisionObjects = _btWorld->getCollisionObjectArray();
+////	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
+////		auto object = collisionObjects[o];
+////
+////		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+////			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+////
+////			switch (body->type()) {
+////
+////				case PHYSICS_BODY_TYPE::DYNAMIC:
+////					++stats.dynamicBodies;
+////					break;
+////
+////				case PHYSICS_BODY_TYPE::KINEMATIC: {
+////					++stats.kinematicBodies;
+////
+////					auto worldTransform = body->node()->worldTransform();
+////					auto toTransform = BTTransformFromGLMMat4(worldTransform);
+////
+////					btBody->setWorldTransform(toTransform);
+////
+////					// works
+//////					auto motionState = btBody->getMotionState();
+//////					motionState->setWorldTransform(toTransform); // and this kinematic...
+//////					btBody->setMotionState(motionState);
+//////					btBody->setActivationState(ACTIVE_TAG);
+////					break; }
+////
+////				case PHYSICS_BODY_TYPE::STATIC:
+////					++stats.staticBodies;
+////					break;
+////			}
+////		}
+////	}
+//}
 
 void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 
@@ -149,30 +149,30 @@ void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 	}
 }
 
-void BulletWorldModel::sync() {
-
-//	auto collisionObjects = _btWorld->getCollisionObjectArray();
-//	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
-//		auto object = collisionObjects[o];
+//void BulletWorldModel::sync() {
 //
-//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-//
-//			switch (body->type()) {
-//
-//				case PHYSICS_BODY_TYPE::DYNAMIC:
-//					static btTransform btWorldTransform;
-//					btBody->getMotionState()->getWorldTransform(btWorldTransform);
-//					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
-//					break;
-//
-//				case PHYSICS_BODY_TYPE::KINEMATIC:
-//				case PHYSICS_BODY_TYPE::STATIC:
-//					break;
-//			}
-//		}
-//	}
-}
+////	auto collisionObjects = _btWorld->getCollisionObjectArray();
+////	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
+////		auto object = collisionObjects[o];
+////
+////		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+////			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+////
+////			switch (body->type()) {
+////
+////				case PHYSICS_BODY_TYPE::DYNAMIC:
+////					static btTransform btWorldTransform;
+////					btBody->getMotionState()->getWorldTransform(btWorldTransform);
+////					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
+////					break;
+////
+////				case PHYSICS_BODY_TYPE::KINEMATIC:
+////				case PHYSICS_BODY_TYPE::STATIC:
+////					break;
+////			}
+////		}
+////	}
+//}
 
 void BulletWorldModel::drawDebug(Renderer &renderer,
 								 const glm::mat4 &viewMat,

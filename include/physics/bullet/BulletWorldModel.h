@@ -53,9 +53,9 @@ namespace ae {
 		float	gravity() const override;
 		void	gravity(float gravity) override;
 
-		void	update(Stats& stats) override;
+//		void	update(Stats& stats) override;
 		void	step(double deltaT, float speed, float timestep) override;
-		void	sync() override;
+//		void	sync() override;
 
 		void 	drawDebug(Renderer &renderer,
 						  const glm::mat4 &viewMat,
