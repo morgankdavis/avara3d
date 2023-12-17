@@ -408,15 +408,15 @@ namespace ae {
 #define MATERIAL_PROPERTY_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
 #define MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
 		
-	enum class PHYSICS_WORLD_DIRTY_MASK : unsigned {
-		TIMESTEP =				1 << 0,
-		GRAVITY =				1 << 1,
-		ALL = 					UINT_MAX
-	};
-			
-#define PHYSICS_WORLD_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit))
-#define PHYSICS_WORLD_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
-#define PHYSICS_WORLD_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
+//	enum class PHYSICS_WORLD_DIRTY_MASK : unsigned {
+//		TIMESTEP =				1 << 0,
+//		GRAVITY =				1 << 1,
+//		ALL = 					UINT_MAX
+//	};
+//
+//#define PHYSICS_WORLD_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit))
+//#define PHYSICS_WORLD_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
+//#define PHYSICS_WORLD_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
 			
 //	enum class PHYSICS_BODY_DIRTY_MASK : unsigned {
 //		NONE =							0,
@@ -446,15 +446,15 @@ namespace ae {
 //#define PHYSICS_BODY_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
 //#define PHYSICS_BODY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
 
-	enum class PHYSICS_SHAPE_DIRTY_MASK : unsigned {
-		NONE =					0,
-		MODEL =					1 << 0,
-		ALL = 					UINT_MAX
-	};
-			
-#define PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit))
-#define PHYSICS_SHAPE_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
-#define PHYSICS_SHAPE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
+//	enum class PHYSICS_SHAPE_DIRTY_MASK : unsigned {
+//		NONE =					0,
+//		MODEL =					1 << 0,
+//		ALL = 					UINT_MAX
+//	};
+//
+//#define PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit))
+//#define PHYSICS_SHAPE_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
+//#define PHYSICS_SHAPE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
 
 } // namespace ae
 

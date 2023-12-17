@@ -131,21 +131,35 @@ Scene::Scene():
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 			 shared_ptr<PhysicalWorld> physicsWorld,
 			 shared_ptr<InputManager> inputManager):
-		_rootNode(make_shared<Node>("root")),
-		_visualWorld(visualWorld),
-		_physicalWorld(physicsWorld),
-		_inputManager(inputManager),
-		_debugOptions(DEBUG_OPTIONS::NONE),
-		_stats({}),
-		_running(false),
-		_paused(false),
-		_update(nullptr) {
+		Scene() {
 
-	_rootNode->attachedToScene(this);
+	_visualWorld = visualWorld;
+	_physicalWorld = physicsWorld;
+	_inputManager = inputManager;
+
 	if (_visualWorld) _visualWorld->attachedToScene(this);
 	if (_physicalWorld) _physicalWorld->attachedToScene(this);
 	if (_inputManager) _inputManager->attachedToScene(this);
 }
+
+//Scene::Scene(shared_ptr<VisualWorld> visualWorld,
+//			 shared_ptr<PhysicalWorld> physicsWorld,
+//			 shared_ptr<InputManager> inputManager):
+//		_rootNode(make_shared<Node>("root node")),
+//		_visualWorld(visualWorld),
+//		_physicalWorld(physicsWorld),
+//		_inputManager(inputManager),
+//		_debugOptions(DEBUG_OPTIONS::NONE),
+//		_stats({}),
+//		_running(false),
+//		_paused(false),
+//		_update(nullptr) {
+//
+//	_rootNode->attachedToScene(this);
+//	if (_visualWorld) _visualWorld->attachedToScene(this);
+//	if (_physicalWorld) _physicalWorld->attachedToScene(this);
+//	if (_inputManager) _inputManager->attachedToScene(this);
+//}
 
 Scene::~Scene() {
 	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
@@ -321,10 +335,10 @@ void Scene::run() {
 
 				if (_physicalWorld) {
 
-					_physicalWorld->simulate(*this,
-											 runT,
-											 deltaRunT,
-											 _stats);
+					_physicalWorld->step(*this,
+										 runT,
+										 deltaRunT,
+										 _stats);
 				}
 
 				if (_visualWorld) {

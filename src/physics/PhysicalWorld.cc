@@ -34,10 +34,7 @@ PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-//		_model(make_unique<BulletWorldModel>(this)),
-_model(nullptr), // <- this?
 		_scene(nullptr),
-		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
 		_didSimulate(nullptr),
 		_beginContact(nullptr),
 		_continueContact(nullptr),
@@ -60,8 +57,6 @@ vec3 PhysicalWorld::gravity() const {
 
 void PhysicalWorld::gravity(vec3 gravity) {
 	_gravity = gravity;
-
-	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::GRAVITY);
 }
 
 float PhysicalWorld::speed() const {
@@ -78,8 +73,6 @@ float PhysicalWorld::timestep() const {
 
 void PhysicalWorld::timestep(float timestep) {
 	_timestep = timestep;
-
-	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::TIMESTEP);
 }
 
 shared_ptr<PhysicsContact> PhysicalWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
@@ -171,18 +164,16 @@ void PhysicalWorld::remove(PhysicsBody& body) {
 	body.removedFromWorld(this);
 }
 
-void PhysicalWorld::simulate(const Scene& scene,
-							 double runT,
-							 double deltaRunT,
-							 Stats& stats) {
+void PhysicalWorld::step(const Scene& scene,
+						 double runT,
+						 double deltaRunT,
+						 Stats& stats) {
 
 	if (_model) {
 
 		auto startTime = scene.time();
 
-//		_model->update(stats);
 		_model->step(deltaRunT, _speed, _timestep);
-//		_model->sync();
 
 		UpdateTimeStats(stats, startTime, scene.time());
 
@@ -197,18 +188,6 @@ void PhysicalWorld::simulate(const Scene& scene,
 
 PhysicalWorldModel* PhysicalWorld::model() const {
 	return  _model.get();
-}
-
-void PhysicalWorld::model(std::unique_ptr<PhysicalWorldModel> model) {
-	_model = std::move(model);
-}
-
-PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicalWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
-	_dirtyMask = mask;
 }
 
 /*********************************************************************************************

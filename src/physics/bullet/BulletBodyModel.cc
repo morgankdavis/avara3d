@@ -78,11 +78,14 @@ BulletBodyModel::~BulletBodyModel() {
  *********************************************************************************************/
 
 PHYSICS_BODY_TYPE BulletBodyModel::type() const {
-	switch (_btBody->getCollisionFlags()) {
-		case btCollisionObject::CF_STATIC_OBJECT: return PHYSICS_BODY_TYPE::STATIC;
-		case btCollisionObject::CF_DYNAMIC_OBJECT: return PHYSICS_BODY_TYPE::DYNAMIC;;
-		case btCollisionObject::CF_KINEMATIC_OBJECT: return PHYSICS_BODY_TYPE::KINEMATIC;
-	}
+
+	auto flags = _btBody->getCollisionFlags();
+
+	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PHYSICS_BODY_TYPE::STATIC;
+	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PHYSICS_BODY_TYPE::DYNAMIC;
+	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PHYSICS_BODY_TYPE::KINEMATIC;
+
+	return PHYSICS_BODY_TYPE::STATIC;
 }
 
 void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {

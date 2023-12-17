@@ -7,7 +7,6 @@
 #include <variant>
 
 #include "btBulletCollisionCommon.h"
-#include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "LinearMath/btIDebugDraw.h"
@@ -26,7 +25,6 @@
 #include "physics/PhysicsBodyModel.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletDebugDrawer.h"
 #include "physics/bullet/BulletWorldModel.h"
 #include "physics/bullet/Utilities.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
@@ -161,8 +159,8 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 		_btShapes = btShapes;
 		_btIndexVertexArrays = btIndexVertexArrays;
 
-		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
-														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
+//		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
+//														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 	}
 	else {
 		AE_LOG_E("PhysicsShape with no geometry or source node.");
@@ -323,6 +321,8 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
 				 (void*)&shape);
 	}
+
+	return nullptr;
 }
 
 shared_ptr<btCollisionShape>

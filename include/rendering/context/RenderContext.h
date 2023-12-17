@@ -30,7 +30,6 @@ namespace ae {
 	class InputManager;
 	class Material;
 	class Node;
-	class PhysicsSimulator;
 	class Renderer;
 	class RenderContext;
 	class Scene;

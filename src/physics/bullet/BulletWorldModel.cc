@@ -68,7 +68,8 @@ void BulletWorldModel::add(PhysicsBody& body) {
 
 	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
 	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
-	_btWorld->addRigidBody(bodyModel->btBody().get());
+	auto b = bodyModel->btBody().get();
+	_btWorld->addRigidBody(b);
 }
 
 void BulletWorldModel::remove(PhysicsBody& body) {

@@ -32,7 +32,6 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
-	class PhysicsSimulator;
 
 	
 	class Node : public std::enable_shared_from_this<Node> {

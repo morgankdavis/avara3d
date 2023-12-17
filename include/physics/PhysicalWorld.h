@@ -26,7 +26,6 @@ namespace ae {
 	class PhysicsContact;
 	class PhysicsShape;
 	class PhysicalWorldModel;
-	class PhysicsSimulator;
 	class Scene;
 	
 	
@@ -99,16 +98,12 @@ namespace ae {
 		void 								add(PhysicsBody& body);
 		void 								remove(PhysicsBody& body);
 
-		void								simulate(const Scene& scene,
-													 double runT,
-													 double deltaRunT,
-													 Stats& stats);
+		void								step(const Scene& scene,
+												 double runT,
+												 double deltaRunT,
+												 Stats& stats);
 
 		PhysicalWorldModel*					model() const;
-		void								model(std::unique_ptr<PhysicalWorldModel> model);
-
-		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -121,7 +116,6 @@ namespace ae {
 		float 									_timestep;
 		std::unique_ptr<PhysicalWorldModel>		_model;
 		Scene*									_scene;
-		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
 		DidSimulateCallback						_didSimulate;
 		BeginContactCallback					_beginContact;
 		ContinueContactCallback					_continueContact;

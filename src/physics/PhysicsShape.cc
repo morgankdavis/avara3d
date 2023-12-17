@@ -32,9 +32,9 @@ using namespace std;
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
-		_type(type),
+		_type(type)
 //		_model(make_unique<BulletShapeModel>(this)),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
+		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ {
 
 	if (auto name = geometry->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
@@ -50,9 +50,9 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
-		_type(type),
+		_type(type)
 //		_model(make_unique<BulletShapeModel>(this)),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
+		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ {
 
 	if (auto name = node->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
@@ -66,9 +66,9 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
-		_bodies({}),
+		_bodies({})
 //		_model(make_unique<BulletShapeModel>(this)),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
+		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ { }
 
 PhysicsShape::~PhysicsShape() {
 	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
@@ -93,7 +93,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 
 		_type = type;
 		_model = nullptr;
-		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
+//		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 
 		checkCreateModel();
 	}
@@ -135,7 +135,7 @@ void PhysicsShape::sourceObject(variant<
 		monostate> sourceObject) {
 
 	_sourceObject = sourceObject;
-	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
+//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
 
 unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
@@ -169,14 +169,9 @@ unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 //	}
 //}
 
-
 PhysicsShapeModel* PhysicsShape::model() const {
 	return _model.get();
 }
-
-//void PhysicsShape::model(std::shared_ptr<PhysicsShapeModel> model) {
-//	_model = model;
-//}
 
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
@@ -186,10 +181,10 @@ void PhysicsShape::checkCreateModel() {
 	}
 }
 
-PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
-	_dirtyMask = mask;
-}
+//PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
+//	return _dirtyMask;
+//}
+//
+//void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
+//	_dirtyMask = mask;
+//}
