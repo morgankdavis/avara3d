@@ -418,33 +418,33 @@ namespace ae {
 #define PHYSICS_WORLD_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
 #define PHYSICS_WORLD_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
 			
-	enum class PHYSICS_BODY_DIRTY_MASK : unsigned {
-		NONE =							0,
-		TYPE =							1 << 0,
-		SHAPE =							1 << 1,
-		MASS =							1 << 2,
-		MOMENT_OF_INERTIA =				1 << 3,
-		FRICTION =						1 << 4,
-		ROLLING_FRICTION =				1 << 5,
-		RESTITUTION =					1 << 6,
-		LINEAR_VELOCITY =				1 << 7,
-		ANGULAR_VELOCITY =				1 << 8,
-		LINEAR_FACTOR =					1 << 9,
-		ANGULAR_FACTOR =				1 << 10,
-		LINEAR_DAMPING =				1 << 11,
-		ANGULAR_DAMPING =				1 << 12,
-		LINEAR_SLEEPING_THRESHOLD =		1 << 13,
-		ANGULAR_SLEEPING_THRESHOLD =	1 << 14,
-		AFFECTED_BY_GRAVITY =			1 << 15,
-		ALLOWS_RESTING =				1 << 16,
-		FORCES =						1 << 17,
-		TORQUES =						1 << 18,
-		ALL = 							UINT_MAX
-	};
-			
-#define PHYSICS_BODY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit))
-#define PHYSICS_BODY_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
-#define PHYSICS_BODY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
+//	enum class PHYSICS_BODY_DIRTY_MASK : unsigned {
+//		NONE =							0,
+//		TYPE =							1 << 0,
+//		SHAPE =							1 << 1,
+//		MASS =							1 << 2,
+//		MOMENT_OF_INERTIA =				1 << 3,
+//		FRICTION =						1 << 4,
+//		ROLLING_FRICTION =				1 << 5,
+//		RESTITUTION =					1 << 6,
+//		LINEAR_VELOCITY =				1 << 7,
+//		ANGULAR_VELOCITY =				1 << 8,
+//		LINEAR_FACTOR =					1 << 9,
+//		ANGULAR_FACTOR =				1 << 10,
+//		LINEAR_DAMPING =				1 << 11,
+//		ANGULAR_DAMPING =				1 << 12,
+//		LINEAR_SLEEPING_THRESHOLD =		1 << 13,
+//		ANGULAR_SLEEPING_THRESHOLD =	1 << 14,
+//		AFFECTED_BY_GRAVITY =			1 << 15,
+//		ALLOWS_RESTING =				1 << 16,
+//		FORCES =						1 << 17,
+//		TORQUES =						1 << 18,
+//		ALL = 							UINT_MAX
+//	};
+//
+//#define PHYSICS_BODY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit))
+//#define PHYSICS_BODY_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
+//#define PHYSICS_BODY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
 
 	enum class PHYSICS_SHAPE_DIRTY_MASK : unsigned {
 		NONE =					0,

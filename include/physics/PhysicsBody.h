@@ -25,7 +25,6 @@ namespace ae {
 	class PhysicalWorld;
 	class PhysicsBodyModel;
 	class PhysicsShape;
-	class PhysicsSimulator;
 	class Scene;
 	
 	
@@ -139,7 +138,7 @@ namespace ae {
 		
 //		void 								resting(bool resting);
 		
-		void 								attachedToNode(Node* node); // owning node
+		void 								attachedToNode(Node* node);
 		void 								detachedFromNode(Node* node);
 
 //		void 								nodeAttachedToParent(Node* parent); // owning node's parent
@@ -169,18 +168,14 @@ namespace ae {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void								modelCreated(PhysicsShape& shape);
+		void 								addedToWorld(PhysicalWorld* world);
+		void 								removedFromWorld(PhysicalWorld* world);
 
 		Node*								node() const;
 
 		PhysicalWorld*						physicalWorld() const;
-		PhysicsSimulator*					physicsSimulator() const;
 
 		PhysicsBodyModel*					model() const;
-//		void								model(std::shared_ptr<PhysicsBodyModel> model);
-
-		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
 
 /*********************************************************************************************
 	Private
@@ -188,34 +183,16 @@ namespace ae {
 
 	private:
 
-		void 								checkCreateModel();
 		void 								checkAutocreateShape(Node* node);
 		void 								checkAutocreateShape(Geometry* geometry);
-		
+
+		void 								checkAddToWorld();
+
 		PHYSICS_BODY_TYPE 					_type;
 		std::shared_ptr<PhysicsShape>		_shape;
-//		float 								_mass;
-//		glm::vec3 							_momentOfInertia;
-//		float 								_friction;
-//		float 								_rollingFriction;
-//		float 								_restitution;
-//		glm::vec3 							_linearVelocity;
-//		glm::vec3 							_angularVelocity;
-//		glm::vec3 							_linearFactor;
-//		glm::vec3 							_angularFactor;
-//		float 								_linearDamping;
-//		float 								_angularDamping;
-//		float								_linearSleepingThreshold;
-//		float								_angularSleepingThreshold;
-//		bool								_affectedByGravity;
-//		bool 								_allowsResting;
-//		bool 								_resting;
-
-		Node*								_node;
-
-		PHYSICS_BODY_DIRTY_MASK 			_dirtyMask;
-
 		std::unique_ptr<PhysicsBodyModel>	_model;
+		Node*								_node;
+		PhysicalWorld*						_world;
 	};
 }
 

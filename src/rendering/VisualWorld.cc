@@ -11,8 +11,6 @@
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/PhysicsSimulator.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "physics/bullet/BulletWorldModel.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
@@ -59,7 +57,7 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 }
 
 VisualWorld::~VisualWorld() {
-	AE_LOG_D("Destroying VisualWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -293,11 +291,11 @@ void VisualWorld::draw(const Scene& scene,
 			}
 		}
 		else {
-			AE_LOG_E("No Renderer attached to RenderContext {:p}", (void*)_renderContext.get());
+			AE_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
 		}
 	}
 	else {
-		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", (void*)this);
+		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
 	}
 }
 

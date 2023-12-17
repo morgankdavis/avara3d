@@ -28,7 +28,6 @@
 #include "geometry/primitives/Box.h"
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
 #include "rendering/VisualWorld.h"
@@ -149,7 +148,7 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 }
 
 Scene::~Scene() {
-	AE_LOG_D("Destroying Scene {:p}", (void*)this);
+	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -345,7 +344,7 @@ void Scene::run() {
 		} while (_running);
 	}
 	else {
-		AE_LOG_E("No root node attached to Scene {:p}", (void*)this);
+		AE_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
 }
 

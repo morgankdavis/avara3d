@@ -9,7 +9,7 @@
 #include "physics/PhysicalWorld.h"
 
 #include "diagnostic/logging/Logger.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
+#include "physics/PhysicsBody.h"
 #include "physics/bullet/BulletWorldModel.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
@@ -34,9 +34,8 @@ PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		//_model(make_unique<BulletWorldModel>()),
-		_model(nullptr),
-		_simulator(make_unique<BulletPhysicsSimulator>()),
+//		_model(make_unique<BulletWorldModel>(this)),
+_model(nullptr), // <- this?
 		_scene(nullptr),
 		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
 		_didSimulate(nullptr),
@@ -44,17 +43,11 @@ PhysicalWorld::PhysicalWorld():
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
-	//_simulator->create(*this);
-
 	_model = make_unique<BulletWorldModel>(this);
-//#warning move?
-
-//	_simulator->setTimestep(_timestep);
-//	_simulator->setGravity(_gravity);
 }
 
 PhysicalWorld::~PhysicalWorld() {
-	AE_LOG_D("Destroying PhysicalWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -121,8 +114,7 @@ shared_ptr<PhysicsContact> PhysicalWorld::convexSweepTest(shared_ptr<PhysicsCont
 }
 
 void PhysicalWorld::updateCollisionPairs() {
-#warning FIX
-	//_btWorld->getCollisionWorld()->computeOverlappingPairs();
+	_model->updateCollisionPairs();
 }
 
 Scene* PhysicalWorld::scene() const {
@@ -169,6 +161,16 @@ void PhysicalWorld::attachedToScene(Scene* scene) {
 	_scene = scene;
 }
 
+void PhysicalWorld::add(PhysicsBody& body) {
+	_model->add(body);
+	body.addedToWorld(this);
+}
+
+void PhysicalWorld::remove(PhysicsBody& body) {
+	_model->remove(body);
+	body.removedFromWorld(this);
+}
+
 void PhysicalWorld::simulate(const Scene& scene,
 							 double runT,
 							 double deltaRunT,
@@ -189,61 +191,9 @@ void PhysicalWorld::simulate(const Scene& scene,
 		}
 	}
 	else {
-		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
+		AE_LOG_E("No PhysicalWorldModel attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	}
 }
-
-//void PhysicalWorld::simulate(const Scene& scene,
-//							 double runT,
-//							 double deltaRunT,
-//							 Stats& stats) {
-//
-//	if (_simulator) {
-//
-//		auto startTime = scene.time();
-//
-//		_simulator->update(*this, stats);
-//		_simulator->step(*this, deltaRunT);
-//		_simulator->sync(*this);
-//
-//		UpdateTimeStats(stats, startTime, scene.time());
-//
-//		if (auto didSimulate = PhysicalWorld::didSimulate()) {
-//			didSimulate(*this, runT);
-//		}
-//	}
-//	else {
-//		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
-//	}
-//}
-
-//void PhysicalWorld::simulate(const Scene& scene,
-//							 float runT,
-//							 float deltaRunT,
-//							 Stats& stats) {
-//
-//	if (_simulator) {
-//
-//		auto rootNode = scene.rootNode();
-//
-//		_simulator->beginUpdate(scene);
-//		_simulator->update(scene);
-//		rootNode->update(*_simulator,
-//						  stats);
-//		_simulator->step(deltaRunT * _speed);
-//		_simulator->sync(scene);
-//		rootNode->sync(*_simulator,
-//						stats);
-//		_simulator->endUpdate(scene);
-//
-//		if (didSimulate()) {
-//			(didSimulate())(*this, runT);
-//		}
-//	}
-//	else {
-//		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
-//	}
-//}
 
 PhysicalWorldModel* PhysicalWorld::model() const {
 	return  _model.get();
@@ -251,10 +201,6 @@ PhysicalWorldModel* PhysicalWorld::model() const {
 
 void PhysicalWorld::model(std::unique_ptr<PhysicalWorldModel> model) {
 	_model = std::move(model);
-}
-
-PhysicsSimulator* PhysicalWorld::simulator() const {
-	return _simulator.get();
 }
 
 PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
@@ -274,8 +220,6 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto stepTime = endTime - startTime;
 	stats.currentPhysicstime = stepTime * 1000.0f;
-
-
 
 	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
 

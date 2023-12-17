@@ -38,7 +38,7 @@ MaterialProperty::MaterialProperty():
 		_maxAnisotropy(16),
 		_dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK::ALL) {
 	
-		AE_LOG_D("Creating MaterialProperty {:p}", (void*)this);
+		AE_LOG_D("Creating MaterialProperty {:p}", static_cast<void*>(this));
 }
 
 //MaterialProperty::MaterialProperty(shared_ptr<Color> contents):
@@ -54,7 +54,7 @@ MaterialProperty::MaterialProperty(std::shared_ptr<MaterialPropertyContents> con
 }
 
 MaterialProperty::~MaterialProperty() {
-	AE_LOG_D("Destroying MaterialProperty {:p}", (void*)this);
+	AE_LOG_D("Destroying MaterialProperty {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

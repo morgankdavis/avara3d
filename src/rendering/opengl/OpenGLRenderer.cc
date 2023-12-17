@@ -236,7 +236,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
-	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
+	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
 	_activeGeometryElements.clear();
 	_activeMaterialProperties.clear();
@@ -717,7 +717,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 
 		// construct a new lineset matching the geometry's extent
 
-		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 
 		auto aabb = geometry->aabb();
 
@@ -1819,7 +1819,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
+		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", static_cast<void*>(element.get()));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1846,7 +1846,7 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	
 	if (glMapping.count(property)) {
 		
-		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
+		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
 		
 		GLuint handle = glMapping[property];
 		

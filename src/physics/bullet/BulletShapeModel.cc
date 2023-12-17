@@ -170,7 +170,7 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 }
 
 BulletShapeModel::~BulletShapeModel() {
-	AE_LOG_D("Destroying BulletShapeModel {:p}", (void*)this);
+	AE_LOG_D("Destroying BulletShapeModel {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

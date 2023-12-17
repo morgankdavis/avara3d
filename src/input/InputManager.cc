@@ -32,7 +32,7 @@ InputManager::InputManager():
 		_scene(nullptr) { }
 
 InputManager::~InputManager() {
-	AE_LOG_D("Destroying InputManager {:p}", (void*)this);
+	AE_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

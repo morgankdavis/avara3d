@@ -51,7 +51,7 @@ Activity::Activity(RENDER_API renderAPI):
 }
 
 Activity::~Activity() {
-	AE_LOG_D("Destroying Activity {:p}", (void*)this);
+	AE_LOG_D("Destroying Activity {:p}", static_cast<void*>(this));
 	
 	terminate();
 }

@@ -51,7 +51,7 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 }
 
 WindowInputManager::~WindowInputManager() {
-	AE_LOG_D("Destroying WindowInputManager {:p}", (void*)this);
+	AE_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
 	quitManyMouse();
 	if (auto window = _window.lock()) {

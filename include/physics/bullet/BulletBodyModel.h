@@ -104,13 +104,13 @@ namespace ae {
 //		glm::mat4			worldTransform() const override;
 //		void				worldTransform(const glm::mat4& transform) override;
 
+		void				worldTransform(const glm::mat4& transform) override;
+
 		void				clearForces() override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-
-//		void				worldTransform(const glm::mat4& worldTransform);
 
 		std::shared_ptr<btRigidBody>			btBody();
 		//std::shared_ptr<btDefaultMotionState>	btMotionState();

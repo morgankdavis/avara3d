@@ -104,10 +104,12 @@ namespace ae {
 		virtual bool 				resting() const = 0;
 		virtual void				resting(bool resting) = 0;
 
+		virtual void				clearForces() = 0;
+
+		virtual void				worldTransform(const glm::mat4& worldTransform) = 0;
+
 		virtual bool				autocalculatesMomentOfInertia() const;
 		virtual void				autocalculatesMomentOfInertia(bool autocalculate);
-
-		virtual void				clearForces() = 0;
 
 /*********************************************************************************************
 	Protected

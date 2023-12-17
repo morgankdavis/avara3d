@@ -148,7 +148,7 @@ Window::Window(RENDER_API renderAPI,
 }
 
 Window::~Window() {
-	AE_LOG_D("Destroying Window {:p}", (void*)this);
+	AE_LOG_D("Destroying Window {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 

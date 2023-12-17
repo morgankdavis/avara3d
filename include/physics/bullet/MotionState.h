@@ -6,8 +6,8 @@
 #define AVARA_ENGINE_BULLET_MOTIONSTATE_H
 
 
-#import "LinearMath/btMotionState.h"
-//#include "../../../external/bullet-3.17/src/LinearMath/btMotionState.h"
+//#include "LinearMath/btMotionState.h"
+#include "../../../external/bullet-3.17/src/LinearMath/btMotionState.h" // wtf?
 
 
 namespace ae {
@@ -24,8 +24,7 @@ namespace ae {
 
 	public:
 
-		MotionState(PhysicsBody* body/*,
-					const btTransform& worldTransform = btTransform::getIdentity()*/);
+		MotionState(PhysicsBody* body);
 
 /*********************************************************************************************
 	btMotionState

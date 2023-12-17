@@ -96,6 +96,9 @@ namespace ae {
 
 		void								attachedToScene(Scene* scene);
 
+		void 								add(PhysicsBody& body);
+		void 								remove(PhysicsBody& body);
+
 		void								simulate(const Scene& scene,
 													 double runT,
 													 double deltaRunT,
@@ -103,8 +106,6 @@ namespace ae {
 
 		PhysicalWorldModel*					model() const;
 		void								model(std::unique_ptr<PhysicalWorldModel> model);
-
-		PhysicsSimulator*					simulator() const;
 
 		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
 		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
@@ -119,7 +120,6 @@ namespace ae {
 		float 									_speed;
 		float 									_timestep;
 		std::unique_ptr<PhysicalWorldModel>		_model;
-		std::unique_ptr<PhysicsSimulator>		_simulator;
 		Scene*									_scene;
 		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
 		DidSimulateCallback						_didSimulate;

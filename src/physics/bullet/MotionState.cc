@@ -4,7 +4,6 @@
 
 #include "physics/bullet/MotionState.h"
 
-//#include "diagnostic/Logger.h"
 #include "physics/PhysicsBody.h"
 #include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
@@ -17,37 +16,28 @@ using namespace ae;
 	Lifecycle
  *********************************************************************************************/
 
-MotionState::MotionState(PhysicsBody* body/*,
-						 const btTransform& worldTransform*/):
+MotionState::MotionState(PhysicsBody* body):
 		btMotionState(),
-		_body(body)
-//		_graphicsWorldTransform()
-		{ }
+		_body(body) { }
 
 /*********************************************************************************************
 	btMotionState
 *********************************************************************************************/
 
-// synchronize world transform from graphics to physics
+// apply node transform to kinematic physics body
 void MotionState::getWorldTransform(btTransform &transform) const {
 
-//	if (_body->type() == PHYSICS_BODY_TYPE::KINEMATIC) {
-		if (auto node = _body->node()) {
-			transform = BTTransformFromGLMMat4(node->worldTransform());
-		}
-//	}
+	if (auto node = _body->node()) {
+		transform = BTTransformFromGLMMat4(node->worldTransform());
+	}
 }
 
-// synchronize world transform from physics to graphics
+// apply dynamic physics body transform to node
 void MotionState::setWorldTransform(const btTransform& transform) {
 
-//	if (_body) {
-//		if (_body->type() == PHYSICS_BODY_TYPE::DYNAMIC) {
-			if (auto node = _body->node()) {
-				node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
-			}
-//		}
-//	}
+	if (auto node = _body->node()) {
+		node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
+	}
 }
 
 /*********************************************************************************************

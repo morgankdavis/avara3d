@@ -14,7 +14,6 @@
 
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/opengl/OpenGLRenderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/Renderer.h"
@@ -66,7 +65,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 }
 
 RenderContext::~RenderContext() {
-	AE_LOG_D("Destroying RenderContext {:p}", (void*)this);
+	AE_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
 	
 	if (_recordingGIF) {
 		stopGIFRecording();

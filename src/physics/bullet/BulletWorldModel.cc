@@ -15,8 +15,6 @@
 #include "physics/PhysicsBody.h"
 #include "physics/bullet/BulletBodyModel.h"
 #include "physics/bullet/BulletDebugDrawer.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
-#include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
 
 
@@ -38,17 +36,7 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBU
  *********************************************************************************************/
 
 BulletWorldModel::BulletWorldModel(PhysicalWorld* world):
-		PhysicalWorldModel(world)/*:
-		_collisionConfiguration(make_unique<btDefaultCollisionConfiguration>()),
-		_collisionDispatcher(make_unique<btCollisionDispatcher>(_collisionConfiguration.get())),
-		_broadphase(make_unique<btDbvtBroadphase>()),
-		_constraintSolver(make_unique<btSequentialImpulseConstraintSolver>()),
-		_world(make_unique<btDiscreteDynamicsWorld>(_collisionDispatcher.get(),
-													_broadphase.get(),
-													_constraintSolver.get(),
-													_collisionConfiguration.get()))*/ {
-
-	// putting this in the initializer list causes a SEGFAULT at btDiscreteDynamicsWorld::addRigidBody(). (?)
+		PhysicalWorldModel(world) {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -68,7 +56,7 @@ BulletWorldModel::BulletWorldModel(PhysicalWorld* world):
 }
 
 BulletWorldModel::~BulletWorldModel() {
-	AE_LOG_D("Destroying BulletWorldModel {:p}", (void*)this);
+	AE_LOG_D("Destroying BulletWorldModel {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -76,18 +64,16 @@ BulletWorldModel::~BulletWorldModel() {
  *********************************************************************************************/
 
 void BulletWorldModel::add(PhysicsBody& body) {
+	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
-
-	// often times the body (and MotionState) are created either before the body is attached
-	// to a node, or before the node's start transform is set.  so set the transform here.
-//	bodyModel->worldTransform(body.node()->worldTransform());
-	bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
-
+	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
 	_btWorld->addRigidBody(bodyModel->btBody().get());
 }
 
 void BulletWorldModel::remove(PhysicsBody& body) {
+	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
+
 	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
 	_btWorld->removeRigidBody(bodyModel->btBody().get());
 }
@@ -174,16 +160,16 @@ void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 ////	}
 //}
 
+void BulletWorldModel::updateCollisionPairs() {
+	_btWorld->getCollisionWorld()->computeOverlappingPairs();
+}
+
 void BulletWorldModel::drawDebug(Renderer &renderer,
 								 const glm::mat4 &viewMat,
 								 const glm::mat4 &projectionMat,
 								 const DEBUG_OPTIONS &debugOptions) {
 
 #ifdef OPENGL_CORE
-//	auto resources = static_cast<BulletWorldModel*>(world.model());
-//	auto btWorld = resources->btWorld();
-//	auto debugDrawer = resources->btDebugDrawer();
-
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);
@@ -200,22 +186,6 @@ void BulletWorldModel::drawDebug(Renderer &renderer,
 btDiscreteDynamicsWorld* BulletWorldModel::btWorld() const {
 	return _btWorld.get();
 }
-
-//btDefaultCollisionConfiguration* BulletWorldModel::collisionConfiguration() const {
-//	return _btCollisionConfiguration.get();
-//}
-//
-//btCollisionDispatcher* BulletWorldModel::collisionDispatcher() const {
-//	return _collisionDispatcher.get();
-//}
-//
-//btDbvtBroadphase* BulletWorldModel::broadphase() const {
-//	return _broadphase.get();
-//}
-//
-//btSequentialImpulseConstraintSolver* BulletWorldModel::constraintSolver() const {
-//	return _constraintSolver.get();
-//}
 
 #ifdef DESKTOP
 BulletDebugDrawer* BulletWorldModel::btDebugDrawer() const {

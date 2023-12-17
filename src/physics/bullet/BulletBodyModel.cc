@@ -4,7 +4,6 @@
 
 #include "physics/bullet/BulletBodyModel.h"
 
-#include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -71,7 +70,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 }
 
 BulletBodyModel::~BulletBodyModel() {
-	AE_LOG_D("Destroying BulletBodyModel {:p}", (void*)this);
+	AE_LOG_D("Destroying BulletBodyModel {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -141,7 +140,7 @@ void BulletBodyModel::shape(PhysicsShapeModel* shape) {
 }
 
 float BulletBodyModel::mass() const {
-//	return 1.0;
+
 	auto invMass = _btBody->getInvMass();
 	return (invMass != 0
 			? 1.0f/_btBody->getInvMass()
@@ -375,16 +374,8 @@ void BulletBodyModel::resting(bool resting) {
 //	_btBody->setMotionState(_motionState.get());
 //}
 
-void BulletBodyModel::clearForces() {
-	_btBody->clearForces();
-}
+void BulletBodyModel::worldTransform(const glm::mat4& transform) {
 
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//void BulletBodyModel::worldTransform(const glm::mat4& worldTransform) {
-//
 //	bool wasScaled = false;
 //	auto btTransform = BTTransformFromGLMMat4(
 //			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
@@ -400,7 +391,17 @@ void BulletBodyModel::clearForces() {
 //
 //	_motionState = make_shared<MotionState>(_body, btTransform);
 //	_btBody->setMotionState(_motionState.get());
-//}
+
+	_btBody->setWorldTransform(BTTransformFromGLMMat4(transform));
+}
+
+void BulletBodyModel::clearForces() {
+	_btBody->clearForces();
+}
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
 
 shared_ptr<btRigidBody> BulletBodyModel::btBody() {
 	return _btBody;

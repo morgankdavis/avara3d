@@ -53,9 +53,9 @@ namespace ae {
 		float	gravity() const override;
 		void	gravity(float gravity) override;
 
-//		void	update(Stats& stats) override;
 		void	step(double deltaT, float speed, float timestep) override;
-//		void	sync() override;
+
+		void 	updateCollisionPairs() override;
 
 		void 	drawDebug(Renderer &renderer,
 						  const glm::mat4 &viewMat,
@@ -67,10 +67,6 @@ namespace ae {
  *********************************************************************************************/
 
 		btDiscreteDynamicsWorld*				btWorld() const;
-//		btDefaultCollisionConfiguration*		collisionConfiguration() const;
-//		btCollisionDispatcher*					collisionDispatcher() const;
-//		btDbvtBroadphase*						broadphase() const;
-//		btSequentialImpulseConstraintSolver*	constraintSolver() const;
 #ifdef DESKTOP
 		BulletDebugDrawer*						btDebugDrawer() const;
 #endif

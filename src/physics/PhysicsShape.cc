@@ -15,7 +15,6 @@
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicsShapeModel.h"
-#include "physics/PhysicsSimulator.h"
 #include "physics/PhysicalWorld.h"
 #include "physics/bullet/BulletShapeModel.h"
 #include "scene/Node.h"
@@ -72,7 +71,7 @@ PhysicsShape::PhysicsShape():
 		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
 
 PhysicsShape::~PhysicsShape() {
-	AE_LOG_D("Destroying PhysicsShape {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -143,16 +142,6 @@ unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
 }
 
-PhysicsSimulator* PhysicsShape::physicsSimulator() const {
-
-	for (auto& body : _bodies) {
-		if (auto world = body->physicalWorld()) {
-			return world->simulator();
-		}
-	}
-	return nullptr;
-}
-
 //PhysicalWorld* PhysicsShape::physicalWorld() const {
 //
 //	if (_body) {
@@ -193,14 +182,7 @@ void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
 	if (!_model) {
-//		if (auto simulator = physicsSimulator()) {
-			//simulator->create(*this);
-			_model = make_unique<BulletShapeModel>(this);
-
-			for (auto& body : _bodies) {
-				body->modelCreated(*this);
-			}
-//		}
+		_model = make_unique<BulletShapeModel>(this);
 	}
 }
 

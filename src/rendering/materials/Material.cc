@@ -59,7 +59,7 @@ Material::Material():
 		_blendFunction(BLEND_FUNCTION::DISABLED),
 		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
 
-	AE_LOG_D("Creating Material {:p}", (void*)this);
+	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
@@ -85,7 +85,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 }
 
 Material::~Material() {
-	AE_LOG_D("Destroying Material {:p}", (void*)this);
+	AE_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

@@ -94,7 +94,6 @@ namespace ae {
 		std::unordered_set<PhysicsBody*>	bodies() const;
 
 //		PhysicalWorld*						physicalWorld() const;
-		PhysicsSimulator*					physicsSimulator() const;
 
 		void								checkCreateModel();
 

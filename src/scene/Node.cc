@@ -94,7 +94,7 @@ Node::~Node() {
 		AE_LOG_D("Destroying Node '{}'", *_name);
 	}
 	else {
-		AE_LOG_D("Destroying Node {:p}", (void*)this);
+		AE_LOG_D("Destroying Node {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -529,9 +529,6 @@ mat4 Node::worldTransform() const {
 		return _parent->worldTransform() * transform();
 	}
 	else {
-		// base case, at root node
-//		static const auto idMat4 = mat4(1.0);
-//		return idMat4;
 		return transform();
 	}
 }
@@ -634,7 +631,7 @@ Node* Node::parent() const {
  *********************************************************************************************/
 
 void Node::attachedToParent(Node* parent) {
-	AE_LOG_T("parent: {:p}", (void*)parent);
+	AE_LOG_T("parent: {:p}", static_cast<void*>(parent));
 
 	_parent = parent;
 
@@ -653,7 +650,7 @@ void Node::attachedToParent(Node* parent) {
 }
 
 void Node::detachedFromParent(Node* parent) {
-	AE_LOG_T("parent: {:p}", (void*)parent);
+	AE_LOG_T("parent: {:p}", static_cast<void*>(parent));
 
 	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
@@ -669,7 +666,7 @@ void Node::detachedFromParent(Node* parent) {
 }
 
 void Node::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", (void*)scene);
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeAttachedToScene(scene);
@@ -685,7 +682,7 @@ void Node::attachedToScene(Scene* scene) {
 }
 
 void Node::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", (void*)scene);
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromScene(scene);
@@ -921,7 +918,12 @@ void Node::_debugPrintRec(Node& node,
 
 void Node::applyPhysicsTransform(mat4 transform) {
 
-	this->transform(inverse(_parent->worldTransform()) * transform);
+	if (_parent) {
+		this->transform(inverse(_parent->worldTransform()) * transform);
+	}
+	else {
+		this->transform(transform);
+	}
 }
 
 //void Node::_debugPrint() {
