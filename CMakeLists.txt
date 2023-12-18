@@ -224,7 +224,7 @@ else()
 	include_directories(external/assimp-3.3.1/include)
 	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
-	# many mouse
+	# manymouse
 
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse/include)
@@ -273,6 +273,10 @@ add_subdirectory(external/bullet-3.17)
 include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+target_compile_options(Bullet3Collision PUBLIC
+		"-Wno-deprecated-volatile")
+#target_compile_options(BulletSoftBody PUBLIC
+#		"-Wno-single-bit-bitfield-constant-conversion")
 
 # magic_enmum
 
