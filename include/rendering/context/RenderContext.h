@@ -93,7 +93,7 @@ namespace ae {
 		void 								framebufferHeight(unsigned height);
 		void 								framebufferScale(float scale);
 
-		virtual void 						saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
+		virtual void 						saveGIFFrame(float deltaRunT);
 
 		void								attachedToVisualWorld(VisualWorld* world);
 		

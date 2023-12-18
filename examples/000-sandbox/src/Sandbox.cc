@@ -364,7 +364,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(KEY::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 240, 8);
+			StartGIFRecording(*window, 320, 8);
 		}
 		else {
 			StopGIFRecording(*window);

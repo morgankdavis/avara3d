@@ -309,7 +309,7 @@ void Example::updateCallback(Scene& scene, float time) {
 
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
-	
+
 	if (_duckSpinnerNode) {
 		//auto duckRotation = _duckSpinnerNode->rotation();
 		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
@@ -515,7 +515,7 @@ void Example::updateCallback(Scene& scene, float time) {
 
 		if (keysPressed.count(KEY::R)) {
 			if (!window->recordingGIF()) {
-				StartGIFRecording(*window, 240, 8);
+				StartGIFRecording(*window, 320, 8);
 			} else {
 				StopGIFRecording(*window);
 			}

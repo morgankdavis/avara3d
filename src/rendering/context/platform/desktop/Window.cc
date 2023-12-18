@@ -22,7 +22,6 @@
 #endif
 #include "GLFW/glfw3native.h"
 
-#include "Global.h"
 #include "diagnostic/logging/Logger.h"
 #include "input/platform/desktop/WindowInputManager.h"
 #include "physics/PhysicalWorld.h"
