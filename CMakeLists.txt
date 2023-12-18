@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(avara-engine)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -156,8 +156,8 @@ include_directories(external/glm-0.9.9.8)
 
 # fmt
 
-#add_subdirectory(external/fmt-5.2.0)
-#include_directories(external/fmt-5.2.0/include)
+add_subdirectory(external/fmt-5.2.0)
+include_directories(external/fmt-5.2.0/include)
 #set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
 #set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
 
