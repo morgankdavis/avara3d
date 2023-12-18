@@ -45,7 +45,7 @@ build-macos:
     - echo "Starting for macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    - /opt/local/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-17 -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-17 ..
     - /usr/bin/make -j4
     - echo "macOS build complete."
 
