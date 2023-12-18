@@ -457,6 +457,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
 	target_compile_options(ae PUBLIC
+			#"-stdlib=libc++" # use LLVM libc++
 			"-fmessage-length=0"
 			"-UGLFW_CDECL"
 			"-Wno-unknown-warning-option"
