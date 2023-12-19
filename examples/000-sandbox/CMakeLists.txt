@@ -37,7 +37,7 @@ target_link_libraries(${EXAMPLE_NAME} ae)
 #	"-Wno-unused-function")
 
 if (MACOS)
-	target_compile_options(ae PUBLIC
+	target_compile_options(${EXAMPLE_NAME} PUBLIC
 			#"-stdlib=libstdc++" # use GCC libcstd++
 			"-I/usr/local/opt/llvm@16/include"
 			"-fexperimental-library"
@@ -55,7 +55,7 @@ if (MACOS)
 	target_link_options(ae PUBLIC
 			"-L/usr/local/opt/llvm@16/lib")
 else()
-	target_compile_options(ae PUBLIC
+	target_compile_options(${EXAMPLE_NAME} PUBLIC
 			#"-stdlib=libc++" # use LLVM libc++
 			"-fmessage-length=0"
 			"-UGLFW_CDECL"
