@@ -111,7 +111,7 @@ Window::Window(RENDER_API renderAPI,
 		}
 
 		if (_glfwWindow) {
-			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
+			glfwSetWindowUserPointer(_glfwWindow, static_cast<void*>(this));
 
 			glfwMakeContextCurrent(_glfwWindow);
 			vSyncEnabled(false);
@@ -401,7 +401,7 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
-	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
+	AE_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 

@@ -247,6 +247,12 @@ void Logger::critical(bool useHeader,
 	va_end(args);
 }
 
+void vlog(const char* file, int line, fmt::string_view format,
+		  fmt::format_args args) {
+	fmt::print("{}: {}: ", file, line);
+	fmt::vprint(format, args);
+}
+
 // constructs body with variable args list
 void Logger::log(LOG_LEVEL level,
 				 const char* format, va_list args) {

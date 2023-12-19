@@ -42,7 +42,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {:p}...",
-				 magic_enum::enum_name(type), (void*)geometry);
+				 magic_enum::enum_name(type), static_cast<void*>(geometry));
 	}
 }
 
@@ -60,7 +60,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
-				 magic_enum::enum_name(type), (void*)node);
+				 magic_enum::enum_name(type),static_cast<void*>(node));
 	}
 }
 
@@ -104,7 +104,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", (void*)body);
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	if (!_bodies.count(body)) {
 		_bodies.insert(body);
@@ -114,19 +114,19 @@ void PhysicsShape::attachedToBody(PhysicsBody* body) {
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", (void*)body);
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_bodies.erase(body);
 }
 
 void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	checkCreateModel();
 }
 
 void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 }
 
 void PhysicsShape::sourceObject(variant<

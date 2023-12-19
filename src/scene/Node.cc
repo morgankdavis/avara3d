@@ -696,7 +696,7 @@ void Node::detachedFromScene(Scene* scene) {
 }
 
 void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
-	AE_LOG_T("ancestor: {:p}, parent: {:p}", (void*)ancestor, (void*)parent);
+	AE_LOG_T("ancestor: {:p}, parent: {:p}", static_cast<void*>(ancestor), static_cast<void*>(parent));
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorAttachedToParent(ancestor, parent);
@@ -710,7 +710,7 @@ void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {
 }
 
 void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
-	AE_LOG_T("ancestor: {:p}, parent: {:p}", (void*)ancestor, (void*)parent);
+	AE_LOG_T("ancestor: {:p}, parent: {:p}", static_cast<void*>(ancestor), static_cast<void*>(parent));
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
@@ -724,7 +724,7 @@ void Node::ancestorDetachedFromParent(Node* ancestor, Node* parent) {
 }
 
 void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
-	AE_LOG_T("ancestor: {:p}, scene: {:p}", (void*)ancestor, (void*)scene);
+	AE_LOG_T("ancestor: {:p}, scene: {:p}", static_cast<void*>(ancestor), static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorAttachedToScene(ancestor, scene);
@@ -738,7 +738,7 @@ void Node::ancestorAttachedToScene(Node* ancestor, Scene* scene) {
 }
 
 void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
-	AE_LOG_T("ancestor: {:p}, scene: {:p}", (void*)ancestor, (void*)scene);
+	AE_LOG_T("ancestor: {:p}, scene: {:p}", static_cast<void*>(ancestor), static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
@@ -752,7 +752,7 @@ void Node::ancestorDetachedFromScene(Node* ancestor, Scene* scene) {
 }
 
 void Node::visualWorldAttachedToScene(VisualWorld* world, Scene* scene) {
-	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
+	AE_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(world), static_cast<void*>(scene));
 
 	for (auto& child : _children) {
 		child->visualWorldAttachedToScene(world, scene);
@@ -760,7 +760,7 @@ void Node::visualWorldAttachedToScene(VisualWorld* world, Scene* scene) {
 }
 
 void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
-	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
+	AE_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(world), static_cast<void*>(scene));
 
 	for (auto& child : _children) {
 		child->visualWorldDetachedFromScene(world, scene);
@@ -768,7 +768,7 @@ void Node::visualWorldDetachedFromScene(VisualWorld* world, Scene* scene) {
 }
 
 void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
-	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
+	AE_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(world), static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldAttachedToScene(world, scene);
@@ -782,7 +782,7 @@ void Node::physicalWorldAttachedToScene(PhysicalWorld* world, Scene* scene) {
 }
 
 void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
-	AE_LOG_T("world: {:p}, scene: {:p}", (void*)world, (void*)scene);
+	AE_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(world), static_cast<void*>(scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldDetachedFromScene(world, scene);
