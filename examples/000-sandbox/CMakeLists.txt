@@ -52,7 +52,7 @@ if (MACOS)
 			"-Wno-unused-function"
 			"-Wno-deprecated-declarations"
 			"-Wno-argument-outside-range")
-	target_link_options(ae PUBLIC
+	target_link_options(${EXAMPLE_NAME} PUBLIC
 			"-L/usr/local/opt/llvm@16/lib")
 else()
 	target_compile_options(${EXAMPLE_NAME} PUBLIC
