@@ -1039,7 +1039,7 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
 						  sizeof(vec3)*2, 		// stride
-						  static_cast<void*)sizeof(vec3));	// start offset
+						  (void*)sizeof(vec3));	// start offset
 	glEnableVertexAttribArray(colorIndex);
 }
 

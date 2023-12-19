@@ -111,7 +111,7 @@ Window::Window(RENDER_API renderAPI,
 		}
 
 		if (_glfwWindow) {
-			glfwSetWindowUserPointer(_glfwWindow, static_cast<void*>(this);
+			glfwSetWindowUserPointer(_glfwWindow, static_cast<void*>(this));
 
 			glfwMakeContextCurrent(_glfwWindow);
 			vSyncEnabled(false);
