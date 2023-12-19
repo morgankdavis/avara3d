@@ -850,7 +850,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG_D("Buffering vertex data for geometry element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -946,7 +946,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
-	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
+	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
 
 	auto aabb = geometry.aabb();
 
@@ -1054,7 +1054,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_D("Buffering cube texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&property));
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
@@ -1128,7 +1128,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		
 		
-		AE_LOG_D("Buffering 2D texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&property));
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
@@ -1151,7 +1151,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 //		// DEBUG: write texture data to file
 //		
-//		AE_LOG_D("Saving property {:p}...", (void*)&property);
+//		AE_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
 //	
 //		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
 //		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
