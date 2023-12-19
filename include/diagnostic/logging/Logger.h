@@ -20,7 +20,7 @@
 
 #include <cstdio>
 #include <filesystem>
-//#include <format>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -40,7 +40,7 @@
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 //#define AE_LOG_T() Logger::MainLogger()->trace(__FILE_NAME__, __LINE__, __FUNCTION__)
 #define AE_LOG_T() Logger::MainLogger()->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
-#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define AE_LOG_T(fmtStr, ...) Logger::MainLogger()->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, std::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_D(fmtStr, ...) Logger::MainLogger()->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_I(fmtStr, ...) Logger::MainLogger()->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
