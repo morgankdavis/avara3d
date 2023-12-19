@@ -24,7 +24,7 @@ stages:          # List of stages for jobs, and their order of execution
 build-linux:
   stage: build
   tags:
-      - debian-11
+      - ubuntu-23
   script:
     - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
