@@ -319,7 +319,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 	}
 	else {
 		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
-				 (void*)&shape);
+				 static_cast<void*>(&shape));
 	}
 
 	return nullptr;

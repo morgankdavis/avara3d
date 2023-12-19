@@ -1608,7 +1608,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = element.faces().size();
-	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
 static void DrawSkyboxElement(GeometryElement& element,
@@ -1634,7 +1634,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, nullptr);
 }
 	
 static void DrawAABB(Geometry& geometry,
