@@ -26,15 +26,49 @@ add_executable(${EXAMPLE_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${EXAMPLE_NAME} ae)
 
 
-target_compile_options(${EXAMPLE_NAME} PRIVATE 
-	"-fmessage-length=0"
-	"-UGLFW_CDECL"
-	"-Wno-float-equal"
-	"-Wno-c++11-long-long"
-	"-Wno-self-assign"
-	"-Wno-reorder"
-	"-Wno-address-of-packed-member"
-	"-Wno-unused-function")
+#target_compile_options(${EXAMPLE_NAME} PRIVATE
+#	"-fmessage-length=0"
+#	"-UGLFW_CDECL"
+#	"-Wno-float-equal"
+#	"-Wno-c++11-long-long"
+#	"-Wno-self-assign"
+#	"-Wno-reorder"
+#	"-Wno-address-of-packed-member"
+#	"-Wno-unused-function")
+
+if (MACOS)
+	target_compile_options(${EXAMPLE_NAME} PUBLIC
+			#"-stdlib=libstdc++" # use GCC libcstd++
+			"-I/usr/local/opt/llvm@16/include"
+			"-fexperimental-library"
+			"-fmessage-length=0"
+			"-UGLFW_CDECL"
+			"-Wno-unknown-warning-option"
+			"-Wno-float-equal"
+			"-Wno-c++11-long-long"
+			"-Wno-self-assign"
+			"-Wno-reorder"
+			"-Wno-address-of-packed-member"
+			"-Wno-unused-function"
+			"-Wno-deprecated-declarations"
+			"-Wno-argument-outside-range")
+	target_link_options(${EXAMPLE_NAME} PUBLIC
+			"-L/usr/local/opt/llvm@16/lib")
+else()
+	target_compile_options(${EXAMPLE_NAME} PUBLIC
+			#"-stdlib=libc++" # use LLVM libc++
+			"-fmessage-length=0"
+			"-UGLFW_CDECL"
+			"-Wno-unknown-warning-option"
+			"-Wno-float-equal"
+			"-Wno-c++11-long-long"
+			"-Wno-self-assign"
+			"-Wno-reorder"
+			"-Wno-address-of-packed-member"
+			"-Wno-unused-function"
+			"-Wno-deprecated-declarations"
+			"-Wno-argument-outside-range")
+endif()
 
 
 if (NOT ANDROID)
