@@ -556,7 +556,7 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 			}
 			material->specularExponent(shininess);
 
-			AE_LOG_D("ADDING MATERIAL: {:p}", (void*)material.get());
+			AE_LOG_D("ADDING MATERIAL: {:p}", static_cast<void*>(material.get()));
 			importMaterials.push_back(material);
 		}
 

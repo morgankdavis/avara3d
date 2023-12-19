@@ -110,7 +110,7 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 		_btShapes(vector<shared_ptr<btCollisionShape>>()),
 		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
 
-	AE_LOG_D("shape: {:p}", (void*)shape);
+	AE_LOG_D("shape: {:p}", static_cast<void*>(shape));
 
 	auto bodyType = (*shape->bodies().begin())->type();
 
@@ -153,7 +153,7 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 
 	if (newShape) {
 
-		newShape->setUserPointer((void*)shape);
+		newShape->setUserPointer(static_cast<void*>(shape));
 		btShapes.insert(btShapes.begin(), newShape);
 
 		_btShapes = btShapes;
@@ -228,7 +228,7 @@ BTShapeFromSourceGeometry(Geometry* geometry,
 	}
 	else {
 		AE_LOG_E("Can't create physic shape for Geometry {:p}: has no elements.",
-				 (void*)geometry);
+				 static_cast<void*>(geometry));
 	}
 
 	return newShape;
@@ -335,7 +335,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 
 	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
-				 (void*)element.get());
+				 static_cast<void*>(element.get()));
 
 		auto extent = element->extent();
 		return make_shared<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
@@ -345,7 +345,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	else if (auto box = dynamic_cast<Box*>(geometry)) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}... "
 				 "(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
 		return make_shared<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
 												 (btScalar)box->width()/2.0f,
@@ -354,7 +354,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	else if (auto capsule = dynamic_cast<Capsule*>(geometry)) {
 		AE_LOG_I("Creating capsule physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
@@ -362,7 +362,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	else if (auto cone  = dynamic_cast<Cone*>(geometry)) {
 		AE_LOG_I("Creating cone physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
@@ -370,7 +370,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	else if (auto cylinder = dynamic_cast<Cylinder*>(geometry)) {
 		AE_LOG_I("Creating cylinder physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
 													  (btScalar)cylinder->height()/2.0,
@@ -385,7 +385,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 	else if (auto sphere = dynamic_cast<Sphere*>(geometry)) {
 		AE_LOG_I("Creating sphere physics shape for GeometryElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 (void*)element.get(), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
@@ -482,7 +482,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 
 shared_ptr<btConvexHullShape>
 BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
-	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", (void*)element.get());
+	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
@@ -516,7 +516,7 @@ BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 shared_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
+	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
@@ -553,7 +553,7 @@ BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 shared_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", (void*)element.get());
+	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -583,7 +583,7 @@ shared_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 												 vector<shared_ptr<btCollisionShape>>& btShapes) {
 	AE_LOG_I("Creating convex hull compound physics shape for HACD GeometryElement {:p}...",
-			 (void*)element.get());
+			 static_cast<void*>(element.get()));
 
 	auto compoundShape = make_shared<btCompoundShape>(true);
 
@@ -599,7 +599,7 @@ BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> ele
 
 vector<shared_ptr<GeometryElement>>
 HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element) {
-	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", (void*)element.get());
+	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 8;

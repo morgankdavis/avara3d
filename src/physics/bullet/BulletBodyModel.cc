@@ -39,7 +39,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 		/*_btMotionState(nullptr)*/
 		_motionState(nullptr) {
 
-	AE_LOG_D("body: {:p}", (void*)body);
+	AE_LOG_D("body: {:p}", static_cast<void*>(body));
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
@@ -66,7 +66,7 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 			break;
 	}
 
-	_btBody->setUserPointer((void*)body);
+	_btBody->setUserPointer(static_cast<void*>(body));
 }
 
 BulletBodyModel::~BulletBodyModel() {
@@ -114,7 +114,7 @@ PhysicsShapeModel* BulletBodyModel::shape() const {
 }
 
 void BulletBodyModel::shape(PhysicsShapeModel* shape) {
-	AE_LOG_T("shape: {:p}", (void*)shape);
+	AE_LOG_T("shape: {:p}", static_cast<void*>(shape));
 
 	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 	if (auto btShape = dynamic_cast<BulletShapeModel*>(shape)->btShapes().front()) {

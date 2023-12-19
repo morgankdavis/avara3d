@@ -653,7 +653,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //
 //		// construct a new lineset matching the geometry's extent
 //
-//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 //
 //		map<string, vec3> bp = *(geometry->aabb(false));
 //
@@ -821,7 +821,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property->dirtyMask(),
 													  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS)) {
 				
-				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
 				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
@@ -1039,7 +1039,7 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
 						  sizeof(vec3)*2, 		// stride
-						  (void*)sizeof(vec3));	// start offset
+						  static_cast<void*)sizeof(vec3));	// start offset
 	glEnableVertexAttribArray(colorIndex);
 }
 
@@ -1140,10 +1140,10 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		GLint glInternalFormat = GL_RGBA;
 		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-		
+
 		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
-					  image->width() * image->height() * image->bytesPerPixel());
+				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
+				 image->width() * image->height() * image->bytesPerPixel());
 		
 	
 		
@@ -1867,7 +1867,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG_T("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
+		AE_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
 		
 		auto glHandles = glMapping[lineSet];
 		

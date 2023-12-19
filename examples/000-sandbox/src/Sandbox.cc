@@ -54,6 +54,9 @@ int Sandbox::run(const vector<string>& args) {
 	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "");
 
+	Logger::MainLogger()->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__,
+								   fmt::format("a fmt {} test", "fuck").c_str());
+
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,

@@ -72,17 +72,17 @@
 
 namespace ae {
 
-	
+
 	class LoggerSink;
 
 
 	class Logger {
-		
-		
+
+
 		//static constexpr unsigned char DEFAULT_NAME[] = "ae";
 		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG;
 		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
-		
+
 /**************************************************************************************
 	Public Static
  **************************************************************************************/
@@ -90,30 +90,30 @@ namespace ae {
 	public:
 
 		static std::shared_ptr<Logger> MainLogger();
-		
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
+
 		Logger(std::string name, std::shared_ptr<LoggerSink> sink,
 			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
-		
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
+
 		std::string name() const;
 		std::vector<std::shared_ptr<LoggerSink>> sinks() const;
-		
+
 		LOG_LEVEL level() const;
 		void level(LOG_LEVEL level);
-		
+
 		LOG_LEVEL flushLevel() const;
 		void flushLevel(LOG_LEVEL level);
-		
+
 		// * favor using AE_LOG_ and LOG_ macros for fancy formatting *
 
 		void trace(const char* format, ...);
@@ -159,7 +159,7 @@ namespace ae {
 		void dispatch(LOG_LEVEL level, const char* line);
 
 		void flush();
-		
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -167,7 +167,7 @@ namespace ae {
 	private:
 
 		std::string 								header();
-		
+
 		std::string									_name;
 		std::vector<std::shared_ptr<LoggerSink>>	_sinks;
 		LOG_LEVEL									_level;
