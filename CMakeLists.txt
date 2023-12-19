@@ -456,7 +456,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 	if (MACOS)
 		target_compile_options(ae PUBLIC
-				"-stdlib=libstdc++" # use GCC libcstd++
+				#"-stdlib=libstdc++" # use GCC libcstd++
+				"-I/usr/local/opt/llvm@16/include"
+				"-fexperimental-library"
 				"-fmessage-length=0"
 				"-UGLFW_CDECL"
 				"-Wno-unknown-warning-option"
@@ -468,6 +470,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 				"-Wno-unused-function"
 				"-Wno-deprecated-declarations"
 				"-Wno-argument-outside-range")
+		target_link_options(ae PUBLIC
+				"-L/usr/local/opt/llvm@16/lib")
 	else()
 		target_compile_options(ae PUBLIC
 				#"-stdlib=libc++" # use LLVM libc++
