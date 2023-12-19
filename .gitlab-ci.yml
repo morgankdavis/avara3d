@@ -33,7 +33,8 @@ build-linux:
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 ..
+    #- /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 ..
+    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
     - /usr/bin/make -j4
     - echo "Linux build complete."
 
@@ -45,7 +46,8 @@ build-macos:
     - echo "Starting for macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-17 -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-17 ..
+    #- /opt/local/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-17 -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-17 ..
+    - /opt/local/bin/cmake -G"Unix Makefiles" ..
     - /usr/bin/make -j4
     - echo "macOS build complete."
 
