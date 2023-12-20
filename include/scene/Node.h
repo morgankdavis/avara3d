@@ -56,8 +56,8 @@ namespace ae {
 		Node(std::shared_ptr<Geometry> geometry);
 		Node(std::shared_ptr<Light> light);
 		Node(std::shared_ptr<Camera> camera);
-//		Node(const Node& other) = delete; // copy constructor
-//		Node& operator=(const Node& other) = delete; // copy assignment
+		/*testing*/ Node(const Node& other) = delete; // copy constructor
+		/*testing*/ Node& operator=(const Node& other) = delete; // copy assignment
 		~Node();
 
 /*********************************************************************************************

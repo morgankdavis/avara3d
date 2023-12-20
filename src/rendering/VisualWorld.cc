@@ -186,7 +186,15 @@ void VisualWorld::didRender(DidRenderCallback function) {
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void VisualWorld::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 void VisualWorld::checkAddDefaultLighting() {

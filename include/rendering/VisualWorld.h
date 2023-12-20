@@ -85,6 +85,7 @@ namespace ae {
  *********************************************************************************************/
 
 		void									attachedToScene(Scene* scene);
+		void									detachedFromScene(Scene* scene);
 
 		void									checkAddDefaultLighting();
 

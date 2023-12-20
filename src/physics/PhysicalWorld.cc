@@ -151,7 +151,15 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void PhysicalWorld::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 void PhysicalWorld::add(PhysicsBody& body) {

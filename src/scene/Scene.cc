@@ -163,6 +163,16 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 
 Scene::~Scene() {
 	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+
+	if (_rootNode) {
+		_rootNode->detachedFromScene(this);
+	}
+	if (_visualWorld) {
+		_visualWorld->detachedFromScene(this);
+	}
+	if (_physicalWorld) {
+		_physicalWorld->detachedFromScene(this);
+	}
 }
 
 /*********************************************************************************************
@@ -274,9 +284,9 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 }
 
 double Scene::time() const {
-	static auto startDate = chrono::high_resolution_clock::now();
-	auto nowDate = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowDate - startDate)).count();
+	static auto startTime = chrono::high_resolution_clock::now();
+	auto nowTime = chrono::high_resolution_clock::now();
+	return (chrono::duration<double>(nowTime - startTime)).count();
 }
 
 DEBUG_OPTIONS Scene::debugOptions() const {

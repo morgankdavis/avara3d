@@ -108,7 +108,7 @@ void FileLoggerSink::checkRotate() {
 
 void FileLoggerSink::rotate() {
 
-	// find list of existing files
+	// find list of existing filesw
 	// start at index 0, count down until the next isn't found
 
 	auto stem = _filepath.stem();

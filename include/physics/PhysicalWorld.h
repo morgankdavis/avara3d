@@ -94,6 +94,7 @@ namespace ae {
  *********************************************************************************************/
 
 		void								attachedToScene(Scene* scene);
+		void								detachedFromScene(Scene* scene);
 
 		void 								add(PhysicsBody& body);
 		void 								remove(PhysicsBody& body);

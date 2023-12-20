@@ -684,6 +684,8 @@ void Node::attachedToScene(Scene* scene) {
 void Node::detachedFromScene(Scene* scene) {
 	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
+	_scene = nullptr;
+
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromScene(scene);
 //	}

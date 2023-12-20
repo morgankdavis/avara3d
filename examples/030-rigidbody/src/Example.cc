@@ -643,55 +643,50 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 //		return nullptr;
 		
 		
-		unsigned fruitNum = Uniform(1, 4);
-		shared_ptr<Node> node = nullptr;
+		unsigned fruitNum = Uniform(0, 5);
+		static shared_ptr<Node> node = nullptr;
 		//shared_ptr<PhysicsShape> physicsShape = nullptr;
 		float mass = 1;
 
-//		switch (fruitNum) {
-//			case 0: {
-//				AE_LOG_D("cherry");
-//				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
-//				mass = 0.05;
-//				break;
-//			}
-//			case 1: {
-//				AE_LOG_D("orange");
-//				node = SceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
-//				mass = 0.185;
-//				break;
-//			}
-//			case 2: {
-//				AE_LOG_D("pear");
-//				node = SceneNamed("pear_lod/pear_lod", "obj")->rootNode();
-//				mass = 0.24;
-//				break;
-//			}
-//			case 3: {
-//				AE_LOG_D("apple");
-//				node = SceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
-//				mass = 0.225;
-//				break;
-//			}
-//			case 4: {
-//				AE_LOG_D("banana");
-//				node = SceneNamed("banana_lod/banana_lod", "obj")->rootNode();
-//				mass = 0.14;
-//				break;
-//			}
-//			case 5: {
-				AE_LOG_D("pineapple");
-				// WORKS
-				shared_ptr<Scene> scene2 = SceneNamed("pineapple_lod/pinapple_lod", "obj");
-				node = scene2->rootNode();
-				// DOES NOT WORKs
+		switch (fruitNum) {
+			case 0: {
+				AE_LOG_D("cherry");
+				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
+				mass = 0.05;
+				break;
+			}
+			case 1: {
+				AE_LOG_D("orange");
+				node = SceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
+				mass = 0.185;
+				break;
+			}
+			case 2: {
+				AE_LOG_D("pear");
+				node = SceneNamed("pear_lod/pear_lod", "obj")->rootNode();
+				mass = 0.24;
+				break;
+			}
+			case 3: {
+				AE_LOG_D("apple");
+				node = SceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
+				mass = 0.225;
+				break;
+			}
+			case 4: {
+				AE_LOG_D("banana");
+				node = SceneNamed("banana_lod/banana_lod", "obj")->rootNode();
+				mass = 0.14;
+				break;
+			}
+			case 5: {
 				node = SceneNamed("pineapple_lod/pinapple_lod", "obj")->rootNode();
 				mass = 0.9;
-//				break;
-//			}
-//			default: return nullptr;
-//		}
-		
+				break;
+			}
+			default: return nullptr;
+		}
+
 //		node->scale({5.0, 5.0, 5.0});
 		// add local offset to duck, then convert that position to world space,
 		// then attach to root node (below)
