@@ -454,25 +454,25 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message("COMPILER IS CLANG")
 	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
-	if (MACOS)
-		target_compile_options(ae PUBLIC
-				#"-stdlib=libstdc++" # use GCC libcstd++
-				"-I/usr/local/opt/llvm@16/include"
-				"-fexperimental-library"
-				"-fmessage-length=0"
-				"-UGLFW_CDECL"
-				"-Wno-unknown-warning-option"
-				"-Wno-float-equal"
-				"-Wno-c++11-long-long"
-				"-Wno-self-assign"
-				"-Wno-reorder"
-				"-Wno-address-of-packed-member"
-				"-Wno-unused-function"
-				"-Wno-deprecated-declarations"
-				"-Wno-argument-outside-range")
-		target_link_options(ae PUBLIC
-				"-L/usr/local/opt/llvm@16/lib")
-	else()
+#	if (MACOS)
+#		target_compile_options(ae PUBLIC
+#				#"-stdlib=libstdc++" # use GCC libcstd++
+#				"-I/usr/local/opt/llvm@16/include"
+#				"-fexperimental-library"
+#				"-fmessage-length=0"
+#				"-UGLFW_CDECL"
+#				"-Wno-unknown-warning-option"
+#				"-Wno-float-equal"
+#				"-Wno-c++11-long-long"
+#				"-Wno-self-assign"
+#				"-Wno-reorder"
+#				"-Wno-address-of-packed-member"
+#				"-Wno-unused-function"
+#				"-Wno-deprecated-declarations"
+#				"-Wno-argument-outside-range")
+#		target_link_options(ae PUBLIC
+#				"-L/usr/local/opt/llvm@16/lib")
+#	else()
 		target_compile_options(ae PUBLIC
 				#"-stdlib=libc++" # use LLVM libc++
 				"-fmessage-length=0"
@@ -486,7 +486,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 				"-Wno-unused-function"
 				"-Wno-deprecated-declarations"
 				"-Wno-argument-outside-range")
-	endif()
+#	endif()
 			
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
