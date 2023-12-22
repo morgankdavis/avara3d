@@ -931,6 +931,13 @@ void Node::applyPhysicsTransform(mat4 transform) {
 	}
 }
 
+//void Node::removePhysicsBodyFromWorld(PhysicalWorld& world) {
+//
+//	if (_physicsBody) {
+//		_physicsBody->removeFromWorld()
+//	}
+//}
+
 //void Node::_debugPrint() {
 //
 //	int level = 0;

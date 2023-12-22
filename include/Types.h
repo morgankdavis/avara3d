@@ -335,8 +335,10 @@ namespace ae {
 
 		double		currentPhysicstime;
 		double		currentDrawtime;
+		double		currentUsertime;
 		double 		averagePhysicstime;
 		double		averageDrawtime;
+		double		averageUsertime;
 
 		unsigned 	nodes;
 		unsigned 	geometries;

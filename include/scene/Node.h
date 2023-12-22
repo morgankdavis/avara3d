@@ -177,6 +177,7 @@ namespace ae {
 															   int level);
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
+//		void									removePhysicsBodyFromWorld(PhysicalWorld& world);
 
 //		void									_debugPrint(); // testing
 //		void									_debugPrintRec(std::shared_ptr<Node> node,

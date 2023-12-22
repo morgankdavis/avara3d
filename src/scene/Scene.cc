@@ -68,7 +68,8 @@ static void 						GetRunTime(double time, // time since reference
 											  bool paused,
 											  double& runT, // time since reference excluding paused time
 											  double& deltaRunT); // time since last call excluding paused time
-static void							UpdateTimeStats(Stats& stats, double time);
+static void 						UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
+static void							UpdateFrameTimeStats(Stats& stats, double time);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
 static void 						AddAIGeometryNodes(Scene& scene,
@@ -102,7 +103,7 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::FromFile(const std::filesystem::path& path) {
+shared_ptr<Scene> Scene::FromFile(const filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	LoadFile(*scene, path);
 	return scene;
@@ -181,40 +182,30 @@ void Scene::rootNode(shared_ptr<Node> node) {
 
 //	if () // check they are not the same
 	if (_rootNode) {
-
 		_rootNode->detachedFromScene(this);
-//		for (auto child : _rootNode->children(false)) {
-//			child->ancestorDetachedFromScene(_rootNode.get(), this);
-//		}
 	}
 
 	_rootNode = node;
 
 	if (_rootNode) {
-
 		_rootNode->attachedToScene(this);
-//		for (auto child : _rootNode->children(false)) {
-//			child->ancestorAttachedToScene(node.get(), this);
-//		}
 	}
 }
 
-std::shared_ptr<VisualWorld> Scene::visualWorld() const {
+shared_ptr<VisualWorld> Scene::visualWorld() const {
 	return _visualWorld;
 }
 
-void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
+void Scene::visualWorld(shared_ptr<VisualWorld> world) {
 
 //	if (world != _visualWorld) {
 
 		if (_visualWorld) {
 
+			_visualWorld->detachedFromScene(this);
+
 			if (_rootNode) {
 				_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
-
-//				for (auto child: _rootNode->children(false)) {
-//					child->visualWorldDetachedFromScene(_visualWorld.get(), this);
-//				}
 			}
 		}
 
@@ -226,10 +217,6 @@ void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 
 			if (_rootNode) {
 				_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
-
-//				for (auto child: _rootNode->children(false)) {
-//					child->visualWorldAttachedToScene(_visualWorld.get(), this);
-//				}
 			}
 		}
 //	}
@@ -239,16 +226,14 @@ shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
 	return _physicalWorld;
 }
 
-void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
+void Scene::physicalWorld(shared_ptr<PhysicalWorld> world) {
 
 	if (_physicalWorld) {
 
+		_physicalWorld->detachedFromScene(this);
+
 		if (_rootNode) {
 			_rootNode->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
-
-//			for (auto child : _rootNode->children(false)) {
-//				child->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
-//			}
 		}
 	}
 
@@ -260,10 +245,6 @@ void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
 
 		if (_rootNode) {
 			_rootNode->physicalWorldAttachedToScene(world.get(), this);
-
-//			for (auto child : _rootNode->children(false)) {
-//				child->physicalWorldAttachedToScene(world.get(), this);
-//			}
 		}
 	}
 }
@@ -333,14 +314,16 @@ void Scene::run() {
 					   deltaRunT);
 
 			memset(&_stats, 0, sizeof(Stats));
-			UpdateTimeStats(_stats, runT);
+			UpdateFrameTimeStats(_stats, runT);
 
 			if (_inputManager) {
 				_inputManager->update();
 			}
 
 			if (_update) {
+				auto updateStartTime = time();
 				(_update)(*this, runT);
+				UpdateUserTimeStats(_stats, updateStartTime, time());
 			}
 
 			if (!_paused) {
@@ -364,7 +347,7 @@ void Scene::run() {
 				}
 			}
 			else {
-				std::this_thread::sleep_for(std::chrono::microseconds(16667));
+				this_thread::sleep_for(chrono::microseconds(16667));
 			}
 
 		} while (_running);
@@ -675,7 +658,38 @@ static void GetRunTime(double time, // time since reference
 	if (paused) pauseTime += deltaT;
 }
 
-void UpdateTimeStats(Stats& stats, double time) {
+void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
+
+	// current
+	auto updateTime = endTime - startTime;
+	stats.currentUsertime = updateTime * 1000.0f;
+
+	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+
+	// average
+	static double avg = 0.0;
+	static double sampleStartTime = startTime;
+	static unsigned updatesSinceSampleStart = 0;
+	static double accumulatedUpdateTimeSinceSampleStart = 0;
+	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		avg = (accumulatedUpdateTimeSinceSampleStart * 1000.0f) / updatesSinceSampleStart;
+
+		sampleStartTime = startTime;
+		updatesSinceSampleStart = 0;
+		accumulatedUpdateTimeSinceSampleStart = 0;
+	}
+	else {
+		++updatesSinceSampleStart;
+		accumulatedUpdateTimeSinceSampleStart += updateTime;
+	}
+
+	stats.averageUsertime = avg;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
+}
+
+void UpdateFrameTimeStats(Stats& stats, double time) {
 
 	// current
 	static double previousTime = time;

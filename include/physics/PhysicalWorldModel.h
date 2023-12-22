@@ -6,6 +6,9 @@
 #define AVARA_ENGINE_PHYSICALWORLDMODEL_H
 
 
+#include <memory>
+#include <vector>
+
 #include "Types.h"
 
 
@@ -35,6 +38,8 @@ namespace ae {
 
 		virtual void 	add(PhysicsBody& body) = 0;
 		virtual void 	remove(PhysicsBody& body) = 0;
+//		virtual void	removeAllBodies() = 0;
+		virtual std::unique_ptr<std::vector<PhysicsBody*>>	bodies() const = 0;
 
 		virtual float	gravity() const = 0;
 		virtual void	gravity(float gravity) = 0;

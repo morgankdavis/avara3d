@@ -1949,6 +1949,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -1971,8 +1972,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
-					"physicstime", stats.averagePhysicstime,
-					"drawtime", stats.averageDrawtime,
+					" physics", stats.averagePhysicstime,
+					" draw", stats.averageDrawtime,
+					" user", stats.averageUsertime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
@@ -1997,6 +1999,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2017,8 +2020,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
-					"physicstime", stats.averagePhysicstime,
-					"drawtime", stats.averageDrawtime,
+					" physics", stats.averagePhysicstime,
+					" draw", stats.averageDrawtime,
+					" user", stats.averageUsertime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,

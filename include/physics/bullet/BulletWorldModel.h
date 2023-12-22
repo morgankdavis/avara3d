@@ -50,6 +50,8 @@ namespace ae {
 
 		void 	add(PhysicsBody& body) override;
 		void 	remove(PhysicsBody& body) override;
+//		void	removeAllBodies() override;
+		std::unique_ptr<std::vector<PhysicsBody*>>	bodies() const override;
 
 		float	gravity() const override;
 		void	gravity(float gravity) override;
