@@ -39,7 +39,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 	Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
+VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 		_background(nullptr),
 		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
@@ -58,6 +58,8 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 
 VisualWorld::~VisualWorld() {
 	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+
+	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
 }
 
 /*********************************************************************************************
@@ -273,15 +275,6 @@ void VisualWorld::draw(const Scene& scene,
 												projectionMat,
 												debugOptions);
 				}
-
-//				auto physicsSimulator = physicalWorld->simulator();
-//				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
-//					bulletSimulator->drawDebug(*physicalWorld,
-//											   *renderer,
-//											   viewMat,
-//											   projectionMat,
-//											   debugOptions);
-//				}
 			}
 
 			UpdateTimeStats(stats, startTime, scene.time());

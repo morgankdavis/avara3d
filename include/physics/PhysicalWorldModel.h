@@ -26,6 +26,7 @@ namespace ae {
 	public:
 
 		PhysicalWorldModel(PhysicalWorld* world);
+		//virtual ~PhysicalWorldModel();
 		~PhysicalWorldModel();
 
 /*********************************************************************************************

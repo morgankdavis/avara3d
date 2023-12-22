@@ -27,6 +27,7 @@ namespace ae {
 	public:
 
 		PhysicsBodyModel(PhysicsBody* body);
+		//virtual ~PhysicsBodyModel();
 		~PhysicsBodyModel();
 
 /*********************************************************************************************
@@ -36,8 +37,8 @@ namespace ae {
 		virtual PHYSICS_BODY_TYPE	type() const = 0;
 		virtual void				type(PHYSICS_BODY_TYPE type) = 0;
 
-		virtual PhysicsShapeModel*	shape() const = 0;
-		virtual void				shape(PhysicsShapeModel* shape) = 0;
+		virtual PhysicsShapeModel*	shapeModel() const = 0;
+		virtual void				shapeModel(PhysicsShapeModel* shape) = 0;
 
 //		virtual glm::mat4			worldTransform() const = 0;
 //		virtual void				worldTransform(const glm::mat4& transform) = 0;
@@ -110,6 +111,9 @@ namespace ae {
 
 		virtual bool				autocalculatesMomentOfInertia() const;
 		virtual void				autocalculatesMomentOfInertia(bool autocalculate);
+
+		void						attachedToBody(PhysicsBody* body);
+		void						detachedFromBody(PhysicsBody* body);
 
 /*********************************************************************************************
 	Protected

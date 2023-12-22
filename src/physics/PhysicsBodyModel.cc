@@ -3,6 +3,7 @@
 //
 
 #include "physics/PhysicsBodyModel.h"
+#include "diagnostic/logging/Logger.h"
 
 
 using namespace ae;
@@ -13,9 +14,12 @@ using namespace ae;
  *********************************************************************************************/
 
 PhysicsBodyModel::PhysicsBodyModel(PhysicsBody* body):
-		_body(body),
+		_body(nullptr),
 		_shapeModel(nullptr),
-		_autocalculatesMomentOfInertia(true) { }
+		_autocalculatesMomentOfInertia(true) {
+
+	attachedToBody(body);
+}
 
 PhysicsBodyModel::~PhysicsBodyModel() { }
 
@@ -29,4 +33,16 @@ bool PhysicsBodyModel::autocalculatesMomentOfInertia() const {
 
 void PhysicsBodyModel::autocalculatesMomentOfInertia(bool autocalculate) {
 	_autocalculatesMomentOfInertia = autocalculate;
+}
+
+void PhysicsBodyModel::attachedToBody(PhysicsBody* body) {
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+
+	_body = body;
+}
+
+void PhysicsBodyModel::detachedFromBody(PhysicsBody* body) {
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+
+	_body = nullptr;
 }

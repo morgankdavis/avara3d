@@ -41,6 +41,7 @@ namespace ae {
 	public:
 
 		BulletWorldModel(PhysicalWorld* world);
+		//~BulletWorldModel() override;
 		~BulletWorldModel();
 
 /*********************************************************************************************

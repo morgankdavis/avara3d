@@ -96,6 +96,9 @@ Node::~Node() {
 	else {
 		AE_LOG_D("Destroying Node {:p}", static_cast<void*>(this));
 	}
+
+	for (auto& child : _children) child->detachedFromParent(this);
+	if (_physicsBody) _physicsBody->detachedFromNode(this);
 }
 
 /*********************************************************************************************
@@ -654,8 +657,6 @@ void Node::detachedFromParent(Node* parent) {
 
 	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
-	_parent = nullptr;
-
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromParent(parent);
 //	}
@@ -663,6 +664,8 @@ void Node::detachedFromParent(Node* parent) {
 	for (auto& child : _children) {
 		child->ancestorDetachedFromParent(this, parent);
 	}
+
+	_parent = nullptr;
 }
 
 void Node::attachedToScene(Scene* scene) {
@@ -684,8 +687,6 @@ void Node::attachedToScene(Scene* scene) {
 void Node::detachedFromScene(Scene* scene) {
 	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
-	_scene = nullptr;
-
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromScene(scene);
 //	}
@@ -695,6 +696,8 @@ void Node::detachedFromScene(Scene* scene) {
 	for (auto& child : _children) {
 		child->ancestorDetachedFromScene(this, scene);
 	}
+
+	_scene = nullptr;
 }
 
 void Node::ancestorAttachedToParent(Node* ancestor, Node* parent) {

@@ -240,5 +240,13 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
 	_visualWorld = world;
+}
+
+void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
+	_visualWorld = nullptr;
 }

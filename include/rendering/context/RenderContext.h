@@ -96,6 +96,7 @@ namespace ae {
 		virtual void 						saveGIFFrame(float deltaRunT);
 
 		void								attachedToVisualWorld(VisualWorld* world);
+		void								detachedFromVisualWorld(VisualWorld* world);
 		
 /*********************************************************************************************
 	Protected

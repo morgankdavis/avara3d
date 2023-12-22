@@ -25,7 +25,6 @@
 #include "geometry/Geometry.h"
 #include "geometry/GeometryElement.h"
 #include "input/platform/desktop/WindowInputManager.h"
-#include "geometry/primitives/Box.h"
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicalWorld.h"
 #include "rendering/Light.h"
@@ -103,7 +102,7 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
+shared_ptr<Scene> Scene::FromFile(const std::filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	LoadFile(*scene, path);
 	return scene;
@@ -164,15 +163,10 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 Scene::~Scene() {
 	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
 
-	if (_rootNode) {
-		_rootNode->detachedFromScene(this);
-	}
-	if (_visualWorld) {
-		_visualWorld->detachedFromScene(this);
-	}
-	if (_physicalWorld) {
-		_physicalWorld->detachedFromScene(this);
-	}
+	if (_rootNode) _rootNode->detachedFromScene(this);
+	if (_visualWorld) _visualWorld->detachedFromScene(this);
+	if (_physicalWorld) _physicalWorld->detachedFromScene(this);
+	if (_inputManager) _inputManager->detachedFromScene(this);
 }
 
 /*********************************************************************************************
@@ -279,8 +273,16 @@ shared_ptr<InputManager> Scene::inputManager() const {
 }
 
 void Scene::inputManager(shared_ptr<InputManager> inputManager) {
+
+	if (_inputManager) {
+		_inputManager->detachedFromScene(this);
+	}
+
 	_inputManager = inputManager;
-	_inputManager->attachedToScene(this);
+
+	if (inputManager) {
+		inputManager->attachedToScene(this);
+	}
 }
 
 double Scene::time() const {

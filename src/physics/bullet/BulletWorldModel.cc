@@ -55,7 +55,11 @@ BulletWorldModel::BulletWorldModel(PhysicalWorld* world):
 #endif
 }
 
-BulletWorldModel::~BulletWorldModel() {
+BulletWorldModel::~BulletWorldModel()/*:
+		PhysicalWorldModel::~PhysicalWorldModel()*/ {
+
+	//PhysicalWorldModel::~PhysicalWorldModel();
+
 	AE_LOG_D("Destroying BulletWorldModel {:p}", static_cast<void*>(this));
 }
 

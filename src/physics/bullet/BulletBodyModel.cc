@@ -109,36 +109,42 @@ void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {
 	_btBody->setCollisionFlags(flags);
 }
 
-PhysicsShapeModel* BulletBodyModel::shape() const {
+PhysicsShapeModel* BulletBodyModel::shapeModel() const {
 	return _shapeModel;
 }
 
-void BulletBodyModel::shape(PhysicsShapeModel* shape) {
+void BulletBodyModel::shapeModel(PhysicsShapeModel* shape) {
 	AE_LOG_T("shape: {:p}", static_cast<void*>(shape));
 
-	// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-	if (auto btShape = dynamic_cast<BulletShapeModel*>(shape)->btShapes().front()) {
+	if (shape) {
+		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
+		if (auto btShape = dynamic_cast<BulletShapeModel *>(shape)->btShapes().front()) {
 
-		_btBody->setCollisionShape(btShape.get());
+			_btBody->setCollisionShape(btShape.get());
 
-		auto mass = BulletBodyModel::mass(); // BAD NO WORKIE
-		switch (_body->type()) {
-			case PHYSICS_BODY_TYPE::STATIC:
-			case PHYSICS_BODY_TYPE::KINEMATIC:
-				mass = 0;
-				break;
-			case PHYSICS_BODY_TYPE::DYNAMIC:
-				break;
+			auto mass = BulletBodyModel::mass();
+			switch (_body->type()) {
+				case PHYSICS_BODY_TYPE::STATIC:
+				case PHYSICS_BODY_TYPE::KINEMATIC:
+					mass = 0;
+					break;
+				case PHYSICS_BODY_TYPE::DYNAMIC:
+					break;
+			}
+
+			_shapeModel = shape;
+
+			if (_autocalculatesMomentOfInertia) {
+				calculateMomentOfIntertia();
+			}
 		}
-
-		_shapeModel = shape;
-
-		if (_autocalculatesMomentOfInertia) {
-			calculateMomentOfIntertia();
+		else {
+			AE_LOG_E("Could not get shape resources.");
+			_shapeModel = nullptr;
 		}
 	}
 	else {
-		AE_LOG_E("Could not get shape resources.");
+		_shapeModel = nullptr;
 	}
 }
 
@@ -395,7 +401,11 @@ void BulletBodyModel::worldTransform(const glm::mat4& transform) {
 //	_motionState = make_shared<MotionState>(_body, btTransform);
 //	_btBody->setMotionState(_motionState.get());
 
+
 	_btBody->setWorldTransform(BTTransformFromGLMMat4(transform));
+
+	//_motionState = make_shared<MotionState>(_body, btTransform);
+	//_btBody->setMotionState(_motionState.get());
 }
 
 void BulletBodyModel::clearForces() {
@@ -432,11 +442,11 @@ void BulletBodyModel::calculateMomentOfIntertia() {
 			_btBody->setMassProps(mass, localInertia);
 			_btBody->updateInertiaTensor();
 		}
-		else{
+		else {
 			AE_LOG_W("Missing btCollisionShape.");
 		}
 	}
-	else{
+	else {
 		AE_LOG_W("Missing PhysicsShapeModel.");
 	}
 }

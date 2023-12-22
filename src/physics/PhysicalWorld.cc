@@ -163,13 +163,26 @@ void PhysicalWorld::detachedFromScene(Scene* scene) {
 }
 
 void PhysicalWorld::add(PhysicsBody& body) {
-	_model->add(body);
-	body.addedToWorld(this);
+
+	if (_model) {
+		body.addedToWorld(this);
+		_model->add(body);
+//		body.addedToWorld(this);
+	}
+	else {
+		AE_LOG_W("_model is null.");
+	}
 }
 
 void PhysicalWorld::remove(PhysicsBody& body) {
-	_model->remove(body);
-	body.removedFromWorld(this);
+
+	if (_model) {
+		_model->remove(body);
+		body.removedFromWorld(this);
+	}
+	else {
+		AE_LOG_W("_m1odel is null.");
+	}
 }
 
 void PhysicalWorld::step(const Scene& scene,

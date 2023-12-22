@@ -36,8 +36,8 @@ namespace ae {
 		PHYSICS_BODY_TYPE	type() const override;
 		void				type(PHYSICS_BODY_TYPE type) override;
 
-		PhysicsShapeModel*	shape() const override;
-		void				shape(PhysicsShapeModel* shape) override;
+		PhysicsShapeModel*	shapeModel() const override;
+		void				shapeModel(PhysicsShapeModel* shape) override;
 
 		float				mass() const override;
 		void				mass(float mass) override;

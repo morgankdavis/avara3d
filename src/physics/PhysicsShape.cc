@@ -33,8 +33,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type)
-//		_model(make_unique<BulletShapeModel>(this)),
-		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ {
+		/*_model(make_unique<BulletShapeModel>(this))*/ {
 
 	if (auto name = geometry->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
@@ -51,8 +50,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type)
-//		_model(make_unique<BulletShapeModel>(this)),
-		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ {
+		/*_model(make_unique<BulletShapeModel>(this))*/ {
 
 	if (auto name = node->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
@@ -67,11 +65,14 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({})
-//		_model(make_unique<BulletShapeModel>(this)),
-		/*_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL)*/ { }
+		/*_model(make_unique<BulletShapeModel>(this))*/ { }
 
 PhysicsShape::~PhysicsShape() {
 	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
+
+//	for (auto& body : _bodies) {
+//
+//	}
 }
 
 /*********************************************************************************************
@@ -93,7 +94,6 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 
 		_type = type;
 		_model = nullptr;
-//		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 
 		checkCreateModel();
 	}
@@ -135,42 +135,6 @@ void PhysicsShape::sourceObject(variant<
 		monostate> sourceObject) {
 
 	_sourceObject = sourceObject;
-//	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
-}
-
-unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
-	return _bodies;
-}
-
-//PhysicalWorld* PhysicsShape::physicalWorld() const {
-//
-//	if (_body) {
-//		if (_node) {
-//			auto scene = _node->scene();
-//			if (scene) {
-//				auto physicalWorld = scene->physicalWorld();
-//				if (physicalWorld) {
-//					return physicalWorld.get();
-//				}
-//			}
-//		}
-//	}
-//	return nullptr;
-//}
-
-//void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-//
-//	_sourceNode = body->node();
-//
-//	if (auto node = _sourceNode.lock()) {
-//		if (auto geometry = node->geometry()) {
-//			sourceGeometry(geometry);
-//		}
-//	}
-//}
-
-PhysicsShapeModel* PhysicsShape::model() const {
-	return _model.get();
 }
 
 void PhysicsShape::checkCreateModel() {
@@ -181,10 +145,11 @@ void PhysicsShape::checkCreateModel() {
 	}
 }
 
-//PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
-//	return _dirtyMask;
-//}
-//
-//void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
-//	_dirtyMask = mask;
-//}
+
+unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
+	return _bodies;
+}
+
+PhysicsShapeModel* PhysicsShape::model() const {
+	return _model.get();
+}

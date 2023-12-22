@@ -8,5 +8,21 @@
 using namespace ae;
 
 
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
 PhysicsShapeModel::PhysicsShapeModel(PhysicsShape* shape) { }
 PhysicsShapeModel::~PhysicsShapeModel() { }
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+//void PhysicsShapeModel::attachedToShape(PhysicsShape* shape) {
+//
+//}
+//
+//void PhysicsShapeModel::detachedFromShape(PhysicsShape* shape) {
+//
+//}

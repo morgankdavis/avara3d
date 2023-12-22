@@ -108,7 +108,15 @@ Scene* InputManager::scene() const {
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void InputManager::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 /*********************************************************************************************

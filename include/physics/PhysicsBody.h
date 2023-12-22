@@ -173,6 +173,7 @@ namespace ae {
 
 		Node*								node() const;
 
+		// the scene's world, if it exists.  not the same as _world.
 		PhysicalWorld*						physicalWorld() const;
 
 		PhysicsBodyModel*					model() const;
@@ -192,6 +193,7 @@ namespace ae {
 		std::shared_ptr<PhysicsShape>		_shape;
 		std::unique_ptr<PhysicsBodyModel>	_model;
 		Node*								_node;
+		// either a pointer to the world we are currently in or null.
 		PhysicalWorld*						_world;
 	};
 }

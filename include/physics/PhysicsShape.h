@@ -90,14 +90,11 @@ namespace ae {
 		void 								sourceObject(
 				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
-		std::unordered_set<PhysicsBody*>	bodies() const;
-
 		void								checkCreateModel();
 
-		PhysicsShapeModel*					model() const;
+		std::unordered_set<PhysicsBody*>	bodies() const;
 
-//		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
-//		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
+		PhysicsShapeModel*					model() const;
 
 	protected:
 
@@ -115,7 +112,6 @@ namespace ae {
 				std::monostate> 			_sourceObject;
 		std::unordered_set<PhysicsBody*>	_bodies;
 		std::unique_ptr<PhysicsShapeModel>	_model;
-//		PHYSICS_SHAPE_DIRTY_MASK 			_dirtyMask;
 	};
 }
 

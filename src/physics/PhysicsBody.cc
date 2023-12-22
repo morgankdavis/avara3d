@@ -61,6 +61,9 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape)
 
 PhysicsBody::~PhysicsBody() {
 	AE_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
+
+	shape(nullptr);
+	if (_model) _model->detachedFromBody(this);
 }
 
 /*********************************************************************************************
@@ -95,9 +98,11 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 
 		if (shape) {
 			shape->attachedToBody(this);
+			_model->shapeModel(shape->model());
 		}
-
-		_model->shape(shape->model());
+		else {
+			_model->shapeModel(nullptr);
+		}
 	}
 }
 
@@ -304,14 +309,15 @@ void PhysicsBody::attachedToNode(Node* node) {
 void PhysicsBody::detachedFromNode(Node* node) {
 	AE_LOG_T("node: {:p}", static_cast<void*>(node));
 
-	if (auto world = physicalWorld()) {
-		world->remove(*this);
+	//if (auto world = physicalWorld()) {
+	if (_world) {
+		_world->remove(*this);
 	}
 	else {
 		AE_LOG_E("Attempting to remove PhysicsBody with no PhysicalWorld.");
 	}
 
-	_node = nullptr;
+	_node = nullptr; // ^^ physicalWorld() relies on old _node
 }
 
 void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
