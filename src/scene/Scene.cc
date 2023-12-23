@@ -321,6 +321,7 @@ void Scene::run() {
 			}
 
 			if (_update) {
+
 				auto updateStartTime = time();
 				(_update)(*this, runT);
 				UpdateUserTimeStats(_stats, updateStartTime, time());
