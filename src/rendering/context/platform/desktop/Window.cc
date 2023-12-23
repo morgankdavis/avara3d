@@ -44,7 +44,6 @@ static bool 	InitGLFW();
 static bool 	InitGLEW();
 static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
-
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -54,14 +53,6 @@ static void		GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow,
 											   int height);
 static void 	GLFWErrorCallback(int error,
 								 const char* description);
-
-/*********************************************************************************************
-	Internal Static
- *********************************************************************************************/
-
-void Window::DestroyGLFEWindow(GLFWwindow* window) {
-	glfwDestroyWindow(window);
-}
 
 /*********************************************************************************************
 	Lifescycle
@@ -104,7 +95,6 @@ Window::Window(RENDER_API renderAPI,
 		if (fullScreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-			//_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
 																					 vmode->height,
 																					 "avara-engine",
@@ -116,19 +106,6 @@ Window::Window(RENDER_API renderAPI,
 			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
-			// neeto.
-			// https://stackoverflow.com/questions/35793672/use-unique-ptr-with-glfwwindow
-			// https://stackoverflow.com/questions/12403750/initializing-a-stdunique-ptr-by-passing-the-address-of-the-pointer
-//			struct DestroyGLFWWindow {
-//				void operator()(GLFWwindow* ptr){
-//					glfwDestroyWindow(ptr);
-//				}
-//			};
-//			auto glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
-//			//auto _glfwWindow2 = make_unique<GLFWwindow, DestroyGLFWWindow>(glfwWindow);
-//			unique_ptr<GLFWwindow, DestroyGLFWWindow> again(glfwWindow);
-//			//auto again2 = make_unique<GLFWwindow, DestroyGLFWWindow>(glfwWindow);
-//			_uglfw = std::move(again);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
 																					 height,
 																					 "avara-engine",
@@ -271,6 +248,14 @@ void Window::pollInput() {
 
 GLFWwindow* Window::glfwWindow() const {
 	return _glfwWindow.get();
+}
+
+/*********************************************************************************************
+	Internal Static
+ *********************************************************************************************/
+
+void Window::Destroy(GLFWwindow* window) {
+	glfwDestroyWindow(window);
 }
 
 /*********************************************************************************************

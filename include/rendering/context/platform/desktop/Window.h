@@ -23,7 +23,6 @@ struct GLFWwindow;
 
 namespace ae {
 
-//	struct DestroyGLFWWindow;
 
 	class Camera;
 	class Color;
@@ -37,23 +36,20 @@ namespace ae {
 	class Window : public RenderContext {
 
 /*********************************************************************************************
-	Internal Static
- *********************************************************************************************/
-
-	public:
-
-		static void	DestroyGLFEWindow(GLFWwindow* window);
-		
-/*********************************************************************************************
-	Lifecycle
+	Types
  *********************************************************************************************/
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
-				//glfwDestroyWindow(ptr);
-				Window::DestroyGLFEWindow(window);
+				Window::Destroy(window);
 			}
 		};
+
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
+	public:
 
 		Window(RENDER_API renderAPI,
 			   bool fullScreen,
@@ -93,15 +89,19 @@ namespace ae {
 		GLFWwindow* 					glfwWindow() const;
 
 /*********************************************************************************************
+	Internal Static
+ *********************************************************************************************/
+
+		static void						Destroy(GLFWwindow* window);
+
+/*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-//		GLFWwindow*						_glfwWindow;
-		bool							_cursorCaptured;
-
-		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>		_glfwWindow;
+		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
+		bool											_cursorCaptured;
 	};
 }
 
