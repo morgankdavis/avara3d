@@ -90,6 +90,7 @@ Node::Node(shared_ptr<Camera> camera):
 }
 
 Node::~Node() {
+
 	if (_name != nullopt) {
 		AE_LOG_D("Destroying Node '{}'", *_name);
 	}
@@ -552,10 +553,6 @@ void Node::addChild(shared_ptr<Node> node) {
 	node->attachedToParent(this);
 }
 
-void Node::insertChild(const Node& node, int index) {
-	// see notes about Node already existing here/elsewhere in addChildNode()
-}
-
 void Node::removeFromParent() {
 
 	if (_parent) {
@@ -570,10 +567,6 @@ void Node::removeFromParent() {
 		detachedFromParent(_parent);
 		_parent = nullptr;
 	}
-}
-
-void Node::replaceChild(const Node& replace, const Node& with) {
-	
 }
 
 vector<shared_ptr<Node>> Node::children(bool resursive) {

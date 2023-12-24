@@ -111,9 +111,7 @@ namespace ae {
 
 		void 									addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void 									addChild(std::shared_ptr<Node> node);
-		void 									insertChild(const Node& node, int index);
 		void 									removeFromParent();
-		void 									replaceChild(const Node& replace, const Node& with);
 
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
 		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);

@@ -188,7 +188,7 @@ void PhysicalWorld::remove(PhysicsBody& body) {
 		body.removedFromWorld(this);
 	}
 	else {
-		AE_LOG_W("_m1odel is null.");
+		AE_LOG_W("_model is null.");
 	}
 }
 
