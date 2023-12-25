@@ -333,8 +333,8 @@ file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES}
-		src/physics/PhysicsBodyModel.cc
-		include/physics/PhysicsBodyModel.h)
+		src/physics/model_proxy/PhysicsBodyModelProxy.cc
+		include/physics/model_proxy/PhysicsBodyModelProxy.h)
 #target_compile_features(ae PUBLIC cxx_std_20)
 
 

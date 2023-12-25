@@ -2,8 +2,8 @@
 // Created by mkd on 12/8/23.
 //
 
-#ifndef AVARA_ENGINE_PHYSICALWORLDMODEL_H
-#define AVARA_ENGINE_PHYSICALWORLDMODEL_H
+#ifndef AVARA_ENGINE_PHYSICALWORLDMODELPROXY_H
+#define AVARA_ENGINE_PHYSICALWORLDMODELPROXY_H
 
 
 #include <memory>
@@ -20,7 +20,7 @@ namespace ae {
 	class Renderer;
 
 
-	class PhysicalWorldModel {
+	class PhysicalWorldModelProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -28,9 +28,9 @@ namespace ae {
 
 	public:
 
-		PhysicalWorldModel(PhysicalWorld* world);
-		//virtual ~PhysicalWorldModel();
-		~PhysicalWorldModel();
+		PhysicalWorldModelProxy(PhysicalWorld* world);
+		//virtual PhysicalWorldModelProxyProxy();
+		~PhysicalWorldModelProxy();
 
 /*********************************************************************************************
 	Internal
@@ -54,4 +54,4 @@ namespace ae {
 }
 
 
-#endif //AVARA_ENGINE_PHYSICALWORLDMODEL_H
+#endif //AVARA_ENGINE_PHYSICALWORLDMODELPROXY_H

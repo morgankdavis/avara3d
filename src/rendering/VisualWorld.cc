@@ -11,7 +11,7 @@
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
@@ -270,8 +270,8 @@ void VisualWorld::draw(const Scene& scene,
 
 			if (physicalWorld) {
 
-				if (auto bulletWorldModel = dynamic_cast<BulletWorldModel*>(physicalWorld->model())) {
-					bulletWorldModel->drawDebug(*renderer,
+				if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+					bulletWorldProxy->drawDebug(*renderer,
 												viewMat,
 												projectionMat,
 												debugOptions);

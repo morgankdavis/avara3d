@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-#include "physics/PhysicsShapeModel.h"
+#include "physics/model_proxy/PhysicsShapeModelProxy.h"
 
 
 class btCollisionShape;
@@ -20,7 +20,7 @@ class btTriangleIndexVertexArray;
 
 namespace ae {
 
-	class BulletShapeModel : public PhysicsShapeModel {
+	class BulletShapeProxy : public PhysicsShapeModelProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -28,8 +28,8 @@ namespace ae {
 
 	public:
 
-		BulletShapeModel(PhysicsShape* shape);
-		~BulletShapeModel();
+		BulletShapeProxy(PhysicsShape* shape);
+		~BulletShapeProxy();
 
 /*********************************************************************************************
 	Internal

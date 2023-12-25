@@ -2,7 +2,7 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "physics/bullet/BulletBodyModel.h"
+#include "physics/bullet/BulletBodyProxy.h"
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
@@ -13,12 +13,12 @@
 #include "geometry/Geometry.h"
 #include "physics/ConvexDecomposer.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsBodyModel.h"
+#include "physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "physics/PhysicsShape.h"
-#include "physics/PhysicsShapeModel.h"
+#include "physics/model_proxy/PhysicsShapeModelProxy.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletShapeModel.h"
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletShapeProxy.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "physics/bullet/Utilities.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
@@ -33,8 +33,8 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletBodyModel::BulletBodyModel(PhysicsBody* body):
-		PhysicsBodyModel(body),
+BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
+		PhysicsBodyModelProxy(body),
 		_btBody(nullptr),
 		/*_btMotionState(nullptr)*/
 		_motionState(nullptr) {
@@ -69,15 +69,15 @@ BulletBodyModel::BulletBodyModel(PhysicsBody* body):
 	_btBody->setUserPointer(static_cast<void*>(body));
 }
 
-BulletBodyModel::~BulletBodyModel() {
-	AE_LOG_D("Destroying BulletBodyModel {:p}", static_cast<void*>(this));
+BulletBodyProxy::~BulletBodyProxy() {
+	AE_LOG_D("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
-	PhysicsBodyModel
+	PhysicsBodyModelProxy
  *********************************************************************************************/
 
-PHYSICS_BODY_TYPE BulletBodyModel::type() const {
+PHYSICS_BODY_TYPE BulletBodyProxy::type() const {
 
 	auto flags = _btBody->getCollisionFlags();
 
@@ -88,7 +88,7 @@ PHYSICS_BODY_TYPE BulletBodyModel::type() const {
 	return PHYSICS_BODY_TYPE::STATIC;
 }
 
-void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {
+void BulletBodyProxy::type(PHYSICS_BODY_TYPE type) {
 
 	int flags = 0;
 	switch (type) {
@@ -109,20 +109,20 @@ void BulletBodyModel::type(PHYSICS_BODY_TYPE type) {
 	_btBody->setCollisionFlags(flags);
 }
 
-PhysicsShapeModel* BulletBodyModel::shapeModel() const {
+PhysicsShapeModelProxy* BulletBodyProxy::shapeModel() const {
 	return _shapeModel;
 }
 
-void BulletBodyModel::shapeModel(PhysicsShapeModel* shape) {
+void BulletBodyProxy::shapeModel(PhysicsShapeModelProxy* shape) {
 	AE_LOG_T("shape: {:p}", static_cast<void*>(shape));
 
 	if (shape) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-		if (auto btShape = dynamic_cast<BulletShapeModel *>(shape)->btShapes().front()) {
+		if (auto btShape = dynamic_cast<BulletShapeProxy *>(shape)->btShapes().front()) {
 
 			_btBody->setCollisionShape(btShape.get());
 
-			auto mass = BulletBodyModel::mass();
+			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
 				case PHYSICS_BODY_TYPE::STATIC:
 				case PHYSICS_BODY_TYPE::KINEMATIC:
@@ -148,7 +148,7 @@ void BulletBodyModel::shapeModel(PhysicsShapeModel* shape) {
 	}
 }
 
-float BulletBodyModel::mass() const {
+float BulletBodyProxy::mass() const {
 
 	auto invMass = _btBody->getInvMass();
 	return (invMass != 0
@@ -156,7 +156,7 @@ float BulletBodyModel::mass() const {
 			: 0);
 }
 
-void BulletBodyModel::mass(float mass) {
+void BulletBodyProxy::mass(float mass) {
 
 	_btBody->setMassProps(mass, _btBody->getLocalInertia());
 
@@ -167,11 +167,11 @@ void BulletBodyModel::mass(float mass) {
 	_btBody->setActivationState(ACTIVE_TAG);
 }
 
-glm::vec3 BulletBodyModel::momentOfInertia() const {
+glm::vec3 BulletBodyProxy::momentOfInertia() const {
 	return GLMVec3FromBTVector3(_btBody->getLocalInertia());
 }
 
-void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
+void BulletBodyProxy::momentOfInertia(const glm::vec3& moment) {
 
 	if (!_autocalculatesMomentOfInertia) {
 		_btBody->setMassProps(mass(),
@@ -183,130 +183,130 @@ void BulletBodyModel::momentOfInertia(const glm::vec3& moment) {
 	}
 }
 
-glm::vec3 BulletBodyModel::centerOfMass() const {
+glm::vec3 BulletBodyProxy::centerOfMass() const {
 	return GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
-void BulletBodyModel::centerOfMass(const glm::vec3 offset) {
+void BulletBodyProxy::centerOfMass(const glm::vec3 offset) {
 	_btBody->setCenterOfMassTransform(
 			BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
 }
 
-float BulletBodyModel::friction() const {
+float BulletBodyProxy::friction() const {
 	return _btBody->getFriction();
 }
 
-void BulletBodyModel::friction(float friction) {
+void BulletBodyProxy::friction(float friction) {
 	_btBody->setFriction(friction);
 }
 
-float BulletBodyModel::rollingFriction() const {
+float BulletBodyProxy::rollingFriction() const {
 	return _btBody->getRollingFriction();
 }
 
-void BulletBodyModel::rollingFriction(float friction) {
+void BulletBodyProxy::rollingFriction(float friction) {
 	_btBody->setRollingFriction(friction);
 }
 
-float BulletBodyModel::restitution() const {
+float BulletBodyProxy::restitution() const {
 	return _btBody->getRestitution();
 }
 
-void BulletBodyModel::restitution(float restitution) {
+void BulletBodyProxy::restitution(float restitution) {
 	_btBody->setRestitution(restitution);
 }
 
-glm::vec3 BulletBodyModel::linearVelocity() const {
+glm::vec3 BulletBodyProxy::linearVelocity() const {
 	return GLMVec3FromBTVector3(_btBody->getLinearVelocity());
 }
 
-void BulletBodyModel::linearVelocity(const glm::vec3& velocity) {
+void BulletBodyProxy::linearVelocity(const glm::vec3& velocity) {
 	_btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
 }
 
-glm::vec3 BulletBodyModel::angularVelocity() const {
+glm::vec3 BulletBodyProxy::angularVelocity() const {
 	return GLMVec3FromBTVector3(_btBody->getAngularVelocity());
 }
 
-void BulletBodyModel::angularVelocity(const glm::vec3& velocity) {
+void BulletBodyProxy::angularVelocity(const glm::vec3& velocity) {
 	_btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
 }
 
-glm::vec3 BulletBodyModel::linearFactor() const {
+glm::vec3 BulletBodyProxy::linearFactor() const {
 	return GLMVec3FromBTVector3(_btBody->getLinearFactor());
 }
 
-void BulletBodyModel::linearFactor(const glm::vec3& factor) {
+void BulletBodyProxy::linearFactor(const glm::vec3& factor) {
 	_btBody->setLinearFactor(BTVector3FromGLMVec3(factor));
 }
 
-glm::vec3 BulletBodyModel::angularFactor() const {
+glm::vec3 BulletBodyProxy::angularFactor() const {
 	return GLMVec3FromBTVector3(_btBody->getAngularFactor());
 }
 
-void BulletBodyModel::angularFactor(const glm::vec3& factor) {
+void BulletBodyProxy::angularFactor(const glm::vec3& factor) {
 	_btBody->setAngularFactor(BTVector3FromGLMVec3(factor));
 }
 
-float BulletBodyModel::linearDamping() const {
+float BulletBodyProxy::linearDamping() const {
 	return _btBody->getLinearDamping();
 }
 
-void BulletBodyModel::linearDamping(float damping) {
+void BulletBodyProxy::linearDamping(float damping) {
 	_btBody->setDamping(damping, _btBody->getAngularDamping());
 }
 
-float BulletBodyModel::angularDamping() const {
+float BulletBodyProxy::angularDamping() const {
 	return _btBody->getAngularDamping();
 }
 
-void BulletBodyModel::angularDamping(float damping) {
+void BulletBodyProxy::angularDamping(float damping) {
 	_btBody->setDamping(_btBody->getLinearDamping(), damping);
 }
 
-float BulletBodyModel::linearSleepingThreshold() const {
+float BulletBodyProxy::linearSleepingThreshold() const {
 	return _btBody->getLinearSleepingThreshold();
 }
 
-void BulletBodyModel::linearSleepingThreshold(float threshold) {
+void BulletBodyProxy::linearSleepingThreshold(float threshold) {
 	_btBody->setSleepingThresholds(threshold, _btBody->getAngularSleepingThreshold());
 }
 
-float BulletBodyModel::angularSleepingThreshold() const {
+float BulletBodyProxy::angularSleepingThreshold() const {
 	return _btBody->getAngularSleepingThreshold();
 }
 
-void BulletBodyModel::angularSleepingThreshold(float threshold) {
+void BulletBodyProxy::angularSleepingThreshold(float threshold) {
 	_btBody->setSleepingThresholds(_btBody->getLinearSleepingThreshold(), threshold);
 }
 
-void BulletBodyModel::applyForce(const vec3& force, const vec3& location) {
+void BulletBodyProxy::applyForce(const vec3& force, const vec3& location) {
 	_btBody->applyForce(BTVector3FromGLMVec3(force),
 						BTVector3FromGLMVec3(location));
 }
 
-void BulletBodyModel::applyCentralForce(const vec3& force) {
+void BulletBodyProxy::applyCentralForce(const vec3& force) {
 	_btBody->applyCentralForce(BTVector3FromGLMVec3(force));
 }
 
-void BulletBodyModel::applyImpulse(const vec3& impulse, const vec3& location) {
+void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& location) {
 	_btBody->applyImpulse(BTVector3FromGLMVec3(impulse),
 						BTVector3FromGLMVec3(location));
 }
 
-void BulletBodyModel::applyCentralImpulse(const vec3& impulse) {
+void BulletBodyProxy::applyCentralImpulse(const vec3& impulse) {
 	_btBody->applyCentralImpulse(BTVector3FromGLMVec3(impulse));
 }
 
-void BulletBodyModel::applyTorque(const vec3& torque) {
+void BulletBodyProxy::applyTorque(const vec3& torque) {
 	_btBody->applyTorque(BTVector3FromGLMVec3(torque));
 }
 
-void BulletBodyModel::applyTorqueImpulse(const vec3& torque) {
+void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
 	_btBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
 }
 
-bool BulletBodyModel::affectedByGravity() const {
+bool BulletBodyProxy::affectedByGravity() const {
 	// *** test this ***
 	auto gravity = _btBody->getGravity();
 	return (gravity.x() != 0)
@@ -314,27 +314,27 @@ bool BulletBodyModel::affectedByGravity() const {
 		   || (gravity.z() != 0);
 }
 
-vec3 BulletBodyModel::totalForce() const {
+vec3 BulletBodyProxy::totalForce() const {
 	return GLMVec3FromBTVector3(_btBody->getTotalForce());
 }
 
-vec3 BulletBodyModel::totalTorque() const {
+vec3 BulletBodyProxy::totalTorque() const {
 	return GLMVec3FromBTVector3(_btBody->getTotalTorque());
 }
 
-void BulletBodyModel::affectedByGravity(bool affectedByGravity) {
+void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 	// *** test this ***
 	_btBody->setGravity(affectedByGravity
 						? btVector3{1.0, 1.0, 1.0}
 						: btVector3{0, 0, 0});
 }
 
-bool BulletBodyModel::allowsResting() const {
+bool BulletBodyProxy::allowsResting() const {
 	// *** test this ***
 	return (_btBody->getActivationState() != DISABLE_DEACTIVATION);
 }
 
-void BulletBodyModel::allowsResting(bool allowsResting) {
+void BulletBodyProxy::allowsResting(bool allowsResting) {
 	// *** test this ***
 	if (allowsResting
 	&& type() == PHYSICS_BODY_TYPE::KINEMATIC) {
@@ -347,24 +347,24 @@ void BulletBodyModel::allowsResting(bool allowsResting) {
 	}
 }
 
-bool BulletBodyModel::resting() const {
+bool BulletBodyProxy::resting() const {
 	return (_btBody->getActivationState() == ISLAND_SLEEPING);
 }
 
-void BulletBodyModel::resting(bool resting) {
+void BulletBodyProxy::resting(bool resting) {
 	_btBody->setActivationState(resting
 								? ISLAND_SLEEPING
 								: ACTIVE_TAG);
 }
 
-//glm::mat4 BulletBodyModel::worldTransform() const {
+//glm::mat4 BulletBodyProxy::worldTransform() const {
 //
 //	static btTransform transform;
 //	_btBody->getMotionState()->getWorldTransform(transform);
 //	return GLMMat4FromBTTransform(transform);
 //}
 //
-//void BulletBodyModel::worldTransform(const glm::mat4& transform) {
+//void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
 //
 //	bool wasScaled = false;
 //	auto btTransform = BTTransformFromGLMMat4(
@@ -383,7 +383,7 @@ void BulletBodyModel::resting(bool resting) {
 //	_btBody->setMotionState(_motionState.get());
 //}
 
-void BulletBodyModel::worldTransform(const glm::mat4& transform) {
+void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
 
 //	bool wasScaled = false;
 //	auto btTransform = BTTransformFromGLMMat4(
@@ -408,7 +408,7 @@ void BulletBodyModel::worldTransform(const glm::mat4& transform) {
 	//_btBody->setMotionState(_motionState.get());
 }
 
-void BulletBodyModel::clearForces() {
+void BulletBodyProxy::clearForces() {
 	_btBody->clearForces();
 }
 
@@ -416,15 +416,15 @@ void BulletBodyModel::clearForces() {
 	Internal
  *********************************************************************************************/
 
-shared_ptr<btRigidBody> BulletBodyModel::btBody() {
+shared_ptr<btRigidBody> BulletBodyProxy::btBody() {
 	return _btBody;
 }
 
-//shared_ptr<btDefaultMotionState> BulletBodyModel::btMotionState() {
+//shared_ptr<btDefaultMotionState> BulletBodyProxy::btMotionState() {
 //	return _btMotionState;
 //}
 
-shared_ptr<MotionState> BulletBodyModel::motionState() {
+shared_ptr<MotionState> BulletBodyProxy::motionState() {
 	return _motionState;
 }
 
@@ -432,9 +432,9 @@ shared_ptr<MotionState> BulletBodyModel::motionState() {
 	Private
  *********************************************************************************************/
 
-void BulletBodyModel::calculateMomentOfIntertia() {
+void BulletBodyProxy::calculateMomentOfIntertia() {
 
-	if (auto btShapeModel = dynamic_cast<BulletShapeModel*>(_shapeModel)) {
+	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeModel)) {
 		if (auto btShape = btShapeModel->btShapes().front()) {
 			btVector3 localInertia;
 			auto mass = _body->mass();
@@ -447,6 +447,6 @@ void BulletBodyModel::calculateMomentOfIntertia() {
 		}
 	}
 	else {
-		AE_LOG_W("Missing PhysicsShapeModel.");
+		AE_LOG_W("Missing PhysicsShapeModelProxy.");
 	}
 }

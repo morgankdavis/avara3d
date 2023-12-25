@@ -2,8 +2,8 @@
 // Created by mkd on 12/8/23.
 //
 
-#ifndef AVARA_ENGINE_BULLETWORLDMODEL_H
-#define AVARA_ENGINE_BULLETWORLDMODEL_H
+#ifndef AVARA_ENGINE_BULLETWORLDPROXY_H
+#define AVARA_ENGINE_BULLETWORLDPROXY_H
 
 
 #include <memory>
@@ -13,7 +13,7 @@
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
 
-#include "physics/PhysicalWorldModel.h"
+#include "physics/model_proxy/PhysicalWorldModelProxy.h"
 
 
 class btCollisionDispatcher;
@@ -32,7 +32,7 @@ namespace ae {
 #endif
 
 
-	class BulletWorldModel : public PhysicalWorldModel {
+	class BulletWorldProxy : public PhysicalWorldModelProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -40,12 +40,12 @@ namespace ae {
 
 	public:
 
-		BulletWorldModel(PhysicalWorld* world);
-		//~BulletWorldModel() override;
-		~BulletWorldModel();
+		BulletWorldProxy(PhysicalWorld* world);
+		//BulletWorldProxy() override;
+		~BulletWorldProxy();
 
 /*********************************************************************************************
-	PhysicalWorldModel
+	PhysicalWorldModelProxy
  *********************************************************************************************/
 
 		void 	add(PhysicsBody& body) override;
@@ -90,4 +90,4 @@ namespace ae {
 }
 
 
-#endif //AVARA_ENGINE_BULLETWORLDMODEL_H
+#endif //AVARA_ENGINE_BULLETWORLDPROXY_H

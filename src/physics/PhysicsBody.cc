@@ -13,8 +13,8 @@
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletBodyModel.h"
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletBodyProxy.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "scene/Node.h"
 
 
@@ -50,7 +50,7 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_world(nullptr) {
 
 	// _node has to be initialized to nullptr before calling this
-	_model = make_unique<BulletBodyModel>(this);
+	_proxy = make_unique<BulletBodyProxy>(this);
 }
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
@@ -62,8 +62,8 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape)
 PhysicsBody::~PhysicsBody() {
 	AE_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
 
-	shape(nullptr);
-	if (_model) _model->detachedFromBody(this);
+	if (_shape) _shape->detachedFromBody(this);
+	if (_proxy) _proxy->detachedFromBody(this);
 }
 
 /*********************************************************************************************
@@ -98,198 +98,198 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 
 		if (shape) {
 			shape->attachedToBody(this);
-			_model->shapeModel(shape->model());
+			_proxy->shapeModel(shape->proxy());
 		}
 		else {
-			_model->shapeModel(nullptr);
+			_proxy->shapeModel(nullptr);
 		}
 	}
 }
 
 float PhysicsBody::mass() const {
-	return _model->mass();
+	return _proxy->mass();
 }
 
 void PhysicsBody::mass(float mass) {
-	_model->mass(mass);
+	_proxy->mass(mass);
 }
 
 vec3 PhysicsBody::momentOfInertia() const {
-	return _model->momentOfInertia();
+	return _proxy->momentOfInertia();
 }
 
 void PhysicsBody::momentOfInertia(vec3 moment) {
-	_model->momentOfInertia(moment);
+	_proxy->momentOfInertia(moment);
 }
 
 vec3 PhysicsBody::centerOfMass() const {
-	return _model->centerOfMass();
+	return _proxy->centerOfMass();
 }
 
 void PhysicsBody::centerOfMass(const glm::vec3 offset) {
-	_model->centerOfMass(offset);
+	_proxy->centerOfMass(offset);
 }
 
 float PhysicsBody::friction() const {
-	return _model->friction();
+	return _proxy->friction();
 }
 
 void PhysicsBody::friction(float friction) {
-	_model->friction(friction);
+	_proxy->friction(friction);
 }
 
 float PhysicsBody::rollingFriction() const {
-	return _model->rollingFriction();
+	return _proxy->rollingFriction();
 }
 
 void PhysicsBody::rollingFriction(float friction) {
-	_model->rollingFriction(friction);
+	_proxy->rollingFriction(friction);
 }
 
 float PhysicsBody::restitution() const {
-	return _model->restitution();
+	return _proxy->restitution();
 }
 
 void PhysicsBody::restitution(float restitution) {
-	_model->restitution(restitution);
+	_proxy->restitution(restitution);
 }
 
 vec3 PhysicsBody::linearVelocity() const {
-	return _model->linearVelocity();
+	return _proxy->linearVelocity();
 }
 
 void PhysicsBody::linearVelocity(vec3 velocity) {
-	_model->linearVelocity(velocity);
+	_proxy->linearVelocity(velocity);
 }
 
 vec3 PhysicsBody::angularVelocity() const {
-	return _model->angularVelocity();
+	return _proxy->angularVelocity();
 }
 
 void PhysicsBody::angularVelocity(vec3 velocity) {
-	_model->angularVelocity(velocity);
+	_proxy->angularVelocity(velocity);
 }
 
 vec3 PhysicsBody::linearFactor() const {
-	return _model->linearFactor();
+	return _proxy->linearFactor();
 }
 
 void PhysicsBody::linearFactor(vec3 factor) {
-	_model->linearFactor(factor);
+	_proxy->linearFactor(factor);
 }
 
 vec3 PhysicsBody::angularFactor() const {
-	return _model->angularFactor();
+	return _proxy->angularFactor();
 }
 
 void PhysicsBody::angularFactor(vec3 factor) {
-	_model->angularFactor(factor);
+	_proxy->angularFactor(factor);
 }
 
 float PhysicsBody::linearDamping() const {
-	return _model->linearDamping();
+	return _proxy->linearDamping();
 }
 
 void PhysicsBody::linearDamping(float damping) {
-	_model->linearDamping(damping);
+	_proxy->linearDamping(damping);
 }
 
 float PhysicsBody::angularDamping() const {
-	return _model->angularDamping();
+	return _proxy->angularDamping();
 }
 
 void PhysicsBody::angularDamping(float damping) {
-	_model->angularDamping(damping);
+	_proxy->angularDamping(damping);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
-	return _model->linearSleepingThreshold();
+	return _proxy->linearSleepingThreshold();
 }
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
-	_model->linearSleepingThreshold(threshold);
+	_proxy->linearSleepingThreshold(threshold);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
-	return _model->angularSleepingThreshold();
+	return _proxy->angularSleepingThreshold();
 }
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
-	_model->angularSleepingThreshold(threshold);
+	_proxy->angularSleepingThreshold(threshold);
 }
 
 bool PhysicsBody::affectedByGravity() const {
-	return _model->affectedByGravity();
+	return _proxy->affectedByGravity();
 }
 
 void PhysicsBody::affectedByGravity(bool affectedByGravity) {
-	_model->affectedByGravity(affectedByGravity);
+	_proxy->affectedByGravity(affectedByGravity);
 }
 
 bool PhysicsBody::allowsResting() const {
-	return _model->allowsResting();
+	return _proxy->allowsResting();
 }
 
 void PhysicsBody::allowsResting(bool allowsResting) {
-	_model->allowsResting(allowsResting);
+	_proxy->allowsResting(allowsResting);
 }
 
 bool PhysicsBody::resting() const {
-	return _model->resting();
+	return _proxy->resting();
 }
 
 void PhysicsBody::resting(bool resting) {
-	_model->resting(resting);
+	_proxy->resting(resting);
 }
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
 
 	if (impulse) {
-		_model->applyCentralImpulse(force);
+		_proxy->applyCentralImpulse(force);
 	}
 	else {
-		_model->applyCentralForce(force);
+		_proxy->applyCentralForce(force);
 	}
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 
 	if (impulse) {
-		_model->applyImpulse(force, location);
+		_proxy->applyImpulse(force, location);
 	}
 	else {
-		_model->applyForce(force, location);
+		_proxy->applyForce(force, location);
 	}
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
 
 	if (impulse) {
-		_model->applyTorqueImpulse(torque);
+		_proxy->applyTorqueImpulse(torque);
 	}
 	else {
-		_model->applyTorque(torque);
+		_proxy->applyTorque(torque);
 	}
 }
 
 glm::vec3 PhysicsBody::totalForce() const {
-	return _model->totalForce();
+	return _proxy->totalForce();
 }
 
 glm::vec3 PhysicsBody::totalTorque() const {
-	return _model->totalTorque();
+	return _proxy->totalTorque();
 }
 
 void PhysicsBody::clearForces() {
-	_model->clearForces();
+	_proxy->clearForces();
 }
 
 bool PhysicsBody::autocalculatesMomentOfInertia() const {
-	return _model->autocalculatesMomentOfInertia();
+	return _proxy->autocalculatesMomentOfInertia();
 }
 
 void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
-	_model->autocalculatesMomentOfInertia(autocalculate);
+	_proxy->autocalculatesMomentOfInertia(autocalculate);
 }
 
 /*********************************************************************************************
@@ -357,7 +357,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld* world) {
 	_world = world;
 
 	// set initial transform
-	_model->worldTransform(node()->worldTransform());
+	_proxy->worldTransform(node()->worldTransform());
 }
 
 void PhysicsBody::removedFromWorld(PhysicalWorld* world) {
@@ -382,8 +382,8 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 	return nullptr;
 }
 
-PhysicsBodyModel* PhysicsBody::model() const {
-	return _model.get();
+PhysicsBodyModelProxy* PhysicsBody::proxy() const {
+	return _proxy.get();
 }
 
 /*********************************************************************************************

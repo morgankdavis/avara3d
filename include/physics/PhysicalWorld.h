@@ -25,7 +25,7 @@ namespace ae {
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
-	class PhysicalWorldModel;
+	class PhysicalWorldModelProxy;
 	class Scene;
 	
 	
@@ -104,7 +104,7 @@ namespace ae {
 												 double deltaRunT,
 												 Stats& stats);
 
-		PhysicalWorldModel*					model() const;
+		PhysicalWorldModelProxy*			proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -112,15 +112,15 @@ namespace ae {
 
 	private:
 
-		glm::vec3 								_gravity;
-		float 									_speed;
-		float 									_timestep;
-		std::unique_ptr<PhysicalWorldModel>		_model;
-		Scene*									_scene;
-		DidSimulateCallback						_didSimulate;
-		BeginContactCallback					_beginContact;
-		ContinueContactCallback					_continueContact;
-		EndContactCallback						_endContact;
+		glm::vec3 									_gravity;
+		float 										_speed;
+		float 										_timestep;
+		std::unique_ptr<PhysicalWorldModelProxy>	_proxy;
+		Scene*										_scene;
+		DidSimulateCallback							_didSimulate;
+		BeginContactCallback						_beginContact;
+		ContinueContactCallback						_continueContact;
+		EndContactCallback							_endContact;
 	};
 }
 

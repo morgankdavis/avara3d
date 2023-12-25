@@ -14,7 +14,7 @@
 
 #include "utilities/Utilities.h"
 
-#include "physics/bullet/BulletBodyModel.h"
+#include "physics/bullet/BulletBodyProxy.h"
 
 
 using namespace ae;

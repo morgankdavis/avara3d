@@ -2,7 +2,7 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletWorldProxy.h"
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -13,7 +13,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
-#include "physics/bullet/BulletBodyModel.h"
+#include "physics/bullet/BulletBodyProxy.h"
 #include "physics/bullet/BulletDebugDrawer.h"
 #include "scene/Node.h"
 
@@ -35,8 +35,8 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBU
 	Lifecycle
  *********************************************************************************************/
 
-BulletWorldModel::BulletWorldModel(PhysicalWorld* world):
-		PhysicalWorldModel(world) {
+BulletWorldProxy::BulletWorldProxy(PhysicalWorld* world):
+		PhysicalWorldModelProxy(world) {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -55,35 +55,35 @@ BulletWorldModel::BulletWorldModel(PhysicalWorld* world):
 #endif
 }
 
-BulletWorldModel::~BulletWorldModel()/*:
-		PhysicalWorldModel::~PhysicalWorldModel()*/ {
+BulletWorldProxy::~BulletWorldProxy()/*:
+		PhysicalWorldModelProxy::PhysicalWorldModelProxyProxy()*/ {
 
-	//PhysicalWorldModel::~PhysicalWorldModel();
+	//PhysicalWorldModelProxy::PhysicalWorldModelProxyProxy();
 
-	AE_LOG_D("Destroying BulletWorldModel {:p}", static_cast<void*>(this));
+	AE_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
-	PhysicalWorldModel
+	PhysicalWorldModelProxy
  *********************************************************************************************/
 
-void BulletWorldModel::add(PhysicsBody& body) {
+void BulletWorldProxy::add(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
 
-	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
+	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
-	auto b = bodyModel->btBody().get();
+	auto b = bodyProxy->btBody().get();
 	_btWorld->addRigidBody(b);
 }
 
-void BulletWorldModel::remove(PhysicsBody& body) {
+void BulletWorldProxy::remove(PhysicsBody& body) {
 	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
 
-	auto bodyModel = static_cast<BulletBodyModel*>(body.model());
-	_btWorld->removeRigidBody(bodyModel->btBody().get());
+	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
+	_btWorld->removeRigidBody(bodyProxy->btBody().get());
 }
 
-//unique_ptr<vector<PhysicsBody*>> BulletWorldModel::bodies() const {
+//unique_ptr<vector<PhysicsBody*>> BulletWorldProxy::bodies() const {
 //
 //	auto collisionObjects = _btWorld->getCollisionObjectArray();
 //	auto numCollisionObjects = _btWorld->getNumCollisionObjects();
@@ -101,15 +101,15 @@ void BulletWorldModel::remove(PhysicsBody& body) {
 //	return bodies;
 //}
 
-float BulletWorldModel::gravity() const {
+float BulletWorldProxy::gravity() const {
 	return _btWorld->getGravity().y();
 }
 
-void BulletWorldModel::gravity(float gravity) {
+void BulletWorldProxy::gravity(float gravity) {
 	_btWorld->setGravity({0, gravity, 0});
 }
 
-//void BulletWorldModel::update(Stats& stats) {
+//void BulletWorldProxy::update(Stats& stats) {
 //
 //	auto collisionObjects = _btWorld->getCollisionObjectArray();
 //	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
@@ -147,7 +147,7 @@ void BulletWorldModel::gravity(float gravity) {
 //	}
 //}
 
-void BulletWorldModel::step(double deltaT, float speed, float timestep) {
+void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 
 	auto result = _btWorld->stepSimulation(deltaT * speed,
 										   MAX_SUBSTEPS,
@@ -158,7 +158,7 @@ void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 	}
 }
 
-//void BulletWorldModel::sync() {
+//void BulletWorldProxy::sync() {
 //
 //	auto collisionObjects = _btWorld->getCollisionObjectArray();
 //	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
@@ -183,11 +183,11 @@ void BulletWorldModel::step(double deltaT, float speed, float timestep) {
 //	}
 //}
 
-void BulletWorldModel::updateCollisionPairs() {
+void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
-void BulletWorldModel::drawDebug(Renderer &renderer,
+void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const glm::mat4 &viewMat,
 								 const glm::mat4 &projectionMat,
 								 const DEBUG_OPTIONS &debugOptions) {
@@ -206,12 +206,12 @@ void BulletWorldModel::drawDebug(Renderer &renderer,
 	Internal
  *********************************************************************************************/
 
-btDiscreteDynamicsWorld* BulletWorldModel::btWorld() const {
+btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() const {
 	return _btWorld.get();
 }
 
 #ifdef DESKTOP
-BulletDebugDrawer* BulletWorldModel::btDebugDrawer() const {
+BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 	return _btDebugDrawer.get();
 }
 #endif

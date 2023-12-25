@@ -14,9 +14,9 @@
 #include "geometry/Geometry.h"
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsShapeModel.h"
+#include "physics/model_proxy/PhysicsShapeModelProxy.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletShapeModel.h"
+#include "physics/bullet/BulletShapeProxy.h"
 #include "scene/Node.h"
 
 
@@ -33,7 +33,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type)
-		/*_model(make_unique<BulletShapeModel>(this))*/ {
+		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = geometry->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
@@ -50,7 +50,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type)
-		/*_model(make_unique<BulletShapeModel>(this))*/ {
+		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = node->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
@@ -65,7 +65,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({})
-		/*_model(make_unique<BulletShapeModel>(this))*/ { }
+		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
 
 PhysicsShape::~PhysicsShape() {
 	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
@@ -93,7 +93,7 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	if (type != _type) {
 
 		_type = type;
-		_model = nullptr;
+		_proxy = nullptr;
 
 		checkCreateModel();
 	}
@@ -140,8 +140,8 @@ void PhysicsShape::sourceObject(variant<
 void PhysicsShape::checkCreateModel() {
 	AE_LOG_T("");
 
-	if (!_model) {
-		_model = make_unique<BulletShapeModel>(this);
+	if (!_proxy) {
+		_proxy = make_unique<BulletShapeProxy>(this);
 	}
 }
 
@@ -150,6 +150,6 @@ unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
 }
 
-PhysicsShapeModel* PhysicsShape::model() const {
-	return _model.get();
+PhysicsShapeModelProxy* PhysicsShape::proxy() const {
+	return _proxy.get();
 }

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "physics/PhysicsBodyModel.h"
+#include "physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "physics/bullet/MotionState.h"
 
 //struct btDefaultMotionState;
@@ -18,7 +18,7 @@ class btRigidBody;
 
 namespace ae {
 
-	class BulletBodyModel : public PhysicsBodyModel {
+	class BulletBodyProxy : public PhysicsBodyModelProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -26,18 +26,18 @@ namespace ae {
 
 	public:
 
-		BulletBodyModel(PhysicsBody* body);
-		~BulletBodyModel();
+		BulletBodyProxy(PhysicsBody* body);
+		~BulletBodyProxy();
 
 /*********************************************************************************************
-	PhysicsBodyModel
+	PhysicsBodyModelProxy
  *********************************************************************************************/
 
 		PHYSICS_BODY_TYPE	type() const override;
 		void				type(PHYSICS_BODY_TYPE type) override;
 
-		PhysicsShapeModel*	shapeModel() const override;
-		void				shapeModel(PhysicsShapeModel* shape) override;
+		PhysicsShapeModelProxy*	shapeModel() const override;
+		void				shapeModel(PhysicsShapeModelProxy* shape) override;
 
 		float				mass() const override;
 		void				mass(float mass) override;

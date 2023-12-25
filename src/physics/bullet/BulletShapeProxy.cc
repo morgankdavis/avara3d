@@ -2,7 +2,7 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "physics/bullet/BulletShapeModel.h"
+#include "physics/bullet/BulletShapeProxy.h"
 
 #include <variant>
 
@@ -22,10 +22,10 @@
 #include "geometry/primitives/Sphere.h"
 #include "physics/ConvexDecomposer.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsBodyModel.h"
+#include "physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "physics/PhysicsShape.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "physics/bullet/Utilities.h"
 #include "physics/shape_primitives/BoxPhysicsShape.h"
 #include "physics/shape_primitives/CapsulePhysicsShape.h"
@@ -105,8 +105,8 @@ HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
 	Lifecycle
  *********************************************************************************************/
 
-BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
-		PhysicsShapeModel(shape),
+BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
+		PhysicsShapeModelProxy(shape),
 		_btShapes(vector<shared_ptr<btCollisionShape>>()),
 		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
 
@@ -167,27 +167,27 @@ BulletShapeModel::BulletShapeModel(PhysicsShape* shape):
 	}
 }
 
-BulletShapeModel::~BulletShapeModel() {
-	AE_LOG_D("Destroying BulletShapeModel {:p}", static_cast<void*>(this));
+BulletShapeProxy::~BulletShapeProxy() {
+	AE_LOG_D("Destroying BulletShapeProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-vector <shared_ptr<btCollisionShape>>& BulletShapeModel::btShapes() {
+vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	return _btShapes;
 }
 
-//void BulletShapeModel::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
+//void BulletShapeProxy::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
 //	_btShapes = shapes;
 //}
 //
-//vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeModel::btIndexVertexArrays() {
+//vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeProxy::btIndexVertexArrays() {
 //	return _btIndexVertexArrays;
 //}
 //
-//void BulletShapeModel::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
+//void BulletShapeProxy::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
 //	_btIndexVertexArrays = indexVertexArrays;
 //}
 

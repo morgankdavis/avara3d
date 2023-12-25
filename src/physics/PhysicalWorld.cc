@@ -10,7 +10,7 @@
 
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
-#include "physics/bullet/BulletWorldModel.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 
@@ -40,7 +40,7 @@ PhysicalWorld::PhysicalWorld():
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
-	_model = make_unique<BulletWorldModel>(this);
+	_proxy = make_unique<BulletWorldProxy>(this);
 }
 
 PhysicalWorld::~PhysicalWorld() {
@@ -107,7 +107,7 @@ shared_ptr<PhysicsContact> PhysicalWorld::convexSweepTest(shared_ptr<PhysicsCont
 }
 
 void PhysicalWorld::updateCollisionPairs() {
-	_model->updateCollisionPairs();
+	_proxy->updateCollisionPairs();
 }
 
 Scene* PhysicalWorld::scene() const {
@@ -167,9 +167,9 @@ void PhysicalWorld::detachedFromScene(Scene* scene) {
 void PhysicalWorld::add(PhysicsBody& body) {
 	AE_LOG_D("body: {}", static_cast<void*>(&body));
 
-	if (_model) {
+	if (_proxy) {
 //		body.addedToWorld(this);
-		_model->add(body);
+		_proxy->add(body);
 		body.addedToWorld(this);
 	}
 	else {
@@ -180,8 +180,8 @@ void PhysicalWorld::add(PhysicsBody& body) {
 void PhysicalWorld::remove(PhysicsBody& body) {
 	AE_LOG_D("body: {}", static_cast<void*>(&body));
 
-	if (_model) {
-		_model->remove(body);
+	if (_proxy) {
+		_proxy->remove(body);
 		body.removedFromWorld(this);
 	}
 	else {
@@ -194,11 +194,11 @@ void PhysicalWorld::step(const Scene& scene,
 						 double deltaRunT,
 						 Stats& stats) {
 
-	if (_model) {
+	if (_proxy) {
 
 		auto startTime = scene.time();
 
-		_model->step(deltaRunT, _speed, _timestep);
+		_proxy->step(deltaRunT, _speed, _timestep);
 
 		UpdateTimeStats(stats, startTime, scene.time());
 
@@ -207,12 +207,12 @@ void PhysicalWorld::step(const Scene& scene,
 		}
 	}
 	else {
-		AE_LOG_E("No PhysicalWorldModel attached to PhysicalWorld {:p}.", static_cast<void*>(this));
+		AE_LOG_E("No PhysicalWorldModelProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	}
 }
 
-PhysicalWorldModel* PhysicalWorld::model() const {
-	return  _model.get();
+PhysicalWorldModelProxy* PhysicalWorld::proxy() const {
+	return  _proxy.get();
 }
 
 /*********************************************************************************************
