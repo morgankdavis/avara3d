@@ -68,6 +68,13 @@ int Example::run(const vector<string>& args) {
 	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "");
 
+
+
+	//Logger::MainLogger()->f4("this {} a {} string {}", "is", "crufty", 69);
+	//AE_LOG_F("this {} a {} string {}", "is", "crufty", 69);
+	//Logger::MainLogger()->f4("this {} a {} string {}", "is", "crufty", 69);
+
+
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,

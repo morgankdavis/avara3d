@@ -247,11 +247,50 @@ void Logger::critical(bool useHeader,
 	va_end(args);
 }
 
-void vlog(const char* file, int line, fmt::string_view format,
-		  fmt::format_args args) {
-	fmt::print("{}: {}: ", file, line);
-	fmt::vprint(format, args);
+
+//template <typename... Args>
+//void Logger::f1(const char* format, Args&&... args) {
+//
+//	auto together = fmt::vformat(format,
+//								 fmt::make_format_args(std::forward<Args>(args))...);
+//
+//}
+
+
+//template <typename... Args>
+//void Logger::f2(const char* format, Args&&...args) {
+//
+//
+//}
+
+
+//void Logger::f2(bool useHeader,
+//				const char* filename, int line, const char* function,
+//				const char* fthing) {
+//
+//}
+
+
+
+
+template <typename... Args>
+void Logger::f3(std::string_view fmt, Args&&... args) {
+	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
 }
+
+
+template <typename F, typename... Args>
+void Logger::f4(F, Args&&... args) {
+	return fmt::format(F::string, std::forward<Args>(args)...);
+}
+
+
+
+//void vlog(const char* file, int line, fmt::string_view format,
+//		  fmt::format_args args) {
+//	fmt::print("{}: {}: ", file, line);
+//	fmt::vprint(format, args);
+//}
 
 // constructs body with variable args list
 void Logger::log(LOG_LEVEL level,

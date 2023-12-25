@@ -156,8 +156,9 @@ include_directories(external/glm-0.9.9.8)
 
 # fmt
 
-add_subdirectory(external/fmt-5.2.0)
-include_directories(external/fmt-5.2.0/include)
+#add_subdirectory(external/fmt-5.2.0)
+#include_directories(external/fmt-5.2.0/include)
+add_subdirectory(external/fmt-10.1.1)
 
 # android things
 
@@ -345,6 +346,7 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 
 
 target_link_libraries(ae
+	fmt::fmt
 	generator
 	Bullet3Common
 	BulletCollision

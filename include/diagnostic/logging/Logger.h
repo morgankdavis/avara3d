@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#define FMT_HEADER_ONLY
+//#define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
 #include "Types.h"
@@ -46,6 +46,8 @@
 #define AE_LOG_W(fmtStr, ...) Logger::MainLogger()->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_E(fmtStr, ...) Logger::MainLogger()->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_C(fmtStr, ...) Logger::MainLogger()->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+
+#define AE_LOG_F(fmtStr, ...) Logger::MainLogger()->f1(fmtStr, ##__VA_ARGS__)
 
 #define AE_LOG_H_T(useHeader, fmtStr, ...) Logger::MainLogger()->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define AE_LOG_H_D(useHeader, fmtStr, ...) Logger::MainLogger()->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
@@ -68,6 +70,15 @@
 #define LOG_H_W(useHeader, logger, fmtStr, ...) logger->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_H_E(useHeader, logger, fmtStr, ...) logger->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
 #define LOG_H_C(useHeader, logger, fmtStr, ...) logger->critical(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+
+
+
+
+//template <typename... Args>
+//auto f3(std::string_view fmt, Args&&... args) {
+//	return std::vformat(fmt, std::make_format_args(std::forward<Args>(args)...));
+//}
+
 
 
 namespace ae {
@@ -142,6 +153,42 @@ namespace ae {
 		void critical(bool useHeader,
 					  const char* filename, int line, const char* function,
 					  const char* format, ...);
+
+		// WORKS
+//		template <typename... Args>
+//		void f1(const char* format, Args&&... args) {
+//			auto together = fmt::vformat(format, fmt::make_format_args(std::forward<Args>(args)...));
+//			AE_LOG_I("WORK {}", together);
+//		}
+
+//		template <typename... Args>
+//		void f1(const char* format, Args&&... args) {
+//
+//			auto vec<std::vector<std::any>>();
+//		}
+
+//		template <typename... Args>
+//		void f1(const char* format, Args&&... args) {
+//			f2(format, std::forward<Args>(args)...);
+//		}
+
+//		template <typename... Args>
+//		void f2(const char* format, Args&&...args);
+
+
+
+//
+//		void f2(bool useHeader,
+//				const char* filename, int line, const char* function,
+//				const char* format);
+
+
+		template <typename... Args>
+		void f3(std::string_view fmt, Args&&... args);
+
+		template <typename F, typename... Args>
+		void f4(F, Args&&... args);
+
 
 		void log(LOG_LEVEL level,
 				 const char* format, va_list args);
