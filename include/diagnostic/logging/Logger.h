@@ -92,7 +92,7 @@ namespace ae {
 
 		//static constexpr unsigned char DEFAULT_NAME[] = "ae";
 		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG;
-		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN_;
+		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN;
 
 /**************************************************************************************
 	Public Static
