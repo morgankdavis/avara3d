@@ -60,6 +60,7 @@ VisualWorld::~VisualWorld() {
 	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
+	//renderContext(nullptr);
 }
 
 /*********************************************************************************************

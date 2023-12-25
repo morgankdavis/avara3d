@@ -168,9 +168,9 @@ void PhysicalWorld::add(PhysicsBody& body) {
 	AE_LOG_D("body: {}", static_cast<void*>(&body));
 
 	if (_model) {
-		body.addedToWorld(this);
-		_model->add(body);
 //		body.addedToWorld(this);
+		_model->add(body);
+		body.addedToWorld(this);
 	}
 	else {
 		AE_LOG_W("_model is null.");

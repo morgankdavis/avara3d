@@ -100,13 +100,14 @@ Node::~Node() {
 
 	for (auto& child : _children) child->detachedFromParent(this);
 	if (_physicsBody) _physicsBody->detachedFromNode(this);
+//	physicsBody(nullptr);
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-std::optional<std::string> Node::name() const {
+optional<std::string> Node::name() const {
 	return _name;
 }
 
@@ -634,8 +635,8 @@ void Node::attachedToParent(Node* parent) {
 	// the only Node with a direct pointer to the Scene is the root node,
 	// and attachedToParent() is never called on the root node.
 	// if this is another Scene's root node being attached to this scene
-	// (such as a scene loaded from a file), we definitly don't want
-	// a stale pointer to the old scene.
+	// (such as a scene loaded from a file), we don't want a stale pointer
+	// to the old scene.
 	_scene = nullptr;
 
 	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
