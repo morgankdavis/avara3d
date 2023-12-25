@@ -309,13 +309,7 @@ void PhysicsBody::attachedToNode(Node* node) {
 void PhysicsBody::detachedFromNode(Node* node) {
 	AE_LOG_T("node: {:p}", static_cast<void*>(node));
 
-	//if (auto world = physicalWorld()) {
-//	if (_world) {
-//		_world->remove(*this);
-//	}
-//	else {
-//		AE_LOG_E("Attempting to remove PhysicsBody with no PhysicalWorld.");
-//	}
+	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
 
 	_node = nullptr; // ^^ physicalWorld() relies on old _node
 }
@@ -351,7 +345,8 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 		_shape->physicalWorldUnreachable(world);
 	}
 
-	if (_model) {
+	// if _world != nullptr it's the world we're currently in
+	 if (_world) {
 		_world->remove(*this);
 	}
 }

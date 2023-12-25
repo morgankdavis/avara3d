@@ -1972,9 +1972,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
+					" user", stats.averageUsertime,
 					" physics", stats.averagePhysicstime,
 					" draw", stats.averageDrawtime,
-					" user", stats.averageUsertime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
@@ -2020,9 +2020,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
+					" user", stats.averageUsertime,
 					" physics", stats.averagePhysicstime,
 					" draw", stats.averageDrawtime,
-					" user", stats.averageUsertime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,

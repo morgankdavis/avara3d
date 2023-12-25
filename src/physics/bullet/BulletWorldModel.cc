@@ -83,8 +83,22 @@ void BulletWorldModel::remove(PhysicsBody& body) {
 	_btWorld->removeRigidBody(bodyModel->btBody().get());
 }
 
-//void BulletWorldModel::removeAllBodies() {
+//unique_ptr<vector<PhysicsBody*>> BulletWorldModel::bodies() const {
 //
+//	auto collisionObjects = _btWorld->getCollisionObjectArray();
+//	auto numCollisionObjects = _btWorld->getNumCollisionObjects();
+//	auto bodies = make_unique<vector<PhysicsBody*>>();
+//	bodies->reserve(numCollisionObjects);
+//	for (int o=0; o<numCollisionObjects; ++o) {
+//		auto object = collisionObjects[o];
+//
+//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
+//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
+//			bodies->push_back(body);
+//		}
+//	}
+//
+//	return bodies;
 //}
 
 float BulletWorldModel::gravity() const {
@@ -186,24 +200,6 @@ void BulletWorldModel::drawDebug(Renderer &renderer,
 	_btWorld->debugDrawWorld();
 	_btDebugDrawer->draw(renderer, viewMat, projectionMat);
 #endif
-}
-
-unique_ptr<vector<PhysicsBody*>> BulletWorldModel::bodies() const {
-
-	auto collisionObjects = _btWorld->getCollisionObjectArray();
-	auto numCollisionObjects = _btWorld->getNumCollisionObjects();
-	auto bodies = make_unique<vector<PhysicsBody*>>();
-	bodies->reserve(numCollisionObjects);
-	for (int o=0; o<numCollisionObjects; ++o) {
-		auto object = collisionObjects[o];
-
-		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-			bodies->push_back(body);
-		}
-	}
-
-	return bodies;
 }
 
 /*********************************************************************************************

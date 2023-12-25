@@ -168,6 +168,10 @@ Scene::~Scene() {
 	if (_visualWorld) _visualWorld->detachedFromScene(this);
 	if (_physicalWorld) _physicalWorld->detachedFromScene(this);
 	if (_inputManager) _inputManager->detachedFromScene(this);
+//	rootNode(nullptr);
+//	visualWorld(nullptr);
+//	physicalWorld(nullptr);
+//	inputManager(nullptr);
 }
 
 /*********************************************************************************************

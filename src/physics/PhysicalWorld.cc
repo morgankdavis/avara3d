@@ -159,17 +159,13 @@ void PhysicalWorld::attachedToScene(Scene* scene) {
 void PhysicalWorld::detachedFromScene(Scene* scene) {
 	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
-	// strange way of doing this, but we want to get removedFromWorld() for free.
-	auto bodies = _model->bodies();
-	for (auto& body : *bodies) {
-		remove(*body);
-	}
-//	_model->removeAllBodies();
+	// removing bodies handled in PhysicalBody::physicalWorldUnreachable()
 
 	_scene = nullptr;
 }
 
 void PhysicalWorld::add(PhysicsBody& body) {
+	AE_LOG_D("body: {}", static_cast<void*>(&body));
 
 	if (_model) {
 		body.addedToWorld(this);
@@ -182,6 +178,7 @@ void PhysicalWorld::add(PhysicsBody& body) {
 }
 
 void PhysicalWorld::remove(PhysicsBody& body) {
+	AE_LOG_D("body: {}", static_cast<void*>(&body));
 
 	if (_model) {
 		_model->remove(body);
