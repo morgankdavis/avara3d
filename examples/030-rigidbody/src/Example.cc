@@ -361,10 +361,14 @@ void Example::updateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::ONE)) {
-		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
 	}
 
 	if (keysPressed.count(KEY::TWO)) {
+		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+	}
+
+	if (keysPressed.count(KEY::THREE)) {
 		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 	}
 

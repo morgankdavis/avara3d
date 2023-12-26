@@ -366,11 +366,7 @@ void PhysicsBody::shapeUpdated() {
 
 	if (_proxy) {
 		if (_shape) {
-			auto existingShapeProxy = _proxy->shapeProxy();
-			auto newShapeProxy = _shape->proxy();
-			if (existingShapeProxy != newShapeProxy) {
-				_proxy->shapeProxy(newShapeProxy);
-			}
+				_proxy->shapeProxy(_shape->proxy());
 		}
 		else {
 			AE_LOG_E("No shape.");
