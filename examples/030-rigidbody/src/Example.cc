@@ -151,7 +151,7 @@ int Example::run(const vector<string>& args) {
 
 
 	// ground plane
-	
+
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
@@ -222,8 +222,8 @@ int Example::run(const vector<string>& args) {
 
 	// #0
 	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 
 	// #1
 //	_duckNode->physicsBody(PhysicsBody::KinematicBody());
@@ -342,6 +342,7 @@ void Example::updateCallback(Scene& scene, float time) {
 	if (window) {
 		cursorCaptured = window->cursorCaptured();
 	}
+
 	
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
@@ -357,6 +358,14 @@ void Example::updateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(KEY::BACKSLASH)) {
 		SaveSnapshot(*window);
+	}
+
+	if (keysPressed.count(KEY::ONE)) {
+		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+	}
+
+	if (keysPressed.count(KEY::TWO)) {
+		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 	}
 
 	if (!scene.paused()) {
@@ -398,17 +407,17 @@ void Example::updateCallback(Scene& scene, float time) {
 			SpawnRecursiveTestTree(scene);
 		}
 
-		if (keysPressed.count(KEY::ONE)) {
-			scene.physicalWorld()->speed(0.1);
-		}
-
-		if (keysPressed.count(KEY::ZERO)) {
-			scene.physicalWorld()->speed(1.0);
-		}
-
-		if (keysPressed.count(KEY::TWO)) {
-			scene.physicalWorld()->speed(2.0);
-		}
+//		if (keysPressed.count(KEY::ONE)) {
+//			scene.physicalWorld()->speed(0.1);
+//		}
+//
+//		if (keysPressed.count(KEY::ZERO)) {
+//			scene.physicalWorld()->speed(1.0);
+//		}
+//
+//		if (keysPressed.count(KEY::TWO)) {
+//			scene.physicalWorld()->speed(2.0);
+//		}
 
 		if (keysPressed.count(KEY::J)) {
 			if (_fruit1Node) {

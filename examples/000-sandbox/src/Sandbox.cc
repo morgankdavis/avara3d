@@ -54,9 +54,6 @@ int Sandbox::run(const vector<string>& args) {
 	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "");
 
-	Logger::MainLogger()->critical(true, __FILE_NAME__, __LINE__, __FUNCTION__,
-								   fmt::format("a fmt {} test", "fuck").c_str());
-
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
@@ -104,52 +101,52 @@ int Sandbox::run(const vector<string>& args) {
 	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
 	scene->rootNode()->addChild(pointLightNode);
 
-//
-//
-//
-//
-//	// ground plane
-//
-//	const float PLANE_LENGTH = 100.0;
-//	const float PLANE_WIDTH = 100.0;
-//	auto planeNode = make_shared<Node>("Ground plane node");
-//	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0.01));
-//	//planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH, 10, 10));
-//	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-//	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-//	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-//	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-//	planeMaterialProperty->maxAnisotropy(16);
-//	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-//	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	shared_ptr<Material> planeMaterial = nullptr;
-//	if (DARK) {
-//		planeMaterial = make_shared<Material>(nullptr,
-//											  nullptr,
-//											  nullptr,
-//											  planeMaterialProperty);
-//	}
-//	else {
-//		planeMaterial = make_shared<Material>(nullptr,
-//											  planeMaterialProperty,
-//											  nullptr);//make_shared<MaterialProperty>(make_shared<Color>(.1f)));
-//	}
-//
-//	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-//	//if (DARK) planeMaterial->specularExponent(1000);
-//	planeMaterial->doubleSided(true);
-//	planeNode->geometry()->addMaterial(planeMaterial);
-//	planeNode->rotation({1, 0, 0}, radians(3*90.0));
-//	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-//
-//	auto planePhysicsBody = PhysicsBody::StaticBody();
-////	AE_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
-////	AE_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
-//	planeNode->physicsBody(planePhysicsBody);
-//	planePhysicsBody->friction(1);
-//	planePhysicsBody->restitution(0.25);
-//
-//	scene->rootNode()->addChild(planeNode);
+
+
+
+
+	// ground plane
+
+	const float PLANE_LENGTH = 100.0;
+	const float PLANE_WIDTH = 100.0;
+	auto planeNode = make_shared<Node>("Ground plane node");
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0.01));
+	//planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH, 10, 10));
+	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
+	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
+	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	planeMaterialProperty->maxAnisotropy(16);
+	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	shared_ptr<Material> planeMaterial = nullptr;
+	if (DARK) {
+		planeMaterial = make_shared<Material>(nullptr,
+											  nullptr,
+											  nullptr,
+											  planeMaterialProperty);
+	}
+	else {
+		planeMaterial = make_shared<Material>(nullptr,
+											  planeMaterialProperty,
+											  nullptr);//make_shared<MaterialProperty>(make_shared<Color>(.1f)));
+	}
+
+	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	//if (DARK) planeMaterial->specularExponent(1000);
+	planeMaterial->doubleSided(true);
+	planeNode->geometry()->addMaterial(planeMaterial);
+	planeNode->rotation({1, 0, 0}, radians(3*90.0));
+	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+
+	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	AE_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
+//	AE_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
+	planeNode->physicsBody(planePhysicsBody);
+	planePhysicsBody->friction(1);
+	planePhysicsBody->restitution(0.25);
+
+	scene->rootNode()->addChild(planeNode);
 //
 //
 //
@@ -184,37 +181,55 @@ int Sandbox::run(const vector<string>& args) {
 
 
 
+	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
+	duckNode->position({/*4.5*/0, 15, 0});
 
 
-	static shared_ptr<Color> colors[] = {
-			Color::White(),
-			Color::Red(),
-			Color::Orange(),
-			Color::Yellow(),
-			Color::Lime(),
-			Color::Blue()
-	};
-	auto color = colors[Uniform(0, 5)];
+	// DOES NOT WORK
+	duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL); // <- works
+	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
-	constexpr float BALL_RADIUS = 0.55;
-	auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-	auto ballNode = Node::GeometryNode(sphereGrometry);
-	auto diffuseProperty = make_shared<MaterialProperty>(color);
-	auto specularProperty = make_shared<MaterialProperty>(Color::White());
-	auto ballMaterial = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-	ballMaterial->specularExponent(125.0);
-	ballNode->geometry()->addMaterial(ballMaterial);
-	ballNode->position({0, 20, 0});
+// WORKS
+//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
+//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
+//	duckNode->physicsBody(body);
 
-	auto ballPhysicsBody = PhysicsBody::DynamicBody();
-	ballPhysicsBody->mass(0.2); // vollyball
-	ballPhysicsBody->restitution(1.0);
-	ballPhysicsBody->friction(0.015);
-	ballPhysicsBody->rollingFriction(0.15);
+	//auto body =
 
-	ballNode->physicsBody(ballPhysicsBody);
+	scene->rootNode()->addChild(duckNode);
 
-	scene->rootNode()->addChild(ballNode);
+
+
+//	static shared_ptr<Color> colors[] = {
+//			Color::White(),
+//			Color::Red(),
+//			Color::Orange(),
+//			Color::Yellow(),
+//			Color::Lime(),
+//			Color::Blue()
+//	};
+//	auto color = colors[Uniform(0, 5)];
+//
+//	constexpr float BALL_RADIUS = 0.55;
+//	auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+//	auto ballNode = Node::GeometryNode(sphereGrometry);
+//	auto diffuseProperty = make_shared<MaterialProperty>(color);
+//	auto specularProperty = make_shared<MaterialProperty>(Color::White());
+//	auto ballMaterial = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+//	ballMaterial->specularExponent(125.0);
+//	ballNode->geometry()->addMaterial(ballMaterial);
+//	ballNode->position({0, 20, 0});
+//
+//	auto ballPhysicsBody = PhysicsBody::DynamicBody();
+//	ballPhysicsBody->mass(0.2); // vollyball
+//	ballPhysicsBody->restitution(1.0);
+//	ballPhysicsBody->friction(0.015);
+//	ballPhysicsBody->rollingFriction(0.15);
+//
+//	ballNode->physicsBody(ballPhysicsBody);
+//
+//	scene->rootNode()->addChild(ballNode);
 
 
 

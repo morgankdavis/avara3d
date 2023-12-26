@@ -24,6 +24,7 @@ namespace ae {
 	class Node;
 	class PhysicalWorld;
 	class PhysicsBodyModelProxy;
+	class PhysicsShapeModelProxy;
 	class PhysicsShape;
 	class Scene;
 	
@@ -170,6 +171,8 @@ namespace ae {
 
 		void 								addedToWorld(PhysicalWorld* world);
 		void 								removedFromWorld(PhysicalWorld* world);
+
+		void 								shapeUpdated();
 
 		Node*								node() const;
 

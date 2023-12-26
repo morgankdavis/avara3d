@@ -90,7 +90,7 @@ namespace ae {
 		void 								sourceObject(
 				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
-		void								checkCreateModel();
+		void								checkCreateProxy();
 
 		std::unordered_set<PhysicsBody*>	bodies() const;
 

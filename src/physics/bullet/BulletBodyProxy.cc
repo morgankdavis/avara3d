@@ -109,16 +109,16 @@ void BulletBodyProxy::type(PHYSICS_BODY_TYPE type) {
 	_btBody->setCollisionFlags(flags);
 }
 
-PhysicsShapeModelProxy* BulletBodyProxy::shapeModel() const {
+PhysicsShapeModelProxy* BulletBodyProxy::shapeProxy() const {
 	return _shapeModel;
 }
 
-void BulletBodyProxy::shapeModel(PhysicsShapeModelProxy* shape) {
-	AE_LOG_T("shape: {:p}", static_cast<void*>(shape));
+void BulletBodyProxy::shapeProxy(PhysicsShapeModelProxy* proxy) {
+	AE_LOG_T("proxy: {:p}", static_cast<void*>(proxy));
 
-	if (shape) {
+	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-		if (auto btShape = dynamic_cast<BulletShapeProxy *>(shape)->btShapes().front()) {
+		if (auto btShape = dynamic_cast<BulletShapeProxy *>(proxy)->btShapes().front()) {
 
 			_btBody->setCollisionShape(btShape.get());
 
@@ -132,7 +132,7 @@ void BulletBodyProxy::shapeModel(PhysicsShapeModelProxy* shape) {
 					break;
 			}
 
-			_shapeModel = shape;
+			_shapeModel = proxy;
 
 			if (_autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();

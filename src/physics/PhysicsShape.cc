@@ -90,13 +90,14 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	AE_LOG_T("type: {}", magic_enum::enum_name(type));
 
-	if (type != _type) {
+	_type = type;
+	_proxy = nullptr;
 
-		_type = type;
-		_proxy = nullptr;
+	checkCreateProxy();
 
-		checkCreateModel();
-	}
+//	for (auto body : _bodies) {
+//		body->shapeUpdated();
+//	}
 }
 
 /*********************************************************************************************
@@ -109,7 +110,7 @@ void PhysicsShape::attachedToBody(PhysicsBody* body) {
 	if (!_bodies.count(body)) {
 		_bodies.insert(body);
 
-		checkCreateModel();
+		checkCreateProxy();
 	}
 }
 
@@ -122,7 +123,7 @@ void PhysicsShape::detachedFromBody(PhysicsBody* body) {
 void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
 	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 
-	checkCreateModel();
+	checkCreateProxy();
 }
 
 void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
@@ -137,11 +138,15 @@ void PhysicsShape::sourceObject(variant<
 	_sourceObject = sourceObject;
 }
 
-void PhysicsShape::checkCreateModel() {
+void PhysicsShape::checkCreateProxy() {
 	AE_LOG_T("");
 
 	if (!_proxy) {
 		_proxy = make_unique<BulletShapeProxy>(this);
+
+		for (auto body : _bodies) {
+			body->shapeUpdated();
+		}
 	}
 }
 
