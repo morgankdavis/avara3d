@@ -47,24 +47,42 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
 	_motionState = make_shared<MotionState>(body);
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(0,
+
+	// it seems as though adding a body to the world with mass=0 forever casts it
+	// as a static body. adding it, setting it to 0, the setting it to something
+	// different seems to work fine, though.
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(1.0, // important!
 														   _motionState.get(),
 														   nullptr);
+	rigidBodyInfo.m_friction = 0.5;
+	rigidBodyInfo.m_rollingFriction = 0.05; // don't roll forever
+	rigidBodyInfo.m_spinningFriction = 0.05; // don't spin forever
+	rigidBodyInfo.m_restitution = 0.0;
+	rigidBodyInfo.m_linearSleepingThreshold = 1.0;
+	rigidBodyInfo.m_angularSleepingThreshold = 1.0;
 
 	_btBody = make_shared<btRigidBody>(rigidBodyInfo);
 
+	int flags = 0;
+	int activationState = _btBody->getActivationState();
+
 	switch (body->type()) {
 		case PHYSICS_BODY_TYPE::STATIC:
-			_btBody->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+			flags = btCollisionObject::CF_STATIC_OBJECT;
+			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
 		case PHYSICS_BODY_TYPE::DYNAMIC:
-			_btBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
+			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
 		case PHYSICS_BODY_TYPE::KINEMATIC:
-			_btBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-			_btBody->setActivationState(DISABLE_DEACTIVATION);
+			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
+			activationState = activationState | DISABLE_DEACTIVATION;
 			break;
 	}
+
+	_btBody->setCollisionFlags(flags);
+	_btBody->setActivationState(activationState);
 
 	_btBody->setUserPointer(static_cast<void*>(body));
 }
@@ -91,22 +109,29 @@ PHYSICS_BODY_TYPE BulletBodyProxy::type() const {
 void BulletBodyProxy::type(PHYSICS_BODY_TYPE type) {
 
 	int flags = 0;
+	int activationState = _btBody->getActivationState();
+
 	switch (type) {
 		case PHYSICS_BODY_TYPE::STATIC:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
+			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
 		case PHYSICS_BODY_TYPE::DYNAMIC:
 			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
 			if (_autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
 			}
+			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
 		case PHYSICS_BODY_TYPE::KINEMATIC:
 			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
-			_btBody->setActivationState(DISABLE_DEACTIVATION);
+			auto as = _btBody->getActivationState();
+			activationState = activationState | DISABLE_DEACTIVATION;
 			break;
 	}
+
 	_btBody->setCollisionFlags(flags);
+	_btBody->setActivationState(activationState);
 }
 
 PhysicsShapeModelProxy* BulletBodyProxy::shapeProxy() const {

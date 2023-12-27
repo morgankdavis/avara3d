@@ -9,6 +9,9 @@
 #include "scene/Node.h"
 
 
+#include "diagnostic/logging/Logger.h"
+
+
 using namespace ae;
 
 

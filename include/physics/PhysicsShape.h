@@ -99,6 +99,7 @@ namespace ae {
 	protected:
 
 		PHYSICS_SHAPE_TYPE 					_type;
+		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 
 /*********************************************************************************************
 	Private
@@ -111,7 +112,7 @@ namespace ae {
 				Node*,
 				std::monostate> 				_sourceObject;
 		std::unordered_set<PhysicsBody*>		_bodies;
-		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
+//		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 	};
 }
 

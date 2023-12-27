@@ -52,15 +52,18 @@ BTShapeFromSourceGeometry(Geometry* geometry,
 						  PHYSICS_BODY_TYPE bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
 						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+
 static shared_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node* node,
 					  PHYSICS_SHAPE_TYPE shapeType,
 					  PHYSICS_BODY_TYPE bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+
 static shared_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape,
 						  PHYSICS_BODY_TYPE bodyType);
+
 static shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   Geometry* geometry,
@@ -280,41 +283,29 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 						  PHYSICS_BODY_TYPE bodyType) {
 
 	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
-		AE_LOG_I("BoxPhysicsShape");
-
 		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
 												 (btScalar)boxShape->height()/2.0f,
 												 (btScalar)boxShape->length()/2.0f));
 	}
 	else if (auto capsuleShape = dynamic_cast<CapsulePhysicsShape*>(&shape)) {
-		AE_LOG_I("CapsulePhysicsShape");
-
 		return make_shared<btCapsuleShape>((btScalar)capsuleShape->radius(),
 										   (btScalar)capsuleShape->height());
 	}
 	else if (auto coneShape = dynamic_cast<ConePhysicsShape*>(&shape)) {
-		AE_LOG_I("ConePhysicsShape");
-
 		return make_shared<btConeShape>((btScalar)coneShape->radius(),
 										(btScalar)coneShape->height());
 	}
 	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
-		AE_LOG_I("CylinderPhysicsShape");
-
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
 													  (btScalar)cylinderShape->height()/2.0,
 													  (btScalar)cylinderShape->radius()));
 	}
 	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
-		AE_LOG_I("PlanePhysicsShape");
-
 		return make_shared<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
 												 (btScalar)planeShape->height()/2.0f,
 												 (btScalar)0));
 	}
 	else if (auto sphereShape = dynamic_cast<SpherePhysicsShape*>(&shape)) {
-		AE_LOG_I("SpherePhysicsShape");
-
 		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
 	}
 	else {

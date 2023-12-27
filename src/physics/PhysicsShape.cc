@@ -32,7 +32,8 @@ using namespace std;
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
-		_type(type)
+		_type(type),
+		_proxy(nullptr)
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = geometry->name()) {
@@ -49,7 +50,8 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
-		_type(type)
+		_type(type),
+		_proxy(nullptr)
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = node->name()) {
@@ -64,7 +66,8 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
-		_bodies({})
+		_bodies({}),
+		_proxy(nullptr)
 		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
 
 PhysicsShape::~PhysicsShape() {

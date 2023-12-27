@@ -32,9 +32,11 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
 
 constexpr bool					DARK =					false;
+
+std::shared_ptr<ae::Node> _testNode;
 
 /***************************************************************************************
 	Static Prototypes
@@ -150,11 +152,13 @@ int Example::run(const vector<string>& args) {
 //	scene->rootNode()->addChild(boxNode);
 
 
+
+
 	// ground plane
 
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
-	auto planeNode = make_shared<Node>("Ground plane node");
+	auto planeNode = Node::NamedNode("Ground plane node");
 		planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
@@ -191,79 +195,81 @@ int Example::run(const vector<string>& args) {
 	scene->rootNode()->addChild(planeNode);
 
 
-	// add the palm tree
-
-	auto palmScene = SceneNamed("palm2/palm2", "obj");
-	_palmNode = palmScene->rootNode();
-	_palmNode->name("Palm node");
-	for (auto n : palmScene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
-
-	auto palmPhysicsBody = PhysicsBody::StaticBody();
-	palmPhysicsBody->mass(0);
-	palmPhysicsBody->friction(1);
-	palmPhysicsBody->restitution(0.25);
-	_palmNode->physicsBody(palmPhysicsBody);
-
-	scene->rootNode()->addChild(palmScene->rootNode());
 
 
-	// add the duck
-
-	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
-	_duckNode->position({/*4.5*/0, 15, 0});
-
-
-	// #0
-	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-
-	// #1
-//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode);
-//	_duckNode->physicsBody()->shape(duckPhysicsShape);
-
-	// #2
-//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry());
-//	_duckNode->physicsBody()->shape(duckPhysicsShape);
-
-	// #3
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode);
+//	// add the palm tree
+//
+//	auto palmScene = SceneNamed("palm2/palm2", "obj");
+//	_palmNode = palmScene->rootNode();
+//	_palmNode->name("Palm node");
+//	for (auto n : palmScene->rootNode()->children(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
+//
+//	auto palmPhysicsBody = PhysicsBody::StaticBody();
+//	palmPhysicsBody->mass(0);
+//	palmPhysicsBody->friction(1);
+//	palmPhysicsBody->restitution(0.25);
+//	_palmNode->physicsBody(palmPhysicsBody);
+//
+//	scene->rootNode()->addChild(palmScene->rootNode());
+//
+//
+//	// add the duck
+//
+//	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
+//	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
+//	_duckNode->position({/*4.5*/0, 15, 0});
+//
+//
+////	// #0
+////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+////
+////	// #1
+//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
+//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////
+////	// #2
+//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
+//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////
+//	// #3
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode.get());
 //	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
-
-	// #4
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry());
-//	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
-
-	_duckSpinnerNode = make_shared<Node>("duck spinner");
-	_duckSpinnerNode->addChild(_duckNode);
-	scene->rootNode()->addChild(_duckSpinnerNode);
-
-
-
-//	// add the paddle
 //
-//	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
-//	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
-//	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-//	_paddleNode->geometry()->addMaterial(paddleMaterial);
-//	_paddleNode->position({15 - .25, 2.5, 0});
-//	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
-////	paddlePhysicsBody->friction(100);
-//	paddlePhysicsBody->restitution(0.25);
-//	_paddleNode->physicsBody(paddlePhysicsBody);
-//	scene->rootNode()->addChild(_paddleNode);
+////	// #4
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
+//////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+//
+//	_duckSpinnerNode = make_shared<Node>("duck spinner");
+//	_duckSpinnerNode->addChild(_duckNode);
+//	scene->rootNode()->addChild(_duckSpinnerNode);
 //
 //
-//	// add cardboard boxes
+//
+////	// add the paddle
+////
+////	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
+////	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
+////	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
+////	_paddleNode->geometry()->addMaterial(paddleMaterial);
+////	_paddleNode->position({15 - .25, 2.5, 0});
+////	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+//////	paddlePhysicsBody->friction(100);
+////	paddlePhysicsBody->restitution(0.25);
+////	_paddleNode->physicsBody(paddlePhysicsBody);
+////	scene->rootNode()->addChild(_paddleNode);
+//
+//
+	// add cardboard boxes
 //	AddCardboardBoxes(*scene);
 //
 //	// add slurms
@@ -360,6 +366,8 @@ void Example::updateCallback(Scene& scene, float time) {
 		SaveSnapshot(*window);
 	}
 
+
+
 	if (keysPressed.count(KEY::ONE)) {
 		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
 	}
@@ -371,6 +379,22 @@ void Example::updateCallback(Scene& scene, float time) {
 	if (keysPressed.count(KEY::THREE)) {
 		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 	}
+
+
+
+	if (keysPressed.count(KEY::FIVE)) {
+		_testNode->physicsBody()->mass(0);
+	}
+
+	if (keysPressed.count(KEY::SIX)) {
+		_testNode->physicsBody()->mass(10);
+	}
+
+	if (keysPressed.count(KEY::SEVEN)) {
+		_testNode->physicsBody()->mass(100);
+	}
+
+
 
 	if (!scene.paused()) {
 
@@ -1394,6 +1418,7 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 	}
 
 	{ // capsule
+
 		auto node = Node::NamedNode("Capsule physics shape node");
 		auto shape = make_shared<CapsulePhysicsShape>(.5, 2);
 		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
@@ -1402,6 +1427,30 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
 		scene.rootNode()->addChild(node);
+
+
+
+
+//
+//		static auto node = Node::NamedNode("Capsule physics shape node");
+//
+//		static auto geo = make_shared<Box>(1,1,1);
+//		static auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geo.get());
+//
+////		static auto shape = make_shared<CapsulePhysicsShape>(.5, 2);
+//
+//		static auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC, shape);
+//		node->physicsBody(body);
+//		node->position({0, 5, 0});
+//		node->physicsBody()->mass(10);
+//		node->position({node->position().x, node->position().y+10, node->position().y});
+//
+//		scene.rootNode()->addChild(node);
+//
+////		node->physicsBody()->resting(false);
+////		node->physicsBody()->mass(100);
+//
+//		_testNode = node;
 	}
 
 	{ // cone

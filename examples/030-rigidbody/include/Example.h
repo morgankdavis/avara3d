@@ -41,6 +41,8 @@ namespace example {
 		std::shared_ptr<ae::Node>			_paddleNode;
 		
 		std::shared_ptr<ae::Node>			_fruit1Node;
+
+//		std::shared_ptr<ae::Node>			_testNode;
 	};
 }
 

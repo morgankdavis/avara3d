@@ -90,6 +90,7 @@ void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
 	AE_LOG_T("shape: {:p}", static_cast<void*>(shape.get()));
 
 	if (shape != _shape) {
+
 		if (_shape) {
 			_shape->detachedFromBody(this);
 		}
