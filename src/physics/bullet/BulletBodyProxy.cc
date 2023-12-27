@@ -51,7 +51,9 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(1.0, // important!
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body->type() == PHYSICS_BODY_TYPE::STATIC
+															? 0.0f
+															: 1.0f), // important!
 														   _motionState.get(),
 														   nullptr);
 	rigidBodyInfo.m_friction = 0.5;
@@ -348,6 +350,7 @@ vec3 BulletBodyProxy::totalTorque() const {
 }
 
 void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
+
 	// *** test this ***
 	_btBody->setGravity(affectedByGravity
 						? btVector3{1.0, 1.0, 1.0}
@@ -355,20 +358,28 @@ void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 }
 
 bool BulletBodyProxy::allowsResting() const {
+
 	// *** test this ***
 	return (_btBody->getActivationState() != DISABLE_DEACTIVATION);
 }
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
+
 	// *** test this ***
 	if (allowsResting
-	&& type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		&& type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+
 		AE_LOG_E("Cannot enable resting for kinematic bodies.");
 	}
 	else {
-		_btBody->setActivationState(allowsResting
-									? ACTIVE_TAG
-									: DISABLE_DEACTIVATION);
+
+		int activationState = _btBody->getActivationState();
+
+		activationState = (allowsResting
+						   ? activationState | ACTIVE_TAG
+						   : activationState | DISABLE_DEACTIVATION);
+
+		_btBody->setActivationState(activationState);
 	}
 }
 
@@ -377,9 +388,14 @@ bool BulletBodyProxy::resting() const {
 }
 
 void BulletBodyProxy::resting(bool resting) {
-	_btBody->setActivationState(resting
-								? ISLAND_SLEEPING
-								: ACTIVE_TAG);
+
+	int activationState = _btBody->getActivationState();
+
+	activationState = (resting
+			? activationState | ISLAND_SLEEPING
+			: activationState | ACTIVE_TAG);
+
+	_btBody->setActivationState(activationState);
 }
 
 //glm::mat4 BulletBodyProxy::worldTransform() const {

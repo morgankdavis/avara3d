@@ -110,8 +110,7 @@ int Sandbox::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 100.0;
 	const float PLANE_WIDTH = 100.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0.01));
-	//planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH, 10, 10));
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -133,8 +132,7 @@ int Sandbox::run(const vector<string>& args) {
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-	//if (DARK) planeMaterial->specularExponent(1000);
-	planeMaterial->doubleSided(true);
+	planeMaterial->doubleSided(false);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
