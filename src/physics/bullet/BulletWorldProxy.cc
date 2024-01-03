@@ -23,7 +23,7 @@ using namespace glm;
 using namespace std;
 
 
-constexpr unsigned MAX_SUBSTEPS = 20; // move
+constexpr unsigned MAX_SUBSTEPS = 0; // move
 
 /*********************************************************************************************
 	Static Prototypes

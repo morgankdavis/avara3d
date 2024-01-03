@@ -32,6 +32,7 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
+//constexpr float					PHYSICS_TIMESTEP =		1.0/2048.0;
 constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
 
 constexpr bool					DARK =					false;
@@ -196,64 +197,64 @@ int Example::run(const vector<string>& args) {
 
 
 
-//	// add the palm tree
+	// add the palm tree
+
+	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	_palmNode = palmScene->rootNode();
+	_palmNode->name("Palm node");
+	for (auto n : palmScene->rootNode()->children(true)) {
+		if (n->geometry()) {
+			for (auto m : n->geometry()->materials()) {
+				m->doubleSided(true);
+			}
+		}
+	}
+
+	auto palmPhysicsBody = PhysicsBody::StaticBody();
+	palmPhysicsBody->mass(0);
+	palmPhysicsBody->friction(1);
+	palmPhysicsBody->restitution(0.25);
+	_palmNode->physicsBody(palmPhysicsBody);
+
+	scene->rootNode()->addChild(palmScene->rootNode());
+
+
+	// add the duck
+
+	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
+	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
+	_duckNode->position({/*4.5*/0, 25, 0});
+
+
+//	// #0
+//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 //
-//	auto palmScene = SceneNamed("palm2/palm2", "obj");
-//	_palmNode = palmScene->rootNode();
-//	_palmNode->name("Palm node");
-//	for (auto n : palmScene->rootNode()->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-//
-//	auto palmPhysicsBody = PhysicsBody::StaticBody();
-//	palmPhysicsBody->mass(0);
-//	palmPhysicsBody->friction(1);
-//	palmPhysicsBody->restitution(0.25);
-//	_palmNode->physicsBody(palmPhysicsBody);
-//
-//	scene->rootNode()->addChild(palmScene->rootNode());
-//
-//
-//	// add the duck
-//
-//	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-//	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
-//	_duckNode->position({/*4.5*/0, 15, 0});
-//
-//
-////	// #0
+//	// #1
 ////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-//////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
-////
-////	// #1
-//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
-//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-////
-////	// #2
-//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
-//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-////
-//	// #3
-//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode.get());
-//	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
+////	_duckNode->physicsBody()->shape(duckPhysicsShape);
 //
-////	// #4
-//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
-//////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+//	// #2
+////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
+////	_duckNode->physicsBody()->shape(duckPhysicsShape);
 //
-//	_duckSpinnerNode = make_shared<Node>("duck spinner");
-//	_duckSpinnerNode->addChild(_duckNode);
-//	scene->rootNode()->addChild(_duckSpinnerNode);
-//
-//
-//
+	// #3
+	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode.get());
+	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+
+//	// #4
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
+////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+
+	_duckSpinnerNode = make_shared<Node>("duck spinner");
+	_duckSpinnerNode->addChild(_duckNode);
+	scene->rootNode()->addChild(_duckSpinnerNode);
+
+
+
 ////	// add the paddle
 ////
 ////	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
@@ -703,31 +704,26 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 		switch (fruitNum) {
 			case 0: {
-				AE_LOG_D("cherry");
 				node = SceneNamed("cherry1_lod/cherry1_lod", "obj")->rootNode();
 				mass = 0.05;
 				break;
 			}
 			case 1: {
-				AE_LOG_D("orange");
 				node = SceneNamed("orange1_lod/orange1_lod", "obj")->rootNode();
 				mass = 0.185;
 				break;
 			}
 			case 2: {
-				AE_LOG_D("pear");
 				node = SceneNamed("pear_lod/pear_lod", "obj")->rootNode();
 				mass = 0.24;
 				break;
 			}
 			case 3: {
-				AE_LOG_D("apple");
 				node = SceneNamed("apple1_lod/apple1_lod", "obj")->rootNode();
 				mass = 0.225;
 				break;
 			}
 			case 4: {
-				AE_LOG_D("banana");
 				node = SceneNamed("banana_lod/banana_lod", "obj")->rootNode();
 				mass = 0.14;
 				break;
@@ -1618,10 +1614,15 @@ void SpawnChainMail(Scene& scene) {
 	static const float TORUS_MINOR_RADIUS = .9;
 	static const float TORUS_MAJOR_RADIUS = 1;
 
+	// lavareef
 	static const int CHAINMAIL_WIDTH = 3;
 	static const int CHAINMAIL_HEIGHT = 4;
 
-	static const int GROUND_OFFSET = 25;
+	// mushroomhill
+//	static const int CHAINMAIL_WIDTH = 6;
+//	static const int CHAINMAIL_HEIGHT = 8;
+
+	static const int GROUND_OFFSET = 35;
 
 //	for (int w=0; w<CHAINMAIL_WIDTH; ++w) {
 //		for (int h=0; h<CHAINMAIL_HEIGHT; ++h) {
@@ -1661,9 +1662,12 @@ void SpawnChainMail(Scene& scene) {
 	}
 
 	chainmailNode->rotation({1, 0, 0}, PI/2.0);
-	chainmailNode->position({-chainmailNode->extent().x/2.0 + TORUS_MAJOR_RADIUS,
+//	chainmailNode->position({-chainmailNode->extent().x/2.0 + TORUS_MAJOR_RADIUS,
+//							 GROUND_OFFSET,
+//							 -chainmailNode->extent().y/2.0 + TORUS_MAJOR_RADIUS});
+	chainmailNode->position({-chainmailNode->extent().x/2.0,
 							 GROUND_OFFSET,
-							 -chainmailNode->extent().y/2.0 + TORUS_MAJOR_RADIUS});
+							 -chainmailNode->extent().z/2.0});
 	scene.rootNode()->addChild(chainmailNode);
 
 //	auto link = ChainmailLink(TORUS_MINOR_RADIUS, TORUS_MAJOR_RADIUS);
