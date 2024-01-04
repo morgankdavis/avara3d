@@ -211,6 +211,10 @@ else()
 
 	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
+#	find_package(GLEW REQUIRED)
+#	include_directories(${GLEW_INCLUDE_DIRS})
+#	set(GLEW_USE_STATIC_LIBS TRUE)
+#	message("GLEW_VERSION: " ${GLEW_VERSION})
 
 	# assimp
 
@@ -227,7 +231,7 @@ else()
 #	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 	# causes GLEW linker errors
 	find_package(assimp REQUIRED)
-	include_directories(${ASSIMP_INCLUDE_DIR})
+	#include_directories(${ASSIMP_INCLUDE_DIR})
 
 	# manymouse
 
@@ -281,7 +285,7 @@ include_directories(external/v-hacd-4.1.0)
 #target_compile_options(Bullet3Collision PUBLIC
 #		"-Wno-deprecated-volatile")
 find_package(Bullet REQUIRED)
-include_directories(${BULLET_INCLUDE_DIR})
+include_directories(${BULLET_INCLUDE_DIRS})
 
 # magic_enmum
 
@@ -421,8 +425,6 @@ elseif (WINDOWS)
 
 	# for MinGW / cross compile?
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
-
-
 
 elseif (ANDROID)
 
