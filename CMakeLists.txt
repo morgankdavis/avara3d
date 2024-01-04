@@ -413,6 +413,7 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 target_link_libraries(ae
 		fmt::fmt
 		generator
+		${ASSIMP_LIBRARIES}
 		${BULLET_LIBRARIES})
 
 
@@ -433,6 +434,26 @@ if (MACOS)
 #foreach (_variableName ${_variableNames})
 #message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
+
+#-- ASSIMP_BUILD_SHARED_LIBS=ON
+#-- ASSIMP_INCLUDE_DIRS=/usr/local/include;/usr/local/include
+#-- ASSIMP_LIBRARIES=assimp::assimp
+#-- ASSIMP_LIBRARY_DIRS=
+#-- ASSIMP_ROOT_DIR=/usr/local
+
+#-- BULLET_COLLISION_LIBRARY=/usr/local/lib/libBulletCollision.dylib
+#-- BULLET_COLLISION_LIBRARY_DEBUG=BULLET_COLLISION_LIBRARY_DEBUG-NOTFOUND
+#-- BULLET_DYNAMICS_LIBRARY=/usr/local/lib/libBulletDynamics.dylib
+#-- BULLET_DYNAMICS_LIBRARY_DEBUG=BULLET_DYNAMICS_LIBRARY_DEBUG-NOTFOUND
+#-- BULLET_FOUND=TRUE
+#-- BULLET_INCLUDE_DIR=/usr/local/include/bullet
+#-- BULLET_INCLUDE_DIRS=/usr/local/include/bullet
+#-- BULLET_LIBRARIES=/usr/local/lib/libBulletDynamics.dylib;/usr/local/lib/libBulletCollision.dylib;/usr/local/lib/libLinearMath.dylib;/usr/local/lib/libBulletSoftBody.dylib
+#-- BULLET_MATH_LIBRARY=/usr/local/lib/libLinearMath.dylib
+#-- BULLET_MATH_LIBRARY_DEBUG=BULLET_MATH_LIBRARY_DEBUG-NOTFOUND
+#-- BULLET_SOFTBODY_LIBRARY=/usr/local/lib/libBulletSoftBody.dylib
+#-- BULLET_SOFTBODY_LIBRARY_DEBUG=BULLET_SOFTBODY_LIBRARY_DEBUG-NOTFOUND
+#-- Bullet_FOUND=TRUE
 
 #link_directories(
 #		"/usr/local/lib/bullet/single")
