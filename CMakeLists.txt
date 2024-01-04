@@ -354,18 +354,16 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 target_link_libraries(ae
 	fmt::fmt
 	generator
-		BulletDynamics
-		BulletCollision)
-	#Bullet3Common
-	#BulletCollision
-	#Bullet3Collision
-	#BulletDynamics
-	#Bullet3Dynamics
-	#BulletInverseDynamics
-	#Bullet3Geometry
-	#Bullet3OpenCL_clew
-	#LinearMath
-	#Bullet2FileLoader)
+	Bullet3Common
+	BulletCollision
+	Bullet3Collision
+	BulletDynamics
+	Bullet3Dynamics
+	BulletInverseDynamics
+	Bullet3Geometry
+	Bullet3OpenCL_clew
+	LinearMath
+	Bullet2FileLoader)
 	
 
 if (DESKTOP)
