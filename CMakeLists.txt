@@ -283,11 +283,6 @@ if (OPENGL_CORE)
 
 	# imgui
 
-	# ************* TEMPORARY *************
-	if (macOS)
-		include_directories(/usr/local/Cellar/glfw/3.3.9/include/)
-	endif()
-
 	add_subdirectory(external/imgui-1.88)
 	include_directories(external/imgui-1.88)
 	include_directories(external/imgui-1.88/backends)
@@ -426,25 +421,26 @@ endif()
 
 if (MACOS)
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
-
-include_directories("/usr/local/opt/glfw/include") # hack
-
-	target_link_libraries(ae
-			imgui
-			z)
+link_directories(
+		"/usr/local/lib/bullet/single")
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
 	find_library(FRAMEWORK_IOKIT IOKit)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
+
 	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
-	target_link_libraries(ae ${FRAMEWORKS})
+
+	target_link_libraries(ae
+			imgui
+			z
+			${FRAMEWORKS})
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
