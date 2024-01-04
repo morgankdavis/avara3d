@@ -390,6 +390,15 @@ endif()
 
 if (MACOS)
 
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+
+include_directories("/usr/local/opt/glfw/include") # hack
+
 	target_link_libraries(ae
 			imgui
 			z)
