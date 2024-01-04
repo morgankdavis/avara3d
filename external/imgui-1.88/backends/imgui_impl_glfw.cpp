@@ -65,9 +65,12 @@
 #endif
 
 // GLFW
+#ifndef MACOS
 #include <GLFW/glfw3.h>
-// mkd: TEMPORARY for macOS
-//#include "/usr/local/Cellar/glfw/3.3.9/include/GLFW/glfw3.h"
+#else
+// mkd: TEMPORARY for macOS ??
+#include "/usr/local/Cellar/glfw/3.3.9/include/GLFW/glfw3.h"
+#endif
 #ifdef _WIN32
 #undef APIENTRY
 #define GLFW_EXPOSE_NATIVE_WIN32

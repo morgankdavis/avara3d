@@ -8,11 +8,6 @@ file(GLOB SOURCES *.c*)
 
 include_directories(.)
 
-# mkd: HACK!
-if (macOS)
-	include_directories(/usr/local/include/)
-endif()
-
 add_library(imgui
 	${HEADERS} ${SOURCES}
 	# !!! HACK !!!
