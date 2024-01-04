@@ -16,16 +16,6 @@ if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-
-### MOVE ME #######################################
-option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
-set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
-find_package(GLFW REQUIRED)
-include_directories(${GLFW_INCLUDE_DIR})
-###################################################
-
 
 # print all variables
 # https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
@@ -209,6 +199,8 @@ else()
 	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
 	set(OpenGL_GL_PREFERENCE GLVND)
 
+
+
 	# glfw
 
 #	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -218,13 +210,41 @@ else()
 #	add_subdirectory(external/glfw-3.3.8)
 #	include_directories(external/glfw-3.3.8/include)
 
-#	find_package(glfw3 REQUIRED)
-#	# these are not set
-#	include_directories(${GLFW_INCLUDE_DIR})
-#	include_directories(${GLFW3_INCLUDE_DIR})
-#	include_directories(${GLFW3_INCLUDE_DIRS})
-#	message("GLFW_INCLUDE_DIR: " ${GLFW_INCLUDE_DIR})
-#	message("GLFW_INCLUDE_DIRS: " ${GLFW_INCLUDE_DIRS})
+	if (macOS)
+
+		set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+		option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
+		set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
+		find_package(GLFW REQUIRED)
+		include_directories(${GLFW_INCLUDE_DIR})
+
+		# sets:
+		#-- glfw3_CONFIG=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
+		#-- glfw3_CONSIDERED_CONFIGS=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
+		#-- glfw3_CONSIDERED_VERSIONS=3.3.9
+		#-- glfw3_DIR=/usr/local/lib/cmake/glfw3
+		#-- glfw3_FOUND=1
+		#-- glfw3_VERSION=3.3.9
+		#-- glfw3_VERSION_COUNT=3
+		#-- glfw3_VERSION_MAJOR=3
+		#-- glfw3_VERSION_MINOR=3
+		#-- glfw3_VERSION_PATCH=9
+		#-- glfw3_VERSION_TWEAK=0
+
+		# actual macOS include dir:
+		# /usr/local/opt/glfw/include
+		# on runner VM: /usr/local/include/GLFW -> ../Cellar/glfw/3.3.9/include/GLFW
+
+
+	else()
+
+		find_package(glfw3 REQUIRED)
+
+	endif()
+
+
+
 
 	# glew
 
@@ -262,6 +282,11 @@ endif() # NOT ANDROID
 if (OPENGL_CORE)
 
 	# imgui
+
+	# ************* TEMPORARY *************
+	if (macOS)
+		include_directories(/usr/local/Cellar/glfw/3.3.9/include/)
+	endif()
 
 	add_subdirectory(external/imgui-1.88)
 	include_directories(external/imgui-1.88)
