@@ -363,11 +363,11 @@ target_link_libraries(ae
 	Bullet3Collision
 	BulletDynamics
 	Bullet3Dynamics
-	BulletInverseDynamics
+	#BulletInverseDynamics
 	Bullet3Geometry
 	Bullet3OpenCL_clew
-	LinearMath
-	Bullet2FileLoader)
+	LinearMath)
+	#Bullet2FileLoader)
 	
 
 if (DESKTOP)
