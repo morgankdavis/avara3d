@@ -16,6 +16,16 @@ if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+
+### MOVE ME #######################################
+option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
+set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
+find_package(GLFW REQUIRED)
+include_directories(${GLFW_INCLUDE_DIR})
+###################################################
+
 
 # print all variables
 # https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
@@ -207,13 +217,14 @@ else()
 #	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 #	add_subdirectory(external/glfw-3.3.8)
 #	include_directories(external/glfw-3.3.8/include)
-	# causes GLEW linker errors
-	find_package(glfw3 REQUIRED)
-	include_directories(${GLFW_INCLUDE_DIR})
-	include_directories(${GLFW3_INCLUDE_DIR})
-	include_directories(${GLFW3_INCLUDE_DIRS})
-	message("GLFW_INCLUDE_DIR: " ${GLFW_INCLUDE_DIR})
-	message("GLFW_INCLUDE_DIRS: " ${GLFW_INCLUDE_DIRS})
+
+#	find_package(glfw3 REQUIRED)
+#	# these are not set
+#	include_directories(${GLFW_INCLUDE_DIR})
+#	include_directories(${GLFW3_INCLUDE_DIR})
+#	include_directories(${GLFW3_INCLUDE_DIRS})
+#	message("GLFW_INCLUDE_DIR: " ${GLFW_INCLUDE_DIR})
+#	message("GLFW_INCLUDE_DIRS: " ${GLFW_INCLUDE_DIRS})
 
 	# glew
 
