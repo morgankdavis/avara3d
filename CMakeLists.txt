@@ -394,20 +394,27 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 #include_directories(include)
 
 
+# everything
+#target_link_libraries(ae
+#	fmt::fmt
+#	generator
+#	Bullet3Common
+#	BulletCollision
+#	Bullet3Collision
+#	BulletDynamics
+#	Bullet3Dynamics
+#	#BulletInverseDynamics
+#	Bullet3Geometry
+#	Bullet3OpenCL_clew
+#	LinearMath)
+#	#Bullet2FileLoader)
+
+#macos
 target_link_libraries(ae
-	fmt::fmt
-	generator
-	Bullet3Common
-	BulletCollision
-	Bullet3Collision
-	BulletDynamics
-	Bullet3Dynamics
-	#BulletInverseDynamics
-	Bullet3Geometry
-	Bullet3OpenCL_clew
-	LinearMath)
-	#Bullet2FileLoader)
-	
+		fmt::fmt
+		generator
+		${BULLET_LIBRARIES})
+
 
 if (DESKTOP)
 
@@ -421,14 +428,14 @@ endif()
 
 if (MACOS)
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
-link_directories(
-		"/usr/local/lib/bullet/single")
+#link_directories(
+#		"/usr/local/lib/bullet/single")
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
