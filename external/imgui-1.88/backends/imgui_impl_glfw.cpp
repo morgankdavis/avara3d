@@ -69,7 +69,8 @@
 #include <GLFW/glfw3.h>
 #else
 // mkd: TEMPORARY for macOS ??
-#include "/usr/local/Cellar/glfw/3.3.9/include/GLFW/glfw3.h"
+//#include "/usr/local/Cellar/glfw/3.3.9/include/GLFW/glfw3.h"
+#include "/usr/local/include/GLFW/glfw3.h"
 #endif
 #ifdef _WIN32
 #undef APIENTRY
