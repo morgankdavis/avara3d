@@ -26,6 +26,10 @@ endif ()
 #endforeach()
 
 
+# set this to look for non-built-in modules
+#message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
+
+
 # Windows ClangCL = WIN32, nothing else
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
@@ -205,7 +209,11 @@ else()
 #	include_directories(external/glfw-3.3.8/include)
 	# causes GLEW linker errors
 	find_package(glfw3 REQUIRED)
+	include_directories(${GLFW_INCLUDE_DIR})
+	include_directories(${GLFW3_INCLUDE_DIR})
 	include_directories(${GLFW3_INCLUDE_DIRS})
+	message("GLFW_INCLUDE_DIR: " ${GLFW_INCLUDE_DIR})
+	message("GLFW_INCLUDE_DIRS: " ${GLFW_INCLUDE_DIRS})
 
 	# glew
 

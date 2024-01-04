@@ -857,43 +857,51 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 	static float lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
-//		static shared_ptr<Color> colors[] = {
-//				Color::White(),
-//				Color::Red(),
-//				Color::Orange(),
-//				Color::Yellow(),
-//				Color::Lime(),
-//				Color::Blue()
-//		};
-//		auto color = colors[Uniform(0, 5)];
-//
-//
-//		constexpr float BALL_RADIUS = 0.55;
-//		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-//		auto node = Node::GeometryNode(sphereGrometry);
-//		auto diffuseProperty = make_shared<MaterialProperty>(color);
-//		auto specularProperty = make_shared<MaterialProperty>(Color::White());
-//		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-//		material->specularExponent(125.0);
-//		node->geometry()->addMaterial(material);
+
+//#define SLURM
+
+
+#ifndef SLURM
+
+
+		static shared_ptr<Color> colors[] = {
+				Color::White(),
+				Color::Red(),
+				Color::Orange(),
+				Color::Yellow(),
+				Color::Lime(),
+				Color::Blue()
+		};
+		auto color = colors[Uniform(0, 5)];
+
+
+		constexpr float BALL_RADIUS = 0.55;
+		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+		auto node = Node::GeometryNode(sphereGrometry);
+		auto diffuseProperty = make_shared<MaterialProperty>(color);
+		auto specularProperty = make_shared<MaterialProperty>(Color::White());
+		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+		material->specularExponent(125.0);
+		node->geometry()->addMaterial(material);
+		node->position(location);
+
+
+//		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
 //		node->position(location);
-//
-//
-////		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
-////		node->position(location);
-//
-//
-//		auto physicsBody = PhysicsBody::DynamicBody();
-//		physicsBody->mass(0.2); // vollyball
-//		physicsBody->restitution(1.0);
-//		physicsBody->friction(0.015);
-//		physicsBody->rollingFriction(0.15);
-////		physicsBody->friction(0);
-////		physicsBody->rollingFriction(0);
-//
+
+
+		auto physicsBody = PhysicsBody::DynamicBody();
+		physicsBody->mass(0.2); // vollyball
+		physicsBody->restitution(1.0);
+		physicsBody->friction(0.015);
+		physicsBody->rollingFriction(0.15);
+//		physicsBody->friction(0);
+//		physicsBody->rollingFriction(0);
 
 
 
+
+#else
 
 
 
@@ -926,7 +934,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 
 
-
+#endif
 
 
 
