@@ -413,21 +413,12 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 target_link_libraries(ae
 		fmt::fmt
 		generator
-		#${ASSIMP_LIBRARIES}
-		#"/usr/local/opt/assimp/lib/libassimp.dylib"
 		${BULLET_LIBRARIES})
 
 
 if (DESKTOP)
 
 	# everything
-#	target_link_libraries(ae
-#			manymouse
-#			glfw
-#			glew_s
-#			assimp)
-
-	#macos
 	target_link_libraries(ae
 			manymouse
 			glfw
