@@ -414,17 +414,25 @@ target_link_libraries(ae
 		fmt::fmt
 		generator
 		#${ASSIMP_LIBRARIES}
-		"/usr/local/opt/assimp/lib/libassimp.dylib"
+		#"/usr/local/opt/assimp/lib/libassimp.dylib"
 		${BULLET_LIBRARIES})
 
 
 if (DESKTOP)
 
+	# everything
+#	target_link_libraries(ae
+#			manymouse
+#			glfw
+#			glew_s
+#			assimp)
+
+	#macos
 	target_link_libraries(ae
 			manymouse
 			glfw
 			glew_s
-			assimp)
+			${ASSIMP_LIBRARIES})
 
 endif()
 
