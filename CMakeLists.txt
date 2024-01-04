@@ -413,7 +413,8 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 target_link_libraries(ae
 		fmt::fmt
 		generator
-		${ASSIMP_LIBRARIES}
+		#${ASSIMP_LIBRARIES}
+		"/usr/local/opt/assimp/lib/libassimp.dylib"
 		${BULLET_LIBRARIES})
 
 
