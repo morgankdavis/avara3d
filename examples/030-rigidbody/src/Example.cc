@@ -221,37 +221,38 @@ int Example::run(const vector<string>& args) {
 
 	// add the duck
 
-	_duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
-	_duckNode->position({/*4.5*/0, 25, 0});
-
-
-//	// #0
-//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+//	auto duckScene = SceneNamed("rubberDuck/rubberDuck", "obj");
+//	_duckNode = duckScene->rootNode()->childNamed("g duck", false);
+//	AE_LOG_I("DUCK NODE: {}", StringFromTree(*_duckNode));
+//	_duckNode->position({/*4.5*/0, 25, 0});
 //
-//	// #1
+//
+////	// #0
 ////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
-////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+////
+////	// #1
+//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
+//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////
+////	// #2
+//////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
+//////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////
+//	// #3
+//	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode.get());
+//	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 //
-//	// #2
-////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
-////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+////	// #4
+//////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
+//////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 //
-	// #3
-	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode.get());
-	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
-
-//	// #4
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
-////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
-
-	_duckSpinnerNode = make_shared<Node>("duck spinner");
-	_duckSpinnerNode->addChild(_duckNode);
-	scene->rootNode()->addChild(_duckSpinnerNode);
+//	_duckSpinnerNode = make_shared<Node>("duck spinner");
+//	_duckSpinnerNode->addChild(_duckNode);
+//	scene->rootNode()->addChild(_duckSpinnerNode);
 
 
 

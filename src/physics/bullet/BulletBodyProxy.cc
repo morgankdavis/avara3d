@@ -360,7 +360,8 @@ void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 bool BulletBodyProxy::allowsResting() const {
 
 	// *** test this ***
-	return (_btBody->getActivationState() != DISABLE_DEACTIVATION);
+	//return (_btBody->getActivationState() != DISABLE_DEACTIVATION);
+	return !(_btBody->getActivationState() & DISABLE_DEACTIVATION);
 }
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
@@ -376,7 +377,7 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
 		int activationState = _btBody->getActivationState();
 
 		activationState = (allowsResting
-						   ? activationState | ACTIVE_TAG
+						   ? activationState & ~DISABLE_DEACTIVATION
 						   : activationState | DISABLE_DEACTIVATION);
 
 		_btBody->setActivationState(activationState);
@@ -384,7 +385,8 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
 }
 
 bool BulletBodyProxy::resting() const {
-	return (_btBody->getActivationState() == ISLAND_SLEEPING);
+	//return (_btBody->getActivationState() == ISLAND_SLEEPING);
+	return (_btBody->getActivationState() & ISLAND_SLEEPING);
 }
 
 void BulletBodyProxy::resting(bool resting) {

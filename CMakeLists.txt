@@ -197,12 +197,15 @@ else()
 
 	# glfw
 
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-	add_subdirectory(external/glfw-3.3.8)
-	include_directories(external/glfw-3.3.8/include)
+#	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+#	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+#	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+#	add_subdirectory(external/glfw-3.3.8)
+#	include_directories(external/glfw-3.3.8/include)
+	# causes GLEW linker errors
+	find_package(glfw3 REQUIRED)
+	include_directories(${GLFW3_INCLUDE_DIR})
 
 	# glew
 
@@ -211,17 +214,20 @@ else()
 
 	# assimp
 
-	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-	if (WINDOWS)
-		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
-	endif()
-	add_subdirectory(external/assimp-3.3.1)
-	include_directories(external/assimp-3.3.1/include)
-	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
+#	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+#	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+#	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+#	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+#	if (WINDOWS)
+#		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
+#	endif()
+#	add_subdirectory(external/assimp-3.3.1)
+#	include_directories(external/assimp-3.3.1/include)
+#	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
+	# causes GLEW linker errors
+	find_package(assimp REQUIRED)
+	include_directories(${ASSIMP_INCLUDE_DIR})
 
 	# manymouse
 
@@ -268,14 +274,14 @@ include_directories(external/v-hacd-4.1.0)
 
 # bullet
 
-add_subdirectory(external/bullet-3.17)
-include_directories(external/bullet-3.17/src)
-set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-target_compile_options(Bullet3Collision PUBLIC
-		"-Wno-deprecated-volatile")
-#target_compile_options(BulletSoftBody PUBLIC
-#		"-Wno-single-bit-bitfield-constant-conversion")
+#add_subdirectory(external/bullet-3.17)
+#include_directories(external/bullet-3.17/src)
+#set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
+#set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+#target_compile_options(Bullet3Collision PUBLIC
+#		"-Wno-deprecated-volatile")
+find_package(Bullet REQUIRED)
+include_directories(${BULLET_INCLUDE_DIR})
 
 # magic_enmum
 
@@ -348,25 +354,27 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 target_link_libraries(ae
 	fmt::fmt
 	generator
-	Bullet3Common
-	BulletCollision
-	Bullet3Collision
-	BulletDynamics
-	Bullet3Dynamics
-	BulletInverseDynamics
-	Bullet3Geometry
-	Bullet3OpenCL_clew
-	LinearMath
-	Bullet2FileLoader)
+		BulletDynamics
+		BulletCollision)
+	#Bullet3Common
+	#BulletCollision
+	#Bullet3Collision
+	#BulletDynamics
+	#Bullet3Dynamics
+	#BulletInverseDynamics
+	#Bullet3Geometry
+	#Bullet3OpenCL_clew
+	#LinearMath
+	#Bullet2FileLoader)
 	
 
 if (DESKTOP)
 
 	target_link_libraries(ae
-		manymouse
-		glfw
-		glew_s
-		assimp)
+			manymouse
+			glfw
+			glew_s
+			assimp)
 
 endif()
 
