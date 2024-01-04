@@ -205,7 +205,7 @@ else()
 #	include_directories(external/glfw-3.3.8/include)
 	# causes GLEW linker errors
 	find_package(glfw3 REQUIRED)
-	include_directories(${GLFW3_INCLUDE_DIR})
+	include_directories(${GLFW3_INCLUDE_DIRS})
 
 	# glew
 
