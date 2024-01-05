@@ -210,20 +210,26 @@ else()
 #	add_subdirectory(external/glfw-3.3.8)
 #	include_directories(external/glfw-3.3.8/include)
 
-	if (macOS)
-
-		set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-		option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
-		set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
-		find_package(GLFW REQUIRED)
-		include_directories(${GLFW_INCLUDE_DIR})
-
-	else()
+#	if (macOS)
+#
+#		set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+#
+#		option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
+#		set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
+#		find_package(GLFW REQUIRED)
+#		include_directories(${GLFW_INCLUDE_DIR})
+#
+#	else()
 
 		find_package(glfw3 REQUIRED)
 
-	endif()
+	get_cmake_property(_variableNames VARIABLES)
+	list (SORT _variableNames)
+	foreach (_variableName ${_variableNames})
+		message(STATUS "${_variableName}=${${_variableName}}")
+	endforeach()
+
+#	endif()
 
 	################################
 	# glew

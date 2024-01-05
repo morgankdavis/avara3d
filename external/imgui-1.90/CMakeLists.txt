@@ -6,7 +6,12 @@ project(imgui)
 file(GLOB HEADERS *.h)
 file(GLOB SOURCES *.c*)
 
-include_directories(.)
+include_directories(. backends)
+
+# WTF? #include <GLFW/glfw3.h> works in Arch/Ubuntu but fails with:
+#	'GLFW/glfw3.h' file not found
+# 	(imgui_impl_glfw3.cpp)
+# in macOS and Windows.
 
 if (MACOS)
 	include_directories("/usr/local/include/")
