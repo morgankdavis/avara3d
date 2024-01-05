@@ -7,6 +7,10 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
+
+option(AE_BUILD_BULLET "Build Bullet Physics from source" ON)
+
+
 set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
@@ -289,14 +293,42 @@ include_directories(external/v-hacd-4.1.0)
 # bullet
 ################################
 
-#add_subdirectory(external/bullet-3.17)
-#include_directories(external/bullet-3.17/src)
-#set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-#set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-#target_compile_options(Bullet3Collision PUBLIC
-#		"-Wno-deprecated-volatile")
-find_package(Bullet REQUIRED)
-include_directories(${BULLET_INCLUDE_DIRS})
+if (AE_BUILD_BULLET)
+
+	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+
+	set(BULLET_LIBRARIES
+			Bullet3Common
+			BulletCollision
+			Bullet3Collision
+			BulletDynamics
+			Bullet3Dynamics
+			BulletInverseDynamics
+			Bullet3Geometry
+			Bullet3OpenCL_clew
+			LinearMath
+			Bullet2FileLoader)
+
+	add_subdirectory(external/bullet-3.17)
+	include_directories(external/bullet-3.17/src)
+	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
+	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+	target_compile_options(Bullet3Collision PUBLIC
+			"-Wno-deprecated-volatile")
+
+else ()
+
+	find_package(Bullet REQUIRED)
+	include_directories(${BULLET_INCLUDE_DIRS})
+
+endif ()
 
 ################################
 # magic_enmum
