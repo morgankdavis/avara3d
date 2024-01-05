@@ -20,6 +20,8 @@ include_directories(. backends)
 #	include_directories("C:/Program Files/vcpkg/installed/x64-windows/include/")
 #endif()
 
+find_package(glfw3 REQUIRED)
+
 add_library(imgui
 		${HEADERS}
 		${SOURCES}
@@ -28,3 +30,4 @@ add_library(imgui
 		backends/imgui_impl_glfw.h
 		backends/imgui_impl_glfw.cpp)
 
+target_link_libraries(imgui glfw)
