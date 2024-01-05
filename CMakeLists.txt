@@ -203,25 +203,14 @@ else()
 	# glfw
 	################################
 
-#	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-#	add_subdirectory(external/glfw-3.3.8)
-#	include_directories(external/glfw-3.3.8/include)
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+	add_subdirectory(external/glfw-3.3.8)
+	include_directories(external/glfw-3.3.8/include)
 
-#	if (macOS)
-#
-#		set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-#
-#		option(FindGLFW_GLFW_ROOT "GLFW Directory" "")
-#		set(GLFW_ROOT ${FindGLFW_GLFW_ROOT})
-#		find_package(GLFW REQUIRED)
-#		include_directories(${GLFW_INCLUDE_DIR})
-#
-#	else()
-
-		find_package(glfw3 REQUIRED)
+	#find_package(glfw3 REQUIRED)
 
 # arch
 #-- glfw3_CONFIG=/usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Config.cmake
