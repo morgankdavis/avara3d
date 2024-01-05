@@ -8,25 +8,23 @@ file(GLOB SOURCES *.c*)
 
 include_directories(. backends)
 
-# WTF? #include <GLFW/glfw3.h> works in Arch/Ubuntu but fails with:
+# WTF?
+# if we use the system GLFW installation (not building source locally)
+# #include <GLFW/glfw3.h> works in Arch/Ubuntu but fails in macOS and Windows with:
 #	'GLFW/glfw3.h' file not found
 # 	(imgui_impl_glfw3.cpp)
-# in macOS and Windows.
-
+# so we have to do this BS:
 #if (MACOS)
 #	include_directories("/usr/local/include/")
 #elseif (WINDOWS)
 #	include_directories("C:/Program Files/vcpkg/installed/x64-windows/include/")
 #endif()
 
-#find_package(glfw3 REQUIRED)
-
 add_library(imgui
-		backends/imgui_impl_glfw.h
-		backends/imgui_impl_glfw.cpp
-	backends/imgui_impl_opengl3.h
-	backends/imgui_impl_opengl3.cpp
-
 		${HEADERS}
-		${SOURCES})
+		${SOURCES}
+		backends/imgui_impl_opengl3.h
+		backends/imgui_impl_opengl3.cpp
+		backends/imgui_impl_glfw.h
+		backends/imgui_impl_glfw.cpp)
 
