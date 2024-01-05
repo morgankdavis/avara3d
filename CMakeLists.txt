@@ -1,12 +1,9 @@
 
+# The Pitchfork Layout:
 # https://api.csswg.org/bikeshed/?force=1&url=https://raw.githubusercontent.com/vector-of-bool/pitchfork/develop/data/spec.bs
 
-
-# cmake 3.8 is required for C++17
-# cmake 3.12 is required for C++20
 # 3.13: target_link_libraries() and target_sources(): https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-
 
 project(avara-engine)
 
@@ -102,11 +99,6 @@ elseif (LINUX)
 	add_definitions("-DLINUX")
 elseif (WINDOWS)
 	add_definitions("-DWINDOWS")
-	# stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-	# https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-	# update: does stop the conflict with LOG_LEVEL but breaks GLFW as it uses GDI.
-	# 	see above LOG_LEVEL in Types.h
-	# add_definitions("-DNOGDI")
     if (MINGW)
         add_definitions("-DMINGW")
 	if (MINGW32)
@@ -148,25 +140,30 @@ else ()
 	add_definitions("-DOPENGL_CORE")
 endif ()
 
-# libraries (headers...) that the test apps depend on
 
+################################
 # GLM
+################################
 
 include_directories(external/glm-0.9.9.8)
 
+################################
 # fmt
+################################
 
-#add_subdirectory(external/fmt-5.2.0)
-#include_directories(external/fmt-5.2.0/include)
 add_subdirectory(external/fmt-10.1.1)
 
+################################
 # android things
+################################
 
 if (ANDROID)
 	add_subdirectory(android)
 endif()
 
+################################
 # install location
+################################
 
 if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
 	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
@@ -179,13 +176,20 @@ endif()
 	add_subdirectory(examples)
 #endif()
 
+################################
 # external (?)
+################################
 
 include_directories(external)
 
+
+
+
 if (ANDROID)
 
+	################################
 	# NDKHelper
+	################################
 
 	add_subdirectory(external/NDKHelper)
 
@@ -195,9 +199,9 @@ else()
 	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
 	set(OpenGL_GL_PREFERENCE GLVND)
 
-
-
+	################################
 	# glfw
+	################################
 
 #	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 #	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -215,34 +219,15 @@ else()
 		find_package(GLFW REQUIRED)
 		include_directories(${GLFW_INCLUDE_DIR})
 
-		# sets:
-		#-- glfw3_CONFIG=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
-		#-- glfw3_CONSIDERED_CONFIGS=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
-		#-- glfw3_CONSIDERED_VERSIONS=3.3.9
-		#-- glfw3_DIR=/usr/local/lib/cmake/glfw3
-		#-- glfw3_FOUND=1
-		#-- glfw3_VERSION=3.3.9
-		#-- glfw3_VERSION_COUNT=3
-		#-- glfw3_VERSION_MAJOR=3
-		#-- glfw3_VERSION_MINOR=3
-		#-- glfw3_VERSION_PATCH=9
-		#-- glfw3_VERSION_TWEAK=0
-
-		# actual macOS include dir:
-		# /usr/local/opt/glfw/include
-		# on runner VM: /usr/local/include/GLFW -> ../Cellar/glfw/3.3.9/include/GLFW
-
-
 	else()
 
 		find_package(glfw3 REQUIRED)
 
 	endif()
 
-
-
-
+	################################
 	# glew
+	################################
 
 	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
@@ -251,7 +236,9 @@ else()
 #	set(GLEW_USE_STATIC_LIBS TRUE)
 #	message("GLEW_VERSION: " ${GLEW_VERSION})
 
+	################################
 	# assimp
+	################################
 
 #	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 #	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
@@ -268,7 +255,9 @@ else()
 	find_package(assimp REQUIRED)
 	#include_directories(${ASSIMP_INCLUDE_DIR})
 
+	################################
 	# manymouse
+	################################
 
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse/include)
@@ -279,39 +268,40 @@ if (OPENGL_CORE)
 
 	# imgui
 
-	add_subdirectory(external/imgui-1.88)
-	include_directories(external/imgui-1.88)
-	include_directories(external/imgui-1.88/backends)
+	add_subdirectory(external/imgui-1.90)
+	include_directories(external/imgui-1.90)
+	include_directories(external/imgui-1.90/backends)
 
 endif()
 
-#if (MINGW)# AND UBUNTU_CROSS)
-
-	# bzip2
-
-#	add_subdirectory(external/bzip2)
-#	include_directories(external/bzip2/include)
-
-#endif() # MINGW
-
+################################
 # generator
+################################
 
 add_subdirectory(external/generator)
 include_directories(external/generator/include)
 
+################################
 # gif-h
+################################
 
 include_directories(external/gif-h)
 
+################################
 # stb
+################################
 
 include_directories(external/stb)
 
+################################
 # v-hacd
+################################
 
 include_directories(external/v-hacd-4.1.0)
 
+################################
 # bullet
+################################
 
 #add_subdirectory(external/bullet-3.17)
 #include_directories(external/bullet-3.17/src)
@@ -322,11 +312,15 @@ include_directories(external/v-hacd-4.1.0)
 find_package(Bullet REQUIRED)
 include_directories(${BULLET_INCLUDE_DIRS})
 
+################################
 # magic_enmum
+################################
 
 include_directories(external/magic_enum-0.9.3/include)
 
+################################
 # ae
+################################
 
 #include_directories(include)
 #file(GLOB HEADERS include/*.h)
@@ -373,39 +367,14 @@ include_directories(include)
 #		src/diagnostic/logging
 #)
 
-
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES}
 		src/physics/model_proxy/PhysicsBodyModelProxy.cc
 		include/physics/model_proxy/PhysicsBodyModelProxy.h)
-#target_compile_features(ae PUBLIC cxx_std_20)
 
 
-# this is causing external library headers to not be found. ?
-#add_library(ae STATIC "")
-#add_subdirectory(include)
-#add_subdirectory(src)
-#include_directories(include)
-
-
-# everything
-#target_link_libraries(ae
-#	fmt::fmt
-#	generator
-#	Bullet3Common
-#	BulletCollision
-#	Bullet3Collision
-#	BulletDynamics
-#	Bullet3Dynamics
-#	#BulletInverseDynamics
-#	Bullet3Geometry
-#	Bullet3OpenCL_clew
-#	LinearMath)
-#	#Bullet2FileLoader)
-
-#macos
 target_link_libraries(ae
 		fmt::fmt
 		generator
@@ -424,35 +393,6 @@ if (DESKTOP)
 endif()
 
 if (MACOS)
-
-#get_cmake_property(_variableNames VARIABLES)
-#list (SORT _variableNames)
-#foreach (_variableName ${_variableNames})
-#message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
-
-#-- ASSIMP_BUILD_SHARED_LIBS=ON
-#-- ASSIMP_INCLUDE_DIRS=/usr/local/include;/usr/local/include
-#-- ASSIMP_LIBRARIES=assimp::assimp
-#-- ASSIMP_LIBRARY_DIRS=
-#-- ASSIMP_ROOT_DIR=/usr/local
-
-#-- BULLET_COLLISION_LIBRARY=/usr/local/lib/libBulletCollision.dylib
-#-- BULLET_COLLISION_LIBRARY_DEBUG=BULLET_COLLISION_LIBRARY_DEBUG-NOTFOUND
-#-- BULLET_DYNAMICS_LIBRARY=/usr/local/lib/libBulletDynamics.dylib
-#-- BULLET_DYNAMICS_LIBRARY_DEBUG=BULLET_DYNAMICS_LIBRARY_DEBUG-NOTFOUND
-#-- BULLET_FOUND=TRUE
-#-- BULLET_INCLUDE_DIR=/usr/local/include/bullet
-#-- BULLET_INCLUDE_DIRS=/usr/local/include/bullet
-#-- BULLET_LIBRARIES=/usr/local/lib/libBulletDynamics.dylib;/usr/local/lib/libBulletCollision.dylib;/usr/local/lib/libLinearMath.dylib;/usr/local/lib/libBulletSoftBody.dylib
-#-- BULLET_MATH_LIBRARY=/usr/local/lib/libLinearMath.dylib
-#-- BULLET_MATH_LIBRARY_DEBUG=BULLET_MATH_LIBRARY_DEBUG-NOTFOUND
-#-- BULLET_SOFTBODY_LIBRARY=/usr/local/lib/libBulletSoftBody.dylib
-#-- BULLET_SOFTBODY_LIBRARY_DEBUG=BULLET_SOFTBODY_LIBRARY_DEBUG-NOTFOUND
-#-- Bullet_FOUND=TRUE
-
-#link_directories(
-#		"/usr/local/lib/bullet/single")
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
@@ -485,19 +425,9 @@ elseif (WINDOWS)
 
 	target_link_libraries(ae
 		imgui)
-		#bz2)
-
-	# wtf?
-#	if(MSYS OR MINGW OR UBUNTU_CROSS)
-#		target_link_libraries(ae
-#				winpthread)
-#	else()
-#		target_link_libraries(ae
-#				winpthreads)
-#	endif()
 
 	# for MinGW / cross compile?
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
 
 elseif (ANDROID)
 
@@ -537,39 +467,19 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message("COMPILER IS CLANG")
 	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
-#	if (MACOS)
-#		target_compile_options(ae PUBLIC
-#				#"-stdlib=libstdc++" # use GCC libcstd++
-#				"-I/usr/local/opt/llvm@16/include"
-#				"-fexperimental-library"
-#				"-fmessage-length=0"
-#				"-UGLFW_CDECL"
-#				"-Wno-unknown-warning-option"
-#				"-Wno-float-equal"
-#				"-Wno-c++11-long-long"
-#				"-Wno-self-assign"
-#				"-Wno-reorder"
-#				"-Wno-address-of-packed-member"
-#				"-Wno-unused-function"
-#				"-Wno-deprecated-declarations"
-#				"-Wno-argument-outside-range")
-#		target_link_options(ae PUBLIC
-#				"-L/usr/local/opt/llvm@16/lib")
-#	else()
-		target_compile_options(ae PUBLIC
-				#"-stdlib=libc++" # use LLVM libc++
-				"-fmessage-length=0"
-				"-UGLFW_CDECL"
-				"-Wno-unknown-warning-option"
-				"-Wno-float-equal"
-				"-Wno-c++11-long-long"
-				"-Wno-self-assign"
-				"-Wno-reorder"
-				"-Wno-address-of-packed-member"
-				"-Wno-unused-function"
-				"-Wno-deprecated-declarations"
-				"-Wno-argument-outside-range")
-#	endif()
+	target_compile_options(ae PUBLIC
+			#"-stdlib=libc++" # use LLVM libc++
+			"-fmessage-length=0"
+			"-UGLFW_CDECL"
+			"-Wno-unknown-warning-option"
+			"-Wno-float-equal"
+			"-Wno-c++11-long-long"
+			"-Wno-self-assign"
+			"-Wno-reorder"
+			"-Wno-address-of-packed-member"
+			"-Wno-unused-function"
+			"-Wno-deprecated-declarations"
+			"-Wno-argument-outside-range")
 			
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
@@ -605,4 +515,3 @@ if (NOT ANDROID)
 			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
 
 endif()
-
