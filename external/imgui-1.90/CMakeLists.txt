@@ -6,7 +6,7 @@ project(imgui)
 file(GLOB HEADERS *.h)
 file(GLOB SOURCES *.c*)
 
-#include_directories(.)
+include_directories(.)
 
 add_library(imgui
 	${HEADERS}
