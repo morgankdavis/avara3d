@@ -33,8 +33,10 @@ build-linux:
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
-    - /usr/bin/make -j4
+    # - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
+    # - /usr/bin/make -j4
+    - /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
+    - /usr/bin/cmake --build -j4 .
     - echo "Linux build complete."
 
 build-macos:
@@ -45,8 +47,10 @@ build-macos:
     - echo "Starting for macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
+    # - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    # - /usr/bin/make -j4
+    - /opt/local/bin/cmake -G"Ninja" ..
+    - /opt/local/bin/cmake --build -j4 .
     - echo "macOS build complete."
 
 build-windows: # bash
@@ -61,7 +65,8 @@ build-windows: # bash
     - cd gitlab-build
     - cmake -T"ClangCL" ..
     # mkd: make maxCpuCount work...
-    - cmake --build . # -- -maxCpuCount:6
+    #- cmake --build . # -- -maxCpuCount:6
+    - cmake --build -j8 . # -- -maxCpuCount:6
     - echo "Windows build complete."
 
 # build-windows10: # pwsh
