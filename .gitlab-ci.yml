@@ -43,7 +43,7 @@ build-macos:
   tags:
       - macos-12.6
   script:
-    - echo "Starting for macOS build..."
+    - echo "Starting macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
     #- /opt/local/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-17 -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-17 ..
@@ -56,15 +56,21 @@ build-windows: # bash
   tags:
       - windows-10
   script:
-    - echo "Starting for Windows build..."
+    - echo "Starting Windows build..."
     - tar --version
     - echo "Things" > thing
     - mkdir gitlab-build
     - cd gitlab-build
-    - cmake -T"ClangCL" ..
+
+    #vcpkg
+    - cmake -B . -S . -DCMAKE_TOOLCHAIN_FILE=\"C:\\Program Files\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake\"
+    - cmake --build .
+
+    # old
+    #- cmake -T"ClangCL" ..
     # mkd: make maxCpuCount work...
-    - cmake --build . # -- -maxCpuCount:6
-    - echo "Windows build complete."
+    #- cmake --build . # -- -maxCpuCount:6
+    #- echo "Windows build complete."
 
 # build-windows10: # pwsh
 #   stage: build
