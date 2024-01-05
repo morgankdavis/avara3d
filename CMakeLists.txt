@@ -212,53 +212,6 @@ else()
 
 	#find_package(glfw3 REQUIRED)
 
-# arch
-#-- glfw3_CONFIG=/usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_CONFIGS=/usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_VERSIONS=3.3.8
-#-- glfw3_DIR=/usr/lib/x86_64-linux-gnu/cmake/glfw3
-#-- glfw3_FOUND=1
-#-- glfw3_VERSION=3.3.8
-#-- glfw3_VERSION_COUNT=3
-#-- glfw3_VERSION_MAJOR=3
-#-- glfw3_VERSION_MINOR=3
-#-- glfw3_VERSION_PATCH=8
-#-- glfw3_VERSION_TWEAK=0
-
-# macOS:
-#-- glfw3_CONFIG=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_CONFIGS=/usr/local/lib/cmake/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_VERSIONS=3.3.9
-#-- glfw3_DIR=/usr/local/lib/cmake/glfw3
-#-- glfw3_FOUND=1
-#-- glfw3_VERSION=3.3.9
-#-- glfw3_VERSION_COUNT=3
-#-- glfw3_VERSION_MAJOR=3
-#-- glfw3_VERSION_MINOR=3
-#-- glfw3_VERSION_PATCH=9
-#-- glfw3_VERSION_TWEAK=0
-
-# windows:
-#-- glfw3_CONFIG=C:/Program Files/vcpkg/installed/x64-windows/share/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_CONFIGS=C:/Program Files/vcpkg/installed/x64-windows/share/glfw3/glfw3Config.cmake
-#-- glfw3_CONSIDERED_VERSIONS=3.3.9
-#-- glfw3_DIR=C:/Program Files/vcpkg/installed/x64-windows/share/glfw3
-#-- glfw3_FOUND=1
-#-- glfw3_VERSION=3.3.9
-#-- glfw3_VERSION_COUNT=3
-#-- glfw3_VERSION_MAJOR=3
-#-- glfw3_VERSION_MINOR=3
-#-- glfw3_VERSION_PATCH=9
-#-- glfw3_VERSION_TWEAK=0
-
-	get_cmake_property(_variableNames VARIABLES)
-	list (SORT _variableNames)
-	foreach (_variableName ${_variableNames})
-		message(STATUS "${_variableName}=${${_variableName}}")
-	endforeach()
-
-#	endif()
-
 	################################
 	# glew
 	################################
