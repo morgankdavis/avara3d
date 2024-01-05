@@ -81,16 +81,31 @@
 #endif
 
 // GLFW
+#if defined(MACOS)
+// mkd: TEMPORARY for macOS ??
+    //#include "/usr/local/Cellar/glfw/3.3.9/include/GLFW/glfw3.h"
+    #include "/usr/local/include/GLFW/glfw3.h"
+#elif defined(WINDOWS)
+// mkd: TEMPORARY for Windows ??
+    #include "C:/Program Files/vcpkg/installed/x64-windows/include/GLFW/glfw3.h"
+#else
 #include <GLFW/glfw3.h>
+#endif
+
 
 #ifdef _WIN32
 #undef APIENTRY
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>   // for glfwGetWin32Window()
+// mkd: TEMPORARY for Windows ??
+//#include <GLFW/glfw3native.h>   // for glfwGetWin32Window
+#include "C:/Program Files/vcpkg/installed/x64-windows/include/GLFW/glfw3native.h"
+
 #endif
 #ifdef __APPLE__
 #define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3native.h>   // for glfwGetCocoaWindow()
+// mkd: TEMPORARY for macOS ??
+//#include <GLFW/glfw3native.h>   // for glfwGetCocoaWindow()
+#include "/usr/local/include/GLFW/glfw3native.h"
 #endif
 
 #ifdef __EMSCRIPTEN__
