@@ -334,8 +334,7 @@ elseif (WINDOWS)
 	target_link_libraries(ae
 		imgui)
 
-	# for MinGW / cross compile?
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 
 elseif (ANDROID)
 
