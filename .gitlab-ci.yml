@@ -34,8 +34,10 @@ build-linux:
     - mkdir gitlab-build
     - cd gitlab-build
     #- /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang-17 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 ..
-    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
-    - /usr/bin/make -j4
+    # - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
+    # - /usr/bin/make -j4
+    - /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
+    - /usr/bin/cmake --build . -j4
     - echo "Linux build complete."
 
 build-macos:
@@ -47,8 +49,10 @@ build-macos:
     - mkdir gitlab-build
     - cd gitlab-build
     #- /opt/local/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-17 -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-17 ..
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
+    # - /opt/local/bin/cmake -G"Unix Makefiles" ..
+    # - /usr/bin/make -j4
+    - /opt/local/bin/cmake -G"Ninja" ..
+    - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
 build-windows: # bash
@@ -58,14 +62,10 @@ build-windows: # bash
   script:
     - echo "Starting Windows build..."
     - tar --version
-    - echo "Things" > thing
     - mkdir gitlab-build
     - cd gitlab-build
-
-    #vcpkg
-    # - cmake -B . -S ..\\ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE=\"C:\\Program Files\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake\"
     - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
-    - cmake --build .
+    - cmake --build . -j12
 
     # old
     #- cmake -T"ClangCL" ..
