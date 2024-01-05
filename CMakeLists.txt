@@ -5,7 +5,7 @@
 # cmake 3.8 is required for C++17
 # cmake 3.12 is required for C++20
 # 3.13: target_link_libraries() and target_sources(): https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 
 project(avara-engine)
