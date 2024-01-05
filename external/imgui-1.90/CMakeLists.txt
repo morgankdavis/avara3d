@@ -22,10 +22,11 @@ include_directories(. backends)
 #find_package(glfw3 REQUIRED)
 
 add_library(imgui
-	${HEADERS}
-	${SOURCES}
+		backends/imgui_impl_glfw.h
+		backends/imgui_impl_glfw.cpp
 	backends/imgui_impl_opengl3.h
 	backends/imgui_impl_opengl3.cpp
-	backends/imgui_impl_glfw.h
-	backends/imgui_impl_glfw.cpp)
+
+		${HEADERS}
+		${SOURCES})
 
