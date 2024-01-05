@@ -8,6 +8,12 @@ file(GLOB SOURCES *.c*)
 
 include_directories(.)
 
+if (MACOS)
+	include_directories("/usr/local/include/GLFW/glfw3native.h")
+elseif (WINDOWS)
+	include_directories("C:/Program Files/vcpkg/installed/x64-windows/include/")
+endif()
+
 add_library(imgui
 	${HEADERS}
 	${SOURCES}

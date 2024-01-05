@@ -89,7 +89,7 @@
 //    // mkd: TEMPORARY for Windows ??
 //    #include "C:/Program Files/vcpkg/installed/x64-windows/include/GLFW/glfw3.h"
 //#else
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 //#endif
 
 
@@ -97,14 +97,14 @@
 #undef APIENTRY
 #define GLFW_EXPOSE_NATIVE_WIN32
 // mkd: TEMPORARY for Windows ??
-#include "GLFW/glfw3native.h"   // for glfwGetWin32Window
+#include <GLFW/glfw3native.h>   // for glfwGetWin32Window
 //#include "C:/Program Files/vcpkg/installed/x64-windows/include/GLFW/glfw3native.h"
 
 #endif
 #ifdef __APPLE__
 #define GLFW_EXPOSE_NATIVE_COCOA
 // mkd: TEMPORARY for macOS ??
-#include "GLFW/glfw3native.h"   // for glfwGetCocoaWindow()
+#include <GLFW/glfw3native.h>   // for glfwGetCocoaWindow()
 //#include "/usr/local/include/GLFW/glfw3native.h"
 #endif
 
