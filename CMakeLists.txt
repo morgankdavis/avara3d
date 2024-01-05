@@ -25,12 +25,8 @@ endif ()
 #    message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
 
-
 # set this to look for non-built-in modules
 #message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
-
-
-# Windows ClangCL = WIN32, nothing else
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
