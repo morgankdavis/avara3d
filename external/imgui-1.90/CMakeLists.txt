@@ -13,11 +13,13 @@ include_directories(. backends)
 # 	(imgui_impl_glfw3.cpp)
 # in macOS and Windows.
 
-if (MACOS)
-	include_directories("/usr/local/include/")
-elseif (WINDOWS)
-	include_directories("C:/Program Files/vcpkg/installed/x64-windows/include/")
-endif()
+#if (MACOS)
+#	include_directories("/usr/local/include/")
+#elseif (WINDOWS)
+#	include_directories("C:/Program Files/vcpkg/installed/x64-windows/include/")
+#endif()
+
+find_package(glfw3 REQUIRED)
 
 add_library(imgui
 	${HEADERS}
