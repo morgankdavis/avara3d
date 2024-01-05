@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet Physics from source" ON)
+option(AE_BUILD_BULLET "Build Bullet Physics from source" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
