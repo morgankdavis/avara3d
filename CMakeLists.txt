@@ -1,51 +1,42 @@
 
-# The Pitchfork Layout:
-# https://api.csswg.org/bikeshed/?force=1&url=https://raw.githubusercontent.com/vector-of-bool/pitchfork/develop/data/spec.bs
-
-# 3.13: target_link_libraries() and target_sources(): https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
-
 option(AE_BUILD_BULLET "Build Bullet Physics from source" ON)
-
 
 set(CMAKE_CXX_STANDARD 17)
 
-if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
-
-
-# print all variables
-# https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
-#get_cmake_property(_variableNames VARIABLES)
-#list (SORT _variableNames)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
-
-# set this to look for non-built-in modules
-#message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
+function(print_all_variables)
+	# https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
+	get_cmake_property(_variableNames VARIABLES)
+	list (SORT _variableNames)
+	foreach (_variableName ${_variableNames})
+		message(STATUS "${_variableName}=${${_variableName}}")
+	endforeach()
+endfunction()
 
 message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
 
 if (UNIX AND APPLE)
-    message("*** MACOS ***")
+    message("[MACOS]")
     set(MACOS TRUE)
+	set(CMAKE_OSX_ARCHITECTURES "x86_64")
+	add_definitions("-DAPPLE" "-DMACOS")
     if (CMAKE_GENERATOR STREQUAL "Xcode")
         set(XCODE TRUE)
+		add_definitions("-DXCODE")
     endif()
 endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
-    message("*** LINUX ***")
+    message("[LINUX]")
     set(LINUX TRUE)
+	add_definitions("-DLINUX")
 endif()
 
 if (WIN32)
-    message("*** WIN32 ***")
+    message("[WIN32]")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
 	add_definitions("-DWINDOWS")
@@ -53,97 +44,39 @@ if (WIN32)
 endif()
 
 if (WIN64)
-    message("*** WIN64 ***")
+    message("[WIN64]")
     set(WINDOWS TRUE)
     set(WIN64 TRUE)
-endif()
-
-if (MINGW)
-    message("*** MINGW ***")
-    set(WINDOWS TRUE)
-
-    if (CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
-        message("*** MINGW32 ***")
-        set(MINGW32 TRUE)
-        set(WIN32 TRUE)
-    else()
-        message("*** MINGW64 ***")
-        set(MINGW64 TRUE)
-        set(WIN64 TRUE)
-    endif()
+	add_definitions("-DWINDOWS")
 endif()
 
 if (ANDROID)
-    message("*** ANDROID ***")
+    message("[ANDROID]")
     set(ANDROID TRUE)
-endif()
-
-if (MSYS)
-    message("*** MSYS ***")
-	set(MSYS TRUE)
-endif()
-
-if (MSVS)
-    message("*** MSVS ***")
-endif()
-
-if (MACOS OR WINDOWS OR LINUX)
-	message("*** DESKTOP ***")
-    set(DESKTOP TRUE)
-endif()
-
-if (XCODE)
-	message("*** XCODE ***")
-	add_definitions("-DXCODE")
-endif()
-
-if (MACOS)
-	add_definitions("-DAPPLE" "-DMACOS")
-elseif (LINUX)
-	add_definitions("-DLINUX")
-elseif (WINDOWS)
-	add_definitions("-DWINDOWS")
-    if (MINGW)
-        add_definitions("-DMINGW")
-	if (MINGW32)
-        	add_definitions("-DMINGW32")
-	else()
-		add_definitions("-DMINGW64")
-    	endif()
-    endif()
-elseif (ANDROID)
 	add_definitions("-DANDROID")
 endif()
 
-if (DESKTOP)
+if (RPI)
+	message("[RPI]")
+	set(RPI TRUE)
+	add_definitions("-DRPI")
+endif()
+
+if (MACOS OR WINDOWS OR LINUX)
+	message("[DESKTOP]")
+    set(DESKTOP TRUE)
 	add_definitions("-DDESKTOP")
 endif()
 
-if (UBUNTU_CROSS)
-	message("*** UBUNTU_CROSS ***")
-	add_definitions("-DUBUNTU_CROSS")
-endif ()
-
-if (DESKTOP)
-	set(CMAKE_OSX_ARCHITECTURES "x86_64")
-endif()
-
-if (RPI)
-    message("*** RPI ***")
-    set(RPI TRUE)
-    add_definitions("-DRPI")
-endif()
-
 if (ANDROID OR RPI)
-	message("Using OpenGL ES.")
+	message("[OPENGL_ES]")
 	set(OPENGL_ES TRUE)
 	add_definitions("-DOPENGL_ES")
 else ()
-	message("Using full OpenGL.")
+	message("[OPENGL_CORE]")
 	set(OPENGL_CORE TRUE)
 	add_definitions("-DOPENGL_CORE")
 endif ()
-
 
 ################################
 # GLM
@@ -165,17 +98,6 @@ if (ANDROID)
 	add_subdirectory(android)
 endif()
 
-################################
-# install location
-################################
-
-if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
-else()
-	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
-endif()
-
-
 #if (DESKTOP)
 	add_subdirectory(examples)
 #endif()
@@ -185,7 +107,6 @@ endif()
 ################################
 
 include_directories(external)
-
 
 
 
@@ -295,14 +216,14 @@ include_directories(external/v-hacd-4.1.0)
 
 if (AE_BUILD_BULLET)
 
-	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
-	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+#	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+#	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+#	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 
 	set(BULLET_LIBRARIES
 			Bullet3Common
@@ -340,58 +261,12 @@ include_directories(external/magic_enum-0.9.3/include)
 # ae
 ################################
 
-#include_directories(include)
-#file(GLOB HEADERS include/*.h)
-#file(GLOB SOURCES src/*.c*)
-
-include_directories(include)
-
-#include_directories(
-#		include
-#
-#		include/diagnostic
-#		include/diagnostic/logging
-#
-#		include/geometry
-#		include/geometry/primitives
-#
-#		include/input
-#		include/input/platform
-#		include/input/platform/android
-#		include/input/platform/desktop
-#
-#		include/physics
-#		include/physics/bullet
-#
-#		include/rendering
-#		include/rendering/camera
-#		include/rendering/context/platform/android
-#		include/rendering/context/platform/desktop
-#		include/rendering/materials
-#		include/rendering/opengl
-#
-#		include/scene
-#
-#		include/utilities)
-
-#target_sources(
-#		ae
-#		PUBLIC
-#		include/*.h
-#		src/*.c*
-#		include/diagnostic
-#		src/diagnostic
-#		include/diagnostic/logging
-#		src/diagnostic/logging
-#)
-
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_library(ae STATIC ${HEADERS} ${SOURCES}
-		src/physics/model_proxy/PhysicsBodyModelProxy.cc
-		include/physics/model_proxy/PhysicsBodyModelProxy.h)
+include_directories(include)
 
+add_library(ae STATIC ${HEADERS} ${SOURCES})
 
 target_link_libraries(ae
 		fmt::fmt
@@ -401,7 +276,6 @@ target_link_libraries(ae
 
 if (DESKTOP)
 
-	# everything
 	target_link_libraries(ae
 			manymouse
 			glfw
@@ -426,7 +300,23 @@ if (MACOS)
 
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (LINUX AND NOT RPI)
+elseif (RPI)
+
+	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
+	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
+
+	target_link_libraries(ae
+			z
+			X11
+			Xxf86vm
+			Xrandr
+			pthread
+			Xi
+			dl
+			${OPENGLES3_LIBRARY}
+			${EGL_LIBRARY})
+
+elseif (LINUX) # not RPI)
 
 	target_link_libraries(ae
 		imgui
@@ -461,29 +351,7 @@ elseif (ANDROID)
 
 endif()
 
-if (RPI)
-
-	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
-	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
-
-	target_link_libraries(ae
-			z
-			X11
-			Xxf86vm
-			Xrandr
-			pthread
-			Xi
-			dl
-		${OPENGLES3_LIBRARY}
-		${EGL_LIBRARY})
-
-endif ()
-
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-
-	message("COMPILER IS CLANG")
-	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
 	target_compile_options(ae PUBLIC
 			#"-stdlib=libc++" # use LLVM libc++
@@ -498,14 +366,18 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 			"-Wno-unused-function"
 			"-Wno-deprecated-declarations"
 			"-Wno-argument-outside-range")
-			
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-
 
 endif()
 
-
 if (NOT ANDROID)
+
+	# set install directories
+
+	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
+		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
+	else()
+		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
+	endif()
 
 	# install lib and headers
 
