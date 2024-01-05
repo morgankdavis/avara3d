@@ -64,7 +64,7 @@ build-windows: # bash
 
     #vcpkg
     # - cmake -B . -S ..\\ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE=\"C:\\Program Files\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake\"
-      - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake --build .
 
     # old
