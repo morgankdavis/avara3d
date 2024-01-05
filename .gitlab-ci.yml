@@ -36,7 +36,7 @@ build-linux:
     # - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
     # - /usr/bin/make -j4
     - /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
-    - /usr/bin/cmake --build -j4 .
+    - /usr/bin/cmake --build . -j4
     - echo "Linux build complete."
 
 build-macos:
@@ -66,7 +66,7 @@ build-windows: # bash
     - cmake -T"ClangCL" ..
     # mkd: make maxCpuCount work...
     #- cmake --build . # -- -maxCpuCount:6
-    - cmake --build -j8 # -- -maxCpuCount:6
+    - cmake --build . -j8 # -- -maxCpuCount:6
     - echo "Windows build complete."
 
 # build-windows10: # pwsh
