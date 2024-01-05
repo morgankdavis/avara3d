@@ -40,7 +40,7 @@ build-windows: # bash
     - tar --version
     - mkdir gitlab-build
     - cd gitlab-build
-    - cmake -B . -S ../ -T"ClangCL" -G"Ninja" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake --build . -j12
     - echo "Windows build complete."
 
