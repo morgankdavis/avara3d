@@ -216,12 +216,11 @@ else()
 	# glew
 	################################
 
-	add_subdirectory(external/glew-2.1.0)
-	include_directories(external/glew-2.1.0/include)
-#	find_package(GLEW REQUIRED)
-#	include_directories(${GLEW_INCLUDE_DIRS})
+#	add_subdirectory(external/glew-2.1.0)
+#	include_directories(external/glew-2.1.0/include)
+
 #	set(GLEW_USE_STATIC_LIBS TRUE)
-#	message("GLEW_VERSION: " ${GLEW_VERSION})
+	find_package(GLEW REQUIRED)
 
 	################################
 	# assimp
