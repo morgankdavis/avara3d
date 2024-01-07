@@ -16,7 +16,7 @@ function(print_all_variables)
 	endforeach()
 endfunction()
 
-message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
+message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 if (UNIX AND APPLE)
     message("[MACOS]")
@@ -39,8 +39,7 @@ if (WIN32)
     message("[WIN32]")
     set(WINDOWS TRUE)
     set(WIN32 TRUE)
-	add_definitions("-DWINDOWS")
-	add_definitions("-DBT_NO_SIMD_OPERATOR_OVERLOADS")
+	add_definitions("-DWINDOWS" "-DBT_NO_SIMD_OPERATOR_OVERLOADS")
 endif()
 
 if (WIN64)
@@ -337,7 +336,8 @@ elseif (WINDOWS)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
 
 elseif (ANDROID)
 
