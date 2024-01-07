@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet from source" OFF) # ON causes Windows GitLab Runner build to fail (?)
+option(AE_BUILD_BULLET "Build Bullet from source" ON) # ON causes Windows GitLab Runner build to fail (?)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -255,7 +255,7 @@ else ()
 	find_package(Bullet REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
 
-	print_all_variables()
+#	print_all_variables()
 #
 #	cmake_policy(SET CMP0091 NEW)
 #	set_property(TARGET BulletCollision
