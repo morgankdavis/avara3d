@@ -6,10 +6,10 @@
 
 #include <variant>
 
-#include "btBulletCollisionCommon.h"
-#include "BulletCollision/Gimpact/btGImpactShape.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"
-#include "LinearMath/btIDebugDraw.h"
+#include "bullet/btBulletCollisionCommon.h"
+#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
+#include "bullet/BulletCollision/CollisionShapes/btShapeHull.h"
+#include "bullet/LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"

@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
@@ -157,6 +157,8 @@ else()
 	find_package(assimp REQUIRED)
 	#include_directories(${ASSIMP_INCLUDE_DIR})
 
+#	ASSIMP_BUILD_SHARED_LIBS ??
+
 	################################
 	# manymouse
 	################################
@@ -216,17 +218,25 @@ if (AE_BUILD_BULLET)
 	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 
+#	set(BULLET_LIBRARIES
+#			Bullet3Common
+#			BulletCollision
+#			Bullet3Collision
+#			BulletDynamics
+#			Bullet3Dynamics
+#			BulletInverseDynamics
+#			Bullet3Geometry
+#			Bullet3OpenCL_clew
+#			LinearMath
+#			Bullet2FileLoader)
+
 	set(BULLET_LIBRARIES
-			Bullet3Common
-			BulletCollision
-			Bullet3Collision
-			BulletDynamics
-			Bullet3Dynamics
-			BulletInverseDynamics
-			Bullet3Geometry
-			Bullet3OpenCL_clew
 			LinearMath
-			Bullet2FileLoader)
+			Bullet3Common
+			BulletInverseDynamics
+			BulletCollision
+			BulletDynamics
+			BulletSoftBody)
 
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
@@ -235,10 +245,18 @@ if (AE_BUILD_BULLET)
 	target_compile_options(Bullet3Collision PUBLIC
 			"-Wno-deprecated-volatile")
 
+	#BULLET_LIBRARIES=LinearMath;Bullet3Common;BulletInverseDynamics;BulletCollision;BulletDynamics;BulletSoftBody
+
 else ()
 
 	find_package(Bullet CONFIG REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS})
+
+#	print_all_variables()
+
+#	cmake_policy(SET CMP0091 NEW)
+#	set_property(TARGET Bullet
+#			PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 endif ()
 
