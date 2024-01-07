@@ -270,7 +270,7 @@ add_library(ae
 		${HEADERS}
 		${SOURCES})
 
-target_link_libraries(ae STATIC
+target_link_libraries(ae
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
