@@ -235,8 +235,8 @@ if (AE_BUILD_BULLET)
 			Bullet3Common
 			BulletInverseDynamics
 			BulletCollision
-			BulletDynamics
-			BulletSoftBody)
+			BulletDynamics)
+			#BulletSoftBody)
 
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
