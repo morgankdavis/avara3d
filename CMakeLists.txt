@@ -274,6 +274,7 @@ if (DESKTOP)
 			manymouse
 			glfw
 			glew_s
+			# imgui
 			${ASSIMP_LIBRARIES})
 
 endif()
@@ -314,7 +315,7 @@ elseif (RPI)
 			${OPENGLES3_LIBRARY}
 			${EGL_LIBRARY})
 
-elseif (LINUX) # not RPI)
+elseif (LINUX) # not RPI
 
 	target_link_libraries(ae
 		imgui
@@ -336,7 +337,7 @@ elseif (WINDOWS)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
 
 elseif (ANDROID)
 
