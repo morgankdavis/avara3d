@@ -41,7 +41,7 @@ build-windows: # bash
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
-    - cmake --build . -j12
+    - cmake --build . -j6
     - echo "Windows build complete."
 
 # test-linux:
