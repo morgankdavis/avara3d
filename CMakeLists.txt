@@ -79,7 +79,7 @@ else ()
 endif ()
 
 ################################
-# GLM
+# glm
 ################################
 
 include_directories(external/glm-0.9.9.8)
