@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet Physics from source" OFF)
+option(AE_BUILD_BULLET "Build Bullet from source" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -216,14 +216,14 @@ include_directories(external/v-hacd-4.1.0)
 
 if (AE_BUILD_BULLET)
 
-#	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
-#	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-#	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-#	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-#	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 
 	set(BULLET_LIBRARIES
 			Bullet3Common
@@ -266,9 +266,11 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 
 include_directories(include)
 
-add_library(ae STATIC ${HEADERS} ${SOURCES})
+add_library(ae
+		${HEADERS}
+		${SOURCES})
 
-target_link_libraries(ae
+target_link_libraries(ae STATIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
@@ -291,7 +293,11 @@ if (MACOS)
 	find_library(FRAMEWORK_IOKIT IOKit)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
 
-	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
+	set(FRAMEWORKS
+			${FRAMEWORK_COCOA}
+			${FRAMEWORK_OPENGL}
+			${FRAMEWORK_IOKIT}
+			${FRAMEWORK_CORE_VIDEO})
 
 	target_link_libraries(ae
 			imgui
@@ -302,8 +308,8 @@ if (MACOS)
 
 elseif (RPI)
 
-	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
-	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
+	find_library(OPENGLES3_LIBRARY GLESv2)
+	find_library(EGL_LIBRARY EGL)
 
 	target_link_libraries(ae
 			z
