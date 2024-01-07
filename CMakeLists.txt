@@ -249,13 +249,16 @@ if (AE_BUILD_BULLET)
 
 else ()
 
-	find_package(Bullet CONFIG REQUIRED)
-	include_directories(${BULLET_INCLUDE_DIRS})
+#	find_package(Bullet CONFIG REQUIRED)
+#	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=include/bullet
 
-#	print_all_variables()
+	find_package(Bullet REQUIRED)
+	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
 
+	print_all_variables()
+#
 #	cmake_policy(SET CMP0091 NEW)
-#	set_property(TARGET Bullet
+#	set_property(TARGET BulletCollision
 #			PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 endif ()
