@@ -102,14 +102,6 @@ endif()
 	add_subdirectory(examples)
 #endif()
 
-################################
-# external (?)
-################################
-
-include_directories(external)
-
-
-
 if (ANDROID)
 
 	################################

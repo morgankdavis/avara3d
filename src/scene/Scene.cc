@@ -14,10 +14,10 @@
 #include <thread>
 
 #ifndef ANDROID
-#include "assimp-3.3.1/include/assimp/cimport.h"
-#include "assimp-3.3.1/include/assimp/postprocess.h"
-#include "assimp-3.3.1/include/assimp/scene.h"
-#include "assimp-3.3.1/include/assimp/version.h"
+#include "assimp/cimport.h"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+#include "assimp/version.h"
 #endif
 #include "magic_enum.hpp"
 

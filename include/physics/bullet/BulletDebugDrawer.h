@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-#include "bullet-3.17/src/LinearMath/btIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #include "Types.h"
 
