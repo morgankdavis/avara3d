@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet from source" ON)
+option(AE_BUILD_BULLET "Build Bullet from source" ON) # ON causes Windows GitLab Runner build to fail (?)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -258,7 +258,7 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 
 include_directories(include)
 
-add_library(ae
+add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
@@ -373,11 +373,13 @@ if (NOT ANDROID)
 
 	# set install directories
 
-	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
-	else()
-		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
-	endif()
+	string(TOLOWER CMAKE_BUILD_TYPE LOWER_RELEASE_TYPE)
+#	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
+#		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
+#	else()
+#		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
+#	endif()
+	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
 
 	# install lib and headers
 
