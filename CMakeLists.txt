@@ -237,7 +237,7 @@ if (AE_BUILD_BULLET)
 
 else ()
 
-	find_package(Bullet REQUIRED)
+	find_package(Bullet CONFIG REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS})
 
 endif ()
@@ -333,20 +333,20 @@ elseif (WINDOWS)
 		imgui)
 
 	# https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
-#	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-	set(CompilerFlags
-			CMAKE_CXX_FLAGS
-			CMAKE_CXX_FLAGS_DEBUG
-			CMAKE_CXX_FLAGS_RELEASE
-			CMAKE_C_FLAGS
-			CMAKE_C_FLAGS_DEBUG
-			CMAKE_C_FLAGS_RELEASE
-	)
-	foreach(CompilerFlag ${CompilerFlags})
-		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-	endforeach()
+#	set(CompilerFlags
+#			CMAKE_CXX_FLAGS
+#			CMAKE_CXX_FLAGS_DEBUG
+#			CMAKE_CXX_FLAGS_RELEASE
+#			CMAKE_C_FLAGS
+#			CMAKE_C_FLAGS_DEBUG
+#			CMAKE_C_FLAGS_RELEASE
+#	)
+#	foreach(CompilerFlag ${CompilerFlags})
+#		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+#	endforeach()
 
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
