@@ -23,6 +23,7 @@ include_directories(. backends)
 #find_package(glfw3 REQUIRED)
 
 add_library(imgui
+		STATIC
 		${HEADERS}
 		${SOURCES}
 		backends/imgui_impl_opengl3.h
