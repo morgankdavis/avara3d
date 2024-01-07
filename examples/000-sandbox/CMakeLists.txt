@@ -37,6 +37,14 @@ target_compile_options(${EXAMPLE_NAME} PRIVATE
 	"-Wno-unused-function")
 
 
+if (WINDOWS)
+
+	# https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+
+endif()
+
 if (NOT ANDROID)
 
 	# install test executable
