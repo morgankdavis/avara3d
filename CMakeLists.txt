@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet from source" OFF) # ON causes Windows GitLab Runner build to fail (?)
+option(AE_BUILD_BULLET "Build Bullet from source" ON) # ON causes Windows GitLab Runner build to fail (?)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -337,7 +337,7 @@ elseif (WINDOWS)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 
 elseif (ANDROID)
 
