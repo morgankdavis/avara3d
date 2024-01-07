@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
-option(AE_BUILD_BULLET "Build Bullet from source" ON) # ON causes Windows GitLab Runner build to fail (?)
+option(AE_BUILD_BULLET "Build Bullet from source" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
