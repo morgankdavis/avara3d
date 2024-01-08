@@ -14,6 +14,11 @@ add_subdirectory(030-rigidbody)
 set(TEST_DATA_DIR "${CMAKE_SOURCE_DIR}/examples/data")
 set(TESTS_INSTALL_DIR "${ROOT_INSTALL_DIR}/examples")
 
+message(STATUS "TEST_DATA_DIR: " ${TEST_DATA_DIR})
+#TEST_DATA_DIR: /home/mkd/avara-engine/examples/data
+
+message(STATUS "ROOT_INSTALL_DIR [examples]: " ${ROOT_INSTALL_DIR})
+
 install(DIRECTORY "${TEST_DATA_DIR}"
 		DESTINATION "${TESTS_INSTALL_DIR}")
 		

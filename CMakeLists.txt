@@ -3,79 +3,25 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
+#option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
 option(AE_BUILD_BULLET "Build Bullet from source" OFF)
+#option(AE_BUILD_GLFW "Build GLFW from source" OFF)
+
+include(cmake/PlatformDetect.cmake)
+include(cmake/UtilityFunctions.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
-function(print_all_variables)
-	# https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
-	get_cmake_property(_variableNames VARIABLES)
-	list (SORT _variableNames)
-	foreach (_variableName ${_variableNames})
-		message(STATUS "${_variableName}=${${_variableName}}")
-	endforeach()
-endfunction()
-
+if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+	set(CMAKE_BUILD_TYPE "Debug")
+endif ()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
-if (UNIX AND APPLE)
-    message("[MACOS]")
-    set(MACOS TRUE)
-	set(CMAKE_OSX_ARCHITECTURES "x86_64")
-	add_definitions("-DAPPLE" "-DMACOS")
-    if (CMAKE_GENERATOR STREQUAL "Xcode")
-        set(XCODE TRUE)
-		add_definitions("-DXCODE")
-    endif()
-endif()
+# set install directories
 
-if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
-    message("[LINUX]")
-    set(LINUX TRUE)
-	add_definitions("-DLINUX")
-endif()
-
-if (WIN32)
-    message("[WIN32]")
-    set(WINDOWS TRUE)
-    set(WIN32 TRUE)
-	add_definitions("-DWINDOWS" "-DBT_NO_SIMD_OPERATOR_OVERLOADS")
-endif()
-
-if (WIN64)
-    message("[WIN64]")
-    set(WINDOWS TRUE)
-    set(WIN64 TRUE)
-	add_definitions("-DWINDOWS")
-endif()
-
-if (ANDROID)
-    message("[ANDROID]")
-    set(ANDROID TRUE)
-	add_definitions("-DANDROID")
-endif()
-
-if (RPI)
-	message("[RPI]")
-	set(RPI TRUE)
-	add_definitions("-DRPI")
-endif()
-
-if (MACOS OR WINDOWS OR LINUX)
-	message("[DESKTOP]")
-    set(DESKTOP TRUE)
-	add_definitions("-DDESKTOP")
-endif()
-
-if (ANDROID OR RPI)
-	message("[OPENGL_ES]")
-	set(OPENGL_ES TRUE)
-	add_definitions("-DOPENGL_ES")
-else ()
-	message("[OPENGL_CORE]")
-	set(OPENGL_CORE TRUE)
-	add_definitions("-DOPENGL_CORE")
-endif ()
+string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
+set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
+message(STATUS "ROOT_INSTALL_DIR [top]: " ${ROOT_INSTALL_DIR})
 
 ################################
 # glm
@@ -87,6 +33,8 @@ include_directories(external/glm-0.9.9.8)
 # fmt
 ################################
 
+set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(external/fmt-10.1.1)
 
 ################################
@@ -95,13 +43,6 @@ add_subdirectory(external/fmt-10.1.1)
 
 if (ANDROID)
 	add_subdirectory(android)
-endif()
-
-#if (DESKTOP)
-	add_subdirectory(examples)
-#endif()
-
-if (ANDROID)
 
 	################################
 	# NDKHelper
@@ -109,7 +50,9 @@ if (ANDROID)
 
 	add_subdirectory(external/NDKHelper)
 
-else()
+endif()
+
+if (NOT ANDROID)
 
 	# either use CMake 3.11 or set 'OpenGL_GL_PREFERENCE' to 'GLVND' to use new OpenGL libs
 	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
@@ -137,7 +80,6 @@ else()
 #	set(GLEW_USE_STATIC_LIBS TRUE)
 #	find_package(GLEW REQUIRED)
 
-
 	################################
 	# assimp
 	################################
@@ -153,7 +95,7 @@ else()
 #	add_subdirectory(external/assimp-3.3.1)
 #	include_directories(external/assimp-3.3.1/include)
 #	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
-	# causes GLEW linker errors
+
 	find_package(assimp REQUIRED)
 	#include_directories(${ASSIMP_INCLUDE_DIR})
 
@@ -223,8 +165,7 @@ if (AE_BUILD_BULLET)
 			Bullet3Common
 			BulletInverseDynamics
 			BulletCollision
-			BulletDynamics)
-			#BulletSoftBody)
+			BulletDynamics) #BulletSoftBody
 
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
@@ -243,7 +184,6 @@ else ()
 	find_package(Bullet REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
 
-#	BULLET_LIBRARIES=LinearMath;Bullet3Common;BulletInverseDynamics;BulletCollision;BulletDynamics;BulletSoftBody
 endif ()
 
 ################################
@@ -336,10 +276,6 @@ elseif (WINDOWS)
 	target_link_libraries(ae
 		imgui)
 
-	# https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
-#	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-
 elseif (ANDROID)
 
 	target_link_libraries(ae
@@ -372,17 +308,23 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 endif()
 
+################################
+# exmples
+################################
+
+add_subdirectory(examples)
+
+################################
+# install
+################################
+
 if (NOT ANDROID)
 
-	# set install directories
-
-	string(TOLOWER CMAKE_BUILD_TYPE LOWER_RELEASE_TYPE)
-#	if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-#		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
-#	else()
-#		set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
-#	endif()
-	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
+#	# set install directories
+#
+#	string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
+#	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
+#	message(STATUS "ROOT_INSTALL_DIR [top]: " ${ROOT_INSTALL_DIR})
 
 	# install lib and headers
 
