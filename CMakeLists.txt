@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
-option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
-option(AE_BUILD_BULLET "Build Bullet from source" OFF)
-option(AE_BUILD_GLFW "Build GLFW from source" OFF)
+option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
+option(AE_BUILD_BULLET "Build Bullet from source" ON)
+option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
 include(cmake/PlatformDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
@@ -21,7 +21,6 @@ message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
 set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
-message(STATUS "ROOT_INSTALL_DIR [top]: " ${ROOT_INSTALL_DIR})
 
 ################################
 # glm

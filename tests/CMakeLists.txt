@@ -8,7 +8,6 @@ add_subdirectory(005-materials-lights)
 add_subdirectory(006-debug)
 add_subdirectory(030-rigidbody)
 
-
 # install shared test data
 
 set(TEST_DATA_DIR "${CMAKE_SOURCE_DIR}/tests/data")
@@ -16,4 +15,3 @@ set(TESTS_INSTALL_DIR "${ROOT_INSTALL_DIR}/tests")
 
 install(DIRECTORY "${TEST_DATA_DIR}"
 		DESTINATION "${TESTS_INSTALL_DIR}")
-		
