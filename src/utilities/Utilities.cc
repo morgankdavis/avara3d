@@ -353,11 +353,11 @@ vector<std::filesystem::path> ae::utils::BaseSearchPaths() {
 		basePaths.emplace_back(path);
 		
 		// [local] xcode debug
-		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "examples" / "data";
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
 		basePaths.emplace_back(path);
 		
 		// [local] unix/msys debug
-		path = (*execDir).parent_path().parent_path().parent_path() / "examples" / "data";
+		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
 		basePaths.emplace_back(path);
 		
 		// [engine] archived
@@ -414,7 +414,7 @@ vector<std::filesystem::path> ae::utils::FontSearchPaths() {
 }
 
 std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& filename,
-																  vector<std::filesystem::path> paths) {
+															  vector<std::filesystem::path> paths) {
 	AE_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
 		AE_LOG_D("\t...'{}", searchPath.string());
@@ -425,6 +425,7 @@ std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& file
 			}
 		}
 	}
+	AE_LOG_W("Not found.");
 	return std::nullopt;
 }
 

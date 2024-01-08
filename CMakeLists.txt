@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
-#option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
+option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
 option(AE_BUILD_BULLET "Build Bullet from source" OFF)
-#option(AE_BUILD_GLFW "Build GLFW from source" OFF)
+option(AE_BUILD_GLFW "Build GLFW from source" OFF)
 
 include(cmake/PlatformDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
@@ -62,14 +62,21 @@ if (NOT ANDROID)
 	# glfw
 	################################
 
-#	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-#	add_subdirectory(external/glfw-3.3.9)
-#	include_directories(external/glfw-3.3.9/include)
+	if (AE_BUILD_GLFW)
 
-	find_package(glfw3 REQUIRED)
+		set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+		set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+		set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+		set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+
+		add_subdirectory(external/glfw-3.3.9)
+		include_directories(external/glfw-3.3.9/include)
+
+	else()
+
+		find_package(glfw3 REQUIRED)
+
+	endif()
 
 	################################
 	# glew
@@ -84,22 +91,30 @@ if (NOT ANDROID)
 	# assimp
 	################################
 
-#	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-#	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-#	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-#	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-#	if (WINDOWS)
-#		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
-#	endif()
-#	add_subdirectory(external/assimp-3.3.1)
-#	include_directories(external/assimp-3.3.1/include)
-#	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
+	if (AE_BUILD_ASSIMP)
 
-	find_package(assimp REQUIRED)
-	#include_directories(${ASSIMP_INCLUDE_DIR})
+		set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+		if (WINDOWS)
+			set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
+		endif()
 
-#	ASSIMP_BUILD_SHARED_LIBS ??
+		set(ASSIMP_LIBRARIES "assimp")
+		add_subdirectory(external/assimp-3.3.1)
+		include_directories(external/assimp-3.3.1/include)
+		set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
+
+	else()
+
+		find_package(assimp REQUIRED)
+#		include_directories(${ASSIMP_INCLUDE_DIR})
+
+#		ASSIMP_BUILD_SHARED_LIBS ??
+
+	endif()
 
 	################################
 	# manymouse
@@ -151,6 +166,43 @@ include_directories(external/v-hacd-4.1.0)
 
 if (AE_BUILD_BULLET)
 
+#	set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
+#	set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
+#	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+#	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD ON CACHE BOOL "" FORCE)
+#	set(USE_OPENVR OFF CACHE BOOL "" FORCE)
+#	set(ENABLE_VHACD OFF CACHE BOOL "" FORCE)
+#	set(BULLET2_MULTITHREADING OFF CACHE BOOL "" FORCE)
+#	set(USE_MSVC_INCREMENTAL_LINKING OFF CACHE BOOL "" FORCE)
+#	set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES OFF CACHE BOOL "" FORCE)
+#	set(USE_GLUT OFF CACHE BOOL "" FORCE)
+#	set(BUILD_BULLET3 ON CACHE BOOL "" FORCE)
+#	set(BUILD_ENET OFF CACHE BOOL "" FORCE)
+#	set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
+#	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+#	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+#	set(BULLET_LIBRARIES
+##			Bullet3OpenCL
+##			Bullet3Serialize/Bullet2FileLoader
+#			Bullet3Dynamics
+#			Bullet3Collision
+#			Bullet3Geometry
+#			BulletInverseDynamics
+#			BulletSoftBody
+#			BulletCollision
+#			BulletDynamics
+#			LinearMath
+#			Bullet3Common)
+#add_subdirectory(external/bullet-3.25)
+#include_directories(external/bullet-3.25/src)
+
+	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
 	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
 	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
@@ -159,22 +211,19 @@ if (AE_BUILD_BULLET)
 	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
-
 	set(BULLET_LIBRARIES
 			LinearMath
 			Bullet3Common
 			BulletInverseDynamics
 			BulletCollision
 			BulletDynamics) #BulletSoftBody
-
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
+
 	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 	target_compile_options(Bullet3Collision PUBLIC
 			"-Wno-deprecated-volatile")
-
-
 
 else ()
 
@@ -205,7 +254,7 @@ add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
-target_link_libraries(ae
+target_link_libraries(ae PUBLIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
@@ -213,7 +262,7 @@ target_link_libraries(ae
 
 if (DESKTOP)
 
-	target_link_libraries(ae
+	target_link_libraries(ae PUBLIC
 			manymouse
 			glfw
 			glew_s
@@ -235,7 +284,7 @@ if (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_CORE_VIDEO})
 
-	target_link_libraries(ae
+	target_link_libraries(ae PUBLIC
 			imgui
 			z
 			${FRAMEWORKS})
@@ -247,7 +296,7 @@ elseif (RPI)
 	find_library(OPENGLES3_LIBRARY GLESv2)
 	find_library(EGL_LIBRARY EGL)
 
-	target_link_libraries(ae
+	target_link_libraries(ae PUBLIC
 			z
 			X11
 			Xxf86vm
@@ -260,25 +309,25 @@ elseif (RPI)
 
 elseif (LINUX) # not RPI
 
-	target_link_libraries(ae
-		imgui
-		z
-		GL
-		X11
-		Xxf86vm
-		Xrandr
-		pthread
-		Xi
-		dl)
+	target_link_libraries(ae PUBLIC
+			imgui
+			z
+			GL
+			X11
+			Xxf86vm
+			Xrandr
+			pthread
+			Xi
+			dl)
 
 elseif (WINDOWS)
 
-	target_link_libraries(ae
-		imgui)
+	target_link_libraries(ae PUBLIC
+			imgui)
 
 elseif (ANDROID)
 
-	target_link_libraries(ae
+	target_link_libraries(ae PUBLIC
 			android
 			NDKHelper
 			z
@@ -312,7 +361,7 @@ endif()
 # exmples
 ################################
 
-add_subdirectory(examples)
+add_subdirectory(tests)
 
 ################################
 # install
@@ -320,22 +369,16 @@ add_subdirectory(examples)
 
 if (NOT ANDROID)
 
-#	# set install directories
-#
-#	string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-#	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
-#	message(STATUS "ROOT_INSTALL_DIR [top]: " ${ROOT_INSTALL_DIR})
-
 	# install lib and headers
 
 	set(LIB_INSTALL_DIR "${ROOT_INSTALL_DIR}/${INSTALL_DIR}/${PROJECT_NAME}")
 
 	install(TARGETS ae
-	        DESTINATION "${LIB_INSTALL_DIR}/lib")
+			DESTINATION "${LIB_INSTALL_DIR}/lib")
 
 	# TODO: make "public headers"
 	install(FILES ${HEADERS}
-	        DESTINATION "${LIB_INSTALL_DIR}/include")
+			DESTINATION "${LIB_INSTALL_DIR}/include")
 
 	# install engine resources
 
