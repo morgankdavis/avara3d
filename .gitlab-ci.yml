@@ -28,8 +28,8 @@ build-macos:
     - echo "Starting macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    #- /opt/local/bin/cmake -G"Ninja" -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
-    - /opt/local/bin/cmake -G"Ninja" ..
+    #- /opt/local/bin/cmake -G"Ninja" ..
+    - /opt/local/bin/cmake -G"Ninja" -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
     - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
