@@ -16,7 +16,7 @@ build-linux:
     - mkdir gitlab-build
     - cd gitlab-build
     #- /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
-    /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
+    - /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
     - /usr/bin/cmake --build . -j4
     - echo "Linux build complete."
 
