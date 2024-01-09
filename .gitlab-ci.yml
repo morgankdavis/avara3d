@@ -15,8 +15,15 @@ build-linux:
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
-    - /usr/bin/cmake --build . -j2
+    - /usr/bin/cmake 
+      -G"Ninja"
+      -DCMAKE_C_COMPILER=/usr/bin/clang
+      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+      -DAE_BUILD_ASSIMP=ON
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+      ..
+    - /usr/bin/cmake --build . -j4
     - echo "Linux build complete."
 
 build-macos:
@@ -27,8 +34,13 @@ build-macos:
     - echo "Starting macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Ninja" -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON ..
-    - /opt/local/bin/cmake --build . -j2
+    - /opt/local/bin/cmake
+      -G"Ninja"
+      -DAE_BUILD_ASSIMP=ON
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+      ..
+    - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
 build-windows: # bash
@@ -40,8 +52,14 @@ build-windows: # bash
     - tar --version
     - mkdir gitlab-build
     - cd gitlab-build
-    - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake" -DAE_BUILD_ASSIMP=ON -DAE_BUILD_BULLET=ON -DAE_BUILD_GLFW=ON
-    - cmake --build . -j8
+    - cmake
+      -B .
+      -S ../
+      -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      -DAE_BUILD_ASSIMP=ON
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+    - cmake --build . -j6
     - echo "Windows build complete."
 
 # test-linux:
