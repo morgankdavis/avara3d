@@ -4,7 +4,7 @@
 
 #include "physics/bullet/BulletBodyProxy.h"
 
-#include "btBulletDynamicsCommon.h"
+#include "bullet/btBulletDynamicsCommon.h"
 //#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
 //#include "bullet/LinearMath/btIDebugDraw.h"
 #include "glm/gtc/type_ptr.hpp"
