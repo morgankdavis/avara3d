@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "Example.h"
+#include "Test.h"
 
 #include <iostream>
 
@@ -17,10 +17,10 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace example;
+using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-using namespace glm;
+using namespace test;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -45,7 +45,7 @@ static void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 	Public
  ***************************************************************************************/
 
-int Example::run(const vector<string>& args) {
+int Test::run(const vector<string>& args) {
 
 	//AE_INIT();
 
@@ -69,15 +69,15 @@ int Example::run(const vector<string>& args) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
-	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+	visualWorld->willRender(bind(&Test::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Test::didRenderCallback, this, _1, _2));
 	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png")));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	scene->update(bind(&Example::updateCallback, this, _1, _2));
+	scene->update(bind(&Test::updateCallback, this, _1, _2));
 
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
@@ -190,7 +190,7 @@ int Example::run(const vector<string>& args) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(Scene& scene, double time) {
+void Test::updateCallback(Scene& scene, double time) {
 	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 	
 	static float previousSeconds = time;
@@ -432,11 +432,11 @@ void Example::updateCallback(Scene& scene, double time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void Example::willRenderCallback(VisualWorld& world, double time) {
+void Test::willRenderCallback(VisualWorld& world, double time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(VisualWorld& world, double time) {
+void Test::didRenderCallback(VisualWorld& world, double time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 

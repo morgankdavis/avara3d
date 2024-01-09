@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "Example.h"
+#include "Test.h"
 
 #include <iostream>
 
@@ -17,10 +17,10 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace example;
+using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-using namespace glm;
+using namespace test;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -37,7 +37,7 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 	Public
  ***************************************************************************************/
 
-int Example::run(const vector<string>& args) {
+int Test::run(const vector<string>& args) {
 
 	//AE_INIT();
 
@@ -58,14 +58,14 @@ int Example::run(const vector<string>& args) {
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	auto background = make_shared<MaterialProperty>(backgroundColor);
 	visualWorld->background(background);
-	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
-	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+	visualWorld->willRender(bind(&Test::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Test::didRenderCallback, this, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	scene->update(bind(&Example::updateCallback, this, _1, _2));
+	scene->update(bind(&Test::updateCallback, this, _1, _2));
 
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
 	auto planeNode = make_shared<Node>();
@@ -141,7 +141,7 @@ int Example::run(const vector<string>& args) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(Scene& scene, float time) {
+void Test::updateCallback(Scene& scene, float time) {
 	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 	
 	static float previousSeconds = time;
@@ -251,10 +251,10 @@ void Example::updateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void Example::willRenderCallback(VisualWorld& world, float time) {
+void Test::willRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(VisualWorld& world, float time) {
+void Test::didRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }

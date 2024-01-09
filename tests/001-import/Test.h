@@ -14,15 +14,12 @@
 #include <string>
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include "ae.h"
 
 
-namespace example {
+namespace test {
 
-
-	class Example {
+	class Test {
 		
 	public:
 		
@@ -31,6 +28,10 @@ namespace example {
 		void updateCallback(ae::Scene& scene, float time);
 		void willRenderCallback(ae::VisualWorld& world, float time);
 		void didRenderCallback(ae::VisualWorld& world, float time);
+
+	private:
+
+		std::shared_ptr<ae::Node> 		_importRoot;
 	};
 }
 

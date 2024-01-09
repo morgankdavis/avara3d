@@ -2,8 +2,8 @@
 //  Example.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 1/4/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 10/31/17.
+//  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
 #ifndef Example_h
@@ -17,10 +17,9 @@
 #include "ae.h"
 
 
-namespace example {
+namespace test {
 
-
-	class Example {
+	class Test {
 		
 	public:
 		
@@ -29,6 +28,10 @@ namespace example {
 		void updateCallback(ae::Scene& scene, float time);
 		void willRenderCallback(ae::VisualWorld& world, float time);
 		void didRenderCallback(ae::VisualWorld& world, float time);
+		
+	private:
+		
+		std::shared_ptr<ae::Logger>				_logger;
 	};
 }
 

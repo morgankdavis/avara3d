@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "Example.h"
+#include "Test.h"
 
 #include <iostream>
 
@@ -18,10 +18,10 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace example;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
+using namespace test;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -64,7 +64,7 @@ static void SpawnChainMail(Scene& scene);
 	Public
  ***************************************************************************************/
 
-int Example::run(const vector<string>& args) {
+int Test::run(const vector<string>& args) {
 
 	//AE_INIT();
 
@@ -96,18 +96,18 @@ int Example::run(const vector<string>& args) {
 					  ? make_shared<MaterialProperty>(Color::Black())
 					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
 	visualWorld->background(background);
-	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
-	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+	visualWorld->willRender(bind(&Test::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Test::didRenderCallback, this, _1, _2));
 
 	auto physicalWorld = make_shared<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
-	physicalWorld->didSimulate(bind(&Example::didSimulatePhysicsCallback, this, _1, _2));
+	physicalWorld->didSimulate(bind(&Test::didSimulatePhysicsCallback, this, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	scene->update(bind(&Example::updateCallback, this, _1, _2));
+	scene->update(bind(&Test::updateCallback, this, _1, _2));
 
 	auto ambientColor = DARK
 						? Color::LightGray()
@@ -305,7 +305,7 @@ int Example::run(const vector<string>& args) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(Scene& scene, float time) {
+void Test::updateCallback(Scene& scene, float time) {
 	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
@@ -665,11 +665,11 @@ void Example::updateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void Example::willRenderCallback(VisualWorld& world, float time) {
+void Test::willRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
-void Example::didRenderCallback(VisualWorld& world, float time) {
+void Test::didRenderCallback(VisualWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
@@ -677,7 +677,7 @@ void Example::didRenderCallback(VisualWorld& world, float time) {
 	PhysicalWorld Callbacks
  ***************************************************************************************/
 
-void Example::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
+void Test::didSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 

@@ -417,7 +417,7 @@ if (NOT ANDROID)
 	install(TARGETS ae
 			DESTINATION "${LIB_INSTALL_DIR}/lib")
 
-	# TODO: make "public headers"
+	# TODO: public vs. private headers
 	install(FILES ${HEADERS}
 			DESTINATION "${LIB_INSTALL_DIR}/include")
 

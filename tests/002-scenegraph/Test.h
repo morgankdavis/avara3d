@@ -17,10 +17,19 @@
 #include "ae.h"
 
 
-namespace example {
+namespace test {
+	
+	enum class TEST {
+		TRAVERSAL,
+		MATRIX,
+		CONVENIENCE,
+		EULER,
+		REVERSE_EULER,
+		ROTATION
+	};
 
 
-	class Example {
+	class Test {
 		
 	public:
 		
@@ -29,10 +38,10 @@ namespace example {
 		void updateCallback(ae::Scene& scene, float time);
 		void willRenderCallback(ae::VisualWorld& world, float time);
 		void didRenderCallback(ae::VisualWorld& world, float time);
-
+		
 	private:
 
-		std::shared_ptr<ae::Node> 		_importRoot;
+		TEST _test;
 	};
 }
 

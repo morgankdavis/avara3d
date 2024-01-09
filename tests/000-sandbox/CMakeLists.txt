@@ -8,8 +8,10 @@ message(STATUS "TEST_NAME: " ${TEST_NAME})
 # add headers from avara-engine
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-file(GLOB HEADERS "include/*.h")
-file(GLOB SOURCES "src/*.c*")
+#file(GLOB HEADERS "include/*.h")
+#file(GLOB SOURCES "src/*.c*")
+file(GLOB HEADERS "*.h")
+file(GLOB SOURCES "*.c*")
 
 include_directories("include")
 

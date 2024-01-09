@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "Example.h"
+#include "Test.h"
 
 #define _USE_MATH_DEFINES // windows
 #include <math.h>
@@ -21,10 +21,10 @@
 
 using namespace ae;
 using namespace ae::utils;
-using namespace example;
+using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-using namespace glm;
+using namespace test;
 
 
 constexpr bool					USE_HIGH_DPI =			true;
@@ -40,8 +40,8 @@ constexpr bool					CAPTURE_CURSOR =		false;
 	Public
  ***************************************************************************************/
 
-int Example::run(const vector<string>& args) {
-	cout << "Example::run()\n" << endl;
+int Test::run(const vector<string>& args) {
+	cout << "Test::run()\n" << endl;
 	
 	//AE_INIT();
 
@@ -57,12 +57,12 @@ int Example::run(const vector<string>& args) {
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(make_shared<MaterialProperty>(backgroundColor));
-	visualWorld->willRender(bind(&Example::willRenderCallback, this, _1, _2));
-	visualWorld->didRender(bind(&Example::didRenderCallback, this, _1, _2));
+	visualWorld->willRender(bind(&Test::willRenderCallback, this, _1, _2));
+	visualWorld->didRender(bind(&Test::didRenderCallback, this, _1, _2));
 
 	auto scene = make_shared<Scene>();
 	scene->visualWorld(visualWorld);
-	scene->update(bind(&Example::updateCallback, this, _1, _2));
+	scene->update(bind(&Test::updateCallback, this, _1, _2));
 
 
 
@@ -515,7 +515,7 @@ int Example::run(const vector<string>& args) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void Example::updateCallback(Scene& scene, float time) {
+void Test::updateCallback(Scene& scene, float time) {
 	
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -545,10 +545,10 @@ void Example::updateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void Example::willRenderCallback(VisualWorld& world, float time) {
+void Test::willRenderCallback(VisualWorld& world, float time) {
 
 }
 
-void Example::didRenderCallback(VisualWorld& world, float time) {
+void Test::didRenderCallback(VisualWorld& world, float time) {
 
 }

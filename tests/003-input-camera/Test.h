@@ -14,23 +14,14 @@
 #include <string>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include "ae.h"
 
 
-namespace example {
-	
-	
-	enum class TEST {
-		TRAVERSAL,
-		MATRIX,
-		CONVENIENCE,
-		EULER,
-		REVERSE_EULER,
-		ROTATION
-	};
+namespace test {
 
-
-	class Example {
+	class Test {
 		
 	public:
 		
@@ -39,10 +30,6 @@ namespace example {
 		void updateCallback(ae::Scene& scene, float time);
 		void willRenderCallback(ae::VisualWorld& world, float time);
 		void didRenderCallback(ae::VisualWorld& world, float time);
-		
-	private:
-
-		TEST _test;
 	};
 }
 

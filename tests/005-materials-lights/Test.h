@@ -17,9 +17,9 @@
 #include "ae.h"
 
 
-namespace example {
+namespace test {
 
-	class Example {
+	class Test {
 		
 	public:
 		
