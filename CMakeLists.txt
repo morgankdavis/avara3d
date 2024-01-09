@@ -92,19 +92,50 @@ if (NOT ANDROID)
 
 	if (AE_BUILD_ASSIMP)
 
-		set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+		# assimp 5.3.1
+
+		set(ASSIMP_HUNTER_ENABLED OFF CACHE BOOL "" FORCE)
+		set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_FRAMEWORK ON CACHE BOOL "" FORCE)
+		set(ASSIMP_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_OPT_BUILD_PACKAGES OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_ANDROID_JNIIOSYSTEM OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 		set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 		set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 		set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-		set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-		if (WINDOWS)
-			set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
-		endif()
+		set(ASSIMP_COVERALLS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_ASAN OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_UBSAN OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_INJECT_DEBUG_POSTFIX ON CACHE BOOL "" FORCE)
+		set(ASSIMP_IGNORE_GIT_HASH OFF CACHE BOOL "" FORCE)
+		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+		set(ASSIMP_INSTALL_PDB ON CACHE BOOL "" FORCE)
+		set(USE_STATIC_CRT OFF CACHE BOOL "" FORCE)
+
+		add_subdirectory(external/assimp-5.3.1)
+		include_directories(external/assimp-5.3.1/include)
 
 		set(ASSIMP_LIBRARIES "assimp")
-		add_subdirectory(external/assimp-3.3.1)
-		include_directories(external/assimp-3.3.1/include)
-		set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
+
+		# assimp 3.3.1
+
+#		set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
+#		set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+#		set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+#		set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#		set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+#		if (WINDOWS)
+#			set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
+#		endif()
+#
+#		set(ASSIMP_LIBRARIES "assimp")
+#		add_subdirectory(external/assimp-3.3.1)
+#		include_directories(external/assimp-3.3.1/include)
+#		set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
 	else()
 
@@ -209,6 +240,8 @@ if (AE_BUILD_BULLET)
 #target_compile_options(Bullet3Collision PUBLIC
 #		"-Wno-deprecated-volatile")
 
+	# bullet 3.17
+
 	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
 	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
@@ -218,24 +251,21 @@ if (AE_BUILD_BULLET)
 	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+
+	add_subdirectory(external/bullet-3.17)
+	include_directories(external/bullet-3.17/src)
+
+	target_compile_options(Bullet3Collision PUBLIC
+			"-Wno-deprecated-volatile")
+
 	set(BULLET_LIBRARIES
 			LinearMath
 			Bullet3Common
 			BulletInverseDynamics
 			BulletCollision
 			BulletDynamics) #BulletSoftBody
-	add_subdirectory(external/bullet-3.17)
-	include_directories(external/bullet-3.17/src)
-
-	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-	target_compile_options(Bullet3Collision PUBLIC
-			"-Wno-deprecated-volatile")
 
 else()
-
-#	find_package(Bullet CONFIG REQUIRED)
-#	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=include/bullet - wtf?
 
 	find_package(Bullet REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
