@@ -10,8 +10,8 @@ build-linux:
   script:
     - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
-    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start) to allow us to get an X connection
-    # (used by GLFW) else: "/usr/bin/ld: cannot find -lXxf86vm"
+    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
+    # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
@@ -53,12 +53,12 @@ build-windows: # bash
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
-      -B .
-      -S ../
-      -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      -T"ClangCL"
+      -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
+      ..
     - cmake --build . -j6
     - echo "Windows build complete."
 
