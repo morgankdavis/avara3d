@@ -4,11 +4,11 @@
 
 #include "physics/bullet/BulletWorldProxy.h"
 
-#include "bullet/btBulletCollisionCommon.h"
-#include "bullet/btBulletDynamicsCommon.h"
-#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
-#include "bullet/LinearMath/btIDebugDraw.h"
+#include "btBulletCollisionCommon.h"
+#include "btBulletDynamicsCommon.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"

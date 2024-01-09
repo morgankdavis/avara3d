@@ -11,7 +11,6 @@
 #include "physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "physics/bullet/MotionState.h"
 
-//struct btDefaultMotionState;
 
 class btRigidBody;
 

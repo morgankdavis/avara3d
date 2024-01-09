@@ -16,8 +16,8 @@
 #include <tuple>
 #include <vector>
 
-#include "bullet/LinearMath/btIDebugDraw.h"
 #include "glm/glm.hpp"
+#include "LinearMath/btIDebugDraw.h"
 
 #include "Types.h"
 

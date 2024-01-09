@@ -6,7 +6,7 @@
 #define AVARA_ENGINE_BULLET_MOTIONSTATE_H
 
 
-#include "bullet/LinearMath/btMotionState.h"
+#include "LinearMath/btMotionState.h"
 //#include "../../../external/bullet-3.17/src/LinearMath/btMotionState.h"
 
 

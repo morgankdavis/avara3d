@@ -8,9 +8,6 @@
 
 #include <memory>
 
-//#include "bullet/LinearMath/btQuaternion.h"
-//#include "bullet/LinearMath/btTransform.h"
-//#include "bullet/LinearMath/btVector3.h"
 #include "glm/glm.hpp"
 
 #include "physics/model_proxy/PhysicalWorldModelProxy.h"
