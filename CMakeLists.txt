@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara-engine)
 
-option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
-option(AE_BUILD_BULLET "Build Bullet from source" ON)
-option(AE_BUILD_GLFW "Build GLFW from source" ON)
+option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
+option(AE_BUILD_BULLET "Build Bullet from source" OFF)
+option(AE_BUILD_GLFW "Build GLFW from source" OFF)
 
 include(cmake/PlatformDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
@@ -165,6 +165,8 @@ include_directories(external/v-hacd-4.1.0)
 
 if (AE_BUILD_BULLET)
 
+	# bullet 2.25 -- fails with linker errors
+
 #	set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
 #	set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
 #	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -186,9 +188,10 @@ if (AE_BUILD_BULLET)
 #	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 #	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 #	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+#
 #	set(BULLET_LIBRARIES
-##			Bullet3OpenCL
-##			Bullet3Serialize/Bullet2FileLoader
+#			Bullet3OpenCL_clew
+#			Bullet2FileLoader
 #			Bullet3Dynamics
 #			Bullet3Collision
 #			Bullet3Geometry
@@ -198,8 +201,13 @@ if (AE_BUILD_BULLET)
 #			BulletDynamics
 #			LinearMath
 #			Bullet3Common)
-#add_subdirectory(external/bullet-3.25)
-#include_directories(external/bullet-3.25/src)
+#	add_subdirectory(external/bullet-3.25)
+#	include_directories(external/bullet-3.25/src)
+
+#set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
+#set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+#target_compile_options(Bullet3Collision PUBLIC
+#		"-Wno-deprecated-volatile")
 
 	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
@@ -224,7 +232,7 @@ if (AE_BUILD_BULLET)
 	target_compile_options(Bullet3Collision PUBLIC
 			"-Wno-deprecated-volatile")
 
-else ()
+else()
 
 #	find_package(Bullet CONFIG REQUIRED)
 #	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=include/bullet - wtf?
@@ -232,7 +240,7 @@ else ()
 	find_package(Bullet REQUIRED)
 	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
 
-endif ()
+endif()
 
 ################################
 # magic_enmum
