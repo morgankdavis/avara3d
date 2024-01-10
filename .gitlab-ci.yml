@@ -22,6 +22,8 @@ build-linux:
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
+      -DCI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
+      -DCI_PIPELINE_IID=${CI_PIPELINE_IID}
       ..
     - /usr/bin/cmake --build . -j4
     - echo "Linux build complete."
@@ -39,11 +41,13 @@ build-macos:
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
+      -DCI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
+      -DCI_PIPELINE_IID=${CI_PIPELINE_IID}
       ..
     - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
-build-windows: # bash
+build-windows:
   stage: build
   tags:
       - windows-10
@@ -58,6 +62,8 @@ build-windows: # bash
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
+      -DCI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
+      -DCI_PIPELINE_IID=${CI_PIPELINE_IID}
       ..
     - cmake --build . -j6
     - echo "Windows build complete."
