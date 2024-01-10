@@ -58,13 +58,14 @@ build-windows:
     - cd gitlab-build
 #    - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake
-      -B .
-      -S ..
+#      -B .
+#      -S ..
       -T"ClangCL"
       -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
+      ..
 #      -DGITLAB_CI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
 #      -DGITLAB_CI_PIPELINE_IID=${CI_PIPELINE_IID}
 
