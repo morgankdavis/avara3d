@@ -56,6 +56,7 @@ build-windows:
     - tar --version
     - mkdir gitlab-build
     - cd gitlab-build
+#    - cmake -B . -S ../ -T"ClangCL" -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake
       -T"ClangCL"
       -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
