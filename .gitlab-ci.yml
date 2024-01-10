@@ -62,8 +62,8 @@ build-windows:
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
-      -DGITLAB_CI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
-      -DGITLAB_CI_PIPELINE_IID=${CI_PIPELINE_IID}
+#      -DGITLAB_CI_PIPELINE_CREATED_AT=${CI_PIPELINE_CREATED_AT}
+#      -DGITLAB_CI_PIPELINE_IID=${CI_PIPELINE_IID}
       ..
     - cmake --build . -j6
     - echo "Windows build complete."
