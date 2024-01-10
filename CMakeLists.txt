@@ -1,7 +1,9 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project(avara-engine)
+project(avara-engine
+		VERSION 0.0.1
+		HOMEPAGE_URL http://avara-engine.net/)
 
 option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
 option(AE_BUILD_BULLET "Build Bullet from source" OFF)
@@ -41,6 +43,7 @@ add_subdirectory(external/fmt-10.1.1)
 ################################
 
 if (ANDROID)
+
 	add_subdirectory(android)
 
 	################################
@@ -83,6 +86,7 @@ if (NOT ANDROID)
 
 	add_subdirectory(external/glew-2.1.0)
 	include_directories(external/glew-2.1.0/include)
+
 #	set(GLEW_USE_STATIC_LIBS TRUE)
 #	find_package(GLEW REQUIRED)
 
@@ -299,7 +303,6 @@ target_link_libraries(ae PUBLIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
-
 
 if (DESKTOP)
 
