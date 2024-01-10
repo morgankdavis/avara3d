@@ -9,6 +9,16 @@
 #ifndef ae_h
 #define ae_h
 
+namespace ae {
+	namespace build_info {
+		extern constexpr int MajorVersion();
+		extern constexpr int MinorVersion();
+		extern constexpr int PatchVersion();
+		extern constexpr int BuildNumber();
+		extern constexpr const unsigned char* VersionString(); // 1.2.3
+		extern constexpr const unsigned char* BuildInfoString(); // Version 1.2.3, Build 4, Debug
+	}
+}
 
 #include "Global.h"
 #include "Types.h"
