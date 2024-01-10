@@ -23,6 +23,9 @@ message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 # create BuildInfo.h
 # VERSION
 # BUILD_SOURCE = {ADHOC, GITLAB}
+message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
+message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
+message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
 message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
 message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID})
 # ex:
