@@ -94,9 +94,11 @@ build-windows:
 #   - pigz --help
 
 archive-debug-linux:
+  # TODO: 1. 'testing' only
+  # TODO: 2. get build type? debug? release?
   stage: archive
-  only:
-    - testing
+  #only:
+  #  - testing (#1)
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
@@ -104,6 +106,11 @@ archive-debug-linux:
     - debian-11
   script:
     - echo "Starting Linux debug archive..."
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - packaged/debug
+    expire_in: 1 week
   #<<: *pigify_thing
     #- !reference [ .pigify ]
 
