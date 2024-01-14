@@ -59,7 +59,7 @@ namespace ae {
 
 		std::string DateTimeString();
 
-#if defined(MACOS) || defined(LINUX)
+#ifdef POSIX
 		std::string StackTrace(unsigned dropFunctions = 0);
 #endif
 

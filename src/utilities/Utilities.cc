@@ -20,7 +20,7 @@
 #include <random>
 #include <sstream>
 
-#if defined(MACOS) || defined(LINUX)
+#ifdef POSIX
 #include <errno.h>
 #include <execinfo.h>
 #include <unistd.h>
@@ -182,7 +182,7 @@ string ae::utils::DateTimeString() {
 	return string(buffer);
 }
 
-#if defined(MACOS) || defined(LINUX)
+#ifdef POSIX
 string ae::utils::StackTrace(unsigned dropFunctions) {
 	
 	auto traceStr = string();
@@ -317,7 +317,7 @@ std::optional<std::filesystem::path> ae::utils::ExecutableName() {
 }
 
 std::optional<std::filesystem::path> ae::utils::CurrentWorkingDirectory() {
-#if defined(MACOS) || defined(LINUX) || defined(ANDROID)
+#ifdef POSIX
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);

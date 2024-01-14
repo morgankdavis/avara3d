@@ -9,7 +9,7 @@ option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
 option(AE_BUILD_BULLET "Build Bullet from source" OFF)
 option(AE_BUILD_GLFW "Build GLFW from source" OFF)
 
-include(cmake/PlatformDetect.cmake)
+include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -313,6 +313,30 @@ add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
+if (DESKTOP)
+	target_compile_definitions(ae PUBLIC "DESKTOP")
+	target_compile_definitions(ae PUBLIC "OPENGL_CORE")
+endif()
+if (LINUX)
+	target_compile_definitions(ae PUBLIC "LINUX")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	if (RPI)
+		target_compile_definitions(ae PUBLIC "RPI")
+		target_compile_definitions(ae PUBLIC "OPENGL_ES")
+	endif()
+elseif (MACOS)
+#	target_compile_definitions(ae PUBLIC "APPLE"") // already defined?
+	target_compile_definitions(ae PUBLIC "MACOS")
+	target_compile_definitions(ae PUBLIC "POSIX")
+elseif (WINDOWS)
+	target_compile_definitions(ae PUBLIC "WINDOWS")
+#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+elseif (ANDROID)
+	target_compile_definitions(ae PUBLIC "ANDROID")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	target_compile_definitions(ae PUBLIC "OPENGL_ES")
+endif()
+
 target_link_libraries(ae PUBLIC
 		fmt::fmt
 		generator
@@ -397,26 +421,26 @@ elseif (ANDROID)
 
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-
-	target_compile_options(ae PUBLIC
-			#"-stdlib=libc++" # use LLVM libc++
-			"-fmessage-length=0"
-			"-UGLFW_CDECL"
-			"-Wno-unknown-warning-option"
-			"-Wno-float-equal"
-			"-Wno-c++11-long-long"
-			"-Wno-self-assign"
-			"-Wno-reorder"
-			"-Wno-address-of-packed-member"
-			"-Wno-unused-function"
-			"-Wno-deprecated-declarations"
-			"-Wno-argument-outside-range")
-
-endif()
+#if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#
+#	target_compile_options(ae PUBLIC
+#			#"-stdlib=libc++" # use LLVM libc++
+#			"-fmessage-length=0"
+#			"-UGLFW_CDECL"
+#			"-Wno-unknown-warning-option"
+#			"-Wno-float-equal"
+#			"-Wno-c++11-long-long"
+#			"-Wno-self-assign"
+#			"-Wno-reorder"
+#			"-Wno-address-of-packed-member"
+#			"-Wno-unused-function"
+#			"-Wno-deprecated-declarations"
+#			"-Wno-argument-outside-range")
+#
+#endif()
 
 ################################
-# exmples
+# tests
 ################################
 
 add_subdirectory(tests)

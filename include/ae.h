@@ -9,15 +9,42 @@
 #ifndef ae_h
 #define ae_h
 
+
 namespace ae {
-	namespace build_info {
-		extern constexpr int MajorVersion();
-		extern constexpr int MinorVersion();
-		extern constexpr int PatchVersion();
-		extern constexpr int BuildNumber();
-		extern constexpr const unsigned char* VersionString(); // 1.2.3
-		extern constexpr const unsigned char* BuildInfoString(); // Version 1.2.3, Build 4, Debug
-	}
+
+	struct Version { // semver.org
+		int major;
+		int minor;
+		int patch;
+		int build; // move to BuildInfo?
+	};
+
+	struct BuildInfo {
+
+		enum class TYPE {
+			DEBUG,
+			RELEASE
+		};
+
+		enum class ORIGIN {
+			AUTOMATED,
+			ADHOC
+		};
+
+		static BuildInfo& Info();
+
+		Version version;
+		TYPE type;
+		ORIGIN origin;
+//		std::time date; // better type?
+	};
+
+	extern constexpr int MajorVersion();
+	extern constexpr int MinorVersion();
+	extern constexpr int PatchVersion();
+	extern constexpr int BuildNumber();
+	extern constexpr const unsigned char* VersionString(); // 1.2.3
+	extern constexpr const unsigned char* BuildString(); // 12345
 }
 
 #include "Global.h"
@@ -75,5 +102,6 @@ namespace ae {
 #include "utilities/CubeImage.h"
 #include "utilities/Font.h"
 #include "utilities/Image.h"
+
 
 #endif /* ae_h */

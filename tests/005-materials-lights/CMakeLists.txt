@@ -5,17 +5,13 @@ set(UNIT_DESCRIPTION "materials-lights")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 message(STATUS "TEST_NAME: " ${TEST_NAME})
 
-# add headers from avara-engine
-include_directories("${CMAKE_SOURCE_DIR}/include")
-
-#file(GLOB HEADERS "include/*.h")
-#file(GLOB SOURCES "src/*.c*")
 file(GLOB HEADERS "*.h")
 file(GLOB SOURCES "*.c*")
 
-include_directories("include")
-
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
+
+target_include_directories(${TEST_NAME} PUBLIC # add headers from avara-engine
+		"${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(${TEST_NAME} ae)
 
 target_compile_options(${TEST_NAME} PRIVATE

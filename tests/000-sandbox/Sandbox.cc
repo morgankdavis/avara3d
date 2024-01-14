@@ -54,6 +54,10 @@ int Sandbox::run(const vector<string>& args) {
 	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 	LOG_I(_logger, "");
 
+//	auto buildInfo = BuildInfo::Info();
+//	AE_LOG_I("Avara Engine version {}.{}.{} build {}",
+//			 buildInfo.version.major, buildInfo.version.minor, buildInfo.version.patch);
+
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,

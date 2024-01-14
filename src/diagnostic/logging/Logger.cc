@@ -17,7 +17,7 @@
 #include <ctime>
 #include <iostream>
 
-#if defined(MACOS) || defined(LINUX)
+#ifdef POSIX
 #include <sys/time.h>
 #endif
 
@@ -31,7 +31,7 @@
 #include "diagnostic/logging/sinks/LoggerSink.h"
 #include "diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP
-	#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 #endif
 #include "utilities/Utilities.h"
 
@@ -53,25 +53,25 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 shared_ptr<Logger> Logger::MainLogger() {
 	
 	static shared_ptr<Logger> logger = nullptr;
-	if (!logger) {
 
-#if defined(DESKTOP)
-		string executableName = utils::ExecutableName()->string();
-		auto nativeSink = make_shared<StdOutLoggerSink>();
-		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
-													/ (executableName + string(".log")));
-#elif defined(ANDROID)
+	if (!logger) {
+#ifdef ANDROID
 		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
 		auto nativeSink = make_shared<AndroidLoggerSink>();
 //		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
+#else
+		string executableName = utils::ExecutableName()->string();
+		auto nativeSink = make_shared<StdOutLoggerSink>();
+		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
+													/ (executableName + string(".log")));
 #endif
-		
+
 		auto sinks = vector<shared_ptr<LoggerSink>>();
 		sinks.emplace_back(static_pointer_cast<LoggerSink>(nativeSink));
 		sinks.emplace_back(static_pointer_cast<LoggerSink>(fileSink));
-		
+
 		logger = make_shared<Logger>("ae", sinks);
 	}
 	return logger;
