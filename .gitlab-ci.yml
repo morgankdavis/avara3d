@@ -4,19 +4,27 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
 
+variables:
+  dummy_var: "$CI_PROJECT_DIR/dummy" 
+
 build-linux:
   stage: build
   tags:
     - ubuntu-23
+  artifacts:
+    paths:
+      - gitlab-build
+    expire_in: 5 minutes
   script:
     - echo "Starting Linux build..."
+    - export cmake=/usr/bin/cmake
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
     # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
     # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
     - export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake
+    - cmake
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
@@ -26,10 +34,11 @@ build-linux:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /usr/bin/cmake --build . -j4
+    #- /usr/bin/cmake --build . -j4
+    - cmake --build . --target install -j4
     - echo "Linux build complete."
 
-build-macos:
+.build-macos:
   stage: build
   tags:
     - macos-12.6
@@ -48,7 +57,7 @@ build-macos:
     - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
-build-windows:
+.build-windows:
   stage: build
   tags:
     - windows-10
@@ -94,6 +103,8 @@ archive-debug-linux:
   # TODO: 1. 'testing' only
   # TODO: 2. get build type? debug? release?
   stage: archive
+  dependencies:
+    - build-linux
   #only:
   #  - testing (#1)
   # rules:
@@ -111,6 +122,7 @@ archive-debug-linux:
     #path: /tmp/artifacts # output?
     paths:
       - gitlab-build/packaged/debug
+    expose_as: 'the goods'
     expire_in: 1 week
 
 archive-debug-macos:
