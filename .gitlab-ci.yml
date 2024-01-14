@@ -13,7 +13,7 @@ build-linux:
     - ubuntu-23
   artifacts:
     paths:
-      - gitlab-build
+      - gitlab-build/packaged
     expire_in: 5 minutes
   script:
     - echo "Starting Linux build..."
@@ -35,7 +35,7 @@ build-linux:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     #- /usr/bin/cmake --build . -j4
-    - cmake --build . -j4
+    - cmake --build . --target install -j4
     - echo "Linux build complete."
 
 .build-macos:
@@ -44,9 +44,10 @@ build-linux:
     - macos-12.6
   script:
     - echo "Starting macOS build..."
+    - export cmake=/opt/local/bin/cmake
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake
+    - cmake
       -G"Ninja"
       -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
@@ -54,7 +55,7 @@ build-linux:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /opt/local/bin/cmake --build . -j4
+    - cmake --build . -j4
     - echo "macOS build complete."
 
 .build-windows:
