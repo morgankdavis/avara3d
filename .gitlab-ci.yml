@@ -26,6 +26,7 @@ build-linux:
     - cd gitlab-build
     - cmake
       -G"Ninja"
+      -DASSIMP_INSTALL=OFF
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
       -DAE_BUILD_ASSIMP=ON
