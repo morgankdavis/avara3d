@@ -1,6 +1,7 @@
 stages:
   - build
   #- test
+  # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
 
 build-linux:
@@ -97,15 +98,19 @@ archive-debug-linux:
   #  - testing (#1)
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-  environment: production
   tags:
     - ubuntu-23
+  environment: production
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  #     when: manual
   script:
     - echo "Starting Linux debug archive..."
   artifacts:
     name: "$CI_JOB_NAME"
+    #path: /tmp/artifacts # output?
     paths:
-      - packaged/debug
+      - gitlab-build/packaged/debug
     expire_in: 1 week
 
 archive-debug-macos:
