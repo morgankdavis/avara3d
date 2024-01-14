@@ -97,7 +97,7 @@ archive-debug-linux:
   #  - testing (#1)
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-  ##environment: production
+  environment: production
   tags:
     - ubuntu-23
   script:
