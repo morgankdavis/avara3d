@@ -26,7 +26,6 @@ build-linux:
     - cd gitlab-build
     - cmake
       -G"Ninja"
-      -DASSIMP_INSTALL=OFF
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
       -DAE_BUILD_ASSIMP=ON
@@ -36,7 +35,7 @@ build-linux:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     #- /usr/bin/cmake --build . -j4
-    - cmake --build . --target install -j4
+    - cmake --build . -j4
     - echo "Linux build complete."
 
 .build-macos:
