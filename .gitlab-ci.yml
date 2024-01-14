@@ -6,7 +6,7 @@ stages:
 build-linux:
   stage: build
   tags:
-      - ubuntu-23
+    - ubuntu-23
   script:
     - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
@@ -31,7 +31,7 @@ build-linux:
 build-macos:
   stage: build
   tags:
-      - macos-12.6
+    - macos-12.6
   script:
     - echo "Starting macOS build..."
     - mkdir gitlab-build
@@ -50,7 +50,7 @@ build-macos:
 build-windows:
   stage: build
   tags:
-      - windows-10
+    - windows-10
   script:
     - echo "Starting Windows build..."
     - tar --version
@@ -73,25 +73,21 @@ build-windows:
 #   tags:
 #       - debian-11
 #   script:
-#     - echo "Starting Linux text..."
+#     - echo "Starting Linux test..."
 
 # test-macos:
 #   stage: test
 #   tags:
 #       - macos-12.6
 #   script:
-#     - echo "Starting macOS text..."
+#     - echo "Starting macOS test..."
 
 # test-windows:
 #   stage: test
 #   tags:
 #       - windows-10
 #   script:
-#     - echo "Starting Windows text..."
-
-# .pigify: &pigify_thing
-#   - tar --help
-#   - pigz --help
+#     - echo "Starting Windows test..."
 
 archive-debug-linux:
   # TODO: 1. 'testing' only
@@ -111,8 +107,6 @@ archive-debug-linux:
     paths:
       - packaged/debug
     expire_in: 1 week
-  #<<: *pigify_thing
-    #- !reference [ .pigify ]
 
 archive-debug-macos:
   stage: archive
