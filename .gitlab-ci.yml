@@ -2,7 +2,7 @@ stages:
   - build
   #- test
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
-  #- archive
+  - archive
 
 variables:
   dummy_var: "$CI_PROJECT_DIR/dummy" 
@@ -38,7 +38,7 @@ build-linux:
     - cmake --build . --target install -j4
     - echo "Linux build complete."
 
-.build-macos:
+build-macos:
   stage: build
   tags:
     - macos-12.6
@@ -58,7 +58,7 @@ build-linux:
     - cmake --build . -j4
     - echo "macOS build complete."
 
-.build-windows:
+build-windows:
   stage: build
   tags:
     - windows-10
@@ -100,7 +100,7 @@ build-linux:
 #   script:
 #     - echo "Starting Windows test..."
 
-archive-debug-linux:
+.archive-debug-linux:
   # TODO: 1. 'testing' only
   # TODO: 2. get build type? debug? release?
   stage: archive
