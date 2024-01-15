@@ -2,7 +2,7 @@ stages:
   - build
   #- test
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
-  - archive
+  #- archive
 
 variables:
   dummy_var: "$CI_PROJECT_DIR/dummy" 
