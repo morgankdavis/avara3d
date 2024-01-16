@@ -12,10 +12,10 @@ option(AE_BUILD_GLFW "Build GLFW from source" OFF)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 # https://cmake.org/cmake/help/latest/guide/tutorial/Adding%20Usage%20Requirements%20for%20a%20Library.html
-add_library(ae_compiler_flags INTERFACE)
-target_compile_features(ae_compiler_flags INTERFACE cxx_std_17)
+#add_library(ae_compiler_flags INTERFACE)
+#target_compile_features(ae_compiler_flags INTERFACE cxx_std_17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -340,8 +340,8 @@ elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "OPENGL_ES")
 endif()
 
-target_link_libraries(ae # PUBLIC
-		ae_compiler_flags)
+#target_link_libraries(ae # PUBLIC
+#		ae_compiler_flags)
 # can do target_link_libraries(000-sandbox PUBLIC
 #		ae_compiler_flags) etc
 
