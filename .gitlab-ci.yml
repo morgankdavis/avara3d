@@ -120,7 +120,7 @@ build-windows:
     name: "$CI_JOB_NAME"
     #path: /tmp/artifacts # output?
     paths:
-      - gitlab-build/packaged/debug
+      - gitlab-build/packaged/avara-engine
     expose_as: 'the goods'
     expire_in: 1 week
 

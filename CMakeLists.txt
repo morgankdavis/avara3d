@@ -39,7 +39,7 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # set install directories
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/${LOWER_RELEASE_TYPE}")
+set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/${LOWER_RELEASE_TYPE}")
 
 ################################
 # glm
@@ -460,40 +460,17 @@ add_subdirectory(tests)
 if (NOT ANDROID)
 
 	# install lib and headers
-
-	set(LIB_INSTALL_DIR "${ROOT_INSTALL_DIR}/${INSTALL_DIR}/${PROJECT_NAME}")
+	
+	set(INCLUDE_INSTALL_DIR "${ROOT_INSTALL_DIR}/include/")
 
 	install(TARGETS ae
-			DESTINATION "${LIB_INSTALL_DIR}/lib")
+			DESTINATION "${ROOT_INSTALL_DIR}/lib")
 
 	# TODO: public vs. private headers
-	install(FILES ${HEADERS}
-			DESTINATION "${LIB_INSTALL_DIR}/include")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include"
+			DESTINATION "${ROOT_INSTALL_DIR}")
 
-	# install engine resources
-
-#	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/shaders/*")
-#	install(FILES ${SHADERS}
-#			DESTINATION "${LIB_INSTALL_DIR}/data/shaders")
-#
-#	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/images/*")
-#	install(FILES ${IMAGES}
-#			DESTINATION "${LIB_INSTALL_DIR}/data/images")
-#
-#	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/fonts/*")
-#	install(FILES ${FONTS}
-#			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
-
-	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/data/shaders/*")
-	install(FILES ${SHADERS}
-			DESTINATION "${LIB_INSTALL_DIR}/data/shaders")
-
-	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/data/images/*")
-	install(FILES ${IMAGES}
-			DESTINATION "${LIB_INSTALL_DIR}/data/images")
-
-	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/data/fonts/*")
-	install(FILES ${FONTS}
-			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data"
+			DESTINATION "${ROOT_INSTALL_DIR}")
 
 endif()
