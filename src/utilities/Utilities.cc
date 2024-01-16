@@ -417,7 +417,7 @@ std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& file
 															  vector<std::filesystem::path> paths) {
 	AE_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
-		AE_LOG_D("\t...'{}", searchPath.string());
+		AE_LOG_D("\t...'{}'", searchPath.string());
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {

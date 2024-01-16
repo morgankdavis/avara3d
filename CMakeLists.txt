@@ -12,7 +12,10 @@ option(AE_BUILD_GLFW "Build GLFW from source" OFF)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
+# https://cmake.org/cmake/help/latest/guide/tutorial/Adding%20Usage%20Requirements%20for%20a%20Library.html
+add_library(ae_compiler_flags INTERFACE)
+target_compile_features(ae_compiler_flags INTERFACE cxx_std_17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -264,7 +267,7 @@ if (AE_BUILD_BULLET)
 
 	# bullet 3.17
 
-	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
 	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
 	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
@@ -337,14 +340,19 @@ elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "OPENGL_ES")
 endif()
 
-target_link_libraries(ae PUBLIC
+target_link_libraries(ae # PUBLIC
+		ae_compiler_flags)
+# can do target_link_libraries(000-sandbox PUBLIC
+#		ae_compiler_flags) etc
+
+target_link_libraries(ae # PUBLIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
 
 if (DESKTOP)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			manymouse
 			glfw
 			glew_s
@@ -366,7 +374,7 @@ if (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_CORE_VIDEO})
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			imgui
 			z
 			${FRAMEWORKS})
@@ -378,7 +386,7 @@ elseif (RPI)
 	find_library(OPENGLES3_LIBRARY GLESv2)
 	find_library(EGL_LIBRARY EGL)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			z
 			X11
 			Xxf86vm
@@ -391,7 +399,7 @@ elseif (RPI)
 
 elseif (LINUX) # not RPI
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			imgui
 			z
 			GL
@@ -404,12 +412,12 @@ elseif (LINUX) # not RPI
 
 elseif (WINDOWS)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			imgui)
 
 elseif (ANDROID)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(ae # PUBLIC
 			android
 			NDKHelper
 			z
@@ -464,15 +472,27 @@ if (NOT ANDROID)
 
 	# install engine resources
 
-	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/shaders/*")
+#	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/shaders/*")
+#	install(FILES ${SHADERS}
+#			DESTINATION "${LIB_INSTALL_DIR}/data/shaders")
+#
+#	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/images/*")
+#	install(FILES ${IMAGES}
+#			DESTINATION "${LIB_INSTALL_DIR}/data/images")
+#
+#	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/fonts/*")
+#	install(FILES ${FONTS}
+#			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
+
+	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/data/shaders/*")
 	install(FILES ${SHADERS}
 			DESTINATION "${LIB_INSTALL_DIR}/data/shaders")
 
-	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/images/*")
+	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/data/images/*")
 	install(FILES ${IMAGES}
 			DESTINATION "${LIB_INSTALL_DIR}/data/images")
 
-	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/fonts/*")
+	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/data/fonts/*")
 	install(FILES ${FONTS}
 			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
 
