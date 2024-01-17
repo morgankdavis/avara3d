@@ -148,8 +148,10 @@ if (NOT ANDROID)
 		add_subdirectory(external/assimp-5.3.1)
 		include_directories(external/assimp-5.3.1/include)
 
-		target_compile_options(zlibstatic PUBLIC
-				"-Wno-deprecated-non-prototype")
+		if (NOT MACOS)
+			target_compile_options(zlibstatic PUBLIC
+					"-Wno-deprecated-non-prototype")
+		endif()
 
 		set(ASSIMP_LIBRARIES assimp)
 
