@@ -22,8 +22,23 @@ include_directories(. backends)
 
 #find_package(glfw3 REQUIRED)
 
+# mkd: worked with static libs {
+#add_library(imgui
+#		STATIC
+#		${HEADERS}
+#		${SOURCES}
+#		backends/imgui_impl_opengl3.h
+#		backends/imgui_impl_opengl3.cpp
+#		backends/imgui_impl_glfw.h
+#		backends/imgui_impl_glfw.cpp)
+#
+#target_link_libraries(imgui glfw)
+#}
+
+
+
 add_library(imgui
-		STATIC
+		SHARED
 		${HEADERS}
 		${SOURCES}
 		backends/imgui_impl_opengl3.h
@@ -32,3 +47,7 @@ add_library(imgui
 		backends/imgui_impl_glfw.cpp)
 
 target_link_libraries(imgui glfw)
+
+# mkd: added when switching to shared libraries
+target_compile_options(glew_s PUBLIC
+		"-fPIC")

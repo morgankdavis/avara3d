@@ -5,12 +5,11 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_TESTS "Build the AE test applications" ON)
-option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
+#option(AE_BUILD_TESTS "Build the AE test applications" ON)
+#option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
 
 option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)
-#option(AE_BULLET_STATIC_LINK "Statically link Bullet libraries" ON)
 option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
 include(cmake/EnvironmentDetect.cmake)
@@ -43,7 +42,7 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # set install directories
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/${LOWER_RELEASE_TYPE}")
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/linux/${LOWER_RELEASE_TYPE}")
 
 ################################
 # glm
@@ -232,28 +231,35 @@ if (AE_BUILD_BULLET)
 
 	# bullet 2.25 -- fails with linker errors
 
-#	set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
-#	set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
-#	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-#	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD ON CACHE BOOL "" FORCE)
-#	set(USE_OPENVR OFF CACHE BOOL "" FORCE)
-#	set(ENABLE_VHACD OFF CACHE BOOL "" FORCE)
-#	set(BULLET2_MULTITHREADING OFF CACHE BOOL "" FORCE)
-#	set(USE_MSVC_INCREMENTAL_LINKING OFF CACHE BOOL "" FORCE)
-#	set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
-#	set(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES OFF CACHE BOOL "" FORCE)
-#	set(USE_GLUT OFF CACHE BOOL "" FORCE)
-#	set(BUILD_BULLET3 ON CACHE BOOL "" FORCE)
-#	set(BUILD_ENET OFF CACHE BOOL "" FORCE)
-#	set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
-#	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-#	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-#	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-#	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-#	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
-#
+	set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
+	set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
+	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD ON CACHE BOOL "" FORCE)
+	set(USE_OPENVR OFF CACHE BOOL "" FORCE)
+	set(ENABLE_VHACD OFF CACHE BOOL "" FORCE)
+	set(BULLET2_MULTITHREADING OFF CACHE BOOL "" FORCE)
+	set(USE_MSVC_INCREMENTAL_LINKING OFF CACHE BOOL "" FORCE)
+	set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
+	set(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES OFF CACHE BOOL "" FORCE)
+	set(USE_GLUT OFF CACHE BOOL "" FORCE)
+	set(BUILD_BULLET3 ON CACHE BOOL "" FORCE)
+	set(BUILD_ENET OFF CACHE BOOL "" FORCE)
+	set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
+	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+
+	set(BULLET_LIBRARIES
+			LinearMath
+			Bullet3Common
+			BulletInverseDynamics
+			BulletCollision
+			BulletDynamics)
+
 #	set(BULLET_LIBRARIES
 #			Bullet3OpenCL_clew
 #			Bullet2FileLoader
@@ -266,41 +272,36 @@ if (AE_BUILD_BULLET)
 #			BulletDynamics
 #			LinearMath
 #			Bullet3Common)
-#	add_subdirectory(external/bullet-3.25)
-#	include_directories(external/bullet-3.25/src)
+	add_subdirectory(external/bullet-3.25)
+	include_directories(external/bullet-3.25/src)
 
-#set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-#set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-#target_compile_options(Bullet3Collision PUBLIC
-#		"-Wno-deprecated-volatile")
+target_compile_options(Bullet3Collision PUBLIC
+		"-Wno-deprecated-volatile")
 
 	# bullet 3.17
 
-	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
-	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
-	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
-
-	add_subdirectory(external/bullet-3.17)
-	include_directories(external/bullet-3.17/src)
-
-#	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-#	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-
-	target_compile_options(Bullet3Collision PUBLIC
-			"-Wno-deprecated-volatile")
-
-	set(BULLET_LIBRARIES
-			LinearMath
-			Bullet3Common
-			BulletInverseDynamics
-			BulletCollision
-			BulletDynamics) #BulletSoftBody
+#	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+#	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+#	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+#	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+#	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+#	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+#
+#	add_subdirectory(external/bullet-3.17)
+#	include_directories(external/bullet-3.17/src)
+#
+#	target_compile_options(Bullet3Collision PUBLIC
+#			"-Wno-deprecated-volatile")
+#
+#	set(BULLET_LIBRARIES
+#			LinearMath
+#			Bullet3Common
+#			BulletInverseDynamics
+#			BulletCollision
+#			BulletDynamics)
 
 else()
 
@@ -324,7 +325,11 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 
 include_directories(include)
 
-add_library(ae STATIC
+#add_library(ae STATIC
+#		${HEADERS}
+#		${SOURCES})
+
+add_library(ae SHARED
 		${HEADERS}
 		${SOURCES})
 
@@ -475,18 +480,84 @@ add_subdirectory(tests)
 
 if (NOT ANDROID)
 
-	# install lib and headers
+	# ae
 
-	set(INCLUDE_INSTALL_DIR "${ROOT_INSTALL_DIR}/include/")
+	set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
+	set(INSTALL_INCLUDE_DIR "${INSTALL_ROOT_DIR}/include")
+	set(INSTALL_DATA_DIR "${INSTALL_ROOT_DIR}/data")
 
 	install(TARGETS ae
-			DESTINATION "${ROOT_INSTALL_DIR}/lib")
+			DESTINATION "${INSTALL_LIB_DIR}")
 
 	# TODO: public vs. private headers
-	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include"
-			DESTINATION "${ROOT_INSTALL_DIR}")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
+			DESTINATION "${INSTALL_INCLUDE_DIR}")
 
-	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data"
-			DESTINATION "${ROOT_INSTALL_DIR}")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
+			DESTINATION "${INSTALL_DATA_DIR}")
+
+	# assimp
+
+	install(TARGETS assimp
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+	# bullet
+
+	install(TARGETS
+			LinearMath
+			Bullet3Common
+			BulletInverseDynamics
+			BulletCollision
+			BulletDynamics
+			DESTINATION
+			"${INSTALL_LIB_DIR}")
+
+	# ? fmt
+
+		# using #define FMT_HEADER_ONLY ??
+		# ! install headers?
+
+	# generator
+
+	install(TARGETS generator
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+	# x gih-f
+
+		# (header-only)
+
+	# x glew
+
+		# ! can link shared ?
+
+	# glfw
+
+	install(TARGETS glfw
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+	# ? glm
+
+		# ! install headers
+
+	# imgui
+
+	install(TARGETS imgui
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+	# x magic_enum
+
+		# (header-only)
+
+	# manymouse
+
+	install(TARGETS manymouse
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+	# x stb
+
+		# (header-only)
+
+	# x v-hacd (header-only)
+
 
 endif()

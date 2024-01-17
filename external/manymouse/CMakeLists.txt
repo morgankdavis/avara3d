@@ -4,7 +4,8 @@ file(GLOB SOURCES src/*.c*)
 
 include_directories(include)
 
-add_library(manymouse ${HEADERS} ${SOURCES})
+#add_library(manymouse ${HEADERS} ${SOURCES})
+add_library(manymouse SHARED ${HEADERS} ${SOURCES})
 
 target_compile_options(manymouse PRIVATE 
 	"-Wno-tautological-pointer-compare"
