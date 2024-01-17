@@ -79,12 +79,12 @@ namespace ae {
 	private:
 
 		void 							initMouseMotionInput();
-		void 							initManyMouse();
-		void 							quitManyMouse();
+//		void 							initManyMouse();
+//		void 							quitManyMouse();
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-		bool							_usingManyMouse;
+//		bool							_usingManyMouse;
 		std::weak_ptr<Window>			_window;
 	};
 }

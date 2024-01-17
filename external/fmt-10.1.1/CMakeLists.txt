@@ -48,6 +48,9 @@ function(add_module_library name)
   set(sources ${AML_UNPARSED_ARGUMENTS})
 
   add_library(${name})
+  # mkd: added when switching to shared libraries
+  target_compile_options(${name} PUBLIC
+          "-fPIC")
   set_target_properties(${name} PROPERTIES LINKER_LANGUAGE CXX)
 
   if (NOT ${${AML_IF}})

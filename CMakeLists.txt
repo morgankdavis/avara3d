@@ -183,8 +183,8 @@ if (NOT ANDROID)
 	# manymouse
 	################################
 
-	add_subdirectory(external/manymouse)
-	include_directories(external/manymouse/include)
+#	add_subdirectory(external/manymouse)
+#	include_directories(external/manymouse/include)
 
 endif() # NOT ANDROID
 
@@ -260,23 +260,11 @@ if (AE_BUILD_BULLET)
 			BulletCollision
 			BulletDynamics)
 
-#	set(BULLET_LIBRARIES
-#			Bullet3OpenCL_clew
-#			Bullet2FileLoader
-#			Bullet3Dynamics
-#			Bullet3Collision
-#			Bullet3Geometry
-#			BulletInverseDynamics
-#			BulletSoftBody
-#			BulletCollision
-#			BulletDynamics
-#			LinearMath
-#			Bullet3Common)
 	add_subdirectory(external/bullet-3.25)
 	include_directories(external/bullet-3.25/src)
 
-target_compile_options(Bullet3Collision PUBLIC
-		"-Wno-deprecated-volatile")
+	target_compile_options(Bullet3Collision PUBLIC
+			"-Wno-deprecated-volatile")
 
 	# bullet 3.17
 
@@ -363,14 +351,14 @@ endif()
 #		ae_compiler_flags) etc
 
 target_link_libraries(ae PUBLIC
-		fmt::fmt
+		fmt
 		generator
 		${BULLET_LIBRARIES})
 
 if (DESKTOP)
 
 	target_link_libraries(ae PUBLIC
-			manymouse
+#			manymouse
 			glfw
 			glew_s
 			# imgui
@@ -510,8 +498,14 @@ if (NOT ANDROID)
 
 		# using #define FMT_HEADER_ONLY ??
 		# ! install headers?
+#	install(TARGETS fmt
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#				CMake Error at cmake_install.cmake:435 (file):
+#				file INSTALL cannot find "/home/mkd/avara-engine/include/fmt/args.h": No
+#				such file or directory.
 
-	# generator
+
+# generator
 
 	install(TARGETS generator
 			DESTINATION "${INSTALL_LIB_DIR}")
@@ -544,8 +538,8 @@ if (NOT ANDROID)
 
 	# manymouse
 
-	install(TARGETS manymouse
-			DESTINATION "${INSTALL_LIB_DIR}")
+#	install(TARGETS manymouse
+#			DESTINATION "${INSTALL_LIB_DIR}")
 
 	# x stb
 
