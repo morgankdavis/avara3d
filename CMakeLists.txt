@@ -5,9 +5,13 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_ASSIMP "Build Assimp from source" OFF)
-option(AE_BUILD_BULLET "Build Bullet from source" OFF)
-option(AE_BUILD_GLFW "Build GLFW from source" OFF)
+option(AE_BUILD_TESTS "Build the AE test applications" ON)
+option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
+
+option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
+option(AE_BUILD_BULLET "Build Bullet from source" ON)
+#option(AE_BULLET_STATIC_LINK "Statically link Bullet libraries" ON)
+option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
@@ -144,7 +148,10 @@ if (NOT ANDROID)
 		add_subdirectory(external/assimp-5.3.1)
 		include_directories(external/assimp-5.3.1/include)
 
-		set(ASSIMP_LIBRARIES "assimp")
+		target_compile_options(zlibstatic PUBLIC
+				"-Wno-deprecated-non-prototype")
+
+		set(ASSIMP_LIBRARIES assimp)
 
 		# assimp 3.3.1
 
@@ -267,7 +274,7 @@ if (AE_BUILD_BULLET)
 
 	# bullet 3.17
 
-	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
+	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
 	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
 	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
@@ -279,6 +286,9 @@ if (AE_BUILD_BULLET)
 
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
+
+#	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
+#	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
 
 	target_compile_options(Bullet3Collision PUBLIC
 			"-Wno-deprecated-volatile")
@@ -345,14 +355,14 @@ endif()
 # can do target_link_libraries(000-sandbox PUBLIC
 #		ae_compiler_flags) etc
 
-target_link_libraries(ae # PUBLIC
+target_link_libraries(ae PUBLIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
 
 if (DESKTOP)
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			manymouse
 			glfw
 			glew_s
@@ -374,11 +384,12 @@ if (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_CORE_VIDEO})
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			imgui
 			z
 			${FRAMEWORKS})
 
+	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
 elseif (RPI)
@@ -386,7 +397,7 @@ elseif (RPI)
 	find_library(OPENGLES3_LIBRARY GLESv2)
 	find_library(EGL_LIBRARY EGL)
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			z
 			X11
 			Xxf86vm
@@ -399,7 +410,7 @@ elseif (RPI)
 
 elseif (LINUX) # not RPI
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			imgui
 			z
 			GL
@@ -410,14 +421,17 @@ elseif (LINUX) # not RPI
 			Xi
 			dl)
 
+	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
+	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib/") # THIS
+
 elseif (WINDOWS)
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			imgui)
 
 elseif (ANDROID)
 
-	target_link_libraries(ae # PUBLIC
+	target_link_libraries(ae PUBLIC
 			android
 			NDKHelper
 			z
@@ -460,7 +474,7 @@ add_subdirectory(tests)
 if (NOT ANDROID)
 
 	# install lib and headers
-	
+
 	set(INCLUDE_INSTALL_DIR "${ROOT_INSTALL_DIR}/include/")
 
 	install(TARGETS ae
