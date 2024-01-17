@@ -503,14 +503,8 @@ if (NOT ANDROID)
 
 	# bullet
 
-	install(TARGETS
-			LinearMath
-			Bullet3Common
-			BulletInverseDynamics
-			BulletCollision
-			BulletDynamics
-			DESTINATION
-			"${INSTALL_LIB_DIR}")
+	install(TARGETS ${BULLET_LIBRARIES}
+			DESTINATION "${INSTALL_LIB_DIR}")
 
 	# ? fmt
 
