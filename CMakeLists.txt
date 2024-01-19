@@ -141,15 +141,14 @@ if (NOT ANDROID)
 			set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
 		else()
 			set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+			target_compile_options(zlibstatic PUBLIC
+					"-Wno-deprecated-non-prototype")
 		endif()
 		set(ASSIMP_INSTALL_PDB ON CACHE BOOL "" FORCE)
 		set(USE_STATIC_CRT OFF CACHE BOOL "" FORCE)
 
 		add_subdirectory(external/assimp-5.3.1)
 		include_directories(external/assimp-5.3.1/include)
-
-		target_compile_options(zlibstatic PUBLIC
-				"-Wno-deprecated-non-prototype")
 
 		set(ASSIMP_LIBRARIES assimp)
 
