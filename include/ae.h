@@ -10,37 +10,7 @@
 #define ae_h
 
 
-namespace ae {
-
-	struct Version { // semver.org
-		int major;
-		int minor;
-		int patch;
-
-		int build; // move to BuildInfo?
-	};
-
-	struct BuildInfo {
-
-		enum class TYPE {
-			DEBUG,
-			RELEASE
-		};
-
-		enum class ORIGIN {
-			CI,
-			ADHOC
-		};
-
-		static BuildInfo& Info();
-
-		Version version;
-		TYPE type;
-		ORIGIN origin;
-//		std::time date; // better type?
-	};
-}
-
+#include "BuildInfo.h"
 #include "Global.h"
 #include "Types.h"
 #include "diagnostic/Exception.h"

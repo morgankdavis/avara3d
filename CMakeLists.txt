@@ -39,6 +39,8 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # GITLAB_CI_PIPELINE_IID: 456
 # ^^ check and replace if not defined
 
+configure_file(_BuildInfo.h.in _BuildInfo.h)
+
 
 # set install directories
 
@@ -361,6 +363,10 @@ target_link_libraries(ae PUBLIC
 		fmt::fmt
 		generator
 		${BULLET_LIBRARIES})
+
+# for _BuildInfo.h
+target_include_directories(ae PUBLIC
+		"${PROJECT_BINARY_DIR}")
 
 if (DESKTOP)
 
