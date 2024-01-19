@@ -5,8 +5,8 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_TESTS "Build the AE test applications" ON)
-option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
+option(AE_BUILD_TESTS "Build AE test applications" ON)
+option(AE_BUILD_DEMOS "Build AE demo applications" ON)
 
 option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)

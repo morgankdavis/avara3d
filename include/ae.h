@@ -16,6 +16,7 @@ namespace ae {
 		int major;
 		int minor;
 		int patch;
+
 		int build; // move to BuildInfo?
 	};
 
@@ -27,7 +28,7 @@ namespace ae {
 		};
 
 		enum class ORIGIN {
-			AUTOMATED,
+			CI,
 			ADHOC
 		};
 
@@ -38,13 +39,6 @@ namespace ae {
 		ORIGIN origin;
 //		std::time date; // better type?
 	};
-
-	extern constexpr int MajorVersion();
-	extern constexpr int MinorVersion();
-	extern constexpr int PatchVersion();
-	extern constexpr int BuildNumber();
-	extern constexpr const unsigned char* VersionString(); // 1.2.3
-	extern constexpr const unsigned char* BuildString(); // 12345
 }
 
 #include "Global.h"
