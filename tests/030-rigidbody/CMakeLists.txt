@@ -5,8 +5,9 @@ set(UNIT_DESCRIPTION "rigidbody")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 message(STATUS "TEST_NAME: " ${TEST_NAME})
 
-file(GLOB HEADERS "*.h")
-file(GLOB SOURCES "*.c*")
+#file(GLOB HEADERS "*.h")
+#file(GLOB SOURCES "*.c*")
+file(GLOB SOURCES main.cc)
 
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
