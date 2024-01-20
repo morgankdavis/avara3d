@@ -6,10 +6,6 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-
-//#include "Test.h"
-
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -28,7 +24,6 @@ using namespace std;
 using namespace std::placeholders;
 
 
-
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -38,13 +33,13 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
-
 constexpr bool					DARK =					true;
 
-std::shared_ptr<ae::Node> _testNode;
 
-
-
+void UpdateCallback(ae::Scene& scene, float time);
+void WillRenderCallback(ae::VisualWorld& world, float time);
+void DidRenderCallback(ae::VisualWorld& world, float time);
+void DidSimulatePhysicsCallback(ae::PhysicalWorld& world, float time);
 
 shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
 shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
@@ -64,46 +59,21 @@ shared_ptr<Node> ChainmailLink(float radius, float height);
 void SpawnChainMail(Scene& scene);
 
 
-
-void UpdateCallback(ae::Scene& scene, float time);
-void WillRenderCallback(ae::VisualWorld& world, float time);
-void DidRenderCallback(ae::VisualWorld& world, float time);
-void DidSimulatePhysicsCallback(ae::PhysicalWorld& world, float time);
-
-
-
-
-std::shared_ptr<ae::Logger>			_logger;
-
-std::shared_ptr<ae::Node>			_palmNode;
-std::shared_ptr<ae::Node>			_duckSpinnerNode;
-std::shared_ptr<ae::Node>			_duckNode;
-std::shared_ptr<ae::Node>			_paddleNode;
-
-std::shared_ptr<ae::Node>			_fruit1Node;
+std::shared_ptr<ae::Logger>			logger;
+std::shared_ptr<ae::Node>			palmNode;
+std::shared_ptr<ae::Node>			duckSpinnerNode;
+std::shared_ptr<ae::Node>			duckNode;
+std::shared_ptr<ae::Node>			paddleNode;
+std::shared_ptr<ae::Node>			fruit1Node;
+std::shared_ptr<ae::Node> 			testNode;
 
 
 int main(int argc, const char* argv[]) {
 
-//	auto args = vector<string>();
-//	for (int i=0; i<argc; ++i) {
-//		args.push_back(argv[i]);
-//	}
-//
-//	test::Test().run(args);
-
-
-
-
-
-
-
-
-
 	Logger::MainLogger()->level(LOG_LEVEL::TRACE);
 
-	_logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-	LOG_I(_logger, "");
+	logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	LOG_I(logger, "");
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
@@ -227,8 +197,8 @@ int main(int argc, const char* argv[]) {
 	// add the palm tree
 
 	auto palmScene = SceneNamed("palm2/palm2", "obj");
-	_palmNode = palmScene->rootNode();
-	_palmNode->name("Palm node");
+	palmNode = palmScene->rootNode();
+	palmNode->name("Palm node");
 	for (auto n : palmScene->rootNode()->children(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
@@ -241,7 +211,7 @@ int main(int argc, const char* argv[]) {
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
 	palmPhysicsBody->restitution(0.25);
-	_palmNode->physicsBody(palmPhysicsBody);
+	palmNode->physicsBody(palmPhysicsBody);
 
 	scene->rootNode()->addChild(palmScene->rootNode());
 
@@ -305,7 +275,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-	LOG_I(_logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
+	LOG_I(logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 
 //	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
@@ -334,7 +304,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time) {
-	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
+	LOG_T(logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -352,11 +322,11 @@ void UpdateCallback(Scene& scene, float time) {
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
 
-	if (_duckSpinnerNode) {
+	if (duckSpinnerNode) {
 		//auto duckRotation = _duckSpinnerNode->rotation();
 		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
-		auto duckSpinnerEuler = _duckSpinnerNode->eulerAngles();
-		_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+		auto duckSpinnerEuler = duckSpinnerNode->eulerAngles();
+		duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
 
 //	for (auto& c : scene.rootNode()->children(true)) {
@@ -398,39 +368,39 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 	if (keysPressed.count(KEY::ONE)) {
-		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
+		duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::BOUNDING_BOX);
 	}
 
 	if (keysPressed.count(KEY::TWO)) {
-		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+		duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
 	}
 
 	if (keysPressed.count(KEY::THREE)) {
-		_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+		duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 	}
 
 
 
 	if (keysPressed.count(KEY::FIVE)) {
-		_testNode->physicsBody()->mass(0);
+		testNode->physicsBody()->mass(0);
 	}
 
 	if (keysPressed.count(KEY::SIX)) {
-		_testNode->physicsBody()->mass(10);
+		testNode->physicsBody()->mass(10);
 	}
 
 	if (keysPressed.count(KEY::SEVEN)) {
-		_testNode->physicsBody()->mass(100);
+		testNode->physicsBody()->mass(100);
 	}
 
 
 
 	if (keysPressed.count(KEY::NINE)) {
-		_testNode->physicsBody()->resting(!_testNode->physicsBody()->resting());
+		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
 	}
 
 	if (keysPressed.count(KEY::ZERO)) {
-		_testNode->physicsBody()->allowsResting(!_testNode->physicsBody()->allowsResting());
+		testNode->physicsBody()->allowsResting(!testNode->physicsBody()->allowsResting());
 	}
 
 
@@ -438,7 +408,7 @@ void UpdateCallback(Scene& scene, float time) {
 	if (!scene.paused()) {
 
 		if (keysPressed.count(KEY::T)) {
-			LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+			LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 		}
 
 		// spawn duck fruit
@@ -448,9 +418,9 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 
 		if (keysDown.count(KEY::TAB)) {
-			auto fruitNode = SpawnDuckFruit(scene, _duckNode);
-			if (!_fruit1Node) {
-				_fruit1Node = fruitNode;
+			auto fruitNode = SpawnDuckFruit(scene, duckNode);
+			if (!fruit1Node) {
+				fruit1Node = fruitNode;
 			}
 		}
 
@@ -487,8 +457,8 @@ void UpdateCallback(Scene& scene, float time) {
 //		}
 
 		if (keysPressed.count(KEY::J)) {
-			if (_fruit1Node) {
-				_fruit1Node->physicsBody()->affectedByGravity(!(_fruit1Node->physicsBody()->affectedByGravity()));
+			if (fruit1Node) {
+				fruit1Node->physicsBody()->affectedByGravity(!(fruit1Node->physicsBody()->affectedByGravity()));
 			}
 		}
 
@@ -500,15 +470,15 @@ void UpdateCallback(Scene& scene, float time) {
 
 		static const float PADDLE_SPEED = 5.0; // m/s
 		if (keysDown.count(KEY::EQUAL)) {
-			if (_paddleNode) {
-				auto p = _paddleNode->position();
-				_paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
+			if (paddleNode) {
+				auto p = paddleNode->position();
+				paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
 			}
 		}
 		if (keysDown.count(KEY::MINUS)) {
-			if (_paddleNode) {
-				auto p = _paddleNode->position();
-				_paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
+			if (paddleNode) {
+				auto p = paddleNode->position();
+				paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
 			}
 		}
 
@@ -694,11 +664,11 @@ void UpdateCallback(Scene& scene, float time) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -706,7 +676,7 @@ void DidRenderCallback(VisualWorld& world, float time) {
  ***************************************************************************************/
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -1514,7 +1484,7 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 
 		scene.rootNode()->addChild(node);
 
-		_testNode = node;
+		testNode = node;
 	}
 }
 
@@ -1762,7 +1732,6 @@ void SpawnChainMail(Scene& scene) {
 }
 
 
-
 //{
 //// orientation indicator
 //static auto shaftElement = make_shared<Cylinder>(.1, 1, 16, 16)->elements().front();
@@ -1781,4 +1750,3 @@ void SpawnChainMail(Scene& scene) {
 ////	orientationNode->addChildren({xArrowNode, yArrowNode, zArrowNode});
 ////	scene->rootNode()->addChild(orientationNode);
 //}
-
