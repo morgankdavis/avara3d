@@ -413,9 +413,6 @@ elseif (LINUX) # not RPI
 			Xi
 			dl)
 
-	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
-	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib/") # THIS
-
 elseif (WINDOWS)
 
 	target_link_libraries(ae PUBLIC
