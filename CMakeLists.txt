@@ -57,6 +57,7 @@ include_directories(external/glm-0.9.9.8)
 set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(external/fmt-10.1.1)
+include_directories(external/fmt-10.1.1/include)
 
 #target_compile_definitions(fmt PUBLIC FMT_HEADER_ONLY)
 
