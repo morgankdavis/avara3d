@@ -43,7 +43,7 @@ using namespace ae;
 static bool 	InitGLFW();
 static bool 	InitGLEW();
 static void 	LogGLInfo();
-static float 	ScreenScaleFactor(GLFWmonitor* monitor);
+//static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -89,10 +89,9 @@ Window::Window(RENDER_API renderAPI,
 		auto viewportWidth = width;
 		auto viewportHeight = height;
 
-		float scaleFactor = 1.0;
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
 		if (fullScreen) {
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
 																					 vmode->height,
@@ -102,7 +101,7 @@ Window::Window(RENDER_API renderAPI,
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 
-			scaleFactor = ScreenScaleFactor(monitor);
+//			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
@@ -113,8 +112,13 @@ Window::Window(RENDER_API renderAPI,
 
 			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
+//			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
+
+		float scaleFactorX = 1.0;
+		float scaleFactorY = 1.0;
+		float scaleFactor = scaleFactorX; // TODO: FIX THIS
+		glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
 
 		if (_glfwWindow) {
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
@@ -391,19 +395,19 @@ static void LogGLInfo()
 	AE_LOG_I("{}", contextParamsStream.str());
 }
 
-static float ScreenScaleFactor(GLFWmonitor* monitor) {
-#ifdef MACOS
-	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-	
-	Size width = CGDisplayModeGetWidth(currentModeRef);
-	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-	return (float)pixelWidth / (float)width;
-#endif
-	return 1.0;
-}
+//static float ScreenScaleFactor(GLFWmonitor* monitor) {
+//#ifdef MACOS
+//	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+//	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+//	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+//	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+//
+//	Size width = CGDisplayModeGetWidth(currentModeRef);
+//	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+//	return (float)pixelWidth / (float)width;
+//#endif
+//	return 1.0;
+//}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	AE_LOG_T("width: {}, height: {}", width, height);
