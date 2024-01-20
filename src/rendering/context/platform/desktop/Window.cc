@@ -9,7 +9,7 @@
 #ifdef DESKTOP
 
 
-#include "rendering/context/platform/desktop/Window.h"
+#include "ae/rendering/context/platform/desktop/Window.h"
 
 #include <iostream>
 #include <sstream>
@@ -22,14 +22,14 @@
 #endif
 #include "GLFW/glfw3native.h"
 
-#include "diagnostic/logging/Logger.h"
-#include "input/platform/desktop/WindowInputManager.h"
-#include "physics/PhysicalWorld.h"
-#include "rendering/Renderer.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/camera/Camera.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/input/platform/desktop/WindowInputManager.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace std;

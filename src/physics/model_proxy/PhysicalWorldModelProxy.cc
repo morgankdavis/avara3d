@@ -2,7 +2,7 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "physics/model_proxy/PhysicalWorldModelProxy.h"
+#include "ae/physics/model_proxy/PhysicalWorldModelProxy.h"
 
 
 using namespace ae;

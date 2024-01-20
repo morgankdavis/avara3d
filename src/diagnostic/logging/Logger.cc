@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "diagnostic/logging/Logger.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 //#ifdef WINDOWS
 //// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
@@ -26,14 +26,14 @@
 #include <NDKHelper.h>
 #endif
 
-#include "Global.h"
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/sinks/LoggerSink.h"
-#include "diagnostic/logging/sinks/FileLoggerSink.h"
+#include "ae/Global.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/sinks/LoggerSink.h"
+#include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP
-#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 #endif
-#include "utilities/Utilities.h"
+#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

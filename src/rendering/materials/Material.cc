@@ -6,15 +6,15 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/materials/Material.h"
+#include "ae/rendering/materials/Material.h"
 
 #include <memory>
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "rendering/materials/MaterialPropertyContents.h"
-#include "utilities/Color.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/materials/MaterialPropertyContents.h"
+#include "ae/utilities/Color.h"
 
 
 using namespace ae;

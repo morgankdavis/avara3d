@@ -54,12 +54,10 @@ include_directories(external/glm-0.9.9.8)
 # fmt
 ################################
 
-set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(external/fmt-10.1.1)
-include_directories(external/fmt-10.1.1/include)
-
-#target_compile_definitions(fmt PUBLIC FMT_HEADER_ONLY)
+#set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
+#
+#add_subdirectory(external/fmt-10.1.1)
+#include_directories(external/fmt-10.1.1/include)
 
 ################################
 # android things
@@ -346,6 +344,8 @@ endif()
 #		ae_compiler_flags)
 # can do target_link_libraries(000-sandbox PUBLIC
 #		ae_compiler_flags) etc
+
+target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 
 target_link_libraries(ae PUBLIC
 #		fmt

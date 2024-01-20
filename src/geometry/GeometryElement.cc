@@ -6,14 +6,14 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/GeometryElement.h"
+#include "ae/geometry/GeometryElement.h"
 
 #include <iostream>
 
-#include "Types.h"
-#include "diagnostic/logging/Logger.h"
-#include "scene/Node.h"
-#include "rendering/Renderer.h"
+#include "ae/Types.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/scene/Node.h"
+#include "ae/rendering/Renderer.h"
 
 
 using namespace ae;

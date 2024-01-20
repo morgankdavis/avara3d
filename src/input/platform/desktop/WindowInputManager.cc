@@ -9,16 +9,16 @@
 #ifdef DESKTOP
 
 
-#include "input/platform/desktop/WindowInputManager.h"
+#include "ae/input/platform/desktop/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
 //#include "manymouse.h"
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/context/platform/desktop/Window.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/context/platform/desktop/Window.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;

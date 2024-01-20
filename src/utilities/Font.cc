@@ -6,10 +6,10 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "utilities/Font.h"
+#include "ae/utilities/Font.h"
 
-#include "utilities/Buffer.h"
-#include "diagnostic/logging/Logger.h"
+#include "ae/utilities/Buffer.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;

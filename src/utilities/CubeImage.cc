@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "utilities/CubeImage.h"
+#include "ae/utilities/CubeImage.h"
 
 
 using namespace ae;

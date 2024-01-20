@@ -6,21 +6,21 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/context/RenderContext.h"
+#include "ae/rendering/context/RenderContext.h"
 
 #include "gif.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/opengl/OpenGLRenderer.h"
-#include "rendering/camera/PerspectiveCamera.h"
-#include "rendering/Renderer.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Buffer.h"
-#include "utilities/Image.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/opengl/OpenGLRenderer.h"
+#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
+#include "ae/utilities/Buffer.h"
+#include "ae/utilities/Image.h"
 
 
 using namespace ae;

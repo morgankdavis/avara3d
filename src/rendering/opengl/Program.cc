@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/opengl/Program.h"
+#include "ae/rendering/opengl/Program.h"
 
 #ifdef OPENGL_ES
 #include <EGL/egl.h>
@@ -17,9 +17,9 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "utilities/Utilities.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

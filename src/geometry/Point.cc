@@ -6,9 +6,9 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/Point.h"
+#include "ae/geometry/Point.h"
 
-#include "utilities/Color.h"
+#include "ae/utilities/Color.h"
 
 
 using namespace ae;

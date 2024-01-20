@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "Global.h"
+#include "ae/Global.h"
 
 #ifdef ANDROID
 #include <NDKHelper.h>

@@ -6,16 +6,16 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "physics/PhysicsBody.h"
+#include "ae/physics/PhysicsBody.h"
 
 #include "magic_enum.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "physics/PhysicsShape.h"
-#include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletBodyProxy.h"
-#include "physics/bullet/BulletWorldProxy.h"
-#include "scene/Node.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/physics/PhysicsShape.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletBodyProxy.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;

@@ -9,7 +9,7 @@
 #ifdef ANDROID
 
 
-#include "Activity.h"
+#include "ae/Activity.h"
 
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
@@ -23,13 +23,13 @@
 
 #include <NDKHelper.h>
 
-#include "ActivityInputManager.h"
-#include "Camera.h"
-#include "Global.h"
-#include "Logger.h"
-#include "Node.h"
-#include "Renderer.h"
-#include "Scene.h"
+#include "ae/ActivityInputManager.h"
+#include "ae/Camera.h"
+#include "ae/Global.h"
+#include "ae/Logger.h"
+#include "ae/Node.h"
+#include "ae/Renderer.h"
+#include "ae/Scene.h"
 
 
 using namespace ae;

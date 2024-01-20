@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/opengl/OpenGLRenderer.h"
+#include "ae/rendering/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -28,28 +28,28 @@
 #include "magic_enum.hpp"
 #endif
 
-#include "Global.h"
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/GeometryElement.h"
-#include "geometry/Line.h"
-#include "geometry/Point.h"
-#include "rendering/Light.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/camera/Camera.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/context/platform/desktop/Window.h"
-#include "rendering/materials/Material.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "rendering/opengl/Program.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Buffer.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
-#include "utilities/Font.h"
-#include "utilities/Image.h"
-#include "utilities/Utilities.h"
+#include "ae/Global.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/geometry/Line.h"
+#include "ae/geometry/Point.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/context/platform/desktop/Window.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/opengl/Program.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
+#include "ae/utilities/Buffer.h"
+#include "ae/utilities/Color.h"
+#include "ae/utilities/CubeImage.h"
+#include "ae/utilities/Font.h"
+#include "ae/utilities/Image.h"
+#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

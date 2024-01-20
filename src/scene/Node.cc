@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "scene/Node.h"
+#include "ae/scene/Node.h"
 
 #include <algorithm>
 
@@ -15,13 +15,13 @@
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "physics/PhysicsBody.h"
-#include "physics/PhysicsShape.h"
-#include "rendering/Light.h"
-#include "rendering/camera/Camera.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/PhysicsShape.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/camera/Camera.h"
 
 
 using namespace ae;

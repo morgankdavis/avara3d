@@ -2,8 +2,9 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "physics/model_proxy/PhysicsBodyModelProxy.h"
-#include "diagnostic/logging/Logger.h"
+#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
+
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;

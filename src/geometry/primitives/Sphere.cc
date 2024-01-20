@@ -6,16 +6,16 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Sphere.h"
+#include "ae/geometry/primitives/Sphere.h"
 
 #include <iostream>
 #include <memory>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
-#include "utilities/Utilities.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/utilities/Utilities.h"
 
 
 

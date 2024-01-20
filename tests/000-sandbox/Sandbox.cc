@@ -12,9 +12,9 @@
 
 #include <glm/glm.hpp>
 
-#include "utilities/Utilities.h"
+#include "ae/utilities/Utilities.h"
 
-#include "physics/bullet/BulletBodyProxy.h"
+#include "ae/physics/bullet/BulletBodyProxy.h"
 
 
 using namespace ae;

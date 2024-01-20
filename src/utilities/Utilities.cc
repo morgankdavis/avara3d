@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "utilities/Utilities.h"
+#include "ae/utilities/Utilities.h"
 
 #include <algorithm>
 //#ifdef WINDOWS
@@ -52,21 +52,21 @@
 
 #include "glm/gtc/quaternion.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/GeometryElement.h"
-#include "rendering/Light.h"
-#include "rendering/camera/Camera.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/materials/Material.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Buffer.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
-#include "utilities/Font.h"
-#include "utilities/Image.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
+#include "ae/utilities/Buffer.h"
+#include "ae/utilities/Color.h"
+#include "ae/utilities/CubeImage.h"
+#include "ae/utilities/Font.h"
+#include "ae/utilities/Image.h"
 
 
 using namespace ae;

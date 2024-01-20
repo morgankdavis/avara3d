@@ -6,10 +6,10 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/materials/MaterialProperty.h"
+#include "ae/rendering/materials/MaterialProperty.h"
 
-#include "diagnostic/logging/Logger.h"
-#include "utilities/CubeImage.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/utilities/CubeImage.h"
 
 
 using namespace ae;

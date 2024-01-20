@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Cylinder.h"
+#include "ae/geometry/primitives/Cylinder.h"
 
 #include <memory>
 #include <vector>
@@ -16,8 +16,8 @@
 //#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;

@@ -6,9 +6,9 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/Light.h"
+#include "ae/rendering/Light.h"
 
-#include "utilities/Color.h"
+#include "ae/utilities/Color.h"
 
 
 using namespace ae;

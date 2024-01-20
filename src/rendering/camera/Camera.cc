@@ -6,11 +6,11 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/camera/Camera.h"
+#include "ae/rendering/camera/Camera.h"
 
 #include <iostream>
 
-#include "utilities/Utilities.h"
+#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;
