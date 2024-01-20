@@ -314,9 +314,6 @@ add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
-target_include_directories(ae PRIVATE include)
-
-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(ae PUBLIC "AE_DEBUG")
 endif()
@@ -344,10 +341,7 @@ elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "OPENGL_ES")
 endif()
 
-#target_link_libraries(ae # PUBLIC
-#		ae_compiler_flags)
-# can do target_link_libraries(000-sandbox PUBLIC
-#		ae_compiler_flags) etc
+target_include_directories(ae PUBLIC include)
 
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 

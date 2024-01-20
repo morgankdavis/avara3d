@@ -22,6 +22,11 @@ using namespace std;
 using namespace std::placeholders;
 
 
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
+
+
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			800;
 constexpr unsigned				WINDOW_HEIGHT =			600;
@@ -32,21 +37,12 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(ae::Scene& scene, float time);
-void WillRenderCallback(ae::VisualWorld& world, float time);
-void DidRenderCallback(ae::VisualWorld& world, float time);
-
-
 int main(int argc, const char* argv[]) {
 
-	auto logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
-
+	auto logger = make_shared<Logger>("test-006", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
-
-
 	auto fileSink = make_shared<FileLoggerSink>("log/rotating.log", 20, 1024 * 512);
 	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
-
 	for (unsigned l=0; l < 50000; ++l) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}

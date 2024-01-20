@@ -6,20 +6,98 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
+#include <iostream>
+#include <memory>
 
-#include "Test.h"
+#include "glm/gtc/matrix_transform.hpp"
+
+#include "ae/ae.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
+using namespace ae::utils;
+using namespace glm;
 using namespace std;
+using namespace std::placeholders;
+
+
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
+
+
+constexpr bool					USE_HIGH_DPI =			false;
+constexpr unsigned				WINDOW_WIDTH =			1024;
+constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					CAPTURE_CURSOR =		false;
+
+
+std::shared_ptr<ae::Node> 		importRoot;
 
 
 int main(int argc, const char* argv[]) {
 
-	auto args = vector<string>();
-	for (int i=0; i<argc; ++i) {
-		args.push_back(argv[i]);
-	}
-	
-	test::Test().run(args);
+	cout << "test001::main()\n" << endl;
+
+	auto window = make_shared<Window>(RENDER_API::OPENGL,
+									  FULLSCREEN,
+									  WINDOW_WIDTH,
+									  WINDOW_HEIGHT,
+									  USE_HIGH_DPI,
+									  ANTIALIAS_MODE);
+	window->vSyncEnabled(ENABLE_VSYNC);
+	window->cursorCaptured(CAPTURE_CURSOR);
+
+	auto visualWorld = make_shared<VisualWorld>(window);
+	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+	auto background = make_shared<MaterialProperty>(backgroundColor);
+	visualWorld->background(background);
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+
+	auto scene = make_shared<Scene>();
+	scene->visualWorld(visualWorld);
+	scene->update(bind(&UpdateCallback, _1, _2));
+
+	auto testScene = SceneNamed("importTest");
+	importRoot = testScene->rootNode();
+	scene->rootNode()->addChild(importRoot);
+
+	window->open();
+	scene->run();
+
+	return 0;
+}
+
+/***************************************************************************************
+	Scene Callbacks
+ ***************************************************************************************/
+
+void UpdateCallback(Scene& scene, float time) {
+
+	static float previousSeconds = time;
+	float deltaSeconds = time - previousSeconds;
+	previousSeconds = time;
+
+	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+
+	importRoot->transform(rotate(importRoot->transform(),
+								 radians(rotationDeg),
+								 vec3(0.0f, 1.0f, 0.0f)));
+}
+
+/***************************************************************************************
+	VisualWorld Callbacks
+ ***************************************************************************************/
+
+void WillRenderCallback(VisualWorld& world, float time) {
+
+}
+
+void DidRenderCallback(VisualWorld& world, float time) {
+
 }

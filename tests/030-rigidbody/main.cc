@@ -24,22 +24,11 @@ using namespace std;
 using namespace std::placeholders;
 
 
-constexpr bool					USE_HIGH_DPI =			false;
-constexpr unsigned				WINDOW_WIDTH =			1280;
-constexpr unsigned				WINDOW_HEIGHT =			768;
-constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
-constexpr bool					DARK =					true;
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
+void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
-
-void UpdateCallback(ae::Scene& scene, float time);
-void WillRenderCallback(ae::VisualWorld& world, float time);
-void DidRenderCallback(ae::VisualWorld& world, float time);
-void DidSimulatePhysicsCallback(ae::PhysicalWorld& world, float time);
 
 shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
 shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
@@ -59,20 +48,31 @@ shared_ptr<Node> ChainmailLink(float radius, float height);
 void SpawnChainMail(Scene& scene);
 
 
-std::shared_ptr<ae::Logger>			logger;
-std::shared_ptr<ae::Node>			palmNode;
-std::shared_ptr<ae::Node>			duckSpinnerNode;
-std::shared_ptr<ae::Node>			duckNode;
-std::shared_ptr<ae::Node>			paddleNode;
-std::shared_ptr<ae::Node>			fruit1Node;
-std::shared_ptr<ae::Node> 			testNode;
+constexpr bool					USE_HIGH_DPI =			false;
+constexpr unsigned				WINDOW_WIDTH =			1280;
+constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr bool					FULLSCREEN =			false;
+constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
+constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					CAPTURE_CURSOR =		false;
+constexpr float					MOUSE_SENSITIVITY =		0.5;
+constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
+constexpr bool					DARK =					true;
+
+
+std::shared_ptr<ae::Logger>		logger;
+std::shared_ptr<ae::Node>		palmNode;
+std::shared_ptr<ae::Node>		duckSpinnerNode;
+std::shared_ptr<ae::Node>		duckNode;
+std::shared_ptr<ae::Node>		paddleNode;
+std::shared_ptr<ae::Node>		fruit1Node;
+std::shared_ptr<ae::Node> 		testNode;
 
 
 int main(int argc, const char* argv[]) {
 
 	Logger::MainLogger()->level(LOG_LEVEL::TRACE);
-
-	logger = make_shared<Logger>("example", Logger::MainLogger()->sinks());
+	logger = make_shared<Logger>("test-030", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
