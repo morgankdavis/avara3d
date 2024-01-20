@@ -26,11 +26,7 @@ target_compile_options(${TEST_NAME} PRIVATE
 
 if (NOT ANDROID)
 
-	# install test executable
-
-	set(TESTS_INSTALL_DIR "${ROOT_INSTALL_DIR}/tests")
-
 	install(TARGETS ${TEST_NAME}
-			DESTINATION "${TESTS_INSTALL_DIR}")
+			DESTINATION "${INSTALL_TESTS_EXEC_DIR}")
 
 endif()

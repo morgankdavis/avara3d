@@ -12,7 +12,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
@@ -23,7 +23,7 @@ using namespace std::placeholders;
 using namespace test;
 
 
-constexpr bool					USE_HIGH_DPI =			true;
+constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;

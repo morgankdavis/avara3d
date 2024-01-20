@@ -6,9 +6,9 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "input/InputManager.h"
+#include "ae/input/InputManager.h"
 
-#include "diagnostic/logging/Logger.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;

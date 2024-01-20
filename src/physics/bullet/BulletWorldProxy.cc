@@ -2,7 +2,7 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "physics/bullet/BulletWorldProxy.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -11,11 +11,11 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "physics/PhysicsBody.h"
-#include "physics/bullet/BulletBodyProxy.h"
-#include "physics/bullet/BulletDebugDrawer.h"
-#include "scene/Node.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/bullet/BulletBodyProxy.h"
+#include "ae/physics/bullet/BulletDebugDrawer.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;

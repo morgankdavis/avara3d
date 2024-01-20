@@ -1,0 +1,715 @@
+//
+//  Utilities.cc
+//	avara-engine
+//
+//  Created by Morgan Davis on 12/23/16.
+//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//
+
+#include "ae/Utilities.h"
+
+#include <algorithm>
+//#ifdef WINDOWS
+//	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
+//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+//	#define NOGDI
+//#endif
+#include <ctime>
+#include <fstream>
+#include <memory>
+#include <random>
+#include <sstream>
+
+#ifdef POSIX
+#include <errno.h>
+#include <execinfo.h>
+#include <unistd.h>
+#include <sys/time.h>
+#endif
+
+#ifdef MACOS
+#include <CoreGraphics/CoreGraphics.h>
+#include <mach-o/dyld.h>
+#endif
+
+#ifdef LINUX
+#include <libgen.h>
+#endif
+
+#ifdef WINDOWS
+#include <windows.h>
+#undef ERROR // see note at LOG_LEVEL
+// C:\...\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\...\ae.vcxproj]
+// C:\...\minwindef.h(193,29): message : expanded from macro 'max' [C:\G...\ae.vcxproj]
+#undef max
+#endif
+
+#ifdef ANDROID
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <NDKHelper.h>
+#endif
+
+#include "glm/gtc/quaternion.hpp"
+
+#include "ae/Buffer.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/Font.h"
+#include "ae/Image.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
+
+
+using namespace ae;
+using namespace glm;
+using namespace std;
+
+
+/*********************************************************************************************
+ 	Private Static Prototypes
+ *********************************************************************************************/
+
+static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
+
+/*********************************************************************************************
+ 	Output Utilities
+ *********************************************************************************************/
+
+ostream& ae::utils::operator<<(ostream& os, const glm::vec3& v) {
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	return os;
+}
+
+ostream& ae::utils::operator<<(ostream& os, const glm::vec4& v) {
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+	return os;
+}
+
+ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
+	os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
+	return os;
+}
+
+ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
+	// "GLM uses column major ordering, so the addressing is m[col][row]"
+	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
+	
+	char str[1024];
+	snprintf(str, sizeof(str),
+			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
+			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+			 m[0][1], m[1][1], m[2][1], m[3][1],
+			 m[0][2], m[1][2], m[2][2], m[3][2],
+			 m[0][3], m[1][3], m[2][3], m[3][3]);
+	
+	return (os << str);
+}
+
+ostream& ae::utils::operator<<(ostream& os, const Color& c) {
+	os << "(" << c.r << ", " << c.g << ", " << c.b << ", " << c.a << ")";
+	return os;
+}
+
+string ae::utils::StringFromGLMVec3(const vec3& v) {
+	ostringstream stringStream;
+	stringStream << v;
+	return stringStream.str();
+}
+
+string ae::utils::StringFromGLMVec4(const vec4& v) {
+	ostringstream stringStream;
+	stringStream << v;
+	return stringStream.str();
+}
+
+string ae::utils::StringFromGLMQuat(const quat& q) {
+	ostringstream stringStream;
+	stringStream << q;
+	return stringStream.str();
+}
+
+string ae::utils::StringFromGLMMat4(const mat4& m) {
+	ostringstream stringStream;
+	stringStream << m;
+	return stringStream.str();
+}
+
+string ae::utils::StringFromColor(const Color& c) {
+	ostringstream stringStream;
+	stringStream << c;
+	return stringStream.str();
+}
+
+string ae::utils::StringFromTree(Node& root) {
+
+	stringstream ss;
+	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
+	ss << "[NODE] (" << static_cast<const void*>(&root) << ", " << name << ")" << endl;
+	 
+	unsigned depth = 0;
+
+	for (auto& c : root.children(false)) {
+		 StringFromTreeRec(*c, ss, depth+1);
+	}
+	
+	return ss.str();
+}
+
+string ae::utils::DateTimeString() {
+	char buffer[128];
+#ifdef WINDOWS
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
+#else
+	timeval curTime;
+	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
+	int milli = curTime.tv_usec / 1000;
+	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	sprintf(buffer, "%s.%03d", buffer, milli);
+#endif
+	return string(buffer);
+}
+
+#ifdef POSIX
+string ae::utils::StackTrace(unsigned dropFunctions) {
+	
+	auto traceStr = string();
+	static const unsigned MAX_FRAMES = 64;
+
+	void* addrList[MAX_FRAMES];
+	unsigned addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
+	
+	if (addrLen != 0) {
+		char** symbolList = backtrace_symbols(addrList, addrLen);
+		for (int x=dropFunctions+1; x<addrLen; ++x) {
+			traceStr += string(symbolList[x]) + "\n";
+		}
+		
+		free(symbolList);
+	}
+	else {
+		traceStr = "No stack trace.\n";
+	}
+	
+	return traceStr;
+}
+#endif
+
+/*********************************************************************************************
+ 	Numeric Utilities
+ *********************************************************************************************/
+
+int ae::utils::Uniform(int min, int max) {
+	static random_device rd;
+	static mt19937 gen(rd());
+	uniform_int_distribution<> dis(min, max);
+	return dis(gen);
+}
+
+float ae::utils::Uniform(float min, float max) {
+	static random_device rd;
+	static mt19937 gen(rd());
+	uniform_real_distribution<> dis(min, max);
+	return dis(gen);
+}
+
+bool ae::utils::Zero(const vec3& v, float tolerance) {
+	return Equal(v.x, 0, tolerance) 
+	&& Equal(v.y, 0, tolerance) 
+	&& Equal(v.z, 0, tolerance);
+}
+
+float ae::utils::Max(const vec3& v) {
+	return std::max(std::max(v.x, v.y), v.z);
+}
+
+bool ae::utils::Equal(float a, float b, float tolerance) {
+	return (fabs(a - b) <= tolerance);
+}
+
+bool ae::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
+	return Equal(a.x, b.x, tolerance) 
+	&& Equal(a.y, b.y, tolerance) 
+	&& Equal(a.z, b.z, tolerance);
+}
+
+bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
+	return Equal(a.x, b.x, tolerance) 
+	&& Equal(a.y, b.y, tolerance) 
+	&& Equal(a.z, b.z, tolerance) 
+	&& Equal(a.w, b.w, tolerance);
+}
+
+/*********************************************************************************************
+	String Utilities
+ *********************************************************************************************/
+
+void ae::utils::StringReplace(string& str,
+							  const string& oldStr,
+							  const string& newStr) {
+	string::size_type pos = 0u;
+	while ((pos = str.find(oldStr, pos)) != string::npos) {
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
+/*********************************************************************************************
+ 	File Utilities
+ *********************************************************************************************/
+
+// *** executable and working directories ***
+
+#ifndef ANDROID
+
+std::optional<std::filesystem::path> ae::utils::ExecutablePath() {
+#if defined(MACOS)
+	char path[1024];
+	uint32_t size = sizeof(path);
+	if (_NSGetExecutablePath(path, &size) == 0) {
+		return std::filesystem::path(path);
+	}
+#elif defined(LINUX)
+	char path[1024];
+	ssize_t count = readlink("/proc/self/exe", path, 1024);
+	if (count != -1) {
+		return std::filesystem::path(path);
+	}
+#elif defined(WINDOWS)
+	char path[1024];
+	if (GetModuleFileName(NULL, path, 1024)) {
+		return std::filesystem::path(path);
+	}
+#endif
+	return std::nullopt;
+}
+
+std::optional<std::filesystem::path> ae::utils::ExecutableDirectory() {
+	auto execPathStr = ExecutablePath();
+	if (execPathStr) {
+		auto execPath = std::filesystem::path(*execPathStr);
+		return execPath.parent_path();
+	}
+	return std::nullopt;
+}
+
+std::optional<std::filesystem::path> ae::utils::ExecutableName() {
+	auto execPathStr = ExecutablePath();
+	if (execPathStr) {
+		auto execPath = std::filesystem::path(*execPathStr);
+		//if (is_regular_file(execPath)) {
+			return execPath.filename();
+		//}
+	}
+	return std::nullopt;
+}
+
+std::optional<std::filesystem::path> ae::utils::CurrentWorkingDirectory() {
+#ifdef POSIX
+	char cwd[1024];
+	if (getcwd(cwd, sizeof(cwd))) {
+		return std::filesystem::path(cwd);
+	}
+#else
+	char path[1024];
+	if (GetModuleFileName(NULL, path, 1024)) {
+		return std::filesystem::path(path);
+	}
+#endif
+	return std::nullopt;
+}
+
+#endif // !ANDROID
+
+// *** search paths ***
+
+#ifndef ANDROID
+
+vector<std::filesystem::path> ae::utils::BaseSearchPaths() {
+	// build a list of common directories where "shader", "scene", "images", "fonts" etc
+	// subdirectories may live.
+	// clients will use this to append those subdirectory names to search for specific resources.
+	// clients should first check "local" locations first, then "engine" locations.
+	
+	auto basePaths = vector<std::filesystem::path>();
+	auto execDir = ExecutableDirectory();
+	
+	if (execDir) {
+		// [local] archived
+		// [local] cmake installed ("packaged")
+		auto path = (*execDir) / "data";
+		basePaths.emplace_back(path);
+		
+		// [local] xcode debug
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
+		basePaths.emplace_back(path);
+		
+		// [local] unix/msys debug
+		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
+		basePaths.emplace_back(path);
+		
+		// [engine] archived
+		path = (*execDir).parent_path() / "data";
+		basePaths.emplace_back(path);
+		
+		// [engine] cmake installed ("packaged")
+		// [engine] xcode debug
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "data";
+		basePaths.emplace_back(path);
+		
+		// [engine] unix/msys debug
+		path = (*execDir).parent_path().parent_path().parent_path() / "data";
+		basePaths.emplace_back(path);
+		
+		// fallback
+		path = (*execDir);
+		basePaths.emplace_back(path);
+	}
+	
+	return basePaths;
+}
+
+vector<std::filesystem::path> ae::utils::ShaderSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "shaders");
+	}
+	return searchPaths;
+}
+
+vector<std::filesystem::path> ae::utils::SceneSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "scenes");
+	}
+	return searchPaths;
+}
+
+vector<std::filesystem::path> ae::utils::ImageSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "images");
+	}
+	return searchPaths;
+}
+
+vector<std::filesystem::path> ae::utils::FontSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "fonts");
+	}
+	return searchPaths;
+}
+
+std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& filename,
+															  vector<std::filesystem::path> paths) {
+	AE_LOG_D("Searching for '{}' in...", filename);
+	for (auto& searchPath : paths) {
+		AE_LOG_D("\t...'{}'", searchPath.string());
+		if (std::filesystem::is_directory(searchPath)) {
+			auto path = searchPath / filename;
+			if (std::filesystem::is_regular_file(path)) {
+				return path;
+			}
+		}
+	}
+	AE_LOG_W("Not found.");
+	return std::nullopt;
+}
+
+#endif // !ANDROID
+
+// *** binary and text files ***
+
+#ifdef ANDROID
+
+std::optional<std::filesystem::path> ae::utils::InternalFilesDirectory() {
+	auto helper = ndk_helper::JNIHelper::GetInstance();
+	string filesDir = helper->GetFilesDir();
+	if (filesDir.length()) return std::filesystem::path(filesDir);
+	return std::nullopt;
+}
+
+std::optional<string> ae::utils::TextAsset(const string& relPath) {
+//	vector<unsigned char> buffer = BinaryAsset(relPath);
+//	if (buffer.size()) {
+//		return string(buffer.begin(), buffer.end());
+//	}
+	auto buffer = BinaryAsset(relPath);
+	if (buffer->size()) {
+		return string((char*)(buffer->pointer()));
+	}
+	return std::nullopt;
+}
+
+shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
+	auto helper = ndk_helper::JNIHelper::GetInstance();
+	auto vecBuf = vector<unsigned char>();
+	helper->ReadFile(relPath.c_str(), &vecBuf);
+	return make_shared<Buffer>(vecBuf);
+}
+
+#else
+
+std::optional<string> ae::utils::TextFile(const std::filesystem::path& path) {
+	string line;
+	string source = "";
+	ifstream infile;
+	infile.open(path.string());
+	if (infile.is_open()) {
+		while (!infile.eof()) {
+			getline(infile, line);
+			source += line;
+			source += "\n";
+		}
+		infile.close();
+		return source;
+	}
+	return std::nullopt;
+}
+
+#endif // ANDROID
+
+// *** shaders ***
+
+std::optional<std::string> ae::utils::ShaderSource(const string& name,
+													 const string& type) {
+	std::optional<string> rawSource = std::nullopt;
+#ifdef ANDROID
+	rawSource = TextAsset("shaders/" + name + "." + type);
+#else
+	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
+	if (path) {
+		AE_LOG_D("Found shader at path: {}", (*path).string());
+		rawSource = TextFile(*path);
+	}
+#endif
+
+	return rawSource;
+}
+
+// *** fonts ***
+
+shared_ptr<Font> ae::utils::FontNamed(const string& name,
+									  const string& type) {
+#ifdef ANDROID
+	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
+#else
+	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
+	if (path) {
+		AE_LOG_T("Found font at path: {}", (*path).string());
+		return make_shared<Font>(*path);
+	}
+#endif
+	return nullptr;
+}
+
+
+// ***  images ***
+
+shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+										bool flipHorizontal,
+										bool flipVertical) {
+
+	return ImageNamed(name, "png", flipHorizontal, flipVertical);
+}
+
+shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+										const string& type,
+										bool flipHorizontal,
+										bool flipVertical) {
+	
+#ifdef ANDROID
+	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
+	return make_shared<Image>(data);
+#else
+	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
+	if (path) {
+		AE_LOG_D("Found image at path: {}", (*path).string());
+		return make_shared<Image>(*path, flipHorizontal, flipVertical);
+	}
+#endif
+	return nullptr;
+}
+
+shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name) {
+	
+	return CubeImageNamed(name, "png");
+}
+
+shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
+												const string& type) {
+	
+	// panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
+
+	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, false, true),
+								  ImageNamed(name + "_negx", type, false, true),
+								  ImageNamed(name + "_posy", type, true, false),
+								  ImageNamed(name + "_negy", type, true, false),
+								  ImageNamed(name + "_posz", type, false, true),
+								  ImageNamed(name + "_negz", type, false, true));
+}
+
+// *** scenes ***
+
+#ifndef ANDROID
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name) {
+	
+	return SceneNamed(name, "dae");
+}
+
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+										const string& type) {
+	
+	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
+	if (path) {
+		AE_LOG_T("Found scene at path: {}", (*path).string());
+		return Scene::FromFile(*path);
+	}
+	return nullptr;
+}
+#endif
+
+/*********************************************************************************************
+ 	Misc Utilities
+ *********************************************************************************************/
+
+void ae::utils::SaveSnapshot(RenderContext& context) {
+#ifdef ANDROID
+	throw Exception("SaveSnapshot() not supported on Android.");
+#else
+	auto image = context.snapshot();
+	
+	string dateTime = DateTimeString();
+	
+	char filename[256] = "";
+	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
+	
+	AE_LOG_I("Saving snapshot '{}'...", filename);
+	
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+		auto fullPath = *execDir / filename;
+		image->writePNG(fullPath);
+	}
+	else {
+		AE_LOG_W("Couldn't locate executable directory.");
+	}
+#endif
+}
+
+void ae::utils::StartGIFRecording(RenderContext& context,
+								  unsigned maxHeight, unsigned maxFramerate) {
+#ifdef ANDROID
+	throw Exception("StartGIFRecording() not supported on Android.");
+#else
+	char filename[256] = "";
+	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
+	auto execDir = ExecutableDirectory();
+	if (execDir) {
+		auto fullPath = *execDir / filename;
+		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
+	}
+	else {
+		AE_LOG_W("Couldn't locate executable directory.");
+	}
+#endif
+}
+
+void ae::utils::StopGIFRecording(RenderContext& context) {
+#ifdef ANDROID
+	throw Exception("StopGIFRecording() not supported on Android.");
+#else
+	context.stopGIFRecording();
+#endif
+}
+
+/*********************************************************************************************
+ 	Private Static
+ *********************************************************************************************/
+
+void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
+	
+	string padding = "";
+	for (unsigned d=0; d<depth; ++d) {
+		padding += "\t";
+	}
+	string nodeName = (n.name() ? "\"" + *(n.name()) + "\"" : "null");
+	ss << padding << "[NODE] (" << static_cast<const void*>(&n)
+	<< ", " << nodeName << ")" << endl;
+	
+	auto geometry = n.geometry();
+	if (geometry) {
+		string geometryName = (geometry->name() ? "\"" + *(geometry->name()) + "\"" : "null");
+		ss << padding << "\t[GEOMETRY] (" << static_cast<const void*>(geometry.get())
+		<< ", " << geometryName << ")" << endl;
+		
+		for (auto& element : geometry->elements()) {
+			ss << padding << "\t\t[ELEMENT] (" << static_cast<const void*>(element.get())<< ")" << endl;
+		}
+		
+		for (auto& material : geometry->materials()) {
+			
+			string properties = "";
+			if (material->ambient()) properties += "a";
+			if (material->diffuse()) properties += "d";
+			if (material->specular()) properties += "s";
+			if (material->emissive()) properties += "e";
+			
+			string materialName = (material->name() ? "\"" + *(material->name()) + "\"" : "null");
+			ss << padding << "\t\t[MATERIAL] (" << static_cast<const void*>(material.get())
+			<< ", " << materialName
+			<< ", " << properties << ")" << endl;
+			
+//			auto ambient = material->ambient();
+//			if (ambient) {
+//				ss << padding << "\t\t\tambient (" << static_cast<const void*>(ambient.get()) << ")" << endl;
+//			}
+//			
+//			auto diffuse = material->diffuse();
+//			if (diffuse) {
+//				ss << padding << "\t\t\tdiffuse (" << static_cast<const void*>(diffuse.get()) << ")" << endl;
+//			}
+//			
+//			auto specular = material->specular();
+//			if (specular) {
+//				ss << padding << "\t\t\tspecular (" << static_cast<const void*>(specular.get()) << ")" << endl;
+//			}
+//			
+//			auto emissive = material->emissive();
+//			if (emissive) {
+//				ss << padding << "\t\t\temissive (" << static_cast<const void*>(emissive.get()) << ")" << endl;
+//			}
+		}
+	}
+	
+	auto light = n.light();
+	if (light) {
+		string lightName = (light->name() ? "\"" + *(light->name()) + "\"" : "null");
+		ss << padding << "\t[LIGHT] (" << static_cast<const void*>(light.get())
+		<< ", " << lightName << ")" << endl;
+	}
+	
+	auto camera = n.camera();
+	if (camera) {
+		string cameraName = (camera->name() ? "\"" + *(camera->name()) + "\"" : "null");
+		ss << padding << "\t[CAMERA] (" << static_cast<const void*>(camera.get())
+		<< ", " << cameraName << ")" << endl;
+	}
+
+	for (auto& c : n.children(false)) {
+		StringFromTreeRec(*c, ss, depth+1);
+	}
+}

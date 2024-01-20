@@ -8,14 +8,14 @@
 
 #ifdef OPENGL_CORE
 
-#include "physics/bullet/BulletDebugDrawer.h"
+#include "ae/physics/bullet/BulletDebugDrawer.h"
 
 #include <set>
 
-#include "utilities/Color.h"
-#include "geometry/Line.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/Renderer.h"
+#include "ae/Color.h"
+#include "ae/geometry/Line.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/Renderer.h"
 
 
 using namespace ae;

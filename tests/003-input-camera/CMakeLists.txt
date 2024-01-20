@@ -5,9 +5,6 @@ set(UNIT_DESCRIPTION "input-camera")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 message(STATUS "TEST_NAME: " ${TEST_NAME})
 
-set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
-message(STATUS "TEST_NAME: " ${TEST_NAME})
-
 file(GLOB HEADERS "*.h")
 file(GLOB SOURCES "*.c*")
 
@@ -29,11 +26,7 @@ target_compile_options(${TEST_NAME} PRIVATE
 
 if (NOT ANDROID)
 
-	# install test executable
-
-	set(TESTS_INSTALL_DIR "${ROOT_INSTALL_DIR}/tests")
-
 	install(TARGETS ${TEST_NAME}
-			DESTINATION "${TESTS_INSTALL_DIR}")
+			DESTINATION "${INSTALL_TESTS_EXEC_DIR}")
 
 endif()

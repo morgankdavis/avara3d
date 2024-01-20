@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/Geometry.h"
+#include "ae/geometry/Geometry.h"
 
 #include <iostream>
 
@@ -14,11 +14,11 @@
 //#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/GeometryElement.h"
-#include "rendering/Renderer.h"
-#include "rendering/materials/Material.h"
-#include "scene/Node.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;

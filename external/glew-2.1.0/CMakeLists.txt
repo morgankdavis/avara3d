@@ -52,6 +52,9 @@ if(UNIX AND APPLE)
 	target_compile_options(glew_s PRIVATE "-mmacosx-version-min=10.9")
 endif()
 
+# mkd: added when switching to shared libraries
+target_compile_options(glew_s PUBLIC
+		"-fPIC")
 
 if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")))
   # remove stdlib dependency on windows with GCC and Clang (for similar reasons

@@ -29,7 +29,8 @@ SET(Bullet3Dynamics_HDRS
 	shared/b3IntegrateTransforms.h
 )
 
-ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
+#ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
+ADD_LIBRARY(Bullet3Dynamics STATIC ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Dynamics Bullet3Collision)
 endif ()

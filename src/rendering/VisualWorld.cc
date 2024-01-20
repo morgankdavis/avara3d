@@ -2,25 +2,25 @@
 // Created by mkd on 11/25/23.
 //
 
-#include "rendering/VisualWorld.h"
+#include "ae/rendering/VisualWorld.h"
 
 
 #include "glm/glm.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/primitives/Box.h"
-#include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletWorldProxy.h"
-#include "rendering/Light.h"
-#include "rendering/Renderer.h"
-#include "rendering/camera/PerspectiveCamera.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/primitives/Box.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;

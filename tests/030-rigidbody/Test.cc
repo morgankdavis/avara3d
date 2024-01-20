@@ -12,8 +12,8 @@
 
 #include <glm/glm.hpp>
 
-//#include "physics/ConvexDecomposer.h" // TEMPORARY
-#include "utilities/Utilities.h"
+#include "ae/Utilities.h"
+//#include "ae/physics/ConvexDecomposer.h" // TEMPORARY
 
 
 using namespace ae;
@@ -24,7 +24,7 @@ using namespace std::placeholders;
 using namespace test;
 
 
-constexpr bool					USE_HIGH_DPI =			true;
+constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;

@@ -5,12 +5,11 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_TESTS "Build AE test applications" ON)
-option(AE_BUILD_DEMOS "Build AE demo applications" ON)
+#option(AE_BUILD_TESTS "Build the AE test applications" ON)
+#option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
 
 option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)
-#option(AE_BULLET_STATIC_LINK "Statically link Bullet libraries" ON)
 option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
 include(cmake/EnvironmentDetect.cmake)
@@ -31,7 +30,7 @@ message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
 message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
 message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
-# BUILD_SOURCE = {ADHOC, GITLAB}
+# BUILD_SOURCE = {CI, ADHOC}
 message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT}) # RELEASE_DATE
 message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # ex:
@@ -43,7 +42,7 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # set install directories
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/${LOWER_RELEASE_TYPE}")
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/linux/${LOWER_RELEASE_TYPE}")
 
 ################################
 # glm
@@ -55,9 +54,10 @@ include_directories(external/glm-0.9.9.8)
 # fmt
 ################################
 
-set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(external/fmt-10.1.1)
+#set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
+#
+#add_subdirectory(external/fmt-10.1.1)
+#include_directories(external/fmt-10.1.1/include)
 
 ################################
 # android things
@@ -176,16 +176,14 @@ if (NOT ANDROID)
 		find_package(assimp REQUIRED)
 #		include_directories(${ASSIMP_INCLUDE_DIR})
 
-#		ASSIMP_BUILD_SHARED_LIBS ??
-
 	endif()
 
 	################################
 	# manymouse
 	################################
 
-	add_subdirectory(external/manymouse)
-	include_directories(external/manymouse/include)
+#	add_subdirectory(external/manymouse)
+#	include_directories(external/manymouse/include)
 
 endif() # NOT ANDROID
 
@@ -230,7 +228,7 @@ include_directories(external/v-hacd-4.1.0)
 
 if (AE_BUILD_BULLET)
 
-	# bullet 2.25 -- fails with linker errors
+	# bullet 2.25
 
 #	set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
 #	set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
@@ -255,28 +253,21 @@ if (AE_BUILD_BULLET)
 #	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 #
 #	set(BULLET_LIBRARIES
-#			Bullet3OpenCL_clew
-#			Bullet2FileLoader
-#			Bullet3Dynamics
-#			Bullet3Collision
-#			Bullet3Geometry
-#			BulletInverseDynamics
-#			BulletSoftBody
-#			BulletCollision
-#			BulletDynamics
 #			LinearMath
-#			Bullet3Common)
+#			Bullet3Common
+#			BulletInverseDynamics
+#			BulletCollision
+#			BulletDynamics)
+#
 #	add_subdirectory(external/bullet-3.25)
 #	include_directories(external/bullet-3.25/src)
-
-#set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-#set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-#target_compile_options(Bullet3Collision PUBLIC
-#		"-Wno-deprecated-volatile")
+#
+#	target_compile_options(Bullet3Collision PUBLIC
+#			"-Wno-deprecated-volatile")
 
 	# bullet 3.17
 
-	#set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # worked without
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
 	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
 	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
@@ -289,9 +280,6 @@ if (AE_BUILD_BULLET)
 	add_subdirectory(external/bullet-3.17)
 	include_directories(external/bullet-3.17/src)
 
-#	set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-#	set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-
 	target_compile_options(Bullet3Collision PUBLIC
 			"-Wno-deprecated-volatile")
 
@@ -300,7 +288,7 @@ if (AE_BUILD_BULLET)
 			Bullet3Common
 			BulletInverseDynamics
 			BulletCollision
-			BulletDynamics) #BulletSoftBody
+			BulletDynamics)
 
 else()
 
@@ -322,11 +310,11 @@ include_directories(external/magic_enum-0.9.3/include)
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-include_directories(include)
-
 add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
+
+target_include_directories(ae PRIVATE include)
 
 if (DESKTOP)
 	target_compile_definitions(ae PUBLIC "DESKTOP")
@@ -357,15 +345,17 @@ endif()
 # can do target_link_libraries(000-sandbox PUBLIC
 #		ae_compiler_flags) etc
 
+target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
+
 target_link_libraries(ae PUBLIC
-		fmt::fmt
+#		fmt
 		generator
 		${BULLET_LIBRARIES})
 
 if (DESKTOP)
 
 	target_link_libraries(ae PUBLIC
-			manymouse
+#			manymouse
 			glfw
 			glew_s
 			# imgui
@@ -423,9 +413,6 @@ elseif (LINUX) # not RPI
 			Xi
 			dl)
 
-	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
-	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib/") # THIS
-
 elseif (WINDOWS)
 
 	target_link_libraries(ae PUBLIC
@@ -475,18 +462,50 @@ add_subdirectory(tests)
 
 if (NOT ANDROID)
 
-	# install lib and headers
+	# ae
 
-	set(INCLUDE_INSTALL_DIR "${ROOT_INSTALL_DIR}/include/")
-
-	install(TARGETS ae
-			DESTINATION "${ROOT_INSTALL_DIR}/lib")
+	set(INSTALL_DATA_DIR "${INSTALL_ROOT_DIR}/data")
+	set(INSTALL_INCLUDE_DIR "${INSTALL_ROOT_DIR}/include")
+	set(INSTALL_LEGAL_DIR "${INSTALL_ROOT_DIR}/legal")
+	set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
 
 	# TODO: public vs. private headers
-	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include"
-			DESTINATION "${ROOT_INSTALL_DIR}")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
+			DESTINATION "${INSTALL_INCLUDE_DIR}")
 
-	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data"
-			DESTINATION "${ROOT_INSTALL_DIR}")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
+			DESTINATION "${INSTALL_DATA_DIR}")
+
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
+			DESTINATION "${INSTALL_LEGAL_DIR}")
+
+	install(TARGETS ae
+			DESTINATION "${INSTALL_LIB_DIR}")
+
+#	# assimp
+#	install(TARGETS assimp
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#
+#	# bullet
+#	install(TARGETS ${BULLET_LIBRARIES}
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#	# ? fmt - ! install headers
+#	# generator
+#	install(TARGETS generator
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#	# x gih-f - (header-only)
+#	# x glew - static link
+#	# glfw
+#	install(TARGETS glfw
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#	# glm - ! install headers
+#	# imgui
+#	install(TARGETS imgui
+#			DESTINATION "${INSTALL_LIB_DIR}")
+#	# x magic_enum - (header-only)
+#	# manymouse
+#	# x stb- (header-only)
+#	# x v-hacd (header-only)
+
 
 endif()
