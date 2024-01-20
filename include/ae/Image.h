@@ -66,7 +66,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<Buffer> 		data() const;
+		std::shared_ptr<Buffer> 		buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -84,7 +84,7 @@ namespace ae {
 		unsigned						_width;
 		unsigned						_height;
 		unsigned						_bytesPerPixel;
-		std::shared_ptr<Buffer>			_data;
+		std::shared_ptr<Buffer>			_buffer;
 	};
 }
 

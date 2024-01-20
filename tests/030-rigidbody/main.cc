@@ -14,7 +14,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-//#include <iostream>
 
 #include <glm/glm.hpp>
 
@@ -38,10 +37,9 @@ constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-//constexpr float					PHYSICS_TIMESTEP =		1.0/2048.0;
 constexpr float					PHYSICS_TIMESTEP =		1.0/180.0;
 
-constexpr bool					DARK =					false;
+constexpr bool					DARK =					true;
 
 std::shared_ptr<ae::Node> _testNode;
 

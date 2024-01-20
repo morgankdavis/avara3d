@@ -38,10 +38,15 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		unsigned char* 			pointer() const;
+		unsigned char* 			data() const;
 		unsigned 				size() const;
 
-		// TODO: operator*, operator[]
+/*********************************************************************************************
+	Operator Overloads
+ *********************************************************************************************/
+
+		unsigned char*			operator*() const;
+		unsigned char			operator[](std::size_t idx) const;
 
 /*********************************************************************************************
 	Private
@@ -49,7 +54,7 @@ namespace ae {
 
 	private:
 
-		unsigned char* 			_pointer;
+		unsigned char* 			_data;
 		unsigned 				_size;
 	};
 }

@@ -30,7 +30,7 @@ using namespace std;
 Image::Image(const filesystem::path& path,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_data(nullptr),
+		_buffer(nullptr),
 		_width(0),
 		_height(0),
 		_bytesPerPixel(0) {
@@ -43,7 +43,7 @@ Image::Image(const filesystem::path& path,
 Image::Image(shared_ptr<Buffer> buffer,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_data(nullptr),
+		_buffer(nullptr),
 		_width(0),
 		_height(0),
 		_bytesPerPixel(0) {
@@ -57,7 +57,7 @@ Image::Image(shared_ptr<Buffer> rawBuffer,
 			 unsigned bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_data(rawBuffer),
+		_buffer(rawBuffer),
 		_width(width),
 		_height(height),
 		_bytesPerPixel(bytesPerPixel) {
@@ -101,7 +101,7 @@ shared_ptr<Image> Image::inverted() const {
 
 	auto buf = (unsigned char*)malloc(size);
 
-	auto existing = _data->pointer();
+	auto existing = _buffer->data();
 	for (int r=0; r<_height; ++r) {
 		for (int c=0; c<widthInBytes; ++c) {
 			buf[widthInBytes*r + c] = 255 - existing[widthInBytes*r + c];
@@ -124,7 +124,7 @@ bool Image::writePNG(filesystem::path path) const {
 						   _width,
 						   _height,
 						   _bytesPerPixel,
-						   _data->pointer(),
+						   _buffer->data(),
 						   _width*_bytesPerPixel);
 }
 
@@ -132,8 +132,8 @@ bool Image::writePNG(filesystem::path path) const {
 	Internal
  *********************************************************************************************/
 
-shared_ptr<Buffer> Image::data() const {
-	return _data;
+shared_ptr<Buffer> Image::buffer() const {
+	return _buffer;
 }
 
 /*********************************************************************************************
@@ -148,7 +148,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	int height;
 	int bytesPerPixel;
 	
-	stbi_uc* imgData = stbi_load_from_memory(inBuf.pointer(),
+	stbi_uc* imgData = stbi_load_from_memory(*inBuf,//inBuf.data(),
 											 inBuf.size(),
 											 &width,
 											 &height,
@@ -163,7 +163,7 @@ void Image::loadBuffer(Buffer& inBuf,
 		throw Exception("Failed to load image data.");
 	}
 
-	_data = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
+	_buffer = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
 								static_cast<size_t>(width * height * bytesPerPixel));
 	
 	stbi_image_free(imgData);
@@ -191,7 +191,7 @@ void Image::flipVertical() { // "flip"
 	unsigned char temp = 0;
 	unsigned halfHeight = _height / 2;
 
-	unsigned char* dPtr = _data->pointer();
+	unsigned char* dPtr = _buffer->data();
 
 	for (unsigned r=0; r<halfHeight; ++r) {
 
@@ -219,7 +219,7 @@ void Image::flipHorizontal() { // "mirror"
 	uint32_t temp = 0;
 	unsigned halfWidth = _width / 2;
 
-	auto dPtr = reinterpret_cast<uint32_t*>(_data->pointer());
+	auto dPtr = reinterpret_cast<uint32_t*>(_buffer->data());
 
 	for (unsigned r=0; r<_height; ++r) {
 

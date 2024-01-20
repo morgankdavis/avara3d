@@ -299,7 +299,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		ImFontConfig config;
 		config.FontDataOwnedByAtlas = false;
 		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->pointer(),
+		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->data(),
 													 _overlayFont->buffer()->size(),
 													 fontSize,
 													 &config);
@@ -1094,7 +1094,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->data()->pointer());
+						 image->buffer()->data());
 		}
 		
 		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
@@ -1177,7 +1177,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					 0,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
-					 image->data()->pointer());
+					 image->buffer()->data());
 		
 		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
 		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());
