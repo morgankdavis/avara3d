@@ -12,9 +12,9 @@
 
 #include "ae/Buffer.h"
 #include "ae/Color.h"
+#include "ae/Configuration.h"
 #include "ae/CubeImage.h"
 #include "ae/Font.h"
-#include "ae/Global.h"
 #include "ae/Image.h"
 #include "ae/Types.h"
 #include "ae/diagnostic/Exception.h"
