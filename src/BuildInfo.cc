@@ -16,8 +16,8 @@ using namespace std;
 
 BuildInfo& BuildInfo::Info() {
 
-	if (_instance == nullptr) _instance = new BuildInfo();
-	return *_instance;
+	static BuildInfo instance;
+	return instance;
 }
 
 BuildInfo::BuildInfo():

@@ -38,8 +38,10 @@ namespace ae {
 
 		static BuildInfo& Info();
 
-		BuildInfo(const BuildInfo &other) = delete; // copy constructor
-		BuildInfo &operator=(const BuildInfo &other) = delete; // copy assignment
+//		BuildInfo(const BuildInfo&) = delete; // copy constructor
+//		BuildInfo &operator=(const BuildInfo&) = delete; // copy assignment
+//		BuildInfo(BuildInfo&&) = delete; // move constructor
+//		BuildInfo(const BuildInfo&&) = delete; // move assignment
 
 		/*********************************************************************************************
 			Public
@@ -64,7 +66,6 @@ namespace ae {
 		ORIGIN 				_origin;
 		// https://stackoverflow.com/questions/3505352/portable-way-to-create-a-timestamp-in-c-c
 		// std::time 		date; // ?
-		static BuildInfo* 	_instance;
 	};
 }
 
