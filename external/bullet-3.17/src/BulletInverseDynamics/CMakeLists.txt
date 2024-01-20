@@ -30,7 +30,7 @@ SET(BulletInverseDynamics_HDRS
 
 #ADD_LIBRARY(BulletInverseDynamics $<${AE_BULLET_STATIC_LINK}:STATIC> ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
 #ADD_LIBRARY(BulletInverseDynamics STATIC ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
-ADD_LIBRARY(BulletInverseDynamics ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
+ADD_LIBRARY(BulletInverseDynamics STATIC ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
 
 SET_TARGET_PROPERTIES(BulletInverseDynamics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletInverseDynamics PROPERTIES SOVERSION ${BULLET_VERSION})

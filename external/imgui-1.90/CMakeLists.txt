@@ -37,8 +37,17 @@ include_directories(. backends)
 
 
 
+#add_library(imgui
+#		SHARED
+#		${HEADERS}
+#		${SOURCES}
+#		backends/imgui_impl_opengl3.h
+#		backends/imgui_impl_opengl3.cpp
+#		backends/imgui_impl_glfw.h
+#		backends/imgui_impl_glfw.cpp)
+
 add_library(imgui
-		SHARED
+		STATIC
 		${HEADERS}
 		${SOURCES}
 		backends/imgui_impl_opengl3.h

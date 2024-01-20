@@ -142,8 +142,8 @@ set(GENERATOR_SOURCES
 
 # mkd ?
 #add_library(generator${SUFFIX} ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
-#add_library(generator${SUFFIX} STATIC ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
-add_library(generator${SUFFIX} SHARED ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+add_library(generator${SUFFIX} STATIC ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+#add_library(generator${SUFFIX} SHARED ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
 
 # mkd: added when switching to shared libraries
 target_compile_options(generator${SUFFIX} PUBLIC

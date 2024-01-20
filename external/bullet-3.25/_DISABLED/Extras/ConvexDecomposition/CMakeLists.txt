@@ -34,7 +34,8 @@ SET(ConvexDecomposition_HDRS
 	cd_hull.h
 )
 
-ADD_LIBRARY(ConvexDecomposition ${ConvexDecomposition_SRCS} ${ConvexDecomposition_HDRS})
+#ADD_LIBRARY(ConvexDecomposition ${ConvexDecomposition_SRCS} ${ConvexDecomposition_HDRS})
+ADD_LIBRARY(ConvexDecomposition STATIC ${ConvexDecomposition_SRCS} ${ConvexDecomposition_HDRS})
 SET_TARGET_PROPERTIES(ConvexDecomposition PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(ConvexDecomposition PROPERTIES SOVERSION ${BULLET_VERSION})
 

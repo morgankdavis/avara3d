@@ -18,7 +18,8 @@ bFile.h
 btBulletFile.h
 )
 
-ADD_LIBRARY(BulletFileLoader ${BulletFileLoader_SRCS} ${BulletFileLoader_HDRS})
+#ADD_LIBRARY(BulletFileLoader ${BulletFileLoader_SRCS} ${BulletFileLoader_HDRS})
+ADD_LIBRARY(BulletFileLoader STATIC ${BulletFileLoader_SRCS} ${BulletFileLoader_HDRS})
 
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletFileLoader LinearMath)

@@ -5,13 +5,21 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2
 )
 
+#ADD_LIBRARY(
+#	BulletXmlWorldImporter
+#	btBulletXmlWorldImporter.cpp
+#	btBulletXmlWorldImporter.h
+#	string_split.cpp
+#	string_split.h
+#	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
+#)
 ADD_LIBRARY(
-	BulletXmlWorldImporter
-	btBulletXmlWorldImporter.cpp
-	btBulletXmlWorldImporter.h
-	string_split.cpp
-	string_split.h
-	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
+		BulletXmlWorldImporter STATIC
+		btBulletXmlWorldImporter.cpp
+		btBulletXmlWorldImporter.h
+		string_split.cpp
+		string_split.h
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 )
 
 SET_TARGET_PROPERTIES(BulletXmlWorldImporter  PROPERTIES VERSION ${BULLET_VERSION})
