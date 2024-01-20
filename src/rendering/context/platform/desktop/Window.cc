@@ -20,7 +20,7 @@
 #ifdef MACOS
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
-#include "GLFW/glfw3native.h"
+//#include "GLFW/glfw3native.h"
 
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/input/platform/desktop/WindowInputManager.h"
