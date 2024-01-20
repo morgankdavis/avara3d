@@ -16,7 +16,7 @@
 
 #include <glm/glm.hpp>
 
-#include "ae.h"
+#include "ae/ae.h"
 
 
 namespace test {
