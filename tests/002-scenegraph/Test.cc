@@ -16,7 +16,7 @@
 //#define GLM_ENABLE_EXPERIMENTAL
 //#include <glm/gtx/string_cast.hpp>
 
-#include "ae/utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;

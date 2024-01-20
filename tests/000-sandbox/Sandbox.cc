@@ -12,7 +12,7 @@
 
 #include <glm/glm.hpp>
 
-#include "ae/utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 #include "ae/physics/bullet/BulletBodyProxy.h"
 

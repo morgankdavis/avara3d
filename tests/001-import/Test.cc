@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "ae/utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
