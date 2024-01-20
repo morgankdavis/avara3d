@@ -29,8 +29,8 @@ namespace ae {
 	public:
 
 		PhysicalWorldModelProxy(PhysicalWorld* world);
-		//virtual PhysicalWorldModelProxyProxy();
-		~PhysicalWorldModelProxy();
+		virtual ~PhysicalWorldModelProxy();
+//		~PhysicalWorldModelProxy();
 
 /*********************************************************************************************
 	Internal

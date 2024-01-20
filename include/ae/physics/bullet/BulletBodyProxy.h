@@ -26,7 +26,7 @@ namespace ae {
 	public:
 
 		BulletBodyProxy(PhysicsBody* body);
-		~BulletBodyProxy();
+		~BulletBodyProxy() override;
 
 /*********************************************************************************************
 	PhysicsBodyModelProxy

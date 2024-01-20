@@ -78,9 +78,7 @@ Window::Window(RENDER_API renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-
-#warning THIS
-		//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+		// glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 		auto viewportWidth = width;
 		auto viewportHeight = height;

@@ -93,7 +93,6 @@ void FileLoggerSink::openStream() {
 		_fileStream->close();
 	}
 
-#warning check file writable
 	_fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
 }
 

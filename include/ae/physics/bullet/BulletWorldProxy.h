@@ -39,7 +39,7 @@ namespace ae {
 
 		BulletWorldProxy(PhysicalWorld* world);
 		//BulletWorldProxy() override;
-		~BulletWorldProxy();
+		~BulletWorldProxy() override;
 
 /*********************************************************************************************
 	PhysicalWorldModelProxy

@@ -28,7 +28,7 @@ namespace ae {
 
 		PhysicsBodyModelProxy(PhysicsBody* body);
 		//virtual PhysicsBodyModelProxyProxy();
-		~PhysicsBodyModelProxy();
+		virtual ~PhysicsBodyModelProxy();
 
 /*********************************************************************************************
 	Internal
