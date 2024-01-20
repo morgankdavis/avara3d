@@ -314,7 +314,7 @@ add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
-target_include_directories(ae PUBLIC include)
+target_include_directories(ae PRIVATE include)
 
 if (DESKTOP)
 	target_compile_definitions(ae PUBLIC "DESKTOP")
