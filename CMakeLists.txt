@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
+endif()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
@@ -316,6 +316,10 @@ add_library(ae STATIC
 
 target_include_directories(ae PRIVATE include)
 
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions(ae PUBLIC "AE_DEBUG")
+endif()
 if (DESKTOP)
 	target_compile_definitions(ae PUBLIC "DESKTOP")
 	target_compile_definitions(ae PUBLIC "OPENGL_CORE")
@@ -348,14 +352,12 @@ endif()
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 
 target_link_libraries(ae PUBLIC
-#		fmt
 		generator
 		${BULLET_LIBRARIES})
 
 if (DESKTOP)
 
 	target_link_libraries(ae PUBLIC
-#			manymouse
 			glfw
 			glew_s
 			# imgui
