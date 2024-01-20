@@ -12,9 +12,6 @@
 #include <vector>
 
 #include "generator/generator.hpp"
-// apparently we're not using anything experimental here since at least GLM .9.9.8
-//#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/transform.hpp"
 
 #include "ae/Types.h"
 #include "ae/geometry/GeometryElement.h"

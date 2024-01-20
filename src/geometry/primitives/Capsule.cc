@@ -12,8 +12,6 @@
 #include <vector>
 
 #include "generator/generator.hpp"
-//#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/transform.hpp"
 
 #include "ae/Types.h"
 #include "ae/geometry/GeometryElement.h"
