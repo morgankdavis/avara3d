@@ -14,16 +14,6 @@ target_include_directories(${TEST_NAME} PUBLIC # add headers from avara-engine
 		"${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(${TEST_NAME} ae)
 
-target_compile_options(${TEST_NAME} PRIVATE
-		"-fmessage-length=0"
-		"-UGLFW_CDECL"
-		"-Wno-float-equal"
-		"-Wno-c++11-long-long"
-		"-Wno-self-assign"
-		"-Wno-reorder"
-		"-Wno-address-of-packed-member"
-		"-Wno-unused-function")
-
 if (NOT ANDROID)
 
 	install(TARGETS ${TEST_NAME}
