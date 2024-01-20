@@ -310,11 +310,11 @@ include_directories(external/magic_enum-0.9.3/include)
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-include_directories(include)
-
 add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
+
+target_include_directories(ae include)
 
 if (DESKTOP)
 	target_compile_definitions(ae PUBLIC "DESKTOP")
