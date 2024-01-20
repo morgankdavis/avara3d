@@ -467,12 +467,10 @@ if (NOT ANDROID)
 
 	# ae
 
-	set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
-	set(INSTALL_INCLUDE_DIR "${INSTALL_ROOT_DIR}/include")
 	set(INSTALL_DATA_DIR "${INSTALL_ROOT_DIR}/data")
-
-	install(TARGETS ae
-			DESTINATION "${INSTALL_LIB_DIR}")
+	set(INSTALL_INCLUDE_DIR "${INSTALL_ROOT_DIR}/include")
+	set(INSTALL_LEGAL_DIR "${INSTALL_ROOT_DIR}/legal")
+	set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
 
 	# TODO: public vs. private headers
 	install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
@@ -480,6 +478,12 @@ if (NOT ANDROID)
 
 	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
 			DESTINATION "${INSTALL_DATA_DIR}")
+
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
+			DESTINATION "${INSTALL_LEGAL_DIR}")
+
+	install(TARGETS ae
+			DESTINATION "${INSTALL_LIB_DIR}")
 
 #	# assimp
 #	install(TARGETS assimp
