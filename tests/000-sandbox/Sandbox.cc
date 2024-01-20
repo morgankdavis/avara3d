@@ -25,7 +25,7 @@ using namespace sandbox;
 using namespace std::placeholders;
 
 
-constexpr bool					USE_HIGH_DPI =			true;
+constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;

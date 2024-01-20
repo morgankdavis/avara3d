@@ -60,7 +60,7 @@ namespace ae {
 
 		unsigned 							framebufferWidth() const;
 		unsigned 							framebufferHeight() const;
-		float 								framebufferScale() const;
+		glm::vec2 							framebufferScale() const;
 		
 		virtual bool 						vSyncEnabled() const;
 		virtual void 						vSyncEnabled(bool enabled);
@@ -91,7 +91,7 @@ namespace ae {
 
 		void 								framebufferWidth(unsigned width);
 		void 								framebufferHeight(unsigned height);
-		void 								framebufferScale(float scale);
+		void 								framebufferScale(glm::vec2 scale);
 
 		virtual void 						saveGIFFrame(float deltaRunT);
 
@@ -111,7 +111,7 @@ namespace ae {
 		unsigned							_height;
 		unsigned							_framebufferWidth;
 		unsigned							_framebufferHeight;
-		float								_framebufferScale;
+		glm::vec2							_framebufferScale;
 		bool								_vSyncEnabled;
 		ANTIALIASING_MODE					_antialiasingMode;
 		

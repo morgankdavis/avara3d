@@ -39,7 +39,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 		_height(0),
 		_framebufferWidth(0),
 		_framebufferHeight(0),
-		_framebufferScale(1.0),
+		_framebufferScale{1.0, 1.0},
 		_vSyncEnabled(false),
 		_antialiasingMode(ANTIALIASING_MODE::NONE),
 		_gifWriter(nullptr),
@@ -96,7 +96,7 @@ unsigned RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
-float RenderContext::framebufferScale() const {
+vec2 RenderContext::framebufferScale() const {
 	return _framebufferScale;
 }
 
@@ -187,12 +187,12 @@ shared_ptr<Renderer> RenderContext::renderer() const {
 
 void RenderContext::width(unsigned width) {
 	_width = width;
-	framebufferWidth(_width * _framebufferScale);
+	framebufferWidth(_width * _framebufferScale.x);
 }
 
 void RenderContext::height(unsigned height) {
 	_height = height;
-	framebufferHeight(_height * _framebufferScale);
+	framebufferHeight(_height * _framebufferScale.y);
 }
 
 void RenderContext::framebufferWidth(unsigned width) {
@@ -203,7 +203,7 @@ void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
-void RenderContext::framebufferScale(float scale) {
+void RenderContext::framebufferScale(vec2 scale) {
 	_framebufferScale = scale;
 }
 
