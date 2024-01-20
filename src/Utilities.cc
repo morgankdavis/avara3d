@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 #include <algorithm>
 //#ifdef WINDOWS
@@ -52,6 +52,11 @@
 
 #include "glm/gtc/quaternion.hpp"
 
+#include "ae/Buffer.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/Font.h"
+#include "ae/Image.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
@@ -62,11 +67,6 @@
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
-#include "ae/utilities/Buffer.h"
-#include "ae/utilities/Color.h"
-#include "ae/utilities/CubeImage.h"
-#include "ae/utilities/Font.h"
-#include "ae/utilities/Image.h"
 
 
 using namespace ae;

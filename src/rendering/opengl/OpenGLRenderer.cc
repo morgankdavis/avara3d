@@ -28,7 +28,13 @@
 #include "magic_enum.hpp"
 #endif
 
+#include "ae/Buffer.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/Font.h"
 #include "ae/Global.h"
+#include "ae/Image.h"
+#include "ae/Utilities.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
@@ -44,12 +50,6 @@
 #include "ae/rendering/opengl/Program.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
-#include "ae/utilities/Buffer.h"
-#include "ae/utilities/Color.h"
-#include "ae/utilities/CubeImage.h"
-#include "ae/utilities/Font.h"
-#include "ae/utilities/Image.h"
-#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

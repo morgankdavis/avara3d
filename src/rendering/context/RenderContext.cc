@@ -12,6 +12,8 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
 
+#include "ae/Buffer.h"
+#include "ae/Image.h"
 #include "ae/diagnostic/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/opengl/OpenGLRenderer.h"
@@ -19,8 +21,6 @@
 #include "ae/rendering/Renderer.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
-#include "ae/utilities/Buffer.h"
-#include "ae/utilities/Image.h"
 
 
 using namespace ae;

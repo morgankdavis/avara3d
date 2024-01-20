@@ -12,8 +12,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ae/Utilities.h"
 //#include "ae/physics/ConvexDecomposer.h" // TEMPORARY
-#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

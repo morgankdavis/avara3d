@@ -7,6 +7,8 @@
 
 #include "glm/glm.hpp"
 
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/primitives/Box.h"
@@ -19,8 +21,6 @@
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
-#include "ae/utilities/Color.h"
-#include "ae/utilities/CubeImage.h"
 
 
 using namespace ae;

@@ -8,8 +8,8 @@
 
 #include "ae/diagnostic/Exception.h"
 
+#include "ae/Utilities.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

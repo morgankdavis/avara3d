@@ -6,9 +6,9 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/utilities/Font.h"
+#include "ae/Font.h"
 
-#include "ae/utilities/Buffer.h"
+#include "ae/Buffer.h"
 #include "ae/diagnostic/logging/Logger.h"
 
 

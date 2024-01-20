@@ -8,8 +8,8 @@
 
 #include "ae/rendering/materials/MaterialProperty.h"
 
+#include "ae/CubeImage.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/utilities/CubeImage.h"
 
 
 using namespace ae;

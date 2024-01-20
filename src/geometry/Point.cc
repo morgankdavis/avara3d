@@ -8,7 +8,7 @@
 
 #include "ae/geometry/Point.h"
 
-#include "ae/utilities/Color.h"
+#include "ae/Color.h"
 
 
 using namespace ae;

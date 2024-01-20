@@ -12,7 +12,7 @@
 
 #include <set>
 
-#include "ae/utilities/Color.h"
+#include "ae/Color.h"
 #include "ae/geometry/Line.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/Renderer.h"

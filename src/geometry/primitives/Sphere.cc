@@ -14,13 +14,13 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
+//#include "ae/Utilities.h"
 #include "ae/geometry/GeometryElement.h"
-#include "ae/utilities/Utilities.h"
 
 
 
 using namespace ae;
-using namespace ae::utils;
+//using namespace ae::utils;
 using namespace generator;
 using namespace glm;
 using namespace std;

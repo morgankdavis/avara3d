@@ -47,7 +47,12 @@ namespace ae {
 	extern constexpr const unsigned char* BuildString(); // 12345
 }
 
+#include "ae/Buffer.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/Font.h"
 #include "ae/Global.h"
+#include "ae/Image.h"
 #include "ae/Types.h"
 #include "ae/diagnostic/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
@@ -97,11 +102,6 @@ namespace ae {
 #include "ae/rendering/opengl/Program.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
-#include "ae/utilities/Buffer.h"
-#include "ae/utilities/Color.h"
-#include "ae/utilities/CubeImage.h"
-#include "ae/utilities/Font.h"
-#include "ae/utilities/Image.h"
 
 
 #endif /* ae_h */

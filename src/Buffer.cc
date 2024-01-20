@@ -6,12 +6,12 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/utilities/Buffer.h"
+#include "ae/Buffer.h"
 
 #include <cstring>
 
+#include "ae/Utilities.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

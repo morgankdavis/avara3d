@@ -27,13 +27,13 @@
 #endif
 
 #include "ae/Global.h"
+#include "ae/Utilities.h"
 #include "ae/diagnostic/Exception.h"
 #include "ae/diagnostic/logging/sinks/LoggerSink.h"
 #include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP
 #include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 #endif
-#include "ae/utilities/Utilities.h"
 
 
 using namespace ae;

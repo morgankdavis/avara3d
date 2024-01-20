@@ -10,11 +10,11 @@
 
 #include <memory>
 
+#include "ae/Color.h"
 #include "ae/diagnostic/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/rendering/materials/MaterialPropertyContents.h"
-#include "ae/utilities/Color.h"
 
 
 using namespace ae;

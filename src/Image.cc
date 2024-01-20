@@ -6,16 +6,16 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/utilities/Image.h"
+#include "ae/Image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include "ae/Buffer.h"
 #include "ae/diagnostic/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/utilities/Buffer.h"
 
 
 using namespace ae;
