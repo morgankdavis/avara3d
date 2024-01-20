@@ -273,16 +273,16 @@ void Logger::critical(bool useHeader,
 
 
 
-template <typename... Args>
-void Logger::f3(std::string_view fmt, Args&&... args) {
-	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
-}
-
-
-template <typename F, typename... Args>
-void Logger::f4(F, Args&&... args) {
-	return fmt::format(F::string, std::forward<Args>(args)...);
-}
+//template <typename... Args>
+//void Logger::f3(std::string_view fmt, Args&&... args) {
+//	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
+//}
+//
+//
+//template <typename F, typename... Args>
+//void Logger::f4(F, Args&&... args) {
+//	return fmt::format(F::string, std::forward<Args>(args)...);
+//}
 
 
 
