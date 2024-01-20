@@ -24,7 +24,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 #include "fmt/format.h"
 
@@ -107,7 +107,7 @@ namespace ae {
 
 		Logger(std::string name, std::shared_ptr<LoggerSink> sink,
 			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
-		Logger(std::string name, std::vector<std::shared_ptr<LoggerSink>> sinks,
+		Logger(std::string name, std::unordered_set<std::shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
 
@@ -116,7 +116,7 @@ namespace ae {
  *********************************************************************************************/
 
 		std::string name() const;
-		std::vector<std::shared_ptr<LoggerSink>> sinks() const;
+		std::unordered_set<std::shared_ptr<LoggerSink>> sinks() const;
 
 		LOG_LEVEL level() const;
 		void level(LOG_LEVEL level);
@@ -212,12 +212,12 @@ namespace ae {
 
 	private:
 
-		std::string 								header();
+		std::string 									header();
 
-		std::string									_name;
-		std::vector<std::shared_ptr<LoggerSink>>	_sinks;
-		LOG_LEVEL									_level;
-		LOG_LEVEL									_flushLevel;
+		std::string										_name;
+		std::unordered_set<std::shared_ptr<LoggerSink>>	_sinks;
+		LOG_LEVEL										_level;
+		LOG_LEVEL										_flushLevel;
 	};
 }
 
