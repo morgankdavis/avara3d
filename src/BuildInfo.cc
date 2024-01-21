@@ -6,7 +6,7 @@
 
 #include "magic_enum.hpp"
 
-#include "AEBuild.h"
+#include "ae_build_defines.h"
 
 
 using namespace ae;

@@ -20,7 +20,7 @@ endif()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
-### create _BuildInfo.h ###
+### create _build_defines.h ###
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_RELEASE_TYPE)
 set(AE_BUILD_TYPE ${UPPER_RELEASE_TYPE})
@@ -44,9 +44,8 @@ message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
 # ex:
 # GITLAB_CI_PIPELINE_CREATED_AT: 2024-01-10T03:58:04Z
 # GITLAB_CI_PIPELINE_IID: 456
-# ^^ check and replace if not defined
 
-configure_file(AEBuild.in AEBuild.h)
+configure_file(BuildInfo.in ae_build_defines.h)
 
 
 ### add external libraries ###
