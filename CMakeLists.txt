@@ -85,6 +85,7 @@ target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 set(OpenGL_GL_PREFERENCE GLVND)
 
 
+
 ### glfw ###
 
 if (AE_BUILD_GLFW)
@@ -206,15 +207,19 @@ endif()
 include_directories(external/magic_enum-0.9.3/include)
 
 
+
+
+
+
 ### ae ###
-
-
 
 
 
 target_link_libraries(ae PUBLIC
 		generator
 		${BULLET_LIBRARIES})
+
+
 
 if (DESKTOP)
 
@@ -226,7 +231,43 @@ if (DESKTOP)
 
 endif()
 
-if (MACOS)
+
+if (OPENGL_CORE)
+
+	target_link_libraries(ae PUBLIC
+			imgui)
+
+endif()
+
+
+if (LINUX)
+
+	target_link_libraries(ae PUBLIC
+			z
+			X11
+			Xxf86vm
+			Xrandr
+			pthread
+			Xi
+			dl)
+
+	if (RPI)
+
+		find_library(OPENGLES3_LIBRARY GLESv2)
+		find_library(EGL_LIBRARY EGL)
+
+		target_link_libraries(ae PUBLIC
+				${OPENGLES3_LIBRARY}
+				${EGL_LIBRARY})
+
+	else()
+
+		target_link_libraries(ae PUBLIC
+				GL)
+
+	endif()
+
+elseif (MACOS)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_OPENGL OpenGL)
@@ -240,64 +281,84 @@ if (MACOS)
 			${FRAMEWORK_CORE_VIDEO})
 
 	target_link_libraries(ae PUBLIC
-			imgui
 			z
 			${FRAMEWORKS})
 
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (RPI)
-
-	find_library(OPENGLES3_LIBRARY GLESv2)
-	find_library(EGL_LIBRARY EGL)
-
-	target_link_libraries(ae PUBLIC
-			z
-			X11
-			Xxf86vm
-			Xrandr
-			pthread
-			Xi
-			dl
-			${OPENGLES3_LIBRARY}
-			${EGL_LIBRARY})
-
-elseif (LINUX) # not RPI
-
-	target_link_libraries(ae PUBLIC
-			imgui
-			z
-			GL
-			X11
-			Xxf86vm
-			Xrandr
-			pthread
-			Xi
-			dl)
-
 elseif (WINDOWS)
-
-	target_link_libraries(ae PUBLIC
-			imgui)
-
-elseif (ANDROID)
-
-	target_link_libraries(ae PUBLIC
-			android
-			NDKHelper
-			z
-			EGL
-			GLESv3)
-
-	# export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
-	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
 
 endif()
 
 
 
-
+#if (DESKTOP)
+#
+#	target_link_libraries(ae PUBLIC
+#			glfw
+#			glew_s
+#			# imgui
+#			${ASSIMP_LIBRARIES})
+#
+#endif()
+#
+#if (MACOS)
+#
+#	find_library(FRAMEWORK_COCOA Cocoa)
+#	find_library(FRAMEWORK_OPENGL OpenGL)
+#	find_library(FRAMEWORK_IOKIT IOKit)
+#	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
+#
+#	set(FRAMEWORKS
+#			${FRAMEWORK_COCOA}
+#			${FRAMEWORK_OPENGL}
+#			${FRAMEWORK_IOKIT}
+#			${FRAMEWORK_CORE_VIDEO})
+#
+#	target_link_libraries(ae PUBLIC
+#			imgui
+#			z
+#			${FRAMEWORKS})
+#
+#	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
+#	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
+#
+#elseif (RPI)
+#
+#	find_library(OPENGLES3_LIBRARY GLESv2)
+#	find_library(EGL_LIBRARY EGL)
+#
+#	target_link_libraries(ae PUBLIC
+#			z
+#			X11
+#			Xxf86vm
+#			Xrandr
+#			pthread
+#			Xi
+#			dl
+#			${OPENGLES3_LIBRARY}
+#			${EGL_LIBRARY})
+#
+#elseif (LINUX) # not RPI
+#
+#	target_link_libraries(ae PUBLIC
+#			imgui
+#			z
+#			X11
+#			Xxf86vm
+#			Xrandr
+#			pthread
+#			Xi
+#			dl
+#			GL)
+#
+#elseif (WINDOWS)
+#
+#	target_link_libraries(ae PUBLIC
+#			imgui)
+#
+#endif()
 
 
 
