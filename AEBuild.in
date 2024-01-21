@@ -5,10 +5,3 @@
 #define AE_BUILD_TYPE       "@AE_BUILD_TYPE@"
 #define AE_BUILD_ORIGIN     "@AE_BUILD_ORIGIN@"
 #define AE_BUILD_TIME       "@AE_BUILD_TIME@"
-
-// constexpr int AE_BUILD_NUMBER     @AE_BUILD_NUMBER@
-// #define AE_VERSION_MAJOR    @AE_VERSION_MAJOR@
-// #define AE_VERSION_MINOR    @AE_VERSION_MINOR@
-// #define AE_VERSION_PATCH    @AE_VERSION_PATCH@
-// #define AE_BUILD_TYPE       @AE_BUILD_TYPE@
-// #define AE_BUILD_ORIGIN     @AE_BUILD_ORIGIN@

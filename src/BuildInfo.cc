@@ -6,7 +6,7 @@
 
 #include "magic_enum.hpp"
 
-#include "_BuildInfo.h"
+#include "AEBuild.h"
 
 
 using namespace ae;
@@ -29,6 +29,7 @@ BuildInfo::BuildInfo() {
 	_version = {AE_VERSION_MAJOR, AE_VERSION_MINOR, AE_VERSION_PATCH};
 	_type = *magic_enum::enum_cast<BuildInfo::TYPE>(AE_BUILD_TYPE);
 	_origin = *magic_enum::enum_cast<BuildInfo::ORIGIN>(AE_BUILD_ORIGIN);
+	//AE_LOG_I("BUILD TIME: {}", AE_BUILD_TIME);
 }
 
 /*********************************************************************************************

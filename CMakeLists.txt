@@ -46,7 +46,7 @@ message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
 # GITLAB_CI_PIPELINE_IID: 456
 # ^^ check and replace if not defined
 
-configure_file(_BuildInfo.h.in _BuildInfo.h)
+configure_file(AEBuild.in AEBuild.h)
 
 
 ### add external libraries ###
