@@ -37,77 +37,16 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 
 
 
-
-
-
-
-file(GLOB_RECURSE HEADERS include/*.h)
-file(GLOB_RECURSE SOURCES src/*.c*)
-
-add_library(ae STATIC
-		${HEADERS}
-		${SOURCES})
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_definitions(ae PUBLIC "AE_DEBUG")
-endif()
-if (DESKTOP)
-	target_compile_definitions(ae PUBLIC "DESKTOP")
-	target_compile_definitions(ae PUBLIC "OPENGL_CORE")
-endif()
-if (LINUX)
-	target_compile_definitions(ae PUBLIC "LINUX")
-	target_compile_definitions(ae PUBLIC "POSIX")
-	if (RPI)
-		target_compile_definitions(ae PUBLIC "RPI")
-		target_compile_definitions(ae PUBLIC "OPENGL_ES")
-	endif()
-elseif (MACOS)
-	target_compile_definitions(ae PUBLIC "MACOS")
-	target_compile_definitions(ae PUBLIC "POSIX")
-elseif (WINDOWS)
-	target_compile_definitions(ae PUBLIC "WINDOWS")
-	#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
-elseif (ANDROID)
-	target_compile_definitions(ae PUBLIC "ANDROID")
-	target_compile_definitions(ae PUBLIC "POSIX")
-	target_compile_definitions(ae PUBLIC "OPENGL_ES")
-endif()
-
-target_include_directories(ae PUBLIC include)
-
-target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
-
-
-
-# either use CMake 3.11 or set 'OpenGL_GL_PREFERENCE' to 'GLVND' to use new OpenGL libs
 # https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
 set(OpenGL_GL_PREFERENCE GLVND)
 
 
 
-### glfw ###
 
-if (AE_BUILD_GLFW)
 
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
-	add_subdirectory(external/glfw-3.3.9)
-	include_directories(external/glfw-3.3.9/include)
 
-else()
 
-	find_package(glfw3 REQUIRED)
-
-endif()
-
-### glew ###
-
-add_subdirectory(external/glew-2.1.0)
-include_directories(external/glew-2.1.0/include)
 
 ### assimp ###
 
@@ -136,34 +75,6 @@ else()
 
 endif()
 
-
-
-if (OPENGL_CORE)
-
-	### imgui ###
-
-	add_subdirectory(external/imgui-1.90)
-	include_directories(external/imgui-1.90)
-	include_directories(external/imgui-1.90/backends)
-
-endif()
-
-### generator ###
-
-add_subdirectory(external/generator)
-include_directories(external/generator/include)
-
-### gif-h ###
-
-include_directories(external/gif-h)
-
-### stb ###
-
-include_directories(external/stb)
-
-### v-hacd ###
-
-include_directories(external/v-hacd-4.1.0)
 
 ### bullet ###
 
@@ -202,35 +113,119 @@ else()
 endif()
 
 
+### generator ###
+
+add_subdirectory(external/generator)
+include_directories(external/generator/include) # MOVE
+
+
+### gif-h ###
+
+include_directories(external/gif-h) # MOVE
+
+
+### glew ###
+
+add_subdirectory(external/glew-2.1.0)
+include_directories(external/glew-2.1.0/include) # MOVE
+
+
+
+### glfw ###
+
+if (AE_BUILD_GLFW)
+
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+
+	add_subdirectory(external/glfw-3.3.9)
+	include_directories(external/glfw-3.3.9/include) # MOVE
+
+else()
+
+	find_package(glfw3 REQUIRED)
+
+endif()
+
+
+if (OPENGL_CORE)
+
+	### imgui ###
+
+	add_subdirectory(external/imgui-1.90)
+	include_directories(external/imgui-1.90) # MOVE
+	include_directories(external/imgui-1.90/backends) # MOVE
+
+endif()
+
+
 ### magic_enmum ###
 
-include_directories(external/magic_enum-0.9.3/include)
+include_directories(external/magic_enum-0.9.3/include) # MOVE
+
+
+
+### stb ###
+
+include_directories(external/stb) # MOVE
+
+### v-hacd ###
+
+include_directories(external/v-hacd-4.1.0) # MOVE
 
 
 
 
+file(GLOB_RECURSE HEADERS include/*.h)
+file(GLOB_RECURSE SOURCES src/*.c*)
 
+add_library(ae STATIC
+		${HEADERS}
+		${SOURCES})
 
-### ae ###
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions(ae PUBLIC "AE_DEBUG")
+endif()
+if (DESKTOP)
+	target_compile_definitions(ae PUBLIC "DESKTOP")
+	target_compile_definitions(ae PUBLIC "OPENGL_CORE")
+endif()
+if (LINUX)
+	target_compile_definitions(ae PUBLIC "LINUX")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	if (RPI)
+		target_compile_definitions(ae PUBLIC "RPI")
+		target_compile_definitions(ae PUBLIC "OPENGL_ES")
+	endif()
+elseif (MACOS)
+	target_compile_definitions(ae PUBLIC "MACOS")
+	target_compile_definitions(ae PUBLIC "POSIX")
+elseif (WINDOWS)
+	target_compile_definitions(ae PUBLIC "WINDOWS")
+	#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+elseif (ANDROID)
+	target_compile_definitions(ae PUBLIC "ANDROID")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	target_compile_definitions(ae PUBLIC "OPENGL_ES")
+endif()
 
-
+target_include_directories(ae PUBLIC include)
+target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 
 target_link_libraries(ae PUBLIC
 		generator
 		${BULLET_LIBRARIES})
-
-
 
 if (DESKTOP)
 
 	target_link_libraries(ae PUBLIC
 			glfw
 			glew_s
-			# imgui
 			${ASSIMP_LIBRARIES})
 
 endif()
-
 
 if (OPENGL_CORE)
 
@@ -238,7 +233,6 @@ if (OPENGL_CORE)
 			imgui)
 
 endif()
-
 
 if (LINUX)
 
@@ -287,100 +281,16 @@ elseif (MACOS)
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (WINDOWS)
-
 endif()
 
 
-
-#if (DESKTOP)
-#
-#	target_link_libraries(ae PUBLIC
-#			glfw
-#			glew_s
-#			# imgui
-#			${ASSIMP_LIBRARIES})
-#
-#endif()
-#
-#if (MACOS)
-#
-#	find_library(FRAMEWORK_COCOA Cocoa)
-#	find_library(FRAMEWORK_OPENGL OpenGL)
-#	find_library(FRAMEWORK_IOKIT IOKit)
-#	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
-#
-#	set(FRAMEWORKS
-#			${FRAMEWORK_COCOA}
-#			${FRAMEWORK_OPENGL}
-#			${FRAMEWORK_IOKIT}
-#			${FRAMEWORK_CORE_VIDEO})
-#
-#	target_link_libraries(ae PUBLIC
-#			imgui
-#			z
-#			${FRAMEWORKS})
-#
-#	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
-#	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
-#
-#elseif (RPI)
-#
-#	find_library(OPENGLES3_LIBRARY GLESv2)
-#	find_library(EGL_LIBRARY EGL)
-#
-#	target_link_libraries(ae PUBLIC
-#			z
-#			X11
-#			Xxf86vm
-#			Xrandr
-#			pthread
-#			Xi
-#			dl
-#			${OPENGLES3_LIBRARY}
-#			${EGL_LIBRARY})
-#
-#elseif (LINUX) # not RPI
-#
-#	target_link_libraries(ae PUBLIC
-#			imgui
-#			z
-#			X11
-#			Xxf86vm
-#			Xrandr
-#			pthread
-#			Xi
-#			dl
-#			GL)
-#
-#elseif (WINDOWS)
-#
-#	target_link_libraries(ae PUBLIC
-#			imgui)
-#
-#endif()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### set root install dir ###
+### set root install dir before adding tests ###
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
 set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/linux/${LOWER_RELEASE_TYPE}")
 
 
-### tests ###
+### add tests ###
 
 add_subdirectory(tests)
 
