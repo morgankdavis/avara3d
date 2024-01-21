@@ -21,7 +21,7 @@
 #include "GL/glew.h"
 #endif
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -250,7 +250,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -271,7 +271,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	
 	// setup Imgui for stats overlay
 	
@@ -309,7 +309,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		}
 	}
 
-#endif // OPENGL_CORE
+#endif // OPENGL_DESKTOP
 	
 	return true;
 }
@@ -1525,13 +1525,13 @@ static void SetMaterialOpenGLState(const Material& material,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//_program = Program::Wireframe();
 		
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1556,7 +1556,7 @@ static void SetMaterialOpenGLState(const Material& material,
 static void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1567,7 +1567,7 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
@@ -1576,7 +1576,7 @@ static void SetLineSetGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -1915,7 +1915,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
@@ -2047,7 +2047,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-#endif // OPENGL_CORE
+#endif // OPENGL_DESKTOP
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
@@ -2087,7 +2087,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
@@ -2144,7 +2144,7 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
 #endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
@@ -2153,7 +2153,7 @@ static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
 #endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;

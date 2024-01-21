@@ -49,7 +49,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld* world):
 
 	AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 #endif
@@ -192,7 +192,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const glm::mat4 &projectionMat,
 								 const DEBUG_OPTIONS &debugOptions) {
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);

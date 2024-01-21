@@ -65,7 +65,7 @@ Window::Window(RENDER_API renderAPI,
 		_cursorCaptured(false) {
 
 	if (InitGLFW()) {
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);

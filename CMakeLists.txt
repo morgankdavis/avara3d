@@ -5,9 +5,6 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-#option(AE_BUILD_TESTS "Build the AE test applications" ON)
-#option(AE_BUILD_DEMOS "Build the AE demo applications" ON)
-
 option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)
 option(AE_BUILD_GLFW "Build GLFW from source" ON)
@@ -23,7 +20,8 @@ endif()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
-# create BuildInfo.h
+### create _BuildInfo.h ###
+
 message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
 message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
 message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
@@ -36,23 +34,9 @@ message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
 # ^^ check and replace if not defined
 
 
-
-# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
-set(OpenGL_GL_PREFERENCE GLVND)
-
-
-
-
-
-
-
-
-
-### assimp ###
+### add external libraries ###
 
 if (AE_BUILD_ASSIMP)
-
-	# assimp 3.3.1
 
 	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
@@ -65,23 +49,16 @@ if (AE_BUILD_ASSIMP)
 
 	set(ASSIMP_LIBRARIES "assimp")
 	add_subdirectory(external/assimp-3.3.1)
-	set (ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
-#	include_directories(external/assimp-3.3.1/include)
+	set(ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
 	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
 else()
 
 	find_package(assimp REQUIRED)
-	#include_directories(${ASSIMP_INCLUDE_DIR})
 
 endif()
 
-
-### bullet ###
-
 if (AE_BUILD_BULLET)
-
-	# bullet 3.17
 
 	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
@@ -109,30 +86,13 @@ if (AE_BUILD_BULLET)
 else()
 
 	find_package(Bullet REQUIRED)
-	include_directories(${BULLET_INCLUDE_DIRS}) # BULLET_INCLUDE_DIRS=/usr/include/bullet
+	include_directories(${BULLET_INCLUDE_DIRS})
 
 endif()
 
-
-### generator ###
-
 add_subdirectory(external/generator)
-#include_directories(external/generator/include) # MOVE
-
-
-### gif-h ###
-
-#include_directories(external/gif-h) # MOVE
-
-
-### glew ###
 
 add_subdirectory(external/glew-2.1.0)
-#include_directories(external/glew-2.1.0/include) # MOVE
-
-
-
-### glfw ###
 
 if (AE_BUILD_GLFW)
 
@@ -142,7 +102,6 @@ if (AE_BUILD_GLFW)
 	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 	add_subdirectory(external/glfw-3.3.9)
-	include_directories(external/glfw-3.3.9/include) # MOVE
 
 else()
 
@@ -150,34 +109,10 @@ else()
 
 endif()
 
-
-if (OPENGL_CORE)
-
-	### imgui ###
-
-	add_subdirectory(external/imgui-1.90)
-	include_directories(external/imgui-1.90) # MOVE
-	include_directories(external/imgui-1.90/backends) # MOVE
-
-endif()
+add_subdirectory(external/imgui-1.90)
 
 
-### magic_enmum ###
-
-#include_directories(external/magic_enum-0.9.3/include) # MOVE
-
-
-
-### stb ###
-
-#include_directories(external/stb) # MOVE
-
-### v-hacd ###
-
-#include_directories(external/v-hacd-4.1.0) # MOVE
-
-
-
+### add ae ###
 
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
@@ -186,12 +121,15 @@ add_library(ae STATIC
 		${HEADERS}
 		${SOURCES})
 
+
+### setup ae environment defines ###
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(ae PUBLIC "AE_DEBUG")
 endif()
 if (DESKTOP)
 	target_compile_definitions(ae PUBLIC "DESKTOP")
-	target_compile_definitions(ae PUBLIC "OPENGL_CORE")
+	target_compile_definitions(ae PUBLIC "OPENGL_DESKTOP")
 endif()
 if (LINUX)
 	target_compile_definitions(ae PUBLIC "LINUX")
@@ -212,63 +150,63 @@ elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "OPENGL_ES")
 endif()
 
+
+### add library headers ###
+
 target_include_directories(ae PUBLIC include)
+#target_include_directories(ae PRIVATE external/bullet-3.17/src)
+target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
+target_include_directories(ae PRIVATE external/generator/include)
+target_include_directories(ae PRIVATE external/gif-h)
+target_include_directories(ae PRIVATE external/glew-2.1.0/include)
+target_include_directories(ae PRIVATE external/glfw-3.3.9/include)
+target_include_directories(ae PRIVATE external/imgui-1.90)
+target_include_directories(ae PRIVATE external/imgui-1.90/backends)
+target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(ae PRIVATE external/stb)
+target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
+
+
+### add special defines ###
+
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 
 
-
-
-
-#target_include_directories(ae PRIVATE external/bullet-3.17/src)
-target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
-target_include_directories(ae PRIVATE external/generator/include) # MOVE
-target_include_directories(ae PRIVATE external/gif-h) # MOVE
-target_include_directories(ae PRIVATE external/glew-2.1.0/include) # MOVE
-target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include) # MOVE
-target_include_directories(ae PRIVATE external/stb) # MOVE
-target_include_directories(ae PRIVATE external/v-hacd-4.1.0) # MOVE
-
-
+### link ae to external libraries ###
 
 target_link_libraries(ae PUBLIC
+		${ASSIMP_LIBRARIES}
+		${BULLET_LIBRARIES}
 		generator
-		${BULLET_LIBRARIES})
+		imgui)
 
 if (DESKTOP)
 
 	target_link_libraries(ae PUBLIC
-			glfw
 			glew_s
-			${ASSIMP_LIBRARIES})
-
-endif()
-
-if (OPENGL_CORE)
-
-	target_link_libraries(ae PUBLIC
-			imgui)
+			glfw)
 
 endif()
 
 if (LINUX)
 
 	target_link_libraries(ae PUBLIC
-			z
-			X11
-			Xxf86vm
-			Xrandr
+			dl
 			pthread
+			X11
+			Xrandr
+			Xxf86vm
 			Xi
-			dl)
+			z)
 
 	if (RPI)
 
-		find_library(OPENGLES3_LIBRARY GLESv2)
 		find_library(EGL_LIBRARY EGL)
+		find_library(OPENGLES3_LIBRARY GLESv2)
 
 		target_link_libraries(ae PUBLIC
-				${OPENGLES3_LIBRARY}
-				${EGL_LIBRARY})
+				${EGL_LIBRARY}
+				${OPENGLES3_LIBRARY})
 
 	else()
 
@@ -280,19 +218,19 @@ if (LINUX)
 elseif (MACOS)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
-	find_library(FRAMEWORK_OPENGL OpenGL)
-	find_library(FRAMEWORK_IOKIT IOKit)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
+	find_library(FRAMEWORK_IOKIT IOKit)
+	find_library(FRAMEWORK_OPENGL OpenGL)
 
 	set(FRAMEWORKS
 			${FRAMEWORK_COCOA}
-			${FRAMEWORK_OPENGL}
+			${FRAMEWORK_CORE_VIDEO}
 			${FRAMEWORK_IOKIT}
-			${FRAMEWORK_CORE_VIDEO})
+			${FRAMEWORK_OPENGL})
 
 	target_link_libraries(ae PUBLIC
-			z
-			${FRAMEWORKS})
+			${FRAMEWORKS}
+			z)
 
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
@@ -320,13 +258,13 @@ set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
 
 # TODO: public vs. private headers
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
-		DESTINATION "${INSTALL_INCLUDE_DIR}")
+		DESTINATION ${INSTALL_INCLUDE_DIR})
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
-		DESTINATION "${INSTALL_DATA_DIR}")
+		DESTINATION ${INSTALL_DATA_DIR})
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
-		DESTINATION "${INSTALL_LEGAL_DIR}")
+		DESTINATION ${INSTALL_LEGAL_DIR})
 
 install(TARGETS ae
-		DESTINATION "${INSTALL_LIB_DIR}")
+		DESTINATION ${INSTALL_LIB_DIR})
