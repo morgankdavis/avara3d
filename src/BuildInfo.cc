@@ -3,6 +3,9 @@
 //
 
 #include "ae/BuildInfo.h"
+
+#include "magic_enum.hpp"
+
 #include "_BuildInfo.h"
 
 
@@ -20,12 +23,12 @@ BuildInfo& BuildInfo::Info() {
 	return instance;
 }
 
-BuildInfo::BuildInfo():
-		_number(AE_BUILD_NUMBER),
-		_version({AE_VERSION_MAJOR, AE_VERSION_MINOR, AE_VERSION_PATCH}),
-		_type(AE_BUILD_TYPE),
-		_origin(AE_BUILD_ORIGIN) {
+BuildInfo::BuildInfo() {
 
+	_number = AE_BUILD_NUMBER;
+	_version = {AE_VERSION_MAJOR, AE_VERSION_MINOR, AE_VERSION_PATCH};
+	_type = *magic_enum::enum_cast<BuildInfo::TYPE>(AE_BUILD_TYPE);
+	_origin = *magic_enum::enum_cast<BuildInfo::ORIGIN>(AE_BUILD_ORIGIN);
 }
 
 /*********************************************************************************************

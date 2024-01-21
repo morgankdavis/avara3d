@@ -41,17 +41,22 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					false;
 
 
-std::shared_ptr<ae::Logger>			_logger;
+std::shared_ptr<ae::Logger>		logger;
 
 
 int main(int argc, const char* argv[]) {
 
-	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
-	LOG_I(_logger, "");
+	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 
-//	auto buildInfo = BuildInfo::Info();
-//	AE_LOG_I("Avara Engine version {}.{}.{} build {}",
-//			 buildInfo.version.major, buildInfo.version.minor, buildInfo.version.patch);
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+	LOG_I(logger, "AE version: {}.{}.{}",
+		  version.major, version.minor, version.patch);
+	LOG_I(logger, "Build: {}", buildInfo.number());
+	LOG_I(logger, "Type: {}",
+		  buildInfo.type() == BuildInfo::TYPE::DEBUG ? "DEBUG" : "RELEASE");
+	LOG_I(logger, "Origin: {}",
+		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
@@ -246,7 +251,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time) {
-	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
+	LOG_T(logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -282,7 +287,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::T)) {
-		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
 
@@ -447,11 +452,11 @@ void UpdateCallback(Scene& scene, float time) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -459,5 +464,5 @@ void DidRenderCallback(VisualWorld& world, float time) {
  ***************************************************************************************/
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }

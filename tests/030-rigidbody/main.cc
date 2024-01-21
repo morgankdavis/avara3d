@@ -75,11 +75,6 @@ int main(int argc, const char* argv[]) {
 	logger = make_shared<Logger>("test-030", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
-	auto buildInfo = BuildInfo::Info();
-	auto version = buildInfo.version();
-	LOG_I(logger, "AE version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
-
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,

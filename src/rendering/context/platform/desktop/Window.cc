@@ -270,7 +270,7 @@ static bool InitGLFW() {
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		AE_LOG_I("Starting GLFW version {}.{}.{}", glfwMajVers, glfwMinVers, glfwRev);
+		AE_LOG_I("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must move to support multiple windows
 		glfwSetErrorCallback(GLFWErrorCallback);
