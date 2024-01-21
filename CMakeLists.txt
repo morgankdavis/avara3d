@@ -65,7 +65,8 @@ if (AE_BUILD_ASSIMP)
 
 	set(ASSIMP_LIBRARIES "assimp")
 	add_subdirectory(external/assimp-3.3.1)
-	include_directories(external/assimp-3.3.1/include)
+	set (ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
+#	include_directories(external/assimp-3.3.1/include)
 	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
 else()
@@ -116,18 +117,18 @@ endif()
 ### generator ###
 
 add_subdirectory(external/generator)
-include_directories(external/generator/include) # MOVE
+#include_directories(external/generator/include) # MOVE
 
 
 ### gif-h ###
 
-include_directories(external/gif-h) # MOVE
+#include_directories(external/gif-h) # MOVE
 
 
 ### glew ###
 
 add_subdirectory(external/glew-2.1.0)
-include_directories(external/glew-2.1.0/include) # MOVE
+#include_directories(external/glew-2.1.0/include) # MOVE
 
 
 
@@ -163,17 +164,17 @@ endif()
 
 ### magic_enmum ###
 
-include_directories(external/magic_enum-0.9.3/include) # MOVE
+#include_directories(external/magic_enum-0.9.3/include) # MOVE
 
 
 
 ### stb ###
 
-include_directories(external/stb) # MOVE
+#include_directories(external/stb) # MOVE
 
 ### v-hacd ###
 
-include_directories(external/v-hacd-4.1.0) # MOVE
+#include_directories(external/v-hacd-4.1.0) # MOVE
 
 
 
@@ -213,6 +214,21 @@ endif()
 
 target_include_directories(ae PUBLIC include)
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
+
+
+
+
+
+#target_include_directories(ae PRIVATE external/bullet-3.17/src)
+target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
+target_include_directories(ae PRIVATE external/generator/include) # MOVE
+target_include_directories(ae PRIVATE external/gif-h) # MOVE
+target_include_directories(ae PRIVATE external/glew-2.1.0/include) # MOVE
+target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include) # MOVE
+target_include_directories(ae PRIVATE external/stb) # MOVE
+target_include_directories(ae PRIVATE external/v-hacd-4.1.0) # MOVE
+
+
 
 target_link_libraries(ae PUBLIC
 		generator
