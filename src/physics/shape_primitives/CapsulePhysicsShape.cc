@@ -2,10 +2,10 @@
 // Created by mkd on 11/19/23.
 //
 
-#include "physics/shape_primitives/CapsulePhysicsShape.h"
+#include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
 
-#include "diagnostic/Exception.h"
-#include "physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
 
 
 using namespace ae;

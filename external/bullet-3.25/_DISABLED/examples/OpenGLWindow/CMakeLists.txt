@@ -54,7 +54,8 @@ ENDIF(BUILD_EGL)
 SET(OpenGLWindow_SRCS ${OpenGLWindow_SRCS}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/stb_image/stb_image_write.cpp)
 
 
-ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
+#ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
+ADD_LIBRARY(OpenGLWindow STATIC ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
 if (UNIX AND NOT APPLE)
   target_link_libraries(OpenGLWindow ${DL})
 elseif (APPLE)

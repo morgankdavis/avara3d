@@ -2,7 +2,7 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
 
 
 using namespace ae;

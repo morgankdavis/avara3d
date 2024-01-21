@@ -2,7 +2,7 @@
 // Created by mkd on 11/5/23.
 //
 
-#include "physics/ConvexDecomposer.h"
+#include "ae/physics/ConvexDecomposer.h"
 
 #include <utility>
 
@@ -10,8 +10,8 @@
 #define ENABLE_VHACD_IMPLEMENTATION 1
 #include "VHACD.h"
 
-#include "geometry/GeometryElement.h"
-#include "diagnostic/logging/Logger.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;

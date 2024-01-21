@@ -6,14 +6,14 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/Renderer.h"
+#include "ae/rendering/Renderer.h"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/GeometryElement.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/materials/Material.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;

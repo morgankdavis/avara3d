@@ -140,7 +140,10 @@ SET(BulletDynamics_HDRS
 )
 
 
-ADD_LIBRARY(BulletDynamics ${BulletDynamics_SRCS} ${BulletDynamics_HDRS})
+#ADD_LIBRARY(BulletDynamics ${BulletDynamics_SRCS} ${BulletDynamics_HDRS})
+# mkd
+#ADD_LIBRARY(BulletDynamics SHARED ${BulletDynamics_SRCS} ${BulletDynamics_HDRS})
+ADD_LIBRARY(BulletDynamics STATIC ${BulletDynamics_SRCS} ${BulletDynamics_HDRS})
 SET_TARGET_PROPERTIES(BulletDynamics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletDynamics PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)

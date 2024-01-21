@@ -3,14 +3,23 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 )
 
+#ADD_LIBRARY(
+#BulletWorldImporter
+#btMultiBodyWorldImporter.cpp
+#btBulletWorldImporter.cpp
+#btBulletWorldImporter.h
+#btWorldImporter.cpp
+#btWorldImporter.h
+#)
 ADD_LIBRARY(
-BulletWorldImporter
-btMultiBodyWorldImporter.cpp
-btBulletWorldImporter.cpp
-btBulletWorldImporter.h
-btWorldImporter.cpp
-btWorldImporter.h
+		BulletWorldImporter STATIC
+		btMultiBodyWorldImporter.cpp
+		btBulletWorldImporter.cpp
+		btBulletWorldImporter.h
+		btWorldImporter.cpp
+		btWorldImporter.h
 )
+
 
 SET_TARGET_PROPERTIES(BulletWorldImporter PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletWorldImporter PROPERTIES SOVERSION ${BULLET_VERSION})

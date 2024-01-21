@@ -2,24 +2,24 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "physics/bullet/BulletBodyProxy.h"
+#include "ae/physics/bullet/BulletBodyProxy.h"
 
 #include "btBulletDynamicsCommon.h"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "physics/ConvexDecomposer.h"
-#include "physics/PhysicsBody.h"
-#include "physics/model_proxy/PhysicsBodyModelProxy.h"
-#include "physics/PhysicsShape.h"
-#include "physics/model_proxy/PhysicsShapeModelProxy.h"
-#include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletShapeProxy.h"
-#include "physics/bullet/BulletWorldProxy.h"
-#include "physics/bullet/Utilities.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/physics/ConvexDecomposer.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
+#include "ae/physics/PhysicsShape.h"
+#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletShapeProxy.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/physics/bullet/Utilities.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;

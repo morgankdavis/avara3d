@@ -3,6 +3,15 @@ project (glew)
 
 cmake_minimum_required (VERSION 3.5)
 
+
+# mkd:
+# added to silence:
+# "OpenGL_GL_PREFERENCE has not been set to "GLVND" or "LEGACY", so for
+#  compatibility with CMake 3.10 and below the legacy GL library will be used."
+# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
+set(OpenGL_GL_PREFERENCE GLVND)
+
+
 include(GNUInstallDirs)
 
 # get version from config/version
@@ -52,6 +61,9 @@ if(UNIX AND APPLE)
 	target_compile_options(glew_s PRIVATE "-mmacosx-version-min=10.9")
 endif()
 
+# mkd: added when switching to shared libraries
+target_compile_options(glew_s PUBLIC
+		"-fPIC")
 
 if (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")))
   # remove stdlib dependency on windows with GCC and Clang (for similar reasons

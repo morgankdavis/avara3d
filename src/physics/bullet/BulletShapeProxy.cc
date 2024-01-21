@@ -2,7 +2,7 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "physics/bullet/BulletShapeProxy.h"
+#include "ae/physics/bullet/BulletShapeProxy.h"
 
 #include <variant>
 
@@ -11,29 +11,29 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "magic_enum.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/primitives/Box.h"
-#include "geometry/primitives/Capsule.h"
-#include "geometry/primitives/Cone.h"
-#include "geometry/primitives/Cylinder.h"
-#include "geometry/primitives/Plane.h"
-#include "geometry/primitives/Sphere.h"
-#include "physics/ConvexDecomposer.h"
-#include "physics/PhysicsBody.h"
-#include "physics/model_proxy/PhysicsBodyModelProxy.h"
-#include "physics/PhysicsShape.h"
-#include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletWorldProxy.h"
-#include "physics/bullet/Utilities.h"
-#include "physics/shape_primitives/BoxPhysicsShape.h"
-#include "physics/shape_primitives/CapsulePhysicsShape.h"
-#include "physics/shape_primitives/ConePhysicsShape.h"
-#include "physics/shape_primitives/CylinderPhysicsShape.h"
-#include "physics/shape_primitives/PlanePhysicsShape.h"
-#include "physics/shape_primitives/SpherePhysicsShape.h"
-#include "scene/Node.h"
-#include "Types.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/primitives/Box.h"
+#include "ae/geometry/primitives/Capsule.h"
+#include "ae/geometry/primitives/Cone.h"
+#include "ae/geometry/primitives/Cylinder.h"
+#include "ae/geometry/primitives/Plane.h"
+#include "ae/geometry/primitives/Sphere.h"
+#include "ae/physics/ConvexDecomposer.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
+#include "ae/physics/PhysicsShape.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/physics/bullet/Utilities.h"
+#include "ae/physics/shape_primitives/BoxPhysicsShape.h"
+#include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
+#include "ae/physics/shape_primitives/ConePhysicsShape.h"
+#include "ae/physics/shape_primitives/CylinderPhysicsShape.h"
+#include "ae/physics/shape_primitives/PlanePhysicsShape.h"
+#include "ae/physics/shape_primitives/SpherePhysicsShape.h"
+#include "ae/scene/Node.h"
+#include "ae/Types.h"
 
 
 using namespace ae;

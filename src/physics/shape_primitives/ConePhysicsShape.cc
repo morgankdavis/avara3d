@@ -2,9 +2,9 @@
 // Created by mkd on 11/19/23.
 //
 
-#include "physics/shape_primitives/ConePhysicsShape.h"
+#include "ae/physics/shape_primitives/ConePhysicsShape.h"
 
-#include "diagnostic/Exception.h"
+#include "ae/diagnostic/Exception.h"
 
 
 using namespace ae;

@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/materials/MaterialPropertyContents.h"
+#include "ae/rendering/materials/MaterialPropertyContents.h"
 
 
 using namespace ae;

@@ -46,6 +46,7 @@ ENDIF()
 # Build bf_dna library
 
 
-ADD_LIBRARY(BulletDNA ${SRC} ${INC_FILES})
+#ADD_LIBRARY(BulletDNA ${SRC} ${INC_FILES})
+ADD_LIBRARY(BulletDNA STATIC ${SRC} ${INC_FILES})
 
 MESSAGE(STATUS "Configuring makesdna")

@@ -2,20 +2,36 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
+#ADD_LIBRARY(
+#BulletInverseDynamicsUtils
+#CloneTreeCreator.cpp
+#CoilCreator.cpp
+#MultiBodyTreeCreator.cpp
+#btMultiBodyTreeCreator.cpp
+#DillCreator.cpp
+#MultiBodyTreeDebugGraph.cpp
+#invdyn_bullet_comparison.cpp
+#IDRandomUtil.cpp
+#RandomTreeCreator.cpp
+#SimpleTreeCreator.cpp
+#MultiBodyNameMap.cpp
+#User2InternalIndex.cpp
+#)
+
 ADD_LIBRARY(
-BulletInverseDynamicsUtils
-CloneTreeCreator.cpp
-CoilCreator.cpp
-MultiBodyTreeCreator.cpp
-btMultiBodyTreeCreator.cpp
-DillCreator.cpp
-MultiBodyTreeDebugGraph.cpp
-invdyn_bullet_comparison.cpp
-IDRandomUtil.cpp
-RandomTreeCreator.cpp
-SimpleTreeCreator.cpp
-MultiBodyNameMap.cpp
-User2InternalIndex.cpp
+		BulletInverseDynamicsUtils STATIC
+		CloneTreeCreator.cpp
+		CoilCreator.cpp
+		MultiBodyTreeCreator.cpp
+		btMultiBodyTreeCreator.cpp
+		DillCreator.cpp
+		MultiBodyTreeDebugGraph.cpp
+		invdyn_bullet_comparison.cpp
+		IDRandomUtil.cpp
+		RandomTreeCreator.cpp
+		SimpleTreeCreator.cpp
+		MultiBodyNameMap.cpp
+		User2InternalIndex.cpp
 )
 
 SET_TARGET_PROPERTIES(BulletInverseDynamicsUtils PROPERTIES VERSION ${BULLET_VERSION})

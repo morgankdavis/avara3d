@@ -5,8 +5,11 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
 )
 
-ADD_LIBRARY(GIMPACTUtils
-btGImpactConvexDecompositionShape.cpp	btGImpactConvexDecompositionShape.h
+#ADD_LIBRARY(GIMPACTUtils
+#btGImpactConvexDecompositionShape.cpp	btGImpactConvexDecompositionShape.h
+#)
+ADD_LIBRARY(GIMPACTUtils STATIC
+		btGImpactConvexDecompositionShape.cpp	btGImpactConvexDecompositionShape.h
 )
 SET_TARGET_PROPERTIES(GIMPACTUtils PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(GIMPACTUtils PROPERTIES SOVERSION ${BULLET_VERSION})

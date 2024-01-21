@@ -5,7 +5,7 @@
 #ifdef ANDROID
 
 
-#include "diagnostic/logging/sinks/platform/android/AndroidLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/platform/android/AndroidLoggerSink.h"
 
 
 using namespace ae;

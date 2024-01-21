@@ -6,15 +6,15 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Tube.h"
+#include "ae/geometry/primitives/Tube.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;
