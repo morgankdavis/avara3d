@@ -45,7 +45,7 @@ message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
 # GITLAB_CI_PIPELINE_CREATED_AT: 2024-01-10T03:58:04Z
 # GITLAB_CI_PIPELINE_IID: 456
 
-configure_file(BuildInfo.in ae_build_defines.h)
+configure_file(BuildInfoDefines.in BuildInfoDefines.h)
 
 
 ### add external libraries ###

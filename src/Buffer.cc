@@ -62,7 +62,7 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 	// make a copy of 'other's data, delete ours, and move their data into ours
 
 	size_t bufSize = other._size;
-	unsigned char* tempPointer = (unsigned char*)malloc(bufSize);
+	auto tempPointer = (unsigned char*)malloc(bufSize);
 	memcpy(tempPointer, other._data, bufSize);
 	if (_data) {
 		free(_data);
