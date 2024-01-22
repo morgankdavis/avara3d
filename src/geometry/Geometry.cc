@@ -258,7 +258,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		auto materials = vector<shared_ptr<Material>>();
 
 		// loop over shapes
-		for (size_t s = 0; s < objShapes.size(); ++s) {
+		for (auto s=0; s<objShapes.size(); ++s) {
 
 			auto shape = objShapes[s];
 
@@ -267,41 +267,42 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 			// loop over faces (polygon)
 			size_t index_offset = 0;
-			for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f) {
+			for (auto f=0; f<shape.mesh.num_face_vertices.size(); ++f) {
+
 				auto fv = shape.mesh.num_face_vertices[f];
 
 				// loop over vertices in the face.
-				for (size_t v = 0; v < fv; ++v) {
+				for (auto v=0; v<fv; ++v) {
 
 					Vertex vert;
 
 					// access to vertex
-					index_t idx = shape.mesh.indices[index_offset + v];
-					Face face = {static_cast<int>(3 * size_t(idx.vertex_index) + 0),
-								 static_cast<int>(3 * size_t(idx.vertex_index) + 1),
-								 static_cast<int>(3 * size_t(idx.vertex_index) + 2)};
+					auto idx = shape.mesh.indices[index_offset + v];
+					Face face = {static_cast<int>(3 * idx.vertex_index + 0),
+								 static_cast<int>(3 * idx.vertex_index + 1),
+								 static_cast<int>(3 * idx.vertex_index + 2)};
 					faces.push_back(face);
 
-					real_t vx = objAttrib.vertices[face.a];
-					real_t vy = objAttrib.vertices[face.b];
-					real_t vz = objAttrib.vertices[face.c];
-//					real_t vx = objAttrib.vertices[3 * size_t(idx.vertex_index) + 0];
-//					real_t vy = objAttrib.vertices[3 * size_t(idx.vertex_index) + 1];
-//					real_t vz = objAttrib.vertices[3 * size_t(idx.vertex_index) + 2];
+					auto vx = objAttrib.vertices[face.a];
+					auto vy = objAttrib.vertices[face.b];
+					auto vz = objAttrib.vertices[face.c];
+//					auto vx = objAttrib.vertices[3 * idx.vertex_index + 0];
+//					auto vy = objAttrib.vertices[3 * idx.vertex_index + 1];
+//					auto vz = objAttrib.vertices[3 * idx.vertex_index + 2];
 					vert.position = {vx, vy, vz};
 
 					// negative = no normal data
 					if (idx.normal_index >= 0) {
-						real_t nx = objAttrib.normals[3 * size_t(idx.normal_index) + 0];
-						real_t ny = objAttrib.normals[3 * size_t(idx.normal_index) + 1];
-						real_t nz = objAttrib.normals[3 * size_t(idx.normal_index) + 2];
+						auto nx = objAttrib.normals[3 * idx.normal_index + 0];
+						auto ny = objAttrib.normals[3 * idx.normal_index + 1];
+						auto nz = objAttrib.normals[3 * idx.normal_index + 2];
 						vert.normal = {nx, ny, nz};
 					}
 
 					// negative = no texcoord data
 					if (idx.texcoord_index >= 0) {
-						real_t tx = objAttrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
-						real_t ty = objAttrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
+						auto tx = objAttrib.texcoords[2 * idx.texcoord_index + 0];
+						auto ty = objAttrib.texcoords[2 * idx.texcoord_index + 1];
 						vert.textureCoordinate = {tx, ty};
 					}
 
