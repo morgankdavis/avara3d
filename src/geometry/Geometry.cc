@@ -248,7 +248,8 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 	vector<material_t> objMaterials;
 	string err;
 
-	if (tinyobj::LoadObj(&objAttrib, &objShapes, &objMaterials, &err, path.string().c_str())) {
+	if (tinyobj::LoadObj(&objAttrib, &objShapes, &objMaterials,
+						 &err, static_cast<const char*>(path.c_str()))) {
 
 		if (!err.empty()) {
 			AE_LOG_W(err);
