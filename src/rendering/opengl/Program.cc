@@ -18,7 +18,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "ae/Utilities.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 
 

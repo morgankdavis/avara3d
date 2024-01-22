@@ -15,7 +15,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/physics/PhysicsBody.h"

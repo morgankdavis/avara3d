@@ -12,9 +12,8 @@
 #include "ae/input/platform/desktop/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
-//#include "manymouse.h"
 
-#include "ae/diagnostic/Exception.h"
+//#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/context/platform/desktop/Window.h"

@@ -5,7 +5,7 @@
 #include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 
 
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 
 
 using namespace ae;

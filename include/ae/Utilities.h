@@ -31,6 +31,7 @@ namespace ae {
 	class Color;
 	class CubeImage;
 	class Font;
+	class Geometry;
 	class Image;
 	class Node;
 	class RenderContext;
@@ -104,6 +105,7 @@ namespace ae {
 		std::vector<std::filesystem::path> BaseSearchPaths();
 		std::vector<std::filesystem::path> ShaderSearchPaths();
 		std::vector<std::filesystem::path> SceneSearchPaths();
+		std::vector<std::filesystem::path> ModelSearchPaths();
 		std::vector<std::filesystem::path> ImageSearchPaths();
 		std::vector<std::filesystem::path> FontSearchPaths();
 		std::optional<std::filesystem::path> SearchInPaths(const std::string& filename,
@@ -149,6 +151,9 @@ namespace ae {
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name);
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 											  const std::string& type);
+		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name);
+		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
+													const std::string& type);
 #endif
 
 /*********************************************************************************************

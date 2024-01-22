@@ -18,6 +18,7 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/input/platform/desktop/WindowInputManager.h"
 #include "ae/physics/PhysicalWorld.h"

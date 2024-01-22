@@ -5,7 +5,6 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)
 option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
@@ -20,7 +19,7 @@ endif()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
-### create _build_defines.h ###
+### create BuildInfo.cmake.h ###
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_RELEASE_TYPE)
 set(AE_BUILD_TYPE ${UPPER_RELEASE_TYPE})
@@ -30,8 +29,6 @@ if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID)
 	set(GITLAB_CI_PIPELINE_CREATED_AT 0000-00--0T00:00:00Z) # temporary
 	set(AE_BUILD_ORIGIN "ADHOC")
 else()
-#	set(GITLAB_CI_PIPELINE_IID 0)
-#	set(GITLAB_CI_PIPELINE_CREATED_AT 0000-00--0T00:00:00Z) # temporary
 	set(AE_BUILD_ORIGIN "CI")
 endif()
 
@@ -45,32 +42,10 @@ message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
 # GITLAB_CI_PIPELINE_CREATED_AT: 2024-01-10T03:58:04Z
 # GITLAB_CI_PIPELINE_IID: 456
 
-configure_file(BuildInfoDefines.in BuildInfoDefines.h)
+configure_file(BuildInfo.cmake.in BuildInfo.cmake.h)
 
 
 ### add external libraries ###
-
-if (AE_BUILD_ASSIMP)
-
-	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-	if (WINDOWS)
-		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
-	endif()
-
-	set(ASSIMP_LIBRARIES "assimp")
-	add_subdirectory(external/assimp-3.3.1)
-	set(ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
-	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
-
-else()
-
-	find_package(assimp REQUIRED)
-
-endif()
 
 if (AE_BUILD_BULLET)
 
@@ -168,8 +143,6 @@ endif()
 ### add library headers ###
 
 target_include_directories(ae PUBLIC include)
-#target_include_directories(ae PRIVATE external/bullet-3.17/src)
-target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
 target_include_directories(ae PRIVATE external/generator/include)
 target_include_directories(ae PRIVATE external/gif-h)
 target_include_directories(ae PRIVATE external/glew-2.1.0/include)
@@ -178,6 +151,8 @@ target_include_directories(ae PRIVATE external/imgui-1.90)
 target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(ae PRIVATE external/stb)
+target_include_directories(ae PRIVATE external/tinygltf-2.8.19)
+target_include_directories(ae PRIVATE external/tinyobjloader-1.0.6)
 target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 
 
@@ -189,12 +164,11 @@ target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 ### link ae to external libraries ###
 
 target_link_libraries(ae PUBLIC
-		${ASSIMP_LIBRARIES}
 		${BULLET_LIBRARIES}
 		generator
 		imgui)
 
-# for _BuildInfo.h
+# for BuildInfoDefines.h
 target_include_directories(ae PUBLIC
 		"${PROJECT_BINARY_DIR}")
 

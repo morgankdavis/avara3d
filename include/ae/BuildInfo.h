@@ -65,7 +65,7 @@ namespace ae {
 		TYPE	 			_type;
 		ORIGIN 				_origin;
 		// https://stackoverflow.com/questions/3505352/portable-way-to-create-a-timestamp-in-c-c
-		// std::time 		date; // ?
+		// std::time 		_date; // ?
 	};
 }
 

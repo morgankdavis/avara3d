@@ -11,7 +11,7 @@
 #include <memory>
 
 #include "ae/Color.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/rendering/materials/MaterialPropertyContents.h"
@@ -165,9 +165,9 @@ FILL_MODE Material::fillMode() const {
 }
 
 void Material::fillMode(FILL_MODE mode) {
-#ifdef ANDROID
+#ifdef OPENGL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
-		throw Exception("Fill mode not supported on this platform.");
+		throw Exception("Fill mode not supported with this rendering API.");
 	}
 #endif
 	

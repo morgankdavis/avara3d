@@ -14,7 +14,7 @@
 #include "stb_image_write.h"
 
 #include "ae/Buffer.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 
 

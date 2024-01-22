@@ -29,7 +29,7 @@
 #include "fmt/format.h"
 
 #include "ae/Types.h"
-#include "ae/diagnostic/Exception.h"
+//#include "ae/diagnostic/exceptions/Exception.h"
 
 
 #define NOOP ((void)0)

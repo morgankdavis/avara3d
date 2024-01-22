@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <locale.h>
 #include <set>
 #include <vector>
 
@@ -25,7 +24,6 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "magic_enum.hpp"
 #endif
 
 #include "ae/Buffer.h"
@@ -35,6 +33,7 @@
 #include "ae/Font.h"
 #include "ae/Image.h"
 #include "ae/Utilities.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"

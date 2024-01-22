@@ -4,7 +4,7 @@
 
 #include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
 
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
 
 

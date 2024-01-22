@@ -6,7 +6,7 @@
 
 #include "magic_enum.hpp"
 
-#include "BuildInfoDefines.h"
+#include "BuildInfo.cmake.h"
 
 
 using namespace ae;
@@ -51,4 +51,3 @@ BuildInfo::TYPE BuildInfo::type() const {
 BuildInfo::ORIGIN BuildInfo::origin() const {
 	return _origin;
 }
-

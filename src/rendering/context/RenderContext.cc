@@ -14,7 +14,7 @@
 
 #include "ae/Buffer.h"
 #include "ae/Image.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/opengl/OpenGLRenderer.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
