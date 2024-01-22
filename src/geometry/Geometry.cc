@@ -331,7 +331,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		}
 
 		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(path.filename().stem());
+		geometry->name(path.filename().stem().string());
 		return geometry;
 	}
 	else {
