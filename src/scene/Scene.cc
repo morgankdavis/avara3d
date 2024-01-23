@@ -520,16 +520,16 @@ void LoadGlTF(Scene& scene, const filesystem::path& path) {
 	if (res) {
 
 		if (!warn.empty()) {
-			std::cout << "WARN: " << warn << std::endl;
+			cout << "WARN: " << warn << endl;
 		}
 
-		std::cout << "Loaded glTF: " << path << std::endl;
+		cout << "Loaded glTF: " << path << endl;
 	}
 	else {
-		std::cout << "Failed to load glTF: " << path << std::endl;
+		cout << "Failed to load glTF: " << path << endl;
 
 		if (!err.empty()) {
-			std::cout << "ERR: " << err << std::endl;
+			cout << "ERR: " << err << endl;
 		}
 	}
 }

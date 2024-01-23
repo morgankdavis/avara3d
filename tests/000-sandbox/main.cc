@@ -183,11 +183,11 @@ int main(int argc, const char* argv[]) {
 
 
 
-//	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-	auto duckGeometry = GeometryNamed("rubberDuck/rubberDuck");
-//	auto duckGeometry = GeometryNamed("slurm/slurm");
-	auto duckNode = Node::GeometryNode(duckGeometry);
-	duckNode->position({/*4.5*/0, 15, 0});
+////	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
+//	auto duckGeometry = GeometryNamed("rubberDuck/rubberDuck");
+////	auto duckGeometry = GeometryNamed("slurm/slurm");
+//	auto duckNode = Node::GeometryNode(duckGeometry);
+//	duckNode->position({/*4.5*/0, 15, 0});
 
 
 
@@ -199,9 +199,7 @@ int main(int argc, const char* argv[]) {
 //	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
 //	duckNode->physicsBody(body);
 
-	//auto body =
-
-	scene->rootNode()->addChild(duckNode);
+//	scene->rootNode()->addChild(duckNode);
 
 
 

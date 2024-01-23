@@ -254,7 +254,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 //				 result.error.line);
 	}
 
-	rapidobj::Triangulate(result);
+//	Triangulate(result);
 
 	if (result.error) {
 		AE_LOG_E("error.");
