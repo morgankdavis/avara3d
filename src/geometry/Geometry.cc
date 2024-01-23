@@ -242,7 +242,9 @@ void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
 
 shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
-	auto result = rapidobj::ParseFile(path.string().c_str());
+	using namespace rapidobj;
+
+	auto result = ParseFile(path.string().c_str());
 
 	if (result.error) {
 		AE_LOG_E("error.");
@@ -259,6 +261,13 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 	}
 
 	auto num_triangles = size_t();
+
+	for (const auto& shape : result.shapes) {
+		num_triangles += shape.mesh.num_face_vertices.size();
+	}
+
+	std::cout << "Shapes:    " << result.shapes.size() << '\n';
+	std::cout << "Triangles: " << num_triangles << '\n';
 }
 
 //shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
