@@ -1606,7 +1606,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = element.faces().size();
+	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 

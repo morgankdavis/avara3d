@@ -9,6 +9,7 @@
 #include "ae/geometry/Geometry.h"
 
 #include "glm/gtx/transform.hpp"
+//#include "magic_enum.hpp"
 //#define TINYOBJLOADER_IMPLEMENTATION
 ////#define TINYOBJLOADER_USE_MAPBOX_EARCUT
 //#include "tiny_obj_loader.h"
@@ -245,29 +246,73 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 	using namespace rapidobj;
 
 	auto result = ParseFile(path.string());
+	if (!result.error) {
 
-	if (result.error) {
-		AE_LOG_E("error.");
-//		AE_LOG_E("Error {} at line {}: {}",
-//				 result.error.code,
-//				 result.error.line_num,
-//				 result.error.line);
+		Triangulate(result);
+
+		auto elements = vector<shared_ptr<GeometryElement>>();
+		auto materials = vector<shared_ptr<ae::Material>>();
+
+		auto numShapes = result.shapes.size();
+		for (size_t s=0; s<numShapes; ++s) {
+
+//		auto numShapes = result.shapes.size();
+//		if (numShapes >= 1) {
+//
+//			if (numShapes > 1) {
+//				AE_LOG_W("Obj file contains more than one shape.  Discarding shapes at index > 0.");
+//			}
+
+			auto& shape = result.shapes[s];
+			auto& attributes = result.attributes;
+			auto& positions = attributes.positions;
+			auto& texCoords = attributes.texcoords;
+			auto& normals = attributes.normals;
+
+			auto verts = vector<Vertex>();
+			auto faces = vector<Face>();
+
+			auto numPositions = positions.size();
+			for (size_t p=0; p<numPositions; p+=3) {
+				Vertex vert = {{positions[p+0], positions[p+1], positions[p+2]},
+							   {normals[p+0], normals[p+1], normals[p+2]},//normalize(vec3(normals[p+0], normals[p+1], normals[p+2])),
+							   {texCoords[p+0], texCoords[p+1]}};
+				verts.push_back(vert);
+			}
+
+			auto name = shape.name;
+			AE_LOG_I("shape name: {}", name);
+			auto& mesh = shape.mesh;
+			auto& indicies = mesh.indices;
+
+			auto numIndicies = indicies.size();
+			for (size_t i=0; i<numIndicies; i+=3) {
+				Face face = {indicies[i+0].position_index,
+							 indicies[i+1].position_index,
+							 indicies[i+2].position_index};
+				faces.push_back(face);
+			}
+
+			elements.push_back(make_shared<GeometryElement>(verts, faces));
+		}
+
+		auto geometry = make_shared<Geometry>(elements, materials);
+		geometry->name(path.filename().stem().string());
+		return geometry;
+
+//		size_t num_triangles = 0;
+//		for (const auto& shape : result.shapes) {
+//			num_triangles += shape.mesh.num_face_vertices.size();
+//		}
+//
+//		cout << "Shapes:    " << result.shapes.size() << '\n';
+//		cout << "Triangles: " << num_triangles << '\n';
+	}
+	else {
+		AE_LOG_E("Error at line {}: {}", result.error.line, result.error.code.message());
 	}
 
-//	Triangulate(result);
-
-	if (result.error) {
-		AE_LOG_E("error.");
-	}
-
-	auto num_triangles = size_t();
-
-	for (const auto& shape : result.shapes) {
-		num_triangles += shape.mesh.num_face_vertices.size();
-	}
-
-	std::cout << "Shapes:    " << result.shapes.size() << '\n';
-	std::cout << "Triangles: " << num_triangles << '\n';
+	return nullptr;
 }
 
 //shared_ptr<Geometry> LoadObj(const filesystem::path& path) {

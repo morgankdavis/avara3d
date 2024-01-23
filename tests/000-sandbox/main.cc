@@ -185,21 +185,21 @@ int main(int argc, const char* argv[]) {
 
 ////	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
 //	auto duckGeometry = GeometryNamed("rubberDuck/rubberDuck");
-////	auto duckGeometry = GeometryNamed("slurm/slurm");
-//	auto duckNode = Node::GeometryNode(duckGeometry);
-//	duckNode->position({/*4.5*/0, 15, 0});
+	auto duckGeometry = GeometryNamed("slurm/slurm");
+	auto duckNode = Node::GeometryNode(duckGeometry);
+	duckNode->position({/*4.5*/0, 15, 0});
 
 
 
-//	duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	duckNode->physicsBody(PhysicsBody::KinematicBody());
+	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 // WORKS
 //	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
 //	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
 //	duckNode->physicsBody(body);
 
-//	scene->rootNode()->addChild(duckNode);
+	scene->rootNode()->addChild(duckNode);
 
 
 
