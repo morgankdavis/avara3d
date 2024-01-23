@@ -10,11 +10,15 @@
 
 #include <chrono>
 #include <filesystem>
-#include <optional>
+//#include <optional>
 #include <thread>
 
 #include "fmt/format.h"
 //#include "magic_enum.hpp"
+#define TINYGLTF_IMPLEMENTATION
+//#define TINYGLTF_NOEXCEPTION
+//#define JSON_NOEXCEPTION
+#include "tiny_gltf.h"
 
 #include "ae/Image.h"
 #include "ae/Utilities.h"
@@ -492,7 +496,40 @@ void Scene::update(UpdateCallback function) {
 //	}
 //}
 
-static void LoadGlTF(Scene& scene, const filesystem::path& path) {
+void LoadGlTF(Scene& scene, const filesystem::path& path) {
+
+	using namespace tinygltf;
+
+	TinyGLTF loader;
+	Model model;
+	std::string err;
+	std::string warn;
+
+	auto extension = path.extension();
+	bool res = false;
+	if (extension == ".gltf") {
+		res = loader.LoadASCIIFromFile(&model, &err, &warn, path.string());
+	}
+	else if (extension == ".glb") {
+		res = loader.LoadBinaryFromFile(&model, &err, &warn, path.string());
+	}
+	else {
+		AE_LOG_E("Unsupported file extension: {}", extension.string());
+	}
+
+	if (!warn.empty()) {
+		std::cout << "WARN: " << warn << std::endl;
+	}
+
+	if (!err.empty()) {
+		std::cout << "ERR: " << err << std::endl;
+	}
+
+	if (!res)
+		std::cout << "Failed to load glTF: " << path << std::endl;
+	else
+		std::cout << "Loaded glTF: " << path << std::endl;
+
 
 }
 
