@@ -244,7 +244,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 	using namespace rapidobj;
 
-	auto result = ParseFile(path.string().c_str());
+	auto result = ParseFile(path.string());
 
 	if (result.error) {
 		AE_LOG_E("error.");

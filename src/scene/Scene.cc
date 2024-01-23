@@ -502,8 +502,8 @@ void LoadGlTF(Scene& scene, const filesystem::path& path) {
 
 	TinyGLTF loader;
 	Model model;
-	std::string err;
-	std::string warn;
+	string err;
+	string warn;
 
 	auto extension = path.extension();
 	bool res = false;
