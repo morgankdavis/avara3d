@@ -517,20 +517,21 @@ void LoadGlTF(Scene& scene, const filesystem::path& path) {
 		AE_LOG_E("Unsupported file extension: {}", extension.string());
 	}
 
-	if (!warn.empty()) {
-		std::cout << "WARN: " << warn << std::endl;
-	}
+	if (res) {
 
-	if (!err.empty()) {
-		std::cout << "ERR: " << err << std::endl;
-	}
+		if (!warn.empty()) {
+			std::cout << "WARN: " << warn << std::endl;
+		}
 
-	if (!res)
-		std::cout << "Failed to load glTF: " << path << std::endl;
-	else
 		std::cout << "Loaded glTF: " << path << std::endl;
+	}
+	else {
+		std::cout << "Failed to load glTF: " << path << std::endl;
 
-
+		if (!err.empty()) {
+			std::cout << "ERR: " << err << std::endl;
+		}
+	}
 }
 
 //#ifndef ANDROID

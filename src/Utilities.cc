@@ -575,7 +575,8 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 #ifndef ANDROID
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name) {
 	
-	return SceneNamed(name, "gltf");
+	//return SceneNamed(name, "gltf");
+	return SceneNamed(name, "glb");
 }
 
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
