@@ -100,6 +100,8 @@ endif()
 
 add_subdirectory(external/imgui-1.90)
 
+add_subdirectory(external/rapidobj-1.0.1)
+
 
 ### add ae ###
 
@@ -152,7 +154,7 @@ target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(ae PRIVATE external/stb)
 target_include_directories(ae PRIVATE external/tinygltf-2.8.19)
-target_include_directories(ae PRIVATE external/tinyobjloader-1.0.6)
+#target_include_directories(ae PRIVATE external/tinyobjloader-1.0.6)
 target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 
 
@@ -166,7 +168,8 @@ target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 target_link_libraries(ae PUBLIC
 		${BULLET_LIBRARIES}
 		generator
-		imgui)
+		imgui
+		rapidobj)
 
 # for BuildInfoDefines.h
 target_include_directories(ae PUBLIC

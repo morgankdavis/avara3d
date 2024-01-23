@@ -9,9 +9,10 @@
 #include "ae/geometry/Geometry.h"
 
 #include "glm/gtx/transform.hpp"
-#define TINYOBJLOADER_IMPLEMENTATION
-//#define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "tiny_obj_loader.h"
+//#define TINYOBJLOADER_IMPLEMENTATION
+////#define TINYOBJLOADER_USE_MAPBOX_EARCUT
+//#include "tiny_obj_loader.h"
+#include "rapidobj/rapidobj.hpp"
 
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/diagnostic/exceptions/UnsupportedFormat.h"
@@ -241,103 +242,140 @@ void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
 
 shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
-	using namespace tinyobj;
+	auto result = rapidobj::ParseFile(path.string().c_str());
 
-	attrib_t objAttrib;
-	vector<shape_t> objShapes;
-	vector<material_t> objMaterials;
-	string err;
+	if (result.error) {
+		AE_LOG_E("error.");
+//		AE_LOG_E("Error {} at line {}: {}",
+//				 result.error.code,
+//				 result.error.line_num,
+//				 result.error.line);
+	}
 
-	if (tinyobj::LoadObj(&objAttrib, &objShapes, &objMaterials,
-						 &err, path.string().c_str())) {
+	rapidobj::Triangulate(result);
 
-		if (!err.empty()) {
-			AE_LOG_W(err);
-		}
+	if (result.error) {
+		AE_LOG_E("error.");
+	}
 
-		auto elements = vector<shared_ptr<GeometryElement>>();
-		auto materials = vector<shared_ptr<Material>>();
+	auto num_triangles = size_t();
+}
 
-		// loop over shapes
-		for (auto s=0; s<objShapes.size(); ++s) {
-
-			auto shape = objShapes[s];
-
-			auto verts = vector<Vertex>();
-			auto faces = vector<Face>();
-
-			// loop over faces (polygon)
-			size_t index_offset = 0;
-			for (auto f=0; f<shape.mesh.num_face_vertices.size(); ++f) {
-
-				auto fv = shape.mesh.num_face_vertices[f];
-
-				// loop over vertices in the face.
-				for (auto v=0; v<fv; ++v) {
-
-					Vertex vert;
-
-					// access to vertex
-					auto idx = shape.mesh.indices[index_offset + v];
-					Face face = {static_cast<int>(3 * idx.vertex_index + 0),
-								 static_cast<int>(3 * idx.vertex_index + 1),
-								 static_cast<int>(3 * idx.vertex_index + 2)};
-					faces.push_back(face);
-
-					auto vx = objAttrib.vertices[face.a];
-					auto vy = objAttrib.vertices[face.b];
-					auto vz = objAttrib.vertices[face.c];
+//shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
+//
+//	using namespace tinyobj;
+//
+//	attrib_t objAttrib;
+//	vector<shape_t> objShapes;
+//	vector<material_t> objMaterials;
+//	string err;
+//
+//	if (tinyobj::LoadObj(&objAttrib, &objShapes, &objMaterials,
+//						 &err, path.string().c_str())) {
+//
+//		// TODO: check using triangles
+//
+//		if (!err.empty()) {
+//			AE_LOG_W(err);
+//		}
+//
+//		auto elements = vector<shared_ptr<GeometryElement>>();
+//		auto materials = vector<shared_ptr<Material>>();
+//
+//		// loop over shapes
+//		for (auto s=0; s<objShapes.size(); ++s) {
+//
+//			auto shape = objShapes[s];
+//			auto& mesh = shape.mesh;
+//
+//			auto verts = vector<Vertex>();
+//			auto faces = vector<Face>();
+//
+////			for (int i=0; i<mesh.indices.size(); i++) {
+////
+////				Face face = {mesh.indices[i].vertex_index + 0,
+////							 mesh.indices[i].vertex_index + 1,
+////							 mesh.indices[i].vertex_index + 2};
+////				faces.push_back(face);
+////			}
+//
+//
+//
+//
+//
+//			// loop over faces (polygon)
+//			size_t index_offset = 0;
+//			for (auto f=0; f<shape.mesh.num_face_vertices.size(); ++f) {
+//
+//				auto fv = shape.mesh.num_face_vertices[f];
+//
+//				// loop over vertices in the face.
+//				for (auto v=0; v<fv; ++v) {
+//
+//					Vertex vert;
+//
+//					// access to vertex
+//					auto idx = shape.mesh.indices[index_offset + v];
+//
+////					Face face = {static_cast<int>(3 * idx.vertex_index + 0),
+////								 static_cast<int>(3 * idx.vertex_index + 1),
+////								 static_cast<int>(3 * idx.vertex_index + 2)};
+////					faces.push_back(face);
+//
+////					auto vx = objAttrib.vertices[face.a];
+////					auto vy = objAttrib.vertices[face.b];
+////					auto vz = objAttrib.vertices[face.c];
 //					auto vx = objAttrib.vertices[3 * idx.vertex_index + 0];
 //					auto vy = objAttrib.vertices[3 * idx.vertex_index + 1];
 //					auto vz = objAttrib.vertices[3 * idx.vertex_index + 2];
-					vert.position = {vx, vy, vz};
-
-					// negative = no normal data
-					if (idx.normal_index >= 0) {
-						auto nx = objAttrib.normals[3 * idx.normal_index + 0];
-						auto ny = objAttrib.normals[3 * idx.normal_index + 1];
-						auto nz = objAttrib.normals[3 * idx.normal_index + 2];
-						vert.normal = {nx, ny, nz};
-					}
-
-					// negative = no texcoord data
-					if (idx.texcoord_index >= 0) {
-						auto tx = objAttrib.texcoords[2 * idx.texcoord_index + 0];
-						auto ty = objAttrib.texcoords[2 * idx.texcoord_index + 1];
-						vert.textureCoordinate = {tx, ty};
-					}
-
-					verts.push_back(vert);
-
-					// optional: vertex colors
-					// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
-					// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
-					// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
-				}
-				index_offset += fv;
-
-				// per-face material
-				auto objMaterial = objShapes[s].mesh.material_ids[f];
-			}
-
-//			auto numFaces = shape.mesh.indices.size();
+//					vert.position = {vx, vy, vz};
 //
-//			for (size_t f = 0; f < numFaces; ++f) {
-//				auto index = shape.mesh.indices[f];
-//				faces.push_back(Face{index.vertex_index});
+//					// negative = no normal data
+//					if (idx.normal_index >= 0) {
+//						auto nx = objAttrib.normals[3 * idx.normal_index + 0];
+//						auto ny = objAttrib.normals[3 * idx.normal_index + 1];
+//						auto nz = objAttrib.normals[3 * idx.normal_index + 2];
+//						vert.normal = {nx, ny, nz};
+//					}
+//
+//					// negative = no texcoord data
+//					if (idx.texcoord_index >= 0) {
+//						auto tx = objAttrib.texcoords[2 * idx.texcoord_index + 0];
+//						auto ty = objAttrib.texcoords[2 * idx.texcoord_index + 1];
+//						vert.textureCoordinate = {tx, ty};
+//					}
+//
+//					verts.push_back(vert);
+//
+//					// optional: vertex colors
+//					// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
+//					// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
+//					// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
+//				}
+//				index_offset += fv;
+//
+//				// per-face material
+//				auto objMaterial = objShapes[s].mesh.material_ids[f];
 //			}
-
-
-			elements.push_back(make_shared<GeometryElement>(verts, faces));
-		}
-
-		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(path.filename().stem().string());
-		return geometry;
-	}
-	else {
-		AE_LOG_E("Error loading obj file: {}", err);
-	}
-
-	return nullptr;
-}
+//
+////			auto numFaces = shape.mesh.indices.size();
+////
+////			for (size_t f = 0; f < numFaces; ++f) {
+////				auto index = shape.mesh.indices[f];
+////				faces.push_back(Face{index.vertex_index});
+////			}
+//
+//
+//			elements.push_back(make_shared<GeometryElement>(verts, faces));
+//		}
+//
+//		auto geometry = make_shared<Geometry>(elements, materials);
+//		geometry->name(path.filename().stem().string());
+//		return geometry;
+//	}
+//	else {
+//		AE_LOG_E("Error loading obj file: {}", err);
+//	}
+//
+//	return nullptr;
+//}
