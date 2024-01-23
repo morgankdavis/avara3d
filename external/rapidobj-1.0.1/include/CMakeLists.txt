@@ -28,23 +28,23 @@ if(MSVC)
     )
 endif()
 
-install(TARGETS rapidobj EXPORT RapidObj)
-install(EXPORT RapidObj DESTINATION ${DESTINATION_CMAKE_DIR} NAMESPACE rapidobj::)
-install(FILES ${PROJECT_SOURCE_DIR}/cmake/RapidObjConfig.cmake DESTINATION ${DESTINATION_CMAKE_DIR})
-install(FILES ${PROJECT_BINARY_DIR}/include/RapidObjConfigVersion.cmake DESTINATION ${DESTINATION_CMAKE_DIR})
+#install(TARGETS rapidobj EXPORT RapidObj)
+#install(EXPORT RapidObj DESTINATION ${DESTINATION_CMAKE_DIR} NAMESPACE rapidobj::)
+#install(FILES ${PROJECT_SOURCE_DIR}/cmake/RapidObjConfig.cmake DESTINATION ${DESTINATION_CMAKE_DIR})
+#install(FILES ${PROJECT_BINARY_DIR}/include/RapidObjConfigVersion.cmake DESTINATION ${DESTINATION_CMAKE_DIR})
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     # pkg-config file
     configure_file(${PROJECT_NAME}.pc.in
         ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc
         @ONLY
     )
-    install(FILES
-        ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
-)
+#    install(FILES
+#        ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc
+#        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
+#)
 endif()
-if(MSVC)
-    install(FILES ${PROJECT_SOURCE_DIR}/rapidobj.natvis DESTINATION ${DESTINATION_CMAKE_DIR})
-endif()
-
-install(FILES rapidobj/rapidobj.hpp DESTINATION ${DESTINATION_INCLUDE_DIR})
+#if(MSVC)
+#    install(FILES ${PROJECT_SOURCE_DIR}/rapidobj.natvis DESTINATION ${DESTINATION_CMAKE_DIR})
+#endif()
+#
+#install(FILES rapidobj/rapidobj.hpp DESTINATION ${DESTINATION_INCLUDE_DIR})
