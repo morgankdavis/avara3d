@@ -13,7 +13,7 @@
 //#define TINYOBJLOADER_IMPLEMENTATION
 ////#define TINYOBJLOADER_USE_MAPBOX_EARCUT
 //#include "tiny_obj_loader.h"
-#include "rapidobj/rapidobj.hpp"
+#include "rapidobj.hpp"
 
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/diagnostic/exceptions/UnsupportedFormat.h"
