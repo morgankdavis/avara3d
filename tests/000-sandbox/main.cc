@@ -57,6 +57,7 @@ int main(int argc, const char* argv[]) {
 		  buildInfo.type() == BuildInfo::TYPE::DEBUG ? "DEBUG" : "RELEASE");
 	LOG_I(logger, "Origin: {}",
 		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
+	auto time = buildInfo.time();
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,

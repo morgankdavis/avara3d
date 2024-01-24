@@ -6,6 +6,9 @@
 #define AVARA_ENGINE_BUILDINFO_H
 
 
+#include <iomanip>
+
+
 namespace ae {
 
 	class BuildInfo {
@@ -48,10 +51,10 @@ namespace ae {
 		 *********************************************************************************************/
 
 		int 			number() const;
-		Version 		version() const;
+		const Version&	version() const;
 		TYPE 			type() const;
 		ORIGIN 			origin() const;
-		//std::time&	time() const;
+		const std::tm&	time() const;
 
 		/*********************************************************************************************
 			Private
@@ -64,8 +67,7 @@ namespace ae {
 		Version 			_version;
 		TYPE	 			_type;
 		ORIGIN 				_origin;
-		// https://stackoverflow.com/questions/3505352/portable-way-to-create-a-timestamp-in-c-c
-		// std::time 		_date; // ?
+		std::tm				_time;
 	};
 }
 

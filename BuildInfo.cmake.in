@@ -1,4 +1,4 @@
-#define AE_BUILD_NUMBER     @GITLAB_CI_PIPELINE_IID@
+#define AE_BUILD_NUMBER     @AE_BUILD_NUMBER@
 #define AE_VERSION_MAJOR    @avara-engine_VERSION_MAJOR@
 #define AE_VERSION_MINOR    @avara-engine_VERSION_MINOR@
 #define AE_VERSION_PATCH    @avara-engine_VERSION_PATCH@
