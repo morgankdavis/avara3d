@@ -26,7 +26,7 @@ add_executable(${EXAMPLE_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${EXAMPLE_NAME} ae)
 
 
-target_compile_options(${EXAMPLE_NAME} PRIVATE 
+target_compile_options(${EXAMPLE_NAME} PRIVATE
 	"-fmessage-length=0"
 	"-UGLFW_CDECL"
 	"-Wno-float-equal"

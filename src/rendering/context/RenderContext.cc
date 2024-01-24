@@ -10,11 +10,10 @@
 
 #include "gif.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize.h"
+#include "stb_image_resize2.h"
 
 #include "diagnostic/Exception.h"
 #include "diagnostic/logging/Logger.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/opengl/OpenGLRenderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
 #include "rendering/Renderer.h"
@@ -66,7 +65,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 }
 
 RenderContext::~RenderContext() {
-	AE_LOG_D("Destroying RenderContext {:p}", (void*)this);
+	AE_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
 	
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -208,15 +207,10 @@ void RenderContext::framebufferScale(float scale) {
 	_framebufferScale = scale;
 }
 
-void RenderContext::saveGIFFrame(float time) {
+void RenderContext::saveGIFFrame(float deltaRunT) {
 
-//	float time = sceneTime();
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	static float secondsAccum = 0;
-	secondsAccum += deltaSeconds;
+	static float secondsAccum = 0; // TODO: this won't work correctly after first call
+	secondsAccum += deltaRunT;
 
 	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
@@ -228,9 +222,10 @@ void RenderContext::saveGIFFrame(float time) {
 
 		auto frame = snapshot();
 
-		unsigned char* resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
-		stbir_resize_uint8(frame->data()->pointer(), frame->width(), frame->height(), 0,
-						   resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0, 4);
+		auto resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
+		stbir_resize_uint8_linear(frame->data()->pointer(), frame->width(), frame->height(), 0,
+								  resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0,
+								  STBIR_RGBA);
 
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(_gifWriter.get(), resizedFrameData,
@@ -245,5 +240,13 @@ void RenderContext::saveGIFFrame(float time) {
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
 	_visualWorld = world;
+}
+
+void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
+	_visualWorld = nullptr;
 }

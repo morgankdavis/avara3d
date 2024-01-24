@@ -25,8 +25,7 @@ namespace ae {
 	class Node;
 	class PhysicsBody;
 	class PhysicalWorld;
-	class PhysicsShapeResources;
-	class PhysicsSimulator;
+	class PhysicsShapeModelProxy;
 	class Scene;
 	
 
@@ -91,22 +90,16 @@ namespace ae {
 		void 								sourceObject(
 				std::variant<Geometry*, Node*, std::monostate> sourceObject);
 
+		void								checkCreateProxy();
+
 		std::unordered_set<PhysicsBody*>	bodies() const;
 
-//		PhysicalWorld*						physicalWorld() const;
-		PhysicsSimulator*					physicsSimulator() const;
-
-		void								checkCreateModel();
-
-		PhysicsShapeResources*				resources() const;
-		void								resources(std::shared_ptr<PhysicsShapeResources> resources);
-
-		PHYSICS_SHAPE_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask);
+		PhysicsShapeModelProxy*				proxy() const;
 
 	protected:
 
 		PHYSICS_SHAPE_TYPE 					_type;
+		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 
 /*********************************************************************************************
 	Private
@@ -117,10 +110,9 @@ namespace ae {
 		std::variant<
 				Geometry*,
 				Node*,
-				std::monostate> 			_sourceObject;
-		std::unordered_set<PhysicsBody*>	_bodies;
-		std::shared_ptr<PhysicsShapeResources>	_resources;
-		PHYSICS_SHAPE_DIRTY_MASK 			_dirtyMask;
+				std::monostate> 				_sourceObject;
+		std::unordered_set<PhysicsBody*>		_bodies;
+//		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 	};
 }
 

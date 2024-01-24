@@ -14,6 +14,8 @@
 
 #include "utilities/Utilities.h"
 
+#include "physics/bullet/BulletBodyProxy.h"
+
 
 using namespace ae;
 using namespace ae::utils;
@@ -108,8 +110,7 @@ int Sandbox::run(const vector<string>& args) {
 	const float PLANE_LENGTH = 100.0;
 	const float PLANE_WIDTH = 100.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0.01));
-	//planeNode->geometry(make_shared<Plane>(PLANE_LENGTH, PLANE_WIDTH, 10, 10));
+	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
 	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
@@ -131,19 +132,115 @@ int Sandbox::run(const vector<string>& args) {
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
-	//if (DARK) planeMaterial->specularExponent(1000);
-	planeMaterial->doubleSided(true);
+	planeMaterial->doubleSided(false);
 	planeNode->geometry()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	AE_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
+//	AE_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
 	planeNode->physicsBody(planePhysicsBody);
-	planePhysicsBody->mass(0);
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
+//
+//
+//
+//
+//
+//
+//
+//	// add the palm tree
+//
+//	auto palmScene = SceneNamed("palm2/palm2", "obj");
+//	auto palmNode = palmScene->rootNode();
+//	palmNode->name("Palm node");
+//	for (auto n : palmScene->rootNode()->children(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
+//
+//	auto palmPhysicsBody = PhysicsBody::StaticBody();
+//	palmPhysicsBody->mass(0);
+//	palmPhysicsBody->friction(1);
+//	palmPhysicsBody->restitution(0.25);
+//	palmNode->physicsBody(palmPhysicsBody);
+//
+//	scene->rootNode()->addChild(palmNode);
+//
+//
+//
+
+
+
+
+	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
+	duckNode->position({/*4.5*/0, 15, 0});
+
+
+	// DOES NOT WORK
+	duckNode->physicsBody(PhysicsBody::KinematicBody());
+//	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL); // <- works
+	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+
+// WORKS
+//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
+//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
+//	duckNode->physicsBody(body);
+
+	//auto body =
+
+	scene->rootNode()->addChild(duckNode);
+
+
+
+//	static shared_ptr<Color> colors[] = {
+//			Color::White(),
+//			Color::Red(),
+//			Color::Orange(),
+//			Color::Yellow(),
+//			Color::Lime(),
+//			Color::Blue()
+//	};
+//	auto color = colors[Uniform(0, 5)];
+//
+//	constexpr float BALL_RADIUS = 0.55;
+//	auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
+//	auto ballNode = Node::GeometryNode(sphereGrometry);
+//	auto diffuseProperty = make_shared<MaterialProperty>(color);
+//	auto specularProperty = make_shared<MaterialProperty>(Color::White());
+//	auto ballMaterial = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
+//	ballMaterial->specularExponent(125.0);
+//	ballNode->geometry()->addMaterial(ballMaterial);
+//	ballNode->position({0, 20, 0});
+//
+//	auto ballPhysicsBody = PhysicsBody::DynamicBody();
+//	ballPhysicsBody->mass(0.2); // vollyball
+//	ballPhysicsBody->restitution(1.0);
+//	ballPhysicsBody->friction(0.015);
+//	ballPhysicsBody->rollingFriction(0.15);
+//
+//	ballNode->physicsBody(ballPhysicsBody);
+//
+//	scene->rootNode()->addChild(ballNode);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -283,7 +380,7 @@ void Sandbox::updateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(KEY::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 240, 8);
+			StartGIFRecording(*window, 320, 8);
 		}
 		else {
 			StopGIFRecording(*window);

@@ -37,7 +37,11 @@
 #endif
 
 #ifdef WINDOWS
-//#include <windows.h>
+#include <windows.h>
+#undef ERROR // see note at LOG_LEVEL
+// C:\...\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\...\ae.vcxproj]
+// C:\...\minwindef.h(193,29): message : expanded from macro 'max' [C:\G...\ae.vcxproj]
+#undef max
 #endif
 
 #ifdef ANDROID

@@ -9,8 +9,8 @@
 #include "physics/PhysicalWorld.h"
 
 #include "diagnostic/logging/Logger.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
-#include "physics/bullet/BulletWorldResources.h"
+#include "physics/PhysicsBody.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "scene/Node.h"
 #include "scene/Scene.h"
 
@@ -34,25 +34,17 @@ PhysicalWorld::PhysicalWorld():
 		_gravity({0, -9.807, 0}),
 		_speed(1.0),
 		_timestep(1.0/60.0),
-		//_resources(make_unique<BulletWorldResources>()),
-		_resources(nullptr),
-		_simulator(make_unique<BulletPhysicsSimulator>()),
 		_scene(nullptr),
-		_dirtyMask(PHYSICS_WORLD_DIRTY_MASK::ALL),
 		_didSimulate(nullptr),
 		_beginContact(nullptr),
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
-	_simulator->create(*this);
-//#warning move?
-
-//	_simulator->setTimestep(_timestep);
-//	_simulator->setGravity(_gravity);
+	_proxy = make_unique<BulletWorldProxy>(this);
 }
 
 PhysicalWorld::~PhysicalWorld() {
-	AE_LOG_D("Destroying PhysicalWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -65,8 +57,6 @@ vec3 PhysicalWorld::gravity() const {
 
 void PhysicalWorld::gravity(vec3 gravity) {
 	_gravity = gravity;
-
-	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::GRAVITY);
 }
 
 float PhysicalWorld::speed() const {
@@ -83,8 +73,6 @@ float PhysicalWorld::timestep() const {
 
 void PhysicalWorld::timestep(float timestep) {
 	_timestep = timestep;
-
-	_dirtyMask = PHYSICS_WORLD_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_WORLD_DIRTY_MASK::TIMESTEP);
 }
 
 shared_ptr<PhysicsContact> PhysicalWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
@@ -119,8 +107,7 @@ shared_ptr<PhysicsContact> PhysicalWorld::convexSweepTest(shared_ptr<PhysicsCont
 }
 
 void PhysicalWorld::updateCollisionPairs() {
-#warning FIX
-	//_btWorld->getCollisionWorld()->computeOverlappingPairs();
+	_proxy->updateCollisionPairs();
 }
 
 Scene* PhysicalWorld::scene() const {
@@ -164,21 +151,54 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
 }
 
-void PhysicalWorld::simulate(const Scene& scene,
-							 double runT,
-							 double deltaRunT,
-							 Stats& stats) {
+void PhysicalWorld::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
-	if (_simulator) {
+	// removing bodies handled in PhysicalBody::physicalWorldUnreachable()
+
+	_scene = nullptr;
+}
+
+void PhysicalWorld::add(PhysicsBody& body) {
+	AE_LOG_D("body: {}", static_cast<void*>(&body));
+
+	if (_proxy) {
+//		body.addedToWorld(this);
+		_proxy->add(body);
+		body.addedToWorld(this);
+	}
+	else {
+		AE_LOG_W("_model is null.");
+	}
+}
+
+void PhysicalWorld::remove(PhysicsBody& body) {
+	AE_LOG_D("body: {}", static_cast<void*>(&body));
+
+	if (_proxy) {
+		_proxy->remove(body);
+		body.removedFromWorld(this);
+	}
+	else {
+		AE_LOG_W("_model is null.");
+	}
+}
+
+void PhysicalWorld::step(const Scene& scene,
+						 double runT,
+						 double deltaRunT,
+						 Stats& stats) {
+
+	if (_proxy) {
 
 		auto startTime = scene.time();
 
-		_simulator->update(*this, stats);
-		_simulator->step(*this, deltaRunT);
-		_simulator->sync(*this);
+		_proxy->step(deltaRunT, _speed, _timestep);
 
 		UpdateTimeStats(stats, startTime, scene.time());
 
@@ -187,56 +207,12 @@ void PhysicalWorld::simulate(const Scene& scene,
 		}
 	}
 	else {
-		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
+		AE_LOG_E("No PhysicalWorldModelProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	}
 }
 
-//void PhysicalWorld::simulate(const Scene& scene,
-//							 float runT,
-//							 float deltaRunT,
-//							 Stats& stats) {
-//
-//	if (_simulator) {
-//
-//		auto rootNode = scene.rootNode();
-//
-//		_simulator->beginUpdate(scene);
-//		_simulator->update(scene);
-//		rootNode->update(*_simulator,
-//						  stats);
-//		_simulator->step(deltaRunT * _speed);
-//		_simulator->sync(scene);
-//		rootNode->sync(*_simulator,
-//						stats);
-//		_simulator->endUpdate(scene);
-//
-//		if (didSimulate()) {
-//			(didSimulate())(*this, runT);
-//		}
-//	}
-//	else {
-//		AE_LOG_E("No PhysicsSimulator attached to PhysicsWorld {:p}", (void*)this);
-//	}
-//}
-
-PhysicalWorldResources* PhysicalWorld::resources() const {
-	return  _resources.get();
-}
-
-void PhysicalWorld::resources(std::unique_ptr<PhysicalWorldResources> resources) {
-	_resources = std::move(resources);
-}
-
-PhysicsSimulator* PhysicalWorld::simulator() const {
-	return _simulator.get();
-}
-
-PHYSICS_WORLD_DIRTY_MASK PhysicalWorld::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicalWorld::dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask) {
-	_dirtyMask = mask;
+PhysicalWorldModelProxy* PhysicalWorld::proxy() const {
+	return  _proxy.get();
 }
 
 /*********************************************************************************************
@@ -248,8 +224,6 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto stepTime = endTime - startTime;
 	stats.currentPhysicstime = stepTime * 1000.0f;
-
-
 
 	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
 

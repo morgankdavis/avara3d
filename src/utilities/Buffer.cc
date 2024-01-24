@@ -8,6 +8,8 @@
 
 #include "utilities/Buffer.h"
 
+#include <cstring>
+
 #include "diagnostic/logging/Logger.h"
 #include "utilities/Utilities.h"
 
@@ -72,7 +74,7 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 }
 
 Buffer::~Buffer() {
-	AE_LOG_D("Destroying Buffer {:p}", (void*)this);
+	AE_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
 
 	if (_pointer) {
 		free(_pointer);

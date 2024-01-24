@@ -22,7 +22,6 @@
 #endif
 #include "GLFW/glfw3native.h"
 
-#include "Global.h"
 #include "diagnostic/logging/Logger.h"
 #include "input/platform/desktop/WindowInputManager.h"
 #include "physics/PhysicalWorld.h"
@@ -45,7 +44,6 @@ static bool 	InitGLFW();
 static bool 	InitGLEW();
 static void 	LogGLInfo();
 static float 	ScreenScaleFactor(GLFWmonitor* monitor);
-
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -97,14 +95,22 @@ Window::Window(RENDER_API renderAPI,
 		if (fullScreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-			_glfwWindow = glfwCreateWindow(vmode->width, vmode->height, "avara-engine", monitor, NULL);
+			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
+																					 vmode->height,
+																					 "avara-engine",
+																					 monitor,
+																					 nullptr));
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 
 			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
-			_glfwWindow = glfwCreateWindow(width, height, "avara-engine", nullptr, nullptr);
+			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
+																					 height,
+																					 "avara-engine",
+																					 nullptr,
+																					 nullptr));
 
 			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
@@ -112,9 +118,9 @@ Window::Window(RENDER_API renderAPI,
 		}
 
 		if (_glfwWindow) {
-			glfwSetWindowUserPointer(_glfwWindow, (void*)this);
+			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
 
-			glfwMakeContextCurrent(_glfwWindow);
+			glfwMakeContextCurrent(_glfwWindow.get());
 			vSyncEnabled(false);
 
 			if (InitGLEW()) {
@@ -148,7 +154,7 @@ Window::Window(RENDER_API renderAPI,
 }
 
 Window::~Window() {
-	AE_LOG_D("Destroying Window {:p}", (void*)this);
+	AE_LOG_D("Destroying Window {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 
@@ -165,11 +171,11 @@ void Window::open() {
 	AE_LOG_T("");
 
 	if (_visualWorld && _visualWorld->scene()) {
-		glfwMakeContextCurrent(_glfwWindow);
+		glfwMakeContextCurrent(_glfwWindow.get());
 		
-		glfwSetWindowSizeCallback(_glfwWindow, GLFWWindowSizeCallback);
-		glfwSetWindowCloseCallback(_glfwWindow, GLFWWindowCloseCallback);
-		glfwSetFramebufferSizeCallback(_glfwWindow, GLFWFramebufferSizeCallback);
+		glfwSetWindowSizeCallback(_glfwWindow.get(), GLFWWindowSizeCallback);
+		glfwSetWindowCloseCallback(_glfwWindow.get(), GLFWWindowCloseCallback);
+		glfwSetFramebufferSizeCallback(_glfwWindow.get(), GLFWFramebufferSizeCallback);
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
 	}
@@ -191,13 +197,13 @@ void Window::close() {
 		}
 	}
 
-	glfwSetWindowSizeCallback(_glfwWindow, nullptr);
-	glfwSetWindowCloseCallback(_glfwWindow, nullptr);
-	glfwSetFramebufferSizeCallback(_glfwWindow, nullptr);
+	glfwSetWindowSizeCallback(_glfwWindow.get(), nullptr);
+	glfwSetWindowCloseCallback(_glfwWindow.get(), nullptr);
+	glfwSetFramebufferSizeCallback(_glfwWindow.get(), nullptr);
 
 	cursorCaptured(false);
 
-	glfwSetWindowShouldClose(_glfwWindow, true);
+	glfwSetWindowShouldClose(_glfwWindow.get(), true);
 }
 
 bool Window::cursorCaptured() const {
@@ -206,7 +212,7 @@ bool Window::cursorCaptured() const {
 
 void Window::cursorCaptured(bool captured) {
 	_cursorCaptured = captured;
-	glfwSetInputMode(_glfwWindow, GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+	glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
 /*********************************************************************************************
@@ -214,7 +220,7 @@ void Window::cursorCaptured(bool captured) {
  *********************************************************************************************/
 
 void Window::swapBuffers() {
-	glfwSwapBuffers(_glfwWindow);
+	glfwSwapBuffers(_glfwWindow.get());
 }
 
 bool Window::vSyncEnabled() const {
@@ -241,7 +247,15 @@ void Window::pollInput() {
 }
 
 GLFWwindow* Window::glfwWindow() const {
-	return _glfwWindow;
+	return _glfwWindow.get();
+}
+
+/*********************************************************************************************
+	Internal Static
+ *********************************************************************************************/
+
+void Window::Destroy(GLFWwindow* window) {
+	glfwDestroyWindow(window);
 }
 
 /*********************************************************************************************
@@ -304,8 +318,9 @@ static void LogGLInfo()
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
-	AE_LOG_I("Renderer: {}", renderer);
-	AE_LOG_I("Version: {}", version);
+	// is this cool?
+	AE_LOG_I("Renderer: {}", reinterpret_cast<const char*>(renderer));
+	AE_LOG_I("Version: {}", reinterpret_cast<const char*>(version));
 
 	// extensions
 
@@ -317,7 +332,7 @@ static void LogGLInfo()
 		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
 		if (e < numExtensions-1) extensionsStream << endl;
 	}
-	AE_LOG_I(extensionsStream.str());
+	AE_LOG_I("{}", extensionsStream.str());
 
 	// context info
 
@@ -374,7 +389,7 @@ static void LogGLInfo()
 	glGetBooleanv(contextParams[11], &stereo);
 	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
 
-	AE_LOG_I(contextParamsStream.str());
+	AE_LOG_I("{}", contextParamsStream.str());
 }
 
 static float ScreenScaleFactor(GLFWmonitor* monitor) {
@@ -401,7 +416,7 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
-	AE_LOG_I("glfwWindow: {:p}", (void*)glfwWindow);
+	AE_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 

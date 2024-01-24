@@ -30,7 +30,6 @@ namespace ae {
 	class InputManager;
 	class Material;
 	class Node;
-	class PhysicsSimulator;
 	class Renderer;
 	class RenderContext;
 	class Scene;
@@ -94,9 +93,10 @@ namespace ae {
 		void 								framebufferHeight(unsigned height);
 		void 								framebufferScale(float scale);
 
-		virtual void 						saveGIFFrame(float time); // TEMPORARY -- MAKE PRIVATE
+		virtual void 						saveGIFFrame(float deltaRunT);
 
 		void								attachedToVisualWorld(VisualWorld* world);
+		void								detachedFromVisualWorld(VisualWorld* world);
 		
 /*********************************************************************************************
 	Protected

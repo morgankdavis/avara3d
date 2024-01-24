@@ -27,7 +27,7 @@ using namespace std;
 Renderer::Renderer() { }
 
 Renderer::~Renderer() {
-	AE_LOG_D("Destroying Renderer {:p}", (void*)this);
+	AE_LOG_D("Destroying Renderer {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

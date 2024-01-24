@@ -13,6 +13,7 @@
 //	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 //	#define NOGDI
 //#endifs
+#include <cstdarg>
 #include <ctime>
 #include <iostream>
 
@@ -161,7 +162,7 @@ void Logger::warn(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN_, format, args);
+	log(LOG_LEVEL::WARN, format, args);
 	va_end(args);
 }
 
@@ -222,7 +223,7 @@ void Logger::warn(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN_, useHeader, filename, line, function, format, args);
+	log(LOG_LEVEL::WARN, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -245,6 +246,51 @@ void Logger::critical(bool useHeader,
 	log(LOG_LEVEL::CRITICAL, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
+
+
+//template <typename... Args>
+//void Logger::f1(const char* format, Args&&... args) {
+//
+//	auto together = fmt::vformat(format,
+//								 fmt::make_format_args(std::forward<Args>(args))...);
+//
+//}
+
+
+//template <typename... Args>
+//void Logger::f2(const char* format, Args&&...args) {
+//
+//
+//}
+
+
+//void Logger::f2(bool useHeader,
+//				const char* filename, int line, const char* function,
+//				const char* fthing) {
+//
+//}
+
+
+
+
+template <typename... Args>
+void Logger::f3(std::string_view fmt, Args&&... args) {
+	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
+}
+
+
+template <typename F, typename... Args>
+void Logger::f4(F, Args&&... args) {
+	return fmt::format(F::string, std::forward<Args>(args)...);
+}
+
+
+
+//void vlog(const char* file, int line, fmt::string_view format,
+//		  fmt::format_args args) {
+//	fmt::print("{}: {}: ", file, line);
+//	fmt::vprint(format, args);
+//}
 
 // constructs body with variable args list
 void Logger::log(LOG_LEVEL level,
@@ -402,7 +448,7 @@ string StringFromLogLevel(LOG_LEVEL level) {
 		case LOG_LEVEL::TRACE: 	return "trace";
 		case LOG_LEVEL::DEBUG: 	return "debug";
 		case LOG_LEVEL::INFO: 		return "info";
-		case LOG_LEVEL::WARN_: 		return "WARN";
+		case LOG_LEVEL::WARN: 		return "WARN";
 		case LOG_LEVEL::ERROR: 	return "ERROR";
 		case LOG_LEVEL::CRITICAL: 	return "CRITICAL";
 		case LOG_LEVEL::OFF: 		return "off";

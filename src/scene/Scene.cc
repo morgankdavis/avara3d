@@ -19,15 +19,14 @@
 #include "assimp-3.3.1/include/assimp/scene.h"
 #include "assimp-3.3.1/include/assimp/version.h"
 #endif
+#include "magic_enum.hpp"
 
 #include "diagnostic/logging/Logger.h"
 #include "geometry/Geometry.h"
 #include "geometry/GeometryElement.h"
 #include "input/platform/desktop/WindowInputManager.h"
-#include "geometry/primitives/Box.h"
 #include "physics/PhysicsBody.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
 #include "rendering/VisualWorld.h"
@@ -69,7 +68,8 @@ static void 						GetRunTime(double time, // time since reference
 											  bool paused,
 											  double& runT, // time since reference excluding paused time
 											  double& deltaRunT); // time since last call excluding paused time
-static void							UpdateTimeStats(Stats& stats, double time);
+static void 						UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
+static void							UpdateFrameTimeStats(Stats& stats, double time);
 static shared_ptr<Image> 			MissingTextureImage();
 #ifndef ANDROID
 static void 						AddAIGeometryNodes(Scene& scene,
@@ -103,7 +103,7 @@ static Color 						ColorFromAIColor4D(const aiColor4D& from);
  *********************************************************************************************/
 
 #ifndef ANDROID
-shared_ptr<Scene> Scene::FromFile(const std::filesystem::path &path) {
+shared_ptr<Scene> Scene::FromFile(const filesystem::path& path) {
 	auto scene = make_shared<Scene>();
 	LoadFile(*scene, path);
 	return scene;
@@ -131,24 +131,47 @@ Scene::Scene():
 Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 			 shared_ptr<PhysicalWorld> physicsWorld,
 			 shared_ptr<InputManager> inputManager):
-		_rootNode(make_shared<Node>("root")),
-		_visualWorld(visualWorld),
-		_physicalWorld(physicsWorld),
-		_inputManager(inputManager),
-		_debugOptions(DEBUG_OPTIONS::NONE),
-		_stats({}),
-		_running(false),
-		_paused(false),
-		_update(nullptr) {
+		Scene() {
 
-	_rootNode->attachedToScene(this);
+	_visualWorld = visualWorld;
+	_physicalWorld = physicsWorld;
+	_inputManager = inputManager;
+
 	if (_visualWorld) _visualWorld->attachedToScene(this);
 	if (_physicalWorld) _physicalWorld->attachedToScene(this);
 	if (_inputManager) _inputManager->attachedToScene(this);
 }
 
+//Scene::Scene(shared_ptr<VisualWorld> visualWorld,
+//			 shared_ptr<PhysicalWorld> physicsWorld,
+//			 shared_ptr<InputManager> inputManager):
+//		_rootNode(make_shared<Node>("root node")),
+//		_visualWorld(visualWorld),
+//		_physicalWorld(physicsWorld),
+//		_inputManager(inputManager),
+//		_debugOptions(DEBUG_OPTIONS::NONE),
+//		_stats({}),
+//		_running(false),
+//		_paused(false),
+//		_update(nullptr) {
+//
+//	_rootNode->attachedToScene(this);
+//	if (_visualWorld) _visualWorld->attachedToScene(this);
+//	if (_physicalWorld) _physicalWorld->attachedToScene(this);
+//	if (_inputManager) _inputManager->attachedToScene(this);
+//}
+
 Scene::~Scene() {
-	AE_LOG_D("Destroying Scene {:p}", (void*)this);
+	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+
+	if (_rootNode) _rootNode->detachedFromScene(this);
+	if (_visualWorld) _visualWorld->detachedFromScene(this);
+	if (_physicalWorld) _physicalWorld->detachedFromScene(this);
+	if (_inputManager) _inputManager->detachedFromScene(this);
+//	rootNode(nullptr);
+//	visualWorld(nullptr);
+//	physicalWorld(nullptr);
+//	inputManager(nullptr);
 }
 
 /*********************************************************************************************
@@ -163,40 +186,30 @@ void Scene::rootNode(shared_ptr<Node> node) {
 
 //	if () // check they are not the same
 	if (_rootNode) {
-
 		_rootNode->detachedFromScene(this);
-//		for (auto child : _rootNode->children(false)) {
-//			child->ancestorDetachedFromScene(_rootNode.get(), this);
-//		}
 	}
 
 	_rootNode = node;
 
 	if (_rootNode) {
-
 		_rootNode->attachedToScene(this);
-//		for (auto child : _rootNode->children(false)) {
-//			child->ancestorAttachedToScene(node.get(), this);
-//		}
 	}
 }
 
-std::shared_ptr<VisualWorld> Scene::visualWorld() const {
+shared_ptr<VisualWorld> Scene::visualWorld() const {
 	return _visualWorld;
 }
 
-void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
+void Scene::visualWorld(shared_ptr<VisualWorld> world) {
 
 //	if (world != _visualWorld) {
 
 		if (_visualWorld) {
 
+			_visualWorld->detachedFromScene(this);
+
 			if (_rootNode) {
 				_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
-
-//				for (auto child: _rootNode->children(false)) {
-//					child->visualWorldDetachedFromScene(_visualWorld.get(), this);
-//				}
 			}
 		}
 
@@ -208,10 +221,6 @@ void Scene::visualWorld(std::shared_ptr<VisualWorld> world) {
 
 			if (_rootNode) {
 				_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
-
-//				for (auto child: _rootNode->children(false)) {
-//					child->visualWorldAttachedToScene(_visualWorld.get(), this);
-//				}
 			}
 		}
 //	}
@@ -221,16 +230,14 @@ shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
 	return _physicalWorld;
 }
 
-void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
+void Scene::physicalWorld(shared_ptr<PhysicalWorld> world) {
 
 	if (_physicalWorld) {
 
+		_physicalWorld->detachedFromScene(this);
+
 		if (_rootNode) {
 			_rootNode->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
-
-//			for (auto child : _rootNode->children(false)) {
-//				child->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
-//			}
 		}
 	}
 
@@ -242,10 +249,6 @@ void Scene::physicalWorld(std::shared_ptr<PhysicalWorld> world) {
 
 		if (_rootNode) {
 			_rootNode->physicalWorldAttachedToScene(world.get(), this);
-
-//			for (auto child : _rootNode->children(false)) {
-//				child->physicalWorldAttachedToScene(world.get(), this);
-//			}
 		}
 	}
 }
@@ -255,14 +258,22 @@ shared_ptr<InputManager> Scene::inputManager() const {
 }
 
 void Scene::inputManager(shared_ptr<InputManager> inputManager) {
+
+	if (_inputManager) {
+		_inputManager->detachedFromScene(this);
+	}
+
 	_inputManager = inputManager;
-	_inputManager->attachedToScene(this);
+
+	if (inputManager) {
+		inputManager->attachedToScene(this);
+	}
 }
 
 double Scene::time() const {
-	static auto startDate = chrono::high_resolution_clock::now();
-	auto nowDate = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowDate - startDate)).count();
+	static auto startTime = chrono::high_resolution_clock::now();
+	auto nowTime = chrono::high_resolution_clock::now();
+	return (chrono::duration<double>(nowTime - startTime)).count();
 }
 
 DEBUG_OPTIONS Scene::debugOptions() const {
@@ -307,24 +318,27 @@ void Scene::run() {
 					   deltaRunT);
 
 			memset(&_stats, 0, sizeof(Stats));
-			UpdateTimeStats(_stats, runT);
+			UpdateFrameTimeStats(_stats, runT);
 
 			if (_inputManager) {
 				_inputManager->update();
 			}
 
 			if (_update) {
+
+				auto updateStartTime = time();
 				(_update)(*this, runT);
+				UpdateUserTimeStats(_stats, updateStartTime, time());
 			}
 
 			if (!_paused) {
 
 				if (_physicalWorld) {
 
-					_physicalWorld->simulate(*this,
-											 runT,
-											 deltaRunT,
-											 _stats);
+					_physicalWorld->step(*this,
+										 runT,
+										 deltaRunT,
+										 _stats);
 				}
 
 				if (_visualWorld) {
@@ -338,13 +352,13 @@ void Scene::run() {
 				}
 			}
 			else {
-				std::this_thread::sleep_for(std::chrono::microseconds(16667));
+				this_thread::sleep_for(chrono::microseconds(16667));
 			}
 
 		} while (_running);
 	}
 	else {
-		AE_LOG_E("No root node attached to Scene {:p}", (void*)this);
+		AE_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -542,7 +556,7 @@ static void LoadFile(Scene& scene, const filesystem::path& importPath) {
 			}
 			material->specularExponent(shininess);
 
-			AE_LOG_D("ADDING MATERIAL: {:p}", (void*)material.get());
+			AE_LOG_D("ADDING MATERIAL: {:p}", static_cast<void*>(material.get()));
 			importMaterials.push_back(material);
 		}
 
@@ -649,7 +663,38 @@ static void GetRunTime(double time, // time since reference
 	if (paused) pauseTime += deltaT;
 }
 
-void UpdateTimeStats(Stats& stats, double time) {
+void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
+
+	// current
+	auto updateTime = endTime - startTime;
+	stats.currentUsertime = updateTime * 1000.0f;
+
+	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+
+	// average
+	static double avg = 0.0;
+	static double sampleStartTime = startTime;
+	static unsigned updatesSinceSampleStart = 0;
+	static double accumulatedUpdateTimeSinceSampleStart = 0;
+	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		avg = (accumulatedUpdateTimeSinceSampleStart * 1000.0f) / updatesSinceSampleStart;
+
+		sampleStartTime = startTime;
+		updatesSinceSampleStart = 0;
+		accumulatedUpdateTimeSinceSampleStart = 0;
+	}
+	else {
+		++updatesSinceSampleStart;
+		accumulatedUpdateTimeSinceSampleStart += updateTime;
+	}
+
+	stats.averageUsertime = avg;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
+}
+
+void UpdateFrameTimeStats(Stats& stats, double time) {
 
 	// current
 	static double previousTime = time;
@@ -810,7 +855,7 @@ static shared_ptr<MaterialProperty> MaterialPropertyFromAIMaterial(const aiMater
 			typeStr = "emissive";
 			break;
 		default:
-			AE_LOG_W("Unsupported material type: {}", type);
+			AE_LOG_W("Unsupported material type: {}", magic_enum::enum_name(type));
 			return nullptr;
 	}
 	

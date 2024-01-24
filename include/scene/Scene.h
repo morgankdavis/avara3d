@@ -28,7 +28,6 @@ namespace ae {
 	class InputManager;
 	class MaterialProperty;
 	class Node;
-	class PhysicsSimulator;
 	class PhysicalWorld;
 	class Renderer;
 	class RenderContext;

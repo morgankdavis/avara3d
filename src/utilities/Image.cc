@@ -71,7 +71,7 @@ Image::Image(shared_ptr<Buffer> rawBuffer,
 }
 
 Image::~Image() {
-	AE_LOG_D("Destroying Image {:p}", (void*)this);
+	AE_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
 	
 //	if (_data) {
 //		stbi_image_free(&_data);

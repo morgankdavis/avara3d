@@ -8,6 +8,8 @@
 #define GENERATOR_MERGESHAPE_HPP
 
 
+#include <utility>
+
 #include "ShapeVertex.hpp"
 #include "EmptyShape.hpp"
 #include "utils.hpp"

@@ -25,8 +25,7 @@ namespace ae {
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
-	class PhysicalWorldResources;
-	class PhysicsSimulator;
+	class PhysicalWorldModelProxy;
 	class Scene;
 	
 	
@@ -95,19 +94,17 @@ namespace ae {
  *********************************************************************************************/
 
 		void								attachedToScene(Scene* scene);
+		void								detachedFromScene(Scene* scene);
 
-		void								simulate(const Scene& scene,
-													 double runT,
-													 double deltaRunT,
-													 Stats& stats);
+		void 								add(PhysicsBody& body);
+		void 								remove(PhysicsBody& body);
 
-		PhysicalWorldResources*				resources() const;
-		void								resources(std::unique_ptr<PhysicalWorldResources> resources);
+		void								step(const Scene& scene,
+												 double runT,
+												 double deltaRunT,
+												 Stats& stats);
 
-		PhysicsSimulator*					simulator() const;
-
-		PHYSICS_WORLD_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_WORLD_DIRTY_MASK mask);
+		PhysicalWorldModelProxy*			proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -115,17 +112,15 @@ namespace ae {
 
 	private:
 
-		glm::vec3 								_gravity;
-		float 									_speed;
-		float 									_timestep;
-		std::unique_ptr<PhysicalWorldResources>	_resources;
-		std::unique_ptr<PhysicsSimulator>		_simulator;
-		Scene*									_scene;
-		PHYSICS_WORLD_DIRTY_MASK				_dirtyMask;
-		DidSimulateCallback						_didSimulate;
-		BeginContactCallback					_beginContact;
-		ContinueContactCallback					_continueContact;
-		EndContactCallback						_endContact;
+		glm::vec3 									_gravity;
+		float 										_speed;
+		float 										_timestep;
+		std::unique_ptr<PhysicalWorldModelProxy>	_proxy;
+		Scene*										_scene;
+		DidSimulateCallback							_didSimulate;
+		BeginContactCallback						_beginContact;
+		ContinueContactCallback						_continueContact;
+		EndContactCallback							_endContact;
 	};
 }
 

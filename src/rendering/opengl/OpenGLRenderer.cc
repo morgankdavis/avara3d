@@ -236,7 +236,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
-	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
+	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
 	_activeGeometryElements.clear();
 	_activeMaterialProperties.clear();
@@ -653,7 +653,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //
 //		// construct a new lineset matching the geometry's extent
 //
-//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 //
 //		map<string, vec3> bp = *(geometry->aabb(false));
 //
@@ -717,7 +717,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 
 		// construct a new lineset matching the geometry's extent
 
-		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 
 		auto aabb = geometry->aabb();
 
@@ -821,7 +821,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property->dirtyMask(),
 													  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS)) {
 				
-				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
 				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
@@ -850,7 +850,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG_D("Buffering vertex data for geometry element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -946,7 +946,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
-	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
+	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
 
 	auto aabb = geometry.aabb();
 
@@ -1054,7 +1054,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_D("Buffering cube texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&property));
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
@@ -1128,7 +1128,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		
 		
-		AE_LOG_D("Buffering 2D texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&property));
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
@@ -1140,10 +1140,10 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		GLint glInternalFormat = GL_RGBA;
 		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-		
+
 		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
-					  image->width() * image->height() * image->bytesPerPixel());
+				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
+				 image->width() * image->height() * image->bytesPerPixel());
 		
 	
 		
@@ -1151,7 +1151,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 //		// DEBUG: write texture data to file
 //		
-//		AE_LOG_D("Saving property {:p}...", (void*)&property);
+//		AE_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
 //	
 //		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
 //		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
@@ -1608,7 +1608,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = element.faces().size();
-	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
 static void DrawSkyboxElement(GeometryElement& element,
@@ -1634,7 +1634,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	unsigned int numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, nullptr);
 }
 	
 static void DrawAABB(Geometry& geometry,
@@ -1819,7 +1819,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
+		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", static_cast<void*>(element.get()));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1846,7 +1846,7 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	
 	if (glMapping.count(property)) {
 		
-		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
+		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
 		
 		GLuint handle = glMapping[property];
 		
@@ -1867,7 +1867,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG_T("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
+		AE_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
 		
 		auto glHandles = glMapping[lineSet];
 		
@@ -1949,6 +1949,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -1971,8 +1972,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
-					"physicstime", stats.averagePhysicstime,
-					"drawtime", stats.averageDrawtime,
+					" user", stats.averageUsertime,
+					" physics", stats.averagePhysicstime,
+					" draw", stats.averageDrawtime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,
@@ -1997,6 +1999,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2017,8 +2020,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 					"frametime", stats.averageFrametime,
-					"physicstime", stats.averagePhysicstime,
-					"drawtime", stats.averageDrawtime,
+					" user", stats.averageUsertime,
+					" physics", stats.averagePhysicstime,
+					" draw", stats.averageDrawtime,
 
 					"nodes", stats.nodes,
 					"geometries", stats.geometries,

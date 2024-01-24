@@ -14,9 +14,9 @@
 #include "geometry/Geometry.h"
 #include "diagnostic/logging/Logger.h"
 #include "physics/PhysicsBody.h"
-#include "physics/PhysicsShapeResources.h"
-#include "physics/PhysicsSimulator.h"
+#include "physics/model_proxy/PhysicsShapeModelProxy.h"
 #include "physics/PhysicalWorld.h"
+#include "physics/bullet/BulletShapeProxy.h"
 #include "scene/Node.h"
 
 
@@ -33,8 +33,8 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeResources>()),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
+		_proxy(nullptr)
+		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = geometry->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
@@ -42,7 +42,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {:p}...",
-				 magic_enum::enum_name(type), (void*)geometry);
+				 magic_enum::enum_name(type), static_cast<void*>(geometry));
 	}
 }
 
@@ -51,8 +51,8 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
-//		_resources(make_shared<BulletShapeResources>()),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) {
+		_proxy(nullptr)
+		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = node->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
@@ -60,18 +60,22 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
-				 magic_enum::enum_name(type), (void*)node);
+				 magic_enum::enum_name(type),static_cast<void*>(node));
 	}
 }
 
 PhysicsShape::PhysicsShape():
 		_sourceObject(monostate{}),
 		_bodies({}),
-//		_resources(make_shared<BulletShapeResources>()),
-		_dirtyMask(PHYSICS_SHAPE_DIRTY_MASK::ALL) { }
+		_proxy(nullptr)
+		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
 
 PhysicsShape::~PhysicsShape() {
-	AE_LOG_D("Destroying PhysicsShape {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
+
+//	for (auto& body : _bodies) {
+//
+//	}
 }
 
 /*********************************************************************************************
@@ -89,14 +93,14 @@ PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
 void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
 	AE_LOG_T("type: {}", magic_enum::enum_name(type));
 
-	if (type != _type) {
+	_type = type;
+	_proxy = nullptr;
 
-		_type = type;
-		_resources = nullptr;
-		_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
+	checkCreateProxy();
 
-		checkCreateModel();
-	}
+//	for (auto body : _bodies) {
+//		body->shapeUpdated();
+//	}
 }
 
 /*********************************************************************************************
@@ -104,29 +108,29 @@ void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", (void*)body);
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	if (!_bodies.count(body)) {
 		_bodies.insert(body);
 
-		checkCreateModel();
+		checkCreateProxy();
 	}
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", (void*)body);
+	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_bodies.erase(body);
 }
 
 void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 
-	checkCreateModel();
+	checkCreateProxy();
 }
 
 void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", (void*)world);
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 }
 
 void PhysicsShape::sourceObject(variant<
@@ -135,77 +139,25 @@ void PhysicsShape::sourceObject(variant<
 		monostate> sourceObject) {
 
 	_sourceObject = sourceObject;
-	_dirtyMask = PHYSICS_SHAPE_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_SHAPE_DIRTY_MASK::MODEL);
 }
+
+void PhysicsShape::checkCreateProxy() {
+	AE_LOG_T("");
+
+	if (!_proxy) {
+		_proxy = make_unique<BulletShapeProxy>(this);
+
+		for (auto body : _bodies) {
+			body->shapeUpdated();
+		}
+	}
+}
+
 
 unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
 }
 
-PhysicsSimulator* PhysicsShape::physicsSimulator() const {
-
-	for (auto& body : _bodies) {
-		if (auto world = body->physicalWorld()) {
-			return world->simulator();
-		}
-	}
-	return nullptr;
-}
-
-//PhysicalWorld* PhysicsShape::physicalWorld() const {
-//
-//	if (_body) {
-//		if (_node) {
-//			auto scene = _node->scene();
-//			if (scene) {
-//				auto physicalWorld = scene->physicalWorld();
-//				if (physicalWorld) {
-//					return physicalWorld.get();
-//				}
-//			}
-//		}
-//	}
-//	return nullptr;
-//}
-
-//void PhysicsShape::attachedToBody(shared_ptr<PhysicsBody> body) {
-//
-//	_sourceNode = body->node();
-//
-//	if (auto node = _sourceNode.lock()) {
-//		if (auto geometry = node->geometry()) {
-//			sourceGeometry(geometry);
-//		}
-//	}
-//}
-
-
-PhysicsShapeResources* PhysicsShape::resources() const {
-	return _resources.get();
-}
-
-void PhysicsShape::resources(std::shared_ptr<PhysicsShapeResources> resources) {
-	_resources = resources;
-}
-
-void PhysicsShape::checkCreateModel() {
-	AE_LOG_T("");
-
-	if (!_resources) {
-		if (auto simulator = physicsSimulator()) {
-			simulator->create(*this);
-
-			for (auto& body : _bodies) {
-				body->modelCreated(*this);
-			}
-		}
-	}
-}
-
-PHYSICS_SHAPE_DIRTY_MASK PhysicsShape::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicsShape::dirtyMask(PHYSICS_SHAPE_DIRTY_MASK mask) {
-	_dirtyMask = mask;
+PhysicsShapeModelProxy* PhysicsShape::proxy() const {
+	return _proxy.get();
 }

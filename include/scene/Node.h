@@ -32,7 +32,6 @@ namespace ae {
 	class Geometry;
 	class Light;
 	class PhysicsBody;
-	class PhysicsSimulator;
 
 	
 	class Node : public std::enable_shared_from_this<Node> {
@@ -57,8 +56,8 @@ namespace ae {
 		Node(std::shared_ptr<Geometry> geometry);
 		Node(std::shared_ptr<Light> light);
 		Node(std::shared_ptr<Camera> camera);
-//		Node(const Node& other) = delete; // copy constructor
-//		Node& operator=(const Node& other) = delete; // copy assignment
+		/*testing*/ Node(const Node& other) = delete; // copy constructor
+		/*testing*/ Node& operator=(const Node& other) = delete; // copy assignment
 		~Node();
 
 /*********************************************************************************************
@@ -112,9 +111,7 @@ namespace ae {
 
 		void 									addChildren(std::vector<std::shared_ptr<Node>> nodes);
 		void 									addChild(std::shared_ptr<Node> node);
-		void 									insertChild(const Node& node, int index);
 		void 									removeFromParent();
-		void 									replaceChild(const Node& replace, const Node& with);
 
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
 		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
@@ -178,6 +175,7 @@ namespace ae {
 															   int level);
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
+//		void									removePhysicsBodyFromWorld(PhysicalWorld& world);
 
 //		void									_debugPrint(); // testing
 //		void									_debugPrintRec(std::shared_ptr<Node> node,

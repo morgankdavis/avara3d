@@ -23,9 +23,9 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicalWorld;
-	class PhysicsBodyResources;
+	class PhysicsBodyModelProxy;
+	class PhysicsShapeModelProxy;
 	class PhysicsShape;
-	class PhysicsSimulator;
 	class Scene;
 	
 	
@@ -68,6 +68,9 @@ namespace ae {
 		glm::vec3 							momentOfInertia() const;
 		void 								momentOfInertia(glm::vec3 moment);
 
+		glm::vec3							centerOfMass() const;
+		void								centerOfMass(const glm::vec3 offset);
+
 		float 								friction() const;
 		void 								friction(float friction);
 		
@@ -78,12 +81,10 @@ namespace ae {
 		void 								restitution(float restitution);
 
 		glm::vec3 							linearVelocity() const;
-		void 								linearVelocity(glm::vec3 velocity,
-															   bool setDirty=true); // move
+		void 								linearVelocity(glm::vec3 velocity);
 
 		glm::vec3 							angularVelocity() const;
-		void 								angularVelocity(glm::vec3 velocity,
-																bool setDirty=true); // move
+		void 								angularVelocity(glm::vec3 velocity);
 
 		glm::vec3 							linearFactor() const;
 		void 								linearFactor(glm::vec3 factor);
@@ -102,14 +103,6 @@ namespace ae {
 
 		float								angularSleepingThreshold() const;
 		void 								angularSleepingThreshold(float threshold);
-
-		bool 								affectedByGravity() const;
-		void 								affectedByGravity(bool flag);
-
-		bool 								allowsResting() const;
-		void 								allowsResting(bool flag);
-		
-		bool 								resting() const;
 		
 		// categoryBitmask
 		// contactTestBitmask
@@ -120,21 +113,33 @@ namespace ae {
 		void 								applyForce(glm::vec3 force,
 													   glm::vec3 location,
 													   bool impulse);
-
 		void 								applyTorque(glm::vec3 torque,
 														bool impulse);
 
+		glm::vec3 							totalForce() const;
+		glm::vec3 							totalTorque() const;
+
+		bool 								affectedByGravity() const;
+		void 								affectedByGravity(bool affectedByGravity);
+
+		bool 								allowsResting() const;
+		void 								allowsResting(bool allowsResting);
+
+		bool 								resting() const;
+		void								resting(bool resting);
+
 		void 								clearForces();
 
-		void 								resetTransform();
+		bool								autocalculatesMomentOfInertia() const;
+		void								autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		void 								resting(bool resting);
+//		void 								resting(bool resting);
 		
-		void 								attachedToNode(Node* node); // owning node
+		void 								attachedToNode(Node* node);
 		void 								detachedFromNode(Node* node);
 
 //		void 								nodeAttachedToParent(Node* parent); // owning node's parent
@@ -164,18 +169,17 @@ namespace ae {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void								modelCreated(PhysicsShape& shape);
+		void 								addedToWorld(PhysicalWorld* world);
+		void 								removedFromWorld(PhysicalWorld* world);
+
+		void 								shapeUpdated();
 
 		Node*								node() const;
 
+		// the scene's world, if it exists.  not the same as _world.
 		PhysicalWorld*						physicalWorld() const;
-		PhysicsSimulator*					physicsSimulator() const;
 
-		PhysicsBodyResources*				resources() const;
-		void								resources(std::shared_ptr<PhysicsBodyResources> resources);
-
-		PHYSICS_BODY_DIRTY_MASK 			dirtyMask() const;
-		void 								dirtyMask(PHYSICS_BODY_DIRTY_MASK mask);
+		PhysicsBodyModelProxy*				proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -183,34 +187,17 @@ namespace ae {
 
 	private:
 
-		void 								checkCreateModel();
-		void 								checkAutocreateShape(Node* node);
-		void 								checkAutocreateShape(Geometry* geometry);
-		
-		PHYSICS_BODY_TYPE 					_type;
-		std::shared_ptr<PhysicsShape>		_shape;
-		float 								_mass;
-		glm::vec3 							_momentOfInertia;
-		float 								_friction;
-		float 								_rollingFriction;
-		float 								_restitution;
-		glm::vec3 							_linearVelocity;
-		glm::vec3 							_angularVelocity;
-		glm::vec3 							_linearFactor;
-		glm::vec3 							_angularFactor;
-		float 								_linearDamping;
-		float 								_angularDamping;
-		float								_linearSleepingThreshold;
-		float								_angularSleepingThreshold;
-		bool								_affectedByGravity;
-		bool 								_allowsResting;
-		bool 								_resting;
+		void 									checkAutocreateShape(Node* node);
+		void 									checkAutocreateShape(Geometry* geometry);
 
-		Node*								_node;
+		void 									checkAddToWorld();
 
-		PHYSICS_BODY_DIRTY_MASK 			_dirtyMask;
-
-		std::shared_ptr<PhysicsBodyResources>	_resources;
+		PHYSICS_BODY_TYPE 						_type;
+		std::shared_ptr<PhysicsShape>			_shape;
+		std::unique_ptr<PhysicsBodyModelProxy>	_proxy;
+		Node*									_node;
+		// either a pointer to the world we are currently in or null.
+		PhysicalWorld*							_world;
 	};
 }
 

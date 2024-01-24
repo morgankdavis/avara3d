@@ -11,8 +11,7 @@
 #include "geometry/Geometry.h"
 #include "geometry/primitives/Box.h"
 #include "physics/PhysicalWorld.h"
-#include "physics/PhysicsSimulator.h"
-#include "physics/bullet/BulletPhysicsSimulator.h"
+#include "physics/bullet/BulletWorldProxy.h"
 #include "rendering/Light.h"
 #include "rendering/Renderer.h"
 #include "rendering/camera/PerspectiveCamera.h"
@@ -40,7 +39,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 	Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
+VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 		_background(nullptr),
 		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
@@ -58,7 +57,10 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 }
 
 VisualWorld::~VisualWorld() {
-	AE_LOG_D("Destroying VisualWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+
+	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
+	//renderContext(nullptr);
 }
 
 /*********************************************************************************************
@@ -187,7 +189,15 @@ void VisualWorld::didRender(DidRenderCallback function) {
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void VisualWorld::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 void VisualWorld::checkAddDefaultLighting() {
@@ -260,13 +270,11 @@ void VisualWorld::draw(const Scene& scene,
 
 			if (physicalWorld) {
 
-				auto physicsSimulator = physicalWorld->simulator();
-				if (auto bulletSimulator = dynamic_cast<BulletPhysicsSimulator*>(physicsSimulator)) {
-					bulletSimulator->drawDebug(*physicalWorld,
-											   *renderer,
-											   viewMat,
-											   projectionMat,
-											   debugOptions);
+				if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+					bulletWorldProxy->drawDebug(*renderer,
+												viewMat,
+												projectionMat,
+												debugOptions);
 				}
 			}
 
@@ -281,15 +289,15 @@ void VisualWorld::draw(const Scene& scene,
 			}
 
 			if (_renderContext->recordingGIF()) {
-				_renderContext->saveGIFFrame(runT);
+				_renderContext->saveGIFFrame(deltaRunT);
 			}
 		}
 		else {
-			AE_LOG_E("No Renderer attached to RenderContext {:p}", (void*)_renderContext.get());
+			AE_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
 		}
 	}
 	else {
-		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", (void*)this);
+		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
 	}
 }
 

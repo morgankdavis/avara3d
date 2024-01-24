@@ -156,10 +156,9 @@ include_directories(external/glm-0.9.9.8)
 
 # fmt
 
-add_subdirectory(external/fmt-5.2.0)
-include_directories(external/fmt-5.2.0/include)
-#set_property(TARGET fmt PROPERTY CXX_STANDARD 17)
-#set_property(TARGET fmt-header-only PROPERTY CXX_STANDARD 17)
+#add_subdirectory(external/fmt-5.2.0)
+#include_directories(external/fmt-5.2.0/include)
+add_subdirectory(external/fmt-10.1.1)
 
 # android things
 
@@ -224,7 +223,7 @@ else()
 	include_directories(external/assimp-3.3.1/include)
 	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
-	# many mouse
+	# manymouse
 
 	add_subdirectory(external/manymouse)
 	include_directories(external/manymouse/include)
@@ -239,7 +238,7 @@ if (OPENGL_CORE)
 	include_directories(external/imgui-1.88)
 	include_directories(external/imgui-1.88/backends)
 
-endif ()
+endif()
 
 #if (MINGW)# AND UBUNTU_CROSS)
 
@@ -273,6 +272,10 @@ add_subdirectory(external/bullet-3.17)
 include_directories(external/bullet-3.17/src)
 set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
 set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
+target_compile_options(Bullet3Collision PUBLIC
+		"-Wno-deprecated-volatile")
+#target_compile_options(BulletSoftBody PUBLIC
+#		"-Wno-single-bit-bitfield-constant-conversion")
 
 # magic_enmum
 
@@ -330,8 +333,9 @@ file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
 add_library(ae STATIC ${HEADERS} ${SOURCES}
-		src/physics/PhysicsBodyResources.cc
-		include/physics/PhysicsBodyResources.h)
+		src/physics/model_proxy/PhysicsBodyModelProxy.cc
+		include/physics/model_proxy/PhysicsBodyModelProxy.h)
+#target_compile_features(ae PUBLIC cxx_std_20)
 
 
 # this is causing external library headers to not be found. ?
@@ -342,6 +346,7 @@ add_library(ae STATIC ${HEADERS} ${SOURCES}
 
 
 target_link_libraries(ae
+	fmt::fmt
 	generator
 	Bullet3Common
 	BulletCollision
@@ -451,18 +456,39 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message("COMPILER IS CLANG")
 	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
-	target_compile_options(ae PUBLIC
-			"-fmessage-length=0"
-			"-UGLFW_CDECL"
-			"-Wno-unknown-warning-option"
-			"-Wno-float-equal"
-			"-Wno-c++11-long-long"
-			"-Wno-self-assign"
-			"-Wno-reorder"
-			"-Wno-address-of-packed-member"
-			"-Wno-unused-function"
-			"-Wno-deprecated-declarations"
-			"-Wno-argument-outside-range")
+#	if (MACOS)
+#		target_compile_options(ae PUBLIC
+#				#"-stdlib=libstdc++" # use GCC libcstd++
+#				"-I/usr/local/opt/llvm@16/include"
+#				"-fexperimental-library"
+#				"-fmessage-length=0"
+#				"-UGLFW_CDECL"
+#				"-Wno-unknown-warning-option"
+#				"-Wno-float-equal"
+#				"-Wno-c++11-long-long"
+#				"-Wno-self-assign"
+#				"-Wno-reorder"
+#				"-Wno-address-of-packed-member"
+#				"-Wno-unused-function"
+#				"-Wno-deprecated-declarations"
+#				"-Wno-argument-outside-range")
+#		target_link_options(ae PUBLIC
+#				"-L/usr/local/opt/llvm@16/lib")
+#	else()
+		target_compile_options(ae PUBLIC
+				#"-stdlib=libc++" # use LLVM libc++
+				"-fmessage-length=0"
+				"-UGLFW_CDECL"
+				"-Wno-unknown-warning-option"
+				"-Wno-float-equal"
+				"-Wno-c++11-long-long"
+				"-Wno-self-assign"
+				"-Wno-reorder"
+				"-Wno-address-of-packed-member"
+				"-Wno-unused-function"
+				"-Wno-deprecated-declarations"
+				"-Wno-argument-outside-range")
+#	endif()
 			
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
