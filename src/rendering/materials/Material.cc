@@ -31,7 +31,9 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	if (!material) {
 		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
 		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-		material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(0.5f, 0.5, 0.5, 1.0));
+		material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+		material->doubleSided(true);
 	}
 	return material;
 }

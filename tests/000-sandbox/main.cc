@@ -185,23 +185,25 @@ int main(int argc, const char* argv[]) {
 
 
 ////	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-	auto duckGeometry = GeometryNamed("rubberDuck/rubberDuck");
-//	auto duckGeometry = GeometryNamed("slurm/slurm");
-//	auto duckGeometry = GeometryNamed("slurm_blender_obj/untitled5");
-	auto duckNode = Node::GeometryNode(duckGeometry);
-	duckNode->position({/*4.5*/0, 15, 0});
+//	auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
+	auto testGeometry = GeometryNamed("slurm/slurm");
+//	auto testGeometry = GeometryNamed("slurm_blender_obj/untitled5");
+//	auto testGeometry = GeometryNamed("ConvaliaBouquet");
+//	auto testGeometry = GeometryNamed("ConvaliaBouquet/ConvaliaBouquet");
+	auto testNode = Node::GeometryNode(testGeometry);
+	testNode->position({/*4.5*/0, 15, 0});
 
 
 
-	duckNode->physicsBody(PhysicsBody::KinematicBody());
-	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+	testNode->physicsBody(PhysicsBody::KinematicBody());
+	testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 // WORKS
 //	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
 //	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
 //	duckNode->physicsBody(body);
 
-	scene->rootNode()->addChild(duckNode);
+	scene->rootNode()->addChild(testNode);
 
 
 
