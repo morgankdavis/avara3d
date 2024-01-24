@@ -44,7 +44,7 @@ endif()
 #message("AE_BUILD_TIME: " ${AE_BUILD_TIME})
 #message("AE_BUILD_ORIGIN: " ${AE_BUILD_ORIGIN})
 
-configure_file(BuildInfo.cmake.in BuildInfo.cmake.h)
+configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 
 ### add external libraries ###
