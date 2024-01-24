@@ -9,10 +9,6 @@
 #include "ae/geometry/Geometry.h"
 
 #include "glm/gtx/transform.hpp"
-//#include "magic_enum.hpp"
-//#define TINYOBJLOADER_IMPLEMENTATION
-////#define TINYOBJLOADER_USE_MAPBOX_EARCUT
-//#include "tiny_obj_loader.h"
 #include "rapidobj.hpp"
 
 #include "ae/diagnostic/logging/Logger.h"
