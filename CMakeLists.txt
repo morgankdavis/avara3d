@@ -1,215 +1,42 @@
 
-# https://api.csswg.org/bikeshed/?force=1&url=https://raw.githubusercontent.com/vector-of-bool/pitchfork/develop/data/spec.bs
+cmake_minimum_required(VERSION 3.15)
 
+project(avara-engine
+		VERSION 0.0.1
+		HOMEPAGE_URL http://avara-engine.net/)
 
-# cmake 3.8 is required for C++17
-# cmake 3.12 is required for C++20
-# 3.13: target_link_libraries() and target_sources(): https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
+option(AE_BUILD_BULLET "Build Bullet from source" ON)
+option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
-
-project(avara-engine)
+include(cmake/EnvironmentDetect.cmake)
+include(cmake/UtilityFunctions.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
-
-
-# print all variables
-# https://stackoverflow.com/questions/9298278/cmake-print-out-all-accessible-variables-in-a-script?answertab=trending#tab-top
-#get_cmake_property(_variableNames VARIABLES)
-#list (SORT _variableNames)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
-
-
-# Windows ClangCL = WIN32, nothing else
-
-message("*** BUILD TYPE: " ${CMAKE_BUILD_TYPE} " ***")
-
-if (UNIX AND APPLE)
-    message("*** MACOS ***")
-    set(MACOS TRUE)
-    if (CMAKE_GENERATOR STREQUAL "Xcode")
-        set(XCODE TRUE)
-    endif()
 endif()
-
-if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT MINGW)
-    message("*** LINUX ***")
-    set(LINUX TRUE)
-endif()
-
-if (WIN32)
-    message("*** WIN32 ***")
-    set(WINDOWS TRUE)
-    set(WIN32 TRUE)
-	add_definitions("-DWINDOWS")
-	add_definitions("-DBT_NO_SIMD_OPERATOR_OVERLOADS")
-endif()
-
-if (WIN64)
-    message("*** WIN64 ***")
-    set(WINDOWS TRUE)
-    set(WIN64 TRUE)
-endif()
-
-if (MINGW)
-    message("*** MINGW ***")
-    set(WINDOWS TRUE)
-
-    if (CMAKE_BUILD_TOOL STREQUAL "C:/MinGW/bin/mingw32-make.exe")
-        message("*** MINGW32 ***")
-        set(MINGW32 TRUE)
-        set(WIN32 TRUE)
-    else()
-        message("*** MINGW64 ***")
-        set(MINGW64 TRUE)
-        set(WIN64 TRUE)
-    endif()
-endif()
-
-if (ANDROID)
-    message("*** ANDROID ***")
-    set(ANDROID TRUE)
-endif()
-
-if (MSYS)
-    message("*** MSYS ***")
-	set(MSYS TRUE)
-endif()
-
-if (MSVS)
-    message("*** MSVS ***")
-endif()
-
-if (MACOS OR WINDOWS OR LINUX)
-	message("*** DESKTOP ***")
-    set(DESKTOP TRUE)
-endif()
-
-if (XCODE)
-	message("*** XCODE ***")
-	add_definitions("-DXCODE")
-endif()
-
-if (MACOS)
-	add_definitions("-DAPPLE" "-DMACOS")
-elseif (LINUX)
-	add_definitions("-DLINUX")
-elseif (WINDOWS)
-	add_definitions("-DWINDOWS")
-	# stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-	# https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-	# update: does stop the conflict with LOG_LEVEL but breaks GLFW as it uses GDI.
-	# 	see above LOG_LEVEL in Types.h
-	# add_definitions("-DNOGDI")
-    if (MINGW)
-        add_definitions("-DMINGW")
-	if (MINGW32)
-        	add_definitions("-DMINGW32")
-	else()
-		add_definitions("-DMINGW64")
-    	endif()
-    endif()
-elseif (ANDROID)
-	add_definitions("-DANDROID")
-endif()
-
-if (DESKTOP)
-	add_definitions("-DDESKTOP")
-endif()
-
-if (UBUNTU_CROSS)
-	message("*** UBUNTU_CROSS ***")
-	add_definitions("-DUBUNTU_CROSS")
-endif ()
-
-if (DESKTOP)
-	set(CMAKE_OSX_ARCHITECTURES "x86_64")
-endif()
-
-if (RPI)
-    message("*** RPI ***")
-    set(RPI TRUE)
-    add_definitions("-DRPI")
-endif()
-
-if (ANDROID OR RPI)
-	message("Using OpenGL ES.")
-	set(OPENGL_ES TRUE)
-	add_definitions("-DOPENGL_ES")
-else ()
-	message("Using full OpenGL.")
-	set(OPENGL_CORE TRUE)
-	add_definitions("-DOPENGL_CORE")
-endif ()
-
-# libraries (headers...) that the test apps depend on
-
-# GLM
-
-include_directories(external/glm-0.9.9.8)
-
-# fmt
-
-#add_subdirectory(external/fmt-5.2.0)
-#include_directories(external/fmt-5.2.0/include)
-add_subdirectory(external/fmt-10.1.1)
-
-# android things
-
-if (ANDROID)
-	add_subdirectory(android)
-endif()
-
-# install location
-
-if ((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/release")
-else()
-	set(ROOT_INSTALL_DIR "${PROJECT_BINARY_DIR}/packaged/debug")
-endif()
+message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
-#if (DESKTOP)
-	add_subdirectory(examples)
-#endif()
+### create _BuildInfo.h ###
 
-# external (?)
+message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
+message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
+message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
+# BUILD_SOURCE = {CI, ADHOC}
+message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT}) # RELEASE_DATE
+message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
+# ex:
+# GITLAB_CI_PIPELINE_CREATED_AT: 2024-01-10T03:58:04Z
+# GITLAB_CI_PIPELINE_IID: 456
+# ^^ check and replace if not defined
 
-include_directories(external)
 
-if (ANDROID)
+### add external libraries ###
 
-	# NDKHelper
-
-	add_subdirectory(external/NDKHelper)
-
-else()
-
-	# either use CMake 3.11 or set 'OpenGL_GL_PREFERENCE' to 'GLVND' to use new OpenGL libs
-	# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
-	set(OpenGL_GL_PREFERENCE GLVND)
-
-	# glfw
-
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-	add_subdirectory(external/glfw-3.3.8)
-	include_directories(external/glfw-3.3.8/include)
-
-	# glew
-
-	add_subdirectory(external/glew-2.1.0)
-	include_directories(external/glew-2.1.0/include)
-
-	# assimp
+if (AE_BUILD_ASSIMP)
 
 	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
@@ -217,311 +44,227 @@ else()
 	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 	if (WINDOWS)
-		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows?
+		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
 	endif()
+
+	set(ASSIMP_LIBRARIES "assimp")
 	add_subdirectory(external/assimp-3.3.1)
-	include_directories(external/assimp-3.3.1/include)
+	set(ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
 	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
 
-	# manymouse
+else()
 
-	add_subdirectory(external/manymouse)
-	include_directories(external/manymouse/include)
-
-endif() # NOT ANDROID
-
-if (OPENGL_CORE)
-
-	# imgui
-
-	add_subdirectory(external/imgui-1.88)
-	include_directories(external/imgui-1.88)
-	include_directories(external/imgui-1.88/backends)
+	find_package(assimp REQUIRED)
 
 endif()
 
-#if (MINGW)# AND UBUNTU_CROSS)
+if (AE_BUILD_BULLET)
 
-	# bzip2
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 
-#	add_subdirectory(external/bzip2)
-#	include_directories(external/bzip2/include)
+	add_subdirectory(external/bullet-3.17)
+	include_directories(external/bullet-3.17/src)
 
-#endif() # MINGW
+	target_compile_options(Bullet3Collision PUBLIC
+			"-Wno-deprecated-volatile")
 
-# generator
+	set(BULLET_LIBRARIES
+			LinearMath
+			Bullet3Common
+			BulletInverseDynamics
+			BulletCollision
+			BulletDynamics)
+
+else()
+
+	find_package(Bullet REQUIRED)
+	include_directories(${BULLET_INCLUDE_DIRS})
+
+endif()
 
 add_subdirectory(external/generator)
-include_directories(external/generator/include)
 
-# gif-h
+add_subdirectory(external/glew-2.1.0)
 
-include_directories(external/gif-h)
+if (AE_BUILD_GLFW)
 
-# stb
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
-include_directories(external/stb)
+	add_subdirectory(external/glfw-3.3.9)
 
-# v-hacd
+else()
 
-include_directories(external/v-hacd-4.1.0)
+	find_package(glfw3 REQUIRED)
 
-# bullet
+endif()
 
-add_subdirectory(external/bullet-3.17)
-include_directories(external/bullet-3.17/src)
-set_property(TARGET Bullet3Common PROPERTY CXX_STANDARD 14)
-set_property(TARGET LinearMath PROPERTY CXX_STANDARD 14)
-target_compile_options(Bullet3Collision PUBLIC
-		"-Wno-deprecated-volatile")
-#target_compile_options(BulletSoftBody PUBLIC
-#		"-Wno-single-bit-bitfield-constant-conversion")
+add_subdirectory(external/imgui-1.90)
 
-# magic_enmum
 
-include_directories(external/magic_enum-0.9.3/include)
-
-# ae
-
-#include_directories(include)
-#file(GLOB HEADERS include/*.h)
-#file(GLOB SOURCES src/*.c*)
-
-include_directories(include)
-
-#include_directories(
-#		include
-#
-#		include/diagnostic
-#		include/diagnostic/logging
-#
-#		include/geometry
-#		include/geometry/primitives
-#
-#		include/input
-#		include/input/platform
-#		include/input/platform/android
-#		include/input/platform/desktop
-#
-#		include/physics
-#		include/physics/bullet
-#
-#		include/rendering
-#		include/rendering/camera
-#		include/rendering/context/platform/android
-#		include/rendering/context/platform/desktop
-#		include/rendering/materials
-#		include/rendering/opengl
-#
-#		include/scene
-#
-#		include/utilities)
-
-#target_sources(
-#		ae
-#		PUBLIC
-#		include/*.h
-#		src/*.c*
-#		include/diagnostic
-#		src/diagnostic
-#		include/diagnostic/logging
-#		src/diagnostic/logging
-#)
-
+### add ae ###
 
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_library(ae STATIC ${HEADERS} ${SOURCES}
-		src/physics/model_proxy/PhysicsBodyModelProxy.cc
-		include/physics/model_proxy/PhysicsBodyModelProxy.h)
-#target_compile_features(ae PUBLIC cxx_std_20)
+add_library(ae STATIC
+		${HEADERS}
+		${SOURCES})
 
 
-# this is causing external library headers to not be found. ?
-#add_library(ae STATIC "")
-#add_subdirectory(include)
-#add_subdirectory(src)
-#include_directories(include)
+### setup ae environment defines ###
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions(ae PUBLIC "AE_DEBUG")
+endif()
+if (DESKTOP)
+	target_compile_definitions(ae PUBLIC "DESKTOP")
+	target_compile_definitions(ae PUBLIC "OPENGL_DESKTOP")
+endif()
+if (LINUX)
+	target_compile_definitions(ae PUBLIC "LINUX")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	if (RPI)
+		target_compile_definitions(ae PUBLIC "RPI")
+		target_compile_definitions(ae PUBLIC "OPENGL_ES")
+	endif()
+elseif (MACOS)
+	target_compile_definitions(ae PUBLIC "MACOS")
+	target_compile_definitions(ae PUBLIC "POSIX")
+elseif (WINDOWS)
+	target_compile_definitions(ae PUBLIC "WINDOWS")
+	#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+elseif (ANDROID)
+	target_compile_definitions(ae PUBLIC "ANDROID")
+	target_compile_definitions(ae PUBLIC "POSIX")
+	target_compile_definitions(ae PUBLIC "OPENGL_ES")
+endif()
 
 
-target_link_libraries(ae
-	fmt::fmt
-	generator
-	Bullet3Common
-	BulletCollision
-	Bullet3Collision
-	BulletDynamics
-	Bullet3Dynamics
-	BulletInverseDynamics
-	Bullet3Geometry
-	Bullet3OpenCL_clew
-	LinearMath
-	Bullet2FileLoader)
-	
+### add library headers ###
+
+target_include_directories(ae PUBLIC include)
+#target_include_directories(ae PRIVATE external/bullet-3.17/src)
+target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
+target_include_directories(ae PRIVATE external/generator/include)
+target_include_directories(ae PRIVATE external/gif-h)
+target_include_directories(ae PRIVATE external/glew-2.1.0/include)
+target_include_directories(ae PRIVATE external/glfw-3.3.9/include)
+target_include_directories(ae PRIVATE external/imgui-1.90)
+target_include_directories(ae PRIVATE external/imgui-1.90/backends)
+target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(ae PRIVATE external/stb)
+target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
+
+
+### add special defines ###
+
+target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
+
+
+### link ae to external libraries ###
+
+target_link_libraries(ae PUBLIC
+		${ASSIMP_LIBRARIES}
+		${BULLET_LIBRARIES}
+		generator
+		imgui)
 
 if (DESKTOP)
 
-	target_link_libraries(ae
-		manymouse
-		glfw
-		glew_s
-		assimp)
+	target_link_libraries(ae PUBLIC
+			glew_s
+			glfw)
 
 endif()
 
-if (MACOS)
+if (LINUX)
 
-	target_link_libraries(ae
-			imgui
+	target_link_libraries(ae PUBLIC
+			dl
+			pthread
+			X11
+			Xrandr
+			Xxf86vm
+			Xi
 			z)
 
-	find_library(FRAMEWORK_COCOA Cocoa)
-	find_library(FRAMEWORK_OPENGL OpenGL)
-	find_library(FRAMEWORK_IOKIT IOKit)
-	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
-	set(FRAMEWORKS ${FRAMEWORK_COCOA} ${FRAMEWORK_OPENGL} ${FRAMEWORK_IOKIT} ${FRAMEWORK_CORE_VIDEO})
-	target_link_libraries(ae ${FRAMEWORKS})
+	if (RPI)
 
+		find_library(EGL_LIBRARY EGL)
+		find_library(OPENGLES3_LIBRARY GLESv2)
+
+		target_link_libraries(ae PUBLIC
+				${EGL_LIBRARY}
+				${OPENGLES3_LIBRARY})
+
+	else()
+
+		target_link_libraries(ae PUBLIC
+				GL)
+
+	endif()
+
+elseif (MACOS)
+
+	find_library(FRAMEWORK_COCOA Cocoa)
+	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
+	find_library(FRAMEWORK_IOKIT IOKit)
+	find_library(FRAMEWORK_OPENGL OpenGL)
+
+	set(FRAMEWORKS
+			${FRAMEWORK_COCOA}
+			${FRAMEWORK_CORE_VIDEO}
+			${FRAMEWORK_IOKIT}
+			${FRAMEWORK_OPENGL})
+
+	target_link_libraries(ae PUBLIC
+			${FRAMEWORKS}
+			z)
+
+	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (LINUX AND NOT RPI)
-
-	target_link_libraries(ae
-		imgui
-		z
-		GL
-		X11
-		Xxf86vm
-		Xrandr
-		pthread
-		Xi
-		dl)
-
-elseif (WINDOWS)
-
-	target_link_libraries(ae
-		imgui)
-		#bz2)
-
-	# wtf?
-#	if(MSYS OR MINGW OR UBUNTU_CROSS)
-#		target_link_libraries(ae
-#				winpthread)
-#	else()
-#		target_link_libraries(ae
-#				winpthreads)
-#	endif()
-
-	# for MinGW / cross compile?
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -l:libstdc++.a")
-
-
-
-elseif (ANDROID)
-
-	target_link_libraries(ae
-			android
-			NDKHelper
-			z
-			EGL
-			GLESv3)
-
-	# export ANativeActivity_onCreate(). Refer to: https://github.com/android-ndk/ndk/issues/381.
-	set_target_properties(ae PROPERTIES LINK_FLAGS "-u ANativeActivity_onCreate")
-
-endif()
-
-if (RPI)
-
-	find_library(OPENGLES3_LIBRARY GLESv2 "OpenGL ES v3.0 library")
-	find_library(EGL_LIBRARY EGL "EGL 1.4 library")
-
-	target_link_libraries(ae
-			z
-			X11
-			Xxf86vm
-			Xrandr
-			pthread
-			Xi
-			dl
-		${OPENGLES3_LIBRARY}
-		${EGL_LIBRARY})
-
-endif ()
-
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-
-	message("COMPILER IS CLANG")
-	message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
-
-#	if (MACOS)
-#		target_compile_options(ae PUBLIC
-#				#"-stdlib=libstdc++" # use GCC libcstd++
-#				"-I/usr/local/opt/llvm@16/include"
-#				"-fexperimental-library"
-#				"-fmessage-length=0"
-#				"-UGLFW_CDECL"
-#				"-Wno-unknown-warning-option"
-#				"-Wno-float-equal"
-#				"-Wno-c++11-long-long"
-#				"-Wno-self-assign"
-#				"-Wno-reorder"
-#				"-Wno-address-of-packed-member"
-#				"-Wno-unused-function"
-#				"-Wno-deprecated-declarations"
-#				"-Wno-argument-outside-range")
-#		target_link_options(ae PUBLIC
-#				"-L/usr/local/opt/llvm@16/lib")
-#	else()
-		target_compile_options(ae PUBLIC
-				#"-stdlib=libc++" # use LLVM libc++
-				"-fmessage-length=0"
-				"-UGLFW_CDECL"
-				"-Wno-unknown-warning-option"
-				"-Wno-float-equal"
-				"-Wno-c++11-long-long"
-				"-Wno-self-assign"
-				"-Wno-reorder"
-				"-Wno-address-of-packed-member"
-				"-Wno-unused-function"
-				"-Wno-deprecated-declarations"
-				"-Wno-argument-outside-range")
-#	endif()
-			
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-
-
 endif()
 
 
-if (NOT ANDROID)
+### set root install dir before adding tests ###
 
-	# install lib and headers
+string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/linux/${LOWER_RELEASE_TYPE}")
 
-	set(LIB_INSTALL_DIR "${ROOT_INSTALL_DIR}/${INSTALL_DIR}/${PROJECT_NAME}")
 
-	install(TARGETS ae
-	        DESTINATION "${LIB_INSTALL_DIR}/lib")
+### add tests ###
 
-	# TODO: make "public headers"
-	install(FILES ${HEADERS}
-	        DESTINATION "${LIB_INSTALL_DIR}/include")
+add_subdirectory(tests)
 
-	# install engine resources
 
-	file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/shaders/*")
-	install(FILES ${SHADERS}
-			DESTINATION "${LIB_INSTALL_DIR}/data/shaders")
+### install ###
 
-	file(GLOB IMAGES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/images/*")
-	install(FILES ${IMAGES}
-			DESTINATION "${LIB_INSTALL_DIR}/data/images")
+set(INSTALL_DATA_DIR "${INSTALL_ROOT_DIR}/data")
+set(INSTALL_INCLUDE_DIR "${INSTALL_ROOT_DIR}/include")
+set(INSTALL_LEGAL_DIR "${INSTALL_ROOT_DIR}/legal")
+set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
 
-	file(GLOB FONTS "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/data/fonts/*")
-	install(FILES ${FONTS}
-			DESTINATION "${LIB_INSTALL_DIR}/data/fonts")
+# TODO: public vs. private headers
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
+		DESTINATION ${INSTALL_INCLUDE_DIR})
 
-endif()
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
+		DESTINATION ${INSTALL_DATA_DIR})
 
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
+		DESTINATION ${INSTALL_LEGAL_DIR})
+
+install(TARGETS ae
+		DESTINATION ${INSTALL_LIB_DIR})

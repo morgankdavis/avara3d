@@ -9,27 +9,23 @@
 #ifdef DESKTOP
 
 
-#include "rendering/context/platform/desktop/Window.h"
+#include "ae/rendering/context/platform/desktop/Window.h"
 
 #include <iostream>
 #include <sstream>
 
-#define GLEW_STATIC // added for MinGW build... needed?
+//#define GLEW_STATIC // added for MinGW build... needed?
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
-#ifdef MACOS
-#define GLFW_EXPOSE_NATIVE_COCOA
-#endif
-#include "GLFW/glfw3native.h"
 
-#include "diagnostic/logging/Logger.h"
-#include "input/platform/desktop/WindowInputManager.h"
-#include "physics/PhysicalWorld.h"
-#include "rendering/Renderer.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/camera/Camera.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/input/platform/desktop/WindowInputManager.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace std;
@@ -43,7 +39,7 @@ using namespace ae;
 static bool 	InitGLFW();
 static bool 	InitGLEW();
 static void 	LogGLInfo();
-static float 	ScreenScaleFactor(GLFWmonitor* monitor);
+//static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -69,7 +65,7 @@ Window::Window(RENDER_API renderAPI,
 		_cursorCaptured(false) {
 
 	if (InitGLFW()) {
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -82,18 +78,13 @@ Window::Window(RENDER_API renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-
-#warning THIS
-		//        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-
+		// glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 		auto viewportWidth = width;
 		auto viewportHeight = height;
 
-		float scaleFactor = 1.0;
-
 		if (fullScreen) {
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			auto monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
 																					 vmode->height,
@@ -103,7 +94,7 @@ Window::Window(RENDER_API renderAPI,
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 
-			scaleFactor = ScreenScaleFactor(monitor);
+//			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
@@ -112,10 +103,13 @@ Window::Window(RENDER_API renderAPI,
 																					 nullptr,
 																					 nullptr));
 
-			// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-			// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
+
+//			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
+
+		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
+		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
+		auto monitor = glfwGetPrimaryMonitor();
 
 		if (_glfwWindow) {
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
@@ -129,9 +123,15 @@ Window::Window(RENDER_API renderAPI,
 				_width = viewportWidth;
 				_height = viewportHeight;
 
-				_framebufferScale = (enableHighDPI ? scaleFactor : 1.0); //_framebufferScale = 1;
-				_framebufferWidth = _width * _framebufferScale;
-				_framebufferHeight = _height * _framebufferScale;
+				if (enableHighDPI) {
+					float scaleFactorX = 1.0;
+					float scaleFactorY = 1.0;
+					glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
+					_framebufferScale = {scaleFactorX, scaleFactorY};
+				}
+
+				_framebufferWidth = _width * _framebufferScale.x;
+				_framebufferHeight = _height * _framebufferScale.y;
 			}
 			else {
 				// TODO: exception
@@ -392,19 +392,19 @@ static void LogGLInfo()
 	AE_LOG_I("{}", contextParamsStream.str());
 }
 
-static float ScreenScaleFactor(GLFWmonitor* monitor) {
-#ifdef MACOS
-	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-	
-	Size width = CGDisplayModeGetWidth(currentModeRef);
-	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-	return (float)pixelWidth / (float)width;
-#endif
-	return 1.0;
-}
+//static float ScreenScaleFactor(GLFWmonitor* monitor) {
+//#ifdef MACOS
+//	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+//	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+//	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
+//	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
+//
+//	Size width = CGDisplayModeGetWidth(currentModeRef);
+//	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
+//	return (float)pixelWidth / (float)width;
+//#endif
+//	return 1.0;
+//}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	AE_LOG_T("width: {}, height: {}", width, height);
@@ -428,8 +428,9 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
-	window->framebufferWidth(window->width() * window->framebufferScale());
-	window->framebufferHeight(window->height() * window->framebufferScale());
+	auto framebufferScale = window->framebufferScale();
+	window->framebufferWidth(window->width() * framebufferScale.x);
+	window->framebufferHeight(window->height() * framebufferScale.y);
 }
 
 void GLFWErrorCallback(int error, const char* description) {

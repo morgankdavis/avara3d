@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "diagnostic/logging/Logger.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 //#ifdef WINDOWS
 //// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
@@ -17,7 +17,7 @@
 #include <ctime>
 #include <iostream>
 
-#if defined(MACOS) || defined(LINUX)
+#ifdef POSIX
 #include <sys/time.h>
 #endif
 
@@ -26,14 +26,14 @@
 #include <NDKHelper.h>
 #endif
 
-#include "Global.h"
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/sinks/LoggerSink.h"
-#include "diagnostic/logging/sinks/FileLoggerSink.h"
+#include "ae/Configuration.h"
+#include "ae/Utilities.h"
+#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/logging/sinks/LoggerSink.h"
+#include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP
-	#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 #endif
-#include "utilities/Utilities.h"
 
 
 using namespace ae;
@@ -53,25 +53,25 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 shared_ptr<Logger> Logger::MainLogger() {
 	
 	static shared_ptr<Logger> logger = nullptr;
-	if (!logger) {
 
-#if defined(DESKTOP)
-		string executableName = utils::ExecutableName()->string();
-		auto nativeSink = make_shared<StdOutLoggerSink>();
-		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
-													/ (executableName + string(".log")));
-#elif defined(ANDROID)
+	if (!logger) {
+#ifdef ANDROID
 		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
 		auto nativeSink = make_shared<AndroidLoggerSink>();
 //		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
+#else
+		string executableName = utils::ExecutableName()->string();
+		auto nativeSink = make_shared<StdOutLoggerSink>();
+		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
+													/ (executableName + string(".log")));
 #endif
-		
-		auto sinks = vector<shared_ptr<LoggerSink>>();
-		sinks.emplace_back(static_pointer_cast<LoggerSink>(nativeSink));
-		sinks.emplace_back(static_pointer_cast<LoggerSink>(fileSink));
-		
+
+		auto sinks = unordered_set<shared_ptr<LoggerSink>>();
+		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
+		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
+
 		logger = make_shared<Logger>("ae", sinks);
 	}
 	return logger;
@@ -94,14 +94,14 @@ string StringFromLogLevel(LOG_LEVEL level);
 Logger::Logger(string name, shared_ptr<LoggerSink> sink,
 			   LOG_LEVEL level, LOG_LEVEL flushLevel):
 	_name(name),
-	_sinks(vector<shared_ptr<LoggerSink>>()),
+	_sinks(unordered_set<shared_ptr<LoggerSink>>()),
 	_level(level),
 	_flushLevel(flushLevel) {
 	
-		_sinks.emplace_back(sink);
+		_sinks.insert(sink);
 }
 
-Logger::Logger(string name, vector<shared_ptr<LoggerSink>> sinks,
+Logger::Logger(string name, unordered_set<shared_ptr<LoggerSink>> sinks,
 			   LOG_LEVEL level, LOG_LEVEL flushLevel):
 	_name(name),
 	_sinks(sinks),
@@ -122,7 +122,7 @@ string Logger::name() const {
 	return _name;
 }
 
-vector<shared_ptr<LoggerSink>> Logger::sinks() const {
+unordered_set<shared_ptr<LoggerSink>> Logger::sinks() const {
 	return _sinks;
 }
 
@@ -273,16 +273,16 @@ void Logger::critical(bool useHeader,
 
 
 
-template <typename... Args>
-void Logger::f3(std::string_view fmt, Args&&... args) {
-	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
-}
-
-
-template <typename F, typename... Args>
-void Logger::f4(F, Args&&... args) {
-	return fmt::format(F::string, std::forward<Args>(args)...);
-}
+//template <typename... Args>
+//void Logger::f3(std::string_view fmt, Args&&... args) {
+//	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
+//}
+//
+//
+//template <typename F, typename... Args>
+//void Logger::f4(F, Args&&... args) {
+//	return fmt::format(F::string, std::forward<Args>(args)...);
+//}
 
 
 

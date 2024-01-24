@@ -2,11 +2,11 @@
 // Created by mkd on 10/22/23.
 //
 
-#include "rendering/camera/OrthographicCamera.h"
+#include "ae/rendering/camera/OrthographicCamera.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;

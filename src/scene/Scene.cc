@@ -6,7 +6,7 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "scene/Scene.h"
+#include "ae/scene/Scene.h"
 
 #include <chrono>
 #include <filesystem>
@@ -14,31 +14,31 @@
 #include <thread>
 
 #ifndef ANDROID
-#include "assimp-3.3.1/include/assimp/cimport.h"
-#include "assimp-3.3.1/include/assimp/postprocess.h"
-#include "assimp-3.3.1/include/assimp/scene.h"
-#include "assimp-3.3.1/include/assimp/version.h"
+#include "assimp/cimport.h"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+#include "assimp/version.h"
 #endif
 #include "magic_enum.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/GeometryElement.h"
-#include "input/platform/desktop/WindowInputManager.h"
-#include "physics/PhysicsBody.h"
-#include "physics/PhysicalWorld.h"
-#include "rendering/Light.h"
-#include "rendering/Renderer.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/camera/PerspectiveCamera.h"
-#include "rendering/materials/Material.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "scene/Node.h"
-#include "utilities/Image.h"
-#include "utilities/Utilities.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
+#include "ae/Image.h"
+#include "ae/Utilities.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/input/platform/desktop/WindowInputManager.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;

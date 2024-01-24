@@ -140,5 +140,21 @@ set(GENERATOR_SOURCES
 	TubeMesh.cpp
 )
 
+# mkd ?
+#add_library(generator${SUFFIX} ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
 add_library(generator${SUFFIX} STATIC ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+#add_library(generator${SUFFIX} SHARED ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+
+# mkd: added when switching to shared libraries
+target_compile_options(generator${SUFFIX} PUBLIC
+		"-fPIC")
+
+if (WINDOWS)
+
+	# WTF? it says STATIC right there! ^^
+	# https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+
+endif()
 

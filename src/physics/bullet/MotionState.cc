@@ -2,14 +2,14 @@
 // Created by mkd on 12/15/23.
 //
 
-#include "physics/bullet/MotionState.h"
+#include "ae/physics/bullet/MotionState.h"
 
-#include "physics/PhysicsBody.h"
-#include "physics/bullet/Utilities.h"
-#include "scene/Node.h"
+#include "ae/physics/PhysicsBody.h"
+#include "ae/physics/bullet/Utilities.h"
+#include "ae/scene/Node.h"
 
 
-#include "diagnostic/logging/Logger.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;

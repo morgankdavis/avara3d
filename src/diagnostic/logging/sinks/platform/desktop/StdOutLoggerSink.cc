@@ -2,7 +2,7 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
 
 #ifdef WINDOWS
 #include <windows.h>

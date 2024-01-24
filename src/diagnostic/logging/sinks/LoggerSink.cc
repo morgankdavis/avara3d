@@ -2,7 +2,7 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "diagnostic/logging/sinks/LoggerSink.h"
+#include "ae/diagnostic/logging/sinks/LoggerSink.h"
 
 
 using namespace ae;
