@@ -185,7 +185,8 @@ int main(int argc, const char* argv[]) {
 
 ////	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
 //	auto duckGeometry = GeometryNamed("rubberDuck/rubberDuck");
-	auto duckGeometry = GeometryNamed("slurm/slurm");
+//	auto duckGeometry = GeometryNamed("slurm/slurm");
+	auto duckGeometry = GeometryNamed("slurm_blender_obj/untitled5");
 	auto duckNode = Node::GeometryNode(duckGeometry);
 	duckNode->position({/*4.5*/0, 15, 0});
 

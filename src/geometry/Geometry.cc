@@ -245,10 +245,16 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 	using namespace rapidobj;
 
-	auto result = ParseFile(path.string());
+	auto result = ParseFile(path.string(),
+			//MaterialLibrary::SearchPath(path.parent_path()));
+							MaterialLibrary::Default());
 	if (!result.error) {
 
 		Triangulate(result);
+
+		for (auto& mat : result.materials) {
+			AE_LOG_I("mat: {}, diffuse_texname: {}", mat.name, mat.diffuse_texname);
+		}
 
 		auto elements = vector<shared_ptr<GeometryElement>>();
 		auto materials = vector<shared_ptr<ae::Material>>();
@@ -264,49 +270,88 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 //			}
 
 			auto& shape = result.shapes[s];
+
+			auto name = shape.name;
+			AE_LOG_I("shape name: {}", name);
+			auto& mesh = shape.mesh;
+
 			auto& attributes = result.attributes;
+
 			auto& positions = attributes.positions;
-			auto& texCoords = attributes.texcoords;
 			auto& normals = attributes.normals;
+			auto& texCoords = attributes.texcoords;
+
+			AE_LOG_I("positions.size(): {}", positions.size());
+			AE_LOG_I("positions.size()/3: {}", positions.size()/3);
+			AE_LOG_I("normals.size(): {}", normals.size());
+			AE_LOG_I("normals.size()/3: {}", normals.size()/3);
+			AE_LOG_I("texCoords.size(): {}", texCoords.size());
+			AE_LOG_I("texCoords.size()/2: {}", texCoords.size()/2);
 
 			auto verts = vector<Vertex>();
 			auto faces = vector<Face>();
 
 			auto numPositions = positions.size();
 			for (size_t p=0; p<numPositions; p+=3) {
-				Vertex vert = {{positions[p+0], positions[p+1], positions[p+2]},
-							   {normals[p+0], normals[p+1], normals[p+2]},//normalize(vec3(normals[p+0], normals[p+1], normals[p+2])),
-							   {texCoords[p+0], texCoords[p+1]}};
-				verts.push_back(vert);
+//				Vertex vert = {{positions[p+0], positions[p+1], positions[p+2]},
+//							   {normals[p+0], normals[p+1], normals[p+2]},
+//							   {texCoords[p+0], texCoords[p+1]}};
+//				verts.push_back(vert);
 			}
 
-			auto name = shape.name;
-			AE_LOG_I("shape name: {}", name);
-			auto& mesh = shape.mesh;
 			auto& indicies = mesh.indices;
 
 			auto numIndicies = indicies.size();
+//			size_t idx = 0;
 			for (size_t i=0; i<numIndicies; i+=3) {
-				Face face = {indicies[i+0].position_index,
-							 indicies[i+1].position_index,
-							 indicies[i+2].position_index};
+
+				auto p1 = positions[indicies[i+0].position_index];
+				auto p2 = positions[indicies[i+1].position_index];
+				auto p3 = positions[indicies[i+2].position_index];
+
+				Vertex vert = {{p1, p2, p3},
+							   {0, 0, 0},
+							   {0, 0}};
+				verts.push_back(vert);
+
+//				Vertex vert = {{indicies[i+0].positions[p+0], positions[p+1], positions[p+2]},
+//							   {normals[p+0], normals[p+1], normals[p+2]},
+//							   {texCoords[p+0], texCoords[p+1]}};
+//				verts.push_back(vert);
+
+
+
+//				Face face = {indicies[i+0].position_index,
+//							 indicies[i+1].position_index,
+//							 indicies[i+2].position_index};
+//				faces.push_back(face);
+
+				Face face = {(int)i+0,
+							 (int)i+1,
+							 (int)i+2};
 				faces.push_back(face);
+
+
+			}
+
+			AE_LOG_I("mesh.material_ids.size(): {}", mesh.material_ids.size());
+			AE_LOG_I("mesh.indices.size(): {}", mesh.indices.size());
+			AE_LOG_I("mesh.indices.size()/3: {}", mesh.indices.size()/3);
+
+			for (auto& matID : mesh.material_ids) {
+				AE_LOG_I("Material ID: {}", matID);
 			}
 
 			elements.push_back(make_shared<GeometryElement>(verts, faces));
+
+
+
+			AE_LOG_W("RETURNING FIRST SHAPE");
+
+			auto geometry = make_shared<Geometry>(elements, materials);
+			geometry->name(path.filename().stem().string());
+			return geometry;
 		}
-
-		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(path.filename().stem().string());
-		return geometry;
-
-//		size_t num_triangles = 0;
-//		for (const auto& shape : result.shapes) {
-//			num_triangles += shape.mesh.num_face_vertices.size();
-//		}
-//
-//		cout << "Shapes:    " << result.shapes.size() << '\n';
-//		cout << "Triangles: " << num_triangles << '\n';
 	}
 	else {
 		AE_LOG_E("Error at line {}: {}", result.error.line, result.error.code.message());
@@ -314,6 +359,103 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 	return nullptr;
 }
+
+//
+// close -- diagnostic
+//
+//shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
+//
+//	using namespace rapidobj;
+//
+//	auto result = ParseFile(path.string(),
+//							//MaterialLibrary::SearchPath(path.parent_path()));
+//							MaterialLibrary::Default());
+//	if (!result.error) {
+//
+//		Triangulate(result);
+//
+//		for (auto& mat : result.materials) {
+//			AE_LOG_I("mat: {}, diffuse_texname: {}", mat.name, mat.diffuse_texname);
+//		}
+//
+//		auto elements = vector<shared_ptr<GeometryElement>>();
+//		auto materials = vector<shared_ptr<ae::Material>>();
+//
+//		auto numShapes = result.shapes.size();
+//		for (size_t s=0; s<numShapes; ++s) {
+//
+////		auto numShapes = result.shapes.size();
+////		if (numShapes >= 1) {
+////
+////			if (numShapes > 1) {
+////				AE_LOG_W("Obj file contains more than one shape.  Discarding shapes at index > 0.");
+////			}
+//
+//			auto& shape = result.shapes[s];
+//
+//			auto name = shape.name;
+//			AE_LOG_I("shape name: {}", name);
+//			auto& mesh = shape.mesh;
+//
+//			auto& attributes = result.attributes;
+//
+//			auto& positions = attributes.positions;
+//			auto& normals = attributes.normals;
+//			auto& texCoords = attributes.texcoords;
+//
+//			AE_LOG_I("positions.size(): {}", positions.size());
+//			AE_LOG_I("positions.size()/3: {}", positions.size()/3);
+//			AE_LOG_I("normals.size(): {}", normals.size());
+//			AE_LOG_I("normals.size()/3: {}", normals.size()/3);
+//			AE_LOG_I("texCoords.size(): {}", texCoords.size());
+//			AE_LOG_I("texCoords.size()/2: {}", texCoords.size()/2);
+//
+//			auto verts = vector<Vertex>();
+//			auto faces = vector<Face>();
+//
+//			auto numPositions = positions.size();
+//			for (size_t p=0; p<numPositions; p+=3) {
+//				Vertex vert = {{positions[p+0], positions[p+1], positions[p+2]},
+//							   {normals[p+0], normals[p+1], normals[p+2]},
+//							   {texCoords[p+0], texCoords[p+1]}};
+//				verts.push_back(vert);
+//			}
+//
+//			auto& indicies = mesh.indices;
+//
+//			auto numIndicies = indicies.size();
+//			for (size_t i=0; i<numIndicies; i+=3) {
+//				Face face = {indicies[i+0].position_index,
+//							 indicies[i+1].position_index,
+//							 indicies[i+2].position_index};
+//				faces.push_back(face);
+//			}
+//
+//			AE_LOG_I("mesh.material_ids.size(): {}", mesh.material_ids.size());
+//			AE_LOG_I("mesh.indices.size(): {}", mesh.indices.size());
+//			AE_LOG_I("mesh.indices.size()/3: {}", mesh.indices.size()/3);
+//
+//			for (auto& matID : mesh.material_ids) {
+//				AE_LOG_I("Material ID: {}", matID);
+//			}
+//
+//			elements.push_back(make_shared<GeometryElement>(verts, faces));
+//
+//
+//
+//			AE_LOG_W("RETURNING FIRST SHAPE");
+//
+////			auto geometry = make_shared<Geometry>(elements, materials);
+////			geometry->name(path.filename().stem().string());
+////			return geometry;
+//		}
+//	}
+//	else {
+//		AE_LOG_E("Error at line {}: {}", result.error.line, result.error.code.message());
+//	}
+//
+//	return nullptr;
+//}
 
 //shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 //
