@@ -311,7 +311,7 @@ namespace ae {
 	typedef struct {
 		glm::vec3 position;
 		glm::vec3 normal;
-		glm::vec2 textureCoordinate;
+		glm::vec2 texCoord;
 	} Vertex;
 	
 	typedef struct {
