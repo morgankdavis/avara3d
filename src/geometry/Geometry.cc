@@ -29,6 +29,9 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<Geometry> LoadObj(const filesystem::path& path);
+static shared_ptr<Material> AEMaterialFromRAMaterials(map<int32_t, ae::Material>& aeMaterialsMap,
+													  const rapidobj::Materials& raMaterials,
+													  int32_t raMaterialID);
 
 /*********************************************************************************************
 	Public Static
@@ -238,7 +241,10 @@ void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
  *********************************************************************************************/
 
 shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
-	// example from tinyobjloader: https://github.com/tinyobjloader/tinyobjloader#example-code-deprecated-api
+	AE_LOG_I("Loading Wavefront .obj at: {}", path.string());
+
+	// example from tinyobjloader:
+	// https://github.com/tinyobjloader/tinyobjloader#example-code-deprecated-api
 
 	using namespace rapidobj;
 
@@ -255,9 +261,9 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		auto& normals = attributes.normals;
 		auto& texCoords = attributes.texcoords;
 		auto& shapes = result.shapes;
+		auto& materials = result.materials;
 
-		auto elements = vector<shared_ptr<GeometryElement>>();
-		auto materials = vector<shared_ptr<ae::Material>>();
+		auto aeMaterialsMap = map<int32_t, ae::Material>();
 
 		auto numShapes = shapes.size();
 		AE_LOG_D("numShapes: {}", numShapes);
@@ -266,20 +272,22 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			auto& shape = result.shapes[s];
 			auto& mesh = shape.mesh;
 
+			auto aeElements = vector<shared_ptr<GeometryElement>>();
+			auto aeMaterials = vector<shared_ptr<ae::Material>>();
 			auto verts = vector<Vertex>();
 			auto faces = vector<Face>();
 
 			size_t indexOffset = 0;
+			int32_t materialID = -1;
 			int32_t prevMaterialID = -1;
 			size_t numFaces = shape.mesh.num_face_vertices.size();
 			size_t faceIndexOffset = 0;
 			AE_LOG_D("shape[{}], numFaces: {}", s, numFaces);
 			for (auto f=0; f<numFaces; ++f) {
 
-				//auto baseFaceIndex = (int)(3 * (f-faceIndexOffset));
 				auto baseFaceIndex = (size_t)((3 * f) - faceIndexOffset);
 
-				auto materialID = shape.mesh.material_ids[f];
+				materialID = shape.mesh.material_ids[f];
 //				AE_LOG_D("materialID: {}", materialID);
 
 				if (prevMaterialID == -1) {
@@ -291,17 +299,20 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 				if (materialID != prevMaterialID) {
 					AE_LOG_D("New materialID -- adding GeometryElement.");
 
-					elements.push_back(make_shared<GeometryElement>(verts, faces));
+					aeElements.push_back(make_shared<GeometryElement>(verts, faces));
+					auto aeMaterial = AEMaterialFromRAMaterials(aeMaterialsMap, materials, materialID);
+					if (aeMaterial) aeMaterials.push_back(aeMaterial);
+
 					verts.clear();
 					faces.clear();
 
 					// since we are logging off an element early, we have to keep
-					// a negative offset for future face indicies.Z
+					// a negative offset for future face indicies.
 					faceIndexOffset += baseFaceIndex;
 					baseFaceIndex -= faceIndexOffset;
 				}
 
-				AE_LOG_D("Adding vertex for face {}, material {}", f, materialID);
+				//AE_LOG_D("Adding vertex for face {}, material {}", f, materialID);
 				// vertices in the face (shape is triangulated above)
 				for (auto v=0; v<3; ++v) {
 
@@ -332,9 +343,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 				} // verticies
 
-				AE_LOG_D("Adding face for face {}, material {}", f, materialID);
-//				auto baseFaceIndex = (int)(3 * (f-faceIndexOffset));
-//				auto baseFaceIndex = (int)((3 * f) -faceIndexOffset);
+				//AE_LOG_D("Adding face for face {}, material {}", f, materialID);
 				Face face = {(int)baseFaceIndex + 0,
 							 (int)baseFaceIndex + 1,
 							 (int)baseFaceIndex + 2};
@@ -347,24 +356,32 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 			// add the last element (materialID didn't change at the end of the face list)
 			AE_LOG_D("Adding last GeometryElement.  verts: {}, faces: {}", verts.size(), faces.size());
-			elements.push_back(make_shared<GeometryElement>(verts, faces));
+			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
+			auto aeMaterial = AEMaterialFromRAMaterials(aeMaterialsMap, materials, materialID);
+			if (aeMaterial) aeMaterials.push_back(aeMaterial);
 
 //			for (auto& e : elements) {
 //				AE_LOG_D("element.verticies.size: {}", e->vertices().size());
 //			}
 
-			AE_LOG_D("Adding geometry with {} elements, {} materials.", elements.size(), materials.size());
-			auto geometry = make_shared<Geometry>(elements, materials);
+			// NOTE: only returning the first shape!
+
+			AE_LOG_D("Adding geometry with {} elements, {} materials.", aeElements.size(), aeMaterials.size());
+			auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
 			geometry->name(path.filename().stem().string());
 			return geometry;
 
 		} // shapes
-
-		// there is where we would return a vector of geometries
 	}
 	else {
 		AE_LOG_E("Error at line {}: {}", result.error.line, result.error.code.message());
 	}
 
+	return nullptr;
+}
+
+shared_ptr<Material> AEMaterialFromRAMaterials(map<int32_t, ae::Material>& aeMaterialsMap,
+											   const rapidobj::Materials& raMaterials,
+											   int32_t raMaterialID) {
 	return nullptr;
 }
