@@ -184,12 +184,13 @@ int main(int argc, const char* argv[]) {
 
 
 
-////	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
 //	auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
-	auto testGeometry = GeometryNamed("slurm/slurm");
+//	auto testGeometry = GeometryNamed("slurm/slurm");
 //	auto testGeometry = GeometryNamed("slurm_blender_obj/untitled5");
-//	auto testGeometry = GeometryNamed("ConvaliaBouquet");
-//	auto testGeometry = GeometryNamed("ConvaliaBouquet/ConvaliaBouquet");
+//	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2"); // no go
+	auto testGeometry = GeometryNamed("palm1/palm1"); // partial
+//	auto testGeometry = GeometryNamed("palm2/palm2");
+
 	auto testNode = Node::GeometryNode(testGeometry);
 	testNode->position({/*4.5*/0, 15, 0});
 
