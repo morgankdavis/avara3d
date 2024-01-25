@@ -188,7 +188,7 @@ int main(int argc, const char* argv[]) {
 //	auto testGeometry = GeometryNamed("slurm/slurm");
 //	auto testGeometry = GeometryNamed("slurm_blender_obj/untitled5");
 //	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
-	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
+//	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
 //	auto testGeometry = GeometryNamed("palm2/palm2"); // nice!
 //	auto testGeometry = GeometryNamed("island/Island");
 //	auto testGeometry = GeometryNamed("teapot");
@@ -204,6 +204,7 @@ int main(int argc, const char* argv[]) {
 //	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
 //	auto testGeometry = GeometryNamed("siamese/siamese");
 //	auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
 
 
 
