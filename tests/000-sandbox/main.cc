@@ -6,6 +6,7 @@
 //  Copyright © 2023 Morgan K Davis. All rights reserved.
 //
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -188,7 +189,7 @@ int main(int argc, const char* argv[]) {
 //	auto testGeometry = GeometryNamed("slurm/slurm");
 //	auto testGeometry = GeometryNamed("slurm_blender_obj/untitled5");
 //	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
-//	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
+	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
 //	auto testGeometry = GeometryNamed("palm2/palm2"); // nice!
 //	auto testGeometry = GeometryNamed("island/Island");
 //	auto testGeometry = GeometryNamed("teapot");
@@ -204,12 +205,12 @@ int main(int argc, const char* argv[]) {
 //	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
 //	auto testGeometry = GeometryNamed("siamese/siamese");
 //	auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+//	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
 
 
-
-
-
+	for (auto& m : testGeometry->materials()) {
+		m->doubleSided(true);
+	}
 
 	AE_LOG_I("testGeometry.extent: {}", StringFromGLMVec3(testGeometry->extent()));
 
@@ -221,12 +222,17 @@ int main(int argc, const char* argv[]) {
 //	testNode->physicsBody(PhysicsBody::KinematicBody());
 //	testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
-// WORKS
-//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
-//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
-//	duckNode->physicsBody(body);
+
+//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, testNode->geometry().get());
+//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::STATIC, shape);
+//	testNode->physicsBody(body);
+
 
 	scene->rootNode()->addChild(testNode);
+
+
+
+	auto testScene = SceneNamed("importTest_pinapple", "glb");
 
 
 
