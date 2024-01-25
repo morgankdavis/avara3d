@@ -195,8 +195,8 @@ int main(int argc, const char* argv[]) {
 
 
 
-	testNode->physicsBody(PhysicsBody::KinematicBody());
-	testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//	testNode->physicsBody(PhysicsBody::KinematicBody());
+//	testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 // WORKS
 //	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
