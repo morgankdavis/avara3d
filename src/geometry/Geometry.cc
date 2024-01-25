@@ -245,12 +245,13 @@ void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
  *********************************************************************************************/
 
 shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
+
+	using namespace rapidobj;
+
 	AE_LOG_I("Loading Wavefront Obj at: {}", path.string());
 
 	// example from tinyobjloader:
 	// https://github.com/tinyobjloader/tinyobjloader#example-code-deprecated-api
-
-	using namespace rapidobj;
 
 	auto result = ParseFile(path.string(),
 							MaterialLibrary::Default(Load::Optional));
@@ -267,6 +268,9 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		auto& shapes = result.shapes;
 		auto& materials = result.materials;
 
+		auto aeElements = vector<shared_ptr<GeometryElement>>();
+		auto aeMaterials = vector<shared_ptr<ae::Material>>();
+
 		auto aeMaterialsMap = map<int32_t, shared_ptr<ae::Material>>();
 		auto textureDir = path.parent_path();
 
@@ -277,8 +281,6 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			auto& shape = result.shapes[s];
 			auto& mesh = shape.mesh;
 
-			auto aeElements = vector<shared_ptr<GeometryElement>>();
-			auto aeMaterials = vector<shared_ptr<ae::Material>>();
 			auto verts = vector<Vertex>();
 			auto faces = vector<Face>();
 
@@ -296,7 +298,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 //				AE_LOG_D("materialID: {}", materialID);
 
 				if (prevMaterialID == -1) {
-					AE_LOG_D("Initializing materialID to {}.", materialID);
+//					AE_LOG_D("Initializing materialID to {}.", materialID);
 					prevMaterialID = materialID;
 				}
 
@@ -363,7 +365,8 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			} // faces
 
 			// add the last element (materialID didn't change at the end of the face list)
-			AE_LOG_D("Adding last GeometryElement.  verts: {}, faces: {}", verts.size(), faces.size());
+			AE_LOG_D("Adding last GeometryElement.  verts: {}, faces: {}",
+					 verts.size(), faces.size());
 			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
 			auto aeMaterial = AEMaterialFromROMaterials(aeMaterialsMap,
 														materials,
@@ -371,17 +374,17 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 														textureDir);
 			if (aeMaterial) aeMaterials.push_back(aeMaterial);
 
-			// NOTE: only returning the first shape!
-
-			AE_LOG_D("Adding geometry with {} elements, {} materials.", aeElements.size(), aeMaterials.size());
-			auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
-			geometry->name(path.filename().stem().string());
-			return geometry;
-
 		} // shapes
+
+		AE_LOG_D("Adding geometry with {} elements, {} materials.",
+				 aeElements.size(), aeMaterials.size());
+		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
+		geometry->name(path.filename().stem().string());
+		return geometry;
 	}
 	else {
-		AE_LOG_E("Error at line {}: {}", result.error.line, result.error.code.message());
+		AE_LOG_E("Error at line {}: {}",
+				 result.error.line_num, result.error.code.message());
 	}
 
 	return nullptr;
@@ -393,7 +396,14 @@ shared_ptr<Material> AEMaterialFromROMaterials(map<int32_t, shared_ptr<ae::Mater
 											   filesystem::path& textureDir) {
 	AE_LOG_D("roMaterialID: {}", roMaterialID);
 
-	if (auto existing = aeMaterialsMap.find(roMaterialID); existing != aeMaterialsMap.end()) {
+	if (roMaterialID == -1) {
+		return nullptr;
+	}
+	else if (roMaterials.size() == 0) {
+		AE_LOG_W("Missing materials.");
+		return nullptr;
+	}
+	else if (auto existing = aeMaterialsMap.find(roMaterialID); existing != aeMaterialsMap.end()) {
 		return existing->second;
 	}
 	else {

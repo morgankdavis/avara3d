@@ -187,12 +187,33 @@ int main(int argc, const char* argv[]) {
 //	auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
 //	auto testGeometry = GeometryNamed("slurm/slurm");
 //	auto testGeometry = GeometryNamed("slurm_blender_obj/untitled5");
-//	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2"); // no go
-	auto testGeometry = GeometryNamed("palm1/palm1"); // partial
-//	auto testGeometry = GeometryNamed("palm2/palm2");
+//	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
+	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
+//	auto testGeometry = GeometryNamed("palm2/palm2"); // nice!
+//	auto testGeometry = GeometryNamed("island/Island");
+//	auto testGeometry = GeometryNamed("teapot");
+//	auto testGeometry = GeometryNamed("apple1_lod/apple1_lod");
+//	auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+//	auto testGeometry = GeometryNamed("cherry1_lod/cherry1_lod");
+//	auto testGeometry = GeometryNamed("ConvaliaBouquet");
+//	auto testGeometry = GeometryNamed("dragon");
+//	auto testGeometry = GeometryNamed("orange1_lod/orange1_lod");
+//	auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+//	auto testGeometry = GeometryNamed("pineapple_lod/pinapple_lod"); // notice misspelling
+//	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+//	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+//	auto testGeometry = GeometryNamed("siamese/siamese");
+//	auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+
+
+
+
+
+
+	AE_LOG_I("testGeometry.extent: {}", StringFromGLMVec3(testGeometry->extent()));
 
 	auto testNode = Node::GeometryNode(testGeometry);
-	testNode->position({/*4.5*/0, 15, 0});
+	testNode->position({0, 15, 0});
 
 
 
