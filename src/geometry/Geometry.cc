@@ -32,10 +32,11 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<Geometry> LoadObj(const filesystem::path& path);
-static shared_ptr<Material> AEMaterialFromROMaterials(map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
-													  const rapidobj::Materials& roMaterials,
-													  int32_t roMaterialID,
-													  filesystem::path& textureDir);
+static void AddROMaterial(vector<shared_ptr<Material>>& aeMaterials,
+						  map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+						  const rapidobj::Materials& roMaterials,
+						  int32_t roMaterialID,
+						  filesystem::path& textureDir);
 
 /*********************************************************************************************
 	Public Static
@@ -255,7 +256,6 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 	auto result = ParseFile(path.string(),
 							MaterialLibrary::Default(Load::Optional));
-//	auto result = ParseFile(path.string());
 
 	if (!result.error) {
 
@@ -272,10 +272,9 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		auto aeMaterials = vector<shared_ptr<ae::Material>>();
 
 		auto aeMaterialsMap = map<int32_t, shared_ptr<ae::Material>>();
-		auto textureDir = path.parent_path();
+		auto texturesDir = path.parent_path();
 
 		auto numShapes = shapes.size();
-		AE_LOG_D("numShapes: {}", numShapes);
 		for (auto s=0; s<numShapes; ++s) {
 
 			auto& shape = result.shapes[s];
@@ -289,16 +288,13 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			int32_t prevMaterialID = -1;
 			size_t numFaces = shape.mesh.num_face_vertices.size();
 			size_t faceIndexOffset = 0;
-			AE_LOG_D("shape[{}], numFaces: {}", s, numFaces);
 			for (auto f=0; f<numFaces; ++f) {
 
 				auto baseFaceIndex = (size_t)((3 * f) - faceIndexOffset);
 
 				materialID = shape.mesh.material_ids[f];
-//				AE_LOG_D("materialID: {}", materialID);
 
 				if (prevMaterialID == -1) {
-//					AE_LOG_D("Initializing materialID to {}.", materialID);
 					prevMaterialID = materialID;
 				}
 
@@ -307,11 +303,11 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 					AE_LOG_D("New materialID -- adding GeometryElement.");
 
 					aeElements.push_back(make_shared<GeometryElement>(verts, faces));
-					auto aeMaterial = AEMaterialFromROMaterials(aeMaterialsMap,
-																materials,
-																prevMaterialID,
-																textureDir);
-					if (aeMaterial) aeMaterials.push_back(aeMaterial);
+					AddROMaterial(aeMaterials,
+								  aeMaterialsMap,
+								  materials,
+								  prevMaterialID,
+								  texturesDir);
 
 					verts.clear();
 					faces.clear();
@@ -322,7 +318,6 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 					baseFaceIndex -= faceIndexOffset;
 				}
 
-				//AE_LOG_D("Adding vertex for face {}, material {}", f, materialID);
 				// vertices in the face (shape is triangulated above)
 				for (auto v=0; v<3; ++v) {
 
@@ -353,7 +348,6 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 				} // verticies
 
-				//AE_LOG_D("Adding face for face {}, material {}", f, materialID);
 				Face face = {(int)baseFaceIndex + 0,
 							 (int)baseFaceIndex + 1,
 							 (int)baseFaceIndex + 2};
@@ -365,19 +359,15 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			} // faces
 
 			// add the last element (materialID didn't change at the end of the face list)
-			AE_LOG_D("Adding last GeometryElement.  verts: {}, faces: {}",
-					 verts.size(), faces.size());
 			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
-			auto aeMaterial = AEMaterialFromROMaterials(aeMaterialsMap,
-														materials,
-														materialID,
-														textureDir);
-			if (aeMaterial) aeMaterials.push_back(aeMaterial);
+			AddROMaterial(aeMaterials,
+						  aeMaterialsMap,
+						  materials,
+						  materialID,
+						  texturesDir);
 
 		} // shapes
 
-		AE_LOG_D("Adding geometry with {} elements, {} materials.",
-				 aeElements.size(), aeMaterials.size());
 		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
 		geometry->name(path.filename().stem().string());
 		return geometry;
@@ -390,104 +380,151 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 	return nullptr;
 }
 
-shared_ptr<Material> AEMaterialFromROMaterials(map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
-											   const rapidobj::Materials& roMaterials,
-											   int32_t roMaterialID,
-											   filesystem::path& textureDir) {
+void AddROMaterial(vector<shared_ptr<Material>>& aeMaterials,
+				   map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+				   const rapidobj::Materials& roMaterials,
+				   int32_t roMaterialID,
+				   filesystem::path& textureDir) {
 	AE_LOG_D("roMaterialID: {}", roMaterialID);
 
-	if (roMaterialID == -1) {
-		return nullptr;
-	}
-	else if (roMaterials.size() == 0) {
-		AE_LOG_W("Missing materials.");
-		return nullptr;
-	}
-	else if (auto existing = aeMaterialsMap.find(roMaterialID); existing != aeMaterialsMap.end()) {
-		return existing->second;
-	}
-	else {
+	if (roMaterialID >= 0
+		&& !roMaterials.empty()) {
 
-		auto aeMaterial = make_shared<Material>();
+		if (auto existing = aeMaterialsMap.find(roMaterialID); existing != aeMaterialsMap.end()) {
 
-		auto& roMaterial = roMaterials[roMaterialID];
+			aeMaterials.push_back(existing->second);
+		}
+		else {
 
-		// TODO: generalize this
+			auto aeMaterial = make_shared<Material>();
+			auto& roMaterial = roMaterials[roMaterialID];
 
-		{ // ambient
+			// TODO: generalize this
 
-			auto filename = roMaterial.ambient_texname;
-			if (!filename.empty()) {
-				auto image = make_shared<Image>(textureDir / filename);
-				auto property = make_shared<MaterialProperty>(image);
-				aeMaterial->ambient(property);
+			{ // ambient
+
+				auto filename = roMaterial.ambient_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->ambient(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->ambient()) {
+					auto roColor = roMaterial.ambient;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->ambient(property);
+				}
 			}
-			else {
-				auto roColor = roMaterial.ambient;
-				auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
-				auto property = make_shared<MaterialProperty>(aeColor);
-				aeMaterial->ambient(property);
+
+			{ // diffuse
+
+				auto filename = roMaterial.diffuse_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->diffuse(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->diffuse()) {
+					auto roColor = roMaterial.diffuse;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->diffuse(property);
+				}
 			}
-		}
 
-		{ // diffuse
+			{ // specular
 
-			auto filename = roMaterial.diffuse_texname;
-			if (!filename.empty()) {
-				auto image = make_shared<Image>(textureDir / filename);
-				auto property = make_shared<MaterialProperty>(image);
-				aeMaterial->diffuse(property);
+				auto filename = roMaterial.specular_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->specular(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->specular()) {
+					auto roColor = roMaterial.specular;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->specular(property);
+				}
 			}
-			else {
-				auto roColor = roMaterial.diffuse;
-				auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
-				auto property = make_shared<MaterialProperty>(aeColor);
-				aeMaterial->diffuse(property);
+
+			{ // emissive
+
 			}
-		}
 
-		{ // specular
-
-			auto filename = roMaterial.specular_texname;
-			if (!filename.empty()) {
-				auto image = make_shared<Image>(textureDir / filename);
-				auto property = make_shared<MaterialProperty>(image);
-				aeMaterial->specular(property);
+			{ // specular exponant -- Ns
+				aeMaterial->specularExponent(roMaterial.shininess);
 			}
-			else {
-				auto roColor = roMaterial.specular;
-				auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
-				auto property = make_shared<MaterialProperty>(aeColor);
-				aeMaterial->specular(property);
+
+			{ // anisotropy
+
 			}
+
+			{ // minificationFilter
+
+			}
+
+			{ // magnificationFilter
+
+			}
+
+			{ // wrap s
+
+			}
+
+			{ // wrap t
+
+			}
+
+			{ // wrap r
+
+			}
+
+			{ // double-sided
+
+			}
+
+			{ // fill mode
+
+			}
+
+			{ // scale
+
+			}
+
+			{ // blend function
+
+			}
+
+			{ // index of refraction -- Ni
+
+			}
+
+			aeMaterialsMap[roMaterialID] = aeMaterial;
+
+			aeMaterials.push_back(aeMaterial);
 		}
-
-		{ // emissive
-
-		}
-
-		{ // specular exponant
-
-		}
-
-		{ // double-sided
-
-		}
-
-		{ // fill mode
-
-		}
-
-		{ // scale
-
-		}
-
-		{ // blend function
-
-		}
-
-		aeMaterialsMap[roMaterialID] = aeMaterial;
-
-		return aeMaterial;
 	}
 }

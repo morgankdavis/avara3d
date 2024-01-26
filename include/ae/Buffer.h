@@ -38,6 +38,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
+		// TODO: switch to unique_ptr
 		unsigned char* 			data() const;
 		unsigned 				size() const;
 

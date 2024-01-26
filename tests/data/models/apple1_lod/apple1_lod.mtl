@@ -13,4 +13,5 @@ Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
 map_Kd apple1_diffuse.jpg
+map_Ks apple1_specular.jpg
 

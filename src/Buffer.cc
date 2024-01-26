@@ -27,6 +27,7 @@ Buffer::Buffer(const std::filesystem::path& path):
 		_data(nullptr),
 		_size(0) {
 
+	// TODO: check path or exception
 	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
 	ifstream::pos_type pos = inStream.tellg();
 	_data = (unsigned char*)malloc(pos);

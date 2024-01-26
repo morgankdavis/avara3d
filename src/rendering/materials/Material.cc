@@ -29,11 +29,12 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(0.5f, 0.5, 0.5, 1.0));
+		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(0.85f));
 		material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
 		material->doubleSided(true);
+		material->specularExponent(75);
 	}
 	return material;
 }

@@ -13,7 +13,8 @@ Tr 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
-map_Kd pinapple_diffuse1.jpg
+map_Kd pineapple_diffuse1.jpg
+map_Ks pineapple_specular1.jpg
 
 newmtl prop2
 Ns 62.745098
@@ -21,7 +22,8 @@ Tr 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
-map_Kd pinapple_diffuse2.jpg
+map_Kd pineapple_diffuse2.jpg
+map_Ks pineapple_specular2.jpg
 
 newmtl prop3
 Ns 62.745098
@@ -29,5 +31,6 @@ Tr 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
-map_Kd pinapple_diffuse3.jpg
+map_Kd pineapple_diffuse3.jpg
+map_Ks pineapple_specular3.jpg
 

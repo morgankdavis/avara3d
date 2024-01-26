@@ -13,6 +13,7 @@ Kd 1.000000 1.000000 1.000000
 Ks 0.000000 0.000000 0.000000
 Ka 0.1 0.1 0.1
 map_Kd pear_diffuse.jpg
+map_Ks pear_specular.jpg
 
 newmtl Pear_Skin
 Ns 49.019608
@@ -21,6 +22,7 @@ Kd 1.000000 1.000000 1.000000
 Ks 0.272506 0.278278 0.197886
 Ka 0.1 0.1 0.1
 map_Kd pear_diffuse.jpg
+map_Ks pear_specular.jpg
 
 newmtl Pear_Tail
 Ns 43.137257
@@ -29,4 +31,5 @@ Kd 1.000000 1.000000 1.000000
 Ks 0.099980 0.102098 0.072603
 Ka 0.1 0.1 0.1
 map_Kd pear_diffuse.jpg
+map_Ks pear_specular.jpg
 
