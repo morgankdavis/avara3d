@@ -434,8 +434,6 @@ void VisitGlTFNode(tinygltf::Model& model,
 
 	auto aeNode = Node::NamedNode(node.name);
 
-	AE_LOG_D("NODE name: {}", node.name);
-
 	aeNode->light(LightFromGlTFNode(model, node));
 	aeNode->camera(CameraFromGlTFNode(model, node));
 	aeNode->geometry(GeometryFromGlFTNode(model, node));
@@ -444,7 +442,7 @@ void VisitGlTFNode(tinygltf::Model& model,
 	parent->addChild(aeNode);
 
 	for (auto c : node.children) {
-		VisitGlTFNode(model, model.nodes[c], parent);
+		VisitGlTFNode(model, model.nodes[c], aeNode);
 	}
 }
 
