@@ -58,8 +58,10 @@ static void 						VisitGlTFNode(tinygltf::Model& model,
 												 shared_ptr<Node> parent);
 static shared_ptr<Geometry>			GeometryFromGlFTNode(tinygltf::Model& model,
 															tinygltf::Node& node);
-static shared_ptr<GeometryElement>	GeometryElementFromGlFTMesh(const tinygltf::Mesh& mesh);
-static shared_ptr<Material>			MaterialFromGlFTMaterial(const tinygltf::Material& material);
+static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
+																	   tinygltf::Primitive& primitive);
+static shared_ptr<Material>			MaterialFromGlFTMaterial(tinygltf::Model& model,
+																tinygltf::Material& material);
 static shared_ptr<Light>			LightFromGlTFNode(tinygltf::Model& model,
 													  tinygltf::Node& node);
 static shared_ptr<Camera>			CameraFromGlTFNode(tinygltf::Model& model,
@@ -432,6 +434,8 @@ void VisitGlTFNode(tinygltf::Model& model,
 
 	auto aeNode = Node::NamedNode(node.name);
 
+	AE_LOG_D("NODE name: {}", node.name);
+
 	aeNode->light(LightFromGlTFNode(model, node));
 	aeNode->camera(CameraFromGlTFNode(model, node));
 	aeNode->geometry(GeometryFromGlFTNode(model, node));
@@ -448,25 +452,85 @@ shared_ptr<Geometry> GeometryFromGlFTNode(tinygltf::Model& model,
 										  tinygltf::Node& node) {
 
 	auto meshIndex = node.mesh;
-	if (meshIndex >= 0) {
+	if (meshIndex > -1) {
 
 		auto& mesh = model.meshes[meshIndex];
-
 		auto& name = mesh.name;
 		auto& primitives = mesh.primitives;
 
+		auto aeElements = vector<shared_ptr<GeometryElement>>();
+		auto aeMaterials = vector<shared_ptr<Material>>();
+
 		AE_LOG_D("mesh name: {}, primitives.size(): {}", name, primitives.size());
+
+		for (auto& primitive : primitives) {
+
+			auto aeElement = GeometryElementFromGlFTPrimitive(model, primitive);
+			aeElements.push_back(aeElement);
+
+//			auto materialIndex = primitive.material;
+//			if (materialIndex > -1) {
+//				auto& material = model.materials[materialIndex];
+//				auto aeMaterial = MaterialFromGlFTMaterial(model, material);
+//				aeMaterials.push_back(aeMaterial);
+//			}
+		}
+
+//		auto aeGeometry = make_shared<Geometry>(aeElements, aeMaterials);
+//		aeGeometry->name(mesh.name);
+//		return aeGeometry;
 	}
 
 	return nullptr;
 }
 
-shared_ptr<GeometryElement> GeometryElementFromGlFTMesh(const tinygltf::Mesh& mesh) {
+shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
+															 tinygltf::Primitive& primitive) {
+
+	auto verts = vector<Vertex>();
+	auto faces = vector<Face>();
+
+	for (pair<string, int> item : primitive.attributes) {
+		AE_LOG_D("primitive: ({}, {})", item.first, item.second);
+		// POSITION, NORMAL, TEXCOORD_0
+
+		auto mode = primitive.mode;
+		if (mode == TINYGLTF_MODE_TRIANGLES) {
+
+			auto indiciesIndex = primitive.indices;
+			if (indiciesIndex > -1) {
+				auto accessor = model.accessors[indiciesIndex];
+
+				auto type = accessor.type;
+				if (type == TINYGLTF_TYPE_SCALAR) {
+
+				}
+				else {
+					AE_LOG_W("Unsupported glTF accessor type: {}", mode);
+				}
+
+				auto componentType = accessor.componentType;
+				if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+
+				}
+				else {
+					AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
+				}
+
+				auto count = accessor.count;
+				AE_LOG_D("count: {}", count);
+			}
+		}
+		else {
+			AE_LOG_W("Unsupported glTF primitive type: {}", mode);
+		}
+	}
 
 	return nullptr;
 }
 
-shared_ptr<Material> MaterialFromGlFTMaterial(const tinygltf::Material& material) {
+shared_ptr<Material> MaterialFromGlFTMaterial(tinygltf::Model& model,
+											  tinygltf::Material& material) {
 
 	return nullptr;
 }
@@ -475,7 +539,7 @@ shared_ptr<Light> LightFromGlTFNode(tinygltf::Model& model,
 									tinygltf::Node& node) {
 
 	auto index = node.light;
-	if (index >= 0) {
+	if (index > -1) {
 
 		auto& light = model.lights[index];
 		auto& type = light.type;
@@ -504,7 +568,7 @@ shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
 									  tinygltf::Node& node) {
 
 	auto index = node.camera;
-	if (index >= 0) {
+	if (index > -1) {
 
 		auto& camera = model.cameras[index];
 		auto& type = camera.type;
