@@ -12,10 +12,15 @@
 #include <filesystem>
 #include <thread>
 
+#include "fastgltf/parser.hpp"
+#include "fastgltf/tools.hpp"
+#include "fastgltf/types.hpp"
+#include "fastgltf/util.hpp"
 #include "fmt/format.h"
 #include "glm/gtc/type_ptr.hpp"
-#define TINYGLTF_IMPLEMENTATION
-#include "tiny_gltf.h"
+#include "magic_enum.hpp"
+//#define TINYGLTF_IMPLEMENTATION
+//#include "tiny_gltf.h"
 
 #include "ae/Color.h"
 #include "ae/CubeImage.h"
@@ -53,20 +58,45 @@ constexpr float FRAMETIME_AVERAGING_INTERVAL = .25;
  *********************************************************************************************/
 
 static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
-static void 						VisitGlTFNode(tinygltf::Model& model,
-												 tinygltf::Node& node,
+
+static void 						VisitGlTFNode(fastgltf::Asset& asset,
+												 fastgltf::Node& node,
 												 shared_ptr<Node> parent);
-static shared_ptr<Geometry>			GeometryFromGlFTNode(tinygltf::Model& model,
-															tinygltf::Node& node);
-static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
-																	   tinygltf::Primitive& primitive);
-static shared_ptr<Material>			MaterialFromGlFTMaterial(tinygltf::Model& model,
-																tinygltf::Material& material);
-static shared_ptr<Light>			LightFromGlTFNode(tinygltf::Model& model,
-													  tinygltf::Node& node);
-static shared_ptr<Camera>			CameraFromGlTFNode(tinygltf::Model& model,
-														tinygltf::Node& node);
-static mat4							TransformFromGlFTNode(tinygltf::Node& node);
+
+static shared_ptr<Geometry>			GeometryFromGlFTNode(fastgltf::Asset& asset,
+															fastgltf::Node& node);
+
+static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
+																	   fastgltf::Primitive& primitive);
+
+static shared_ptr<Material>			MaterialFromGlFTMaterial(fastgltf::Asset& asset,
+																fastgltf::Material& material);
+
+static shared_ptr<Light>			LightFromGlTFNode(fastgltf::Asset& asset,
+													  fastgltf::Node& node);
+
+static shared_ptr<Camera>			CameraFromGlTFNode(fastgltf::Asset& asset,
+														fastgltf::Node& node);
+
+static mat4							TransformFromGlFTNode(fastgltf::Node& node);
+
+
+
+//static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
+//static void 						VisitGlTFNode(tinygltf::Model& model,
+//												 tinygltf::Node& node,
+//												 shared_ptr<Node> parent);
+//static shared_ptr<Geometry>			GeometryFromGlFTNode(tinygltf::Model& model,
+//															tinygltf::Node& node);
+//static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
+//																	   tinygltf::Primitive& primitive);
+//static shared_ptr<Material>			MaterialFromGlFTMaterial(tinygltf::Model& model,
+//																tinygltf::Material& material);
+//static shared_ptr<Light>			LightFromGlTFNode(tinygltf::Model& model,
+//													  tinygltf::Node& node);
+//static shared_ptr<Camera>			CameraFromGlTFNode(tinygltf::Model& model,
+//														tinygltf::Node& node);
+//static mat4							TransformFromGlFTNode(tinygltf::Node& node);
 static shared_ptr<Color>			ColorFromGlTFColorVec(vector<double>& vec);
 
 static void 						GetRunTime(double time, // time since reference
@@ -361,32 +391,34 @@ void Scene::update(UpdateCallback function) {
 
 void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
-	using namespace tinygltf;
+	using namespace fastgltf;
 
-	TinyGLTF loader;
-	Model model;
-	string error;
-	string warning;
+	GltfDataBuffer data;
+	data.loadFromFile(path);
+
+	auto parser = Parser(Extensions::KHR_lights_punctual);
+	auto expectedAsset = Expected<Asset>(Error::None);
 
 	auto extension = path.extension();
-	bool res = false;
 	if (extension == ".glb") {
-		res = loader.LoadBinaryFromFile(&model, &error, &warning, path.string());
+		expectedAsset = parser.loadBinaryGLTF(&data, path.parent_path(), Options::None);
 	}
 	else if (extension == ".gltf") {
-		res = loader.LoadASCIIFromFile(&model, &error, &warning, path.string());
+		expectedAsset = parser.loadGLTF(&data, path.parent_path(), Options::None);
 	}
 	else {
 		AE_LOG_E("Unsupported file extension: {}", extension.string());
 	}
 
-	if (res) {
+	if (auto error = expectedAsset.error(); error != Error::None) {
+		AE_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name<Error>(error));
+	}
+	else {
+		AE_LOG_D("glTF parsed.");
 
-		if (!warning.empty()) {
-			AE_LOG_W("Warning loading glTF: {}", warning);
-		}
+		auto& asset = expectedAsset.get();
 
-		auto& scenes = model.scenes;
+		auto& scenes = asset.scenes;
 		if (!scenes.empty()) {
 
 			if (scenes.size() > 1) {
@@ -395,16 +427,18 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 			// example uses: 'model.scenes[model.defaultScene > -1 ? model.defaultScene : 0]'
 			auto& scene = scenes[0];
-			auto& nodes = scene.nodes;
+			//auto& nodes = scene.nodes;
+			auto nodeIndicies = scene.nodeIndices;
 
-			if (!nodes.empty()) {
+			if (!nodeIndicies.empty()) {
 
-				for (auto n : scene.nodes) {
+				for (auto n : nodeIndicies) {
+
 					AE_LOG_D("Visiting node {}...", n);
 
-					tinygltf::Node& node = model.nodes[n];
+					auto node = asset.nodes[n];
 
-					VisitGlTFNode(model, node, aeScene.rootNode());
+					VisitGlTFNode(asset, node, aeScene.rootNode());
 				}
 
 				AE_LOG_D("Done loading glTF.");
@@ -417,253 +451,368 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 			AE_LOG_E("No scenes.");
 		}
 	}
-	else {
-
-		if (!error.empty()) {
-			AE_LOG_E("Error loading glTF: {}", error);
-		}
-		else {
-			AE_LOG_E("Unknown error loading glTF.");
-		}
-	}
 }
 
-void VisitGlTFNode(tinygltf::Model& model,
-				   tinygltf::Node& node,
+void VisitGlTFNode(fastgltf::Asset& asset,
+				   fastgltf::Node& node,
 				   shared_ptr<Node> parent) {
 
-	auto aeNode = Node::NamedNode(node.name);
+	auto name = node.name;
+	AE_LOG_D("name: {}", name);
+	auto aeNode = Node::NamedNode(string(name));
 
-	aeNode->light(LightFromGlTFNode(model, node));
-	aeNode->camera(CameraFromGlTFNode(model, node));
-	aeNode->geometry(GeometryFromGlFTNode(model, node));
+	aeNode->light(LightFromGlTFNode(asset, node));
+	aeNode->camera(CameraFromGlTFNode(asset, node));
+	aeNode->geometry(GeometryFromGlFTNode(asset, node));
 	aeNode->transform(TransformFromGlFTNode(node));
 
 	parent->addChild(aeNode);
 
 	for (auto c : node.children) {
-		VisitGlTFNode(model, model.nodes[c], aeNode);
+		VisitGlTFNode(asset, asset.nodes[c], aeNode);
 	}
 }
 
-shared_ptr<Geometry> GeometryFromGlFTNode(tinygltf::Model& model,
-										  tinygltf::Node& node) {
-
-	auto meshIndex = node.mesh;
-	if (meshIndex > -1) {
-
-		auto& mesh = model.meshes[meshIndex];
-		auto& name = mesh.name;
-		auto& primitives = mesh.primitives;
-
-		auto aeElements = vector<shared_ptr<GeometryElement>>();
-		auto aeMaterials = vector<shared_ptr<Material>>();
-
-		AE_LOG_D("mesh name: {}, primitives.size(): {}", name, primitives.size());
-
-		for (auto& primitive : primitives) {
-
-			auto aeElement = GeometryElementFromGlFTPrimitive(model, primitive);
-			aeElements.push_back(aeElement);
-
-//			auto materialIndex = primitive.material;
-//			if (materialIndex > -1) {
-//				auto& material = model.materials[materialIndex];
-//				auto aeMaterial = MaterialFromGlFTMaterial(model, material);
-//				aeMaterials.push_back(aeMaterial);
-//			}
-		}
-
-//		auto aeGeometry = make_shared<Geometry>(aeElements, aeMaterials);
-//		aeGeometry->name(mesh.name);
-//		return aeGeometry;
-	}
+shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
+										  fastgltf::Node& node) {
 
 	return nullptr;
 }
 
-shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
-															 tinygltf::Primitive& primitive) {
-
-	auto verts = vector<Vertex>();
-	auto faces = vector<Face>();
-
-	for (pair<string, int> item : primitive.attributes) {
-		AE_LOG_D("primitive: ({}, {})", item.first, item.second);
-		// POSITION, NORMAL, TEXCOORD_0
-
-		auto mode = primitive.mode;
-		if (mode == TINYGLTF_MODE_TRIANGLES) {
-
-			auto indiciesIndex = primitive.indices;
-			if (indiciesIndex > -1) {
-				auto accessor = model.accessors[indiciesIndex];
-
-				auto type = accessor.type;
-				if (type == TINYGLTF_TYPE_SCALAR) {
-
-					auto componentType = accessor.componentType;
-					if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
-
-						auto count = accessor.count;
-						AE_LOG_D("count: {}", count);
-
-						auto bufferViewIndex = accessor.bufferView;
-						if (bufferViewIndex > -1) {
-
-							auto& bufferView = model.bufferViews[bufferViewIndex];
-
-							auto bufferIndex = bufferView.buffer;
-							if (bufferIndex > -1) {
-
-								auto& buffer = model.buffers[bufferIndex];
-
-
-
-
-							}
-							else {
-								AE_LOG_W("Missing Buffer.");
-							}
-						}
-						else {
-							AE_LOG_W("Missing BufferView.");
-						}
-					}
-					else {
-						AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
-					}
-				}
-				else {
-					AE_LOG_W("Unsupported glTF accessor type: {}", mode);
-				}
-			}
-		}
-		else {
-			AE_LOG_W("Unsupported glTF primitive type: {}", mode);
-		}
-	}
+shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
+															 fastgltf::Primitive& primitive) {
 
 	return nullptr;
 }
 
-shared_ptr<Material> MaterialFromGlFTMaterial(tinygltf::Model& model,
-											  tinygltf::Material& material) {
+shared_ptr<Material> MaterialFromGlFTMaterial(fastgltf::Asset& asset,
+											  fastgltf::Material& material) {
 
 	return nullptr;
 }
 
-shared_ptr<Light> LightFromGlTFNode(tinygltf::Model& model,
-									tinygltf::Node& node) {
-
-	auto index = node.light;
-	if (index > -1) {
-
-		auto& light = model.lights[index];
-		auto& type = light.type;
-
-		if (type == "point") {
-
-			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
-			aeLight->name(light.name);
-//			aeLight->attenuationFactor(float(light.intensity)); // not the same thing
-			aeLight->attenuationFactor(0); // temporary
-			aeLight->color(ColorFromGlTFColorVec(light.color));
-//			// TODO: range, intensity
-
-			return aeLight;
-		}
-		else {
-
-			AE_LOG_W("Unsupported light type: {}", type);
-		}
-	}
+shared_ptr<Light> LightFromGlTFNode(fastgltf::Asset& asset,
+									fastgltf::Node& node) {
 
 	return nullptr;
 }
 
-shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
-									  tinygltf::Node& node) {
-
-	auto index = node.camera;
-	if (index > -1) {
-
-		auto& camera = model.cameras[index];
-		auto& type = camera.type;
-
-		if (type == "perspective") {
-
-			auto& perspectiveCamera = camera.perspective;
-
-			auto aeCamera = make_shared<PerspectiveCamera>(camera.name,
-														   perspectiveCamera.znear,
-														   perspectiveCamera.zfar,
-														   perspectiveCamera.yfov);
-			aeCamera->aspectRatio(float(perspectiveCamera.aspectRatio));
-
-			return aeCamera;
-		}
-		else if (type == "orthographic") {
-
-			AE_LOG_W("Orthographic cameras are not supported.");
-		}
-	}
+shared_ptr<Camera> CameraFromGlTFNode(fastgltf::Asset& asset,
+									  fastgltf::Node& node) {
 
 	return nullptr;
 }
 
-mat4 TransformFromGlFTNode(tinygltf::Node& node) {
-
-	// if it has a transformation matrix, use it
-	auto& matrix = node.matrix;
-	auto matrixSize = matrix.size();
-	switch (matrixSize) {
-
-		case 16: {
-
-			float floatMatrix[16];
-			for (int i=0; i<matrix.size(); ++i) {
-				floatMatrix[i] = float(matrix[i]);
-			}
-
-			return make_mat4(&floatMatrix[0]);
-		}
-
-		case 0: {
-
-			mat4 t = mat4(1.0);
-			mat4 r = mat4(1.0);
-			mat4 s = mat4(1.0);
-
-			auto tSize = node.translation.size();
-			auto rSize = node.rotation.size();
-			auto sSize = node.scale.size();
-
-			if (tSize == 3) {
-				t = glm::translate(t, { node.translation[0],
-										node.translation[1],
-										node.translation[2] });
-			}
-
-			if (rSize == 4) {
-				r = glm::mat4_cast(quat{ float(node.rotation[3]),
-										 float(node.rotation[0]),
-										 float(node.rotation[1]),
-										 float(node.rotation[2]) });
-			}
-
-			if (sSize == 3) {
-				s = glm::scale(s, { node.scale[0],
-									node.scale[1],
-									node.scale[2] });
-			}
-
-			return t * r * s;
-		}
-	}
+mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 
 	return mat4(1.0);
 }
+
+//void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
+//
+//	using namespace tinygltf;
+//
+//	TinyGLTF loader;
+//	Model model;
+//	string error;
+//	string warning;
+//
+//	auto extension = path.extension();
+//	bool res = false;
+//	if (extension == ".glb") {
+//		res = loader.LoadBinaryFromFile(&model, &error, &warning, path.string());
+//	}
+//	else if (extension == ".gltf") {
+//		res = loader.LoadASCIIFromFile(&model, &error, &warning, path.string());
+//	}
+//	else {
+//		AE_LOG_E("Unsupported file extension: {}", extension.string());
+//	}
+//
+//	if (res) {
+//
+//		if (!warning.empty()) {
+//			AE_LOG_W("Warning loading glTF: {}", warning);
+//		}
+//
+//		auto& scenes = model.scenes;
+//		if (!scenes.empty()) {
+//
+//			if (scenes.size() > 1) {
+//				AE_LOG_W("Ignoring additional scenes.");
+//			}
+//
+//			// example uses: 'model.scenes[model.defaultScene > -1 ? model.defaultScene : 0]'
+//			auto& scene = scenes[0];
+//			auto& nodes = scene.nodes;
+//
+//			if (!nodes.empty()) {
+//
+//				for (auto n : scene.nodes) {
+//					AE_LOG_D("Visiting node {}...", n);
+//
+//					tinygltf::Node& node = model.nodes[n];
+//
+//					VisitGlTFNode(model, node, aeScene.rootNode());
+//				}
+//
+//				AE_LOG_D("Done loading glTF.");
+//			}
+//			else {
+//				AE_LOG_W("No nodes in scene: {}", scene.name);
+//			}
+//		}
+//		else {
+//			AE_LOG_E("No scenes.");
+//		}
+//	}
+//	else {
+//
+//		if (!error.empty()) {
+//			AE_LOG_E("Error loading glTF: {}", error);
+//		}
+//		else {
+//			AE_LOG_E("Unknown error loading glTF.");
+//		}
+//	}
+//}
+//
+//void VisitGlTFNode(tinygltf::Model& model,
+//				   tinygltf::Node& node,
+//				   shared_ptr<Node> parent) {
+//
+//	auto aeNode = Node::NamedNode(node.name);
+//
+//	aeNode->light(LightFromGlTFNode(model, node));
+//	aeNode->camera(CameraFromGlTFNode(model, node));
+//	aeNode->geometry(GeometryFromGlFTNode(model, node));
+//	aeNode->transform(TransformFromGlFTNode(node));
+//
+//	parent->addChild(aeNode);
+//
+//	for (auto c : node.children) {
+//		VisitGlTFNode(model, model.nodes[c], aeNode);
+//	}
+//}
+//
+//shared_ptr<Geometry> GeometryFromGlFTNode(tinygltf::Model& model,
+//										  tinygltf::Node& node) {
+//
+//	auto meshIndex = node.mesh;
+//	if (meshIndex > -1) {
+//
+//		auto& mesh = model.meshes[meshIndex];
+//		auto& name = mesh.name;
+//		auto& primitives = mesh.primitives;
+//
+//		auto aeElements = vector<shared_ptr<GeometryElement>>();
+//		auto aeMaterials = vector<shared_ptr<Material>>();
+//
+//		AE_LOG_D("mesh name: {}, primitives.size(): {}", name, primitives.size());
+//
+//		for (auto& primitive : primitives) {
+//
+//			auto aeElement = GeometryElementFromGlFTPrimitive(model, primitive);
+//			aeElements.push_back(aeElement);
+//
+////			auto materialIndex = primitive.material;
+////			if (materialIndex > -1) {
+////				auto& material = model.materials[materialIndex];
+////				auto aeMaterial = MaterialFromGlFTMaterial(model, material);
+////				aeMaterials.push_back(aeMaterial);
+////			}
+//		}
+//
+////		auto aeGeometry = make_shared<Geometry>(aeElements, aeMaterials);
+////		aeGeometry->name(mesh.name);
+////		return aeGeometry;
+//	}
+//
+//	return nullptr;
+//}
+//
+//shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
+//															 tinygltf::Primitive& primitive) {
+//
+//	auto verts = vector<Vertex>();
+//	auto faces = vector<Face>();
+//
+//	for (pair<string, int> item : primitive.attributes) {
+//		AE_LOG_D("primitive: ({}, {})", item.first, item.second);
+//		// POSITION, NORMAL, TEXCOORD_0
+//
+//		auto mode = primitive.mode;
+//		if (mode == TINYGLTF_MODE_TRIANGLES) {
+//
+//			auto indiciesIndex = primitive.indices;
+//			if (indiciesIndex > -1) {
+//				auto accessor = model.accessors[indiciesIndex];
+//
+//				auto type = accessor.type;
+//				if (type == TINYGLTF_TYPE_SCALAR) {
+//
+//					auto componentType = accessor.componentType;
+//					if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+//
+//						auto count = accessor.count;
+//						AE_LOG_D("count: {}", count);
+//
+//						auto bufferViewIndex = accessor.bufferView;
+//						if (bufferViewIndex > -1) {
+//
+//							auto& bufferView = model.bufferViews[bufferViewIndex];
+//
+//							auto bufferIndex = bufferView.buffer;
+//							if (bufferIndex > -1) {
+//
+//								auto& buffer = model.buffers[bufferIndex];
+//
+//
+//
+//
+//							}
+//							else {
+//								AE_LOG_W("Missing Buffer.");
+//							}
+//						}
+//						else {
+//							AE_LOG_W("Missing BufferView.");
+//						}
+//					}
+//					else {
+//						AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
+//					}
+//				}
+//				else {
+//					AE_LOG_W("Unsupported glTF accessor type: {}", mode);
+//				}
+//			}
+//		}
+//		else {
+//			AE_LOG_W("Unsupported glTF primitive type: {}", mode);
+//		}
+//	}
+//
+//	return nullptr;
+//}
+//
+//shared_ptr<Material> MaterialFromGlFTMaterial(tinygltf::Model& model,
+//											  tinygltf::Material& material) {
+//
+//	return nullptr;
+//}
+//
+//shared_ptr<Light> LightFromGlTFNode(tinygltf::Model& model,
+//									tinygltf::Node& node) {
+//
+//	auto index = node.light;
+//	if (index > -1) {
+//
+//		auto& light = model.lights[index];
+//		auto& type = light.type;
+//
+//		if (type == "point") {
+//
+//			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+//			aeLight->name(light.name);
+////			aeLight->attenuationFactor(float(light.intensity)); // not the same thing
+//			aeLight->attenuationFactor(0); // temporary
+//			aeLight->color(ColorFromGlTFColorVec(light.color));
+////			// TODO: range, intensity
+//
+//			return aeLight;
+//		}
+//		else {
+//
+//			AE_LOG_W("Unsupported light type: {}", type);
+//		}
+//	}
+//
+//	return nullptr;
+//}
+//
+//shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
+//									  tinygltf::Node& node) {
+//
+//	auto index = node.camera;
+//	if (index > -1) {
+//
+//		auto& camera = model.cameras[index];
+//		auto& type = camera.type;
+//
+//		if (type == "perspective") {
+//
+//			auto& perspectiveCamera = camera.perspective;
+//
+//			auto aeCamera = make_shared<PerspectiveCamera>(camera.name,
+//														   perspectiveCamera.znear,
+//														   perspectiveCamera.zfar,
+//														   perspectiveCamera.yfov);
+//			aeCamera->aspectRatio(float(perspectiveCamera.aspectRatio));
+//
+//			return aeCamera;
+//		}
+//		else if (type == "orthographic") {
+//
+//			AE_LOG_W("Orthographic cameras are not supported.");
+//		}
+//	}
+//
+//	return nullptr;
+//}
+//
+//mat4 TransformFromGlFTNode(tinygltf::Node& node) {
+//
+//	// if it has a transformation matrix, use it
+//	auto& matrix = node.matrix;
+//	auto matrixSize = matrix.size();
+//	switch (matrixSize) {
+//
+//		case 16: {
+//
+//			float floatMatrix[16];
+//			for (int i=0; i<matrix.size(); ++i) {
+//				floatMatrix[i] = float(matrix[i]);
+//			}
+//
+//			return make_mat4(&floatMatrix[0]);
+//		}
+//
+//		case 0: {
+//
+//			mat4 t = mat4(1.0);
+//			mat4 r = mat4(1.0);
+//			mat4 s = mat4(1.0);
+//
+//			auto tSize = node.translation.size();
+//			auto rSize = node.rotation.size();
+//			auto sSize = node.scale.size();
+//
+//			if (tSize == 3) {
+//				t = glm::translate(t, { node.translation[0],
+//										node.translation[1],
+//										node.translation[2] });
+//			}
+//
+//			if (rSize == 4) {
+//				r = glm::mat4_cast(quat{ float(node.rotation[3]),
+//										 float(node.rotation[0]),
+//										 float(node.rotation[1]),
+//										 float(node.rotation[2]) });
+//			}
+//
+//			if (sSize == 3) {
+//				s = glm::scale(s, { node.scale[0],
+//									node.scale[1],
+//									node.scale[2] });
+//			}
+//
+//			return t * r * s;
+//		}
+//	}
+//
+//	return mat4(1.0);
+//}
 
 shared_ptr<Color> ColorFromGlTFColorVec(vector<double>& vec) {
 

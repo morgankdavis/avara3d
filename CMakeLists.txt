@@ -81,6 +81,8 @@ else()
 
 endif()
 
+add_subdirectory(external/fastgltf-0.6.1)
+
 add_subdirectory(external/generator)
 
 add_subdirectory(external/glew-2.1.0)
@@ -134,7 +136,7 @@ elseif (MACOS)
 	target_compile_definitions(ae PUBLIC "POSIX")
 elseif (WINDOWS)
 	target_compile_definitions(ae PUBLIC "WINDOWS")
-	#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+	#target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
 elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "ANDROID")
 	target_compile_definitions(ae PUBLIC "POSIX")
@@ -145,6 +147,7 @@ endif()
 ### add library headers ###
 
 target_include_directories(ae PUBLIC include)
+target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # for BuildInfo.cmake.h
 target_include_directories(ae PRIVATE external/generator/include)
 target_include_directories(ae PRIVATE external/gif-h)
 target_include_directories(ae PRIVATE external/glew-2.1.0/include)
@@ -154,7 +157,6 @@ target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(ae PRIVATE external/rapidobj-1.0.1)
 target_include_directories(ae PRIVATE external/stb)
-target_include_directories(ae PRIVATE external/tinygltf-2.8.19)
 target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 
 
@@ -164,16 +166,16 @@ target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 target_compile_definitions(ae PUBLIC TINYGLTF_USE_CPP14)
 
 
-### link ae to external libraries ###
+### link ae to common external libraries ###
 
 target_link_libraries(ae PUBLIC
 		${BULLET_LIBRARIES}
+		fastgltf
 		generator
 		imgui)
 
-# for BuildInfoDefines.h
-target_include_directories(ae PUBLIC
-		"${PROJECT_BINARY_DIR}")
+
+### link ae to platform-specific external libraries ###
 
 if (DESKTOP)
 
