@@ -91,21 +91,22 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientColor = DARK
-						? Color::LightGray()
-						: make_shared<Color>(.85f);
+//	auto ambientColor = DARK
+//						? Color::LightGray()
+//						: make_shared<Color>(.85f);
+	auto ambientColor = Color::DarkGray();
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointColor = DARK
-					  ? Color::LightGray()
-					  : Color::Gray();
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
-	pointLight->attenuationFactor(0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
-	scene->rootNode()->addChild(pointLightNode);
+//	auto pointColor = DARK
+//					  ? Color::LightGray()
+//					  : Color::Gray();
+//	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+//	pointLight->attenuationFactor(0);
+//	auto pointLightNode = Node::LightNode(pointLight);
+//	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
+//	scene->rootNode()->addChild(pointLightNode);
 
 
 
@@ -113,8 +114,8 @@ int main(int argc, const char* argv[]) {
 
 	// ground plane
 
-	const float PLANE_LENGTH = 100.0;
-	const float PLANE_WIDTH = 100.0;
+	const float PLANE_LENGTH = 30.0;
+	const float PLANE_WIDTH = 30.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
@@ -241,9 +242,9 @@ int main(int argc, const char* argv[]) {
 					 ? *light->name() : "unnamed");
 
 			if (light->type() == LIGHT_TYPE::POINT) {
-				auto sphere = make_shared<Sphere>(0.5f, 12);
+				auto sphere = make_shared<Sphere>(0.25f, 12);
 				auto property = make_shared<MaterialProperty>(light->color());
-				auto material = make_shared<Material>(property, property, nullptr);
+				auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 				sphere->addMaterial(material);
 				node->geometry(sphere);
 			}

@@ -430,14 +430,12 @@ void VisitGlTFNode(tinygltf::Model& model,
 				   tinygltf::Node& node,
 				   shared_ptr<Node> parent) {
 
-	AE_LOG_D("node.name: {}", node.name);
-
 	auto aeNode = Node::NamedNode(node.name);
 
-	aeNode->transform(TransformFromGlFTNode(node));
 	aeNode->light(LightFromGlTFNode(model, node));
 	aeNode->camera(CameraFromGlTFNode(model, node));
 	aeNode->geometry(GeometryFromGlFTNode(model, node));
+	aeNode->transform(TransformFromGlFTNode(node));
 
 	parent->addChild(aeNode);
 
@@ -448,6 +446,17 @@ void VisitGlTFNode(tinygltf::Model& model,
 
 shared_ptr<Geometry> GeometryFromGlFTNode(tinygltf::Model& model,
 										  tinygltf::Node& node) {
+
+	auto meshIndex = node.mesh;
+	if (meshIndex >= 0) {
+
+		auto& mesh = model.meshes[meshIndex];
+
+		auto& name = mesh.name;
+		auto& primitives = mesh.primitives;
+
+		AE_LOG_D("mesh name: {}, primitives.size(): {}", name, primitives.size());
+	}
 
 	return nullptr;
 }
@@ -469,19 +478,21 @@ shared_ptr<Light> LightFromGlTFNode(tinygltf::Model& model,
 	if (index >= 0) {
 
 		auto& light = model.lights[index];
-		auto type = light.type;
+		auto& type = light.type;
 
 		if (type == "point") {
 
 			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
 			aeLight->name(light.name);
-			aeLight->attenuationFactor(float(light.intensity)); // does this need to be inverted?
+//			aeLight->attenuationFactor(float(light.intensity)); // not the same thing
+			aeLight->attenuationFactor(0); // temporary
 			aeLight->color(ColorFromGlTFColorVec(light.color));
-//			// TODO: range
+//			// TODO: range, intensity
 
 			return aeLight;
 		}
 		else {
+
 			AE_LOG_W("Unsupported light type: {}", type);
 		}
 	}
@@ -496,9 +507,10 @@ shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
 	if (index >= 0) {
 
 		auto& camera = model.cameras[index];
-		auto type = camera.type;
+		auto& type = camera.type;
 
 		if (type == "perspective") {
+
 			auto& perspectiveCamera = camera.perspective;
 
 			auto aeCamera = make_shared<PerspectiveCamera>(camera.name,
@@ -510,6 +522,7 @@ shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
 			return aeCamera;
 		}
 		else if (type == "orthographic") {
+
 			AE_LOG_W("Orthographic cameras are not supported.");
 		}
 	}
@@ -526,12 +539,11 @@ mat4 TransformFromGlFTNode(tinygltf::Node& node) {
 
 		case 16: {
 
-			AE_LOG_D("Has matrix!");
-
 			float floatMatrix[16];
 			for (int i=0; i<matrix.size(); ++i) {
 				floatMatrix[i] = float(matrix[i]);
 			}
+
 			return make_mat4(&floatMatrix[0]);
 		}
 
@@ -550,18 +562,12 @@ mat4 TransformFromGlFTNode(tinygltf::Node& node) {
 										node.translation[1],
 										node.translation[2] });
 			}
-			else {
-				AE_LOG_W("Bad glTF translation size: {}", tSize);
-			}
 
 			if (rSize == 4) {
-				r = glm::mat4_cast(quat{ float(node.rotation[0]),
+				r = glm::mat4_cast(quat{ float(node.rotation[3]),
+										 float(node.rotation[0]),
 										 float(node.rotation[1]),
-										 float(node.rotation[2]),
-										 float(node.rotation[3]) });
-			}
-			else {
-				AE_LOG_W("Bad glTF rotation size: {}", rSize);
+										 float(node.rotation[2]) });
 			}
 
 			if (sSize == 3) {
@@ -569,16 +575,8 @@ mat4 TransformFromGlFTNode(tinygltf::Node& node) {
 									node.scale[1],
 									node.scale[2] });
 			}
-			else {
-				AE_LOG_W("Bad glTF scale size: {}", sSize);
-			}
 
 			return t * r * s;
-		}
-
-		default: {
-			AE_LOG_W("Bad glTF matrix size: {}", matrixSize);
-			break;
 		}
 	}
 
@@ -592,9 +590,6 @@ shared_ptr<Color> ColorFromGlTFColorVec(vector<double>& vec) {
 		return make_shared<Color>(float(vec[0]),
 								  float(vec[1]),
 								  float(vec[2]));
-	}
-	else {
-		AE_LOG_W("Bad glTF color size: {}", vecSize);
 	}
 
 	return Color::Magenta();
