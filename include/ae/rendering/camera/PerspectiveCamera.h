@@ -20,8 +20,8 @@ namespace ae {
 	public:
 
 		PerspectiveCamera();
-		PerspectiveCamera(float zNear, float zFar, float fov);
-		PerspectiveCamera(std::optional<std::string> name, float zNear, float zFar, float fov);
+		PerspectiveCamera(float zNear, float zFar, float yFov);
+		PerspectiveCamera(std::string name, float zNear, float zFar, float yFov);
 
 /*********************************************************************************************
 	Public
@@ -33,8 +33,8 @@ namespace ae {
 		float 					zFar() const;
 		void				 	zFar(float zFar);
 
-		float 					fov() const;
-		void	 				fov(float fov);
+		float 					yFov() const; // radians
+		void	 				yFov(float fov);
 
 		float 					aspectRatio() const;
 		void 					aspectRatio(float ratio);
@@ -55,7 +55,7 @@ namespace ae {
 
 		float					_zNear;
 		float					_zFar;
-		float					_fov;
+		float					_yFov;
 		float					_aspectRatio;
 	};
 }

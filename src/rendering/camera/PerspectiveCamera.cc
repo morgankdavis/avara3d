@@ -15,22 +15,26 @@ using namespace glm;
 
 
 PerspectiveCamera::PerspectiveCamera():
-	Camera(),
-	_zNear(0.1),
-	_zFar(1000.0),
-	_fov(radians(45.0)) {
+		Camera(),
+		_zNear(0.1),
+		_zFar(1000.0),
+		_yFov(radians(45.0)) {}
+
+PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
+		Camera(),
+		_zNear(zNear),
+		_zFar(zFar),
+		_yFov(yFov) {
+
+	constructProjectionMatrix();
 }
 
-PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float fov):
-		PerspectiveCamera(nullopt, zNear, zFar, fov) {
-
-}
-
-PerspectiveCamera::PerspectiveCamera(optional<string> name, float zNear, float zFar, float fov):
+PerspectiveCamera::PerspectiveCamera(string name, float zNear, float zFar, float yFov):
 		Camera(name),
 		_zNear(zNear),
 		_zFar(zFar),
-		_fov(radians(fov)) {
+		_yFov(yFov) {
+
 	constructProjectionMatrix();
 }
 
@@ -52,13 +56,13 @@ void PerspectiveCamera::zFar(float zFar) {
 	constructProjectionMatrix();
 }
 
-float PerspectiveCamera::fov() const {
-	return _fov;
+float PerspectiveCamera::yFov() const {
+	return _yFov;
 }
 
-void PerspectiveCamera::fov(float fov) {
+void PerspectiveCamera::yFov(float yFov) {
 	//if (fov > 0 || fov < M_PI) {
-	_fov = fov;
+	_yFov = yFov;
 	constructProjectionMatrix();
 	//}
 }
@@ -76,7 +80,7 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 }
 
 void PerspectiveCamera::constructProjectionMatrix() {
-	_projection = glm::perspective(_fov,
+	_projection = glm::perspective(_yFov,
 								   _aspectRatio,
 								   _zNear,
 								   _zFar);

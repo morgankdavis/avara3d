@@ -370,6 +370,9 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
 		geometry->name(path.filename().stem().string());
+
+		AE_LOG_D("Done loading Obj.");
+
 		return geometry;
 	}
 	else {

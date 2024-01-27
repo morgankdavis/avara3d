@@ -348,9 +348,9 @@ void UpdateCallback(Scene& scene, float time) {
 				static const float FOV_SPEED = 2.5; // degrees/roll
 
 				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(pov->camera());
-				auto fov = camera->fov();
+				auto fov = camera->yFov();
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-				camera->fov(fov);
+				camera->yFov(fov);
 			}
 
 			//cout << "Camera distance: " << length(_cameraNode->position()) << endl;

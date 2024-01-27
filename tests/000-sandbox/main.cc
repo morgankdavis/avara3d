@@ -151,12 +151,9 @@ int main(int argc, const char* argv[]) {
 	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
-//
-//
-//
-//
-//
-//
+
+
+
 //
 //	// add the palm tree
 //
@@ -184,57 +181,81 @@ int main(int argc, const char* argv[]) {
 
 
 
+	{
+////		auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
+////		auto testGeometry = GeometryNamed("slurm/slurm");
+////		auto testGeometry = GeometryNamed("slurm_colors/slurm_colors");
+////		auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
+////		auto testGeometry = GeometryNamed("palm1/palm1"); // multiple
+		auto testGeometry = GeometryNamed("palm2/palm2"); // single
+////		auto testGeometry = GeometryNamed("island/Island");
+////		auto testGeometry = GeometryNamed("teapot");
+////		auto testGeometry = GeometryNamed("apple1_lod/apple1_lod");
+////		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+////		auto testGeometry = GeometryNamed("cherry1_lod/cherry1_lod");
+////		auto testGeometry = GeometryNamed("ConvaliaBouquet");
+////		auto testGeometry = GeometryNamed("dragon");
+////		auto testGeometry = GeometryNamed("orange1_lod/orange1_lod");
+////		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+////		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
+////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+////		auto testGeometry = GeometryNamed("siamese/siamese");
+////		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+////		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+////		auto testGeometry = GeometryNamed("crocus/crocus");
 
-//	auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
-//	auto testGeometry = GeometryNamed("slurm/slurm");
-//	auto testGeometry = GeometryNamed("slurm_colors/slurm_colors");
-//	auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
-//	auto testGeometry = GeometryNamed("palm1/palm1"); // nice!
-//	auto testGeometry = GeometryNamed("palm2/palm2"); // nice!
-//	auto testGeometry = GeometryNamed("island/Island");
-//	auto testGeometry = GeometryNamed("teapot");
-//	auto testGeometry = GeometryNamed("apple1_lod/apple1_lod");
-//	auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-//	auto testGeometry = GeometryNamed("cherry1_lod/cherry1_lod");
-//	auto testGeometry = GeometryNamed("ConvaliaBouquet");
-//	auto testGeometry = GeometryNamed("dragon");
-//	auto testGeometry = GeometryNamed("orange1_lod/orange1_lod");
-//	auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-//	auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod"); // notice misspelling
-//	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
-//	auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
-//	auto testGeometry = GeometryNamed("siamese/siamese");
-//	auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-//	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-	auto testGeometry = GeometryNamed("crocus/crocus");
+		for (auto &m: testGeometry->materials()) {
+			m->doubleSided(true);
+		}
 
+//		AE_LOG_I("testGeometry.extent: {}", StringFromGLMVec3(testGeometry->extent()));
 
-	for (auto& m : testGeometry->materials()) {
-//		AE_LOG_D("things: {}", "yes");
-		m->doubleSided(true);
+		auto testNode = Node::GeometryNode(testGeometry);
+		testNode->position({0, 15, 0});
+
+//		testNode->physicsBody(PhysicsBody::KinematicBody());
+//		testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+//
+//		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, testNode->geometry().get());
+//		auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::STATIC, shape);
+//		testNode->physicsBody(body);
+
+		scene->rootNode()->addChild(testNode);
 	}
 
-//	AE_LOG_I("testGeometry.extent: {}", StringFromGLMVec3(testGeometry->extent()));
+//	{
+		auto testScene = SceneNamed("importTest");
 
-	auto testNode = Node::GeometryNode(testGeometry);
-	testNode->position({0, 15, 0});
-
-
-
-//	testNode->physicsBody(PhysicsBody::KinematicBody());
-//	testNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+		for (auto& node : testScene->rootNode()->children()) {
+			scene->rootNode()->addChild(node);
+		}
+//	}
 
 
-//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, testNode->geometry().get());
-//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::STATIC, shape);
-//	testNode->physicsBody(body);
+	for (auto& node : scene->rootNode()->children(true)) {
+		auto light = node->light();
+		if (light) {
+			AE_LOG_D("light: {}",
+					 light->name().has_value()
+					 ? *light->name() : "unnamed");
 
+			if (light->type() == LIGHT_TYPE::POINT) {
+				auto sphere = make_shared<Sphere>(0.5f, 12);
+				auto property = make_shared<MaterialProperty>(light->color());
+				auto material = make_shared<Material>(property, property, nullptr);
+				sphere->addMaterial(material);
+				node->geometry(sphere);
+			}
+		}
 
-	scene->rootNode()->addChild(testNode);
-
-
-
-	auto testScene = SceneNamed("importTest_pinapple", "glb");
+		auto camera = node->camera();
+		if (camera) {
+			AE_LOG_D("camera: {}",
+					 camera->name().has_value()
+					 ? *camera->name() : "unnamed");
+		}
+	}
 
 
 
@@ -323,6 +344,43 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(KEY::T)) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+	}
+
+	if (keysPressed.count(KEY::ONE)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[0]);
+	}
+	if (keysPressed.count(KEY::TWO)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[1]);
+	}
+	if (keysPressed.count(KEY::THREE)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[2]);
 	}
 
 

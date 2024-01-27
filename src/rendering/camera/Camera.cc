@@ -27,7 +27,7 @@ Camera::Camera():
 
 }
 
-Camera::Camera(optional<string> name):
+Camera::Camera(string name):
 		_name(name) {
 
 }

@@ -161,6 +161,7 @@ target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 ### add special defines ###
 
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
+target_compile_definitions(ae PUBLIC TINYGLTF_USE_CPP14)
 
 
 ### link ae to external libraries ###

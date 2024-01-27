@@ -254,7 +254,7 @@ int main(int argc, const char* argv[]) {
 		cout << "fNode worldTransform:\n" << fNode->worldTransform() << endl;
 		cout << "pNode worldTransform:\n" << pNode->worldTransform() << endl;
 
-		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, 30.0f);
+		auto camera = make_shared<PerspectiveCamera>(0.01f, 1000.0f, radians(30.0f));
 		auto camNode = make_shared<Node>();
 		camNode->camera(camera);
 		camNode->name("Camera node");

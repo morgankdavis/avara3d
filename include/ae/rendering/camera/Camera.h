@@ -32,7 +32,7 @@ namespace ae {
 	public:
 
 		Camera();
-		Camera(std::optional<std::string> name);
+		Camera(std::string name);
 		
 /*********************************************************************************************
 	Public
