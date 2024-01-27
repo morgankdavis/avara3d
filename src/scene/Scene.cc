@@ -502,21 +502,41 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(tinygltf::Model& mo
 				auto type = accessor.type;
 				if (type == TINYGLTF_TYPE_SCALAR) {
 
+					auto componentType = accessor.componentType;
+					if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+
+						auto count = accessor.count;
+						AE_LOG_D("count: {}", count);
+
+						auto bufferViewIndex = accessor.bufferView;
+						if (bufferViewIndex > -1) {
+
+							auto& bufferView = model.bufferViews[bufferViewIndex];
+
+							auto bufferIndex = bufferView.buffer;
+							if (bufferIndex > -1) {
+
+								auto& buffer = model.buffers[bufferIndex];
+
+
+
+
+							}
+							else {
+								AE_LOG_W("Missing Buffer.");
+							}
+						}
+						else {
+							AE_LOG_W("Missing BufferView.");
+						}
+					}
+					else {
+						AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
+					}
 				}
 				else {
 					AE_LOG_W("Unsupported glTF accessor type: {}", mode);
 				}
-
-				auto componentType = accessor.componentType;
-				if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
-
-				}
-				else {
-					AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
-				}
-
-				auto count = accessor.count;
-				AE_LOG_D("count: {}", count);
 			}
 		}
 		else {
