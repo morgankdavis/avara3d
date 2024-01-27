@@ -59,26 +59,26 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
     compiler_flags(fastgltf_simdjson)
     enable_debug_inlining(fastgltf_simdjson)
 
-    install(
-        FILES deps/simdjson/simdjson.h
-        DESTINATION include
-    )
-
-    install(
-        TARGETS fastgltf_simdjson
-        EXPORT fastgltf_simdjson-targets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-    )
-
-    install(
-        EXPORT fastgltf_simdjson-targets
-        FILE fastgltf_simdjsonTargets.cmake
-        NAMESPACE fastgltf::
-        DESTINATION lib/cmake/fastgltf
-    )
+#    install(
+#        FILES deps/simdjson/simdjson.h
+#        DESTINATION include
+#    )
+#
+#    install(
+#        TARGETS fastgltf_simdjson
+#        EXPORT fastgltf_simdjson-targets
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib
+#        RUNTIME DESTINATION bin
+#        INCLUDES DESTINATION include
+#    )
+#
+#    install(
+#        EXPORT fastgltf_simdjson-targets
+#        FILE fastgltf_simdjsonTargets.cmake
+#        NAMESPACE fastgltf::
+#        DESTINATION lib/cmake/fastgltf
+#    )
 endif()
 
 # Create the library target
@@ -114,26 +114,26 @@ if (ANDROID)
     target_link_libraries(fastgltf PRIVATE android)
 endif()
 
-install(
-    FILES "include/fastgltf/base64.hpp" "include/fastgltf/glm_element_traits.hpp" "include/fastgltf/parser.hpp" "include/fastgltf/tools.hpp" "include/fastgltf/types.hpp" "include/fastgltf/util.hpp"
-    DESTINATION include/fastgltf
-)
-
-install(
-    TARGETS fastgltf
-    EXPORT fastgltf-targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-
-install(
-    EXPORT fastgltf-targets
-    FILE fastgltfConfig.cmake
-    NAMESPACE fastgltf::
-    DESTINATION lib/cmake/fastgltf
-)
+#install(
+#    FILES "include/fastgltf/base64.hpp" "include/fastgltf/glm_element_traits.hpp" "include/fastgltf/parser.hpp" "include/fastgltf/tools.hpp" "include/fastgltf/types.hpp" "include/fastgltf/util.hpp"
+#    DESTINATION include/fastgltf
+#)
+#
+#install(
+#    TARGETS fastgltf
+#    EXPORT fastgltf-targets
+#    LIBRARY DESTINATION lib
+#    ARCHIVE DESTINATION lib
+#    RUNTIME DESTINATION bin
+#    INCLUDES DESTINATION include
+#)
+#
+#install(
+#    EXPORT fastgltf-targets
+#    FILE fastgltfConfig.cmake
+#    NAMESPACE fastgltf::
+#    DESTINATION lib/cmake/fastgltf
+#)
 
 if (FASTGLTF_ENABLE_TESTS OR FASTGLTF_ENABLE_EXAMPLES)
     # This is required so that Catch2 compiles with C++17, enabling various features we use in tests.
