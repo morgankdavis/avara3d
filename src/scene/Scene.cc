@@ -494,6 +494,18 @@ void VisitGlTFNode(fastgltf::Asset& asset,
 shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 										  fastgltf::Node& node) {
 
+	if (auto meshIndex = node.meshIndex) {
+
+		auto& mesh = asset.meshes[*meshIndex];
+
+		for (auto& p : mesh.primitives) {
+
+			for (auto& a : p.attributes) {
+
+			}
+		}
+	}
+
 	return nullptr;
 }
 
@@ -520,6 +532,7 @@ shared_ptr<Light> LightFromGlTFNode(fastgltf::Asset& asset,
 		if (type == fastgltf::LightType::Point) {
 
 			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+
 			aeLight->name(string(light.name));
 			aeLight->attenuationFactor(0); // temporary
 			aeLight->color(ColorFromGlTFColorArray(light.color));

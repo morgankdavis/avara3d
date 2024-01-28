@@ -53,7 +53,8 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
         endif()
     endif()
 
-    add_library(fastgltf_simdjson ${SIMDJSON_HEADER_FILE} ${SIMDJSON_SOURCE_FILE})
+    # mkd: make static
+    add_library(fastgltf_simdjson STATIC ${SIMDJSON_HEADER_FILE} ${SIMDJSON_SOURCE_FILE})
     target_compile_features(fastgltf_simdjson PRIVATE cxx_std_17)
     target_include_directories(fastgltf_simdjson PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/deps/simdjson> $<INSTALL_INTERFACE:include>)
     compiler_flags(fastgltf_simdjson)
@@ -82,7 +83,8 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
 endif()
 
 # Create the library target
-add_library(fastgltf
+# mkd: make static
+add_library(fastgltf STATIC
     "src/fastgltf.cpp" "src/base64.cpp"
     "include/fastgltf/base64.hpp" "include/fastgltf/glm_element_traits.hpp" "include/fastgltf/parser.hpp" "include/fastgltf/tools.hpp" "include/fastgltf/types.hpp" "include/fastgltf/util.hpp")
 add_library(fastgltf::fastgltf ALIAS fastgltf)
