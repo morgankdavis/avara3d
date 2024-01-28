@@ -392,6 +392,8 @@ void Scene::update(UpdateCallback function) {
 
 void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
+	auto startTime = aeScene.time();
+
 	using namespace fastgltf;
 
 	GltfDataBuffer data;
@@ -439,6 +441,9 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 			auto nodeIndicies = scene.nodeIndices;
 			if (!nodeIndicies.empty()) {
+
+				auto loadTime = aeScene.time() - startTime;
+				AE_LOG_D("loadTime: {}", loadTime);
 
 				for (auto n : nodeIndicies) {
 
