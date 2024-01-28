@@ -183,31 +183,36 @@ int main(int argc, const char* argv[]) {
 
 
 	{
-////		auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
-////		auto testGeometry = GeometryNamed("slurm/slurm");
-////		auto testGeometry = GeometryNamed("slurm_colors/slurm_colors");
-////		auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
-////		auto testGeometry = GeometryNamed("palm1/palm1"); // multiple
-		auto testGeometry = GeometryNamed("palm2/palm2"); // single
-////		auto testGeometry = GeometryNamed("island/Island");
-////		auto testGeometry = GeometryNamed("teapot");
-////		auto testGeometry = GeometryNamed("apple1_lod/apple1_lod");
-////		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-////		auto testGeometry = GeometryNamed("cherry1_lod/cherry1_lod");
-////		auto testGeometry = GeometryNamed("ConvaliaBouquet");
-////		auto testGeometry = GeometryNamed("dragon");
-////		auto testGeometry = GeometryNamed("orange1_lod/orange1_lod");
-////		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-////		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
-////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
-////		auto testGeometry = GeometryNamed("siamese/siamese");
-////		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-////		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-////		auto testGeometry = GeometryNamed("crocus/crocus");
+//		auto testGeometry = GeometryNamed("rubberDuck/rubberDuck");
+//		auto testGeometry = GeometryNamed("slurm/slurm");
+//		auto testGeometry = GeometryNamed("slurm_colors/slurm_colors");
+//		auto testGeometry = GeometryNamed("cardboardBox2/cardboardBox2");
+//		auto testGeometry = GeometryNamed("palm1/palm1"); // multiple
+//		auto testGeometry = GeometryNamed("palm2/palm2"); // single
+//		auto testGeometry = GeometryNamed("island/Island");
+//		auto testGeometry = GeometryNamed("teapot");
+//		auto testGeometry = GeometryNamed("apple1_lod/apple1_lod");
+//		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+//		auto testGeometry = GeometryNamed("cherry1_lod/cherry1_lod");
+//		auto testGeometry = GeometryNamed("ConvaliaBouquet");
+//		auto testGeometry = GeometryNamed("dragon");
+//		auto testGeometry = GeometryNamed("orange1_lod/orange1_lod");
+//		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
+//		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+//		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+//		auto testGeometry = GeometryNamed("siamese/siamese");
+//		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+//		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+//		auto testGeometry = GeometryNamed("crocus/crocus");
 
 		for (auto &m: testGeometry->materials()) {
 			m->doubleSided(true);
+		}
+
+		for (auto& e : testGeometry->elements()) {
+			AE_LOG_D("verts: {}", e->vertices().size());
+			AE_LOG_D("faces: {}", e->faces().size());
 		}
 
 //		AE_LOG_I("testGeometry.extent: {}", StringFromGLMVec3(testGeometry->extent()));
@@ -226,7 +231,10 @@ int main(int argc, const char* argv[]) {
 	}
 
 //	{
-		auto testScene = SceneNamed("importTest");
+//		auto testScene = SceneNamed("importTest");
+	auto testScene = SceneNamed("gltf/importTest", "gltf");
+//		auto testScene = SceneNamed("pineapple_only", "glb");
+//		auto testScene = SceneNamed("pineapple_only/pineapple_only", "gltf");
 
 		for (auto& node : testScene->rootNode()->children()) {
 			scene->rootNode()->addChild(node);

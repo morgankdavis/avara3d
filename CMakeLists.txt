@@ -81,6 +81,7 @@ else()
 
 endif()
 
+#set(FASTGLTF_DOWNLOAD_SIMDJSON OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/fastgltf-0.6.1)
 
 add_subdirectory(external/generator)
