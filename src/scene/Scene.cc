@@ -442,8 +442,6 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 				for (auto n : nodeIndicies) {
 
-					AE_LOG_D("Visiting node {}...", n);
-
 					auto node = asset.nodes[n];
 					VisitGlTFNode(asset, node, aeScene.rootNode());
 				}
@@ -464,25 +462,12 @@ void VisitGlTFNode(fastgltf::Asset& asset,
 				   fastgltf::Node& node,
 				   shared_ptr<Node> parent) {
 
-	auto name = node.name;
-	AE_LOG_D("name: {}", name);
-	auto aeNode = Node::NamedNode(string(name));
+	auto aeNode = Node::NamedNode(string(node.name));
 
 	aeNode->light(LightFromGlTFNode(asset, node));
 	aeNode->camera(CameraFromGlTFNode(asset, node));
 	aeNode->geometry(GeometryFromGlFTNode(asset, node));
 	aeNode->transform(TransformFromGlFTNode(node));
-
-	AE_LOG_D("position: {}", StringFromGLMVec3(aeNode->position()));
-	AE_LOG_D("rotation: {}", StringFromGLMVec4(aeNode->rotation()));
-	AE_LOG_D("scale: {}", StringFromGLMVec3(aeNode->scale()));
-
-	if (aeNode->camera()) {
-		AE_LOG_D("camera.name: {}", *aeNode->camera()->name());
-	}
-	if (aeNode->light()) {
-		AE_LOG_D("light.name: {}", *aeNode->light()->name());
-	}
 
 	parent->addChild(aeNode);
 
@@ -498,12 +483,22 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 
 		auto& mesh = asset.meshes[*meshIndex];
 
-		for (auto& p : mesh.primitives) {
+		auto aeElements = vector<shared_ptr<GeometryElement>>();
+		auto aeMaterials = vector<shared_ptr<Material>>();
 
-			for (auto& a : p.attributes) {
+		AE_LOG_D("mesh.primitives.size(): {}", mesh.primitives.size()); // primitive = geometry element
+		for (auto& primitive : mesh.primitives) {
 
-			}
+
+			auto element = GeometryElementFromGlFTPrimitive(asset, primitive);
+			if (element) aeElements.push_back(element);
+
+
 		}
+
+		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
+		geometry->name(string(mesh.name));
+		return geometry;
 	}
 
 	return nullptr;
@@ -511,6 +506,120 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 
 shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 															 fastgltf::Primitive& primitive) {
+
+	using namespace fastgltf;
+
+	vector<Vertex> verts;
+	vector<Face> faces;
+
+	auto primitiveType = primitive.type;
+	if (primitiveType == PrimitiveType::Triangles) {
+
+		auto positionAttribIt = primitive.findAttribute("POSITION");
+		auto normalAttribIt = primitive.findAttribute("NORMAL");
+		auto texcoordAttribIt = primitive.findAttribute("TEXCOORD_0");
+
+
+
+		auto& positionAccessor = asset.accessors[positionAttribIt->second];
+		if (positionAccessor.bufferViewIndex.has_value()) {
+
+			AccessorType accessorType = positionAccessor.type;
+			ComponentType accessorComponantType = positionAccessor.componentType;
+
+			if (accessorType == AccessorType::Vec2) {
+				AE_LOG_D("Vec2");
+			}
+			else if (accessorType == AccessorType::Vec3) {
+				AE_LOG_D("Vec3"); // yes
+			}
+
+			if (accessorComponantType == ComponentType::UnsignedInt) {
+				AE_LOG_D("UnsignedInt");
+			}
+			if (accessorComponantType == ComponentType::UnsignedShort) {
+				AE_LOG_D("UnsignedShort");
+			}
+			if (accessorComponantType == ComponentType::Float) {
+				AE_LOG_D("Float"); // yes
+			}
+
+			AE_LOG_D("accessorType: {}", static_cast<underlying_type<AccessorType>::type>(accessorType));
+			AE_LOG_D("accessorComponantType: {}", static_cast<underlying_type<ComponentType>::type>(accessorComponantType));
+
+			AE_LOG_D("accessorType: {}", magic_enum::enum_name<AccessorType>(accessorType));
+			AE_LOG_D("accessorComponantType: {}", magic_enum::enum_name<ComponentType>(accessorComponantType));
+
+			auto typeNumComponents = getNumComponents(accessorType);
+			auto glComponantType = getGLComponentType(accessorComponantType);
+
+			AE_LOG_D("typeNumComponents: {}", typeNumComponents); // 3 * Vec3<float> ?
+			AE_LOG_D("glComponantType: {}", glComponantType); // 5126 = GL_FLOAT
+
+			auto& positionView = asset.bufferViews[*positionAccessor.bufferViewIndex];
+			auto offset = positionView.byteOffset + positionAccessor.byteOffset;
+
+//			GLuint vaobj,
+//			GLuint bindingindex,
+//			GLuint buffer,
+//			GLintptr offset,
+//			GLsizei stride);
+//			glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
+//									  static_cast<GLintptr>(offset),
+//									  static_cast<GLsizei>(positionView.byteStride.value()));
+
+			auto buffer = asset.buffers[positionView.bufferIndex];
+			//auto offset = offset;
+			auto stride = *positionView.byteStride;
+
+			AE_LOG_D("stride: {}", stride);
+
+			Vertex vert = {};
+//			memcpy(&vert.position, &buffer, sizeof(vert.position));
+//
+//			verts.push_back(vert);
+
+		}
+		else {
+			AE_LOG_W("No position data!");
+		}
+
+
+		for (auto& attribute : primitive.attributes) {
+
+//				AE_LOG_W("attribute type: {}",
+//						 magic_enum::enum_name<Primitive::attribute_type>(a.first));
+			AE_LOG_D("attribute.first: {}", attribute.first); // POSITION, NORMAL, TEXCOORD_0
+			AE_LOG_D("attribute.second: {}", attribute.second); // 100, 101, 102
+
+			// POSITION = name
+			// 100 = "corresponding accessor index"
+		}
+
+
+
+
+
+//		vector<uint32_t> indices;
+//		if (primitive.indicesAccessor.has_value()) {
+//			auto& accessor = asset.accessors[*primitive.indicesAccessor]; // also has materialIndex
+//			indices.resize(accessor.count);
+//
+//			fastgltf::iterateAccessorWithIndex<uint32_t>(
+//					asset, accessor, [&](uint32_t index, size_t idx) {
+//						indices[idx] = index;
+//					});
+//
+//
+//		}
+
+
+	}
+	else {
+		AE_LOG_W("Unsupported primitive type: {}",
+				 magic_enum::enum_name<fastgltf::PrimitiveType>(primitiveType));
+	}
+
 
 	return nullptr;
 }
@@ -596,10 +705,10 @@ mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 									   trs.translation[1],
 									   trs.translation[2] });
 
-		auto r = glm::mat4_cast(quat{ trs.rotation[0],
+		auto r = glm::mat4_cast(quat{ trs.rotation[3],
+									  trs.rotation[0],
 									  trs.rotation[1],
-									  trs.rotation[2],
-									  trs.rotation[3] });
+									  trs.rotation[2] });
 
 		auto s = glm::scale(id4, { trs.scale[0],
 								   trs.scale[1],
