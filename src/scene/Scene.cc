@@ -392,6 +392,8 @@ void Scene::update(UpdateCallback function) {
 
 void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
+	AE_LOG_I("Loading glTF: '{}'...", path.string());
+
 	auto startTime = aeScene.time();
 
 	using namespace fastgltf;
