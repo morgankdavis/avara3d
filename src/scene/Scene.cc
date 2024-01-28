@@ -69,8 +69,8 @@ static shared_ptr<Geometry>			GeometryFromGlFTNode(fastgltf::Asset& asset,
 static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
 
-static shared_ptr<Material>			MaterialFromGlFTMaterial(fastgltf::Asset& asset,
-																fastgltf::Material& material);
+static shared_ptr<Material>			MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
+																 fastgltf::Primitive& primitive);
 
 static shared_ptr<Light>			LightFromGlTFNode(fastgltf::Asset& asset,
 													  fastgltf::Node& node);
@@ -490,20 +490,24 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 
 		auto& mesh = asset.meshes[*meshIndex];
 
-		auto aeElements = vector<shared_ptr<GeometryElement>>();
-		auto aeMaterials = vector<shared_ptr<Material>>();
+		auto elements = vector<shared_ptr<GeometryElement>>();
+		auto materials = vector<shared_ptr<Material>>();
 
 		AE_LOG_D("mesh.primitives.size(): {}", mesh.primitives.size()); // primitive = geometry element
 		for (auto& primitive : mesh.primitives) {
 
 
 			auto element = GeometryElementFromGlFTPrimitive(asset, primitive);
-			if (element) aeElements.push_back(element);
+			if (element) elements.push_back(element);
+
+
+			auto material = MaterialFromGlFTPrimitive(asset, primitive);
+			if (material) materials.push_back(material);
 
 
 		}
 
-		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
+		auto geometry = make_shared<Geometry>(elements, materials);
 		geometry->name(string(mesh.name));
 		return geometry;
 	}
@@ -522,7 +526,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 
 
-	if (auto indiciesAccessorIndex = primitive.indicesAccessor ) {
+	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
 
 		vector<uint32_t> indices;
 		if (primitive.indicesAccessor.has_value()) {
@@ -538,7 +542,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 //		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
 			for (auto i: indices) {
 
-				AE_LOG_D("i: {}", i);
+//				AE_LOG_D("i: {}", i);
 //			Vertex vert = {};
 //			memcpy(&vert.position, &buffer, sizeof(vert.position));
 //			verts.push_back(vert);
@@ -733,8 +737,42 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 	return nullptr;
 }
 
-shared_ptr<Material> MaterialFromGlFTMaterial(fastgltf::Asset& asset,
-											  fastgltf::Material& material) {
+shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
+											   fastgltf::Primitive& primitive) {
+
+	if (auto materialIndex = primitive.materialIndex) {
+
+		auto& material = asset.materials[*materialIndex];
+
+		AE_LOG_D("Material name: {}", material.name);
+
+		// PBRData pbrData;
+		// TextureInfo> emissiveTexture
+
+		auto& pbrData = material.pbrData;
+		if (pbrData.baseColorTexture) {
+
+			if (auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex) {
+				auto& texture = asset.textures[baseColorTextureIndex];
+
+				if (auto imageIndex = texture.imageIndex) {
+
+					auto& image = asset.images[*imageIndex];
+
+//    using DataSource = std::variant<std::monostate,
+//    sources::BufferView,
+//    sources::URI,
+//    sources::Vector,
+//    sources::CustomBuffer,
+//    sources::ByteView,
+//    sources::Fallback>;
+					auto& dataSource = image.data;
+				}
+			}
+		}
+
+
+	}
 
 	return nullptr;
 }
