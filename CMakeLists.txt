@@ -164,10 +164,9 @@ target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 ### add special defines ###
 
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
-target_compile_definitions(ae PUBLIC TINYGLTF_USE_CPP14)
 
 
-### link ae to common external libraries ###
+### link ae to common libraries ###
 
 target_link_libraries(ae PUBLIC
 		${BULLET_LIBRARIES}
@@ -176,7 +175,7 @@ target_link_libraries(ae PUBLIC
 		imgui)
 
 
-### link ae to platform-specific external libraries ###
+### link ae to platform-specific libraries ###
 
 if (DESKTOP)
 
