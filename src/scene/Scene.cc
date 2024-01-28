@@ -522,21 +522,23 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 
 
-	vector<uint32_t> indices;
-	if (primitive.indicesAccessor.has_value()) {
-		auto& accessor = asset.accessors[*primitive.indicesAccessor]; // also has materialIndex
-		indices.resize(accessor.count);
+	if (auto indiciesAccessorIndex = primitive.indicesAccessor ) {
 
-		iterateAccessorWithIndex<uint32_t>(
-				asset, accessor, [&](uint32_t index, size_t idx) {
-					indices[idx] = index;
-				});
+		vector<uint32_t> indices;
+		if (primitive.indicesAccessor.has_value()) {
+			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
+			indices.resize(accessor.count);
+
+			iterateAccessorWithIndex<uint32_t>(
+					asset, accessor, [&](uint32_t index, size_t idx) {
+						indices[idx] = index;
+					});
 
 
 //		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
-		for (auto i : indices) {
+			for (auto i: indices) {
 
-			AE_LOG_D("i: {}", i);
+				AE_LOG_D("i: {}", i);
 //			Vertex vert = {};
 //			memcpy(&vert.position, &buffer, sizeof(vert.position));
 //			verts.push_back(vert);
@@ -548,7 +550,11 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 
 //			auto element = getAccessorElement(asset, accessor, indices[i]);
+			}
 		}
+	}
+	else {
+		AE_LOG_E("No indiciesAccessorIndex!");
 	}
 
 //	auto positionAttribIt = primitive.findAttribute("POSITION");
@@ -561,7 +567,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 //		}
 //	}
 
-	AE_LOG_D("indicies size: {}", indices.size());
+//	AE_LOG_D("indicies size: {}", indices.size());
 
 	// (3 prim) (pineapple?)
 	// indicies size: 1434
