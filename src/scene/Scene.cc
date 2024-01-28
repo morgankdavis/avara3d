@@ -80,6 +80,7 @@ static shared_ptr<Camera>			CameraFromGlTFNode(fastgltf::Asset& asset,
 
 static mat4							TransformFromGlFTNode(fastgltf::Node& node);
 
+static shared_ptr<Color> 			ColorFromGlTFColorArray(array<float, 3>& arr);
 
 
 //static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
@@ -97,7 +98,7 @@ static mat4							TransformFromGlFTNode(fastgltf::Node& node);
 //static shared_ptr<Camera>			CameraFromGlTFNode(tinygltf::Model& model,
 //														tinygltf::Node& node);
 //static mat4							TransformFromGlFTNode(tinygltf::Node& node);
-static shared_ptr<Color>			ColorFromGlTFColorVec(vector<double>& vec);
+//static shared_ptr<Color>			ColorFromGlTFColorVec(vector<double>& vec);
 
 static void 						GetRunTime(double time, // time since reference
 											  bool paused,
@@ -414,22 +415,29 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 		AE_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name<Error>(error));
 	}
 	else {
-		AE_LOG_D("glTF parsed.");
 
 		auto& asset = expectedAsset.get();
+
+		if (auto& info = asset.assetInfo) {
+			AE_LOG_D("glTF parsed. version: {}, copyright: {}, generator: {}",
+					 info->gltfVersion, info->copyright, info->generator);
+		}
+		else {
+			AE_LOG_D("glTF parsed.");
+		}
 
 		auto& scenes = asset.scenes;
 		if (!scenes.empty()) {
 
 			if (scenes.size() > 1) {
-				AE_LOG_W("Ignoring additional scenes.");
+				AE_LOG_W("Ignoring extra scenes.");
 			}
 
-			// example uses: 'model.scenes[model.defaultScene > -1 ? model.defaultScene : 0]'
-			auto& scene = scenes[0];
-			//auto& nodes = scene.nodes;
-			auto nodeIndicies = scene.nodeIndices;
+			auto& scene = scenes[asset.defaultScene.has_value()
+								 ? *asset.defaultScene
+								 : 0];
 
+			auto nodeIndicies = scene.nodeIndices;
 			if (!nodeIndicies.empty()) {
 
 				for (auto n : nodeIndicies) {
@@ -437,7 +445,6 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 					AE_LOG_D("Visiting node {}...", n);
 
 					auto node = asset.nodes[n];
-
 					VisitGlTFNode(asset, node, aeScene.rootNode());
 				}
 
@@ -465,6 +472,17 @@ void VisitGlTFNode(fastgltf::Asset& asset,
 	aeNode->camera(CameraFromGlTFNode(asset, node));
 	aeNode->geometry(GeometryFromGlFTNode(asset, node));
 	aeNode->transform(TransformFromGlFTNode(node));
+
+	AE_LOG_D("position: {}", StringFromGLMVec3(aeNode->position()));
+	AE_LOG_D("rotation: {}", StringFromGLMVec4(aeNode->rotation()));
+	AE_LOG_D("scale: {}", StringFromGLMVec3(aeNode->scale()));
+
+	if (aeNode->camera()) {
+		AE_LOG_D("camera.name: {}", *aeNode->camera()->name());
+	}
+	if (aeNode->light()) {
+		AE_LOG_D("light.name: {}", *aeNode->light()->name());
+	}
 
 	parent->addChild(aeNode);
 
@@ -494,18 +512,105 @@ shared_ptr<Material> MaterialFromGlFTMaterial(fastgltf::Asset& asset,
 shared_ptr<Light> LightFromGlTFNode(fastgltf::Asset& asset,
 									fastgltf::Node& node) {
 
+	if (auto lightIndex = node.lightIndex) {
+
+		auto& light = asset.lights[*lightIndex];
+		auto& type = light.type;
+
+		if (type == fastgltf::LightType::Point) {
+
+			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+			aeLight->name(string(light.name));
+			aeLight->attenuationFactor(0); // temporary
+			aeLight->color(ColorFromGlTFColorArray(light.color));
+//			// TODO: range, intensity
+
+			return aeLight;
+		}
+		else {
+
+			AE_LOG_W("Unsupported light type: {}",
+					 magic_enum::enum_name<fastgltf::LightType>(type));
+		}
+	}
+
 	return nullptr;
 }
 
 shared_ptr<Camera> CameraFromGlTFNode(fastgltf::Asset& asset,
 									  fastgltf::Node& node) {
 
+	if (auto cameraIndex = node.cameraIndex) {
+
+		auto& camera = asset.cameras[*cameraIndex];
+
+		auto cameraVar = camera.camera;
+		if (holds_alternative<fastgltf::Camera::Perspective>(cameraVar)) {
+
+			auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
+
+			auto aeCamera = make_shared<PerspectiveCamera>(string(camera.name),
+														   perspective.znear,
+														   (perspective.zfar.has_value()
+															? *perspective.zfar
+															: 100000), // cheating
+														   perspective.yfov);
+
+			if (auto ratio = perspective.aspectRatio) {
+				aeCamera->aspectRatio(*ratio);
+			}
+
+			return aeCamera;
+		}
+		else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
+
+			AE_LOG_W("Orthographic cameras are not supported.");
+		}
+	}
+
 	return nullptr;
 }
 
 mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 
+	auto transform = node.transform;
+	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
+
+		auto trs = get<fastgltf::Node::TRS>(transform);
+		const auto& id4 = mat4(1.0);
+
+		auto t = glm::translate(id4, { trs.translation[0],
+									   trs.translation[1],
+									   trs.translation[2] });
+
+		auto r = glm::mat4_cast(quat{ trs.rotation[0],
+									  trs.rotation[1],
+									  trs.rotation[2],
+									  trs.rotation[3] });
+
+		auto s = glm::scale(id4, { trs.scale[0],
+								   trs.scale[1],
+								   trs.scale[2] });
+
+		return t * r * s;
+
+	}
+	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
+
+		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
+		return make_mat4(&matrix[0]);
+
+	}
+	else {
+		AE_LOG_W("No transform associated with node: {}", node.name);
+	}
+
 	return mat4(1.0);
+}
+
+shared_ptr<Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
+
+	return make_shared<Color>(arr[0], arr[1], arr[2]);
 }
 
 //void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
@@ -813,18 +918,18 @@ mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 //
 //	return mat4(1.0);
 //}
-
-shared_ptr<Color> ColorFromGlTFColorVec(vector<double>& vec) {
-
-	auto vecSize = vec.size();
-	if (vecSize == 3) {
-		return make_shared<Color>(float(vec[0]),
-								  float(vec[1]),
-								  float(vec[2]));
-	}
-
-	return Color::Magenta();
-}
+//
+//shared_ptr<Color> ColorFromGlTFColorVec(vector<double>& vec) {
+//
+//	auto vecSize = vec.size();
+//	if (vecSize == 3) {
+//		return make_shared<Color>(float(vec[0]),
+//								  float(vec[1]),
+//								  float(vec[2]));
+//	}
+//
+//	return Color::Magenta();
+//}
 
 static void GetRunTime(double time, // time since reference
 					   bool paused,
