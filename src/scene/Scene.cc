@@ -22,6 +22,7 @@
 //#define TINYGLTF_IMPLEMENTATION
 //#include "tiny_gltf.h"
 
+#include "ae/Buffer.h"
 #include "ae/Color.h"
 #include "ae/CubeImage.h"
 #include "ae/Image.h"
@@ -61,16 +62,19 @@ static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
 
 static void 						VisitGlTFNode(fastgltf::Asset& asset,
 												 fastgltf::Node& node,
-												 shared_ptr<Node> parent);
+												 shared_ptr<Node> parent,
+												 const filesystem::path& directory);
 
 static shared_ptr<Geometry>			GeometryFromGlFTNode(fastgltf::Asset& asset,
-															fastgltf::Node& node);
+															fastgltf::Node& node,
+															const filesystem::path& directory);
 
 static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
 
 static shared_ptr<Material>			MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
-																 fastgltf::Primitive& primitive);
+																 fastgltf::Primitive& primitive,
+																 const filesystem::path& directory);
 
 static shared_ptr<Light>			LightFromGlTFNode(fastgltf::Asset& asset,
 													  fastgltf::Node& node);
@@ -437,6 +441,8 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 				AE_LOG_W("Ignoring extra scenes.");
 			}
 
+			auto directory = path.parent_path();
+
 			auto& scene = scenes[asset.defaultScene.has_value()
 								 ? *asset.defaultScene
 								 : 0];
@@ -444,16 +450,19 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 			auto nodeIndicies = scene.nodeIndices;
 			if (!nodeIndicies.empty()) {
 
-				auto loadTime = aeScene.time() - startTime;
-				AE_LOG_D("loadTime: {}", loadTime);
+				auto parseTime = aeScene.time() - startTime;
+				AE_LOG_D("parseTime: {}", parseTime);
 
 				for (auto n : nodeIndicies) {
 
 					auto node = asset.nodes[n];
-					VisitGlTFNode(asset, node, aeScene.rootNode());
+					VisitGlTFNode(asset, node, aeScene.rootNode(), directory);
 				}
 
 				AE_LOG_D("Done loading glTF.");
+
+				auto loadTime = aeScene.time() - startTime;
+				AE_LOG_D("loadTime: {}", loadTime);
 			}
 			else {
 				AE_LOG_W("No nodes in scene: {}", scene.name);
@@ -467,24 +476,26 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 void VisitGlTFNode(fastgltf::Asset& asset,
 				   fastgltf::Node& node,
-				   shared_ptr<Node> parent) {
+				   shared_ptr<Node> parent,
+				   const filesystem::path& directory) {
 
 	auto aeNode = Node::NamedNode(string(node.name));
 
 	aeNode->light(LightFromGlTFNode(asset, node));
 	aeNode->camera(CameraFromGlTFNode(asset, node));
-	aeNode->geometry(GeometryFromGlFTNode(asset, node));
+	aeNode->geometry(GeometryFromGlFTNode(asset, node, directory));
 	aeNode->transform(TransformFromGlFTNode(node));
 
 	parent->addChild(aeNode);
 
 	for (auto c : node.children) {
-		VisitGlTFNode(asset, asset.nodes[c], aeNode);
+		VisitGlTFNode(asset, asset.nodes[c], aeNode, directory);
 	}
 }
 
 shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
-										  fastgltf::Node& node) {
+										  fastgltf::Node& node,
+										  const filesystem::path& directory) {
 
 	if (auto meshIndex = node.meshIndex) {
 
@@ -501,7 +512,7 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 			if (element) elements.push_back(element);
 
 
-			auto material = MaterialFromGlFTPrimitive(asset, primitive);
+			auto material = MaterialFromGlFTPrimitive(asset, primitive, directory);
 			if (material) materials.push_back(material);
 
 
@@ -526,40 +537,44 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 
 
-	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
+	// *************** crashes on .gltf ********************
+//	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
+//
+//		vector<uint32_t> indices;
+//		if (primitive.indicesAccessor.has_value()) {
+//			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
+//			indices.resize(accessor.count);
+//
+//			iterateAccessorWithIndex<uint32_t>(
+//					asset, accessor, [&](uint32_t index, size_t idx) {
+//						indices[idx] = index;
+//					});
+//
+//
+////		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
+//			for (auto i: indices) {
+//
+////				AE_LOG_D("i: {}", i);
+////			Vertex vert = {};
+////			memcpy(&vert.position, &buffer, sizeof(vert.position));
+////			verts.push_back(vert);
+//
+//
+////			Face face = {f+0, f+1, f+2};
+////			f += 3;
+////			faces.push_back(face);
+//
+//
+////			auto element = getAccessorElement(asset, accessor, indices[i]);
+//			}
+//		}
+//	}
+//	else {
+//		AE_LOG_E("No indiciesAccessorIndex!");
+//	}
 
-		vector<uint32_t> indices;
-		if (primitive.indicesAccessor.has_value()) {
-			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
-			indices.resize(accessor.count);
-
-			iterateAccessorWithIndex<uint32_t>(
-					asset, accessor, [&](uint32_t index, size_t idx) {
-						indices[idx] = index;
-					});
 
 
-//		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
-			for (auto i: indices) {
-
-//				AE_LOG_D("i: {}", i);
-//			Vertex vert = {};
-//			memcpy(&vert.position, &buffer, sizeof(vert.position));
-//			verts.push_back(vert);
-
-
-//			Face face = {f+0, f+1, f+2};
-//			f += 3;
-//			faces.push_back(face);
-
-
-//			auto element = getAccessorElement(asset, accessor, indices[i]);
-			}
-		}
-	}
-	else {
-		AE_LOG_E("No indiciesAccessorIndex!");
-	}
 
 //	auto positionAttribIt = primitive.findAttribute("POSITION");
 //	auto& positionAccessor = asset.accessors[positionAttribIt->second];
@@ -738,16 +753,14 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 }
 
 shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
-											   fastgltf::Primitive& primitive) {
+											   fastgltf::Primitive& primitive,
+											   const filesystem::path& directory) {
 
 	if (auto materialIndex = primitive.materialIndex) {
 
 		auto& material = asset.materials[*materialIndex];
 
-		AE_LOG_D("Material name: {}", material.name);
-
-		// PBRData pbrData;
-		// TextureInfo> emissiveTexture
+		AE_LOG_D("material.name: {}", material.name);
 
 		auto& pbrData = material.pbrData;
 		if (pbrData.baseColorTexture) {
@@ -759,19 +772,70 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 					auto& image = asset.images[*imageIndex];
 
-//    using DataSource = std::variant<std::monostate,
-//    sources::BufferView,
-//    sources::URI,
-//    sources::Vector,
-//    sources::CustomBuffer,
-//    sources::ByteView,
-//    sources::Fallback>;
 					auto& dataSource = image.data;
+
+					if (holds_alternative<fastgltf::sources::BufferView>(dataSource)) { // .glb
+						AE_LOG_D("BufferView");
+
+						auto bufferViewIndex = get<fastgltf::sources::BufferView>(dataSource).bufferViewIndex;
+						auto& bufferView = asset.bufferViews[bufferViewIndex];
+
+						AE_LOG_D("bufferIndex: {}", bufferView.bufferIndex);
+						AE_LOG_D("byteOffset: {}", bufferView.byteOffset);
+						AE_LOG_D("byteLength: {}", bufferView.byteLength);
+						if (auto byteStride = bufferView.byteStride) {
+							AE_LOG_D("byteStride: {}", *(bufferView.byteStride));
+						}
+
+						auto buffer = asset.buffers[bufferView.bufferIndex];
+						auto bufferData = buffer.data;
+
+						if (holds_alternative<fastgltf::sources::Vector>(bufferData)) {
+							AE_LOG_D("Vector");
+							// apparently this can happen:
+							// https://github.com/spnda/fastgltf/blob/0272e598eed28632ba7e9cb8a55ce0f8a25da1ea/examples/gl_viewer/gl_viewer.cpp#L458
+						}
+						else if (holds_alternative<fastgltf::sources::ByteView>(bufferData)) {
+							AE_LOG_D("ByteView");
+
+							auto byteView = get<fastgltf::sources::ByteView>(bufferData);
+							fastgltf::span<const std::byte> bytes = byteView.bytes;
+
+							auto pointer = bytes.data();
+							auto sizeBytes = bytes.size_bytes();
+
+							AE_LOG_D("loading image buffer for: {}", material.name);
+
+							auto imageData = reinterpret_cast<const unsigned char*>(pointer);
+							size_t imageDataSize = sizeBytes;
+							auto aeBuffer = make_shared<Buffer>(imageData, imageDataSize);
+							AE_LOG_D("imageDataSize: {} KB", imageDataSize/1024);
+
+
+//							auto aeImage = make_shared<Image>(aeBuffer);
+
+							return Material::DefaultMaterial();
+
+//							auto property = make_shared<MaterialProperty>(aeImage);
+//							return make_shared<Material>(property, property, nullptr);
+						}
+					}
+					else if (holds_alternative<fastgltf::sources::URI>(dataSource)) { // .gltf
+						AE_LOG_D("URI");
+
+						auto uri = get<fastgltf::sources::URI>(dataSource);
+
+						AE_LOG_D("URL: {}", uri.uri.string()); // ex: 'textures/pineapple_diffuse1.jpg'
+
+						auto fullpath = directory / uri.uri.string();
+						AE_LOG_D("fullpath: {}", fullpath.string());
+						auto image = make_shared<Image>(fullpath);
+						auto property = make_shared<MaterialProperty>(image);
+						return make_shared<Material>(property, property, nullptr);
+					}
 				}
 			}
 		}
-
-
 	}
 
 	return nullptr;
