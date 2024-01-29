@@ -39,7 +39,7 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
-shared_ptr<Material> MissingTextureMaterial() {
+shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
 		auto material = Material::EmissiveMaterial(Color::Magenta());
@@ -48,7 +48,7 @@ shared_ptr<Material> MissingTextureMaterial() {
 	return material;
 }
 
-shared_ptr<Material> EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
+shared_ptr<Material> Material::EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
 	auto property = make_shared<MaterialProperty>(contents);
 	return make_shared<Material>(nullptr, nullptr, nullptr, property);
 }
