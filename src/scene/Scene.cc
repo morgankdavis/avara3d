@@ -756,6 +756,8 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 											   fastgltf::Primitive& primitive,
 											   const filesystem::path& directory) {
 
+	using namespace fastgltf;
+
 	if (auto materialIndex = primitive.materialIndex) {
 
 		auto& material = asset.materials[*materialIndex];
@@ -774,32 +776,32 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 					auto& dataSource = image.data;
 
-					if (holds_alternative<fastgltf::sources::BufferView>(dataSource)) { // .glb
+					if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 						AE_LOG_D("BufferView");
 
-						auto bufferViewIndex = get<fastgltf::sources::BufferView>(dataSource).bufferViewIndex;
+						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
 						auto& bufferView = asset.bufferViews[bufferViewIndex];
 
-						AE_LOG_D("bufferIndex: {}", bufferView.bufferIndex);
-						AE_LOG_D("byteOffset: {}", bufferView.byteOffset);
-						AE_LOG_D("byteLength: {}", bufferView.byteLength);
+						//AE_LOG_D("bufferIndex: {}", bufferView.bufferIndex);
+						//AE_LOG_D("byteOffset: {}", bufferView.byteOffset);
+						//AE_LOG_D("byteLength: {}", bufferView.byteLength);
 						if (auto byteStride = bufferView.byteStride) {
-							AE_LOG_D("byteStride: {}", *(bufferView.byteStride));
+							//AE_LOG_D("byteStride: {}", *(bufferView.byteStride));
 						}
 
 						auto buffer = asset.buffers[bufferView.bufferIndex];
 						auto bufferData = buffer.data;
 
-						if (holds_alternative<fastgltf::sources::Vector>(bufferData)) {
+						if (holds_alternative<sources::Vector>(bufferData)) {
 							AE_LOG_D("Vector");
 							// apparently this can happen:
 							// https://github.com/spnda/fastgltf/blob/0272e598eed28632ba7e9cb8a55ce0f8a25da1ea/examples/gl_viewer/gl_viewer.cpp#L458
 						}
-						else if (holds_alternative<fastgltf::sources::ByteView>(bufferData)) {
+						else if (holds_alternative<sources::ByteView>(bufferData)) {
 							AE_LOG_D("ByteView");
 
-							auto byteView = get<fastgltf::sources::ByteView>(bufferData);
-							fastgltf::span<const std::byte> bytes = byteView.bytes;
+							auto byteView = get<sources::ByteView>(bufferData);
+							span<const std::byte> bytes = byteView.bytes;
 
 							auto pointer = bytes.data();
 							auto sizeBytes = bytes.size_bytes();
@@ -808,30 +810,30 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 							auto imageData = reinterpret_cast<const unsigned char*>(pointer);
 							size_t imageDataSize = sizeBytes;
-							auto aeBuffer = make_shared<Buffer>(imageData, imageDataSize);
+							auto aeBuffer = make_shared<ae::Buffer>(imageData, imageDataSize);
 							AE_LOG_D("imageDataSize: {} KB", imageDataSize/1024);
 
 
 //							auto aeImage = make_shared<Image>(aeBuffer);
 
-							return Material::DefaultMaterial();
+							return ae::Material::DefaultMaterial();
 
 //							auto property = make_shared<MaterialProperty>(aeImage);
 //							return make_shared<Material>(property, property, nullptr);
 						}
 					}
-					else if (holds_alternative<fastgltf::sources::URI>(dataSource)) { // .gltf
+					else if (holds_alternative<sources::URI>(dataSource)) { // .gltf
 						AE_LOG_D("URI");
 
-						auto uri = get<fastgltf::sources::URI>(dataSource);
+						auto uri = get<sources::URI>(dataSource);
 
-						AE_LOG_D("URL: {}", uri.uri.string()); // ex: 'textures/pineapple_diffuse1.jpg'
+						//AE_LOG_D("URL: {}", uri.uri.string()); // ex: 'textures/pineapple_diffuse1.jpg'
 
 						auto fullpath = directory / uri.uri.string();
-						AE_LOG_D("fullpath: {}", fullpath.string());
-						auto image = make_shared<Image>(fullpath);
+						//AE_LOG_D("fullpath: {}", fullpath.string());
+						auto image = make_shared<ae::Image>(fullpath);
 						auto property = make_shared<MaterialProperty>(image);
-						return make_shared<Material>(property, property, nullptr);
+						return make_shared<ae::Material>(property, property, nullptr);
 					}
 				}
 			}
