@@ -794,7 +794,8 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 						auto& bufferView = asset.bufferViews[bufferViewIndex];
 
 						if (auto byteStride = bufferView.byteStride) {
-							AE_LOG_W("Texture buffer has a stride: {}.  Skipping.", *(bufferView.byteStride));
+							AE_LOG_W("Texture buffer has a stride: {}. Skipping.", *(bufferView.byteStride));
+							return ae::Material::MissingTextureMaterial();
 						}
 						else {
 							AE_LOG_D("Loading .glb texture buffer...");
@@ -815,12 +816,16 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 							}
 						}
 					}
+					else {
+						AE_LOG_W("Unexpected texture data. Skipping.");
+						return ae::Material::MissingTextureMaterial();
+					}
 				}
 			}
 		}
 	}
 
-	return nullptr;
+	return ae::Material::DefaultMaterial();
 }
 
 shared_ptr<Light> LightFromGlTFNode(fastgltf::Asset& asset,

@@ -39,6 +39,15 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
+shared_ptr<Material> MissingTextureMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		auto material = Material::EmissiveMaterial(Color::Magenta());
+		material->doubleSided(true);
+	}
+	return material;
+}
+
 shared_ptr<Material> EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
 	auto property = make_shared<MaterialProperty>(contents);
 	return make_shared<Material>(nullptr, nullptr, nullptr, property);
