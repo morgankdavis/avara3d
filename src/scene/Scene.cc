@@ -535,9 +535,9 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 	vector<Face> faces;
 	int f = 0;
 
+//	fastgltf::Asset& asset // exists
+//	fastgltf::Primitive& primitive // exists
 
-
-	// *************** crashes on .gltf ********************
 //	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
 //
 //		vector<uint32_t> indices;
@@ -549,7 +549,9 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 //					asset, accessor, [&](uint32_t index, size_t idx) {
 //						indices[idx] = index;
 //					});
-//
+//		}
+//	}
+
 //
 ////		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
 //			for (auto i: indices) {
