@@ -236,10 +236,15 @@ int main(int argc, const char* argv[]) {
 //		auto testScene = SceneNamed("pineapple_only", "glb");
 //		auto testScene = SceneNamed("pineapple_only/pineapple_only", "gltf");
 
-		for (auto& node : testScene->rootNode()->children()) {
-			scene->rootNode()->addChild(node);
-		}
+//		for (auto& node : testScene->rootNode()->children()) {
+//			scene->rootNode()->addChild(node);
+//		}
 //	}
+
+	auto importRoot = testScene->rootNode();
+	auto rootPos = importRoot->position();
+//	importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+	scene->rootNode()->addChild(importRoot);
 
 
 	for (auto& node : scene->rootNode()->children(true)) {
