@@ -19,8 +19,6 @@
 #include "fmt/format.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
-//#define TINYGLTF_IMPLEMENTATION
-//#include "tiny_gltf.h"
 
 #include "ae/Buffer.h"
 #include "ae/Color.h"
@@ -408,12 +406,17 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 	auto parser = Parser(Extensions::KHR_lights_punctual);
 	auto expectedAsset = Expected<Asset>(Error::None);
 
+	auto options = Options::LoadGLBBuffers
+			| Options::LoadExternalBuffers
+			| Options::LoadExternalImages;
+	// DecomposeNodeMatrices, GenerateMeshIndices
+
 	auto extension = path.extension();
 	if (extension == ".glb") {
-		expectedAsset = parser.loadBinaryGLTF(&data, path.parent_path(), Options::None);
+		expectedAsset = parser.loadBinaryGLTF(&data, path.parent_path(), options);
 	}
 	else if (extension == ".gltf") {
-		expectedAsset = parser.loadGLTF(&data, path.parent_path(), Options::None);
+		expectedAsset = parser.loadGLTF(&data, path.parent_path(), options);
 	}
 	else {
 		AE_LOG_E("Unsupported file extension: {}", extension.string());
@@ -504,18 +507,13 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 		auto elements = vector<shared_ptr<GeometryElement>>();
 		auto materials = vector<shared_ptr<Material>>();
 
-		AE_LOG_D("mesh.primitives.size(): {}", mesh.primitives.size()); // primitive = geometry element
 		for (auto& primitive : mesh.primitives) {
-
 
 			auto element = GeometryElementFromGlFTPrimitive(asset, primitive);
 			if (element) elements.push_back(element);
 
-
 			auto material = MaterialFromGlFTPrimitive(asset, primitive, directory);
 			if (material) materials.push_back(material);
-
-
 		}
 
 		auto geometry = make_shared<Geometry>(elements, materials);
@@ -533,41 +531,44 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 	vector<Vertex> verts;
 	vector<Face> faces;
-	int f = 0;
 
-//	fastgltf::Asset& asset // exists
-//	fastgltf::Primitive& primitive // exists
+	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
 
-//	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
-//
-//		vector<uint32_t> indices;
-//		if (primitive.indicesAccessor.has_value()) {
-//			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
-//			indices.resize(accessor.count);
-//
-//			iterateAccessorWithIndex<uint32_t>(
-//					asset, accessor, [&](uint32_t index, size_t idx) {
-//						indices[idx] = index;
-//					});
-//		}
-//	}
+		vector<uint32_t> indices;
+		if (primitive.indicesAccessor.has_value()) {
+			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
+			indices.resize(accessor.count);
 
-//
-////		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
+			iterateAccessorWithIndex<uint32_t>(
+					asset, accessor, [&](uint32_t index, size_t idx) {
+						indices[idx] = index;
+					});
+
+			AE_LOG_D("indices.size: {}", indices.size());
 //			for (auto i: indices) {
 //
-////				AE_LOG_D("i: {}", i);
-////			Vertex vert = {};
-////			memcpy(&vert.position, &buffer, sizeof(vert.position));
-////			verts.push_back(vert);
+//				AE_LOG_D("i: {}", i);
+//			}
+
+		}
+	}
+
+//
+//		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
+//			for (auto i: indices) {
+//
+//				AE_LOG_D("i: {}", i);
+//			Vertex vert = {};
+//			memcpy(&vert.position, &buffer, sizeof(vert.position));
+//			verts.push_back(vert);
 //
 //
-////			Face face = {f+0, f+1, f+2};
-////			f += 3;
-////			faces.push_back(face);
+//			Face face = {f+0, f+1, f+2};
+//			f += 3;
+//			faces.push_back(face);
 //
 //
-////			auto element = getAccessorElement(asset, accessor, indices[i]);
+//			auto element = getAccessorElement(asset, accessor, indices[i]);
 //			}
 //		}
 //	}
@@ -764,12 +765,11 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 		auto& material = asset.materials[*materialIndex];
 
-		AE_LOG_D("material.name: {}", material.name);
-
 		auto& pbrData = material.pbrData;
 		if (pbrData.baseColorTexture) {
 
 			if (auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex) {
+
 				auto& texture = asset.textures[baseColorTextureIndex];
 
 				if (auto imageIndex = texture.imageIndex) {
@@ -777,65 +777,43 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 					auto& image = asset.images[*imageIndex];
 
 					auto& dataSource = image.data;
+					if (holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
-					if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
-						AE_LOG_D("BufferView");
+						AE_LOG_D("Loading .gltf texture buffer...");
+
+						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+						auto aeImage = make_shared<ae::Image>(aeBuffer);
+						auto property = make_shared<MaterialProperty>(aeImage);
+						return make_shared<ae::Material>(property, property, nullptr);
+					}
+					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
 						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+
 						auto& bufferView = asset.bufferViews[bufferViewIndex];
 
-						//AE_LOG_D("bufferIndex: {}", bufferView.bufferIndex);
-						//AE_LOG_D("byteOffset: {}", bufferView.byteOffset);
-						//AE_LOG_D("byteLength: {}", bufferView.byteLength);
 						if (auto byteStride = bufferView.byteStride) {
-							//AE_LOG_D("byteStride: {}", *(bufferView.byteStride));
+							AE_LOG_W("Texture buffer has a stride: {}.  Skipping.", *(bufferView.byteStride));
 						}
+						else {
+							AE_LOG_D("Loading .glb texture buffer...");
 
-						auto buffer = asset.buffers[bufferView.bufferIndex];
-						auto bufferData = buffer.data;
+							auto buffer = asset.buffers[bufferView.bufferIndex];
+							auto byteOffset = bufferView.byteOffset;
+							auto byteLength = bufferView.byteLength;
 
-						if (holds_alternative<sources::Vector>(bufferData)) {
-							AE_LOG_D("Vector");
-							// apparently this can happen:
-							// https://github.com/spnda/fastgltf/blob/0272e598eed28632ba7e9cb8a55ce0f8a25da1ea/examples/gl_viewer/gl_viewer.cpp#L458
+							auto bufferData = buffer.data;
+							if (holds_alternative<sources::Vector>(bufferData)) {
+
+								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+
+								auto aeImage = make_shared<ae::Image>(aeBuffer);
+								auto property = make_shared<MaterialProperty>(aeImage);
+								return make_shared<ae::Material>(property, property, nullptr);
+							}
 						}
-						else if (holds_alternative<sources::ByteView>(bufferData)) {
-							AE_LOG_D("ByteView");
-
-							auto byteView = get<sources::ByteView>(bufferData);
-							span<const std::byte> bytes = byteView.bytes;
-
-							auto pointer = bytes.data();
-							auto sizeBytes = bytes.size_bytes();
-
-							AE_LOG_D("loading image buffer for: {}", material.name);
-
-							auto imageData = reinterpret_cast<const unsigned char*>(pointer);
-							size_t imageDataSize = sizeBytes;
-							auto aeBuffer = make_shared<ae::Buffer>(imageData, imageDataSize);
-							AE_LOG_D("imageDataSize: {} KB", imageDataSize/1024);
-
-
-//							auto aeImage = make_shared<Image>(aeBuffer);
-
-							return ae::Material::DefaultMaterial();
-
-//							auto property = make_shared<MaterialProperty>(aeImage);
-//							return make_shared<Material>(property, property, nullptr);
-						}
-					}
-					else if (holds_alternative<sources::URI>(dataSource)) { // .gltf
-						AE_LOG_D("URI");
-
-						auto uri = get<sources::URI>(dataSource);
-
-						//AE_LOG_D("URL: {}", uri.uri.string()); // ex: 'textures/pineapple_diffuse1.jpg'
-
-						auto fullpath = directory / uri.uri.string();
-						//AE_LOG_D("fullpath: {}", fullpath.string());
-						auto image = make_shared<ae::Image>(fullpath);
-						auto property = make_shared<MaterialProperty>(image);
-						return make_shared<ae::Material>(property, property, nullptr);
 					}
 				}
 			}
@@ -890,7 +868,7 @@ shared_ptr<Camera> CameraFromGlTFNode(fastgltf::Asset& asset,
 														   perspective.znear,
 														   (perspective.zfar.has_value()
 															? *perspective.zfar
-															: 100000), // cheating
+															: 1,000,000), // cheating
 														   perspective.yfov);
 
 			if (auto ratio = perspective.aspectRatio) {
@@ -950,325 +928,7 @@ shared_ptr<Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
 	return make_shared<Color>(arr[0], arr[1], arr[2]);
 }
 
-//void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
-//
-//	using namespace tinygltf;
-//
-//	TinyGLTF loader;
-//	Model model;
-//	string error;
-//	string warning;
-//
-//	auto extension = path.extension();
-//	bool res = false;
-//	if (extension == ".glb") {
-//		res = loader.LoadBinaryFromFile(&model, &error, &warning, path.string());
-//	}
-//	else if (extension == ".gltf") {
-//		res = loader.LoadASCIIFromFile(&model, &error, &warning, path.string());
-//	}
-//	else {
-//		AE_LOG_E("Unsupported file extension: {}", extension.string());
-//	}
-//
-//	if (res) {
-//
-//		if (!warning.empty()) {
-//			AE_LOG_W("Warning loading glTF: {}", warning);
-//		}
-//
-//		auto& scenes = model.scenes;
-//		if (!scenes.empty()) {
-//
-//			if (scenes.size() > 1) {
-//				AE_LOG_W("Ignoring additional scenes.");
-//			}
-//
-//			// example uses: 'model.scenes[model.defaultScene > -1 ? model.defaultScene : 0]'
-//			auto& scene = scenes[0];
-//			auto& nodes = scene.nodes;
-//
-//			if (!nodes.empty()) {
-//
-//				for (auto n : scene.nodes) {
-//					AE_LOG_D("Visiting node {}...", n);
-//
-//					tinygltf::Node& node = model.nodes[n];
-//
-//					VisitGlTFNode(model, node, aeScene.rootNode());
-//				}
-//
-//				AE_LOG_D("Done loading glTF.");
-//			}
-//			else {
-//				AE_LOG_W("No nodes in scene: {}", scene.name);
-//			}
-//		}
-//		else {
-//			AE_LOG_E("No scenes.");
-//		}
-//	}
-//	else {
-//
-//		if (!error.empty()) {
-//			AE_LOG_E("Error loading glTF: {}", error);
-//		}
-//		else {
-//			AE_LOG_E("Unknown error loading glTF.");
-//		}
-//	}
-//}
-//
-//void VisitGlTFNode(tinygltf::Model& model,
-//				   tinygltf::Node& node,
-//				   shared_ptr<Node> parent) {
-//
-//	auto aeNode = Node::NamedNode(node.name);
-//
-//	aeNode->light(LightFromGlTFNode(model, node));
-//	aeNode->camera(CameraFromGlTFNode(model, node));
-//	aeNode->geometry(GeometryFromGlFTNode(model, node));
-//	aeNode->transform(TransformFromGlFTNode(node));
-//
-//	parent->addChild(aeNode);
-//
-//	for (auto c : node.children) {
-//		VisitGlTFNode(model, model.nodes[c], aeNode);
-//	}
-//}
-//
-//shared_ptr<Geometry> GeometryFromGlFTNode(tinygltf::Model& model,
-//										  tinygltf::Node& node) {
-//
-//	auto meshIndex = node.mesh;
-//	if (meshIndex > -1) {
-//
-//		auto& mesh = model.meshes[meshIndex];
-//		auto& name = mesh.name;
-//		auto& primitives = mesh.primitives;
-//
-//		auto aeElements = vector<shared_ptr<GeometryElement>>();
-//		auto aeMaterials = vector<shared_ptr<Material>>();
-//
-//		AE_LOG_D("mesh name: {}, primitives.size(): {}", name, primitives.size());
-//
-//		for (auto& primitive : primitives) {
-//
-//			auto aeElement = GeometryElementFromGlFTPrimitive(model, primitive);
-//			aeElements.push_back(aeElement);
-//
-////			auto materialIndex = primitive.material;
-////			if (materialIndex > -1) {
-////				auto& material = model.materials[materialIndex];
-////				auto aeMaterial = MaterialFromGlFTMaterial(model, material);
-////				aeMaterials.push_back(aeMaterial);
-////			}
-//		}
-//
-////		auto aeGeometry = make_shared<Geometry>(aeElements, aeMaterials);
-////		aeGeometry->name(mesh.name);
-////		return aeGeometry;
-//	}
-//
-//	return nullptr;
-//}
-//
-//shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
-//															 tinygltf::Primitive& primitive) {
-//
-//	auto verts = vector<Vertex>();
-//	auto faces = vector<Face>();
-//
-//	for (pair<string, int> item : primitive.attributes) {
-//		AE_LOG_D("primitive: ({}, {})", item.first, item.second);
-//		// POSITION, NORMAL, TEXCOORD_0
-//
-//		auto mode = primitive.mode;
-//		if (mode == TINYGLTF_MODE_TRIANGLES) {
-//
-//			auto indiciesIndex = primitive.indices;
-//			if (indiciesIndex > -1) {
-//				auto accessor = model.accessors[indiciesIndex];
-//
-//				auto type = accessor.type;
-//				if (type == TINYGLTF_TYPE_SCALAR) {
-//
-//					auto componentType = accessor.componentType;
-//					if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
-//
-//						auto count = accessor.count;
-//						AE_LOG_D("count: {}", count);
-//
-//						auto bufferViewIndex = accessor.bufferView;
-//						if (bufferViewIndex > -1) {
-//
-//							auto& bufferView = model.bufferViews[bufferViewIndex];
-//
-//							auto bufferIndex = bufferView.buffer;
-//							if (bufferIndex > -1) {
-//
-//								auto& buffer = model.buffers[bufferIndex];
-//
-//
-//
-//
-//							}
-//							else {
-//								AE_LOG_W("Missing Buffer.");
-//							}
-//						}
-//						else {
-//							AE_LOG_W("Missing BufferView.");
-//						}
-//					}
-//					else {
-//						AE_LOG_W("Unsupported glTF accessor component type: {}", mode);
-//					}
-//				}
-//				else {
-//					AE_LOG_W("Unsupported glTF accessor type: {}", mode);
-//				}
-//			}
-//		}
-//		else {
-//			AE_LOG_W("Unsupported glTF primitive type: {}", mode);
-//		}
-//	}
-//
-//	return nullptr;
-//}
-//
-//shared_ptr<Material> MaterialFromGlFTMaterial(tinygltf::Model& model,
-//											  tinygltf::Material& material) {
-//
-//	return nullptr;
-//}
-//
-//shared_ptr<Light> LightFromGlTFNode(tinygltf::Model& model,
-//									tinygltf::Node& node) {
-//
-//	auto index = node.light;
-//	if (index > -1) {
-//
-//		auto& light = model.lights[index];
-//		auto& type = light.type;
-//
-//		if (type == "point") {
-//
-//			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
-//			aeLight->name(light.name);
-////			aeLight->attenuationFactor(float(light.intensity)); // not the same thing
-//			aeLight->attenuationFactor(0); // temporary
-//			aeLight->color(ColorFromGlTFColorVec(light.color));
-////			// TODO: range, intensity
-//
-//			return aeLight;
-//		}
-//		else {
-//
-//			AE_LOG_W("Unsupported light type: {}", type);
-//		}
-//	}
-//
-//	return nullptr;
-//}
-//
-//shared_ptr<Camera> CameraFromGlTFNode(tinygltf::Model& model,
-//									  tinygltf::Node& node) {
-//
-//	auto index = node.camera;
-//	if (index > -1) {
-//
-//		auto& camera = model.cameras[index];
-//		auto& type = camera.type;
-//
-//		if (type == "perspective") {
-//
-//			auto& perspectiveCamera = camera.perspective;
-//
-//			auto aeCamera = make_shared<PerspectiveCamera>(camera.name,
-//														   perspectiveCamera.znear,
-//														   perspectiveCamera.zfar,
-//														   perspectiveCamera.yfov);
-//			aeCamera->aspectRatio(float(perspectiveCamera.aspectRatio));
-//
-//			return aeCamera;
-//		}
-//		else if (type == "orthographic") {
-//
-//			AE_LOG_W("Orthographic cameras are not supported.");
-//		}
-//	}
-//
-//	return nullptr;
-//}
-//
-//mat4 TransformFromGlFTNode(tinygltf::Node& node) {
-//
-//	// if it has a transformation matrix, use it
-//	auto& matrix = node.matrix;
-//	auto matrixSize = matrix.size();
-//	switch (matrixSize) {
-//
-//		case 16: {
-//
-//			float floatMatrix[16];
-//			for (int i=0; i<matrix.size(); ++i) {
-//				floatMatrix[i] = float(matrix[i]);
-//			}
-//
-//			return make_mat4(&floatMatrix[0]);
-//		}
-//
-//		case 0: {
-//
-//			mat4 t = mat4(1.0);
-//			mat4 r = mat4(1.0);
-//			mat4 s = mat4(1.0);
-//
-//			auto tSize = node.translation.size();
-//			auto rSize = node.rotation.size();
-//			auto sSize = node.scale.size();
-//
-//			if (tSize == 3) {
-//				t = glm::translate(t, { node.translation[0],
-//										node.translation[1],
-//										node.translation[2] });
-//			}
-//
-//			if (rSize == 4) {
-//				r = glm::mat4_cast(quat{ float(node.rotation[3]),
-//										 float(node.rotation[0]),
-//										 float(node.rotation[1]),
-//										 float(node.rotation[2]) });
-//			}
-//
-//			if (sSize == 3) {
-//				s = glm::scale(s, { node.scale[0],
-//									node.scale[1],
-//									node.scale[2] });
-//			}
-//
-//			return t * r * s;
-//		}
-//	}
-//
-//	return mat4(1.0);
-//}
-//
-//shared_ptr<Color> ColorFromGlTFColorVec(vector<double>& vec) {
-//
-//	auto vecSize = vec.size();
-//	if (vecSize == 3) {
-//		return make_shared<Color>(float(vec[0]),
-//								  float(vec[1]),
-//								  float(vec[2]));
-//	}
-//
-//	return Color::Magenta();
-//}
-
-static void GetRunTime(double time, // time since reference
+void GetRunTime(double time, // time since reference
 					   bool paused,
 					   double& runT, // time since reference excluding paused time
 					   double& deltaRunT) {//, // time since last call excluding paused time
