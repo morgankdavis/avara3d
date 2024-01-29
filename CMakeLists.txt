@@ -34,16 +34,6 @@ else()
 	set(AE_BUILD_ORIGIN "CI")
 endif()
 
-#message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
-#message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
-#message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
-#message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID})
-#message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT})
-#message("AE_BUILD_TYPE: " ${AE_BUILD_TYPE})
-#message("AE_BUILD_NUMBER: " ${AE_BUILD_NUMBER})
-#message("AE_BUILD_TIME: " ${AE_BUILD_TIME})
-#message("AE_BUILD_ORIGIN: " ${AE_BUILD_ORIGIN})
-
 configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 
@@ -148,7 +138,7 @@ endif()
 ### add library headers ###
 
 target_include_directories(ae PUBLIC include)
-target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # for BuildInfo.cmake.h
+target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
 target_include_directories(ae PRIVATE external/generator/include)
 target_include_directories(ae PRIVATE external/gif-h)
 target_include_directories(ae PRIVATE external/glew-2.1.0/include)
