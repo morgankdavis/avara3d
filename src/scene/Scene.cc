@@ -61,19 +61,16 @@ static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
 
 static void 						VisitGlTFNode(fastgltf::Asset& asset,
 												 fastgltf::Node& node,
-												 shared_ptr<Node> parent,
-												 const filesystem::path& directory);
+												 shared_ptr<Node> parent);
 
 static shared_ptr<Geometry>			GeometryFromGlFTNode(fastgltf::Asset& asset,
-															fastgltf::Node& node,
-															const filesystem::path& directory);
+															fastgltf::Node& node);
 
 static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
 
 static shared_ptr<Material>			MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
-																 fastgltf::Primitive& primitive,
-																 const filesystem::path& directory);
+																 fastgltf::Primitive& primitive);
 
 static shared_ptr<Light>			LightFromGlTFNode(fastgltf::Asset& asset,
 													  fastgltf::Node& node);
@@ -442,7 +439,7 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 				for (auto n : nodeIndicies) {
 
 					auto node = asset.nodes[n];
-					VisitGlTFNode(asset, node, aeScene.rootNode(), directory);
+					VisitGlTFNode(asset, node, aeScene.rootNode());
 				}
 
 				AE_LOG_D("Done loading glTF.");
@@ -462,26 +459,24 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 void VisitGlTFNode(fastgltf::Asset& asset,
 				   fastgltf::Node& node,
-				   shared_ptr<Node> parent,
-				   const filesystem::path& directory) {
+				   shared_ptr<Node> parent) {
 
 	auto aeNode = Node::NamedNode(string(node.name));
 
 	aeNode->light(LightFromGlTFNode(asset, node));
 	aeNode->camera(CameraFromGlTFNode(asset, node));
-	aeNode->geometry(GeometryFromGlFTNode(asset, node, directory));
+	aeNode->geometry(GeometryFromGlFTNode(asset, node));
 	aeNode->transform(TransformFromGlFTNode(node));
 
 	parent->addChild(aeNode);
 
 	for (auto c : node.children) {
-		VisitGlTFNode(asset, asset.nodes[c], aeNode, directory);
+		VisitGlTFNode(asset, asset.nodes[c], aeNode);
 	}
 }
 
 shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
-										  fastgltf::Node& node,
-										  const filesystem::path& directory) {
+										  fastgltf::Node& node) {
 
 	if (auto meshIndex = node.meshIndex) {
 		auto& mesh = asset.meshes[*meshIndex];
@@ -496,7 +491,7 @@ shared_ptr<Geometry> GeometryFromGlFTNode(fastgltf::Asset& asset,
 			auto element = GeometryElementFromGlFTPrimitive(asset, primitive);
 			if (element) elements.push_back(element);
 
-			auto material = MaterialFromGlFTPrimitive(asset, primitive, directory);
+			auto material = MaterialFromGlFTPrimitive(asset, primitive);
 			if (material) materials.push_back(material);
 		}
 
@@ -579,17 +574,11 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 			auto &bufferData = buffer.data;
 
 			if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-//					AE_LOG_D("Vector");
 
 				auto offset = bufferView.byteOffset + accessor.byteOffset;
 				auto length = bufferView.byteLength;
 				auto elementByteSize = getElementByteSize(type, componentType);
 				auto numElements = length / elementByteSize;
-
-//					AE_LOG_D("offset: {}", offset);
-//					AE_LOG_D("length: {}", length);
-//					AE_LOG_D("elementByteSize: {}", elementByteSize);
-//					AE_LOG_D("numElements: {}", numElements);
 
 				auto pPtr = reinterpret_cast<glm::vec3*>(&vec->bytes[offset]);
 				for (size_t p = 0; p < numElements; ++p) {
@@ -742,8 +731,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 }
 
 shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
-											   fastgltf::Primitive& primitive,
-											   const filesystem::path& directory) {
+											   fastgltf::Primitive& primitive) {
 
 	using namespace fastgltf;
 
@@ -751,8 +739,7 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 		auto& material = asset.materials[*materialIndex];
 
-		auto& pbrData = material.pbrData;
-		if (pbrData.baseColorTexture) {
+		if (auto& pbrData = material.pbrData; pbrData.baseColorTexture) {
 
 			if (auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex) {
 
