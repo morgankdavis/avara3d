@@ -785,7 +785,7 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 					auto& dataSource = image.data;
 					if (holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
-						AE_LOG_D("Loading .gltf texture buffer...");
+//						AE_LOG_D("Loading .gltf texture buffer...");
 
 						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
 						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
@@ -804,7 +804,7 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 							return ae::Material::MissingTextureMaterial();
 						}
 						else {
-							AE_LOG_D("Loading .glb texture buffer...");
+//							AE_LOG_D("Loading .glb texture buffer...");
 
 							auto buffer = asset.buffers[bufferView.bufferIndex];
 							auto byteOffset = bufferView.byteOffset;
