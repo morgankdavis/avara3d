@@ -42,7 +42,7 @@ shared_ptr<Material> Material::DefaultMaterial() {
 shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		auto material = Material::EmissiveMaterial(Color::Magenta());
+		material = Material::EmissiveMaterial(Color::Magenta());
 		material->doubleSided(true);
 	}
 	return material;
