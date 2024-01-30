@@ -741,58 +741,56 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 
 		if (auto& pbrData = material.pbrData; pbrData.baseColorTexture) {
 
-			if (auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex) {
+			auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
+			auto& texture = asset.textures[baseColorTextureIndex];
 
-				auto& texture = asset.textures[baseColorTextureIndex];
+			if (auto imageIndex = texture.imageIndex) {
 
-				if (auto imageIndex = texture.imageIndex) {
+				auto& image = asset.images[*imageIndex];
 
-					auto& image = asset.images[*imageIndex];
-
-					auto& dataSource = image.data;
-					if (holds_alternative<sources::Vector>(dataSource)) { // .gltf
+				auto& dataSource = image.data;
+				if (holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
 //						AE_LOG_D("Loading .gltf texture buffer...");
 
-						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
-						auto aeImage = make_shared<ae::Image>(aeBuffer);//, true);
-						auto property = make_shared<MaterialProperty>(aeImage);
-						return make_shared<ae::Material>(property, property, nullptr);
-					}
-					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+					auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+					auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+					auto aeImage = make_shared<ae::Image>(aeBuffer, false); // default: true, false
+					auto property = make_shared<MaterialProperty>(aeImage);
+					return make_shared<ae::Material>(property, property, nullptr);
+				}
+				else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
-						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+					auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
 
-						auto& bufferView = asset.bufferViews[bufferViewIndex];
+					auto& bufferView = asset.bufferViews[bufferViewIndex];
 
-						if (auto byteStride = bufferView.byteStride) {
-							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-							return ae::Material::MissingTextureMaterial();
-						}
-						else {
-//							AE_LOG_D("Loading .glb texture buffer...");
-
-							auto buffer = asset.buffers[bufferView.bufferIndex];
-							auto byteOffset = bufferView.byteOffset;
-							auto byteLength = bufferView.byteLength;
-
-							auto bufferData = buffer.data;
-							if (holds_alternative<sources::Vector>(bufferData)) {
-
-								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
-
-								auto aeImage = make_shared<ae::Image>(aeBuffer);//, true);
-								auto property = make_shared<MaterialProperty>(aeImage);
-								return make_shared<ae::Material>(property, property, nullptr);
-							}
-						}
-					}
-					else {
-						AE_LOG_W("Unexpected texture data.  Skipping.");
+					if (auto byteStride = bufferView.byteStride) {
+						AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
 						return ae::Material::MissingTextureMaterial();
 					}
+					else {
+//							AE_LOG_D("Loading .glb texture buffer...");
+
+						auto buffer = asset.buffers[bufferView.bufferIndex];
+						auto byteOffset = bufferView.byteOffset;
+						auto byteLength = bufferView.byteLength;
+
+						auto bufferData = buffer.data;
+						if (holds_alternative<sources::Vector>(bufferData)) {
+
+							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+							auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+
+							auto aeImage = make_shared<ae::Image>(aeBuffer, false); // default: true, false
+							auto property = make_shared<MaterialProperty>(aeImage);
+							return make_shared<ae::Material>(property, property, nullptr);
+						}
+					}
+				}
+				else {
+					AE_LOG_W("Unexpected texture data.  Skipping.");
+					return ae::Material::MissingTextureMaterial();
 				}
 			}
 		}
