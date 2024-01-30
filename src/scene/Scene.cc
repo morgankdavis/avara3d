@@ -11,6 +11,7 @@
 #include <chrono>
 #include <filesystem>
 #include <thread>
+#include <variant>
 
 #include "fastgltf/parser.hpp"
 #include "fastgltf/tools.hpp"
@@ -83,24 +84,6 @@ static shared_ptr<Camera>			CameraFromGlTFNode(fastgltf::Asset& asset,
 static mat4							TransformFromGlFTNode(fastgltf::Node& node);
 
 static shared_ptr<Color> 			ColorFromGlTFColorArray(array<float, 3>& arr);
-
-
-//static void 						LoadGlTF(Scene& aeScene, const filesystem::path& path);
-//static void 						VisitGlTFNode(tinygltf::Model& model,
-//												 tinygltf::Node& node,
-//												 shared_ptr<Node> parent);
-//static shared_ptr<Geometry>			GeometryFromGlFTNode(tinygltf::Model& model,
-//															tinygltf::Node& node);
-//static shared_ptr<GeometryElement>	GeometryElementFromGlFTPrimitive(tinygltf::Model& model,
-//																	   tinygltf::Primitive& primitive);
-//static shared_ptr<Material>			MaterialFromGlFTMaterial(tinygltf::Model& model,
-//																tinygltf::Material& material);
-//static shared_ptr<Light>			LightFromGlTFNode(tinygltf::Model& model,
-//													  tinygltf::Node& node);
-//static shared_ptr<Camera>			CameraFromGlTFNode(tinygltf::Model& model,
-//														tinygltf::Node& node);
-//static mat4							TransformFromGlFTNode(tinygltf::Node& node);
-//static shared_ptr<Color>			ColorFromGlTFColorVec(vector<double>& vec);
 
 static void 						GetRunTime(double time, // time since reference
 											  bool paused,
@@ -408,8 +391,8 @@ void LoadGlTF(Scene& aeScene, const filesystem::path& path) {
 
 	auto options = Options::LoadGLBBuffers
 			| Options::LoadExternalBuffers
-			| Options::LoadExternalImages;
-	// DecomposeNodeMatrices, GenerateMeshIndices
+			| Options::LoadExternalImages
+			| Options::GenerateMeshIndices;
 
 	auto extension = path.extension();
 	if (extension == ".glb") {
@@ -536,7 +519,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 		vector<uint32_t> indices;
 		if (primitive.indicesAccessor.has_value()) {
-			auto &accessor = asset.accessors[*indiciesAccessorIndex]; // also has materialIndex
+			auto &accessor = asset.accessors[*indiciesAccessorIndex];
 			indices.resize(accessor.count);
 
 			iterateAccessorWithIndex<uint32_t>(
@@ -550,8 +533,149 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 //				AE_LOG_D("i: {}", i);
 //			}
 
+			for (size_t i=0; i<indices.size(); i+=3) {
+				Face face = { int(indices[i+0]),
+							  int(indices[i+1]),
+							  int(indices[i+2]) };
+				faces.push_back(face);
+			}
+
+
+
+			// PUT BELOW HERE
+
 		}
 	}
+
+	auto positionAttrib = primitive.findAttribute("POSITION"); // NORMAL, TEXCOORD_0
+
+	if (auto positionAccessorIndex = positionAttrib->second) {
+
+		auto accessor = asset.accessors[positionAccessorIndex];
+
+		auto type = accessor.type; // Vec2, Vec3
+		auto componentType = accessor.componentType; // Float, UnsignedInt
+
+		switch (type) {
+			case AccessorType::Vec2:
+				AE_LOG_D("Vec2");
+				break;
+			case AccessorType::Vec3:
+				AE_LOG_D("Vec3");
+				break;
+			default:
+				AE_LOG_W("Unsupported accessor type: {}",
+						 magic_enum::enum_name<AccessorType>(type));
+				break;
+		}
+
+		switch (componentType) {
+			case ComponentType::Float:
+				AE_LOG_D("Float");
+				break;
+			case ComponentType::UnsignedShort:
+				AE_LOG_D("UnsignedShort");
+				break;
+			default:
+				AE_LOG_W("Unsupported accessor component type: {}",
+						 magic_enum::enum_name<ComponentType>(componentType));
+				break;
+		}
+
+		auto numComponants = getNumComponents(type);
+		AE_LOG_D("numComponants: {}", numComponants);
+
+		auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+		if (!bufferView.byteStride.has_value()) {
+
+			auto& buffer = asset.buffers[bufferView.bufferIndex];
+			auto& bufferData = buffer.data;
+
+
+
+
+			if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+				AE_LOG_D("Vector");
+
+
+
+				auto offset = bufferView.byteOffset + accessor.byteOffset;
+				auto length = bufferView.byteLength;
+				auto elementByteSize = getElementByteSize(type, componentType);
+
+				AE_LOG_D("offset: {}", offset);
+				AE_LOG_D("length: {}", length);
+				AE_LOG_D("elementByteSize: {}", elementByteSize);
+
+
+				auto numElements = length / elementByteSize;
+				AE_LOG_D("numElements: {}", numElements);
+
+
+				auto pPtr = reinterpret_cast<glm::vec3*>(&vec->bytes[offset]);
+
+				for (size_t p=0; p<numElements; ++p) {
+
+					Vertex vert = {};
+					vert.position = *pPtr;
+					verts.push_back(vert);
+
+					++pPtr;
+				}
+			}
+			else {
+				AE_LOG_W("Unsupported buffer data.");
+			}
+
+
+//			/*if (holds_alternative<sources::Vector>(bufferData)) {
+//				AE_LOG_D("Vector");
+//			}
+//			else */if (holds_alternative<sources::ByteView>(bufferData)) {
+//				AE_LOG_D("ByteView");
+//			}
+//			else if (holds_alternative<sources::BufferView>(bufferData)) {
+//				AE_LOG_D("BufferView");
+//			}
+//			else {
+//				AE_LOG_W("Unsupported buffer data.");
+//			}
+		}
+		else {
+			AE_LOG_W("Accessor has stride.  Skipping.");
+
+//			glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
+//									  static_cast<GLintptr>(offset),
+//									  static_cast<GLsizei>(positionView.byteStride.value()));
+		}
+	}
+	else {
+		AE_LOG_W("Could not find attribute: {}", "tell me");
+	}
+
+	return make_shared<GeometryElement>(verts, faces);
+
+
+//	glVertexArrayAttribFormat(vao, 0,
+//							  static_cast<GLint>(fastgltf::getNumComponents(positionAccessor.type)),
+//							  fastgltf::getGLComponentType(positionAccessor.componentType),
+//							  GL_FALSE, 0);
+//	glVertexArrayAttribBinding(vao, 0, 0);
+//
+//	auto& positionView = asset.bufferViews[positionAccessor.bufferViewIndex.value()];
+//	auto offset = positionView.byteOffset + positionAccessor.byteOffset;
+//	if (positionView.byteStride.has_value()) {
+//		glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
+//								  static_cast<GLintptr>(offset),
+//								  static_cast<GLsizei>(positionView.byteStride.value()));
+//	} else {
+//		glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
+//								  static_cast<GLintptr>(offset),
+//								  static_cast<GLsizei>(fastgltf::getElementByteSize(positionAccessor.type, positionAccessor.componentType)));
+//	}
+
+
+
 
 //
 //		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
@@ -605,7 +729,7 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 
 
-	return make_shared<GeometryElement>(verts, faces);
+
 
 
 
@@ -794,7 +918,7 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 						auto& bufferView = asset.bufferViews[bufferViewIndex];
 
 						if (auto byteStride = bufferView.byteStride) {
-							AE_LOG_W("Texture buffer has a stride: {}. Skipping.", *(bufferView.byteStride));
+							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
 							return ae::Material::MissingTextureMaterial();
 						}
 						else {
@@ -817,7 +941,7 @@ shared_ptr<Material> MaterialFromGlFTPrimitive(fastgltf::Asset& asset,
 						}
 					}
 					else {
-						AE_LOG_W("Unexpected texture data. Skipping.");
+						AE_LOG_W("Unexpected texture data.  Skipping.");
 						return ae::Material::MissingTextureMaterial();
 					}
 				}
