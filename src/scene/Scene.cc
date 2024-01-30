@@ -517,9 +517,10 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 
 	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
 
-		vector<uint32_t> indices;
 		if (primitive.indicesAccessor.has_value()) {
 			auto &accessor = asset.accessors[*indiciesAccessorIndex];
+
+			vector<uint32_t> indices;
 			indices.resize(accessor.count);
 
 			iterateAccessorWithIndex<uint32_t>(
@@ -528,16 +529,11 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 					});
 
 			AE_LOG_D("indices.size: {}", indices.size());
-//			for (auto i: indices) {
-//
-//				AE_LOG_D("i: {}", i);
-//			}
 
 			for (size_t i=0; i<indices.size(); i+=3) {
-				Face face = { int(indices[i+0]),
-							  int(indices[i+1]),
-							  int(indices[i+2]) };
-				faces.push_back(face);
+				faces.push_back({ int(indices[i+0]),
+								  int(indices[i+1]),
+								  int(indices[i+2]) });
 			}
 
 
@@ -550,36 +546,25 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 	auto positionAttrib = primitive.findAttribute("POSITION"); // NORMAL, TEXCOORD_0
 
 	if (auto positionAccessorIndex = positionAttrib->second) {
-
 		auto accessor = asset.accessors[positionAccessorIndex];
 
-		auto type = accessor.type; // Vec2, Vec3
-		auto componentType = accessor.componentType; // Float, UnsignedInt
+		auto type = accessor.type;
+		if (type == AccessorType::Vec2
+			|| type == AccessorType::Vec3) {
 
-		switch (type) {
-			case AccessorType::Vec2:
-				AE_LOG_D("Vec2");
-				break;
-			case AccessorType::Vec3:
-				AE_LOG_D("Vec3");
-				break;
-			default:
-				AE_LOG_W("Unsupported accessor type: {}",
-						 magic_enum::enum_name<AccessorType>(type));
-				break;
+		}
+		else {
+			AE_LOG_W("Unsupported accessor type: {}",
+					 magic_enum::enum_name<AccessorType>(type));
 		}
 
-		switch (componentType) {
-			case ComponentType::Float:
-				AE_LOG_D("Float");
-				break;
-			case ComponentType::UnsignedShort:
-				AE_LOG_D("UnsignedShort");
-				break;
-			default:
-				AE_LOG_W("Unsupported accessor component type: {}",
-						 magic_enum::enum_name<ComponentType>(componentType));
-				break;
+		auto componentType = accessor.componentType;
+		if (componentType == ComponentType::Float) {
+
+		}
+		else {
+			AE_LOG_W("Unsupported accessor component type: {}",
+					 magic_enum::enum_name<ComponentType>(componentType));
 		}
 
 		auto numComponants = getNumComponents(type);
@@ -591,29 +576,20 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 			auto& buffer = asset.buffers[bufferView.bufferIndex];
 			auto& bufferData = buffer.data;
 
-
-
-
 			if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 				AE_LOG_D("Vector");
-
-
 
 				auto offset = bufferView.byteOffset + accessor.byteOffset;
 				auto length = bufferView.byteLength;
 				auto elementByteSize = getElementByteSize(type, componentType);
+				auto numElements = length / elementByteSize;
 
 				AE_LOG_D("offset: {}", offset);
 				AE_LOG_D("length: {}", length);
 				AE_LOG_D("elementByteSize: {}", elementByteSize);
-
-
-				auto numElements = length / elementByteSize;
 				AE_LOG_D("numElements: {}", numElements);
 
-
 				auto pPtr = reinterpret_cast<glm::vec3*>(&vec->bytes[offset]);
-
 				for (size_t p=0; p<numElements; ++p) {
 
 					Vertex vert = {};
@@ -626,254 +602,18 @@ shared_ptr<GeometryElement> GeometryElementFromGlFTPrimitive(fastgltf::Asset& as
 			else {
 				AE_LOG_W("Unsupported buffer data.");
 			}
-
-
-//			/*if (holds_alternative<sources::Vector>(bufferData)) {
-//				AE_LOG_D("Vector");
-//			}
-//			else */if (holds_alternative<sources::ByteView>(bufferData)) {
-//				AE_LOG_D("ByteView");
-//			}
-//			else if (holds_alternative<sources::BufferView>(bufferData)) {
-//				AE_LOG_D("BufferView");
-//			}
-//			else {
-//				AE_LOG_W("Unsupported buffer data.");
-//			}
 		}
 		else {
 			AE_LOG_W("Accessor has stride.  Skipping.");
-
-//			glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
-//									  static_cast<GLintptr>(offset),
-//									  static_cast<GLsizei>(positionView.byteStride.value()));
 		}
 	}
 	else {
 		AE_LOG_W("Could not find attribute: {}", "tell me");
 	}
 
+
+
 	return make_shared<GeometryElement>(verts, faces);
-
-
-//	glVertexArrayAttribFormat(vao, 0,
-//							  static_cast<GLint>(fastgltf::getNumComponents(positionAccessor.type)),
-//							  fastgltf::getGLComponentType(positionAccessor.componentType),
-//							  GL_FALSE, 0);
-//	glVertexArrayAttribBinding(vao, 0, 0);
-//
-//	auto& positionView = asset.bufferViews[positionAccessor.bufferViewIndex.value()];
-//	auto offset = positionView.byteOffset + positionAccessor.byteOffset;
-//	if (positionView.byteStride.has_value()) {
-//		glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
-//								  static_cast<GLintptr>(offset),
-//								  static_cast<GLsizei>(positionView.byteStride.value()));
-//	} else {
-//		glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
-//								  static_cast<GLintptr>(offset),
-//								  static_cast<GLsizei>(fastgltf::getElementByteSize(positionAccessor.type, positionAccessor.componentType)));
-//	}
-
-
-
-
-//
-//		Vertex* vPtr = reinterpret_cast<Vertex*>(&asset.buffers[0]);
-//			for (auto i: indices) {
-//
-//				AE_LOG_D("i: {}", i);
-//			Vertex vert = {};
-//			memcpy(&vert.position, &buffer, sizeof(vert.position));
-//			verts.push_back(vert);
-//
-//
-//			Face face = {f+0, f+1, f+2};
-//			f += 3;
-//			faces.push_back(face);
-//
-//
-//			auto element = getAccessorElement(asset, accessor, indices[i]);
-//			}
-//		}
-//	}
-//	else {
-//		AE_LOG_E("No indiciesAccessorIndex!");
-//	}
-
-
-
-
-//	auto positionAttribIt = primitive.findAttribute("POSITION");
-//	auto& positionAccessor = asset.accessors[positionAttribIt->second];
-//	if (positionAccessor.bufferViewIndex.has_value()) {
-//
-//		std::size_t idx = 0;
-//		for (auto element : iterateAccessor(asset, positionAccessor)) {
-//			array[idx++] = element;
-//		}
-//	}
-
-//	AE_LOG_D("indicies size: {}", indices.size());
-
-	// (3 prim) (pineapple?)
-	// indicies size: 1434
-	// indicies size: 3675
-	// indicies size: 5718
-
-//	2024-01-27 19:13:00.597 [ae] [debug] [main.cc:214] [main()] verts: 1434 *
-//	2024-01-27 19:13:00.597 [ae] [debug] [main.cc:215] [main()] faces: 478
-//	2024-01-27 19:13:00.597 [ae] [debug] [main.cc:214] [main()] verts: 3675 *
-//	2024-01-27 19:13:00.598 [ae] [debug] [main.cc:215] [main()] faces: 1225 ^^ /3
-//	2024-01-27 19:13:00.598 [ae] [debug] [main.cc:214] [main()] verts: 5718 *
-//	2024-01-27 19:13:00.598 [ae] [debug] [main.cc:215] [main()] faces: 1906
-
-
-
-
-
-
-
-
-
-
-//	auto primitiveType = primitive.type;
-//	if (primitiveType == PrimitiveType::Triangles) {
-//
-//		auto positionAttribIt = primitive.findAttribute("POSITION");
-//		auto normalAttribIt = primitive.findAttribute("NORMAL");
-//		auto texcoordAttribIt = primitive.findAttribute("TEXCOORD_0");
-//
-//
-//
-//		auto& positionAccessor = asset.accessors[positionAttribIt->second];
-//		if (positionAccessor.bufferViewIndex.has_value()) {
-//
-//			auto& bufferView = asset.bufferViews[*positionAccessor.bufferViewIndex];
-//
-//			AE_LOG_D("bufferView.bufferIndex: {}", bufferView.bufferIndex); // 0
-//			AE_LOG_D("bufferView.byteOffset: {}", bufferView.byteOffset); // 0
-//			AE_LOG_D("bufferView.byteLength: {}", bufferView.byteLength); // 27193
-//			if (auto stride = bufferView.byteStride) {
-//				AE_LOG_D("bufferView.byteStride: {}", *stride);
-//			}
-//
-//			// 4,4,4 * 3 = 48 bytes per vertex?
-//
-//			auto& buffer = asset.buffers[bufferView.bufferIndex];
-//
-//
-//			Vertex vert = {};
-//			memcpy(&vert.position, &buffer, sizeof(vert.position));
-//			verts.push_back(vert);
-//
-//
-//			Face face = {f+0, f+1, f+2};
-//			f += 3;
-//			faces.push_back(face);
-//
-//
-//
-////			AccessorType accessorType = positionAccessor.type;
-////			ComponentType accessorComponantType = positionAccessor.componentType;
-////
-////			if (accessorType == AccessorType::Vec2) {
-////				AE_LOG_D("Vec2");
-////			}
-////			else if (accessorType == AccessorType::Vec3) {
-////				AE_LOG_D("Vec3"); // yes
-////			}
-////
-////			if (accessorComponantType == ComponentType::UnsignedInt) {
-////				AE_LOG_D("UnsignedInt");
-////			}
-////			if (accessorComponantType == ComponentType::UnsignedShort) {
-////				AE_LOG_D("UnsignedShort");
-////			}
-//////			if (accessorComponantType != ComponentType::Float) {
-//////				AE_LOG_E("!Float");
-//////			}
-////
-////			AE_LOG_D("accessorType: {}", static_cast<underlying_type<AccessorType>::type>(accessorType));
-////			AE_LOG_D("accessorComponantType: {}", static_cast<underlying_type<ComponentType>::type>(accessorComponantType));
-////
-////			AE_LOG_D("accessorType: {}", magic_enum::enum_name<AccessorType>(accessorType));
-////			AE_LOG_D("accessorComponantType: {}", magic_enum::enum_name<ComponentType>(accessorComponantType));
-////
-////			auto typeNumComponents = getNumComponents(accessorType);
-////			auto glComponantType = getGLComponentType(accessorComponantType);
-////
-////			AE_LOG_D("typeNumComponents: {}", typeNumComponents); // 3 * Vec3<float> ?
-////			AE_LOG_D("glComponantType: {}", glComponantType); // 5126 = GL_FLOAT
-////
-////			auto& positionView = asset.bufferViews[*positionAccessor.bufferViewIndex];
-////			auto offset = positionView.byteOffset + positionAccessor.byteOffset;
-////
-//////			GLuint vaobj,
-//////			GLuint bindingindex,
-//////			GLuint buffer,
-//////			GLintptr offset,
-//////			GLsizei stride);
-//////			glVertexArrayVertexBuffer(vao, 0, viewer->buffers[positionView.bufferIndex],
-//////									  static_cast<GLintptr>(offset),
-//////									  static_cast<GLsizei>(positionView.byteStride.value()));
-////
-////			auto buffer = asset.buffers[positionView.bufferIndex];
-////			//auto offset = offset;
-////			auto stride = *positionView.byteStride;
-////
-////			AE_LOG_D("stride: {}", stride);
-////
-////			Vertex vert = {};
-////			memcpy(&vert.position, &buffer, sizeof(vert.position));
-////			verts.push_back(vert);
-////
-////			static int f = 0;
-////			Face face = {f+0, f+1, f+2};
-////			f += 3;
-////			faces.push_back(face);
-//
-//		}
-//		else {
-//			AE_LOG_W("No position data!");
-//		}
-//
-//
-//		for (auto& attribute : primitive.attributes) {
-//
-////				AE_LOG_W("attribute type: {}",
-////						 magic_enum::enum_name<Primitive::attribute_type>(a.first));
-//			AE_LOG_D("attribute.first: {}", attribute.first); // POSITION, NORMAL, TEXCOORD_0
-//			AE_LOG_D("attribute.second: {}", attribute.second); // 100, 101, 102
-//
-//			// POSITION = name
-//			// 100 = "corresponding accessor index"
-//		}
-//
-//
-//
-//
-//
-////		vector<uint32_t> indices;
-////		if (primitive.indicesAccessor.has_value()) {
-////			auto& accessor = asset.accessors[*primitive.indicesAccessor]; // also has materialIndex
-////			indices.resize(accessor.count);
-////
-////			fastgltf::iterateAccessorWithIndex<uint32_t>(
-////					asset, accessor, [&](uint32_t index, size_t idx) {
-////						indices[idx] = index;
-////					});
-////
-////
-////		}
-//
-//
-//	}
-//	else {
-//		AE_LOG_W("Unsupported primitive type: {}",
-//				 magic_enum::enum_name<fastgltf::PrimitiveType>(primitiveType));
-//	}
-//
-//	return make_shared<GeometryElement>(verts, faces);
 
 
 	return nullptr;
