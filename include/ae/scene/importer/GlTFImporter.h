@@ -18,7 +18,7 @@
 namespace fastgltf {
 	class Asset;
 	class Camera;
-	class Image;
+//	class Image;
 	class Mesh;
 	class Node;
 	class Primitive;
@@ -65,17 +65,19 @@ namespace ae {
 		std::shared_ptr<Camera> cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 		glm::mat4 transformFromGlFTNode(fastgltf::Node& node);
-		std::shared_ptr<Image> imageFromGlTFImage(fastgltf::Asset& asset,
-												  fastgltf::Image& image);
+		std::shared_ptr<Image> imageFromGlTFImageIndex(fastgltf::Asset& asset,
+													   std::size_t imageID);
+//		std::shared_ptr<Image> imageFromGlTFImage(fastgltf::Asset& asset,
+//												  fastgltf::Image& image);
 		std::shared_ptr<Color> colorFromGlTFColorArray(std::array<float, 3>& arr);
 
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
+//		std::map<fastgltf::Camera*, std::shared_ptr<Camera>> 		_cameras;
 		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
-//		std::map<std::size_t, std::map<std::size_t, std::shared_ptr<GeometryElement>>>
-//																	_geometryElements;
-		std::map<fastgltf::Image*, std::shared_ptr<Image>> 			_images;
+		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
+//		std::map<fastgltf::Image*, std::shared_ptr<Image>> 			_images;
 		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
 		std::map<std::size_t, std::shared_ptr<MaterialProperty>> 	_materialProperties;

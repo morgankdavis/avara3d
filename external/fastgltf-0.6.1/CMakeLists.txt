@@ -19,7 +19,7 @@ option(FASTGLTF_DISABLE_CUSTOM_MEMORY_POOL "Disables the memory allocation algor
 option(FASTGLTF_USE_64BIT_FLOAT "Default to 64-bit double precision floats for everything" OFF)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/add_source_directory.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/compiler_flags.cmake)
+#include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/compiler_flags.cmake)
 
 if (FASTGLTF_DOWNLOAD_SIMDJSON)
     # Download and configure simdjson
@@ -57,8 +57,8 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
     add_library(fastgltf_simdjson STATIC ${SIMDJSON_HEADER_FILE} ${SIMDJSON_SOURCE_FILE})
     target_compile_features(fastgltf_simdjson PRIVATE cxx_std_17)
     target_include_directories(fastgltf_simdjson PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/deps/simdjson> $<INSTALL_INTERFACE:include>)
-    compiler_flags(fastgltf_simdjson)
-    enable_debug_inlining(fastgltf_simdjson)
+#    compiler_flags(fastgltf_simdjson)
+#    enable_debug_inlining(fastgltf_simdjson)
 
 #    install(
 #        FILES deps/simdjson/simdjson.h
@@ -89,8 +89,8 @@ add_library(fastgltf STATIC
     "include/fastgltf/base64.hpp" "include/fastgltf/glm_element_traits.hpp" "include/fastgltf/parser.hpp" "include/fastgltf/tools.hpp" "include/fastgltf/types.hpp" "include/fastgltf/util.hpp")
 add_library(fastgltf::fastgltf ALIAS fastgltf)
 
-compiler_flags(fastgltf)
-enable_debug_inlining(fastgltf)
+#compiler_flags(fastgltf)
+#enable_debug_inlining(fastgltf)
 target_compile_features(fastgltf PUBLIC cxx_std_17)
 target_include_directories(fastgltf PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<INSTALL_INTERFACE:include>)
 

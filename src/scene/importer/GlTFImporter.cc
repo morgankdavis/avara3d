@@ -44,7 +44,6 @@ GlTFImporter::GlTFImporter(const filesystem::path& path):
 		_path{path},
 		_cameras{},
 		_geometries{},
-//		_geometryElements{},
 		_images{},
 		_lights{},
 		_materials{},
@@ -458,26 +457,23 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 				if (auto imageIndex = texture.imageIndex) {
 
-					auto aeProperty = make_shared<MaterialProperty>();
-
-					if (auto samplerIndex = texture.samplerIndex) {
-						auto sampler = asset.samplers[*samplerIndex];
-
-						if (sampler.minFilter) {
-							aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
-						}
-						if (sampler.magFilter) {
-							aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
-						}
-						aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
-						aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
-					}
-
-					auto &image = asset.images[*imageIndex];
-					auto aeImage = imageFromGlTFImage(asset, image);
-
+					auto aeImage = imageFromGlTFImageIndex(asset, *imageIndex);
 					if (aeImage) {
-						aeProperty->contents(aeImage);
+						auto aeProperty = make_shared<MaterialProperty>(aeImage);
+
+						if (auto samplerIndex = texture.samplerIndex) {
+							auto sampler = asset.samplers[*samplerIndex];
+
+							if (sampler.minFilter) {
+								aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
+							}
+							if (sampler.magFilter) {
+								aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
+							}
+							aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
+							aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
+						}
+
 						aeMaterial = make_shared<ae::Material>(aeProperty,
 															   aeProperty,
 															   nullptr);
@@ -511,7 +507,6 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 			}
 		}
 		else {
-			AE_LOG_D("Using cached material.");
 			return _materials[*materialIndex];
 		}
 	}
@@ -638,13 +633,14 @@ mat4 GlTFImporter::transformFromGlFTNode(fastgltf::Node& node) {
 	return mat4(1.0);
 }
 
-shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImage(fastgltf::Asset& asset,
-										  fastgltf::Image& image) {
-
+shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImageIndex(fastgltf::Asset& asset,
+															size_t imageID) {
 	shared_ptr<Image> aeImage = nullptr;
 
-	if (auto existing = _images.find(&image)
+	if (auto existing = _images.find(imageID)
 			; existing == _images.end()) {
+
+		auto& image = asset.images[imageID];
 
 		if (auto &dataSource = image.data
 				; holds_alternative<sources::Vector>(dataSource)) { // .gltf
@@ -687,15 +683,74 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImage(fastgltf::Asset& asset,
 			aeImage = nullptr;
 		}
 
-		if (aeImage) _images[&image] = aeImage;
+		if (aeImage) _images[imageID] = aeImage;
 		return aeImage;
 	}
 	else {
-		return _images[&image];
+		return _images[imageID];
 	}
 
 	return nullptr;
 }
+
+//shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImage(fastgltf::Asset& asset,
+//										  fastgltf::Image& image) {
+//
+//	shared_ptr<Image> aeImage = nullptr;
+//
+//	if (auto existing = _images.find(&image)
+//			; existing == _images.end()) {
+//
+//		if (auto &dataSource = image.data
+//				; holds_alternative<sources::Vector>(dataSource)) { // .gltf
+//
+//			auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+//			auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+//			aeImage = make_shared<ae::Image>(aeBuffer, false);
+//		}
+//		else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+//
+//			auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+//			auto &bufferView = asset.bufferViews[bufferViewIndex];
+//
+//			if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+//
+//				AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+//				aeImage = nullptr;
+//			}
+//			else {
+//
+//				auto buffer = asset.buffers[bufferView.bufferIndex];
+//				auto byteOffset = bufferView.byteOffset;
+//				auto byteLength = bufferView.byteLength;
+//
+//				if (auto bufferData = buffer.data
+//						; holds_alternative<sources::Vector>(bufferData)) {
+//
+//					auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+//					auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+//					aeImage = make_shared<ae::Image>(aeBuffer, false);
+//				}
+//				else {
+//					AE_LOG_W("Unexpected texture data.");
+//					aeImage = nullptr;
+//				}
+//			}
+//		}
+//		else {
+//			AE_LOG_W("Unexpected texture data.");
+//			aeImage = nullptr;
+//		}
+//
+//		if (aeImage) _images[&image] = aeImage;
+//		return aeImage;
+//	}
+//	else {
+//		return _images[&image];
+//	}
+//
+//	return nullptr;
+//}
 
 shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 3>& arr) {
 
