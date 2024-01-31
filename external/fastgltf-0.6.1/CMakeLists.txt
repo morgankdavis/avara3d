@@ -8,7 +8,7 @@ endif()
 
 project(fastgltf VERSION 0.6.1 LANGUAGES C CXX)
 
-option(FASTGLTF_DOWNLOAD_SIMDJSON "Downloads a copy of simdjson itself to satisfy the dependency" ON)
+#option(FASTGLTF_DOWNLOAD_SIMDJSON "Downloads a copy of simdjson itself to satisfy the dependency" ON)
 option(FASTGLTF_USE_CUSTOM_SMALLVECTOR "Uses a custom SmallVector type optimised for small arrays" OFF)
 option(FASTGLTF_ENABLE_TESTS "Enables test targets for fastlgtf" OFF)
 option(FASTGLTF_ENABLE_EXAMPLES "Enables example targets for fastgltf" OFF)
@@ -21,7 +21,7 @@ option(FASTGLTF_USE_64BIT_FLOAT "Default to 64-bit double precision floats for e
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/add_source_directory.cmake)
 #include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/compiler_flags.cmake)
 
-if (FASTGLTF_DOWNLOAD_SIMDJSON)
+#if (FASTGLTF_DOWNLOAD_SIMDJSON)
     # Download and configure simdjson
     set(SIMDJSON_TARGET_VERSION "3.3.0")
     set(SIMDJSON_DL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/simdjson")
@@ -30,10 +30,10 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
     set(SIMDJSON_HEADER_FILE "${SIMDJSON_DL_DIR}/simdjson.h")
     set(SIMDJSON_SOURCE_FILE "${SIMDJSON_DL_DIR}/simdjson.cpp")
 
-    macro(download_simdjson)
-        file(DOWNLOAD "https://raw.githubusercontent.com/simdjson/simdjson/v${SIMDJSON_TARGET_VERSION}/singleheader/simdjson.h" ${SIMDJSON_HEADER_FILE})
-        file(DOWNLOAD "https://raw.githubusercontent.com/simdjson/simdjson/v${SIMDJSON_TARGET_VERSION}/singleheader/simdjson.cpp" ${SIMDJSON_SOURCE_FILE})
-    endmacro()
+#    macro(download_simdjson)
+#        file(DOWNLOAD "https://raw.githubusercontent.com/simdjson/simdjson/v${SIMDJSON_TARGET_VERSION}/singleheader/simdjson.h" ${SIMDJSON_HEADER_FILE})
+#        file(DOWNLOAD "https://raw.githubusercontent.com/simdjson/simdjson/v${SIMDJSON_TARGET_VERSION}/singleheader/simdjson.cpp" ${SIMDJSON_SOURCE_FILE})
+#    endmacro()
 
     if (EXISTS ${SIMDJSON_HEADER_FILE})
         # Look for the SIMDJSON_VERSION define in the header to check the version.
@@ -41,16 +41,16 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
         string(REGEX MATCHALL "[0-9.]+" SIMDJSON_HEADER_VERSION "${SIMDJSON_HEADER_VERSION_LINE}")
         message(STATUS "fastgltf: Found simdjson (Version ${SIMDJSON_HEADER_VERSION})")
         if (SIMDJSON_HEADER_VERSION VERSION_LESS SIMDJSON_TARGET_VERSION)
-            message(STATUS "fastgltf: simdjson outdated, downloading...")
-            download_simdjson()
+            message(STATUS "fastgltf: simdjson outdated.")
+#            download_simdjson()
         endif()
     else()
-        message(STATUS "fastgltf: Did not find simdjson, downloading...")
-        download_simdjson()
-
-        if (NOT EXISTS "${SIMDJSON_HEADER_FILE}")
-            message(FATAL_ERROR "fastgltf: Failed to download simdjson.")
-        endif()
+        message(STATUS "fastgltf: Did not find simdjson.")
+#        download_simdjson()
+#
+#        if (NOT EXISTS "${SIMDJSON_HEADER_FILE}")
+#            message(FATAL_ERROR "fastgltf: Failed to download simdjson.")
+#        endif()
     endif()
 
     # mkd: make static
@@ -80,7 +80,7 @@ if (FASTGLTF_DOWNLOAD_SIMDJSON)
 #        NAMESPACE fastgltf::
 #        DESTINATION lib/cmake/fastgltf
 #    )
-endif()
+#endif()
 
 # Create the library target
 # mkd: make static
