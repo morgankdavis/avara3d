@@ -447,6 +447,8 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 ////				Optional<TextureInfo> specularColorTexture;
 //		}
 
+			shared_ptr<ae::Material> aeMaterial = nullptr;
+
 			if (auto &pbrData = material.pbrData; pbrData.baseColorTexture) {
 
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
@@ -464,15 +466,11 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 					if (auto &dataSource = image.data
 							; holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
-//					AE_LOG_D("Loading .gltf texture buffer...");
-
 						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
 						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
 						auto aeImage = make_shared<ae::Image>(aeBuffer, false);
 						auto property = make_shared<MaterialProperty>(aeImage);
-						auto aeMaterial = make_shared<ae::Material>(property, property, nullptr);
-						_materials[*materialIndex] = aeMaterial;
-						return aeMaterial;
+						aeMaterial = make_shared<ae::Material>(property, property, nullptr);
 					}
 					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
@@ -481,11 +479,10 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 						if (auto byteStride = bufferView.byteStride) {
 							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-							return ae::Material::MissingTextureMaterial();
+							aeMaterial = ae::Material::MissingTextureMaterial();
 						}
 						else {
-//						AE_LOG_D("Loading .glb texture buffer...");
-
+//
 							auto buffer = asset.buffers[bufferView.bufferIndex];
 							auto byteOffset = bufferView.byteOffset;
 							auto byteLength = bufferView.byteLength;
@@ -496,29 +493,32 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
 								auto aeImage = make_shared<ae::Image>(aeBuffer, false);
 								auto property = make_shared<MaterialProperty>(aeImage);
-								auto aeMaterial = make_shared<ae::Material>(property, property, nullptr);
-								_materials[*materialIndex] = aeMaterial;
-								return aeMaterial;
+								aeMaterial = make_shared<ae::Material>(property, property, nullptr);
 							}
 						}
 					}
 					else {
-						AE_LOG_W("Unexpected texture data.  Skipping.");
-						return ae::Material::MissingTextureMaterial();
+						AE_LOG_W("Unexpected texture data.");
+						aeMaterial = ae::Material::MissingTextureMaterial();
 					}
 				}
 			}
 			else {
-				AE_LOG_D("Base color?");
 
 				auto baseColorFactor = pbrData.baseColorFactor;
 
 				array<float, 3> rgbArray = {baseColorFactor[0],
-												baseColorFactor[1],
-												baseColorFactor[2]};
+											baseColorFactor[1],
+											baseColorFactor[2]};
 				auto aeColor = colorFromGlTFColorArray(rgbArray);
 
-				AE_LOG_D("Base color.");
+				auto property = make_shared<MaterialProperty>(aeColor);
+				aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+			}
+
+			if (aeMaterial) {
+				_materials[*materialIndex] = aeMaterial;
+				return aeMaterial;
 			}
 		}
 		else {
@@ -526,7 +526,8 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 		}
 	}
 
-	return ae::Material::DefaultMaterial();
+	//return ae::Material::DefaultMaterial();
+	return nullptr;
 }
 
 shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
