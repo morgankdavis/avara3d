@@ -461,7 +461,8 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 					auto &image = asset.images[*imageIndex];
 
-					if (auto &dataSource = image.data; holds_alternative<sources::Vector>(dataSource)) { // .gltf
+					if (auto &dataSource = image.data
+							; holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
 //					AE_LOG_D("Loading .gltf texture buffer...");
 
@@ -506,6 +507,18 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						return ae::Material::MissingTextureMaterial();
 					}
 				}
+			}
+			else {
+				AE_LOG_D("Base color?");
+
+				auto baseColorFactor = pbrData.baseColorFactor;
+
+				array<float, 3> rgbArray = {baseColorFactor[0],
+												baseColorFactor[1],
+												baseColorFactor[2]};
+				auto aeColor = colorFromGlTFColorArray(rgbArray);
+
+				AE_LOG_D("Base color.");
 			}
 		}
 		else {
