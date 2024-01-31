@@ -452,10 +452,23 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 			if (auto &pbrData = material.pbrData
 					; pbrData.baseColorTexture) {
 
+				// get base color/texture
+
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
 				auto &texture = asset.textures[baseColorTextureIndex];
 
 				if (auto imageIndex = texture.imageIndex) {
+
+
+					// get sampler
+
+					auto aeMaterialProperty = make_shared<MaterialProperty>();
+
+					if (auto samplerIndex = texture.samplerIndex) {
+
+						auto sampler = asset.samplers[*samplerIndex];
+						//aeMaterialProperty.
+					}
 
 					// TODO: ! CACHE IMAGES !
 					// TODO: ! CACHE SAMPLERS !
@@ -470,8 +483,11 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
 						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
 						auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-						auto property = make_shared<MaterialProperty>(aeImage);
-						aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+						//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
+						aeMaterialProperty->contents(aeImage);
+						aeMaterial = make_shared<ae::Material>(aeMaterialProperty,
+															   aeMaterialProperty,
+															   nullptr);
 					}
 					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
@@ -479,11 +495,12 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						auto &bufferView = asset.bufferViews[bufferViewIndex];
 
 						if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+
 							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
 							aeMaterial = ae::Material::MissingTextureMaterial();
 						}
 						else {
-//
+
 							auto buffer = asset.buffers[bufferView.bufferIndex];
 							auto byteOffset = bufferView.byteOffset;
 							auto byteLength = bufferView.byteLength;
@@ -494,8 +511,11 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
 								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
 								auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-								auto property = make_shared<MaterialProperty>(aeImage);
-								aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+								//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
+								aeMaterialProperty->contents(aeImage);
+								aeMaterial = make_shared<ae::Material>(aeMaterialProperty,
+																	   aeMaterialProperty,
+																	   nullptr);
 							}
 						}
 					}
@@ -523,6 +543,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 			}
 
 			if (aeMaterial) {
+				aeMaterial->doubleSided(material.doubleSided);
 				_materials[*materialIndex] = aeMaterial;
 				return aeMaterial;
 			}
