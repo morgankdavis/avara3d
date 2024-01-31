@@ -71,19 +71,25 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 
 	auto startTime = aeScene->time();
 
-	GltfDataBuffer data;
-	data.loadFromFile(_path);
+	auto extensions = Extensions::KHR_lights_punctual
+					  | Extensions::KHR_materials_specular
+					  | Extensions::KHR_materials_anisotropy
+					  | Extensions::KHR_texture_transform;
+	auto parser = Parser(extensions);
 
-	auto parser = Parser(Extensions::KHR_lights_punctual);
-	auto expectedAsset = Expected<Asset>(Error::None);
+	auto extension = _path.extension();
+	auto directory = _path.parent_path();
 
 	auto options = Options::LoadGLBBuffers
 				   | Options::LoadExternalBuffers
 				   | Options::LoadExternalImages
 				   | Options::GenerateMeshIndices;
 
-	auto extension = _path.extension();
-	auto directory = _path.parent_path();
+	GltfDataBuffer data;
+	data.loadFromFile(_path);
+
+	auto expectedAsset = Expected<Asset>(Error::None);
+
 	if (extension == ".glb") {
 		expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
 	}
@@ -152,10 +158,10 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	auto aeNode = Node::NamedNode(string(node.name));
 
+	aeNode->transform(transformFromGlFTNode(node));
+	aeNode->geometry(geometryFromGlFTNode(asset, node));
 	aeNode->light(lightFromGlTFNode(asset, node));
 	aeNode->camera(cameraFromGlTFNode(asset, node));
-	aeNode->geometry(geometryFromGlFTNode(asset, node));
-	aeNode->transform(transformFromGlFTNode(node));
 
 	parent->addChild(aeNode);
 
@@ -448,64 +454,49 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
 				auto &texture = asset.textures[baseColorTextureIndex];
 
-				if (auto imageIndex = texture.imageIndex) {
+				if (auto aeImage = imageFromGlTFTexture(asset, texture)
+						; aeImage) {
+					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+					aeProperty->contents(aeImage);
 
-					auto aeImage = imageFromGlTFImageIndex(asset, *imageIndex);
-					if (aeImage) {
-						auto aeProperty = make_shared<MaterialProperty>(aeImage);
-
-						if (auto samplerIndex = texture.samplerIndex) {
-							auto sampler = asset.samplers[*samplerIndex];
-
-							if (sampler.minFilter) {
-								aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
-							}
-							if (sampler.magFilter) {
-								aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
-							}
-							aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
-							aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
-						}
-
-						aeMaterial = make_shared<ae::Material>(aeProperty,
-															   aeProperty,
-															   nullptr);
-					}
-					else {
-						aeMaterial = ae::Material::MissingTextureMaterial();
-					}
+					aeMaterial = make_shared<ae::Material>(aeProperty,
+														   aeProperty,
+														   nullptr);
+				}
+				else {
+					aeMaterial = ae::Material::MissingTextureMaterial();
 				}
 			}
 			else {
 
-				// TODO: enabling this block fucks up specular
-				// enabing specular property in the below material fixes the magenta light's
-				// specular reflection, but not the yellow light.
+				// TODO: enabling this fucks up specular
+				// enabing specular below fixes the magenta light's specular reflection,
+				// but not the yellow light's specular reflection. (?)
 
 				auto baseColorFactor = pbrData.baseColorFactor;
 
-				array<float, 3> rgbArray = {baseColorFactor[0],
-											baseColorFactor[1],
-											baseColorFactor[2]};
-				auto aeColor = colorFromGlTFColorArray(rgbArray);
-
+				auto aeColor = colorFromGlTFColorArray(baseColorFactor);
 				auto property = make_shared<MaterialProperty>(aeColor);
 				aeMaterial = make_shared<ae::Material>(property, property, nullptr);
 			}
 
 			// specular
 
-					auto& specularMaterial = material.specular; //
-		if (specularMaterial) {
-//			unique_ptr<MaterialSpecular>:
-//				num specularFactor;
-//				Optional<TextureInfo> specularTexture;
-//				std::array<num, 3> specularColorFactor;
-//				Optional<TextureInfo> specularColorTexture;
-		}
+			auto& specularMaterial = material.specular;
+			if (specularMaterial) {
 
+				auto factor = specularMaterial->specularFactor;
+				auto& textureInfo = specularMaterial->specularTexture;
+				auto colorFactor = specularMaterial->specularColorFactor;
+				auto& colorTextureInfo = specularMaterial->specularColorTexture;
 
+				AE_LOG_D("*** [SPECULAR] ***");
 
+				AE_LOG_D("factor: {}", factor);
+				AE_LOG_D("textureInfo: {}", textureInfo ? "true" : "false");
+				AE_LOG_D("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
+				AE_LOG_D("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
+			}
 
 			if (aeMaterial) {
 				aeMaterial->doubleSided(material.doubleSided);
@@ -523,6 +514,96 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 	return ae::Material::DefaultMaterial();
 }
+
+shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
+														 fastgltf::Texture& texture) {
+
+	if (auto imageIndex = texture.imageIndex) {
+
+		if (auto existing = _images.find(*imageIndex)
+				; existing == _images.end()) {
+
+			auto &image = asset.images[*imageIndex];
+
+			shared_ptr<Image> aeImage = nullptr;
+
+			if (auto &dataSource = image.data; holds_alternative<sources::Vector>(dataSource)) { // .gltf
+				AE_LOG_D("Creating texture image...");
+
+				auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+				auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+				aeImage = make_shared<ae::Image>(aeBuffer, false);
+			}
+			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+
+				auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+				auto &bufferView = asset.bufferViews[bufferViewIndex];
+
+				if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+
+					AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+					aeImage = nullptr;
+				}
+				else {
+					AE_LOG_D("Creating texture image...");
+
+					auto buffer = asset.buffers[bufferView.bufferIndex];
+					auto byteOffset = bufferView.byteOffset;
+					auto byteLength = bufferView.byteLength;
+
+					if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+
+						auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+						auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+						aeImage = make_shared<ae::Image>(aeBuffer, false);
+					}
+					else {
+						AE_LOG_W("Unexpected texture data.");
+						aeImage = nullptr;
+					}
+				}
+			}
+			else {
+				AE_LOG_W("Unexpected texture data.");
+				aeImage = nullptr;
+			}
+
+			if (aeImage) _images[*imageIndex] = aeImage;
+			return aeImage;
+		}
+		else {
+			return _images[*imageIndex];
+		}
+	}
+
+	return nullptr;
+}
+
+shared_ptr<MaterialProperty> GlTFImporter::materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
+																		   fastgltf::Texture& texture) {
+
+	// ! important !
+	// don't map these to ae::MaterialProperty.
+	// AE uses a 1:1 Image/Color:MaterialProperty relationship whereas
+	// glTF uses a 1:N Texture:Sampler relationship.
+
+	auto aeProperty = make_shared<ae::MaterialProperty>();
+
+	if (auto samplerIndex = texture.samplerIndex) {
+		auto sampler = asset.samplers[*samplerIndex];
+
+		if (sampler.minFilter) {
+			aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
+		}
+		if (sampler.magFilter) {
+			aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
+		}
+		aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
+		aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
+	}
+
+	return aeProperty;
+};
 
 shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 													  fastgltf::Node& node) {
@@ -542,7 +623,7 @@ shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 				aeLight->name(string(light.name));
 				aeLight->attenuationFactor(0); // temporary
 				aeLight->color(colorFromGlTFColorArray(light.color));
-//			// TODO: range, intensity
+				// TODO: range, intensity
 
 				_lights[*lightIndex] = aeLight;
 				return aeLight;
@@ -640,127 +721,13 @@ mat4 GlTFImporter::transformFromGlFTNode(fastgltf::Node& node) {
 	return mat4(1.0);
 }
 
-shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImageIndex(fastgltf::Asset& asset,
-															size_t imageID) {
-	shared_ptr<Image> aeImage = nullptr;
-
-	if (auto existing = _images.find(imageID)
-			; existing == _images.end()) {
-
-		auto& image = asset.images[imageID];
-
-		if (auto &dataSource = image.data
-				; holds_alternative<sources::Vector>(dataSource)) { // .gltf
-
-			auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-			auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
-			aeImage = make_shared<ae::Image>(aeBuffer, false);
-		}
-		else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
-
-			auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-			auto &bufferView = asset.bufferViews[bufferViewIndex];
-
-			if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-
-				AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-				aeImage = nullptr;
-			}
-			else {
-
-				auto buffer = asset.buffers[bufferView.bufferIndex];
-				auto byteOffset = bufferView.byteOffset;
-				auto byteLength = bufferView.byteLength;
-
-				if (auto bufferData = buffer.data
-						; holds_alternative<sources::Vector>(bufferData)) {
-
-					auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-					auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
-					aeImage = make_shared<ae::Image>(aeBuffer, false);
-				}
-				else {
-					AE_LOG_W("Unexpected texture data.");
-					aeImage = nullptr;
-				}
-			}
-		}
-		else {
-			AE_LOG_W("Unexpected texture data.");
-			aeImage = nullptr;
-		}
-
-		if (aeImage) _images[imageID] = aeImage;
-		return aeImage;
-	}
-	else {
-		return _images[imageID];
-	}
-
-	return nullptr;
-}
-
-//shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImage(fastgltf::Asset& asset,
-//										  fastgltf::Image& image) {
-//
-//	shared_ptr<Image> aeImage = nullptr;
-//
-//	if (auto existing = _images.find(&image)
-//			; existing == _images.end()) {
-//
-//		if (auto &dataSource = image.data
-//				; holds_alternative<sources::Vector>(dataSource)) { // .gltf
-//
-//			auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-//			auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
-//			aeImage = make_shared<ae::Image>(aeBuffer, false);
-//		}
-//		else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
-//
-//			auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-//			auto &bufferView = asset.bufferViews[bufferViewIndex];
-//
-//			if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-//
-//				AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-//				aeImage = nullptr;
-//			}
-//			else {
-//
-//				auto buffer = asset.buffers[bufferView.bufferIndex];
-//				auto byteOffset = bufferView.byteOffset;
-//				auto byteLength = bufferView.byteLength;
-//
-//				if (auto bufferData = buffer.data
-//						; holds_alternative<sources::Vector>(bufferData)) {
-//
-//					auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-//					auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
-//					aeImage = make_shared<ae::Image>(aeBuffer, false);
-//				}
-//				else {
-//					AE_LOG_W("Unexpected texture data.");
-//					aeImage = nullptr;
-//				}
-//			}
-//		}
-//		else {
-//			AE_LOG_W("Unexpected texture data.");
-//			aeImage = nullptr;
-//		}
-//
-//		if (aeImage) _images[&image] = aeImage;
-//		return aeImage;
-//	}
-//	else {
-//		return _images[&image];
-//	}
-//
-//	return nullptr;
-//}
-
 shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 3>& arr) {
 
 	return make_shared<Color>(arr[0], arr[1], arr[2]);
 }
 
+shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 4>& arr) {
+
+	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
+	return colorFromGlTFColorArray(rgbArray);
+}
