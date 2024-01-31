@@ -1,0 +1,82 @@
+//
+// Created by mkd on 1/30/24.
+//
+
+#ifndef AVARA_ENGINE_GLTFIMPORTER_H
+#define AVARA_ENGINE_GLTFIMPORTER_H
+
+
+#include <array>
+#include <filesystem>
+#include <map>
+#include <memory>
+
+#include "glm/glm.hpp"
+
+
+namespace fastgltf {
+	class Asset;
+	class Camera;
+	class Mesh;
+	class Node;
+	class Primitive;
+}
+
+
+namespace ae {
+
+
+	class Color;
+	class Geometry;
+	class GeometryElement;
+	class Image;
+	class Light;
+	class Material;
+	class MaterialProperty;
+	class Node;
+	class PerspectiveCamera;
+	class Scene;
+
+
+	class GlTFImporter {
+
+	public:
+
+		GlTFImporter(const std::filesystem::path& path);
+
+		std::shared_ptr<Scene> scene();
+
+	private:
+
+		std::shared_ptr<Scene> load();
+		void visitGlTFNode(fastgltf::Asset& asset,
+						   fastgltf::Node& node,
+						   std::shared_ptr<Node> parent);
+		std::shared_ptr<Geometry> geometryFromGlFTNode(fastgltf::Asset& asset,
+													   fastgltf::Node& node);
+		std::shared_ptr<GeometryElement> geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
+																		  fastgltf::Primitive& primitive);
+		std::shared_ptr<Material> materialFromGlFTPrimitive(fastgltf::Asset& asset,
+															fastgltf::Primitive& primitive);
+		std::shared_ptr<Light> lightFromGlTFNode(fastgltf::Asset& asset,
+												 fastgltf::Node& node);
+		std::shared_ptr<PerspectiveCamera> cameraFromGlTFNode(fastgltf::Asset& asset,
+															  fastgltf::Node& node);
+		glm::mat4 transformFromGlFTNode(fastgltf::Node& node);
+		std::shared_ptr<Color> colorFromGlTFColorArray(std::array<float, 3>& arr);
+
+		std::shared_ptr<Scene> 				_scene;
+		std::filesystem::path				_path;
+		std::map<int, PerspectiveCamera> 	_cameras;
+		std::map<int, Geometry> 			_geometries;
+		std::map<int, std::map<int, GeometryElement>>
+				_geometryElements;
+		std::map<int, Image> 				_images;
+		std::map<int, Light> 				_lights;
+		std::map<int, Material> 			_materials;
+		std::map<int, MaterialProperty> 	_materialProperties;
+	};
+}
+
+
+#endif //AVARA_ENGINE_GLTFIMPORTER_H
