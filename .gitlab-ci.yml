@@ -20,7 +20,7 @@ build-linux:
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
     # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
     # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
-    - export DISPLAY=:0
+    #- export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake
