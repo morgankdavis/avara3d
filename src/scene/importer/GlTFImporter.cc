@@ -449,7 +449,8 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 			shared_ptr<ae::Material> aeMaterial = nullptr;
 
-			if (auto &pbrData = material.pbrData; pbrData.baseColorTexture) {
+			if (auto &pbrData = material.pbrData
+					; pbrData.baseColorTexture) {
 
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
 				auto &texture = asset.textures[baseColorTextureIndex];
@@ -477,7 +478,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
 						auto &bufferView = asset.bufferViews[bufferViewIndex];
 
-						if (auto byteStride = bufferView.byteStride) {
+						if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
 							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
 							aeMaterial = ae::Material::MissingTextureMaterial();
 						}
@@ -487,7 +488,8 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 							auto byteOffset = bufferView.byteOffset;
 							auto byteLength = bufferView.byteLength;
 
-							if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+							if (auto bufferData = buffer.data
+									; holds_alternative<sources::Vector>(bufferData)) {
 
 								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
 								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
@@ -504,6 +506,10 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				}
 			}
 			else {
+
+				// TODO: enabling this block fucks up specular
+				// enabing specular property in the below material fixes the magenta light's
+				// specular reflection, but not the yellow light.
 
 				auto baseColorFactor = pbrData.baseColorFactor;
 

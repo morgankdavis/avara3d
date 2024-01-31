@@ -255,7 +255,7 @@ int main(int argc, const char* argv[]) {
 					 ? *light->name() : "unnamed");
 
 			if (light->type() == LIGHT_TYPE::POINT) {
-				auto sphere = make_shared<Sphere>(0.25f, 12);
+				auto sphere = make_shared<Sphere>(0.1f, 12);
 				auto property = make_shared<MaterialProperty>(light->color());
 				auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 				sphere->addMaterial(material);
