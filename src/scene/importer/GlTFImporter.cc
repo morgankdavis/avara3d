@@ -135,7 +135,7 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 				return aeScene;
 			}
 			else {
-				AE_LOG_W("No nodes in scene: {}", scene.name);
+				AE_LOG_E("No nodes in scene: {}", scene.name);
 			}
 		}
 		else {
@@ -174,7 +174,7 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 
 			auto &mesh = asset.meshes[*meshIndex];
 
-			AE_LOG_D("mesh.name: {}", mesh.name);
+			AE_LOG_D("Mesh name: {}", mesh.name);
 
 			auto elements = vector<shared_ptr<GeometryElement>>();
 			auto materials = vector<shared_ptr<Material>>();
