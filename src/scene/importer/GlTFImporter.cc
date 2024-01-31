@@ -130,7 +130,7 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 					visitGlTFNode(asset, node, aeScene->rootNode());
 				}
 
-				AE_LOG_D("Done loading glTF.  Time: {}",  aeScene->time() - startTime);
+				AE_LOG_I("Done loading glTF.  Time: {}",  aeScene->time() - startTime);
 
 				return aeScene;
 			}
