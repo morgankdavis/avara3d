@@ -2144,9 +2144,9 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef OPENGL_DESKTOP
-		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//#endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
         default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
 }

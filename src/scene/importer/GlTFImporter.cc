@@ -25,6 +25,7 @@ using namespace std;
 #include "ae/Buffer.h"
 #include "ae/Color.h"
 #include "ae/Image.h"
+#include "ae/Types.h"
 #include "ae/diagnostic/exceptions/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
@@ -452,22 +453,24 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 			if (auto &pbrData = material.pbrData
 					; pbrData.baseColorTexture) {
 
-				// get base color/texture
-
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
 				auto &texture = asset.textures[baseColorTextureIndex];
 
 				if (auto imageIndex = texture.imageIndex) {
 
-
-					// get sampler
-
-					auto aeMaterialProperty = make_shared<MaterialProperty>();
+					auto aeProperty = make_shared<MaterialProperty>();
 
 					if (auto samplerIndex = texture.samplerIndex) {
-
 						auto sampler = asset.samplers[*samplerIndex];
-						//aeMaterialProperty.
+
+						if (sampler.minFilter) {
+							aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
+						}
+						if (sampler.magFilter) {
+							aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
+						}
+						aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
+						aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
 					}
 
 					// TODO: ! CACHE IMAGES !
@@ -484,9 +487,9 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
 						auto aeImage = make_shared<ae::Image>(aeBuffer, false);
 						//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
-						aeMaterialProperty->contents(aeImage);
-						aeMaterial = make_shared<ae::Material>(aeMaterialProperty,
-															   aeMaterialProperty,
+						aeProperty->contents(aeImage);
+						aeMaterial = make_shared<ae::Material>(aeProperty,
+															   aeProperty,
 															   nullptr);
 					}
 					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
@@ -512,9 +515,9 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
 								auto aeImage = make_shared<ae::Image>(aeBuffer, false);
 								//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
-								aeMaterialProperty->contents(aeImage);
-								aeMaterial = make_shared<ae::Material>(aeMaterialProperty,
-																	   aeMaterialProperty,
+								aeProperty->contents(aeImage);
+								aeMaterial = make_shared<ae::Material>(aeProperty,
+																	   aeProperty,
 																	   nullptr);
 							}
 						}
