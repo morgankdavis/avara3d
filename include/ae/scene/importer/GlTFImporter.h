@@ -11,7 +11,6 @@
 #include <filesystem>
 #include <map>
 #include <memory>
-//#include <cuchar>
 
 #include "glm/glm.hpp"
 
@@ -71,8 +70,8 @@ namespace ae {
 		std::filesystem::path										_path;
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
-		std::map<std::size_t, std::map<std::size_t, std::shared_ptr<GeometryElement>>>
-																	_geometryElements;
+//		std::map<std::size_t, std::map<std::size_t, std::shared_ptr<GeometryElement>>>
+//																	_geometryElements;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
 		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;

@@ -53,7 +53,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path):
 		_path{path},
 		_cameras{},
 		_geometries{},
-		_geometryElements{},
+//		_geometryElements{},
 		_images{},
 		_lights{},
 		_materials{},
@@ -212,9 +212,6 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 	vector<Face> faces;
 
 	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
-
-//		if (auto existing = _geometryElements.find(*meshIndex)
-//				; existing == _geometries.end()) {
 
 		if (primitive.indicesAccessor.has_value()) {
 			auto &accessor = asset.accessors[*indiciesAccessorIndex];
@@ -438,7 +435,10 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 	if (auto materialIndex = primitive.materialIndex) {
 
-		auto& material = asset.materials[*materialIndex];
+		if (auto existing = _materials.find(*materialIndex)
+				; existing == _materials.end()) {
+
+			auto &material = asset.materials[*materialIndex];
 
 //		auto& specularMaterial = material.specular; //
 //		if (specularMaterial) {
@@ -449,58 +449,69 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 ////				Optional<TextureInfo> specularColorTexture;
 //		}
 
-		if (auto& pbrData = material.pbrData; pbrData.baseColorTexture) {
+			if (auto &pbrData = material.pbrData; pbrData.baseColorTexture) {
 
-			auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
-			auto& texture = asset.textures[baseColorTextureIndex];
+				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
+				auto &texture = asset.textures[baseColorTextureIndex];
 
-			if (auto imageIndex = texture.imageIndex) {
+				if (auto imageIndex = texture.imageIndex) {
 
-				auto& image = asset.images[*imageIndex];
+					// TODO: ! CACHE IMAGES !
+					// TODO: ! CACHE SAMPLERS !
+					// TODO: clean up double return path?
+					// TODO: cache default/missing texture material
 
-				if (auto& dataSource = image.data
-						; holds_alternative<sources::Vector>(dataSource)) { // .gltf
+					auto &image = asset.images[*imageIndex];
+
+					if (auto &dataSource = image.data; holds_alternative<sources::Vector>(dataSource)) { // .gltf
 
 //					AE_LOG_D("Loading .gltf texture buffer...");
 
-					auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-					auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
-					auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-					auto property = make_shared<MaterialProperty>(aeImage);
-					return make_shared<ae::Material>(property, property, nullptr);
-				}
-				else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
-
-					auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-					auto& bufferView = asset.bufferViews[bufferViewIndex];
-
-					if (auto byteStride = bufferView.byteStride) {
-						AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-						return ae::Material::MissingTextureMaterial();
+						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+						auto aeImage = make_shared<ae::Image>(aeBuffer, false);
+						auto property = make_shared<MaterialProperty>(aeImage);
+						auto aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+						_materials[*materialIndex] = aeMaterial;
+						return aeMaterial;
 					}
-					else {
+					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+
+						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+						auto &bufferView = asset.bufferViews[bufferViewIndex];
+
+						if (auto byteStride = bufferView.byteStride) {
+							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+							return ae::Material::MissingTextureMaterial();
+						}
+						else {
 //						AE_LOG_D("Loading .glb texture buffer...");
 
-						auto buffer = asset.buffers[bufferView.bufferIndex];
-						auto byteOffset = bufferView.byteOffset;
-						auto byteLength = bufferView.byteLength;
+							auto buffer = asset.buffers[bufferView.bufferIndex];
+							auto byteOffset = bufferView.byteOffset;
+							auto byteLength = bufferView.byteLength;
 
-						if (auto bufferData = buffer.data
-								; holds_alternative<sources::Vector>(bufferData)) {
+							if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
 
-							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-							auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
-							auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-							auto property = make_shared<MaterialProperty>(aeImage);
-							return make_shared<ae::Material>(property, property, nullptr);
+								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+								auto aeImage = make_shared<ae::Image>(aeBuffer, false);
+								auto property = make_shared<MaterialProperty>(aeImage);
+								auto aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+								_materials[*materialIndex] = aeMaterial;
+								return aeMaterial;
+							}
 						}
 					}
-				}
-				else {
-					AE_LOG_W("Unexpected texture data.  Skipping.");
-					return ae::Material::MissingTextureMaterial();
+					else {
+						AE_LOG_W("Unexpected texture data.  Skipping.");
+						return ae::Material::MissingTextureMaterial();
+					}
 				}
 			}
+		}
+		else {
+			return _materials[*materialIndex];
 		}
 	}
 
@@ -512,24 +523,32 @@ shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 	if (auto lightIndex = node.lightIndex) {
 
-		auto& light = asset.lights[*lightIndex];
-		auto& type = light.type;
+		if (auto existing = _lights.find(*lightIndex)
+				; existing == _lights.end()) {
 
-		if (type == fastgltf::LightType::Point) {
+			auto& light = asset.lights[*lightIndex];
+			auto& type = light.type;
 
-			auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+			if (type == fastgltf::LightType::Point) {
 
-			aeLight->name(string(light.name));
-			aeLight->attenuationFactor(0); // temporary
-			aeLight->color(colorFromGlTFColorArray(light.color));
+				auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+
+				aeLight->name(string(light.name));
+				aeLight->attenuationFactor(0); // temporary
+				aeLight->color(colorFromGlTFColorArray(light.color));
 //			// TODO: range, intensity
 
-			return aeLight;
+				_lights[*lightIndex] = aeLight;
+				return aeLight;
+			}
+			else {
+
+				AE_LOG_W("Unsupported light type: {}",
+						 magic_enum::enum_name<fastgltf::LightType>(type));
+			}
 		}
 		else {
-
-			AE_LOG_W("Unsupported light type: {}",
-					 magic_enum::enum_name<fastgltf::LightType>(type));
+			return _lights[*lightIndex];
 		}
 	}
 
@@ -541,29 +560,37 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 	if (auto cameraIndex = node.cameraIndex) {
 
-		auto& camera = asset.cameras[*cameraIndex];
+		if (auto existing = _cameras.find(*cameraIndex)
+				; existing == _cameras.end()) {
 
-		auto cameraVar = camera.camera;
-		if (holds_alternative<fastgltf::Camera::Perspective>(cameraVar)) {
+			auto& camera = asset.cameras[*cameraIndex];
 
-			auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
+			auto cameraVar = camera.camera;
+			if (holds_alternative<fastgltf::Camera::Perspective>(cameraVar)) {
 
-			auto aeCamera = make_shared<PerspectiveCamera>(string(camera.name),
-														   perspective.znear,
-														   (perspective.zfar.has_value()
-															? *perspective.zfar
-															: 1000000), // cheating
-														   perspective.yfov);
+				auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
 
-			if (auto ratio = perspective.aspectRatio) {
-				aeCamera->aspectRatio(*ratio);
+				auto aeCamera = make_shared<PerspectiveCamera>(string(camera.name),
+															   perspective.znear,
+															   (perspective.zfar.has_value()
+																? *perspective.zfar
+																: 1000000), // cheating
+															   perspective.yfov);
+
+				if (auto ratio = perspective.aspectRatio) {
+					aeCamera->aspectRatio(*ratio);
+				}
+
+				_cameras[*cameraIndex] = aeCamera;
+				return aeCamera;
 			}
+			else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
 
-			return aeCamera;
+				AE_LOG_W("Orthographic cameras are not supported.");
+			}
 		}
-		else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
-
-			AE_LOG_W("Orthographic cameras are not supported.");
+		else {
+			return _cameras[*cameraIndex];
 		}
 	}
 
