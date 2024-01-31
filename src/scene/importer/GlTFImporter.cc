@@ -11,9 +11,7 @@ using namespace glm;
 using namespace std;
 
 
-#include <chrono>
 #include <filesystem>
-#include <thread>
 #include <variant>
 
 #include "fastgltf/parser.hpp"
@@ -26,22 +24,14 @@ using namespace std;
 
 #include "ae/Buffer.h"
 #include "ae/Color.h"
-#include "ae/CubeImage.h"
 #include "ae/Image.h"
-#include "ae/Utilities.h"
 #include "ae/diagnostic/exceptions/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
-#include "ae/input/platform/desktop/WindowInputManager.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/PhysicalWorld.h"
 #include "ae/rendering/Light.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/context/RenderContext.h"
 #include "ae/rendering/materials/Material.h"
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/scene/Node.h"
@@ -57,7 +47,13 @@ GlTFImporter::GlTFImporter(const filesystem::path& path):
 		_images{},
 		_lights{},
 		_materials{},
-		_materialProperties{} {}
+		_materialProperties{} {
+
+	auto extension = path.extension();
+	if (!(extension == ".glb" || extension == ".gltf")) {
+		throw UnsupportedFormat(fmt::format("Unsupported format: {}", extension.string()));
+	}
+}
 
 shared_ptr<ae::Scene> GlTFImporter::scene() {
 
@@ -207,6 +203,8 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 
 shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 																			   fastgltf::Primitive& primitive) {
+
+	// TODO: make this not suck
 
 	vector<Vertex> verts;
 	vector<Face> faces;
