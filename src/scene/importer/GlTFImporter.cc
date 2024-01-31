@@ -172,25 +172,34 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 														fastgltf::Node& node) {
 
 	if (auto meshIndex = node.meshIndex) {
-		auto& mesh = asset.meshes[*meshIndex];
 
-		AE_LOG_D("mesh.name: {}", mesh.name);
+		if (auto existing = _geometries.find(*meshIndex)
+				; existing == _geometries.end()) {
 
-		auto elements = vector<shared_ptr<GeometryElement>>();
-		auto materials = vector<shared_ptr<Material>>();
+			auto &mesh = asset.meshes[*meshIndex];
 
-		for (auto& primitive : mesh.primitives) {
+			AE_LOG_D("mesh.name: {}", mesh.name);
 
-			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
-			if (element) elements.push_back(element);
+			auto elements = vector<shared_ptr<GeometryElement>>();
+			auto materials = vector<shared_ptr<Material>>();
 
-			auto material = materialFromGlFTPrimitive(asset, primitive);
-			if (material) materials.push_back(material);
+			for (auto &primitive: mesh.primitives) {
+
+				auto element = geometryElementFromGlFTPrimitive(asset, primitive);
+				if (element) elements.push_back(element);
+
+				auto material = materialFromGlFTPrimitive(asset, primitive);
+				if (material) materials.push_back(material);
+			}
+
+			auto geometry = make_shared<Geometry>(elements, materials);
+			geometry->name(string(mesh.name));
+			_geometries[*meshIndex] = geometry;
+			return geometry;
 		}
-
-		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(string(mesh.name));
-		return geometry;
+		else {
+			return _geometries[*meshIndex];
+		}
 	}
 
 	return nullptr;
@@ -524,8 +533,8 @@ shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-shared_ptr<ae::PerspectiveCamera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
-																   fastgltf::Node& node) {
+shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
+														fastgltf::Node& node) {
 
 	if (auto cameraIndex = node.cameraIndex) {
 

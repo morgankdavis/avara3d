@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <map>
 #include <memory>
+#include <cuchar>
 
 #include "glm/glm.hpp"
 
@@ -26,6 +27,7 @@ namespace fastgltf {
 namespace ae {
 
 
+	class Camera;
 	class Color;
 	class Geometry;
 	class GeometryElement;
@@ -34,7 +36,6 @@ namespace ae {
 	class Material;
 	class MaterialProperty;
 	class Node;
-	class PerspectiveCamera;
 	class Scene;
 
 
@@ -60,21 +61,21 @@ namespace ae {
 															fastgltf::Primitive& primitive);
 		std::shared_ptr<Light> lightFromGlTFNode(fastgltf::Asset& asset,
 												 fastgltf::Node& node);
-		std::shared_ptr<PerspectiveCamera> cameraFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Camera> cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 		glm::mat4 transformFromGlFTNode(fastgltf::Node& node);
 		std::shared_ptr<Color> colorFromGlTFColorArray(std::array<float, 3>& arr);
 
-		std::shared_ptr<Scene> 				_scene;
-		std::filesystem::path				_path;
-		std::map<int, PerspectiveCamera> 	_cameras;
-		std::map<int, Geometry> 			_geometries;
-		std::map<int, std::map<int, GeometryElement>>
-				_geometryElements;
-		std::map<int, Image> 				_images;
-		std::map<int, Light> 				_lights;
-		std::map<int, Material> 			_materials;
-		std::map<int, MaterialProperty> 	_materialProperties;
+		std::shared_ptr<Scene> 										_scene;
+		std::filesystem::path										_path;
+		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
+		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
+		std::map<std::size_t, std::map<std::size_t, std::shared_ptr<GeometryElement>>>
+																	_geometryElements;
+		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
+		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
+		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
+		std::map<std::size_t, std::shared_ptr<MaterialProperty>> 	_materialProperties;
 	};
 }
 
