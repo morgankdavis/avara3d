@@ -438,16 +438,9 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 			auto &material = asset.materials[*materialIndex];
 
-//		auto& specularMaterial = material.specular; //
-//		if (specularMaterial) {
-////			unique_ptr<MaterialSpecular>:
-////				num specularFactor;
-////				Optional<TextureInfo> specularTexture;
-////				std::array<num, 3> specularColorFactor;
-////				Optional<TextureInfo> specularColorTexture;
-//		}
-
 			shared_ptr<ae::Material> aeMaterial = nullptr;
+
+			// ambient, diffuse
 
 			if (auto &pbrData = material.pbrData
 					; pbrData.baseColorTexture) {
@@ -499,6 +492,20 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				auto property = make_shared<MaterialProperty>(aeColor);
 				aeMaterial = make_shared<ae::Material>(property, property, nullptr);
 			}
+
+			// specular
+
+					auto& specularMaterial = material.specular; //
+		if (specularMaterial) {
+//			unique_ptr<MaterialSpecular>:
+//				num specularFactor;
+//				Optional<TextureInfo> specularTexture;
+//				std::array<num, 3> specularColorFactor;
+//				Optional<TextureInfo> specularColorTexture;
+		}
+
+
+
 
 			if (aeMaterial) {
 				aeMaterial->doubleSided(material.doubleSided);
