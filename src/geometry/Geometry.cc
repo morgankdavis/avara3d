@@ -32,11 +32,11 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<Geometry> LoadObj(const filesystem::path& path);
-static void AddROMaterial(vector<shared_ptr<Material>>& aeMaterials,
-						  map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
-						  const rapidobj::Materials& roMaterials,
-						  int32_t roMaterialID,
-						  filesystem::path& textureDir);
+static void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
+						   map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+						   const rapidobj::Materials& objMaterials,
+						   int32_t objMaterialID,
+						   filesystem::path& textureDir);
 
 /*********************************************************************************************
 	Public Static
@@ -303,11 +303,11 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 					AE_LOG_D("New materialID -- adding GeometryElement.");
 
 					aeElements.push_back(make_shared<GeometryElement>(verts, faces));
-					AddROMaterial(aeMaterials,
-								  aeMaterialsMap,
-								  materials,
-								  prevMaterialID,
-								  texturesDir);
+					AddObjMaterial(aeMaterials,
+								   aeMaterialsMap,
+								   materials,
+								   prevMaterialID,
+								   texturesDir);
 
 					verts.clear();
 					faces.clear();
@@ -360,11 +360,11 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 			// add the last element (materialID didn't change at the end of the face list)
 			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
-			AddROMaterial(aeMaterials,
-						  aeMaterialsMap,
-						  materials,
-						  materialID,
-						  texturesDir);
+			AddObjMaterial(aeMaterials,
+						   aeMaterialsMap,
+						   materials,
+						   materialID,
+						   texturesDir);
 
 		} // shapes
 
@@ -383,24 +383,24 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 	return nullptr;
 }
 
-void AddROMaterial(vector<shared_ptr<Material>>& aeMaterials,
-				   map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
-				   const rapidobj::Materials& roMaterials,
-				   int32_t roMaterialID,
-				   filesystem::path& textureDir) {
-	AE_LOG_D("roMaterialID: {}", roMaterialID);
+void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
+					map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+					const rapidobj::Materials& objMaterials,
+					int32_t objMaterialID,
+					filesystem::path& textureDir) {
+	AE_LOG_D("roMaterialID: {}", objMaterialID);
 
-	if (roMaterialID >= 0
-		&& !roMaterials.empty()) {
+	if (objMaterialID > -1
+		&& !objMaterials.empty()) {
 
-		if (auto existing = aeMaterialsMap.find(roMaterialID); existing != aeMaterialsMap.end()) {
+		if (auto existing = aeMaterialsMap.find(objMaterialID); existing != aeMaterialsMap.end()) {
 
 			aeMaterials.push_back(existing->second);
 		}
 		else {
 
 			auto aeMaterial = make_shared<Material>();
-			auto& roMaterial = roMaterials[roMaterialID];
+			auto& roMaterial = objMaterials[objMaterialID];
 
 			// TODO: generalize this
 
@@ -525,7 +525,7 @@ void AddROMaterial(vector<shared_ptr<Material>>& aeMaterials,
 
 			}
 
-			aeMaterialsMap[roMaterialID] = aeMaterial;
+			aeMaterialsMap[objMaterialID] = aeMaterial;
 
 			aeMaterials.push_back(aeMaterial);
 		}
