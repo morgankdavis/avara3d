@@ -213,6 +213,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 
 	if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
 
+//		if (auto existing = _geometryElements.find(*meshIndex)
+//				; existing == _geometries.end()) {
+
 		if (primitive.indicesAccessor.has_value()) {
 			auto &accessor = asset.accessors[*indiciesAccessorIndex];
 
