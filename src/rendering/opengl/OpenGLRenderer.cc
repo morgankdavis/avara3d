@@ -2153,12 +2153,12 @@ static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef OPENGL_DESKTOP
-		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//#endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;
 		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_BORDER; }
+		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_EDGE; }
 }
 
 static void CheckGLError() {

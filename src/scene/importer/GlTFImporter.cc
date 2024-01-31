@@ -473,57 +473,16 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 						aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
 					}
 
-					// TODO: ! CACHE IMAGES !
-					// TODO: ! CACHE SAMPLERS !
-					// TODO: clean up double return path?
-					// TODO: cache default/missing texture material
-
 					auto &image = asset.images[*imageIndex];
+					auto aeImage = imageFromGlTFImage(asset, image);
 
-					if (auto &dataSource = image.data
-							; holds_alternative<sources::Vector>(dataSource)) { // .gltf
-
-						auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-						auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
-						auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-						//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
+					if (aeImage) {
 						aeProperty->contents(aeImage);
 						aeMaterial = make_shared<ae::Material>(aeProperty,
 															   aeProperty,
 															   nullptr);
 					}
-					else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
-
-						auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-						auto &bufferView = asset.bufferViews[bufferViewIndex];
-
-						if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-
-							AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-							aeMaterial = ae::Material::MissingTextureMaterial();
-						}
-						else {
-
-							auto buffer = asset.buffers[bufferView.bufferIndex];
-							auto byteOffset = bufferView.byteOffset;
-							auto byteLength = bufferView.byteLength;
-
-							if (auto bufferData = buffer.data
-									; holds_alternative<sources::Vector>(bufferData)) {
-
-								auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-								auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
-								auto aeImage = make_shared<ae::Image>(aeBuffer, false);
-								//aeMaterialProperty = make_shared<MaterialProperty>(aeImage);
-								aeProperty->contents(aeImage);
-								aeMaterial = make_shared<ae::Material>(aeProperty,
-																	   aeProperty,
-																	   nullptr);
-							}
-						}
-					}
 					else {
-						AE_LOG_W("Unexpected texture data.");
 						aeMaterial = ae::Material::MissingTextureMaterial();
 					}
 				}
@@ -552,12 +511,15 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 			}
 		}
 		else {
+			AE_LOG_D("Using cached material.");
 			return _materials[*materialIndex];
 		}
 	}
+	else {
+		AE_LOG_W("Missing material.");
+	}
 
-	//return ae::Material::DefaultMaterial();
-	return nullptr;
+	return ae::Material::DefaultMaterial();
 }
 
 shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
@@ -674,6 +636,65 @@ mat4 GlTFImporter::transformFromGlFTNode(fastgltf::Node& node) {
 	}
 
 	return mat4(1.0);
+}
+
+shared_ptr<ae::Image> GlTFImporter::imageFromGlTFImage(fastgltf::Asset& asset,
+										  fastgltf::Image& image) {
+
+	shared_ptr<Image> aeImage = nullptr;
+
+	if (auto existing = _images.find(&image)
+			; existing == _images.end()) {
+
+		if (auto &dataSource = image.data
+				; holds_alternative<sources::Vector>(dataSource)) { // .gltf
+
+			auto uint8Vec = get<sources::Vector>(dataSource).bytes;
+			auto aeBuffer = make_shared<ae::Buffer>(uint8Vec.data(), uint8Vec.size());
+			aeImage = make_shared<ae::Image>(aeBuffer, false);
+		}
+		else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+
+			auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
+			auto &bufferView = asset.bufferViews[bufferViewIndex];
+
+			if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+
+				AE_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+				aeImage = nullptr;
+			}
+			else {
+
+				auto buffer = asset.buffers[bufferView.bufferIndex];
+				auto byteOffset = bufferView.byteOffset;
+				auto byteLength = bufferView.byteLength;
+
+				if (auto bufferData = buffer.data
+						; holds_alternative<sources::Vector>(bufferData)) {
+
+					auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+					auto aeBuffer = make_shared<ae::Buffer>(&uint8Vec[byteOffset], byteLength);
+					aeImage = make_shared<ae::Image>(aeBuffer, false);
+				}
+				else {
+					AE_LOG_W("Unexpected texture data.");
+					aeImage = nullptr;
+				}
+			}
+		}
+		else {
+			AE_LOG_W("Unexpected texture data.");
+			aeImage = nullptr;
+		}
+
+		if (aeImage) _images[&image] = aeImage;
+		return aeImage;
+	}
+	else {
+		return _images[&image];
+	}
+
+	return nullptr;
 }
 
 shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 3>& arr) {

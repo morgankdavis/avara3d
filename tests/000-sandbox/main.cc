@@ -231,8 +231,8 @@ int main(int argc, const char* argv[]) {
 //	}
 
 //	{
-//		auto testScene = SceneNamed("importTest");
-		auto testScene = SceneNamed("importTest/importTest", "gltf");
+		auto testScene = SceneNamed("importTest");
+//		auto testScene = SceneNamed("importTest/importTest", "gltf");
 //		auto testScene = SceneNamed("pineapple_only", "glb");
 //		auto testScene = SceneNamed("pineapple_only/pineapple_only", "gltf");
 
