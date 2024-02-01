@@ -6,12 +6,12 @@ Kd 0.700 0.700 0.700
 Ks 1.000 1.000 1.000
 Ka 0.700 0.700 0.700
 
-newmtl Material.001
-Ns 92.156860
+newmtl QuadMesh1
+Ns 9.803922
 Tr 1.000000
 Kd 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
+Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
-map_Kd textures/banana_diff.png
-map_Ks textures/banana_spec.png
+map_Kd textures/apple_diff.jpg
+map_Ks textures/apple_spec.jpg
 

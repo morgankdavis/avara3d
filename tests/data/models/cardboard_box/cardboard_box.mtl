@@ -7,19 +7,17 @@ Kd 0.700000 0.700000 0.700000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
 
-newmtl steel
-Ns 4.000000
+newmtl tape
+Ns 31.372549
+Tr 1.000000
+Kd 0.600000 0.400000 0.200000
+Ks 0.200000 0.200000 0.200000
+Ka 0.1 0.1 0.1
+
+newmtl box
+Ns 31.372549
 Tr 1.000000
 Kd 1.000000 1.000000 1.000000
-Ks 0.900000 0.900000 0.900000
+Ks 0.350000 0.350000 0.350000
 Ka 0.1 0.1 0.1
-map_Kd textures/slurm_diffuse2.jpg
-
-newmtl Material
-Ns 80.000000
-Tr 1.000000
-Kd 1.000000 1.000000 1.000000
-Ks 1.000000 1.000000 1.000000
-Ka 0.1 0.1 0.1
-map_Kd textures/slurm_diffuse.png
-
+map_Kd textures/cardboard_box_diffuse.png
