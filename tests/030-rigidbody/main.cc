@@ -16,6 +16,9 @@
 #include "ae/ae.h"
 #include "ae/Utilities.h"
 
+// testing
+#include "ae/physics/ConvexDecomposer.h"
+
 
 using namespace ae;
 using namespace ae::utils;
@@ -35,7 +38,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction);
 shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
 shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
-//void SpawnHACDTeapot(Scene& scene);
+void SpawnHACDTeapot(Scene& scene);
 void AddBoxes(Scene& scene);
 void AddCardboardBoxes(Scene& scene);
 void AddSlurms(Scene& scene);
@@ -453,9 +456,9 @@ void UpdateCallback(Scene& scene, float time) {
 			}
 		}
 
-//	if (keysPressed.count(KEY::H)) {
-//		SpawnHACDTeapot(scene);
-//	}
+		if (keysPressed.count(KEY::H)) {
+			SpawnHACDTeapot(scene);
+		}
 
 		// move paddle
 
@@ -1114,43 +1117,44 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	return node;
 }
 
-//void SpawnHACDTeapot(Scene& scene) {
-//
-//	auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-//
-//	ConvexDecomposer::Options options;
-//	options.maxConvexHulls = options.maxConvexHulls / 2;
-//	options.resolution = options.resolution / 2;
-//	options.maxRecursionDepth = options.maxRecursionDepth / 2;
-//	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
-//
-//	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
-//
-//	for (auto& element : teapotNode->geometry()->elements()) {
-//		auto decomposer = ConvexDecomposer(element, options);
-//		auto elements = decomposer.decompose();
-//		decomposedElements.insert(decomposedElements.begin(),
-//								  elements.begin(),
-//								  elements.end());
-//	}
-//
-//	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
-//	decomposedTeapotMaterials.reserve(decomposedElements.size());
-//	for (int m=0; m<decomposedElements.size(); ++m) {
-//		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
-//		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
-//																  nullptr,
-//																  nullptr,
-//																  randomColorProperty));
-//	}
-//
-//	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
-//	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
-//	decomposedTeapotNode->scale({.25, .25, .25});
+void SpawnHACDTeapot(Scene& scene) {
+
+	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
+	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot"));
+
+	ConvexDecomposer::Options options;
+	options.maxConvexHulls = options.maxConvexHulls / 2;
+	options.resolution = options.resolution / 2;
+	options.maxRecursionDepth = options.maxRecursionDepth / 2;
+	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
+
+	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
+
+	for (auto& element : teapotNode->geometry()->elements()) {
+		auto decomposer = ConvexDecomposer(element, options);
+		auto elements = decomposer.decompose();
+		decomposedElements.insert(decomposedElements.begin(),
+								  elements.begin(),
+								  elements.end());
+	}
+
+	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
+	decomposedTeapotMaterials.reserve(decomposedElements.size());
+	for (int m=0; m<decomposedElements.size(); ++m) {
+		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
+		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
+																  nullptr,
+																  nullptr,
+																  randomColorProperty));
+	}
+
+	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
+	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+	decomposedTeapotNode->scale(vec3(1.0f) * 20.0f);
 //	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
-//	decomposedTeapotNode->position({0, 0, 4});
-//	scene.rootNode()->addChild(decomposedTeapotNode);
-//}
+	decomposedTeapotNode->position({0, 10, 0});
+	scene.rootNode()->addChild(decomposedTeapotNode);
+}
 
 void AddBoxes(Scene& scene) {
 
