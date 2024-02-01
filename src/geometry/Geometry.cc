@@ -348,9 +348,10 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 				} // verticies
 
-				Face face = {(int)baseFaceIndex + 0,
-							 (int)baseFaceIndex + 1,
-							 (int)baseFaceIndex + 2};
+				// TODO: this is fucked
+				Face face = { unsigned(baseFaceIndex + 0),
+							  unsigned(baseFaceIndex + 1),
+							  unsigned(baseFaceIndex + 2) };
 				faces.push_back(face);
 
 				prevMaterialID = materialID;

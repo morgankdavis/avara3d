@@ -68,8 +68,8 @@ namespace ae {
 	};
 
 	typedef struct {
-		glm::vec3 	min;
-		glm::vec3 	max;
+		glm::vec3 min;
+		glm::vec3 max;
 	} AABB;
 
 	typedef struct {
@@ -331,9 +331,9 @@ namespace ae {
 	} Vertex;
 	
 	typedef struct {
-		int a;
-		int b;
-		int c;
+		unsigned a;
+		unsigned b;
+		unsigned c;
 	} Face;
 
 	typedef struct {

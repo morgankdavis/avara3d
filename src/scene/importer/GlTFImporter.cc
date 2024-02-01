@@ -228,9 +228,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 						});
 
 				for (size_t i = 0; i < indices.size(); i += 3) {
-					faces.push_back({int(indices[i + 0]),
-									 int(indices[i + 1]),
-									 int(indices[i + 2])});
+					faces.push_back( {unsigned(indices[i + 0]),
+									  unsigned(indices[i + 1]),
+									  unsigned(indices[i + 2])} );
 				}
 			}
 

@@ -1633,7 +1633,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	auto numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 	
 static void DrawAABB(Geometry& geometry,

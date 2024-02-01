@@ -49,7 +49,9 @@ Sphere::Sphere(float radius, int segments):
 		
 		auto faces = vector<Face>();
 		for (const Triangle& t : icoSphere.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+			Face face = { unsigned(t.vertices[0]),
+						  unsigned(t.vertices[1]),
+						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 

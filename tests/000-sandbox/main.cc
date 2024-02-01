@@ -39,7 +39,7 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
-constexpr bool					DARK =					true;
+constexpr bool					DARK =					false;
 
 
 std::shared_ptr<ae::Logger>		logger;
@@ -214,6 +214,10 @@ int main(int argc, const char* argv[]) {
 //		scene->rootNode()->addChild(testNode);
 //	}
 
+//	AE_LOG_D("inr: {}", sizeof(int));
+//	AE_LOG_D("long: {}", sizeof(long));
+//	AE_LOG_D("long long: {}", sizeof(long long));
+//	AE_LOG_D("size_t: {}", sizeof(size_t));
 
 
 	{
