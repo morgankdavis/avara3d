@@ -248,41 +248,40 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						// auto numComponants = getNumComponents(type); // 3
-
 						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						if (!bufferView.byteStride.has_value()) {
+						auto &buffer = asset.buffers[bufferView.bufferIndex];
+						auto &bufferData = buffer.data;
 
-							auto &buffer = asset.buffers[bufferView.bufferIndex];
-							auto &bufferData = buffer.data;
+						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
-							if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+							auto offset = bufferView.byteOffset + accessor.byteOffset;
+							auto length = bufferView.byteLength;
+							auto elementByteSize = getElementByteSize(type, componentType);
+							auto numElements = length / elementByteSize;
 
-								auto offset = bufferView.byteOffset + accessor.byteOffset;
-								auto length = bufferView.byteLength;
-								auto elementByteSize = getElementByteSize(type, componentType);
-								auto numElements = length / elementByteSize;
+							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+							auto stride = bufferView.byteStride
+										  ? *(bufferView.byteStride)
+										  : sizeof(vec3);
 
-								auto pPtr = reinterpret_cast<glm::vec3 *>(&vec->bytes[offset]);
-								for (size_t p = 0; p < numElements; ++p) {
-									verts.push_back({(*pPtr++), {}, {}});
-								}
-							}
-							else {
-								AE_LOG_W("Unsupported buffer data.");
+							for (size_t i = 0; i < numElements; ++i) {
+
+								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
+								verts.push_back({*v3Ptr, {}, {}});
+								ptr += stride;
 							}
 						}
 						else {
-							AE_LOG_W("Accessor has stride.  Skipping.");
+							AE_LOG_W("Unsupported position buffer data.");
 						}
 					}
 					else {
-						AE_LOG_W("Unsupported accessor component type: {}",
+						AE_LOG_W("Unsupported position accessor component type: {}",
 								 magic_enum::enum_name(componentType));
 					}
 				}
 				else {
-					AE_LOG_W("Unsupported accessor type: {}",
+					AE_LOG_W("Unsupported position accessor type: {}",
 							 magic_enum::enum_name(type));
 				}
 			}
@@ -301,41 +300,40 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						// auto numComponants = getNumComponents(type); // 3
-
 						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						if (!bufferView.byteStride.has_value()) {
+						auto &buffer = asset.buffers[bufferView.bufferIndex];
+						auto &bufferData = buffer.data;
 
-							auto &buffer = asset.buffers[bufferView.bufferIndex];
-							auto &bufferData = buffer.data;
+						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
-							if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+							auto offset = bufferView.byteOffset + accessor.byteOffset;
+							auto length = bufferView.byteLength;
+							auto elementByteSize = getElementByteSize(type, componentType);
+							auto numElements = length / elementByteSize;
 
-								auto offset = bufferView.byteOffset + accessor.byteOffset;
-								auto length = bufferView.byteLength;
-								auto elementByteSize = getElementByteSize(type, componentType);
-								auto numElements = length / elementByteSize;
+							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+							auto stride = bufferView.byteStride
+										  ? *(bufferView.byteStride)
+										  : sizeof(vec3);
 
-								auto nPtr = reinterpret_cast<glm::vec3 *>(&vec->bytes[offset]);
-								for (size_t n = 0; n < numElements; ++n) {
-									verts[n].normal = *(nPtr++);
-								}
-							}
-							else {
-								AE_LOG_W("Unsupported buffer data.");
+							for (size_t i = 0; i < numElements; ++i) {
+
+								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
+								verts[i].normal = *v3Ptr;
+								ptr += stride;
 							}
 						}
 						else {
-							AE_LOG_W("Accessor has stride.  Skipping.");
+							AE_LOG_W("Unsupported normals buffer data.");
 						}
 					}
 					else {
-						AE_LOG_W("Unsupported accessor component type: {}",
+						AE_LOG_W("Unsupported normals accessor component type: {}",
 								 magic_enum::enum_name(componentType));
 					}
 				}
 				else {
-					AE_LOG_W("Unsupported accessor type: {}",
+					AE_LOG_W("Unsupported normals accessor type: {}",
 							 magic_enum::enum_name(type));
 				}
 			}
@@ -354,41 +352,40 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						// auto numComponants = getNumComponents(type); // 2
-
 						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						if (!bufferView.byteStride.has_value()) {
+						auto &buffer = asset.buffers[bufferView.bufferIndex];
+						auto &bufferData = buffer.data;
 
-							auto &buffer = asset.buffers[bufferView.bufferIndex];
-							auto &bufferData = buffer.data;
+						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
-							if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+							auto offset = bufferView.byteOffset + accessor.byteOffset;
+							auto length = bufferView.byteLength;
+							auto elementByteSize = getElementByteSize(type, componentType);
+							auto numElements = length / elementByteSize;
 
-								auto offset = bufferView.byteOffset + accessor.byteOffset;
-								auto length = bufferView.byteLength;
-								auto elementByteSize = getElementByteSize(type, componentType);
-								auto numElements = length / elementByteSize;
+							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+							auto stride = bufferView.byteStride
+										  ? *(bufferView.byteStride)
+										  : sizeof(vec2);
 
-								auto cPtr = reinterpret_cast<glm::vec2 *>(&vec->bytes[offset]);
-								for (size_t c = 0; c < numElements; ++c) {
-									verts[c].texCoord = *(cPtr++);
-								}
-							}
-							else {
-								AE_LOG_W("Unsupported buffer data.");
+							for (size_t i = 0; i < numElements; ++i) {
+
+								auto v2Ptr = reinterpret_cast<vec2*>(ptr);
+								verts[i].texCoord = *v2Ptr;
+								ptr += stride;
 							}
 						}
 						else {
-							AE_LOG_W("Accessor has stride.  Skipping.");
+							AE_LOG_W("Unsupported texcoords buffer data.");
 						}
 					}
 					else {
-						AE_LOG_W("Unsupported accessor component type: {}",
+						AE_LOG_W("Unsupported texcoords accessor component type: {}",
 								 magic_enum::enum_name(componentType));
 					}
 				}
 				else {
-					AE_LOG_W("Unsupported accessor type: {}",
+					AE_LOG_W("Unsupported texcoords accessor type: {}",
 							 magic_enum::enum_name(type));
 				}
 			}

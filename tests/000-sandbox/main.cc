@@ -216,27 +216,44 @@ int main(int argc, const char* argv[]) {
 
 
 
-//	{
-//		auto testScene = SceneNamed("import_test/import_test");
-////		auto testScene = SceneNamed("import_test", "glb");
-//		auto importRoot = testScene->rootNode();
-//		auto rootPos = importRoot->position();
-//		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
-//		scene->rootNode()->addChild(importRoot);
+	{
+		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("import_test", "glb");
+//		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
+//		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
+//		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
+		auto importRoot = testScene->rootNode();
+		auto rootPos = importRoot->position();
+		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+		scene->rootNode()->addChild(importRoot);
+
+//		{
+//			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+//			pointLight->attenuationFactor(0);
+//			auto pointLightNode = Node::LightNode(pointLight);
+//			pointLightNode->position({5, 5, 0});
+//			scene->rootNode()->addChild(pointLightNode);
 //
-//		for (auto& node : scene->rootNode()->children(true)) {
-//			auto light = node->light();
-//			if (light) {
-//				if (light->type() == LIGHT_TYPE::POINT) {
-//					auto sphere = make_shared<Sphere>(0.1f, 12);
-//					auto property = make_shared<MaterialProperty>(light->color());
-//					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-//					sphere->addMaterial(material);
-//					node->geometry(sphere);
-//				}
-//			}
+//			auto sphere = make_shared<Sphere>(0.1f, 12);
+//			auto property = make_shared<MaterialProperty>(pointLight->color());
+//			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+//			sphere->addMaterial(material);
+//			pointLightNode->geometry(sphere);
 //		}
-//	}
+
+		for (auto& node : scene->rootNode()->children(true)) {
+			auto light = node->light();
+			if (light) {
+				if (light->type() == LIGHT_TYPE::POINT) {
+					auto sphere = make_shared<Sphere>(0.1f, 12);
+					auto property = make_shared<MaterialProperty>(light->color());
+					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+					sphere->addMaterial(material);
+					node->geometry(sphere);
+				}
+			}
+		}
+	}
 
 
 
