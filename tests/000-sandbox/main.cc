@@ -176,7 +176,7 @@ int main(int argc, const char* argv[]) {
 ////		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
 ////		auto testGeometry = GeometryNamed("slurm/slurm");
 ////		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
-////		auto testGeometry = GeometryNamed("palm/palm");
+//		auto testGeometry = GeometryNamed("palm/palm");
 ////		auto testGeometry = GeometryNamed("palms/palms");
 ////		auto testGeometry = GeometryNamed("island/island");
 ////		auto testGeometry = GeometryNamed("teapot");
@@ -203,7 +203,8 @@ int main(int argc, const char* argv[]) {
 ////		auto testGeometry = GeometryNamed("siamese/siamese");
 ////		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
 ////		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-//		auto testGeometry = GeometryNamed("crocus/crocus");
+////		auto testGeometry = GeometryNamed("crocus/crocus");
+//
 //
 //		for (auto &m: testGeometry->materials()) {
 //			m->doubleSided(true);
@@ -214,10 +215,6 @@ int main(int argc, const char* argv[]) {
 //		scene->rootNode()->addChild(testNode);
 //	}
 
-//	AE_LOG_D("inr: {}", sizeof(int));
-//	AE_LOG_D("long: {}", sizeof(long));
-//	AE_LOG_D("long long: {}", sizeof(long long));
-//	AE_LOG_D("size_t: {}", sizeof(size_t));
 
 
 	{
@@ -226,6 +223,7 @@ int main(int argc, const char* argv[]) {
 //		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
 //		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
 //		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
+
 		auto importRoot = testScene->rootNode();
 		auto rootPos = importRoot->position();
 		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});

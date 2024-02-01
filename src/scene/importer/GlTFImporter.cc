@@ -5,12 +5,6 @@
 #include "ae/scene/importer/GlTFImporter.h"
 
 
-using namespace ae;
-using namespace fastgltf;
-using namespace glm;
-using namespace std;
-
-
 #include <filesystem>
 #include <variant>
 
@@ -39,6 +33,12 @@ using namespace std;
 #include "ae/scene/Scene.h"
 
 
+using namespace ae;
+using namespace fastgltf;
+using namespace glm;
+using namespace std;
+
+
 GlTFImporter::GlTFImporter(const filesystem::path& path):
 		_scene{nullptr},
 		_path{path},
@@ -50,7 +50,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path):
 		_materialProperties{} {
 
 	auto extension = path.extension();
-	if (!(extension == ".glb" || extension == ".gltf")) {
+	if (!(extension == ".gltf" || extension == ".glb")) {
 		throw UnsupportedFormat(fmt::format("Unsupported format: {}", extension.string()));
 	}
 }
@@ -90,11 +90,11 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 
 	auto expectedAsset = Expected<Asset>(Error::None);
 
-	if (extension == ".glb") {
-		expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
-	}
-	else if (extension == ".gltf") {
+	if (extension == ".gltf") {
 		expectedAsset = parser.loadGLTF(&data, directory, options);
+	}
+	else if (extension == ".glb") {
+		expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
 	}
 	else {
 		AE_LOG_E("Unsupported file extension: {}", extension.string());
@@ -122,19 +122,16 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 				AE_LOG_W("Ignoring extra scenes.");
 			}
 
-			auto& scene = scenes[asset.defaultScene.has_value()
-								 ? *asset.defaultScene
-								 : 0];
+			auto& scene = scenes[asset.defaultScene ? *asset.defaultScene : 0];
 
 			auto nodeIndicies = scene.nodeIndices;
 			if (!nodeIndicies.empty()) {
 
 				for (auto n : nodeIndicies) {
-					auto node = asset.nodes[n];
-					visitGlTFNode(asset, node, aeScene->rootNode());
+					visitGlTFNode(asset, asset.nodes[n], aeScene->rootNode());
 				}
 
-				AE_LOG_I("Done loading glTF.  Time: {}",  aeScene->time() - startTime);
+				AE_LOG_I("Done loading glTF.  Time: {}", aeScene->time() - startTime);
 
 				return aeScene;
 			}
@@ -267,7 +264,6 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 										  : sizeof(vec3);
 
 							for (size_t i = 0; i < numElements; ++i) {
-
 								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
 								verts.push_back({*v3Ptr, {}, {}});
 								ptr += stride;
@@ -319,7 +315,6 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 										  : sizeof(vec3);
 
 							for (size_t i = 0; i < numElements; ++i) {
-
 								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
 								verts[i].normal = *v3Ptr;
 								ptr += stride;
@@ -371,7 +366,6 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 										  : sizeof(vec2);
 
 							for (size_t i = 0; i < numElements; ++i) {
-
 								auto v2Ptr = reinterpret_cast<vec2*>(ptr);
 								verts[i].texCoord = *v2Ptr;
 								ptr += stride;
@@ -676,7 +670,7 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 				auto aeCamera = make_shared<PerspectiveCamera>(string(camera.name),
 															   perspective.znear,
-															   (perspective.zfar.has_value()
+															   (perspective.zfar
 																? *perspective.zfar
 																: 1000000), // cheating
 															   perspective.yfov);

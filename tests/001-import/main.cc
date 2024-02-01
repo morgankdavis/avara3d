@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	auto testScene = SceneNamed("import_test/import_test");
-	auto testSceneNodes = testScene->rootNode()->children(true);
+	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
 	importGeometryRoot = make_shared<Node>("importGeometryRoot");
 
@@ -75,12 +75,7 @@ int main(int argc, const char* argv[]) {
 			importLightsCamerasRoot->addChild(node);
 		}
 		else {
-			try {
-				importGeometryRoot->addChild(node);
-			}
-			catch (Exception& e) {
-				AE_LOG_E("WTF? {}", e.what()); // TODO: WHY?
-			}
+			importGeometryRoot->addChild(node);
 		}
 	}
 
