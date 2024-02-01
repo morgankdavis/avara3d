@@ -459,9 +459,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
 					aeProperty->contents(aeImage);
 
-					aeMaterial = make_shared<ae::Material>(aeProperty,
-														   aeProperty,
-														   nullptr);
+					aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
 				}
 				else {
 					aeMaterial = ae::Material::MissingTextureMaterial();
@@ -477,13 +475,12 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 				auto aeColor = colorFromGlTFColorArray(baseColorFactor);
 				auto property = make_shared<MaterialProperty>(aeColor);
-				aeMaterial = make_shared<ae::Material>(property, property, nullptr);
+				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
 			}
 
 			// specular
 
-			auto& specularMaterial = material.specular;
-			if (specularMaterial) {
+			if (auto& specularMaterial = material.specular; specularMaterial) {
 
 				auto factor = specularMaterial->specularFactor;
 				auto& textureInfo = specularMaterial->specularTexture;
@@ -491,15 +488,62 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				auto& colorTextureInfo = specularMaterial->specularColorTexture;
 
 				AE_LOG_D("*** [SPECULAR] ***");
-
 				AE_LOG_D("factor: {}", factor);
 				AE_LOG_D("textureInfo: {}", textureInfo ? "true" : "false");
 				AE_LOG_D("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
 				AE_LOG_D("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
+
+				// if it has a 'texture' map, use it (only contains alpha)
+				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
+				// obviously, there is room for improvement.
+
+				shared_ptr<ae::MaterialProperty> aeProperty = nullptr;
+
+				if (textureInfo) {
+					auto texture = asset.textures[(*textureInfo).textureIndex];
+
+					if (auto aeImage = imageFromGlTFTexture(asset, texture)
+							; aeImage) {
+						aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+						aeProperty->contents(aeImage);
+					}
+				}
+
+				if (!aeProperty && (factor > 0)) {
+					auto factorColor = make_shared<Color>(factor);
+					aeProperty = make_shared<ae::MaterialProperty>(factorColor);
+				}
+
+				if (aeProperty) {
+					if (!aeMaterial) {
+						aeMaterial = make_shared<ae::Material>(nullptr, nullptr, aeProperty);
+					}
+					else {
+						aeMaterial->specular(aeProperty);
+					}
+				}
 			}
 
 			if (aeMaterial) {
+
+				aeMaterial->locksAmbientWithDiffuse(true);
+
 				aeMaterial->doubleSided(material.doubleSided);
+
+				if (auto& anisotropy = material.anisotropy; anisotropy) {
+					// error to draw attention -- at time of initial glTF integration
+					// we don't have an example file with KHR_materials_anisotropy
+					auto strength = anisotropy->anisotropyStrength;
+					AE_LOG_E("anisotropyStrength: {}", strength);
+					aeMaterial->diffuse()->maxAnisotropy(strength);
+				}
+
+				// specularExponent?
+
+				// transform -- scale
+
+				// emissiveTexture/emissiveFactor?
+
 				_materials[*materialIndex] = aeMaterial;
 				return aeMaterial;
 			}

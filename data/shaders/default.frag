@@ -125,8 +125,13 @@ void main () {
 		
 		switch (specularMode) {
 			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);			break;
+			// original:
+//			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
+//														  tex_coord * uvScale));	break;
+			// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
+			//
 			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
-														  tex_coord * uvScale));	break;
+														tex_coord * uvScale).a);	break;
 		}
 		
 		if (locksAmbientWithDiffuse &&

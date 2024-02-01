@@ -235,6 +235,7 @@ int main(int argc, const char* argv[]) {
 		auto testScene = SceneNamed("importTest/importTest", "gltf");
 //		auto testScene = SceneNamed("pineapple_only", "glb");
 //		auto testScene = SceneNamed("pineapple_only/pineapple_only", "gltf");
+//		auto testScene = SceneNamed("pineapple_only_specmap/pineapple_only_specmap", "gltf");
 
 //		for (auto& node : testScene->rootNode()->children()) {
 //			scene->rootNode()->addChild(node);
