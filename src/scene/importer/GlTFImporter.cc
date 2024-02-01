@@ -223,7 +223,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 				indices.resize(indiciesAccessor.count);
 
 				iterateAccessorWithIndex<uint32_t>(
-						asset, indiciesAccessor, [&](uint32_t index, size_t idx) {
+						asset,
+						indiciesAccessor,
+						[&](uint32_t index, size_t idx) {
 							indices[idx] = index;
 						});
 

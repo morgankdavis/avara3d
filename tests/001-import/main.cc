@@ -36,7 +36,8 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-std::shared_ptr<ae::Node> 		importRoot;
+std::shared_ptr<ae::Node> 		importLightsCamerasRoot;
+std::shared_ptr<ae::Node> 		importGeometryRoot;
 
 
 int main(int argc, const char* argv[]) {
@@ -63,9 +64,30 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto testScene = SceneNamed("importTest");
-	importRoot = testScene->rootNode();
-	scene->rootNode()->addChild(importRoot);
+	auto testScene = SceneNamed("import_test/import_test");
+	auto testSceneNodes = testScene->rootNode()->children(true);
+	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
+	importGeometryRoot = make_shared<Node>("importGeometryRoot");
+
+	for (auto node : testSceneNodes) {
+
+		if (node->light() || node->camera()) {
+			importLightsCamerasRoot->addChild(node);
+		}
+		else {
+			try {
+				importGeometryRoot->addChild(node);
+			}
+			catch (Exception& e) {
+				AE_LOG_E("WTF? {}", e.what()); // TODO: WHY?
+			}
+		}
+	}
+
+//	importGeometryRoot = testScene->rootNode();
+
+	scene->rootNode()->addChild(importLightsCamerasRoot);
+	scene->rootNode()->addChild(importGeometryRoot);
 
 	window->open();
 	scene->run();
@@ -85,9 +107,19 @@ void UpdateCallback(Scene& scene, float time) {
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	importRoot->transform(rotate(importRoot->transform(),
-								 radians(rotationDeg),
-								 vec3(0.0f, 1.0f, 0.0f)));
+	importGeometryRoot->transform(rotate(importGeometryRoot->transform(),
+										 radians(rotationDeg),
+										 {0.0f, 1.0f, 0.0f}));
+
+	static float timeAccum = 0;
+	static unsigned frames = 0;
+	timeAccum += deltaSeconds;
+	++frames;
+	if (timeAccum >= 1.0) {
+		cout << ((float)frames)/timeAccum << " fps" << endl;
+		timeAccum = 0;
+		frames = 0;
+	}
 }
 
 /***************************************************************************************

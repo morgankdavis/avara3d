@@ -1374,12 +1374,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 //	}
 //	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
 
-	lights.push_back(ambientLightNode);
+	if (ambientLightNode) lights.push_back(ambientLightNode);
 
 	auto numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
 
-	stats.lights = numLights;// - 1; // not counting ambient
+	stats.lights = numLights - 1; // not counting ambient
 
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
