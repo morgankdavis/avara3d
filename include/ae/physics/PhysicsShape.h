@@ -25,7 +25,7 @@ namespace ae {
 	class Node;
 	class PhysicsBody;
 	class PhysicalWorld;
-	class PhysicsShapeModelProxy;
+	class PhysicsShapeProxy;
 	class Scene;
 	
 
@@ -94,12 +94,12 @@ namespace ae {
 
 		std::unordered_set<PhysicsBody*>	bodies() const;
 
-		PhysicsShapeModelProxy*				proxy() const;
+		PhysicsShapeProxy*				proxy() const;
 
 	protected:
 
 		PHYSICS_SHAPE_TYPE 					_type;
-		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
+		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
 /*********************************************************************************************
 	Private

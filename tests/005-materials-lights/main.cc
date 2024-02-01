@@ -112,6 +112,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	auto siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
+	siameseNode->scale(siameseNode->scale() * 10.0f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChild(siameseNode);
 

@@ -14,7 +14,7 @@
 #include "ae/geometry/Geometry.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/physics/PhysicsBody.h"
-#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/physics/proxy/PhysicsShapeProxy.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletShapeProxy.h"
 #include "ae/scene/Node.h"
@@ -158,6 +158,6 @@ unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
 }
 
-PhysicsShapeModelProxy* PhysicsShape::proxy() const {
+PhysicsShapeProxy* PhysicsShape::proxy() const {
 	return _proxy.get();
 }

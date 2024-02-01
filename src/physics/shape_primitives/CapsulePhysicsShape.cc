@@ -5,7 +5,7 @@
 #include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
 
 #include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/physics/proxy/PhysicsShapeProxy.h"
 
 
 using namespace ae;

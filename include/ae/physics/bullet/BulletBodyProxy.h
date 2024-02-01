@@ -8,8 +8,8 @@
 
 #include <memory>
 
-#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "ae/physics/bullet/MotionState.h"
+#include "ae/physics/proxy/PhysicsBodyProxy.h"
 
 
 class btRigidBody;
@@ -17,7 +17,7 @@ class btRigidBody;
 
 namespace ae {
 
-	class BulletBodyProxy : public PhysicsBodyModelProxy {
+	class BulletBodyProxy : public PhysicsBodyProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -35,8 +35,8 @@ namespace ae {
 		PHYSICS_BODY_TYPE		type() const override;
 		void					type(PHYSICS_BODY_TYPE type) override;
 
-		PhysicsShapeModelProxy*	shapeProxy() const override;
-		void					shapeProxy(PhysicsShapeModelProxy* proxt) override;
+		PhysicsShapeProxy*		shapeProxy() const override;
+		void					shapeProxy(PhysicsShapeProxy* proxy) override;
 
 		float					mass() const override;
 		void					mass(float mass) override;

@@ -10,7 +10,7 @@
 
 #include "glm/glm.hpp"
 
-#include "ae/physics/model_proxy/PhysicalWorldModelProxy.h"
+#include "ae/physics/proxy/PhysicalWorldProxy.h"
 
 
 class btCollisionDispatcher;
@@ -29,7 +29,7 @@ namespace ae {
 #endif
 
 
-	class BulletWorldProxy : public PhysicalWorldModelProxy {
+	class BulletWorldProxy : public PhysicalWorldProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -38,7 +38,6 @@ namespace ae {
 	public:
 
 		BulletWorldProxy(PhysicalWorld* world);
-		//BulletWorldProxy() override;
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************

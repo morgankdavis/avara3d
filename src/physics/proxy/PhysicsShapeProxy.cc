@@ -2,7 +2,7 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
+#include "ae/physics/proxy/PhysicsShapeProxy.h"
 
 
 using namespace ae;
@@ -12,8 +12,8 @@ using namespace ae;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShapeModelProxy::PhysicsShapeModelProxy(PhysicsShape* shape) { }
-PhysicsShapeModelProxy::~PhysicsShapeModelProxy() { }
+PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape* shape) { }
+PhysicsShapeProxy::~PhysicsShapeProxy() { }
 
 /*********************************************************************************************
 	Internal

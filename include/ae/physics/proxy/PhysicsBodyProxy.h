@@ -2,8 +2,8 @@
 // Created by mkd on 11/13/23.
 //
 
-#ifndef AVARA_ENGINE_PHYSICSBODYMODELPROXY_H
-#define AVARA_ENGINE_PHYSICSBODYMODELPROXY_H
+#ifndef AVARA_ENGINE_PHYSICSBODYPROXY_H
+#define AVARA_ENGINE_PHYSICSBODYPROXY_H
 
 
 #include "glm/glm.hpp"
@@ -15,10 +15,10 @@ namespace ae {
 
 
 	class PhysicsBody;
-	class PhysicsShapeModelProxy;
+	class PhysicsShapeProxy;
 
 
-	class PhysicsBodyModelProxy {
+	class PhysicsBodyProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -26,9 +26,8 @@ namespace ae {
 
 	public:
 
-		PhysicsBodyModelProxy(PhysicsBody* body);
-		//virtual PhysicsBodyModelProxyProxy();
-		virtual ~PhysicsBodyModelProxy();
+		PhysicsBodyProxy(PhysicsBody* body);
+		virtual ~PhysicsBodyProxy();
 
 /*********************************************************************************************
 	Internal
@@ -37,8 +36,8 @@ namespace ae {
 		virtual PHYSICS_BODY_TYPE		type() const = 0;
 		virtual void					type(PHYSICS_BODY_TYPE type) = 0;
 
-		virtual PhysicsShapeModelProxy*	shapeProxy() const = 0;
-		virtual void					shapeProxy(PhysicsShapeModelProxy* proxy) = 0;
+		virtual PhysicsShapeProxy*	shapeProxy() const = 0;
+		virtual void					shapeProxy(PhysicsShapeProxy* proxy) = 0;
 
 //		virtual glm::mat4				worldTransform() const = 0;
 //		virtual void					worldTransform(const glm::mat4& transform) = 0;
@@ -122,10 +121,10 @@ namespace ae {
 	protected:
 
 		PhysicsBody*					_body;
-		PhysicsShapeModelProxy*			_shapeModel;
+		PhysicsShapeProxy*			_shapeModel;
 		bool							_autocalculatesMomentOfInertia;
 	};
 }
 
 
-#endif //AVARA_ENGINE_PHYSICSBODYMODELPROXY_H
+#endif //AVARA_ENGINE_PHYSICSBODYPROXY_H

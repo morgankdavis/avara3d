@@ -2,8 +2,8 @@
 // Created by mkd on 11/13/23.
 //
 
-#ifndef AVARA_ENGINE_PHYSICSSHAPEMODELPROXY_H
-#define AVARA_ENGINE_PHYSICSSHAPEMODELPROXY_H
+#ifndef AVARA_ENGINE_PHYSICSSHAPEPROXY_H
+#define AVARA_ENGINE_PHYSICSSHAPEPROXY_H
 
 
 #include "ae/Types.h"
@@ -15,7 +15,7 @@ namespace ae {
 	class PhysicsShape;
 
 
-	class PhysicsShapeModelProxy {
+	class PhysicsShapeProxy {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,8 +23,8 @@ namespace ae {
 
 	public:
 
-		PhysicsShapeModelProxy(PhysicsShape* shape);
-		virtual ~PhysicsShapeModelProxy() = 0;
+		PhysicsShapeProxy(PhysicsShape* shape);
+		virtual ~PhysicsShapeProxy() = 0;
 
 /*********************************************************************************************
 	Internal
@@ -44,4 +44,4 @@ namespace ae {
 }
 
 
-#endif //AVARA_ENGINE_PHYSICSSHAPEMODELPROXY_H
+#endif //AVARA_ENGINE_PHYSICSSHAPEPROXY_H

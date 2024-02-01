@@ -11,13 +11,13 @@
 #include "ae/geometry/Geometry.h"
 #include "ae/physics/ConvexDecomposer.h"
 #include "ae/physics/PhysicsBody.h"
-#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "ae/physics/PhysicsShape.h"
-#include "ae/physics/model_proxy/PhysicsShapeModelProxy.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletShapeProxy.h"
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/physics/bullet/Utilities.h"
+#include "ae/physics/proxy/PhysicsBodyProxy.h"
+#include "ae/physics/proxy/PhysicsShapeProxy.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
 
@@ -32,7 +32,7 @@ using namespace std;
  *********************************************************************************************/
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
-		PhysicsBodyModelProxy(body),
+		PhysicsBodyProxy(body),
 		_btBody(nullptr),
 		/*_btMotionState(nullptr)*/
 		_motionState(nullptr) {
@@ -134,16 +134,16 @@ void BulletBodyProxy::type(PHYSICS_BODY_TYPE type) {
 	_btBody->setActivationState(activationState);
 }
 
-PhysicsShapeModelProxy* BulletBodyProxy::shapeProxy() const {
+PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
 	return _shapeModel;
 }
 
-void BulletBodyProxy::shapeProxy(PhysicsShapeModelProxy* proxy) {
+void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 	AE_LOG_T("proxy: {:p}", static_cast<void*>(proxy));
 
 	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-		if (auto btShape = dynamic_cast<BulletShapeProxy *>(proxy)->btShapes().front()) {
+		if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front()) {
 
 			_btBody->setCollisionShape(btShape.get());
 

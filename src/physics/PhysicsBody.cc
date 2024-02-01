@@ -394,7 +394,7 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 	return nullptr;
 }
 
-PhysicsBodyModelProxy* PhysicsBody::proxy() const {
+PhysicsBodyProxy* PhysicsBody::proxy() const {
 	return _proxy.get();
 }
 

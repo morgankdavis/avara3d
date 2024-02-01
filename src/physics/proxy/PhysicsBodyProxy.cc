@@ -2,7 +2,7 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
+#include "ae/physics/proxy/PhysicsBodyProxy.h"
 
 #include "ae/diagnostic/logging/Logger.h"
 
@@ -14,7 +14,7 @@ using namespace ae;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsBodyModelProxy::PhysicsBodyModelProxy(PhysicsBody* body):
+PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody* body):
 		_body(nullptr),
 		_shapeModel(nullptr),
 		_autocalculatesMomentOfInertia(true) {
@@ -22,27 +22,27 @@ PhysicsBodyModelProxy::PhysicsBodyModelProxy(PhysicsBody* body):
 	attachedToBody(body);
 }
 
-PhysicsBodyModelProxy::~PhysicsBodyModelProxy() { }
+PhysicsBodyProxy::~PhysicsBodyProxy() { }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-bool PhysicsBodyModelProxy::autocalculatesMomentOfInertia() const {
+bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
 	return _autocalculatesMomentOfInertia;
 }
 
-void PhysicsBodyModelProxy::autocalculatesMomentOfInertia(bool autocalculate) {
+void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
 	_autocalculatesMomentOfInertia = autocalculate;
 }
 
-void PhysicsBodyModelProxy::attachedToBody(PhysicsBody* body) {
+void PhysicsBodyProxy::attachedToBody(PhysicsBody* body) {
 	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_body = body;
 }
 
-void PhysicsBodyModelProxy::detachedFromBody(PhysicsBody* body) {
+void PhysicsBodyProxy::detachedFromBody(PhysicsBody* body) {
 	AE_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_body = nullptr;
