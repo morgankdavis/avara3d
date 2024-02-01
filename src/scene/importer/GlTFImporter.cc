@@ -122,8 +122,6 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 				AE_LOG_W("Ignoring extra scenes.");
 			}
 
-			auto directory = _path.parent_path();
-
 			auto& scene = scenes[asset.defaultScene.has_value()
 								 ? *asset.defaultScene
 								 : 0];
@@ -179,8 +177,6 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 				; existing == _geometries.end()) {
 
 			auto &mesh = asset.meshes[*meshIndex];
-
-			AE_LOG_D("Mesh name: {}", mesh.name);
 
 			auto elements = vector<shared_ptr<GeometryElement>>();
 			auto materials = vector<shared_ptr<Material>>();
