@@ -111,40 +111,26 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
-//	auto siameseScene = SceneNamed("siamese/siamese");
-	//auto siameseNode = siameseScene->rootNode()->childNamed("Siamese", true);
 	auto siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
-//	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChild(siameseNode);
-//	siameseScene = nullptr;
-	siameseNode = nullptr;
 
-//	auto islandScene = SceneNamed("island/Island", "obj");
 	auto islandNode = Node::GeometryNode(GeometryNamed("island/island"));
-	//auto islandNode = islandScene->rootNode()->children(true)[0];
-//	auto islandNode = islandScene->rootNode();
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
-//	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
-//	auto palletNode = palletScene->rootNode()->children(true)[1];
-	//auto palletNode = palletScene->rootNode()->children(true)[0];
 	auto palletNode = Node::GeometryNode(GeometryNamed("pallet_rot/pallet_rot"));
-//	palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
 	palletNode->scale(palletNode->scale() * 200.0f);
 	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChild(palletNode);
 
-//	auto tunaScene = SceneNamed("tuna_rot/tuna_rot");
 	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna_rot/tuna_rot"));
 	tunaNode->position(vec3(-7.5f, -72.0f, 40.0f));
 	tunaNode->scale(tunaNode->scale() * 1.8f);
 	scene->rootNode()->addChild(tunaNode);
 
-//	auto palm1Scene = SceneNamed("palm1/palm1", "obj");
 	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
 	palmsNode->position(vec3(0.0f, -72.0f, 0.0f));
 	palmsNode->scale(palmsNode->scale() * 2.5f);

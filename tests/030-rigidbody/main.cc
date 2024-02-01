@@ -196,16 +196,16 @@ int main(int argc, const char* argv[]) {
 
 	// add the palm tree
 
-	auto palmScene = SceneNamed("palm2/palm2", "obj");
-	palmNode = palmScene->rootNode();
-	palmNode->name("Palm node");
-	for (auto n : palmScene->rootNode()->children(true)) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
+//	auto palmScene = SceneNamed("palm2/palm2", "obj");
+	palmNode = Node::GeometryNode(GeometryNamed("palm/palm"));
+//	palmNode->name("Palm node");
+//	for (auto n : palmScene->rootNode()->children(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
 
 	auto palmPhysicsBody = PhysicsBody::StaticBody();
 	palmPhysicsBody->mass(0);
@@ -213,7 +213,7 @@ int main(int argc, const char* argv[]) {
 	palmPhysicsBody->restitution(0.25);
 	palmNode->physicsBody(palmPhysicsBody);
 
-	scene->rootNode()->addChild(palmScene->rootNode());
+	scene->rootNode()->addChild(palmNode);
 
 
 	// add the duck

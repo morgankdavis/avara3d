@@ -94,13 +94,12 @@ int main(int argc, const char* argv[]) {
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
 
-	auto teapotScene = SceneNamed("teapot");
-	auto teapotNode = teapotScene->rootNode()->childNamed("teapot", true);
+	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
+	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonScene = SceneNamed("dragon", "obj");
-	auto dragonNode = dragonScene->rootNode()->childNamed("g default", true);
+	auto dragonNode = Node::GeometryNode(GeometryNamed("dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 
@@ -108,14 +107,6 @@ int main(int argc, const char* argv[]) {
 
 	auto boxNode = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
-
-	// test exception
-//	try {
-//		scene->rootNode()->addChild(teapotNode);
-//	}
-//	catch (Exception& e) {
-//		AE_LOG_E(e.what());
-//	}
 
 	window->open();
 	scene->run();
