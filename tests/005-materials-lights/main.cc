@@ -91,7 +91,7 @@ int main(int argc, const char* argv[]) {
 	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
+	pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(50.0, 50.0, 50.0));
 	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position(vec3(0.0, 0.0, 0.0));
@@ -111,45 +111,47 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
-	auto siameseScene = SceneNamed("siamese/siamese");
-	auto siameseNode = siameseScene->rootNode()->childNamed("Siamese", true);
-	siameseNode = siameseNode;
-	siameseNode->scale(siameseNode->scale() * 0.070f);
+//	auto siameseScene = SceneNamed("siamese/siamese");
+	//auto siameseNode = siameseScene->rootNode()->childNamed("Siamese", true);
+	auto siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
+//	siameseNode->scale(siameseNode->scale() * 0.070f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChild(siameseNode);
-	siameseScene = nullptr;
+//	siameseScene = nullptr;
 	siameseNode = nullptr;
 
-	auto islandScene = SceneNamed("island/Island", "obj");
+//	auto islandScene = SceneNamed("island/Island", "obj");
+	auto islandNode = Node::GeometryNode(GeometryNamed("island/island"));
 	//auto islandNode = islandScene->rootNode()->children(true)[0];
-	auto islandNode = islandScene->rootNode();
+//	auto islandNode = islandScene->rootNode();
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
-	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
+//	auto palletScene = SceneNamed("pallet_rot/Pallet_rot");
 //	auto palletNode = palletScene->rootNode()->children(true)[1];
 	//auto palletNode = palletScene->rootNode()->children(true)[0];
-	auto palletNode = palletScene->rootNode()->childNamed("Pallet", true);
-	palletNode = palletNode;
+	auto palletNode = Node::GeometryNode(GeometryNamed("pallet_rot/pallet_rot"));
+//	palletNode = palletNode;
 	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
-	palletNode->scale(palletNode->scale() * 20.0f);
+	palletNode->scale(palletNode->scale() * 200.0f);
 	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChild(palletNode);
 
-	auto tunaScene = SceneNamed("tuna_rot/tuna_rot");
-	tunaScene->rootNode()->position(vec3(-7.5f, -72.0f, 40.0f));
-	tunaScene->rootNode()->scale(tunaScene->rootNode()->scale() * 1.8f);
-	scene->rootNode()->addChild(tunaScene->rootNode());
+//	auto tunaScene = SceneNamed("tuna_rot/tuna_rot");
+	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna_rot/tuna_rot"));
+	tunaNode->position(vec3(-7.5f, -72.0f, 40.0f));
+	tunaNode->scale(tunaNode->scale() * 1.8f);
+	scene->rootNode()->addChild(tunaNode);
 
-	auto palm1Scene = SceneNamed("palm1/palm1", "obj");
-	palmsNode = palm1Scene->rootNode();
-	palm1Scene->rootNode()->position(vec3(0.0f, -72.0f, 0.0f));
-	palm1Scene->rootNode()->scale(palm1Scene->rootNode()->scale() * 2.5f);
-	palm1Scene->rootNode()->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
-	scene->rootNode()->addChild(palm1Scene->rootNode());
+//	auto palm1Scene = SceneNamed("palm1/palm1", "obj");
+	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
+	palmsNode->position(vec3(0.0f, -72.0f, 0.0f));
+	palmsNode->scale(palmsNode->scale() * 2.5f);
+	palmsNode->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
+	scene->rootNode()->addChild(palmsNode);
 
-	for (auto n : palm1Scene->rootNode()->children(true)) {
+	for (auto n : palmsNode->children(true)) {
 		if (n->geometry()) {
 			for (auto m : n->geometry()->materials()) {
 				m->doubleSided(true);
@@ -157,31 +159,36 @@ int main(int argc, const char* argv[]) {
 		}
 	}
 
+
 	// random lights
-	const int NUM_RANDOM_LIGHTS = 100;
-	for (int l=0; l<NUM_RANDOM_LIGHTS; ++l) {
-		auto light = make_shared<Light>(LIGHT_TYPE::POINT);
-		light->attenuationFactor(0.0001);
-		auto lightNode = Node::LightNode(light);
-		int randX = Uniform(-150, 150);
-		int randY = Uniform(-150, 150);
-		int randZ = Uniform(-150, 150);
-		lightNode->position(vec3(randX, randY, randZ));
-		auto color = Color::Random();
-		light->color(color);
-		cout << "Adding random light with position: "
-			 << lightNode->position()<< ", color: " << *light->color() << endl;
 
-		auto geometry = make_shared<Sphere>(3.5, 16);
+//	{
+//		const int NUM_RANDOM_LIGHTS = 100;
+//		for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
+//			auto light = make_shared<Light>(LIGHT_TYPE::POINT);
+//			light->attenuationFactor(0.0001);
+//			auto lightNode = Node::LightNode(light);
+//			int randX = Uniform(-150, 150);
+//			int randY = Uniform(-150, 150);
+//			int randZ = Uniform(-150, 150);
+//			lightNode->position(vec3(randX, randY, randZ));
+//			auto color = Color::Random();
+//			light->color(color);
+//			cout << "Adding random light with position: "
+//				 << lightNode->position() << ", color: " << *light->color() << endl;
+//
+//			auto geometry = make_shared<Sphere>(3.5, 16);
+//
+//			auto materialProperty = make_shared<MaterialProperty>(color);
+//			auto material = make_shared<Material>();
+//			material->emissive(materialProperty);
+//			geometry->addMaterial(material);
+//			lightNode->geometry(geometry);
+//
+//			scene->rootNode()->addChild(lightNode);
+//		}
+//	}
 
-		auto materialProperty = make_shared<MaterialProperty>(color);
-		auto material = make_shared<Material>();
-		material->emissive(materialProperty);
-		geometry->addMaterial(material);
-		lightNode->geometry(geometry);
-
-		scene->rootNode()->addChild(lightNode);
-	}
 
 	window->open();
 	scene->run();
