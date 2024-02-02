@@ -39,9 +39,17 @@ using namespace glm;
 using namespace std;
 
 
-GlTFImporter::GlTFImporter(const filesystem::path& path):
+static fastgltf::Options GlTFOptionsFromImportOptions(SCENE_IMPORT_OPTIONS options);
+static mat4 TransformFromGlFTNode(fastgltf::Node& node);
+static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
+static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
+
+
+GlTFImporter::GlTFImporter(const filesystem::path& path,
+						   SCENE_IMPORT_OPTIONS options):
 		_scene{nullptr},
 		_path{path},
+		_options{options},
 		_cameras{},
 		_geometries{},
 		_images{},
@@ -63,6 +71,14 @@ shared_ptr<ae::Scene> GlTFImporter::scene() {
 	return _scene;
 }
 
+const filesystem::path& GlTFImporter::path() const {
+	return _path;
+}
+
+SCENE_IMPORT_OPTIONS GlTFImporter::options() const {
+	return _options;
+}
+
 shared_ptr<ae::Scene> GlTFImporter::load() {
 
 	AE_LOG_I("Loading glTF: '{}'...", _path.string());
@@ -80,10 +96,7 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 	auto extension = _path.extension();
 	auto directory = _path.parent_path();
 
-	auto options = Options::LoadGLBBuffers
-				   | Options::LoadExternalBuffers
-				   | Options::LoadExternalImages
-				   | Options::GenerateMeshIndices;
+	auto options = GlTFOptionsFromImportOptions(_options);
 
 	GltfDataBuffer data;
 	data.loadFromFile(_path);
@@ -153,10 +166,21 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	auto aeNode = Node::NamedNode(string(node.name));
 
-	aeNode->transform(transformFromGlFTNode(node));
-	aeNode->geometry(geometryFromGlFTNode(asset, node));
-	aeNode->light(lightFromGlTFNode(asset, node));
-	aeNode->camera(cameraFromGlTFNode(asset, node));
+	aeNode->transform(TransformFromGlFTNode(node));
+
+	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->geometry(geometryFromGlFTNode(asset, node));
+	}
+
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->light(lightFromGlTFNode(asset, node));
+	}
+
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->camera(cameraFromGlTFNode(asset, node));
+	}
 
 	parent->addChild(aeNode);
 
@@ -183,7 +207,10 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 				auto element = geometryElementFromGlFTPrimitive(asset, primitive);
 				if (element) elements.push_back(element);
 
-				auto material = materialFromGlFTPrimitive(asset, primitive);
+				// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+				auto material = ((_options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE)
+								? materialFromGlFTPrimitive(asset, primitive)
+								: Material::DefaultMaterial();
 				if (material) materials.push_back(material);
 			}
 
@@ -439,7 +466,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 				auto baseColorFactor = pbrData.baseColorFactor;
 
-				auto aeColor = colorFromGlTFColorArray(baseColorFactor);
+				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
 				auto property = make_shared<MaterialProperty>(aeColor);
 				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
 			}
@@ -633,7 +660,7 @@ shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				aeLight->name(string(light.name));
 				aeLight->attenuationFactor(0); // temporary
-				aeLight->color(colorFromGlTFColorArray(light.color));
+				aeLight->color(ColorFromGlTFColorArray(light.color));
 				// TODO: range, intensity
 
 				_lights[*lightIndex] = aeLight;
@@ -695,7 +722,36 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-mat4 GlTFImporter::transformFromGlFTNode(fastgltf::Node& node) {
+fastgltf::Options GlTFOptionsFromImportOptions(SCENE_IMPORT_OPTIONS options) {
+
+	auto gltfOptions = Options::None;
+
+	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+
+	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
+		gltfOptions |= Options::LoadGLBBuffers
+					   | Options::LoadExternalBuffers
+					   | Options::GenerateMeshIndices;
+	}
+
+	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE) {
+		gltfOptions |= Options::LoadGLBBuffers
+					   | Options::LoadExternalBuffers
+					   | Options::LoadExternalImages;
+	}
+
+	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
+
+	}
+
+	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
+
+	}
+
+	return gltfOptions;
+}
+
+mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 
 	auto transform = node.transform;
 	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
@@ -732,13 +788,13 @@ mat4 GlTFImporter::transformFromGlFTNode(fastgltf::Node& node) {
 	return mat4(1.0);
 }
 
-shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 3>& arr) {
+shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
 
 	return make_shared<Color>(arr[0], arr[1], arr[2]);
 }
 
-shared_ptr<ae::Color> GlTFImporter::colorFromGlTFColorArray(array<float, 4>& arr) {
+shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
 
 	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
-	return colorFromGlTFColorArray(rgbArray);
+	return ColorFromGlTFColorArray(rgbArray);
 }

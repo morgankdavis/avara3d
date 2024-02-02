@@ -64,7 +64,22 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto testScene = SceneNamed("import_test/import_test");
+	auto options = SCENE_IMPORT_OPTIONS::ALL;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+
+	auto testScene = SceneNamed("import_test/import_test",
+								options);
 	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
 	importGeometryRoot = make_shared<Node>("importGeometryRoot");

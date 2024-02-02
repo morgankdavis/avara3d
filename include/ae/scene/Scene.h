@@ -48,7 +48,8 @@ namespace ae {
 	Public Static
  *********************************************************************************************/
 
-		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path);
+		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
+														  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
 
 /*********************************************************************************************
 	Lifecycle

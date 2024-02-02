@@ -20,6 +20,8 @@
 
 #include "glm/glm.hpp"
 
+#include "ae/scene/Scene.h"
+
 
 struct GLFWmonitor;
 
@@ -148,9 +150,11 @@ namespace ae {
 		// *** scenes ***
 
 #ifndef ANDROID
-		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name);
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
-											  const std::string& type);
+											  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
+		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
+											  const std::string& type,
+											  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
 													const std::string& type);

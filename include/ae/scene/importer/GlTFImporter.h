@@ -14,11 +14,11 @@
 
 #include "glm/glm.hpp"
 
+#include "ae/Types.h"
+
 
 namespace fastgltf {
 	class Asset;
-	class Camera;
-//	class Image;
 	class Mesh;
 	class Node;
 	class Primitive;
@@ -45,36 +45,37 @@ namespace ae {
 
 	public:
 
-		GlTFImporter(const std::filesystem::path& path);
+		GlTFImporter(const std::filesystem::path& path,
+					 SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
 
-		std::shared_ptr<Scene> scene();
+		std::shared_ptr<Scene> 				scene();
+		const std::filesystem::path&		path() const;
+		SCENE_IMPORT_OPTIONS				options() const;
 
 	private:
 
-		std::shared_ptr<Scene> load();
-		void visitGlTFNode(fastgltf::Asset& asset,
-						   fastgltf::Node& node,
-						   std::shared_ptr<Node> parent);
-		std::shared_ptr<Geometry> geometryFromGlFTNode(fastgltf::Asset& asset,
-													   fastgltf::Node& node);
-		std::shared_ptr<GeometryElement> geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
-																		  fastgltf::Primitive& primitive);
-		std::shared_ptr<Material> materialFromGlFTPrimitive(fastgltf::Asset& asset,
-															fastgltf::Primitive& primitive);
-		std::shared_ptr<Image> imageFromGlTFTexture(fastgltf::Asset& asset,
-													fastgltf::Texture& texture);
-		std::shared_ptr<MaterialProperty> materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
-																		  fastgltf::Texture& texture);
-		std::shared_ptr<Light> lightFromGlTFNode(fastgltf::Asset& asset,
-												 fastgltf::Node& node);
-		std::shared_ptr<Camera> cameraFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Scene> 				load();
+		void 								visitGlTFNode(fastgltf::Asset& asset,
+														  fastgltf::Node& node,
+														  std::shared_ptr<Node> parent);
+		std::shared_ptr<Geometry> 			geometryFromGlFTNode(fastgltf::Asset& asset,
+																  fastgltf::Node& node);
+		std::shared_ptr<GeometryElement> 	geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
+																			 fastgltf::Primitive& primitive);
+		std::shared_ptr<Material> 			materialFromGlFTPrimitive(fastgltf::Asset& asset,
+																	   fastgltf::Primitive& primitive);
+		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
+																   fastgltf::Texture& texture);
+		std::shared_ptr<MaterialProperty> 	materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
+																			 fastgltf::Texture& texture);
+		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+																fastgltf::Node& node);
+		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
-		glm::mat4 transformFromGlFTNode(fastgltf::Node& node);
-		std::shared_ptr<Color> colorFromGlTFColorArray(std::array<float, 3>& arr);
-		std::shared_ptr<Color> colorFromGlTFColorArray(std::array<float, 4>& arr);
 
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
+		SCENE_IMPORT_OPTIONS										_options;
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;

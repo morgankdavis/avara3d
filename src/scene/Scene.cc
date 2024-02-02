@@ -57,8 +57,9 @@ static void							UpdateFrameTimeStats(Stats& stats, double time);
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Scene> Scene::FromFile(const filesystem::path& path) {
-	return GlTFImporter(path).scene();
+shared_ptr<Scene> Scene::FromFile(const filesystem::path& path,
+								  SCENE_IMPORT_OPTIONS options) {
+	return GlTFImporter(path, options).scene();
 }
 
 /*********************************************************************************************

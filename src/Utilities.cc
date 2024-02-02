@@ -573,19 +573,21 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 // *** scenes ***
 
 #ifndef ANDROID
-shared_ptr<Scene> ae::utils::SceneNamed(const string& name) {
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+										SCENE_IMPORT_OPTIONS options) {
 
-	return SceneNamed(name, "gltf");
+	return SceneNamed(name, "gltf", options);
 //	return SceneNamed(filesystem::path(name) / filesystem::path(name), "gltf");
 }
 
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
-										const string& type) {
+										const string& type,
+										SCENE_IMPORT_OPTIONS options) {
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
 		AE_LOG_T("Found scene at path: {}", (*path).string());
-		return Scene::FromFile(*path);
+		return Scene::FromFile(*path, options);
 	}
 	return nullptr;
 }

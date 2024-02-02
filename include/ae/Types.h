@@ -18,6 +18,37 @@
 
 
 namespace ae {
+
+
+
+
+//	// TODO: put this shit somewhere
+//
+//	template<typename T>
+//	constexpr std::underlying_type_t<T> to_underlying(T t) noexcept {
+//		return static_cast<std::underlying_type_t<T>>(t);
+//	}
+//
+//#define AE_ARITHMETIC_OP_TEMPLATE_MACRO(T1, T2, op) \
+//    constexpr T1 operator op(const T1& a, const T2& b) noexcept { \
+//        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+//        return static_cast<T1>(to_underlying(a) op to_underlying(b)); \
+//    }
+//
+//#define AE_ASSIGNMENT_OP_TEMPLATE_MACRO(T1, T2, op) \
+//    constexpr T1& operator op##=(T1& a, const T2& b) noexcept { \
+//        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+//        return a = static_cast<T1>(to_underlying(a) op to_underlying(b)), a; \
+//    }
+//
+//#define AE_UNARY_OP_TEMPLATE_MACRO(T, op) \
+//    constexpr T operator op(const T& a) noexcept { \
+//        static_assert(std::is_enum_v<T>); \
+//        return static_cast<T>(op to_underlying(a)); \
+//    }
+
+
+
 	
 /**************************************************************************************
 	Public
@@ -49,10 +80,21 @@ namespace ae {
 		VULKAN
 	};
 
-//	enum class PHYSICS_SIMULATION_ENGINE {
-//		BULLET
-//	};
-		
+	enum class SCENE_IMPORT_OPTIONS : unsigned {
+		NONE = 				0,
+		IMPORT_GEOMETRIES =	1 << 0,
+		IMPORT_MATERIALS =	1 << 1,
+		IMPORT_LIGHTS =		1 << 2,
+		IMPORT_CAMERAS = 	1 << 3,
+		ALL = 				UINT_MAX
+	};
+
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
+	AE_UNARY_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, ~)
+
 	enum class FONT_TYPE : unsigned {
 		UNKNOWN = 	0,
 		OTF =		1 << 0,
