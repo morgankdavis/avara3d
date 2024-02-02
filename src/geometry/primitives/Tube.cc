@@ -6,15 +6,15 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Tube.h"
+#include "ae/geometry/primitives/Tube.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;
@@ -59,7 +59,9 @@ Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int s
 		
 		auto faces = vector<Face>();
 		for (const Triangle& t : tube.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+			Face face = { unsigned(t.vertices[0]),
+						  unsigned(t.vertices[1]),
+						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 		

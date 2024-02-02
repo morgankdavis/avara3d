@@ -6,9 +6,9 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/Light.h"
+#include "ae/rendering/Light.h"
 
-#include "utilities/Color.h"
+#include "ae/Color.h"
 
 
 using namespace ae;
@@ -46,7 +46,7 @@ Light::Light(LIGHT_TYPE type):
 	
 }
 
-Light::Light(LIGHT_TYPE type, const shared_ptr<Color> color):
+Light::Light(LIGHT_TYPE type, shared_ptr<Color> color):
 	_name(nullopt),
 	_type(type),
 	_color(color),

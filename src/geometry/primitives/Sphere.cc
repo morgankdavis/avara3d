@@ -6,21 +6,20 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Sphere.h"
+#include "ae/geometry/primitives/Sphere.h"
 
 #include <iostream>
 #include <memory>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
-#include "utilities/Utilities.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 
 using namespace ae;
-using namespace ae::utils;
+//using namespace ae::utils;
 using namespace generator;
 using namespace glm;
 using namespace std;
@@ -50,7 +49,9 @@ Sphere::Sphere(float radius, int segments):
 		
 		auto faces = vector<Face>();
 		for (const Triangle& t : icoSphere.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+			Face face = { unsigned(t.vertices[0]),
+						  unsigned(t.vertices[1]),
+						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 

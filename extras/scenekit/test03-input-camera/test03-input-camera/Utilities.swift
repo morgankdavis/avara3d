@@ -11,11 +11,11 @@ import SceneKit
 
 
 // WARN: Male SCNCamera extension
-func ConfigureCamera(camera: SCNCamera, screenSize: CGSize, fov: Double) {
+func ConfigureCamera(camera: SCNCamera, screenSize: CGSize, yFov: Double) {
     // set FOV according to view aspect ratio
     let viewSize: CGSize = screenSize
     let ratio: CGFloat  = CGFloat(viewSize.height / viewSize.width)
-    camera.xFov = fov
+    camera.xFov = yFov
     let yFov = camera.xFov * Double(ratio)
     camera.yFov = yFov
 }

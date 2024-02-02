@@ -1,0 +1,121 @@
+//
+//  Geometry.h
+//	avara-engine
+//
+//  Created by Morgan Davis on 10/21/16.
+//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//
+
+#ifndef Geometry_h
+#define Geometry_h
+
+
+#include <filesystem>
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "glm/glm.hpp"
+
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/materials/Material.h"
+
+
+namespace ae {
+
+
+	class Node;
+	class Renderer;
+
+
+	class Geometry : public std::enable_shared_from_this<Geometry> {
+
+	public:
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+		static std::shared_ptr<Geometry> 			FromFile(const std::filesystem::path& path);
+
+/*********************************************************************************************
+	Lifecycle
+ *********************************************************************************************/
+
+		Geometry();
+		Geometry(const std::shared_ptr<GeometryElement> element,
+				 const std::shared_ptr<Material> material);
+		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
+				 const std::vector<std::shared_ptr<Material>> materials);
+		virtual ~Geometry();
+		
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
+
+		std::optional<std::string> 					name() const;
+		void 										name(const std::string& name);
+
+		const std::vector<std::shared_ptr<GeometryElement>>& 	elements();
+		const std::vector<std::shared_ptr<Material>>& 			materials();
+
+		std::shared_ptr<Material> 					firstMaterial() const;
+		std::shared_ptr<Material> 					materialNamed(const std::string& name) const;
+		void 										addMaterial(const std::shared_ptr<Material> material);
+		void 										insertMaterial(const std::shared_ptr<Material> material,
+																   int index);
+		void 										removeMaterial(int index);
+		void 										replaceMaterial(int index,
+																	const std::shared_ptr<Material> replacement);
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
+
+		void 										burnTransform(const glm::mat4& transform,
+																  bool normals);
+
+		void 										draw(Renderer& renderer,
+														 const glm::mat4& modelMat,
+														 const glm::mat4& viewMat,
+														 const glm::mat4& projectionMat,
+														 const DEBUG_OPTIONS& debugOptions,
+														 Stats& stats);
+
+		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+
+//		void 										attachedToNode(std::shared_ptr<Node> node);
+
+//		std::weak_ptr<Node> 						node() const;
+
+		GEOMETRY_DIRTY_MASK 						dirtyMask() const;
+		void 										dirtyMask(GEOMETRY_DIRTY_MASK mask);
+
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
+
+	protected:
+
+		std::vector<std::shared_ptr<GeometryElement>>	_elements;
+		std::vector<std::shared_ptr<Material>>			_materials;
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+	private:
+
+		std::optional<std::string>					_name;
+//		std::weak_ptr<Node>							_node;
+
+		GEOMETRY_DIRTY_MASK							_dirtyMask;
+	};
+}
+
+
+#endif /* Geometry_h */

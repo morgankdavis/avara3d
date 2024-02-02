@@ -2,9 +2,10 @@
 // Created by mkd on 11/19/23.
 //
 
-#include "physics/shape_primitives/CapsulePhysicsShape.h"
+#include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
 
-#include "diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
+#include "ae/physics/proxy/PhysicsShapeProxy.h"
 
 
 using namespace ae;
@@ -15,8 +16,12 @@ using namespace ae;
  *********************************************************************************************/
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
+		PhysicsShape(),
 		_radius(radius),
-		_height(height) {}
+		_height(height) {
+
+	//checkCreateProxy();
+}
 
 CapsulePhysicsShape::~CapsulePhysicsShape() {}
 
@@ -30,6 +35,9 @@ float CapsulePhysicsShape::radius() const {
 
 void CapsulePhysicsShape::radius(float radius) {
 	_radius = radius;
+
+//	_proxy = nullptr;
+//	checkCreateProxy();
 }
 
 float CapsulePhysicsShape::height() const {
@@ -38,6 +46,9 @@ float CapsulePhysicsShape::height() const {
 
 void CapsulePhysicsShape::height(float height) {
 	_height = height;
+
+//	_proxy = nullptr;
+//	checkCreateProxy();
 }
 
 /*********************************************************************************************

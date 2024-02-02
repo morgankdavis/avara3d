@@ -2,11 +2,11 @@
 // Created by mkd on 10/22/23.
 //
 
-#include "rendering/camera/OrthographicCamera.h"
+#include "ae/rendering/camera/OrthographicCamera.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
@@ -15,20 +15,15 @@ using namespace glm;
 
 OrthographicCamera::OrthographicCamera():
 	Camera(),
-	_extent(AABB{vec3{-1, -1, -1}, vec3{1, 1, 1}}) {
-
-}
+	_extent(AABB{vec3{-1, -1, -1}, vec3{1, 1, 1}}) {}
 
 OrthographicCamera::OrthographicCamera(AABB extent):
-		OrthographicCamera(nullopt, extent) {
+		Camera(),
+		_extent(extent) {}
 
-}
-
-OrthographicCamera::OrthographicCamera(optional<string> name, AABB extent):
+OrthographicCamera::OrthographicCamera(string name, AABB extent):
 	Camera(name),
-	_extent(extent) {
-
-}
+	_extent(extent) {}
 
 AABB OrthographicCamera::extent() const {
 	return _extent;

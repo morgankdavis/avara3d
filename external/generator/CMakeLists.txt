@@ -2,14 +2,14 @@
 cmake_minimum_required(VERSION 3.8)
 project(generator)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-include(GNUInstallDirs)
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+#
+#include(GNUInstallDirs)
 
 if(MSVC)
 	add_definitions(/W3)
 else()
-	# Morgan: SHUT UP
+	# mkd: SHUT UP
 	add_definitions(-std=c++14)
 	#add_definitions(-std=c++11 -pedantic -Wall -Wextra)
 endif()
@@ -19,11 +19,11 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 #option(GENERATOR_USE_GLM "Use GLM instead of GML (experimental)" OFF)
-# Morgan: turn GLM on
+# mkd: turn GLM on
 #option(GENERATOR_USE_GLM "Use GLM instead of GML (experimental)" ON)
 #if(GENERATOR_USE_GLM)
 	
-	# Morgan: turn GLM on
+	# mkd: turn GLM on
 	include_directories(${CMAKE_SOURCE_DIR}/avara-engine/external/glm-0.9.9)
 	message(STATUS ${CMAKE_SOURCE_DIR})
 	
@@ -60,7 +60,7 @@ add_subdirectory(src)
 #install(FILES lib/${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 
-# added by Morgan
+# mkd: added
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 

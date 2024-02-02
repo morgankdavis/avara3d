@@ -6,11 +6,10 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/opengl/OpenGLRenderer.h"
+#include "ae/rendering/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
-#include <locale.h>
 #include <set>
 #include <vector>
 
@@ -21,35 +20,35 @@
 #include "GL/glew.h"
 #endif
 
-#ifdef OPENGL_CORE
+//#ifdef OPENGL_DESKTOP
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "magic_enum.hpp"
-#endif
+//#endif
 
-#include "Global.h"
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/GeometryElement.h"
-#include "geometry/Line.h"
-#include "geometry/Point.h"
-#include "rendering/Light.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/camera/Camera.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/context/platform/desktop/Window.h"
-#include "rendering/materials/Material.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "rendering/opengl/Program.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Buffer.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
-#include "utilities/Font.h"
-#include "utilities/Image.h"
-#include "utilities/Utilities.h"
+#include "ae/Buffer.h"
+#include "ae/Color.h"
+#include "ae/Configuration.h"
+#include "ae/CubeImage.h"
+#include "ae/Font.h"
+#include "ae/Image.h"
+#include "ae/Utilities.h"
+#include "ae/diagnostic/exceptions/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/geometry/Line.h"
+#include "ae/geometry/Point.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/camera/Camera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/context/platform/desktop/Window.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/opengl/Program.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;
@@ -118,7 +117,7 @@ static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
 												GLuint glTextureHandle,
 												const DEBUG_OPTIONS& debugOptions,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -236,7 +235,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
-	AE_LOG_D("Destroying OpenGLRenderer {:p}", (void*)this);
+	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
 	_activeGeometryElements.clear();
 	_activeMaterialProperties.clear();
@@ -250,11 +249,11 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
-#ifdef OPENGL_CORE
+//#ifdef OPENGL_DESKTOP
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-#endif
+//#endif
 }
 	
 /*********************************************************************************************
@@ -271,7 +270,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	
 	// setup Imgui for stats overlay
 	
@@ -299,7 +298,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		ImFontConfig config;
 		config.FontDataOwnedByAtlas = false;
 		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->pointer(),
+		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->data(),
 													 _overlayFont->buffer()->size(),
 													 fontSize,
 													 &config);
@@ -309,7 +308,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		}
 	}
 
-#endif // OPENGL_CORE
+#endif // OPENGL_DESKTOP
 	
 	return true;
 }
@@ -347,7 +346,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	CheckGLError();
 }
 
-void OpenGLRenderer::render(Scene& scene,
+void OpenGLRenderer::render(const Scene& scene,
 							const DEBUG_OPTIONS& debugOptions,
 							Stats& stats) {
 
@@ -434,8 +433,8 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	GetGeometryElementGLVertexDataHandles(element,
 										  _geometryElementGLMapping,
 										  vbo, vao, ibo);
-	
-	bool wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
+
+	auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
 
 	if (wireframe) {
 		program = Program::Wireframe();
@@ -653,7 +652,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //
 //		// construct a new lineset matching the geometry's extent
 //
-//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 //
 //		map<string, vec3> bp = *(geometry->aabb(false));
 //
@@ -717,7 +716,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 
 		// construct a new lineset matching the geometry's extent
 
-		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", (void*)geometry.get());
+		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 
 		auto aabb = geometry->aabb();
 
@@ -821,7 +820,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property->dirtyMask(),
 													  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS)) {
 				
-				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", (void*)property.get());
+				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
 				
 				DeleteMaterialPropertyGLResources(property, glMapping);
 				
@@ -850,12 +849,12 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering vertex data for geometry element {:p}...", (void*)&element);
+	AE_LOG_D("Buffering vertex data for geometry element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
 	
-	const auto& verticies = element.vertices();
-	const auto& faces = element.faces();
+	auto verticies = element.vertices();
+	auto faces = element.faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -867,7 +866,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -876,22 +875,22 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 						  0); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
+	auto normalIndex = program.getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
 						  GL_FALSE, 				// normalize
 						  sizeof(Vertex), 			// stride
-						  (void *)sizeof(vec3)); 	// start offset
+						  (void*)sizeof(vec3)); 	// start offset
 	glEnableVertexAttribArray(normalIndex);
 	
-	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
+	auto texCoordIndex = program.getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, 							// attrib index
 						  2, 										// num components per attrib (2 float in vec2)
 						  GL_FLOAT, 								// component type
 						  GL_FALSE, 								// normalize
 						  sizeof(Vertex), 							// stride
-						  (void *)(sizeof(vec3) + sizeof(vec3))); 	// start offset
+						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
 	glEnableVertexAttribArray(texCoordIndex);
 	
 	glGenBuffers(1, &glIBO);
@@ -913,8 +912,8 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	program.use();
 	
 	auto element = skyboxGeometry.elements().front();
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
+	auto verts = element->vertices();
+	auto faces = element->faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -946,7 +945,7 @@ static void BufferAABBVertexData(Geometry& geometry,
 							   const Program& program,
 							   GLuint& glVBO, GLuint& glVAO) {
 	
-	AE_LOG_I("Buffering vertex data for AABB {:p}...", (void*)&geometry);
+	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
 
 	auto aabb = geometry.aabb();
 
@@ -1024,7 +1023,7 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -1032,8 +1031,8 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 						  sizeof(vec3)*2, 		// stride
 						  0); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
-	
-	GLuint colorIndex = program.getAttributeLocation("vertex_color");
+
+	auto colorIndex = program.getAttributeLocation("vertex_color");
 	glVertexAttribPointer(colorIndex, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -1054,7 +1053,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_D("Buffering cube texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&property));
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
 		
@@ -1094,7 +1093,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->data()->pointer());
+						 image->buffer()->data());
 		}
 		
 		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
@@ -1128,7 +1127,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 		
 		
-		AE_LOG_D("Buffering 2D texture {:p}...", (void*)&property);
+		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&property));
 		
 		auto image = dynamic_pointer_cast<Image>(property.contents());
 		
@@ -1140,10 +1139,10 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		GLint glInternalFormat = GL_RGBA;
 		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-		
+
 		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-					  (void*)image.get(), image->width(), image->height(), image->bytesPerPixel(),
-					  image->width() * image->height() * image->bytesPerPixel());
+				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
+				 image->width() * image->height() * image->bytesPerPixel());
 		
 	
 		
@@ -1151,7 +1150,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		
 //		// DEBUG: write texture data to file
 //		
-//		AE_LOG_D("Saving property {:p}...", (void*)&property);
+//		AE_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
 //	
 //		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
 //		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
@@ -1177,7 +1176,7 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					 0,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
-					 image->data()->pointer());
+					 image->buffer()->data());
 		
 		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
 		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());
@@ -1314,7 +1313,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats& stats) {
+static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
 	
 	// program "Default" must be active
 	
@@ -1375,12 +1374,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, Scene& scene, Stats
 //	}
 //	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
 
-	lights.push_back(ambientLightNode);
+	if (ambientLightNode) lights.push_back(ambientLightNode);
 
-	unsigned numLights = lights.size();
+	auto numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
 
-	stats.lights = numLights;// - 1; // not counting ambient
+	stats.lights = numLights - 1; // not counting ambient
 
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
@@ -1525,13 +1524,13 @@ static void SetMaterialOpenGLState(const Material& material,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		//_program = Program::Wireframe();
 		
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 		if (material.fillMode() == FILL_MODE::LINES) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1556,7 +1555,7 @@ static void SetMaterialOpenGLState(const Material& material,
 static void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1567,7 +1566,7 @@ static void SetAABBOpenGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 }
@@ -1576,7 +1575,7 @@ static void SetLineSetGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -1607,8 +1606,8 @@ static void DrawGeometryElement(GeometryElement& element,
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = element.faces().size();
-	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
+	auto numFaces = element.faces().size();
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
 static void DrawSkyboxElement(GeometryElement& element,
@@ -1617,8 +1616,8 @@ static void DrawSkyboxElement(GeometryElement& element,
 							  GLuint vao, GLuint ibo) {
 	
 	program.use();
-	
-	mat4 viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+
+	auto viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
 						  pointOfView.worldForward(), // center - look at
 						  pointOfView.worldUp()); // up
 	
@@ -1628,13 +1627,13 @@ static void DrawSkyboxElement(GeometryElement& element,
 	program.setUniform("projection", projectionMat);
 	
 	// update
-	
-	const auto& faces = element.faces();
+
+	auto faces = element.faces();
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, (void*)0);
+	auto numFaces = faces.size();
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 	
 static void DrawAABB(Geometry& geometry,
@@ -1819,7 +1818,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", (void*)element.get());
+		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", static_cast<void*>(element.get()));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1846,9 +1845,9 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	
 	if (glMapping.count(property)) {
 		
-		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", (void*)property.get());
-		
-		GLuint handle = glMapping[property];
+		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
+
+		auto handle = glMapping[property];
 		
 		glDeleteTextures(1, &handle);
 		
@@ -1867,12 +1866,12 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG_T("Deleting GL resources for LineSet {:p}..", (void*)lineSet.get());
+		AE_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
 		
 		auto glHandles = glMapping[lineSet];
-		
-		GLuint vbo = get<0>(glHandles);
-		GLuint vao = get<1>(glHandles);
+
+		auto vbo = get<0>(glHandles);
+		auto vao = get<1>(glHandles);
 		
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
@@ -1915,13 +1914,15 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
-#ifdef OPENGL_CORE
+	using namespace ImGui;
+
+//#ifdef OPENGL_DESKTOP
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;
 	windowFlags |= ImGuiWindowFlags_NoTitleBar;
@@ -1932,21 +1933,23 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGui::SetNextWindowBgAlpha(.5);
-	ImGui::Begin("Stats", nullptr, windowFlags);
+	SetNextWindowBgAlpha(.15);
+	Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
 	style.WindowRounding = 6;
 
-	static bool setInitialPosition = false;
-	if (!setInitialPosition) {
-		ImGui::SetWindowPos((ImVec2){10.0, 10.0});
-		setInitialPosition = true;
-	}
+//	ImGui::ShowDemoWindow(nullptr);
+//	ImGui::GetIO();
+
+	ImGui::SetWindowPos((ImVec2){10.0, 10.0});
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %.1f fps %s\n" \
+		Text("%-14s %.0f fps %s\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1968,28 +1971,35 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %d %s\n",
 
-					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
-					"frametime", stats.averageFrametime,
-					"nodes", stats.nodes,
-					"geometries", stats.geometries,
-					"meshes", stats.meshes,
-					"polygons", stats.polygons,
-					"lights", stats.lights,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "frametime", stats.averageFrametime,
+			 " user", stats.averageUsertime,
+			 " physics", stats.averagePhysicstime,
+			 " draw", stats.averageDrawtime,
 
-					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-					" static", stats.staticBodies,
-					" dynamic", stats.dynamicBodies,
-					" kinematic", stats.kinematicBodies,
-					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-					" bounding box", stats.boundingBoxShapes,
-					" convex hull", stats.convexHullShapes,
-					" concave polyhedron", stats.concavePolyhedronShapes,
+			 "nodes", stats.nodes,
+			 "geometries", stats.geometries,
+			 "meshes", stats.meshes,
+			 "polygons", stats.polygons,
+			 "lights", stats.lights,
 
-					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			 " static", stats.staticBodies,
+			 " dynamic", stats.dynamicBodies,
+			 " kinematic", stats.kinematicBodies,
+			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " bounding box", stats.boundingBoxShapes,
+			 " convex hull", stats.convexHullShapes,
+			 " concave polyhedron", stats.concavePolyhedronShapes,
+
+			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %.1f fps %s\n" \
+		Text("%-14s %.0f fps %s\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
+					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -2009,37 +2019,40 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
-					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
-					"frametime", stats.averageFrametime,
-					"nodes", stats.nodes,
-					"geometries", stats.geometries,
-					"meshes", stats.meshes,
-					"polygons", stats.polygons,
-					"lights", stats.lights,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "frametime", stats.averageFrametime,
+			 " user", stats.averageUsertime,
+			 " physics", stats.averagePhysicstime,
+			 " draw", stats.averageDrawtime,
 
-					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-					" static", stats.staticBodies,
-					" dynamic", stats.dynamicBodies,
-					" kinematic", stats.kinematicBodies,
-					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-					" bounding box", stats.boundingBoxShapes,
-					" convex hull", stats.convexHullShapes,
-					" concave polyhedron", stats.concavePolyhedronShapes,
+			 "nodes", stats.nodes,
+			 "geometries", stats.geometries,
+			 "meshes", stats.meshes,
+			 "polygons", stats.polygons,
+			 "lights", stats.lights,
 
-					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			 " static", stats.staticBodies,
+			 " dynamic", stats.dynamicBodies,
+			 " kinematic", stats.kinematicBodies,
+			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " bounding box", stats.boundingBoxShapes,
+			 " convex hull", stats.convexHullShapes,
+			 " concave polyhedron", stats.concavePolyhedronShapes,
+
+			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	}
 
-	ImGui::End();
-
-	ImGui::Render();
+	End();
+	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-#endif // OPENGL_CORE
+//#endif // OPENGL_DESKTOP
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
 	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
 		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:
@@ -2057,8 +2070,8 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILT
 }
 
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
 		case FILTER_MODE::NEAREST:
@@ -2074,8 +2087,8 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 
-#ifdef OPENGL_CORE
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+#ifdef OPENGL_DESKTOP
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
 	glBindTexture(texType, glTextureHandle);
@@ -2087,16 +2100,16 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 }
 
 static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
 }
 
 static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
@@ -2131,25 +2144,25 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef OPENGL_CORE
-		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//#endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
         default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
 }
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef OPENGL_CORE
-		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//#endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;
 		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_BORDER; }
+		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_EDGE; }
 }
 
 static void CheckGLError() {
-	GLenum err = glGetError();
+	auto err = glGetError();
 	if (err != GL_NO_ERROR) {
 		AE_LOG_E("*** GL error: 0x{:X} ***", err);
 	}

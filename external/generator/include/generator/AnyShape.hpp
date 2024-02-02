@@ -9,7 +9,6 @@
 
 #include <memory>
 
-
 #include "AnyGenerator.hpp"
 #include "Edge.hpp"
 #include "ShapeVertex.hpp"

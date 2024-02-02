@@ -1,0 +1,7 @@
+newmtl bark
+d 1.0
+map_Kd textures/bark_diff.png
+
+newmtl leaf
+d 1.0
+map_Kd textures/leaf_diff.png

@@ -1,119 +1,128 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
-
-stages:          # List of stages for jobs, and their order of execution
+stages:
   - build
   #- test
+  # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
+
+variables:
+  dummy_var: "$CI_PROJECT_DIR/dummy" 
 
 build-linux:
   stage: build
   tags:
-      - debian-11
+    - ubuntu-23
+  artifacts:
+    paths:
+      - gitlab-build/packaged
+    expire_in: 5 minutes
   script:
     - echo "Starting Linux build..."
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
-    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start) to allow us to get an X connection
-    # (used by GLFW) else: "/usr/bin/ld: cannot find -lXxf86vm"
-    - export DISPLAY=:0
+    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
+    # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
+    #- export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
-    - /usr/bin/cmake -G"Unix Makefiles" -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ..
-    - /usr/bin/make -j4
+    - /usr/bin/cmake
+      -G"Ninja"
+      -DCMAKE_C_COMPILER=/usr/bin/clang
+      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    #-DAE_BUILD_ASSIMP=ON
+    #- /usr/bin/cmake --build . -j4
+    - /usr/bin/cmake --build . --target install -j4
     - echo "Linux build complete."
 
 build-macos:
   stage: build
   tags:
-      - macos-12.6
+    - macos-12.6
   script:
-    - echo "Starting for macOS build..."
+    - echo "Starting macOS build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake -G"Unix Makefiles" ..
-    - /usr/bin/make -j4
+    - /opt/local/bin/cmake
+      -G"Ninja"
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    #-DAE_BUILD_ASSIMP=ON
+    - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
-build-windows: # bash
+build-windows:
   stage: build
   tags:
-      - windows-10
+    - windows-10
   script:
-    - echo "Starting for Windows build..."
+    - echo "Starting Windows build..."
     - tar --version
-    - echo "Things" > thing
     - mkdir gitlab-build
     - cd gitlab-build
-    - cmake -T"ClangCL" ..
-    # mkd: make maxCpuCount work...
-    - cmake --build . # -- -maxCpuCount:6
+    - cmake
+      -T"ClangCL"
+      -DAE_BUILD_BULLET=ON
+      -DAE_BUILD_GLFW=ON
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    #-DAE_BUILD_ASSIMP=ON
+    #-DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    - cmake --build . -j8
     - echo "Windows build complete."
-
-# build-windows10: # pwsh
-#   stage: build
-#   tags:
-#       - windows-10
-#   script:
-#     - echo "Compiling the code...."
-#     - mkdir gitlab-build
-#     - cd gitlab-build
-#     - \"C:\\Program Files\\Cmake\\bin\\cmake" -T\"ClangCL\" ..\"
-#     - \"C:\\Program Files\\Cmake\\bin\\cmake\" cmake --build . -- -maxCpuCount:6
-#     - echo "Compile complete."
 
 # test-linux:
 #   stage: test
 #   tags:
 #       - debian-11
 #   script:
-#     - echo "Starting Linux text..."
+#     - echo "Starting Linux test..."
 
 # test-macos:
 #   stage: test
 #   tags:
 #       - macos-12.6
 #   script:
-#     - echo "Starting macOS text..."
+#     - echo "Starting macOS test..."
 
 # test-windows:
 #   stage: test
 #   tags:
 #       - windows-10
 #   script:
-#     - echo "Starting Windows text..."
+#     - echo "Starting Windows test..."
 
-# .pigify: &pigify_thing
-#   - tar --help
-#   - pigz --help
-
-archive-debug-linux:
+.archive-debug-linux:
+  # TODO: 1. 'testing' only
+  # TODO: 2. get build type? debug? release?
   stage: archive
-  only:
-    - testing
+  dependencies:
+    - build-linux
+  #only:
+  #  - testing (#1)
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-  environment: production
   tags:
-    - debian-11
+    - ubuntu-23
+  environment: production
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  #     when: manual
   script:
     - echo "Starting Linux debug archive..."
-  #<<: *pigify_thing
-    #- !reference [ .pigify ]
+  artifacts:
+    name: "$CI_JOB_NAME"
+    #path: /tmp/artifacts # output?
+    paths:
+      - gitlab-build/packaged/avara-engine
+    expose_as: 'the goods'
+    expire_in: 1 week
 
 archive-debug-macos:
   stage: archive

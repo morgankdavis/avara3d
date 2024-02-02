@@ -6,15 +6,16 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "physics/PhysicsBody.h"
+#include "ae/physics/PhysicsBody.h"
 
 #include "magic_enum.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "physics/PhysicsShape.h"
-#include "physics/PhysicsSimulator.h"
-#include "physics/bullet/BulletBodyResources.h"
-#include "scene/Node.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/physics/PhysicsShape.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletBodyProxy.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;
@@ -44,26 +45,13 @@ shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 		_type(type),
-		_shape({}),
-		_linearFactor({1.0, 1.0, 1.0}),
-		_angularFactor({1.0, 1.0, 1.0}),
-		_mass(1.0),
-		_friction(0.5),
-		_rollingFriction(0.0),
-		_restitution(0.0),
-		_linearDamping(0.0),
-		_angularDamping(0.0),
-		_momentOfInertia({0, 0, 0}),
-		//_momentOfInertia({1000, 1000, 1000}),
-		_linearVelocity({0, 0, 0}),
-		_angularVelocity({0, 0, 0}),
-		_linearSleepingThreshold(0.8),
-		_angularSleepingThreshold(1.0),
-		_allowsResting(true),
-		_affectedByGravity(true),
-		_resting(false),
-		_resources(make_shared<BulletBodyResources>()),
-		_dirtyMask(PHYSICS_BODY_DIRTY_MASK::ALL) { }
+		_shape(nullptr),
+		_node(nullptr),
+		_world(nullptr) {
+
+	// _node has to be initialized to nullptr before calling this
+	_proxy = make_unique<BulletBodyProxy>(this);
+}
 
 PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
@@ -72,7 +60,10 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape)
 }
 
 PhysicsBody::~PhysicsBody() {
-	AE_LOG_D("Destroying PhysicsBody {:p}", (void*)this);
+	AE_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
+
+	if (_shape) _shape->detachedFromBody(this);
+	if (_proxy) _proxy->detachedFromBody(this);
 }
 
 /*********************************************************************************************
@@ -84,8 +75,11 @@ PHYSICS_BODY_TYPE PhysicsBody::type() const {
 }
 
 void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
-	_type = type;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TYPE);
+	AE_LOG_T("type: {}", magic_enum::enum_name(type));
+
+	if (type != _type) {
+		_type = type;
+	}
 }
 
 shared_ptr<PhysicsShape> PhysicsBody::shape() const {
@@ -93,313 +87,372 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 }
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
-	_shape = shape;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::SHAPE);
+	AE_LOG_T("shape: {:p}", static_cast<void*>(shape.get()));
+
+	if (shape != _shape) {
+
+		if (_shape) {
+			_shape->detachedFromBody(this);
+		}
+
+		_shape = shape;
+
+		if (shape) {
+			shape->attachedToBody(this);
+			_proxy->shapeProxy(shape->proxy());
+		}
+		else {
+			_proxy->shapeProxy(nullptr);
+		}
+	}
 }
 
 float PhysicsBody::mass() const {
-	return _mass;
+	return _proxy->mass();
 }
 
 void PhysicsBody::mass(float mass) {
-	_mass = mass;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MASS);
+	_proxy->mass(mass);
 }
 
 vec3 PhysicsBody::momentOfInertia() const {
-	return _momentOfInertia;
+	return _proxy->momentOfInertia();
 }
 
 void PhysicsBody::momentOfInertia(vec3 moment) {
-	_momentOfInertia = moment;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::MOMENT_OF_INERTIA);
+	_proxy->momentOfInertia(moment);
+}
+
+vec3 PhysicsBody::centerOfMass() const {
+	return _proxy->centerOfMass();
+}
+
+void PhysicsBody::centerOfMass(const glm::vec3 offset) {
+	_proxy->centerOfMass(offset);
 }
 
 float PhysicsBody::friction() const {
-	return _friction;
+	return _proxy->friction();
 }
 
 void PhysicsBody::friction(float friction) {
-	_friction = friction;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FRICTION);
+	_proxy->friction(friction);
 }
 
 float PhysicsBody::rollingFriction() const {
-	return _rollingFriction;
+	return _proxy->rollingFriction();
 }
 
 void PhysicsBody::rollingFriction(float friction) {
-	_rollingFriction = friction;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ROLLING_FRICTION);
+	_proxy->rollingFriction(friction);
 }
 
 float PhysicsBody::restitution() const {
-	return _restitution;
+	return _proxy->restitution();
 }
 
 void PhysicsBody::restitution(float restitution) {
-	_restitution = restitution;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::RESTITUTION);
+	_proxy->restitution(restitution);
 }
 
 vec3 PhysicsBody::linearVelocity() const {
-	return _linearVelocity;
+	return _proxy->linearVelocity();
 }
 
-void PhysicsBody::linearVelocity(vec3 velocity, bool setDirty) {
-	_linearVelocity = velocity;
-	if (setDirty) {
-		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_VELOCITY);
-	}
+void PhysicsBody::linearVelocity(vec3 velocity) {
+	_proxy->linearVelocity(velocity);
 }
 
 vec3 PhysicsBody::angularVelocity() const {
-	return _angularVelocity;
+	return _proxy->angularVelocity();
 }
 
-void PhysicsBody::angularVelocity(vec3 velocity, bool setDirty) {
-	_angularVelocity = velocity;
-	if (setDirty) {
-		_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_VELOCITY);
-	}
+void PhysicsBody::angularVelocity(vec3 velocity) {
+	_proxy->angularVelocity(velocity);
 }
 
 vec3 PhysicsBody::linearFactor() const {
-	return _linearFactor;
+	return _proxy->linearFactor();
 }
 
 void PhysicsBody::linearFactor(vec3 factor) {
-	_linearFactor = factor;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_FACTOR);
+	_proxy->linearFactor(factor);
 }
 
 vec3 PhysicsBody::angularFactor() const {
-	return _angularFactor;
+	return _proxy->angularFactor();
 }
 
 void PhysicsBody::angularFactor(vec3 factor) {
-	_angularFactor = factor;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_FACTOR);
+	_proxy->angularFactor(factor);
 }
 
 float PhysicsBody::linearDamping() const {
-	return _linearDamping;
+	return _proxy->linearDamping();
 }
 
 void PhysicsBody::linearDamping(float damping) {
-	_linearDamping = damping;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_DAMPING);
+	_proxy->linearDamping(damping);
 }
 
 float PhysicsBody::angularDamping() const {
-	return _angularDamping;
+	return _proxy->angularDamping();
 }
 
 void PhysicsBody::angularDamping(float damping) {
-	_angularDamping = damping;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_DAMPING);
+	_proxy->angularDamping(damping);
 }
 
 float PhysicsBody::linearSleepingThreshold() const {
-	return _linearSleepingThreshold;
+	return _proxy->linearSleepingThreshold();
 }
 
 void PhysicsBody::linearSleepingThreshold(float threshold) {
-	_linearSleepingThreshold = threshold;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::LINEAR_SLEEPING_THRESHOLD);
+	_proxy->linearSleepingThreshold(threshold);
 }
 
 float PhysicsBody::angularSleepingThreshold() const {
-	return _angularSleepingThreshold;
+	return _proxy->angularSleepingThreshold();
 }
 
 void PhysicsBody::angularSleepingThreshold(float threshold) {
-	_angularSleepingThreshold = threshold;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ANGULAR_SLEEPING_THRESHOLD);
+	_proxy->angularSleepingThreshold(threshold);
 }
 
 bool PhysicsBody::affectedByGravity() const {
-	return _affectedByGravity;
+	return _proxy->affectedByGravity();
 }
 
-void PhysicsBody::affectedByGravity(bool flag) {
-	_affectedByGravity = flag;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::AFFECTED_BY_GRAVITY);
+void PhysicsBody::affectedByGravity(bool affectedByGravity) {
+	_proxy->affectedByGravity(affectedByGravity);
 }
 
 bool PhysicsBody::allowsResting() const {
-	return _allowsResting;
+	return _proxy->allowsResting();
 }
 
-void PhysicsBody::allowsResting(bool flag) {
-	_allowsResting = flag;
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::ALLOWS_RESTING);
+void PhysicsBody::allowsResting(bool allowsResting) {
+	_proxy->allowsResting(allowsResting);
 }
 
 bool PhysicsBody::resting() const {
-	
-	return _resting;
+	return _proxy->resting();
+}
+
+void PhysicsBody::resting(bool resting) {
+	_proxy->resting(resting);
 }
 
 void PhysicsBody::applyForce(vec3 force, bool impulse) {
-	#warning fix
-	
-	//applyForce(force, {0, 0, 0}, impulse);
-//	void 	applyCentralImpulse (const btVector3 &impulse)
-//	void 	applyTorqueImpulse (const btVector3 &torque)
+
+	if (impulse) {
+		_proxy->applyCentralImpulse(force);
+	}
+	else {
+		_proxy->applyCentralForce(force);
+	}
 }
 
 void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
-	
-#warning save list of applied forces
-	
-//	if (_btRigidBody) {
-//		/**********
-//		if (impulse) _btRigidBody->applyImpulse(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-//		else _btRigidBody->applyForce(BTVector3FromGLMVec3(force), BTVector3FromGLMVec3(location));
-//		 *********/
-//	}
-	
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::FORCES);
+
+	if (impulse) {
+		_proxy->applyImpulse(force, location);
+	}
+	else {
+		_proxy->applyForce(force, location);
+	}
 }
 
 void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
-	
-#warning save list of applied torques
-	
-//	if (_btRigidBody) {
-//		/**********
-//		if (impulse) _btRigidBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
-//		else  _btRigidBody->applyTorque(BTVector3FromGLMVec3(torque));
-//		 *********/
-//	}
-	
-	_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TORQUES);
+
+	if (impulse) {
+		_proxy->applyTorqueImpulse(torque);
+	}
+	else {
+		_proxy->applyTorque(torque);
+	}
+}
+
+glm::vec3 PhysicsBody::totalForce() const {
+	return _proxy->totalForce();
+}
+
+glm::vec3 PhysicsBody::totalTorque() const {
+	return _proxy->totalTorque();
 }
 
 void PhysicsBody::clearForces() {
-	#warning FIX
-	//if (_btRigidBody) _btRigidBody->clearForces();
+	_proxy->clearForces();
 }
 
-void PhysicsBody::resetTransform() {
-	#warning FIX
-	//_dirtyMask = PHYSICS_BODY_DIRTY_MASK_ADD(_dirtyMask, PHYSICS_BODY_DIRTY_MASK::TRANSFORM);
-	//proceedToTransform (const btTransform &newTrans)
+bool PhysicsBody::autocalculatesMomentOfInertia() const {
+	return _proxy->autocalculatesMomentOfInertia();
+}
+
+void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
+	_proxy->autocalculatesMomentOfInertia(autocalculate);
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-void PhysicsBody::resting(bool resting) {
-	_resting = resting;
-	
-#warning need to update BT motion state?
+void PhysicsBody::attachedToNode(Node* node) {
+	AE_LOG_T("node: {:p}", static_cast<void*>(node));
+
+	_node = node;
+
+	checkAutocreateShape(node);
+
+	checkAddToWorld();
 }
 
-void PhysicsBody::attachedToNode(shared_ptr<Node> node) {
-	if (node) {
-		checkAutocreateShape(node);
+void PhysicsBody::detachedFromNode(Node* node) {
+	AE_LOG_T("node: {:p}", static_cast<void*>(node));
+
+	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
+
+	_node = nullptr; // ^^ physicalWorld() relies on old _node
+}
+
+void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
+	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+
+	checkAutocreateShape(geometry);
+}
+
+void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
+	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+}
+
+void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
+	if (_shape) {
+		_shape->physicalWorldReachable(world);
+	}
+
+	checkAddToWorld();
+}
+
+void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
+	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+
+	if (_shape) {
+		_shape->physicalWorldUnreachable(world);
+	}
+
+	// if _world != nullptr it's the world we're currently in
+	 if (_world) {
+		_world->remove(*this);
 	}
 }
 
-void PhysicsBody::geometryAttachedToNode(shared_ptr<Geometry> geometry) {
-	if (geometry) {
-		checkAutocreateShape(geometry);
+void PhysicsBody::addedToWorld(PhysicalWorld* world) {
+	AE_LOG_D("world: {}", static_cast<void*>(world));
+
+	_world = world;
+
+	// set initial transform
+	_proxy->worldTransform(node()->worldTransform());
+}
+
+void PhysicsBody::removedFromWorld(PhysicalWorld* world) {
+	AE_LOG_D("world: {}", static_cast<void*>(world));
+
+	_world = nullptr;
+}
+
+void PhysicsBody::shapeUpdated() {
+
+	if (_proxy) {
+		if (_shape) {
+				_proxy->shapeProxy(_shape->proxy());
+		}
+		else {
+			AE_LOG_E("No shape.");
+		}
+	}
+	else {
+		AE_LOG_E("No body model proxy.");
 	}
 }
 
-shared_ptr<PhysicsBodyResources> PhysicsBody::resources() {
-	return _resources;
+Node* PhysicsBody::node() const {
+	return _node;
 }
 
-void PhysicsBody::update(PhysicsSimulator& simulator,
-						 Node& node,
-						 Stats& stats) {
+PhysicalWorld* PhysicsBody::physicalWorld() const {
 
-	_shape->update(simulator,
-				   node,
-				   *this,
-				   stats);
-
-	simulator.update(*this,
-					 node);
-}
-
-void PhysicsBody::sync(PhysicsSimulator& simulator,
-					   Node& node,
-					   mat4& localTransform,
-					   Stats& stats) {
-
-	_shape->sync(simulator,
-				   node,
-				   *this,
-				   stats);
-
-	simulator.sync(*this,
-				   node,
-				   localTransform);
-
-	switch (type()) {
-		case (PHYSICS_BODY_TYPE::DYNAMIC): ++stats.dynamicBodies; break;
-		case (PHYSICS_BODY_TYPE::KINEMATIC): ++stats.kinematicBodies; break;
-		case (PHYSICS_BODY_TYPE::STATIC): ++stats.staticBodies; break;
+	if (_node) {
+		if (auto scene = _node->scene()) {
+			if (auto physicalWorld = scene->physicalWorld()) {
+				return physicalWorld.get();
+			}
+		}
 	}
+	return nullptr;
 }
 
-PHYSICS_BODY_DIRTY_MASK PhysicsBody::dirtyMask() const {
-	return _dirtyMask;
-}
-
-void PhysicsBody::dirtyMask(PHYSICS_BODY_DIRTY_MASK mask) {
-	_dirtyMask = mask;
+PhysicsBodyProxy* PhysicsBody::proxy() const {
+	return _proxy.get();
 }
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-void PhysicsBody::checkAutocreateShape(shared_ptr<Node> node) {
+void PhysicsBody::checkAutocreateShape(Node* node) {
+
 	if (!_shape) {
 		if (auto geometry = node->geometry()) {
 			// make a shape based on the geometry
-			checkAutocreateShape(geometry);
+			checkAutocreateShape(geometry.get());
 		}
 		else {
 			// make a shape based on the node
+			auto shapeType = PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON;
 			if (type() == PHYSICS_BODY_TYPE::STATIC) {
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)node.get());
-				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, node));
-				_shape->sourceObject(node);
-			} else {
+						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
+				shape(make_shared<PhysicsShape>(shapeType, node));
+			}
+			else {
+				auto shapeType = PHYSICS_SHAPE_TYPE::CONVEX_HULL;
 				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)node.get());
-				shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, node));
-				_shape->sourceObject(node);
+						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
+				shape(make_shared<PhysicsShape>(shapeType, node));
 			}
 		}
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(shared_ptr<Geometry> geometry) {
+void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
 
 	if (!_shape) {
 		if (type() == PHYSICS_BODY_TYPE::STATIC) {
+			auto shapeType = PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON;
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON), (void*)geometry.get());
-			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, geometry));
-			_shape->sourceObject(geometry);
+					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
+			shape(make_shared<PhysicsShape>(shapeType, geometry));
 		}
 		else {
+			auto shapeType = PHYSICS_SHAPE_TYPE::CONVEX_HULL;
 			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(PHYSICS_SHAPE_TYPE::CONVEX_HULL), (void*)geometry.get());
-			shape(make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, geometry));
-			_shape->sourceObject(geometry);
+					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
+			shape(make_shared<PhysicsShape>(shapeType, geometry));
 		}
 	}
 	else {
-		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating becuase of node geometry addition.");
+		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node geometry addition.");
+	}
+}
+
+void PhysicsBody::checkAddToWorld() {
+
+	if (!_world) {
+		if (auto world = physicalWorld()) {
+			world->add(*this);
+		}
 	}
 }

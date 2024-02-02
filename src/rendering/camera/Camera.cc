@@ -6,11 +6,11 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/camera/Camera.h"
+#include "ae/rendering/camera/Camera.h"
 
 #include <iostream>
 
-#include "utilities/Utilities.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
@@ -27,7 +27,7 @@ Camera::Camera():
 
 }
 
-Camera::Camera(optional<string> name):
+Camera::Camera(string name):
 		_name(name) {
 
 }

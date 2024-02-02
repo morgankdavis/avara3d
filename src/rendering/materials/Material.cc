@@ -6,15 +6,15 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/materials/Material.h"
+#include "ae/rendering/materials/Material.h"
 
 #include <memory>
 
-#include "diagnostic/Exception.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "rendering/materials/MaterialPropertyContents.h"
-#include "utilities/Color.h"
+#include "ae/Color.h"
+#include "ae/diagnostic/exceptions/Exception.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/materials/MaterialPropertyContents.h"
 
 
 using namespace ae;
@@ -29,14 +29,26 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-		material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(0.85f));
+		material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+		material->doubleSided(true);
+		material->specularExponent(75);
 	}
 	return material;
 }
 
-shared_ptr<Material> EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
+shared_ptr<Material> Material::MissingTextureMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		material = Material::EmissiveMaterial(Color::Magenta());
+		material->doubleSided(true);
+	}
+	return material;
+}
+
+shared_ptr<Material> Material::EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
 	auto property = make_shared<MaterialProperty>(contents);
 	return make_shared<Material>(nullptr, nullptr, nullptr, property);
 }
@@ -59,7 +71,7 @@ Material::Material():
 		_blendFunction(BLEND_FUNCTION::DISABLED),
 		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
 
-	AE_LOG_D("Creating Material {:p}", (void*)this);
+	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
 Material::Material(shared_ptr<MaterialProperty> ambient,
@@ -85,7 +97,7 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 }
 
 Material::~Material() {
-	AE_LOG_D("Destroying Material {:p}", (void*)this);
+	AE_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -165,9 +177,9 @@ FILL_MODE Material::fillMode() const {
 }
 
 void Material::fillMode(FILL_MODE mode) {
-#ifdef ANDROID
+#ifdef OPENGL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
-		throw Exception("Fill mode not supported on this platform.");
+		throw Exception("Fill mode not supported with this rendering API.");
 	}
 #endif
 	

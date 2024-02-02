@@ -5,7 +5,7 @@
 #ifdef ANDROID
 
 
-#include "diagnostic/logging/sinks/platform/android/AndroidLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/platform/android/AndroidLoggerSink.h"
 
 
 using namespace ae;
@@ -57,12 +57,12 @@ void AndroidLoggerSink::write(const char* message, const char* tag, LOG_LEVEL le
 unsigned AndroidPriorityFromLogLevel(LOG_LEVEL level) {
 
 	switch (level) {
-		case LOG_LEVEL::TRACE_: 	return ANDROID_LOG_VERBOSE;
+		case LOG_LEVEL::TRACE: 	return ANDROID_LOG_VERBOSE;
 		case LOG_LEVEL::DEBUG: 	return ANDROID_LOG_DEBUG;
 		case LOG_LEVEL::INFO: 		return ANDROID_LOG_INFO;
 		case LOG_LEVEL::WARN: 		return ANDROID_LOG_WARN;
 		case LOG_LEVEL::ERROR: 	return ANDROID_LOG_ERROR;
-		case LOG_LEVEL::CRITICAL_: 	return ANDROID_LOG_FATAL;
+		case LOG_LEVEL::CRITICAL: 	return ANDROID_LOG_FATAL;
 		case LOG_LEVEL::OFF: 		return ANDROID_LOG_SILENT;
 	}
 }

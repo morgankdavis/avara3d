@@ -6,24 +6,19 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#ifdef OPENGL_CORE
+#ifdef OPENGL_DESKTOP
 
-#include "physics/bullet/BulletDebugDrawer.h"
+#include "ae/physics/bullet/BulletDebugDrawer.h"
 
 #include <set>
 
-#include "GL/glew.h"
-
-#include "utilities/Color.h"
-#include "geometry/Line.h"
-#include "diagnostic/logging/Logger.h"
-#include "rendering/opengl/Program.h"
-#include "rendering/Renderer.h"
-#include "utilities/Utilities.h"
+#include "ae/Color.h"
+#include "ae/geometry/Line.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/rendering/Renderer.h"
 
 
 using namespace ae;
-using namespace ae::utils;
 using namespace glm;
 using namespace std;
 
@@ -250,4 +245,4 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-#endif // OPENGL_CORE
+#endif // OPENGL_DESKTOP

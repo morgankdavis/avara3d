@@ -6,18 +6,15 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Cone.h"
+#include "ae/geometry/primitives/Cone.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
-// apparently we're not using anything experimental here since at least GLM .9.9.8
-//#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/transform.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;
@@ -62,7 +59,9 @@ Cone::Cone(float radius, float height, int slices, int segments):
 			
 		auto faces = vector<Face>();
 		for (const Triangle& t : cone.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+			Face face = { unsigned(t.vertices[0]),
+						  unsigned(t.vertices[1]),
+						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 		

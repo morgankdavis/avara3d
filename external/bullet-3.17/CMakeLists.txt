@@ -2,6 +2,15 @@
 #cmake_minimum_required(VERSION 2.4.3)
 cmake_minimum_required(VERSION 3.8)
 
+
+# mkd:
+# added to silence:
+# "OpenGL_GL_PREFERENCE has not been set to "GLVND" or "LEGACY", so for
+#  compatibility with CMake 3.10 and below the legacy GL library will be used."
+# https://github.com/Kitware/CMake/commit/2ea17412a9a40bd66342a1761ac8f067f5d2ab09
+set(OpenGL_GL_PREFERENCE GLVND)
+
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
@@ -30,7 +39,7 @@ OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 SET(CLAMP_VELOCITIES "0" CACHE STRING "Clamp rigid bodies' velocity to this value, if larger than zero. Useful to prevent floating point errors or in general runaway velocities in complex scenarios")
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
-OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" ON)
+OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF) # mkd: disabled
 OPTION(USE_OPENVR "Use OpenVR for virtual reality" OFF)
 
 OPTION(ENABLE_VHACD "Use VHACD in BulletRobotics and pybullet" ON)

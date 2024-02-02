@@ -6,9 +6,9 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "input/InputManager.h"
+#include "ae/input/InputManager.h"
 
-#include "diagnostic/logging/Logger.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;
@@ -32,7 +32,7 @@ InputManager::InputManager():
 		_scene(nullptr) { }
 
 InputManager::~InputManager() {
-	AE_LOG_D("Destroying InputManager {:p}", (void*)this);
+	AE_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -108,7 +108,15 @@ Scene* InputManager::scene() const {
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void InputManager::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 /*********************************************************************************************

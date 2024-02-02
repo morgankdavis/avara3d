@@ -2,10 +2,10 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "diagnostic/logging/sinks/FileLoggerSink.h"
+#include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 
 
-#include "diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 
 
 using namespace ae;
@@ -93,7 +93,6 @@ void FileLoggerSink::openStream() {
 		_fileStream->close();
 	}
 
-#warning check file writable
 	_fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
 }
 
@@ -108,7 +107,7 @@ void FileLoggerSink::checkRotate() {
 
 void FileLoggerSink::rotate() {
 
-	// find list of existing files
+	// find list of existing filesw
 	// start at index 0, count down until the next isn't found
 
 	auto stem = _filepath.stem();

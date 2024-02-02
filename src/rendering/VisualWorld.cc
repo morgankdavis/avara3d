@@ -2,22 +2,25 @@
 // Created by mkd on 11/25/23.
 //
 
-#include "rendering/VisualWorld.h"
+#include "ae/rendering/VisualWorld.h"
 
 
 #include "glm/glm.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/Geometry.h"
-#include "geometry/primitives/Box.h"
-#include "rendering/Light.h"
-#include "rendering/camera/PerspectiveCamera.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/materials/MaterialProperty.h"
-#include "scene/Node.h"
-#include "scene/Scene.h"
-#include "utilities/Color.h"
-#include "utilities/CubeImage.h"
+#include "ae/Color.h"
+#include "ae/CubeImage.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/Geometry.h"
+#include "ae/geometry/primitives/Box.h"
+#include "ae/physics/PhysicalWorld.h"
+#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "ae/rendering/Light.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;
@@ -30,12 +33,13 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
+VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 		_background(nullptr),
 		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
@@ -53,7 +57,10 @@ VisualWorld::VisualWorld(std::shared_ptr<RenderContext> context):
 }
 
 VisualWorld::~VisualWorld() {
-	AE_LOG_D("Destroying VisualWorld {:p}", (void*)this);
+	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+
+	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
+	//renderContext(nullptr);
 }
 
 /*********************************************************************************************
@@ -119,14 +126,6 @@ void VisualWorld::fogColor(shared_ptr<Color> color) {
 	_fogColor = color;
 }
 
-bool VisualWorld::automaticallyAddDefaultLighting() const {
-	return _automaticallyAddDefaultLighting;
-}
-
-void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
-	_automaticallyAddDefaultLighting = enabled;
-}
-
 shared_ptr<Node> VisualWorld::pointOfView() {
 
 	if (_pointOfView) {
@@ -143,14 +142,22 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 	}
 	if (!_pointOfView) {
 		// still no POV. add a default one.
-		_pointOfView = defaultPointOfView();
+		_pointOfView  = defaultPointOfView();
 	}
 
 	return _pointOfView;
 }
 
-void VisualWorld::pointOfView(const shared_ptr<Node> camera) {
-	_pointOfView = camera;
+void VisualWorld::pointOfView(const shared_ptr<Node> cameraNode) {
+	_pointOfView = cameraNode;
+}
+
+bool VisualWorld::automaticallyAddDefaultLighting() const {
+	return _automaticallyAddDefaultLighting;
+}
+
+void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
+	_automaticallyAddDefaultLighting = enabled;
 }
 
 shared_ptr<RenderContext> VisualWorld::renderContext() const {
@@ -182,7 +189,15 @@ void VisualWorld::didRender(DidRenderCallback function) {
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
 	_scene = scene;
+}
+
+void VisualWorld::detachedFromScene(Scene* scene) {
+	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+
+	_scene = nullptr;
 }
 
 void VisualWorld::checkAddDefaultLighting() {
@@ -217,6 +232,75 @@ void VisualWorld::checkAddDefaultLighting() {
 	}
 }
 
+void VisualWorld::draw(const Scene& scene,
+					   const PhysicalWorld* physicalWorld,
+					   double runT,
+					   double deltaRunT,
+					   DEBUG_OPTIONS debugOptions,
+					   Stats& stats) {
+
+	if (_renderContext) {
+
+		if (auto renderer = _renderContext->renderer()) {
+
+			if (auto willRender = VisualWorld::willRender()) {
+				willRender(*this, runT);
+			}
+
+			auto startTime = scene.time();
+
+			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+
+			auto pov = pointOfView();
+			stats.cameraPosition = pov->position();
+
+			auto aspectRatio = (float)_renderContext->framebufferWidth()
+							   / (float)_renderContext->framebufferHeight();
+			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+
+			renderer->render(scene, debugOptions, stats);
+
+			auto viewMat = pov->worldTransform();
+			auto projectionMat = pov->camera()->projection();
+			scene.rootNode()->draw(*renderer,
+								   viewMat,
+								   projectionMat,
+								   debugOptions,
+								   stats);
+
+			if (physicalWorld) {
+
+				if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+					bulletWorldProxy->drawDebug(*renderer,
+												viewMat,
+												projectionMat,
+												debugOptions);
+				}
+			}
+
+			UpdateTimeStats(stats, startTime, scene.time());
+
+			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
+
+			_renderContext->swapBuffers();
+
+			if (auto didRender = VisualWorld::didRender()) {
+				didRender(*this, runT);
+			}
+
+			if (_renderContext->recordingGIF()) {
+				_renderContext->saveGIFFrame(deltaRunT);
+			}
+		}
+		else {
+			AE_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
+		}
+	}
+	else {
+		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
+	}
+}
+
 shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
 	return _skyboxGeometry;
 }
@@ -226,14 +310,13 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	if (_scene) {
 
 		auto cameraNode = make_shared<Node>();
-		//_scene->rootNode()->addChild(cameraNode); // done below
 		auto camera = make_shared<PerspectiveCamera>();
 		camera->name("default camera");
 		cameraNode->camera(camera);
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
+		float fovH = static_pointer_cast<PerspectiveCamera>(camera)->yFov();
 		float w = _renderContext->width();
 		float h = _renderContext->height();
 		float aspectRatio = w / h;
@@ -268,7 +351,6 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		cameraNode->transform(viewMat);
 
 		_scene->rootNode()->addChild(cameraNode);
-		pointOfView(cameraNode);
 
 		return cameraNode;
 	}
@@ -285,9 +367,43 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
 
-	auto geometry = make_shared<Box>(1, 1, 1);
+	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
 	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
-	geometry->insertMaterial(material, 0);
+	material->doubleSided(false);
+	geometry->addMaterial(material);
 
 	return geometry;
+}
+
+void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
+
+	// current
+	auto drawTime = endTime - startTime;
+	stats.currentDrawtime = drawTime * 1000.0f;
+
+
+
+	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+
+	// average
+	static double avg = 0.0;
+	static double sampleStartTime = startTime;
+	static unsigned drawsSinceSampleStart = 0;
+	static double accumulatedDrawTimeSinceSampleStart = 0;
+	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+
+		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
+
+		sampleStartTime = startTime;
+		drawsSinceSampleStart = 0;
+		accumulatedDrawTimeSinceSampleStart = 0;
+	}
+	else {
+		++drawsSinceSampleStart;
+		accumulatedDrawTimeSinceSampleStart += drawTime;
+	}
+
+	stats.averageDrawtime = avg;
+//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

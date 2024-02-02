@@ -2,16 +2,16 @@
 // Created by mkd on 11/5/23.
 //
 
-#include "physics/ConvexDecomposer.h"
+#include "ae/physics/ConvexDecomposer.h"
 
 #include <utility>
 
-#include "magic_enum-0.9.3/include/magic_enum.hpp"
+#include "magic_enum.hpp"
 #define ENABLE_VHACD_IMPLEMENTATION 1
-#include "v-hacd-4.1.0/VHACD.h"
+#include "VHACD.h"
 
-#include "geometry/GeometryElement.h"
-#include "diagnostic/logging/Logger.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/diagnostic/logging/Logger.h"
 
 
 using namespace ae;
@@ -131,7 +131,7 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 			decomposedVerts.push_back({{(float)v.mX, (float)v.mY, (float)v.mZ}, {}, {}});
 		}
 		for (auto& f : hacdFaces) {
-			decomposedFaces.push_back({(int)f.mI0, (int)f.mI1, (int)f.mI2});
+			decomposedFaces.push_back({(unsigned)f.mI0, (unsigned)f.mI1, (unsigned)f.mI2});
 		}
 
 		auto decomposedElement = make_shared<GeometryElement>(decomposedVerts, decomposedFaces);

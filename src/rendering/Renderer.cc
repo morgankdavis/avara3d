@@ -6,14 +6,14 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "rendering/Renderer.h"
+#include "ae/rendering/Renderer.h"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/GeometryElement.h"
-#include "rendering/VisualWorld.h"
-#include "rendering/context/RenderContext.h"
-#include "rendering/materials/Material.h"
-#include "scene/Scene.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/VisualWorld.h"
+#include "ae/rendering/context/RenderContext.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/scene/Scene.h"
 
 
 using namespace ae;
@@ -24,11 +24,10 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-Renderer::Renderer()/*:
-		_frametimeAveragingInterval(.25)*/ { }
+Renderer::Renderer() { }
 
 Renderer::~Renderer() {
-	AE_LOG_D("Destroying Renderer {:p}", (void*)this);
+	AE_LOG_D("Destroying Renderer {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -49,10 +48,9 @@ void Renderer::endFrame(const Scene& scene,
 						const RenderContext& context,
 						const DEBUG_OPTIONS& debugOptions,
 						Stats& stats) {
-	//updateTimeStats(stats, context.visualWorld()->scene()->time());
 }
 
-void Renderer::render(Scene& scene,
+void Renderer::render(const Scene& scene,
 					  const DEBUG_OPTIONS& debugOptions,
 					  Stats& stats) {
 	
@@ -96,53 +94,8 @@ void Renderer::render(shared_ptr<PointSet> points,
 	AE_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
 }
 
-//float Renderer::frametimeAveragingInterval() const {
-//	return _frametimeAveragingInterval;
-//}
-//
-//void Renderer::frametimeAveragingInterval(float interval) {
-//	_frametimeAveragingInterval = interval;
-//}
-
 shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
 	AE_LOG_C("Renderer::snapshot() should be overidden in derived class.");
 	return nullptr;
 }
-
-/**************************************************************************************
-	Protected
- **************************************************************************************/
-
-//void Renderer::updateTimeStats(Stats& stats, float time) {
-//
-//	static float fpsAvg = 0.0;
-//	static float msAvg = 0.0;
-//
-//	static int elapsedFramesThisSample = 0;
-//
-//	static float lastSampleStartTime = time;
-//
-//	float elapsedSecondsSinceLastFrame = time - lastSampleStartTime;
-//
-//	float timeSinceBeginSample = time - lastSampleStartTime;
-//	if (timeSinceBeginSample >= frametimeAveragingInterval()) {
-//
-//		fpsAvg = (float)elapsedFramesThisSample / timeSinceBeginSample;
-//		msAvg = (elapsedSecondsSinceLastFrame * 1000.0f) / elapsedFramesThisSample;
-//
-//		elapsedFramesThisSample = 0;
-//		lastSampleStartTime = time;
-//	}
-//	else {
-//		++elapsedFramesThisSample;
-//	}
-//
-//	stats.averageFramerate = fpsAvg;
-//	stats.averageFrametime = msAvg;
-//
-//	stats.currentFramerate = 60.0f / elapsedSecondsSinceLastFrame;
-//	stats.currentFrametime = elapsedSecondsSinceLastFrame * 1000.0f; // is this wrong?
-//
-//	stats.frametimeAveragingInterval = frametimeAveragingInterval();
-//}

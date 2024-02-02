@@ -6,15 +6,15 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Plane.h"
+#include "ae/geometry/primitives/Plane.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;
@@ -27,7 +27,8 @@ using namespace std;
 	 	Lifecycle
 *********************************************************************************************/
 
-Plane::Plane(float width, float height):
+Plane::Plane(float width, float height,
+			 unsigned widthSegements, unsigned heightSegments):
 	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
 
 		_width = width;
@@ -38,7 +39,7 @@ Plane::Plane(float width, float height):
 
 		// subdivisions are good for Bullet (so they say...)
 		//PlaneMesh plane{{width/2.0, height/2.0}, {(int)lround(width), (int)lround(height)}};
-		PlaneMesh plane{{width/2.0, height/2.0}, {1, 1}};
+		PlaneMesh plane{{width/2.0, height/2.0}, {widthSegements, heightSegments}};
 
 		auto verts = vector<Vertex>();
 		for (const MeshVertex& v : plane.vertices()) {
@@ -50,7 +51,9 @@ Plane::Plane(float width, float height):
 
 		auto faces = vector<Face>();
 		for (const Triangle& t : plane.triangles()) {
-			Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+			Face face = { unsigned(t.vertices[0]),
+						  unsigned(t.vertices[1]),
+						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 

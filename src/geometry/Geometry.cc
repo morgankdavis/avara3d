@@ -6,25 +6,54 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/Geometry.h"
+#include "ae/geometry/Geometry.h"
 
-#include <iostream>
-
-// apparently we're not using anything experimental here since at least GLM .9.9.8
-//#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
+#include "rapidobj.hpp"
 
-#include "diagnostic/logging/Logger.h"
-#include "geometry/GeometryElement.h"
-#include "rendering/Renderer.h"
-#include "rendering/materials/Material.h"
-#include "scene/Node.h"
+#include "ae/Color.h"
+#include "ae/Image.h"
+#include "ae/diagnostic/logging/Logger.h"
+#include "ae/diagnostic/exceptions/UnsupportedFormat.h"
+#include "ae/geometry/GeometryElement.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/scene/Node.h"
 
 
 using namespace ae;
-using namespace std;
 using namespace glm;
+using namespace std;
 
+
+/*********************************************************************************************
+	Private Static Prototypes
+ *********************************************************************************************/
+
+static shared_ptr<Geometry> LoadObj(const filesystem::path& path);
+static void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
+						   map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+						   const rapidobj::Materials& objMaterials,
+						   int32_t objMaterialID,
+						   filesystem::path& textureDir);
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+shared_ptr<Geometry> Geometry::FromFile(const filesystem::path& path) {
+
+	auto extension = path.extension();
+	if (extension == ".obj") {
+		return LoadObj(path);;
+	}
+	else {
+		throw UnsupportedFormat(fmt::format("Unsupported geometry format: {}", extension.string()));
+	}
+
+	return nullptr;
+}
 
 /*********************************************************************************************
 	Lifecycle
@@ -56,7 +85,7 @@ Geometry::Geometry(const vector<shared_ptr<GeometryElement>> elements,
 }
 
 Geometry::~Geometry() {
-	AE_LOG_D("Destroying Geometry {:p}", (void*)this);
+	AE_LOG_D("Destroying Geometry {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -210,4 +239,296 @@ GEOMETRY_DIRTY_MASK Geometry::dirtyMask() const {
 
 void Geometry::dirtyMask(GEOMETRY_DIRTY_MASK mask) {
 	_dirtyMask = mask;
+}
+
+/*********************************************************************************************
+	Static
+ *********************************************************************************************/
+
+shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
+
+	using namespace rapidobj;
+
+	AE_LOG_I("Loading Wavefront Obj at: {}", path.string());
+
+	// example from tinyobjloader:
+	// https://github.com/tinyobjloader/tinyobjloader#example-code-deprecated-api
+
+	auto result = ParseFile(path.string(),
+							MaterialLibrary::Default(Load::Optional));
+
+	if (!result.error) {
+
+		Triangulate(result);
+
+		auto& attributes = result.attributes;
+		auto& positions = attributes.positions;
+		auto& normals = attributes.normals;
+		auto& texCoords = attributes.texcoords;
+		auto& shapes = result.shapes;
+		auto& materials = result.materials;
+
+		auto aeElements = vector<shared_ptr<GeometryElement>>();
+		auto aeMaterials = vector<shared_ptr<ae::Material>>();
+
+		auto aeMaterialsMap = map<int32_t, shared_ptr<ae::Material>>();
+		auto texturesDir = path.parent_path();
+
+		auto numShapes = shapes.size();
+		for (auto s=0; s<numShapes; ++s) {
+
+			auto& shape = result.shapes[s];
+			auto& mesh = shape.mesh;
+
+			auto verts = vector<Vertex>();
+			auto faces = vector<Face>();
+
+			size_t indexOffset = 0;
+			int32_t materialID = -1;
+			int32_t prevMaterialID = -1;
+			size_t numFaces = shape.mesh.num_face_vertices.size();
+			size_t faceIndexOffset = 0;
+			for (auto f=0; f<numFaces; ++f) {
+
+				auto baseFaceIndex = (size_t)((3 * f) - faceIndexOffset);
+
+				materialID = shape.mesh.material_ids[f];
+
+				if (prevMaterialID == -1) {
+					prevMaterialID = materialID;
+				}
+
+				// whenever the material ID changes, start a new GeometryElement
+				if (materialID != prevMaterialID) {
+					AE_LOG_D("New materialID -- adding GeometryElement.");
+
+					aeElements.push_back(make_shared<GeometryElement>(verts, faces));
+					AddObjMaterial(aeMaterials,
+								   aeMaterialsMap,
+								   materials,
+								   prevMaterialID,
+								   texturesDir);
+
+					verts.clear();
+					faces.clear();
+
+					// since we are logging off an element early, we have to keep
+					// a negative offset for future face indicies.
+					faceIndexOffset += baseFaceIndex;
+					baseFaceIndex -= faceIndexOffset;
+				}
+
+				// vertices in the face (shape is triangulated above)
+				for (auto v=0; v<3; ++v) {
+
+					// access to vertex
+					auto index = shape.mesh.indices[indexOffset + v];
+
+					auto vx = positions[3 * index.position_index + 0];
+					auto vy = positions[3 * index.position_index + 1];
+					auto vz = positions[3 * index.position_index + 2];
+					Vertex vert = {{vx, vy, vz}, {}, {}};
+
+					// negative = no normals
+					if (index.normal_index >= 0) {
+						auto nx = normals[3 * index.normal_index + 0];
+						auto ny = normals[3 * index.normal_index + 1];
+						auto nz = normals[3 * index.normal_index + 2];
+						vert.normal = {nx, ny, nz};
+					}
+
+					// negative = no texcoords
+					if (index.texcoord_index >= 0) {
+						auto tu = texCoords[2 * index.texcoord_index + 0];
+						auto tv = texCoords[2 * index.texcoord_index + 1];
+						vert.texCoord = {tu, tv};
+					}
+
+					verts.push_back(vert);
+
+				} // verticies
+
+				// TODO: this is fucked
+				Face face = { unsigned(baseFaceIndex + 0),
+							  unsigned(baseFaceIndex + 1),
+							  unsigned(baseFaceIndex + 2) };
+				faces.push_back(face);
+
+				prevMaterialID = materialID;
+				indexOffset += 3;
+
+			} // faces
+
+			// add the last element (materialID didn't change at the end of the face list)
+			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
+			AddObjMaterial(aeMaterials,
+						   aeMaterialsMap,
+						   materials,
+						   materialID,
+						   texturesDir);
+
+		} // shapes
+
+		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
+		geometry->name(path.filename().stem().string());
+
+		AE_LOG_D("Done loading Obj.");
+
+		return geometry;
+	}
+	else {
+		AE_LOG_E("Error at line {}: {}",
+				 result.error.line_num, result.error.code.message());
+	}
+
+	return nullptr;
+}
+
+void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
+					map<int32_t, shared_ptr<ae::Material>>& aeMaterialsMap,
+					const rapidobj::Materials& objMaterials,
+					int32_t objMaterialID,
+					filesystem::path& textureDir) {
+	AE_LOG_D("roMaterialID: {}", objMaterialID);
+
+	if (objMaterialID > -1
+		&& !objMaterials.empty()) {
+
+		if (auto existing = aeMaterialsMap.find(objMaterialID); existing != aeMaterialsMap.end()) {
+
+			aeMaterials.push_back(existing->second);
+		}
+		else {
+
+			auto aeMaterial = make_shared<Material>();
+			auto& roMaterial = objMaterials[objMaterialID];
+
+			// TODO: generalize this
+
+			{ // ambient
+
+				auto filename = roMaterial.ambient_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->ambient(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->ambient()) {
+					auto roColor = roMaterial.ambient;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->ambient(property);
+				}
+			}
+
+			{ // diffuse
+
+				auto filename = roMaterial.diffuse_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->diffuse(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->diffuse()) {
+					auto roColor = roMaterial.diffuse;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->diffuse(property);
+				}
+			}
+
+			{ // specular
+
+				auto filename = roMaterial.specular_texname;
+				if (!filename.empty()) {
+					auto texPath = textureDir / filename;
+					if (exists(texPath)) {
+						auto image = make_shared<Image>(texPath);
+						auto property = make_shared<MaterialProperty>(image);
+						aeMaterial->specular(property);
+					}
+					else {
+						AE_LOG_W("File does not exist: {}", texPath.string());
+					}
+				}
+
+				if (!aeMaterial->specular()) {
+					auto roColor = roMaterial.specular;
+					auto aeColor = make_shared<Color>(roColor[0], roColor[1], roColor[2]);
+					auto property = make_shared<MaterialProperty>(aeColor);
+					aeMaterial->specular(property);
+				}
+			}
+
+			{ // emissive
+
+			}
+
+			{ // specular exponant -- Ns
+				aeMaterial->specularExponent(roMaterial.shininess);
+			}
+
+			{ // anisotropy
+
+			}
+
+			{ // minificationFilter
+
+			}
+
+			{ // magnificationFilter
+
+			}
+
+			{ // wrap s
+
+			}
+
+			{ // wrap t
+
+			}
+
+			{ // wrap r
+
+			}
+
+			{ // double-sided
+
+			}
+
+			{ // fill mode
+
+			}
+
+			{ // scale
+
+			}
+
+			{ // blend function
+
+			}
+
+			{ // index of refraction -- Ni
+
+			}
+
+			aeMaterialsMap[objMaterialID] = aeMaterial;
+
+			aeMaterials.push_back(aeMaterial);
+		}
+	}
 }

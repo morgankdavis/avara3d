@@ -6,15 +6,15 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "geometry/primitives/Box.h"
+#include "ae/geometry/primitives/Box.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
 
-#include "Types.h"
-#include "geometry/GeometryElement.h"
+#include "ae/Types.h"
+#include "ae/geometry/GeometryElement.h"
 
 
 using namespace ae;
@@ -28,7 +28,7 @@ using namespace std;
 *********************************************************************************************/
 
 Box::Box(float length, float width, float height,
-		 float lengthSegments, float widthSegments, float heightSegments):
+		 unsigned lengthSegments, unsigned widthSegments, unsigned heightSegments):
 		Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()),
 		_length(length),
 		_width(width),
@@ -47,14 +47,21 @@ Box::Box(float length, float width, float height,
 		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
 						  vec3(v.normal[0], v.normal[1], v.normal[2]),
 						  vec2(v.texCoord[0], v.texCoord[1]) };
+//		Vertex vertex = { vec3(v.position[2], v.position[1], v.position[0]),
+//						  vec3(v.normal[2], v.normal[1], v.normal[0]),
+//						  vec2(v.texCoord[0], v.texCoord[1]) };
 		verts.push_back(vertex);
 	}
+	//std::reverse(verts.begin(), verts.end());
 
 	auto faces = vector<Face>();
 	for (const Triangle& t : box.triangles()) {
-		Face face = { t.vertices[0], t.vertices[1], t.vertices[2] };
+		Face face = { unsigned(t.vertices[0]),
+					  unsigned(t.vertices[1]),
+					  unsigned(t.vertices[2]) };
 		faces.push_back(face);
 	}
+	std::reverse(faces.begin(), faces.end());
 
 	auto element = make_shared<GeometryElement>(verts, faces);
 	_elements.push_back(element);

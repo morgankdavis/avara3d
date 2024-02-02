@@ -9,15 +9,15 @@
 #ifdef ANDROID
 
 
-#include "ActivityInputManager.h"
+#include "ae/ActivityInputManager.h"
 
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
 
-#include "Activity.h"
-#include "Exception.h"
-#include "Logger.h"
-#include "Utilities.h"
+#include "ae/Activity.h"
+#include "ae/Exception.h"
+#include "ae/Logger.h"
+#include "ae/Utilities.h"
 
 
 using namespace ae;
