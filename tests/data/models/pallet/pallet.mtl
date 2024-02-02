@@ -2,12 +2,12 @@
 # www.blender.org
 
 newmtl DefaultPalle
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
+Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
-Ni 1.500000
+Ni 1.000000
 d 1.000000
-illum 3
-map_Kd textures/pallet_rot_diff.tga
+illum 1
+map_Kd textures/pallet_diff.tga
 

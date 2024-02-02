@@ -30,6 +30,7 @@ void DidRenderCallback(VisualWorld& world, float time);
 
 void SetAllFilterModes(FILTER_MODE mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
+void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed);
 
 
 constexpr bool					USE_HIGH_DPI =			false;
@@ -49,6 +50,17 @@ std::shared_ptr<ae::Node>		pointLightNode;
 std::shared_ptr<ae::Node>		palletNode;
 std::shared_ptr<ae::Node>		siameseNode;
 std::shared_ptr<ae::Node>		palmsNode;
+
+Node* 							editingNode;
+
+//glm::vec3 editPosition;
+//glm::vec3 editScale;
+//glm::vec3 editEulerAngles;
+
+//glm::vec3 editPositionModifier;
+//float editScaleModifier;
+
+
 
 
 int main(int argc, const char* argv[]) {
@@ -111,8 +123,8 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
-	auto siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
-	siameseNode->scale(siameseNode->scale() * 10.0f);
+	siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
+	siameseNode->scale(siameseNode->scale() * 6.97f);
 	siameseNode->position(vec3(-13.5, -64.5, 0));
 	scene->rootNode()->addChild(siameseNode);
 
@@ -120,16 +132,18 @@ int main(int argc, const char* argv[]) {
 	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
 	scene->rootNode()->addChild(islandNode);
 
-	auto palletNode = Node::GeometryNode(GeometryNamed("pallet_rot/pallet_rot"));
-	palletNode->position(vec3(-63.25f, -64.5f, -2.0f));
-	palletNode->scale(palletNode->scale() * 200.0f);
+	palletNode = Node::GeometryNode(GeometryNamed("pallet/pallet"));
+	palletNode->position({-65.5, -63, -3.5});
+	palletNode->scale({24.2792, 24.2792, 24.2792});
+	palletNode->eulerAngles({3.14158, 2.52807, -1.22138});
 	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
 	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
 	scene->rootNode()->addChild(palletNode);
 
-	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna_rot/tuna_rot"));
-	tunaNode->position(vec3(-7.5f, -72.0f, 40.0f));
-	tunaNode->scale(tunaNode->scale() * 1.8f);
+	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna/tuna"));
+	tunaNode->position({-10.5, -71.25, 20});
+	tunaNode->scale({4.1521, 4.1521, 4.1521});
+	tunaNode->eulerAngles({8.63111e-05, -0.523707, 1.5702});
 	scene->rootNode()->addChild(tunaNode);
 
 	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
@@ -199,6 +213,38 @@ void UpdateCallback(Scene& scene, float time) {
 	// get input
 
 	auto keysPressed = scene.inputManager()->keysPressed();
+	auto keysDown = scene.inputManager()->keysDown();
+
+
+
+	ProcessEdit(*editingNode, keysDown, keysPressed);
+
+
+
+//	static auto oldScaleFactor = newScaleFactor;
+//	if (keysPressed.count(KEY::UP)) {
+////		ogNode = siameseNode.get();
+////		ogScale = siameseNode->scale();
+//		newScaleFactor += 0.025;
+//	}
+//	else if (keysPressed.count(KEY::DOWN)) {
+//		newScaleFactor -= 0.025;
+//	}
+//	else if (keysPressed.count(KEY::LEFT)) {
+//		newScaleFactor -= 1.0;
+//	}
+//	else if (keysPressed.count(KEY::RIGHT)) {
+//		newScaleFactor += 1.0;
+//	}
+//	if (newScaleFactor != oldScaleFactor) {
+//		editNode->scale(editScale * newScaleFactor);
+//		AE_LOG_D("NEW SCALE FACTOR: {}", newScaleFactor);
+//		AE_LOG_D("NEW SCALE: {}", utils::StringFromGLMVec3(editNode->scale()));
+//		oldScaleFactor = newScaleFactor;
+//	}
+
+
+
 
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
@@ -215,8 +261,8 @@ void UpdateCallback(Scene& scene, float time) {
 	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
 	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
 
-	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
-	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
+//	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
+//	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
 
 	if 		(keysPressed.count(KEY::F10)) 	ambientLightNode->light()->color(make_shared<Color>(0.1f, 0.1, 0.1, 1.0));
 	else if (keysPressed.count(KEY::F11)) 	ambientLightNode->light()->color(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
@@ -322,10 +368,10 @@ void UpdateCallback(Scene& scene, float time) {
 		siameseNode->geometry(palletNode->geometry());
 	}
 
-	if (keysPressed.count(KEY::ZERO)) {
-		auto teapot = SceneNamed("teapot", "dae");
-		siameseNode->geometry(teapot->rootNode()->children(false)[1]->geometry());
-	}
+//	if (keysPressed.count(KEY::ZERO)) {
+//		auto teapot = SceneNamed("teapot", "dae");
+//		siameseNode->geometry(teapot->rootNode()->children(false)[1]->geometry());
+//	}
 
 	if (window->cursorCaptured()) {
 
@@ -478,5 +524,94 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
 			}
 		}
+	}
+}
+
+void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed) {
+
+	if (editingNode) {
+		bool fine = keysDown.count(KEY::LEFT_SHIFT);
+
+		// *** position ***
+
+		vec3 positionDelta = {};
+
+		if (keysPressed.count(KEY::UP)) {
+			positionDelta.z += (fine ? 0.25 : 5.0);
+		}
+		else if (keysPressed.count(KEY::DOWN)) {
+			positionDelta.z -= (fine ? 0.25 : 5.0);
+		}
+		else if (keysPressed.count(KEY::LEFT)) {
+			positionDelta.x -= (fine ? 0.25 : 5.0);
+		}
+		else if (keysPressed.count(KEY::RIGHT)) {
+			positionDelta.x += (fine ? 0.25 : 5.0);
+		}
+		else if (keysPressed.count(KEY::ZERO)) {
+			positionDelta.y += (fine ? 0.25 : 5.0);
+		}
+		else if (keysPressed.count(KEY::NINE)) {
+			positionDelta.y -= (fine ? 0.25 : 5.0);
+		}
+
+		// *** scale ***
+
+		vec3 scaleDelta = {1.0, 1.0, 1.0};
+
+		if (keysPressed.count(KEY::EQUAL)) { // +
+			auto delta = (fine ? .0025 : .01f);
+			scaleDelta.x += delta;
+			scaleDelta.y += delta;
+			scaleDelta.z += delta;
+		}
+		else if (keysPressed.count(KEY::MINUS)) { // -
+			auto delta = (fine ? .0025 : .01f);
+			scaleDelta.x -= delta;
+			scaleDelta.y -= delta;
+			scaleDelta.z -= delta;
+		}
+
+		// *** rotate ***
+		vec3 rotationDelta = {};
+
+		if (keysPressed.count(KEY::COMMA)) { // <
+			rotationDelta.y += radians(fine ? 1.0 : 5.0);
+		}
+		else if (keysPressed.count(KEY::PERIOD)) { // >
+			rotationDelta.y -= radians(fine ? 1.0 : 5.0);
+		}
+		else if (keysPressed.count(KEY::LEFT_BRACKET)) { // [
+			rotationDelta.z += radians(fine ? 1.0 : 5.0);
+		}
+		else if (keysPressed.count(KEY::RIGHT_BRACKET)) { // ]
+			rotationDelta.z -= radians(fine ? 1.0 : 5.0);
+		}
+		else if (keysPressed.count(KEY::L)) {
+			rotationDelta.x += radians(fine ? 1.0 : 5.0);
+		}
+		else if (keysPressed.count(KEY::P)) {
+			rotationDelta.x -= radians(fine ? 1.0 : 5.0);
+		}
+
+
+		if (!utils::Zero(positionDelta, 0.0001)) {
+			node.position(node.position() + positionDelta);
+			AE_LOG_D("POSITION: {}", utils::StringFromGLMVec3(node.position()));
+		}
+		if (!utils::Equal(scaleDelta, {1.0, 1.0, 1.0}, 0.0001)) {
+			node.scale(node.scale() * scaleDelta);
+			AE_LOG_D("SCALE: {}", utils::StringFromGLMVec3(node.scale()));
+		}
+		if (!utils::Zero(rotationDelta, 0.0001)) {
+			node.eulerAngles(node.eulerAngles() + rotationDelta);
+			AE_LOG_D("ROTATION: {}", utils::StringFromGLMVec3(node.eulerAngles()));
+		}
+
+//		if (keysPressed.count(KEY::Q)) {
+//			AE_LOG_D("POSITION: {}", utils::StringFromGLMVec3(node.position()));
+//			AE_LOG_D("SCALE: {}", utils::StringFromGLMVec3(node.scale()));
+//			AE_LOG_D("ROTATION: {}", utils::StringFromGLMVec3(node.eulerAngles()));
+//		}
 	}
 }
