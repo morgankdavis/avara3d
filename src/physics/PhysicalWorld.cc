@@ -211,7 +211,7 @@ void PhysicalWorld::step(const Scene& scene,
 	}
 }
 
-PhysicalWorldModelProxy* PhysicalWorld::proxy() const {
+PhysicalWorldProxy* PhysicalWorld::proxy() const {
 	return  _proxy.get();
 }
 

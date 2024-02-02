@@ -11,7 +11,7 @@
 #include <memory>
 
 #include "ae/Color.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/rendering/materials/MaterialPropertyContents.h"
@@ -29,14 +29,26 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f, 0.75, 0.75, 1.0));
-		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(1.0f, 1.0, 1.0, 1.0));
-		material = make_shared<Material>(ambientProperty, diffuseProperty, nullptr);
+		auto ambientProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto diffuseProperty = make_shared<MaterialProperty>(make_shared<Color>(0.75f));
+		auto specularProperty = make_shared<MaterialProperty>(make_shared<Color>(0.85f));
+		material = make_shared<Material>(ambientProperty, diffuseProperty, specularProperty);
+		material->doubleSided(true);
+		material->specularExponent(75);
 	}
 	return material;
 }
 
-shared_ptr<Material> EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
+shared_ptr<Material> Material::MissingTextureMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		material = Material::EmissiveMaterial(Color::Magenta());
+		material->doubleSided(true);
+	}
+	return material;
+}
+
+shared_ptr<Material> Material::EmissiveMaterial(shared_ptr<MaterialPropertyContents> contents) {
 	auto property = make_shared<MaterialProperty>(contents);
 	return make_shared<Material>(nullptr, nullptr, nullptr, property);
 }
@@ -165,9 +177,9 @@ FILL_MODE Material::fillMode() const {
 }
 
 void Material::fillMode(FILL_MODE mode) {
-#ifdef ANDROID
+#ifdef OPENGL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
-		throw Exception("Fill mode not supported on this platform.");
+		throw Exception("Fill mode not supported with this rendering API.");
 	}
 #endif
 	

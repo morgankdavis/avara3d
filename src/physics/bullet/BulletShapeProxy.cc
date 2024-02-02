@@ -21,11 +21,11 @@
 #include "ae/geometry/primitives/Sphere.h"
 #include "ae/physics/ConvexDecomposer.h"
 #include "ae/physics/PhysicsBody.h"
-#include "ae/physics/model_proxy/PhysicsBodyModelProxy.h"
 #include "ae/physics/PhysicsShape.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/physics/bullet/Utilities.h"
+#include "ae/physics/proxy/PhysicsBodyProxy.h"
 #include "ae/physics/shape_primitives/BoxPhysicsShape.h"
 #include "ae/physics/shape_primitives/CapsulePhysicsShape.h"
 #include "ae/physics/shape_primitives/ConePhysicsShape.h"
@@ -108,7 +108,7 @@ HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
-		PhysicsShapeModelProxy(shape),
+		PhysicsShapeProxy(shape),
 		_btShapes(vector<shared_ptr<btCollisionShape>>()),
 		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
 

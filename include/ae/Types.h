@@ -18,6 +18,39 @@
 
 
 namespace ae {
+
+
+
+	// TODO: put this shit somewhere
+
+	// example from fastgltf
+	// a similar approach: https://stackoverflow.com/a/12080553
+
+	template<typename T>
+	constexpr std::underlying_type_t<T> to_underlying(T t) noexcept {
+		return static_cast<std::underlying_type_t<T>>(t);
+	}
+
+#define AE_ARITHMETIC_OP_TEMPLATE_MACRO(T1, T2, op) \
+    constexpr T1 operator op(const T1& a, const T2& b) noexcept { \
+        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+        return static_cast<T1>(to_underlying(a) op to_underlying(b)); \
+    }
+
+#define AE_ASSIGNMENT_OP_TEMPLATE_MACRO(T1, T2, op) \
+    constexpr T1& operator op##=(T1& a, const T2& b) noexcept { \
+        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+        return a = static_cast<T1>(to_underlying(a) op to_underlying(b)), a; \
+    }
+
+#define AE_UNARY_OP_TEMPLATE_MACRO(T, op) \
+    constexpr T operator op(const T& a) noexcept { \
+        static_assert(std::is_enum_v<T>); \
+        return static_cast<T>(op to_underlying(a)); \
+    }
+
+
+
 	
 /**************************************************************************************
 	Public
@@ -49,10 +82,21 @@ namespace ae {
 		VULKAN
 	};
 
-//	enum class PHYSICS_SIMULATION_ENGINE {
-//		BULLET
-//	};
-		
+	enum class SCENE_IMPORT_OPTIONS : unsigned {
+		NONE = 				0,
+		IMPORT_GEOMETRIES =	1 << 0,
+		IMPORT_MATERIALS =	1 << 1,
+		IMPORT_LIGHTS =		1 << 2,
+		IMPORT_CAMERAS = 	1 << 3,
+		ALL = 				UINT_MAX
+	};
+
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
+	AE_UNARY_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, ~)
+
 	enum class FONT_TYPE : unsigned {
 		UNKNOWN = 	0,
 		OTF =		1 << 0,
@@ -68,8 +112,8 @@ namespace ae {
 	};
 
 	typedef struct {
-		glm::vec3 	min;
-		glm::vec3 	max;
+		glm::vec3 min;
+		glm::vec3 max;
 	} AABB;
 
 	typedef struct {
@@ -85,21 +129,37 @@ namespace ae {
 		EMISSIVE
 	};
 
-	enum class FILTER_MODE {
-		NEAREST,
-		LINEAR,
-		NEAREST_MIPMAP_NEAREST,
-		LINEAR_MIPMAP_NEAREST,
-		NEAREST_MIPMAP_LINEAR,
-		LINEAR_MIPMAP_LINEAR
+	enum class FILTER_MODE : unsigned {
+		NEAREST = 					0x2600,
+		LINEAR = 					0x2601,
+		NEAREST_MIPMAP_NEAREST = 	0x2700,
+		LINEAR_MIPMAP_NEAREST = 	0x2701,
+		NEAREST_MIPMAP_LINEAR = 	0x2702,
+		LINEAR_MIPMAP_LINEAR = 		0x2703
 	};
 
-	enum class WRAP_MODE {
-		CLAMP_TO_EDGE,
-		CLAMP_TO_BORDER,
-		REPEAT,
-		MIRRORED_REPEAT
+	enum class WRAP_MODE : unsigned {
+		REPEAT = 			0x2901,
+		MIRRORED_REPEAT = 	0x8370,
+		CLAMP_TO_EDGE = 	0x812F
+//		CLAMP_TO_BORDER,
 	};
+
+//	enum class FILTER_MODE {
+//		NEAREST,
+//		LINEAR,
+//		NEAREST_MIPMAP_NEAREST,
+//		LINEAR_MIPMAP_NEAREST,
+//		NEAREST_MIPMAP_LINEAR,
+//		LINEAR_MIPMAP_LINEAR
+//	};
+//
+//	enum class WRAP_MODE {
+//		CLAMP_TO_EDGE,
+//		CLAMP_TO_BORDER,
+//		REPEAT,
+//		MIRRORED_REPEAT
+//	};
 
 	enum class BLEND_FUNCTION {
 		DISABLED,
@@ -311,13 +371,13 @@ namespace ae {
 	typedef struct {
 		glm::vec3 position;
 		glm::vec3 normal;
-		glm::vec2 textureCoordinate;
+		glm::vec2 texCoord;
 	} Vertex;
 	
 	typedef struct {
-		int a;
-		int b;
-		int c;
+		unsigned a;
+		unsigned b;
+		unsigned c;
 	} Face;
 
 	typedef struct {

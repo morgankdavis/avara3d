@@ -397,6 +397,14 @@ vector<std::filesystem::path> ae::utils::SceneSearchPaths() {
 	return searchPaths;
 }
 
+vector<std::filesystem::path> ae::utils::ModelSearchPaths() {
+	auto searchPaths = vector<std::filesystem::path>();
+	for (auto& path : BaseSearchPaths()) {
+		searchPaths.emplace_back(path / "models");
+	}
+	return searchPaths;
+}
+
 vector<std::filesystem::path> ae::utils::ImageSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
@@ -565,21 +573,42 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 // *** scenes ***
 
 #ifndef ANDROID
-shared_ptr<Scene> ae::utils::SceneNamed(const string& name) {
-	
-	return SceneNamed(name, "dae");
+shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+										SCENE_IMPORT_OPTIONS options) {
+
+	return SceneNamed(name, "gltf", options);
+//	return SceneNamed(filesystem::path(name) / filesystem::path(name), "gltf");
 }
 
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
-										const string& type) {
+										const string& type,
+										SCENE_IMPORT_OPTIONS options) {
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
 		AE_LOG_T("Found scene at path: {}", (*path).string());
-		return Scene::FromFile(*path);
+		return Scene::FromFile(*path, options);
 	}
 	return nullptr;
 }
+
+shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name) {
+
+	return GeometryNamed(name, "obj");
+//	return GeometryNamed(filesystem::path(name) / filesystem::path(name), "obj");
+}
+
+shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
+											const string& type) {
+
+	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
+	if (path) {
+		AE_LOG_T("Found scene at path: {}", (*path).string());
+		return Geometry::FromFile(*path);
+	}
+	return nullptr;
+}
+
 #endif
 
 /*********************************************************************************************

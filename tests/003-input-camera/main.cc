@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = SceneNamed("importTest");
+	auto scene = SceneNamed("import_test/import_test");
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
 	scene->update(bind(&UpdateCallback, _1, _2));

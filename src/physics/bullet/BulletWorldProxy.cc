@@ -36,7 +36,7 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBU
  *********************************************************************************************/
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld* world):
-		PhysicalWorldModelProxy(world) {
+		PhysicalWorldProxy(world) {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());

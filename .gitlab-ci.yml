@@ -20,19 +20,19 @@ build-linux:
     # the VM creates an X authority at /home/gitlab/.Xauthority at login.
     # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
     # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
-    - export DISPLAY=:0
+    #- export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
+    #-DAE_BUILD_ASSIMP=ON
     #- /usr/bin/cmake --build . -j4
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux build complete."
@@ -47,12 +47,12 @@ build-macos:
     - cd gitlab-build
     - /opt/local/bin/cmake
       -G"Ninja"
-      -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
+    #-DAE_BUILD_ASSIMP=ON
     - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
@@ -67,13 +67,13 @@ build-windows:
     - cd gitlab-build
     - cmake
       -T"ClangCL"
-      -DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      -DAE_BUILD_ASSIMP=ON
       -DAE_BUILD_BULLET=ON
       -DAE_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
+    #-DAE_BUILD_ASSIMP=ON
+    #-DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake --build . -j8
     - echo "Windows build complete."
 

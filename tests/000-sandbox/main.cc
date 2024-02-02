@@ -6,6 +6,7 @@
 //  Copyright © 2023 Morgan K Davis. All rights reserved.
 //
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -38,20 +39,26 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
-constexpr bool					DARK =					false;
+constexpr bool					DARK =					true;
 
 
-std::shared_ptr<ae::Logger>			_logger;
+std::shared_ptr<ae::Logger>		logger;
 
 
 int main(int argc, const char* argv[]) {
 
-	_logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
-	LOG_I(_logger, "");
+	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 
-//	auto buildInfo = BuildInfo::Info();
-//	AE_LOG_I("Avara Engine version {}.{}.{} build {}",
-//			 buildInfo.version.major, buildInfo.version.minor, buildInfo.version.patch);
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+	LOG_I(logger, "AE version: {}.{}.{}",
+		  version.major, version.minor, version.patch);
+	LOG_I(logger, "Build: {}", buildInfo.number());
+	LOG_I(logger, "Type: {}",
+		  buildInfo.type() == BuildInfo::TYPE::DEBUG ? "DEBUG" : "RELEASE");
+	LOG_I(logger, "Origin: {}",
+		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
+	auto time = buildInfo.time();
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,
 									  FULLSCREEN,
@@ -68,7 +75,8 @@ int main(int argc, const char* argv[]) {
 //	visualWorld->fogDensityExponent(1.0);
 //	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
 	auto background = DARK
-					  ? make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
+					  ? make_shared<MaterialProperty>(Color::Black())
+					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
 					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
@@ -84,21 +92,22 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientColor = DARK
-						? Color::LightGray()
-						: make_shared<Color>(.85f);
+//	auto ambientColor = DARK
+//						? Color::LightGray()
+//						: make_shared<Color>(.85f);
+	auto ambientColor = Color::DarkGray();
 	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointColor = DARK
-					  ? Color::LightGray()
-					  : Color::Gray();
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
-	pointLight->attenuationFactor(0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
-	scene->rootNode()->addChild(pointLightNode);
+//	auto pointColor = DARK
+//					  ? Color::LightGray()
+//					  : Color::Gray();
+//	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+//	pointLight->attenuationFactor(0);
+//	auto pointLightNode = Node::LightNode(pointLight);
+//	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
+//	scene->rootNode()->addChild(pointLightNode);
 
 
 
@@ -106,8 +115,8 @@ int main(int argc, const char* argv[]) {
 
 	// ground plane
 
-	const float PLANE_LENGTH = 100.0;
-	const float PLANE_WIDTH = 100.0;
+	const float PLANE_LENGTH = 20.0;
+	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
@@ -121,7 +130,7 @@ int main(int argc, const char* argv[]) {
 	if (DARK) {
 		planeMaterial = make_shared<Material>(nullptr,
 											  nullptr,
-											  nullptr,
+											  make_shared<MaterialProperty>(Color::White()),
 											  planeMaterialProperty);
 	}
 	else {
@@ -144,92 +153,109 @@ int main(int argc, const char* argv[]) {
 	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
+
+
+
+
+
+//	{
+//		{
+//			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+//			pointLight->attenuationFactor(0);
+//			auto pointLightNode = Node::LightNode(pointLight);
+//			pointLightNode->position({5, 5, 0});
+//			scene->rootNode()->addChild(pointLightNode);
 //
-//
-//
-//
-//
-//
-//
-//	// add the palm tree
-//
-//	auto palmScene = SceneNamed("palm2/palm2", "obj");
-//	auto palmNode = palmScene->rootNode();
-//	palmNode->name("Palm node");
-//	for (auto n : palmScene->rootNode()->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
+//			auto sphere = make_shared<Sphere>(0.1f, 12);
+//			auto property = make_shared<MaterialProperty>(pointLight->color());
+//			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+//			sphere->addMaterial(material);
+//			pointLightNode->geometry(sphere);
 //		}
+//
+////		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
+////		auto testGeometry = GeometryNamed("slurm/slurm");
+////		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
+//		auto testGeometry = GeometryNamed("palm/palm");
+////		auto testGeometry = GeometryNamed("palms/palms");
+////		auto testGeometry = GeometryNamed("island/island");
+////		auto testGeometry = GeometryNamed("teapot");
+////		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
+////		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+////		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
+//
+//// 		REVISIT ME
+////			- no normals
+////			- normals
+////			- no groupings (1 element?)
+////			- groupings (multiple elements?)
+////			- textures
+////		auto testGeometry = GeometryNamed("convalia_bouquet");
+//
+////		auto testGeometry = GeometryNamed("dragon");
+////		auto testGeometry = GeometryNamed("orange_lod/orange_lod");
+////		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+////		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
+//
+////		REVISIT ME
+////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
+//
+////		auto testGeometry = GeometryNamed("siamese/siamese");
+////		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+////		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+////		auto testGeometry = GeometryNamed("crocus/crocus");
+//
+//
+//		for (auto &m: testGeometry->materials()) {
+//			m->doubleSided(true);
+//		}
+//		auto testNode = Node::GeometryNode(testGeometry);
+//		testNode->position({0, 5, 0});
+//
+//		scene->rootNode()->addChild(testNode);
 //	}
+
+
+
+	{
+		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("import_test", "glb");
+//		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
+//		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
+//		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
+
+		auto importRoot = testScene->rootNode();
+		auto rootPos = importRoot->position();
+		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+		scene->rootNode()->addChild(importRoot);
+
+//		{
+//			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+//			pointLight->attenuationFactor(0);
+//			auto pointLightNode = Node::LightNode(pointLight);
+//			pointLightNode->position({5, 5, 0});
+//			scene->rootNode()->addChild(pointLightNode);
 //
-//	auto palmPhysicsBody = PhysicsBody::StaticBody();
-//	palmPhysicsBody->mass(0);
-//	palmPhysicsBody->friction(1);
-//	palmPhysicsBody->restitution(0.25);
-//	palmNode->physicsBody(palmPhysicsBody);
-//
-//	scene->rootNode()->addChild(palmNode);
-//
-//
-//
+//			auto sphere = make_shared<Sphere>(0.1f, 12);
+//			auto property = make_shared<MaterialProperty>(pointLight->color());
+//			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+//			sphere->addMaterial(material);
+//			pointLightNode->geometry(sphere);
+//		}
 
-
-
-
-	auto duckNode = SceneNamed("rubberDuck/rubberDuck", "obj")->rootNode()->childNamed("g duck", false);
-	duckNode->position({/*4.5*/0, 15, 0});
-
-
-	// DOES NOT WORK
-	duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL); // <- works
-	duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-
-// WORKS
-//	auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, duckNode->geometry().get());
-//	auto body = make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, shape);
-//	duckNode->physicsBody(body);
-
-	//auto body =
-
-	scene->rootNode()->addChild(duckNode);
-
-
-
-//	static shared_ptr<Color> colors[] = {
-//			Color::White(),
-//			Color::Red(),
-//			Color::Orange(),
-//			Color::Yellow(),
-//			Color::Lime(),
-//			Color::Blue()
-//	};
-//	auto color = colors[Uniform(0, 5)];
-//
-//	constexpr float BALL_RADIUS = 0.55;
-//	auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-//	auto ballNode = Node::GeometryNode(sphereGrometry);
-//	auto diffuseProperty = make_shared<MaterialProperty>(color);
-//	auto specularProperty = make_shared<MaterialProperty>(Color::White());
-//	auto ballMaterial = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-//	ballMaterial->specularExponent(125.0);
-//	ballNode->geometry()->addMaterial(ballMaterial);
-//	ballNode->position({0, 20, 0});
-//
-//	auto ballPhysicsBody = PhysicsBody::DynamicBody();
-//	ballPhysicsBody->mass(0.2); // vollyball
-//	ballPhysicsBody->restitution(1.0);
-//	ballPhysicsBody->friction(0.015);
-//	ballPhysicsBody->rollingFriction(0.15);
-//
-//	ballNode->physicsBody(ballPhysicsBody);
-//
-//	scene->rootNode()->addChild(ballNode);
-
-
-
+		for (auto& node : scene->rootNode()->children(true)) {
+			auto light = node->light();
+			if (light) {
+				if (light->type() == LIGHT_TYPE::POINT) {
+					auto sphere = make_shared<Sphere>(0.1f, 12);
+					auto property = make_shared<MaterialProperty>(light->color());
+					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+					sphere->addMaterial(material);
+					node->geometry(sphere);
+				}
+			}
+		}
+	}
 
 
 
@@ -246,7 +272,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time) {
-	LOG_T(_logger, "scene: {:p}, time: {}", (void*)&scene, time);
+	LOG_T(logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -282,7 +308,44 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::T)) {
-		LOG_I(_logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+	}
+
+	if (keysPressed.count(KEY::ONE)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[0]);
+	}
+	if (keysPressed.count(KEY::TWO)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[1]);
+	}
+	if (keysPressed.count(KEY::THREE)) {
+
+		auto cameraNodes = vector<shared_ptr<Node>>();
+		for (auto& node : scene.rootNode()->children(true)) {
+			auto camera = node->camera();
+			if (camera) {
+				cameraNodes.push_back(node);
+			}
+		}
+
+		scene.visualWorld()->pointOfView(cameraNodes[2]);
 	}
 
 
@@ -447,11 +510,11 @@ void UpdateCallback(Scene& scene, float time) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -459,5 +522,5 @@ void DidRenderCallback(VisualWorld& world, float time) {
  ***************************************************************************************/
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
-	LOG_T(_logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
 }

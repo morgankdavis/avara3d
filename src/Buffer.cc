@@ -27,6 +27,7 @@ Buffer::Buffer(const std::filesystem::path& path):
 		_data(nullptr),
 		_size(0) {
 
+	// TODO: check path or exception
 	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
 	ifstream::pos_type pos = inStream.tellg();
 	_data = (unsigned char*)malloc(pos);
@@ -62,7 +63,7 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 	// make a copy of 'other's data, delete ours, and move their data into ours
 
 	size_t bufSize = other._size;
-	unsigned char* tempPointer = (unsigned char*)malloc(bufSize);
+	auto tempPointer = (unsigned char*)malloc(bufSize);
 	memcpy(tempPointer, other._data, bufSize);
 	if (_data) {
 		free(_data);

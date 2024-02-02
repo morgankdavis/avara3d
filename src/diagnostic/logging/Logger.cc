@@ -8,14 +8,8 @@
 
 #include "ae/diagnostic/logging/Logger.h"
 
-//#ifdef WINDOWS
-//// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-//	#define NOGDI
-//#endifs
 #include <cstdarg>
 #include <ctime>
-#include <iostream>
 
 #ifdef POSIX
 #include <sys/time.h>
@@ -26,9 +20,8 @@
 #include <NDKHelper.h>
 #endif
 
-#include "ae/Configuration.h"
 #include "ae/Utilities.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/sinks/LoggerSink.h"
 #include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 #ifdef DESKTOP

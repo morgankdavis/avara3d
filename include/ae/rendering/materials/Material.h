@@ -33,6 +33,7 @@ namespace ae {
 	public:
 
 		static std::shared_ptr<Material> DefaultMaterial();
+		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make private
 		static std::shared_ptr<Material> EmissiveMaterial(std::shared_ptr<MaterialPropertyContents> contents);
 		
 /*********************************************************************************************

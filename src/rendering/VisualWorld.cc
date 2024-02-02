@@ -316,7 +316,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		float fovH = static_pointer_cast<PerspectiveCamera>(cameraNode->camera())->fov();
+		float fovH = static_pointer_cast<PerspectiveCamera>(camera)->yFov();
 		float w = _renderContext->width();
 		float h = _renderContext->height();
 		float aspectRatio = w / h;

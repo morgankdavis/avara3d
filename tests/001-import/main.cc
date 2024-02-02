@@ -36,7 +36,8 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-std::shared_ptr<ae::Node> 		importRoot;
+std::shared_ptr<ae::Node> 		importLightsCamerasRoot;
+std::shared_ptr<ae::Node> 		importGeometryRoot;
 
 
 int main(int argc, const char* argv[]) {
@@ -63,9 +64,39 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto testScene = SceneNamed("importTest");
-	importRoot = testScene->rootNode();
-	scene->rootNode()->addChild(importRoot);
+	auto options = SCENE_IMPORT_OPTIONS::ALL;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
+//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+	auto testScene = SceneNamed("import_test/import_test",
+								options);
+	auto testSceneNodes = testScene->rootNode()->children();
+	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
+	importGeometryRoot = make_shared<Node>("importGeometryRoot");
+
+	for (auto node : testSceneNodes) {
+
+		if (node->light() || node->camera()) {
+			importLightsCamerasRoot->addChild(node);
+		}
+		else {
+			importGeometryRoot->addChild(node);
+		}
+	}
+
+//	importGeometryRoot = testScene->rootNode();
+
+	scene->rootNode()->addChild(importLightsCamerasRoot);
+	scene->rootNode()->addChild(importGeometryRoot);
 
 	window->open();
 	scene->run();
@@ -85,9 +116,19 @@ void UpdateCallback(Scene& scene, float time) {
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	importRoot->transform(rotate(importRoot->transform(),
-								 radians(rotationDeg),
-								 vec3(0.0f, 1.0f, 0.0f)));
+	importGeometryRoot->transform(rotate(importGeometryRoot->transform(),
+										 radians(rotationDeg),
+										 {0.0f, 1.0f, 0.0f}));
+
+	static float timeAccum = 0;
+	static unsigned frames = 0;
+	timeAccum += deltaSeconds;
+	++frames;
+	if (timeAccum >= 1.0) {
+		cout << ((float)frames)/timeAccum << " fps" << endl;
+		timeAccum = 0;
+		frames = 0;
+	}
 }
 
 /***************************************************************************************

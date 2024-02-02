@@ -5,7 +5,6 @@ project(avara-engine
 		VERSION 0.0.1
 		HOMEPAGE_URL http://avara-engine.net/)
 
-option(AE_BUILD_ASSIMP "Build Assimp from source" ON)
 option(AE_BUILD_BULLET "Build Bullet from source" ON)
 option(AE_BUILD_GLFW "Build GLFW from source" ON)
 
@@ -20,43 +19,25 @@ endif()
 message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 
 
-### create _BuildInfo.h ###
+### create BuildInfo.cmake.h ###
 
-message("avara-engine_VERSION_MAJOR: " ${avara-engine_VERSION_MAJOR})
-message("avara-engine_VERSION_MINOR: " ${avara-engine_VERSION_MINOR})
-message("avara-engine_VERSION_PATCH: " ${avara-engine_VERSION_PATCH})
-# BUILD_SOURCE = {CI, ADHOC}
-message("GITLAB_CI_PIPELINE_CREATED_AT: " ${GITLAB_CI_PIPELINE_CREATED_AT}) # RELEASE_DATE
-message("GITLAB_CI_PIPELINE_IID: " ${GITLAB_CI_PIPELINE_IID}) # RELEASE_BUILD
-# ex:
-# GITLAB_CI_PIPELINE_CREATED_AT: 2024-01-10T03:58:04Z
-# GITLAB_CI_PIPELINE_IID: 456
-# ^^ check and replace if not defined
+string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_RELEASE_TYPE)
+set(AE_BUILD_TYPE ${UPPER_RELEASE_TYPE})
+
+if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID))
+	set(AE_BUILD_NUMBER 0)
+	set(AE_BUILD_TIME "0000-00-00T00:00:00Z")
+	set(AE_BUILD_ORIGIN "ADHOC")
+else()
+	set(AE_BUILD_NUMBER ${GITLAB_CI_PIPELINE_IID})
+	set(AE_BUILD_TIME ${GITLAB_CI_PIPELINE_CREATED_AT})
+	set(AE_BUILD_ORIGIN "CI")
+endif()
+
+configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 
 ### add external libraries ###
-
-if (AE_BUILD_ASSIMP)
-
-	set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-	if (WINDOWS)
-		set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE) # needed for windows? -- maybe onto MinGW?
-	endif()
-
-	set(ASSIMP_LIBRARIES "assimp")
-	add_subdirectory(external/assimp-3.3.1)
-	set(ASSIMP_INCLUDE_DIR external/assimp-3.3.1/include)
-	set_property(TARGET assimp PROPERTY CXX_STANDARD 14)
-
-else()
-
-	find_package(assimp REQUIRED)
-
-endif()
 
 if (AE_BUILD_BULLET)
 
@@ -89,6 +70,9 @@ else()
 	include_directories(${BULLET_INCLUDE_DIRS})
 
 endif()
+
+#set(FASTGLTF_DOWNLOAD_SIMDJSON OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/fastgltf-0.6.1)
 
 add_subdirectory(external/generator)
 
@@ -143,7 +127,7 @@ elseif (MACOS)
 	target_compile_definitions(ae PUBLIC "POSIX")
 elseif (WINDOWS)
 	target_compile_definitions(ae PUBLIC "WINDOWS")
-	#	target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+	#target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
 elseif (ANDROID)
 	target_compile_definitions(ae PUBLIC "ANDROID")
 	target_compile_definitions(ae PUBLIC "POSIX")
@@ -154,8 +138,7 @@ endif()
 ### add library headers ###
 
 target_include_directories(ae PUBLIC include)
-#target_include_directories(ae PRIVATE external/bullet-3.17/src)
-target_include_directories(ae PRIVATE ${ASSIMP_INCLUDE_DIR})
+target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
 target_include_directories(ae PRIVATE external/generator/include)
 target_include_directories(ae PRIVATE external/gif-h)
 target_include_directories(ae PRIVATE external/glew-2.1.0/include)
@@ -163,6 +146,7 @@ target_include_directories(ae PRIVATE external/glfw-3.3.9/include)
 target_include_directories(ae PRIVATE external/imgui-1.90)
 target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(ae PRIVATE external/rapidobj-1.0.1)
 target_include_directories(ae PRIVATE external/stb)
 target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 
@@ -172,13 +156,16 @@ target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
 
 
-### link ae to external libraries ###
+### link ae to common libraries ###
 
 target_link_libraries(ae PUBLIC
-		${ASSIMP_LIBRARIES}
 		${BULLET_LIBRARIES}
+		fastgltf
 		generator
 		imgui)
+
+
+### link ae to platform-specific libraries ###
 
 if (DESKTOP)
 

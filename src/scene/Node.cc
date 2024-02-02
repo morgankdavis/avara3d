@@ -10,12 +10,13 @@
 
 #include <algorithm>
 
+#include "fmt/format.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/physics/PhysicsBody.h"
@@ -547,7 +548,9 @@ void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 void Node::addChild(shared_ptr<Node> node) {
 
 	if (containsChild(node)) {
-		throw Exception("Node already exists in tree.");
+		throw Exception(fmt::format("Node already exists in tree: {:p}, (\"{}\")",
+									static_cast<void*>(node.get()),
+									(node->name() ? *node->name() : "(unnamed)")));
 	}
 
 	_children.push_back(node);

@@ -125,8 +125,13 @@ void main () {
 		
 		switch (specularMode) {
 			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);			break;
+			// original:
+//			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
+//														  tex_coord * uvScale));	break;
+			// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
+			//
 			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
-														  tex_coord * uvScale));	break;
+														tex_coord * uvScale).a);	break;
 		}
 		
 		if (locksAmbientWithDiffuse &&
@@ -180,15 +185,15 @@ void main () {
 					vec3 surface_to_viewer_eye = normalize(-vertex_position_eye); // viewer is at 0,0,0
 					
 					// phong
-					//				vec3 reflection_eye = reflect(-direction_to_light_eye, vertex_normal_eye);
-					//				float dot_prod_specular = dot(reflection_eye, surface_to_viewer_eye);
-					//				dot_prod_specular = max(dot_prod_specular, 0.0);
-					//				float specular_factor = pow(dot_prod_specular, specularExponent);
+					vec3 reflection_eye = reflect(-direction_to_light_eye, vertex_normal_eye);
+					float dot_prod_specular = dot(reflection_eye, surface_to_viewer_eye);
+					dot_prod_specular = max(dot_prod_specular, 0.0);
+					float specular_factor = pow(dot_prod_specular, specularExponent);
 					
 					// blinn
-					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-					float specular_factor = pow(dot_prod_specular, specularExponent);
+//					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+//					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+//					float specular_factor = pow(dot_prod_specular, specularExponent);
 					
 					Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity w/attenuation
 				}

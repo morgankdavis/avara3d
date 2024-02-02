@@ -131,7 +131,7 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 			decomposedVerts.push_back({{(float)v.mX, (float)v.mY, (float)v.mZ}, {}, {}});
 		}
 		for (auto& f : hacdFaces) {
-			decomposedFaces.push_back({(int)f.mI0, (int)f.mI1, (int)f.mI2});
+			decomposedFaces.push_back({(unsigned)f.mI0, (unsigned)f.mI1, (unsigned)f.mI2});
 		}
 
 		auto decomposedElement = make_shared<GeometryElement>(decomposedVerts, decomposedFaces);

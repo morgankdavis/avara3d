@@ -11,13 +11,15 @@
 
 
 #include "ae/Buffer.h"
+#include "ae/BuildInfo.h"
 #include "ae/Color.h"
 #include "ae/Configuration.h"
 #include "ae/CubeImage.h"
 #include "ae/Font.h"
 #include "ae/Image.h"
 #include "ae/Types.h"
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
+#include "ae/diagnostic/exceptions/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
 #if defined(ANDROID)

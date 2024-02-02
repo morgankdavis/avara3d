@@ -23,8 +23,8 @@ namespace ae {
 	class Geometry;
 	class Node;
 	class PhysicalWorld;
-	class PhysicsBodyModelProxy;
-	class PhysicsShapeModelProxy;
+	class PhysicsBodyProxy;
+	class PhysicsShapeProxy;
 	class PhysicsShape;
 	class Scene;
 	
@@ -179,7 +179,7 @@ namespace ae {
 		// the scene's world, if it exists.  not the same as _world.
 		PhysicalWorld*						physicalWorld() const;
 
-		PhysicsBodyModelProxy*				proxy() const;
+		PhysicsBodyProxy*				proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -194,7 +194,7 @@ namespace ae {
 
 		PHYSICS_BODY_TYPE 						_type;
 		std::shared_ptr<PhysicsShape>			_shape;
-		std::unique_ptr<PhysicsBodyModelProxy>	_proxy;
+		std::unique_ptr<PhysicsBodyProxy>	_proxy;
 		Node*									_node;
 		// either a pointer to the world we are currently in or null.
 		PhysicalWorld*							_world;

@@ -10,6 +10,7 @@
 #define Geometry_h
 
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
@@ -18,9 +19,9 @@
 
 #include "glm/glm.hpp"
 
+#include "ae/Types.h"
 #include "ae/geometry/GeometryElement.h"
 #include "ae/rendering/materials/Material.h"
-#include "ae/Types.h"
 
 
 namespace ae {
@@ -31,12 +32,18 @@ namespace ae {
 
 
 	class Geometry : public std::enable_shared_from_this<Geometry> {
-		
+
+	public:
+
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+		static std::shared_ptr<Geometry> 			FromFile(const std::filesystem::path& path);
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		Geometry();
 		Geometry(const std::shared_ptr<GeometryElement> element,

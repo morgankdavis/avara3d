@@ -24,7 +24,7 @@ namespace ae {
 
 		OrthographicCamera();
 		OrthographicCamera(AABB extent);
-		OrthographicCamera(std::optional<std::string> name, AABB extent);
+		OrthographicCamera(std::string name, AABB extent);
 
 /*********************************************************************************************
 	Public

@@ -4,7 +4,7 @@
 
 #include "ae/physics/shape_primitives/BoxPhysicsShape.h"
 
-#include "ae/diagnostic/Exception.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 
 
 using namespace ae;

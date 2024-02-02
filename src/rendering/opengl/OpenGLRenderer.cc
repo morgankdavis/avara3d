@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <locale.h>
 #include <set>
 #include <vector>
 
@@ -21,12 +20,11 @@
 #include "GL/glew.h"
 #endif
 
-#ifdef OPENGL_DESKTOP
+//#ifdef OPENGL_DESKTOP
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "magic_enum.hpp"
-#endif
+//#endif
 
 #include "ae/Buffer.h"
 #include "ae/Color.h"
@@ -35,6 +33,7 @@
 #include "ae/Font.h"
 #include "ae/Image.h"
 #include "ae/Utilities.h"
+#include "ae/diagnostic/exceptions/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
@@ -250,11 +249,11 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
-#ifdef OPENGL_DESKTOP
+//#ifdef OPENGL_DESKTOP
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-#endif
+//#endif
 }
 	
 /*********************************************************************************************
@@ -434,8 +433,8 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	GetGeometryElementGLVertexDataHandles(element,
 										  _geometryElementGLMapping,
 										  vbo, vao, ibo);
-	
-	bool wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
+
+	auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
 
 	if (wireframe) {
 		program = Program::Wireframe();
@@ -854,8 +853,8 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	
 	program.use();
 	
-	const auto& verticies = element.vertices();
-	const auto& faces = element.faces();
+	auto verticies = element.vertices();
+	auto faces = element.faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -867,7 +866,7 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -876,22 +875,22 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 						  0); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	GLuint normalIndex = program.getAttributeLocation("vertex_normal");
+	auto normalIndex = program.getAttributeLocation("vertex_normal");
 	glVertexAttribPointer(normalIndex, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
 						  GL_FALSE, 				// normalize
 						  sizeof(Vertex), 			// stride
-						  (void *)sizeof(vec3)); 	// start offset
+						  (void*)sizeof(vec3)); 	// start offset
 	glEnableVertexAttribArray(normalIndex);
 	
-	GLuint texCoordIndex = program.getAttributeLocation("texture_coordinate");
+	auto texCoordIndex = program.getAttributeLocation("texture_coordinate");
 	glVertexAttribPointer(texCoordIndex, 							// attrib index
 						  2, 										// num components per attrib (2 float in vec2)
 						  GL_FLOAT, 								// component type
 						  GL_FALSE, 								// normalize
 						  sizeof(Vertex), 							// stride
-						  (void *)(sizeof(vec3) + sizeof(vec3))); 	// start offset
+						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
 	glEnableVertexAttribArray(texCoordIndex);
 	
 	glGenBuffers(1, &glIBO);
@@ -913,8 +912,8 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	program.use();
 	
 	auto element = skyboxGeometry.elements().front();
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
+	auto verts = element->vertices();
+	auto faces = element->faces();
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
@@ -1024,7 +1023,7 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertex_position");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -1032,8 +1031,8 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 						  sizeof(vec3)*2, 		// stride
 						  0); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
-	
-	GLuint colorIndex = program.getAttributeLocation("vertex_color");
+
+	auto colorIndex = program.getAttributeLocation("vertex_color");
 	glVertexAttribPointer(colorIndex, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -1375,12 +1374,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 //	}
 //	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
 
-	lights.push_back(ambientLightNode);
+	if (ambientLightNode) lights.push_back(ambientLightNode);
 
-	unsigned numLights = lights.size();
+	auto numLights = lights.size();
 	LightGLSLStruct lightStruct[numLights];
 
-	stats.lights = numLights;// - 1; // not counting ambient
+	stats.lights = numLights - 1; // not counting ambient
 
 	for (int l=0; l<numLights; ++l) {
 		auto node = lights[l];
@@ -1607,7 +1606,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = element.faces().size();
+	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -1617,8 +1616,8 @@ static void DrawSkyboxElement(GeometryElement& element,
 							  GLuint vao, GLuint ibo) {
 	
 	program.use();
-	
-	mat4 viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
+
+	auto viewMat = lookAt(vec3(0.0f, 0.0f, 0.0f), // eye - location
 						  pointOfView.worldForward(), // center - look at
 						  pointOfView.worldUp()); // up
 	
@@ -1628,13 +1627,13 @@ static void DrawSkyboxElement(GeometryElement& element,
 	program.setUniform("projection", projectionMat);
 	
 	// update
-	
-	const auto& faces = element.faces();
+
+	auto faces = element.faces();
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	unsigned int numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, numFaces * sizeof(Face), GL_UNSIGNED_INT, nullptr);
+	auto numFaces = faces.size();
+	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 	
 static void DrawAABB(Geometry& geometry,
@@ -1847,8 +1846,8 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 	if (glMapping.count(property)) {
 		
 		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
-		
-		GLuint handle = glMapping[property];
+
+		auto handle = glMapping[property];
 		
 		glDeleteTextures(1, &handle);
 		
@@ -1870,9 +1869,9 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 		AE_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
 		
 		auto glHandles = glMapping[lineSet];
-		
-		GLuint vbo = get<0>(glHandles);
-		GLuint vao = get<1>(glHandles);
+
+		auto vbo = get<0>(glHandles);
+		auto vao = get<1>(glHandles);
 		
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
@@ -1915,13 +1914,15 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
-#ifdef OPENGL_DESKTOP
+	using namespace ImGui;
+
+//#ifdef OPENGL_DESKTOP
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;
 	windowFlags |= ImGuiWindowFlags_NoTitleBar;
@@ -1932,8 +1933,8 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGui::SetNextWindowBgAlpha(.15);
-	ImGui::Begin("Stats", nullptr, windowFlags);
+	SetNextWindowBgAlpha(.15);
+	Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
 	style.WindowRounding = 6;
@@ -1945,7 +1946,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		ImGui::Text("%-14s %.0f fps %s\n" \
+		Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
@@ -1970,32 +1971,32 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %d %s\n",
 
-					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
-					"frametime", stats.averageFrametime,
-					" user", stats.averageUsertime,
-					" physics", stats.averagePhysicstime,
-					" draw", stats.averageDrawtime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "frametime", stats.averageFrametime,
+			 " user", stats.averageUsertime,
+			 " physics", stats.averagePhysicstime,
+			 " draw", stats.averageDrawtime,
 
-					"nodes", stats.nodes,
-					"geometries", stats.geometries,
-					"meshes", stats.meshes,
-					"polygons", stats.polygons,
-					"lights", stats.lights,
+			 "nodes", stats.nodes,
+			 "geometries", stats.geometries,
+			 "meshes", stats.meshes,
+			 "polygons", stats.polygons,
+			 "lights", stats.lights,
 
-					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-					" static", stats.staticBodies,
-					" dynamic", stats.dynamicBodies,
-					" kinematic", stats.kinematicBodies,
-					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-					" bounding box", stats.boundingBoxShapes,
-					" convex hull", stats.convexHullShapes,
-					" concave polyhedron", stats.concavePolyhedronShapes,
+			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			 " static", stats.staticBodies,
+			 " dynamic", stats.dynamicBodies,
+			 " kinematic", stats.kinematicBodies,
+			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " bounding box", stats.boundingBoxShapes,
+			 " convex hull", stats.convexHullShapes,
+			 " concave polyhedron", stats.concavePolyhedronShapes,
 
-					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-					"RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		ImGui::Text("%-14s %.0f fps %s\n" \
+		Text("%-14s %.0f fps %s\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
@@ -2018,41 +2019,40 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
-					"framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
-					"frametime", stats.averageFrametime,
-					" user", stats.averageUsertime,
-					" physics", stats.averagePhysicstime,
-					" draw", stats.averageDrawtime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "frametime", stats.averageFrametime,
+			 " user", stats.averageUsertime,
+			 " physics", stats.averagePhysicstime,
+			 " draw", stats.averageDrawtime,
 
-					"nodes", stats.nodes,
-					"geometries", stats.geometries,
-					"meshes", stats.meshes,
-					"polygons", stats.polygons,
-					"lights", stats.lights,
+			 "nodes", stats.nodes,
+			 "geometries", stats.geometries,
+			 "meshes", stats.meshes,
+			 "polygons", stats.polygons,
+			 "lights", stats.lights,
 
-					"physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-					" static", stats.staticBodies,
-					" dynamic", stats.dynamicBodies,
-					" kinematic", stats.kinematicBodies,
-					"physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-					" bounding box", stats.boundingBoxShapes,
-					" convex hull", stats.convexHullShapes,
-					" concave polyhedron", stats.concavePolyhedronShapes,
+			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			 " static", stats.staticBodies,
+			 " dynamic", stats.dynamicBodies,
+			 " kinematic", stats.kinematicBodies,
+			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " bounding box", stats.boundingBoxShapes,
+			 " convex hull", stats.convexHullShapes,
+			 " concave polyhedron", stats.concavePolyhedronShapes,
 
-					"camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	}
 
-	ImGui::End();
-
-	ImGui::Render();
+	End();
+	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-#endif // OPENGL_DESKTOP
+//#endif // OPENGL_DESKTOP
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
 	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
 		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:
@@ -2070,8 +2070,8 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILT
 }
 
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
 		case FILTER_MODE::NEAREST:
@@ -2088,7 +2088,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FIL
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 
 #ifdef OPENGL_DESKTOP
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
 	glBindTexture(texType, glTextureHandle);
@@ -2100,16 +2100,16 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 }
 
 static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
 }
 
 static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
-	
-	GLenum texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
@@ -2144,25 +2144,25 @@ static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
 		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-#ifdef OPENGL_DESKTOP
-		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//#endif
 		case WRAP_MODE::REPEAT:						return GL_REPEAT;
         default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
 }
 
 static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
-#ifdef OPENGL_DESKTOP
-		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_EDGE;
-#endif
+//#ifdef OPENGL_DESKTOP
+//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//#endif
 		case GL_REPEAT:								return WRAP_MODE::REPEAT;
 		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_BORDER; }
+		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_EDGE; }
 }
 
 static void CheckGLError() {
-	GLenum err = glGetError();
+	auto err = glGetError();
 	if (err != GL_NO_ERROR) {
 		AE_LOG_E("*** GL error: 0x{:X} ***", err);
 	}

@@ -48,9 +48,8 @@ namespace ae {
 	Public Static
  *********************************************************************************************/
 
-#ifndef ANDROID
-		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path &path);
-#endif
+		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
+														  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
 
 /*********************************************************************************************
 	Lifecycle
@@ -84,8 +83,6 @@ namespace ae {
 		DEBUG_OPTIONS 							debugOptions() const;
 		void 									debugOptions(DEBUG_OPTIONS options);
 
-		const Stats&							stats() const;
-
 		void									run();
 		void									stop();
 
@@ -93,6 +90,8 @@ namespace ae {
 
 		bool									paused() const;
 		void									paused(bool flag);
+
+		const Stats&							stats() const;
 
 		UpdateCallback 							update() const;
 		void 									update(UpdateCallback function);
@@ -114,9 +113,9 @@ namespace ae {
 		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
 		std::shared_ptr<InputManager>			_inputManager;
 		DEBUG_OPTIONS							_debugOptions;
-		Stats									_stats;
 		bool									_running;
 		bool									_paused;
+		Stats									_stats;
 		UpdateCallback							_update;
 	};
 }

@@ -1,0 +1,101 @@
+# Blender 4.0.2 MTL File: 'None'
+# www.blender.org
+
+newmtl FL43brn1
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Ftextures/L43brn1.png
+map_Bump textures/FL43brn1.png
+
+newmtl FL43flw2
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd textures/FL43flw2.png
+map_Bump textures/FL43flw2.png
+
+newmtl FL43lef2
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43lef2.png
+map_d textures/FL43lef2.png
+map_Bump textures/FL43lef2.png
+
+newmtl FL43lef3
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43lef3.png
+map_d textures/FL43lef3.png
+map_Bump textures/FL43lef4.png
+
+newmtl FL43lef4
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43lef4.png
+map_d textures/FL43lef4.png
+map_Bump textures/FL43lef4.png
+
+newmtl FL43lef5
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43lef5.png
+map_d textures/FL43lef5.png
+map_Bump textures/FL43lef5.png
+
+newmtl FL43lef6
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43lef6.png
+map_d textures/FL43lef6.png
+map_Bump textures/FL43lef6.png
+
+newmtl FL43pet1
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd textures/FL43pet1.png
+map_d textures/FL43pet1.png
+map_Bump textures/FL43pet1.png
+
+newmtl FL43rts1
+Ns 50.781235
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd textures/FL43rts1.png
+map_Bump textures/FL43rts1.png
