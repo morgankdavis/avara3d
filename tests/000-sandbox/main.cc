@@ -173,7 +173,7 @@ int main(int argc, const char* argv[]) {
 //			pointLightNode->geometry(sphere);
 //		}
 //
-		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
+//		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
 //		auto testGeometry = GeometryNamed("slurm/slurm");
 //		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
 //		auto testGeometry = GeometryNamed("palm/palm");
@@ -204,30 +204,20 @@ int main(int argc, const char* argv[]) {
 //		for (auto &m: testGeometry->materials()) {
 //			m->doubleSided(true);
 //		}
-		auto testNode = Node::GeometryNode(testGeometry);
-		testNode->position({0, 5, 0});
-
-		scene->rootNode()->addChild(testNode);
-
-		unsigned vertCount = 0;
-		unsigned faceCount = 0;
-		for (auto& element : testGeometry->elements()) {
-			vertCount += element->vertices().size();
-			faceCount += element->faces().size();
-		}
-		AE_LOG_D("Obj verts: {}", vertCount);
-		AE_LOG_D("Obj faces: {}", faceCount);
+//		auto testNode = Node::GeometryNode(testGeometry);
+//		testNode->position({0, 5, 0});
+//
+//		scene->rootNode()->addChild(testNode);
 //	}
 
 
 
 //	{
-//		auto testScene = SceneNamed("import_test/import_test");
-//		auto testScene = SceneNamed("import_test/import_test",
-		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
-									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
+		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
+//									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
 //		auto testScene = SceneNamed("import_test", "glb");
 //		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
 //		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
@@ -237,15 +227,7 @@ int main(int argc, const char* argv[]) {
 		auto rootPos = importRoot->position();
 		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
 		scene->rootNode()->addChild(importRoot);
-
-	vertCount = 0;
-	faceCount = 0;
-	for (auto& element : importRoot->children(false).front()->geometry()->elements()) {
-		vertCount += element->vertices().size();
-		faceCount += element->faces().size();
-	}
-	AE_LOG_D("glTF verts: {}", vertCount);
-	AE_LOG_D("gltf faces: {}", faceCount);
+//	}
 
 //
 ////		{

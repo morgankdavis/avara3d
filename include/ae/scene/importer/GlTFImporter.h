@@ -11,7 +11,9 @@
 #include <filesystem>
 #include <map>
 #include <memory>
+#include <optional>
 
+#include "fastgltf/types.hpp"
 #include "glm/glm.hpp"
 
 #include "ae/Types.h"
@@ -19,8 +21,10 @@
 
 namespace fastgltf {
 	class Asset;
+//	class GltfDataBuffer;
 	class Mesh;
 	class Node;
+//	class Parser;
 	class Primitive;
 	class Texture;
 }
@@ -56,12 +60,14 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<Scene> 				load();
+		void								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node,
 														  std::shared_ptr<Node> parent);
 		std::shared_ptr<Geometry> 			geometryFromGlFTNode(fastgltf::Asset& asset,
 																  fastgltf::Node& node);
+		std::shared_ptr<Geometry> 			geometryFromGlFTMeshIndex(fastgltf::Asset& asset,
+																	   std::size_t meshIndex);
 		std::shared_ptr<GeometryElement> 	geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
 																			 fastgltf::Primitive& primitive);
 		std::shared_ptr<Material> 			materialFromGlFTPrimitive(fastgltf::Asset& asset,
@@ -74,6 +80,12 @@ namespace ae {
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
+
+		bool														_parsed;
+//		std::unique_ptr<fastgltf::GltfDataBuffer>					_bufferData;
+//		std::unique_ptr<fastgltf::Parser>							_parser;
+//		std::unique_ptr<fastgltf::Asset>							_asset;
+		fastgltf::Asset												_asset;
 
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
