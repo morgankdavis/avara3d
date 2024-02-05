@@ -50,6 +50,7 @@ namespace ae {
 
 		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
 														  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::IMPORT_ALL);
+		static double 							Time();
 
 /*********************************************************************************************
 	Lifecycle
@@ -76,9 +77,6 @@ namespace ae {
 
 		std::shared_ptr<InputManager> 			inputManager() const;
 		void 									inputManager(std::shared_ptr<InputManager> inputManager);
-
-		double 									time() const;
-		double 									runTime() const;
 
 		DEBUG_OPTIONS 							debugOptions() const;
 		void 									debugOptions(DEBUG_OPTIONS options);

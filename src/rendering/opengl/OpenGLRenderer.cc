@@ -334,7 +334,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
 		auto scene = context.visualWorld()->scene();
 		DrawStatsOverlay(stats,
-						 scene->time(),
+						 Scene::Time(),
 						 *scene);
 	}
 	

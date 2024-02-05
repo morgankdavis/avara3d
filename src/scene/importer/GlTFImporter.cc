@@ -85,7 +85,7 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 
 	auto aeScene = make_shared<ae::Scene>();
 
-	auto startTime = aeScene->time();
+	auto startTime = Scene::Time();
 
 	auto extensions = Extensions::KHR_lights_punctual
 					  | Extensions::KHR_materials_specular
@@ -144,7 +144,7 @@ shared_ptr<ae::Scene> GlTFImporter::load() {
 					visitGlTFNode(asset, asset.nodes[n], aeScene->rootNode());
 				}
 
-				AE_LOG_I("Done loading glTF.  Time: {}", aeScene->time() - startTime);
+				AE_LOG_I("Done loading glTF.  Time: {}", Scene::Time() - startTime);
 
 				return aeScene;
 			}

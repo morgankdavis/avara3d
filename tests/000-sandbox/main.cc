@@ -177,9 +177,9 @@ int main(int argc, const char* argv[]) {
 ////		auto testGeometry = GeometryNamed("slurm/slurm");
 ////		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
 //		auto testGeometry = GeometryNamed("palm/palm");
-////		auto testGeometry = GeometryNamed("palms/palms");
+//		auto testGeometry = GeometryNamed("palms/palms");
 ////		auto testGeometry = GeometryNamed("island/island");
-////		auto testGeometry = GeometryNamed("teapot");
+		auto testGeometry = GeometryNamed("teapot");
 ////		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
 ////		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
 ////		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
@@ -209,58 +209,58 @@ int main(int argc, const char* argv[]) {
 //		for (auto &m: testGeometry->materials()) {
 //			m->doubleSided(true);
 //		}
-//		auto testNode = Node::GeometryNode(testGeometry);
-//		testNode->position({0, 5, 0});
-//
-//		scene->rootNode()->addChild(testNode);
+		auto testNode = Node::GeometryNode(testGeometry);
+		testNode->position({0, 5, 0});
+
+		scene->rootNode()->addChild(testNode);
 //	}
 
 
 
-	{
-//		auto testScene = SceneNamed("import_test/import_test");
-		auto testScene = SceneNamed("import_test/import_test",
-									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY
-									| SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS);
-//		auto testScene = SceneNamed("import_test", "glb");
-//		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
-//		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
-//		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
-
-		auto importRoot = testScene->rootNode();
-		auto rootPos = importRoot->position();
-		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
-		scene->rootNode()->addChild(importRoot);
-
-//		{
-//			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
-//			pointLight->attenuationFactor(0);
-//			auto pointLightNode = Node::LightNode(pointLight);
-//			pointLightNode->position({5, 5, 0});
-//			scene->rootNode()->addChild(pointLightNode);
+//	{
+////		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("import_test/import_test",
+//									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+//									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+//									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY
+//									| SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS);
+////		auto testScene = SceneNamed("import_test", "glb");
+////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
+////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
+////		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
 //
-//			auto sphere = make_shared<Sphere>(0.1f, 12);
-//			auto property = make_shared<MaterialProperty>(pointLight->color());
-//			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-//			sphere->addMaterial(material);
-//			pointLightNode->geometry(sphere);
+//		auto importRoot = testScene->rootNode();
+//		auto rootPos = importRoot->position();
+//		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+//		scene->rootNode()->addChild(importRoot);
+//
+////		{
+////			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+////			pointLight->attenuationFactor(0);
+////			auto pointLightNode = Node::LightNode(pointLight);
+////			pointLightNode->position({5, 5, 0});
+////			scene->rootNode()->addChild(pointLightNode);
+////
+////			auto sphere = make_shared<Sphere>(0.1f, 12);
+////			auto property = make_shared<MaterialProperty>(pointLight->color());
+////			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+////			sphere->addMaterial(material);
+////			pointLightNode->geometry(sphere);
+////		}
+//
+//		for (auto& node : scene->rootNode()->children(true)) {
+//			auto light = node->light();
+//			if (light) {
+//				if (light->type() == LIGHT_TYPE::POINT) {
+//					auto sphere = make_shared<Sphere>(0.1f, 12);
+//					auto property = make_shared<MaterialProperty>(light->color());
+//					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+//					sphere->addMaterial(material);
+//					node->geometry(sphere);
+//				}
+//			}
 //		}
-
-		for (auto& node : scene->rootNode()->children(true)) {
-			auto light = node->light();
-			if (light) {
-				if (light->type() == LIGHT_TYPE::POINT) {
-					auto sphere = make_shared<Sphere>(0.1f, 12);
-					auto property = make_shared<MaterialProperty>(light->color());
-					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-					sphere->addMaterial(material);
-					node->geometry(sphere);
-				}
-			}
-		}
-	}
+//	}
 
 
 

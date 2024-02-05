@@ -247,7 +247,7 @@ void VisualWorld::draw(const Scene& scene,
 				willRender(*this, runT);
 			}
 
-			auto startTime = scene.time();
+			auto startTime = Scene::Time();
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
@@ -278,7 +278,7 @@ void VisualWorld::draw(const Scene& scene,
 				}
 			}
 
-			UpdateTimeStats(stats, startTime, scene.time());
+			UpdateTimeStats(stats, startTime, Scene::Time());
 
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
 

@@ -62,6 +62,12 @@ shared_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 	return GlTFImporter(path, options).scene();
 }
 
+double Scene::Time() {
+	static auto startTime = chrono::high_resolution_clock::now();
+	auto nowTime = chrono::high_resolution_clock::now();
+	return (chrono::duration<double>(nowTime - startTime)).count();
+}
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -199,12 +205,6 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 	}
 }
 
-double Scene::time() const { // TODO: move this? make it static?
-	static auto startTime = chrono::high_resolution_clock::now();
-	auto nowTime = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowTime - startTime)).count();
-}
-
 DEBUG_OPTIONS Scene::debugOptions() const {
 	return _debugOptions;
 }
@@ -237,7 +237,7 @@ void Scene::run() {
 
 		do {
 
-			GetRunTime(time(),
+			GetRunTime(Scene::Time(),//time(),
 					   _paused,
 					   runT,
 					   deltaRunT);
@@ -251,9 +251,9 @@ void Scene::run() {
 
 			if (_update) {
 
-				auto updateStartTime = time();
+				auto updateStartTime = Scene::Time();//time();
 				(_update)(*this, runT);
-				UpdateUserTimeStats(_stats, updateStartTime, time());
+				UpdateUserTimeStats(_stats, updateStartTime, Scene::Time());//time());
 			}
 
 			if (!_paused) {

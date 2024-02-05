@@ -49,6 +49,8 @@ namespace ae {
 					 SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::IMPORT_ALL);
 
 		std::shared_ptr<Scene> 				scene();
+//		std::shared_ptr<Geometry> 			firstGeometry();
+
 		const std::filesystem::path&		path() const;
 		SCENE_IMPORT_OPTIONS				options() const;
 

@@ -413,12 +413,11 @@ void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
 					const rapidobj::Materials& objMaterials,
 					int32_t objMaterialID,
 					filesystem::path& textureDir) {
-	AE_LOG_D("roMaterialID: {}", objMaterialID);
 
-	if (objMaterialID > -1
-		&& !objMaterials.empty()) {
+	if (objMaterialID > -1 && !objMaterials.empty()) {
 
-		if (auto existing = aeMaterialsMap.find(objMaterialID); existing != aeMaterialsMap.end()) {
+		if (auto existing = aeMaterialsMap.find(objMaterialID)
+				; existing != aeMaterialsMap.end()) {
 
 			aeMaterials.push_back(existing->second);
 		}
@@ -550,7 +549,7 @@ void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
 
 			}
 
-			aeMaterial->doubleSided(true);
+			//aeMaterial->doubleSided(true);
 
 			aeMaterialsMap[objMaterialID] = aeMaterial;
 
