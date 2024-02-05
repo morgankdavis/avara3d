@@ -54,7 +54,7 @@ int main(int argc, const char* argv[]) {
 	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_shared<VisualWorld>(window);
-	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 	auto background = make_shared<MaterialProperty>(backgroundColor);
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
@@ -64,7 +64,7 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto options = SCENE_IMPORT_OPTIONS::ALL;
+//	auto options = SCENE_IMPORT_OPTIONS::ALL;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
@@ -77,6 +77,10 @@ int main(int argc, const char* argv[]) {
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+				   | SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY;
+
 	auto testScene = SceneNamed("import_test/import_test",
 								options);
 	auto testSceneNodes = testScene->rootNode()->children();
