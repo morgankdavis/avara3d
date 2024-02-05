@@ -173,37 +173,32 @@ int main(int argc, const char* argv[]) {
 //			pointLightNode->geometry(sphere);
 //		}
 //
-////		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
-////		auto testGeometry = GeometryNamed("slurm/slurm");
-////		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
+		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
+//		auto testGeometry = GeometryNamed("slurm/slurm");
+//		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
 //		auto testGeometry = GeometryNamed("palm/palm");
 //		auto testGeometry = GeometryNamed("palms/palms");
-////		auto testGeometry = GeometryNamed("island/island");
-		auto testGeometry = GeometryNamed("teapot");
-////		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
-////		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-////		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
-//
-//// 		REVISIT ME
-////			- no normals
-////			- normals
-////			- no groupings (1 element?)
-////			- groupings (multiple elements?)
-////			- textures
-////		auto testGeometry = GeometryNamed("convalia_bouquet");
-//
-////		auto testGeometry = GeometryNamed("dragon");
-////		auto testGeometry = GeometryNamed("orange_lod/orange_lod");
-////		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-////		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-//
-////		REVISIT ME
-////		auto testGeometry = GeometryNamed("pallet_rot/pallet_rot");
-//
-////		auto testGeometry = GeometryNamed("siamese/siamese");
-////		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-////		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-////		auto testGeometry = GeometryNamed("crocus/crocus");
+//		auto testGeometry = GeometryNamed("island/island");
+//		auto testGeometry = GeometryNamed("teapot");
+//		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
+//		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+//		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
+// 		REVISIT ME
+//			- no normals
+//			- normals
+//			- no groupings (1 element?)
+//			- groupings (multiple elements?)
+//			- textures
+//		auto testGeometry = GeometryNamed("convalia_bouquet");
+//		auto testGeometry = GeometryNamed("dragon");
+//		auto testGeometry = GeometryNamed("orange_lod/orange_lod");
+//		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+//		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
+//		auto testGeometry = GeometryNamed("pallet/pallet");
+//		auto testGeometry = GeometryNamed("siamese/siamese");
+//		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
+//		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+//		auto testGeometry = GeometryNamed("crocus/crocus");
 //
 //
 //		for (auto &m: testGeometry->materials()) {
@@ -213,26 +208,45 @@ int main(int argc, const char* argv[]) {
 		testNode->position({0, 5, 0});
 
 		scene->rootNode()->addChild(testNode);
+
+		unsigned vertCount = 0;
+		unsigned faceCount = 0;
+		for (auto& element : testGeometry->elements()) {
+			vertCount += element->vertices().size();
+			faceCount += element->faces().size();
+		}
+		AE_LOG_D("Obj verts: {}", vertCount);
+		AE_LOG_D("Obj faces: {}", faceCount);
 //	}
 
 
 
 //	{
-////		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("import_test/import_test");
 //		auto testScene = SceneNamed("import_test/import_test",
-//									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY
-//									| SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS);
-////		auto testScene = SceneNamed("import_test", "glb");
-////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
-////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
-////		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
-//
-//		auto importRoot = testScene->rootNode();
-//		auto rootPos = importRoot->position();
-//		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
-//		scene->rootNode()->addChild(importRoot);
+		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
+									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
+//		auto testScene = SceneNamed("import_test", "glb");
+//		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
+//		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
+//		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
+
+		auto importRoot = testScene->rootNode();
+		auto rootPos = importRoot->position();
+		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+		scene->rootNode()->addChild(importRoot);
+
+	vertCount = 0;
+	faceCount = 0;
+	for (auto& element : importRoot->children(false).front()->geometry()->elements()) {
+		vertCount += element->vertices().size();
+		faceCount += element->faces().size();
+	}
+	AE_LOG_D("glTF verts: {}", vertCount);
+	AE_LOG_D("gltf faces: {}", faceCount);
+
 //
 ////		{
 ////			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
