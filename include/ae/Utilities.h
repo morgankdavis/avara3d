@@ -77,6 +77,7 @@ namespace ae {
 		float Max(const glm::vec3& v);
 
 		bool Equal(float a, float b, float tolerance = 0.0001);
+		bool Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
 		bool Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
 		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 

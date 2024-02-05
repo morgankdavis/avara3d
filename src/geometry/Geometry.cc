@@ -13,6 +13,7 @@
 
 #include "ae/Color.h"
 #include "ae/Image.h"
+#include "ae/Utilities.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/diagnostic/exceptions/UnsupportedFormat.h"
 #include "ae/geometry/GeometryElement.h"
@@ -37,6 +38,7 @@ static void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
 						   const rapidobj::Materials& objMaterials,
 						   int32_t objMaterialID,
 						   filesystem::path& textureDir);
+static unsigned VertexIndex(Vertex& vert, vector<Vertex>& verts);
 
 /*********************************************************************************************
 	Public Static
@@ -249,6 +251,11 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 
 	using namespace rapidobj;
 
+	// *** TEMPORARY? ***
+//#define REMOVE_DUP_INDICIES
+	auto startTime = chrono::high_resolution_clock::now();
+	unsigned vertCount = 0;
+
 	AE_LOG_I("Loading Wavefront Obj at: {}", path.string());
 
 	// example from tinyobjloader:
@@ -318,6 +325,10 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 					baseFaceIndex -= faceIndexOffset;
 				}
 
+#ifdef REMOVE_DUP_INDICIES
+				unsigned faceV[3];
+#endif
+
 				// vertices in the face (shape is triangulated above)
 				for (auto v=0; v<3; ++v) {
 
@@ -344,15 +355,24 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 						vert.texCoord = {tu, tv};
 					}
 
+#ifdef REMOVE_DUP_INDICIES
+					faceV[v] = VertexIndex(vert, verts);
+#else
 					verts.push_back(vert);
+#endif
 
 				} // verticies
 
+#ifdef REMOVE_DUP_INDICIES
+				Face face = { faceV[0], faceV[1], faceV[2] };
+				faces.push_back(face);
+#else
 				// TODO: this is fucked
 				Face face = { unsigned(baseFaceIndex + 0),
 							  unsigned(baseFaceIndex + 1),
 							  unsigned(baseFaceIndex + 2) };
 				faces.push_back(face);
+#endif
 
 				prevMaterialID = materialID;
 				indexOffset += 3;
@@ -360,6 +380,7 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 			} // faces
 
 			// add the last element (materialID didn't change at the end of the face list)
+			vertCount += verts.size();
 			aeElements.push_back(make_shared<GeometryElement>(verts, faces));
 			AddObjMaterial(aeMaterials,
 						   aeMaterialsMap,
@@ -372,7 +393,10 @@ shared_ptr<Geometry> LoadObj(const filesystem::path& path) {
 		auto geometry = make_shared<Geometry>(aeElements, aeMaterials);
 		geometry->name(path.filename().stem().string());
 
-		AE_LOG_D("Done loading Obj.");
+		auto duration = (chrono::duration<double>(chrono::high_resolution_clock::now() - startTime)).count();
+		AE_LOG_D("Done loading Obj.  Time: {}", duration);
+
+		AE_LOG_D("Vert count: {}", vertCount);
 
 		return geometry;
 	}
@@ -526,9 +550,33 @@ void AddObjMaterial(vector<shared_ptr<Material>>& aeMaterials,
 
 			}
 
+			aeMaterial->doubleSided(true);
+
 			aeMaterialsMap[objMaterialID] = aeMaterial;
 
 			aeMaterials.push_back(aeMaterial);
 		}
 	}
+}
+
+unsigned VertexIndex(Vertex& vert, vector<Vertex>& verts) {
+
+	// looks through 'verts' and either returns the index of an existing vertex,
+	// or adds 'vert' to the list and returns the new index.
+
+	constexpr float tolerance = 0.00001;
+
+	for (unsigned i=0; i<verts.size(); ++i) {
+
+		auto& existing = verts[i];
+		if (utils::Equal(vert.position, existing.position, tolerance)
+			&& utils::Equal(vert.normal, existing.normal, tolerance)
+			&& utils::Equal(vert.texCoord, existing.texCoord, tolerance)) {
+			return i;
+		}
+	}
+
+	// not found
+	verts.push_back(vert);
+	return verts.size() - 1;
 }

@@ -239,6 +239,11 @@ bool ae::utils::Equal(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
 }
 
+bool ae::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) {
+	return Equal(a.x, b.x, tolerance)
+		   && Equal(a.y, b.y, tolerance);
+}
+
 bool ae::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance) 
 	&& Equal(a.y, b.y, tolerance) 
