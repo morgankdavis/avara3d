@@ -166,20 +166,17 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	// TODO: throw out nodes that don't have anything attached
 	// to them, or any children?
+	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+
+	auto aeNode = Node::NamedNode(string(node.name));
+
+	aeNode->transform(TransformFromGlFTNode(node));
 
 	static bool firstGeometryOnly =
 			((_options & SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY)
-			!= SCENE_IMPORT_OPTIONS::NONE);
+			 != SCENE_IMPORT_OPTIONS::NONE);
 	static bool foundGeometry = false;
-
 	if (!firstGeometryOnly || !foundGeometry) {
-
-		auto aeNode = Node::NamedNode(string(node.name));
-
-		aeNode->transform(TransformFromGlFTNode(node));
-
-		// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-
 		if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
 			auto geometry = geometryFromGlFTNode(asset, node);
 			if (geometry) {
@@ -187,20 +184,20 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 				foundGeometry = true;
 			}
 		}
+	}
 
-		if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
-			aeNode->light(lightFromGlTFNode(asset, node));
-		}
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->light(lightFromGlTFNode(asset, node));
+	}
 
-		if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
-			aeNode->camera(cameraFromGlTFNode(asset, node));
-		}
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->camera(cameraFromGlTFNode(asset, node));
+	}
 
-		parent->addChild(aeNode);
+	parent->addChild(aeNode);
 
-		for (auto c: node.children) {
-			visitGlTFNode(asset, asset.nodes[c], aeNode);
-		}
+	for (auto c: node.children) {
+		visitGlTFNode(asset, asset.nodes[c], aeNode);
 	}
 }
 

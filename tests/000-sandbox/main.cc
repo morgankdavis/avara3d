@@ -218,7 +218,12 @@ int main(int argc, const char* argv[]) {
 
 
 	{
-		auto testScene = SceneNamed("import_test/import_test");
+//		auto testScene = SceneNamed("import_test/import_test");
+		auto testScene = SceneNamed("import_test/import_test",
+									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY
+									| SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS);
 //		auto testScene = SceneNamed("import_test", "glb");
 //		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
 //		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");

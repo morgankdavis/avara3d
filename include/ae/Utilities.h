@@ -152,10 +152,12 @@ namespace ae {
 
 #ifndef ANDROID
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
-											  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
+											  SCENE_IMPORT_OPTIONS options =
+											  SCENE_IMPORT_OPTIONS::IMPORT_ALL);
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 											  const std::string& type,
-											  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::ALL);
+											  SCENE_IMPORT_OPTIONS options =
+											  SCENE_IMPORT_OPTIONS::IMPORT_ALL);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
 													const std::string& type);
