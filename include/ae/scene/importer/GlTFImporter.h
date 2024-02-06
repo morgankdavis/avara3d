@@ -60,7 +60,7 @@ namespace ae {
 
 	private:
 
-		void								parse();
+		bool								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node,
 														  std::shared_ptr<Node> parent);

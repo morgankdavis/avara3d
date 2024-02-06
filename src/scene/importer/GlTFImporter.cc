@@ -70,52 +70,42 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 shared_ptr<ae::Scene> GlTFImporter::scene() {
 
 	if (!_scene) {
+		if (parse()) {
 
-		parse(); // TODO: HANDLE ERROR
+			auto startTime = Scene::Time();
 
+			auto aeScene = make_shared<ae::Scene>();
 
-		auto startTime = Scene::Time();
+			auto &scenes = _asset.scenes;
+			if (!scenes.empty()) {
 
-		if (auto &info = _asset.assetInfo) {
-			AE_LOG_D("glTF parsed3. Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-					 info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
-		}
-
-
-
-
-
-		auto aeScene = make_shared<ae::Scene>();
-		//_scene = load();
-
-		auto& scenes = _asset.scenes;
-		if (!scenes.empty()) {
-
-			if (scenes.size() > 1) {
-				AE_LOG_W("Ignoring extra scenes.");
-			}
-
-			auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
-
-			auto nodeIndicies = scene.nodeIndices;
-			if (!nodeIndicies.empty()) {
-
-				for (auto n : nodeIndicies) {
-					visitGlTFNode(_asset, _asset.nodes[n], aeScene->rootNode());
+				if (scenes.size() > 1) {
+					AE_LOG_W("Ignoring extra scenes.");
 				}
 
-				AE_LOG_I("Loaded glTF.  Time: {}", Scene::Time() - startTime);
+				auto &scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
 
-				return aeScene;
+				auto nodeIndicies = scene.nodeIndices;
+				if (!nodeIndicies.empty()) {
+
+					for (auto n: nodeIndicies) {
+						visitGlTFNode(_asset, _asset.nodes[n], aeScene->rootNode());
+					}
+
+					AE_LOG_I("Done loading glTF.  Time: {}", Scene::Time() - startTime);
+
+					_scene = aeScene;
+				}
+				else {
+					AE_LOG_E("No nodes in scene: {}", scene.name);
+				}
 			}
 			else {
-				AE_LOG_E("No nodes in scene: {}", scene.name);
+				AE_LOG_E("No scenes.");
 			}
 		}
-		else {
-			AE_LOG_E("No scenes.");
-		}
 	}
+
 	return _scene;
 }
 
@@ -127,13 +117,11 @@ SCENE_IMPORT_OPTIONS GlTFImporter::options() const {
 	return _options;
 }
 
-void GlTFImporter::parse() {
-
-	AE_LOG_I("Parsing glTF: '{}'...", _path.string());
-
-//	auto aeScene = make_shared<ae::Scene>();
+bool GlTFImporter::parse() {
 
 	if (!_parsed) {
+
+		AE_LOG_I("Parsing glTF: '{}'...", _path.string());
 
 		auto startTime = Scene::Time();
 
@@ -148,8 +136,6 @@ void GlTFImporter::parse() {
 
 		auto options = GlTFOptionsFromImportOptions(_options);
 
-//	_bufferData = make_unique<GltfDataBuffer>();
-//	_bufferData->loadFromFile(_path);
 		GltfDataBuffer data;
 		data.loadFromFile(_path);
 
@@ -165,38 +151,28 @@ void GlTFImporter::parse() {
 			AE_LOG_E("Unsupported file extension: {}", extension.string());
 		}
 
-		if (auto error = expectedAsset.error(); error != Error::None) {
-			AE_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name(error));
-		}
-		else {
+		if (auto error = expectedAsset.error(); error == Error::None) {
 
 			auto &asset = expectedAsset.get();
 
 			if (auto &info = asset.assetInfo) {
-				AE_LOG_D("glTF parsed. Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
+				AE_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
 						 info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
 			}
 			else {
-				AE_LOG_D("glTF parsed.  Time: {}", Scene::Time() - startTime);
+				AE_LOG_D("Done parsing glTF.  Time: {}", Scene::Time() - startTime);
 			}
 
-//			auto& scenes = asset.scenes;
-//			if (!scenes.empty()) {
-//
-//				if (scenes.size() > 1) {
-//					AE_LOG_W("Ignoring extra scenes.");
-//				}
-//			}
+			_asset = std::move(expectedAsset.get());
+		}
+		else {
 
-			_asset = std::move(*(expectedAsset.get_if()));
-//			_asset = unique_ptr<Asset>(std::move(asset2));
-
-			if (auto &info = _asset.assetInfo) {
-				AE_LOG_D("glTF parsed2. Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						 info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
-			}
+			AE_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name(error));
+			return false;
 		}
 	}
+
+	return true;
 }
 
 void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
