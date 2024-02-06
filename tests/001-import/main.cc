@@ -64,7 +64,7 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-//	auto options = SCENE_IMPORT_OPTIONS::ALL;
+	auto options = SCENE_IMPORT_OPTIONS::IMPORT_ALL;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
@@ -77,9 +77,6 @@ int main(int argc, const char* argv[]) {
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
-	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-				   | SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY;
 
 	auto testScene = SceneNamed("import_test/import_test",
 								options);
