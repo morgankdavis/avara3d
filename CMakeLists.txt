@@ -146,7 +146,6 @@ target_include_directories(ae PRIVATE external/glfw-3.3.9/include)
 target_include_directories(ae PRIVATE external/imgui-1.90)
 target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
-target_include_directories(ae PRIVATE external/rapidobj-1.0.1)
 target_include_directories(ae PRIVATE external/stb)
 target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
 

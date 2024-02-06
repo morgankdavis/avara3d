@@ -199,35 +199,37 @@ int main(int argc, const char* argv[]) {
 //		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
 //		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
 //		auto testGeometry = GeometryNamed("crocus/crocus");
-//
-//
+
+	auto testGeometry = GeometryNamed("rubber_duck_gltf/rubber_duck");
+
+
 //		for (auto &m: testGeometry->materials()) {
 //			m->doubleSided(true);
 //		}
-//		auto testNode = Node::GeometryNode(testGeometry);
+		auto testNode = Node::GeometryNode(testGeometry);
 //		testNode->position({0, 5, 0});
+
+		scene->rootNode()->addChild(testNode);
+//	}
+
+
+
+////	{
+//		auto testScene = SceneNamed("import_test/import_test");
+////		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
+////									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+////									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+////									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
+////		auto testScene = SceneNamed("import_test", "glb");
+////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
+////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
+////		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
 //
-//		scene->rootNode()->addChild(testNode);
-//	}
-
-
-
-//	{
-		auto testScene = SceneNamed("import_test/import_test");
-//		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
-//									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
-//		auto testScene = SceneNamed("import_test", "glb");
-//		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
-//		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
-//		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
-
-		auto importRoot = testScene->rootNode();
-		auto rootPos = importRoot->position();
-		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
-		scene->rootNode()->addChild(importRoot);
-//	}
+//		auto importRoot = testScene->rootNode();
+//		auto rootPos = importRoot->position();
+//		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
+//		scene->rootNode()->addChild(importRoot);
+////	}
 
 //
 ////		{

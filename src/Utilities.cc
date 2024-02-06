@@ -597,19 +597,21 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 	return nullptr;
 }
 
-shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name) {
+shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
+											  GEOMETRY_IMPORT_OPTIONS options) {
 
-	return GeometryNamed(name, "obj");
+	return GeometryNamed(name, "gltf", options);
 //	return GeometryNamed(filesystem::path(name) / filesystem::path(name), "obj");
 }
 
 shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
-											const string& type) {
+											const string& type,
+											  GEOMETRY_IMPORT_OPTIONS options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {
 		AE_LOG_T("Found scene at path: {}", (*path).string());
-		return Geometry::FromFile(*path);
+		return Geometry::FromFile(*path, options);
 	}
 	return nullptr;
 }

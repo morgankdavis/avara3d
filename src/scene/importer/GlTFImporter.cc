@@ -92,7 +92,9 @@ shared_ptr<ae::Scene> GlTFImporter::scene() {
 						visitGlTFNode(_asset, _asset.nodes[n], aeScene->rootNode());
 					}
 
-					AE_LOG_I("Done loading glTF.  Time: {}", Scene::Time() - startTime);
+					// TODO: throw out nodes that don't have anything attached to them, or any children?
+
+					AE_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
 
 					_scene = aeScene;
 				}
@@ -101,12 +103,40 @@ shared_ptr<ae::Scene> GlTFImporter::scene() {
 				}
 			}
 			else {
-				AE_LOG_E("No scenes.");
+				AE_LOG_E("File contains no scenes!");
 			}
 		}
 	}
 
 	return _scene;
+}
+
+shared_ptr<Geometry> GlTFImporter::firstGeometry() {
+
+	// unlike scene(), no need to cache the geometry explicitly
+	// because it will quickly be looked up in _geometries
+
+	shared_ptr<Geometry> geometry = nullptr;
+
+	if (parse()) {
+
+		auto startTime = Scene::Time();
+
+		auto &meshes = _asset.meshes;
+		if (!meshes.empty()) {
+
+			geometry = geometryFromGlFTMeshIndex(_asset, 0);
+
+			if (geometry) {
+				AE_LOG_I("Done loading geometry.  Time: {}", Scene::Time() - startTime);
+			}
+		}
+		else {
+			AE_LOG_E("File contains no meshes!");
+		}
+	}
+
+	return geometry;
 }
 
 const filesystem::path& GlTFImporter::path() const {
@@ -179,26 +209,14 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 								 fastgltf::Node& node,
 								 shared_ptr<ae::Node> parent) {
 
-	// TODO: throw out nodes that don't have anything attached
-	// to them, or any children?
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
 	auto aeNode = Node::NamedNode(string(node.name));
 
 	aeNode->transform(TransformFromGlFTNode(node));
 
-	static bool firstGeometryOnly =
-			((_options & SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY)
-			 != SCENE_IMPORT_OPTIONS::NONE);
-	static bool foundGeometry = false;
-	if (!firstGeometryOnly || !foundGeometry) {
-		if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
-			auto geometry = geometryFromGlFTNode(asset, node);
-			if (geometry) {
-				aeNode->geometry(geometry);
-				foundGeometry = true;
-			}
-		}
+	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
+		aeNode->geometry(geometryFromGlFTNode(asset, node));
 	}
 
 	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
@@ -227,37 +245,34 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
 shared_ptr<Geometry> GlTFImporter::geometryFromGlFTMeshIndex(fastgltf::Asset& asset,
 															 size_t meshIndex) {
 
-//	if (auto meshIndex = node.meshIndex) {
+	if (auto existing = _geometries.find(meshIndex)
+			; existing == _geometries.end()) {
 
-		if (auto existing = _geometries.find(meshIndex)
-				; existing == _geometries.end()) {
+		auto &mesh = asset.meshes[meshIndex];
 
-			auto &mesh = asset.meshes[meshIndex];
+		auto elements = vector<shared_ptr<GeometryElement>>();
+		auto materials = vector<shared_ptr<Material>>();
 
-			auto elements = vector<shared_ptr<GeometryElement>>();
-			auto materials = vector<shared_ptr<Material>>();
+		for (auto &primitive: mesh.primitives) {
 
-			for (auto &primitive: mesh.primitives) {
+			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
+			if (element) elements.push_back(element);
 
-				auto element = geometryElementFromGlFTPrimitive(asset, primitive);
-				if (element) elements.push_back(element);
-
-				// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-				auto material = ((_options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE)
-								? materialFromGlFTPrimitive(asset, primitive)
-								: Material::DefaultMaterial();
-				if (material) materials.push_back(material);
-			}
-
-			auto geometry = make_shared<Geometry>(elements, materials);
-			geometry->name(string(mesh.name));
-			_geometries[meshIndex] = geometry;
-			return geometry;
+			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+			auto material = ((_options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE)
+							? materialFromGlFTPrimitive(asset, primitive)
+							: Material::DefaultMaterial();
+			if (material) materials.push_back(material);
 		}
-		else {
-			return _geometries[meshIndex];
-		}
-//	}
+
+		auto geometry = make_shared<Geometry>(elements, materials);
+		geometry->name(string(mesh.name));
+		_geometries[meshIndex] = geometry;
+		return geometry;
+	}
+	else {
+		return _geometries[meshIndex];
+	}
 
 	return nullptr;
 }
