@@ -76,14 +76,14 @@ shared_ptr<ae::Scene> GlTFImporter::scene() {
 
 			auto aeScene = make_shared<ae::Scene>();
 
-			auto &scenes = _asset.scenes;
+			auto& scenes = _asset.scenes;
 			if (!scenes.empty()) {
 
 				if (scenes.size() > 1) {
 					AE_LOG_W("Ignoring extra scenes.");
 				}
 
-				auto &scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
+				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
 
 				auto nodeIndicies = scene.nodeIndices;
 				if (!nodeIndicies.empty()) {
@@ -122,7 +122,7 @@ shared_ptr<Geometry> GlTFImporter::firstGeometry() {
 
 		auto startTime = Scene::Time();
 
-		auto &meshes = _asset.meshes;
+		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
 
 			geometry = geometryFromGlFTMeshIndex(_asset, 0);
@@ -183,9 +183,9 @@ bool GlTFImporter::parse() {
 
 		if (auto error = expectedAsset.error(); error == Error::None) {
 
-			auto &asset = expectedAsset.get();
+			auto& asset = expectedAsset.get();
 
-			if (auto &info = asset.assetInfo) {
+			if (auto& info = asset.assetInfo) {
 				AE_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
 						 info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
 			}
@@ -248,12 +248,12 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTMeshIndex(fastgltf::Asset& as
 	if (auto existing = _geometries.find(meshIndex)
 			; existing == _geometries.end()) {
 
-		auto &mesh = asset.meshes[meshIndex];
+		auto& mesh = asset.meshes[meshIndex];
 
 		auto elements = vector<shared_ptr<GeometryElement>>();
 		auto materials = vector<shared_ptr<Material>>();
 
-		for (auto &primitive: mesh.primitives) {
+		for (auto& primitive: mesh.primitives) {
 
 			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
 			if (element) elements.push_back(element);
@@ -285,7 +285,7 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 	if (primitive.type == PrimitiveType::Triangles) {
 
 		if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
-			auto &indiciesAccessor = asset.accessors[*indiciesAccessorIndex];
+			auto& indiciesAccessor = asset.accessors[*indiciesAccessorIndex];
 
 			vector<Vertex> verts;
 			vector<Face> faces;
@@ -324,9 +324,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto &buffer = asset.buffers[bufferView.bufferIndex];
-						auto &bufferData = buffer.data;
+						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+						auto& buffer = asset.buffers[bufferView.bufferIndex];
+						auto& bufferData = buffer.data;
 
 						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
@@ -375,9 +375,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto &buffer = asset.buffers[bufferView.bufferIndex];
-						auto &bufferData = buffer.data;
+						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+						auto& buffer = asset.buffers[bufferView.bufferIndex];
+						auto& bufferData = buffer.data;
 
 						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
@@ -426,9 +426,9 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 					auto componentType = accessor.componentType;
 					if (componentType == ComponentType::Float) {
 
-						auto &bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto &buffer = asset.buffers[bufferView.bufferIndex];
-						auto &bufferData = buffer.data;
+						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+						auto& buffer = asset.buffers[bufferView.bufferIndex];
+						auto& bufferData = buffer.data;
 
 						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
 
@@ -485,20 +485,19 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 		if (auto existing = _materials.find(*materialIndex)
 				; existing == _materials.end()) {
 
-			auto &material = asset.materials[*materialIndex];
+			auto& material = asset.materials[*materialIndex];
 
 			shared_ptr<ae::Material> aeMaterial = nullptr;
 
 			// ambient, diffuse
 
-			if (auto &pbrData = material.pbrData
+			if (auto& pbrData = material.pbrData
 					; pbrData.baseColorTexture) {
 
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
-				auto &texture = asset.textures[baseColorTextureIndex];
+				auto& texture = asset.textures[baseColorTextureIndex];
 
-				if (auto aeImage = imageFromGlTFTexture(asset, texture)
-						; aeImage) {
+				if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
 					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
 					aeProperty->contents(aeImage);
 
@@ -611,7 +610,7 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 		if (auto existing = _images.find(*imageIndex)
 				; existing == _images.end()) {
 
-			auto &image = asset.images[*imageIndex];
+			auto& image = asset.images[*imageIndex];
 
 			shared_ptr<Image> aeImage = nullptr;
 
@@ -625,7 +624,7 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
 				auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-				auto &bufferView = asset.bufferViews[bufferViewIndex];
+				auto& bufferView = asset.bufferViews[bufferViewIndex];
 
 				if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
 
@@ -823,7 +822,6 @@ mat4 TransformFromGlFTNode(fastgltf::Node& node) {
 								   trs.scale[2] });
 
 		return t * r * s;
-
 	}
 	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
 

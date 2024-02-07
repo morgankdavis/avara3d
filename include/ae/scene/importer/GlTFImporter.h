@@ -21,10 +21,8 @@
 
 namespace fastgltf {
 	class Asset;
-//	class GltfDataBuffer;
 	class Mesh;
 	class Node;
-//	class Parser;
 	class Primitive;
 	class Texture;
 }
@@ -82,9 +80,6 @@ namespace ae {
 															  fastgltf::Node& node);
 
 		bool														_parsed;
-//		std::unique_ptr<fastgltf::GltfDataBuffer>					_bufferData;
-//		std::unique_ptr<fastgltf::Parser>							_parser;
-//		std::unique_ptr<fastgltf::Asset>							_asset;
 		fastgltf::Asset												_asset;
 
 		std::shared_ptr<Scene> 										_scene;

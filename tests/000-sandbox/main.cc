@@ -45,6 +45,11 @@ constexpr bool					DARK =					true;
 std::shared_ptr<ae::Logger>		logger;
 
 
+shared_ptr<Node>				geometryNode;
+shared_ptr<Geometry> 			geometry;
+vector<shared_ptr<Geometry>> 	geometries;
+
+
 int main(int argc, const char* argv[]) {
 
 	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
@@ -159,19 +164,19 @@ int main(int argc, const char* argv[]) {
 
 
 //	{
-//		{
-//			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
-//			pointLight->attenuationFactor(0);
-//			auto pointLightNode = Node::LightNode(pointLight);
-//			pointLightNode->position({5, 5, 0});
-//			scene->rootNode()->addChild(pointLightNode);
-//
-//			auto sphere = make_shared<Sphere>(0.1f, 12);
-//			auto property = make_shared<MaterialProperty>(pointLight->color());
-//			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-//			sphere->addMaterial(material);
-//			pointLightNode->geometry(sphere);
-//		}
+		{
+			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+			pointLight->attenuationFactor(0);
+			auto pointLightNode = Node::LightNode(pointLight);
+			pointLightNode->position({5, 5, 0});
+			scene->rootNode()->addChild(pointLightNode);
+
+			auto sphere = make_shared<Sphere>(0.1f, 12);
+			auto property = make_shared<MaterialProperty>(pointLight->color());
+			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+			sphere->addMaterial(material);
+			pointLightNode->geometry(sphere);
+		}
 //
 //		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
 //		auto testGeometry = GeometryNamed("slurm/slurm");
@@ -200,17 +205,64 @@ int main(int argc, const char* argv[]) {
 //		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
 //		auto testGeometry = GeometryNamed("crocus/crocus");
 
-	auto testGeometry = GeometryNamed("rubber_duck_gltf/rubber_duck");
+
+	geometries = vector<shared_ptr<Geometry>>{
+			GeometryNamed("apple_lod/apple_lod"),
+			GeometryNamed("banana_lod/banana_lod"),
+			GeometryNamed("cardboard_box/cardboard_box"),
+			GeometryNamed("cartoon_palm_tree/cartoon_palm_tree"),
+			GeometryNamed("cherries_lod/cherries_lod"),
+			GeometryNamed("crocus/crocus"),
+			GeometryNamed("dragon/dragon"),
+			GeometryNamed("island/island"),
+			GeometryNamed("orange_lod/orange_lod"),
+			GeometryNamed("pallet/pallet"),
+			GeometryNamed("palm/palm"),
+			GeometryNamed("palms/palms"),
+			GeometryNamed("pear_lod/pear_lod"),
+			GeometryNamed("pineapple_lod/pineapple_lod"),
+			GeometryNamed("rubber_duck/rubber_duck"),
+			GeometryNamed("siamese/siamese"),
+			GeometryNamed("slurm/slurm"),
+			GeometryNamed("teapot/teapot"),
+			GeometryNamed("tuna/tuna")
+		};
+
+//	auto testGeometry = GeometryNamed("apple_lod/apple_lod");
+//	auto testGeometry = GeometryNamed("banana_lod/banana_lod");
+//	auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
+//	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
+//	auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
+//	auto testGeometry = GeometryNamed("crocus/crocus");
+//	auto testGeometry = GeometryNamed("dragon/dragon");
+//	auto testGeometry = GeometryNamed("island/island");
+//	auto testGeometry = GeometryNamed("orange_lod/orange_lod");
+//	auto testGeometry = GeometryNamed("pallet/pallet");
+//	auto testGeometry = GeometryNamed("palm/palm");
+//	auto testGeometry = GeometryNamed("palms/palms");
+//	auto testGeometry = GeometryNamed("pear_lod/pear_lod");
+//	auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
+//	auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
+//	auto testGeometry = GeometryNamed("siamese/siamese");
+//	auto testGeometry = GeometryNamed("slurm/slurm");
+//	auto testGeometry = GeometryNamed("teapot/teapot");
+//	auto testGeometry = GeometryNamed("tuna/tuna");
+	// -> 19
+
+
+	auto geometry = geometries[0];
+	geometryNode = Node::GeometryNode(geometry);
+	geometryNode->position({0, 5, 0});
+	scene->rootNode()->addChild(geometryNode);
 
 
 //		for (auto &m: testGeometry->materials()) {
 //			m->doubleSided(true);
 //		}
-		auto testNode = Node::GeometryNode(testGeometry);
-//		testNode->position({0, 5, 0});
-
-		scene->rootNode()->addChild(testNode);
-//	}
+//		auto testNode = Node::GeometryNode(testGeometry);
+////		testNode->position({0, 5, 0});
+//		scene->rootNode()->addChild(testNode);
+////	}
 
 
 
@@ -350,6 +402,30 @@ void UpdateCallback(Scene& scene, float time) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[2]);
 	}
+
+
+
+
+
+//	auto it = find(geometries.begin(), geometries.end(), geometry);
+//	int x = std::distance(geometries, it);
+	static int index = 0;
+	if (keysPressed.count(KEY::LEFT_BRACKET)) {
+		geometry = geometries[--index];
+		auto name = geometry->name();
+		if (name) AE_LOG_D("name: {}", *name);
+		//geometryNode = Node::GeometryNode(geometry);
+		geometryNode->geometry(geometry);
+	}
+	if (keysPressed.count(KEY::RIGHT_BRACKET)) {
+		geometry = geometries[++index];
+		auto name = geometry->name();
+		if (name) AE_LOG_D("name: {}", *name);
+		//geometryNode = Node::GeometryNode(geometry);
+		geometryNode->geometry(geometry);
+	}
+
+
 
 
 	if (keysPressed.count(KEY::F)) {
