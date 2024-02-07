@@ -90,7 +90,14 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
+//	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
+//	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+//	scene->update(bind(&UpdateCallback, _1, _2));
+
+	auto scene = SceneNamed("cat_island/cat_island", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS);
+	scene->visualWorld(visualWorld);
+	scene->inputManager(inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
@@ -104,61 +111,64 @@ int main(int argc, const char* argv[]) {
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
 	pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(50.0, 50.0, 50.0));
+//	pointLightNode->position({50.0, 50.0, 50.0});
 	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position(vec3(0.0, 0.0, 0.0));
-	pointLightNode = pointLightNode;
+//	pointLightNode->position({0.0, 0.0, 0.0});
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
+	//auto geometry = make_shared<Sphere>(3.5, 16);
+	auto geometry = make_shared<Sphere>(2, 16);
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
-				make_shared<OrthographicCamera>("Ortho camera", (AABB){vec3{0, 0, 0},
-																	   vec3{100, 100, 100}}));
+				make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
+																	   {100, 100, 100}}));
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
-	siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
-	siameseNode->scale(siameseNode->scale() * 6.97f);
-	siameseNode->position(vec3(-13.5, -64.5, 0));
-	scene->rootNode()->addChild(siameseNode);
 
-	auto islandNode = Node::GeometryNode(GeometryNamed("island/island"));
-	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
-	scene->rootNode()->addChild(islandNode);
 
-	palletNode = Node::GeometryNode(GeometryNamed("pallet/pallet"));
-	palletNode->position({-65.5, -63, -3.5});
-	palletNode->scale({24.2792, 24.2792, 24.2792});
-	palletNode->eulerAngles({3.14158, 2.52807, -1.22138});
-	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
-	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
-	scene->rootNode()->addChild(palletNode);
 
-	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna/tuna"));
-	tunaNode->position({-10.5, -71.25, 20});
-	tunaNode->scale({4.1521, 4.1521, 4.1521});
-	tunaNode->eulerAngles({8.63111e-05, -0.523707, 1.5702});
-	scene->rootNode()->addChild(tunaNode);
-
-	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
-	palmsNode->position(vec3(0.0f, -72.0f, 0.0f));
-	palmsNode->scale(palmsNode->scale() * 2.5f);
-	palmsNode->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
-	scene->rootNode()->addChild(palmsNode);
-
-	for (auto n : palmsNode->children(true)) {
-		if (n->geometry()) {
-			for (auto m : n->geometry()->materials()) {
-				m->doubleSided(true);
-			}
-		}
-	}
+//	siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
+//	siameseNode->scale(siameseNode->scale() * 6.97f);
+//	siameseNode->position(vec3(-13.5, -64.5, 0));
+//	scene->rootNode()->addChild(siameseNode);
+//
+//	auto islandNode = Node::GeometryNode(GeometryNamed("island/island"));
+//	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
+//	scene->rootNode()->addChild(islandNode);
+//
+//	palletNode = Node::GeometryNode(GeometryNamed("pallet/pallet"));
+//	palletNode->position({-65.5, -63, -3.5});
+//	palletNode->scale({24.2792, 24.2792, 24.2792});
+//	palletNode->eulerAngles({3.14158, 2.52807, -1.22138});
+//	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
+//	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
+//	scene->rootNode()->addChild(palletNode);
+//
+//	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna/tuna"));
+//	tunaNode->position({-10.5, -71.25, 20});
+//	tunaNode->scale({4.1521, 4.1521, 4.1521});
+//	tunaNode->eulerAngles({8.63111e-05, -0.523707, 1.5702});
+//	scene->rootNode()->addChild(tunaNode);
+//
+//	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
+//	palmsNode->position(vec3(0.0f, -72.0f, 0.0f));
+//	palmsNode->scale(palmsNode->scale() * 2.5f);
+//	palmsNode->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
+//	scene->rootNode()->addChild(palmsNode);
+//
+//	for (auto n : palmsNode->children(true)) {
+//		if (n->geometry()) {
+//			for (auto m : n->geometry()->materials()) {
+//				m->doubleSided(true);
+//			}
+//		}
+//	}
 
 
 	// random lights
@@ -342,7 +352,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 	if (keysPressed.count(KEY::FORWARD_DELETE)) {
-		palletNode->geometry(nullptr);
+		scene.paused(!scene.paused());
 	}
 
 	if (keysPressed.count(KEY::END)) {
@@ -455,10 +465,15 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (pointLightNode) {
 
-		auto center = vec3(0, -75, 0);
+		//auto center = vec3(0, -75, 0);
+		auto center = vec3(0, 20, 0);
 
-		static float radiusX = 100.0;
-		static float radiusY = 100.0;
+		static auto extent = scene.rootNode()->extent();
+		static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .5;
+		static float radiusX = radius;
+		static float radiusY = radius;
+//		static float radiusX = 50.0;
+//		static float radiusY = 50.0;
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
