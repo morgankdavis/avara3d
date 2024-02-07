@@ -167,7 +167,7 @@ namespace ae {
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
-													 const DEBUG_OPTIONS& debugOptions,
+													 const DebugOptions& debugOptions,
 													 Stats& stats);
 
 		void									_debugPrint();

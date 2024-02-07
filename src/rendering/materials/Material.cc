@@ -68,7 +68,7 @@ Material::Material():
 		_doubleSided(false),
 		_fillMode(FILL_MODE::FILL),
 		_uvScale(1.0f),
-		_blendFunction(BLEND_FUNCTION::DISABLED),
+		_blendFunction(BlendFunction::Disabled),
 		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
 
 	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
@@ -194,11 +194,11 @@ void Material::uvScale(float scale) {
 	_uvScale = scale;
 }
 
-BLEND_FUNCTION Material::blendFunction() const {
+BlendFunction Material::blendFunction() const {
 	return _blendFunction;
 }
 
-void Material::blendFunction(BLEND_FUNCTION function) {
+void Material::blendFunction(BlendFunction function) {
 	_blendFunction = function;
 }
 

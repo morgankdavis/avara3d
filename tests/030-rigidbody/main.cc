@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
 	logger = make_shared<Logger>("test-030", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderApi::OpenGL,
+	auto window = make_shared<Window>(RenderApi::OpenGl,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -106,20 +106,20 @@ int main(int argc, const char* argv[]) {
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	auto ambientColor = DARK
 						? Color::LightGray()
 						: make_shared<Color>(233, 218, 185); // sunset
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
+	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointColor = DARK
 					  ? Color::LightGray()
 					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
+	auto pointLight = make_shared<Light>(LightType::Point, pointColor);
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = Node::LightNode(pointLight);
 	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0 ) * 35) * vec3(2.5, 2.5, 2.5));
@@ -163,11 +163,11 @@ int main(int argc, const char* argv[]) {
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	planeMaterialProperty->wrapS(WRAP_MODE::Repeat);
+	planeMaterialProperty->wrapT(WRAP_MODE::Repeat);
 	planeMaterialProperty->maxAnisotropy(16);
-	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	planeMaterialProperty->minificationFilter(FilterMode::LinearMipmapLinear);
+	planeMaterialProperty->magnificationFilter(FilterMode::Linear);
 	shared_ptr<Material> planeMaterial = nullptr;
 	if (DARK) {
 		planeMaterial = make_shared<Material>(nullptr,
@@ -493,66 +493,66 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 
 		if (keysPressed.count(KEY::F)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_WIREFRAMES));
+														DebugOptions::ShowWireframes));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+													 DebugOptions::ShowWireframes));
 			}
 		}
 		if (keysPressed.count(KEY::B)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+														DebugOptions::ShowBoundingBoxes));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+													 DebugOptions::ShowBoundingBoxes));
 			}
 		}
 		if (keysPressed.count(KEY::I)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+														DebugOptions::ShowStatsOverlay));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+													 DebugOptions::ShowStatsOverlay));
 			}
 		}
 		if (keysPressed.count(KEY::P)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+														DebugOptions::ShowPhysicsBoundingBoxes));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+													 DebugOptions::ShowPhysicsBoundingBoxes));
 			}
 		}
 		if (keysPressed.count(KEY::G)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+														DebugOptions::ShowPhysicsWireframes));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+													 DebugOptions::ShowPhysicsWireframes));
 			}
 		}
 		if (keysPressed.count(KEY::C)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+														DebugOptions::ShowPhysicsContactPoints));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+													 DebugOptions::ShowPhysicsContactPoints));
 			}
 		}
 		if (keysPressed.count(KEY::N)) {
-			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+			if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
 				scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-														DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+														DebugOptions::ShowPhysicsNormals));
 			} else {
 				scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-													 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+													 DebugOptions::ShowPhysicsNormals));
 			}
 		}
 

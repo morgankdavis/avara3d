@@ -46,7 +46,7 @@ int main(int argc, const char* argv[]) {
 	logger = make_shared<Logger>("test-004", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderApi::OpenGL,
+	auto window = make_shared<Window>(RenderApi::OpenGl,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
@@ -174,19 +174,19 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysPressed = scene.inputManager()->keysPressed();
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 

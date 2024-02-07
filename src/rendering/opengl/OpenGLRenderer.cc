@@ -66,7 +66,7 @@ using namespace std;
 
 static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								Node& pointOfView,
-								const DEBUG_OPTIONS& debugOptions,
+								const DebugOptions& debugOptions,
 								Stats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
@@ -92,7 +92,7 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void 		GetMaterialGLTextureHandles(Material& material,
 											   OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
 											   unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
+											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferGeometryElementVertexData(const GeometryElement& element,
 												   Program& program,
 												   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -106,24 +106,24 @@ static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
 static void 		BufferMaterialPropertyTexture(const MaterialProperty& property,
-												 MATERIAL_PROPERTY_TYPE type,
+												 MaterialPropertyType type,
 												 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
-										const DEBUG_OPTIONS& debugOptions);
+										map<MaterialPropertyType, GLuint>& glTextureHandles,
+										const DebugOptions& debugOptions);
 static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
-												MATERIAL_PROPERTY_TYPE type,
+												MaterialPropertyType type,
 												GLuint glTextureHandle,
-												const DEBUG_OPTIONS& debugOptions,
+												const DebugOptions& debugOptions,
 												Program& program);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
 static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
-											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
+											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		SetMaterialOpenGLState(const Material& material,
-										  const DEBUG_OPTIONS& debugOptions);
+										  const DebugOptions& debugOptions);
 static void	 		SetSkyboxOpenGLState();
 static void 		SetLineSetGLState();
 static void 		SetPointSetGLState();
@@ -165,14 +165,14 @@ static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
 static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
-static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
-static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
+static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
+static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
 static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
 static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
 static void 		SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode);
-static GLenum 		GLFilterModeForFilterMode(FILTER_MODE mode);
-static FILTER_MODE 	FilterModeForGLFilterMode(GLenum mode);
+static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
+static FilterMode 	FilterModeForGLFilterMode(GLenum mode);
 static GLenum 		GLWrapModeForWrapMode(WRAP_MODE mode);
 static WRAP_MODE 	WrapModeForGLWrapMode(GLenum mode);
 static void 		CheckGLError();
@@ -315,7 +315,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
-								const DEBUG_OPTIONS& debugOptions,
+								const DebugOptions& debugOptions,
 								Stats& stats) {
 	Renderer::beginFrame(scene, context, debugOptions, stats);
 
@@ -327,11 +327,11 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
-							  const DEBUG_OPTIONS& debugOptions,
+							  const DebugOptions& debugOptions,
 							  Stats& stats) {
 	Renderer::endFrame(scene, context, debugOptions, stats);
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		auto scene = context.visualWorld()->scene();
 		DrawStatsOverlay(stats,
 						 Scene::Time(),
@@ -347,7 +347,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 }
 
 void OpenGLRenderer::render(const Scene& scene,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
 	auto renderContext = scene.visualWorld()->renderContext();
@@ -393,10 +393,10 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
 		// will check dirty bit, and create an AABB lineset if necessary,
 		// and insert into _geometryAABBLineSetMapping
@@ -422,7 +422,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
 	shared_ptr<Program> program = nullptr;
@@ -434,7 +434,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 										  _geometryElementGLMapping,
 										  vbo, vao, ibo);
 
-	auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
+	auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
 	if (wireframe) {
 		program = Program::Wireframe();
@@ -445,7 +445,7 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	
 	// and load material contents if necessary
 
-	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
 	GetMaterialGLTextureHandles(material,
 								_materialPropertyGLMapping,
 								_activeMaterialProperties,
@@ -525,7 +525,7 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Node& pointOfView,
-						 const DEBUG_OPTIONS& debugOptions,
+						 const DebugOptions& debugOptions,
 						 Stats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
@@ -546,17 +546,17 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	
 	// and load material contents if necessary
 	
-	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
 	GetMaterialGLTextureHandles(*material,
 								materialGLMapping,
 								activeProperties,
 								glTextureHandles);
-	auto emissiveGLTextureHandle = glTextureHandles[MATERIAL_PROPERTY_TYPE::EMISSIVE];
+	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emissive];
 	
 	// send material property uniforms
 	
 	SendMaterialPropertyUniforms(*emissiveProperty,
-								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
+								 MaterialPropertyType::Emissive,
 								 emissiveGLTextureHandle,
 								 debugOptions,
 								 *program);
@@ -801,15 +801,15 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
 										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
+										map<MaterialPropertyType, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
 	
 	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
 	
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
+									MaterialPropertyType::Specular, MaterialPropertyType::Emissive};
 	
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
@@ -1049,7 +1049,7 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 }
 	
 static void BufferMaterialPropertyTexture(const MaterialProperty& property,
-										  MATERIAL_PROPERTY_TYPE type,
+										  MaterialPropertyType type,
 										  GLuint& glTextureHandle) {
 	
 	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
@@ -1188,8 +1188,8 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 	
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
-								 const DEBUG_OPTIONS& debugOptions) {
+								 map<MaterialPropertyType, GLuint>& glTextureHandles,
+								 const DebugOptions& debugOptions) {
 	
 	// sends uniforms for the Material, and and MaterialProperties it has
 	
@@ -1203,8 +1203,8 @@ static void SendMaterialUniforms(const Material& material,
 	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
 
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
+									MaterialPropertyType::Specular, MaterialPropertyType::Emissive};
 
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
@@ -1224,9 +1224,9 @@ static void SendMaterialUniforms(const Material& material,
 }
 	
 static void SendMaterialPropertyUniforms(MaterialProperty& property,
-										 MATERIAL_PROPERTY_TYPE type,
+										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
-										 const DEBUG_OPTIONS& debugOptions,
+										 const DebugOptions& debugOptions,
 										 Program& program) {
 	
 	program.use();
@@ -1241,29 +1241,29 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		GLint index;
 
 		switch (type) {
-			case MATERIAL_PROPERTY_TYPE::AMBIENT:
+			case MaterialPropertyType::Ambient:
 				modeUniformName = "ambientMode";
 				samplerUniformName = "samplers.ambient";
 				slot = GL_TEXTURE0; index = 0;
 				break;
-			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
+			case MaterialPropertyType::Diffuse:
 				modeUniformName = "diffuseMode";
 				samplerUniformName = "samplers.diffuse";
 				slot = GL_TEXTURE1; index = 1;
 				break;
-			case MATERIAL_PROPERTY_TYPE::SPECULAR:
+			case MaterialPropertyType::Specular:
 				modeUniformName = "specularMode";
 				samplerUniformName = "samplers.specular";
 				slot = GL_TEXTURE2; index = 2;
 				break;
-			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
+			case MaterialPropertyType::Emissive:
 				modeUniformName = "emissiveMode";
 				samplerUniformName = "samplers.emissive";
 				slot = GL_TEXTURE3; index = 3;
 				break;
 			default:
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
+					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 				return;
 		}
 		
@@ -1280,25 +1280,25 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		string colorUniformName = "";
 
 		switch (type) {
-			case MATERIAL_PROPERTY_TYPE::AMBIENT:
+			case MaterialPropertyType::Ambient:
 				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
-			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
+			case MaterialPropertyType::Diffuse:
 				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
-			case MATERIAL_PROPERTY_TYPE::SPECULAR:
+			case MaterialPropertyType::Specular:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
-			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
+			case MaterialPropertyType::Emissive:
 				modeUniformName = "emissiveMode";
 				colorUniformName = "colors.emissive";
 				break;
 			default:
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
+					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 				return;
 		}
 
@@ -1326,10 +1326,10 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	for (auto node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
 			if (auto light = node->light()) {
-				if (light->type() == LIGHT_TYPE::POINT) {
+				if (light->type() == LightType::Point) {
 					lights.push_back(node);
 				}
-				else if (light->type() == LIGHT_TYPE::AMBIENT) {
+				else if (light->type() == LightType::Ambient) {
 					ambientLightNode = node;
 				}
 			}
@@ -1479,13 +1479,13 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 }
 	
 static void SetMaterialFilteringOptions(const Material& material,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
+										map<MaterialPropertyType, GLuint>& glTextureHandles) {
 	
 	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
 		material.diffuse(), material.specular(), material.emissive()};
 	
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
+									MaterialPropertyType::Specular, MaterialPropertyType::Emissive};
 	
 	for (unsigned p = 0; p<4; ++p) {
 		auto property = properties[p];
@@ -1497,7 +1497,7 @@ static void SetMaterialFilteringOptions(const Material& material,
 }
 	
 static void SetMaterialOpenGLState(const Material& material, 
-								   const DEBUG_OPTIONS& debugOptions) {
+								   const DebugOptions& debugOptions) {
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -1513,7 +1513,7 @@ static void SetMaterialOpenGLState(const Material& material,
 //		glDisable(GL_BLEND);
 //	}
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowPhysicsWireframes)) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 		//glDepthRange(0.1, 1.0);
@@ -1521,7 +1521,7 @@ static void SetMaterialOpenGLState(const Material& material,
 		//		glPolygonOffset(20.0, 0.0);
 	}
 	
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
 		//_program = Program::Wireframe();
 		
 #ifdef OPENGL_DESKTOP
@@ -2050,15 +2050,15 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 //#endif // OPENGL_DESKTOP
 }
 
-static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
+static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
-		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:
-		case FILTER_MODE::NEAREST_MIPMAP_LINEAR:
-		case FILTER_MODE::LINEAR_MIPMAP_NEAREST:
-		case FILTER_MODE::LINEAR_MIPMAP_LINEAR:
+		case FilterMode::NearestMipmapNearest:
+		case FilterMode::NearestMipmapLinear:
+		case FilterMode::LinearMipmapNearest:
+		case FilterMode::LinearMipmapLinear:
 		glGenerateMipmap(texType);
 		break;
 		default:
@@ -2069,13 +2069,13 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILT
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
 
-static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
+static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	switch (mode) {
-		case FILTER_MODE::NEAREST:
-		case FILTER_MODE::LINEAR:
+		case FilterMode::Nearest:
+		case FilterMode::Linear:
 		glBindTexture(texType, glTextureHandle);
 		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 		break;
@@ -2121,33 +2121,33 @@ static void SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode) {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GLWrapModeForWrapMode(mode));
 }
 
-static GLenum GLFilterModeForFilterMode(FILTER_MODE mode) {
+static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
-		case FILTER_MODE::NEAREST: 					return GL_NEAREST;
-		case FILTER_MODE::LINEAR: 					return GL_LINEAR;
-		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FILTER_MODE::LINEAR_MIPMAP_NEAREST: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FILTER_MODE::NEAREST_MIPMAP_LINEAR: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FILTER_MODE::LINEAR_MIPMAP_LINEAR: 	return GL_LINEAR_MIPMAP_LINEAR; }
+		case FilterMode::Nearest: 					return GL_NEAREST;
+		case FilterMode::Linear: 					return GL_LINEAR;
+		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
+static FilterMode FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 							return FILTER_MODE::LINEAR;
-		case GL_NEAREST_MIPMAP_NEAREST:				return FILTER_MODE::NEAREST_MIPMAP_NEAREST;
-		case GL_LINEAR_MIPMAP_NEAREST: 				return FILTER_MODE::LINEAR_MIPMAP_NEAREST;
-		case GL_NEAREST_MIPMAP_LINEAR: 				return FILTER_MODE::NEAREST_MIPMAP_LINEAR;
-		case GL_LINEAR_MIPMAP_LINEAR: 				return FILTER_MODE::LINEAR_MIPMAP_LINEAR;
-		default: /* GL_NEAREST */					return FILTER_MODE::NEAREST; }
+		case GL_LINEAR: 							return FilterMode::Linear;
+		case GL_NEAREST_MIPMAP_NEAREST:				return FilterMode::NearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: 				return FilterMode::LinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: 				return FilterMode::NearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: 				return FilterMode::LinearMipmapLinear;
+		default: /* GL_NEAREST */					return FilterMode::Nearest; }
 }
 
 static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
 	switch (mode) {
-		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
+		case WRAP_MODE::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef OPENGL_DESKTOP
 //		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
 //#endif
-		case WRAP_MODE::REPEAT:						return GL_REPEAT;
+		case WRAP_MODE::Repeat:						return GL_REPEAT;
         default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
 }
 
@@ -2156,9 +2156,9 @@ static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
 //#ifdef OPENGL_DESKTOP
 //		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
 //#endif
-		case GL_REPEAT:								return WRAP_MODE::REPEAT;
-		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_EDGE; }
+		case GL_REPEAT:								return WRAP_MODE::Repeat;
+		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MirroredRepeat;
+		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::ClampToEdge; }
 }
 
 static void CheckGLError() {

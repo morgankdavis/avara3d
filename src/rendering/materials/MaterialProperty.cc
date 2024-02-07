@@ -30,11 +30,11 @@ using namespace std;
 
 MaterialProperty::MaterialProperty():
 		_contents(nullptr),
-		_wrapS(WRAP_MODE::REPEAT),
-		_wrapT(WRAP_MODE::REPEAT),
-		_wrapR(WRAP_MODE::REPEAT),
-		_minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR),
-		_magnificationFilter(FILTER_MODE::LINEAR),
+		_wrapS(WRAP_MODE::Repeat),
+		_wrapT(WRAP_MODE::Repeat),
+		_wrapR(WRAP_MODE::Repeat),
+		_minificationFilter(FilterMode::LinearMipmapLinear),
+		_magnificationFilter(FilterMode::Linear),
 		_maxAnisotropy(16),
 		_dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK::ALL) {
 	
@@ -73,22 +73,22 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 												  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS);
 }
 
-FILTER_MODE MaterialProperty::minificationFilter() const {
+FilterMode MaterialProperty::minificationFilter() const {
 	return _minificationFilter;
 }
 
-void MaterialProperty::minificationFilter(FILTER_MODE mode) {
+void MaterialProperty::minificationFilter(FilterMode mode) {
 	_minificationFilter = mode;
 
 	_dirtyMask = MATERIAL_PROPERTY_DIRTY_MASK_ADD(_dirtyMask,
 												  MATERIAL_PROPERTY_DIRTY_MASK::MINIFICATION_FILTER);
 }
 
-FILTER_MODE MaterialProperty::magnificationFilter() const {
+FilterMode MaterialProperty::magnificationFilter() const {
 	return _magnificationFilter;
 }
 
-void MaterialProperty::magnificationFilter(FILTER_MODE mode) {
+void MaterialProperty::magnificationFilter(FilterMode mode) {
 	_magnificationFilter = mode;
 
 	_dirtyMask = MATERIAL_PROPERTY_DIRTY_MASK_ADD(_dirtyMask,

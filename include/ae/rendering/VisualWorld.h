@@ -93,7 +93,7 @@ namespace ae {
 													 const PhysicalWorld* physicalWorld,
 													 double runT,
 													 double deltaRunT,
-													 DEBUG_OPTIONS debugOptions,
+													 DebugOptions debugOptions,
 													 Stats& stats);
 
 		std::shared_ptr<Geometry>				skyboxGeometry() const;

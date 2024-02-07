@@ -77,7 +77,7 @@ Scene::Scene():
 		_visualWorld(nullptr),
 		_physicalWorld(nullptr),
 		_inputManager(nullptr),
-		_debugOptions(DEBUG_OPTIONS::NONE),
+		_debugOptions(DebugOptions::None),
 		_stats({}),
 		_running(false),
 		_paused(false),
@@ -205,11 +205,11 @@ void Scene::inputManager(shared_ptr<InputManager> inputManager) {
 	}
 }
 
-DEBUG_OPTIONS Scene::debugOptions() const {
+DebugOptions Scene::debugOptions() const {
 	return _debugOptions;
 }
 
-void Scene::debugOptions(DEBUG_OPTIONS options) {
+void Scene::debugOptions(DebugOptions options) {
 
 #ifdef OPENGL_ES
 	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {

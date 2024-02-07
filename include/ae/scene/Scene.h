@@ -78,8 +78,8 @@ namespace ae {
 		std::shared_ptr<InputManager> 			inputManager() const;
 		void 									inputManager(std::shared_ptr<InputManager> inputManager);
 
-		DEBUG_OPTIONS 							debugOptions() const;
-		void 									debugOptions(DEBUG_OPTIONS options);
+		DebugOptions 							debugOptions() const;
+		void 									debugOptions(DebugOptions options);
 
 		void									run();
 		void									stop();
@@ -110,7 +110,7 @@ namespace ae {
 		std::shared_ptr<VisualWorld> 			_visualWorld;
 		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
 		std::shared_ptr<InputManager>			_inputManager;
-		DEBUG_OPTIONS							_debugOptions;
+		DebugOptions							_debugOptions;
 		bool									_running;
 		bool									_paused;
 		Stats									_stats;

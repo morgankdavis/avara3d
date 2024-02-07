@@ -48,7 +48,7 @@ namespace ae {
 		virtual void 	drawDebug(Renderer &renderer,
 								  const glm::mat4 &viewMat,
 								  const glm::mat4 &projectionMat,
-								  const DEBUG_OPTIONS &debugOptions) = 0;
+								  const DebugOptions &debugOptions) = 0;
 	};
 }
 

@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
 
-	auto window = make_shared<Window>(RenderApi::OpenGL,
+	auto window = make_shared<Window>(RenderApi::OpenGl,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -68,18 +68,18 @@ int main(int argc, const char* argv[]) {
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
-	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);
+	DebugOptions debugOptions = DebugOptions::None;
+	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
+	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
 	scene->debugOptions(debugOptions);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>("Ambient light");
 	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 	pointLight->attenuationFactor(0.0000015);
 	auto pointLightNode = make_shared<Node>();
 	pointLightNode->light(pointLight);
@@ -139,33 +139,33 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_WIREFRAMES));
+													DebugOptions::ShowWireframes));
 		}
 		else {
 			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+												 DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+													DebugOptions::ShowBoundingBoxes));
 		}
 		else {
 			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+												 DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+													DebugOptions::ShowStatsOverlay));
 		}
 		else {
 			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+												 DebugOptions::ShowStatsOverlay));
 		}
 	}
 

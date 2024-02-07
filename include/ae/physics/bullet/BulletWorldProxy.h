@@ -57,7 +57,7 @@ namespace ae {
 		void 	drawDebug(Renderer &renderer,
 						  const glm::mat4 &viewMat,
 						  const glm::mat4 &projectionMat,
-						  const DEBUG_OPTIONS &debugOptions) override;
+						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
 	Internal

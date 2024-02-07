@@ -51,11 +51,11 @@ RenderContext::RenderContext(RenderApi renderAPI):
 		_visualWorld(nullptr) {
 
 	switch (_renderAPI) {
-		case RenderApi::OpenGL: {
+		case RenderApi::OpenGl: {
 			auto renderer = make_shared<OpenGLRenderer>();
 			_renderer = static_pointer_cast<Renderer>(renderer);
 			break; }
-		case RenderApi::OpenGLES: {
+		case RenderApi::OpenGlEs: {
 			throw Exception("Unsupported render API: OPENGL_ES");
 			break; }
 		case RenderApi::Vulkan: {

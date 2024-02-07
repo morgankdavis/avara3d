@@ -28,7 +28,7 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
-void SetAllFilterModes(FILTER_MODE mode, Scene& scene);
+void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed);
 
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
 	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderApi::OpenGL,
+	auto window = make_shared<Window>(RenderApi::OpenGl,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -80,16 +80,16 @@ int main(int argc, const char* argv[]) {
 													 | SceneImportOptions::ImportCameras);
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
 	pointLightNode = Node::LightNode(pointLight);
@@ -170,12 +170,12 @@ void UpdateCallback(Scene& scene, float time) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
-	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, scene);
-	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, scene);
-	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, scene);
-	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
+	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FilterMode::Nearest, scene);
+	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FilterMode::Linear, scene);
+	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
+	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FilterMode::NearestMipmapLinear, scene);
+	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FilterMode::LinearMipmapNearest, scene);
+	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
 
 	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
 	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
@@ -185,29 +185,29 @@ void UpdateCallback(Scene& scene, float time) {
 	else if (keysPressed.count(KEY::F3)) 	pointLightNode->light()->attenuationFactor(0.00005);
 
 	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 
 	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 
 	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 	}
 
@@ -350,7 +350,7 @@ void DidRenderCallback(VisualWorld& world, float time) {
 	Static
  ***************************************************************************************/
 
-void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
+void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
 

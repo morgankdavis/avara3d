@@ -84,28 +84,28 @@ namespace ae {
 
 		void 						beginFrame(const Scene& scene,
 											   const RenderContext& context,
-											   const DEBUG_OPTIONS& debugOptions,
+											   const DebugOptions& debugOptions,
 											   Stats& stats) override;
 		void 						endFrame(const Scene& scene,
 											 const RenderContext& context,
-											 const DEBUG_OPTIONS& debugOptions,
+											 const DebugOptions& debugOptions,
 											 Stats& stats) override;
 
 		void 						render(const Scene& scene,
-										   const DEBUG_OPTIONS& debugOptions,
+										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
 		void 						render(std::shared_ptr<Geometry> geometry,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
-										   const DEBUG_OPTIONS& debugOptions,
+										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
 		void 						render(std::shared_ptr<GeometryElement> element,
 										   Material& material,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
-										   const DEBUG_OPTIONS& debugOptions,
+										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
 		void 						render(std::shared_ptr<LineSet> lines,
 										   const glm::mat4& modelMat,

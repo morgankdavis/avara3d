@@ -78,8 +78,8 @@ namespace ae {
 	};
 
 	enum class RenderApi {
-		OpenGL,
-		OpenGLES,
+		OpenGl,
+		OpenGlEs,
 		Vulkan
 	};
 
@@ -135,87 +135,69 @@ namespace ae {
 		float z;
 	} Extent;
 
-	enum class MATERIAL_PROPERTY_TYPE {
-		AMBIENT,
-		DIFFUSE,
-		SPECULAR,
-		EMISSIVE
+	enum class MaterialPropertyType {
+		Ambient,
+		Diffuse,
+		Specular,
+		Emissive
 	};
 
-	enum class FILTER_MODE : unsigned {
-		NEAREST = 					0x2600,
-		LINEAR = 					0x2601,
-		NEAREST_MIPMAP_NEAREST = 	0x2700,
-		LINEAR_MIPMAP_NEAREST = 	0x2701,
-		NEAREST_MIPMAP_LINEAR = 	0x2702,
-		LINEAR_MIPMAP_LINEAR = 		0x2703
+	enum class FilterMode : unsigned {
+		Nearest = 				0x2600,
+		Linear = 				0x2601,
+		NearestMipmapNearest = 	0x2700,
+		LinearMipmapNearest = 	0x2701,
+		NearestMipmapLinear = 	0x2702,
+		LinearMipmapLinear = 	0x2703
 	};
 
 	enum class WRAP_MODE : unsigned {
-		REPEAT = 			0x2901,
-		MIRRORED_REPEAT = 	0x8370,
-		CLAMP_TO_EDGE = 	0x812F
-//		CLAMP_TO_BORDER,
+		Repeat = 			0x2901,
+		MirroredRepeat = 	0x8370,
+		ClampToEdge = 		0x812F
 	};
 
-//	enum class FILTER_MODE {
-//		NEAREST,
-//		LINEAR,
-//		NEAREST_MIPMAP_NEAREST,
-//		LINEAR_MIPMAP_NEAREST,
-//		NEAREST_MIPMAP_LINEAR,
-//		LINEAR_MIPMAP_LINEAR
+	enum class BlendFunction {
+		Disabled
+	};
+
+	enum class LightType {
+		Ambient,
+		Point,
+		Directional,
+		Spot
+	};
+
+	enum DebugOptions : unsigned {
+		None =							0,
+		ShowStatsOverlay = 				1 << 0,
+		ShowBoundingBoxes = 			1 << 1,
+		ShowWireframes = 				1 << 2,
+		ShowCameras = 					1 << 3,
+		ShowLights = 					1 << 4,
+		ShowLightExtents = 				1 << 5,
+		ShowPhysicsBoundingBoxes = 		1 << 6,
+		ShowPhysicsWireframes = 		1 << 7,
+		ShowPhysicsContactPoints = 		1 << 8,
+		ShowPhysicsNormals = 			1 << 9,
+		ShowPhysicsConstraints =		1 << 10,
+		ShowPhysicsConstraintLimits	=	1 >> 11
+	};
+	
+#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<underlying_type<DebugOptions>::type>(options) & static_cast<underlying_type<DebugOptions>::type>(option))
+#define DEBUG_OPTIONS_ADD(options, option) (static_cast<DebugOptions>(static_cast<underlying_type<DebugOptions>::type>(options) | static_cast<underlying_type<DebugOptions>::type>(option)))
+#define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DebugOptions>(static_cast<underlying_type<DebugOptions>::type>(options) & ~ static_cast<underlying_type<DebugOptions>::type>(option)))
+	
+//	enum class LoggerSink : unsigned {
+//		None =			0,
+//		MainFile =		1 << 0,
+//		NamedFile =		1 << 1,
+//		Native = 		1 << 2 // stdout, android console, ...
 //	};
-//
-//	enum class WRAP_MODE {
-//		CLAMP_TO_EDGE,
-//		CLAMP_TO_BORDER,
-//		REPEAT,
-//		MIRRORED_REPEAT
-//	};
-
-	enum class BLEND_FUNCTION {
-		DISABLED,
-		THING
-	};
-
-	enum class LIGHT_TYPE {
-		AMBIENT,
-		POINT,
-		DIRECTIONAL,
-		SPOT
-	};
-
-	enum DEBUG_OPTIONS : unsigned {
-		NONE =								0,
-		SHOW_STATS_OVERLAY = 				1 << 0,
-		SHOW_BOUNDING_BOXES = 				1 << 1,
-		SHOW_WIREFRAMES = 					1 << 2,
-		SHOW_CAMERAS = 						1 << 3,
-		SHOW_LIGHTS = 						1 << 4,
-		SHOW_LIGHT_EXTENTS = 				1 << 5,
-		SHOW_PHYSICS_BOUNDING_BOXES = 		1 << 6,
-		SHOW_PHYSICS_WIREFRAMES = 			1 << 7,
-		SHOW_PHYSICS_CONTACT_POINTS = 		1 << 8,
-		SHOW_PHYSICS_NORMALS = 				1 << 9,
-		SHOW_PHYSICS_CONSTRAINTS =			1 << 10,
-		SHOW_PHYSICS_CONSTRAINT_LIMITS	=	1 >> 11
-	};
 	
-#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) & static_cast<underlying_type<DEBUG_OPTIONS>::type>(option))
-#define DEBUG_OPTIONS_ADD(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) | static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
-#define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DEBUG_OPTIONS>(static_cast<underlying_type<DEBUG_OPTIONS>::type>(options) & ~ static_cast<underlying_type<DEBUG_OPTIONS>::type>(option)))
-	
-	enum class LOGGER_SINK : unsigned {
-		NONE =			0,
-		MAIN_FILE =		1 << 0,
-		NAMED_FILE =	1 << 1,
-		NATIVE = 		1 << 2 // stdout, android console, ...
-	};
-	
-#define LOGGER_SINK_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & static_cast<underlying_type<LOGGER_SINK>::type>(sink))
-#define LOGGER_SINK_ADD(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) | static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
-#define LOGGER_SINK_REMOVE(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
+//#define LOGGER_SINK_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & static_cast<underlying_type<LOGGER_SINK>::type>(sink))
+//#define LOGGER_SINK_ADD(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) | static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
+//#define LOGGER_SINK_REMOVE(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
 
 	enum class PHYSICS_BODY_TYPE : unsigned {
 		STATIC =	0,

@@ -29,7 +29,7 @@ constexpr unsigned MAX_SUBSTEPS = 0; // move
 	Static Prototypes
  *********************************************************************************************/
 
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
+static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DebugOptions& options);
 
 /*********************************************************************************************
 	Lifecycle
@@ -190,7 +190,7 @@ void BulletWorldProxy::updateCollisionPairs() {
 void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const glm::mat4 &viewMat,
 								 const glm::mat4 &projectionMat,
-								 const DEBUG_OPTIONS &debugOptions) {
+								 const DebugOptions &debugOptions) {
 
 #ifdef OPENGL_DESKTOP
 	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
@@ -220,25 +220,25 @@ BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 	Static
  *********************************************************************************************/
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
+btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsWireframes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsContactPoints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsNormals)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsConstraints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
+	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsConstraintLimits)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
 	}
 

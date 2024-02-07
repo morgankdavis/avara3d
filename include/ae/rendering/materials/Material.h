@@ -84,8 +84,8 @@ namespace ae {
 		float 									uvScale() const;
 		void 									uvScale(float scale);
 
-		BLEND_FUNCTION							blendFunction() const;
-		void 									blendFunction(BLEND_FUNCTION function);
+		BlendFunction							blendFunction() const;
+		void 									blendFunction(BlendFunction function);
 		
 /*********************************************************************************************
 	Internal
@@ -112,7 +112,7 @@ namespace ae {
 		bool 									_doubleSided;
 		FILL_MODE 								_fillMode;
 		float 									_uvScale;
-		BLEND_FUNCTION							_blendFunction;
+		BlendFunction							_blendFunction;
 
 		MATERIAL_DIRTY_MASK						_dirtyMask;
 	};

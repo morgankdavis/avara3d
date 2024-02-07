@@ -84,7 +84,7 @@ namespace ae {
 														 const glm::mat4& modelMat,
 														 const glm::mat4& viewMat,
 														 const glm::mat4& projectionMat,
-														 const DEBUG_OPTIONS& debugOptions,
+														 const DebugOptions& debugOptions,
 														 Stats& stats);
 
 		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;

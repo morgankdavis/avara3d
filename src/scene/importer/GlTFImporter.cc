@@ -680,10 +680,10 @@ shared_ptr<MaterialProperty> GlTFImporter::materialPropertyFromGlTFTexture(fastg
 		auto sampler = asset.samplers[*samplerIndex];
 
 		if (sampler.minFilter) {
-			aeProperty->minificationFilter(FILTER_MODE(*sampler.minFilter));
+			aeProperty->minificationFilter(FilterMode(*sampler.minFilter));
 		}
 		if (sampler.magFilter) {
-			aeProperty->magnificationFilter(FILTER_MODE(*sampler.magFilter));
+			aeProperty->magnificationFilter(FilterMode(*sampler.magFilter));
 		}
 		aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
 		aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
@@ -705,7 +705,7 @@ shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 			if (type == fastgltf::LightType::Point) {
 
-				auto aeLight = make_shared<Light>(LIGHT_TYPE::POINT);
+				auto aeLight = make_shared<Light>(LightType::Point);
 
 				aeLight->name(string(light.name));
 				aeLight->attenuationFactor(0); // temporary

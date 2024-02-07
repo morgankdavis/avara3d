@@ -880,7 +880,7 @@ vec3 Node::extent() {
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
-				const DEBUG_OPTIONS& debugOptions,
+				const DebugOptions& debugOptions,
 				Stats& stats) {
 
 	if (_geometry && !_hidden) {

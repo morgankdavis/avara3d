@@ -53,11 +53,11 @@ namespace ae {
 		std::shared_ptr<MaterialPropertyContents> 	contents() const;
 		void										contents(const std::shared_ptr<MaterialPropertyContents> contents);
 
-		FILTER_MODE 								minificationFilter() const;
-		void 										minificationFilter(FILTER_MODE mode);
+		FilterMode 								minificationFilter() const;
+		void 										minificationFilter(FilterMode mode);
 		
-		FILTER_MODE 								magnificationFilter() const;
-		void 										magnificationFilter(FILTER_MODE mode);
+		FilterMode 								magnificationFilter() const;
+		void 										magnificationFilter(FilterMode mode);
 
 		float 										maxAnisotropy() const;
 		void 										maxAnisotropy(float max);
@@ -86,8 +86,8 @@ namespace ae {
 
 		std::shared_ptr<MaterialPropertyContents>	_contents;
 		
-		FILTER_MODE									_minificationFilter;
-		FILTER_MODE									_magnificationFilter;
+		FilterMode									_minificationFilter;
+		FilterMode									_magnificationFilter;
 		float										_maxAnisotropy;
 		WRAP_MODE									_wrapS;
 		WRAP_MODE									_wrapT;

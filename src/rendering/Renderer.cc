@@ -40,18 +40,18 @@ bool Renderer::initialize(const RenderContext& context) {
 
 void Renderer::beginFrame(const Scene& scene,
 						  const RenderContext& context,
-						  const DEBUG_OPTIONS& debugOptions,
+						  const DebugOptions& debugOptions,
 						  Stats& stats) {
 }
 
 void Renderer::endFrame(const Scene& scene,
 						const RenderContext& context,
-						const DEBUG_OPTIONS& debugOptions,
+						const DebugOptions& debugOptions,
 						Stats& stats) {
 }
 
 void Renderer::render(const Scene& scene,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
@@ -61,7 +61,7 @@ void Renderer::render(shared_ptr<Geometry> geometry,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
@@ -72,7 +72,7 @@ void Renderer::render(shared_ptr<GeometryElement> element,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
 	AE_LOG_C("Renderer::render(<GeometryElement>) should be overidden in derived class.");
