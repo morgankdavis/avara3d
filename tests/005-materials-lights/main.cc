@@ -75,7 +75,7 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = SceneNamed("cat_island/cat_island2", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+	auto scene = SceneNamed("cat_island/cat_island", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
 													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
 													 | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS);
 	scene->visualWorld(visualWorld);
