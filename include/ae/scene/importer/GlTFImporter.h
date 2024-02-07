@@ -19,15 +19,6 @@
 #include "ae/Types.h"
 
 
-namespace fastgltf {
-	class Asset;
-	class Mesh;
-	class Node;
-	class Primitive;
-	class Texture;
-}
-
-
 namespace ae {
 
 
@@ -81,7 +72,6 @@ namespace ae {
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;
-
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
 		SCENE_IMPORT_OPTIONS										_options;
