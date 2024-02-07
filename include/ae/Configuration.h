@@ -8,7 +8,7 @@
 
 namespace ae {
 
-	constexpr unsigned 		MAX_DYNAMIC_LIGHTS =		8;
+	constexpr unsigned 		MAX_DYNAMIC_LIGHTS =		32;
 	constexpr unsigned 		MAX_PATH_LEN =				2048;
 }
 

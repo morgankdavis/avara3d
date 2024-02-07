@@ -45,22 +45,7 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
 std::shared_ptr<ae::Logger>		logger;
-std::shared_ptr<ae::Node>		ambientLightNode;
 std::shared_ptr<ae::Node>		pointLightNode;
-std::shared_ptr<ae::Node>		palletNode;
-std::shared_ptr<ae::Node>		siameseNode;
-std::shared_ptr<ae::Node>		palmsNode;
-
-Node* 							editingNode;
-
-//glm::vec3 editPosition;
-//glm::vec3 editScale;
-//glm::vec3 editEulerAngles;
-
-//glm::vec3 editPositionModifier;
-//float editScaleModifier;
-
-
 
 
 int main(int argc, const char* argv[]) {
@@ -90,12 +75,9 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-//	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-//	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-//	scene->update(bind(&UpdateCallback, _1, _2));
-
-	auto scene = SceneNamed("cat_island/cat_island", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS);
+	auto scene = SceneNamed("cat_island/cat_island2", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
+													 | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS);
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
@@ -111,15 +93,12 @@ int main(int argc, const char* argv[]) {
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
 	pointLightNode = Node::LightNode(pointLight);
-//	pointLightNode->position({50.0, 50.0, 50.0});
 	scene->rootNode()->addChild(pointLightNode);
-//	pointLightNode->position({0.0, 0.0, 0.0});
 	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emissive(materialProperty);
-	//auto geometry = make_shared<Sphere>(3.5, 16);
-	auto geometry = make_shared<Sphere>(2, 16);
+	auto geometry = make_shared<Sphere>(1.5, 16);
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
 
@@ -130,65 +109,24 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
-
-
-
-//	siameseNode = Node::GeometryNode(GeometryNamed("siamese/siamese"));
-//	siameseNode->scale(siameseNode->scale() * 6.97f);
-//	siameseNode->position(vec3(-13.5, -64.5, 0));
-//	scene->rootNode()->addChild(siameseNode);
-//
-//	auto islandNode = Node::GeometryNode(GeometryNamed("island/island"));
-//	islandNode->position(vec3(0.0f, -150.0f, 0.0f));
-//	scene->rootNode()->addChild(islandNode);
-//
-//	palletNode = Node::GeometryNode(GeometryNamed("pallet/pallet"));
-//	palletNode->position({-65.5, -63, -3.5});
-//	palletNode->scale({24.2792, 24.2792, 24.2792});
-//	palletNode->eulerAngles({3.14158, 2.52807, -1.22138});
-//	auto palletSpecularProperty = make_shared<MaterialProperty>(Color::DarkGray());
-//	palletNode->geometry()->firstMaterial()->specular(palletSpecularProperty);
-//	scene->rootNode()->addChild(palletNode);
-//
-//	auto tunaNode = Node::GeometryNode(GeometryNamed("tuna/tuna"));
-//	tunaNode->position({-10.5, -71.25, 20});
-//	tunaNode->scale({4.1521, 4.1521, 4.1521});
-//	tunaNode->eulerAngles({8.63111e-05, -0.523707, 1.5702});
-//	scene->rootNode()->addChild(tunaNode);
-//
-//	palmsNode =Node::GeometryNode(GeometryNamed("palms/palms"));
-//	palmsNode->position(vec3(0.0f, -72.0f, 0.0f));
-//	palmsNode->scale(palmsNode->scale() * 2.5f);
-//	palmsNode->rotation({0.0f, 1.0f, 0.0f}, radians(-5.0f));
-//	scene->rootNode()->addChild(palmsNode);
-//
-//	for (auto n : palmsNode->children(true)) {
-//		if (n->geometry()) {
-//			for (auto m : n->geometry()->materials()) {
-//				m->doubleSided(true);
-//			}
-//		}
-//	}
-
-
 	// random lights
 
 //	{
-//		const int NUM_RANDOM_LIGHTS = 100;
+//		const int NUM_RANDOM_LIGHTS = 64;
 //		for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
 //			auto light = make_shared<Light>(LIGHT_TYPE::POINT);
 //			light->attenuationFactor(0.0001);
+//			static const float yOffset = 30;
+//			static const int range = 75;
 //			auto lightNode = Node::LightNode(light);
-//			int randX = Uniform(-150, 150);
-//			int randY = Uniform(-150, 150);
-//			int randZ = Uniform(-150, 150);
-//			lightNode->position(vec3(randX, randY, randZ));
+//			int randX = Uniform(-range, range);
+//			int randY = Uniform(-range, range);
+//			int randZ = Uniform(-range, range);
+//			lightNode->position(vec3(randX, randY + yOffset, randZ));
 //			auto color = Color::Random();
 //			light->color(color);
-//			cout << "Adding random light with position: "
-//				 << lightNode->position() << ", color: " << *light->color() << endl;
 //
-//			auto geometry = make_shared<Sphere>(3.5, 16);
+//			auto geometry = make_shared<Sphere>(1.5, 16);
 //
 //			auto materialProperty = make_shared<MaterialProperty>(color);
 //			auto material = make_shared<Material>();
@@ -199,7 +137,6 @@ int main(int argc, const char* argv[]) {
 //			scene->rootNode()->addChild(lightNode);
 //		}
 //	}
-
 
 	window->open();
 	scene->run();
@@ -225,37 +162,6 @@ void UpdateCallback(Scene& scene, float time) {
 	auto keysPressed = scene.inputManager()->keysPressed();
 	auto keysDown = scene.inputManager()->keysDown();
 
-
-
-	ProcessEdit(*editingNode, keysDown, keysPressed);
-
-
-
-//	static auto oldScaleFactor = newScaleFactor;
-//	if (keysPressed.count(KEY::UP)) {
-////		ogNode = siameseNode.get();
-////		ogScale = siameseNode->scale();
-//		newScaleFactor += 0.025;
-//	}
-//	else if (keysPressed.count(KEY::DOWN)) {
-//		newScaleFactor -= 0.025;
-//	}
-//	else if (keysPressed.count(KEY::LEFT)) {
-//		newScaleFactor -= 1.0;
-//	}
-//	else if (keysPressed.count(KEY::RIGHT)) {
-//		newScaleFactor += 1.0;
-//	}
-//	if (newScaleFactor != oldScaleFactor) {
-//		editNode->scale(editScale * newScaleFactor);
-//		AE_LOG_D("NEW SCALE FACTOR: {}", newScaleFactor);
-//		AE_LOG_D("NEW SCALE: {}", utils::StringFromGLMVec3(editNode->scale()));
-//		oldScaleFactor = newScaleFactor;
-//	}
-
-
-
-
 	if (keysPressed.count(KEY::ESCAPE)) {
 		window->close();
 	}
@@ -271,12 +177,8 @@ void UpdateCallback(Scene& scene, float time) {
 	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
 	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
 
-//	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
-//	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
-
-	if 		(keysPressed.count(KEY::F10)) 	ambientLightNode->light()->color(make_shared<Color>(0.1f, 0.1, 0.1, 1.0));
-	else if (keysPressed.count(KEY::F11)) 	ambientLightNode->light()->color(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
-	else if (keysPressed.count(KEY::F12)) 	ambientLightNode->light()->color(make_shared<Color>(0.3f, 0.3, 0.3, 1.0));
+	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
 
 	if 		(keysPressed.count(KEY::F1)) 	pointLightNode->light()->attenuationFactor(0.0005);
 	else if (keysPressed.count(KEY::F2)) 	pointLightNode->light()->attenuationFactor(0.00015);
@@ -330,58 +232,9 @@ void UpdateCallback(Scene& scene, float time) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::U)) {
-		siameseNode->removeFromParent();
-	}
-
-	if (keysPressed.count(KEY::O)) {
-		siameseNode = nullptr;
-	}
-
-//	if (keysPressed.count(Key_M)) {
-//		unsigned total = 0;
-//		unsigned used = 0;
-//		_window->getVRAMStats(total, used);
-//	}
-
-//	if (keysPressed.count(KEY::DEL)) {
-//		for (auto n : _window->scene()->rootNode()->children(true)) {
-//			n->geometry(nullptr);
-//		}
-//	}
-
-
 	if (keysPressed.count(KEY::FORWARD_DELETE)) {
 		scene.paused(!scene.paused());
 	}
-
-	if (keysPressed.count(KEY::END)) {
-		siameseNode->geometry(nullptr);
-	}
-
-	if (keysPressed.count(KEY::PAGE_DOWN)) {
-		for (auto& n : palmsNode->children(true)) {
-			n->geometry(nullptr);
-		}
-	}
-
-//	for (auto& key : keysPressed) {
-//		LOG_D(_logger, "KEY: {}", static_cast<int>(key));
-//	}
-
-	if (keysPressed.count(KEY::HOME)) {
-		auto squirrelImage = ImageNamed("squirrel2");
-		siameseNode->geometry()->firstMaterial()->diffuse()->contents(squirrelImage);
-	}
-
-	if (keysPressed.count(KEY::PAGE_UP)) {
-		siameseNode->geometry(palletNode->geometry());
-	}
-
-//	if (keysPressed.count(KEY::ZERO)) {
-//		auto teapot = SceneNamed("teapot", "dae");
-//		siameseNode->geometry(teapot->rootNode()->children(false)[1]->geometry());
-//	}
 
 	if (window->cursorCaptured()) {
 
@@ -402,8 +255,6 @@ void UpdateCallback(Scene& scene, float time) {
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
 				camera->yFov(fov);
 			}
-
-			//cout << "Camera distance: " << length(_cameraNode->position()) << endl;
 
 			// look
 
@@ -465,15 +316,12 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (pointLightNode) {
 
-		//auto center = vec3(0, -75, 0);
-		auto center = vec3(0, 20, 0);
+		auto center = vec3(0, 30, 0);
 
 		static auto extent = scene.rootNode()->extent();
-		static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .5;
+		static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
 		static float radiusX = radius;
 		static float radiusY = radius;
-//		static float radiusX = 50.0;
-//		static float radiusY = 50.0;
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
@@ -539,94 +387,5 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
 			}
 		}
-	}
-}
-
-void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed) {
-
-	if (editingNode) {
-		bool fine = keysDown.count(KEY::LEFT_SHIFT);
-
-		// *** position ***
-
-		vec3 positionDelta = {};
-
-		if (keysPressed.count(KEY::UP)) {
-			positionDelta.z += (fine ? 0.25 : 5.0);
-		}
-		else if (keysPressed.count(KEY::DOWN)) {
-			positionDelta.z -= (fine ? 0.25 : 5.0);
-		}
-		else if (keysPressed.count(KEY::LEFT)) {
-			positionDelta.x -= (fine ? 0.25 : 5.0);
-		}
-		else if (keysPressed.count(KEY::RIGHT)) {
-			positionDelta.x += (fine ? 0.25 : 5.0);
-		}
-		else if (keysPressed.count(KEY::ZERO)) {
-			positionDelta.y += (fine ? 0.25 : 5.0);
-		}
-		else if (keysPressed.count(KEY::NINE)) {
-			positionDelta.y -= (fine ? 0.25 : 5.0);
-		}
-
-		// *** scale ***
-
-		vec3 scaleDelta = {1.0, 1.0, 1.0};
-
-		if (keysPressed.count(KEY::EQUAL)) { // +
-			auto delta = (fine ? .0025 : .01f);
-			scaleDelta.x += delta;
-			scaleDelta.y += delta;
-			scaleDelta.z += delta;
-		}
-		else if (keysPressed.count(KEY::MINUS)) { // -
-			auto delta = (fine ? .0025 : .01f);
-			scaleDelta.x -= delta;
-			scaleDelta.y -= delta;
-			scaleDelta.z -= delta;
-		}
-
-		// *** rotate ***
-		vec3 rotationDelta = {};
-
-		if (keysPressed.count(KEY::COMMA)) { // <
-			rotationDelta.y += radians(fine ? 1.0 : 5.0);
-		}
-		else if (keysPressed.count(KEY::PERIOD)) { // >
-			rotationDelta.y -= radians(fine ? 1.0 : 5.0);
-		}
-		else if (keysPressed.count(KEY::LEFT_BRACKET)) { // [
-			rotationDelta.z += radians(fine ? 1.0 : 5.0);
-		}
-		else if (keysPressed.count(KEY::RIGHT_BRACKET)) { // ]
-			rotationDelta.z -= radians(fine ? 1.0 : 5.0);
-		}
-		else if (keysPressed.count(KEY::L)) {
-			rotationDelta.x += radians(fine ? 1.0 : 5.0);
-		}
-		else if (keysPressed.count(KEY::P)) {
-			rotationDelta.x -= radians(fine ? 1.0 : 5.0);
-		}
-
-
-		if (!utils::Zero(positionDelta, 0.0001)) {
-			node.position(node.position() + positionDelta);
-			AE_LOG_D("POSITION: {}", utils::StringFromGLMVec3(node.position()));
-		}
-		if (!utils::Equal(scaleDelta, {1.0, 1.0, 1.0}, 0.0001)) {
-			node.scale(node.scale() * scaleDelta);
-			AE_LOG_D("SCALE: {}", utils::StringFromGLMVec3(node.scale()));
-		}
-		if (!utils::Zero(rotationDelta, 0.0001)) {
-			node.eulerAngles(node.eulerAngles() + rotationDelta);
-			AE_LOG_D("ROTATION: {}", utils::StringFromGLMVec3(node.eulerAngles()));
-		}
-
-//		if (keysPressed.count(KEY::Q)) {
-//			AE_LOG_D("POSITION: {}", utils::StringFromGLMVec3(node.position()));
-//			AE_LOG_D("SCALE: {}", utils::StringFromGLMVec3(node.scale()));
-//			AE_LOG_D("ROTATION: {}", utils::StringFromGLMVec3(node.eulerAngles()));
-//		}
 	}
 }
