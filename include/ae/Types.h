@@ -21,7 +21,7 @@ namespace ae {
 
 
 
-	// TODO: put this shit somewhere
+	// TODO: put this somewhere
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553
@@ -62,18 +62,18 @@ namespace ae {
 	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
 	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
 
-// stops "ERROR" macro expansion from wingdi.h included by glfw on Windows.
-// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-// this could break wingdi in the future depending on include order...
-#undef ERROR
-	enum class LOG_LEVEL : unsigned {
-		TRACE =		0,
-		DEBUG =		1,
-		INFO =		2,
-		WARN =		3,
-		ERROR =		4,
-		CRITICAL = 	5,
-		OFF = 		6
+//// stops "ERROR" macro expansion from wingdi.h included by glfw on Windows.
+//// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
+//// this could break wingdi in the future depending on include order...
+//#undef ERROR
+	enum class LogLevel : unsigned {
+		Trace =		0,
+		Debug =		1,
+		Info =		2,
+		Warn =		3,
+		Error =		4,
+		Critical = 	5,
+		Off = 		6
 	};
 
 	enum class RENDER_API {

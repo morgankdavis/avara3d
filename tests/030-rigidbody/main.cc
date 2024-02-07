@@ -74,7 +74,7 @@ std::shared_ptr<ae::Node> 		testNode;
 
 int main(int argc, const char* argv[]) {
 
-	Logger::MainLogger()->level(LOG_LEVEL::TRACE);
+	Logger::MainLogger()->level(LogLevel::Trace);
 	logger = make_shared<Logger>("test-030", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 

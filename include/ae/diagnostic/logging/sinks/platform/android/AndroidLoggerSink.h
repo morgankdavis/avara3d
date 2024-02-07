@@ -33,7 +33,7 @@ namespace ae {
 	Internal
  **************************************************************************************/
 
-		void 	write(const char* message, const char* tag, LOG_LEVEL level);
+		void 	write(const char* message, const char* tag, LogLevel level);
 	};
 }
 

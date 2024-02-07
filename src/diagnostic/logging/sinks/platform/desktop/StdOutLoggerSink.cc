@@ -40,10 +40,10 @@ void StdOutLoggerSink::flush() {
 	Internal
  **************************************************************************************/
 
-void StdOutLoggerSink::write(const char* message, LOG_LEVEL level) {
+void StdOutLoggerSink::write(const char* message, LogLevel level) {
 
-	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(LOG_LEVEL::ERROR)) {
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
 		fprintf(stderr, "%s\n", message);
 
 	} else {

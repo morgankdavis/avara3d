@@ -51,8 +51,8 @@ std::shared_ptr<ae::Node>		pointLightNode;
 int main(int argc, const char* argv[]) {
 
 	logger = make_shared<Logger>("test-005", Logger::MainLogger()->sinks());
-	logger->level(LOG_LEVEL::DEBUG);
-	Logger::MainLogger()->level(LOG_LEVEL::DEBUG);
+	logger->level(LogLevel::Debug);
+	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
 	auto window = make_shared<Window>(RENDER_API::OPENGL,

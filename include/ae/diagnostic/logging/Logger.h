@@ -96,8 +96,8 @@ namespace ae {
 	class Logger {
 
 		//static constexpr unsigned char DEFAULT_NAME[] = "ae";
-		static constexpr LOG_LEVEL DEFAULT_LEVEL = LOG_LEVEL::DEBUG;
-		static constexpr LOG_LEVEL DEFAULT_FLUSH_LEVEL = LOG_LEVEL::WARN;
+		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
+		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
 
 /**************************************************************************************
 	Public Static
@@ -112,9 +112,9 @@ namespace ae {
  *********************************************************************************************/
 
 		Logger(std::string name, std::shared_ptr<LoggerSink> sink,
-			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
+			   LogLevel level = DEFAULT_LEVEL, LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		Logger(std::string name, std::unordered_set<std::shared_ptr<LoggerSink>> sinks,
-			   LOG_LEVEL level = DEFAULT_LEVEL, LOG_LEVEL flushLevel = DEFAULT_FLUSH_LEVEL);
+			   LogLevel level = DEFAULT_LEVEL, LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
 
 /*********************************************************************************************
@@ -124,11 +124,11 @@ namespace ae {
 		std::string name() const;
 		std::unordered_set<std::shared_ptr<LoggerSink>> sinks() const;
 
-		LOG_LEVEL level() const;
-		void level(LOG_LEVEL level);
+		LogLevel level() const;
+		void level(LogLevel level);
 
-		LOG_LEVEL flushLevel() const;
-		void flushLevel(LOG_LEVEL level);
+		LogLevel flushLevel() const;
+		void flushLevel(LogLevel level);
 
 		// * favor using AE_LOG_ and LOG_ macros for fancy formatting *
 
@@ -195,20 +195,20 @@ namespace ae {
 //		void f4(F, Args&&... args);
 
 
-		void log(LOG_LEVEL level,
+		void log(LogLevel level,
 				 const char* format, va_list args);
-		void log(LOG_LEVEL level,
+		void log(LogLevel level,
 				 bool useHeader,
 				 const char* filename, int line, const char* function,
 				 const char* format, va_list args);
 		void log_crumb(const char* filename, int line, const char* function);
 
-		void construct(LOG_LEVEL level, const char* message);
-		void construct(LOG_LEVEL level,
+		void construct(LogLevel level, const char* message);
+		void construct(LogLevel level,
 					   const char* filename, int line, const char* function,
 					   const char* body);
 
-		void dispatch(LOG_LEVEL level, const char* line);
+		void dispatch(LogLevel level, const char* line);
 
 		void flush();
 
@@ -222,8 +222,8 @@ namespace ae {
 
 		std::string										_name;
 		std::unordered_set<std::shared_ptr<LoggerSink>>	_sinks;
-		LOG_LEVEL										_level;
-		LOG_LEVEL										_flushLevel;
+		LogLevel										_level;
+		LogLevel										_flushLevel;
 	};
 }
 

@@ -10,7 +10,7 @@ import Foundation
 import SceneKit
 
 
-// WARN: Male SCNCamera extension
+// Warn: Male SCNCamera extension
 func ConfigureCamera(camera: SCNCamera, screenSize: CGSize, yFov: Double) {
     // set FOV according to view aspect ratio
     let viewSize: CGSize = screenSize
