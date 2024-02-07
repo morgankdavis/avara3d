@@ -49,7 +49,7 @@ namespace ae {
  *********************************************************************************************/
 
 		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
-														  SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::IMPORT_ALL);
+														  SceneImportOptions options = SceneImportOptions::ImportAll);
 		static double 							Time();
 
 /*********************************************************************************************

@@ -32,7 +32,7 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-RenderContext::RenderContext(RENDER_API renderAPI):
+RenderContext::RenderContext(RenderApi renderAPI):
 		_renderAPI(renderAPI),
 		_renderer(nullptr),
 		_width(0),
@@ -41,7 +41,7 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 		_framebufferHeight(0),
 		_framebufferScale{1.0, 1.0},
 		_vSyncEnabled(false),
-		_antialiasingMode(ANTIALIASING_MODE::NONE),
+		_antialiasingMode(AntialiasingMode::None),
 		_gifWriter(nullptr),
 		_recordingGIF(false),
 		_gifRecordingWidth(0),
@@ -51,14 +51,14 @@ RenderContext::RenderContext(RENDER_API renderAPI):
 		_visualWorld(nullptr) {
 
 	switch (_renderAPI) {
-		case RENDER_API::OPENGL: {
+		case RenderApi::OpenGL: {
 			auto renderer = make_shared<OpenGLRenderer>();
 			_renderer = static_pointer_cast<Renderer>(renderer);
 			break; }
-		case RENDER_API::OPENGL_ES: {
+		case RenderApi::OpenGLES: {
 			throw Exception("Unsupported render API: OPENGL_ES");
 			break; }
-		case RENDER_API::VULKAN: {
+		case RenderApi::Vulkan: {
 			throw Exception("Unsupported render API: VULKAN");
 			break; }
 	}
@@ -76,7 +76,7 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-RENDER_API RenderContext::renderAPI() const {
+RenderApi RenderContext::renderAPI() const {
 	return _renderAPI;
 }
 
@@ -108,7 +108,7 @@ void RenderContext::vSyncEnabled(bool enabled) {
 	_vSyncEnabled = enabled;
 }
 
-ANTIALIASING_MODE RenderContext::antialiasingMode() const {
+AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
 }
 

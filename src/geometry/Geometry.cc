@@ -33,10 +33,10 @@ using namespace std;
  *********************************************************************************************/
 
 shared_ptr<Geometry> Geometry::FromFile(const filesystem::path& path,
-										GEOMETRY_IMPORT_OPTIONS options) {
+										GeometryImportOptions options) {
 
-	auto optsUnderlying = static_cast<underlying_type<GEOMETRY_IMPORT_OPTIONS>::type>(options);
-	auto sceneOpts = SCENE_IMPORT_OPTIONS(optsUnderlying) | SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
+	auto optsUnderlying = static_cast<underlying_type<GeometryImportOptions>::type>(options);
+	auto sceneOpts = SceneImportOptions(optsUnderlying) | SceneImportOptions::ImportGeometries;
 	return GlTFImporter(path, sceneOpts).firstGeometry();
 }
 

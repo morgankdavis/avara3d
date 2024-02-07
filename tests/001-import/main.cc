@@ -31,7 +31,7 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
+	auto window = make_shared<Window>(RenderApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -64,7 +64,7 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto options = SCENE_IMPORT_OPTIONS::IMPORT_ALL;
+	auto options = SceneImportOptions::ImportAll;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
 //	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
 //				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;

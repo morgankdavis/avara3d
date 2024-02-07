@@ -39,7 +39,7 @@ using namespace glm;
 using namespace std;
 
 
-static fastgltf::Options GlTFOptionsFromImportOptions(SCENE_IMPORT_OPTIONS options);
+static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static shared_ptr<Geometry> GeometryFromGlFTMeshIndex(fastgltf::Asset& asset,
 													  size_t meshIndex);
 static mat4 TransformFromGlFTNode(fastgltf::Node& node);
@@ -48,7 +48,7 @@ static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
-						   SCENE_IMPORT_OPTIONS options):
+						   SceneImportOptions options):
 		_parsed{false},
 		_asset{},
 		_scene{nullptr},
@@ -143,7 +143,7 @@ const filesystem::path& GlTFImporter::path() const {
 	return _path;
 }
 
-SCENE_IMPORT_OPTIONS GlTFImporter::options() const {
+SceneImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
@@ -215,15 +215,15 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	aeNode->transform(TransformFromGlFTNode(node));
 
-	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((_options & SceneImportOptions::ImportGeometries) != SceneImportOptions::None) {
 		aeNode->geometry(geometryFromGlFTNode(asset, node));
 	}
 
-	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
 		aeNode->light(lightFromGlTFNode(asset, node));
 	}
 
-	if ((_options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
 		aeNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
@@ -259,7 +259,7 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTMeshIndex(fastgltf::Asset& as
 			if (element) elements.push_back(element);
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-			auto material = ((_options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE)
+			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
 							? materialFromGlFTPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
 			if (material) materials.push_back(material);
@@ -771,29 +771,29 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-fastgltf::Options GlTFOptionsFromImportOptions(SCENE_IMPORT_OPTIONS options) {
+fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 
 	auto gltfOptions = Options::None;
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((options & SceneImportOptions::ImportGeometries) != SceneImportOptions::None) {
 		gltfOptions |= Options::LoadGLBBuffers
 					   | Options::LoadExternalBuffers
 					   | Options::GenerateMeshIndices;
 	}
 
-	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None) {
 		gltfOptions |= Options::LoadGLBBuffers
 					   | Options::LoadExternalBuffers
 					   | Options::LoadExternalImages;
 	}
 
-	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
 
 	}
 
-	if ((options & SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS) != SCENE_IMPORT_OPTIONS::NONE) {
+	if ((options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
 
 	}
 

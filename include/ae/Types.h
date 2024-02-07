@@ -66,6 +66,7 @@ namespace ae {
 //// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 //// this could break wingdi in the future depending on include order...
 //#undef ERROR
+// UPDATE: disabled 2024 02 07 when renaming LOG_LEVEL::ERROR to LogLelev::Error
 	enum class LogLevel : unsigned {
 		Trace =		0,
 		Debug =		1,
@@ -76,51 +77,51 @@ namespace ae {
 		Off = 		6
 	};
 
-	enum class RENDER_API {
-		OPENGL,
-		OPENGL_ES,
-		VULKAN
+	enum class RenderApi {
+		OpenGL,
+		OpenGLES,
+		Vulkan
 	};
 
-	enum class SCENE_IMPORT_OPTIONS : unsigned {
-		NONE = 					0,
-		IMPORT_GEOMETRIES =		1 << 0,
-		IMPORT_MATERIALS =		1 << 1,
-		IMPORT_LIGHTS =			1 << 2,
-		IMPORT_CAMERAS = 		1 << 3,
-		IMPORT_ALL =			UINT_MAX
+	enum class SceneImportOptions : unsigned {
+		None = 					0,
+		ImportGeometries =		1 << 0,
+		ImportMaterials =		1 << 1,
+		ImportLights =			1 << 2,
+		ImportCameras = 		1 << 3,
+		ImportAll =				UINT_MAX
 	};
 
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, |)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, SCENE_IMPORT_OPTIONS, &)
-	AE_UNARY_OP_TEMPLATE_MACRO(SCENE_IMPORT_OPTIONS, ~)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, |)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, &)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, |)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, &)
+	AE_UNARY_OP_TEMPLATE_MACRO(SceneImportOptions, ~)
 
-	enum class GEOMETRY_IMPORT_OPTIONS : unsigned {
-		NONE = 					0,
-		IMPORT_MATERIALS =		1 << 1, // notice, maps to SCENE_IMPORT_OPTIONS
-		IMPORT_ALL =			UINT_MAX
+	enum class GeometryImportOptions : unsigned {
+		None = 					0,
+		ImportMaterials =		1 << 1, // note maps to SceneImportOptions
+		ImportAll =				UINT_MAX
 	};
 
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GEOMETRY_IMPORT_OPTIONS, GEOMETRY_IMPORT_OPTIONS, |)
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GEOMETRY_IMPORT_OPTIONS, GEOMETRY_IMPORT_OPTIONS, &)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GEOMETRY_IMPORT_OPTIONS, GEOMETRY_IMPORT_OPTIONS, |)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GEOMETRY_IMPORT_OPTIONS, GEOMETRY_IMPORT_OPTIONS, &)
-	AE_UNARY_OP_TEMPLATE_MACRO(GEOMETRY_IMPORT_OPTIONS, ~)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, |)
+	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, &)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, |)
+	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, &)
+	AE_UNARY_OP_TEMPLATE_MACRO(GeometryImportOptions, ~)
 
-	enum class FONT_TYPE : unsigned {
-		UNKNOWN = 	0,
+	enum class FontType : unsigned {
+		Unknown = 	0,
 		OTF =		1 << 0,
 		TTF =		1 << 1,
 	};
 
-	enum class ANTIALIASING_MODE : unsigned {
-		NONE =		0,
-		MSAA_2X =	2,
-		MSAA_4X =	4,
-		MSAA_8X =	8,
-		MSAA_16X =	16
+	enum class AntialiasingMode : unsigned {
+		None =		0,
+		Msaa2X =	2,
+		Msaa4X =	4,
+		Msaa8X =	8,
+		Msaa16X =	16
 	};
 
 	typedef struct {

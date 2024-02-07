@@ -37,7 +37,7 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr bool 					ORTHO_CAMERA =			false;
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
 	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
+	auto window = make_shared<Window>(RenderApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -75,9 +75,9 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = SceneNamed("cat_island/cat_island", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-													 | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS);
+	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportGeometries
+													 | SceneImportOptions::ImportMaterials
+													 | SceneImportOptions::ImportCameras);
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
 	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);

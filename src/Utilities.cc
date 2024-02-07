@@ -579,7 +579,7 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 
 #ifndef ANDROID
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
-										SCENE_IMPORT_OPTIONS options) {
+										SceneImportOptions options) {
 
 	return SceneNamed(name, "gltf", options);
 //	return SceneNamed(filesystem::path(name) / filesystem::path(name), "gltf");
@@ -587,7 +587,7 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 										const string& type,
-										SCENE_IMPORT_OPTIONS options) {
+										SceneImportOptions options) {
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
@@ -598,15 +598,15 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 }
 
 shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
-											  GEOMETRY_IMPORT_OPTIONS options) {
+											  GeometryImportOptions options) {
 
 	return GeometryNamed(name, "gltf", options);
 //	return GeometryNamed(filesystem::path(name) / filesystem::path(name), "obj");
 }
 
 shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
-											const string& type,
-											  GEOMETRY_IMPORT_OPTIONS options) {
+											  const string& type,
+											  GeometryImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {

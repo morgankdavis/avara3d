@@ -40,8 +40,8 @@ namespace ae {
  *********************************************************************************************/
 
 		static std::shared_ptr<Geometry> 		FromFile(const std::filesystem::path& path,
-														 GEOMETRY_IMPORT_OPTIONS options =
-														 GEOMETRY_IMPORT_OPTIONS::IMPORT_MATERIALS);
+														 GeometryImportOptions options =
+														 GeometryImportOptions::ImportMaterials);
 
 /*********************************************************************************************
 	Lifecycle

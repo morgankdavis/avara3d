@@ -152,19 +152,19 @@ namespace ae {
 
 #ifndef ANDROID
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
-											  SCENE_IMPORT_OPTIONS options =
-											  SCENE_IMPORT_OPTIONS::IMPORT_ALL);
+											  SceneImportOptions options =
+											  SceneImportOptions::ImportAll);
 		std::shared_ptr<ae::Scene> SceneNamed(const std::string& name,
 											  const std::string& type,
-											  SCENE_IMPORT_OPTIONS options =
-											  SCENE_IMPORT_OPTIONS::IMPORT_ALL);
+											  SceneImportOptions options =
+											  SceneImportOptions::ImportAll);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
-													GEOMETRY_IMPORT_OPTIONS options =
-													GEOMETRY_IMPORT_OPTIONS::IMPORT_MATERIALS);
+													GeometryImportOptions options =
+													GeometryImportOptions::ImportMaterials);
 		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
 													const std::string& type,
-													GEOMETRY_IMPORT_OPTIONS options =
-													GEOMETRY_IMPORT_OPTIONS::IMPORT_MATERIALS);
+													GeometryImportOptions options =
+													GeometryImportOptions::ImportMaterials);
 #endif
 
 /*********************************************************************************************

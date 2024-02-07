@@ -55,12 +55,12 @@ static void 	GLFWErrorCallback(int error,
 	Lifescycle
  *********************************************************************************************/
 
-Window::Window(RENDER_API renderAPI,
+Window::Window(RenderApi renderAPI,
 			   bool fullScreen,
 			   unsigned width,
 			   unsigned height,
 			   bool enableHighDPI,
-			   ANTIALIASING_MODE antialiasingMode):
+			   AntialiasingMode antialiasingMode):
 		RenderContext(renderAPI),
 		_glfwWindow(nullptr),
 		_cursorCaptured(false) {
@@ -72,7 +72,7 @@ Window::Window(RENDER_API renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<ANTIALIASING_MODE>::type>(antialiasingMode));
+		glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

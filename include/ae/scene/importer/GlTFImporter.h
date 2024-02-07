@@ -39,13 +39,13 @@ namespace ae {
 	public:
 
 		GlTFImporter(const std::filesystem::path& path,
-					 SCENE_IMPORT_OPTIONS options = SCENE_IMPORT_OPTIONS::IMPORT_ALL);
+					 SceneImportOptions options = SceneImportOptions::ImportAll);
 
 		std::shared_ptr<Scene> 				scene();
 		std::shared_ptr<Geometry> 			firstGeometry();
 
 		const std::filesystem::path&		path() const;
-		SCENE_IMPORT_OPTIONS				options() const;
+		SceneImportOptions				options() const;
 
 	private:
 
@@ -74,7 +74,7 @@ namespace ae {
 		fastgltf::Asset												_asset;
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
-		SCENE_IMPORT_OPTIONS										_options;
+		SceneImportOptions										_options;
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;

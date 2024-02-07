@@ -44,7 +44,7 @@ namespace ae {
 
 	public:
 
-		RenderContext(RENDER_API renderAPI);
+		RenderContext(RenderApi renderAPI);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
@@ -53,7 +53,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		RENDER_API 							renderAPI() const;
+		RenderApi 							renderAPI() const;
 
 		unsigned 							width() const;
 		unsigned 							height() const;
@@ -65,7 +65,7 @@ namespace ae {
 		virtual bool 						vSyncEnabled() const;
 		virtual void 						vSyncEnabled(bool enabled);
 
-		ANTIALIASING_MODE 					antialiasingMode() const;
+		AntialiasingMode 					antialiasingMode() const;
 
 		std::shared_ptr<Image> 				snapshot() const;
 
@@ -104,7 +104,7 @@ namespace ae {
 
 	protected:
 
-		RENDER_API 							_renderAPI;
+		RenderApi 							_renderAPI;
 		std::shared_ptr<Renderer>			_renderer;
 
 		unsigned							_width;
@@ -113,7 +113,7 @@ namespace ae {
 		unsigned							_framebufferHeight;
 		glm::vec2							_framebufferScale;
 		bool								_vSyncEnabled;
-		ANTIALIASING_MODE					_antialiasingMode;
+		AntialiasingMode					_antialiasingMode;
 		
 		std::shared_ptr<GifWriter>			_gifWriter;
 		bool								_recordingGIF;
