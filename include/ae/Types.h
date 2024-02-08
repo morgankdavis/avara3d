@@ -457,9 +457,27 @@ namespace ae {
 	AE_ENABLE_ASSIGNMENT_OP(MaterialDirtyMask, MaterialDirtyMask, &)
 	AE_ENABLE_UNARY_OP(MaterialDirtyMask, ~)
 
-	enum class MaterialPropertyDirtyMask : unsigned {
+//	enum class MaterialPropertyDirtyMask : unsigned {
+//		None =					0,
+//		Contents = 				1 << 0,
+//		MinificationFilter = 	1 << 1,
+//		MagnificationFilter = 	1 << 2,
+//		WrapS = 				1 << 3,
+//		WrapT = 				1 << 4,
+//		WrapR = 				1 << 5,
+//		MaxAnisotropy = 		1 << 6,
+//		All = 					UINT_MAX
+//	};
+//
+//	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
+//	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
+//	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
+//	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
+//	AE_ENABLE_UNARY_OP(MaterialPropertyDirtyMask, ~)
+
+	enum class SamplerDirtyMask : unsigned {
 		None =					0,
-		Contents = 				1 << 0,
+//		Contents = 				1 << 0,
 		MinificationFilter = 	1 << 1,
 		MagnificationFilter = 	1 << 2,
 		WrapS = 				1 << 3,
@@ -469,11 +487,11 @@ namespace ae {
 		All = 					UINT_MAX
 	};
 
-	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
-	AE_ENABLE_UNARY_OP(MaterialPropertyDirtyMask, ~)
+	AE_ENABLE_ARITHMETIC_OP(SamplerDirtyMask, SamplerDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(SamplerDirtyMask, SamplerDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(SamplerDirtyMask, SamplerDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(SamplerDirtyMask, SamplerDirtyMask, &)
+	AE_ENABLE_UNARY_OP(SamplerDirtyMask, ~)
 
 } // namespace ae
 

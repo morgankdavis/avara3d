@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "ae/rendering/materials/MaterialPropertyContents.h"
+#include "ae/rendering/materials/Sampleable.h"
 
 
 namespace ae {
@@ -21,7 +21,7 @@ namespace ae {
 	class Image;
 	
 
-	class CubeImage : public MaterialPropertyContents {
+	class CubeImage : public Sampleable {
 		
 /*********************************************************************************************
 	Lifecycle

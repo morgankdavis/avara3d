@@ -17,7 +17,7 @@
 #include <memory>
 #include <string>
 
-#include "ae/rendering/materials/MaterialPropertyContents.h"
+#include "ae/rendering/materials/Sampleable.h"
 
 
 namespace ae {
@@ -26,7 +26,7 @@ namespace ae {
 	class Buffer;
 
 
-	class Image : public MaterialPropertyContents {
+	class Image : public Sampleable {
 		
 /*********************************************************************************************
 	Lifecycle
