@@ -153,6 +153,7 @@ void Geometry::draw(Renderer& renderer,
 	// this seems like hacky way to do it.
 	if ((debugOptions & DebugOptions::ShowBoundingBoxes) != DebugOptions::None) {
 		_dirtyMask = AE_MASK_ADD(_dirtyMask, GeometryDirtyMask::Extent);
+//		_dirtyMask = _dirtyMask | GeometryDirtyMask::Extent;
 	}
 //	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 //		_dirtyMask = AE_MASK_ADD(_dirtyMask, GeometryDirtyMask::Extent);

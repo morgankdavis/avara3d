@@ -496,7 +496,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowWireframes));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
 			}
@@ -505,7 +506,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowBoundingBoxes));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
 			}
@@ -514,7 +516,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowStatsOverlay));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
 			}
@@ -523,7 +526,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsBoundingBoxes));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
 			}
@@ -532,7 +536,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsWireframes));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
 			}
@@ -541,7 +546,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsContactPoints));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
 			}
@@ -550,7 +556,8 @@ void UpdateCallback(Scene& scene, float time) {
 			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
 				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsNormals));
-			} else {
+			}
+			else {
 				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
 			}
@@ -563,7 +570,8 @@ void UpdateCallback(Scene& scene, float time) {
 		if (keysPressed.count(Key::R)) {
 			if (!window->recordingGIF()) {
 				StartGIFRecording(*window, 320, 8);
-			} else {
+			}
+			else {
 				StopGIFRecording(*window);
 			}
 		}
@@ -627,7 +635,8 @@ void UpdateCallback(Scene& scene, float time) {
 				if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
 					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 					pov->position(pov->position() + positionDelta);
-				} else if (keysDown.count(Key::S)) {
+				}
+				else if (keysDown.count(Key::S)) {
 					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 					pov->position(pov->position() + positionDelta);
 				}
@@ -635,7 +644,8 @@ void UpdateCallback(Scene& scene, float time) {
 				if (keysDown.count(Key::A)) {
 					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 					pov->position(pov->position() + positionDelta);
-				} else if (keysDown.count(Key::D)) {
+				}
+				else if (keysDown.count(Key::D)) {
 					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 					pov->position(pov->position() + positionDelta);
 				}

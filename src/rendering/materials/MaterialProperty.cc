@@ -69,8 +69,8 @@ void MaterialProperty::contents(const shared_ptr<MaterialPropertyContents> conte
 	
 	_contents = contents;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::Contents);
+//	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::Contents);
+	_dirtyMask = _dirtyMask | MaterialPropertyDirtyMask::Contents;
 }
 
 FilterMode MaterialProperty::minificationFilter() const {
@@ -80,8 +80,7 @@ FilterMode MaterialProperty::minificationFilter() const {
 void MaterialProperty::minificationFilter(FilterMode mode) {
 	_minificationFilter = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::MinificationFilter);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::MinificationFilter);
 }
 
 FilterMode MaterialProperty::magnificationFilter() const {
@@ -91,8 +90,7 @@ FilterMode MaterialProperty::magnificationFilter() const {
 void MaterialProperty::magnificationFilter(FilterMode mode) {
 	_magnificationFilter = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::MagnificationFilter);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::MagnificationFilter);
 }
 
 float MaterialProperty::maxAnisotropy() const {
@@ -110,8 +108,7 @@ void MaterialProperty::maxAnisotropy(float max) {
 	
 	_maxAnisotropy = max;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::MaxAnisotropy);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::MaxAnisotropy);
 }
 
 WrapMode MaterialProperty::wrapS() const {
@@ -121,8 +118,7 @@ WrapMode MaterialProperty::wrapS() const {
 void MaterialProperty::wrapS(WrapMode mode) {
 	_wrapS = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::WrapS);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::WrapS);
 }
 
 WrapMode MaterialProperty::wrapT() const {
@@ -132,8 +128,7 @@ WrapMode MaterialProperty::wrapT() const {
 void MaterialProperty::wrapT(WrapMode mode) {
 	_wrapT = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::WrapT);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::WrapT);
 }
 
 WrapMode MaterialProperty::wrapR() const {
@@ -143,8 +138,7 @@ WrapMode MaterialProperty::wrapR() const {
 void MaterialProperty::wrapR(WrapMode mode) {
 	_wrapR = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask,
-												  MaterialPropertyDirtyMask::WrapR);
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialPropertyDirtyMask::WrapR);
 }
 
 /*********************************************************************************************

@@ -25,15 +25,21 @@ namespace ae {
 	Public Type Utilities
  **************************************************************************************/
 
-	#define AE_MASK_CONTAINS(mask, bit) \
-		(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-		& static_cast<underlying_type<typeof(mask)>::type>(bit))
-	#define AE_MASK_ADD(mask, bit) \
-		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-		| static_cast<underlying_type<typeof(mask)>::type>(bit)))
-	#define AE_MASK_REMOVE(mask, bit) \
-		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
+// works great in Linux, macOS, but typeof() is a GNU lanuage extension (C23)
+//
+//	#define AE_MASK_CONTAINS(mask, bit) \
+//		(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+//		& static_cast<underlying_type<typeof(mask)>::type>(bit))
+//	#define AE_MASK_ADD(mask, bit) \
+//		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+//		| static_cast<underlying_type<typeof(mask)>::type>(bit)))
+//	#define AE_MASK_REMOVE(mask, bit) \
+//		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+//		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
+
+	#define AE_MASK_CONTAINS(mask, bit) (static_cast<unsigned>(mask & bit) != 0)
+	#define AE_MASK_ADD(mask, bit) 		(mask | bit)
+	#define AE_MASK_REMOVE(mask, bit)	(mask & ~bit)
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553
@@ -410,11 +416,23 @@ namespace ae {
 		All = 					UINT_MAX
 	};
 
+	AE_ENABLE_ARITHMETIC_OP(NodeDirtyMask, NodeDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(NodeDirtyMask, NodeDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(NodeDirtyMask, NodeDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(NodeDirtyMask, NodeDirtyMask, &)
+	AE_ENABLE_UNARY_OP(NodeDirtyMask, ~)
+
 	enum class GeometryDirtyMask : unsigned {
 		None =					0,
 		Extent =				1 << 0,
 		All = 					UINT_MAX
 	};
+
+	AE_ENABLE_ARITHMETIC_OP(GeometryDirtyMask, GeometryDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(GeometryDirtyMask, GeometryDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryDirtyMask, GeometryDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryDirtyMask, GeometryDirtyMask, &)
+	AE_ENABLE_UNARY_OP(GeometryDirtyMask, ~)
 
 	enum class GeometryElementDirtyMask : unsigned {
 		None =					0,
@@ -422,10 +440,22 @@ namespace ae {
 		All = 					UINT_MAX
 	};
 
+	AE_ENABLE_ARITHMETIC_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, &)
+	AE_ENABLE_UNARY_OP(GeometryElementDirtyMask, ~)
+
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
 		All = 					UINT_MAX
 	};
+
+	AE_ENABLE_ARITHMETIC_OP(MaterialDirtyMask, MaterialDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(MaterialDirtyMask, MaterialDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(MaterialDirtyMask, MaterialDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(MaterialDirtyMask, MaterialDirtyMask, &)
+	AE_ENABLE_UNARY_OP(MaterialDirtyMask, ~)
 
 	enum class MaterialPropertyDirtyMask : unsigned {
 		None =					0,
@@ -438,6 +468,12 @@ namespace ae {
 		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
+
+	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
+	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
+	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
+	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
+	AE_ENABLE_UNARY_OP(MaterialPropertyDirtyMask, ~)
 
 } // namespace ae
 
