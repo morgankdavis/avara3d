@@ -34,9 +34,9 @@ namespace ae {
 	public:
 
 		using MaterialProperty = std::variant<
+				std::monostate,
 				std::shared_ptr<Texture>,
-				std::shared_ptr<Color>,
-				std::monostate>;
+				std::shared_ptr<Color>>;
 
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make private

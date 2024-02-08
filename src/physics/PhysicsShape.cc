@@ -8,7 +8,7 @@
 
 #include "ae/physics/PhysicsShape.h"
 
-#include "glm/gtc/type_ptr.hpp"
+
 #include "magic_enum.hpp"
 
 #include "ae/geometry/Geometry.h"
@@ -82,7 +82,7 @@ PhysicsShape::~PhysicsShape() {
 	Public
  *********************************************************************************************/
 
-variant<Geometry*, Node*, monostate> PhysicsShape::sourceObject() const {
+PhysicsShape::SourceObject PhysicsShape::sourceObject() const {
 	return _sourceObject;
 }
 
@@ -133,10 +133,7 @@ void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
 	AE_LOG_T("world: {:p}", static_cast<void*>(world));
 }
 
-void PhysicsShape::sourceObject(variant<
-		Geometry*,
-		Node*,
-		monostate> sourceObject) {
+void PhysicsShape::sourceObject(SourceObject sourceObject) {
 
 	_sourceObject = sourceObject;
 }
@@ -152,7 +149,6 @@ void PhysicsShape::checkCreateProxy() {
 		}
 	}
 }
-
 
 unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
 	return _bodies;
