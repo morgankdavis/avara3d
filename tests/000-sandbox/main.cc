@@ -126,8 +126,8 @@ int main(int argc, const char* argv[]) {
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WRAP_MODE::Repeat);
-	planeMaterialProperty->wrapT(WRAP_MODE::Repeat);
+	planeMaterialProperty->wrapS(WrapMode::Repeat);
+	planeMaterialProperty->wrapT(WrapMode::Repeat);
 	planeMaterialProperty->maxAnisotropy(16);
 	planeMaterialProperty->minificationFilter(FilterMode::LinearMipmapLinear);
 	planeMaterialProperty->magnificationFilter(FilterMode::Linear);
@@ -429,73 +429,73 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 	if (keysPressed.count(Key::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowWireframes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowWireframes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowBoundingBoxes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowBoundingBoxes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowStatsOverlay));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowStatsOverlay));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowStatsOverlay));
 		}
 	}
 	if (keysPressed.count(Key::P)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowPhysicsBoundingBoxes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowPhysicsBoundingBoxes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::G)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowPhysicsWireframes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowPhysicsWireframes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowPhysicsWireframes));
 		}
 	}
 	if (keysPressed.count(Key::C)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowPhysicsContactPoints));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowPhysicsContactPoints));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
 	if (keysPressed.count(Key::N)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DebugOptions::ShowPhysicsNormals));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowPhysicsNormals));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DebugOptions::ShowPhysicsNormals));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowPhysicsNormals));
 		}
 	}
 

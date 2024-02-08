@@ -53,29 +53,29 @@ namespace ae {
 		std::shared_ptr<MaterialPropertyContents> 	contents() const;
 		void										contents(const std::shared_ptr<MaterialPropertyContents> contents);
 
-		FilterMode 								minificationFilter() const;
+		FilterMode 									minificationFilter() const;
 		void 										minificationFilter(FilterMode mode);
 		
-		FilterMode 								magnificationFilter() const;
+		FilterMode 									magnificationFilter() const;
 		void 										magnificationFilter(FilterMode mode);
 
 		float 										maxAnisotropy() const;
 		void 										maxAnisotropy(float max);
 		
-		WRAP_MODE 									wrapS() const;
-		void 										wrapS(WRAP_MODE mode);
+		WrapMode 									wrapS() const;
+		void 										wrapS(WrapMode mode);
 		
-		WRAP_MODE 									wrapT() const;
-		void 										wrapT(WRAP_MODE mode);
+		WrapMode 									wrapT() const;
+		void 										wrapT(WrapMode mode);
 		
-		WRAP_MODE 									wrapR() const;
-		void 										wrapR(WRAP_MODE mode);
+		WrapMode 									wrapR() const;
+		void 										wrapR(WrapMode mode);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		MaterialPropertyDirtyMask 				dirtyMask() const;
+		MaterialPropertyDirtyMask 					dirtyMask() const;
 		void 										dirtyMask(MaterialPropertyDirtyMask mask);
 		
 /*********************************************************************************************
@@ -89,11 +89,11 @@ namespace ae {
 		FilterMode									_minificationFilter;
 		FilterMode									_magnificationFilter;
 		float										_maxAnisotropy;
-		WRAP_MODE									_wrapS;
-		WRAP_MODE									_wrapT;
-		WRAP_MODE									_wrapR;
+		WrapMode									_wrapS;
+		WrapMode									_wrapT;
+		WrapMode									_wrapR;
 
-		MaterialPropertyDirtyMask				_dirtyMask;
+		MaterialPropertyDirtyMask					_dirtyMask;
 	};
 }
 

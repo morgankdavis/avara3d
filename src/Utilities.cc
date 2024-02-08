@@ -702,7 +702,7 @@ void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 			if (material->ambient()) properties += "a";
 			if (material->diffuse()) properties += "d";
 			if (material->specular()) properties += "s";
-			if (material->emissive()) properties += "e";
+			if (material->emission()) properties += "e";
 			
 			string materialName = (material->name() ? "\"" + *(material->name()) + "\"" : "null");
 			ss << padding << "\t\t[MATERIAL] (" << static_cast<const void*>(material.get())

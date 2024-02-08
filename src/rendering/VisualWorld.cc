@@ -76,9 +76,9 @@ void VisualWorld::background(shared_ptr<MaterialProperty> backgroundProperty) {
 	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
 		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
 
-		material->emissive()->wrapS(WRAP_MODE::ClampToEdge);
-		material->emissive()->wrapT(WRAP_MODE::ClampToEdge);
-		material->emissive()->wrapR(WRAP_MODE::ClampToEdge);
+		material->emission()->wrapS(WrapMode::ClampToEdge);
+		material->emission()->wrapT(WrapMode::ClampToEdge);
+		material->emission()->wrapR(WrapMode::ClampToEdge);
 
 		// generate the skybox geometry if it hasn't already been
 		if (!_skyboxGeometry) {

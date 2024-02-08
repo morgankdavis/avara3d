@@ -47,7 +47,7 @@ namespace ae {
 		Material(std::shared_ptr<MaterialProperty> ambient,
 				 std::shared_ptr<MaterialProperty> diffuse,
 				 std::shared_ptr<MaterialProperty> specular,
-				 std::shared_ptr<MaterialProperty> emissive);
+				 std::shared_ptr<MaterialProperty> emission);
 		~Material();
 		
 /*********************************************************************************************
@@ -66,8 +66,8 @@ namespace ae {
 		std::shared_ptr<MaterialProperty>		specular() const;
 		void 									specular(const std::shared_ptr<MaterialProperty> property);
 		
-		std::shared_ptr<MaterialProperty> 		emissive() const;
-		void 									emissive(const std::shared_ptr<MaterialProperty> property);
+		std::shared_ptr<MaterialProperty> 		emission() const;
+		void 									emission(const std::shared_ptr<MaterialProperty> property);
 		
 		float 									specularExponent() const;
 		void 									specularExponent(float exponent);
@@ -91,7 +91,7 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		MaterialDirtyMask 					dirtyMask() const;
+		MaterialDirtyMask 						dirtyMask() const;
 		void 									dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
@@ -105,7 +105,7 @@ namespace ae {
 		std::shared_ptr<MaterialProperty>		_ambient;
 		std::shared_ptr<MaterialProperty> 		_diffuse;
 		std::shared_ptr<MaterialProperty> 		_specular;
-		std::shared_ptr<MaterialProperty> 		_emissive;
+		std::shared_ptr<MaterialProperty> 		_emission;
 
 		float 									_specularExponent;
 		bool 									_locksAmbientWithDiffuse;

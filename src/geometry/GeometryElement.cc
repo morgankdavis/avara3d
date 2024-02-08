@@ -71,7 +71,7 @@ void GeometryElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	GEOMETRY_ELEMENT_DIRTY_MASK_ADD(_dirtyMask, GeometryElementDirtyMask::VertexData);
+	AE_MASK_ADD(_dirtyMask, GeometryElementDirtyMask::VertexData);
 }
 
 const vector<Vertex>& GeometryElement::vertices() const {

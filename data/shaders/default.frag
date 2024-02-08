@@ -19,14 +19,14 @@ struct Samplers {
 	sampler2D ambient;
 	sampler2D diffuse;
 	sampler2D specular;
-	sampler2D emissive;
+	sampler2D emission;
 };
 
 struct Colors {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-	vec3 emissive;
+	vec3 emission;
 };
 
 struct Light {
@@ -66,7 +66,7 @@ uniform 	mat4 		view;
 uniform 	int 		ambientMode;
 uniform 	int 		diffuseMode;
 uniform 	int 		specularMode;
-uniform 	int 		emissiveMode;
+uniform 	int 		emissionMode;
 uniform		float 		specularExponent;
 uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
@@ -97,15 +97,15 @@ void main () {
 	
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	
-	switch (emissiveMode) {
-		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emissive, 1.0);				break;
-		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emissive, 
+	switch (emissionMode) {
+		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emission, 1.0);				break;
+		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emission, 
 													  tex_coord * uvScale));		break;
 	}
 	
-	if (emissiveMode != MATERIAL_MODE_NONE) {
+	if (emissionMode != MATERIAL_MODE_NONE) {
 		
-		// *** emissive intensity ***
+		// *** emission intensity ***
 		
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)

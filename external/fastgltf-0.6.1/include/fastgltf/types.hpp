@@ -1584,7 +1584,7 @@ namespace fastgltf {
         Optional<TextureInfo> emissiveTexture;
 
         /**
-         * The factors for the emissive color of the material. Defaults to 0,0,0
+         * The factors for the emission color of the material. Defaults to 0,0,0
          */
         std::array<num, 3> emissiveFactor;
 
@@ -1639,7 +1639,7 @@ namespace fastgltf {
         std::unique_ptr<MaterialVolume> volume;
 
         /**
-         * The emissive strength from the KHR_materials_emissive_strength extension.
+         * The emission strength from the KHR_materials_emissive_strength extension.
          */
         Optional<num> emissiveStrength;
 

@@ -18,42 +18,52 @@
 
 
 namespace ae {
-	
+
+
 /**************************************************************************************
-	Public
+	Public Type Utilities
  **************************************************************************************/
 
-// example from fastgltf
-// a similar approach: https://stackoverflow.com/a/12080553
+	#define AE_MASK_CONTAINS(mask, bit) \
+		(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+		& static_cast<underlying_type<typeof(mask)>::type>(bit))
+	#define AE_MASK_ADD(mask, bit) \
+		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+		| static_cast<underlying_type<typeof(mask)>::type>(bit)))
+	#define AE_MASK_REMOVE(mask, bit) \
+		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
+		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
+
+	// example from fastgltf
+	// a similar approach: https://stackoverflow.com/a/12080553
 
 	template<typename T>
 	constexpr std::underlying_type_t<T> to_underlying(T t) noexcept {
 		return static_cast<std::underlying_type_t<T>>(t);
 	}
 
-#define AE_ARITHMETIC_OP_TEMPLATE_MACRO(T1, T2, op) \
-    constexpr T1 operator op(const T1& a, const T2& b) noexcept { \
-        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
-        return static_cast<T1>(to_underlying(a) op to_underlying(b)); \
-    }
+	#define AE_ENABLE_ARITHMETIC_OP(T1, T2, op) \
+		constexpr T1 operator op(const T1& a, const T2& b) noexcept { \
+			static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+			return static_cast<T1>(to_underlying(a) op to_underlying(b)); \
+		}
 
-#define AE_ASSIGNMENT_OP_TEMPLATE_MACRO(T1, T2, op) \
-    constexpr T1& operator op##=(T1& a, const T2& b) noexcept { \
-        static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
-        return a = static_cast<T1>(to_underlying(a) op to_underlying(b)), a; \
-    }
+	#define AE_ENABLE_ASSIGNMENT_OP(T1, T2, op) \
+		constexpr T1& operator op##=(T1& a, const T2& b) noexcept { \
+			static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
+			return a = static_cast<T1>(to_underlying(a) op to_underlying(b)), a; \
+		}
 
-#define AE_UNARY_OP_TEMPLATE_MACRO(T, op) \
-    constexpr T operator op(const T& a) noexcept { \
-        static_assert(std::is_enum_v<T>); \
-        return static_cast<T>(op to_underlying(a)); \
-    }
+	#define AE_ENABLE_UNARY_OP(T, op) \
+		constexpr T operator op(const T& a) noexcept { \
+			static_assert(std::is_enum_v<T>); \
+			return static_cast<T>(op to_underlying(a)); \
+		}
 
-//// stops "ERROR" macro expansion from wingdi.h included by glfw on Windows.
-//// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-//// this could break wingdi in the future depending on include order...
-//#undef ERROR
-// UPDATE: disabled 2024 02 07 when renaming LOG_LEVEL::ERROR to LogLelev::Error
+/**************************************************************************************
+	Public Types
+ **************************************************************************************/
+
 	enum class LogLevel : unsigned {
 		Trace =		0,
 		Debug =		1,
@@ -79,11 +89,11 @@ namespace ae {
 		ImportAll =				UINT_MAX
 	};
 
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, |)
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, &)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, |)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(SceneImportOptions, SceneImportOptions, &)
-	AE_UNARY_OP_TEMPLATE_MACRO(SceneImportOptions, ~)
+	AE_ENABLE_ARITHMETIC_OP(SceneImportOptions, SceneImportOptions, |)
+	AE_ENABLE_ARITHMETIC_OP(SceneImportOptions, SceneImportOptions, &)
+	AE_ENABLE_ASSIGNMENT_OP(SceneImportOptions, SceneImportOptions, |)
+	AE_ENABLE_ASSIGNMENT_OP(SceneImportOptions, SceneImportOptions, &)
+	AE_ENABLE_UNARY_OP(SceneImportOptions, ~)
 
 	enum class GeometryImportOptions : unsigned {
 		None = 					0,
@@ -91,11 +101,11 @@ namespace ae {
 		ImportAll =				UINT_MAX
 	};
 
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, |)
-	AE_ARITHMETIC_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, &)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, |)
-	AE_ASSIGNMENT_OP_TEMPLATE_MACRO(GeometryImportOptions, GeometryImportOptions, &)
-	AE_UNARY_OP_TEMPLATE_MACRO(GeometryImportOptions, ~)
+	AE_ENABLE_ARITHMETIC_OP(GeometryImportOptions, GeometryImportOptions, |)
+	AE_ENABLE_ARITHMETIC_OP(GeometryImportOptions, GeometryImportOptions, &)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryImportOptions, GeometryImportOptions, |)
+	AE_ENABLE_ASSIGNMENT_OP(GeometryImportOptions, GeometryImportOptions, &)
+	AE_ENABLE_UNARY_OP(GeometryImportOptions, ~)
 
 	enum class FontType : unsigned {
 		Unknown = 	0,
@@ -103,30 +113,11 @@ namespace ae {
 		TTF =		1 << 1,
 	};
 
-	enum class AntialiasingMode : unsigned {
-		None =		0,
-		Msaa2X =	2,
-		Msaa4X =	4,
-		Msaa8X =	8,
-		Msaa16X =	16
-	};
-
-	typedef struct {
-		glm::vec3 min;
-		glm::vec3 max;
-	} AABB;
-
-	typedef struct {
-		float x;
-		float y;
-		float z;
-	} Extent;
-
 	enum class MaterialPropertyType {
 		Ambient,
 		Diffuse,
 		Specular,
-		Emissive
+		Emission
 	};
 
 	enum class FilterMode : unsigned {
@@ -138,7 +129,7 @@ namespace ae {
 		LinearMipmapLinear = 	0x2703
 	};
 
-	enum class WRAP_MODE : unsigned {
+	enum class WrapMode : unsigned {
 		Repeat = 			0x2901,
 		MirroredRepeat = 	0x8370,
 		ClampToEdge = 		0x812F
@@ -155,36 +146,13 @@ namespace ae {
 		Spot
 	};
 
-	enum DebugOptions : unsigned {
-		None =							0,
-		ShowStatsOverlay = 				1 << 0,
-		ShowBoundingBoxes = 			1 << 1,
-		ShowWireframes = 				1 << 2,
-		ShowCameras = 					1 << 3,
-		ShowLights = 					1 << 4,
-		ShowLightExtents = 				1 << 5,
-		ShowPhysicsBoundingBoxes = 		1 << 6,
-		ShowPhysicsWireframes = 		1 << 7,
-		ShowPhysicsContactPoints = 		1 << 8,
-		ShowPhysicsNormals = 			1 << 9,
-		ShowPhysicsConstraints =		1 << 10,
-		ShowPhysicsConstraintLimits	=	1 >> 11
+	enum class AntialiasingMode : unsigned {
+		None =		0,
+		Msaa2X =	2,
+		Msaa4X =	4,
+		Msaa8X =	8,
+		Msaa16X =	16
 	};
-	
-#define DEBUG_OPTIONS_CONTAINS(options, option) (static_cast<underlying_type<DebugOptions>::type>(options) & static_cast<underlying_type<DebugOptions>::type>(option))
-#define DEBUG_OPTIONS_ADD(options, option) (static_cast<DebugOptions>(static_cast<underlying_type<DebugOptions>::type>(options) | static_cast<underlying_type<DebugOptions>::type>(option)))
-#define DEBUG_OPTIONS_REMOVE(options, option) (static_cast<DebugOptions>(static_cast<underlying_type<DebugOptions>::type>(options) & ~ static_cast<underlying_type<DebugOptions>::type>(option)))
-	
-//	enum class LoggerSink : unsigned {
-//		None =			0,
-//		MainFile =		1 << 0,
-//		NamedFile =		1 << 1,
-//		Native = 		1 << 2 // stdout, android console, ...
-//	};
-	
-//#define LOGGER_SINK_CONTAINS(sinks, sink) (static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & static_cast<underlying_type<LOGGER_SINK>::type>(sink))
-//#define LOGGER_SINK_ADD(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) | static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
-//#define LOGGER_SINK_REMOVE(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
 
 	enum class PhysicsBodyType : unsigned {
 		Static =	0,
@@ -348,6 +316,17 @@ namespace ae {
 	} Face;
 
 	typedef struct {
+		glm::vec3 min;
+		glm::vec3 max;
+	} AABB;
+
+	typedef struct {
+		float x;
+		float y;
+		float z;
+	} Extent;
+
+	typedef struct {
 		// the frame time as of the last frame in ms
 		double		currentFrametime;
 		// the framerate as of the last frame in frames/second
@@ -381,15 +360,37 @@ namespace ae {
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
 	} Stats;
-		
+
+	enum DebugOptions : unsigned {
+		None =							0,
+		ShowStatsOverlay = 				1 << 0,
+		ShowBoundingBoxes = 			1 << 1,
+		ShowWireframes = 				1 << 2,
+		ShowCameras = 					1 << 3,
+		ShowLights = 					1 << 4,
+		ShowLightExtents = 				1 << 5,
+		ShowPhysicsBoundingBoxes = 		1 << 6,
+		ShowPhysicsWireframes = 		1 << 7,
+		ShowPhysicsContactPoints = 		1 << 8,
+		ShowPhysicsNormals = 			1 << 9,
+		ShowPhysicsConstraints =		1 << 10,
+		ShowPhysicsConstraintLimits	=	1 >> 11
+	};
+
+	AE_ENABLE_ARITHMETIC_OP(DebugOptions, DebugOptions, |)
+	AE_ENABLE_ARITHMETIC_OP(DebugOptions, DebugOptions, &)
+	AE_ENABLE_ASSIGNMENT_OP(DebugOptions, DebugOptions, |)
+	AE_ENABLE_ASSIGNMENT_OP(DebugOptions, DebugOptions, &)
+	AE_ENABLE_UNARY_OP(DebugOptions, ~)
+
 /**************************************************************************************
 	Internal
  **************************************************************************************/
 
 	class Line;
 	class Point;
-	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
-	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
+	using LineSet = std::set<std::shared_ptr<Line>>;
+	using PointSet = std::set<std::shared_ptr<Point>>;
 
 	enum class ShaderType {
 		Vertex,
@@ -407,40 +408,24 @@ namespace ae {
 		WorldTransform =		1 << 0,
 		All = 					UINT_MAX
 	};
-			
-#define NODE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit))
-#define NODE_DIRTY_MASK_ADD(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
-#define NODE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
-	
+
 	enum class GeometryDirtyMask : unsigned {
 		None =					0,
 		Extent =				1 << 0,
 		All = 					UINT_MAX
 	};
-		
-#define GEOMETRY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GeometryDirtyMask>::type>(mask) & static_cast<underlying_type<GeometryDirtyMask>::type>(bit))
-#define GEOMETRY_DIRTY_MASK_ADD(mask, bit) (static_cast<GeometryDirtyMask>(static_cast<underlying_type<GeometryDirtyMask>::type>(mask) | static_cast<underlying_type<GeometryDirtyMask>::type>(bit)))
-#define GEOMETRY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GeometryDirtyMask>(static_cast<underlying_type<GeometryDirtyMask>::type>(mask) & ~ static_cast<underlying_type<GeometryDirtyMask>::type>(bit)))
 
 	enum class GeometryElementDirtyMask : unsigned {
 		None =					0,
 		VertexData =			1 << 0,
 		All = 					UINT_MAX
 	};
-		
-#define GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) & static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit))
-#define GEOMETRY_ELEMENT_DIRTY_MASK_ADD(mask, bit) (static_cast<GeometryElementDirtyMask>(static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) | static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit)))
-#define GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GeometryElementDirtyMask>(static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) & ~ static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit)))
-	
+
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
 		All = 					UINT_MAX
 	};
-		
-#define MATERIAL_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit))
-#define MATERIAL_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) | static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
-#define MATERIAL_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
-	
+
 	enum class MaterialPropertyDirtyMask : unsigned {
 		None =					0,
 		Contents = 				1 << 0,
@@ -452,10 +437,6 @@ namespace ae {
 		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
-		
-#define MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) & static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit))
-#define MATERIAL_PROPERTY_DIRTY_MASK_ADD(mask, bit) (static_cast<MaterialPropertyDirtyMask>(static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) | static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit)))
-#define MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MaterialPropertyDirtyMask>(static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) & ~ static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit)))
 
 } // namespace ae
 

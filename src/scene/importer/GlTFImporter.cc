@@ -685,8 +685,8 @@ shared_ptr<MaterialProperty> GlTFImporter::materialPropertyFromGlTFTexture(fastg
 		if (sampler.magFilter) {
 			aeProperty->magnificationFilter(FilterMode(*sampler.magFilter));
 		}
-		aeProperty->wrapS(WRAP_MODE(sampler.wrapS));
-		aeProperty->wrapT(WRAP_MODE(sampler.wrapT));
+		aeProperty->wrapS(WrapMode(sampler.wrapS));
+		aeProperty->wrapT(WrapMode(sampler.wrapT));
 	}
 
 	return aeProperty;

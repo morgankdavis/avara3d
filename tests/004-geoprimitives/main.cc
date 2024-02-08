@@ -174,19 +174,19 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysPressed = scene.inputManager()->keysPressed();
 	if (keysPressed.count(Key::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 

@@ -62,7 +62,7 @@ Material::Material():
 		_ambient(nullptr),
 		_diffuse(nullptr),
 		_specular(nullptr),
-		_emissive(nullptr),
+		_emission(nullptr),
 		_specularExponent(150.0),
 		_locksAmbientWithDiffuse(true),
 		_doubleSided(false),
@@ -87,13 +87,13 @@ Material::Material(shared_ptr<MaterialProperty> ambient,
 Material::Material(shared_ptr<MaterialProperty> ambient,
 				   shared_ptr<MaterialProperty> diffuse,
 				   shared_ptr<MaterialProperty> specular,
-				   shared_ptr<MaterialProperty> emissive):
+				   shared_ptr<MaterialProperty> emission):
 		Material() {
 
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
-	_emissive = emissive;
+	_emission = emission;
 }
 
 Material::~Material() {
@@ -136,12 +136,12 @@ void Material::specular(const shared_ptr<MaterialProperty> property) {
 	_specular = property;
 }
 
-shared_ptr<MaterialProperty> Material::emissive() const {
-	return _emissive;
+shared_ptr<MaterialProperty> Material::emission() const {
+	return _emission;
 }
 
-void Material::emissive(const shared_ptr<MaterialProperty> property) {
-	_emissive = property;
+void Material::emission(const std::shared_ptr<MaterialProperty> property) {
+	_emission = property;
 }
 
 float Material::specularExponent() const {
