@@ -63,8 +63,8 @@
 #include "ae/rendering/Light.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/materials/Material.h"
-#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/material/Material.h"
+//#include "ae/rendering/material/MaterialProperty.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
 
@@ -677,7 +677,7 @@ void ae::utils::StopGIFRecording(RenderContext& context) {
  *********************************************************************************************/
 
 void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
-	
+
 	string padding = "";
 	for (unsigned d=0; d<depth; ++d) {
 		padding += "\t";
@@ -685,59 +685,59 @@ void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 	string nodeName = (n.name() ? "\"" + *(n.name()) + "\"" : "null");
 	ss << padding << "[NODE] (" << static_cast<const void*>(&n)
 	<< ", " << nodeName << ")" << endl;
-	
+
 	auto geometry = n.geometry();
 	if (geometry) {
 		string geometryName = (geometry->name() ? "\"" + *(geometry->name()) + "\"" : "null");
 		ss << padding << "\t[GEOMETRY] (" << static_cast<const void*>(geometry.get())
 		<< ", " << geometryName << ")" << endl;
-		
+
 		for (auto& element : geometry->elements()) {
 			ss << padding << "\t\t[ELEMENT] (" << static_cast<const void*>(element.get())<< ")" << endl;
 		}
-		
+
 		for (auto& material : geometry->materials()) {
-			
+
 			string properties = "";
-			if (material->ambient()) properties += "a";
-			if (material->diffuse()) properties += "d";
-			if (material->specular()) properties += "s";
-			if (material->emission()) properties += "e";
-			
+			if (!holds_alternative<monostate>(material->ambient())) properties += "a";
+			if (holds_alternative<monostate>(material->diffuse())) properties += "d";
+			if (holds_alternative<monostate>(material->specular())) properties += "s";
+			if (holds_alternative<monostate>(material->emission())) properties += "e";
+
 			string materialName = (material->name() ? "\"" + *(material->name()) + "\"" : "null");
 			ss << padding << "\t\t[MATERIAL] (" << static_cast<const void*>(material.get())
 			<< ", " << materialName
 			<< ", " << properties << ")" << endl;
-			
+
 //			auto ambient = material->ambient();
 //			if (ambient) {
 //				ss << padding << "\t\t\tambient (" << static_cast<const void*>(ambient.get()) << ")" << endl;
 //			}
-//			
+//
 //			auto diffuse = material->diffuse();
 //			if (diffuse) {
 //				ss << padding << "\t\t\tdiffuse (" << static_cast<const void*>(diffuse.get()) << ")" << endl;
 //			}
-//			
+//
 //			auto specular = material->specular();
 //			if (specular) {
 //				ss << padding << "\t\t\tspecular (" << static_cast<const void*>(specular.get()) << ")" << endl;
 //			}
-//			
+//
 //			auto emissive = material->emissive();
 //			if (emissive) {
 //				ss << padding << "\t\t\temissive (" << static_cast<const void*>(emissive.get()) << ")" << endl;
 //			}
 		}
 	}
-	
+
 	auto light = n.light();
 	if (light) {
 		string lightName = (light->name() ? "\"" + *(light->name()) + "\"" : "null");
 		ss << padding << "\t[LIGHT] (" << static_cast<const void*>(light.get())
 		<< ", " << lightName << ")" << endl;
 	}
-	
+
 	auto camera = n.camera();
 	if (camera) {
 		string cameraName = (camera->name() ? "\"" + *(camera->name()) + "\"" : "null");

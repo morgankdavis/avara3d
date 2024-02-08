@@ -14,12 +14,12 @@
 #include <string>
 #include <vector>
 
-#include "ae/rendering/materials/MaterialPropertyContents.h"
+//#include "ae/rendering/material/Sampleable.h"
 
 
 namespace ae {
 	
-	class Color : public MaterialPropertyContents {
+	class Color {// : public MaterialPropertyContents {
 		
 /*********************************************************************************************
 	Public Static

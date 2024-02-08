@@ -12,7 +12,7 @@
 #include "ae/geometry/GeometryElement.h"
 #include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/material/Material.h"
 #include "ae/scene/Scene.h"
 
 

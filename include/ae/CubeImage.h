@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "ae/rendering/materials/Sampleable.h"
+#include "ae/rendering/material/Sampleable.h"
 
 
 namespace ae {

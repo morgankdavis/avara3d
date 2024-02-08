@@ -21,11 +21,11 @@
 #endif
 
 #include "ae/Utilities.h"
-#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/sinks/LoggerSink.h"
-#include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
+#include "ae/diagnostic/exception/Exception.h"
+#include "ae/diagnostic/logging/sink/LoggerSink.h"
+#include "ae/diagnostic/logging/sink/FileLoggerSink.h"
 #ifdef DESKTOP
-#include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "ae/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
 #endif
 
 

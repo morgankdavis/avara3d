@@ -21,7 +21,7 @@
 
 #include "ae/Types.h"
 #include "ae/geometry/GeometryElement.h"
-#include "ae/rendering/materials/Material.h"
+#include "ae/rendering/material/Material.h"
 
 
 namespace ae {
