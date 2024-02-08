@@ -115,9 +115,9 @@ namespace ae {
 	AE_ENABLE_UNARY_OP(GeometryImportOptions, ~)
 
 	enum class FontType : unsigned {
-		Unknown = 	0,
-		OTF =		1 << 0,
-		TTF =		1 << 1,
+		Unknown,
+		OTF,
+		TTF,
 	};
 
 	enum class MaterialPropertyType {
@@ -162,15 +162,15 @@ namespace ae {
 	};
 
 	enum class PhysicsBodyType : unsigned {
-		Static =	0,
-		Dynamic =	1,
-		Kinematic =	2
+		Static,
+		Dynamic,
+		Kinematic
 	};
 
 	enum class PhysicsShapeType : unsigned {
-		BoundingBox =		0,
-		ConvexHull = 		1,
-		ConcavePolyhedron =	2
+		BoundingBox,
+		ConvexHull,
+		ConcavePolyhedron
 	};
 
 	enum class Key : int {
@@ -381,7 +381,7 @@ namespace ae {
 		ShowPhysicsContactPoints = 		1 << 8,
 		ShowPhysicsNormals = 			1 << 9,
 		ShowPhysicsConstraints =		1 << 10,
-		ShowPhysicsConstraintLimits	=	1 >> 11
+		ShowPhysicsConstraintLimits	=	1 << 11
 	};
 
 	AE_ENABLE_ARITHMETIC_OP(DebugOptions, DebugOptions, |)
