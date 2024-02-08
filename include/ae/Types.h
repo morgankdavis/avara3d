@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <set>
+#include <typeinfo>
 
 #include <glm/glm.hpp>
 
