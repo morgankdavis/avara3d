@@ -76,11 +76,11 @@ shared_ptr<Program> Program::Points() {
 	Private Static
  *********************************************************************************************/
 
-string StringFromShaderType(SHADER_TYPE type) {
+string StringFromShaderType(ShaderType type) {
 
 	switch (type) {
-		case SHADER_TYPE::VERTEX: 		return "VERTEX";
-		case SHADER_TYPE::FRAGMENT: 	return "FRAGMENT";
+		case ShaderType::Vertex: 		return "VERTEX";
+		case ShaderType::Fragment: 	return "FRAGMENT";
 	}
 }
 
@@ -132,11 +132,11 @@ Program::~Program() {
 bool Program::compile() {
 	
 	if (vertexShaderSource()) {
-		if (!compile(*vertexShaderSource(), SHADER_TYPE::VERTEX)) return false;
+		if (!compile(*vertexShaderSource(), ShaderType::Vertex)) return false;
 	}
 	
 	if (fragmentShaderSource()) {
-		if (!compile(*fragmentShaderSource(), SHADER_TYPE::FRAGMENT)) return false;
+		if (!compile(*fragmentShaderSource(), ShaderType::Fragment)) return false;
 	}
 	
 	return true;
@@ -574,7 +574,7 @@ void Program::prepare() {
 //	}
 //}
 
-bool Program::compile(const string &source, SHADER_TYPE type) {
+bool Program::compile(const string &source, ShaderType type) {
 
 	AE_LOG_I("Compiling {} shader for program '{}'...",
 			 StringFromShaderType(type), name());
@@ -582,10 +582,10 @@ bool Program::compile(const string &source, SHADER_TYPE type) {
 	GLuint shaderID = 0;
 
 	switch (type) {
-		case SHADER_TYPE::VERTEX:
+		case ShaderType::Vertex:
 			shaderID = glCreateShader(GL_VERTEX_SHADER);
 			break;
-		case SHADER_TYPE::FRAGMENT:
+		case ShaderType::Fragment:
 			shaderID = glCreateShader(GL_FRAGMENT_SHADER);
 			break;
 		default:

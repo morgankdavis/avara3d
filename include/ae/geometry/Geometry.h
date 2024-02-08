@@ -94,8 +94,8 @@ namespace ae {
 
 //		std::weak_ptr<Node> 						node() const;
 
-		GEOMETRY_DIRTY_MASK 						dirtyMask() const;
-		void 										dirtyMask(GEOMETRY_DIRTY_MASK mask);
+		GeometryDirtyMask 						dirtyMask() const;
+		void 										dirtyMask(GeometryDirtyMask mask);
 
 /*********************************************************************************************
 	Protected
@@ -115,7 +115,7 @@ namespace ae {
 		std::optional<std::string>					_name;
 //		std::weak_ptr<Node>							_node;
 
-		GEOMETRY_DIRTY_MASK							_dirtyMask;
+		GeometryDirtyMask							_dirtyMask;
 	};
 }
 

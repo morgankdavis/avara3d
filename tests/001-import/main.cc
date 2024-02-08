@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_shared<Window>(RenderApi::OpenGl,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,

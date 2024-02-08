@@ -585,7 +585,7 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 
 	if (GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(element->dirtyMask(),
-											 GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA)) {
+											 GeometryElementDirtyMask::VertexData)) {
 		
 		DeleteGeometryElementGLResources(element, glMapping);
 		
@@ -594,7 +594,7 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
 		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+															  GeometryElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -617,7 +617,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	auto element = skyboxGeometry->elements().front();
 	
 	if (GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(element->dirtyMask(),
-											 GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA)) {
+											 GeometryElementDirtyMask::VertexData)) {
 		
 		DeleteGeometryElementGLResources(element, glMapping);
 		
@@ -626,7 +626,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
 		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+															  GeometryElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -710,7 +710,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 
 	if (GEOMETRY_DIRTY_MASK_CONTAINS(geometry->dirtyMask(),
-									 GEOMETRY_DIRTY_MASK::EXTENT)) {
+									 GeometryDirtyMask::Extent)) {
 
 		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
 
@@ -755,7 +755,7 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 		aabbLineSetMapping[geometry] = aabbLineSet;
 
 		geometry->dirtyMask(GEOMETRY_DIRTY_MASK_REMOVE(geometry->dirtyMask(),
-													   GEOMETRY_DIRTY_MASK::EXTENT));
+													   GeometryDirtyMask::Extent));
 	}
 
 	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
@@ -818,7 +818,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 			auto type = types[p];
 			
 			if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property->dirtyMask(),
-													  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS)) {
+													  MaterialPropertyDirtyMask::Contents)) {
 				
 				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
 				
@@ -832,7 +832,7 @@ static void GetMaterialGLTextureHandles(Material& material,
 				}
 
 				property->dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property->dirtyMask(),
-																		MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS));
+																		MaterialPropertyDirtyMask::Contents));
 			}
 			else {
 				auto textureHandle = glMapping[property];
@@ -1434,47 +1434,47 @@ static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
 	bool cube = dynamic_pointer_cast<CubeImage>(property.contents()) != nullptr;
 	
 	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MINIFICATION_FILTER)) {
+											  MaterialPropertyDirtyMask::MinificationFilter)) {
 		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
 		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MINIFICATION_FILTER));
+															   MaterialPropertyDirtyMask::MinificationFilter));
 	}
 	
 	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MAGNIFICATION_FILTER)) {
+											  MaterialPropertyDirtyMask::MagnificationFilter)) {
 		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
 		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MAGNIFICATION_FILTER));
+															   MaterialPropertyDirtyMask::MagnificationFilter));
 	}
 	
 	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_S)) {
+											  MaterialPropertyDirtyMask::WrapS)) {
 		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
 		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_S));
+															   MaterialPropertyDirtyMask::WrapS));
 	}
 	
 	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_T)) {
+											  MaterialPropertyDirtyMask::WrapT)) {
 		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
 		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_T));
+															   MaterialPropertyDirtyMask::WrapT));
 	}
 	
 	if (cube) {
 		if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-												  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_R)) {
+												  MaterialPropertyDirtyMask::WrapR)) {
 			SetTextureWrapR(glTextureHandle, property.wrapR());
 			property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-																   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_R));
+																   MaterialPropertyDirtyMask::WrapR));
 		}
 	}
 	
 	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MAX_ANISTROPY)) {
+											  MaterialPropertyDirtyMask::MaxAnisotropy)) {
 		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
 		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MAX_ANISTROPY));
+															   MaterialPropertyDirtyMask::MaxAnisotropy));
 	}
 }
 	
@@ -1531,10 +1531,10 @@ static void SetMaterialOpenGLState(const Material& material,
 	}
 	else {
 #ifdef OPENGL_DESKTOP
-		if (material.fillMode() == FILL_MODE::LINES) {
+		if (material.fillMode() == FillMode::Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
-		else if (material.fillMode() == FILL_MODE::POINTS) {
+		else if (material.fillMode() == FillMode::Points) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		}
 		else {
@@ -1833,7 +1833,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 		glMapping.erase(element);
 
 		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+															  GeometryElementDirtyMask::VertexData));
 	}
 	
 #endif
@@ -1854,7 +1854,7 @@ static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> prope
 		glMapping.erase(property);
 
 		property->dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property->dirtyMask(),
-																MATERIAL_PROPERTY_DIRTY_MASK::ALL));
+																MaterialPropertyDirtyMask::All));
 	}
 	
 #endif

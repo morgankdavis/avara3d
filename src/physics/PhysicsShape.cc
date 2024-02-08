@@ -29,7 +29,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
+PhysicsShape::PhysicsShape(PhysicsShapeType type, Geometry* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
@@ -47,7 +47,7 @@ PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry):
 }
 
 // construct a compound shape based on geometries under this node
-PhysicsShape::PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node):
+PhysicsShape::PhysicsShape(PhysicsShapeType type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
 		_type(type),
@@ -86,11 +86,11 @@ variant<Geometry*, Node*, monostate> PhysicsShape::sourceObject() const {
 	return _sourceObject;
 }
 
-PHYSICS_SHAPE_TYPE PhysicsShape::type() const {
+PhysicsShapeType PhysicsShape::type() const {
 	return _type;
 }
 
-void PhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+void PhysicsShape::type(PhysicsShapeType type) {
 	AE_LOG_T("type: {}", magic_enum::enum_name(type));
 
 	_type = type;

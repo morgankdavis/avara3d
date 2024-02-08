@@ -32,7 +32,7 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-RenderContext::RenderContext(RenderApi renderAPI):
+RenderContext::RenderContext(RenderingApi renderAPI):
 		_renderAPI(renderAPI),
 		_renderer(nullptr),
 		_width(0),
@@ -51,14 +51,14 @@ RenderContext::RenderContext(RenderApi renderAPI):
 		_visualWorld(nullptr) {
 
 	switch (_renderAPI) {
-		case RenderApi::OpenGl: {
+		case RenderingApi::OpenGL: {
 			auto renderer = make_shared<OpenGLRenderer>();
 			_renderer = static_pointer_cast<Renderer>(renderer);
 			break; }
-		case RenderApi::OpenGlEs: {
+		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported render API: OPENGL_ES");
 			break; }
-		case RenderApi::Vulkan: {
+		case RenderingApi::Vulkan: {
 			throw Exception("Unsupported render API: VULKAN");
 			break; }
 	}
@@ -76,7 +76,7 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-RenderApi RenderContext::renderAPI() const {
+RenderingApi RenderContext::renderAPI() const {
 	return _renderAPI;
 }
 

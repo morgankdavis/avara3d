@@ -66,10 +66,10 @@ Material::Material():
 		_specularExponent(150.0),
 		_locksAmbientWithDiffuse(true),
 		_doubleSided(false),
-		_fillMode(FILL_MODE::FILL),
+		_fillMode(FillMode::Fill),
 		_uvScale(1.0f),
 		_blendFunction(BlendFunction::Disabled),
-		_dirtyMask(MATERIAL_DIRTY_MASK::ALL) {
+		_dirtyMask(MaterialDirtyMask::All) {
 
 	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
@@ -168,7 +168,7 @@ void Material::doubleSided(bool flag) {
 	_doubleSided = flag;
 }
 
-FILL_MODE Material::fillMode() const {
+FillMode Material::fillMode() const {
 #ifdef ANDROID
 	return FILL_MODE::FILL;
 #else
@@ -176,7 +176,7 @@ FILL_MODE Material::fillMode() const {
 #endif
 }
 
-void Material::fillMode(FILL_MODE mode) {
+void Material::fillMode(FillMode mode) {
 #ifdef OPENGL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
 		throw Exception("Fill mode not supported with this rendering API.");
@@ -206,10 +206,10 @@ void Material::blendFunction(BlendFunction function) {
 	Internal
  *********************************************************************************************/
 
-MATERIAL_DIRTY_MASK Material::dirtyMask() const {
+MaterialDirtyMask Material::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Material::dirtyMask(MATERIAL_DIRTY_MASK mask) {
+void Material::dirtyMask(MaterialDirtyMask mask) {
 	_dirtyMask = mask;
 }

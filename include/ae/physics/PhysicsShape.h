@@ -37,8 +37,8 @@ namespace ae {
 
 	public:
 
-		PhysicsShape(PHYSICS_SHAPE_TYPE type, Geometry* geometry);
-		PhysicsShape(PHYSICS_SHAPE_TYPE type, Node* node);
+		PhysicsShape(PhysicsShapeType type, Geometry* geometry);
+		PhysicsShape(PhysicsShapeType type, Node* node);
 		~PhysicsShape();
 
 	protected:
@@ -51,8 +51,8 @@ namespace ae {
 
 	public:
 
-		virtual PHYSICS_SHAPE_TYPE 			type() const;
-		virtual void 						type(PHYSICS_SHAPE_TYPE type);
+		virtual PhysicsShapeType 			type() const;
+		virtual void 						type(PhysicsShapeType type);
 
 		std::variant<
 				Geometry*,
@@ -98,7 +98,7 @@ namespace ae {
 
 	protected:
 
-		PHYSICS_SHAPE_TYPE 					_type;
+		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
 /*********************************************************************************************

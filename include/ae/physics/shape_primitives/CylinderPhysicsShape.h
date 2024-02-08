@@ -36,8 +36,8 @@ namespace ae {
 	PhysicsShape
  *********************************************************************************************/
 
-		PHYSICS_SHAPE_TYPE		type() const override;
-		void					type(PHYSICS_SHAPE_TYPE type) override;
+		PhysicsShapeType		type() const override;
+		void					type(PhysicsShapeType type) override;
 
 /*********************************************************************************************
 	Private

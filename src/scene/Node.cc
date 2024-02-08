@@ -68,7 +68,7 @@ Node::Node():
 		_physicsBody(nullptr),
 		_scene(nullptr),
 		_parent(nullptr),
-		_dirtyMask(NODE_DIRTY_MASK::NONE) { }
+		_dirtyMask(NodeDirtyMask::None) { }
 
 Node::Node(const string& name):
 	Node() {
@@ -1046,10 +1046,10 @@ void Node::childrenRec(shared_ptr<Node> node,
 //	stack.push(node);
 //}
 
-NODE_DIRTY_MASK Node::dirtyMask() const {
+NodeDirtyMask Node::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Node::dirtyMask(NODE_DIRTY_MASK mask) {
+void Node::dirtyMask(NodeDirtyMask mask) {
 	_dirtyMask = mask;
 }

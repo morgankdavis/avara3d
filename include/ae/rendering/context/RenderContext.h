@@ -44,7 +44,7 @@ namespace ae {
 
 	public:
 
-		RenderContext(RenderApi renderAPI);
+		RenderContext(RenderingApi renderAPI);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
@@ -53,7 +53,7 @@ namespace ae {
 	Public
  *********************************************************************************************/
 		
-		RenderApi 							renderAPI() const;
+		RenderingApi 							renderAPI() const;
 
 		unsigned 							width() const;
 		unsigned 							height() const;
@@ -104,7 +104,7 @@ namespace ae {
 
 	protected:
 
-		RenderApi 							_renderAPI;
+		RenderingApi 							_renderAPI;
 		std::shared_ptr<Renderer>			_renderer;
 
 		unsigned							_width;

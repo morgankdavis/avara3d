@@ -30,7 +30,7 @@ void DidRenderCallback(VisualWorld& world, float time);
 
 void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
-void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed);
+void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 
 constexpr bool					USE_HIGH_DPI =			false;
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
 	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderApi::OpenGl,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -162,29 +162,29 @@ void UpdateCallback(Scene& scene, float time) {
 	auto keysPressed = scene.inputManager()->keysPressed();
 	auto keysDown = scene.inputManager()->keysDown();
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::T)) {
+	if (keysPressed.count(Key::T)) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
-	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FilterMode::Nearest, scene);
-	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FilterMode::Linear, scene);
-	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
-	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FilterMode::NearestMipmapLinear, scene);
-	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FilterMode::LinearMipmapNearest, scene);
-	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
+	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
+	else if (keysPressed.count(Key::Two))	SetAllFilterModes(FilterMode::Linear, scene);
+	else if (keysPressed.count(Key::Three))	SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
+	else if (keysPressed.count(Key::Four))	SetAllFilterModes(FilterMode::NearestMipmapLinear, scene);
+	else if (keysPressed.count(Key::Five))	SetAllFilterModes(FilterMode::LinearMipmapNearest, scene);
+	else if (keysPressed.count(Key::Six))	SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
 
-	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
-	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
+	if 		(keysPressed.count(Key::LeftBracket))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(Key::RightBracket))	SetAllMaxAnisotropy(16, scene);
 
-	if 		(keysPressed.count(KEY::F1)) 	pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysPressed.count(KEY::F2)) 	pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysPressed.count(KEY::F3)) 	pointLightNode->light()->attenuationFactor(0.00005);
+	if 		(keysPressed.count(Key::F1)) 	pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysPressed.count(Key::F2)) 	pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysPressed.count(Key::F3)) 	pointLightNode->light()->attenuationFactor(0.00005);
 
-	if (keysPressed.count(KEY::F)) {
+	if (keysPressed.count(Key::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
@@ -193,7 +193,7 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::B)) {
+	if (keysPressed.count(Key::B)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
@@ -202,7 +202,7 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::I)) {
+	if (keysPressed.count(Key::I)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
@@ -211,15 +211,15 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -228,11 +228,11 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+	if (keysPressed.count(Key::ForwardDelete)) {
 		scene.paused(!scene.paused());
 	}
 
@@ -279,31 +279,31 @@ void UpdateCallback(Scene& scene, float time) {
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
-			if (keysDown.count(KEY::LEFT_CONTROL)) {
+			if (keysDown.count(Key::LeftControl)) {
 				moveMultiplier = 2.0;
 			}
 
-			if(keysDown.count(KEY::W)) {
+			if(keysDown.count(Key::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if(keysDown.count(KEY::S)) {
+			else if(keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if(keysDown.count(KEY::A)) {
+			if(keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if(keysDown.count(KEY::D)) {
+			else if(keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				float direction = 1;
-				if (keysDown.count(KEY::LEFT_SHIFT)) {
+				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;

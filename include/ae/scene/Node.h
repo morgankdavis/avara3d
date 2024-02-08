@@ -199,8 +199,8 @@ namespace ae {
 //																	std::map<std::shared_ptr<Node>, bool>& visited,
 //																	std::stack<std::shared_ptr<Node>>& stack);
 
-		NODE_DIRTY_MASK 						dirtyMask() const;
-		void 									dirtyMask(NODE_DIRTY_MASK mask);
+		NodeDirtyMask 						dirtyMask() const;
+		void 									dirtyMask(NodeDirtyMask mask);
 
 		std::optional<std::string>				_name;
 		
@@ -218,7 +218,7 @@ namespace ae {
 		
 		std::shared_ptr<PhysicsBody>			_physicsBody;
 
-		NODE_DIRTY_MASK							_dirtyMask;
+		NodeDirtyMask							_dirtyMask;
 
 		Scene*									_scene;
 

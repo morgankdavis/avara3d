@@ -98,7 +98,7 @@ namespace ae {
 														   const std::string &type);
 		void 								prepare();
 		bool 								compile(const std::string &source,
-													SHADER_TYPE type);
+													ShaderType type);
 		unsigned 							getUniformLocation(const char* name);
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);

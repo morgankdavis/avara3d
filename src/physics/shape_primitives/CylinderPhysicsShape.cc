@@ -44,10 +44,10 @@ void CylinderPhysicsShape::height(float height) {
 	PhysicsShape
  *********************************************************************************************/
 
-PHYSICS_SHAPE_TYPE CylinderPhysicsShape::type() const {
+PhysicsShapeType CylinderPhysicsShape::type() const {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CylinderPhysicsShape.");
 }
 
-void CylinderPhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+void CylinderPhysicsShape::type(PhysicsShapeType type) {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CylinderPhysicsShape.");
 }

@@ -33,8 +33,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		virtual PHYSICS_BODY_TYPE		type() const = 0;
-		virtual void					type(PHYSICS_BODY_TYPE type) = 0;
+		virtual PhysicsBodyType		type() const = 0;
+		virtual void					type(PhysicsBodyType type) = 0;
 
 		virtual PhysicsShapeProxy*	shapeProxy() const = 0;
 		virtual void					shapeProxy(PhysicsShapeProxy* proxy) = 0;

@@ -48,16 +48,16 @@ namespace ae {
 		//PhysicsBody();
 		// "If you pass nil for the shape parameter, SceneKit automatically creates a physics
 		// shape for the body when you attach it to a node, based on that node’s geometry property."
-		PhysicsBody(PHYSICS_BODY_TYPE type);
-		PhysicsBody(PHYSICS_BODY_TYPE type, std::shared_ptr<PhysicsShape> shape);
+		PhysicsBody(PhysicsBodyType type);
+		PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape);
 		~PhysicsBody();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		PHYSICS_BODY_TYPE 					type() const;
-		void 								type(PHYSICS_BODY_TYPE type);
+		PhysicsBodyType 					type() const;
+		void 								type(PhysicsBodyType type);
 
 		std::shared_ptr<PhysicsShape> 		shape() const;
 		void 								shape(std::shared_ptr<PhysicsShape> shape);
@@ -192,7 +192,7 @@ namespace ae {
 
 		void 									checkAddToWorld();
 
-		PHYSICS_BODY_TYPE 						_type;
+		PhysicsBodyType 						_type;
 		std::shared_ptr<PhysicsShape>			_shape;
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;
 		Node*									_node;

@@ -116,7 +116,7 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
-	auto aeButton = static_cast<MOUSE_BUTTON>(button);
+	auto aeButton = static_cast<MouseButton>(button);
 	
 	if (action == GLFW_PRESS) {
 		inputManager->_mouseButtonsDown.insert(aeButton);
@@ -180,17 +180,17 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 	
 	if (action == GLFW_PRESS) {
-		inputManager->_keysDown.insert(static_cast<KEY>(key));
+		inputManager->_keysDown.insert(static_cast<Key>(key));
 		
 		// if key is in "cleared" it means the client already read it, so don't add it again until
 		// we get key up, and then back down again
-		if (inputManager->_keysPressedCleared.count(static_cast<KEY>(key)) == 0) {
-			inputManager->_keysPressed.insert(static_cast<KEY>(key));
+		if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
+			inputManager->_keysPressed.insert(static_cast<Key>(key));
 		}
 	}
 	else if (action == GLFW_RELEASE) {
-		inputManager->_keysDown.erase(static_cast<KEY>(key));
-		inputManager->_keysPressedCleared.erase(static_cast<KEY>(key));
+		inputManager->_keysDown.erase(static_cast<Key>(key));
+		inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
 	}
 }
 

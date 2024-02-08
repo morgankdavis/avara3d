@@ -55,7 +55,7 @@ static void 	GLFWErrorCallback(int error,
 	Lifescycle
  *********************************************************************************************/
 
-Window::Window(RenderApi renderAPI,
+Window::Window(RenderingApi renderAPI,
 			   bool fullScreen,
 			   unsigned width,
 			   unsigned height,

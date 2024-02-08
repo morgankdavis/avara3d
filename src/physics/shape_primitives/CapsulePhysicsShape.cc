@@ -55,10 +55,10 @@ void CapsulePhysicsShape::height(float height) {
 	PhysicsShape
  *********************************************************************************************/
 
-PHYSICS_SHAPE_TYPE CapsulePhysicsShape::type() const {
+PhysicsShapeType CapsulePhysicsShape::type() const {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CapsulePhysicsShape.");
 }
 
-void CapsulePhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+void CapsulePhysicsShape::type(PhysicsShapeType type) {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CapsulePhysicsShape.");
 }

@@ -51,7 +51,7 @@ namespace ae {
 
 	public:
 
-		Window(RenderApi renderAPI,
+		Window(RenderingApi renderAPI,
 			   bool fullScreen,
 			   unsigned width,
 			   unsigned height,

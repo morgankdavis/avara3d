@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
 
-	auto window = make_shared<Window>(RenderApi::OpenGl,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -130,15 +130,15 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysPressed = scene.inputManager()->keysPressed();
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::F)) {
+	if (keysPressed.count(Key::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowWireframes));
@@ -148,7 +148,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::B)) {
+	if (keysPressed.count(Key::B)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowBoundingBoxes));
@@ -158,7 +158,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::I)) {
+	if (keysPressed.count(Key::I)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowStatsOverlay));
@@ -169,15 +169,15 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -216,23 +216,23 @@ void UpdateCallback(Scene& scene, float time) {
 
 			auto keysDown = scene.inputManager()->keysDown();
 
-			if (keysDown.count(KEY::W)) {
+			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
-			} else if (keysDown.count(KEY::S)) {
+			} else if (keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::A)) {
+			if (keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
-			} else if (keysDown.count(KEY::D)) {
+			} else if (keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}

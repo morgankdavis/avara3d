@@ -32,8 +32,8 @@ namespace ae {
 	PhysicsBodyModelProxy
  *********************************************************************************************/
 
-		PHYSICS_BODY_TYPE		type() const override;
-		void					type(PHYSICS_BODY_TYPE type) override;
+		PhysicsBodyType		type() const override;
+		void					type(PhysicsBodyType type) override;
 
 		PhysicsShapeProxy*		shapeProxy() const override;
 		void					shapeProxy(PhysicsShapeProxy* proxy) override;

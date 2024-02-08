@@ -18,13 +18,13 @@
 
 
 namespace ae {
+	
+/**************************************************************************************
+	Public
+ **************************************************************************************/
 
-
-
-	// TODO: put this somewhere
-
-	// example from fastgltf
-	// a similar approach: https://stackoverflow.com/a/12080553
+// example from fastgltf
+// a similar approach: https://stackoverflow.com/a/12080553
 
 	template<typename T>
 	constexpr std::underlying_type_t<T> to_underlying(T t) noexcept {
@@ -49,19 +49,6 @@ namespace ae {
         return static_cast<T>(op to_underlying(a)); \
     }
 
-
-
-	
-/**************************************************************************************
-	Public
- **************************************************************************************/
-	
-	class Line;
-	class Point;
-	
-	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
-	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
-
 //// stops "ERROR" macro expansion from wingdi.h included by glfw on Windows.
 //// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
 //// this could break wingdi in the future depending on include order...
@@ -77,9 +64,9 @@ namespace ae {
 		Off = 		6
 	};
 
-	enum class RenderApi {
-		OpenGl,
-		OpenGlEs,
+	enum class RenderingApi {
+		OpenGL,
+		OpenGLES,
 		Vulkan
 	};
 
@@ -199,38 +186,38 @@ namespace ae {
 //#define LOGGER_SINK_ADD(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) | static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
 //#define LOGGER_SINK_REMOVE(sinks, sink) (static_cast<LOGGER_SINK>(static_cast<underlying_type<LOGGER_SINK>::type>(sinks) & ~ static_cast<underlying_type<LOGGER_SINK>::type>(sink)))
 
-	enum class PHYSICS_BODY_TYPE : unsigned {
-		STATIC =	0,
-		DYNAMIC =	1,
-		KINEMATIC =	2
+	enum class PhysicsBodyType : unsigned {
+		Static =	0,
+		Dynamic =	1,
+		Kinematic =	2
 	};
 
-	enum class PHYSICS_SHAPE_TYPE : unsigned {
-		BOUNDING_BOX =			0,
-		CONVEX_HULL = 			1,
-		CONCAVE_POLYHEDRON =	2
+	enum class PhysicsShapeType : unsigned {
+		BoundingBox =		0,
+		ConvexHull = 		1,
+		ConcavePolyhedron =	2
 	};
 
-	enum class KEY : int {
-		UNKNOWN = 0,
-		SPACE = 32,
-		APOSTROPHE = 39,  /* ' */
-		COMMA = 44,  /* , */
-		MINUS = 45,  /* - */
-		PERIOD = 46,  /* . */
-		SLASH = 47,  /* / */
-		ZERO = 48,
-		ONE = 49,
-		TWO = 50,
-		THREE = 51,
-		FOUR = 52,
-		FIVE = 53,
-		SIX = 54,
-		SEVEN = 55,
-		EIGHT = 56,
-		NINE = 57,
-		SEMICOLON = 59,  /* ; */
-		EQUAL = 61,  /* = */
+	enum class Key : int {
+		Unknown = 0,
+		Space = 32,
+		Apostrophe = 39,
+		Comma = 44,
+		Minus = 45,
+		Period = 46,
+		Slash = 47,
+		Zero = 48,
+		One = 49,
+		Two = 50,
+		Three = 51,
+		Four = 52,
+		Five = 53,
+		Six = 54,
+		Seven = 55,
+		Eight = 56,
+		Nine = 57,
+		Semicolon = 59,
+		Equal = 61,
 		A = 65,
 		B = 66,
 		C = 67,
@@ -257,33 +244,33 @@ namespace ae {
 		X = 88,
 		Y = 89,
 		Z = 90,
-		LEFT_BRACKET = 91,  /* [ */
-		BACKSLASH = 92,  /* \ */
-		RIGHT_BRACKET = 93,  /* ] */
-		GRAVE_ACCENT = 96,  /* ` */
-		WORLD_1 = 161, /* non-US #1 */
-		WORLD_2 = 162, /* non-US #2 */
+		LeftBracket = 91,
+		Backslash = 92,
+		RightBracket = 93,
+		GraveAccent = 96,
+		World1 = 161, // non-US #1
+		World2 = 162, // non-US #2
 		
 		/* Function keys */
-		ESCAPE = 256,
-		ENTER = 257,
-		TAB = 258,
-		BACKSPACE = 259,
-		INSERT = 260,
-		FORWARD_DELETE = 261,
-		RIGHT = 262,
-		LEFT = 263,
-		DOWN = 264,
-		UP = 265,
-		PAGE_UP = 266,
-		PAGE_DOWN = 267,
-		HOME = 268,
-		END = 269,
-		CAPS_LOCK = 280,
-		SCROLL_LOCK = 281,
-		NUM_LOCK = 282,
-		PRINT_SCREEN = 283,
-		PAUSE = 284,
+		Escape = 256,
+		Enter = 257,
+		Tab = 258,
+		Backspace = 259,
+		Insert = 260,
+		ForwardDelete = 261,
+		Right = 262,
+		Left = 263,
+		Down = 264,
+		Up = 265,
+		PageUp = 266,
+		PageDown = 267,
+		Home = 268,
+		End = 269,
+		CapsLock = 280,
+		ScrollLock = 281,
+		NumLock = 282,
+		PrintScreen = 283,
+		Pause = 284,
 		F1 = 290,
 		F2 = 291,
 		F3 = 292,
@@ -309,58 +296,43 @@ namespace ae {
 		F23 = 312,
 		F24 = 313,
 		F25 = 314,
-		KEYPAD_0 = 320,
-		KEYPAD_1 = 321,
-		KEYPAD_2 = 322,
-		KEYPAD_3 = 323,
-		KEYPAD_4 = 324,
-		KEYPAD_5 = 325,
-		KEYPAD_6 = 326,
-		KEYPAD_7 = 327,
-		KEYPAD_8 = 328,
-		KEYPAD_9 = 329,
-		KEYPAD_DECIMAL = 330,
-		KEYPAD_DIVIDE = 331,
-		KEYPAD_MULTIPLY = 332,
-		KEYPAD_SUBTRACT = 333,
-		KEYPAD_ADD = 334,
-		KEYPAD_ENTER = 335,
-		KEYPAD_EQUAL = 336,
-		LEFT_SHIFT = 340,
-		LEFT_CONTROL = 341,
-		LEFT_ALT = 342,
-		LEFT_SUPER = 343,
-		RIGHT_SHIFT = 344,
-		RIGHT_CONTROL = 345,
-		RIGHT_ALT = 346,
-		RIGHT_SUPER = 347,
-		MENU = 348
+		Keypad0 = 320,
+		Keypad1 = 321,
+		Keypad2 = 322,
+		Keypad3 = 323,
+		Keypad4 = 324,
+		Keypad5 = 325,
+		Keypad6 = 326,
+		Keypad7 = 327,
+		Keypad8 = 328,
+		Keypad9 = 329,
+		KeypadDecimal = 330,
+		KeypadDivide = 331,
+		KeypadMultiply = 332,
+		KeypadSubtract = 333,
+		KeypadAdd = 334,
+		KeypadEnter = 335,
+		KeypadEqual = 336,
+		LeftShift = 340,
+		LeftControl = 341,
+		LeftAlt = 342,
+		LeftSuper = 343,
+		RightShift = 344,
+		RightControl = 345,
+		RightAlt = 346,
+		RightSuper = 347,
+		Menu = 348
 	};
 		
-	enum class MOUSE_BUTTON : int {
-		ONE = 	0,
-		TWO = 	1,
-		THREE = 2,
-		FOUR = 	3,
-		FIVE = 	4,
-		SIX = 	5,
-		SEVEN = 6,
-		EIGHT = 7
-	};
-		
-/**************************************************************************************
-	Internal
- **************************************************************************************/
-
-	enum class SHADER_TYPE {
-		VERTEX,
-		FRAGMENT
-	};
-
-	enum class FILL_MODE {
-		FILL,
-		LINES,
-		POINTS
+	enum class MouseButton : int {
+		One = 	0,
+		Two = 	1,
+		Three = 2,
+		Four = 	3,
+		Five = 	4,
+		Six = 	5,
+		Seven = 6,
+		Eight = 7
 	};
 
 	typedef struct {
@@ -368,7 +340,7 @@ namespace ae {
 		glm::vec3 normal;
 		glm::vec2 texCoord;
 	} Vertex;
-	
+
 	typedef struct {
 		unsigned a;
 		unsigned b;
@@ -410,108 +382,80 @@ namespace ae {
 		unsigned	concavePolyhedronShapes;
 	} Stats;
 		
-	enum class NODE_DIRTY_MASK : unsigned {
-		NONE =					0,
-		WORLD_TRANSFORM =		1 << 0,
-		ALL = 					UINT_MAX
+/**************************************************************************************
+	Internal
+ **************************************************************************************/
+
+	class Line;
+	class Point;
+	using LineSet = std::set<std::shared_ptr<Line>>; // internal?
+	using PointSet = std::set<std::shared_ptr<Point>>; // internal?
+
+	enum class ShaderType {
+		Vertex,
+		Fragment
+	};
+
+	enum class FillMode {
+		Fill,
+		Lines,
+		Points
+	};
+		
+	enum class NodeDirtyMask : unsigned {
+		None =					0,
+		WorldTransform =		1 << 0,
+		All = 					UINT_MAX
 	};
 			
 #define NODE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit))
 #define NODE_DIRTY_MASK_ADD(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
 #define NODE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<NODE_DIRTY_MASK>(static_cast<underlying_type<NODE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<NODE_DIRTY_MASK>::type>(bit)))
 	
-	enum class GEOMETRY_DIRTY_MASK : unsigned {
-		NONE =					0,
-		EXTENT =				1 << 0,
-		ALL = 					UINT_MAX
+	enum class GeometryDirtyMask : unsigned {
+		None =					0,
+		Extent =				1 << 0,
+		All = 					UINT_MAX
 	};
 		
-#define GEOMETRY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit))
-#define GEOMETRY_DIRTY_MASK_ADD(mask, bit) (static_cast<GEOMETRY_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit)))
-#define GEOMETRY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GEOMETRY_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<GEOMETRY_DIRTY_MASK>::type>(bit)))
+#define GEOMETRY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GeometryDirtyMask>::type>(mask) & static_cast<underlying_type<GeometryDirtyMask>::type>(bit))
+#define GEOMETRY_DIRTY_MASK_ADD(mask, bit) (static_cast<GeometryDirtyMask>(static_cast<underlying_type<GeometryDirtyMask>::type>(mask) | static_cast<underlying_type<GeometryDirtyMask>::type>(bit)))
+#define GEOMETRY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GeometryDirtyMask>(static_cast<underlying_type<GeometryDirtyMask>::type>(mask) & ~ static_cast<underlying_type<GeometryDirtyMask>::type>(bit)))
 
-	enum class GEOMETRY_ELEMENT_DIRTY_MASK : unsigned {
-		NONE =					0,
-		VERTEX_DATA =			1 << 0,
-		ALL = 					UINT_MAX
+	enum class GeometryElementDirtyMask : unsigned {
+		None =					0,
+		VertexData =			1 << 0,
+		All = 					UINT_MAX
 	};
 		
-#define GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit))
-#define GEOMETRY_ELEMENT_DIRTY_MASK_ADD(mask, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit)))
-#define GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GEOMETRY_ELEMENT_DIRTY_MASK>(static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<GEOMETRY_ELEMENT_DIRTY_MASK>::type>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) & static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_ADD(mask, bit) (static_cast<GeometryElementDirtyMask>(static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) | static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit)))
+#define GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(mask, bit) (static_cast<GeometryElementDirtyMask>(static_cast<underlying_type<GeometryElementDirtyMask>::type>(mask) & ~ static_cast<underlying_type<GeometryElementDirtyMask>::type>(bit)))
 	
-	enum class MATERIAL_DIRTY_MASK : unsigned {
-		NONE =					0,
-		ALL = 					UINT_MAX
+	enum class MaterialDirtyMask : unsigned {
+		None =					0,
+		All = 					UINT_MAX
 	};
 		
 #define MATERIAL_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit))
 #define MATERIAL_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) | static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
 #define MATERIAL_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_DIRTY_mask>(static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_DIRTY_mask>::type>(bit)))
 	
-	enum class MATERIAL_PROPERTY_DIRTY_MASK : unsigned {
-		NONE =					0,
-		CONTENTS = 				1 << 0,
-		MINIFICATION_FILTER = 	1 << 1,
-		MAGNIFICATION_FILTER = 	1 << 2,
-		WRAP_S = 				1 << 3,
-		WRAP_T = 				1 << 4,
-		WRAP_R = 				1 << 5,
-		MAX_ANISTROPY = 		1 << 6,
-		ALL = 					UINT_MAX
+	enum class MaterialPropertyDirtyMask : unsigned {
+		None =					0,
+		Contents = 				1 << 0,
+		MinificationFilter = 	1 << 1,
+		MagnificationFilter = 	1 << 2,
+		WrapS = 				1 << 3,
+		WrapT = 				1 << 4,
+		WrapR = 				1 << 5,
+		MaxAnisotropy = 		1 << 6,
+		All = 					UINT_MAX
 	};
 		
-#define MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit))
-#define MATERIAL_PROPERTY_DIRTY_MASK_ADD(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
-#define MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MATERIAL_PROPERTY_DIRTY_MASK>(static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<MATERIAL_PROPERTY_DIRTY_MASK>::type>(bit)))
-		
-//	enum class PHYSICS_WORLD_DIRTY_MASK : unsigned {
-//		TIMESTEP =				1 << 0,
-//		GRAVITY =				1 << 1,
-//		ALL = 					UINT_MAX
-//	};
-//
-//#define PHYSICS_WORLD_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit))
-//#define PHYSICS_WORLD_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
-//#define PHYSICS_WORLD_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_WORLD_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_WORLD_DIRTY_MASK>::type>(bit)))
-			
-//	enum class PHYSICS_BODY_DIRTY_MASK : unsigned {
-//		NONE =							0,
-//		TYPE =							1 << 0,
-//		SHAPE =							1 << 1,
-//		MASS =							1 << 2,
-//		MOMENT_OF_INERTIA =				1 << 3,
-//		FRICTION =						1 << 4,
-//		ROLLING_FRICTION =				1 << 5,
-//		RESTITUTION =					1 << 6,
-//		LINEAR_VELOCITY =				1 << 7,
-//		ANGULAR_VELOCITY =				1 << 8,
-//		LINEAR_FACTOR =					1 << 9,
-//		ANGULAR_FACTOR =				1 << 10,
-//		LINEAR_DAMPING =				1 << 11,
-//		ANGULAR_DAMPING =				1 << 12,
-//		LINEAR_SLEEPING_THRESHOLD =		1 << 13,
-//		ANGULAR_SLEEPING_THRESHOLD =	1 << 14,
-//		AFFECTED_BY_GRAVITY =			1 << 15,
-//		ALLOWS_RESTING =				1 << 16,
-//		FORCES =						1 << 17,
-//		TORQUES =						1 << 18,
-//		ALL = 							UINT_MAX
-//	};
-//
-//#define PHYSICS_BODY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit))
-//#define PHYSICS_BODY_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
-//#define PHYSICS_BODY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_BODY_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_BODY_DIRTY_MASK>::type>(bit)))
-
-//	enum class PHYSICS_SHAPE_DIRTY_MASK : unsigned {
-//		NONE =					0,
-//		MODEL =					1 << 0,
-//		ALL = 					UINT_MAX
-//	};
-//
-//#define PHYSICS_SHAPE_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit))
-//#define PHYSICS_SHAPE_DIRTY_MASK_ADD(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) | static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
-//#define PHYSICS_SHAPE_DIRTY_MASK_REMOVE(mask, bit) (static_cast<PHYSICS_SHAPE_DIRTY_MASK>(static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(mask) & ~ static_cast<underlying_type<PHYSICS_SHAPE_DIRTY_MASK>::type>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(mask, bit) (static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) & static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit))
+#define MATERIAL_PROPERTY_DIRTY_MASK_ADD(mask, bit) (static_cast<MaterialPropertyDirtyMask>(static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) | static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit)))
+#define MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(mask, bit) (static_cast<MaterialPropertyDirtyMask>(static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(mask) & ~ static_cast<underlying_type<MaterialPropertyDirtyMask>::type>(bit)))
 
 } // namespace ae
 

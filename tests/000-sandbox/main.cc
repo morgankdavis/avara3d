@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
 	auto time = buildInfo.time();
 
-	auto window = make_shared<Window>(RenderApi::OpenGl,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -354,19 +354,19 @@ void UpdateCallback(Scene& scene, float time) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+	if (keysPressed.count(Key::ForwardDelete)) {
 		scene.paused(!scene.paused());
 	}
 
-	if (keysPressed.count(KEY::T)) {
+	if (keysPressed.count(Key::T)) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
-	if (keysPressed.count(KEY::ONE)) {
+	if (keysPressed.count(Key::One)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -378,7 +378,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[0]);
 	}
-	if (keysPressed.count(KEY::TWO)) {
+	if (keysPressed.count(Key::Two)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -390,7 +390,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[1]);
 	}
-	if (keysPressed.count(KEY::THREE)) {
+	if (keysPressed.count(Key::Three)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -410,14 +410,14 @@ void UpdateCallback(Scene& scene, float time) {
 //	auto it = find(geometries.begin(), geometries.end(), geometry);
 //	int x = std::distance(geometries, it);
 	static int index = 0;
-	if (keysPressed.count(KEY::LEFT_BRACKET)) {
+	if (keysPressed.count(Key::LeftBracket)) {
 		geometry = geometries[--index];
 		auto name = geometry->name();
 		if (name) AE_LOG_D("name: {}", *name);
 		//geometryNode = Node::GeometryNode(geometry);
 		geometryNode->geometry(geometry);
 	}
-	if (keysPressed.count(KEY::RIGHT_BRACKET)) {
+	if (keysPressed.count(Key::RightBracket)) {
 		geometry = geometries[++index];
 		auto name = geometry->name();
 		if (name) AE_LOG_D("name: {}", *name);
@@ -428,7 +428,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 
-	if (keysPressed.count(KEY::F)) {
+	if (keysPressed.count(Key::F)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowWireframes));
@@ -438,7 +438,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::B)) {
+	if (keysPressed.count(Key::B)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowBoundingBoxes));
@@ -448,7 +448,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::I)) {
+	if (keysPressed.count(Key::I)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowStatsOverlay));
@@ -458,7 +458,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowStatsOverlay));
 		}
 	}
-	if (keysPressed.count(KEY::P)) {
+	if (keysPressed.count(Key::P)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowPhysicsBoundingBoxes));
@@ -468,7 +468,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::G)) {
+	if (keysPressed.count(Key::G)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowPhysicsWireframes));
@@ -478,7 +478,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowPhysicsWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::C)) {
+	if (keysPressed.count(Key::C)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowPhysicsContactPoints));
@@ -488,7 +488,7 @@ void UpdateCallback(Scene& scene, float time) {
 												 DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
-	if (keysPressed.count(KEY::N)) {
+	if (keysPressed.count(Key::N)) {
 		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
 			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
 													DebugOptions::ShowPhysicsNormals));
@@ -499,19 +499,19 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -550,31 +550,31 @@ void UpdateCallback(Scene& scene, float time) {
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
-			if (keysDown.count(KEY::LEFT_CONTROL)) {
+			if (keysDown.count(Key::LeftControl)) {
 				moveMultiplier = 2.0;
 			}
 
-			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
+			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if (keysDown.count(KEY::S)) {
+			else if (keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::A)) {
+			if (keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if (keysDown.count(KEY::D)) {
+			else if (keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				float direction = 1;
-				if (keysDown.count(KEY::LEFT_SHIFT)) {
+				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;

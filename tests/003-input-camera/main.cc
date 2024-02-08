@@ -43,7 +43,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test003::main()\n" << endl;
 
-	auto window = make_shared<Window>(RenderApi::OpenGl,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
 									  FULLSCREEN,
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -87,20 +87,20 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysDown = scene.inputManager()->keysDown();
 	for (auto k : keysDown) {
-		cout << "Key: " << static_cast<underlying_type<KEY>::type>(k) << endl;
+		cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
 	}
 
 	auto keysPressed = scene.inputManager()->keysPressed();
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		exit(0);
 	}
 
 	for (auto mb : scene.inputManager()->mouseButtonsDown()) {
-		cout << "Mouse button: " << static_cast<underlying_type<MOUSE_BUTTON>::type>(mb) << endl;
+		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
 	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
@@ -146,25 +146,25 @@ void UpdateCallback(Scene& scene, float time) {
 
 		static float MOVE_SPEED = Max(scene.rootNode()->extent());
 
-		if(keysDown.count(KEY::W)) {
+		if(keysDown.count(Key::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(KEY::S)) {
+		else if(keysDown.count(Key::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(KEY::A)) {
+		if(keysDown.count(Key::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(KEY::D)) {
+		else if(keysDown.count(Key::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(KEY::SPACE)) {
+		if(keysDown.count(Key::Space)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}

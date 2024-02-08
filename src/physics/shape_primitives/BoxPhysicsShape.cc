@@ -53,10 +53,10 @@ void BoxPhysicsShape::length(float length) {
 	PhysicsShape
  *********************************************************************************************/
 
-PHYSICS_SHAPE_TYPE BoxPhysicsShape::type() const {
+PhysicsShapeType BoxPhysicsShape::type() const {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
 }
 
-void BoxPhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+void BoxPhysicsShape::type(PhysicsShapeType type) {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
 }

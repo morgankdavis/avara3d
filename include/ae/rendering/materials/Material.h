@@ -78,8 +78,8 @@ namespace ae {
 		bool 									doubleSided() const;
 		void 									doubleSided(bool flag);
 		
-		FILL_MODE 								fillMode() const;
-		void 									fillMode(FILL_MODE mode);
+		FillMode 								fillMode() const;
+		void 									fillMode(FillMode mode);
 		
 		float 									uvScale() const;
 		void 									uvScale(float scale);
@@ -91,8 +91,8 @@ namespace ae {
 	Internal
  *********************************************************************************************/
 
-		MATERIAL_DIRTY_MASK 					dirtyMask() const;
-		void 									dirtyMask(MATERIAL_DIRTY_MASK mask);
+		MaterialDirtyMask 					dirtyMask() const;
+		void 									dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
 	Private
@@ -110,11 +110,11 @@ namespace ae {
 		float 									_specularExponent;
 		bool 									_locksAmbientWithDiffuse;
 		bool 									_doubleSided;
-		FILL_MODE 								_fillMode;
+		FillMode 								_fillMode;
 		float 									_uvScale;
 		BlendFunction							_blendFunction;
 
-		MATERIAL_DIRTY_MASK						_dirtyMask;
+		MaterialDirtyMask						_dirtyMask;
 	};
 }
 

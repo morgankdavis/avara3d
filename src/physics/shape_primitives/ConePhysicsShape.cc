@@ -44,10 +44,10 @@ void ConePhysicsShape::height(float height) {
 	PhysicsShape
  *********************************************************************************************/
 
-PHYSICS_SHAPE_TYPE ConePhysicsShape::type() const {
+PhysicsShapeType ConePhysicsShape::type() const {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to ConePhysicsShape.");
 }
 
-void ConePhysicsShape::type(PHYSICS_SHAPE_TYPE type) {
+void ConePhysicsShape::type(PhysicsShapeType type) {
 	throw Exception("PHYSICS_SHAPE_TYPE does not apply to ConePhysicsShape.");
 }

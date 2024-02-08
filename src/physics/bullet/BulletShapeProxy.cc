@@ -47,40 +47,40 @@ using namespace std;
 
 static shared_ptr<btCollisionShape>
 BTShapeFromSourceGeometry(Geometry* geometry,
-						  PHYSICS_SHAPE_TYPE shapeType,
-						  PHYSICS_BODY_TYPE bodyType,
+						  PhysicsShapeType shapeType,
+						  PhysicsBodyType bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
 						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static shared_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node* node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
+					  PhysicsShapeType shapeType,
+					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static shared_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PHYSICS_BODY_TYPE bodyType);
+						  PhysicsBodyType bodyType);
 
 static shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   Geometry* geometry,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
+						   PhysicsShapeType shapeType,
+						   PhysicsBodyType bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
 
 static shared_ptr<btCompoundShape>
 BTShapeFromGeometry(Geometry* geometry,
-					PHYSICS_SHAPE_TYPE shapeType,
-					PHYSICS_BODY_TYPE bodyType,
+					PhysicsShapeType shapeType,
+					PhysicsBodyType bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
 					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static void
 AddBTShapeFromNodeRec(shared_ptr<Node> node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
+					  PhysicsShapeType shapeType,
+					  PhysicsBodyType bodyType,
 					  shared_ptr<btCompoundShape> compoundShape,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
@@ -199,8 +199,8 @@ vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 
 static shared_ptr<btCollisionShape>
 BTShapeFromSourceGeometry(Geometry* geometry,
-						  PHYSICS_SHAPE_TYPE shapeType,
-						  PHYSICS_BODY_TYPE bodyType,
+						  PhysicsShapeType shapeType,
+						  PhysicsBodyType bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
 						  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -238,8 +238,8 @@ BTShapeFromSourceGeometry(Geometry* geometry,
 
 static shared_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node* node,
-					  PHYSICS_SHAPE_TYPE shapeType,
-					  PHYSICS_BODY_TYPE bodyType,
+					  PhysicsShapeType shapeType,
+					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -279,7 +279,7 @@ BTShapeFromSourceNode(Node* node,
 
 static shared_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PHYSICS_BODY_TYPE bodyType) {
+						  PhysicsBodyType bodyType) {
 
 	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
 		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
@@ -318,12 +318,12 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 shared_ptr<btCollisionShape>
 BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 						   Geometry* geometry,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
+						   PhysicsShapeType shapeType,
+						   PhysicsBodyType bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 
-	if (shapeType == PHYSICS_SHAPE_TYPE::BOUNDING_BOX) {
+	if (shapeType == PhysicsShapeType::BoundingBox) {
 		AE_LOG_I("Creating box physics shape for GeometryElement {:p}...",
 				 static_cast<void*>(element.get()));
 
@@ -380,19 +380,19 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 		return make_shared<btSphereShape>((btScalar)sphere->radius());
 	}
 		// * no Bullet primitives for Torus or Tube *
-	else if (shapeType == PHYSICS_SHAPE_TYPE::CONVEX_HULL) {
+	else if (shapeType == PhysicsShapeType::ConvexHull) {
 
 		return BTConvexHullShapeFromGeometryElement(element);
 	}
-	else if (bodyType == PHYSICS_BODY_TYPE::DYNAMIC) {
+	else if (bodyType == PhysicsBodyType::Dynamic) {
 
 		return BTCompoundConvexHullHACDShapeFromGeometryElement(element, btShapes);
 	}
-	else if (bodyType == PHYSICS_BODY_TYPE::KINEMATIC) {
+	else if (bodyType == PhysicsBodyType::Kinematic) {
 
 		return BTGImpactMeshShapeFromGeometryElement(element, indexVertexArray);
 	}
-	else if (bodyType == PHYSICS_BODY_TYPE::STATIC) {
+	else if (bodyType == PhysicsBodyType::Static) {
 
 		return BTBvhTriangleMeshShapeFromGeometryElement(element, indexVertexArray);
 	}
@@ -402,8 +402,8 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 
 shared_ptr<btCompoundShape>
 BTShapeFromGeometry(Geometry* geometry,
-					PHYSICS_SHAPE_TYPE shapeType,
-					PHYSICS_BODY_TYPE bodyType,
+					PhysicsShapeType shapeType,
+					PhysicsBodyType bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
 					vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -431,8 +431,8 @@ BTShapeFromGeometry(Geometry* geometry,
 }
 
 void AddBTShapeFromNodeRec(shared_ptr<Node> node,
-						   PHYSICS_SHAPE_TYPE shapeType,
-						   PHYSICS_BODY_TYPE bodyType,
+						   PhysicsShapeType shapeType,
+						   PhysicsBodyType bodyType,
 						   shared_ptr<btCompoundShape> btParentShape,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
