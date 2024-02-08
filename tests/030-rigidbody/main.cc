@@ -1130,7 +1130,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 void SpawnHACDTeapot(Scene& scene) {
 
 	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot"));
+	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 2;

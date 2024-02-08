@@ -223,45 +223,24 @@ BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-//	auto opt2 = DebugOptions::ShowPhysicsBoundingBoxes | DebugOptions::ShowPhysicsContactPoints;
-
-	if ((options & DebugOptions::ShowPhysicsBoundingBoxes) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
 	}
-	if ((options & DebugOptions::ShowPhysicsWireframes) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsWireframes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
 	}
-	if ((options & DebugOptions::ShowPhysicsContactPoints) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsContactPoints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
 	}
-	if ((options & DebugOptions::ShowPhysicsNormals) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsNormals)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
 	}
-	if ((options & DebugOptions::ShowPhysicsConstraints) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
 	}
-	if ((options & DebugOptions::ShowPhysicsConstraintLimits) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraintLimits)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
 	}
-
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
-//	}
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsWireframes)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
-//	}
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsContactPoints)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
-//	}
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsNormals)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
-//	}
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsConstraints)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
-//	}
-//	if (DEBUG_OPTIONS_CONTAINS(options, DebugOptions::ShowPhysicsConstraintLimits)) {
-//		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
-//	}
 
 	/* what do these do?
 

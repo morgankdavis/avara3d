@@ -331,7 +331,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Stats& stats) {
 	Renderer::endFrame(scene, context, debugOptions, stats);
 
-	if ((debugOptions & DebugOptions::ShowStatsOverlay) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		auto scene = context.visualWorld()->scene();
 		DrawStatsOverlay(stats,
 						 Scene::Time(),
@@ -403,8 +403,7 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	if ((debugOptions & DebugOptions::ShowBoundingBoxes) != DebugOptions::None) {
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+	if (AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
 		// will check dirty bit, and create an AABB lineset if necessary,
 		// and insert into _geometryAABBLineSetMapping
@@ -417,7 +416,6 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 
 		render(_geometryAABBLineSetMapping[geometry],
 			   modelMat, viewMat, projectionMat);
-		
 	}
 	else {
 		// if there was an AABB lineset, just remove it

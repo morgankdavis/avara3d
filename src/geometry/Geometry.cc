@@ -151,13 +151,9 @@ void Geometry::draw(Renderer& renderer,
 	
 	// forces Renderer to re-create AABB linesets next time they're turned on.
 	// this seems like hacky way to do it.
-	if ((debugOptions & DebugOptions::ShowBoundingBoxes) != DebugOptions::None) {
+	if (AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 		_dirtyMask = AE_MASK_ADD(_dirtyMask, GeometryDirtyMask::Extent);
-//		_dirtyMask = _dirtyMask | GeometryDirtyMask::Extent;
 	}
-//	if (!DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//		_dirtyMask = AE_MASK_ADD(_dirtyMask, GeometryDirtyMask::Extent);
-//	}
 	
 	renderer.render(shared_from_this(),
 					modelMat, viewMat, projectionMat,
