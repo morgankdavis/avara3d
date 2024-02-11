@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "ae/Types.h"
+#include "ae/rendering/material/Material.h"
 
 
 namespace ae {
@@ -17,7 +18,6 @@ namespace ae {
 
 	class Color;
 	class Geometry;
-	class MaterialProperty;
 	class Node;
 	class PhysicalWorld;
 	class RenderContext;
@@ -49,8 +49,8 @@ namespace ae {
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<MaterialProperty>		background() const;
-		void 									background(std::shared_ptr<MaterialProperty> background);
+		Material::Property						background() const;
+		void 									background(Material::Property background);
 
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
@@ -105,7 +105,7 @@ namespace ae {
 
 	private:
 
-		std::shared_ptr<MaterialProperty>		_background;
+		Material::Property						_background;
 		std::shared_ptr<Geometry>				_skyboxGeometry;
 		float									_fogStartDistance;
 		float									_fogEndDistance;

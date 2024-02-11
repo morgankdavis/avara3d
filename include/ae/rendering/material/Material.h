@@ -33,27 +33,31 @@ namespace ae {
 
 	public:
 
-		using MaterialProperty = std::variant<
+//		using MaterialProperty = std::variant<
+//				std::monostate,
+//				std::shared_ptr<Texture>,
+//				std::shared_ptr<Color>>;
+		using Property = std::variant<
 				std::monostate,
 				std::shared_ptr<Texture>,
 				std::shared_ptr<Color>>;
 
 		static std::shared_ptr<Material> DefaultMaterial();
-		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make private
-		static std::shared_ptr<Material> EmissiveMaterial(MaterialProperty property);
+		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
+		static std::shared_ptr<Material> EmissiveMaterial(Property property);
 		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Material();
-		Material(MaterialProperty ambient,
-				 MaterialProperty diffuse,
-				 MaterialProperty specular);
-		Material(MaterialProperty ambient,
-				 MaterialProperty diffuse,
-				 MaterialProperty specular,
-				 MaterialProperty emission);
+		Material(Property ambient,
+				 Property diffuse,
+				 Property specular);
+		Material(Property ambient,
+				 Property diffuse,
+				 Property specular,
+				 Property emission);
 		~Material();
 		
 /*********************************************************************************************
@@ -63,17 +67,17 @@ namespace ae {
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
 
-		MaterialProperty 						ambient() const;
-		void									ambient(const MaterialProperty ambient);
+		Property 								ambient() const;
+		void									ambient(const Property ambient);
 
-		MaterialProperty 						diffuse() const;
-		void 									diffuse(const MaterialProperty diffuse);
+		Property 								diffuse() const;
+		void 									diffuse(const Property diffuse);
 
-		MaterialProperty						specular() const;
-		void 									specular(const MaterialProperty specular);
+		Property								specular() const;
+		void 									specular(const Property specular);
 
-		MaterialProperty						emission() const;
-		void 									emission(const MaterialProperty emission);
+		Property								emission() const;
+		void 									emission(const Property emission);
 		
 		float 									specularExponent() const;
 		void 									specularExponent(float exponent);
@@ -108,10 +112,10 @@ namespace ae {
 
 		std::optional<std::string>				_name;
 
-		MaterialProperty						_ambient;
-		MaterialProperty						_diffuse;
-		MaterialProperty						_specular;
-		MaterialProperty						_emission;
+		Property								_ambient;
+		Property								_diffuse;
+		Property								_specular;
+		Property								_emission;
 
 		float 									_specularExponent;
 		bool 									_locksAmbientWithDiffuse;

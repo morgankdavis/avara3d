@@ -17,6 +17,7 @@
 #include "glm/glm.hpp"
 
 #include "ae/Types.h"
+#include "ae/rendering/material/Material.h"
 
 
 namespace ae {
@@ -29,9 +30,10 @@ namespace ae {
 	class Image;
 	class Light;
 	class Material;
-	class MaterialProperty;
 	class Node;
+	class Sampler;
 	class Scene;
+	class Texture;
 
 
 	class GlTFImporter {
@@ -45,7 +47,7 @@ namespace ae {
 		std::shared_ptr<Geometry> 			firstGeometry();
 
 		const std::filesystem::path&		path() const;
-		SceneImportOptions				options() const;
+		SceneImportOptions					options() const;
 
 	private:
 
@@ -63,24 +65,41 @@ namespace ae {
 																	   fastgltf::Primitive& primitive);
 		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-		std::shared_ptr<MaterialProperty> 	materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
-																			 fastgltf::Texture& texture);
+//		std::shared_ptr<Material::Property> materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
+//																			fastgltf::Texture& texture);
 		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 
+
+
+		std::shared_ptr<Texture> 			textureFromGlTFTextureIndex(fastgltf::Asset& asset,
+																		std::size_t textureIndex);
+
+		std::shared_ptr<Sampler> 			samplerFromGlTFTexture(fastgltf::Asset& asset,
+																   fastgltf::Texture& texture);
+											// ^^ imageFromGlTFTexture()
+
+
+
+
 		bool														_parsed;
 		fastgltf::Asset												_asset;
 		std::shared_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
-		SceneImportOptions										_options;
+		SceneImportOptions											_options;
+		// TODO: switch these to vectors resized from asset?
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
 		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
-		std::map<std::size_t, std::shared_ptr<MaterialProperty>> 	_materialProperties;
+		//std::map<std::size_t, std::shared_ptr<Material::Property>> 	_materialProperties;
+
+
+		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;
+		std::map<std::size_t, std::shared_ptr<Texture>> 			_textures;
 	};
 }
 

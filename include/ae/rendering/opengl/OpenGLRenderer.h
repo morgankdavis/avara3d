@@ -28,7 +28,7 @@ namespace ae {
 	class Geometry;
 	class GeometryElement;
 	class Line;
-	class MaterialProperty;
+//	class MaterialProperty;
 	
 	
 	class OpenGLRenderer : public Renderer {

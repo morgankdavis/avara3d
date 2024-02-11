@@ -44,7 +44,7 @@ shared_ptr<Material> Material::MissingTextureMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::EmissiveMaterial(MaterialProperty property) {
+shared_ptr<Material> Material::EmissiveMaterial(Property property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
@@ -69,9 +69,9 @@ Material::Material():
 	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular):
+Material::Material(Property ambient,
+				   Property diffuse,
+				   Property specular):
 		Material() {
 
 	_ambient = ambient;
@@ -79,10 +79,10 @@ Material::Material(MaterialProperty ambient,
 	_specular = specular;
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular,
-				   MaterialProperty emission):
+Material::Material(Property ambient,
+				   Property diffuse,
+				   Property specular,
+				   Property emission):
 		Material() {
 
 	_ambient = ambient;
@@ -111,31 +111,31 @@ Material::MaterialProperty Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const MaterialProperty property) {
+void Material::ambient(const Property property) {
 	_ambient = property;
 }
 
-Material::MaterialProperty Material::diffuse() const {
+Material::Property Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(const MaterialProperty property) {
+void Material::diffuse(const Property property) {
 	_diffuse = property;
 }
 
-Material::MaterialProperty Material::specular() const {
+Material::Property Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(const MaterialProperty property) {
+void Material::specular(const Property property) {
 	_specular = property;
 }
 
-Material::MaterialProperty Material::emission() const {
+Material::Property Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(const MaterialProperty property) {
+void Material::emission(const Property property) {
 	_emission = property;
 }
 

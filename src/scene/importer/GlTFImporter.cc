@@ -20,15 +20,16 @@
 #include "ae/Color.h"
 #include "ae/Image.h"
 #include "ae/Types.h"
-#include "ae/diagnostic/exceptions/UnsupportedFormat.h"
+#include "ae/diagnostic/exception/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/materials/Material.h"
-#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/material/Material.h"
+#include "ae/rendering/material/Sampler.h"
+#include "ae/rendering/material/Texture.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
 
@@ -40,7 +41,7 @@ using namespace std;
 
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
-static shared_ptr<Geometry> GeometryFromGlFTMeshIndex(fastgltf::Asset& asset,
+//static shared_ptr<Geometry> GeometryFromGlFTMeshIndex(fastgltf::Asset& asset,
 													  size_t meshIndex);
 static mat4 TransformFromGlFTNode(fastgltf::Node& node);
 static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
@@ -59,7 +60,10 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 		_images{},
 		_lights{},
 		_materials{},
-		_materialProperties{} {
+		/*_materialProperties{}*/
+
+		_samplers{},
+		_textures{} {
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
@@ -516,7 +520,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				auto baseColorFactor = pbrData.baseColorFactor;
 
 				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto property = make_shared<MaterialProperty>(aeColor);
+				auto property = make_shared<Material::Property>(aeColor);
 				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
 			}
 
@@ -540,7 +544,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
 
-				shared_ptr<ae::MaterialProperty> aeProperty = nullptr;
+				shared_ptr<ae::Material::Property> aeProperty = nullptr;
 
 				if (textureInfo) {
 					auto texture = asset.textures[(*textureInfo).textureIndex];
@@ -554,7 +558,7 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 				if (!aeProperty && (factor > 0)) {
 					auto factorColor = make_shared<Color>(factor);
-					aeProperty = make_shared<ae::MaterialProperty>(factorColor);
+					aeProperty = make_shared<ae::Material::Property>(factorColor);
 				}
 
 				if (aeProperty) {
@@ -666,15 +670,15 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-shared_ptr<MaterialProperty> GlTFImporter::materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
-																		   fastgltf::Texture& texture) {
+shared_ptr<Material::Property> GlTFImporter::materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
+																			 fastgltf::Texture& texture) {
 
 	// ! important !
 	// don't map these to ae::MaterialProperty.
 	// ae uses a 1:1 Image/Color:MaterialProperty relationship whereas
 	// glTF uses a 1:N Texture:Sampler relationship.
 
-	auto aeProperty = make_shared<ae::MaterialProperty>();
+	auto aeProperty = make_shared<ae::Material::Property>();
 
 	if (auto samplerIndex = texture.samplerIndex) {
 		auto sampler = asset.samplers[*samplerIndex];
@@ -770,6 +774,95 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 	return nullptr;
 }
+
+
+
+
+
+
+
+
+
+shared_ptr<ae::Sampler> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Asset& asset,
+																  std::size_t textureIndex) {
+
+	if (auto existing = _geometries.find(meshIndex)
+			; existing == _geometries.end()) {
+
+		auto& mesh = asset.meshes[meshIndex];
+
+		auto elements = vector<shared_ptr<GeometryElement>>();
+		auto materials = vector<shared_ptr<Material>>();
+
+		for (auto& primitive: mesh.primitives) {
+
+			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
+			if (element) elements.push_back(element);
+
+			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
+							? materialFromGlFTPrimitive(asset, primitive)
+							: Material::DefaultMaterial();
+			if (material) materials.push_back(material);
+		}
+
+		auto geometry = make_shared<Geometry>(elements, materials);
+		geometry->name(string(mesh.name));
+		_geometries[meshIndex] = geometry;
+		return geometry;
+	}
+	else {
+		return _geometries[meshIndex];
+	}
+
+	return nullptr;
+
+
+
+	if (auto cameraIndex = sampler.) {
+
+		if (auto existing = _cameras.find(*cameraIndex)
+				; existing == _cameras.end()) {
+
+			auto& camera = asset.cameras[*cameraIndex];
+
+		}
+		else {
+			return _cameras[*cameraIndex];
+		}
+	}
+
+	return nullptr;
+}
+
+shared_ptr<ae::Texture> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& asset,
+															 fastgltf::Texture& texture) {
+
+	if (auto cameraIndex = node.cameraIndex) {
+
+		if (auto existing = _cameras.find(*cameraIndex)
+				; existing == _cameras.end()) {
+
+			auto& camera = asset.cameras[*cameraIndex];
+
+		}
+		else {
+			return _cameras[*cameraIndex];
+		}
+	}
+
+	return nullptr;
+}
+
+
+
+
+
+
+
+
+
+
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 
