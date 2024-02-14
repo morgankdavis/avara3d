@@ -67,6 +67,14 @@ namespace ae {
 			return static_cast<T>(op to_underlying(a)); \
 		}
 
+#define AE_ENABLE_ENUM_MASK_OPS(T) \
+	AE_ENABLE_ARITHMETIC_OP(T, T, |) \
+	AE_ENABLE_ARITHMETIC_OP(T, T, &) \
+	AE_ENABLE_ASSIGNMENT_OP(T, T, |) \
+	AE_ENABLE_ASSIGNMENT_OP(T, T, &) \
+	AE_ENABLE_UNARY_OP(T, ~)
+
+
 /**************************************************************************************
 	Public Types
  **************************************************************************************/
@@ -95,24 +103,14 @@ namespace ae {
 		ImportCameras = 		1 << 3,
 		ImportAll =				UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(SceneImportOptions, SceneImportOptions, |)
-	AE_ENABLE_ARITHMETIC_OP(SceneImportOptions, SceneImportOptions, &)
-	AE_ENABLE_ASSIGNMENT_OP(SceneImportOptions, SceneImportOptions, |)
-	AE_ENABLE_ASSIGNMENT_OP(SceneImportOptions, SceneImportOptions, &)
-	AE_ENABLE_UNARY_OP(SceneImportOptions, ~)
+	AE_ENABLE_ENUM_MASK_OPS(SceneImportOptions)
 
 	enum class GeometryImportOptions : unsigned {
 		None = 					0,
 		ImportMaterials =		1 << 1, // note maps to SceneImportOptions
 		ImportAll =				UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(GeometryImportOptions, GeometryImportOptions, |)
-	AE_ENABLE_ARITHMETIC_OP(GeometryImportOptions, GeometryImportOptions, &)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryImportOptions, GeometryImportOptions, |)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryImportOptions, GeometryImportOptions, &)
-	AE_ENABLE_UNARY_OP(GeometryImportOptions, ~)
+	AE_ENABLE_ENUM_MASK_OPS(GeometryImportOptions)
 
 	enum class FontType : unsigned {
 		Unknown,
@@ -383,12 +381,7 @@ namespace ae {
 		ShowPhysicsConstraints =		1 << 10,
 		ShowPhysicsConstraintLimits	=	1 << 11
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(DebugOptions, DebugOptions, |)
-	AE_ENABLE_ARITHMETIC_OP(DebugOptions, DebugOptions, &)
-	AE_ENABLE_ASSIGNMENT_OP(DebugOptions, DebugOptions, |)
-	AE_ENABLE_ASSIGNMENT_OP(DebugOptions, DebugOptions, &)
-	AE_ENABLE_UNARY_OP(DebugOptions, ~)
+	AE_ENABLE_ENUM_MASK_OPS(DebugOptions)
 
 /**************************************************************************************
 	Internal
@@ -415,69 +408,31 @@ namespace ae {
 		WorldTransform =		1 << 0,
 		All = 					UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(NodeDirtyMask, NodeDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(NodeDirtyMask, NodeDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(NodeDirtyMask, NodeDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(NodeDirtyMask, NodeDirtyMask, &)
-	AE_ENABLE_UNARY_OP(NodeDirtyMask, ~)
+	AE_ENABLE_ENUM_MASK_OPS(NodeDirtyMask)
 
 	enum class GeometryDirtyMask : unsigned {
 		None =					0,
 		Extent =				1 << 0,
 		All = 					UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(GeometryDirtyMask, GeometryDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(GeometryDirtyMask, GeometryDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryDirtyMask, GeometryDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryDirtyMask, GeometryDirtyMask, &)
-	AE_ENABLE_UNARY_OP(GeometryDirtyMask, ~)
+	AE_ENABLE_ENUM_MASK_OPS(GeometryDirtyMask)
 
 	enum class GeometryElementDirtyMask : unsigned {
 		None =					0,
 		VertexData =			1 << 0,
 		All = 					UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(GeometryElementDirtyMask, GeometryElementDirtyMask, &)
-	AE_ENABLE_UNARY_OP(GeometryElementDirtyMask, ~)
+	AE_ENABLE_ENUM_MASK_OPS(GeometryElementDirtyMask)
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
 		All = 					UINT_MAX
 	};
+	AE_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
 
-	AE_ENABLE_ARITHMETIC_OP(MaterialDirtyMask, MaterialDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(MaterialDirtyMask, MaterialDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(MaterialDirtyMask, MaterialDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(MaterialDirtyMask, MaterialDirtyMask, &)
-	AE_ENABLE_UNARY_OP(MaterialDirtyMask, ~)
-
-//	enum class MaterialPropertyDirtyMask : unsigned {
-//		None =					0,
-//		Contents = 				1 << 0,
-//		MinificationFilter = 	1 << 1,
-//		MagnificationFilter = 	1 << 2,
-//		WrapS = 				1 << 3,
-//		WrapT = 				1 << 4,
-//		WrapR = 				1 << 5,
-//		MaxAnisotropy = 		1 << 6,
-//		All = 					UINT_MAX
-//	};
-//
-//	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
-//	AE_ENABLE_ARITHMETIC_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
-//	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, |)
-//	AE_ENABLE_ASSIGNMENT_OP(MaterialPropertyDirtyMask, MaterialPropertyDirtyMask, &)
-//	AE_ENABLE_UNARY_OP(MaterialPropertyDirtyMask, ~)
-
-	enum class SamplerDirtyMask : unsigned {
+	enum class MaterialPropertyDirtyMask : unsigned {
 		None =					0,
-//		Contents = 				1 << 0,
+		Contents = 				1 << 0,
 		MinificationFilter = 	1 << 1,
 		MagnificationFilter = 	1 << 2,
 		WrapS = 				1 << 3,
@@ -486,12 +441,7 @@ namespace ae {
 		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
-
-	AE_ENABLE_ARITHMETIC_OP(SamplerDirtyMask, SamplerDirtyMask, |)
-	AE_ENABLE_ARITHMETIC_OP(SamplerDirtyMask, SamplerDirtyMask, &)
-	AE_ENABLE_ASSIGNMENT_OP(SamplerDirtyMask, SamplerDirtyMask, |)
-	AE_ENABLE_ASSIGNMENT_OP(SamplerDirtyMask, SamplerDirtyMask, &)
-	AE_ENABLE_UNARY_OP(SamplerDirtyMask, ~)
+	AE_ENABLE_ENUM_MASK_OPS(MaterialPropertyDirtyMask)
 
 } // namespace ae
 
