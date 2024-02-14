@@ -430,9 +430,9 @@ namespace ae {
 	};
 	AE_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
 
-	enum class MaterialPropertyDirtyMask : unsigned {
+	enum class SamplerDirtyMask : unsigned {
 		None =					0,
-		Contents = 				1 << 0,
+//		Contents = 				1 << 0,
 		MinificationFilter = 	1 << 1,
 		MagnificationFilter = 	1 << 2,
 		WrapS = 				1 << 3,
@@ -441,7 +441,7 @@ namespace ae {
 		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(MaterialPropertyDirtyMask)
+	AE_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
 
 } // namespace ae
 
