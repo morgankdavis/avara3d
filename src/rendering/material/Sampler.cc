@@ -15,7 +15,7 @@ Sampler::Sampler():
 		_wrapR(WrapMode::Repeat),
 		_minificationFilter(FilterMode::LinearMipmapLinear),
 		_magnificationFilter(FilterMode::Linear),
-		_maxAnisotropy(16),
+//		_maxAnisotropy(16),
 		_dirtyMask(SamplerDirtyMask::All) {}
 
 Sampler::~Sampler() {}
@@ -40,23 +40,23 @@ void Sampler::magnificationFilter(FilterMode mode) {
 	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
 }
 
-float Sampler::maxAnisotropy() const {
-#ifdef OPENGL_ES
-	return 0;
-#else
-	return _maxAnisotropy;
-#endif
-}
-
-void Sampler::maxAnisotropy(float max) {
-#ifdef OPENGL_ES
-	throw Exception("Anisotropy is not supported on this platform.");
-#endif
-
-	_maxAnisotropy = max;
-
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
-}
+//float Sampler::maxAnisotropy() const {
+//#ifdef OPENGL_ES
+//	return 0;
+//#else
+//	return _maxAnisotropy;
+//#endif
+//}
+//
+//void Sampler::maxAnisotropy(float max) {
+//#ifdef OPENGL_ES
+//	throw Exception("Anisotropy is not supported on this platform.");
+//#endif
+//
+//	_maxAnisotropy = max;
+//
+//	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
+//}
 
 WrapMode Sampler::wrapS() const {
 	return _wrapS;

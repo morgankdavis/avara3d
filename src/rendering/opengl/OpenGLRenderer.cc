@@ -33,7 +33,7 @@
 #include "ae/Font.h"
 #include "ae/Image.h"
 #include "ae/Utilities.h"
-#include "ae/diagnostic/exceptions/Exception.h"
+#include "ae/diagnostic/exception/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
 #include "ae/geometry/GeometryElement.h"
@@ -44,8 +44,9 @@
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/context/RenderContext.h"
 #include "ae/rendering/context/platform/desktop/Window.h"
-#include "ae/rendering/materials/Material.h"
-#include "ae/rendering/materials/MaterialProperty.h"
+#include "ae/rendering/material/Material.h"
+#include "ae/rendering/material/Sampler.h"
+#include "ae/rendering/material/Texture.h"
 #include "ae/rendering/opengl/Program.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
@@ -70,7 +71,7 @@ static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								Stats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
+								unordered_set<Material::Property>& activeProperties);
 static void 		GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
 														 OpenGLRenderer::GeometryElementGLMapping& glMapping,
 														 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -91,7 +92,8 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 												GLuint& glVBO, GLuint& glVAO);
 static void 		GetMaterialGLTextureHandles(Material& material,
 											   OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-											   unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
+											   unordered_set<Material::Property>& activeProperties,
+											   //unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
 											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferGeometryElementVertexData(const GeometryElement& element,
 												   Program& program,
@@ -105,20 +107,20 @@ static void 		BufferLineSetVertexData(LineSet& lineSet,
 static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
-static void 		BufferMaterialPropertyTexture(const MaterialProperty& property,
+static void 		BufferMaterialPropertyTexture(const Material::Property& property,
 												 MaterialPropertyType type,
 												 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
 										map<MaterialPropertyType, GLuint>& glTextureHandles,
 										const DebugOptions& debugOptions);
-static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
+static void 		SendMaterialPropertyUniforms(Material::Property& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
 												const DebugOptions& debugOptions,
 												Program& program);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
-static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
+static void 		SetMaterialPropertyFilteringOptions(Material::Property& property,
 													   GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
 											   map<MaterialPropertyType, GLuint>& glTextureHandles);
@@ -149,7 +151,8 @@ static void 		DrawPointSet(PointSet& pointSet,
 								GLuint glVBO, GLuint glVAO);
 static void 		CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
 												   OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
+static void 		CleanupMaterialPropertyResources(unordered_set<Material::Property>& active,
+		//unordered_set<shared_ptr<MaterialProperty>>& active,
 													OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
 static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 										   OpenGLRenderer::LineSetGLMapping& glMapping);
@@ -157,7 +160,8 @@ static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& acti
 											OpenGLRenderer::PointSetGLMapping& glMapping);
 static void 		DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
 													OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
+static void 		DeleteMaterialPropertyGLResources(Material::Property property,
+		//shared_ptr<MaterialProperty> property,
 													 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
 static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 											OpenGLRenderer::LineSetGLMapping& glMapping);
@@ -228,7 +232,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_lineSetGLMapping(LineSetGLMapping()),
 		_pointSetGLMapping(PointSetGLMapping()),
 		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-		_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+		_activeMaterialProperties(unordered_set<Material::Property>()),
+		//_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
 		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
 		_glEnvironmentUBO(0),
@@ -367,29 +372,64 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	if (scene.visualWorld()->background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
-			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
-			auto pointOfView = scene.visualWorld()->pointOfView();
 
-			RenderSkybox(skyboxGeometry,
-						 *pointOfView,
-						 debugOptions,
-						 stats,
-						 _geometryElementGLMapping,
-						 _materialPropertyGLMapping,
-						 _activeMaterialProperties);
+	auto background = scene.visualWorld()->background();
+//	if (!holds_alternative<monostate>(background)) {
 
-			// save reference for housekeeping
-			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+		if (holds_alternative<shared_ptr<Texture>>(background)) {
+
+			auto texture = get<shared_ptr<Texture>>(background);
+
+				if (dynamic_pointer_cast<CubeImage>(texture->sampleable())) {
+
+					auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+					auto pointOfView = scene.visualWorld()->pointOfView();
+
+					RenderSkybox(skyboxGeometry,
+								 *pointOfView,
+								 debugOptions,
+								 stats,
+								 _geometryElementGLMapping,
+								 _materialPropertyGLMapping,
+								 _activeMaterialProperties);
+
+					// save reference for housekeeping
+					_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+
+				}
+
+
 		}
-		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
+		else if (holds_alternative<shared_ptr<Color>>(background)) {
+
+			auto color = get<shared_ptr<Color>>(background);
+
+			//auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
 			glClearColor(color->r, color->g, color->b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-	}
+
+//		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
+//			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+//			auto pointOfView = scene.visualWorld()->pointOfView();
+//
+//			RenderSkybox(skyboxGeometry,
+//						 *pointOfView,
+//						 debugOptions,
+//						 stats,
+//						 _geometryElementGLMapping,
+//						 _materialPropertyGLMapping,
+//						 _activeMaterialProperties);
+//
+//			// save reference for housekeeping
+//			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+//		}
+//		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
+//			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
+//			glClearColor(color->r, color->g, color->b, 1.0f);
+//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		}
+//	}
 	
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 	
@@ -536,7 +576,8 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 Stats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
+						 unordered_set<Material::Property>& activeProperties) {
+						 //unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
 	
 	auto program = Program::Skybox();
 	
@@ -562,7 +603,7 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	
 	// send material property uniforms
 	
-	SendMaterialPropertyUniforms(*emissiveProperty,
+	SendMaterialPropertyUniforms(emissiveProperty,
 								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
 								 debugOptions,
@@ -570,7 +611,7 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	
 	// update material property filtering options
 	
-	SetMaterialPropertyFilteringOptions(*emissiveProperty, emissiveGLTextureHandle);
+	SetMaterialPropertyFilteringOptions(emissiveProperty, emissiveGLTextureHandle);
 	
 	// configure OpenGL state
 	
@@ -807,7 +848,8 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 	
 static void GetMaterialGLTextureHandles(Material& material,
 										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
+										unordered_set<Material::Property>& activeProperties,
+										//unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
 										map<MaterialPropertyType, GLuint>& glTextureHandles) {
 	
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -1230,7 +1272,7 @@ static void SendMaterialUniforms(const Material& material,
 	//program.unuse();
 }
 	
-static void SendMaterialPropertyUniforms(MaterialProperty& property,
+static void SendMaterialPropertyUniforms(Material::Property& property,
 										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
 										 const DebugOptions& debugOptions,

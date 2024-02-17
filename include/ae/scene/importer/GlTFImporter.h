@@ -79,8 +79,6 @@ namespace ae {
 
 		std::shared_ptr<Sampler> 			samplerFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-											// ^^ imageFromGlTFTexture()
-
 
 
 

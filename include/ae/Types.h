@@ -38,8 +38,8 @@ namespace ae {
 //		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
 
 	#define AE_MASK_CONTAINS(mask, bit) (static_cast<unsigned>(mask & bit) != 0)
-	#define AE_MASK_ADD(mask, bit) 		(mask | bit)
-	#define AE_MASK_REMOVE(mask, bit)	(mask & ~bit)
+	#define AE_MASK_ADD(mask, bit) (mask | bit)
+	#define AE_MASK_REMOVE(mask, bit) (mask & ~bit)
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553
@@ -67,12 +67,12 @@ namespace ae {
 			return static_cast<T>(op to_underlying(a)); \
 		}
 
-#define AE_ENABLE_ENUM_MASK_OPS(T) \
-	AE_ENABLE_ARITHMETIC_OP(T, T, |) \
-	AE_ENABLE_ARITHMETIC_OP(T, T, &) \
-	AE_ENABLE_ASSIGNMENT_OP(T, T, |) \
-	AE_ENABLE_ASSIGNMENT_OP(T, T, &) \
-	AE_ENABLE_UNARY_OP(T, ~)
+	#define AE_ENABLE_ENUM_MASK_OPS(T) \
+		AE_ENABLE_ARITHMETIC_OP(T, T, |) \
+		AE_ENABLE_ARITHMETIC_OP(T, T, &) \
+		AE_ENABLE_ASSIGNMENT_OP(T, T, |) \
+		AE_ENABLE_ASSIGNMENT_OP(T, T, &) \
+		AE_ENABLE_UNARY_OP(T, ~)
 
 
 /**************************************************************************************
@@ -426,6 +426,7 @@ namespace ae {
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
+		MaxAnisotropy = 		1 << 1,
 		All = 					UINT_MAX
 	};
 	AE_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
@@ -438,7 +439,6 @@ namespace ae {
 		WrapS = 				1 << 3,
 		WrapT = 				1 << 4,
 		WrapR = 				1 << 5,
-		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
 	AE_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)

@@ -16,6 +16,7 @@
 
 #include "glm/glm.hpp"
 
+#include "ae/rendering/material/Material.h"
 #include "ae/rendering/Renderer.h"
 #include "ae/Types.h"
 
@@ -48,7 +49,7 @@ namespace ae {
 
 		/* <ae_MaterialProperty : <gl_textureHandle> */
 		using MaterialPropertyGLMapping =
-				std::map<std::shared_ptr<MaterialProperty>, unsigned>;
+				std::map<Material::Property, unsigned>;
 
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
@@ -132,7 +133,7 @@ namespace ae {
 		GeometryAABBLineSetMapping				_geometryAABBLineSetMapping;
 
 		std::unordered_set<std::shared_ptr<GeometryElement>>	_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<MaterialProperty>>	_activeMaterialProperties;
+		std::unordered_set<Material::Property>					_activeMaterialProperties;
 		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
 		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
 

@@ -42,7 +42,7 @@ using namespace std;
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 //static shared_ptr<Geometry> GeometryFromGlFTMeshIndex(fastgltf::Asset& asset,
-													  size_t meshIndex);
+//													  size_t meshIndex);
 static mat4 TransformFromGlFTNode(fastgltf::Node& node);
 static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
@@ -481,13 +481,137 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 	return nullptr;
 }
 
+// OG
+//shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset& asset,
+//																 fastgltf::Primitive& primitive) {
+//
+//	if (auto materialIndex = primitive.materialIndex) {
+//
+//		//if (auto existing = _materials.find(*materialIndex) ; existing == _materials.end()) {
+//		if (_materials.find(*materialIndex) == _materials.end()) { // TODO: DO FOR ALL
+//
+//			auto& material = asset.materials[*materialIndex];
+//
+//			shared_ptr<ae::Material> aeMaterial = nullptr;
+//
+//			// ambient, diffuse
+//
+//			if (auto& pbrData = material.pbrData ; pbrData.baseColorTexture) {
+//
+//				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
+//				auto& texture = asset.textures[baseColorTextureIndex];
+//
+//				if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+//					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+//					aeProperty->contents(aeImage);
+//
+//					aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
+//				}
+//				else {
+//					aeMaterial = ae::Material::MissingTextureMaterial();
+//				}
+//			}
+//			else {
+//
+//				// TODO: enabling this fucks up specular
+//				// enabing specular below fixes the magenta light's specular reflection,
+//				// but not the yellow light's specular reflection. (?)
+//
+//				auto baseColorFactor = pbrData.baseColorFactor;
+//
+//				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
+//				auto property = make_shared<Material::Property>(aeColor);
+//				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
+//			}
+//
+//			// specular
+//
+//			if (auto& specularMaterial = material.specular; specularMaterial) {
+//
+//				// TODO: this needs work.  and more testing.
+//
+//				auto factor = specularMaterial->specularFactor;
+//				auto& textureInfo = specularMaterial->specularTexture;
+//				auto colorFactor = specularMaterial->specularColorFactor;
+//				auto& colorTextureInfo = specularMaterial->specularColorTexture;
+//
+////				AE_LOG_D("*** [SPECULAR] ***");
+////				AE_LOG_D("factor: {}", factor);
+////				AE_LOG_D("textureInfo: {}", textureInfo ? "true" : "false");
+////				AE_LOG_D("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
+////				AE_LOG_D("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
+//
+//				// if it has a 'texture' map, use it (only contains alpha)
+//				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
+//
+//				shared_ptr<ae::Material::Property> aeProperty = nullptr;
+//
+//				if (textureInfo) {
+//					auto texture = asset.textures[(*textureInfo).textureIndex];
+//
+//					if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+//						aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+//						aeProperty->contents(aeImage);
+//					}
+//				}
+//
+//				if (!aeProperty && (factor > 0)) {
+//					auto factorColor = make_shared<Color>(factor);
+//					aeProperty = make_shared<ae::Material::Property>(factorColor);
+//				}
+//
+//				if (aeProperty) {
+//					if (!aeMaterial) {
+//						aeMaterial = make_shared<ae::Material>(nullptr, nullptr, aeProperty);
+//					}
+//					else {
+//						aeMaterial->specular(aeProperty);
+//					}
+//				}
+//			}
+//
+//			if (aeMaterial) {
+//
+//				aeMaterial->locksAmbientWithDiffuse(true);
+//
+//				aeMaterial->doubleSided(material.doubleSided);
+//
+//				if (auto& anisotropy = material.anisotropy; anisotropy) {
+//					// error to draw attention -- at time of initial glTF integration
+//					// we don't have an example file with KHR_materials_anisotropy
+//					auto strength = anisotropy->anisotropyStrength;
+//					AE_LOG_E("anisotropyStrength: {}", strength);
+//					aeMaterial->diffuse()->maxAnisotropy(strength);
+//				}
+//
+//				// specularExponent?
+//
+//				// transform -- scale
+//
+//				// emissiveFactor/emissiveTexture?
+//
+//				_materials[*materialIndex] = aeMaterial;
+//				return aeMaterial;
+//			}
+//		}
+//		else {
+//			return _materials[*materialIndex];
+//		}
+//	}
+//	else {
+//		AE_LOG_W("Missing material.");
+//	}
+//
+//	return ae::Material::DefaultMaterial();
+//}
+
 shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset& asset,
 																 fastgltf::Primitive& primitive) {
 
 	if (auto materialIndex = primitive.materialIndex) {
 
-		if (auto existing = _materials.find(*materialIndex)
-				; existing == _materials.end()) {
+		//if (auto existing = _materials.find(*materialIndex) ; existing == _materials.end()) {
+		if (_materials.find(*materialIndex) == _materials.end()) { // TODO: DO FOR ALL
 
 			auto& material = asset.materials[*materialIndex];
 
@@ -495,33 +619,47 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 
 			// ambient, diffuse
 
-			if (auto& pbrData = material.pbrData
-					; pbrData.baseColorTexture) {
+			if (auto& pbrData = material.pbrData ; pbrData.baseColorTexture) {
 
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
-				auto& texture = asset.textures[baseColorTextureIndex];
-
-				if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
-					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
-					aeProperty->contents(aeImage);
-
-					aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
+				if (auto aeTexture = textureFromGlTFTextureIndex(asset, baseColorTextureIndex)
+						; aeTexture) {
+					aeMaterial = make_shared<ae::Material>(monostate{}, aeTexture, monostate{});
 				}
 				else {
 					aeMaterial = ae::Material::MissingTextureMaterial();
 				}
+
+//				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
+//				auto& texture = asset.textures[baseColorTextureIndex];
+//
+//				if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+//					auto aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+//					aeProperty->contents(aeImage);
+//
+//					aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
+//				}
+//				else {
+//					aeMaterial = ae::Material::MissingTextureMaterial();
+//				}
 			}
 			else {
+
+				auto baseColorFactor = pbrData.baseColorFactor;
+
+				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
+				auto aeProperty = Material::Property(aeColor);
+				aeMaterial = make_shared<ae::Material>(monostate{}, aeProperty, monostate{});
 
 				// TODO: enabling this fucks up specular
 				// enabing specular below fixes the magenta light's specular reflection,
 				// but not the yellow light's specular reflection. (?)
 
-				auto baseColorFactor = pbrData.baseColorFactor;
-
-				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto property = make_shared<Material::Property>(aeColor);
-				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
+//				auto baseColorFactor = pbrData.baseColorFactor;
+//
+//				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
+//				auto property = make_shared<Material::Property>(aeColor);
+//				aeMaterial = make_shared<ae::Material>(nullptr, property, nullptr);
 			}
 
 			// specular
@@ -544,26 +682,35 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
 
-				shared_ptr<ae::Material::Property> aeProperty = nullptr;
+				ae::Material::Property aeProperty = monostate{};
 
 				if (textureInfo) {
-					auto texture = asset.textures[(*textureInfo).textureIndex];
 
-					if (auto aeImage = imageFromGlTFTexture(asset, texture)
-							; aeImage) {
-						aeProperty = materialPropertyFromGlTFTexture(asset, texture);
-						aeProperty->contents(aeImage);
+					auto specularTextureIndex = (*textureInfo).textureIndex;
+					if (auto aeTexture = textureFromGlTFTextureIndex(asset, specularTextureIndex)
+							; aeTexture) {
+						aeProperty = aeTexture;
 					}
+					else {
+						aeProperty = ae::Material::MissingTextureProperty();
+					}
+
+//					auto texture = asset.textures[(*textureInfo).textureIndex];
+//
+//					if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+//						aeProperty = materialPropertyFromGlTFTexture(asset, texture);
+//						aeProperty->contents(aeImage);
+//					}
 				}
 
-				if (!aeProperty && (factor > 0)) {
+				if (holds_alternative<monostate>(aeProperty) && (factor > 0)) {
 					auto factorColor = make_shared<Color>(factor);
-					aeProperty = make_shared<ae::Material::Property>(factorColor);
+					aeProperty = ae::Material::Property(factorColor);
 				}
 
-				if (aeProperty) {
+				if (!holds_alternative<monostate>(aeProperty)) {
 					if (!aeMaterial) {
-						aeMaterial = make_shared<ae::Material>(nullptr, nullptr, aeProperty);
+						aeMaterial = make_shared<ae::Material>(monostate{}, monostate{}, aeProperty);
 					}
 					else {
 						aeMaterial->specular(aeProperty);
@@ -578,11 +725,12 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				aeMaterial->doubleSided(material.doubleSided);
 
 				if (auto& anisotropy = material.anisotropy; anisotropy) {
-					// error to draw attention -- at time of initial glTF integration
+
+					// log error to draw attention -- at time of initial glTF integration
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
 					AE_LOG_E("anisotropyStrength: {}", strength);
-					aeMaterial->diffuse()->maxAnisotropy(strength);
+					aeMaterial->maxAnisotropy(strength);
 				}
 
 				// specularExponent?
@@ -670,31 +818,31 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-shared_ptr<Material::Property> GlTFImporter::materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
-																			 fastgltf::Texture& texture) {
-
-	// ! important !
-	// don't map these to ae::MaterialProperty.
-	// ae uses a 1:1 Image/Color:MaterialProperty relationship whereas
-	// glTF uses a 1:N Texture:Sampler relationship.
-
-	auto aeProperty = make_shared<ae::Material::Property>();
-
-	if (auto samplerIndex = texture.samplerIndex) {
-		auto sampler = asset.samplers[*samplerIndex];
-
-		if (sampler.minFilter) {
-			aeProperty->minificationFilter(FilterMode(*sampler.minFilter));
-		}
-		if (sampler.magFilter) {
-			aeProperty->magnificationFilter(FilterMode(*sampler.magFilter));
-		}
-		aeProperty->wrapS(WrapMode(sampler.wrapS));
-		aeProperty->wrapT(WrapMode(sampler.wrapT));
-	}
-
-	return aeProperty;
-};
+//shared_ptr<Material::Property> GlTFImporter::materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
+//																			 fastgltf::Texture& texture) {
+//
+//	// ! important !
+//	// don't map these to ae::MaterialProperty.
+//	// ae uses a 1:1 Image/Color:MaterialProperty relationship whereas
+//	// glTF uses a 1:N Texture:Sampler relationship.
+//
+//	auto aeProperty = make_shared<ae::Material::Property>();
+//
+//	if (auto samplerIndex = texture.samplerIndex) {
+//		auto sampler = asset.samplers[*samplerIndex];
+//
+//		if (sampler.minFilter) {
+//			aeProperty->minificationFilter(FilterMode(*sampler.minFilter));
+//		}
+//		if (sampler.magFilter) {
+//			aeProperty->magnificationFilter(FilterMode(*sampler.magFilter));
+//		}
+//		aeProperty->wrapS(WrapMode(sampler.wrapS));
+//		aeProperty->wrapT(WrapMode(sampler.wrapT));
+//	}
+//
+//	return aeProperty;
+//};
 
 shared_ptr<ae::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 													  fastgltf::Node& node) {
@@ -783,86 +931,107 @@ shared_ptr<ae::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 
 
-shared_ptr<ae::Sampler> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Asset& asset,
+shared_ptr<ae::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Asset& asset,
 																  std::size_t textureIndex) {
 
-	if (auto existing = _geometries.find(meshIndex)
-			; existing == _geometries.end()) {
+//	if (auto existing = _textures.find(textureIndex)
+//			; existing == _textures.end()) {
+//
+//		auto& mesh = asset.meshes[meshIndex];
+//
+//		auto elements = vector<shared_ptr<GeometryElement>>();
+//		auto materials = vector<shared_ptr<Material>>();
+//
+//		for (auto& primitive: mesh.primitives) {
+//
+//			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
+//			if (element) elements.push_back(element);
+//
+//			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+//			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
+//							? materialFromGlFTPrimitive(asset, primitive)
+//							: Material::DefaultMaterial();
+//			if (material) materials.push_back(material);
+//		}
+//
+//		auto geometry = make_shared<Geometry>(elements, materials);
+//		geometry->name(string(mesh.name));
+//		_geometries[meshIndex] = geometry;
+//		return geometry;
+//	}
+//	else {
+//		return _geometries[meshIndex];
+//	}
+//
+//	return nullptr;
 
-		auto& mesh = asset.meshes[meshIndex];
 
-		auto elements = vector<shared_ptr<GeometryElement>>();
-		auto materials = vector<shared_ptr<Material>>();
 
-		for (auto& primitive: mesh.primitives) {
+//	if (auto cameraIndex = sampler.) {
 
-			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
-			if (element) elements.push_back(element);
+		if (auto existing = _textures.find(textureIndex)
+				; existing == _textures.end()) {
 
-			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
-							? materialFromGlFTPrimitive(asset, primitive)
-							: Material::DefaultMaterial();
-			if (material) materials.push_back(material);
-		}
-
-		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(string(mesh.name));
-		_geometries[meshIndex] = geometry;
-		return geometry;
-	}
-	else {
-		return _geometries[meshIndex];
-	}
-
-	return nullptr;
+			auto& texture = asset.textures[textureIndex];
 
 
 
-	if (auto cameraIndex = sampler.) {
 
-		if (auto existing = _cameras.find(*cameraIndex)
-				; existing == _cameras.end()) {
+//			auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
+//			auto& texture = asset.textures[baseColorTextureIndex];
 
-			auto& camera = asset.cameras[*cameraIndex];
+			if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+				auto aeSampler = samplerFromGlTFTexture(asset, texture);
+//				aeProperty->contents(aeImage);
 
+//				aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
+
+				auto aeTexture = make_shared<ae::Texture>(make_shared<ae::Sampler>(), aeImage);
+				_textures[textureIndex] = aeTexture;
+				return aeTexture;
+			}
+//			else {
+////				aeMaterial = ae::Material::MissingTextureMaterial();
+//			}
 		}
 		else {
-			return _cameras[*cameraIndex];
+			return _textures[textureIndex];
 		}
-	}
+//	}
 
 	return nullptr;
 }
 
-shared_ptr<ae::Texture> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& asset,
+shared_ptr<ae::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& asset,
 															 fastgltf::Texture& texture) {
 
-	if (auto cameraIndex = node.cameraIndex) {
+	if (auto samplerIndex = texture.samplerIndex) {
 
-		if (auto existing = _cameras.find(*cameraIndex)
-				; existing == _cameras.end()) {
+		if (auto existing = _samplers.find(*samplerIndex)
+				; existing == _samplers.end()) {
 
-			auto& camera = asset.cameras[*cameraIndex];
+			auto& sampler = asset.samplers[*samplerIndex];
 
+			auto aeSampler = make_shared<ae::Sampler>();
+
+			if (sampler.minFilter) {
+				aeSampler->minificationFilter(FilterMode(*sampler.minFilter));
+			}
+			if (sampler.magFilter) {
+				aeSampler->magnificationFilter(FilterMode(*sampler.magFilter));
+			}
+			aeSampler->wrapS(WrapMode(sampler.wrapS));
+			aeSampler->wrapT(WrapMode(sampler.wrapT));
+
+			return aeSampler;
 		}
 		else {
-			return _cameras[*cameraIndex];
+			return _samplers[*samplerIndex];
 		}
 	}
 
 	return nullptr;
 }
-
-
-
-
-
-
-
-
-
-
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 

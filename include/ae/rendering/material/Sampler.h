@@ -23,6 +23,14 @@ namespace ae {
 	class Sampler {
 
 /*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
+
+//	public:
+//
+//		static std::shared_ptr<Material> DefaultSampler();
+
+/*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
@@ -41,8 +49,8 @@ namespace ae {
 		FilterMode 									magnificationFilter() const;
 		void 										magnificationFilter(FilterMode mode);
 
-		float 										maxAnisotropy() const;
-		void 										maxAnisotropy(float max);
+//		float 										maxAnisotropy() const;
+//		void 										maxAnisotropy(float max);
 
 		WrapMode 									wrapS() const;
 		void 										wrapS(WrapMode mode);
@@ -68,7 +76,7 @@ namespace ae {
 
 		FilterMode									_minificationFilter;
 		FilterMode									_magnificationFilter;
-		float										_maxAnisotropy;
+//		float										_maxAnisotropy;
 		WrapMode									_wrapS;
 		WrapMode									_wrapT;
 		WrapMode									_wrapR;

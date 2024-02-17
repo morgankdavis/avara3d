@@ -42,7 +42,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
-		_background(nullptr),
+		_background(monostate{}),
 		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),

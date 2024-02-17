@@ -44,8 +44,12 @@ shared_ptr<Material> Material::MissingTextureMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::EmissiveMaterial(Property property) {
+shared_ptr<Material> Material::EmissiveMaterial(Material::Property property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
+}
+
+Material::Property Material::MissingTextureProperty() {
+	return Property(Color::Magenta());
 }
 
 /*********************************************************************************************
@@ -61,6 +65,7 @@ Material::Material():
 		_specularExponent(150.0),
 		_locksAmbientWithDiffuse(true),
 		_doubleSided(false),
+		_maxAnisotropy(16),
 		_fillMode(FillMode::Fill),
 		_uvScale(1.0f),
 		_blendFunction(BlendFunction::Disabled),
@@ -107,7 +112,7 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-Material::MaterialProperty Material::ambient() const {
+Material::Property Material::ambient() const {
 	return _ambient;
 }
 
@@ -161,6 +166,24 @@ bool Material::doubleSided() const {
 
 void Material::doubleSided(bool flag) {
 	_doubleSided = flag;
+}
+
+float Material::maxAnisotropy() const {
+#ifdef OPENGL_ES
+	return 0;
+#else
+	return _maxAnisotropy;
+#endif
+}
+
+void Material::maxAnisotropy(float max) {
+#ifdef OPENGL_ES
+	throw Exception("Anisotropy is not supported on this platform.");
+#endif
+
+	_maxAnisotropy = max;
+
+	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialDirtyMask::MaxAnisotropy);
 }
 
 FillMode Material::fillMode() const {
