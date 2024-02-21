@@ -9,13 +9,30 @@ using namespace ae;
 using namespace std;
 
 
+//unique_ptr<Sampler> Sampler::DefaultSampler() {
+//
+//	unique_ptr<Sampler> sampler = nullptr;
+////	if (!sampler) {
+//		sampler = make_unique<Sampler>();
+//		// TODO: are these sensible?
+//		sampler->minificationFilter(FilterMode::Linear);
+//		sampler->magnificationFilter(FilterMode::Linear);
+//		sampler->maxAnisotropy(16);
+//		sampler->wrapS(WrapMode::ClampToEdge);
+//		sampler->wrapT(WrapMode::ClampToEdge);
+//		sampler->wrapR(WrapMode::ClampToEdge);
+////	}
+//	return sampler;
+//}
+
 Sampler::Sampler():
-		_wrapS(WrapMode::Repeat),
-		_wrapT(WrapMode::Repeat),
-		_wrapR(WrapMode::Repeat),
+// TODO: are these sensible?
 		_minificationFilter(FilterMode::LinearMipmapLinear),
 		_magnificationFilter(FilterMode::Linear),
 		_maxAnisotropy(16),
+		_wrapS(WrapMode::Repeat),
+		_wrapT(WrapMode::Repeat),
+		_wrapR(WrapMode::Repeat),
 		_dirtyMask(SamplerDirtyMask::All) {}
 
 Sampler::~Sampler() {}

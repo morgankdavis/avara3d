@@ -71,7 +71,7 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png")));
+	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
@@ -94,7 +94,7 @@ int main(int argc, const char* argv[]) {
 	pointLight->attenuationFactor(0.00005);
 	pointLightNode = Node::LightNode(pointLight);
 	scene->rootNode()->addChild(pointLightNode);
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
@@ -360,13 +360,20 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 		if (geometry) {
 
 			for (auto material : geometry->materials()) {
-				if (material->diffuse()) {
-					material->diffuse()->minificationFilter(mode);
-					material->diffuse()->magnificationFilter(mode);
-				}
-				if (material->specular()) {
-					material->specular()->minificationFilter(mode);
-					material->specular()->magnificationFilter(mode);
+
+				Material::Property properties[] = { material->ambient(),
+													material->diffuse(),
+													material->specular(),
+													material->emission() };
+				for (int p=0; p<4; ++p) {
+					auto property = properties[p];
+
+					if (holds_alternative<shared_ptr<Texture>>(property)) {
+						auto texture = get<shared_ptr<Texture>>(property);
+						auto sampler = texture->sampler();
+						sampler->minificationFilter(mode);
+						sampler->magnificationFilter(mode);
+					}
 				}
 			}
 		}
@@ -383,8 +390,20 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 		if (geometry) {
 
 			for (auto material : geometry->materials()) {
-				if (material->diffuse()) material->diffuse()->maxAnisotropy(anisotropy);
-				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
+
+				Material::Property properties[] = { material->ambient(),
+													material->diffuse(),
+													material->specular(),
+													material->emission() };
+				for (int p=0; p<4; ++p) {
+					auto property = properties[p];
+
+					if (holds_alternative<shared_ptr<Texture>>(property)) {
+						auto texture = get<shared_ptr<Texture>>(property);
+						auto sampler = texture->sampler();
+						sampler->maxAnisotropy(anisotropy);
+					}
+				}
 			}
 		}
 	}

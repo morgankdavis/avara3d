@@ -52,6 +52,18 @@ Material::Property Material::MissingTextureProperty() {
 	return Property(Color::Magenta());
 }
 
+unique_ptr<Material> Material::DiffuseMaterial(Material::Property property) {
+	auto material = make_unique<Material>();
+	material->diffuse(property);
+	return material;
+}
+
+unique_ptr<Material> Material::EmissionMaterial(Material::Property property) {
+	auto material = make_unique<Material>();
+	material->emission(property);
+	return material;
+}
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/

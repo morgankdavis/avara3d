@@ -92,9 +92,12 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					  : make_shared<MaterialProperty>(CubeImageNamed("stormy", "png"));
+//	Material::Property background = DARK
+//									? Color::Black()
+//									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
+	Material::Property background = monostate{};
+	if (DARK) background = Color::Black();
+	else background = make_shared<Texture>(CubeImageNamed("stormy", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
@@ -162,23 +165,23 @@ int main(int argc, const char* argv[]) {
 	auto planeNode = Node::NamedNode("Ground plane node");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WrapMode::Repeat);
-	planeMaterialProperty->wrapT(WrapMode::Repeat);
-	planeMaterialProperty->maxAnisotropy(16);
-	planeMaterialProperty->minificationFilter(FilterMode::LinearMipmapLinear);
-	planeMaterialProperty->magnificationFilter(FilterMode::Linear);
+	auto planeTexture = make_shared<Texture>(gridImage);
+	planeTexture->sampler()->wrapS(WrapMode::Repeat);
+	planeTexture->sampler()->wrapT(WrapMode::Repeat);
+	planeTexture->sampler()->maxAnisotropy(16);
+	planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+	planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
 	shared_ptr<Material> planeMaterial = nullptr;
 	if (DARK) {
-		planeMaterial = make_shared<Material>(nullptr,
-											  nullptr,
-											  nullptr,
-											  planeMaterialProperty);
+		planeMaterial = make_shared<Material>(monostate{},
+											  monostate{},
+											  monostate{},
+											  planeTexture);
 	}
 	else {
-		planeMaterial = make_shared<Material>(nullptr,
-											  planeMaterialProperty,
-											  make_shared<MaterialProperty>(Color::Gray()));
+		planeMaterial = make_shared<Material>(monostate{},
+											  planeTexture,
+											  Color::Gray());
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
@@ -1083,8 +1086,8 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 	auto node = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
-	auto materialProperty = make_shared<MaterialProperty>(color);
-	auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	auto materialProperty = color;
+	auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
 	node->geometry()->addMaterial(material);
 	node->position(location);
 
@@ -1151,10 +1154,10 @@ void SpawnHACDTeapot(Scene& scene) {
 	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
 	decomposedTeapotMaterials.reserve(decomposedElements.size());
 	for (int m=0; m<decomposedElements.size(); ++m) {
-		auto randomColorProperty = make_shared<MaterialProperty>(Color::Random());
-		decomposedTeapotMaterials.push_back(make_shared<Material>(nullptr,
-																  nullptr,
-																  nullptr,
+		auto randomColorProperty = Color::Random();
+		decomposedTeapotMaterials.push_back(make_shared<Material>(monostate{},
+																  monostate{},
+																  monostate{},
 																  randomColorProperty));
 	}
 
@@ -1239,8 +1242,8 @@ void AddRing(Scene& scene) {
 	//auto physicsBody = PhysicsBody::DynamicBody();
 	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
 	node->geometry(geometry);
-	static auto materialProperty = make_shared<MaterialProperty>(Color::Yellow());
-	static auto material = make_shared<Material>(nullptr, materialProperty, nullptr);
+	static auto materialProperty = Color::Yellow();
+	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
 	node->geometry()->addMaterial(material);
 	node->physicsBody(physicsBody);
 	node->position({0, 15, 0});
@@ -1251,8 +1254,7 @@ shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name) {
 
 	auto sphereGeometry = make_shared<Sphere>(.25, 8);
 
-	auto colorProperty = make_shared<MaterialProperty>(color);
-	auto colorMaterial = make_shared<Material>(nullptr, colorProperty, nullptr);
+	auto colorMaterial = make_shared<Material>(monostate{}, color, monostate{});
 
 	sphereGeometry->addMaterial(colorMaterial);
 
@@ -1598,8 +1600,8 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 											majorRadius+(majorRadius/32.0), 128, 128);
 	auto ringVisualNode = Node::GeometryNode(torusGeometry);
 
-	auto colorProperty = make_shared<MaterialProperty>(Color::LightGray());
-	auto colorMaterial = make_shared<Material>(nullptr, colorProperty, nullptr);
+	auto colorProperty = Color::LightGray();
+	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
 	torusGeometry->addMaterial(colorMaterial);
 
 	auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);

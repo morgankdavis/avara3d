@@ -42,6 +42,9 @@ namespace ae {
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
 		static std::shared_ptr<Material> EmissiveMaterial(Property property);
 		static Property MissingTextureProperty(); // TODO: make internal?
+
+		static std::unique_ptr<Material> DiffuseMaterial(Material::Property property);
+		static std::unique_ptr<Material> EmissionMaterial(Material::Property property);
 		
 /*********************************************************************************************
 	Lifecycle

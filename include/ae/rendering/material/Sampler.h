@@ -28,7 +28,7 @@ namespace ae {
 
 //	public:
 //
-//		static std::shared_ptr<Material> DefaultSampler();
+//		static std::unique_ptr<Sampler> DefaultSampler();
 
 /*********************************************************************************************
 	Lifecycle

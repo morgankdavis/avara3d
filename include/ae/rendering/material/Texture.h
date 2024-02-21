@@ -9,12 +9,13 @@
 #include <memory>
 
 #include "ae/Types.h"
+#include "ae/rendering/material/Sampler.h"
 
 
 namespace ae {
 
 
-	class Sampler;
+//	class Sampler;
 	class Sampleable;
 
 
@@ -23,8 +24,8 @@ namespace ae {
 	public:
 
 		Texture();
-		Texture(std::shared_ptr<Sampler> sampler,
-				std::shared_ptr<Sampleable> contents,
+		Texture(std::shared_ptr<Sampleable> contents,
+				std::shared_ptr<Sampler> sampler = {},
 				unsigned mappingChannel = 0);
 		~Texture();
 

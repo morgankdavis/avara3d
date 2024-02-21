@@ -998,7 +998,7 @@ shared_ptr<ae::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Asse
 
 //				aeMaterial = make_shared<ae::Material>(nullptr, aeProperty, nullptr);
 
-				auto aeTexture = make_shared<ae::Texture>(make_shared<ae::Sampler>(), aeImage);
+				auto aeTexture = make_shared<ae::Texture>(aeImage, make_shared<ae::Sampler>());
 				_textures[textureIndex] = aeTexture;
 				return aeTexture;
 			}

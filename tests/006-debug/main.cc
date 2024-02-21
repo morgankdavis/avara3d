@@ -61,7 +61,7 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("sky1", "png")));
+	visualWorld->background(make_shared<Texture>(CubeImageNamed("sky1", "png")));
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[]) {
 	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position({100.0, 20.0, 20.0});
 
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
