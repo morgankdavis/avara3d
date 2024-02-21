@@ -77,7 +77,7 @@ void VisualWorld::background(Material::Property background) {
 
 	if (shared_ptr<Texture>* texture = get_if<shared_ptr<Texture>>(&background)) {
 
-		if (dynamic_pointer_cast<CubeImage>((*texture)->sampleable())) {
+		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
 			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
 
 			auto sampler = (*texture)->sampler();

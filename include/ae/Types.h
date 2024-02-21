@@ -118,12 +118,14 @@ namespace ae {
 		TTF,
 	};
 
-	enum class MaterialPropertyType {
-		Ambient,
-		Diffuse,
-		Specular,
-		Emission
-	};
+//	// TODO: move to Material.h?
+//	-> moved to OpenGLRenderer.cc
+//	enum class MaterialPropertyType {
+//		Ambient,
+//		Diffuse,
+//		Specular,
+//		Emission
+//	};
 
 	enum class FilterMode : unsigned {
 		Nearest = 				0x2600,
@@ -426,16 +428,23 @@ namespace ae {
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
-		MaxAnisotropy = 		1 << 1,
+//		MaxAnisotropy = 		1 << 1,
 		All = 					UINT_MAX
 	};
 	AE_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
 
+	enum class TextureDirtyMask : unsigned {
+		None =					0,
+		Contents = 				1 << 0,
+		All = 					UINT_MAX
+	};
+	AE_ENABLE_ENUM_MASK_OPS(TextureDirtyMask)
+
 	enum class SamplerDirtyMask : unsigned {
 		None =					0,
-//		Contents = 				1 << 0,
-		MinificationFilter = 	1 << 1,
-		MagnificationFilter = 	1 << 2,
+		MinificationFilter = 	1 << 0,
+		MagnificationFilter = 	1 << 1,
+		MaxAnisotropy = 		1 << 2,
 		WrapS = 				1 << 3,
 		WrapT = 				1 << 4,
 		WrapR = 				1 << 5,
@@ -443,7 +452,7 @@ namespace ae {
 	};
 	AE_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
 
-} // namespace ae
+}
 
 
 #endif /* Types_h */

@@ -11,14 +11,15 @@ using namespace std;
 
 Texture::Texture():
 		_sampler{nullptr},
-		_sampleable{nullptr},
-		_mappingChannel{0} {}
+		_contents{nullptr},
+		_mappingChannel{0},
+		_dirtyMask{TextureDirtyMask::All} {}
 
 Texture::Texture(shared_ptr<Sampler> sampler,
-				 shared_ptr<Sampleable> sampleable,
+				 shared_ptr<Sampleable> contents,
 				 unsigned mappingChannel):
 		_sampler{sampler},
-		_sampleable{sampleable},
+		_contents{contents},
 		_mappingChannel{mappingChannel} { }
 
 Texture::~Texture() {}
@@ -31,12 +32,12 @@ void Texture::sampler(shared_ptr<Sampler> sampler) {
 	_sampler = sampler;
 }
 
-shared_ptr<Sampleable> Texture::sampleable() const {
-	return _sampleable;
+shared_ptr<Sampleable> Texture::contents() const {
+	return _contents;
 }
 
-void Texture::sampleable(shared_ptr<Sampleable> sampleable) {
-	_sampleable = sampleable;
+void Texture::contents(shared_ptr<Sampleable> contents) {
+	_contents = contents;
 }
 
 unsigned Texture::mappingChannel() const {
@@ -45,4 +46,12 @@ unsigned Texture::mappingChannel() const {
 
 void Texture::mappingChannel(unsigned channel) {
 	_mappingChannel = channel;
+}
+
+TextureDirtyMask Texture::dirtyMask() const {
+	return _dirtyMask;
+}
+
+void Texture::dirtyMask(TextureDirtyMask mask) {
+	_dirtyMask = mask;
 }

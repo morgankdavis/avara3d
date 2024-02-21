@@ -85,8 +85,8 @@ namespace ae {
 		bool 									doubleSided() const;
 		void 									doubleSided(bool flag);
 
-		float 									maxAnisotropy() const;
-		void 									maxAnisotropy(float max);
+//		float 									maxAnisotropy() const;
+//		void 									maxAnisotropy(float max);
 		
 		FillMode 								fillMode() const;
 		void 									fillMode(FillMode mode);
@@ -120,7 +120,7 @@ namespace ae {
 		float 									_specularExponent;
 		bool 									_locksAmbientWithDiffuse;
 		bool 									_doubleSided;
-		float									_maxAnisotropy;
+//		float									_maxAnisotropy;
 		FillMode 								_fillMode;
 		float 									_uvScale;
 		BlendFunction							_blendFunction;

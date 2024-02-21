@@ -61,6 +61,14 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
+enum class MaterialPropertyType {
+	Ambient,
+	Diffuse,
+	Specular,
+	Emission
+};
+
+
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
@@ -70,8 +78,8 @@ static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								const DebugOptions& debugOptions,
 								Stats& stats,
 								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
-								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-								unordered_set<Material::Property>& activeProperties);
+								OpenGLRenderer::TextureGLMapping& textureGLMapping,
+								unordered_set<shared_ptr<Texture>>& activeTextures);
 static void 		GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
 														 OpenGLRenderer::GeometryElementGLMapping& glMapping,
 														 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -90,11 +98,10 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 												Program& program,
 												OpenGLRenderer::PointSetGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO);
-static void 		GetMaterialGLTextureHandles(Material& material,
-											   OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-											   unordered_set<Material::Property>& activeProperties,
-											   //unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-											   map<MaterialPropertyType, GLuint>& glTextureHandles);
+static void 		GetTextureGLTextureHandles(Material& material,
+											  OpenGLRenderer::TextureGLMapping& glMapping,
+											  unordered_set<shared_ptr<Texture>>& activeTextures,
+											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferGeometryElementVertexData(const GeometryElement& element,
 												   Program& program,
 												   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -107,9 +114,9 @@ static void 		BufferLineSetVertexData(LineSet& lineSet,
 static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
-static void 		BufferMaterialPropertyTexture(const Material::Property& property,
-												 MaterialPropertyType type,
-												 GLuint& glTextureHandle);
+static void 		BufferTexture(const Texture &texture,
+								 MaterialPropertyType type,
+								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
 										map<MaterialPropertyType, GLuint>& glTextureHandles,
@@ -120,8 +127,8 @@ static void 		SendMaterialPropertyUniforms(Material::Property& property,
 												const DebugOptions& debugOptions,
 												Program& program);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
-static void 		SetMaterialPropertyFilteringOptions(Material::Property& property,
-													   GLuint glTextureHandle);
+static void 		SetTextureSamplingOptions(Texture& texture,
+											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
 											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		SetMaterialOpenGLState(const Material& material,
@@ -151,18 +158,16 @@ static void 		DrawPointSet(PointSet& pointSet,
 								GLuint glVBO, GLuint glVAO);
 static void 		CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
 												   OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		CleanupMaterialPropertyResources(unordered_set<Material::Property>& active,
-		//unordered_set<shared_ptr<MaterialProperty>>& active,
-													OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		CleanupTextureResources(unordered_set<shared_ptr<Texture>>& active,
+										   OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 										   OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
 											OpenGLRenderer::PointSetGLMapping& glMapping);
 static void 		DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
 													OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		DeleteMaterialPropertyGLResources(Material::Property property,
-		//shared_ptr<MaterialProperty> property,
-													 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		DeleteTextureGLResources(shared_ptr<Texture> texture,
+											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 											OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
@@ -228,11 +233,11 @@ typedef struct {
 OpenGLRenderer::OpenGLRenderer():
 		Renderer(),
 		_geometryElementGLMapping(GeometryElementGLMapping()),
-		_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+		_textureGLMapping(TextureGLMapping()),
 		_lineSetGLMapping(LineSetGLMapping()),
 		_pointSetGLMapping(PointSetGLMapping()),
 		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-		_activeMaterialProperties(unordered_set<Material::Property>()),
+		_activeTextures(unordered_set<shared_ptr<Texture>>()),
 		//_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
 		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
@@ -243,14 +248,14 @@ OpenGLRenderer::~OpenGLRenderer() {
 	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
 	_activeGeometryElements.clear();
-	_activeMaterialProperties.clear();
+	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
-	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
@@ -325,7 +330,7 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	Renderer::beginFrame(scene, context, debugOptions, stats);
 
 	_activeGeometryElements.clear();
-	_activeMaterialProperties.clear();
+	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
 }
@@ -351,7 +356,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 //	}
 	
 	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
-	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 
@@ -380,7 +385,7 @@ void OpenGLRenderer::render(const Scene& scene,
 
 			auto texture = get<shared_ptr<Texture>>(background);
 
-				if (dynamic_pointer_cast<CubeImage>(texture->sampleable())) {
+				if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
 					auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
 					auto pointOfView = scene.visualWorld()->pointOfView();
@@ -390,8 +395,8 @@ void OpenGLRenderer::render(const Scene& scene,
 								 debugOptions,
 								 stats,
 								 _geometryElementGLMapping,
-								 _materialPropertyGLMapping,
-								 _activeMaterialProperties);
+								 _textureGLMapping,
+								 _activeTextures);
 
 					// save reference for housekeeping
 					_activeGeometryElements.emplace(skyboxGeometry->elements().front());
@@ -493,10 +498,10 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// and load material contents if necessary
 
 	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
-	GetMaterialGLTextureHandles(material,
-								_materialPropertyGLMapping,
-								_activeMaterialProperties,
-								glTextureHandles);
+	GetTextureGLTextureHandles(material,
+							   _textureGLMapping,
+							   _activeTextures,
+							   glTextureHandles);
 
 	if (!wireframe) {
 		// send material and material property uniforms
@@ -575,9 +580,8 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 						 const DebugOptions& debugOptions,
 						 Stats& stats,
 						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
-						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 unordered_set<Material::Property>& activeProperties) {
-						 //unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
+						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
+						 unordered_set<shared_ptr<Texture>>& activeTextures) {
 	
 	auto program = Program::Skybox();
 	
@@ -595,14 +599,14 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	// and load material contents if necessary
 	
 	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
-	GetMaterialGLTextureHandles(*material,
-								materialGLMapping,
-								activeProperties,
-								glTextureHandles);
+	GetTextureGLTextureHandles(*material,
+							   textureGLMapping,
+							   activeTextures,
+							   glTextureHandles);
 	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
 	
 	// send material property uniforms
-	
+
 	SendMaterialPropertyUniforms(emissiveProperty,
 								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
@@ -610,8 +614,11 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 								 *program);
 	
 	// update material property filtering options
-	
-	SetMaterialPropertyFilteringOptions(emissiveProperty, emissiveGLTextureHandle);
+
+	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
+		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
+		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
+	}
 	
 	// configure OpenGL state
 	
@@ -663,9 +670,9 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
 	auto element = skyboxGeometry->elements().front();
-	
+
 	if (AE_MASK_CONTAINS(element->dirtyMask(),
-											 GeometryElementDirtyMask::VertexData)) {
+						 GeometryElementDirtyMask::VertexData)) {
 		
 		DeleteGeometryElementGLResources(element, glMapping);
 		
@@ -674,7 +681,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
 		element->dirtyMask(AE_MASK_REMOVE(element->dirtyMask(),
-															  GeometryElementDirtyMask::VertexData));
+										  GeometryElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -845,51 +852,56 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 		glVAO = get<1>(mapping);
 	}
 }
-	
-static void GetMaterialGLTextureHandles(Material& material,
-										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										unordered_set<Material::Property>& activeProperties,
-										//unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-										map<MaterialPropertyType, GLuint>& glTextureHandles) {
-	
+
+static void GetTextureGLTextureHandles(Material& material,
+									   OpenGLRenderer::TextureGLMapping& glMapping,
+									   unordered_set<shared_ptr<Texture>>& activeTextures,
+									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
+
 	// looks up and populates glTextureHandle, loading the texture data if needed
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emission()};
-	
-	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
-									MaterialPropertyType::Specular, MaterialPropertyType::Emission};
-	
-	for (unsigned p = 0; p<4; ++p) {
+
+	Material::Property properties[] = { material.ambient(),
+										material.diffuse(),
+										material.specular(),
+										material.emission() };
+
+	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
+									 MaterialPropertyType::Diffuse,
+									 MaterialPropertyType::Specular,
+									 MaterialPropertyType::Emission };
+
+	for (int p = 0; p<4; ++p) {
 		auto property = properties[p];
-		
-		if (property) {
+
+		if (holds_alternative<shared_ptr<Texture>>(property)) {
 			auto type = types[p];
-			
-			if (AE_MASK_CONTAINS(property->dirtyMask(),
-													  MaterialPropertyDirtyMask::Contents)) {
-				
-				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
-				
-				DeleteMaterialPropertyGLResources(property, glMapping);
-				
+
+			auto texture = get<shared_ptr<Texture>>(property);
+
+			if (AE_MASK_CONTAINS(texture->dirtyMask(),
+								 TextureDirtyMask::Contents)) {
+
+				AE_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
+
+				DeleteTextureGLResources(texture, glMapping);
+
 				GLuint textureID = 0;
-				BufferMaterialPropertyTexture(*property, type, textureID);
+				BufferTexture(*texture, type, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					glMapping[property] = textureID;
+					glMapping[texture] = textureID;
 				}
 
-				property->dirtyMask(AE_MASK_REMOVE(property->dirtyMask(),
-																		MaterialPropertyDirtyMask::Contents));
+				texture->dirtyMask(AE_MASK_REMOVE(texture->dirtyMask(),
+												  TextureDirtyMask::Contents));
 			}
 			else {
-				auto textureHandle = glMapping[property];
+				auto textureHandle = glMapping[texture];
 				glTextureHandles[type] = textureHandle;
 			}
-			
+
 			// save reference for housekeeping
-			activeProperties.emplace(property);
+			activeTextures.emplace(texture);
 		}
 	}
 }
@@ -991,9 +1003,9 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 }
 
 static void BufferAABBVertexData(Geometry& geometry,
-							   const Program& program,
-							   GLuint& glVBO, GLuint& glVAO) {
-	
+								 const Program& program,
+								 GLuint& glVBO, GLuint& glVAO) {
+
 	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
 
 	auto aabb = geometry.aabb();
@@ -1097,14 +1109,16 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 	
 }
 	
-static void BufferMaterialPropertyTexture(const MaterialProperty& property,
-										  MaterialPropertyType type,
-										  GLuint& glTextureHandle) {
-	
-	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&property));
+static void BufferTexture(const Texture &texture,
+						  MaterialPropertyType type,
+						  GLuint& glTextureHandle) {
+
+	auto contents = texture.contents();
+
+	if (dynamic_pointer_cast<CubeImage>(contents)) {
+		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
 		
-		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
+		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
 		
 		shared_ptr<Image> images[] = {
 			cubeImage->posX(),
@@ -1144,17 +1158,17 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 						 GL_UNSIGNED_BYTE,
 						 image->buffer()->data());
 		}
-		
-		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, true, property.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, true, property.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, true, property.wrapS());
-		SetTextureWrapT(glTextureHandle, true, property.wrapT());
-		SetTextureWrapR(glTextureHandle, property.wrapR());
+
+		auto sampler = texture.sampler();
+		SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
+		SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
+		SetTextureWrapR(glTextureHandle, sampler->wrapR());
 	}
-	else if (dynamic_pointer_cast<Image>(property.contents())) {
-		
-		
+	else if (dynamic_pointer_cast<Image>(contents)) {
+
 //		switch (type) {
 //			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 //				glActiveTexture(GL_TEXTURE0);
@@ -1172,13 +1186,10 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
 //				return;
 //		}
+
+		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
 		
-		
-		
-		
-		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&property));
-		
-		auto image = dynamic_pointer_cast<Image>(property.contents());
+		auto image = dynamic_pointer_cast<Image>(contents);
 		
 		glGenTextures(1, &glTextureHandle);
 		AE_LOG_D("Binding new texture handle: {}", glTextureHandle);
@@ -1192,10 +1203,6 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
 				 image->width() * image->height() * image->bytesPerPixel());
-		
-	
-		
-		
 		
 //		// DEBUG: write texture data to file
 //		
@@ -1226,12 +1233,13 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
 					 image->buffer()->data());
-		
-		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, false, property.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, false, property.wrapS());
-		SetTextureWrapT(glTextureHandle, false, property.wrapT());
+
+		auto sampler = texture.sampler();
+		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
+		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
 	}
 }
 	
@@ -1240,7 +1248,7 @@ static void SendMaterialUniforms(const Material& material,
 								 map<MaterialPropertyType, GLuint>& glTextureHandles,
 								 const DebugOptions& debugOptions) {
 	
-	// sends uniforms for the Material, and and MaterialProperties it has
+	// sends uniforms for the Material, and MaterialProperties it has
 	
 	program.use();
 	
@@ -1248,20 +1256,24 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emission()};
 
-	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
-									MaterialPropertyType::Specular, MaterialPropertyType::Emission};
+	Material::Property properties[] = { material.ambient(),
+										material.diffuse(),
+										material.specular(),
+										material.emission() };
 
-	for (unsigned p = 0; p<4; ++p) {
+	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
+									 MaterialPropertyType::Diffuse,
+									 MaterialPropertyType::Specular,
+									 MaterialPropertyType::Emission };
+
+	for (int p = 0; p<4; ++p) {
 		auto property = properties[p];
 
-		if (property) {
+		if (!holds_alternative<monostate>(property)) {
 			auto type = types[p];
 
-			SendMaterialPropertyUniforms(*property,
+			SendMaterialPropertyUniforms(property,
 										 type,
 										 glTextureHandles[type],
 										 debugOptions,
@@ -1271,62 +1283,74 @@ static void SendMaterialUniforms(const Material& material,
 	
 	//program.unuse();
 }
-	
+
 static void SendMaterialPropertyUniforms(Material::Property& property,
 										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
 										 const DebugOptions& debugOptions,
 										 Program& program) {
-	
+
 	program.use();
-	
-	if (dynamic_pointer_cast<CubeImage>(property.contents())) { // cubemap
-		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-	}
-	else if (dynamic_pointer_cast<Image>(property.contents())) { // 2d texture
-		string modeUniformName = "";
-		string samplerUniformName = "";
-		GLenum slot;
-		GLint index;
 
-		switch (type) {
-			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientMode";
-				samplerUniformName = "samplers.ambient";
-				slot = GL_TEXTURE0; index = 0;
-				break;
-			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseMode";
-				samplerUniformName = "samplers.diffuse";
-				slot = GL_TEXTURE1; index = 1;
-				break;
-			case MaterialPropertyType::Specular:
-				modeUniformName = "specularMode";
-				samplerUniformName = "samplers.specular";
-				slot = GL_TEXTURE2; index = 2;
-				break;
-			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionMode";
-				samplerUniformName = "samplers.emission";
-				slot = GL_TEXTURE3; index = 3;
-				break;
-			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
-				return;
+	if (holds_alternative<shared_ptr<Texture>>(property)) {
+
+		auto texture = get<shared_ptr<Texture>>(property);
+
+		if (dynamic_pointer_cast<Image>(texture->contents())) {
+
+			string modeUniformName = "";
+			string samplerUniformName = "";
+			GLenum slot;
+			GLint index;
+
+			switch (type) {
+				case MaterialPropertyType::Ambient:
+					modeUniformName = "ambientMode";
+					samplerUniformName = "samplers.ambient";
+					slot = GL_TEXTURE0;
+					index = 0;
+					break;
+				case MaterialPropertyType::Diffuse:
+					modeUniformName = "diffuseMode";
+					samplerUniformName = "samplers.diffuse";
+					slot = GL_TEXTURE1;
+					index = 1;
+					break;
+				case MaterialPropertyType::Specular:
+					modeUniformName = "specularMode";
+					samplerUniformName = "samplers.specular";
+					slot = GL_TEXTURE2;
+					index = 2;
+					break;
+				case MaterialPropertyType::Emission:
+					modeUniformName = "emissionMode";
+					samplerUniformName = "samplers.emission";
+					slot = GL_TEXTURE3;
+					index = 3;
+					break;
+				default:
+					cout << "Invalid MATERIAL_PROPERTY_TYPE: "
+						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+					return;
+			}
+
+			program.setUniform(modeUniformName.c_str(),
+							   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
+			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
-		
+		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+
+				program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
+		}
+
 //		glActiveTexture(slot);
-
-		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
-		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 	}
-	else if (dynamic_pointer_cast<Color>(property.contents()) ){ // color
-		auto color = dynamic_pointer_cast<Color>(property.contents());
+	else if (holds_alternative<shared_ptr<Color>>(property)) {
 
-		string modeUniformName = "";
-		string colorUniformName = "";
+		auto color = get<shared_ptr<Color>>(property);
+
+		string modeUniformName;
+		string colorUniformName;
 
 		switch (type) {
 			case MaterialPropertyType::Ambient:
@@ -1476,71 +1500,77 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }
-	
-static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-												GLuint glTextureHandle) {
 
-	bool cube = dynamic_pointer_cast<CubeImage>(property.contents()) != nullptr;
-	
-	if (AE_MASK_CONTAINS(property.dirtyMask(),
-											  MaterialPropertyDirtyMask::MinificationFilter)) {
-		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
-		property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-															   MaterialPropertyDirtyMask::MinificationFilter));
+static void SetTextureSamplingOptions(Texture& texture,
+									  GLuint glTextureHandle) {
+
+	auto sampler = *texture.sampler();
+	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
+
+	if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+						 SamplerDirtyMask::MinificationFilter)) {
+		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler.minificationFilter());
+		sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+										 SamplerDirtyMask::MinificationFilter));
 	}
-	
-	if (AE_MASK_CONTAINS(property.dirtyMask(),
-											  MaterialPropertyDirtyMask::MagnificationFilter)) {
-		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
-		property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-															   MaterialPropertyDirtyMask::MagnificationFilter));
+
+	if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+						 SamplerDirtyMask::MagnificationFilter)) {
+		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler.magnificationFilter());
+		sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+										 SamplerDirtyMask::MagnificationFilter));
 	}
-	
-	if (AE_MASK_CONTAINS(property.dirtyMask(),
-											  MaterialPropertyDirtyMask::WrapS)) {
-		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
-		property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-															   MaterialPropertyDirtyMask::WrapS));
+
+	if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+						 SamplerDirtyMask::WrapS)) {
+		SetTextureWrapS(glTextureHandle, isCubemap, sampler.wrapS());
+		sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+										 SamplerDirtyMask::WrapS));
 	}
-	
-	if (AE_MASK_CONTAINS(property.dirtyMask(),
-											  MaterialPropertyDirtyMask::WrapT)) {
-		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
-		property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-															   MaterialPropertyDirtyMask::WrapT));
+
+	if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+						 SamplerDirtyMask::WrapT)) {
+		SetTextureWrapT(glTextureHandle, isCubemap, sampler.wrapT());
+		sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+										 SamplerDirtyMask::WrapT));
 	}
-	
-	if (cube) {
-		if (AE_MASK_CONTAINS(property.dirtyMask(),
-												  MaterialPropertyDirtyMask::WrapR)) {
-			SetTextureWrapR(glTextureHandle, property.wrapR());
-			property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-																   MaterialPropertyDirtyMask::WrapR));
+
+	if (isCubemap) {
+		if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+							 SamplerDirtyMask::WrapR)) {
+			SetTextureWrapR(glTextureHandle, sampler.wrapR());
+			sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+											 SamplerDirtyMask::WrapR));
 		}
 	}
-	
-	if (AE_MASK_CONTAINS(property.dirtyMask(),
-											  MaterialPropertyDirtyMask::MaxAnisotropy)) {
-		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
-		property.dirtyMask(AE_MASK_REMOVE(property.dirtyMask(),
-															   MaterialPropertyDirtyMask::MaxAnisotropy));
+
+	if (AE_MASK_CONTAINS(sampler.dirtyMask(),
+						 SamplerDirtyMask::MaxAnisotropy)) {
+		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler.maxAnisotropy());
+		sampler.dirtyMask(AE_MASK_REMOVE(sampler.dirtyMask(),
+										 SamplerDirtyMask::MaxAnisotropy));
 	}
 }
 	
 static void SetMaterialFilteringOptions(const Material& material,
 										map<MaterialPropertyType, GLuint>& glTextureHandles) {
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emission()};
-	
-	MaterialPropertyType types[] = {MaterialPropertyType::Ambient, MaterialPropertyType::Diffuse,
-									MaterialPropertyType::Specular, MaterialPropertyType::Emission};
-	
-	for (unsigned p = 0; p<4; ++p) {
+
+	Material::Property properties[] = { material.ambient(),
+										material.diffuse(),
+										material.specular(),
+										material.emission() };
+
+	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
+									 MaterialPropertyType::Diffuse,
+									 MaterialPropertyType::Specular,
+									 MaterialPropertyType::Emission };
+
+	for (int p = 0; p<4; ++p) {
 		auto property = properties[p];
-		if (property) {
+		if (holds_alternative<shared_ptr<Texture>>(property)) {
+			auto texture = get<shared_ptr<Texture>>(property);
 			auto type = types[p];
-			SetMaterialPropertyFilteringOptions(*property, glTextureHandles[type]);
+			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
 }
@@ -1776,29 +1806,29 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 #endif
 }
 	
-static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
-											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+static void CleanupTextureResources(unordered_set<shared_ptr<Texture>> &active,
+									OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of properties used this frame
-	auto activePropertiesSorted = vector<shared_ptr<MaterialProperty>>();
-	activePropertiesSorted.reserve(glMapping.size());
-	copy(active.begin(), active.end(), back_inserter(activePropertiesSorted));
-	sort(activePropertiesSorted.begin(), activePropertiesSorted.end());
+	auto activeTexturesSorted = vector<shared_ptr<Texture>>();
+	activeTexturesSorted.reserve(glMapping.size());
+	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
+	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
 	
 	// gather sorted vector of properties in the mapping
-	auto storedPropertiesSorted = vector<shared_ptr<MaterialProperty>>();
-	storedPropertiesSorted.reserve(glMapping.size());
+	auto storedTexturesSorted = vector<shared_ptr<Texture>>();
+	storedTexturesSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedPropertiesSorted.emplace_back(it->first);
+		storedTexturesSorted.emplace_back(it->first);
 	}
-	sort(storedPropertiesSorted.begin(), storedPropertiesSorted.end());
+	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
 	
 	// find unused properties
-	auto unused = vector<shared_ptr<MaterialProperty>>(storedPropertiesSorted.size());
-	vector<shared_ptr<MaterialProperty>>::iterator it;
-	it = set_difference(storedPropertiesSorted.begin(), storedPropertiesSorted.end(),
-						activePropertiesSorted.begin(), activePropertiesSorted.end(),
+	auto unused = vector<shared_ptr<Texture>>(storedTexturesSorted.size());
+	vector<shared_ptr<Texture>>::iterator it;
+	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
+						activeTexturesSorted.begin(), activeTexturesSorted.end(),
 						unused.begin());
 	unused.resize(it - unused.begin());
 	
@@ -1807,8 +1837,8 @@ static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialPr
 		//AE_LOG_D("Deleting GL resources for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<MaterialProperty> property = *it;
-			DeleteMaterialPropertyGLResources(property, glMapping);
+			shared_ptr<Texture> texture = *it;
+			DeleteTextureGLResources(texture, glMapping);
 		}
 	}
 	
@@ -1888,24 +1918,24 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 #endif
 }
 
-static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
-											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+static void DeleteTextureGLResources(shared_ptr<Texture> texture,
+									 OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-	if (glMapping.count(property)) {
+	if (glMapping.count(texture)) {
 		
-		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
+		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture.get()));
 
-		auto handle = glMapping[property];
+		auto handle = glMapping[texture];
 		
 		glDeleteTextures(1, &handle);
-		
-		glMapping.erase(property);
 
-		property->dirtyMask(AE_MASK_REMOVE(property->dirtyMask(),
-																MaterialPropertyDirtyMask::All));
+		glMapping.erase(texture);
+
+//		texture->dirtyMask(AE_MASK_REMOVE(texture->dirtyMask(),
+//										   TextureDirtyMask::All));
 	}
-	
+
 #endif
 }
 

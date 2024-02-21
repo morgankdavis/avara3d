@@ -651,7 +651,6 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 				auto aeProperty = Material::Property(aeColor);
 				aeMaterial = make_shared<ae::Material>(monostate{}, aeProperty, monostate{});
 
-				// TODO: enabling this fucks up specular
 				// enabing specular below fixes the magenta light's specular reflection,
 				// but not the yellow light's specular reflection. (?)
 
@@ -730,7 +729,20 @@ shared_ptr<ae::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
 					AE_LOG_E("anisotropyStrength: {}", strength);
-					aeMaterial->maxAnisotropy(strength);
+//					aeMaterial->maxAnisotropy(strength);
+
+					// heh
+					Material::Property properties[] = { aeMaterial->ambient(),
+														aeMaterial->diffuse(),
+														aeMaterial->specular(),
+														aeMaterial->emission() };
+					for (int p=0; p<4; ++p) {
+						auto property = properties[p];
+						if (holds_alternative<shared_ptr<Texture>>(property)) {
+							auto texture = get<shared_ptr<Texture>>(property);
+							texture->sampler()->maxAnisotropy(strength);
+						}
+					}
 				}
 
 				// specularExponent?
