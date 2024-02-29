@@ -136,7 +136,7 @@ Material::Property Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(const Property property) {
+void Material::diffuse(Property property) {
 	_diffuse = property;
 }
 
@@ -144,7 +144,7 @@ Material::Property Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(const Property property) {
+void Material::specular(Property property) {
 	_specular = property;
 }
 
@@ -152,7 +152,7 @@ Material::Property Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(const Property property) {
+void Material::emission(Property property) {
 	_emission = property;
 }
 

@@ -783,7 +783,7 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 //											   utils::ImageNamed("test_textures/orange", "png"),
 //											   utils::ImageNamed("test_textures/purple", "png"),
 //											   utils::ImageNamed("test_textures/red", "png"),
-//											   utils::ImageNamed("test_textures/yellow", "png")};
+//											   utils::ImageNamed("test_textures/yellow", "png") };
 //
 //		auto image = textures[texIndex++];
 //		if (texIndex >= textures.size()) {
@@ -794,8 +794,7 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 
 		// sampler_platter:
 		// totally random.
-		if (auto existing = _images.find(*imageIndex)
-				; existing == _images.end()) {
+		if (auto existing = _images.find(*imageIndex); existing == _images.end()) {
 
 			auto& image = asset.images[*imageIndex];
 

@@ -68,16 +68,16 @@ namespace ae {
 		void 									name(const std::string& name);
 
 		Property 								ambient() const;
-		void									ambient(const Property ambient);
+		void									ambient(Property ambient);
 
 		Property 								diffuse() const;
-		void 									diffuse(const Property diffuse);
+		void 									diffuse(Property diffuse);
 
 		Property								specular() const;
-		void 									specular(const Property specular);
+		void 									specular(Property specular);
 
 		Property								emission() const;
-		void 									emission(const Property emission);
+		void 									emission(Property emission);
 		
 		float 									specularExponent() const;
 		void 									specularExponent(float exponent);
