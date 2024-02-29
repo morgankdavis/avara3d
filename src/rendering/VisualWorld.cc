@@ -17,7 +17,6 @@
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/Renderer.h"
-#include "ae/rendering/material/Sampler.h"
 #include "ae/rendering/material/Texture.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
 #include "ae/rendering/context/RenderContext.h"

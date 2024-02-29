@@ -27,8 +27,6 @@
 #include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/material/Material.h"
-//#include "ae/rendering/material/MaterialProperty.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/importer/GlTFImporter.h"
 

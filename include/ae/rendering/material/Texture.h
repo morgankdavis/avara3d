@@ -15,7 +15,6 @@
 namespace ae {
 
 
-//	class Sampler;
 	class Sampleable;
 
 
@@ -25,8 +24,6 @@ namespace ae {
 
 		Texture();
 		Texture(std::shared_ptr<Sampleable> contents,
-//				std::shared_ptr<Sampler> sampler = {},
-//				std::shared_ptr<Sampler> sampler = Sampler::DefaultSampler(),
 				std::shared_ptr<Sampler> sampler = std::make_shared<Sampler>(),
 				unsigned mappingChannel = 0);
 		~Texture();

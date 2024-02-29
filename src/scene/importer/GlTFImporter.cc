@@ -20,7 +20,6 @@
 #include "ae/Color.h"
 #include "ae/Image.h"
 #include "ae/Types.h"
-#include "ae/Utilities.h" // TEMPORARY
 #include "ae/diagnostic/exception/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
@@ -42,8 +41,6 @@ using namespace std;
 
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
-//static shared_ptr<Geometry> GeometryFromGlFTMeshIndex(fastgltf::Asset& asset,
-//													  size_t meshIndex);
 static mat4 TransformFromGlFTNode(fastgltf::Node& node);
 static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<ae::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
@@ -61,10 +58,8 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 		_images{},
 		_lights{},
 		_materials{},
-		/*_materialProperties{}*/
-
-		_samplers{},
-		_textures{} {
+		_textures{},
+		_samplers{} {
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {

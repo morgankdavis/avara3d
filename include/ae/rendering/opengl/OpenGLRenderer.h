@@ -30,7 +30,6 @@ namespace ae {
 	class GeometryElement;
 	class Line;
 	class Texture;
-//	class MaterialProperty;
 	
 	
 	class OpenGLRenderer : public Renderer {
@@ -48,9 +47,7 @@ namespace ae {
 						unsigned,
 						unsigned>>;
 
-		/* <ae_MaterialProperty : <gl_textureHandle> */
-//		using MaterialPropertyGLMapping =
-//				std::map<Material::Property, unsigned>;
+		/* <ae_Texture : <gl_textureHandle> */
 		using TextureGLMapping =
 				std::map<std::shared_ptr<Texture>, unsigned>;
 

@@ -238,7 +238,6 @@ OpenGLRenderer::OpenGLRenderer():
 		_pointSetGLMapping(PointSetGLMapping()),
 		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
 		_activeTextures(unordered_set<shared_ptr<Texture>>()),
-		//_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
 		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
 		_glEnvironmentUBO(0),
@@ -368,10 +367,10 @@ void OpenGLRenderer::render(const Scene& scene,
 							Stats& stats) {
 
 	auto renderContext = scene.visualWorld()->renderContext();
-	
+
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, framebufferWidth, framebufferHeight);
 
@@ -379,63 +378,39 @@ void OpenGLRenderer::render(const Scene& scene,
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto background = scene.visualWorld()->background();
-//	if (!holds_alternative<monostate>(background)) {
 
-		if (holds_alternative<shared_ptr<Texture>>(background)) {
+	if (holds_alternative<shared_ptr<Texture>>(background)) {
 
-			auto texture = get<shared_ptr<Texture>>(background);
+		auto texture = get<shared_ptr<Texture>>(background);
 
-				if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
-					auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
-					auto pointOfView = scene.visualWorld()->pointOfView();
+			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+			auto pointOfView = scene.visualWorld()->pointOfView();
 
-					RenderSkybox(skyboxGeometry,
-								 *pointOfView,
-								 debugOptions,
-								 stats,
-								 _geometryElementGLMapping,
-								 _textureGLMapping,
-								 _activeTextures);
+			RenderSkybox(skyboxGeometry,
+						 *pointOfView,
+						 debugOptions,
+						 stats,
+						 _geometryElementGLMapping,
+						 _textureGLMapping,
+						 _activeTextures);
 
-					// save reference for housekeeping
-					_activeGeometryElements.emplace(skyboxGeometry->elements().front());
-
-				}
-
+			// save reference for housekeeping
+			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
 
 		}
-		else if (holds_alternative<shared_ptr<Color>>(background)) {
 
-			auto color = get<shared_ptr<Color>>(background);
 
-			//auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
-			glClearColor(color->r, color->g, color->b, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
+	}
+	else if (holds_alternative<shared_ptr<Color>>(background)) {
 
-//		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
-//			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
-//			auto pointOfView = scene.visualWorld()->pointOfView();
-//
-//			RenderSkybox(skyboxGeometry,
-//						 *pointOfView,
-//						 debugOptions,
-//						 stats,
-//						 _geometryElementGLMapping,
-//						 _materialPropertyGLMapping,
-//						 _activeMaterialProperties);
-//
-//			// save reference for housekeeping
-//			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
-//		}
-//		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
-//			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
-//			glClearColor(color->r, color->g, color->b, 1.0f);
-//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//		}
-//	}
-	
+		auto color = get<shared_ptr<Color>>(background);
+
+		glClearColor(color->r, color->g, color->b, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 	
 	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
@@ -1932,8 +1907,8 @@ static void DeleteTextureGLResources(shared_ptr<Texture> texture,
 
 		glMapping.erase(texture);
 
-//		texture->dirtyMask(AE_MASK_REMOVE(texture->dirtyMask(),
-//										   TextureDirtyMask::All));
+		texture->dirtyMask(AE_MASK_REMOVE(texture->dirtyMask(),
+										  TextureDirtyMask::All));
 	}
 
 #endif

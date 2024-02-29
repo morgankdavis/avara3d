@@ -118,15 +118,6 @@ namespace ae {
 		TTF,
 	};
 
-//	// TODO: move to Material.h?
-//	-> moved to OpenGLRenderer.cc
-//	enum class MaterialPropertyType {
-//		Ambient,
-//		Diffuse,
-//		Specular,
-//		Emission
-//	};
-
 	enum class FilterMode : unsigned {
 		Nearest = 				0x2600,
 		Linear = 				0x2601,
