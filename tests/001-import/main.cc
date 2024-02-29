@@ -64,27 +64,30 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto options = SceneImportOptions::ImportAll;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+//	auto options = SceneImportOptions::ImportAll;
+//	auto options = SceneImportOptions::ImportGeometries;
+	auto options = SceneImportOptions::ImportGeometries
+				   | SceneImportOptions::ImportMaterials;
+//	auto options = SceneImportOptions::ImportGeometries
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights;
+//	auto options = SceneImportOptions::ImportGeometries
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
+//	auto options = SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
 
 	auto testScene = SceneNamed("import_test/import_test",
 								options);
+//	auto testScene = SceneNamed("import_test_white_lights/import_test_white_lights",
+//								options);
+
 	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
 	importGeometryRoot = make_shared<Node>("importGeometryRoot");
 
-	for (auto node : testSceneNodes) {
+	for (auto& node : testSceneNodes) {
 
 		if (node->light() || node->camera()) {
 			importLightsCamerasRoot->addChild(node);
@@ -93,6 +96,34 @@ int main(int argc, const char* argv[]) {
 			importGeometryRoot->addChild(node);
 		}
 	}
+
+//	int texIndex = 0;
+//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png"),
+//										   utils::ImageNamed("test_textures/green", "png"),
+//										   utils::ImageNamed("test_textures/magenta", "png"),
+//										   utils::ImageNamed("test_textures/orange", "png"),
+//										   utils::ImageNamed("test_textures/purple", "png"),
+//										   utils::ImageNamed("test_textures/red", "png"),
+//										   utils::ImageNamed("test_textures/yellow", "png")};
+//	for (auto& node : testSceneNodes) {
+//
+//		if (auto geometry = node->geometry(); geometry) {
+//			auto materials = geometry->materials();
+//			for (int m=0; m<materials.size(); ++m) {
+//
+//				auto& material = materials[m];
+//				auto diffuse = material->diffuse();
+//				if (holds_alternative<shared_ptr<Texture>>(diffuse)) {
+//					//auto texture = get<shared_ptr<Texture>>(ambient);
+//					material->ambient(make_shared<Texture>(textures[texIndex++]));
+//					if (texIndex >= textures.size()) {
+//						texIndex = 0;
+//					}
+//				}
+//			}
+//		}
+//	}
 
 //	importGeometryRoot = testScene->rootNode();
 

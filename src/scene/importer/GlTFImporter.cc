@@ -20,6 +20,7 @@
 #include "ae/Color.h"
 #include "ae/Image.h"
 #include "ae/Types.h"
+#include "ae/Utilities.h" // TEMPORARY
 #include "ae/diagnostic/exception/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
@@ -771,6 +772,28 @@ shared_ptr<ae::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
 
 	if (auto imageIndex = texture.imageIndex) {
 
+		// sampler_platter:
+		// 50/50 -- totally OK, or totally not OK
+		// Suzanne is always fine (color, not texture)
+//		static int texIndex = 0;
+//		vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//											   utils::ImageNamed("test_textures/cyan", "png"),
+//											   utils::ImageNamed("test_textures/green", "png"),
+//											   utils::ImageNamed("test_textures/magenta", "png"),
+//											   utils::ImageNamed("test_textures/orange", "png"),
+//											   utils::ImageNamed("test_textures/purple", "png"),
+//											   utils::ImageNamed("test_textures/red", "png"),
+//											   utils::ImageNamed("test_textures/yellow", "png")};
+//
+//		auto image = textures[texIndex++];
+//		if (texIndex >= textures.size()) {
+//			texIndex = 0;
+//		}
+//		return image;
+
+
+		// sampler_platter:
+		// totally random.
 		if (auto existing = _images.find(*imageIndex)
 				; existing == _images.end()) {
 
