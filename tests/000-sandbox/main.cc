@@ -79,10 +79,13 @@ int main(int argc, const char* argv[]) {
 //	visualWorld->fogEndDistance(400.0);
 //	visualWorld->fogDensityExponent(1.0);
 //	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
-					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
+//	auto background = DARK
+//					  ? make_shared<MaterialProperty>(Color::Black())
+//					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
+//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
+	Material::Property background = monostate{};
+	if (DARK) background = Color::Black();
+	else background = make_shared<Texture>(CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
@@ -125,23 +128,23 @@ int main(int argc, const char* argv[]) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WrapMode::Repeat);
-	planeMaterialProperty->wrapT(WrapMode::Repeat);
-	planeMaterialProperty->maxAnisotropy(16);
-	planeMaterialProperty->minificationFilter(FilterMode::LinearMipmapLinear);
-	planeMaterialProperty->magnificationFilter(FilterMode::Linear);
+	auto planeTexture = make_shared<Texture>(gridImage);
+	planeTexture->sampler()->wrapS(WrapMode::Repeat);
+	planeTexture->sampler()->wrapT(WrapMode::Repeat);
+	planeTexture->sampler()->maxAnisotropy(16);
+	planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+	planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
 	shared_ptr<Material> planeMaterial = nullptr;
 	if (DARK) {
-		planeMaterial = make_shared<Material>(nullptr,
-											  nullptr,
-											  make_shared<MaterialProperty>(Color::White()),
-											  planeMaterialProperty);
+		planeMaterial = make_shared<Material>(monostate{},
+											  monostate{},
+											  Color::White(),
+											  planeTexture);
 	}
 	else {
-		planeMaterial = make_shared<Material>(nullptr,
-											  planeMaterialProperty,
-											  nullptr);//make_shared<MaterialProperty>(make_shared<Color>(.1f)));
+		planeMaterial = make_shared<Material>(monostate{},
+											  planeTexture,
+											  monostate{});
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
@@ -172,8 +175,10 @@ int main(int argc, const char* argv[]) {
 			scene->rootNode()->addChild(pointLightNode);
 
 			auto sphere = make_shared<Sphere>(0.1f, 12);
-			auto property = make_shared<MaterialProperty>(pointLight->color());
-			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
+			auto material = make_shared<Material>(monostate{},
+												  monostate{},
+												  monostate{},
+												  pointLight->color());
 			sphere->addMaterial(material);
 			pointLightNode->geometry(sphere);
 		}

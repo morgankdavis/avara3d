@@ -8,7 +8,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "glm/glm.hpp"
 
@@ -57,8 +56,7 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	auto background = make_shared<MaterialProperty>(backgroundColor);
-	visualWorld->background(background);
+	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -131,6 +129,36 @@ int main(int argc, const char* argv[]) {
 	scene->rootNode()->addChild(coneNode);
 	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
+
+
+//	int texIndex = 0;
+//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png"),
+//										   utils::ImageNamed("test_textures/green", "png"),
+//										   utils::ImageNamed("test_textures/magenta", "png"),
+//										   utils::ImageNamed("test_textures/orange", "png"),
+//										   utils::ImageNamed("test_textures/purple", "png"),
+//										   utils::ImageNamed("test_textures/red", "png"),
+//										   utils::ImageNamed("test_textures/yellow", "png") };
+//
+//	for (auto& node : scene->rootNode()->children(true)) {
+//		if (auto geometry = node->geometry(); geometry) {
+//
+//			auto elements = geometry->elements();
+//			for (int e=0; e<elements.size(); ++e) {
+//
+//				auto material = make_shared<Material>();
+//				Material::Property property = make_shared<Texture>(textures[texIndex++]);
+//				material->diffuse(property);
+//				material->doubleSided(true);
+//				geometry->addMaterial(material);
+//				if (texIndex >= textures.size()) {
+//					texIndex = 0;
+//				}
+//			}
+//		}
+//	}
+
 
 	window->open();
 	scene->run();

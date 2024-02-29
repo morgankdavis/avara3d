@@ -61,16 +61,18 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("sky1", "png")));
+	visualWorld->background(make_shared<Texture>(CubeImageNamed("sky1", "png")));
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-	DebugOptions debugOptions = DebugOptions::None;
-	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
-	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
+//	DebugOptions debugOptions = DebugOptions::None;
+//	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
+//	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
+	DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
+								| DebugOptions::ShowBoundingBoxes;
 	scene->debugOptions(debugOptions);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
@@ -86,7 +88,7 @@ int main(int argc, const char* argv[]) {
 	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position({100.0, 20.0, 20.0});
 
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
@@ -94,12 +96,12 @@ int main(int argc, const char* argv[]) {
 	geometry->addMaterial(material);
 	pointLightNode->geometry(geometry);
 
-	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot"));
+	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
 	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::GeometryNode(GeometryNamed("dragon"));
+	auto dragonNode = Node::GeometryNode(GeometryNamed("dragon/dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 

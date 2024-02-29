@@ -14,12 +14,10 @@
 #include <string>
 #include <vector>
 
-#include "ae/rendering/materials/MaterialPropertyContents.h"
-
 
 namespace ae {
 	
-	class Color : public MaterialPropertyContents {
+	class Color {
 		
 /*********************************************************************************************
 	Public Static

@@ -37,6 +37,11 @@ namespace ae {
 
 	public:
 
+		using SourceObject = std::variant<
+				std::monostate,
+				Geometry*,
+				Node*>;
+
 		PhysicsShape(PhysicsShapeType type, Geometry* geometry);
 		PhysicsShape(PhysicsShapeType type, Node* node);
 		~PhysicsShape();
@@ -54,10 +59,7 @@ namespace ae {
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
 
-		std::variant<
-				Geometry*,
-				Node*,
-				std::monostate> 			sourceObject() const;
+		SourceObject 						sourceObject() const;
 
 /*********************************************************************************************
 	Internal
@@ -87,14 +89,13 @@ namespace ae {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void 								sourceObject(
-				std::variant<Geometry*, Node*, std::monostate> sourceObject);
+		void 								sourceObject(SourceObject sourceObject);
 
 		void								checkCreateProxy();
 
 		std::unordered_set<PhysicsBody*>	bodies() const;
 
-		PhysicsShapeProxy*				proxy() const;
+		PhysicsShapeProxy*					proxy() const;
 
 	protected:
 
@@ -107,11 +108,8 @@ namespace ae {
 
 	private:
 
-		std::variant<
-				Geometry*,
-				Node*,
-				std::monostate> 				_sourceObject;
-		std::unordered_set<PhysicsBody*>		_bodies;
+		SourceObject 						_sourceObject;
+		std::unordered_set<PhysicsBody*>	_bodies;
 //		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 	};
 }

@@ -55,8 +55,8 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
-	auto background = make_shared<MaterialProperty>(backgroundColor);
-	visualWorld->background(background);
+	auto background = Material::Property(backgroundColor);
+	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -64,27 +64,30 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto options = SceneImportOptions::ImportAll;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+//	auto options = SceneImportOptions::ImportAll;
+//	auto options = SceneImportOptions::ImportGeometries;
+	auto options = SceneImportOptions::ImportGeometries
+				   | SceneImportOptions::ImportMaterials;
+//	auto options = SceneImportOptions::ImportGeometries
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights;
+//	auto options = SceneImportOptions::ImportGeometries
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
+//	auto options = SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
 
 	auto testScene = SceneNamed("import_test/import_test",
 								options);
+//	auto testScene = SceneNamed("import_test_white_lights/import_test_white_lights",
+//								options);
+
 	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
 	importGeometryRoot = make_shared<Node>("importGeometryRoot");
 
-	for (auto node : testSceneNodes) {
+	for (auto& node : testSceneNodes) {
 
 		if (node->light() || node->camera()) {
 			importLightsCamerasRoot->addChild(node);
@@ -93,6 +96,7 @@ int main(int argc, const char* argv[]) {
 			importGeometryRoot->addChild(node);
 		}
 	}
+
 
 //	importGeometryRoot = testScene->rootNode();
 

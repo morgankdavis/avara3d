@@ -16,8 +16,9 @@
 
 #include "glm/glm.hpp"
 
-#include "ae/rendering/Renderer.h"
 #include "ae/Types.h"
+#include "ae/rendering/Renderer.h"
+#include "ae/rendering/material/Material.h"
 
 
 namespace ae {
@@ -28,7 +29,7 @@ namespace ae {
 	class Geometry;
 	class GeometryElement;
 	class Line;
-	class MaterialProperty;
+	class Texture;
 	
 	
 	class OpenGLRenderer : public Renderer {
@@ -46,9 +47,9 @@ namespace ae {
 						unsigned,
 						unsigned>>;
 
-		/* <ae_MaterialProperty : <gl_textureHandle> */
-		using MaterialPropertyGLMapping =
-				std::map<std::shared_ptr<MaterialProperty>, unsigned>;
+		/* <ae_Texture : <gl_textureHandle> */
+		using TextureGLMapping =
+				std::map<std::shared_ptr<Texture>, unsigned>;
 
 		/* <set<ae_Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
@@ -125,14 +126,14 @@ namespace ae {
 	private:
 
 		GeometryElementGLMapping 				_geometryElementGLMapping;
-		MaterialPropertyGLMapping				_materialPropertyGLMapping;
+		TextureGLMapping						_textureGLMapping;
 		LineSetGLMapping						_lineSetGLMapping;
 		PointSetGLMapping						_pointSetGLMapping;
 
 		GeometryAABBLineSetMapping				_geometryAABBLineSetMapping;
 
 		std::unordered_set<std::shared_ptr<GeometryElement>>	_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<MaterialProperty>>	_activeMaterialProperties;
+		std::unordered_set<std::shared_ptr<Texture>>			_activeTextures;
 		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
 		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
 

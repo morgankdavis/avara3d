@@ -26,7 +26,6 @@ namespace ae {
 	class Color;
 	class Geometry;
 	class InputManager;
-	class MaterialProperty;
 	class Node;
 	class PhysicalWorld;
 	class Renderer;

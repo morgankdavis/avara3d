@@ -38,8 +38,8 @@ namespace ae {
 //		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
 
 	#define AE_MASK_CONTAINS(mask, bit) (static_cast<unsigned>(mask & bit) != 0)
-	#define AE_MASK_ADD(mask, bit) 		(mask | bit)
-	#define AE_MASK_REMOVE(mask, bit)	(mask & ~bit)
+	#define AE_MASK_ADD(mask, bit) (mask | bit)
+	#define AE_MASK_REMOVE(mask, bit) (mask & ~bit)
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553
@@ -67,12 +67,12 @@ namespace ae {
 			return static_cast<T>(op to_underlying(a)); \
 		}
 
-#define AE_ENABLE_ENUM_MASK_OPS(T) \
-	AE_ENABLE_ARITHMETIC_OP(T, T, |) \
-	AE_ENABLE_ARITHMETIC_OP(T, T, &) \
-	AE_ENABLE_ASSIGNMENT_OP(T, T, |) \
-	AE_ENABLE_ASSIGNMENT_OP(T, T, &) \
-	AE_ENABLE_UNARY_OP(T, ~)
+	#define AE_ENABLE_ENUM_MASK_OPS(T) \
+		AE_ENABLE_ARITHMETIC_OP(T, T, |) \
+		AE_ENABLE_ARITHMETIC_OP(T, T, &) \
+		AE_ENABLE_ASSIGNMENT_OP(T, T, |) \
+		AE_ENABLE_ASSIGNMENT_OP(T, T, &) \
+		AE_ENABLE_UNARY_OP(T, ~)
 
 
 /**************************************************************************************
@@ -116,13 +116,6 @@ namespace ae {
 		Unknown,
 		OTF,
 		TTF,
-	};
-
-	enum class MaterialPropertyType {
-		Ambient,
-		Diffuse,
-		Specular,
-		Emission
 	};
 
 	enum class FilterMode : unsigned {
@@ -426,24 +419,31 @@ namespace ae {
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,
+//		MaxAnisotropy = 		1 << 1,
 		All = 					UINT_MAX
 	};
 	AE_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
 
-	enum class MaterialPropertyDirtyMask : unsigned {
+	enum class TextureDirtyMask : unsigned {
 		None =					0,
 		Contents = 				1 << 0,
-		MinificationFilter = 	1 << 1,
-		MagnificationFilter = 	1 << 2,
+		All = 					UINT_MAX
+	};
+	AE_ENABLE_ENUM_MASK_OPS(TextureDirtyMask)
+
+	enum class SamplerDirtyMask : unsigned {
+		None =					0,
+		MinificationFilter = 	1 << 0,
+		MagnificationFilter = 	1 << 1,
+		MaxAnisotropy = 		1 << 2,
 		WrapS = 				1 << 3,
 		WrapT = 				1 << 4,
 		WrapR = 				1 << 5,
-		MaxAnisotropy = 		1 << 6,
 		All = 					UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(MaterialPropertyDirtyMask)
+	AE_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
 
-} // namespace ae
+}
 
 
 #endif /* Types_h */

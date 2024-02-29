@@ -4,6 +4,7 @@
 
 #include "ae/rendering/VisualWorld.h"
 
+#include <variant>
 
 #include "glm/glm.hpp"
 
@@ -11,14 +12,14 @@
 #include "ae/CubeImage.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/geometry/Geometry.h"
-#include "ae/geometry/primitives/Box.h"
+#include "ae/geometry/primitive/Box.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/Renderer.h"
+#include "ae/rendering/material/Texture.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
 #include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/materials/MaterialProperty.h"
 #include "ae/scene/Node.h"
 #include "ae/scene/Scene.h"
 
@@ -32,7 +33,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -40,7 +41,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
-		_background(nullptr),
+		_background(monostate{}),
 		_skyboxGeometry(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
@@ -67,31 +68,35 @@ VisualWorld::~VisualWorld() {
 	Public
  *********************************************************************************************/
 
-shared_ptr<MaterialProperty> VisualWorld::background() const {
+Material::Property VisualWorld::background() const {
 	return _background;
 }
 
-void VisualWorld::background(shared_ptr<MaterialProperty> backgroundProperty) {
+void VisualWorld::background(Material::Property background) {
 
-	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
-		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
+	if (shared_ptr<Texture>* texture = get_if<shared_ptr<Texture>>(&background)) {
 
-		material->emission()->wrapS(WrapMode::ClampToEdge);
-		material->emission()->wrapT(WrapMode::ClampToEdge);
-		material->emission()->wrapR(WrapMode::ClampToEdge);
+		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
+			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
 
-		// generate the skybox geometry if it hasn't already been
-		if (!_skyboxGeometry) {
-			// MKD: u_s_ptr_aliases
-			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
-		}
-		else {
-			// we already have the geometry, just update its material
-			_skyboxGeometry->replaceMaterial(0, material);
+			auto sampler = (*texture)->sampler();
+			sampler->wrapS(WrapMode::ClampToEdge);
+			sampler->wrapT(WrapMode::ClampToEdge);
+			sampler->wrapR(WrapMode::ClampToEdge);
+
+			// generate the skybox geometry if it hasn't already been
+			if (!_skyboxGeometry) {
+				// MKD: u_s_ptr_aliases
+				_skyboxGeometry = MakeSkyboxGeometry(background);
+			}
+			else {
+				// we already have the geometry, just update its material
+				_skyboxGeometry->replaceMaterial(0, material);
+			}
 		}
 	}
 
-	_background = backgroundProperty;
+	_background = background;
 }
 
 float VisualWorld::fogStartDistance() const {
@@ -365,10 +370,10 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
+static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property) {
 
 	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
-	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
+	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
 	geometry->addMaterial(material);
 
