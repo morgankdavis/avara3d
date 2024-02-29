@@ -63,24 +63,17 @@ namespace ae {
 																			 fastgltf::Primitive& primitive);
 		std::shared_ptr<Material> 			materialFromGlFTPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
-		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
-																   fastgltf::Texture& texture);
-//		std::shared_ptr<Material::Property> materialPropertyFromGlTFTexture(fastgltf::Asset& asset,
-//																			fastgltf::Texture& texture);
-		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
-																fastgltf::Node& node);
-		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
-															  fastgltf::Node& node);
-
-
-
 		std::shared_ptr<Texture> 			textureFromGlTFTextureIndex(fastgltf::Asset& asset,
 																		std::size_t textureIndex);
 
 		std::shared_ptr<Sampler> 			samplerFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-
-
+		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
+																   fastgltf::Texture& texture);
+		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+																fastgltf::Node& node);
+		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
+															  fastgltf::Node& node);
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;
@@ -93,11 +86,8 @@ namespace ae {
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
 		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
-		//std::map<std::size_t, std::shared_ptr<Material::Property>> 	_materialProperties;
-
-
-		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;
 		std::map<std::size_t, std::shared_ptr<Texture>> 			_textures;
+		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;
 	};
 }
 
