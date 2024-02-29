@@ -20,7 +20,8 @@ Texture::Texture(shared_ptr<Sampleable> contents,
 				 unsigned mappingChannel):
 		_sampler{sampler},
 		_contents{contents},
-		_mappingChannel{mappingChannel} { }
+		_mappingChannel{mappingChannel},
+		_dirtyMask{TextureDirtyMask::All} { }
 
 Texture::~Texture() {}
 

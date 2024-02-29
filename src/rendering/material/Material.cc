@@ -38,13 +38,13 @@ shared_ptr<Material> Material::DefaultMaterial() {
 shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
-		material = Material::EmissiveMaterial(Color::Magenta());
+		material = Material::EmissionMaterial(Color::Magenta());
 		material->doubleSided(true);
 	}
 	return material;
 }
 
-shared_ptr<Material> Material::EmissiveMaterial(Material::Property property) {
+shared_ptr<Material> Material::EmissionMaterial(Property property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
@@ -52,17 +52,17 @@ Material::Property Material::MissingTextureProperty() {
 	return Property(Color::Magenta());
 }
 
-unique_ptr<Material> Material::DiffuseMaterial(Material::Property property) {
-	auto material = make_unique<Material>();
-	material->diffuse(property);
-	return material;
-}
-
-unique_ptr<Material> Material::EmissionMaterial(Material::Property property) {
-	auto material = make_unique<Material>();
-	material->emission(property);
-	return material;
-}
+//unique_ptr<Material> Material::DiffuseMaterial(Material::Property property) {
+//	auto material = make_unique<Material>();
+//	material->diffuse(property);
+//	return material;
+//}
+//
+//unique_ptr<Material> Material::EmissionMaterial(Material::Property property) {
+//	auto material = make_unique<Material>();
+//	material->emission(property);
+//	return material;
+//}
 
 /*********************************************************************************************
 	Lifecycle

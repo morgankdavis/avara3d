@@ -132,42 +132,33 @@ int main(int argc, const char* argv[]) {
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
 
 
-
-
-
-	// samper_platter
-	int texIndex = 0;
-	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
-										   utils::ImageNamed("test_textures/cyan", "png"),
-										   utils::ImageNamed("test_textures/green", "png"),
-										   utils::ImageNamed("test_textures/magenta", "png"),
-										   utils::ImageNamed("test_textures/orange", "png"),
-										   utils::ImageNamed("test_textures/purple", "png"),
-										   utils::ImageNamed("test_textures/red", "png"),
-										   utils::ImageNamed("test_textures/yellow", "png") };
-
-	for (auto& node : scene->rootNode()->children(true)) {
-		if (auto geometry = node->geometry(); geometry) {
-
-			auto elements = geometry->elements();
-			for (int e=0; e<elements.size(); ++e) {
-
-				auto material = make_shared<Material>();
-				Material::Property property = make_shared<Texture>(textures[texIndex++]);
-				material->diffuse(property);
-				material->doubleSided(true);
-				geometry->addMaterial(material);
-				if (texIndex >= textures.size()) {
-					texIndex = 0;
-				}
-			}
-		}
-	}
-
-
-
-
-
+//	int texIndex = 0;
+//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png"),
+//										   utils::ImageNamed("test_textures/green", "png"),
+//										   utils::ImageNamed("test_textures/magenta", "png"),
+//										   utils::ImageNamed("test_textures/orange", "png"),
+//										   utils::ImageNamed("test_textures/purple", "png"),
+//										   utils::ImageNamed("test_textures/red", "png"),
+//										   utils::ImageNamed("test_textures/yellow", "png") };
+//
+//	for (auto& node : scene->rootNode()->children(true)) {
+//		if (auto geometry = node->geometry(); geometry) {
+//
+//			auto elements = geometry->elements();
+//			for (int e=0; e<elements.size(); ++e) {
+//
+//				auto material = make_shared<Material>();
+//				Material::Property property = make_shared<Texture>(textures[texIndex++]);
+//				material->diffuse(property);
+//				material->doubleSided(true);
+//				geometry->addMaterial(material);
+//				if (texIndex >= textures.size()) {
+//					texIndex = 0;
+//				}
+//			}
+//		}
+//	}
 
 
 	window->open();

@@ -101,50 +101,50 @@ int main(int argc, const char* argv[]) {
 
 
 
-	// samper_platter
-	int texIndex = 0;
-	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
-										   utils::ImageNamed("test_textures/cyan", "png"),
-										   utils::ImageNamed("test_textures/green", "png"),
-										   utils::ImageNamed("test_textures/magenta", "png"),
-										   utils::ImageNamed("test_textures/orange", "png"),
-										   utils::ImageNamed("test_textures/purple", "png"),
-										   utils::ImageNamed("test_textures/red", "png"),
-										   utils::ImageNamed("test_textures/yellow", "png") };
-
-	for (auto& node : importGeometryRoot->children(true)) {
-		if (auto geometry = node->geometry(); geometry) {
-
-			auto elements = geometry->elements();
-			for (int e=0; e<elements.size(); ++e) {
-
-				auto material = make_shared<Material>();
-				Material::Property property = make_shared<Texture>(textures[texIndex++]);
-				material->diffuse(property);
-				material->doubleSided(true);
-				geometry->replaceMaterial(e, material);
-				if (texIndex >= textures.size()) {
-					texIndex = 0;
-				}
-			}
-
-
-			// random
-//			auto materials = geometry->materials();
-//			for (int m=0; m<materials.size(); ++m) {
+//	// samper_platter
+//	int texIndex = 0;
+//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png"),
+//										   utils::ImageNamed("test_textures/green", "png"),
+//										   utils::ImageNamed("test_textures/magenta", "png"),
+//										   utils::ImageNamed("test_textures/orange", "png"),
+//										   utils::ImageNamed("test_textures/purple", "png"),
+//										   utils::ImageNamed("test_textures/red", "png"),
+//										   utils::ImageNamed("test_textures/yellow", "png") };
 //
-//				auto& material = materials[m];
-//				auto diffuse = material->diffuse();
-//				if (holds_alternative<shared_ptr<Texture>>(diffuse)) {
-//					//auto texture = get<shared_ptr<Texture>>(ambient);
-//					material->diffuse(make_shared<Texture>(textures[texIndex++]));
-//					if (texIndex >= textures.size()) {
-//						texIndex = 0;
-//					}
+//	for (auto& node : importGeometryRoot->children(true)) {
+//		if (auto geometry = node->geometry(); geometry) {
+//
+//			auto elements = geometry->elements();
+//			for (int e=0; e<elements.size(); ++e) {
+//
+//				auto material = make_shared<Material>();
+//				Material::Property property = make_shared<Texture>(textures[texIndex++]);
+//				material->diffuse(property);
+//				material->doubleSided(true);
+//				geometry->replaceMaterial(e, material);
+//				if (texIndex >= textures.size()) {
+//					texIndex = 0;
 //				}
 //			}
-		}
-	}
+//
+//
+//			// random
+////			auto materials = geometry->materials();
+////			for (int m=0; m<materials.size(); ++m) {
+////
+////				auto& material = materials[m];
+////				auto diffuse = material->diffuse();
+////				if (holds_alternative<shared_ptr<Texture>>(diffuse)) {
+////					//auto texture = get<shared_ptr<Texture>>(ambient);
+////					material->diffuse(make_shared<Texture>(textures[texIndex++]));
+////					if (texIndex >= textures.size()) {
+////						texIndex = 0;
+////					}
+////				}
+////			}
+//		}
+//	}
 
 
 
