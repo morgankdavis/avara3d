@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(avara3d
 		VERSION 0.0.1
-		HOMEPAGE_URL http://avara3d.net/)
+		HOMEPAGE_URL https://avara3d.net/)
 
 option(A3D_BUILD_BULLET "Build Bullet from source" ON)
 option(A3D_BUILD_GLFW "Build GLFW from source" ON)
