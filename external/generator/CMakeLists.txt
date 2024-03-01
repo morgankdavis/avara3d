@@ -24,7 +24,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 #if(GENERATOR_USE_GLM)
 	
 	# mkd: turn GLM on
-	include_directories(${CMAKE_SOURCE_DIR}/avara-engine/external/glm-0.9.9)
+	include_directories(${CMAKE_SOURCE_DIR}/avara3d/external/glm-0.9.9)
 	message(STATUS ${CMAKE_SOURCE_DIR})
 	
 	message(STATUS "Using GLM instead of GML for math (note the similar names).  Support for this is experimental!")

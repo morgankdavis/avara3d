@@ -1,17 +1,17 @@
 //
 //  Point.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/mesh/Point.h"
+#include "a3d/mesh/Point.h"
 
-#include "ae/Color.h"
+#include "a3d/Color.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 

@@ -2,10 +2,10 @@
 // Created by mkd on 1/21/24.
 //
 
-#include "ae/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormat.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

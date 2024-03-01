@@ -1,6 +1,6 @@
 //
 //  Window.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
@@ -9,7 +9,7 @@
 #ifdef DESKTOP
 
 
-#include "ae/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/platform/desktop/Window.h"
 
 #include <iostream>
 #include <sstream>
@@ -18,19 +18,19 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/input/platform/desktop/WindowInputManager.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/VisualWorld.h"
-#include "ae/rendering/camera/Camera.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/VisualWorld.h"
+#include "a3d/rendering/camera/Camera.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
 using namespace std;
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************
@@ -89,7 +89,7 @@ Window::Window(RenderingApi renderAPI,
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
 																					 vmode->height,
-																					 "avara-engine",
+																					 "avara3d",
 																					 monitor,
 																					 nullptr));
 			viewportWidth = vmode->width;
@@ -100,7 +100,7 @@ Window::Window(RenderingApi renderAPI,
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
 																					 height,
-																					 "avara-engine",
+																					 "avara3d",
 																					 nullptr,
 																					 nullptr));
 
@@ -136,26 +136,26 @@ Window::Window(RenderingApi renderAPI,
 			}
 			else {
 				// TODO: exception
-				AE_LOG_C("Failed to initialize GLEW.");
+				A3D_LOG_C("Failed to initialize GLEW.");
 				glfwTerminate();
 				// exception
 			}
 		}
 		else {
 			// TODO: exception
-			AE_LOG_C("Couldn't create GLFW Window.");
+			A3D_LOG_C("Couldn't create GLFW Window.");
 			glfwTerminate();
 			// exception
 		}
 	}
 	else {
-		AE_LOG_C("Failed to initializing GLFW.");
+		A3D_LOG_C("Failed to initializing GLFW.");
 		// exception
 	}
 }
 
 Window::~Window() {
-	AE_LOG_D("Destroying Window {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Window {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 
@@ -169,7 +169,7 @@ Window::~Window() {
  *********************************************************************************************/
 
 void Window::open() {
-	AE_LOG_T("");
+	A3D_LOG_T("");
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
@@ -267,20 +267,20 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		AE_LOG_T("");
+		A3D_LOG_T("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		AE_LOG_I("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
+		A3D_LOG_I("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must move to support multiple windows
 		glfwSetErrorCallback(GLFWErrorCallback);
 		
 		if (glfwInit()) {
-			AE_LOG_I("GLFW Initialized.");
+			A3D_LOG_I("GLFW Initialized.");
 		}
 		else {
-			AE_LOG_C("Error initializing GLFW.");
+			A3D_LOG_C("Error initializing GLFW.");
 			return false;
 		}
 		
@@ -292,7 +292,7 @@ static bool InitGLFW() {
 }
 
 static bool InitGLEW() {
-	AE_LOG_T("");
+	A3D_LOG_T("");
 
 	// NOTE: OpenGL context must be setup first
 	
@@ -307,7 +307,7 @@ static bool InitGLEW() {
 			initialized = true;
 		}
 		else {
-			AE_LOG_C("Failed to initialize GLEW: {}", initStatus);
+			A3D_LOG_C("Failed to initialize GLEW: {}", initStatus);
 			return false;
 		}
 	}
@@ -320,8 +320,8 @@ static void LogGLInfo()
 	const GLubyte* version = glGetString(GL_VERSION);
 
 	// is this cool?
-	AE_LOG_I("Renderer: {}", reinterpret_cast<const char*>(renderer));
-	AE_LOG_I("Version: {}", reinterpret_cast<const char*>(version));
+	A3D_LOG_I("Renderer: {}", reinterpret_cast<const char*>(renderer));
+	A3D_LOG_I("Version: {}", reinterpret_cast<const char*>(version));
 
 	// extensions
 
@@ -333,7 +333,7 @@ static void LogGLInfo()
 		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
 		if (e < numExtensions-1) extensionsStream << endl;
 	}
-	AE_LOG_I("{}", extensionsStream.str());
+	A3D_LOG_I("{}", extensionsStream.str());
 
 	// context info
 
@@ -390,7 +390,7 @@ static void LogGLInfo()
 	glGetBooleanv(contextParams[11], &stereo);
 	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
 
-	AE_LOG_I("{}", contextParamsStream.str());
+	A3D_LOG_I("{}", contextParamsStream.str());
 }
 
 //static float ScreenScaleFactor(GLFWmonitor* monitor) {
@@ -408,7 +408,7 @@ static void LogGLInfo()
 //}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	AE_LOG_T("width: {}, height: {}", width, height);
+	A3D_LOG_T("width: {}, height: {}", width, height);
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
@@ -417,7 +417,7 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
-	AE_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
+	A3D_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
@@ -425,7 +425,7 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	AE_LOG_T("width: {}, height: {}", width, height);
+	A3D_LOG_T("width: {}, height: {}", width, height);
 
 	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
@@ -435,7 +435,7 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 }
 
 void GLFWErrorCallback(int error, const char* description) {
-	AE_LOG_E("error: {}, description: {}", error, description);
+	A3D_LOG_E("error: {}, description: {}", error, description);
 }
 
 

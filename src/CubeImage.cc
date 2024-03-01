@@ -1,15 +1,15 @@
 //
 //  CubeImage.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 4/30/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/CubeImage.h"
+#include "a3d/CubeImage.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

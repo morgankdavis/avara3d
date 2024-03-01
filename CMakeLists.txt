@@ -1,12 +1,12 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project(avara-engine
+project(avara3d
 		VERSION 0.0.1
-		HOMEPAGE_URL http://avara-engine.net/)
+		HOMEPAGE_URL http://avara3d.net/)
 
-option(AE_BUILD_BULLET "Build Bullet from source" ON)
-option(AE_BUILD_GLFW "Build GLFW from source" ON)
+option(A3D_BUILD_BULLET "Build Bullet from source" ON)
+option(A3D_BUILD_GLFW "Build GLFW from source" ON)
 
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
@@ -22,16 +22,16 @@ message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
 ### create BuildInfo.cmake.h ###
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_RELEASE_TYPE)
-set(AE_BUILD_TYPE ${UPPER_RELEASE_TYPE})
+set(A3D_BUILD_TYPE ${UPPER_RELEASE_TYPE})
 
 if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID))
-	set(AE_BUILD_NUMBER 0)
-	set(AE_BUILD_TIME "0000-00-00T00:00:00Z")
-	set(AE_BUILD_ORIGIN "ADHOC")
+	set(A3D_BUILD_NUMBER 0)
+	set(A3D_BUILD_TIME "0000-00-00T00:00:00Z")
+	set(A3D_BUILD_ORIGIN "ADHOC")
 else()
-	set(AE_BUILD_NUMBER ${GITLAB_CI_PIPELINE_IID})
-	set(AE_BUILD_TIME ${GITLAB_CI_PIPELINE_CREATED_AT})
-	set(AE_BUILD_ORIGIN "CI")
+	set(A3D_BUILD_NUMBER ${GITLAB_CI_PIPELINE_IID})
+	set(A3D_BUILD_TIME ${GITLAB_CI_PIPELINE_CREATED_AT})
+	set(A3D_BUILD_ORIGIN "CI")
 endif()
 
 configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
@@ -39,7 +39,7 @@ configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 ### add external libraries ###
 
-if (AE_BUILD_BULLET)
+if (A3D_BUILD_BULLET)
 
 	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
@@ -78,7 +78,7 @@ add_subdirectory(external/generator)
 
 add_subdirectory(external/glew-2.1.0)
 
-if (AE_BUILD_GLFW)
+if (A3D_BUILD_GLFW)
 
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -96,79 +96,79 @@ endif()
 add_subdirectory(external/imgui-1.90)
 
 
-### add ae ###
+### add a3d ###
 
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_library(ae STATIC
+add_library(a3d STATIC
 		${HEADERS}
 		${SOURCES})
 
 
-### setup ae environment defines ###
+### setup a3d environment defines ###
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_definitions(ae PUBLIC "AE_DEBUG")
+	target_compile_definitions(a3d PUBLIC "A3D_DEBUG")
 endif()
 if (DESKTOP)
-	target_compile_definitions(ae PUBLIC "DESKTOP")
-	target_compile_definitions(ae PUBLIC "OPENGL_DESKTOP")
+	target_compile_definitions(a3d PUBLIC "DESKTOP")
+	target_compile_definitions(a3d PUBLIC "OPENGL_DESKTOP")
 endif()
 if (LINUX)
-	target_compile_definitions(ae PUBLIC "LINUX")
-	target_compile_definitions(ae PUBLIC "POSIX")
+	target_compile_definitions(a3d PUBLIC "LINUX")
+	target_compile_definitions(a3d PUBLIC "POSIX")
 	if (RPI)
-		target_compile_definitions(ae PUBLIC "RPI")
-		target_compile_definitions(ae PUBLIC "OPENGL_ES")
+		target_compile_definitions(a3d PUBLIC "RPI")
+		target_compile_definitions(a3d PUBLIC "OPENGL_ES")
 	endif()
 elseif (MACOS)
-	target_compile_definitions(ae PUBLIC "MACOS")
-	target_compile_definitions(ae PUBLIC "POSIX")
+	target_compile_definitions(a3d PUBLIC "MACOS")
+	target_compile_definitions(a3d PUBLIC "POSIX")
 elseif (WINDOWS)
-	target_compile_definitions(ae PUBLIC "WINDOWS")
-	#target_compile_definitions(ae PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+	target_compile_definitions(a3d PUBLIC "WINDOWS")
+	#target_compile_definitions(a3d PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
 elseif (ANDROID)
-	target_compile_definitions(ae PUBLIC "ANDROID")
-	target_compile_definitions(ae PUBLIC "POSIX")
-	target_compile_definitions(ae PUBLIC "OPENGL_ES")
+	target_compile_definitions(a3d PUBLIC "ANDROID")
+	target_compile_definitions(a3d PUBLIC "POSIX")
+	target_compile_definitions(a3d PUBLIC "OPENGL_ES")
 endif()
 
 
 ### add library headers ###
 
-target_include_directories(ae PUBLIC include)
-target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
-target_include_directories(ae PRIVATE external/generator/include)
-target_include_directories(ae PRIVATE external/gif-h)
-target_include_directories(ae PRIVATE external/glew-2.1.0/include)
-target_include_directories(ae PRIVATE external/glfw-3.4.0/include)
-target_include_directories(ae PRIVATE external/imgui-1.90)
-target_include_directories(ae PRIVATE external/imgui-1.90/backends)
-target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
-target_include_directories(ae PRIVATE external/stb)
-target_include_directories(ae PRIVATE external/v-hacd-4.1.0)
+target_include_directories(a3d PUBLIC include)
+target_include_directories(a3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
+target_include_directories(a3d PRIVATE external/generator/include)
+target_include_directories(a3d PRIVATE external/gif-h)
+target_include_directories(a3d PRIVATE external/glew-2.1.0/include)
+target_include_directories(a3d PRIVATE external/glfw-3.4.0/include)
+target_include_directories(a3d PRIVATE external/imgui-1.90)
+target_include_directories(a3d PRIVATE external/imgui-1.90/backends)
+target_include_directories(a3d PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(a3d PRIVATE external/stb)
+target_include_directories(a3d PRIVATE external/v-hacd-4.1.0)
 
 
 ### add special defines ###
 
-target_compile_definitions(ae PUBLIC FMT_HEADER_ONLY)
+target_compile_definitions(a3d PUBLIC FMT_HEADER_ONLY)
 
 
-### link ae to common libraries ###
+### link a3d to common libraries ###
 
-target_link_libraries(ae PUBLIC
+target_link_libraries(a3d PUBLIC
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
 		imgui)
 
 
-### link ae to platform-specific libraries ###
+### link a3d to platform-specific libraries ###
 
 if (DESKTOP)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(a3d PUBLIC
 			glew_s
 			glfw)
 
@@ -176,7 +176,7 @@ endif()
 
 if (LINUX)
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(a3d PUBLIC
 			dl
 			pthread
 			X11
@@ -190,13 +190,13 @@ if (LINUX)
 		find_library(EGL_LIBRARY EGL)
 		find_library(OPENGLES3_LIBRARY GLESv2)
 
-		target_link_libraries(ae PUBLIC
+		target_link_libraries(a3d PUBLIC
 				${EGL_LIBRARY}
 				${OPENGLES3_LIBRARY})
 
 	else()
 
-		target_link_libraries(ae PUBLIC
+		target_link_libraries(a3d PUBLIC
 				GL)
 
 	endif()
@@ -214,7 +214,7 @@ elseif (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_OPENGL})
 
-	target_link_libraries(ae PUBLIC
+	target_link_libraries(a3d PUBLIC
 			${FRAMEWORKS}
 			z)
 
@@ -227,7 +227,7 @@ endif()
 ### set root install dir before adding tests ###
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara-engine/linux/${LOWER_RELEASE_TYPE}")
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/linux/${LOWER_RELEASE_TYPE}")
 
 
 ### add tests ###
@@ -252,5 +252,5 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
 		DESTINATION ${INSTALL_LEGAL_DIR})
 
-install(TARGETS ae
+install(TARGETS a3d
 		DESTINATION ${INSTALL_LIB_DIR})

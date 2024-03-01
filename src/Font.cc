@@ -1,18 +1,18 @@
 //
 //  Font.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/Font.h"
+#include "a3d/Font.h"
 
-#include "ae/Buffer.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Buffer.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -46,7 +46,7 @@ Font::Font(shared_ptr<Buffer> buffer):
 }
 
 Font::~Font() {
-	AE_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************

@@ -1,19 +1,19 @@
 //
 //  Exception.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 12/24/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/exception/Exception.h"
 
-#include "ae/Utilities.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace std;
 
 
@@ -25,9 +25,9 @@ Exception::Exception(const string& what):
 	runtime_error(what) {
 
 #ifdef POSIX
-		AE_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));
+		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));
 #else
-		AE_LOG_E("Exception: {}", what);
+		A3D_LOG_E("Exception: {}", what);
 #endif
 }
 

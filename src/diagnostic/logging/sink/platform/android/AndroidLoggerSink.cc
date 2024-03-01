@@ -5,10 +5,10 @@
 #ifdef ANDROID
 
 
-#include "ae/diagnostic/logging/sink/platform/android/AndroidLoggerSink.h"
+#include "a3d/diagnostic/logging/sink/platform/android/AndroidLoggerSink.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

@@ -2,10 +2,10 @@
 // Created by mkd on 2/7/24.
 //
 
-#include "ae/rendering/material/Texture.h"
+#include "a3d/rendering/material/Texture.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

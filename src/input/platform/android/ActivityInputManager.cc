@@ -1,6 +1,6 @@
 //
 //  ActivityInputManager.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 5/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
@@ -9,19 +9,19 @@
 #ifdef ANDROID
 
 
-#include "ae/ActivityInputManager.h"
+#include "a3d/ActivityInputManager.h"
 
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
 
-#include "ae/Activity.h"
-#include "ae/Exception.h"
-#include "ae/Logger.h"
-#include "ae/Utilities.h"
+#include "a3d/Activity.h"
+#include "a3d/Exception.h"
+#include "a3d/Logger.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace std;
 using namespace glm;
 
@@ -64,7 +64,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 		switch (action) {
 				
 			case AMOTION_EVENT_ACTION_BUTTON_PRESS: {
-				AE_LOG_T("AMOTION_EVENT_ACTION_BUTTON_PRESS");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_BUTTON_PRESS");
 				
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
 				
@@ -83,7 +83,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			case AMOTION_EVENT_ACTION_BUTTON_RELEASE: {
-				AE_LOG_T("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_BUTTON_RELEASE");
 
 				int32_t buttonStates = AMotionEvent_getButtonState(event);
 
@@ -105,16 +105,16 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 
 			case AMOTION_EVENT_ACTION_DOWN: {
-				AE_LOG_T("AMOTION_EVENT_ACTION_DOWN");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_DOWN");
 				break; }
 				
 			case AMOTION_EVENT_ACTION_UP:
-				AE_LOG_T("AMOTION_EVENT_ACTION_UP");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_UP");
 				break;
 				
 			case AMOTION_EVENT_ACTION_HOVER_MOVE: {
 			case AMOTION_EVENT_ACTION_MOVE:
-				AE_LOG_T("AMOTION_EVENT_ACTION_MOVE");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_MOVE");
 				
 //				float rawX = AMotionEvent_getRawX(event, 0);
 //				float rawY = AMotionEvent_getRawY(event, 0);
@@ -149,7 +149,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			case AMOTION_EVENT_ACTION_SCROLL: {
-				AE_LOG_T("AMOTION_EVENT_ACTION_SCROLL");
+				A3D_LOG_T("AMOTION_EVENT_ACTION_SCROLL");
 				
 				float hScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
 				float vScroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
@@ -167,7 +167,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 				break; }
 				
 			default:
-				//AE_LOG_I("[unknown]");
+				//A3D_LOG_I("[unknown]");
 				break;
 		}
 	}

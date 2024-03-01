@@ -2,12 +2,12 @@
 // Created by mkd on 11/19/23.
 //
 
-#include "ae/physics/shape_primitive/BoxPhysicsShape.h"
+#include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
 
-#include "ae/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/exception/Exception.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************

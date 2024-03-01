@@ -1,6 +1,6 @@
 //
 //  Activity.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 5/3/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
@@ -9,7 +9,7 @@
 #ifdef ANDROID
 
 
-#include "ae/Activity.h"
+#include "a3d/Activity.h"
 
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
@@ -23,16 +23,16 @@
 
 #include <NDKHelper.h>
 
-#include "ae/ActivityInputManager.h"
-#include "ae/Camera.h"
-#include "ae/Global.h"
-#include "ae/Logger.h"
-#include "ae/Node.h"
-#include "ae/Renderer.h"
-#include "ae/Scene.h"
+#include "a3d/ActivityInputManager.h"
+#include "a3d/Camera.h"
+#include "a3d/Global.h"
+#include "a3d/Logger.h"
+#include "a3d/Node.h"
+#include "a3d/Renderer.h"
+#include "a3d/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -51,7 +51,7 @@ Activity::Activity(RENDER_API renderAPI):
 }
 
 Activity::~Activity() {
-	AE_LOG_D("Destroying Activity {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Activity {:p}", static_cast<void*>(this));
 	
 	terminate();
 }
@@ -62,7 +62,7 @@ Activity::~Activity() {
 
 void Activity::display(android_app* app) {
 	
-	AE_LOG_T("Activity::display()");
+	A3D_LOG_T("Activity::display()");
 
 	//ndk_helper::JNIHelper::Init(app->activity, "com/mkdinteractive/helper/NDKHelper");
 
@@ -176,7 +176,7 @@ void Activity::update() {
 	
 	if (_initialized) {
 		
-		AE_LOG_T("-------------------------------------------------------------------------------");
+		A3D_LOG_T("-------------------------------------------------------------------------------");
 		
 		_renderer->beginFrame(*this);
 		
@@ -258,7 +258,7 @@ shared_ptr<InputManager> Activity::inputManager() {
 
 bool Activity::initialize(ANativeWindow* window) {
 	
-	AE_LOG_D("Activity::initialize()");
+	A3D_LOG_D("Activity::initialize()");
 
 	if (!_initialized) {
 		_nativeWindow = window;
@@ -279,7 +279,7 @@ bool Activity::initialize(ANativeWindow* window) {
 
 void Activity::initGLES() {
 	
-	AE_LOG_D("Activity::initGLES()");
+	A3D_LOG_D("Activity::initGLES()");
 
 	if (_initialized) return;
 	//
@@ -299,7 +299,7 @@ void Activity::initGLES() {
 
 int Activity::initDisplay(android_app* app) {
 	
-	AE_LOG_D("Activity::initDisplay()");
+	A3D_LOG_D("Activity::initDisplay()");
 
 	static bool displayInitialized = false;
 	
@@ -344,7 +344,7 @@ int Activity::initDisplay(android_app* app) {
 
 bool Activity::initEGLSurface() {
 	
-	AE_LOG_D("Activity::initEGLSurface()");
+	A3D_LOG_D("Activity::initEGLSurface()");
 
 	_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 	eglInitialize(_display, 0, 0);
@@ -370,7 +370,7 @@ bool Activity::initEGLSurface() {
 	eglChooseConfig(_display, attribs, &_config, 1, &nu_configs);
 	
 	if (!nu_configs) {
-		AE_LOG_I("Falling back to 16-bit depth buffer.");
+		A3D_LOG_I("Falling back to 16-bit depth buffer.");
 
 		// Fall back to 16bit depth buffer
 		const EGLint attribs[] = {
@@ -392,7 +392,7 @@ bool Activity::initEGLSurface() {
 	}
 	
 	if (!nu_configs) {
-		AE_LOG_C("Unable to retrieve EGL config.");
+		A3D_LOG_C("Unable to retrieve EGL config.");
 		return false;
 	}
 
@@ -411,7 +411,7 @@ bool Activity::initEGLSurface() {
 
 bool Activity::initEGLContext() {
 	
-	AE_LOG_D("Activity::initEGLContext()");
+	A3D_LOG_D("Activity::initEGLContext()");
 	
 	const EGLint context_attribs[] = {
 			EGL_CONTEXT_CLIENT_VERSION,
@@ -421,21 +421,21 @@ bool Activity::initEGLContext() {
 	_context = eglCreateContext(_display, _config, NULL, context_attribs);
 	
 	if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_FALSE) {
-		AE_LOG_C("Unable to make EGL context current.");
+		A3D_LOG_C("Unable to make EGL context current.");
 		return false;
 	}
 	
 	const GLubyte *renderer = glGetString(GL_RENDERER);
 	const GLubyte *version = glGetString(GL_VERSION);
 	
-	AE_LOG_I("Renderer: {}", renderer);
-	AE_LOG_I("Version: {}", version);
+	A3D_LOG_I("Renderer: {}", renderer);
+	A3D_LOG_I("Version: {}", version);
 	
 	GLint numExtensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-	AE_LOG_I("Extensions:\n");
+	A3D_LOG_I("Extensions:\n");
 	for (GLint e=0 ; e<numExtensions ; ++e) {
-		AE_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
+		A3D_LOG_I("{}", glGetStringi(GL_EXTENSIONS, e));
 	}
 	
 	_contextValid = true;
@@ -444,7 +444,7 @@ bool Activity::initEGLContext() {
 
 void Activity::suspend() {
 	
-	AE_LOG_D("Activity::suspend()");
+	A3D_LOG_D("Activity::suspend()");
 	
 	if (_surface != EGL_NO_SURFACE) {
 		eglDestroySurface(_display, _surface);
@@ -454,7 +454,7 @@ void Activity::suspend() {
 
 EGLint Activity::resume(ANativeWindow* window) {
 	
-	AE_LOG_D("Activity::resume()");
+	A3D_LOG_D("Activity::resume()");
 	
 	if (_initialized == false) {
 		initialize(window);
@@ -476,7 +476,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 		
 		if (_width != originalWidth || _height != originalHeight) {
 			// Screen resized
-			AE_LOG_D("Screen resized: ({}, {}) -> ({}, {})",
+			A3D_LOG_D("Screen resized: ({}, {}) -> ({}, {})",
 						  originalWidth, originalHeight, _width, _height);
 		}
 		
@@ -486,7 +486,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 		EGLint err = eglGetError();
 		if (err == EGL_CONTEXT_LOST) {
 			// Recreate context
-			AE_LOG_I("Re-creating EGL context...");
+			A3D_LOG_I("Re-creating EGL context...");
 			initEGLContext();
 		}
 		else {
@@ -502,7 +502,7 @@ EGLint Activity::resume(ANativeWindow* window) {
 
 bool Activity::invalidate() {
 	
-	AE_LOG_D("Activity::invalidate()");
+	A3D_LOG_D("Activity::invalidate()");
 	
 	terminate();
 	_initialized = false;
@@ -512,7 +512,7 @@ bool Activity::invalidate() {
 
 void Activity::terminate() {
 	
-	AE_LOG_D("Activity::terminate()");
+	A3D_LOG_D("Activity::terminate()");
 	
 	if (_display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

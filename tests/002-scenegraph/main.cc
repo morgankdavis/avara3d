@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -13,12 +13,12 @@
 #include <math.h>
 #include <memory>
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -137,7 +137,7 @@ int main(int argc, const char* argv[]) {
 		a->_debugPrint();
 
 		for (auto& c : a->children(true)) {
-			AE_LOG_I("c: {}", *c->name());
+			A3D_LOG_I("c: {}", *c->name());
 		}
 
 //		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] c

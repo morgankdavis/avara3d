@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -13,15 +13,15 @@
 
 #include <glm/glm.hpp>
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 // testing
-#include "ae/physics/ConvexDecomposer.h"
+#include "a3d/physics/ConvexDecomposer.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -63,13 +63,13 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/320.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<ae::Logger>		logger;
-std::shared_ptr<ae::Node>		palmNode;
-std::shared_ptr<ae::Node>		duckSpinnerNode;
-std::shared_ptr<ae::Node>		duckNode;
-std::shared_ptr<ae::Node>		paddleNode;
-std::shared_ptr<ae::Node>		fruit1Node;
-std::shared_ptr<ae::Node> 		testNode;
+std::shared_ptr<a3d::Logger>		logger;
+std::shared_ptr<a3d::Node>		palmNode;
+std::shared_ptr<a3d::Node>		duckSpinnerNode;
+std::shared_ptr<a3d::Node>		duckNode;
+std::shared_ptr<a3d::Node>		paddleNode;
+std::shared_ptr<a3d::Node>		fruit1Node;
+std::shared_ptr<a3d::Node> 		testNode;
 
 
 int main(int argc, const char* argv[]) {
@@ -215,7 +215,7 @@ int main(int argc, const char* argv[]) {
 	// add the duck
 
 	duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
-	AE_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
+	A3D_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
 	duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -274,18 +274,18 @@ int main(int argc, const char* argv[]) {
 
 	LOG_I(logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
 
-//	AE_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+//	A3D_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
-//	AE_LOG_I("CHILDREN REC:");
+//	A3D_LOG_I("CHILDREN REC:");
 //	for (auto& child : children) {
 //		if (child == scene->rootNode()){
-//			AE_LOG_I("\troot");
+//			A3D_LOG_I("\troot");
 //		}
 //		else if (child->name().has_value()) {
-//			AE_LOG_I("\t{}", *child->name());
+//			A3D_LOG_I("\t{}", *child->name());
 //		}
 //		else {
-//			AE_LOG_I("\t{:p}", (void*)child.get());
+//			A3D_LOG_I("\t{:p}", (void*)child.get());
 //		}
 //	}
 
@@ -329,7 +329,7 @@ void UpdateCallback(Scene& scene, float time) {
 //	for (auto& c : scene.rootNode()->children(true)) {
 //		if (c->geometry()) {
 //			if (dynamic_pointer_cast<Cylinder>(c->geometry())) {
-//				AE_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
+//				A3D_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
 //			}
 //		}
 //	}
@@ -496,72 +496,72 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 
 		if (keysPressed.count(Key::F)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowWireframes));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
 			}
 		}
 		if (keysPressed.count(Key::B)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowBoundingBoxes));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
 			}
 		}
 		if (keysPressed.count(Key::I)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowStatsOverlay));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
 			}
 		}
 		if (keysPressed.count(Key::P)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsBoundingBoxes));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
 			}
 		}
 		if (keysPressed.count(Key::G)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsWireframes));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
 			}
 		}
 		if (keysPressed.count(Key::C)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsContactPoints));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
 			}
 		}
 		if (keysPressed.count(Key::N)) {
-			if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-				scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 												  DebugOptions::ShowPhysicsNormals));
 			}
 			else {
-				scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
 			}
 		}

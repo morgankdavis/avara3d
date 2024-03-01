@@ -2,7 +2,7 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "ae/physics/bullet/BulletShapeProxy.h"
+#include "a3d/physics/bullet/BulletShapeProxy.h"
 
 #include <variant>
 
@@ -11,32 +11,32 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "magic_enum.hpp"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/mesh/Mesh.h"
-#include "ae/mesh/primitive/Box.h"
-#include "ae/mesh/primitive/Capsule.h"
-#include "ae/mesh/primitive/Cone.h"
-#include "ae/mesh/primitive/Cylinder.h"
-#include "ae/mesh/primitive/Plane.h"
-#include "ae/mesh/primitive/Sphere.h"
-#include "ae/physics/ConvexDecomposer.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/PhysicsShape.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/physics/bullet/Utilities.h"
-#include "ae/physics/proxy/PhysicsBodyProxy.h"
-#include "ae/physics/shape_primitive/BoxPhysicsShape.h"
-#include "ae/physics/shape_primitive/CapsulePhysicsShape.h"
-#include "ae/physics/shape_primitive/ConePhysicsShape.h"
-#include "ae/physics/shape_primitive/CylinderPhysicsShape.h"
-#include "ae/physics/shape_primitive/PlanePhysicsShape.h"
-#include "ae/physics/shape_primitive/SpherePhysicsShape.h"
-#include "ae/scene/Node.h"
-#include "ae/Types.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Capsule.h"
+#include "a3d/mesh/primitive/Cone.h"
+#include "a3d/mesh/primitive/Cylinder.h"
+#include "a3d/mesh/primitive/Plane.h"
+#include "a3d/mesh/primitive/Sphere.h"
+#include "a3d/physics/ConvexDecomposer.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/proxy/PhysicsBodyProxy.h"
+#include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
+#include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape_primitive/ConePhysicsShape.h"
+#include "a3d/physics/shape_primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
+#include "a3d/scene/Node.h"
+#include "a3d/Types.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -112,7 +112,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 		_btShapes(vector<shared_ptr<btCollisionShape>>()),
 		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
 
-	AE_LOG_D("shape: {:p}", static_cast<void*>(shape));
+	A3D_LOG_D("shape: {:p}", static_cast<void*>(shape));
 
 	auto bodyType = (*shape->bodies().begin())->type();
 
@@ -163,12 +163,12 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 //														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 	}
 	else {
-		AE_LOG_E("PhysicsShape with no mesh or source node.");
+		A3D_LOG_E("PhysicsShape with no mesh or source node.");
 	}
 }
 
 BulletShapeProxy::~BulletShapeProxy() {
-	AE_LOG_D("Destroying BulletShapeProxy {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying BulletShapeProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -227,7 +227,7 @@ BTShapeFromSourceMesh(Mesh* mesh,
 								   btIndexVertexArrays);
 	}
 	else {
-		AE_LOG_E("Can't create physic shape for Mesh {:p}: has no elements.",
+		A3D_LOG_E("Can't create physic shape for Mesh {:p}: has no elements.",
 				 static_cast<void*>(mesh));
 	}
 
@@ -306,7 +306,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
 	}
 	else {
-		AE_LOG_E("PhysicsShape {:p} is not a valid subclass.",
+		A3D_LOG_E("PhysicsShape {:p} is not a valid subclass.",
 				 static_cast<void*>(&shape));
 	}
 
@@ -322,7 +322,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 					   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray) {
 
 	if (shapeType == PhysicsShapeType::BoundingBox) {
-		AE_LOG_I("Creating box physics shape for MeshElement {:p}...",
+		A3D_LOG_I("Creating box physics shape for MeshElement {:p}...",
 				 static_cast<void*>(element.get()));
 
 		auto extent = element->extent();
@@ -331,7 +331,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 												 (btScalar)extent.z/2.0f));
 	}
 	else if (auto box = dynamic_cast<Box*>(mesh)) {
-		AE_LOG_I("Creating box physics shape for MeshElement {:p}... "
+		A3D_LOG_I("Creating box physics shape for MeshElement {:p}... "
 				 "(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
@@ -340,7 +340,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 												 (btScalar)box->height()/2.0f));
 	}
 	else if (auto capsule = dynamic_cast<Capsule*>(mesh)) {
-		AE_LOG_I("Creating capsule physics shape for MeshElement {:p}... " \
+		A3D_LOG_I("Creating capsule physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
@@ -348,7 +348,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 										   (btScalar)capsule->height());
 	}
 	else if (auto cone  = dynamic_cast<Cone*>(mesh)) {
-		AE_LOG_I("Creating cone physics shape for MeshElement {:p}... " \
+		A3D_LOG_I("Creating cone physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
@@ -356,7 +356,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 										(btScalar)cone->height());
 	}
 	else if (auto cylinder = dynamic_cast<Cylinder*>(mesh)) {
-		AE_LOG_I("Creating cylinder physics shape for MeshElement {:p}... " \
+		A3D_LOG_I("Creating cylinder physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
@@ -365,13 +365,13 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 													  (btScalar)cylinder->radius()));
 	}
 	else if (auto plane = dynamic_cast<Plane*>(mesh)) {
-		// ae::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
+		// a3d::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
 		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
 												 (btScalar)plane->height()/2.0f,
 												 (btScalar)0));
 	}
 	else if (auto sphere = dynamic_cast<Sphere*>(mesh)) {
-		AE_LOG_I("Creating sphere physics shape for MeshElement {:p}... " \
+		A3D_LOG_I("Creating sphere physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
 
@@ -438,7 +438,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 	auto newShape = make_shared<btCompoundShape>(true);
 
 	if (node->name() != nullopt) {
-		AE_LOG_I("name: {}", *node->name());
+		A3D_LOG_I("name: {}", *node->name());
 	}
 
 	auto mesh = node->mesh().get();
@@ -470,7 +470,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 
 shared_ptr<btConvexHullShape>
 BTConvexHullShapeFromMeshElement(shared_ptr<MeshElement> element) {
-	AE_LOG_I("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
+	A3D_LOG_I("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
@@ -495,7 +495,7 @@ BTConvexHullShapeFromMeshElement(shared_ptr<MeshElement> element) {
 
 	// for debug drawing
 	if (!reducedShape->initializePolyhedralFeatures()) {
-		AE_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
+		A3D_LOG_W("Could not initialize polyhedral features for reduced btConvexHullShape.");
 	}
 
 	return reducedShape;
@@ -504,7 +504,7 @@ BTConvexHullShapeFromMeshElement(shared_ptr<MeshElement> element) {
 shared_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(shared_ptr<MeshElement> element,
 								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
+	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
@@ -541,7 +541,7 @@ BTGImpactMeshShapeFromMeshElement(shared_ptr<MeshElement> element,
 shared_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(shared_ptr<MeshElement> element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	AE_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
+	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element.get()));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -570,7 +570,7 @@ BTBvhTriangleMeshShapeFromMeshElement(shared_ptr<MeshElement> element,
 shared_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(shared_ptr<MeshElement> element,
 											 vector<shared_ptr<btCollisionShape>>& btShapes) {
-	AE_LOG_I("Creating convex hull compound physics shape for HACD MeshElement {:p}...",
+	A3D_LOG_I("Creating convex hull compound physics shape for HACD MeshElement {:p}...",
 			 static_cast<void*>(element.get()));
 
 	auto compoundShape = make_shared<btCompoundShape>(true);
@@ -587,7 +587,7 @@ BTCompoundConvexHullHACDShapeFromMeshElement(shared_ptr<MeshElement> element,
 
 vector<shared_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(shared_ptr<MeshElement> element) {
-	AE_LOG_I("Creating HACD MeshElement for MeshElement {:p}...", static_cast<void*>(element.get()));
+	A3D_LOG_I("Creating HACD MeshElement for MeshElement {:p}...", static_cast<void*>(element.get()));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 8;

@@ -1,29 +1,29 @@
 //
 //  Mesh.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/mesh/Mesh.h"
+#include "a3d/mesh/Mesh.h"
 
 #include "glm/gtx/transform.hpp"
 
-#include "ae/Color.h"
-#include "ae/Image.h"
-#include "ae/Utilities.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/diagnostic/exception/UnsupportedFormat.h"
-#include "ae/mesh/MeshElement.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/material/Material.h"
-//#include "ae/rendering/material/MaterialProperty.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/importer/GlTFImporter.h"
+#include "a3d/Color.h"
+#include "a3d/Image.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/material/Material.h"
+//#include "a3d/rendering/material/MaterialProperty.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/importer/GlTFImporter.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -70,7 +70,7 @@ Mesh::Mesh(const vector<shared_ptr<MeshElement>> elements,
 }
 
 Mesh::~Mesh() {
-	AE_LOG_D("Destroying Mesh {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Mesh {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -151,8 +151,8 @@ void Mesh::draw(Renderer& renderer,
 	
 	// forces Renderer to re-create AABB linesets next time they're turned on.
 	// this seems like hacky way to do it.
-	if (AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		_dirtyMask = AE_MASK_ADD(_dirtyMask, MeshDirtyMask::Extent);
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+		_dirtyMask = A3D_MASK_ADD(_dirtyMask, MeshDirtyMask::Extent);
 	}
 	
 	renderer.render(shared_from_this(),

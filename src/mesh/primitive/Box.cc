@@ -1,23 +1,23 @@
 //
 //  Box.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Box.h"
 
 #include <memory>
 #include <vector>
 
 #include "generator/generator.hpp"
 
-#include "ae/Types.h"
-#include "ae/mesh/MeshElement.h"
+#include "a3d/Types.h"
+#include "a3d/mesh/MeshElement.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace generator;
 using namespace glm;
 using namespace std;

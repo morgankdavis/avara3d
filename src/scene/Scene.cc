@@ -1,37 +1,37 @@
 //
 //  Scene.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/scene/Scene.h"
+#include "a3d/scene/Scene.h"
 
 #include <chrono>
 #include <filesystem>
 #include <thread>
 
-#include "ae/Buffer.h"
-#include "ae/Color.h"
-#include "ae/CubeImage.h"
-#include "ae/Image.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/input/platform/desktop/WindowInputManager.h"
-#include "ae/mesh/Mesh.h"
-#include "ae/mesh/MeshElement.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/rendering/Light.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/VisualWorld.h"
-#include "ae/rendering/camera/Camera.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/importer/GlTFImporter.h"
+#include "a3d/Buffer.h"
+#include "a3d/Color.h"
+#include "a3d/CubeImage.h"
+#include "a3d/Image.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/rendering/Light.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/VisualWorld.h"
+#include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/importer/GlTFImporter.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::filesystem;
@@ -99,7 +99,7 @@ Scene::Scene(shared_ptr<VisualWorld> visualWorld,
 }
 
 Scene::~Scene() {
-	AE_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
 
 	if (_rootNode) _rootNode->detachedFromScene(this);
 	if (_visualWorld) _visualWorld->detachedFromScene(this);
@@ -281,7 +281,7 @@ void Scene::run() {
 		} while (_running);
 	}
 	else {
-		AE_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
+		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -291,7 +291,7 @@ void Scene::stop() {
 		_running = false;
 	}
 	else {
-		AE_LOG_W("Attempting to stop when Scene not running.");
+		A3D_LOG_W("Attempting to stop when Scene not running.");
 	}
 }
 

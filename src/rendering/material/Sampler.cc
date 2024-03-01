@@ -2,10 +2,10 @@
 // Created by mkd on 2/7/24.
 //
 
-#include "ae/rendering/material/Sampler.h"
+#include "a3d/rendering/material/Sampler.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -28,7 +28,7 @@ FilterMode Sampler::minificationFilter() const {
 void Sampler::minificationFilter(FilterMode mode) {
 	_minificationFilter = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MinificationFilter);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MinificationFilter);
 }
 
 FilterMode Sampler::magnificationFilter() const {
@@ -38,7 +38,7 @@ FilterMode Sampler::magnificationFilter() const {
 void Sampler::magnificationFilter(FilterMode mode) {
 	_magnificationFilter = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
 }
 
 float Sampler::maxAnisotropy() const {
@@ -56,7 +56,7 @@ void Sampler::maxAnisotropy(float max) {
 
 	_maxAnisotropy = max;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
 }
 
 WrapMode Sampler::wrapS() const {
@@ -66,7 +66,7 @@ WrapMode Sampler::wrapS() const {
 void Sampler::wrapS(WrapMode mode) {
 	_wrapS = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapS);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapS);
 }
 
 WrapMode Sampler::wrapT() const {
@@ -76,7 +76,7 @@ WrapMode Sampler::wrapT() const {
 void Sampler::wrapT(WrapMode mode) {
 	_wrapT = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapT);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapT);
 }
 
 WrapMode Sampler::wrapR() const {
@@ -86,7 +86,7 @@ WrapMode Sampler::wrapR() const {
 void Sampler::wrapR(WrapMode mode) {
 	_wrapR = mode;
 
-	_dirtyMask = AE_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapR);
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapR);
 }
 
 /*********************************************************************************************

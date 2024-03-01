@@ -1,6 +1,6 @@
 //
 //  WindowInputManager.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 5/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
@@ -9,18 +9,18 @@
 #ifdef DESKTOP
 
 
-#include "ae/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/platform/desktop/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
 
-//#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/rendering/VisualWorld.h"
-#include "ae/rendering/context/platform/desktop/Window.h"
-#include "ae/scene/Scene.h"
+//#include "a3d/diagnostic/exceptions/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/rendering/VisualWorld.h"
+#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
@@ -50,7 +50,7 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 }
 
 WindowInputManager::~WindowInputManager() {
-	AE_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
 //	quitManyMouse();
 	if (auto window = _window.lock()) {
@@ -90,7 +90,7 @@ void WindowInputManager::update() {
 //					break;
 //
 //				case MANYMOUSE_EVENT_DISCONNECT:
-//					AE_LOG_W("Mouse {} disconnected.", event.device);
+//					A3D_LOG_W("Mouse {} disconnected.", event.device);
 //					break;
 //
 //				case MANYMOUSE_EVENT_ABSMOTION:
@@ -150,7 +150,7 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 			double xDelta = lastXPos - xPos;
 			double yDelta = lastYPos - yPos;
 
-			//AE_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
+			//A3D_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
 
 			inputManager->_mousePositionDelta.x -= xDelta;
 			inputManager->_mousePositionDelta.y += yDelta;
@@ -201,14 +201,14 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 void WindowInputManager::initMouseMotionInput() {
 
 	if (glfwRawMouseMotionSupported()) {
-		AE_LOG_I("Using GLFW raw mouse input.");
+		A3D_LOG_I("Using GLFW raw mouse input.");
 		glfwSetInputMode(_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		glfwSetCursorPosCallback(_window.lock()->glfwWindow(),
 								 WindowInputManager::GLFWCursorPositionCallback);
 //		_usingManyMouse = false;
 	}
 	else {
-		AE_LOG_E("GLFW raw mouse input unavailable!");
+		A3D_LOG_E("GLFW raw mouse input unavailable!");
 //		initManyMouse();
 //		_usingManyMouse = true;
 	}
@@ -223,12 +223,12 @@ void WindowInputManager::initMouseMotionInput() {
 //		throw Exception("ManyMouse failed to initialize.");
 //	}
 //	else if (availableMice == 0) {
-//		AE_LOG_W("ManyMouse failed to initialize.");
+//		A3D_LOG_W("ManyMouse failed to initialize.");
 //	}
 //	else {
-//		AE_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
+//		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
 //		for (int m = 0; m<availableMice; ++m) {
-//			AE_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+//			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 //		}
 //	}
 //}

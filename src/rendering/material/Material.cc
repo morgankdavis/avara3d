@@ -1,19 +1,19 @@
 //
 //  Material.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/material/Material.h"
+#include "a3d/rendering/material/Material.h"
 
-#include "ae/Color.h"
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Color.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -83,7 +83,7 @@ Material::Material():
 		_blendFunction(BlendFunction::Disabled),
 		_dirtyMask(MaterialDirtyMask::All) {
 
-	AE_LOG_D("Creating Material {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
 Material::Material(Property ambient,
@@ -109,7 +109,7 @@ Material::Material(Property ambient,
 }
 
 Material::~Material() {
-	AE_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -195,7 +195,7 @@ void Material::doubleSided(bool flag) {
 //
 //	_maxAnisotropy = max;
 //
-//	_dirtyMask = AE_MASK_ADD(_dirtyMask, MaterialDirtyMask::MaxAnisotropy);
+//	_dirtyMask = A3D_MASK_ADD(_dirtyMask, MaterialDirtyMask::MaxAnisotropy);
 //}
 
 FillMode Material::fillMode() const {

@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -11,12 +11,12 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -36,8 +36,8 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-std::shared_ptr<ae::Node> 		importLightsCamerasRoot;
-std::shared_ptr<ae::Node> 		importGeometryRoot;
+std::shared_ptr<a3d::Node> 		importLightsCamerasRoot;
+std::shared_ptr<a3d::Node> 		importGeometryRoot;
 
 
 int main(int argc, const char* argv[]) {

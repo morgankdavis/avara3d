@@ -2,14 +2,14 @@
 // Created by mkd on 10/22/23.
 //
 
-#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "ae/Utilities.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
