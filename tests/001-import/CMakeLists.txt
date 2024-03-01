@@ -7,7 +7,7 @@ file(GLOB HEADERS *.h*)
 file(GLOB SOURCES *.c*)
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
-target_link_libraries(${TEST_NAME} avara3d)
+target_link_libraries(${TEST_NAME} a3d)
 
 if (NOT ANDROID)
 	install(TARGETS ${TEST_NAME}
