@@ -8,7 +8,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 #include "ae/physics/ConvexDecomposer.h"
 #include "ae/physics/PhysicsBody.h"
 #include "ae/physics/PhysicsShape.h"

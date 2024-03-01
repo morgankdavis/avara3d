@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportGeometries;
-	auto options = SceneImportOptions::ImportGeometries
+	auto options = SceneImportOptions::ImportMeshes
 				   | SceneImportOptions::ImportMaterials;
 //	auto options = SceneImportOptions::ImportGeometries
 //				   | SceneImportOptions::ImportMaterials

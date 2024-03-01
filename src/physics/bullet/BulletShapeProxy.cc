@@ -12,13 +12,13 @@
 #include "magic_enum.hpp"
 
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/primitive/Box.h"
-#include "ae/geometry/primitive/Capsule.h"
-#include "ae/geometry/primitive/Cone.h"
-#include "ae/geometry/primitive/Cylinder.h"
-#include "ae/geometry/primitive/Plane.h"
-#include "ae/geometry/primitive/Sphere.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/primitive/Box.h"
+#include "ae/mesh/primitive/Capsule.h"
+#include "ae/mesh/primitive/Cone.h"
+#include "ae/mesh/primitive/Cylinder.h"
+#include "ae/mesh/primitive/Plane.h"
+#include "ae/mesh/primitive/Sphere.h"
 #include "ae/physics/ConvexDecomposer.h"
 #include "ae/physics/PhysicsBody.h"
 #include "ae/physics/PhysicsShape.h"
@@ -46,7 +46,7 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(Geometry* geometry,
+BTShapeFromSourceGeometry(Mesh* geometry,
 						  PhysicsShapeType shapeType,
 						  PhysicsBodyType bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -64,15 +64,15 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 						  PhysicsBodyType bodyType);
 
 static shared_ptr<btCollisionShape>
-BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   Geometry* geometry,
+BTShapeFromGeometryElement(shared_ptr<MeshElement> element,
+						   Mesh* geometry,
 						   PhysicsShapeType shapeType,
 						   PhysicsBodyType bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
 
 static shared_ptr<btCompoundShape>
-BTShapeFromGeometry(Geometry* geometry,
+BTShapeFromGeometry(Mesh* geometry,
 					PhysicsShapeType shapeType,
 					PhysicsBodyType bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -86,22 +86,22 @@ AddBTShapeFromNodeRec(shared_ptr<Node> node,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static shared_ptr<btConvexHullShape>
-BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element);
+BTConvexHullShapeFromGeometryElement(shared_ptr<MeshElement> element);
 
 static shared_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTGImpactMeshShapeFromGeometryElement(shared_ptr<MeshElement> element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
 static shared_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<MeshElement> element,
 										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
 static shared_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<MeshElement> element,
 												 vector<shared_ptr<btCollisionShape>>& btShapes);
 
-static vector<shared_ptr<GeometryElement>>
-HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element);
+static vector<shared_ptr<MeshElement>>
+HACDGeometryElementsFromGeometryElement(shared_ptr<MeshElement> element);
 
 /*********************************************************************************************
 	Lifecycle
@@ -124,8 +124,8 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 	auto sourceObject = shape->sourceObject();
 
 	// souce GEOMETRY
-	if (holds_alternative<Geometry*>(sourceObject)) {
-		if (auto sourceGeometry = get<Geometry*>(sourceObject)) {
+	if (holds_alternative<Mesh*>(sourceObject)) {
+		if (auto sourceGeometry = get<Mesh*>(sourceObject)) {
 
 			newShape = BTShapeFromSourceGeometry(sourceGeometry,
 												 shape->type(),
@@ -165,7 +165,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 //														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
 	}
 	else {
-		AE_LOG_E("PhysicsShape with no geometry or source node.");
+		AE_LOG_E("PhysicsShape with no mesh or source node.");
 	}
 }
 
@@ -198,7 +198,7 @@ vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceGeometry(Geometry* geometry,
+BTShapeFromSourceGeometry(Mesh* geometry,
 						  PhysicsShapeType shapeType,
 						  PhysicsBodyType bodyType,
 						  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -251,7 +251,7 @@ BTShapeFromSourceNode(Node* node,
 	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
 
 	// add the root geometry
-	auto geometry = node->geometry().get();
+	auto geometry = node->mesh().get();
 	if (geometry) {
 
 		auto nodeGeoShape = BTShapeFromGeometry(geometry,
@@ -316,8 +316,8 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 }
 
 shared_ptr<btCollisionShape>
-BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
-						   Geometry* geometry,
+BTShapeFromGeometryElement(shared_ptr<MeshElement> element,
+						   Mesh* geometry,
 						   PhysicsShapeType shapeType,
 						   PhysicsBodyType bodyType,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -401,7 +401,7 @@ BTShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 }
 
 shared_ptr<btCompoundShape>
-BTShapeFromGeometry(Geometry* geometry,
+BTShapeFromGeometry(Mesh* geometry,
 					PhysicsShapeType shapeType,
 					PhysicsBodyType bodyType,
 					vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -443,7 +443,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 		AE_LOG_I("name: {}", *node->name());
 	}
 
-	auto geometry = node->geometry().get();
+	auto geometry = node->mesh().get();
 	if (geometry) {
 		auto nodeGeoShape = BTShapeFromGeometry(geometry,
 												shapeType,
@@ -471,7 +471,7 @@ void AddBTShapeFromNodeRec(shared_ptr<Node> node,
 }
 
 shared_ptr<btConvexHullShape>
-BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
+BTConvexHullShapeFromGeometryElement(shared_ptr<MeshElement> element) {
 	AE_LOG_I("Creating convex hull physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
@@ -504,7 +504,7 @@ BTConvexHullShapeFromGeometryElement(shared_ptr<GeometryElement> element) {
 }
 
 shared_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTGImpactMeshShapeFromGeometryElement(shared_ptr<MeshElement> element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
@@ -541,7 +541,7 @@ BTGImpactMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 }
 
 shared_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<MeshElement> element,
 										  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	AE_LOG_I("Creating concave polyhedron physics shape for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
@@ -570,7 +570,7 @@ BTBvhTriangleMeshShapeFromGeometryElement(shared_ptr<GeometryElement> element,
 }
 
 shared_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> element,
+BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<MeshElement> element,
 												 vector<shared_ptr<btCollisionShape>>& btShapes) {
 	AE_LOG_I("Creating convex hull compound physics shape for HACD GeometryElement {:p}...",
 			 static_cast<void*>(element.get()));
@@ -587,8 +587,8 @@ BTCompoundConvexHullHACDShapeFromGeometryElement(shared_ptr<GeometryElement> ele
 	return compoundShape;
 }
 
-vector<shared_ptr<GeometryElement>>
-HACDGeometryElementsFromGeometryElement(shared_ptr<GeometryElement> element) {
+vector<shared_ptr<MeshElement>>
+HACDGeometryElementsFromGeometryElement(shared_ptr<MeshElement> element) {
 	AE_LOG_I("Creating HACD GeometryElements for GeometryElement {:p}...", static_cast<void*>(element.get()));
 
 	ConvexDecomposer::Options options;

@@ -17,7 +17,7 @@ namespace ae {
 
 
 	class Color;
-	class Geometry;
+	class Mesh;
 	class Node;
 	class PhysicalWorld;
 	class RenderContext;
@@ -96,7 +96,7 @@ namespace ae {
 													 DebugOptions debugOptions,
 													 Stats& stats);
 
-		std::shared_ptr<Geometry>				skyboxGeometry() const;
+		std::shared_ptr<Mesh>				skyboxGeometry() const;
 		std::shared_ptr<Node> 					defaultPointOfView();
 
 /*********************************************************************************************
@@ -106,7 +106,7 @@ namespace ae {
 	private:
 
 		Material::Property						_background;
-		std::shared_ptr<Geometry>				_skyboxGeometry;
+		std::shared_ptr<Mesh>				_skyboxGeometry;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;

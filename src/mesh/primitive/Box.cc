@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/primitive/Box.h"
+#include "ae/mesh/primitive/Box.h"
 
 #include <memory>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 
 using namespace ae;
@@ -29,7 +29,7 @@ using namespace std;
 
 Box::Box(float length, float width, float height,
 		 unsigned lengthSegments, unsigned widthSegments, unsigned heightSegments):
-		Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()),
+		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()),
 		_length(length),
 		_width(width),
 		_height(height) {
@@ -63,7 +63,7 @@ Box::Box(float length, float width, float height,
 	}
 	std::reverse(faces.begin(), faces.end());
 
-	auto element = make_shared<GeometryElement>(verts, faces);
+	auto element = make_shared<MeshElement>(verts, faces);
 	_elements.push_back(element);
 
 	//loadVertexData();

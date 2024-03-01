@@ -10,13 +10,13 @@
 #define Torus_h
 
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
 	
-	class Torus: public Geometry {
+	class Torus: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle

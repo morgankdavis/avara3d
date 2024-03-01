@@ -9,7 +9,7 @@
 #include "ae/rendering/Renderer.h"
 
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 #include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/context/RenderContext.h"
 #include "ae/rendering/material/Material.h"
@@ -57,7 +57,7 @@ void Renderer::render(const Scene& scene,
 	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<Geometry> geometry,
+void Renderer::render(shared_ptr<Mesh> geometry,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
@@ -67,7 +67,7 @@ void Renderer::render(shared_ptr<Geometry> geometry,
 	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<GeometryElement> element,
+void Renderer::render(shared_ptr<MeshElement> element,
 					  Material& material,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,

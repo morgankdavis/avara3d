@@ -13,7 +13,7 @@
 #include <set>
 
 #include "ae/Color.h"
-#include "ae/geometry/Line.h"
+#include "ae/mesh/Line.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/rendering/Renderer.h"
 

@@ -1,12 +1,12 @@
 //
-//  Capsule.cc
+//  Cone.cc
 //	avara-engine
 //
 //  Created by Morgan Davis on 11/8/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/primitive/Capsule.h"
+#include "ae/mesh/primitive/Cone.h"
 
 #include <memory>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 
 using namespace ae;
@@ -27,31 +27,30 @@ using namespace std;
 	Lifecycle
 *********************************************************************************************/
 
-Capsule::Capsule(float radius, float height, int slices, int segments, int rings):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+Cone::Cone(float radius, float height, int slices, int segments):
+		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
 
 		_radius = radius;
 		_height = height;
 		
 //		double radius = 1.0,
-//		double size = 0.5,
+//		double size = 1.0,
 //		int slices = 32,
-//		int segments = 4,
-//		int rings = 8,
+//		int segments = 8,
 //		double start = 0.0,
 //		double sweep = gml::radians(360.0)
 		
-		/// @param radius Radius of the capsule on the xy-plane.
-		/// @param size Half of the length between centers of the caps along the z-axis.
-		/// @param slices Number of subdivisions around the z-axis.
-		/// @param rings Number of radial subdivisions in the caps.
-		/// @param start Counterclockwise angle relative to the x-axis.
-		/// @param sweep Counterclockwise angle.
+		///@param radius Radius of the negative z end on the xy-plane.
+		///@param size Half of the length of the cylinder along the z-axis.
+		///@param slices Number of subdivisions around the z-axis.
+		///@param segments Number subdivisions along the z-axis.
+		///@param start Counterclockwise angle around the z-axis relative to the x-axis.
+		///@param sweep Counterclockwise angle around the z-axis.
 		
-		CapsuleMesh capsule{radius, height/2.0, slices, segments, rings};
+		CappedConeMesh cone{radius, height/2.0, slices, segments};
 		
 		auto verts = vector<Vertex>();
-		for (const MeshVertex& v : capsule.vertices()) {
+		for (const MeshVertex& v : cone.vertices()) {
 			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
 				vec3(v.normal[0], v.normal[1], v.normal[2]),
 				vec2(v.texCoord[0], v.texCoord[1]) };
@@ -59,14 +58,14 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 		}
 			
 		auto faces = vector<Face>();
-		for (const Triangle& t : capsule.triangles()) {
+		for (const Triangle& t : cone.triangles()) {
 			Face face = { unsigned(t.vertices[0]),
 						  unsigned(t.vertices[1]),
 						  unsigned(t.vertices[2]) };
 			faces.push_back(face);
 		}
 		
-		auto element = make_shared<GeometryElement>(verts, faces);
+		auto element = make_shared<MeshElement>(verts, faces);
 		_elements.push_back(element);
 		
 		// this orientation is what bullet expects
@@ -77,13 +76,13 @@ Capsule::Capsule(float radius, float height, int slices, int segments, int rings
 }
 
 /*********************************************************************************************
- 	Public
+	Public
  *********************************************************************************************/
 
-float Capsule::radius() const {
+float Cone::radius() const {
 	return _radius;
 }
 
-float Capsule::height() const {
+float Cone::height() const {
 	return _height;
 }

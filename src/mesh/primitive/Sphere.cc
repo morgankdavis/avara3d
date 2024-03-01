@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/primitive/Sphere.h"
+#include "ae/mesh/primitive/Sphere.h"
 
 #include <iostream>
 #include <memory>
@@ -14,7 +14,7 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 
 
@@ -30,7 +30,7 @@ using namespace std;
 *********************************************************************************************/
 
 Sphere::Sphere(float radius, int segments):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
 
 		_radius = radius;
 		
@@ -55,7 +55,7 @@ Sphere::Sphere(float radius, int segments):
 			faces.push_back(face);
 		}
 
-		auto element = make_shared<GeometryElement>(verts, faces);
+		auto element = make_shared<MeshElement>(verts, faces);
 		_elements.push_back(element);
 		
 		//loadVertexData();

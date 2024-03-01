@@ -24,7 +24,7 @@ set of presentations, which also included one presentation by Bernard Kwok and P
 covering recent developments in MaterialX / glTF interoperability
 ([video](https://www.youtube.com/watch?v=TQVwu7UMIgg&list=PL9dZxafYCWmzkET3PX23ahXn67usV0tDH&index=3&t=2181))
 ([slides](https://www.materialx.org/assets/ASWF_OSD2022_MaterialX_OSL_Final.pdf)).
-The model geometry was first converted to GLB form by Chris Rydalch and Jonathan Stone in order to be
+The model mesh was first converted to GLB form by Chris Rydalch and Jonathan Stone in order to be
 [contributed to the MaterialX project](https://github.com/AcademySoftwareFoundation/MaterialX/pull/982)
 as a sample.
 
@@ -35,7 +35,7 @@ been skipped for this iteration as the relevant glTF extensions are still in dra
 Ambient Occlusion maps were recalculated and merged into glTF's typical
 occlusion-roughness-metallic map combinations.
 
-The geometry is separated into individual meshes (instanced where possible), meaning this
+The mesh is separated into individual meshes (instanced where possible), meaning this
 version of the model could be used to create a fully interactive chess game with individually
 movable pieces.
 

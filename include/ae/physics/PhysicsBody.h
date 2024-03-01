@@ -20,7 +20,7 @@
 namespace ae {
 	
 
-	class Geometry;
+	class Mesh;
 	class Node;
 	class PhysicalWorld;
 	class PhysicsBodyProxy;
@@ -148,8 +148,8 @@ namespace ae {
 //		void 								nodeAttachedToScene(Scene* scene); // owning node
 //		void 								nodeDetachedFromScene(Scene* scene);
 
-		void 								geometryAttachedToNode(Geometry* geometry); // owning node's geometry
-		void 								geometryDetachedFromNode(Geometry* geometry);
+		void 								meshAttachedToNode(Mesh* geometry); // owning node's geometry
+		void 								meshDetachedFromNode(Mesh* geometry);
 
 		void								physicalWorldReachable(PhysicalWorld* world);
 		void								physicalWorldUnreachable(PhysicalWorld* world);
@@ -188,7 +188,7 @@ namespace ae {
 	private:
 
 		void 									checkAutocreateShape(Node* node);
-		void 									checkAutocreateShape(Geometry* geometry);
+		void 									checkAutocreateShape(Mesh* geometry);
 
 		void 									checkAddToWorld();
 

@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/primitive/Torus.h"
+#include "ae/mesh/primitive/Torus.h"
 
 #include <memory>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 
 using namespace ae;
@@ -28,7 +28,7 @@ using namespace std;
 *********************************************************************************************/
 
 Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
 		
 //		double minor = 0.25,
 //		double major = 1.0,
@@ -67,7 +67,7 @@ Torus::Torus(float minorRadius, float majorRadius, int slices, int segments):
 			faces.push_back(face);
 		}
 		
-		auto element = make_shared<GeometryElement>(verts, faces);
+		auto element = make_shared<MeshElement>(verts, faces);
 		_elements.push_back(element);
 		
 		//loadVertexData();

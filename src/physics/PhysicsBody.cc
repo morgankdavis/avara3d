@@ -315,14 +315,14 @@ void PhysicsBody::detachedFromNode(Node* node) {
 	_node = nullptr; // ^^ physicalWorld() relies on old _node
 }
 
-void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshAttachedToNode(Mesh* geometry) {
+	AE_LOG_T("mesh: {:p}", static_cast<void*>(geometry));
 
 	checkAutocreateShape(geometry);
 }
 
-void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshDetachedFromNode(Mesh* geometry) {
+	AE_LOG_T("mesh: {:p}", static_cast<void*>(geometry));
 }
 
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
@@ -405,7 +405,7 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 void PhysicsBody::checkAutocreateShape(Node* node) {
 
 	if (!_shape) {
-		if (auto geometry = node->geometry()) {
+		if (auto geometry = node->mesh()) {
 			// make a shape based on the geometry
 			checkAutocreateShape(geometry.get());
 		}
@@ -427,7 +427,7 @@ void PhysicsBody::checkAutocreateShape(Node* node) {
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
+void PhysicsBody::checkAutocreateShape(Mesh* geometry) {
 
 	if (!_shape) {
 		if (type() == PhysicsBodyType::Static) {
@@ -444,7 +444,7 @@ void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
 		}
 	}
 	else {
-		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node geometry addition.");
+		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
 	}
 }
 

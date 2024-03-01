@@ -2643,7 +2643,7 @@
 
   <interface name="wl_output" version="4">
     <description summary="compositor output region">
-      An output describes part of the compositor geometry.  The
+      An output describes part of the compositor mesh.  The
       compositor works in the 'compositor coordinate system' and an
       output corresponds to a rectangular area in that space that is
       actually visible.  This typically corresponds to a monitor that
@@ -2652,12 +2652,12 @@
     </description>
 
     <enum name="subpixel">
-      <description summary="subpixel geometry information">
+      <description summary="subpixel mesh information">
 	This enumeration describes how the physical
 	pixels on an output are laid out.
       </description>
-      <entry name="unknown" value="0" summary="unknown geometry"/>
-      <entry name="none" value="1" summary="no geometry"/>
+      <entry name="unknown" value="0" summary="unknown mesh"/>
+      <entry name="none" value="1" summary="no mesh"/>
       <entry name="horizontal_rgb" value="2" summary="horizontal RGB"/>
       <entry name="horizontal_bgr" value="3" summary="horizontal BGR"/>
       <entry name="vertical_rgb" value="4" summary="vertical RGB"/>
@@ -2688,16 +2688,16 @@
       <entry name="flipped_270" value="7" summary="flip and rotate 270 degrees counter-clockwise"/>
     </enum>
 
-    <event name="geometry">
+    <event name="mesh">
       <description summary="properties of the output">
-	The geometry event describes geometric properties of the output.
+	The mesh event describes geometric properties of the output.
 	The event is sent when binding to the output object and whenever
 	any of the properties change.
 
 	The physical size can be set to zero if it doesn't make sense for this
 	output (e.g. for projectors or virtual outputs).
 
-	The geometry event will be followed by a done event (starting from
+	The mesh event will be followed by a done event (starting from
 	version 2).
 
 	Note: wl_output only advertises partial information about the output
@@ -2792,8 +2792,8 @@
 
     <event name="scale" since="2">
       <description summary="output scaling properties">
-	This event contains scaling geometry information
-	that is not in the geometry event. It may be sent after
+	This event contains scaling mesh information
+	that is not in the mesh event. It may be sent after
 	binding the output object or if the output scale changes
 	later. If it is not sent, the client should assume a
 	scale of 1.

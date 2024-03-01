@@ -11,8 +11,8 @@
 #include "ae/Color.h"
 #include "ae/CubeImage.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/primitive/Box.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/primitive/Box.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/rendering/Light.h"
@@ -33,7 +33,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property);
+static shared_ptr<Mesh> MakeSkyboxGeometry(Material::Property property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -306,7 +306,7 @@ void VisualWorld::draw(const Scene& scene,
 	}
 }
 
-shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
+shared_ptr<Mesh> VisualWorld::skyboxGeometry() const {
 	return _skyboxGeometry;
 }
 
@@ -370,7 +370,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property) {
+static shared_ptr<Mesh> MakeSkyboxGeometry(Material::Property property) {
 
 	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);

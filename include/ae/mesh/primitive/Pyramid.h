@@ -1,22 +1,22 @@
 //
-//  Tube.h
+//  Pyramid.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 11/8/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Tube_h
-#define Tube_h
+#ifndef Pyramid_h
+#define Pyramid_h
 
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
 	
-	class Tube: public Geometry {
+	class Pyramid: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle
@@ -24,9 +24,10 @@ namespace ae {
 
 	public:
 
-		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);
+		Pyramid(float width, float height);
 	};
+	
 }
 
 
-#endif /* Tube_h */
+#endif /* Pyramid_h */

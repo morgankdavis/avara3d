@@ -94,20 +94,20 @@ int main(int argc, const char* argv[]) {
 	material->emission(materialProperty);
 	auto geometry = make_shared<Sphere>(3.5, 16);
 	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+	pointLightNode->mesh(geometry);
 
-	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(GeometryNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
 	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::GeometryNode(GeometryNamed("dragon/dragon"));
+	auto dragonNode = Node::MeshNode(GeometryNamed("dragon/dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 
 	scene->rootNode()->addChild(dragonNode);
 
-	auto boxNode = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
+	auto boxNode = Node::MeshNode(make_shared<Box>(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
 
 	window->open();

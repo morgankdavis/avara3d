@@ -11,7 +11,7 @@
 
 #include "magic_enum.hpp"
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 #include "ae/diagnostic/logging/Logger.h"
 #include "ae/physics/PhysicsBody.h"
 #include "ae/physics/proxy/PhysicsShapeProxy.h"
@@ -29,7 +29,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShape::PhysicsShape(PhysicsShapeType type, Geometry* geometry):
+PhysicsShape::PhysicsShape(PhysicsShapeType type, Mesh* geometry):
 		_sourceObject(geometry),
 		_bodies({}),
 		_type(type),
@@ -37,11 +37,11 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, Geometry* geometry):
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = geometry->name()) {
-		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {}...",
+		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
 				 magic_enum::enum_name(type), *name);
 	}
 	else {
-		AE_LOG_D("Creating PhysicsShape type {} for source geometry: {:p}...",
+		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
 				 magic_enum::enum_name(type), static_cast<void*>(geometry));
 	}
 }

@@ -1,22 +1,22 @@
 //
-//  Cylinder.h
+//  Capsule.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 11/8/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Cylinder_h
-#define Cylinder_h
+#ifndef Capsule_h
+#define Capsule_h
 
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
 	
-	class Cylinder: public Geometry {
+	class Capsule: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle
@@ -24,7 +24,7 @@ namespace ae {
 
 	public:
 
-		Cylinder(float radius, float height, int slices, int segments);
+		Capsule(float radius, float height, int slices, int segments, int rings);
 		
 /*********************************************************************************************
 	Public
@@ -34,15 +34,15 @@ namespace ae {
 		float 	height() const;
 		
 /*********************************************************************************************
-	Lifecycle
+	Private
  *********************************************************************************************/
 
 	private:
 
-		float 	_radius;
-		float 	_height;
+		float	_radius;
+		float	_height;
 	};
 }
 
 
-#endif /* Cylinder_h */
+#endif /* Capsule_h */

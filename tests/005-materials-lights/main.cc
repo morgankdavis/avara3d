@@ -75,7 +75,7 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportGeometries
+	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
 													 | SceneImportOptions::ImportCameras);
 	scene->visualWorld(visualWorld);
@@ -100,7 +100,7 @@ int main(int argc, const char* argv[]) {
 	material->emission(materialProperty);
 	auto geometry = make_shared<Sphere>(1.5, 16);
 	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+	pointLightNode->mesh(geometry);
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -356,7 +356,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 	for (auto node : scene.rootNode()->children(true)) {
 
-		auto geometry = node->geometry();
+		auto geometry = node->mesh();
 		if (geometry) {
 
 			for (auto material : geometry->materials()) {
@@ -386,7 +386,7 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 	for (auto node : scene.rootNode()->children(true)) {
 
-		auto geometry = node->geometry();
+		auto geometry = node->mesh();
 		if (geometry) {
 
 			for (auto material : geometry->materials()) {

@@ -58,8 +58,8 @@
 #include "ae/Font.h"
 #include "ae/Image.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/MeshElement.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/context/RenderContext.h"
@@ -596,21 +596,21 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 	return nullptr;
 }
 
-shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
-											  GeometryImportOptions options) {
+shared_ptr<Mesh> ae::utils::GeometryNamed(const string& name,
+										  MeshImportOptions options) {
 
 	return GeometryNamed(name, "gltf", options);
 //	return GeometryNamed(filesystem::path(name) / filesystem::path(name), "obj");
 }
 
-shared_ptr<Geometry> ae::utils::GeometryNamed(const string& name,
-											  const string& type,
-											  GeometryImportOptions options) {
+shared_ptr<Mesh> ae::utils::GeometryNamed(const string& name,
+										  const string& type,
+										  MeshImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {
 		AE_LOG_T("Found scene at path: {}", (*path).string());
-		return Geometry::FromFile(*path, options);
+		return Mesh::FromFile(*path, options);
 	}
 	return nullptr;
 }
@@ -685,7 +685,7 @@ void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 	ss << padding << "[NODE] (" << static_cast<const void*>(&n)
 	<< ", " << nodeName << ")" << endl;
 
-	auto geometry = n.geometry();
+	auto geometry = n.mesh();
 	if (geometry) {
 		string geometryName = (geometry->name() ? "\"" + *(geometry->name()) + "\"" : "null");
 		ss << padding << "\t[GEOMETRY] (" << static_cast<const void*>(geometry.get())

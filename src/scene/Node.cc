@@ -18,7 +18,7 @@
 
 #include "ae/diagnostic/exception/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 #include "ae/physics/PhysicsBody.h"
 #include "ae/physics/PhysicsShape.h"
 #include "ae/rendering/Light.h"
@@ -40,8 +40,8 @@ shared_ptr<Node> Node::NamedNode(std::string name) {
 	return make_shared<Node>(name);
 }
 
-shared_ptr<Node> Node::GeometryNode(shared_ptr<Geometry> geometry) {
-	return make_shared<Node>(geometry);
+shared_ptr<Node> Node::MeshNode(std::shared_ptr<Mesh> mesh) {
+	return make_shared<Node>(mesh);
 }
 
 shared_ptr<Node> Node::LightNode(shared_ptr<Light> light) {
@@ -61,7 +61,7 @@ Node::Node():
 		_hidden(false),
 		_camera(nullptr),
 		_light(nullptr),
-		_geometry(nullptr),
+		_mesh(nullptr),
 		_position({0.0f, 0.0f, 0.0f}),
 		_orientation(quat()),
 		_scale({1.0f, 1.0f, 1.0f}),
@@ -75,9 +75,9 @@ Node::Node(const string& name):
 		_name = name;
 }
 
-Node::Node(shared_ptr<Geometry> geometry):
+Node::Node(shared_ptr<Mesh> mesh):
 		Node() {
-	_geometry = geometry;
+	_mesh = mesh;
 }
 
 Node::Node(shared_ptr<Light> light):
@@ -132,20 +132,20 @@ void Node::camera(const shared_ptr<Camera> camera) {
 	_camera = camera;
 }
 
-shared_ptr<Geometry> Node::geometry() const {
-	return _geometry;
+shared_ptr<Mesh> Node::mesh() const {
+	return _mesh;
 }
 
-void Node::geometry(const shared_ptr<Geometry> geometry) {
+void Node::mesh(const std::shared_ptr<Mesh> mesh) {
 
-	if (_physicsBody && _geometry) {
-		_physicsBody->geometryDetachedFromNode(geometry.get());
+	if (_physicsBody && _mesh) {
+		_physicsBody->meshDetachedFromNode(mesh.get());
 	}
 
-	_geometry = geometry;
+	_mesh = mesh;
 
-	if (_physicsBody && _geometry) {
-		_physicsBody->geometryAttachedToNode(geometry.get());
+	if (_physicsBody && _mesh) {
+		_physicsBody->meshAttachedToNode(mesh.get());
 	}
 }
 
@@ -883,14 +883,14 @@ void Node::draw(Renderer& renderer,
 				const DebugOptions& debugOptions,
 				Stats& stats) {
 
-	if (_geometry && !_hidden) {
+	if (_mesh && !_hidden) {
 
-		_geometry->draw(renderer,
-						worldTransform(),
-						viewMat,
-						projectionMat,
-						debugOptions,
-						stats);
+		_mesh->draw(renderer,
+					worldTransform(),
+					viewMat,
+					projectionMat,
+					debugOptions,
+					stats);
 	}
 
 	for (auto& child : _children) {
@@ -970,8 +970,8 @@ void Node::applyPhysicsTransform(mat4 transform) {
 
 void Node::getAABBRec(AABB& aabb) {
 
-	if (_geometry) {
-		auto geoAABB = _geometry->aabb(shared_from_this());
+	if (_mesh) {
+		auto geoAABB = _mesh->aabb(shared_from_this());
 		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
 		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
 		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);

@@ -74,7 +74,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		
 		let box = SCNBox(width: 0.5, height: 0.5, length: 2.0, chamferRadius: 0)
-		boxNode = SCNNode(geometry: box)
+		boxNode = SCNNode(mesh: box)
 		boxNode.physicsBody = SCNPhysicsBody.dynamic()
 //		boxNode.physicsBody = SCNPhysicsBody.kinematic()
 //		boxNode.physicsBody = SCNPhysicsBody.static()
@@ -84,7 +84,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 		
 		
 		let sphere = SCNSphere(radius: 0.5);
-		sphereNode = SCNNode(geometry: sphere)
+		sphereNode = SCNNode(mesh: sphere)
 		//sphereNode.position = SCNVector3(50, 50, 0)
 		
 		// dynamic

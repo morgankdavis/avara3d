@@ -20,7 +20,7 @@
 #include "glm/glm.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 #include "ae/rendering/material/Material.h"
 
 
@@ -31,7 +31,7 @@ namespace ae {
 	class Renderer;
 
 
-	class Geometry : public std::enable_shared_from_this<Geometry> {
+	class Mesh : public std::enable_shared_from_this<Mesh> {
 
 	public:
 
@@ -39,20 +39,20 @@ namespace ae {
 	Public Static
  *********************************************************************************************/
 
-		static std::shared_ptr<Geometry> 		FromFile(const std::filesystem::path& path,
-														 GeometryImportOptions options =
-														 GeometryImportOptions::ImportMaterials);
+		static std::shared_ptr<Mesh> 		FromFile(const std::filesystem::path& path,
+													 MeshImportOptions options =
+													 MeshImportOptions::ImportMaterials);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-		Geometry();
-		Geometry(const std::shared_ptr<GeometryElement> element,
-				 const std::shared_ptr<Material> material);
-		Geometry(const std::vector<std::shared_ptr<GeometryElement>> elements,
-				 const std::vector<std::shared_ptr<Material>> materials);
-		virtual ~Geometry();
+		Mesh();
+		Mesh(const std::shared_ptr<MeshElement> element,
+			 const std::shared_ptr<Material> material);
+		Mesh(const std::vector<std::shared_ptr<MeshElement>> elements,
+			 const std::vector<std::shared_ptr<Material>> materials);
+		virtual ~Mesh();
 		
 /*********************************************************************************************
 	Public
@@ -61,8 +61,8 @@ namespace ae {
 		std::optional<std::string> 					name() const;
 		void 										name(const std::string& name);
 
-		const std::vector<std::shared_ptr<GeometryElement>>& 	elements();
-		const std::vector<std::shared_ptr<Material>>& 			materials();
+		const std::vector<std::shared_ptr<MeshElement>>& 	elements();
+		const std::vector<std::shared_ptr<Material>>& 		materials();
 
 		std::shared_ptr<Material> 					firstMaterial() const;
 		std::shared_ptr<Material> 					materialNamed(const std::string& name) const;
@@ -94,8 +94,8 @@ namespace ae {
 
 //		std::weak_ptr<Node> 						node() const;
 
-		GeometryDirtyMask 						dirtyMask() const;
-		void 										dirtyMask(GeometryDirtyMask mask);
+		MeshDirtyMask 								dirtyMask() const;
+		void 										dirtyMask(MeshDirtyMask mask);
 
 /*********************************************************************************************
 	Protected
@@ -103,8 +103,8 @@ namespace ae {
 
 	protected:
 
-		std::vector<std::shared_ptr<GeometryElement>>	_elements;
-		std::vector<std::shared_ptr<Material>>			_materials;
+		std::vector<std::shared_ptr<MeshElement>>	_elements;
+		std::vector<std::shared_ptr<Material>>		_materials;
 
 /*********************************************************************************************
 	Private
@@ -115,7 +115,7 @@ namespace ae {
 		std::optional<std::string>					_name;
 //		std::weak_ptr<Node>							_node;
 
-		GeometryDirtyMask							_dirtyMask;
+		MeshDirtyMask								_dirtyMask;
 	};
 }
 

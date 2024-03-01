@@ -27,7 +27,7 @@ namespace ae {
 	class Renderer;
 
 
-	class GeometryElement : public std::enable_shared_from_this<GeometryElement> {
+	class MeshElement : public std::enable_shared_from_this<MeshElement> {
 		
 /*********************************************************************************************
 	Lifecycle
@@ -35,9 +35,9 @@ namespace ae {
 
 	public:
 
-		GeometryElement(const std::vector<Vertex>& verticies,
-						const std::vector<Face>& faces);
-		~GeometryElement();
+		MeshElement(const std::vector<Vertex>& verticies,
+					const std::vector<Face>& faces);
+		~MeshElement();
 
 /*********************************************************************************************
 	Internal

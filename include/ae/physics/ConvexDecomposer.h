@@ -22,7 +22,7 @@ class IVHACD;
 namespace ae {
 
 
-	class GeometryElement;
+	class MeshElement;
 
 
 //	class ConvexDecomposer:
@@ -69,14 +69,14 @@ namespace ae {
 //						 bool async);
 //		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
 //						 Options& options);
-		ConvexDecomposer(std::shared_ptr<GeometryElement> element,
+		ConvexDecomposer(std::shared_ptr<MeshElement> element,
 						 Options& options);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<GeometryElement>>	decompose();
+		std::vector<std::shared_ptr<MeshElement>>	decompose();
 
 //		void 									run();
 //		bool  									running() const;
@@ -85,8 +85,8 @@ namespace ae {
 //		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
 //		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements() const;
 
-		std::shared_ptr<GeometryElement>				sourceElement() const;
-		std::vector<std::shared_ptr<GeometryElement>>	decomposedElements() const;
+		std::shared_ptr<MeshElement>				sourceElement() const;
+		std::vector<std::shared_ptr<MeshElement>>	decomposedElements() const;
 //
 //		ProgressFunction 						progressCallback() const;
 //		void 									progressCallback(ProgressFunction function);
@@ -127,8 +127,8 @@ namespace ae {
 
 //		std::vector<std::shared_ptr<GeometryElement>>		_sourceElements;
 //		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
-		std::shared_ptr<GeometryElement>					_sourceElement;
-		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
+		std::shared_ptr<MeshElement>					_sourceElement;
+		std::vector<std::shared_ptr<MeshElement>>		_decomposedElements;
 
 //		bool												_running;
 //		bool												_isAsync;
