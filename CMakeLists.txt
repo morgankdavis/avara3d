@@ -85,7 +85,7 @@ if (AE_BUILD_GLFW)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
-	add_subdirectory(external/glfw-3.3.9)
+	add_subdirectory(external/glfw-3.4.0)
 
 else()
 
@@ -142,7 +142,7 @@ target_include_directories(ae PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake
 target_include_directories(ae PRIVATE external/generator/include)
 target_include_directories(ae PRIVATE external/gif-h)
 target_include_directories(ae PRIVATE external/glew-2.1.0/include)
-target_include_directories(ae PRIVATE external/glfw-3.3.9/include)
+target_include_directories(ae PRIVATE external/glfw-3.4.0/include)
 target_include_directories(ae PRIVATE external/imgui-1.90)
 target_include_directories(ae PRIVATE external/imgui-1.90/backends)
 target_include_directories(ae PRIVATE external/magic_enum-0.9.3/include)
