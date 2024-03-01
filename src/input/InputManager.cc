@@ -1,17 +1,17 @@
 //
 //  InputManager.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/9/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/input/InputManager.h"
+#include "a3d/input/InputManager.h"
 
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
@@ -32,7 +32,7 @@ InputManager::InputManager():
 		_scene(nullptr) { }
 
 InputManager::~InputManager() {
-	AE_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -108,13 +108,13 @@ Scene* InputManager::scene() const {
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = scene;
 }
 
 void InputManager::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = nullptr;
 }

@@ -2,17 +2,17 @@
 // Created by mkd on 12/15/23.
 //
 
-#include "ae/physics/bullet/MotionState.h"
+#include "a3d/physics/bullet/MotionState.h"
 
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/bullet/Utilities.h"
-#include "ae/scene/Node.h"
-
-
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/scene/Node.h"
 
 
-using namespace ae;
+#include "a3d/diagnostic/logging/Logger.h"
+
+
+using namespace a3d;
 
 
 /*********************************************************************************************

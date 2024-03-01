@@ -1,22 +1,22 @@
 //
 //  MeshElement.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/mesh/MeshElement.h"
+#include "a3d/mesh/MeshElement.h"
 
 #include <iostream>
 
-#include "ae/Types.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/scene/Node.h"
-#include "ae/rendering/Renderer.h"
+#include "a3d/Types.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/scene/Node.h"
+#include "a3d/rendering/Renderer.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
@@ -34,7 +34,7 @@ MeshElement::MeshElement(const vector<Vertex>& verticies,
 }
 
 MeshElement::~MeshElement() {
-	AE_LOG_D("Destroying MeshElement {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -71,7 +71,7 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	AE_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
+	A3D_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
 }
 
 const vector<Vertex>& MeshElement::vertices() const {

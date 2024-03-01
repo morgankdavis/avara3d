@@ -2,29 +2,29 @@
 // Created by mkd on 11/25/23.
 //
 
-#include "ae/rendering/VisualWorld.h"
+#include "a3d/rendering/VisualWorld.h"
 
 #include <variant>
 
 #include "glm/glm.hpp"
 
-#include "ae/Color.h"
-#include "ae/CubeImage.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/mesh/Mesh.h"
-#include "ae/mesh/primitive/Box.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/rendering/Light.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/material/Texture.h"
-#include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/Color.h"
+#include "a3d/CubeImage.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/rendering/Light.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/material/Texture.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -58,7 +58,7 @@ VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 }
 
 VisualWorld::~VisualWorld() {
-	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
 	//renderContext(nullptr);
@@ -194,13 +194,13 @@ void VisualWorld::didRender(DidRenderCallback function) {
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = scene;
 }
 
 void VisualWorld::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = nullptr;
 }
@@ -221,7 +221,7 @@ void VisualWorld::checkAddDefaultLighting() {
 		}
 
 		if (!hasLights) {
-			AE_LOG_I("Adding default lighting.");
+			A3D_LOG_I("Adding default lighting.");
 
 			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
 			_scene->rootNode()->addChild(ambientNode);
@@ -298,11 +298,11 @@ void VisualWorld::draw(const Scene& scene,
 			}
 		}
 		else {
-			AE_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
+			A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
 		}
 	}
 	else {
-		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
+		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -360,7 +360,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		return cameraNode;
 	}
 	else {
-		AE_LOG_W("Can't create default camera: scene is null.");
+		A3D_LOG_W("Can't create default camera: scene is null.");
 	}
 
 	return nullptr;

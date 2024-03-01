@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -11,12 +11,12 @@
 
 #include <glm/glm.hpp>
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -69,8 +69,8 @@ int main(int argc, const char* argv[]) {
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
 //	DebugOptions debugOptions = DebugOptions::None;
-//	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
-//	debugOptions = AE_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
+//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
+//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
 	DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
 								| DebugOptions::ShowBoundingBoxes;
 	scene->debugOptions(debugOptions);
@@ -141,32 +141,32 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::F)) {
-		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											  DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 										   DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											  DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 										   DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (AE_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(AE_MASK_REMOVE(scene.debugOptions(),
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											  DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(AE_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
 										   DebugOptions::ShowStatsOverlay));
 		}
 	}

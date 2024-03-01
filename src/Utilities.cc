@@ -1,12 +1,12 @@
 //
 //  Utilities.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/Utilities.h"
+#include "a3d/Utilities.h"
 
 #include <algorithm>
 //#ifdef WINDOWS
@@ -52,23 +52,23 @@
 
 #include "glm/gtc/quaternion.hpp"
 
-#include "ae/Buffer.h"
-#include "ae/Color.h"
-#include "ae/CubeImage.h"
-#include "ae/Font.h"
-#include "ae/Image.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/mesh/Mesh.h"
-#include "ae/mesh/MeshElement.h"
-#include "ae/rendering/Light.h"
-#include "ae/rendering/camera/Camera.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/material/Material.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/Buffer.h"
+#include "a3d/Color.h"
+#include "a3d/CubeImage.h"
+#include "a3d/Font.h"
+#include "a3d/Image.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/rendering/Light.h"
+#include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -83,22 +83,22 @@ static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
  	Output Utilities
  *********************************************************************************************/
 
-ostream& ae::utils::operator<<(ostream& os, const glm::vec3& v) {
+ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 	return os;
 }
 
-ostream& ae::utils::operator<<(ostream& os, const glm::vec4& v) {
+ostream& a3d::utils::operator<<(ostream& os, const glm::vec4& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
 	return os;
 }
 
-ostream& ae::utils::operator<<(ostream& os, const glm::quat& q) {
+ostream& a3d::utils::operator<<(ostream& os, const glm::quat& q) {
 	os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
 	return os;
 }
 
-ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
+ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 	
@@ -113,42 +113,42 @@ ostream& ae::utils::operator<<(ostream& os, const mat4& m) {
 	return (os << str);
 }
 
-ostream& ae::utils::operator<<(ostream& os, const Color& c) {
+ostream& a3d::utils::operator<<(ostream& os, const Color& c) {
 	os << "(" << c.r << ", " << c.g << ", " << c.b << ", " << c.a << ")";
 	return os;
 }
 
-string ae::utils::StringFromGLMVec3(const vec3& v) {
+string a3d::utils::StringFromGLMVec3(const vec3& v) {
 	ostringstream stringStream;
 	stringStream << v;
 	return stringStream.str();
 }
 
-string ae::utils::StringFromGLMVec4(const vec4& v) {
+string a3d::utils::StringFromGLMVec4(const vec4& v) {
 	ostringstream stringStream;
 	stringStream << v;
 	return stringStream.str();
 }
 
-string ae::utils::StringFromGLMQuat(const quat& q) {
+string a3d::utils::StringFromGLMQuat(const quat& q) {
 	ostringstream stringStream;
 	stringStream << q;
 	return stringStream.str();
 }
 
-string ae::utils::StringFromGLMMat4(const mat4& m) {
+string a3d::utils::StringFromGLMMat4(const mat4& m) {
 	ostringstream stringStream;
 	stringStream << m;
 	return stringStream.str();
 }
 
-string ae::utils::StringFromColor(const Color& c) {
+string a3d::utils::StringFromColor(const Color& c) {
 	ostringstream stringStream;
 	stringStream << c;
 	return stringStream.str();
 }
 
-string ae::utils::StringFromTree(Node& root) {
+string a3d::utils::StringFromTree(Node& root) {
 
 	stringstream ss;
 	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
@@ -163,7 +163,7 @@ string ae::utils::StringFromTree(Node& root) {
 	return ss.str();
 }
 
-string ae::utils::DateTimeString() {
+string a3d::utils::DateTimeString() {
 	char buffer[128];
 #ifdef WINDOWS
 	time_t rawtime;
@@ -182,7 +182,7 @@ string ae::utils::DateTimeString() {
 }
 
 #ifdef POSIX
-string ae::utils::StackTrace(unsigned dropFunctions) {
+string a3d::utils::StackTrace(unsigned dropFunctions) {
 	
 	auto traceStr = string();
 	static const unsigned MAX_FRAMES = 64;
@@ -210,46 +210,46 @@ string ae::utils::StackTrace(unsigned dropFunctions) {
  	Numeric Utilities
  *********************************************************************************************/
 
-int ae::utils::Uniform(int min, int max) {
+int a3d::utils::Uniform(int min, int max) {
 	static random_device rd;
 	static mt19937 gen(rd());
 	uniform_int_distribution<> dis(min, max);
 	return dis(gen);
 }
 
-float ae::utils::Uniform(float min, float max) {
+float a3d::utils::Uniform(float min, float max) {
 	static random_device rd;
 	static mt19937 gen(rd());
 	uniform_real_distribution<> dis(min, max);
 	return dis(gen);
 }
 
-bool ae::utils::Zero(const vec3& v, float tolerance) {
+bool a3d::utils::Zero(const vec3& v, float tolerance) {
 	return Equal(v.x, 0, tolerance) 
 	&& Equal(v.y, 0, tolerance) 
 	&& Equal(v.z, 0, tolerance);
 }
 
-float ae::utils::Max(const vec3& v) {
+float a3d::utils::Max(const vec3& v) {
 	return std::max(std::max(v.x, v.y), v.z);
 }
 
-bool ae::utils::Equal(float a, float b, float tolerance) {
+bool a3d::utils::Equal(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
 }
 
-bool ae::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) {
+bool a3d::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance)
 		   && Equal(a.y, b.y, tolerance);
 }
 
-bool ae::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
+bool a3d::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance) 
 	&& Equal(a.y, b.y, tolerance) 
 	&& Equal(a.z, b.z, tolerance);
 }
 
-bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
+bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance) 
 	&& Equal(a.y, b.y, tolerance) 
 	&& Equal(a.z, b.z, tolerance) 
@@ -260,7 +260,7 @@ bool ae::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
 	String Utilities
  *********************************************************************************************/
 
-void ae::utils::StringReplace(string& str,
+void a3d::utils::StringReplace(string& str,
 							  const string& oldStr,
 							  const string& newStr) {
 	string::size_type pos = 0u;
@@ -278,7 +278,7 @@ void ae::utils::StringReplace(string& str,
 
 #ifndef ANDROID
 
-std::optional<std::filesystem::path> ae::utils::ExecutablePath() {
+std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
 	char path[1024];
 	uint32_t size = sizeof(path);
@@ -300,7 +300,7 @@ std::optional<std::filesystem::path> ae::utils::ExecutablePath() {
 	return std::nullopt;
 }
 
-std::optional<std::filesystem::path> ae::utils::ExecutableDirectory() {
+std::optional<std::filesystem::path> a3d::utils::ExecutableDirectory() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
 		auto execPath = std::filesystem::path(*execPathStr);
@@ -309,7 +309,7 @@ std::optional<std::filesystem::path> ae::utils::ExecutableDirectory() {
 	return std::nullopt;
 }
 
-std::optional<std::filesystem::path> ae::utils::ExecutableName() {
+std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
 		auto execPath = std::filesystem::path(*execPathStr);
@@ -320,7 +320,7 @@ std::optional<std::filesystem::path> ae::utils::ExecutableName() {
 	return std::nullopt;
 }
 
-std::optional<std::filesystem::path> ae::utils::CurrentWorkingDirectory() {
+std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifdef POSIX
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd))) {
@@ -341,7 +341,7 @@ std::optional<std::filesystem::path> ae::utils::CurrentWorkingDirectory() {
 
 #ifndef ANDROID
 
-vector<std::filesystem::path> ae::utils::BaseSearchPaths() {
+vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 	// build a list of common directories where "shader", "scene", "images", "fonts" etc
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
@@ -385,7 +385,7 @@ vector<std::filesystem::path> ae::utils::BaseSearchPaths() {
 	return basePaths;
 }
 
-vector<std::filesystem::path> ae::utils::ShaderSearchPaths() {
+vector<std::filesystem::path> a3d::utils::ShaderSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "shaders");
@@ -393,7 +393,7 @@ vector<std::filesystem::path> ae::utils::ShaderSearchPaths() {
 	return searchPaths;
 }
 
-vector<std::filesystem::path> ae::utils::SceneSearchPaths() {
+vector<std::filesystem::path> a3d::utils::SceneSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "scenes");
@@ -401,7 +401,7 @@ vector<std::filesystem::path> ae::utils::SceneSearchPaths() {
 	return searchPaths;
 }
 
-vector<std::filesystem::path> ae::utils::ModelSearchPaths() {
+vector<std::filesystem::path> a3d::utils::ModelSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "models");
@@ -409,7 +409,7 @@ vector<std::filesystem::path> ae::utils::ModelSearchPaths() {
 	return searchPaths;
 }
 
-vector<std::filesystem::path> ae::utils::ImageSearchPaths() {
+vector<std::filesystem::path> a3d::utils::ImageSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "images");
@@ -417,7 +417,7 @@ vector<std::filesystem::path> ae::utils::ImageSearchPaths() {
 	return searchPaths;
 }
 
-vector<std::filesystem::path> ae::utils::FontSearchPaths() {
+vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
 		searchPaths.emplace_back(path / "fonts");
@@ -425,11 +425,11 @@ vector<std::filesystem::path> ae::utils::FontSearchPaths() {
 	return searchPaths;
 }
 
-std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& filename,
+std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& filename,
 															  vector<std::filesystem::path> paths) {
-	AE_LOG_D("Searching for '{}' in...", filename);
+	A3D_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
-		AE_LOG_D("\t...'{}'", searchPath.string());
+		A3D_LOG_D("\t...'{}'", searchPath.string());
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
@@ -437,7 +437,7 @@ std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& file
 			}
 		}
 	}
-	AE_LOG_W("Not found.");
+	A3D_LOG_W("Not found.");
 	return std::nullopt;
 }
 
@@ -447,14 +447,14 @@ std::optional<std::filesystem::path> ae::utils::SearchInPaths(const string& file
 
 #ifdef ANDROID
 
-std::optional<std::filesystem::path> ae::utils::InternalFilesDirectory() {
+std::optional<std::filesystem::path> a3d::utils::InternalFilesDirectory() {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
 	string filesDir = helper->GetFilesDir();
 	if (filesDir.length()) return std::filesystem::path(filesDir);
 	return std::nullopt;
 }
 
-std::optional<string> ae::utils::TextAsset(const string& relPath) {
+std::optional<string> a3d::utils::TextAsset(const string& relPath) {
 //	vector<unsigned char> buffer = BinaryAsset(relPath);
 //	if (buffer.size()) {
 //		return string(buffer.begin(), buffer.end());
@@ -466,7 +466,7 @@ std::optional<string> ae::utils::TextAsset(const string& relPath) {
 	return std::nullopt;
 }
 
-shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
+shared_ptr<Buffer> a3d::utils::BinaryAsset(const string& relPath) {
 	auto helper = ndk_helper::JNIHelper::GetInstance();
 	auto vecBuf = vector<unsigned char>();
 	helper->ReadFile(relPath.c_str(), &vecBuf);
@@ -475,7 +475,7 @@ shared_ptr<Buffer> ae::utils::BinaryAsset(const string& relPath) {
 
 #else
 
-std::optional<string> ae::utils::TextFile(const std::filesystem::path& path) {
+std::optional<string> a3d::utils::TextFile(const std::filesystem::path& path) {
 	string line;
 	string source = "";
 	ifstream infile;
@@ -496,7 +496,7 @@ std::optional<string> ae::utils::TextFile(const std::filesystem::path& path) {
 
 // *** shaders ***
 
-std::optional<std::string> ae::utils::ShaderSource(const string& name,
+std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 													 const string& type) {
 	std::optional<string> rawSource = std::nullopt;
 #ifdef ANDROID
@@ -504,7 +504,7 @@ std::optional<std::string> ae::utils::ShaderSource(const string& name,
 #else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
-		AE_LOG_D("Found shader at path: {}", (*path).string());
+		A3D_LOG_D("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
 #endif
@@ -514,14 +514,14 @@ std::optional<std::string> ae::utils::ShaderSource(const string& name,
 
 // *** fonts ***
 
-shared_ptr<Font> ae::utils::FontNamed(const string& name,
+shared_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
 #ifdef ANDROID
 	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
 #else
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
-		AE_LOG_T("Found font at path: {}", (*path).string());
+		A3D_LOG_T("Found font at path: {}", (*path).string());
 		return make_shared<Font>(*path);
 	}
 #endif
@@ -531,14 +531,14 @@ shared_ptr<Font> ae::utils::FontNamed(const string& name,
 
 // ***  images ***
 
-shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+shared_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										bool flipHorizontal,
 										bool flipVertical) {
 
 	return ImageNamed(name, "png", flipHorizontal, flipVertical);
 }
 
-shared_ptr<Image> ae::utils::ImageNamed(const string& name,
+shared_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										const string& type,
 										bool flipHorizontal,
 										bool flipVertical) {
@@ -549,19 +549,19 @@ shared_ptr<Image> ae::utils::ImageNamed(const string& name,
 #else
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
-		AE_LOG_D("Found image at path: {}", (*path).string());
+		A3D_LOG_D("Found image at path: {}", (*path).string());
 		return make_shared<Image>(*path, flipHorizontal, flipVertical);
 	}
 #endif
 	return nullptr;
 }
 
-shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name) {
+shared_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name) {
 	
 	return CubeImageNamed(name, "png");
 }
 
-shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
+shared_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
 												const string& type) {
 	
 	// panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
@@ -577,37 +577,37 @@ shared_ptr<CubeImage> ae::utils::CubeImageNamed(const string& name,
 // *** scenes ***
 
 #ifndef ANDROID
-shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+shared_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										SceneImportOptions options) {
 
 	return SceneNamed(name, "gltf", options);
 }
 
-shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
+shared_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										const string& type,
 										SceneImportOptions options) {
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
-		AE_LOG_T("Found scene at path: {}", (*path).string());
+		A3D_LOG_T("Found scene at path: {}", (*path).string());
 		return Scene::FromFile(*path, options);
 	}
 	return nullptr;
 }
 
-shared_ptr<Mesh> ae::utils::MeshNamed(const string& name,
+shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 									  MeshImportOptions options) {
 
 	return MeshNamed(name, "gltf", options);
 }
 
-shared_ptr<Mesh> ae::utils::MeshNamed(const string& name,
+shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 									  const string& type,
 									  MeshImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {
-		AE_LOG_T("Found scene at path: {}", (*path).string());
+		A3D_LOG_T("Found scene at path: {}", (*path).string());
 		return Mesh::FromFile(*path, options);
 	}
 	return nullptr;
@@ -619,7 +619,7 @@ shared_ptr<Mesh> ae::utils::MeshNamed(const string& name,
  	Misc Utilities
  *********************************************************************************************/
 
-void ae::utils::SaveSnapshot(RenderContext& context) {
+void a3d::utils::SaveSnapshot(RenderContext& context) {
 #ifdef ANDROID
 	throw Exception("SaveSnapshot() not supported on Android.");
 #else
@@ -630,7 +630,7 @@ void ae::utils::SaveSnapshot(RenderContext& context) {
 	char filename[256] = "";
 	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
 	
-	AE_LOG_I("Saving snapshot '{}'...", filename);
+	A3D_LOG_I("Saving snapshot '{}'...", filename);
 	
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
@@ -638,12 +638,12 @@ void ae::utils::SaveSnapshot(RenderContext& context) {
 		image->writePNG(fullPath);
 	}
 	else {
-		AE_LOG_W("Couldn't locate executable directory.");
+		A3D_LOG_W("Couldn't locate executable directory.");
 	}
 #endif
 }
 
-void ae::utils::StartGIFRecording(RenderContext& context,
+void a3d::utils::StartGIFRecording(RenderContext& context,
 								  unsigned maxHeight, unsigned maxFramerate) {
 #ifdef ANDROID
 	throw Exception("StartGIFRecording() not supported on Android.");
@@ -656,12 +656,12 @@ void ae::utils::StartGIFRecording(RenderContext& context,
 		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
 	}
 	else {
-		AE_LOG_W("Couldn't locate executable directory.");
+		A3D_LOG_W("Couldn't locate executable directory.");
 	}
 #endif
 }
 
-void ae::utils::StopGIFRecording(RenderContext& context) {
+void a3d::utils::StopGIFRecording(RenderContext& context) {
 #ifdef ANDROID
 	throw Exception("StopGIFRecording() not supported on Android.");
 #else

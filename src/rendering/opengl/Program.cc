@@ -1,12 +1,12 @@
 //
 //  Program.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/opengl/Program.h"
+#include "a3d/rendering/opengl/Program.h"
 
 #ifdef OPENGL_ES
 #include <EGL/egl.h>
@@ -17,13 +17,13 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "ae/Utilities.h"
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 
@@ -102,7 +102,7 @@ Program::Program(const string& name):
 		if (_glID == 0) {
 			//logString(string("Unable to create shader program."));
 			//string errMsg = "Unable to create shader program.";
-			AE_LOG_C("Unable to create shader program.");
+			A3D_LOG_C("Unable to create shader program.");
 			//throw Exception(errMsg);
 		}
 		else {
@@ -163,7 +163,7 @@ bool Program::compile() {
 //			GLint written = 0;
 //			glGetProgramInfoLog(_glID, length, &written, c_log);
 //			_logString = string(c_log);
-//			//AE_LOG_E("Link log:\n{}", c_log);
+//			//A3D_LOG_E("Link log:\n{}", c_log);
 //			delete[] c_log;
 //		}
 //
@@ -180,7 +180,7 @@ bool Program::link() {
 	if (isLinked()) return true;
 	if (_glID <= 0) return false;
 
-	AE_LOG_I("Linking program '{}'...", _name);
+	A3D_LOG_I("Linking program '{}'...", _name);
 
 	glLinkProgram(_glID);
 
@@ -197,7 +197,7 @@ bool Program::link() {
 			GLchar c_log[logSize];
 			glGetProgramInfoLog(_glID, logSize, nullptr, c_log);
 			_logString = string(c_log);
-			AE_LOG_E("Failed to link program '{}':\n{}",
+			A3D_LOG_E("Failed to link program '{}':\n{}",
 					 name(), *_logString);
 		}
 
@@ -207,7 +207,7 @@ bool Program::link() {
 	}
 	else {
 		isLinked(true);
-		AE_LOG_I("Done.");
+		A3D_LOG_I("Done.");
 		return true;
 	}
 }
@@ -231,7 +231,7 @@ bool Program::validate() {
 			GLint written = 0;
 			glGetProgramInfoLog(_glID, length, &written, c_log);
 			_logString = string(c_log);
-			//AE_LOG_E("Validate log:\n{}", c_log);
+			//A3D_LOG_E("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -245,7 +245,7 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
-		AE_LOG_C("Program '{}' not ready.", _name);
+		A3D_LOG_C("Program '{}' not ready.", _name);
 	}
 	else {
 		glUseProgram(_glID);
@@ -271,7 +271,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 		glUniform3f(loc, x, y, z);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -282,7 +282,7 @@ void Program::setUniform(const char* name, const vec2& v) {
 		glUniform2f(loc, v.x, v.y);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -298,7 +298,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 		glUniform4f(loc, v.x, v.y, v.z, v.w);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -309,7 +309,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 		glUniformMatrix3fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -320,7 +320,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -331,7 +331,7 @@ void Program::setUniform(const char* name, bool val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -342,7 +342,7 @@ void Program::setUniform(const char* name, int val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -353,7 +353,7 @@ void Program::setUniform(const char* name, float val) {
 		glUniform1f(loc, val);
 	}
 	else {
-		AE_LOG_E("Uniform '{}' not found.", name);
+		A3D_LOG_E("Uniform '{}' not found.", name);
 	}
 }
 
@@ -364,7 +364,7 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 	}
 	else {
-		AE_LOG_E("Uniform block '{}' not found.", name);
+		A3D_LOG_E("Uniform block '{}' not found.", name);
 	}
 }
 
@@ -500,24 +500,24 @@ optional<string> Program::shaderSource(const string &name, const string &type) {
 }
 
 void Program::prepare() {
-	AE_LOG_T	("");
+	A3D_LOG_T	("");
 	
 	if (!_isLinked) {
 		if (compile()) {
-			AE_LOG_I("Shaders for program '{}' compiled.", _name);
+			A3D_LOG_I("Shaders for program '{}' compiled.", _name);
 			
 			if (link()) {
 				_uniformLocationCache = map<string, int>();
-				AE_LOG_I("Program '{}' linked.", _name);
+				A3D_LOG_I("Program '{}' linked.", _name);
 			}
 			else {
-				//AE_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
-				AE_LOG_C("Failed linking '{}' program.", _name);
+				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
+				A3D_LOG_C("Failed linking '{}' program.", _name);
 			}
 		}
 		else {
-			//AE_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
-			AE_LOG_C("Failed compiling '{}' shaders.", _name);
+			//A3D_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
+			A3D_LOG_C("Failed compiling '{}' shaders.", _name);
 		}
 	}
 }
@@ -553,14 +553,14 @@ void Program::prepare() {
 ////			int written = 0;
 ////			glGetShaderInfoLog(shaderID, length, &written, c_log);
 ////			_logString = string(c_log);
-////			AE_LOG_W("Failed to compile {} shader:\n{}",
+////			A3D_LOG_W("Failed to compile {} shader:\n{}",
 ////					 StringFromShaderType(type), *_logString);
 //
 //			auto c_log = (GLchar*)new char[length];
 //			GLint written = 0;
 //			glGetShaderInfoLog(shaderID, length, &written, c_log);
 //			_logString = string(c_log);
-//			AE_LOG_W("Failed to compile {} shader:\n{}",
+//			A3D_LOG_W("Failed to compile {} shader:\n{}",
 //					 StringFromShaderType(type), *_logString);
 //			delete[] c_log;
 //		}
@@ -576,7 +576,7 @@ void Program::prepare() {
 
 bool Program::compile(const string &source, ShaderType type) {
 
-	AE_LOG_I("Compiling {} shader for program '{}'...",
+	A3D_LOG_I("Compiling {} shader for program '{}'...",
 			 StringFromShaderType(type), name());
 
 	GLuint shaderID = 0;
@@ -607,7 +607,7 @@ bool Program::compile(const string &source, ShaderType type) {
 			GLchar c_log[logSize];
 			glGetShaderInfoLog(shaderID, logSize, nullptr, c_log);
 			_logString = string(c_log);
-			AE_LOG_E("Failed to compile {} shader for program '{}':\n{}",
+			A3D_LOG_E("Failed to compile {} shader for program '{}':\n{}",
 					 StringFromShaderType(type), name(), *_logString);
 		}
 
@@ -618,7 +618,7 @@ bool Program::compile(const string &source, ShaderType type) {
 	else {
 		glAttachShader(_glID, shaderID);
 
-		AE_LOG_I("Done.");
+		A3D_LOG_I("Done.");
 
 		return true;
 	}

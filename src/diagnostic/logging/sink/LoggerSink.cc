@@ -2,10 +2,10 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "ae/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/logging/sink/LoggerSink.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************

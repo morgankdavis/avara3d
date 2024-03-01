@@ -2,7 +2,7 @@
 // Created by mkd on 11/5/23.
 //
 
-#include "ae/physics/ConvexDecomposer.h"
+#include "a3d/physics/ConvexDecomposer.h"
 
 #include <utility>
 
@@ -10,11 +10,11 @@
 #define ENABLE_VHACD_IMPLEMENTATION 1
 #include "VHACD.h"
 
-#include "ae/mesh/MeshElement.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
@@ -107,7 +107,7 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 				   params);
 
 	while (!vhacd->IsReady()) {
-		AE_LOG_I("VHACD not ready...");
+		A3D_LOG_I("VHACD not ready...");
 	}
 
 	auto numHulls = vhacd->GetNConvexHulls();
@@ -138,7 +138,7 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 		decomposedElements.push_back(decomposedElement);
 	}
 
-	AE_LOG_I("numHulls: {}", numHulls);
+	A3D_LOG_I("numHulls: {}", numHulls);
 
 	_decomposedElements = decomposedElements;
 
@@ -200,7 +200,7 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 //				   params);
 //
 //	while (!vhacd->IsReady()) {
-//		AE_LOG_I("VHACD not ready...");
+//		A3D_LOG_I("VHACD not ready...");
 //	}
 //
 //	auto numHulls = vhacd->GetNConvexHulls();
@@ -231,7 +231,7 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 //		decomposedElements.push_back(decomposedElement);
 //	}
 //
-//	AE_LOG_I("numHulls: {}", numHulls);
+//	A3D_LOG_I("numHulls: {}", numHulls);
 //
 //	return decomposedElement;
 //}

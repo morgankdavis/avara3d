@@ -1,29 +1,29 @@
 //
 //  RenderContext.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/context/RenderContext.h"
+#include "a3d/rendering/context/RenderContext.h"
 
 #include "gif.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
 
-#include "ae/Buffer.h"
-#include "ae/Image.h"
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/rendering/opengl/OpenGLRenderer.h"
-#include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/Buffer.h"
+#include "a3d/Image.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/rendering/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -65,7 +65,7 @@ RenderContext::RenderContext(RenderingApi renderAPI):
 }
 
 RenderContext::~RenderContext() {
-	AE_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
 	
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -127,7 +127,7 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
-		AE_LOG_I("Starting GIF recording...");
+		A3D_LOG_I("Starting GIF recording...");
 		
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordedFrames = 0;
@@ -169,7 +169,7 @@ void RenderContext::stopGIFRecording() {
 		//free(_gifWriter.get());
 		_gifWriter = nullptr;
 		
-		AE_LOG_I("Stopped GIF recording.");
+		A3D_LOG_I("Stopped GIF recording.");
 	}
 }
 
@@ -240,13 +240,13 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = world;
 }
 
 void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = nullptr;
 }

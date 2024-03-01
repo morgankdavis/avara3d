@@ -1,21 +1,21 @@
 //
 //  Buffer.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/Buffer.h"
+#include "a3d/Buffer.h"
 
 #include <cstring>
 
-#include "ae/Utilities.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace std;
 
 
@@ -75,7 +75,7 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 }
 
 Buffer::~Buffer() {
-	AE_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
 
 	if (_data) {
 		free(_data);

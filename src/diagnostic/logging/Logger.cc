@@ -1,12 +1,12 @@
 //
 //  Logger.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/5/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 #include <cstdarg>
 #include <ctime>
@@ -20,17 +20,17 @@
 #include <NDKHelper.h>
 #endif
 
-#include "ae/Utilities.h"
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/diagnostic/logging/sink/LoggerSink.h"
-#include "ae/diagnostic/logging/sink/FileLoggerSink.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 #ifdef DESKTOP
-#include "ae/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
+#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
 #endif
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace std;
 
 

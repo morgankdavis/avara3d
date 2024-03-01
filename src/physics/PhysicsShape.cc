@@ -1,26 +1,26 @@
 //
 //  PhysicsShape.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/physics/PhysicsShape.h"
+#include "a3d/physics/PhysicsShape.h"
 
 
 #include "magic_enum.hpp"
 
-#include "ae/mesh/Mesh.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/proxy/PhysicsShapeProxy.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletShapeProxy.h"
-#include "ae/scene/Node.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/proxy/PhysicsShapeProxy.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletShapeProxy.h"
+#include "a3d/scene/Node.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -37,11 +37,11 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, Mesh* mesh):
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = mesh->name()) {
-		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
+		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
 				 magic_enum::enum_name(type), *name);
 	}
 	else {
-		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
+		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
 				 magic_enum::enum_name(type), static_cast<void*>(mesh));
 	}
 }
@@ -55,11 +55,11 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, Node* node):
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = node->name()) {
-		AE_LOG_D("Creating PhysicsShape type {} for source node: {}...",
+		A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
 				 magic_enum::enum_name(type), *name);
 	}
 	else {
-		AE_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
+		A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
 				 magic_enum::enum_name(type),static_cast<void*>(node));
 	}
 }
@@ -71,7 +71,7 @@ PhysicsShape::PhysicsShape():
 		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
 
 PhysicsShape::~PhysicsShape() {
-	AE_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 
 //	for (auto& body : _bodies) {
 //
@@ -91,7 +91,7 @@ PhysicsShapeType PhysicsShape::type() const {
 }
 
 void PhysicsShape::type(PhysicsShapeType type) {
-	AE_LOG_T("type: {}", magic_enum::enum_name(type));
+	A3D_LOG_T("type: {}", magic_enum::enum_name(type));
 
 	_type = type;
 	_proxy = nullptr;
@@ -108,7 +108,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	if (!_bodies.count(body)) {
 		_bodies.insert(body);
@@ -118,19 +118,19 @@ void PhysicsShape::attachedToBody(PhysicsBody* body) {
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_bodies.erase(body);
 }
 
 void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	checkCreateProxy();
 }
 
 void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 }
 
 void PhysicsShape::sourceObject(SourceObject sourceObject) {
@@ -139,7 +139,7 @@ void PhysicsShape::sourceObject(SourceObject sourceObject) {
 }
 
 void PhysicsShape::checkCreateProxy() {
-	AE_LOG_T("");
+	A3D_LOG_T("");
 
 	if (!_proxy) {
 		_proxy = make_unique<BulletShapeProxy>(this);

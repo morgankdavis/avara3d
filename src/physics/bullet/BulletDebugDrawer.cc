@@ -1,6 +1,6 @@
 //
 //  BulletDebugDrawer.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 2/6/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
@@ -8,17 +8,17 @@
 
 #ifdef OPENGL_DESKTOP
 
-#include "ae/physics/bullet/BulletDebugDrawer.h"
+#include "a3d/physics/bullet/BulletDebugDrawer.h"
 
 #include <set>
 
-#include "ae/Color.h"
-#include "ae/mesh/Line.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/rendering/Renderer.h"
+#include "a3d/Color.h"
+#include "a3d/mesh/Line.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/rendering/Renderer.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -60,7 +60,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		AE_LOG_T("BulletDebugDrawer::update()");
+		A3D_LOG_T("BulletDebugDrawer::update()");
 
 		renderer.render(_lineSet, mat4(1.0), viewMat, projectionMat);
 	}
@@ -73,7 +73,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 void BulletDebugDrawer::drawLine(const btVector3& from,
 								 const btVector3& to,
 								 const btVector3& color) {
-	//AE_LOG_D("drawLine() - 1 color");
+	//A3D_LOG_D("drawLine() - 1 color");
 	
 	drawLine(from, to, color, color);
 }
@@ -82,7 +82,7 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								 const btVector3& to,
 								 const btVector3& fromColor,
 								 const btVector3& toColor) {
-	//AE_LOG_D("drawLine() - 2 colors");
+	//A3D_LOG_D("drawLine() - 2 colors");
 
 	_lineSet->emplace(make_shared<Line>(GLMVec3FromBTVector3(from),
 										GLMVec3FromBTVector3(to),
@@ -94,13 +94,13 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 void BulletDebugDrawer::drawSphere(btScalar radius,
 									const btTransform& transform,
 									const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawSphere (const btVector3& p,
 									 btScalar radius,
 									 const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawTriangle(const btVector3& v0,
@@ -108,7 +108,7 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 									  const btVector3& v2,
 									  const btVector3& color,
 									  btScalar alpha) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 */
 
@@ -117,7 +117,7 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										 btScalar distance,
 										 int lifeTime,
 										 const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 	
 	const float DISTANCE_EXTENSION = 0.0;
 	btVector3 to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
@@ -125,24 +125,24 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 }
 
 void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
-	AE_LOG_W("Bullet warning: {}", warningString);
+	A3D_LOG_W("Bullet warning: {}", warningString);
 }
 
 void BulletDebugDrawer::draw3dText(const btVector3& location,
 								   const char* textString) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 /*
 void BulletDebugDrawer::drawAabb(const btVector3 &from,
 								  const btVector3 &to,
 								  const btVector3 &color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawTransform(const btTransform &transform,
 									   btScalar orthoLen) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawArc(const btVector3& center,
@@ -155,7 +155,7 @@ void BulletDebugDrawer::drawArc(const btVector3& center,
 								 const btVector3& color,
 								 bool drawSect,
 								 btScalar stepDegrees) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
@@ -169,20 +169,20 @@ void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
 										 const btVector3& color,
 										 btScalar stepDegrees,
 										 bool drawCenter) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								 const btVector3& bbMax,
 								 const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								 const btVector3& bbMax,
 								 const btTransform& trans,
 								 const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawCapsule(btScalar radius,
@@ -190,7 +190,7 @@ void BulletDebugDrawer::drawCapsule(btScalar radius,
 									 int upAxis,
 									 const btTransform& transform,
 									 const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawCylinder(btScalar radius,
@@ -198,7 +198,7 @@ void BulletDebugDrawer::drawCylinder(btScalar radius,
 									  int upAxis,
 									  const btTransform& transform,
 									  const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawCone(btScalar radius,
@@ -206,14 +206,14 @@ void BulletDebugDrawer::drawCone(btScalar radius,
 								  int upAxis,
 								  const btTransform& transform,
 								  const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 
 void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 								   btScalar planeConst,
 								   const btTransform& transform,
 								   const btVector3& color) {
-	//AE_LOG_D(AE_FUNC);
+	//A3D_LOG_D(A3D_FUNC);
 }
 */
 

@@ -1,21 +1,21 @@
 //
 //  PhysicalWorld.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicalWorld.h"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -44,7 +44,7 @@ PhysicalWorld::PhysicalWorld():
 }
 
 PhysicalWorld::~PhysicalWorld() {
-	AE_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -151,13 +151,13 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = scene;
 }
 
 void PhysicalWorld::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	// removing bodies handled in PhysicalBody::physicalWorldUnreachable()
 
@@ -165,7 +165,7 @@ void PhysicalWorld::detachedFromScene(Scene* scene) {
 }
 
 void PhysicalWorld::add(PhysicsBody& body) {
-	AE_LOG_D("body: {}", static_cast<void*>(&body));
+	A3D_LOG_D("body: {}", static_cast<void*>(&body));
 
 	if (_proxy) {
 //		body.addedToWorld(this);
@@ -173,19 +173,19 @@ void PhysicalWorld::add(PhysicsBody& body) {
 		body.addedToWorld(this);
 	}
 	else {
-		AE_LOG_W("_model is null.");
+		A3D_LOG_W("_model is null.");
 	}
 }
 
 void PhysicalWorld::remove(PhysicsBody& body) {
-	AE_LOG_D("body: {}", static_cast<void*>(&body));
+	A3D_LOG_D("body: {}", static_cast<void*>(&body));
 
 	if (_proxy) {
 		_proxy->remove(body);
 		body.removedFromWorld(this);
 	}
 	else {
-		AE_LOG_W("_model is null.");
+		A3D_LOG_W("_model is null.");
 	}
 }
 
@@ -207,7 +207,7 @@ void PhysicalWorld::step(const Scene& scene,
 		}
 	}
 	else {
-		AE_LOG_E("No PhysicalWorldModelProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
+		A3D_LOG_E("No PhysicalWorldModelProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	}
 }
 

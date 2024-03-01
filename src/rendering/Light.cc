@@ -1,17 +1,17 @@
 //
 //  Light.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/Light.h"
+#include "a3d/rendering/Light.h"
 
-#include "ae/Color.h"
+#include "a3d/Color.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

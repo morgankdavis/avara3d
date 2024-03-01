@@ -2,13 +2,13 @@
 // Created by mkd on 11/9/23.
 //
 
-#include "ae/diagnostic/logging/sink/FileLoggerSink.h"
+#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 
 
-#include "ae/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/exception/Exception.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 

@@ -2,13 +2,13 @@
 // Created by mkd on 11/19/23.
 //
 
-#include "ae/physics/shape_primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
 
-#include "ae/diagnostic/exception/Exception.h"
-#include "ae/physics/proxy/PhysicsShapeProxy.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************
