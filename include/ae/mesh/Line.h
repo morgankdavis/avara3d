@@ -14,7 +14,7 @@
 
 #include "glm/glm.hpp"
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {

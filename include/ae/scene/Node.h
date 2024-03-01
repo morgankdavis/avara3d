@@ -29,8 +29,8 @@ namespace ae {
 
 
 	class Camera;
-	class Geometry;
 	class Light;
+	class Mesh;
 	class PhysicsBody;
 
 	
@@ -43,7 +43,7 @@ namespace ae {
 	public:
 
 		static std::shared_ptr<Node> 			NamedNode(std::string name);
-		static std::shared_ptr<Node> 			GeometryNode(std::shared_ptr<Geometry> geometry);
+		static std::shared_ptr<Node> 			MeshNode(std::shared_ptr<Mesh> geometry);
 		static std::shared_ptr<Node> 			LightNode(std::shared_ptr<Light> light);
 		static std::shared_ptr<Node> 			CameraNode(std::shared_ptr<Camera> camera);
 
@@ -53,7 +53,7 @@ namespace ae {
 		
 		Node();
 		Node(const std::string& name);
-		Node(std::shared_ptr<Geometry> geometry);
+		Node(std::shared_ptr<Mesh> mesh);
 		Node(std::shared_ptr<Light> light);
 		Node(std::shared_ptr<Camera> camera);
 		/*testing*/ Node(const Node& other) = delete; // copy constructor
@@ -73,8 +73,8 @@ namespace ae {
 		std::shared_ptr<Camera> 				camera() const;
 		void 									camera(const std::shared_ptr<Camera> camera);
 
-		std::shared_ptr<Geometry> 				geometry() const;
-		void 									geometry(const std::shared_ptr<Geometry> geometry);
+		std::shared_ptr<Mesh> 					mesh() const;
+		void 									mesh(const std::shared_ptr<Mesh> mesh);
 
 		bool 									hidden() const;
 		void 									hidden(const bool hidden);
@@ -144,8 +144,8 @@ namespace ae {
 		void									ancestorAttachedToScene(Node* ancestor, Scene* scene);
 		void									ancestorDetachedFromScene(Node* ancestor, Scene* scene);
 
-//		void									geometryAttachedToNode(Geometry* geometry, Node* node);
-//		void 									geometryDetachedFromNode(Geometry* geometry, Node* node);
+//		void									meshAttachedToNode(Mesh* mesh, Node* node);
+//		void 									meshDetachedFromNode(MEsh* mesh, Node* node);
 
 		void									visualWorldAttachedToScene(VisualWorld* world, Scene* scene);
 		void									visualWorldDetachedFromScene(VisualWorld* world, Scene* scene);
@@ -199,14 +199,14 @@ namespace ae {
 //																	std::map<std::shared_ptr<Node>, bool>& visited,
 //																	std::stack<std::shared_ptr<Node>>& stack);
 
-		NodeDirtyMask 						dirtyMask() const;
+		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);
 
 		std::optional<std::string>				_name;
 		
 		std::shared_ptr<Light>					_light;
 		std::shared_ptr<Camera>					_camera;
-		std::shared_ptr<Geometry>				_geometry;
+		std::shared_ptr<Mesh>					_mesh;
 		
 		bool									_hidden;
 

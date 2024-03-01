@@ -26,8 +26,8 @@ namespace ae {
 	
 	class Color;
 	class Font;
-	class Geometry;
-	class GeometryElement;
+	class Mesh;
+	class MeshElement;
 	class Line;
 	class Texture;
 	
@@ -40,10 +40,10 @@ namespace ae {
 
 	public:
 
-		/* <ae_GeometryElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
-		using GeometryElementGLMapping =
-				std::map<std::shared_ptr<GeometryElement>, std::tuple<
-				        unsigned,
+		/* <ae_MeshElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		using MeshElementGLMapping =
+				std::map<std::shared_ptr<MeshElement>, std::tuple<
+						unsigned,
 						unsigned,
 						unsigned>>;
 
@@ -63,9 +63,9 @@ namespace ae {
 						unsigned,
 						unsigned>>;
 
-		/* <ae_Geometry : set<ae_Line>> */
-		using GeometryAABBLineSetMapping =
-				std::map<std::shared_ptr<Geometry>,
+		/* <ae_Mesh : set<ae_Line>> */
+		using MeshAABBLineSetMapping =
+				std::map<std::shared_ptr<Mesh>,
 						std::shared_ptr<LineSet>>;
 
 /*********************************************************************************************
@@ -95,13 +95,13 @@ namespace ae {
 		void 						render(const Scene& scene,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<Geometry> geometry,
+		void 						render(std::shared_ptr<Mesh> mesh,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<GeometryElement> element,
+		void 						render(std::shared_ptr<MeshElement> element,
 										   Material& material,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
@@ -125,17 +125,17 @@ namespace ae {
 
 	private:
 
-		GeometryElementGLMapping 				_geometryElementGLMapping;
+		MeshElementGLMapping 					_meshElementGLMapping;
 		TextureGLMapping						_textureGLMapping;
 		LineSetGLMapping						_lineSetGLMapping;
 		PointSetGLMapping						_pointSetGLMapping;
 
-		GeometryAABBLineSetMapping				_geometryAABBLineSetMapping;
+		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
 
-		std::unordered_set<std::shared_ptr<GeometryElement>>	_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<Texture>>			_activeTextures;
-		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
-		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
+		std::unordered_set<std::shared_ptr<MeshElement>>	_activeMeshElements;
+		std::unordered_set<std::shared_ptr<Texture>>		_activeTextures;
+		std::unordered_set<std::shared_ptr<LineSet>>		_activeLineSets;
+		std::unordered_set<std::shared_ptr<PointSet>>		_activePointSets;
 
 		unsigned								_glEnvironmentUBO;
 		

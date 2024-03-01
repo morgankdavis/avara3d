@@ -33,8 +33,8 @@ namespace ae {
 	class Color;
 	class CubeImage;
 	class Font;
-	class Geometry;
 	class Image;
+	class Mesh;
 	class Node;
 	class RenderContext;
 	class Scene;
@@ -158,13 +158,13 @@ namespace ae {
 											  const std::string& type,
 											  SceneImportOptions options =
 											  SceneImportOptions::ImportAll);
-		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
-													GeometryImportOptions options =
-													GeometryImportOptions::ImportMaterials);
-		std::shared_ptr<ae::Geometry> GeometryNamed(const std::string& name,
-													const std::string& type,
-													GeometryImportOptions options =
-													GeometryImportOptions::ImportMaterials);
+		std::shared_ptr<ae::Mesh> MeshNamed(const std::string &name,
+											MeshImportOptions options =
+											MeshImportOptions::ImportMaterials);
+		std::shared_ptr<ae::Mesh> MeshNamed(const std::string &name,
+											const std::string &type,
+											MeshImportOptions options =
+											MeshImportOptions::ImportMaterials);
 #endif
 
 /*********************************************************************************************

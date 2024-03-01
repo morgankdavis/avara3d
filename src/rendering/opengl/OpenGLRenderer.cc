@@ -35,10 +35,10 @@
 #include "ae/Utilities.h"
 #include "ae/diagnostic/exception/Exception.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/GeometryElement.h"
-#include "ae/geometry/Line.h"
-#include "ae/geometry/Point.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/MeshElement.h"
+#include "ae/mesh/Line.h"
+#include "ae/mesh/Point.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/VisualWorld.h"
 #include "ae/rendering/camera/Camera.h"
@@ -73,23 +73,23 @@ enum class MaterialPropertyType {
 	Static Prototypes
  *********************************************************************************************/
 
-static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
+static void 		RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 								Node& pointOfView,
 								const DebugOptions& debugOptions,
 								Stats& stats,
-								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
+								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
 								unordered_set<shared_ptr<Texture>>& activeTextures);
-static void 		GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
-														 OpenGLRenderer::GeometryElementGLMapping& glMapping,
-														 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
-												OpenGLRenderer::GeometryElementGLMapping& glMapping,
+static void 		GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+													 OpenGLRenderer::MeshElementGLMapping& glMapping,
+													 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-														   OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-														   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-														   GLuint& glVBO, GLuint& glVAO);
+static void 		GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+													   OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
+													   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+													   GLuint& glVBO, GLuint& glVAO);
 static void 		GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
 											   Program& program,
 											   OpenGLRenderer::LineSetGLMapping& glMapping,
@@ -102,10 +102,10 @@ static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<shared_ptr<Texture>>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
-static void 		BufferGeometryElementVertexData(const GeometryElement& element,
-												   Program& program,
-												   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		BufferSkyboxVertexData(Geometry& skyboxGeometry,
+static void 		BufferMeshElementVertexData(const MeshElement& element,
+											   Program& program,
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void 		BufferLineSetVertexData(LineSet& lineSet,
@@ -136,11 +136,11 @@ static void 		SetMaterialOpenGLState(const Material& material,
 static void	 		SetSkyboxOpenGLState();
 static void 		SetLineSetGLState();
 static void 		SetPointSetGLState();
-static void 		DrawGeometryElement(GeometryElement& element,
-									   Program& program,
-									   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
-									   GLuint vao, GLuint ibo);
-static void 		DrawSkyboxElement(GeometryElement& element,
+static void 		DrawMeshElement(MeshElement& element,
+								   Program& program,
+								   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+								   GLuint vao, GLuint ibo);
+static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
 									 GLuint vao, GLuint ibo);
@@ -156,16 +156,16 @@ static void 		DrawPointSet(PointSet& pointSet,
 								mat4 viewMat,
 								mat4 projectionMat,
 								GLuint glVBO, GLuint glVAO);
-static void 		CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
-												   OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void 		CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+											   OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		CleanupTextureResources(unordered_set<shared_ptr<Texture>>& active,
 										   OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 										   OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
 											OpenGLRenderer::PointSetGLMapping& glMapping);
-static void 		DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
-													OpenGLRenderer::GeometryElementGLMapping& glMapping);
+static void 		DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+												OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		DeleteTextureGLResources(shared_ptr<Texture> texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
@@ -232,11 +232,11 @@ typedef struct {
 
 OpenGLRenderer::OpenGLRenderer():
 		Renderer(),
-		_geometryElementGLMapping(GeometryElementGLMapping()),
+		_meshElementGLMapping(MeshElementGLMapping()),
 		_textureGLMapping(TextureGLMapping()),
 		_lineSetGLMapping(LineSetGLMapping()),
 		_pointSetGLMapping(PointSetGLMapping()),
-		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
+		_activeMeshElements(unordered_set<shared_ptr<MeshElement>>()),
 		_activeTextures(unordered_set<shared_ptr<Texture>>()),
 		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
@@ -246,14 +246,14 @@ OpenGLRenderer::OpenGLRenderer():
 OpenGLRenderer::~OpenGLRenderer() {
 	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
-	_activeGeometryElements.clear();
+	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
-	
-	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
+
+	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
@@ -328,7 +328,7 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								Stats& stats) {
 	Renderer::beginFrame(scene, context, debugOptions, stats);
 
-	_activeGeometryElements.clear();
+	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
@@ -353,8 +353,8 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 //						 Scene::Time(),
 //						 *scene);
 //	}
-	
-	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
+
+	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
@@ -385,19 +385,19 @@ void OpenGLRenderer::render(const Scene& scene,
 
 		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
-			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+			auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 			auto pointOfView = scene.visualWorld()->pointOfView();
 
-			RenderSkybox(skyboxGeometry,
+			RenderSkybox(skyboxMesh,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
-						 _geometryElementGLMapping,
+						 _meshElementGLMapping,
 						 _textureGLMapping,
 						 _activeTextures);
 
 			// save reference for housekeeping
-			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+			_activeMeshElements.emplace(skyboxMesh->elements().front());
 
 		}
 
@@ -416,7 +416,7 @@ void OpenGLRenderer::render(const Scene& scene,
 	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
-void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
+void OpenGLRenderer::render(shared_ptr<Mesh> mesh,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
@@ -426,24 +426,24 @@ void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
 	if (AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
 		// will check dirty bit, and create an AABB lineset if necessary,
-		// and insert into _geometryAABBLineSetMapping
+		// and insert into _meshAABBLineSetMapping
 		
 		GLuint vbo, vao;
-		GetGeometryAABBLineSetVertexDataHandles(geometry,
-												_geometryAABBLineSetMapping,
-												_lineSetGLMapping,
-												vbo, vao);
+		GetMeshAABBLineSetVertexDataHandles(mesh,
+											_meshAABBLineSetMapping,
+											_lineSetGLMapping,
+											vbo, vao);
 
-		render(_geometryAABBLineSetMapping[geometry],
+		render(_meshAABBLineSetMapping[mesh],
 			   modelMat, viewMat, projectionMat);
 	}
 	else {
 		// if there was an AABB lineset, just remove it
-		_geometryAABBLineSetMapping.erase(geometry);
+		_meshAABBLineSetMapping.erase(mesh);
 	}
 }
 
-void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
+void OpenGLRenderer::render(shared_ptr<MeshElement> element,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -456,9 +456,9 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// check and load vertex data if necessary
 
 	GLuint vbo, vao, ibo;
-	GetGeometryElementGLVertexDataHandles(element,
-										  _geometryElementGLMapping,
-										  vbo, vao, ibo);
+	GetMeshElementGLVertexDataHandles(element,
+									  _meshElementGLMapping,
+									  vbo, vao, ibo);
 
 	//auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 	auto wireframe = AE_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
@@ -491,11 +491,11 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 
 	// update
 
-	DrawGeometryElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
-	_activeGeometryElements.emplace(element);
+	_activeMeshElements.emplace(element);
 }
 	
 void OpenGLRenderer::render(shared_ptr<LineSet> lines,
@@ -550,24 +550,24 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	Static
  *********************************************************************************************/
 
-static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
+static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 						 Node& pointOfView,
 						 const DebugOptions& debugOptions,
 						 Stats& stats,
-						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
+						 OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
 						 unordered_set<shared_ptr<Texture>>& activeTextures) {
 	
 	auto program = Program::Skybox();
 	
-	auto element = skyboxGeometry->elements().front();
-	auto material = skyboxGeometry->materials().front();
+	auto element = skyboxMesh->elements().front();
+	auto material = skyboxMesh->materials().front();
 	auto emissiveProperty = material->emission();
 	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
-	GetSkyboxGLVertexDataHandles(skyboxGeometry,
+	GetSkyboxGLVertexDataHandles(skyboxMesh,
 								 elementGLMapping,
 								 vbo, vao, ibo);
 	
@@ -603,28 +603,28 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	
 	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
 	
-	stats.geometries++;
-	stats.polygons += element->faces().size();
 	stats.meshes++;
+	stats.polygons += element->faces().size();
+	stats.elements++;
 }
 	
-static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
-												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
-												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+											  OpenGLRenderer::MeshElementGLMapping& glMapping,
+											  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 
 	if (AE_MASK_CONTAINS(element->dirtyMask(),
-											 GeometryElementDirtyMask::VertexData)) {
-		
-		DeleteGeometryElementGLResources(element, glMapping);
-		
-		BufferGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
+						 MeshElementDirtyMask::VertexData)) {
+
+		DeleteMeshElementGLResources(element, glMapping);
+
+		BufferMeshElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
 		element->dirtyMask(AE_MASK_REMOVE(element->dirtyMask(),
-															  GeometryElementDirtyMask::VertexData));
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -634,29 +634,29 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 	}
 }
 	
-static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
-										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
+static void GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+										 OpenGLRenderer::MeshElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 	//
-	// NOTE: this is essentially exactly the same as GetGeometryElementGLVertexDataHandles()
-	// except if the data needs to be loaded, it uses BufferGeometryElementVertexData() as the
+	// NOTE: this is essentially exactly the same as GetMeshElementGLVertexDataHandles()
+	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
-	auto element = skyboxGeometry->elements().front();
+	auto element = skyboxMesh->elements().front();
 
 	if (AE_MASK_CONTAINS(element->dirtyMask(),
-						 GeometryElementDirtyMask::VertexData)) {
+						 MeshElementDirtyMask::VertexData)) {
+
+		DeleteMeshElementGLResources(element, glMapping);
 		
-		DeleteGeometryElementGLResources(element, glMapping);
-		
-		BufferSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(*skyboxMesh, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
 		element->dirtyMask(AE_MASK_REMOVE(element->dirtyMask(),
-										  GeometryElementDirtyMask::VertexData));
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -730,25 +730,25 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //								glVBO, glVAO);
 //}
 
-static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-													GLuint& glVBO, GLuint& glVAO) {
+static void GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+												OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
+												OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+												GLuint& glVBO, GLuint& glVAO) {
 
 	auto program = Program::Lines();
 
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 
-	if (AE_MASK_CONTAINS(geometry->dirtyMask(),
-									 GeometryDirtyMask::Extent)) {
+	if (AE_MASK_CONTAINS(mesh->dirtyMask(),
+						 MeshDirtyMask::Extent)) {
 
-		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
+		DeleteLineSetGLResources(aabbLineSetMapping[mesh], lineSetGLMapping);
 
-		// construct a new lineset matching the geometry's extent
+		// construct a new lineset matching the mesh's extent
 
-		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
+		AE_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(mesh.get()));
 
-		auto aabb = geometry->aabb();
+		auto aabb = mesh->aabb();
 
 		float xMin = aabb.min.x;
 		float xMax = aabb.max.x;
@@ -782,13 +782,13 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
 		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
 
-		aabbLineSetMapping[geometry] = aabbLineSet;
+		aabbLineSetMapping[mesh] = aabbLineSet;
 
-		geometry->dirtyMask(AE_MASK_REMOVE(geometry->dirtyMask(),
-													   GeometryDirtyMask::Extent));
+		mesh->dirtyMask(AE_MASK_REMOVE(mesh->dirtyMask(),
+									   MeshDirtyMask::Extent));
 	}
 
-	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
+	GetLineSetVertexDataHandles(aabbLineSetMapping[mesh],
 								*program,
 								lineSetGLMapping,
 								glVBO, glVAO);
@@ -881,11 +881,11 @@ static void GetTextureGLTextureHandles(Material& material,
 	}
 }
 	
-static void BufferGeometryElementVertexData(const GeometryElement& element,
-										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void BufferMeshElementVertexData(const MeshElement& element,
+										Program& program,
+										GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering vertex data for geometry element {:p}...", static_cast<const void*>(&element));
+	AE_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -939,15 +939,15 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	//program.unuse();
 }
 
-static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
-								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void BufferSkyboxVertexData(Mesh& skyboxMesh,
+								   Program& program,
+								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	AE_LOG_D("Buffering skybox vertex data...");
 	
 	program.use();
 	
-	auto element = skyboxGeometry.elements().front();
+	auto element = skyboxMesh.elements().front();
 	auto verts = element->vertices();
 	auto faces = element->faces();
 	
@@ -977,13 +977,13 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	//program.unuse();
 }
 
-static void BufferAABBVertexData(Geometry& geometry,
+static void BufferAABBVertexData(Mesh& mesh,
 								 const Program& program,
 								 GLuint& glVBO, GLuint& glVAO) {
 
-	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
+	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&mesh));
 
-	auto aabb = geometry.aabb();
+	auto aabb = mesh.aabb();
 
 	float xMin = aabb.min.x;
 	float xMax = aabb.max.x;
@@ -1643,10 +1643,10 @@ static void SetPointSetGLState() {
 	
 }
 
-static void DrawGeometryElement(GeometryElement& element,
-								Program& program,
-								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
-								GLuint vao, GLuint ibo) {
+static void DrawMeshElement(MeshElement& element,
+							Program& program,
+							mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+							GLuint vao, GLuint ibo) {
 	
 	program.use();
 	
@@ -1664,7 +1664,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
-static void DrawSkyboxElement(GeometryElement& element,
+static void DrawSkyboxElement(MeshElement& element,
 							  Program& program,
 							  Node& pointOfView,
 							  GLuint vao, GLuint ibo) {
@@ -1690,7 +1690,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 	
-static void DrawAABB(Geometry& geometry,
+static void DrawAABB(Mesh& mesh,
 					 Program& program,
 					 mat4 modelMat,
 					 mat4 viewMat,
@@ -1742,18 +1742,18 @@ static void DrawPointSet(PointSet& pointSet,
 	
 }
 
-static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
-											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+static void CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+										OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of elements used this frame
-	auto activeElementsSorted = vector<shared_ptr<GeometryElement>>();
+	auto activeElementsSorted = vector<shared_ptr<MeshElement>>();
 	activeElementsSorted.reserve(active.size());
 	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
 	sort(activeElementsSorted.begin(), activeElementsSorted.end());
 	
 	// gather sorted vector of elements in the mapping
-	auto storedElementsSorted = vector<shared_ptr<GeometryElement>>();
+	auto storedElementsSorted = vector<shared_ptr<MeshElement>>();
 	storedElementsSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 		storedElementsSorted.emplace_back(it->first);
@@ -1761,8 +1761,8 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 	sort(storedElementsSorted.begin(), storedElementsSorted.end());
 	
 	// find unused elements
-	auto unused = vector<shared_ptr<GeometryElement>>(storedElementsSorted.size());
-	vector<shared_ptr<GeometryElement>>::iterator it;
+	auto unused = vector<shared_ptr<MeshElement>>(storedElementsSorted.size());
+	vector<shared_ptr<MeshElement>>::iterator it;
 	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
 						activeElementsSorted.begin(), activeElementsSorted.end(),
 						unused.begin());
@@ -1770,11 +1770,11 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 	
 	// deallocate unused elements
 	if (unused.size()) {
-		//AE_LOG_D("Deleting GL resources for {} geometry elements...", unused.size());
+		//AE_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<GeometryElement> element = *it;
-			DeleteGeometryElementGLResources(element, glMapping);
+			shared_ptr<MeshElement> element = *it;
+			DeleteMeshElementGLResources(element, glMapping);
 		}
 	}
 	
@@ -1866,13 +1866,13 @@ static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active
 #endif
 }
 
-static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
-											 OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+static void DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+										 OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", static_cast<void*>(element.get()));
+		AE_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element.get()));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1887,7 +1887,7 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 		glMapping.erase(element);
 
 		element->dirtyMask(AE_MASK_REMOVE(element->dirtyMask(),
-															  GeometryElementDirtyMask::VertexData));
+										  MeshElementDirtyMask::VertexData));
 	}
 	
 #endif
@@ -2032,8 +2032,8 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 " draw", stats.averageDrawtime,
 
 			 "nodes", stats.nodes,
-			 "geometries", stats.geometries,
 			 "meshes", stats.meshes,
+			 "elements", stats.elements,
 			 "polygons", stats.polygons,
 			 "lights", stats.lights,
 
@@ -2080,8 +2080,8 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 " draw", stats.averageDrawtime,
 
 			 "nodes", stats.nodes,
-			 "geometries", stats.geometries,
 			 "meshes", stats.meshes,
+			 "elements", stats.elements,
 			 "polygons", stats.polygons,
 			 "lights", stats.lights,
 

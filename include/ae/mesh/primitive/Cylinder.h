@@ -1,22 +1,22 @@
 //
-//  Plane.h
+//  Cylinder.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 10/31/17.
+//  Created by Morgan Davis on 11/8/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Plane_h
-#define Plane_h
+#ifndef Cylinder_h
+#define Cylinder_h
 
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
 	
-	class Plane: public Geometry {
+	class Cylinder: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle
@@ -24,27 +24,25 @@ namespace ae {
 
 	public:
 
-		Plane(float width, float height,
-			  unsigned widthSegements = 1, unsigned heightSegments = 1);
+		Cylinder(float radius, float height, int slices, int segments);
 		
 /*********************************************************************************************
- 	Public
+	Public
  *********************************************************************************************/
 		
-		float 		width() const;
-		float 		height() const;
+		float 	radius() const;
+		float 	height() const;
 		
 /*********************************************************************************************
- 	Private
+	Lifecycle
  *********************************************************************************************/
 
 	private:
 
-		float		_width;
-		float		_height;
+		float 	_radius;
+		float 	_height;
 	};
-	
 }
 
 
-#endif /* Plane_h */
+#endif /* Cylinder_h */

@@ -25,11 +25,11 @@ namespace ae {
 
 	class Camera;
 	class Color;
-	class Geometry;
-	class GeometryElement;
 	class Image;
 	class Light;
 	class Material;
+	class Mesh;
+	class MeshElement;
 	class Node;
 	class Sampler;
 	class Scene;
@@ -44,7 +44,7 @@ namespace ae {
 					 SceneImportOptions options = SceneImportOptions::ImportAll);
 
 		std::shared_ptr<Scene> 				scene();
-		std::shared_ptr<Geometry> 			firstGeometry();
+		std::shared_ptr<Mesh> 				firstMesh();
 
 		const std::filesystem::path&		path() const;
 		SceneImportOptions					options() const;
@@ -55,12 +55,12 @@ namespace ae {
 		void 								visitGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node,
 														  std::shared_ptr<Node> parent);
-		std::shared_ptr<Geometry> 			geometryFromGlFTNode(fastgltf::Asset& asset,
-																  fastgltf::Node& node);
-		std::shared_ptr<Geometry> 			geometryFromGlFTMeshIndex(fastgltf::Asset& asset,
-																	   std::size_t meshIndex);
-		std::shared_ptr<GeometryElement> 	geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
-																			 fastgltf::Primitive& primitive);
+		std::shared_ptr<Mesh> 				meshFromGlFTNode(fastgltf::Asset& asset,
+															  fastgltf::Node& node);
+		std::shared_ptr<Mesh> 				meshFromGlFTMeshIndex(fastgltf::Asset& asset,
+																   std::size_t meshIndex);
+		std::shared_ptr<MeshElement> 		meshElementFromGlFTPrimitive(fastgltf::Asset& asset,
+																		 fastgltf::Primitive& primitive);
 		std::shared_ptr<Material> 			materialFromGlFTPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
 		std::shared_ptr<Texture> 			textureFromGlTFTextureIndex(fastgltf::Asset& asset,
@@ -82,7 +82,7 @@ namespace ae {
 		SceneImportOptions											_options;
 		// TODO: switch these to vectors resized from asset?
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
-		std::map<std::size_t, std::shared_ptr<Geometry>> 			_geometries;
+		std::map<std::size_t, std::shared_ptr<Mesh>> 				_meshes;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
 		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;

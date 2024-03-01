@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/Line.h"
+#include "ae/mesh/Line.h"
 
 #include "ae/Color.h"
 

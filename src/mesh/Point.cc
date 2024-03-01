@@ -6,7 +6,7 @@
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/Point.h"
+#include "ae/mesh/Point.h"
 
 #include "ae/Color.h"
 

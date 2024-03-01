@@ -315,14 +315,14 @@ void PhysicsBody::detachedFromNode(Node* node) {
 	_node = nullptr; // ^^ physicalWorld() relies on old _node
 }
 
-void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshAttachedToNode(Mesh* mesh) {
+	AE_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
 
-	checkAutocreateShape(geometry);
+	checkAutocreateShape(mesh);
 }
 
-void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshDetachedFromNode(Mesh* mesh) {
+	AE_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
 }
 
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
@@ -405,9 +405,9 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 void PhysicsBody::checkAutocreateShape(Node* node) {
 
 	if (!_shape) {
-		if (auto geometry = node->geometry()) {
-			// make a shape based on the geometry
-			checkAutocreateShape(geometry.get());
+		if (auto mesh = node->mesh()) {
+			// make a shape based on the mesh
+			checkAutocreateShape(mesh.get());
 		}
 		else {
 			// make a shape based on the node
@@ -427,24 +427,24 @@ void PhysicsBody::checkAutocreateShape(Node* node) {
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
+void PhysicsBody::checkAutocreateShape(Mesh* mesh) {
 
 	if (!_shape) {
 		if (type() == PhysicsBodyType::Static) {
 			auto shapeType = PhysicsShapeType::ConcavePolyhedron;
-			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
-			shape(make_shared<PhysicsShape>(shapeType, geometry));
+			AE_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
+			shape(make_shared<PhysicsShape>(shapeType, mesh));
 		}
 		else {
 			auto shapeType = PhysicsShapeType::ConvexHull;
-			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
-			shape(make_shared<PhysicsShape>(shapeType, geometry));
+			AE_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
+			shape(make_shared<PhysicsShape>(shapeType, mesh));
 		}
 	}
 	else {
-		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node geometry addition.");
+		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
 	}
 }
 

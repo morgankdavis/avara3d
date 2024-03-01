@@ -10,13 +10,13 @@
 #define Cone_h
 
 
-#include "ae/geometry/Geometry.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
 	
-	class Cone: public Geometry {
+	class Cone: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle

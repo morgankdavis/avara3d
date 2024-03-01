@@ -69,7 +69,7 @@ int main(int argc, const char* argv[]) {
 	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
 	auto planeNode = make_shared<Node>();
 	planeGeo->name("plane");
-	planeNode->geometry(planeGeo);
+	planeNode->mesh(planeGeo);
 	scene->rootNode()->addChild(planeNode);
 	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
 	auto boxGeo = make_shared<Box>(3.0f, 2.0f, 1.0f);
 	auto boxNode = make_shared<Node>();
 	boxGeo->name("box");
-	boxNode->geometry(boxGeo);
+	boxNode->mesh(boxGeo);
 	scene->rootNode()->addChild(boxNode);
 	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
@@ -85,14 +85,14 @@ int main(int argc, const char* argv[]) {
 	auto sphereGeo = make_shared<Sphere>(0.5, 24);
 	auto sphereNode = make_shared<Node>();
 	sphereGeo->name("sphere");
-	sphereNode->geometry(sphereGeo);
+	sphereNode->mesh(sphereGeo);
 	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 
 	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
 	auto torusNode = make_shared<Node>();
 	torusGeo->name("torus");
-	torusNode->geometry(torusGeo);
+	torusNode->mesh(torusGeo);
 	scene->rootNode()->addChild(torusNode);
 	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
@@ -100,7 +100,7 @@ int main(int argc, const char* argv[]) {
 	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 2.0f, 128, 64);
 	auto tubeNode = make_shared<Node>();
 	tubeGeo->name("tube");
-	tubeNode->geometry(tubeGeo);
+	tubeNode->mesh(tubeGeo);
 	scene->rootNode()->addChild(tubeNode);
 	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
@@ -108,7 +108,7 @@ int main(int argc, const char* argv[]) {
 	auto capsuleGeo = make_shared<Capsule>(0.5f, 1.0f, 128, 32, 64);
 	auto capsuleNode = make_shared<Node>();
 	capsuleGeo->name("capsule");
-	capsuleNode->geometry(capsuleGeo);
+	capsuleNode->mesh(capsuleGeo);
 	scene->rootNode()->addChild(capsuleNode);
 	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
@@ -116,7 +116,7 @@ int main(int argc, const char* argv[]) {
 	auto cylinderGeo = make_shared<Cylinder>(0.5f, 2.0f, 128, 64);
 	auto cylinderNode = make_shared<Node>();
 	cylinderGeo->name("cylinder");
-	cylinderNode->geometry(cylinderGeo);
+	cylinderNode->mesh(cylinderGeo);
 	scene->rootNode()->addChild(cylinderNode);
 	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
@@ -125,7 +125,7 @@ int main(int argc, const char* argv[]) {
 	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
 	coneGeo->name("cone");
-	coneNode->geometry(coneGeo);
+	coneNode->mesh(coneGeo);
 	scene->rootNode()->addChild(coneNode);
 	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));

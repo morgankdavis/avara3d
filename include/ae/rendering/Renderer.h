@@ -20,12 +20,12 @@
 
 namespace ae {
 	
-	
-	class Geometry;
-	class GeometryElement;
+
 	class Image;
 	class Line;
 	class Material;
+	class Mesh;
+	class MeshElement;
 	class Point;
 	class RenderContext;
 	class Scene;
@@ -62,13 +62,13 @@ namespace ae {
 		virtual void 						render(const Scene& scene,
 												   const DebugOptions& debugOptions,
 												   Stats& stats);
-		virtual void 						render(std::shared_ptr<Geometry> geometry,
+		virtual void 						render(std::shared_ptr<Mesh> geometry,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DebugOptions& debugOptions,
 												   Stats& stats);
-		virtual void 						render(std::shared_ptr<GeometryElement> element,
+		virtual void 						render(std::shared_ptr<MeshElement> element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,

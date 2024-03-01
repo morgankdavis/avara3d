@@ -1,12 +1,12 @@
 //
-//  GeometryElement.cc
+//  MeshElement.cc
 //	avara-engine
 //
 //  Created by Morgan Davis on 12/23/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 #include <iostream>
 
@@ -25,29 +25,29 @@ using namespace glm;
 	Lifecycle
  *********************************************************************************************/
 
-GeometryElement::GeometryElement(const vector<Vertex>& verticies,
-								 const vector<Face>& faces):
+MeshElement::MeshElement(const vector<Vertex>& verticies,
+						 const vector<Face>& faces):
 		_vertices(verticies),
 		_faces(faces),
-		_dirtyMask(GeometryElementDirtyMask::All) {
+		_dirtyMask(MeshElementDirtyMask::All) {
 		
 }
 
-GeometryElement::~GeometryElement() {
-	AE_LOG_D("Destroying GeometryElement {:p}", static_cast<void*>(this));
+MeshElement::~MeshElement() {
+	AE_LOG_D("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-void GeometryElement::draw(Renderer& renderer,
-						   Material& material,
-						   const mat4& modelMat,
-						   const mat4& viewMat,
-						   const mat4& projectionMat,
-						   const DebugOptions& debugOptions,
-						   Stats& stats) {
+void MeshElement::draw(Renderer& renderer,
+					   Material& material,
+					   const mat4& modelMat,
+					   const mat4& viewMat,
+					   const mat4& projectionMat,
+					   const DebugOptions& debugOptions,
+					   Stats& stats) {
 	
 	renderer.render(shared_from_this(),
 					material,
@@ -57,11 +57,11 @@ void GeometryElement::draw(Renderer& renderer,
 					debugOptions,
 					stats);
 
-	++stats.meshes;
+	++stats.elements;
 	stats.polygons += _faces.size();
 }
 
-void GeometryElement::burnTransform(const mat4& transform, bool normals) {
+void MeshElement::burnTransform(const mat4& transform, bool normals) {
 	for (int v=0; v<_vertices.size(); ++v) {
 		Vertex* vertex = &_vertices[v];
 		vertex->position = vec3(transform * vec4(vertex->position, 1.0f));
@@ -71,18 +71,18 @@ void GeometryElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	AE_MASK_ADD(_dirtyMask, GeometryElementDirtyMask::VertexData);
+	AE_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
 }
 
-const vector<Vertex>& GeometryElement::vertices() const {
+const vector<Vertex>& MeshElement::vertices() const {
 	return _vertices;
 }
 
-const vector<Face>& GeometryElement::faces() const {
+const vector<Face>& MeshElement::faces() const {
 	return _faces;
 }
 
-AABB GeometryElement::aabb(const std::shared_ptr<Node> convertToNode) const {
+AABB MeshElement::aabb(const std::shared_ptr<Node> convertToNode) const {
 
 	static const float maxFloat = numeric_limits<float>::max();
 	static const float minFloat = numeric_limits<float>::min();
@@ -110,17 +110,17 @@ AABB GeometryElement::aabb(const std::shared_ptr<Node> convertToNode) const {
 	return aabb;
 }
 
-glm::vec3 GeometryElement::extent(const std::shared_ptr<Node> convertToNode) const {
-	auto aabb = GeometryElement::aabb(convertToNode);
+glm::vec3 MeshElement::extent(const std::shared_ptr<Node> convertToNode) const {
+	auto aabb = MeshElement::aabb(convertToNode);
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,
 			aabb.max.z - aabb.min.z};
 }
 
-GeometryElementDirtyMask GeometryElement::dirtyMask() const {
+MeshElementDirtyMask MeshElement::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void GeometryElement::dirtyMask(GeometryElementDirtyMask mask) {
+void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 	_dirtyMask = mask;
 }

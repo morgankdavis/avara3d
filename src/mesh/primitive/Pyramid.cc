@@ -6,7 +6,7 @@
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/geometry/primitive/Pyramid.h"
+#include "ae/mesh/primitive/Pyramid.h"
 
 #include <memory>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "generator/generator.hpp"
 
 #include "ae/Types.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 
 
 using namespace ae;
@@ -28,7 +28,7 @@ using namespace std;
 *********************************************************************************************/
 
 Pyramid::Pyramid(float width, float height):
-	Geometry(vector<shared_ptr<GeometryElement>>(), vector<shared_ptr<Material>>()) {
+		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
 
 //	PyramidMesh plane{{width, height}, {1, 1}};
 //

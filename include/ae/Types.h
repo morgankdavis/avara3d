@@ -97,7 +97,7 @@ namespace ae {
 
 	enum class SceneImportOptions : unsigned {
 		None = 					0,
-		ImportGeometries =		1 << 0,
+		ImportMeshes =		1 << 0,
 		ImportMaterials =		1 << 1,
 		ImportLights =			1 << 2,
 		ImportCameras = 		1 << 3,
@@ -105,12 +105,12 @@ namespace ae {
 	};
 	AE_ENABLE_ENUM_MASK_OPS(SceneImportOptions)
 
-	enum class GeometryImportOptions : unsigned {
+	enum class MeshImportOptions : unsigned {
 		None = 					0,
 		ImportMaterials =		1 << 1, // note maps to SceneImportOptions
 		ImportAll =				UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(GeometryImportOptions)
+	AE_ENABLE_ENUM_MASK_OPS(MeshImportOptions)
 
 	enum class FontType : unsigned {
 		Unknown,
@@ -345,8 +345,8 @@ namespace ae {
 		double		averageUsertime;
 
 		unsigned 	nodes;
-		unsigned 	geometries;
 		unsigned 	meshes;
+		unsigned 	elements;
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
@@ -403,19 +403,19 @@ namespace ae {
 	};
 	AE_ENABLE_ENUM_MASK_OPS(NodeDirtyMask)
 
-	enum class GeometryDirtyMask : unsigned {
+	enum class MeshDirtyMask : unsigned {
 		None =					0,
 		Extent =				1 << 0,
 		All = 					UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(GeometryDirtyMask)
+	AE_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
 
-	enum class GeometryElementDirtyMask : unsigned {
+	enum class MeshElementDirtyMask : unsigned {
 		None =					0,
 		VertexData =			1 << 0,
 		All = 					UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(GeometryElementDirtyMask)
+	AE_ENABLE_ENUM_MASK_OPS(MeshElementDirtyMask)
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,

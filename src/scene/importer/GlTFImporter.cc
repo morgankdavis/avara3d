@@ -22,8 +22,8 @@
 #include "ae/Types.h"
 #include "ae/diagnostic/exception/UnsupportedFormat.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/MeshElement.h"
 #include "ae/rendering/Light.h"
 #include "ae/rendering/camera/Camera.h"
 #include "ae/rendering/camera/PerspectiveCamera.h"
@@ -54,7 +54,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 		_path{path},
 		_options{options},
 		_cameras{},
-		_geometries{},
+		_meshes{},
 		_images{},
 		_lights{},
 		_materials{},
@@ -111,12 +111,12 @@ shared_ptr<ae::Scene> GlTFImporter::scene() {
 	return _scene;
 }
 
-shared_ptr<Geometry> GlTFImporter::firstGeometry() {
+shared_ptr<ae::Mesh> GlTFImporter::firstMesh() {
 
-	// unlike scene(), no need to cache the geometry explicitly
-	// because it will quickly be looked up in _geometries
+	// unlike scene(), no need to cache the mesh explicitly
+	// because it will quickly be looked up in _meshes
 
-	shared_ptr<Geometry> geometry = nullptr;
+	shared_ptr<Mesh> mesh = nullptr;
 
 	if (parse()) {
 
@@ -125,10 +125,10 @@ shared_ptr<Geometry> GlTFImporter::firstGeometry() {
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
 
-			geometry = geometryFromGlFTMeshIndex(_asset, 0);
+			mesh = meshFromGlFTMeshIndex(_asset, 0);
 
-			if (geometry) {
-				AE_LOG_I("Done loading geometry.  Time: {}", Scene::Time() - startTime);
+			if (mesh) {
+				AE_LOG_I("Done loading mesh.  Time: {}", Scene::Time() - startTime);
 			}
 		}
 		else {
@@ -136,7 +136,7 @@ shared_ptr<Geometry> GlTFImporter::firstGeometry() {
 		}
 	}
 
-	return geometry;
+	return mesh;
 }
 
 const filesystem::path& GlTFImporter::path() const {
@@ -215,8 +215,8 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	aeNode->transform(TransformFromGlFTNode(node));
 
-	if ((_options & SceneImportOptions::ImportGeometries) != SceneImportOptions::None) {
-		aeNode->geometry(geometryFromGlFTNode(asset, node));
+	if ((_options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
+		aeNode->mesh(meshFromGlFTNode(asset, node));
 	}
 
 	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
@@ -234,27 +234,27 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 	}
 }
 
-shared_ptr<Geometry> GlTFImporter::geometryFromGlFTNode(fastgltf::Asset& asset,
-														fastgltf::Node& node) {
+shared_ptr<ae::Mesh> GlTFImporter::meshFromGlFTNode(fastgltf::Asset& asset,
+													fastgltf::Node& node) {
 	if (auto meshIndex = node.meshIndex) {
-		return geometryFromGlFTMeshIndex(asset, *meshIndex);
+		return meshFromGlFTMeshIndex(asset, *meshIndex);
 	}
 	return nullptr;
 }
 
-shared_ptr<Geometry> GlTFImporter::geometryFromGlFTMeshIndex(fastgltf::Asset& asset,
-															 size_t meshIndex) {
+shared_ptr<ae::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset,
+														 std::size_t meshIndex) {
 
-	if (_geometries.find(meshIndex) == _geometries.end()) {
+	if (_meshes.find(meshIndex) == _meshes.end()) {
 
 		auto& mesh = asset.meshes[meshIndex];
 
-		auto elements = vector<shared_ptr<GeometryElement>>();
+		auto elements = vector<shared_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
 
 		for (auto& primitive: mesh.primitives) {
 
-			auto element = geometryElementFromGlFTPrimitive(asset, primitive);
+			auto element = meshElementFromGlFTPrimitive(asset, primitive);
 			if (element) elements.push_back(element);
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
@@ -264,20 +264,20 @@ shared_ptr<Geometry> GlTFImporter::geometryFromGlFTMeshIndex(fastgltf::Asset& as
 			if (material) materials.push_back(material);
 		}
 
-		auto geometry = make_shared<Geometry>(elements, materials);
-		geometry->name(string(mesh.name));
-		_geometries[meshIndex] = geometry;
-		return geometry;
+		auto aeMesh = make_shared<ae::Mesh>(elements, materials);
+		aeMesh->name(string(mesh.name));
+		_meshes[meshIndex] = aeMesh;
+		return aeMesh;
 	}
 	else {
-		return _geometries[meshIndex];
+		return _meshes[meshIndex];
 	}
 
 	return nullptr;
 }
 
-shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(fastgltf::Asset& asset,
-																			   fastgltf::Primitive& primitive) {
+shared_ptr<ae::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf::Asset& asset,
+																	   fastgltf::Primitive& primitive) {
 
 	// TODO: make this suck less
 
@@ -462,7 +462,7 @@ shared_ptr<ae::GeometryElement> GlTFImporter::geometryElementFromGlFTPrimitive(f
 				}
 			}
 
-			return make_shared<GeometryElement>(verts, faces);
+			return make_shared<MeshElement>(verts, faces);
 		}
 		else {
 			AE_LOG_E("Missing vertex indicies.");
@@ -806,7 +806,7 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-	if ((options & SceneImportOptions::ImportGeometries) != SceneImportOptions::None) {
+	if ((options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
 		gltfOptions |= Options::LoadGLBBuffers
 					   | Options::LoadExternalBuffers
 					   | Options::GenerateMeshIndices;

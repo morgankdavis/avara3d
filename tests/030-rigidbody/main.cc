@@ -163,7 +163,7 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 50.0;
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = Node::NamedNode("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(gridImage);
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -186,7 +186,7 @@ int main(int argc, const char* argv[]) {
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
-	planeNode->geometry()->addMaterial(planeMaterial);
+	planeNode->mesh()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
@@ -202,7 +202,7 @@ int main(int argc, const char* argv[]) {
 
 	// add the palm tree
 
-	palmNode = Node::GeometryNode(GeometryNamed("palm/palm"));
+	palmNode = Node::MeshNode(MeshNamed("palm/palm"));
 	auto palmPhysicsBody = PhysicsBody::StaticBody();
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
@@ -214,7 +214,7 @@ int main(int argc, const char* argv[]) {
 
 	// add the duck
 
-	duckNode = Node::GeometryNode(GeometryNamed("rubber_duck/rubber_duck"));
+	duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
 	AE_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
 	duckNode->position({/*4.5*/0, 25, 0});
 
@@ -231,7 +231,7 @@ int main(int argc, const char* argv[]) {
 //
 //	// #2
 ////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->geometry().get());
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->mesh().get());
 ////	_duckNode->physicsBody()->shape(duckPhysicsShape);
 //
 	// #3
@@ -239,7 +239,7 @@ int main(int argc, const char* argv[]) {
 	duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 //	// #4
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->geometry().get());
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->mesh().get());
 ////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 
 	duckSpinnerNode = make_shared<Node>("duck spinner");
@@ -250,10 +250,10 @@ int main(int argc, const char* argv[]) {
 
 ////	// add the paddle
 ////
-////	_paddleNode = Node::GeometryNode(make_shared<Box>(.5, 5, 20));
+////	_paddleNode = Node::MeshNode(make_shared<Box>(.5, 5, 20));
 ////	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
 ////	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-////	_paddleNode->geometry()->addMaterial(paddleMaterial);
+////	_paddleNode->mesh()->addMaterial(paddleMaterial);
 ////	_paddleNode->position({15 - .25, 2.5, 0});
 ////	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
 //////	paddlePhysicsBody->friction(100);
@@ -581,7 +581,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		if (keysPressed.count(Key::U)) {
 			for (auto &n: scene.rootNode()->children(true)) {
-				auto geometry = n->geometry();
+				auto geometry = n->mesh();
 				if (geometry) {
 					auto physicsBody = n->physicsBody();
 					if (physicsBody && physicsBody->type() != PhysicsBodyType::Static) {
@@ -710,32 +710,32 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 		switch (fruitNum) {
 			case 0: {
-				node = Node::GeometryNode(GeometryNamed("cherries_lod/cherries_lod"));
+				node = Node::MeshNode(MeshNamed("cherries_lod/cherries_lod"));
 				mass = 0.05;
 				break;
 			}
 			case 1: {
-				node = Node::GeometryNode(GeometryNamed("orange_lod/orange"));
+				node = Node::MeshNode(MeshNamed("orange_lod/orange"));
 				mass = 0.185;
 				break;
 			}
 			case 2: {
-				node = Node::GeometryNode(GeometryNamed("pear_lod/pear_lod"));
+				node = Node::MeshNode(MeshNamed("pear_lod/pear_lod"));
 				mass = 0.24;
 				break;
 			}
 			case 3: {
-				node = Node::GeometryNode(GeometryNamed("apple_lod/apple_lod"));
+				node = Node::MeshNode(MeshNamed("apple_lod/apple_lod"));
 				mass = 0.225;
 				break;
 			}
 			case 4: {
-				node = Node::GeometryNode(GeometryNamed("banana_lod/banana_lod"));
+				node = Node::MeshNode(MeshNamed("banana_lod/banana_lod"));
 				mass = 0.14;
 				break;
 			}
 			case 5: {
-				node = Node::GeometryNode(GeometryNamed("pineapple_lod/pineapple_lod"));
+				node = Node::MeshNode(MeshNamed("pineapple_lod/pineapple_lod"));
 				mass = 0.9;
 				break;
 			}
@@ -841,9 +841,9 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 //	//node->addChild(canNode);
 //	auto node = canNode;
 
-	static auto geometry = GeometryNamed("slurm/slurm");
+	static auto geometry = MeshNamed("slurm/slurm");
 
-	auto node = Node::GeometryNode(geometry);
+	auto node = Node::MeshNode(geometry);
 
 	node->position(location);
 	node->rotation(axis, angle);
@@ -925,9 +925,9 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //			node->geometry()->addMaterial(m);
 //		}
 
-		static auto geometry = GeometryNamed("slurm/slurm");
+		static auto geometry = MeshNamed("slurm/slurm");
 
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 
 		node->position(location);
 //		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
@@ -1085,10 +1085,10 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
-	auto node = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
+	auto node = Node::MeshNode(make_shared<Box>(1.0, 1.0, 1.0));
 	auto materialProperty = color;
 	auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
-	node->geometry()->addMaterial(material);
+	node->mesh()->addMaterial(material);
 	node->position(location);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
@@ -1097,7 +1097,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 	physicsBody->friction(0.25);
 
 	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::BoundingBox,
-														 node->geometry().get());
+														 node->mesh().get());
 	physicsBody->shape(physicsShape);
 
 	node->physicsBody(physicsBody);
@@ -1109,15 +1109,15 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 
 shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
-	static auto geometry = GeometryNamed("cardboard_box/cardboard_box");
+	static auto geometry = MeshNamed("cardboard_box/cardboard_box");
 
-	auto node = Node::GeometryNode(geometry);
+	auto node = Node::MeshNode(geometry);
 
 	node->position(location);
 	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-	static auto phyicsShape = make_shared<PhysicsShape>(PhysicsShapeType::BoundingBox, node->geometry().get());
+	static auto phyicsShape = make_shared<PhysicsShape>(PhysicsShapeType::BoundingBox, node->mesh().get());
 	physicsBody->shape(phyicsShape);
 
 	physicsBody->mass(0.1);
@@ -1133,7 +1133,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 void SpawnHACDTeapot(Scene& scene) {
 
 	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 2;
@@ -1141,9 +1141,9 @@ void SpawnHACDTeapot(Scene& scene) {
 	options.maxRecursionDepth = options.maxRecursionDepth / 2;
 	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
 
-	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
+	auto decomposedElements = vector<shared_ptr<MeshElement>>();
 
-	for (auto& element : teapotNode->geometry()->elements()) {
+	for (auto& element : teapotNode->mesh()->elements()) {
 		auto decomposer = ConvexDecomposer(element, options);
 		auto elements = decomposer.decompose();
 		decomposedElements.insert(decomposedElements.begin(),
@@ -1161,8 +1161,8 @@ void SpawnHACDTeapot(Scene& scene) {
 																  randomColorProperty));
 	}
 
-	auto hacdTeapotGeometry = make_shared<Geometry>(decomposedElements, decomposedTeapotMaterials);
-	auto decomposedTeapotNode = Node::GeometryNode(hacdTeapotGeometry);
+	auto hacdTeapotGeometry = make_shared<Mesh>(decomposedElements, decomposedTeapotMaterials);
+	auto decomposedTeapotNode = Node::MeshNode(hacdTeapotGeometry);
 	decomposedTeapotNode->scale(vec3(1.0f) * 20.0f);
 //	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
 	decomposedTeapotNode->position({0, 10, 0});
@@ -1241,10 +1241,10 @@ void AddRing(Scene& scene) {
 														 geometry.get());
 	//auto physicsBody = PhysicsBody::DynamicBody();
 	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-	node->geometry(geometry);
+	node->mesh(geometry);
 	static auto materialProperty = Color::Yellow();
 	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
-	node->geometry()->addMaterial(material);
+	node->mesh()->addMaterial(material);
 	node->physicsBody(physicsBody);
 	node->position({0, 15, 0});
 	scene.rootNode()->addChild(node);
@@ -1258,7 +1258,7 @@ shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name) {
 
 	sphereGeometry->addMaterial(colorMaterial);
 
-	auto node = Node::GeometryNode(sphereGeometry);
+	auto node = Node::MeshNode(sphereGeometry);
 	node->name(name);
 
 	return node;
@@ -1345,7 +1345,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // box
 		auto geometry = make_shared<Box>(1, 1, 1);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1357,7 +1357,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // capsule
 		auto geometry = make_shared<Capsule>(.5, 2, 8, 8, 8);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1369,7 +1369,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // cone
 		auto geometry = make_shared<Cone>(1, 1, 8, 8);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1381,7 +1381,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // cylinder
 		auto geometry = make_shared<Cylinder>(.5, 1, 8, 8);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1393,7 +1393,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // plane
 		auto geometry = make_shared<Plane>(1, 1);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1405,7 +1405,7 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 
 	{ // sphere
 		auto geometry = make_shared<Sphere>(1, 8);
-		auto node = Node::GeometryNode(geometry);
+		auto node = Node::MeshNode(geometry);
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, geometry.get());
 		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 		node->physicsBody(body);
@@ -1581,7 +1581,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		float angle = (float)(TWO_PI / 8.0) * (float)s;
 
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
-		partNode->geometry(visualGeo);
+		partNode->mesh(visualGeo);
 
 		quat rotation = angleAxis(angle, vec3(0, 0, 1));
 		mat4 rotMatrix = mat4_cast(rotation);
@@ -1598,7 +1598,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	auto torusGeometry = make_shared<Torus>(minorRadius+(minorRadius/32.0),
 											majorRadius+(majorRadius/32.0), 128, 128);
-	auto ringVisualNode = Node::GeometryNode(torusGeometry);
+	auto ringVisualNode = Node::MeshNode(torusGeometry);
 
 	auto colorProperty = Color::LightGray();
 	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
@@ -1741,11 +1741,11 @@ void SpawnChainMail(Scene& scene) {
 //auto xShaftGeometry = make_shared<Geometry>(shaftElement);
 //
 ////	auto xArrowNode = Node::NamedNode("x arrow node");
-////	xArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::GeometryNode(coneGeometry)});
+////	xArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::MeshNode(coneGeometry)});
 ////	auto yArrowNode = Node::NamedNode("y arrow node");
-////	yArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::GeometryNode(coneGeometry)});
+////	yArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::MeshNode(coneGeometry)});
 ////	auto zArrowNode = Node::NamedNode("z arrow node");
-////	zArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::GeometryNode(coneGeometry)});
+////	zArrowNode->addChildren({Node::GeometryNode(shaftGeometry), Node::MeshNode(coneGeometry)});
 ////	auto orientationNode = Node::NamedNode("Orientation indicator node");
 ////	orientationNode->addChildren({xArrowNode, yArrowNode, zArrowNode});
 ////	scene->rootNode()->addChild(orientationNode);

@@ -10,7 +10,7 @@
 #define ENABLE_VHACD_IMPLEMENTATION 1
 #include "VHACD.h"
 
-#include "ae/geometry/GeometryElement.h"
+#include "ae/mesh/MeshElement.h"
 #include "ae/diagnostic/logging/Logger.h"
 
 
@@ -23,13 +23,13 @@ using namespace VHACD;
 	Lifecycle
  *********************************************************************************************/
 
-//ConvexDecomposer::ConvexDecomposer(vector<shared_ptr<GeometryElement>>&	elements,
+//ConvexDecomposer::ConvexDecomposer(vector<shared_ptr<MeshElement>>&	elements,
 //								   Options& options,
 //								   bool async) {
 //
 //}
 
-ConvexDecomposer::ConvexDecomposer(shared_ptr<GeometryElement> element,
+ConvexDecomposer::ConvexDecomposer(shared_ptr<MeshElement> element,
 								   Options& options):
 		_sourceElement(element),
 		_options(options) {
@@ -50,7 +50,7 @@ ConvexDecomposer::ConvexDecomposer(shared_ptr<GeometryElement> element,
 //	}
 //}
 
-vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
+vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	VHACD::IVHACD* vhacd = CreateVHACD();
 
@@ -112,7 +112,7 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 
 	auto numHulls = vhacd->GetNConvexHulls();
 
-	auto decomposedElements = vector<shared_ptr<GeometryElement>>();
+	auto decomposedElements = vector<shared_ptr<MeshElement>>();
 	decomposedElements.reserve(numHulls);
 
 	for (int h=0; h<numHulls; ++h) {
@@ -134,7 +134,7 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 			decomposedFaces.push_back({(unsigned)f.mI0, (unsigned)f.mI1, (unsigned)f.mI2});
 		}
 
-		auto decomposedElement = make_shared<GeometryElement>(decomposedVerts, decomposedFaces);
+		auto decomposedElement = make_shared<MeshElement>(decomposedVerts, decomposedFaces);
 		decomposedElements.push_back(decomposedElement);
 	}
 
@@ -236,11 +236,11 @@ vector<shared_ptr<GeometryElement>> ConvexDecomposer::decompose() {
 //	return decomposedElement;
 //}
 
-shared_ptr<GeometryElement> ConvexDecomposer::sourceElement() const {
+shared_ptr<MeshElement> ConvexDecomposer::sourceElement() const {
 	return _sourceElement;
 }
 
-vector<shared_ptr<GeometryElement>> ConvexDecomposer::decomposedElements() const {
+vector<shared_ptr<MeshElement>> ConvexDecomposer::decomposedElements() const {
 	return _decomposedElements;
 }
 

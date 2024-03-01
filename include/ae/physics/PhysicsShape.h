@@ -21,7 +21,7 @@
 namespace ae {
 	
 	
-	class Geometry;
+	class Mesh;
 	class Node;
 	class PhysicsBody;
 	class PhysicalWorld;
@@ -39,10 +39,10 @@ namespace ae {
 
 		using SourceObject = std::variant<
 				std::monostate,
-				Geometry*,
+				Mesh*,
 				Node*>;
 
-		PhysicsShape(PhysicsShapeType type, Geometry* geometry);
+		PhysicsShape(PhysicsShapeType type, Mesh* mesh);
 		PhysicsShape(PhysicsShapeType type, Node* node);
 		~PhysicsShape();
 

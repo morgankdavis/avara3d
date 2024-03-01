@@ -1,26 +1,22 @@
 //
-//  Sphere.h
+//  Box.h
 //	avara-engine
 //
-//  Created by Morgan Davis on 11/6/17.
+//  Created by Morgan Davis on 10/31/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Sphere_h
-#define Sphere_h
+#ifndef Box_h
+#define Box_h
 
 
-#include <vector>
-
-#include "glm/glm.hpp"
-
-#include "ae/geometry/Geometry.h"
-#include "ae/Types.h"
+#include "ae/mesh/Mesh.h"
 
 
 namespace ae {
 
-	class Sphere: public Geometry {
+	
+	class Box: public Mesh {
 
 /*********************************************************************************************
 	Lifecycle
@@ -28,26 +24,29 @@ namespace ae {
 
 	public:
 
-		Sphere(float radius, int segments);
+		// z, x, y?
+		Box(float length, float width, float height,
+			unsigned lengthSegments = 1, unsigned widthSegments = 1, unsigned heightSegments = 1);
 		
 /*********************************************************************************************
- 	Public
+	Public
  *********************************************************************************************/
 
-		float radius() const;
+		float 		length() const;
+		float 		width() const;
+		float 		height() const;
 
 /*********************************************************************************************
-	Private
+	 Private
  *********************************************************************************************/
 
 	private:
 
-		float		_radius;
-
-//		void generateIcosahedron(std::vector<Vertex>& verticies, int subdivision);
-//		void subdivideIcosahedron(std::vector<Vertex>& verticies, glm::vec3 const& A0, glm::vec3 const& B0, glm::vec3 const& C0, int subdivide);
-	};	
+		float		_length;
+		float		_width;
+		float		_height;
+	};
 }
 
 
-#endif /* Sphere_h */
+#endif /* Box_h */

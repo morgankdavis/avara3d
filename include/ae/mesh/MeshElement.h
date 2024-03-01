@@ -1,5 +1,5 @@
 //
-//  GeometryElement.h
+//  MeshElement.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 12/23/16.
@@ -27,7 +27,7 @@ namespace ae {
 	class Renderer;
 
 
-	class GeometryElement : public std::enable_shared_from_this<GeometryElement> {
+	class MeshElement : public std::enable_shared_from_this<MeshElement> {
 		
 /*********************************************************************************************
 	Lifecycle
@@ -35,9 +35,9 @@ namespace ae {
 
 	public:
 
-		GeometryElement(const std::vector<Vertex>& verticies,
-						const std::vector<Face>& faces);
-		~GeometryElement();
+		MeshElement(const std::vector<Vertex>& verticies,
+					const std::vector<Face>& faces);
+		~MeshElement();
 
 /*********************************************************************************************
 	Internal
@@ -60,8 +60,8 @@ namespace ae {
 		AABB								aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
 		glm::vec3 							extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
-		GeometryElementDirtyMask 		dirtyMask() const;
-		void 								dirtyMask(GeometryElementDirtyMask mask);
+		MeshElementDirtyMask 		dirtyMask() const;
+		void 								dirtyMask(MeshElementDirtyMask mask);
 		
 /*********************************************************************************************
 	Protected
@@ -72,7 +72,7 @@ namespace ae {
 		std::vector<Vertex>					_vertices;
 		std::vector<Face>					_faces;
 
-		GeometryElementDirtyMask			_dirtyMask;
+		MeshElementDirtyMask			_dirtyMask;
 	};
 }
 

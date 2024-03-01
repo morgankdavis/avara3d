@@ -65,23 +65,20 @@ int main(int argc, const char* argv[]) {
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 //	auto options = SceneImportOptions::ImportAll;
-//	auto options = SceneImportOptions::ImportGeometries;
-	auto options = SceneImportOptions::ImportGeometries
+//	auto options = SceneImportOptions::ImportMeshes;
+	auto options = SceneImportOptions::ImportMeshes
 				   | SceneImportOptions::ImportMaterials;
-//	auto options = SceneImportOptions::ImportGeometries
+//	auto options = SceneImportOptions::ImportMeshes
 //				   | SceneImportOptions::ImportMaterials
 //				   | SceneImportOptions::ImportLights;
-//	auto options = SceneImportOptions::ImportGeometries
+//	auto options = SceneImportOptions::ImportMeshes
 //				   | SceneImportOptions::ImportMaterials
 //				   | SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 //	auto options = SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = SceneNamed("import_test/import_test",
-								options);
-//	auto testScene = SceneNamed("import_test_white_lights/import_test_white_lights",
-//								options);
+	auto testScene = SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");

@@ -46,8 +46,8 @@ std::shared_ptr<ae::Logger>		logger;
 
 
 shared_ptr<Node>				geometryNode;
-shared_ptr<Geometry> 			geometry;
-vector<shared_ptr<Geometry>> 	geometries;
+shared_ptr<Mesh> 			geometry;
+vector<shared_ptr<Mesh>> 	geometries;
 
 
 int main(int argc, const char* argv[]) {
@@ -126,7 +126,7 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 20.0;
 	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(gridImage);
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -149,7 +149,7 @@ int main(int argc, const char* argv[]) {
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
-	planeNode->geometry()->addMaterial(planeMaterial);
+	planeNode->mesh()->addMaterial(planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
@@ -180,7 +180,7 @@ int main(int argc, const char* argv[]) {
 												  monostate{},
 												  pointLight->color());
 			sphere->addMaterial(material);
-			pointLightNode->geometry(sphere);
+			pointLightNode->mesh(sphere);
 		}
 //
 //		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
@@ -211,26 +211,26 @@ int main(int argc, const char* argv[]) {
 //		auto testGeometry = GeometryNamed("crocus/crocus");
 
 
-	geometries = vector<shared_ptr<Geometry>>{
-			GeometryNamed("apple_lod/apple_lod"),
-			GeometryNamed("banana_lod/banana_lod"),
-			GeometryNamed("cardboard_box/cardboard_box"),
-			GeometryNamed("cartoon_palm_tree/cartoon_palm_tree"),
-			GeometryNamed("cherries_lod/cherries_lod"),
-			GeometryNamed("crocus/crocus"),
-			GeometryNamed("dragon/dragon"),
-			GeometryNamed("island/island"),
-			GeometryNamed("orange_lod/orange_lod"),
-			GeometryNamed("pallet/pallet"),
-			GeometryNamed("palm/palm"),
-			GeometryNamed("palms/palms"),
-			GeometryNamed("pear_lod/pear_lod"),
-			GeometryNamed("pineapple_lod/pineapple_lod"),
-			GeometryNamed("rubber_duck/rubber_duck"),
-			GeometryNamed("siamese/siamese"),
-			GeometryNamed("slurm/slurm"),
-			GeometryNamed("teapot/teapot"),
-			GeometryNamed("tuna/tuna")
+	geometries = vector<shared_ptr<Mesh>>{
+			MeshNamed("apple_lod/apple_lod"),
+			MeshNamed("banana_lod/banana_lod"),
+			MeshNamed("cardboard_box/cardboard_box"),
+			MeshNamed("cartoon_palm_tree/cartoon_palm_tree"),
+			MeshNamed("cherries_lod/cherries_lod"),
+			MeshNamed("crocus/crocus"),
+			MeshNamed("dragon/dragon"),
+			MeshNamed("island/island"),
+			MeshNamed("orange_lod/orange_lod"),
+			MeshNamed("pallet/pallet"),
+			MeshNamed("palm/palm"),
+			MeshNamed("palms/palms"),
+			MeshNamed("pear_lod/pear_lod"),
+			MeshNamed("pineapple_lod/pineapple_lod"),
+			MeshNamed("rubber_duck/rubber_duck"),
+			MeshNamed("siamese/siamese"),
+			MeshNamed("slurm/slurm"),
+			MeshNamed("teapot/teapot"),
+			MeshNamed("tuna/tuna")
 		};
 
 //	auto testGeometry = GeometryNamed("apple_lod/apple_lod");
@@ -256,7 +256,7 @@ int main(int argc, const char* argv[]) {
 
 
 	auto geometry = geometries[0];
-	geometryNode = Node::GeometryNode(geometry);
+	geometryNode = Node::MeshNode(geometry);
 	geometryNode->position({0, 5, 0});
 	scene->rootNode()->addChild(geometryNode);
 
@@ -300,7 +300,7 @@ int main(int argc, const char* argv[]) {
 ////			auto property = make_shared<MaterialProperty>(pointLight->color());
 ////			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 ////			sphere->addMaterial(material);
-////			pointLightNode->geometry(sphere);
+////			pointLightNode->mesh(sphere);
 ////		}
 //
 //		for (auto& node : scene->rootNode()->children(true)) {
@@ -420,14 +420,14 @@ void UpdateCallback(Scene& scene, float time) {
 		auto name = geometry->name();
 		if (name) AE_LOG_D("name: {}", *name);
 		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->geometry(geometry);
+		geometryNode->mesh(geometry);
 	}
 	if (keysPressed.count(Key::RightBracket)) {
 		geometry = geometries[++index];
 		auto name = geometry->name();
 		if (name) AE_LOG_D("name: {}", *name);
 		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->geometry(geometry);
+		geometryNode->mesh(geometry);
 	}
 
 

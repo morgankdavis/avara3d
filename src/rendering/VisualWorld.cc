@@ -11,8 +11,8 @@
 #include "ae/Color.h"
 #include "ae/CubeImage.h"
 #include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/primitive/Box.h"
+#include "ae/mesh/Mesh.h"
+#include "ae/mesh/primitive/Box.h"
 #include "ae/physics/PhysicalWorld.h"
 #include "ae/physics/bullet/BulletWorldProxy.h"
 #include "ae/rendering/Light.h"
@@ -33,7 +33,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property);
+static shared_ptr<Mesh> MakeSkyboxMesh(Material::Property property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -42,7 +42,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 		_background(monostate{}),
-		_skyboxGeometry(nullptr),
+		_skyboxMesh(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
 		_fogDensityExponent(0.0),
@@ -84,14 +84,14 @@ void VisualWorld::background(Material::Property background) {
 			sampler->wrapT(WrapMode::ClampToEdge);
 			sampler->wrapR(WrapMode::ClampToEdge);
 
-			// generate the skybox geometry if it hasn't already been
-			if (!_skyboxGeometry) {
+			// generate the skybox mesh if it hasn't already been
+			if (!_skyboxMesh) {
 				// MKD: u_s_ptr_aliases
-				_skyboxGeometry = MakeSkyboxGeometry(background);
+				_skyboxMesh = MakeSkyboxMesh(background);
 			}
 			else {
-				// we already have the geometry, just update its material
-				_skyboxGeometry->replaceMaterial(0, material);
+				// we already have the mesh, just update its material
+				_skyboxMesh->replaceMaterial(0, material);
 			}
 		}
 	}
@@ -306,8 +306,8 @@ void VisualWorld::draw(const Scene& scene,
 	}
 }
 
-shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
-	return _skyboxGeometry;
+shared_ptr<Mesh> VisualWorld::skyboxMesh() const {
+	return _skyboxMesh;
 }
 
 shared_ptr<Node> VisualWorld::defaultPointOfView() {
@@ -370,14 +370,14 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(Material::Property property) {
+static shared_ptr<Mesh> MakeSkyboxMesh(Material::Property property) {
 
-	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
+	auto mesh = make_shared<Box>(1, 1, 1, 1, 1, 1);
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
-	geometry->addMaterial(material);
+	mesh->addMaterial(material);
 
-	return geometry;
+	return mesh;
 }
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
