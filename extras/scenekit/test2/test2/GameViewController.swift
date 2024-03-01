@@ -28,7 +28,7 @@ class GameViewController: NSViewController {
 
 //		let boxGeo = SCNBox(width: 1, height: 2, length: 3, chamferRadius: 0)
 //		let boxNode = SCNNode()
-//		boxNode.mesh = boxGeo
+//		boxNode.geometry = boxGeo
 //		scene.rootNode.addChildNode(boxNode)
 //		let boxMaterial = SCNMaterial()
 //		boxMaterial.diffuse.contents = NSColor.red
@@ -37,7 +37,7 @@ class GameViewController: NSViewController {
 
 //		let sphereGeo = SCNSphere(radius: 1.0)
 //		let sphereNode = SCNNode()
-//		sphereNode.mesh = sphereGeo
+//		sphereNode.geometry = sphereGeo
 //		scene.rootNode.addChildNode(sphereNode)
 //		let sphereMaterial = SCNMaterial()
 //		sphereMaterial.diffuse.contents = NSColor.red

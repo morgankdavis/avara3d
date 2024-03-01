@@ -27,7 +27,7 @@
         </camera>
     </library_cameras>
     <library_geometries>
-        <mesh id="ID503420720-mesh" name="ID503420720">
+        <geometry id="ID503420720-mesh" name="ID503420720">
             <mesh>
                 <source id="ID503420720-mesh-verts" name="verts">
                     <float_array id="ID503420720-mesh-verts-array" count="24">-0.500000 -0.500000 0.500000 -0.500000 0.500000 0.500000 0.500000 0.500000 0.500000 0.500000 -0.500000 0.500000 0.500000 -0.500000 -0.500000 0.500000 0.500000 -0.500000 -0.500000 0.500000 -0.500000 -0.500000 -0.500000 -0.500000 </float_array>
@@ -73,7 +73,7 @@
                     <p>4 23 3 22 0 21 7 20 </p>
                 </polygons>
             </mesh>
-        </mesh>
+        </geometry>
     </library_geometries>
     <library_visual_scenes>
         <visual_scene id="RootNode" name="RootNode">
