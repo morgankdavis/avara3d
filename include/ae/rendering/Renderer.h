@@ -20,12 +20,12 @@
 
 namespace ae {
 	
-	
-	class Mesh;
-	class MeshElement;
+
 	class Image;
 	class Line;
 	class Material;
+	class Mesh;
+	class MeshElement;
 	class Point;
 	class RenderContext;
 	class Scene;

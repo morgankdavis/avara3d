@@ -96,12 +96,12 @@ int main(int argc, const char* argv[]) {
 	geometry->addMaterial(material);
 	pointLightNode->mesh(geometry);
 
-	auto teapotNode = Node::MeshNode(GeometryNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
 	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::MeshNode(GeometryNamed("dragon/dragon"));
+	auto dragonNode = Node::MeshNode(MeshNamed("dragon/dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 

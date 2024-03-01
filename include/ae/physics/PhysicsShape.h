@@ -42,7 +42,7 @@ namespace ae {
 				Mesh*,
 				Node*>;
 
-		PhysicsShape(PhysicsShapeType type, Mesh* geometry);
+		PhysicsShape(PhysicsShapeType type, Mesh* mesh);
 		PhysicsShape(PhysicsShapeType type, Node* node);
 		~PhysicsShape();
 

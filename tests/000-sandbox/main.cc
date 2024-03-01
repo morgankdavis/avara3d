@@ -212,25 +212,25 @@ int main(int argc, const char* argv[]) {
 
 
 	geometries = vector<shared_ptr<Mesh>>{
-			GeometryNamed("apple_lod/apple_lod"),
-			GeometryNamed("banana_lod/banana_lod"),
-			GeometryNamed("cardboard_box/cardboard_box"),
-			GeometryNamed("cartoon_palm_tree/cartoon_palm_tree"),
-			GeometryNamed("cherries_lod/cherries_lod"),
-			GeometryNamed("crocus/crocus"),
-			GeometryNamed("dragon/dragon"),
-			GeometryNamed("island/island"),
-			GeometryNamed("orange_lod/orange_lod"),
-			GeometryNamed("pallet/pallet"),
-			GeometryNamed("palm/palm"),
-			GeometryNamed("palms/palms"),
-			GeometryNamed("pear_lod/pear_lod"),
-			GeometryNamed("pineapple_lod/pineapple_lod"),
-			GeometryNamed("rubber_duck/rubber_duck"),
-			GeometryNamed("siamese/siamese"),
-			GeometryNamed("slurm/slurm"),
-			GeometryNamed("teapot/teapot"),
-			GeometryNamed("tuna/tuna")
+			MeshNamed("apple_lod/apple_lod"),
+			MeshNamed("banana_lod/banana_lod"),
+			MeshNamed("cardboard_box/cardboard_box"),
+			MeshNamed("cartoon_palm_tree/cartoon_palm_tree"),
+			MeshNamed("cherries_lod/cherries_lod"),
+			MeshNamed("crocus/crocus"),
+			MeshNamed("dragon/dragon"),
+			MeshNamed("island/island"),
+			MeshNamed("orange_lod/orange_lod"),
+			MeshNamed("pallet/pallet"),
+			MeshNamed("palm/palm"),
+			MeshNamed("palms/palms"),
+			MeshNamed("pear_lod/pear_lod"),
+			MeshNamed("pineapple_lod/pineapple_lod"),
+			MeshNamed("rubber_duck/rubber_duck"),
+			MeshNamed("siamese/siamese"),
+			MeshNamed("slurm/slurm"),
+			MeshNamed("teapot/teapot"),
+			MeshNamed("tuna/tuna")
 		};
 
 //	auto testGeometry = GeometryNamed("apple_lod/apple_lod");

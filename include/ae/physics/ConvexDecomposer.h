@@ -64,10 +64,10 @@ namespace ae {
 	Lifecycle
  *********************************************************************************************/
 
-//		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
+//		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
 //						 Options& options,
 //						 bool async);
-//		ConvexDecomposer(std::vector<std::shared_ptr<GeometryElement>>& elements,
+//		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
 //						 Options& options);
 		ConvexDecomposer(std::shared_ptr<MeshElement> element,
 						 Options& options);

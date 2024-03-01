@@ -24,8 +24,8 @@ namespace ae {
 
 
 	class Color;
-	class Mesh;
 	class InputManager;
+	class Mesh;
 	class Node;
 	class PhysicalWorld;
 	class Renderer;

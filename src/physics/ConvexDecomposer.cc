@@ -23,7 +23,7 @@ using namespace VHACD;
 	Lifecycle
  *********************************************************************************************/
 
-//ConvexDecomposer::ConvexDecomposer(vector<shared_ptr<GeometryElement>>&	elements,
+//ConvexDecomposer::ConvexDecomposer(vector<shared_ptr<MeshElement>>&	elements,
 //								   Options& options,
 //								   bool async) {
 //

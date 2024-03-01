@@ -202,7 +202,7 @@ int main(int argc, const char* argv[]) {
 
 	// add the palm tree
 
-	palmNode = Node::MeshNode(GeometryNamed("palm/palm"));
+	palmNode = Node::MeshNode(MeshNamed("palm/palm"));
 	auto palmPhysicsBody = PhysicsBody::StaticBody();
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
@@ -214,7 +214,7 @@ int main(int argc, const char* argv[]) {
 
 	// add the duck
 
-	duckNode = Node::MeshNode(GeometryNamed("rubber_duck/rubber_duck"));
+	duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
 	AE_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
 	duckNode->position({/*4.5*/0, 25, 0});
 
@@ -710,32 +710,32 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
 
 		switch (fruitNum) {
 			case 0: {
-				node = Node::MeshNode(GeometryNamed("cherries_lod/cherries_lod"));
+				node = Node::MeshNode(MeshNamed("cherries_lod/cherries_lod"));
 				mass = 0.05;
 				break;
 			}
 			case 1: {
-				node = Node::MeshNode(GeometryNamed("orange_lod/orange"));
+				node = Node::MeshNode(MeshNamed("orange_lod/orange"));
 				mass = 0.185;
 				break;
 			}
 			case 2: {
-				node = Node::MeshNode(GeometryNamed("pear_lod/pear_lod"));
+				node = Node::MeshNode(MeshNamed("pear_lod/pear_lod"));
 				mass = 0.24;
 				break;
 			}
 			case 3: {
-				node = Node::MeshNode(GeometryNamed("apple_lod/apple_lod"));
+				node = Node::MeshNode(MeshNamed("apple_lod/apple_lod"));
 				mass = 0.225;
 				break;
 			}
 			case 4: {
-				node = Node::MeshNode(GeometryNamed("banana_lod/banana_lod"));
+				node = Node::MeshNode(MeshNamed("banana_lod/banana_lod"));
 				mass = 0.14;
 				break;
 			}
 			case 5: {
-				node = Node::MeshNode(GeometryNamed("pineapple_lod/pineapple_lod"));
+				node = Node::MeshNode(MeshNamed("pineapple_lod/pineapple_lod"));
 				mass = 0.9;
 				break;
 			}
@@ -841,7 +841,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 //	//node->addChild(canNode);
 //	auto node = canNode;
 
-	static auto geometry = GeometryNamed("slurm/slurm");
+	static auto geometry = MeshNamed("slurm/slurm");
 
 	auto node = Node::MeshNode(geometry);
 
@@ -925,7 +925,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //			node->geometry()->addMaterial(m);
 //		}
 
-		static auto geometry = GeometryNamed("slurm/slurm");
+		static auto geometry = MeshNamed("slurm/slurm");
 
 		auto node = Node::MeshNode(geometry);
 
@@ -1109,7 +1109,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> co
 
 shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
-	static auto geometry = GeometryNamed("cardboard_box/cardboard_box");
+	static auto geometry = MeshNamed("cardboard_box/cardboard_box");
 
 	auto node = Node::MeshNode(geometry);
 
@@ -1133,7 +1133,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 void SpawnHACDTeapot(Scene& scene) {
 
 	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-	auto teapotNode = Node::MeshNode(GeometryNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 2;

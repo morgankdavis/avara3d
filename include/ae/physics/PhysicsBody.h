@@ -188,7 +188,7 @@ namespace ae {
 	private:
 
 		void 									checkAutocreateShape(Node* node);
-		void 									checkAutocreateShape(Mesh* geometry);
+		void 									checkAutocreateShape(Mesh* mesh);
 
 		void 									checkAddToWorld();
 

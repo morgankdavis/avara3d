@@ -96,7 +96,7 @@ namespace ae {
 													 DebugOptions debugOptions,
 													 Stats& stats);
 
-		std::shared_ptr<Mesh>				skyboxGeometry() const;
+		std::shared_ptr<Mesh>					skyboxMesh() const;
 		std::shared_ptr<Node> 					defaultPointOfView();
 
 /*********************************************************************************************
@@ -106,7 +106,7 @@ namespace ae {
 	private:
 
 		Material::Property						_background;
-		std::shared_ptr<Mesh>				_skyboxGeometry;
+		std::shared_ptr<Mesh>					_skyboxMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;

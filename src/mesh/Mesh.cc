@@ -1,5 +1,5 @@
 //
-//  Geometry.cc
+//  Mesh.cc
 //	avara-engine
 //
 //  Created by Morgan Davis on 10/21/16.
@@ -178,7 +178,7 @@ void Mesh::draw(Renderer& renderer,
 					  debugOptions,
 					  stats);
 
-		++stats.geometries;
+		++stats.meshes;
 	}	
 }
 
@@ -210,11 +210,11 @@ vec3 Mesh::extent(const shared_ptr<Node> convertToNode) const {
 			aabb.max.z - aabb.min.z};
 }
 
-//void Geometry::attachedToNode(shared_ptr<Node> node) {
+//void Mesh::attachedToNode(shared_ptr<Node> node) {
 //	_node = node;
 //}
 //
-//weak_ptr<Node> Geometry::node() const {
+//weak_ptr<Node> Mesh::node() const {
 //	return _node;
 //}
 

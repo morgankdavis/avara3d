@@ -1,5 +1,5 @@
 //
-//  Geometry.h
+//  Mesh.h
 //	avara-engine
 //
 //  Created by Morgan Davis on 10/21/16.

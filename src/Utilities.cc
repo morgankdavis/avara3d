@@ -581,7 +581,6 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 										SceneImportOptions options) {
 
 	return SceneNamed(name, "gltf", options);
-//	return SceneNamed(filesystem::path(name) / filesystem::path(name), "gltf");
 }
 
 shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
@@ -596,16 +595,15 @@ shared_ptr<Scene> ae::utils::SceneNamed(const string& name,
 	return nullptr;
 }
 
-shared_ptr<Mesh> ae::utils::GeometryNamed(const string& name,
-										  MeshImportOptions options) {
+shared_ptr<Mesh> ae::utils::MeshNamed(const string& name,
+									  MeshImportOptions options) {
 
-	return GeometryNamed(name, "gltf", options);
-//	return GeometryNamed(filesystem::path(name) / filesystem::path(name), "obj");
+	return MeshNamed(name, "gltf", options);
 }
 
-shared_ptr<Mesh> ae::utils::GeometryNamed(const string& name,
-										  const string& type,
-										  MeshImportOptions options) {
+shared_ptr<Mesh> ae::utils::MeshNamed(const string& name,
+									  const string& type,
+									  MeshImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {
@@ -685,17 +683,17 @@ void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 	ss << padding << "[NODE] (" << static_cast<const void*>(&n)
 	<< ", " << nodeName << ")" << endl;
 
-	auto geometry = n.mesh();
-	if (geometry) {
-		string geometryName = (geometry->name() ? "\"" + *(geometry->name()) + "\"" : "null");
-		ss << padding << "\t[GEOMETRY] (" << static_cast<const void*>(geometry.get())
-		<< ", " << geometryName << ")" << endl;
+	auto mesh = n.mesh();
+	if (mesh) {
+		string meshName = (mesh->name() ? "\"" + *(mesh->name()) + "\"" : "null");
+		ss << padding << "\t[MESH] (" << static_cast<const void*>(mesh.get())
+		   << ", " << meshName << ")" << endl;
 
-		for (auto& element : geometry->elements()) {
+		for (auto& element : mesh->elements()) {
 			ss << padding << "\t\t[ELEMENT] (" << static_cast<const void*>(element.get())<< ")" << endl;
 		}
 
-		for (auto& material : geometry->materials()) {
+		for (auto& material : mesh->materials()) {
 
 			string properties = "";
 			if (!holds_alternative<monostate>(material->ambient())) properties += "a";

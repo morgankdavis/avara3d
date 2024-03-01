@@ -345,8 +345,8 @@ namespace ae {
 		double		averageUsertime;
 
 		unsigned 	nodes;
-		unsigned 	geometries;
 		unsigned 	meshes;
+		unsigned 	elements;
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
@@ -410,12 +410,12 @@ namespace ae {
 	};
 	AE_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
 
-	enum class GeometryElementDirtyMask : unsigned {
+	enum class MeshElementDirtyMask : unsigned {
 		None =					0,
 		VertexData =			1 << 0,
 		All = 					UINT_MAX
 	};
-	AE_ENABLE_ENUM_MASK_OPS(GeometryElementDirtyMask)
+	AE_ENABLE_ENUM_MASK_OPS(MeshElementDirtyMask)
 
 	enum class MaterialDirtyMask : unsigned {
 		None =					0,

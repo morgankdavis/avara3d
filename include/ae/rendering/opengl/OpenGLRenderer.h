@@ -40,10 +40,10 @@ namespace ae {
 
 	public:
 
-		/* <ae_GeometryElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
-		using GeometryElementGLMapping =
+		/* <ae_MeshElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		using MeshElementGLMapping =
 				std::map<std::shared_ptr<MeshElement>, std::tuple<
-				        unsigned,
+						unsigned,
 						unsigned,
 						unsigned>>;
 
@@ -63,8 +63,8 @@ namespace ae {
 						unsigned,
 						unsigned>>;
 
-		/* <ae_Geometry : set<ae_Line>> */
-		using GeometryAABBLineSetMapping =
+		/* <ae_Mesh : set<ae_Line>> */
+		using MeshAABBLineSetMapping =
 				std::map<std::shared_ptr<Mesh>,
 						std::shared_ptr<LineSet>>;
 
@@ -95,7 +95,7 @@ namespace ae {
 		void 						render(const Scene& scene,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<Mesh> geometry,
+		void 						render(std::shared_ptr<Mesh> mesh,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
@@ -125,17 +125,17 @@ namespace ae {
 
 	private:
 
-		GeometryElementGLMapping 				_geometryElementGLMapping;
+		MeshElementGLMapping 					_meshElementGLMapping;
 		TextureGLMapping						_textureGLMapping;
 		LineSetGLMapping						_lineSetGLMapping;
 		PointSetGLMapping						_pointSetGLMapping;
 
-		GeometryAABBLineSetMapping				_geometryAABBLineSetMapping;
+		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
 
-		std::unordered_set<std::shared_ptr<MeshElement>>	_activeGeometryElements;
-		std::unordered_set<std::shared_ptr<Texture>>			_activeTextures;
-		std::unordered_set<std::shared_ptr<LineSet>>			_activeLineSets;
-		std::unordered_set<std::shared_ptr<PointSet>>			_activePointSets;
+		std::unordered_set<std::shared_ptr<MeshElement>>	_activeMeshElements;
+		std::unordered_set<std::shared_ptr<Texture>>		_activeTextures;
+		std::unordered_set<std::shared_ptr<LineSet>>		_activeLineSets;
+		std::unordered_set<std::shared_ptr<PointSet>>		_activePointSets;
 
 		unsigned								_glEnvironmentUBO;
 		

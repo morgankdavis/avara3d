@@ -1,5 +1,5 @@
 //
-//  GeometryElement.cc
+//  MeshElement.cc
 //	avara-engine
 //
 //  Created by Morgan Davis on 12/23/16.
@@ -29,7 +29,7 @@ MeshElement::MeshElement(const vector<Vertex>& verticies,
 						 const vector<Face>& faces):
 		_vertices(verticies),
 		_faces(faces),
-		_dirtyMask(GeometryElementDirtyMask::All) {
+		_dirtyMask(MeshElementDirtyMask::All) {
 		
 }
 
@@ -57,7 +57,7 @@ void MeshElement::draw(Renderer& renderer,
 					debugOptions,
 					stats);
 
-	++stats.meshes;
+	++stats.elements;
 	stats.polygons += _faces.size();
 }
 
@@ -71,7 +71,7 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
 		}
 	}
 	
-	AE_MASK_ADD(_dirtyMask, GeometryElementDirtyMask::VertexData);
+	AE_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
 }
 
 const vector<Vertex>& MeshElement::vertices() const {
@@ -117,10 +117,10 @@ glm::vec3 MeshElement::extent(const std::shared_ptr<Node> convertToNode) const {
 			aabb.max.z - aabb.min.z};
 }
 
-GeometryElementDirtyMask MeshElement::dirtyMask() const {
+MeshElementDirtyMask MeshElement::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void MeshElement::dirtyMask(GeometryElementDirtyMask mask) {
+void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 	_dirtyMask = mask;
 }

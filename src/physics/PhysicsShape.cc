@@ -29,24 +29,24 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShape::PhysicsShape(PhysicsShapeType type, Mesh* geometry):
-		_sourceObject(geometry),
+PhysicsShape::PhysicsShape(PhysicsShapeType type, Mesh* mesh):
+		_sourceObject(mesh),
 		_bodies({}),
 		_type(type),
 		_proxy(nullptr)
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
-	if (auto name = geometry->name()) {
+	if (auto name = mesh->name()) {
 		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
 				 magic_enum::enum_name(type), *name);
 	}
 	else {
 		AE_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
-				 magic_enum::enum_name(type), static_cast<void*>(geometry));
+				 magic_enum::enum_name(type), static_cast<void*>(mesh));
 	}
 }
 
-// construct a compound shape based on geometries under this node
+// construct a compound shape based on meshes under this node
 PhysicsShape::PhysicsShape(PhysicsShapeType type, Node* node):
 		_sourceObject(node),
 		_bodies({}),
