@@ -2001,11 +2001,11 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		Text("%-14s %.0f fps %s\n" \
+		Text("%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2026,11 +2026,11 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %d %s\n",
 
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 			 "frametime", stats.averageFrametime,
 			 " user", stats.averageUsertime,
 			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
@@ -2045,17 +2045,17 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
-			 " concave polyhedron", stats.concavePolyhedronShapes,
+			 " concave polyh", stats.concavePolyhedronShapes,
 
 			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		Text("%-14s %.0f fps %s\n" \
+		Text("%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
 					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2074,11 +2074,11 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 			 "frametime", stats.averageFrametime,
 			 " user", stats.averageUsertime,
 			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
@@ -2093,7 +2093,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
-			 " concave polyhedron", stats.concavePolyhedronShapes,
+			 " concave polyh", stats.concavePolyhedronShapes,
 
 			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	}
