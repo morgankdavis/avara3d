@@ -177,9 +177,9 @@ void Mesh::draw(Renderer& renderer,
 					  projectionMat,
 					  debugOptions,
 					  stats);
+	}
 
-		stats.meshes++;
-	}	
+	stats.meshes++;
 }
 
 AABB Mesh::aabb(const shared_ptr<Node> convertToNode) const {

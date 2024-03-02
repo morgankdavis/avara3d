@@ -602,10 +602,11 @@ static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 	// update
 	
 	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
-	
-	stats.meshes++;
-	stats.polygons += element->faces().size();
-	stats.elements++;
+
+	// don't count these?
+//	stats.meshes++;
+//	stats.polygons += element->faces().size();
+//	stats.elements++;
 }
 	
 static void GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
