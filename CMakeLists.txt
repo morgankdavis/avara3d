@@ -101,7 +101,7 @@ add_subdirectory(external/imgui-1.90)
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_library(a3d STATIC
+add_library(avara3d STATIC
 		${HEADERS}
 		${SOURCES})
 
@@ -109,55 +109,55 @@ add_library(a3d STATIC
 ### setup a3d environment defines ###
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_definitions(a3d PUBLIC "A3D_DEBUG")
+	target_compile_definitions(avara3d PUBLIC "A3D_DEBUG")
 endif()
 if (DESKTOP)
-	target_compile_definitions(a3d PUBLIC "DESKTOP")
-	target_compile_definitions(a3d PUBLIC "OPENGL_DESKTOP")
+	target_compile_definitions(avara3d PUBLIC "DESKTOP")
+	target_compile_definitions(avara3d PUBLIC "OPENGL_DESKTOP")
 endif()
 if (LINUX)
-	target_compile_definitions(a3d PUBLIC "LINUX")
-	target_compile_definitions(a3d PUBLIC "POSIX")
+	target_compile_definitions(avara3d PUBLIC "LINUX")
+	target_compile_definitions(avara3d PUBLIC "POSIX")
 	if (RPI)
-		target_compile_definitions(a3d PUBLIC "RPI")
-		target_compile_definitions(a3d PUBLIC "OPENGL_ES")
+		target_compile_definitions(avara3d PUBLIC "RPI")
+		target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
 	endif()
 elseif (MACOS)
-	target_compile_definitions(a3d PUBLIC "MACOS")
-	target_compile_definitions(a3d PUBLIC "POSIX")
+	target_compile_definitions(avara3d PUBLIC "MACOS")
+	target_compile_definitions(avara3d PUBLIC "POSIX")
 elseif (WINDOWS)
-	target_compile_definitions(a3d PUBLIC "WINDOWS")
-	#target_compile_definitions(a3d PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
+	target_compile_definitions(avara3d PUBLIC "WINDOWS")
+	#target_compile_definitions(avara3d PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
 elseif (ANDROID)
-	target_compile_definitions(a3d PUBLIC "ANDROID")
-	target_compile_definitions(a3d PUBLIC "POSIX")
-	target_compile_definitions(a3d PUBLIC "OPENGL_ES")
+	target_compile_definitions(avara3d PUBLIC "ANDROID")
+	target_compile_definitions(avara3d PUBLIC "POSIX")
+	target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
 endif()
 
 
 ### add library headers ###
 
-target_include_directories(a3d PUBLIC include)
-target_include_directories(a3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
-target_include_directories(a3d PRIVATE external/generator/include)
-target_include_directories(a3d PRIVATE external/gif-h)
-target_include_directories(a3d PRIVATE external/glew-2.1.0/include)
-target_include_directories(a3d PRIVATE external/glfw-3.4.0/include)
-target_include_directories(a3d PRIVATE external/imgui-1.90)
-target_include_directories(a3d PRIVATE external/imgui-1.90/backends)
-target_include_directories(a3d PRIVATE external/magic_enum-0.9.3/include)
-target_include_directories(a3d PRIVATE external/stb)
-target_include_directories(a3d PRIVATE external/v-hacd-4.1.0)
+target_include_directories(avara3d PUBLIC include)
+target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
+target_include_directories(avara3d PRIVATE external/generator/include)
+target_include_directories(avara3d PRIVATE external/gif-h)
+target_include_directories(avara3d PRIVATE external/glew-2.1.0/include)
+target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
+target_include_directories(avara3d PRIVATE external/imgui-1.90)
+target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
+target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(avara3d PRIVATE external/stb)
+target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 
 
 ### add special defines ###
 
-target_compile_definitions(a3d PUBLIC FMT_HEADER_ONLY)
+target_compile_definitions(avara3d PUBLIC FMT_HEADER_ONLY)
 
 
 ### link a3d to common libraries ###
 
-target_link_libraries(a3d PUBLIC
+target_link_libraries(avara3d PUBLIC
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
@@ -168,7 +168,7 @@ target_link_libraries(a3d PUBLIC
 
 if (DESKTOP)
 
-	target_link_libraries(a3d PUBLIC
+	target_link_libraries(avara3d PUBLIC
 			glew_s
 			glfw)
 
@@ -176,7 +176,7 @@ endif()
 
 if (LINUX)
 
-	target_link_libraries(a3d PUBLIC
+	target_link_libraries(avara3d PUBLIC
 			dl
 			pthread
 			X11
@@ -190,13 +190,13 @@ if (LINUX)
 		find_library(EGL_LIBRARY EGL)
 		find_library(OPENGLES3_LIBRARY GLESv2)
 
-		target_link_libraries(a3d PUBLIC
+		target_link_libraries(avara3d PUBLIC
 				${EGL_LIBRARY}
 				${OPENGLES3_LIBRARY})
 
 	else()
 
-		target_link_libraries(a3d PUBLIC
+		target_link_libraries(avara3d PUBLIC
 				GL)
 
 	endif()
@@ -214,7 +214,7 @@ elseif (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_OPENGL})
 
-	target_link_libraries(a3d PUBLIC
+	target_link_libraries(avara3d PUBLIC
 			${FRAMEWORKS}
 			z)
 
@@ -252,5 +252,5 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
 		DESTINATION ${INSTALL_LEGAL_DIR})
 
-install(TARGETS a3d
+install(TARGETS avara3d
 		DESTINATION ${INSTALL_LIB_DIR})

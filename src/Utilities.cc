@@ -54,6 +54,7 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
+#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
@@ -280,20 +281,30 @@ void a3d::utils::StringReplace(string& str,
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
-	char path[1024];
+	char path[MAX_PATH_LEN];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
+//	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+//	char path[MAX_PATH_LEN];
+//	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, MAX_PATH_LEN)),
+//							 size_t(MAX_PATH_LEN - 1));
+//	if (count >= 0) {
+////		path[count] = '\0';
+//		return std::filesystem::path(path);
+//	}
+
 	char path[1024];
 	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
 		return std::filesystem::path(path);
 	}
+
 #elif defined(WINDOWS)
-	char path[1024];
-	if (GetModuleFileName(NULL, path, 1024)) {
+	char path[MAX_PATH_LEN];
+	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
 		return std::filesystem::path(path);
 	}
 #endif
