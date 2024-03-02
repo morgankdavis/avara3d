@@ -178,7 +178,7 @@ void Mesh::draw(Renderer& renderer,
 					  debugOptions,
 					  stats);
 
-		++stats.meshes;
+		stats.meshes++;
 	}	
 }
 

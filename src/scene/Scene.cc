@@ -235,7 +235,7 @@ void Scene::run() {
 
 		do {
 
-			GetRunTime(Scene::Time(),//time(),
+			GetRunTime(Scene::Time(),
 					   _paused,
 					   runT,
 					   deltaRunT);
@@ -249,9 +249,9 @@ void Scene::run() {
 
 			if (_update) {
 
-				auto updateStartTime = Scene::Time();//time();
+				auto updateStartTime = Scene::Time();
 				(_update)(*this, runT);
-				UpdateUserTimeStats(_stats, updateStartTime, Scene::Time());//time());
+				UpdateUserTimeStats(_stats, updateStartTime, Scene::Time());
 			}
 
 			if (!_paused) {

@@ -883,6 +883,8 @@ void Node::draw(Renderer& renderer,
 				const DebugOptions& debugOptions,
 				Stats& stats) {
 
+	stats.nodes++;
+
 	if (_mesh && !_hidden) {
 
 		_mesh->draw(renderer,
