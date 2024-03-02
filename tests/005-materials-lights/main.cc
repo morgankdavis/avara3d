@@ -44,7 +44,7 @@ constexpr bool 					ORTHO_CAMERA =			false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<a3d::Logger>		logger;
+std::shared_ptr<a3d::Logger>	logger;
 std::shared_ptr<a3d::Node>		pointLightNode;
 
 
@@ -78,6 +78,7 @@ int main(int argc, const char* argv[]) {
 	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
 													 | SceneImportOptions::ImportCameras);
+
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);

@@ -42,35 +42,35 @@ namespace a3d {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void 								draw(Renderer& renderer,
-												 Material& material,
-												 const glm::mat4& modelMat,
-												 const glm::mat4& viewMat,
-												 const glm::mat4& projectionMat,
-												 const DebugOptions& debugOptions,
-												 Stats& stats);
 
-		void 								burnTransform(const glm::mat4& transform,
-														  bool normals);
+		void 							draw(Renderer& renderer,
+											 Material& material,
+											 const glm::mat4& modelMat,
+											 const glm::mat4& viewMat,
+											 const glm::mat4& projectionMat,
+											 const DebugOptions& debugOptions,
+											 Stats& stats);
 
-		const std::vector<Vertex>& 			vertices() const;
-		const std::vector<Face>&			faces() const;
+		void 							burnTransform(const glm::mat4& transform,
+													  bool normals);
 
-		AABB								aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 							extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		const std::vector<Vertex>& 		vertices() const;
+		const std::vector<Face>&		faces() const;
 
-		MeshElementDirtyMask 		dirtyMask() const;
-		void 								dirtyMask(MeshElementDirtyMask mask);
-		
+		AABB							aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 						extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+
+		MeshElementDirtyMask 			dirtyMask() const;
+		void 							dirtyMask(MeshElementDirtyMask mask);
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
 	protected:
 
-		std::vector<Vertex>					_vertices;
-		std::vector<Face>					_faces;
+		std::vector<Vertex>				_vertices;
+		std::vector<Face>				_faces;
 
 		MeshElementDirtyMask			_dirtyMask;
 	};
