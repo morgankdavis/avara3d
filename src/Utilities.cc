@@ -289,6 +289,7 @@ std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 	char path[1024];
 	ssize_t count = readlink("/proc/self/exe", path, 1024);
 	if (count != -1) {
+		path[count] = '\0'; // *** TEMPORARY ***
 		return std::filesystem::path(path);
 	}
 #elif defined(WINDOWS)

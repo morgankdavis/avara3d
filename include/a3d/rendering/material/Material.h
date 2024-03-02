@@ -67,16 +67,16 @@ namespace a3d {
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
 
-		Property 								ambient() const;
+		const Property& 						ambient() const;
 		void									ambient(Property ambient);
 
-		Property 								diffuse() const;
+		const Property& 						diffuse() const;
 		void 									diffuse(Property diffuse);
 
-		Property								specular() const;
+		const Property&							specular() const;
 		void 									specular(Property specular);
 
-		Property								emission() const;
+		const Property&							emission() const;
 		void 									emission(Property emission);
 		
 		float 									specularExponent() const;

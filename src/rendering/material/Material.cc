@@ -124,7 +124,7 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-Material::Property Material::ambient() const {
+const Material::Property& Material::ambient() const {
 	return _ambient;
 }
 
@@ -132,7 +132,7 @@ void Material::ambient(const Property property) {
 	_ambient = property;
 }
 
-Material::Property Material::diffuse() const {
+const Material::Property& Material::diffuse() const {
 	return _diffuse;
 }
 
@@ -140,7 +140,7 @@ void Material::diffuse(Property property) {
 	_diffuse = property;
 }
 
-Material::Property Material::specular() const {
+const Material::Property& Material::specular() const {
 	return _specular;
 }
 
@@ -148,7 +148,7 @@ void Material::specular(Property property) {
 	_specular = property;
 }
 
-Material::Property Material::emission() const {
+const Material::Property& Material::emission() const {
 	return _emission;
 }
 
