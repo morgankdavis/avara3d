@@ -16,6 +16,7 @@
 
 #ifdef WINDOWS
 //#include <windows.h> // PATH_MAX?
+#define NOMINMAX
 #include <stdlib.h> // _MAX_PATH
 #define PATH_MAX _MAX_PATH
 #endif
