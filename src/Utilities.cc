@@ -29,16 +29,18 @@
 
 #ifdef LINUX
 #include <libgen.h>
-//#include <linux/limits.h> // PATH_MAX
+#include <linux/limits.h> // PATH_MAX
 #endif
 
 #ifdef MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <mach-o/dyld.h>
-//#include <sys/syslimits.h> // PATH_MAX
+#include <sys/syslimits.h> // PATH_MAX
 #endif
 
 #ifdef WINDOWS
+// there must be a (much) better way to do this...
+#define PATH_MAX 260
 #include <windows.h>
 #endif
 
@@ -101,7 +103,7 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 	
-	char str[MAX_PATH_LEN];
+	char str[PATH_MAX];
 	snprintf(str, sizeof(str),
 			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
 			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
@@ -279,23 +281,23 @@ void a3d::utils::StringReplace(string& str,
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
-	char path[MAX_PATH_LEN];
+	char path[PATH_MAX];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-	char path[MAX_PATH_LEN];
-	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, MAX_PATH_LEN)),
-							 size_t(MAX_PATH_LEN - 1));
+	char path[PATH_MAX];
+	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)),
+							 size_t(PATH_MAX - 1));
 	if (count >= 0) {
 		path[count] = '\0';
 		return std::filesystem::path(path);
 	}
 #elif defined(WINDOWS)
-	char path[MAX_PATH_LEN];
-	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
@@ -324,13 +326,13 @@ std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifdef POSIX
-	char cwd[MAX_PATH_LEN];
+	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);
 	}
 #else
-	char path[MAX_PATH_LEN];
-	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
