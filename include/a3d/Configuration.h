@@ -26,7 +26,7 @@
 namespace a3d {
 
 	constexpr size_t MAX_DYNAMIC_LIGHTS =	32;
-//	constexpr size_t MAX_PATH_LEN =			PATH_MAX;
+	constexpr size_t MAX_PATH_LEN =			PATH_MAX;
 }
 
 
