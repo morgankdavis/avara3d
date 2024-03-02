@@ -65,7 +65,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
 		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
 
-		logger = make_shared<Logger>("ae", sinks);
+		logger = make_shared<Logger>("a3d", sinks);
 	}
 	return logger;
 }
