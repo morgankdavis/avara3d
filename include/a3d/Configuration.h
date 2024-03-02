@@ -6,10 +6,23 @@
 #define AVARA3D_CONFIGURATION_H
 
 
+#ifdef LINUX
+#include <linux/limits.h> // PATH_MAX
+#endif
+
+#ifdef MACOS
+#include <sys/syslimits.h> // PATH_MAX
+#endif
+
+#ifdef WINDOWS
+#include <windows.h> // PATH_MAX?
+#endif
+
+
 namespace a3d {
 
 	constexpr size_t MAX_DYNAMIC_LIGHTS =	32;
-	constexpr size_t MAX_PATH_LEN =			2048;
+	constexpr size_t MAX_PATH_LEN =			PATH_MAX;
 }
 
 

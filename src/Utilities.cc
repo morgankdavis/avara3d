@@ -27,21 +27,19 @@
 #include <sys/time.h>
 #endif
 
+#ifdef LINUX
+#include <libgen.h>
+//#include <linux/limits.h> // PATH_MAX
+#endif
+
 #ifdef MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <mach-o/dyld.h>
-#endif
-
-#ifdef LINUX
-#include <libgen.h>
+//#include <sys/syslimits.h> // PATH_MAX
 #endif
 
 #ifdef WINDOWS
 #include <windows.h>
-#undef ERROR // see note at LOG_LEVEL
-// C:\...\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\...\ae.vcxproj]
-// C:\...\minwindef.h(193,29): message : expanded from macro 'max' [C:\G...\ae.vcxproj]
-#undef max
 #endif
 
 #ifdef ANDROID
@@ -103,7 +101,7 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 	
-	char str[1024];
+	char str[MAX_PATH_LEN];
 	snprintf(str, sizeof(str),
 			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
 			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
@@ -287,21 +285,14 @@ std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
-//	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-//	char path[MAX_PATH_LEN];
-//	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, MAX_PATH_LEN)),
-//							 size_t(MAX_PATH_LEN - 1));
-//	if (count >= 0) {
-////		path[count] = '\0';
-//		return std::filesystem::path(path);
-//	}
-
-	char path[1024];
-	ssize_t count = readlink("/proc/self/exe", path, 1024);
-	if (count != -1) {
+	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+	char path[MAX_PATH_LEN];
+	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, MAX_PATH_LEN)),
+							 size_t(MAX_PATH_LEN - 1));
+	if (count >= 0) {
+		path[count] = '\0';
 		return std::filesystem::path(path);
 	}
-
 #elif defined(WINDOWS)
 	char path[MAX_PATH_LEN];
 	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
@@ -333,13 +324,13 @@ std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifdef POSIX
-	char cwd[1024];
+	char cwd[MAX_PATH_LEN];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);
 	}
 #else
-	char path[1024];
-	if (GetModuleFileName(NULL, path, 1024)) {
+	char path[MAX_PATH_LEN];
+	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
 		return std::filesystem::path(path);
 	}
 #endif
