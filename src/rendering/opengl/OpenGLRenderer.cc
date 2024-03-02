@@ -847,15 +847,15 @@ static void GetTextureGLTextureHandles(Material& material,
 									 MaterialPropertyType::Emission };
 
 	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
+		auto property = *properties[p];
 
-		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+		if (holds_alternative<shared_ptr<Texture>>(property)) {
 			auto type = types[p];
 
-			auto texture = get<shared_ptr<Texture>>(*property);
+			auto texture = get<shared_ptr<Texture>>(property);
 
 			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
-								 TextureDirtyMask::Contents)) {
+								  TextureDirtyMask::Contents)) {
 
 				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
 
@@ -1244,12 +1244,12 @@ static void SendMaterialUniforms(const Material& material,
 												  MaterialPropertyType::Emission };
 
 	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
+		auto property = *properties[p];
 
-		if (!holds_alternative<monostate>(*property)) {
+		if (!holds_alternative<monostate>(property)) {
 			auto type = types[p];
 
-			SendMaterialPropertyUniforms(*property,
+			SendMaterialPropertyUniforms(property,
 										 type,
 										 glTextureHandles[type],
 										 debugOptions,
@@ -1542,9 +1542,10 @@ static void SetMaterialFilteringOptions(const Material& material,
 												  MaterialPropertyType::Emission };
 
 	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
-		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-			auto texture = get<shared_ptr<Texture>>(*property);
+		auto& property = *properties[p];
+
+		if (holds_alternative<shared_ptr<Texture>>(property)) {
+			auto texture = get<shared_ptr<Texture>>(property);
 			auto type = types[p];
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
