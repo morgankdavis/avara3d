@@ -75,13 +75,9 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-//	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-//													 | SceneImportOptions::ImportMaterials
-//													 | SceneImportOptions::ImportCameras);
-	auto scene = SceneNamed("import_test/import_test", SceneImportOptions::ImportMeshes
-													   | SceneImportOptions::ImportMaterials
-													   | SceneImportOptions::ImportCameras);
-
+	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+													 | SceneImportOptions::ImportMaterials
+													 | SceneImportOptions::ImportCameras);
 
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
@@ -142,22 +138,6 @@ int main(int argc, const char* argv[]) {
 //			scene->rootNode()->addChild(lightNode);
 //		}
 //	}
-
-	int nodes = 0;
-	int meshes = 0;
-	int elements = 0;
-	for (auto& node : scene->rootNode()->children(true)) {
-		nodes++;
-		if (node->mesh()) {
-			meshes++;
-			for (auto& element : node->mesh()->elements()) {
-				elements++;
-			}
-		}
-	}
-	A3D_LOG_I("nodes: {}", nodes);
-	A3D_LOG_I("meshes: {}", meshes);
-	A3D_LOG_I("elements: {}", elements);
 
 	window->open();
 	scene->run();
