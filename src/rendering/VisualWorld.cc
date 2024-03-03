@@ -68,7 +68,7 @@ VisualWorld::~VisualWorld() {
 	Public
  *********************************************************************************************/
 
-Material::Property VisualWorld::background() const {
+const Material::Property& VisualWorld::background() const {
 	return _background;
 }
 

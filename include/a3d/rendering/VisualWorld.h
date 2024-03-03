@@ -49,7 +49,7 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		Material::Property						background() const;
+		const Material::Property&				background() const;
 		void 									background(Material::Property background);
 
 		float 									fogStartDistance() const;

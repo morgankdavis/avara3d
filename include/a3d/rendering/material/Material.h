@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "a3d/Types.h"
 
@@ -26,17 +27,30 @@ namespace a3d {
 
 
 	class Material {
-		
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
 
 		using Property = std::variant<
 				std::monostate,
 				std::shared_ptr<Texture>,
 				std::shared_ptr<Color>>;
+
+		enum class PropertyType {
+			Ambient,
+			Diffuse,
+			Specular,
+			Emission
+		};
+
+		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
+		
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
 
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
@@ -64,48 +78,50 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 				name() const;
-		void 									name(const std::string& name);
+		std::optional<std::string> 			name() const;
+		void 								name(const std::string& name);
 
-		Property 								ambient() const;
-		void									ambient(Property ambient);
+		Property& 							ambient();
+		void								ambient(Property ambient);
 
-		Property 								diffuse() const;
-		void 									diffuse(Property diffuse);
+		Property& 							diffuse();
+		void 								diffuse(Property diffuse);
 
-		Property								specular() const;
-		void 									specular(Property specular);
+		Property&							specular();
+		void 								specular(Property specular);
 
-		Property								emission() const;
-		void 									emission(Property emission);
+		Property&							emission();
+		void 								emission(Property emission);
+
+		PropertyList						properties() const;
+
+		float 								specularExponent() const;
+		void 								specularExponent(float exponent);
 		
-		float 									specularExponent() const;
-		void 									specularExponent(float exponent);
+		bool 								locksAmbientWithDiffuse() const;
+		void 								locksAmbientWithDiffuse(bool flag);
 		
-		bool 									locksAmbientWithDiffuse() const;
-		void 									locksAmbientWithDiffuse(bool flag);
-		
-		bool 									doubleSided() const;
-		void 									doubleSided(bool flag);
+		bool 								doubleSided() const;
+		void 								doubleSided(bool flag);
 
-//		float 									maxAnisotropy() const;
-//		void 									maxAnisotropy(float max);
+//		float 								maxAnisotropy() const;
+//		void 								maxAnisotropy(float max);
 		
-		FillMode 								fillMode() const;
-		void 									fillMode(FillMode mode);
+		FillMode 							fillMode() const;
+		void 								fillMode(FillMode mode);
 		
-		float 									uvScale() const;
-		void 									uvScale(float scale);
+		float 								uvScale() const;
+		void 								uvScale(float scale);
 
-		BlendFunction							blendFunction() const;
-		void 									blendFunction(BlendFunction function);
+		BlendFunction						blendFunction() const;
+		void 								blendFunction(BlendFunction function);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		MaterialDirtyMask 						dirtyMask() const;
-		void 									dirtyMask(MaterialDirtyMask mask);
+		MaterialDirtyMask 					dirtyMask() const;
+		void 								dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
 	Private
@@ -113,22 +129,26 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string>				_name;
+//		void								updatePropertiesList();
 
-		Property								_ambient;
-		Property								_diffuse;
-		Property								_specular;
-		Property								_emission;
+		std::optional<std::string>			_name;
 
-		float 									_specularExponent;
-		bool 									_locksAmbientWithDiffuse;
-		bool 									_doubleSided;
-//		float									_maxAnisotropy;
-		FillMode 								_fillMode;
-		float 									_uvScale;
-		BlendFunction							_blendFunction;
+		Property							_ambient;
+		Property							_diffuse;
+		Property							_specular;
+		Property							_emission;
 
-		MaterialDirtyMask						_dirtyMask;
+//		PropertyList						_properties;
+
+		float 								_specularExponent;
+		bool 								_locksAmbientWithDiffuse;
+		bool 								_doubleSided;
+//		float								_maxAnisotropy;
+		FillMode 							_fillMode;
+		float 								_uvScale;
+		BlendFunction						_blendFunction;
+
+		MaterialDirtyMask					_dirtyMask;
 	};
 }
 

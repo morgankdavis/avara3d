@@ -89,7 +89,10 @@ Material::Material():
 Material::Material(Property ambient,
 				   Property diffuse,
 				   Property specular):
-		Material() {
+		Material()
+		/*_ambient(ambient),
+		_diffuse(diffuse),
+		_specular(specular)*/ {
 
 	_ambient = ambient;
 	_diffuse = diffuse;
@@ -124,15 +127,16 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-Material::Property Material::ambient() const {
+Material::Property& Material::ambient() {
 	return _ambient;
 }
 
 void Material::ambient(const Property property) {
 	_ambient = property;
+//	updatePropertiesList();
 }
 
-Material::Property Material::diffuse() const {
+Material::Property& Material::diffuse() {
 	return _diffuse;
 }
 
@@ -140,7 +144,7 @@ void Material::diffuse(Property property) {
 	_diffuse = property;
 }
 
-Material::Property Material::specular() const {
+Material::Property& Material::specular() {
 	return _specular;
 }
 
@@ -148,12 +152,22 @@ void Material::specular(Property property) {
 	_specular = property;
 }
 
-Material::Property Material::emission() const {
+Material::Property& Material::emission() {
 	return _emission;
 }
 
 void Material::emission(Property property) {
 	_emission = property;
+}
+
+Material::PropertyList Material::properties() const {
+
+	return PropertyList {
+			{ &_ambient, PropertyType::Ambient },
+			{ &_diffuse, PropertyType::Diffuse },
+			{ &_specular, PropertyType::Specular },
+			{ &_emission, PropertyType::Emission }
+	};
 }
 
 float Material::specularExponent() const {

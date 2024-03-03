@@ -440,10 +440,10 @@ string StringFromLogLevel(LogLevel level) {
 	switch (level) {
 		case LogLevel::Trace: 	return "trace";
 		case LogLevel::Debug: 	return "debug";
-		case LogLevel::Info: 		return "info";
-		case LogLevel::Warn: 		return "WARN";
+		case LogLevel::Info: 	return "info";
+		case LogLevel::Warn: 	return "WARN";
 		case LogLevel::Error: 	return "ERROR";
-		case LogLevel::Critical: 	return "CRITICAL";
-		case LogLevel::Off: 		return "off";
+		case LogLevel::Critical: return "CRITICAL";
+		case LogLevel::Off: 	return "off";
 	}
 }
