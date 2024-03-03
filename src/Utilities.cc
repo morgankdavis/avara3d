@@ -277,16 +277,16 @@ void a3d::utils::StringReplace(string& str,
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
-	char path[MAX_PATH_LEN];
+	char path[PATH_MAX];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-	char path[MAX_PATH_LEN];
-	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, MAX_PATH_LEN)),
-							 size_t(MAX_PATH_LEN - 1));
+	char path[PATH_MAX];
+	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)),
+							 size_t(PATH_MAX - 1));
 	if (count >= 0) {
 		path[count] = '\0';
 		return std::filesystem::path(path);
@@ -322,7 +322,7 @@ std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifdef POSIX
-	char cwd[MAX_PATH_LEN];
+	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);
 	}
