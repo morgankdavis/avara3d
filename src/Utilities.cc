@@ -315,7 +315,7 @@ std::optional<std::string> a3d::utils::ExecutableName() {
 	if (execPathStr) {
 		auto execPath = std::filesystem::path(*execPathStr);
 		//if (is_regular_file(execPath)) {
-			return execPath.filename();
+			return execPath.filename().string();
 		//}
 	}
 	return std::nullopt;
