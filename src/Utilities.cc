@@ -8,12 +8,7 @@
 
 #include "a3d/Utilities.h"
 
-#include <algorithm>
-//#ifdef WINDOWS
-//	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-//	#define NOGDI
-//#endif
+//#include <algorithm> // needs to be under windows.h
 #include <ctime>
 #include <fstream>
 #include <memory>
@@ -39,10 +34,12 @@
 #endif
 
 #ifdef WINDOWS
-// there must be a (much) better way to do this...
-#define PATH_MAX 260
 #include <windows.h>
+#define PATH_MAX MAX_PATH
 #endif
+
+#undef max // windows.h defines a 'max'... (we want std::max())
+#include <algorithm> // needs to be under windows.h
 
 #ifdef ANDROID
 #include <android/asset_manager.h>
@@ -54,7 +51,6 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
-#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
@@ -103,7 +99,7 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 	
-	char str[MAX_PATH_LEN];
+	char str[PATH_MAX];
 	snprintf(str, sizeof(str),
 			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
 			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
@@ -296,8 +292,8 @@ std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 		return std::filesystem::path(path);
 	}
 #elif defined(WINDOWS)
-	char path[MAX_PATH_LEN];
-	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
@@ -331,8 +327,8 @@ std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 		return std::filesystem::path(cwd);
 	}
 #else
-	char path[MAX_PATH_LEN];
-	if (GetModuleFileName(NULL, path, MAX_PATH_LEN)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
