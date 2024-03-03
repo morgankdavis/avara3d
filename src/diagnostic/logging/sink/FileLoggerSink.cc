@@ -6,6 +6,7 @@
 
 
 #include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -26,6 +27,10 @@ FileLoggerSink::FileLoggerSink(filesystem::path relPath,
 #if defined(ANDROID)
 	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
 #endif
+
+//	// temporary
+//	A3D_LOG_I("_filepath: {}", _filepath.string());
+//	A3D_LOG_I("parent_path: {}", _filepath.parent_path().string());
 
 	error_code errorCode;
 	filesystem::create_directories(_filepath.parent_path(), errorCode);

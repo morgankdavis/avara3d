@@ -8,8 +8,7 @@
 
 namespace a3d {
 
-	constexpr unsigned 		MAX_DYNAMIC_LIGHTS =		32;
-	constexpr unsigned 		MAX_PATH_LEN =				2048;
+	constexpr size_t MAX_DYNAMIC_LIGHTS =	32;
 }
 
 

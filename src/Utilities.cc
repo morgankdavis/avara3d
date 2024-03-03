@@ -8,12 +8,7 @@
 
 #include "a3d/Utilities.h"
 
-#include <algorithm>
-//#ifdef WINDOWS
-//	// stops "ERROR" macro conflict with LOG_LEVEL::ERROR
-//	// https://stackoverflow.com/questions/27064391/unwanted-header-file-wingdi-h
-//	#define NOGDI
-//#endif
+//#include <algorithm> // needs to be under windows.h
 #include <ctime>
 #include <fstream>
 #include <memory>
@@ -27,22 +22,24 @@
 #include <sys/time.h>
 #endif
 
+#ifdef LINUX
+#include <libgen.h>
+#include <linux/limits.h> // PATH_MAX
+#endif
+
 #ifdef MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <mach-o/dyld.h>
-#endif
-
-#ifdef LINUX
-#include <libgen.h>
+#include <sys/syslimits.h> // PATH_MAX
 #endif
 
 #ifdef WINDOWS
 #include <windows.h>
-#undef ERROR // see note at LOG_LEVEL
-// C:\...\utilities\Utilities.cc(232,14): error : expected unqualified-id [C:\...\ae.vcxproj]
-// C:\...\minwindef.h(193,29): message : expanded from macro 'max' [C:\G...\ae.vcxproj]
-#undef max
+#define PATH_MAX MAX_PATH
 #endif
+
+#undef max // windows.h defines a 'max'... (we want std::max())
+#include <algorithm> // needs to be under windows.h
 
 #ifdef ANDROID
 #include <android/asset_manager.h>
@@ -102,14 +99,14 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 	
-	char str[1024];
+	char str[PATH_MAX];
 	snprintf(str, sizeof(str),
 			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
 			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
 			 m[0][1], m[1][1], m[2][1], m[3][1],
 			 m[0][2], m[1][2], m[2][2], m[3][2],
 			 m[0][3], m[1][3], m[2][3], m[3][3]);
-	
+
 	return (os << str);
 }
 
@@ -153,13 +150,13 @@ string a3d::utils::StringFromTree(Node& root) {
 	stringstream ss;
 	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
 	ss << "[NODE] (" << static_cast<const void*>(&root) << ", " << name << ")" << endl;
-	 
+
 	unsigned depth = 0;
 
 	for (auto& c : root.children(false)) {
 		 StringFromTreeRec(*c, ss, depth+1);
 	}
-	
+
 	return ss.str();
 }
 
@@ -183,25 +180,25 @@ string a3d::utils::DateTimeString() {
 
 #ifdef POSIX
 string a3d::utils::StackTrace(unsigned dropFunctions) {
-	
+
 	auto traceStr = string();
 	static const unsigned MAX_FRAMES = 64;
 
 	void* addrList[MAX_FRAMES];
 	unsigned addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
-	
+
 	if (addrLen != 0) {
 		char** symbolList = backtrace_symbols(addrList, addrLen);
 		for (int x=dropFunctions+1; x<addrLen; ++x) {
 			traceStr += string(symbolList[x]) + "\n";
 		}
-		
+
 		free(symbolList);
 	}
 	else {
 		traceStr = "No stack trace.\n";
 	}
-	
+
 	return traceStr;
 }
 #endif
@@ -225,8 +222,8 @@ float a3d::utils::Uniform(float min, float max) {
 }
 
 bool a3d::utils::Zero(const vec3& v, float tolerance) {
-	return Equal(v.x, 0, tolerance) 
-	&& Equal(v.y, 0, tolerance) 
+	return Equal(v.x, 0, tolerance)
+	&& Equal(v.y, 0, tolerance)
 	&& Equal(v.z, 0, tolerance);
 }
 
@@ -244,15 +241,15 @@ bool a3d::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) 
 }
 
 bool a3d::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance) 
-	&& Equal(a.y, b.y, tolerance) 
+	return Equal(a.x, b.x, tolerance)
+	&& Equal(a.y, b.y, tolerance)
 	&& Equal(a.z, b.z, tolerance);
 }
 
 bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance) 
-	&& Equal(a.y, b.y, tolerance) 
-	&& Equal(a.z, b.z, tolerance) 
+	return Equal(a.x, b.x, tolerance)
+	&& Equal(a.y, b.y, tolerance)
+	&& Equal(a.z, b.z, tolerance)
 	&& Equal(a.w, b.w, tolerance);
 }
 
@@ -280,20 +277,23 @@ void a3d::utils::StringReplace(string& str,
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
-	char path[1024];
+	char path[PATH_MAX];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
 #elif defined(LINUX)
-	char path[1024];
-	ssize_t count = readlink("/proc/self/exe", path, 1024);
-	if (count != -1) {
+	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+	char path[PATH_MAX];
+	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)),
+							 size_t(PATH_MAX - 1));
+	if (count >= 0) {
+		path[count] = '\0';
 		return std::filesystem::path(path);
 	}
 #elif defined(WINDOWS)
-	char path[1024];
-	if (GetModuleFileName(NULL, path, 1024)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
@@ -322,13 +322,13 @@ std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifdef POSIX
-	char cwd[1024];
+	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);
 	}
 #else
-	char path[1024];
-	if (GetModuleFileName(NULL, path, 1024)) {
+	char path[PATH_MAX];
+	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
 	}
 #endif
