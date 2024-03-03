@@ -1966,7 +1966,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		Text("%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
@@ -2016,7 +2016,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		Text("%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
