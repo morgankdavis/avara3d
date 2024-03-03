@@ -46,7 +46,7 @@ namespace a3d {
 			Emission
 		};
 
-		using Properties = std::vector<std::pair<Property*, PropertyType>>;
+		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
 		
 /*********************************************************************************************
 	Public Static
@@ -81,19 +81,19 @@ namespace a3d {
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
 
-		Property 								ambient() const;
+		Property& 								ambient();
 		void									ambient(Property ambient);
 
-		Property 								diffuse() const;
+		Property& 								diffuse();
 		void 									diffuse(Property diffuse);
 
-		Property								specular() const;
+		Property&								specular();
 		void 									specular(Property specular);
 
-		Property								emission() const;
+		Property&								emission();
 		void 									emission(Property emission);
 
-		const Properties 						properties() const;
+		const PropertyList&						properties() const;
 		
 		float 									specularExponent() const;
 		void 									specularExponent(float exponent);
@@ -129,12 +129,16 @@ namespace a3d {
 
 	private:
 
+		void									updatePropertiesList();
+
 		std::optional<std::string>				_name;
 
 		Property								_ambient;
 		Property								_diffuse;
 		Property								_specular;
 		Property								_emission;
+
+		PropertyList							_properties;
 
 		float 									_specularExponent;
 		bool 									_locksAmbientWithDiffuse;

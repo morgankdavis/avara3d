@@ -94,6 +94,8 @@ Material::Material(Property ambient,
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
+
+	updatePropertiesList();
 }
 
 Material::Material(Property ambient,
@@ -106,6 +108,8 @@ Material::Material(Property ambient,
 	_diffuse = diffuse;
 	_specular = specular;
 	_emission = emission;
+
+	updatePropertiesList();
 }
 
 Material::~Material() {
@@ -124,40 +128,52 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-Material::Property Material::ambient() const {
+Material::Property& Material::ambient() {
 	return _ambient;
 }
 
 void Material::ambient(const Property property) {
 	_ambient = property;
+	updatePropertiesList();
 }
 
-Material::Property Material::diffuse() const {
+Material::Property& Material::diffuse() {
 	return _diffuse;
 }
 
 void Material::diffuse(Property property) {
 	_diffuse = property;
+	updatePropertiesList();
 }
 
-Material::Property Material::specular() const {
+Material::Property& Material::specular() {
 	return _specular;
 }
 
 void Material::specular(Property property) {
 	_specular = property;
+	updatePropertiesList();
 }
 
-Material::Property Material::emission() const {
+Material::Property& Material::emission() {
 	return _emission;
 }
 
 void Material::emission(Property property) {
 	_emission = property;
+	updatePropertiesList();
 }
 
-const vector<std::pair<Material::Property*, Material::PropertyType>> Material::properties() const {
-	return vector<Material::Property
+// this is an optimization to avoid copying the Material::Property variant in OpenGLRenderer
+const Material::PropertyList& Material::properties() const {
+
+//	return PropertyList {
+//			{ &_ambient, PropertyType::Ambient },
+//			{ &_diffuse, PropertyType::Diffuse },
+//			{ &_specular, PropertyType::Specular },
+//			{ &_emission, PropertyType::Emission }
+//	};
+	return _properties;
 }
 
 float Material::specularExponent() const {
@@ -246,4 +262,18 @@ MaterialDirtyMask Material::dirtyMask() const {
 
 void Material::dirtyMask(MaterialDirtyMask mask) {
 	_dirtyMask = mask;
+}
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+void Material::updatePropertiesList() {
+
+	_properties = PropertyList {
+			{ &_ambient, PropertyType::Ambient },
+			{ &_diffuse, PropertyType::Diffuse },
+			{ &_specular, PropertyType::Specular },
+			{ &_emission, PropertyType::Emission }
+	};
 }

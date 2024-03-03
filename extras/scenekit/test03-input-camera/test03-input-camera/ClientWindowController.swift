@@ -13,7 +13,7 @@ import SceneKit
 public class ClientWindowController: NSWindowController, NSWindowDelegate {
 
     /*****************************************************************************************************/
-    // MARK:   Properties
+    // MARK:   PropertyList
     /*****************************************************************************************************/
     
     private         var clientSimulationController:     ClientSimulationController

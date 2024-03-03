@@ -61,12 +61,12 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
-enum class MaterialPropertyType {
-	Ambient,
-	Diffuse,
-	Specular,
-	Emission
-};
+//enum class MaterialPropertyType {
+//	Ambient,
+//	Diffuse,
+//	Specular,
+//	Emission
+//};
 
 
 /*********************************************************************************************
@@ -101,7 +101,7 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<shared_ptr<Texture>>& activeTextures,
-											  map<MaterialPropertyType, GLuint>& glTextureHandles);
+											  map<Material::PropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
 											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -115,14 +115,14 @@ static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
 static void 		BufferTexture(const Texture &texture,
-								 MaterialPropertyType type,
+								 Material::PropertyType type,
 								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MaterialPropertyType, GLuint>& glTextureHandles,
+										map<Material::PropertyType, GLuint>& glTextureHandles,
 										const DebugOptions& debugOptions);
 static void 		SendMaterialPropertyUniforms(const Material::Property& property,
-												MaterialPropertyType type,
+												Material::PropertyType type,
 												GLuint glTextureHandle,
 												const DebugOptions& debugOptions,
 												Program& program);
@@ -130,7 +130,7 @@ static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scen
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
-											   map<MaterialPropertyType, GLuint>& glTextureHandles);
+											   map<Material::PropertyType, GLuint>& glTextureHandles);
 static void 		SetMaterialOpenGLState(const Material& material,
 										  const DebugOptions& debugOptions);
 static void	 		SetSkyboxOpenGLState();
@@ -472,7 +472,7 @@ void OpenGLRenderer::render(shared_ptr<MeshElement> element,
 	
 	// and load material contents if necessary
 
-	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
+	auto glTextureHandles = map<Material::PropertyType, GLuint>();
 	GetTextureGLTextureHandles(material,
 							   _textureGLMapping,
 							   _activeTextures,
@@ -573,17 +573,17 @@ static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 	
 	// and load material contents if necessary
 	
-	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
+	auto glTextureHandles = map<Material::PropertyType, GLuint>();
 	GetTextureGLTextureHandles(*material,
 							   textureGLMapping,
 							   activeTextures,
 							   glTextureHandles);
-	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
+	auto emissiveGLTextureHandle = glTextureHandles[Material::PropertyType::Emission];
 	
 	// send material property uniforms
 
 	SendMaterialPropertyUniforms(emissiveProperty,
-								 MaterialPropertyType::Emission,
+								 Material::PropertyType::Emission,
 								 emissiveGLTextureHandle,
 								 debugOptions,
 								 *program);
@@ -832,27 +832,31 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void GetTextureGLTextureHandles(Material& material,
 									   OpenGLRenderer::TextureGLMapping& glMapping,
 									   unordered_set<shared_ptr<Texture>>& activeTextures,
-									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
+									   map<Material::PropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
-	const Material::Property* properties[] = { &material.ambient(),
-											   &material.diffuse(),
-											   &material.specular(),
-											   &material.emission() };
+//	const Material::Property* properties[] = { &material.ambient(),
+//											   &material.diffuse(),
+//											   &material.specular(),
+//											   &material.emission() };
+//
+//	static const MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
+//												  MaterialPropertyType::Diffuse,
+//												  MaterialPropertyType::Specular,
+//												  MaterialPropertyType::Emission };
 
-	static const MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-									 MaterialPropertyType::Diffuse,
-									 MaterialPropertyType::Specular,
-									 MaterialPropertyType::Emission };
+	for (auto [property, type] : material.properties()) {
+//	for (int p = 0; p<4; ++p) {
+//		auto property = *properties[p];
+//		auto pairing = properties[p];
+//		auto property = properties[p].first;
 
-	for (int p = 0; p<4; ++p) {
-		auto property = *properties[p];
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//			auto type = types[p];
+//			auto type = property.se
 
-		if (holds_alternative<shared_ptr<Texture>>(property)) {
-			auto type = types[p];
-
-			auto texture = get<shared_ptr<Texture>>(property);
+			auto texture = get<shared_ptr<Texture>>(*property);
 
 			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
 								  TextureDirtyMask::Contents)) {
@@ -1086,7 +1090,7 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 }
 	
 static void BufferTexture(const Texture &texture,
-						  MaterialPropertyType type,
+						  Material::PropertyType type,
 						  GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
@@ -1221,7 +1225,7 @@ static void BufferTexture(const Texture &texture,
 	
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<MaterialPropertyType, GLuint>& glTextureHandles,
+								 map<Material::PropertyType, GLuint>& glTextureHandles,
 								 const DebugOptions& debugOptions) {
 	
 	// sends uniforms for the Material, and MaterialProperties it has
@@ -1233,23 +1237,24 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
 
-	const Material::Property* properties[] = { &material.ambient(),
-											   &material.diffuse(),
-											   &material.specular(),
-											   &material.emission() };
+//	Material::Property* properties[] = { &material.ambient(),
+//										 &material.diffuse(),
+//										 &material.specular(),
+//										 &material.emission() };
+//
+//	static const Material::PropertyType types[] = { Material::PropertyType::Ambient,
+//												  Material::PropertyType::Diffuse,
+//												  Material::PropertyType::Specular,
+//												  Material::PropertyType::Emission };
 
-	static const MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-												  MaterialPropertyType::Diffuse,
-												  MaterialPropertyType::Specular,
-												  MaterialPropertyType::Emission };
+	for (auto [property, type] : material.properties()) {
+//	for (int p = 0; p<4; ++p) {
+//		auto property = *properties[p];
 
-	for (int p = 0; p<4; ++p) {
-		auto property = *properties[p];
+		if (!holds_alternative<monostate>(*property)) {
+//			auto type = types[p];
 
-		if (!holds_alternative<monostate>(property)) {
-			auto type = types[p];
-
-			SendMaterialPropertyUniforms(property,
+			SendMaterialPropertyUniforms(*property,
 										 type,
 										 glTextureHandles[type],
 										 debugOptions,
@@ -1261,7 +1266,7 @@ static void SendMaterialUniforms(const Material& material,
 }
 
 static void SendMaterialPropertyUniforms(const Material::Property& property,
-										 MaterialPropertyType type,
+										 Material::PropertyType type,
 										 GLuint glTextureHandle,
 										 const DebugOptions& debugOptions,
 										 Program& program) {
@@ -1280,25 +1285,25 @@ static void SendMaterialPropertyUniforms(const Material::Property& property,
 			GLint index;
 
 			switch (type) {
-				case MaterialPropertyType::Ambient:
+				case Material::PropertyType::Ambient:
 					modeUniformName = "ambientMode";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
-				case MaterialPropertyType::Diffuse:
+				case Material::PropertyType::Diffuse:
 					modeUniformName = "diffuseMode";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
-				case MaterialPropertyType::Specular:
+				case Material::PropertyType::Specular:
 					modeUniformName = "specularMode";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
-				case MaterialPropertyType::Emission:
+				case Material::PropertyType::Emission:
 					modeUniformName = "emissionMode";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
@@ -1306,7 +1311,7 @@ static void SendMaterialPropertyUniforms(const Material::Property& property,
 					break;
 				default:
 					cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+						 << static_cast<underlying_type<Material::PropertyType>::type>(type) << endl;
 					return;
 			}
 
@@ -1329,25 +1334,25 @@ static void SendMaterialPropertyUniforms(const Material::Property& property,
 		string colorUniformName;
 
 		switch (type) {
-			case MaterialPropertyType::Ambient:
+			case Material::PropertyType::Ambient:
 				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
-			case MaterialPropertyType::Diffuse:
+			case Material::PropertyType::Diffuse:
 				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
-			case MaterialPropertyType::Specular:
+			case Material::PropertyType::Specular:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
-			case MaterialPropertyType::Emission:
+			case Material::PropertyType::Emission:
 				modeUniformName = "emissionMode";
 				colorUniformName = "colors.emission";
 				break;
 			default:
 				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+					 << static_cast<underlying_type<Material::PropertyType>::type>(type) << endl;
 				return;
 		}
 
@@ -1529,24 +1534,25 @@ static void SetTextureSamplingOptions(Texture& texture,
 }
 	
 static void SetMaterialFilteringOptions(const Material& material,
-										map<MaterialPropertyType, GLuint>& glTextureHandles) {
+										map<Material::PropertyType, GLuint>& glTextureHandles) {
 
-	const Material::Property* properties[] = { &material.ambient(),
-											   &material.diffuse(),
-											   &material.specular(),
-											   &material.emission() };
+//	const Material::Property* properties[] = { &material.ambient(),
+//											   &material.diffuse(),
+//											   &material.specular(),
+//											   &material.emission() };
+//
+//	static const Material::PropertyType types[] = { Material::PropertyType::Ambient,
+//												  Material::PropertyType::Diffuse,
+//												  Material::PropertyType::Specular,
+//												  Material::PropertyType::Emission };
 
-	static const MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-												  MaterialPropertyType::Diffuse,
-												  MaterialPropertyType::Specular,
-												  MaterialPropertyType::Emission };
+	for (auto [property, type] : material.properties()) {
+	//for (int p = 0; p<4; ++p) {
+//		auto& property = *properties[p];
 
-	for (int p = 0; p<4; ++p) {
-		auto& property = *properties[p];
-
-		if (holds_alternative<shared_ptr<Texture>>(property)) {
-			auto texture = get<shared_ptr<Texture>>(property);
-			auto type = types[p];
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+			auto texture = get<shared_ptr<Texture>>(*property);
+//			auto type = types[p];
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
