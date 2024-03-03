@@ -573,14 +573,16 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 //					aeMaterial->maxAnisotropy(strength);
 
 					// heh
-					Material::Property properties[] = { aeMaterial->ambient(),
-														aeMaterial->diffuse(),
-														aeMaterial->specular(),
-														aeMaterial->emission() };
-					for (int p=0; p<4; ++p) {
-						auto property = properties[p];
-						if (holds_alternative<shared_ptr<Texture>>(property)) {
-							auto texture = get<shared_ptr<Texture>>(property);
+//					Material::Property properties[] = { aeMaterial->ambient(),
+//														aeMaterial->diffuse(),
+//														aeMaterial->specular(),
+//														aeMaterial->emission() };
+
+					for (auto [property, type] : aeMaterial->properties()) {
+//					for (int p=0; p<4; ++p) {
+//						auto property = properties[p];
+						if (holds_alternative<shared_ptr<Texture>>(*property)) {
+							auto texture = get<shared_ptr<Texture>>(*property);
 							texture->sampler()->maxAnisotropy(strength);
 						}
 					}
