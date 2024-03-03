@@ -89,13 +89,14 @@ Material::Material():
 Material::Material(Property ambient,
 				   Property diffuse,
 				   Property specular):
-		Material() {
+		Material()
+		/*_ambient(ambient),
+		_diffuse(diffuse),
+		_specular(specular)*/ {
 
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
-
-	updatePropertiesList();
 }
 
 Material::Material(Property ambient,
@@ -108,8 +109,6 @@ Material::Material(Property ambient,
 	_diffuse = diffuse;
 	_specular = specular;
 	_emission = emission;
-
-	updatePropertiesList();
 }
 
 Material::~Material() {
@@ -134,7 +133,7 @@ Material::Property& Material::ambient() {
 
 void Material::ambient(const Property property) {
 	_ambient = property;
-	updatePropertiesList();
+//	updatePropertiesList();
 }
 
 Material::Property& Material::diffuse() {
@@ -143,7 +142,6 @@ Material::Property& Material::diffuse() {
 
 void Material::diffuse(Property property) {
 	_diffuse = property;
-	updatePropertiesList();
 }
 
 Material::Property& Material::specular() {
@@ -152,7 +150,6 @@ Material::Property& Material::specular() {
 
 void Material::specular(Property property) {
 	_specular = property;
-	updatePropertiesList();
 }
 
 Material::Property& Material::emission() {
@@ -161,19 +158,16 @@ Material::Property& Material::emission() {
 
 void Material::emission(Property property) {
 	_emission = property;
-	updatePropertiesList();
 }
 
-// this is an optimization to avoid copying the Material::Property variant in OpenGLRenderer
-const Material::PropertyList& Material::properties() const {
+Material::PropertyList Material::properties() const {
 
-//	return PropertyList {
-//			{ &_ambient, PropertyType::Ambient },
-//			{ &_diffuse, PropertyType::Diffuse },
-//			{ &_specular, PropertyType::Specular },
-//			{ &_emission, PropertyType::Emission }
-//	};
-	return _properties;
+	return PropertyList {
+			{ &_ambient, PropertyType::Ambient },
+			{ &_diffuse, PropertyType::Diffuse },
+			{ &_specular, PropertyType::Specular },
+			{ &_emission, PropertyType::Emission }
+	};
 }
 
 float Material::specularExponent() const {
@@ -262,18 +256,4 @@ MaterialDirtyMask Material::dirtyMask() const {
 
 void Material::dirtyMask(MaterialDirtyMask mask) {
 	_dirtyMask = mask;
-}
-
-/*********************************************************************************************
-	Private
- *********************************************************************************************/
-
-void Material::updatePropertiesList() {
-
-	_properties = PropertyList {
-			{ &_ambient, PropertyType::Ambient },
-			{ &_diffuse, PropertyType::Diffuse },
-			{ &_specular, PropertyType::Specular },
-			{ &_emission, PropertyType::Emission }
-	};
 }

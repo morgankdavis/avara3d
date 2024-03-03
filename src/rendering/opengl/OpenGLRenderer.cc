@@ -836,27 +836,11 @@ static void GetTextureGLTextureHandles(Material& material,
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
-//	const Material::Property* properties[] = { &material.ambient(),
-//											   &material.diffuse(),
-//											   &material.specular(),
-//											   &material.emission() };
-//
-//	static const MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-//												  MaterialPropertyType::Diffuse,
-//												  MaterialPropertyType::Specular,
-//												  MaterialPropertyType::Emission };
-
-	for (auto [property, type] : material.properties()) {
-//	for (int p = 0; p<4; ++p) {
-//		auto property = *properties[p];
-//		auto pairing = properties[p];
-//		auto property = properties[p].first;
+	for (auto& [property, type] : material.properties()) {
 
 		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-//			auto type = types[p];
-//			auto type = property.se
 
-			auto texture = get<shared_ptr<Texture>>(*property);
+			auto& texture = get<shared_ptr<Texture>>(*property);
 
 			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
 								  TextureDirtyMask::Contents)) {
@@ -1237,22 +1221,9 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
 
-//	Material::Property* properties[] = { &material.ambient(),
-//										 &material.diffuse(),
-//										 &material.specular(),
-//										 &material.emission() };
-//
-//	static const Material::PropertyType types[] = { Material::PropertyType::Ambient,
-//												  Material::PropertyType::Diffuse,
-//												  Material::PropertyType::Specular,
-//												  Material::PropertyType::Emission };
-
-	for (auto [property, type] : material.properties()) {
-//	for (int p = 0; p<4; ++p) {
-//		auto property = *properties[p];
+	for (auto& [property, type] : material.properties()) {
 
 		if (!holds_alternative<monostate>(*property)) {
-//			auto type = types[p];
 
 			SendMaterialPropertyUniforms(*property,
 										 type,
@@ -1536,23 +1507,10 @@ static void SetTextureSamplingOptions(Texture& texture,
 static void SetMaterialFilteringOptions(const Material& material,
 										map<Material::PropertyType, GLuint>& glTextureHandles) {
 
-//	const Material::Property* properties[] = { &material.ambient(),
-//											   &material.diffuse(),
-//											   &material.specular(),
-//											   &material.emission() };
-//
-//	static const Material::PropertyType types[] = { Material::PropertyType::Ambient,
-//												  Material::PropertyType::Diffuse,
-//												  Material::PropertyType::Specular,
-//												  Material::PropertyType::Emission };
-
-	for (auto [property, type] : material.properties()) {
-	//for (int p = 0; p<4; ++p) {
-//		auto& property = *properties[p];
+	for (auto& [property, type] : material.properties()) {
 
 		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-			auto texture = get<shared_ptr<Texture>>(*property);
-//			auto type = types[p];
+			auto& texture = get<shared_ptr<Texture>>(*property);
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}

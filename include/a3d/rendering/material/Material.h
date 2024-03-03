@@ -78,50 +78,50 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 				name() const;
-		void 									name(const std::string& name);
+		std::optional<std::string> 			name() const;
+		void 								name(const std::string& name);
 
-		Property& 								ambient();
-		void									ambient(Property ambient);
+		Property& 							ambient();
+		void								ambient(Property ambient);
 
-		Property& 								diffuse();
-		void 									diffuse(Property diffuse);
+		Property& 							diffuse();
+		void 								diffuse(Property diffuse);
 
-		Property&								specular();
-		void 									specular(Property specular);
+		Property&							specular();
+		void 								specular(Property specular);
 
-		Property&								emission();
-		void 									emission(Property emission);
+		Property&							emission();
+		void 								emission(Property emission);
 
-		const PropertyList&						properties() const;
+		PropertyList						properties() const;
+
+		float 								specularExponent() const;
+		void 								specularExponent(float exponent);
 		
-		float 									specularExponent() const;
-		void 									specularExponent(float exponent);
+		bool 								locksAmbientWithDiffuse() const;
+		void 								locksAmbientWithDiffuse(bool flag);
 		
-		bool 									locksAmbientWithDiffuse() const;
-		void 									locksAmbientWithDiffuse(bool flag);
-		
-		bool 									doubleSided() const;
-		void 									doubleSided(bool flag);
+		bool 								doubleSided() const;
+		void 								doubleSided(bool flag);
 
-//		float 									maxAnisotropy() const;
-//		void 									maxAnisotropy(float max);
+//		float 								maxAnisotropy() const;
+//		void 								maxAnisotropy(float max);
 		
-		FillMode 								fillMode() const;
-		void 									fillMode(FillMode mode);
+		FillMode 							fillMode() const;
+		void 								fillMode(FillMode mode);
 		
-		float 									uvScale() const;
-		void 									uvScale(float scale);
+		float 								uvScale() const;
+		void 								uvScale(float scale);
 
-		BlendFunction							blendFunction() const;
-		void 									blendFunction(BlendFunction function);
+		BlendFunction						blendFunction() const;
+		void 								blendFunction(BlendFunction function);
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		MaterialDirtyMask 						dirtyMask() const;
-		void 									dirtyMask(MaterialDirtyMask mask);
+		MaterialDirtyMask 					dirtyMask() const;
+		void 								dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
 	Private
@@ -129,26 +129,26 @@ namespace a3d {
 
 	private:
 
-		void									updatePropertiesList();
+//		void								updatePropertiesList();
 
-		std::optional<std::string>				_name;
+		std::optional<std::string>			_name;
 
-		Property								_ambient;
-		Property								_diffuse;
-		Property								_specular;
-		Property								_emission;
+		Property							_ambient;
+		Property							_diffuse;
+		Property							_specular;
+		Property							_emission;
 
-		PropertyList							_properties;
+//		PropertyList						_properties;
 
-		float 									_specularExponent;
-		bool 									_locksAmbientWithDiffuse;
-		bool 									_doubleSided;
-//		float									_maxAnisotropy;
-		FillMode 								_fillMode;
-		float 									_uvScale;
-		BlendFunction							_blendFunction;
+		float 								_specularExponent;
+		bool 								_locksAmbientWithDiffuse;
+		bool 								_doubleSided;
+//		float								_maxAnisotropy;
+		FillMode 							_fillMode;
+		float 								_uvScale;
+		BlendFunction						_blendFunction;
 
-		MaterialDirtyMask						_dirtyMask;
+		MaterialDirtyMask					_dirtyMask;
 	};
 }
 
