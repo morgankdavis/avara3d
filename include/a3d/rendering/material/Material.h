@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "a3d/Types.h"
 
@@ -26,17 +27,30 @@ namespace a3d {
 
 
 	class Material {
-		
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
 
 		using Property = std::variant<
 				std::monostate,
 				std::shared_ptr<Texture>,
 				std::shared_ptr<Color>>;
+
+		enum class PropertyType {
+			Ambient,
+			Diffuse,
+			Specular,
+			Emission
+		};
+
+		using Properties = std::vector<std::pair<Property*, PropertyType>>;
+		
+/*********************************************************************************************
+	Public Static
+ *********************************************************************************************/
 
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
@@ -67,17 +81,19 @@ namespace a3d {
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
 
-		const Property& 						ambient() const;
+		Property 								ambient() const;
 		void									ambient(Property ambient);
 
-		const Property& 						diffuse() const;
+		Property 								diffuse() const;
 		void 									diffuse(Property diffuse);
 
-		const Property&							specular() const;
+		Property								specular() const;
 		void 									specular(Property specular);
 
-		const Property&							emission() const;
+		Property								emission() const;
 		void 									emission(Property emission);
+
+		const Properties 						properties() const;
 		
 		float 									specularExponent() const;
 		void 									specularExponent(float exponent);
