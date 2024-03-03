@@ -1967,7 +1967,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 	return sortedVector;
 }
-	
+
 void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	using namespace ImGui;
@@ -2003,9 +2003,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
 		Text("%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
 					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -2053,9 +2053,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 	}
 	else {
 		Text("%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
 					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
