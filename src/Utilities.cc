@@ -161,7 +161,8 @@ string a3d::utils::StringFromTree(Node& root) {
 }
 
 string a3d::utils::DateTimeString() {
-	char buffer[128];
+	constexpr size_t BUF_SIZE = 128;
+	char buffer[BUF_SIZE];
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -173,7 +174,7 @@ string a3d::utils::DateTimeString() {
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
 	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
-	sprintf(buffer, "%s.%03d", buffer, milli);
+	snprintf(buffer, BUF_SIZE, "%s.%03d", buffer, milli);
 #endif
 	return string(buffer);
 }
@@ -626,9 +627,10 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 	auto image = context.snapshot();
 	
 	string dateTime = DateTimeString();
-	
-	char filename[256] = "";
-	sprintf(filename, "Snapshot_%s.png", dateTime.c_str());
+
+	constexpr size_t BUF_SIZE = 256;
+	char filename[BUF_SIZE] = "";
+	snprintf(filename, BUF_SIZE, "Snapshot_%s.png", dateTime.c_str());
 	
 	A3D_LOG_I("Saving snapshot '{}'...", filename);
 	
@@ -648,8 +650,9 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 #ifdef ANDROID
 	throw Exception("StartGIFRecording() not supported on Android.");
 #else
-	char filename[256] = "";
-	sprintf(filename, "Recording_%s.gif", DateTimeString().c_str());
+	constexpr size_t BUF_SIZE = 256;
+	char filename[BUF_SIZE] = "";
+	snprintf(filename, BUF_SIZE, "Recording_%s.gif", DateTimeString().c_str());
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto fullPath = *execDir / filename;
