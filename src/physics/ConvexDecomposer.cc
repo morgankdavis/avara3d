@@ -54,8 +54,8 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	VHACD::IVHACD* vhacd = CreateVHACD();
 
-	int aeFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
-	VHACD::FillMode _vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(aeFillModeUnderlying);
+	int a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
+	VHACD::FillMode _vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
 
 	VHACD::IVHACD::Parameters params = {
 			nullptr,
