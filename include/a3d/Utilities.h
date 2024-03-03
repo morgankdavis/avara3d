@@ -70,24 +70,24 @@ namespace a3d {
 	Numeric Utilities
  *********************************************************************************************/
 
-		int Uniform(int min, int max);
-		float Uniform(float min, float max);
+		int 	Uniform(int min, int max);
+		float	Uniform(float min, float max);
 
-		bool Zero(const glm::vec3& v, float tolerance = 0.0001);
-		float Max(const glm::vec3& v);
+		bool 	Zero(const glm::vec3& v, float tolerance = 0.0001);
+		float 	Max(const glm::vec3& v);
 
-		bool Equal(float a, float b, float tolerance = 0.0001);
-		bool Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
-		bool Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
-		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
+		bool 	Equal(float a, float b, float tolerance = 0.0001);
+		bool 	Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
+		bool 	Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
+		bool 	Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 
 /*********************************************************************************************
 	String Utilities
  *********************************************************************************************/
 
-		void StringReplace(std::string& str,
-						   const std::string& oldStr,
-						   const std::string& newStr);
+		void 	StringReplace(std::string& str,
+							  const std::string& oldStr,
+							  const std::string& newStr);
 
 /*********************************************************************************************
 	File Utilities
@@ -96,23 +96,23 @@ namespace a3d {
 		// *** executable and working directories ***
 
 #ifndef ANDROID
-		std::optional<std::filesystem::path> ExecutablePath();
-		std::optional<std::filesystem::path> ExecutableDirectory();
-		std::optional<std::filesystem::path> ExecutableName();
-		std::optional<std::filesystem::path> CurrentWorkingDirectory();
+		std::optional<std::filesystem::path> 	ExecutablePath();
+		std::optional<std::filesystem::path> 	ExecutableDirectory();
+		std::optional<std::string> 				ExecutableName();
+		std::optional<std::filesystem::path> 	CurrentWorkingDirectory();
 #endif
 
 		// *** search paths ***
 
 #ifndef ANDROID
-		std::vector<std::filesystem::path> BaseSearchPaths();
-		std::vector<std::filesystem::path> ShaderSearchPaths();
-		std::vector<std::filesystem::path> SceneSearchPaths();
-		std::vector<std::filesystem::path> ModelSearchPaths();
-		std::vector<std::filesystem::path> ImageSearchPaths();
-		std::vector<std::filesystem::path> FontSearchPaths();
-		std::optional<std::filesystem::path> SearchInPaths(const std::string& filename,
-														   std::vector<std::filesystem::path> paths);
+		std::vector<std::filesystem::path>		BaseSearchPaths();
+		std::vector<std::filesystem::path> 		ShaderSearchPaths();
+		std::vector<std::filesystem::path> 		SceneSearchPaths();
+		std::vector<std::filesystem::path> 		ModelSearchPaths();
+		std::vector<std::filesystem::path> 		ImageSearchPaths();
+		std::vector<std::filesystem::path> 		FontSearchPaths();
+		std::optional<std::filesystem::path> 	SearchInPaths(const std::string& filename,
+															  std::vector<std::filesystem::path> paths);
 #endif
 
 		// *** binary and text files ***
@@ -122,49 +122,49 @@ namespace a3d {
 		std::optional<std::string> TextAsset(const std::string& relPath);
 		std::shared_ptr<Buffer> BinaryAsset(const std::string& relPath);
 #else
-		std::optional<std::string> TextFile(const std::filesystem::path& path);
+		std::optional<std::string> 		TextFile(const std::filesystem::path& path);
 #endif
 
 		// *** shaders ***
 
-		std::optional<std::string> ShaderSource(const std::string& name,
-												const std::string& type);
+		std::optional<std::string> 		ShaderSource(const std::string& name,
+													   const std::string& type);
 
 		// *** fonts ***
 
-		std::shared_ptr<a3d::Font> FontNamed(const std::string& name,
-											 const std::string& type);
+		std::shared_ptr<a3d::Font> 		FontNamed(const std::string& name,
+													const std::string& type);
 
 		// ***  images ***
 
-		std::shared_ptr<a3d::Image> ImageNamed(const std::string& name,
-											   bool flipHorizontal=true,
-											   bool flipVertical=false);
-		std::shared_ptr<a3d::Image> ImageNamed(const std::string& name,
-											   const std::string& type,
-											   bool flipHorizontal=true,
-											   bool flipVertical=false);
-		std::shared_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<a3d::Image> 	ImageNamed(const std::string& name,
+												  bool flipHorizontal=true,
+												  bool flipVertical=false);
+		std::shared_ptr<a3d::Image> 	ImageNamed(const std::string& name,
+												  const std::string& type,
+												  bool flipHorizontal=true,
+												  bool flipVertical=false);
+		std::shared_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name);
 		std::shared_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name,
 													   const std::string& type);
 
 		// *** scenes ***
 
 #ifndef ANDROID
-		std::shared_ptr<a3d::Scene> SceneNamed(const std::string& name,
-											   SceneImportOptions options =
-											   SceneImportOptions::ImportAll);
-		std::shared_ptr<a3d::Scene> SceneNamed(const std::string& name,
-											   const std::string& type,
-											   SceneImportOptions options =
-											   SceneImportOptions::ImportAll);
-		std::shared_ptr<a3d::Mesh> MeshNamed(const std::string &name,
-											 MeshImportOptions options =
-											 MeshImportOptions::ImportMaterials);
-		std::shared_ptr<a3d::Mesh> MeshNamed(const std::string &name,
-											 const std::string &type,
-											 MeshImportOptions options =
-											 MeshImportOptions::ImportMaterials);
+		std::shared_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
+												  SceneImportOptions options =
+												  SceneImportOptions::ImportAll);
+		std::shared_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
+												  const std::string& type,
+												  SceneImportOptions options =
+												  SceneImportOptions::ImportAll);
+		std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
+													MeshImportOptions options =
+													MeshImportOptions::ImportMaterials);
+		std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
+													const std::string &type,
+													MeshImportOptions options =
+													MeshImportOptions::ImportMaterials);
 #endif
 
 /*********************************************************************************************

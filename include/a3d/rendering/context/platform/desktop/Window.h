@@ -13,6 +13,8 @@
 
 
 #include <memory>
+#include <optional>
+#include <string>
 
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/Types.h"
@@ -52,9 +54,10 @@ namespace a3d {
 	public:
 
 		Window(RenderingApi renderAPI,
+			   std::string title,
+			   size_t width,
+			   size_t height,
 			   bool fullScreen,
-			   unsigned width,
-			   unsigned height,
 			   bool useHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);
 
@@ -69,6 +72,9 @@ namespace a3d {
 
 		void 							open();
 		void							close();
+
+		std::string						title() const;
+		void							title(std::string title);
 
 		bool 							cursorCaptured() const;
 		void 							cursorCaptured(bool captured);

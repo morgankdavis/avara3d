@@ -55,7 +55,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
 #else
-		string executableName = utils::ExecutableName()->string();
+		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_shared<StdOutLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
 													/ (executableName + string(".log")));

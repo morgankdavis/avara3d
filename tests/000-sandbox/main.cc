@@ -66,9 +66,10 @@ int main(int argc, const char* argv[]) {
 	auto time = buildInfo.time();
 
 	auto window = make_shared<Window>(RenderingApi::OpenGL,
-									  FULLSCREEN,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  MSAA_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);

@@ -310,7 +310,7 @@ std::optional<std::filesystem::path> a3d::utils::ExecutableDirectory() {
 	return std::nullopt;
 }
 
-std::optional<std::filesystem::path> a3d::utils::ExecutableName() {
+std::optional<std::string> a3d::utils::ExecutableName() {
 	auto execPathStr = ExecutablePath();
 	if (execPathStr) {
 		auto execPath = std::filesystem::path(*execPathStr);

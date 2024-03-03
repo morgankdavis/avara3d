@@ -14,7 +14,6 @@
 #include <iostream>
 #include <sstream>
 
-//#define GLEW_STATIC // added for MinGW build... needed?
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -29,8 +28,8 @@
 #include "a3d/scene/Scene.h"
 
 
-using namespace std;
 using namespace a3d;
+using namespace std;
 
 
 /*********************************************************************************************
@@ -56,9 +55,10 @@ static void 	GLFWErrorCallback(int error,
  *********************************************************************************************/
 
 Window::Window(RenderingApi renderAPI,
+			   string title,
+			   size_t width,
+			   size_t height,
 			   bool fullScreen,
-			   unsigned width,
-			   unsigned height,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
 		RenderContext(renderAPI),
@@ -87,22 +87,24 @@ Window::Window(RenderingApi renderAPI,
 		if (fullScreen) {
 			auto monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width,
-																					 vmode->height,
-																					 "avara3d",
-																					 monitor,
-																					 nullptr));
+			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
+					glfwCreateWindow(vmode->width,
+									 vmode->height,
+									 title.c_str(),
+									 monitor,
+									 nullptr));
 			viewportWidth = vmode->width;
 			viewportHeight = vmode->height;
 
 //			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
-			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(width,
-																					 height,
-																					 "avara3d",
-																					 nullptr,
-																					 nullptr));
+			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
+					glfwCreateWindow(width,
+									 height,
+									 title.c_str(),
+									 nullptr,
+									 nullptr));
 
 
 //			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
@@ -205,6 +207,16 @@ void Window::close() {
 	cursorCaptured(false);
 
 	glfwSetWindowShouldClose(_glfwWindow.get(), true);
+}
+
+string Window::title() const {
+
+	return glfwGetWindowTitle(_glfwWindow.get());
+}
+
+void Window::title(string title) {
+
+	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }
 
 bool Window::cursorCaptured() const {
