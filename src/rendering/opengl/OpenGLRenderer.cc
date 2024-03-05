@@ -1305,7 +1305,7 @@ static void SendMaterialPropertyUniforms(Material::Property& property,
 					index = 3;
 					break;
 				default:
-					cout << "Invalid MATERIAL_PROPERTY_TYPE: "
+					cout << "Invalid MaterialPropertyType: "
 						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 					return;
 			}
@@ -1346,7 +1346,7 @@ static void SendMaterialPropertyUniforms(Material::Property& property,
 				colorUniformName = "colors.emission";
 				break;
 			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
+				cout << "Invalid MaterialPropertyType: "
 					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 				return;
 		}
