@@ -2094,7 +2094,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, Fil
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
 			break;
 		default:
-			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(filter));
+			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
 		break;
 	}
 }

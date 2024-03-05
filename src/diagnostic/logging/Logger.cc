@@ -57,7 +57,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
 #else
-		string executableName = utils::ExecutableName()->string();
+		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_shared<StdOutLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
 													/ (executableName + string(".log")));
@@ -390,8 +390,9 @@ void Logger::flush() {
  *********************************************************************************************/
 
 string DateString() {
-	
-	char buffer[256];
+
+	constexpr size_t BUF_SIZE = 256;
+	char buffer[BUF_SIZE];
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -403,7 +404,7 @@ string DateString() {
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
 	strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-	sprintf(buffer, "%s.%03d", buffer, milli);
+	snprintf(buffer, BUF_SIZE, "%s.%03d", buffer, milli);
 #endif
 	return string(buffer);
 }
