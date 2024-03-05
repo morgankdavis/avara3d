@@ -34,7 +34,7 @@ using namespace glm;
 	Static Prototypes
  *********************************************************************************************/
 
-static KEY AEKeyForChromeOSKeyCode(int32_t code);
+static KEY A3DKeyForChromeOSKeyCode(int32_t code);
 
 /*********************************************************************************************
 	Lifecycle
@@ -175,7 +175,7 @@ int ActivityInputManager::update(AInputEvent* event) {
 		
 		int32_t keyCode = AKeyEvent_getKeyCode(event);
 		int32_t action = AMotionEvent_getAction(event);
-		auto key = AEKeyForChromeOSKeyCode(keyCode);
+		auto key = A3DKeyForChromeOSKeyCode(keyCode);
 		
 		if (action == AMOTION_EVENT_ACTION_DOWN) {
 			_keysDown.insert(key);
@@ -220,7 +220,7 @@ void ActivityInputManager::mouseButton(MOUSE_BUTTON button, bool down) {
 	Static
  *********************************************************************************************/
 
-static KEY AEKeyForChromeOSKeyCode(int32_t code) {
+static KEY A3DKeyForChromeOSKeyCode(int32_t code) {
 	
 	if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
 		return static_cast<KEY>(code + 36);

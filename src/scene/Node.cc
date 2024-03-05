@@ -26,8 +26,8 @@
 
 
 using namespace a3d;
-using namespace std;
 using namespace glm;
+using namespace std;
 
 
 //#define ALTERNATE_EULERS

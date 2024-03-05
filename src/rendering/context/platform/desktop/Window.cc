@@ -14,7 +14,6 @@
 #include <iostream>
 #include <sstream>
 
-//#define GLEW_STATIC // added for MinGW build... needed?
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -57,8 +56,8 @@ static void 	GLFWErrorCallback(int error,
 
 Window::Window(RenderingApi renderAPI,
 			   bool fullScreen,
-			   unsigned width,
-			   unsigned height,
+			   size_t width,
+			   size_t height,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
 		RenderContext(renderAPI),

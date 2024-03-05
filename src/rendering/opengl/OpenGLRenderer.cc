@@ -26,6 +26,8 @@
 #include "imgui_impl_opengl3.h"
 //#endif
 
+#include "magic_enum.hpp"
+
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
@@ -2065,18 +2067,18 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
 		case FilterMode::NearestMipmapNearest:
 		case FilterMode::NearestMipmapLinear:
 		case FilterMode::LinearMipmapNearest:
 		case FilterMode::LinearMipmapLinear:
-		glGenerateMipmap(texType);
-		break;
+			glGenerateMipmap(texType);
+			break;
 		default:
-		break;
+			break;
 	}
-	
+
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
@@ -2084,15 +2086,15 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, Filt
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
 		case FilterMode::Nearest:
 		case FilterMode::Linear:
-		glBindTexture(texType, glTextureHandle);
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
-		break;
+			glBindTexture(texType, glTextureHandle);
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
+			break;
 		default:
-		A3D_LOG_W("Unsupported magnification filter mode: {}", (unsigned)mode);
+			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(filter));
 		break;
 	}
 }

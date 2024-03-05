@@ -28,14 +28,9 @@ FileLoggerSink::FileLoggerSink(filesystem::path relPath,
 	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
 #endif
 
-//	// temporary
-//	A3D_LOG_I("_filepath: {}", _filepath.string());
-//	A3D_LOG_I("parent_path: {}", _filepath.parent_path().string());
-
 	error_code errorCode;
 	filesystem::create_directories(_filepath.parent_path(), errorCode);
 	// this bugs me.
-	// errc::success -> used to be boost:errc::success
 	// errc::success or anything evaluating to 0 does not exist, apparently.
 	auto code = errorCode.value();
 	if (code != 0) {
