@@ -26,6 +26,8 @@
 #include "imgui_impl_opengl3.h"
 //#endif
 
+#include "magic_enum.hpp"
+
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
@@ -61,14 +63,6 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
-//enum class MaterialPropertyType {
-//	Ambient,
-//	Diffuse,
-//	Specular,
-//	Emission
-//};
-
-
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
@@ -101,7 +95,7 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<shared_ptr<Texture>>& activeTextures,
-											  map<Material::PropertyType, GLuint>& glTextureHandles);
+											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
 											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
@@ -115,14 +109,14 @@ static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
 static void 		BufferTexture(const Texture &texture,
-								 Material::PropertyType type,
+								 MaterialPropertyType type,
 								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<Material::PropertyType, GLuint>& glTextureHandles,
+										map<MaterialPropertyType, GLuint>& glTextureHandles,
 										const DebugOptions& debugOptions);
-static void 		SendMaterialPropertyUniforms(const Material::Property& property,
-												Material::PropertyType type,
+static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
+												MaterialPropertyType type,
 												GLuint glTextureHandle,
 												const DebugOptions& debugOptions,
 												Program& program);
@@ -130,7 +124,7 @@ static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scen
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
-											   map<Material::PropertyType, GLuint>& glTextureHandles);
+											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		SetMaterialOpenGLState(const Material& material,
 										  const DebugOptions& debugOptions);
 static void	 		SetSkyboxOpenGLState();
@@ -472,7 +466,7 @@ void OpenGLRenderer::render(shared_ptr<MeshElement> element,
 	
 	// and load material contents if necessary
 
-	auto glTextureHandles = map<Material::PropertyType, GLuint>();
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
 	GetTextureGLTextureHandles(material,
 							   _textureGLMapping,
 							   _activeTextures,
@@ -573,17 +567,17 @@ static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 	
 	// and load material contents if necessary
 	
-	auto glTextureHandles = map<Material::PropertyType, GLuint>();
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
 	GetTextureGLTextureHandles(*material,
 							   textureGLMapping,
 							   activeTextures,
 							   glTextureHandles);
-	auto emissiveGLTextureHandle = glTextureHandles[Material::PropertyType::Emission];
+	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
 	
 	// send material property uniforms
 
 	SendMaterialPropertyUniforms(emissiveProperty,
-								 Material::PropertyType::Emission,
+								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
 								 debugOptions,
 								 *program);
@@ -832,7 +826,7 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void GetTextureGLTextureHandles(Material& material,
 									   OpenGLRenderer::TextureGLMapping& glMapping,
 									   unordered_set<shared_ptr<Texture>>& activeTextures,
-									   map<Material::PropertyType, GLuint>& glTextureHandles) {
+									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
@@ -857,7 +851,7 @@ static void GetTextureGLTextureHandles(Material& material,
 				}
 
 				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
-												  TextureDirtyMask::Contents));
+												   TextureDirtyMask::Contents));
 			}
 			else {
 				auto textureHandle = glMapping[texture];
@@ -1074,7 +1068,7 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 }
 	
 static void BufferTexture(const Texture &texture,
-						  Material::PropertyType type,
+						  MaterialPropertyType type,
 						  GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
@@ -1206,16 +1200,16 @@ static void BufferTexture(const Texture &texture,
 		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
 	}
 }
-	
+
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<Material::PropertyType, GLuint>& glTextureHandles,
+								 map<MaterialPropertyType, GLuint>& glTextureHandles,
 								 const DebugOptions& debugOptions) {
-	
+
 	// sends uniforms for the Material, and MaterialProperties it has
-	
+
 	program.use();
-	
+
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
@@ -1232,12 +1226,12 @@ static void SendMaterialUniforms(const Material& material,
 										 program);
 		}
 	}
-	
+
 	//program.unuse();
 }
 
-static void SendMaterialPropertyUniforms(const Material::Property& property,
-										 Material::PropertyType type,
+static void SendMaterialPropertyUniforms(const MaterialProperty& property,
+										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
 										 const DebugOptions& debugOptions,
 										 Program& program) {
@@ -1256,33 +1250,33 @@ static void SendMaterialPropertyUniforms(const Material::Property& property,
 			GLint index;
 
 			switch (type) {
-				case Material::PropertyType::Ambient:
+				case MaterialPropertyType::Ambient:
 					modeUniformName = "ambientMode";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
-				case Material::PropertyType::Diffuse:
+				case MaterialPropertyType::Diffuse:
 					modeUniformName = "diffuseMode";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
-				case Material::PropertyType::Specular:
+				case MaterialPropertyType::Specular:
 					modeUniformName = "specularMode";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
-				case Material::PropertyType::Emission:
+				case MaterialPropertyType::Emission:
 					modeUniformName = "emissionMode";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
 					index = 3;
 					break;
 				default:
-					cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-						 << static_cast<underlying_type<Material::PropertyType>::type>(type) << endl;
+					cout << "Invalid MaterialPropertyType: "
+						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 					return;
 			}
 
@@ -1305,25 +1299,25 @@ static void SendMaterialPropertyUniforms(const Material::Property& property,
 		string colorUniformName;
 
 		switch (type) {
-			case Material::PropertyType::Ambient:
+			case MaterialPropertyType::Ambient:
 				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
-			case Material::PropertyType::Diffuse:
+			case MaterialPropertyType::Diffuse:
 				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
-			case Material::PropertyType::Specular:
+			case MaterialPropertyType::Specular:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
-			case Material::PropertyType::Emission:
+			case MaterialPropertyType::Emission:
 				modeUniformName = "emissionMode";
 				colorUniformName = "colors.emission";
 				break;
 			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-					 << static_cast<underlying_type<Material::PropertyType>::type>(type) << endl;
+				cout << "Invalid MaterialPropertyType: "
+					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 				return;
 		}
 
@@ -1456,56 +1450,56 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 static void SetTextureSamplingOptions(Texture& texture,
 									  GLuint glTextureHandle) {
 
-	auto sampler = *texture.sampler();
+	auto sampler = texture.sampler();
 	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MinificationFilter)) {
-		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler.minificationFilter());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MinificationFilter));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MinificationFilter)) {
+		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MinificationFilter));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MagnificationFilter)) {
-		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler.magnificationFilter());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MagnificationFilter));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MagnificationFilter)) {
+		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MagnificationFilter));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::WrapS)) {
-		SetTextureWrapS(glTextureHandle, isCubemap, sampler.wrapS());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::WrapS));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapS)) {
+		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapS));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::WrapT)) {
-		SetTextureWrapT(glTextureHandle, isCubemap, sampler.wrapT());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::WrapT));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapT)) {
+		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapT));
 	}
 
 	if (isCubemap) {
-		if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-							 SamplerDirtyMask::WrapR)) {
-			SetTextureWrapR(glTextureHandle, sampler.wrapR());
-			sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-											 SamplerDirtyMask::WrapR));
+		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+							  SamplerDirtyMask::WrapR)) {
+			SetTextureWrapR(glTextureHandle, sampler->wrapR());
+			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+											   SamplerDirtyMask::WrapR));
 		}
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MaxAnisotropy)) {
-		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler.maxAnisotropy());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MaxAnisotropy));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MaxAnisotropy)) {
+		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MaxAnisotropy));
 	}
 }
-	
+
 static void SetMaterialFilteringOptions(const Material& material,
-										map<Material::PropertyType, GLuint>& glTextureHandles) {
+										map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	for (auto& [property, type] : material.properties()) {
 
@@ -1931,7 +1925,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 	return sortedVector;
 }
-
+	
 void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	using namespace ImGui;
@@ -1992,9 +1986,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %d %s\n",
 
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
 			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
@@ -2040,9 +2034,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
 			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
@@ -2073,18 +2067,18 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
 		case FilterMode::NearestMipmapNearest:
 		case FilterMode::NearestMipmapLinear:
 		case FilterMode::LinearMipmapNearest:
 		case FilterMode::LinearMipmapLinear:
-		glGenerateMipmap(texType);
-		break;
+			glGenerateMipmap(texType);
+			break;
 		default:
-		break;
+			break;
 	}
-	
+
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
@@ -2092,15 +2086,15 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, Filt
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
 		case FilterMode::Nearest:
 		case FilterMode::Linear:
-		glBindTexture(texType, glTextureHandle);
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
-		break;
+			glBindTexture(texType, glTextureHandle);
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
+			break;
 		default:
-		A3D_LOG_W("Unsupported magnification filter mode: {}", (unsigned)mode);
+			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
 		break;
 	}
 }
@@ -2143,8 +2137,8 @@ static void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 
 static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
-		case FilterMode::Nearest: 					return GL_NEAREST;
-		case FilterMode::Linear: 					return GL_LINEAR;
+		case FilterMode::Nearest: 				return GL_NEAREST;
+		case FilterMode::Linear: 				return GL_LINEAR;
 		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
 		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
 		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
@@ -2153,32 +2147,32 @@ static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 
 static FilterMode FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 							return FilterMode::Linear;
-		case GL_NEAREST_MIPMAP_NEAREST:				return FilterMode::NearestMipmapNearest;
-		case GL_LINEAR_MIPMAP_NEAREST: 				return FilterMode::LinearMipmapNearest;
-		case GL_NEAREST_MIPMAP_LINEAR: 				return FilterMode::NearestMipmapLinear;
-		case GL_LINEAR_MIPMAP_LINEAR: 				return FilterMode::LinearMipmapLinear;
-		default: /* GL_NEAREST */					return FilterMode::Nearest; }
+		case GL_LINEAR: 						return FilterMode::Linear;
+		case GL_NEAREST_MIPMAP_NEAREST:			return FilterMode::NearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: 			return FilterMode::LinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: 			return FilterMode::NearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: 			return FilterMode::LinearMipmapLinear;
+		default: /* GL_NEAREST */				return FilterMode::Nearest; }
 }
 
 static GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef OPENGL_DESKTOP
-//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
-		case WrapMode::Repeat:						return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
+		case WrapMode::Repeat:					return GL_REPEAT;
+        default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
 static WrapMode WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
 //#ifdef OPENGL_DESKTOP
-//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//		case GL_CLAMP_TO_BORDER:				return WRAP_MODE::CLAMP_TO_BORDER;
 //#endif
-		case GL_REPEAT:								return WrapMode::Repeat;
-		case GL_MIRRORED_REPEAT: 					return WrapMode::MirroredRepeat;
-		default: /* GL_CLAMP_TO_EDGE */				return WrapMode::ClampToEdge; }
+		case GL_REPEAT:							return WrapMode::Repeat;
+		case GL_MIRRORED_REPEAT: 				return WrapMode::MirroredRepeat;
+		default: /* GL_CLAMP_TO_EDGE */			return WrapMode::ClampToEdge; }
 }
 
 static void CheckGLError() {

@@ -56,10 +56,10 @@ RenderContext::RenderContext(RenderingApi renderAPI):
 			_renderer = static_pointer_cast<Renderer>(renderer);
 			break; }
 		case RenderingApi::OpenGLES: {
-			throw Exception("Unsupported render API: OPENGL_ES");
+			throw Exception("Unsupported rendering API: OpenGLES");
 			break; }
 		case RenderingApi::Vulkan: {
-			throw Exception("Unsupported render API: VULKAN");
+			throw Exception("Unsupported rendering API: Vulkan");
 			break; }
 	}
 }

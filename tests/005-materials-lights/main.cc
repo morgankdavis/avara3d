@@ -361,17 +361,12 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 		auto geometry = node->mesh();
 		if (geometry) {
 
-			for (auto material : geometry->materials()) {
+			for (auto& material : geometry->materials()) {
 
-				Material::Property properties[] = { material->ambient(),
-													material->diffuse(),
-													material->specular(),
-													material->emission() };
-				for (int p=0; p<4; ++p) {
-					auto property = properties[p];
+				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(property)) {
-						auto texture = get<shared_ptr<Texture>>(property);
+					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+						auto texture = get<shared_ptr<Texture>>(*property);
 						auto sampler = texture->sampler();
 						sampler->minificationFilter(mode);
 						sampler->magnificationFilter(mode);
@@ -391,17 +386,12 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 		auto geometry = node->mesh();
 		if (geometry) {
 
-			for (auto material : geometry->materials()) {
+			for (auto& material : geometry->materials()) {
 
-				Material::Property properties[] = { material->ambient(),
-													material->diffuse(),
-													material->specular(),
-													material->emission() };
-				for (int p=0; p<4; ++p) {
-					auto property = properties[p];
+				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(property)) {
-						auto texture = get<shared_ptr<Texture>>(property);
+					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+						auto texture = get<shared_ptr<Texture>>(*property);
 						auto sampler = texture->sampler();
 						sampler->maxAnisotropy(anisotropy);
 					}

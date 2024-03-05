@@ -175,12 +175,6 @@ namespace a3d {
 															   int level);
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
-//		void									removePhysicsBodyFromWorld(PhysicalWorld& world);
-
-//		void									_debugPrint(); // testing
-//		void									_debugPrintRec(std::shared_ptr<Node> node,
-//																  int level,
-//																  std::map<std::shared_ptr<Node>, bool>& visited);
 
 /*********************************************************************************************
 	Private
@@ -193,11 +187,6 @@ namespace a3d {
 		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
 		void 									childrenRec(std::shared_ptr<Node> node,
 															std::list<std::shared_ptr<Node>>& list);
-
-//		std::vector<std::shared_ptr<Node>>		preorderChildren(std::shared_ptr<Node> root);
-//		void 									preorderChildrenRec(std::shared_ptr<Node> node,
-//																	std::map<std::shared_ptr<Node>, bool>& visited,
-//																	std::stack<std::shared_ptr<Node>>& stack);
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);

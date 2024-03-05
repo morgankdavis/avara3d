@@ -70,24 +70,24 @@ namespace a3d {
 	Numeric Utilities
  *********************************************************************************************/
 
-		int 	Uniform(int min, int max);
-		float	Uniform(float min, float max);
+		int Uniform(int min, int max);
+		float Uniform(float min, float max);
 
-		bool 	Zero(const glm::vec3& v, float tolerance = 0.0001);
-		float 	Max(const glm::vec3& v);
+		bool Zero(const glm::vec3& v, float tolerance = 0.0001);
+		float Max(const glm::vec3& v);
 
-		bool 	Equal(float a, float b, float tolerance = 0.0001);
-		bool 	Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
-		bool 	Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
-		bool 	Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
+		bool Equal(float a, float b, float tolerance = 0.0001);
+		bool Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
+		bool Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
+		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 
 /*********************************************************************************************
 	String Utilities
  *********************************************************************************************/
 
-		void 	StringReplace(std::string& str,
-							  const std::string& oldStr,
-							  const std::string& newStr);
+		void StringReplace(std::string& str,
+						   const std::string& oldStr,
+						   const std::string& newStr);
 
 /*********************************************************************************************
 	File Utilities
@@ -99,19 +99,19 @@ namespace a3d {
 		std::optional<std::filesystem::path> 	ExecutablePath();
 		std::optional<std::filesystem::path> 	ExecutableDirectory();
 		std::optional<std::string> 				ExecutableName();
-		std::optional<std::filesystem::path> 	CurrentWorkingDirectory();
+		std::optional<std::filesystem::path>	CurrentWorkingDirectory();
 #endif
 
 		// *** search paths ***
 
 #ifndef ANDROID
-		std::vector<std::filesystem::path>		BaseSearchPaths();
+		std::vector<std::filesystem::path> 		BaseSearchPaths();
 		std::vector<std::filesystem::path> 		ShaderSearchPaths();
 		std::vector<std::filesystem::path> 		SceneSearchPaths();
 		std::vector<std::filesystem::path> 		ModelSearchPaths();
 		std::vector<std::filesystem::path> 		ImageSearchPaths();
 		std::vector<std::filesystem::path> 		FontSearchPaths();
-		std::optional<std::filesystem::path> 	SearchInPaths(const std::string& filename,
+		std::optional<std::filesystem::path>	SearchInPaths(const std::string& filename,
 															  std::vector<std::filesystem::path> paths);
 #endif
 
@@ -144,9 +144,9 @@ namespace a3d {
 												  const std::string& type,
 												  bool flipHorizontal=true,
 												  bool flipVertical=false);
-		std::shared_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name);
-		std::shared_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name,
-													   const std::string& type);
+		std::shared_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
+		std::shared_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name,
+														  const std::string& type);
 
 		// *** scenes ***
 

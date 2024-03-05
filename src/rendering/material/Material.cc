@@ -44,25 +44,13 @@ shared_ptr<Material> Material::MissingTextureMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::EmissionMaterial(Property property) {
+shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
-Material::Property Material::MissingTextureProperty() {
-	return Property(Color::Magenta());
+MaterialProperty Material::MissingTextureProperty() {
+	return MaterialProperty(Color::Magenta());
 }
-
-//unique_ptr<Material> Material::DiffuseMaterial(Material::Property property) {
-//	auto material = make_unique<Material>();
-//	material->diffuse(property);
-//	return material;
-//}
-//
-//unique_ptr<Material> Material::EmissionMaterial(Material::Property property) {
-//	auto material = make_unique<Material>();
-//	material->emission(property);
-//	return material;
-//}
 
 /*********************************************************************************************
 	Lifecycle
@@ -77,7 +65,6 @@ Material::Material():
 		_specularExponent(150.0),
 		_locksAmbientWithDiffuse(true),
 		_doubleSided(false),
-//		_maxAnisotropy(16),
 		_fillMode(FillMode::Fill),
 		_uvScale(1.0f),
 		_blendFunction(BlendFunction::Disabled),
@@ -86,23 +73,20 @@ Material::Material():
 	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
-Material::Material(Property ambient,
-				   Property diffuse,
-				   Property specular):
-		Material()
-		/*_ambient(ambient),
-		_diffuse(diffuse),
-		_specular(specular)*/ {
+Material::Material(MaterialProperty ambient,
+				   MaterialProperty diffuse,
+				   MaterialProperty specular):
+		Material() {
 
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
 }
 
-Material::Material(Property ambient,
-				   Property diffuse,
-				   Property specular,
-				   Property emission):
+Material::Material(MaterialProperty ambient,
+				   MaterialProperty diffuse,
+				   MaterialProperty specular,
+				   MaterialProperty emission):
 		Material() {
 
 	_ambient = ambient;
@@ -127,46 +111,44 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-Material::Property& Material::ambient() {
+MaterialProperty Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const Property property) {
+void Material::ambient(const MaterialProperty property) {
 	_ambient = property;
-//	updatePropertiesList();
 }
 
-Material::Property& Material::diffuse() {
+MaterialProperty Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(Property property) {
+void Material::diffuse(MaterialProperty property) {
 	_diffuse = property;
 }
 
-Material::Property& Material::specular() {
+MaterialProperty Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(Property property) {
+void Material::specular(MaterialProperty property) {
 	_specular = property;
 }
 
-Material::Property& Material::emission() {
+MaterialProperty Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(Property property) {
+void Material::emission(MaterialProperty property) {
 	_emission = property;
 }
 
-Material::PropertyList Material::properties() const {
-
-	return PropertyList {
-			{ &_ambient, PropertyType::Ambient },
-			{ &_diffuse, PropertyType::Diffuse },
-			{ &_specular, PropertyType::Specular },
-			{ &_emission, PropertyType::Emission }
+MaterialPropertyList Material::properties() const {
+	return MaterialPropertyList {
+			{ &_ambient, MaterialPropertyType::Ambient },
+			{ &_diffuse, MaterialPropertyType::Diffuse },
+			{ &_specular, MaterialPropertyType::Specular },
+			{ &_emission, MaterialPropertyType::Emission }
 	};
 }
 
@@ -193,24 +175,6 @@ bool Material::doubleSided() const {
 void Material::doubleSided(bool flag) {
 	_doubleSided = flag;
 }
-
-//float Material::maxAnisotropy() const {
-//#ifdef OPENGL_ES
-//	return 0;
-//#else
-//	return _maxAnisotropy;
-//#endif
-//}
-//
-//void Material::maxAnisotropy(float max) {
-//#ifdef OPENGL_ES
-//	throw Exception("Anisotropy is not supported on this platform.");
-//#endif
-//
-//	_maxAnisotropy = max;
-//
-//	_dirtyMask = A3D_MASK_ADD(_dirtyMask, MaterialDirtyMask::MaxAnisotropy);
-//}
 
 FillMode Material::fillMode() const {
 #ifdef OPENGL_ES

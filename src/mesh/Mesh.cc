@@ -12,13 +12,11 @@
 
 #include "a3d/Color.h"
 #include "a3d/Image.h"
-#include "a3d/Utilities.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/exception/UnsupportedFormat.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
-//#include "a3d/rendering/material/MaterialProperty.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 

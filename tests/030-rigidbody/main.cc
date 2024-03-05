@@ -93,10 +93,10 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-//	Material::Property background = DARK
+//	MaterialProperty background = DARK
 //									? Color::Black()
 //									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
-	Material::Property background = monostate{};
+	MaterialProperty background = monostate{};
 	if (DARK) background = Color::Black();
 	else background = make_shared<Texture>(CubeImageNamed("stormy", "png"));
 	visualWorld->background(background);

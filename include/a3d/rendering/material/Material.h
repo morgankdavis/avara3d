@@ -14,7 +14,6 @@
 #include <optional>
 #include <string>
 #include <variant>
-#include <vector>
 
 #include "a3d/Types.h"
 
@@ -27,35 +26,17 @@ namespace a3d {
 
 
 	class Material {
-
-	public:
-
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
-		using Property = std::variant<
-				std::monostate,
-				std::shared_ptr<Texture>,
-				std::shared_ptr<Color>>;
-
-		enum class PropertyType {
-			Ambient,
-			Diffuse,
-			Specular,
-			Emission
-		};
-
-		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
 		
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
 
+	public:
+
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
-		static std::shared_ptr<Material> EmissionMaterial(Property property);
-		static Property MissingTextureProperty(); // TODO: make internal?
+		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
+		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
 
 //		static std::unique_ptr<Material> DiffuseMaterial(Material::Property property);
 //		static std::unique_ptr<Material> EmissionMaterial(Material::Property property);
@@ -65,13 +46,13 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Material();
-		Material(Property ambient,
-				 Property diffuse,
-				 Property specular);
-		Material(Property ambient,
-				 Property diffuse,
-				 Property specular,
-				 Property emission);
+		Material(MaterialProperty ambient,
+				 MaterialProperty diffuse,
+				 MaterialProperty specular);
+		Material(MaterialProperty ambient,
+				 MaterialProperty diffuse,
+				 MaterialProperty specular,
+				 MaterialProperty emission);
 		~Material();
 		
 /*********************************************************************************************
@@ -81,20 +62,20 @@ namespace a3d {
 		std::optional<std::string> 			name() const;
 		void 								name(const std::string& name);
 
-		Property& 							ambient();
-		void								ambient(Property ambient);
+		MaterialProperty 					ambient() const;
+		void								ambient(MaterialProperty ambient);
 
-		Property& 							diffuse();
-		void 								diffuse(Property diffuse);
+		MaterialProperty 					diffuse() const;
+		void 								diffuse(MaterialProperty diffuse);
 
-		Property&							specular();
-		void 								specular(Property specular);
+		MaterialProperty					specular() const;
+		void 								specular(MaterialProperty specular);
 
-		Property&							emission();
-		void 								emission(Property emission);
+		MaterialProperty					emission() const;
+		void 								emission(MaterialProperty emission);
 
-		PropertyList						properties() const;
-
+		MaterialPropertyList				properties() const;
+		
 		float 								specularExponent() const;
 		void 								specularExponent(float exponent);
 		
@@ -104,9 +85,6 @@ namespace a3d {
 		bool 								doubleSided() const;
 		void 								doubleSided(bool flag);
 
-//		float 								maxAnisotropy() const;
-//		void 								maxAnisotropy(float max);
-		
 		FillMode 							fillMode() const;
 		void 								fillMode(FillMode mode);
 		
@@ -129,21 +107,16 @@ namespace a3d {
 
 	private:
 
-//		void								updatePropertiesList();
-
 		std::optional<std::string>			_name;
 
-		Property							_ambient;
-		Property							_diffuse;
-		Property							_specular;
-		Property							_emission;
-
-//		PropertyList						_properties;
+		MaterialProperty					_ambient;
+		MaterialProperty					_diffuse;
+		MaterialProperty					_specular;
+		MaterialProperty					_emission;
 
 		float 								_specularExponent;
 		bool 								_locksAmbientWithDiffuse;
 		bool 								_doubleSided;
-//		float								_maxAnisotropy;
 		FillMode 							_fillMode;
 		float 								_uvScale;
 		BlendFunction						_blendFunction;

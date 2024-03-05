@@ -16,6 +16,7 @@
 #endif
 
 #include "glm/gtc/type_ptr.hpp"
+#include "magic_enum.hpp"
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
@@ -70,18 +71,6 @@ shared_ptr<Program> Program::Points() {
 		program = make_shared<Program>("points");
 	}
 	return program;
-}
-
-/*********************************************************************************************
-	Private Static
- *********************************************************************************************/
-
-string StringFromShaderType(ShaderType type) {
-
-	switch (type) {
-		case ShaderType::Vertex: 		return "VERTEX";
-		case ShaderType::Fragment: 	return "FRAGMENT";
-	}
 }
 
 /*********************************************************************************************
@@ -577,7 +566,7 @@ void Program::prepare() {
 bool Program::compile(const string &source, ShaderType type) {
 
 	A3D_LOG_I("Compiling {} shader for program '{}'...",
-			 StringFromShaderType(type), name());
+			 magic_enum::enum_name(type), name());
 
 	GLuint shaderID = 0;
 
@@ -608,7 +597,7 @@ bool Program::compile(const string &source, ShaderType type) {
 			glGetShaderInfoLog(shaderID, logSize, nullptr, c_log);
 			_logString = string(c_log);
 			A3D_LOG_E("Failed to compile {} shader for program '{}':\n{}",
-					 StringFromShaderType(type), name(), *_logString);
+					  magic_enum::enum_name(type), name(), *_logString);
 		}
 
 		glDeleteShader(shaderID);

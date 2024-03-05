@@ -84,7 +84,7 @@ int main(int argc, const char* argv[]) {
 //					  ? make_shared<MaterialProperty>(Color::Black())
 //					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
 //					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
-	Material::Property background = monostate{};
+	MaterialProperty background = monostate{};
 	if (DARK) background = Color::Black();
 	else background = make_shared<Texture>(CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);

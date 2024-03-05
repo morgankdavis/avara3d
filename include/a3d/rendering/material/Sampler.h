@@ -39,30 +39,30 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		FilterMode 									minificationFilter() const;
-		void 										minificationFilter(FilterMode mode);
+		FilterMode 							minificationFilter() const;
+		void 								minificationFilter(FilterMode mode);
 
-		FilterMode 									magnificationFilter() const;
-		void 										magnificationFilter(FilterMode mode);
+		FilterMode 							magnificationFilter() const;
+		void 								magnificationFilter(FilterMode mode);
 
-		float 										maxAnisotropy() const;
-		void 										maxAnisotropy(float max);
+		float 								maxAnisotropy() const;
+		void 								maxAnisotropy(float max);
 
-		WrapMode 									wrapS() const;
-		void 										wrapS(WrapMode mode);
+		WrapMode 							wrapS() const;
+		void 								wrapS(WrapMode mode);
 
-		WrapMode 									wrapT() const;
-		void 										wrapT(WrapMode mode);
+		WrapMode 							wrapT() const;
+		void 								wrapT(WrapMode mode);
 
-		WrapMode 									wrapR() const;
-		void 										wrapR(WrapMode mode);
+		WrapMode 							wrapR() const;
+		void 								wrapR(WrapMode mode);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		SamplerDirtyMask 							dirtyMask() const;
-		void 										dirtyMask(SamplerDirtyMask mask);
+		SamplerDirtyMask 					dirtyMask() const;
+		void 								dirtyMask(SamplerDirtyMask mask);
 
 /*********************************************************************************************
 	Private
@@ -70,14 +70,14 @@ namespace a3d {
 
 	private:
 
-		FilterMode									_minificationFilter;
-		FilterMode									_magnificationFilter;
-		float										_maxAnisotropy;
-		WrapMode									_wrapS;
-		WrapMode									_wrapT;
-		WrapMode									_wrapR;
+		FilterMode							_minificationFilter;
+		FilterMode							_magnificationFilter;
+		float								_maxAnisotropy;
+		WrapMode							_wrapS;
+		WrapMode							_wrapT;
+		WrapMode							_wrapR;
 
-		SamplerDirtyMask							_dirtyMask;
+		SamplerDirtyMask					_dirtyMask;
 	};
 }
 

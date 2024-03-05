@@ -34,7 +34,7 @@
 #endif
 
 #ifdef WINDOWS
-#include <windows.h>
+#include <windows.h> // MAX_PATH
 #define PATH_MAX MAX_PATH
 #endif
 
@@ -625,15 +625,15 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 	throw Exception("SaveSnapshot() not supported on Android.");
 #else
 	auto image = context.snapshot();
-	
+
 	string dateTime = DateTimeString();
 
 	constexpr size_t BUF_SIZE = 256;
 	char filename[BUF_SIZE] = "";
 	snprintf(filename, BUF_SIZE, "Snapshot_%s.png", dateTime.c_str());
-	
+
 	A3D_LOG_I("Saving snapshot '{}'...", filename);
-	
+
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto fullPath = *execDir / filename;
@@ -646,7 +646,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								  unsigned maxHeight, unsigned maxFramerate) {
+								   unsigned maxHeight, unsigned maxFramerate) {
 #ifdef ANDROID
 	throw Exception("StartGIFRecording() not supported on Android.");
 #else
