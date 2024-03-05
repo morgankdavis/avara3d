@@ -20,6 +20,8 @@
 #include <NDKHelper.h>
 #endif
 
+#include "magic_enum.hpp"
+
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
@@ -78,7 +80,6 @@ string DateString();
 string HeaderString(const string& logName, LogLevel level);
 string HeaderString(const string& logName, LogLevel level,
 					const char* filename, int line, const char* function);
-string StringFromLogLevel(LogLevel level);
 
 /*********************************************************************************************
 	Lifecycle
@@ -413,7 +414,7 @@ string HeaderString(const string& logName, LogLevel level) {
 	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s]",
 			 DateString().c_str(),
 			 logName.c_str(),
-			 StringFromLogLevel(level).c_str());
+			 string(magic_enum::enum_name(level)).c_str());
 
 	//return string((const char*)headerStr);
 	return {(const char*)headerStr};
@@ -426,24 +427,11 @@ string HeaderString(const string& logName, LogLevel level,
 	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s] [%s:%d] [%s()]",
 			 DateString().c_str(),
 			 logName.c_str(),
-			 StringFromLogLevel(level).c_str(),
+			 string(magic_enum::enum_name(level)).c_str(),
 			 filename,
 			 line,
 			 function);
 
 	//return string((const char*)headerStr);
 	return {(const char*)headerStr};
-}
-
-string StringFromLogLevel(LogLevel level) {
-	
-	switch (level) {
-		case LogLevel::Trace: 	return "trace";
-		case LogLevel::Debug: 	return "debug";
-		case LogLevel::Info: 		return "info";
-		case LogLevel::Warn: 		return "WARN";
-		case LogLevel::Error: 	return "ERROR";
-		case LogLevel::Critical: 	return "CRITICAL";
-		case LogLevel::Off: 		return "off";
-	}
 }

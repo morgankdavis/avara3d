@@ -1480,51 +1480,51 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 static void SetTextureSamplingOptions(Texture& texture,
 									  GLuint glTextureHandle) {
 
-	auto sampler = *texture.sampler();
+	auto sampler = texture.sampler();
 	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MinificationFilter)) {
-		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler.minificationFilter());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MinificationFilter));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MinificationFilter)) {
+		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MinificationFilter));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MagnificationFilter)) {
-		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler.magnificationFilter());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MagnificationFilter));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MagnificationFilter)) {
+		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MagnificationFilter));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::WrapS)) {
-		SetTextureWrapS(glTextureHandle, isCubemap, sampler.wrapS());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::WrapS));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapS)) {
+		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapS));
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::WrapT)) {
-		SetTextureWrapT(glTextureHandle, isCubemap, sampler.wrapT());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::WrapT));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapT)) {
+		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapT));
 	}
 
 	if (isCubemap) {
-		if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-							 SamplerDirtyMask::WrapR)) {
-			SetTextureWrapR(glTextureHandle, sampler.wrapR());
-			sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-											 SamplerDirtyMask::WrapR));
+		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+							  SamplerDirtyMask::WrapR)) {
+			SetTextureWrapR(glTextureHandle, sampler->wrapR());
+			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+											   SamplerDirtyMask::WrapR));
 		}
 	}
 
-	if (A3D_MASK_CONTAINS(sampler.dirtyMask(),
-						 SamplerDirtyMask::MaxAnisotropy)) {
-		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler.maxAnisotropy());
-		sampler.dirtyMask(A3D_MASK_REMOVE(sampler.dirtyMask(),
-										 SamplerDirtyMask::MaxAnisotropy));
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MaxAnisotropy)) {
+		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MaxAnisotropy));
 	}
 }
 	
@@ -2001,10 +2001,10 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		Text("%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
 					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -2027,9 +2027,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s %d %s\n",
 
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
 			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
@@ -2051,10 +2051,10 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		Text("%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
 					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -2075,9 +2075,9 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
 			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
@@ -2178,8 +2178,8 @@ static void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 
 static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
-		case FilterMode::Nearest: 					return GL_NEAREST;
-		case FilterMode::Linear: 					return GL_LINEAR;
+		case FilterMode::Nearest: 				return GL_NEAREST;
+		case FilterMode::Linear: 				return GL_LINEAR;
 		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
 		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
 		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
@@ -2188,32 +2188,32 @@ static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 
 static FilterMode FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 							return FilterMode::Linear;
-		case GL_NEAREST_MIPMAP_NEAREST:				return FilterMode::NearestMipmapNearest;
-		case GL_LINEAR_MIPMAP_NEAREST: 				return FilterMode::LinearMipmapNearest;
-		case GL_NEAREST_MIPMAP_LINEAR: 				return FilterMode::NearestMipmapLinear;
-		case GL_LINEAR_MIPMAP_LINEAR: 				return FilterMode::LinearMipmapLinear;
-		default: /* GL_NEAREST */					return FilterMode::Nearest; }
+		case GL_LINEAR: 						return FilterMode::Linear;
+		case GL_NEAREST_MIPMAP_NEAREST:			return FilterMode::NearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: 			return FilterMode::LinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: 			return FilterMode::NearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: 			return FilterMode::LinearMipmapLinear;
+		default: /* GL_NEAREST */				return FilterMode::Nearest; }
 }
 
 static GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef OPENGL_DESKTOP
-//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
-		case WrapMode::Repeat:						return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
+		case WrapMode::Repeat:					return GL_REPEAT;
+        default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
 static WrapMode WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
 //#ifdef OPENGL_DESKTOP
-//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//		case GL_CLAMP_TO_BORDER:				return WRAP_MODE::CLAMP_TO_BORDER;
 //#endif
-		case GL_REPEAT:								return WrapMode::Repeat;
-		case GL_MIRRORED_REPEAT: 					return WrapMode::MirroredRepeat;
-		default: /* GL_CLAMP_TO_EDGE */				return WrapMode::ClampToEdge; }
+		case GL_REPEAT:							return WrapMode::Repeat;
+		case GL_MIRRORED_REPEAT: 				return WrapMode::MirroredRepeat;
+		default: /* GL_CLAMP_TO_EDGE */			return WrapMode::ClampToEdge; }
 }
 
 static void CheckGLError() {

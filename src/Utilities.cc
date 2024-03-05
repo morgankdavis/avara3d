@@ -34,7 +34,7 @@
 #endif
 
 #ifdef WINDOWS
-#include <windows.h>
+#include <windows.h> // MAX_PATH
 #define PATH_MAX MAX_PATH
 #endif
 
