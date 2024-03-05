@@ -14,11 +14,17 @@
 #include <memory>
 #include <set>
 #include <typeinfo>
+#include <utility>
+#include <variant>
 
 #include <glm/glm.hpp>
 
 
 namespace a3d {
+
+
+	class Color;
+	class Texture;
 
 
 /**************************************************************************************
@@ -117,6 +123,20 @@ namespace a3d {
 		OTF,
 		TTF,
 	};
+
+	using MaterialProperty = std::variant<
+			std::monostate,
+			std::shared_ptr<Texture>,
+			std::shared_ptr<Color>>;
+
+	enum class MaterialPropertyType {
+		Ambient,
+		Diffuse,
+		Specular,
+		Emission
+	};
+
+	using MaterialPropertyList = std::vector<std::pair<const MaterialProperty*, MaterialPropertyType>>;
 
 	enum class FilterMode : unsigned {
 		Nearest = 				0x2600,

@@ -61,14 +61,6 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
-enum class MaterialPropertyType {
-	Ambient,
-	Diffuse,
-	Specular,
-	Emission
-};
-
-
 /*********************************************************************************************
 	Static Prototypes
  *********************************************************************************************/
@@ -832,30 +824,18 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void GetTextureGLTextureHandles(Material& material,
 									   OpenGLRenderer::TextureGLMapping& glMapping,
 									   unordered_set<shared_ptr<Texture>>& activeTextures,
-									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
+									   map<Material::PropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
-	Material::Property properties[] = { material.ambient(),
-										material.diffuse(),
-										material.specular(),
-										material.emission() };
+	for (auto& [property, type] : material.properties()) {
 
-	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-									 MaterialPropertyType::Diffuse,
-									 MaterialPropertyType::Specular,
-									 MaterialPropertyType::Emission };
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
 
-	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
-
-		if (holds_alternative<shared_ptr<Texture>>(property)) {
-			auto type = types[p];
-
-			auto texture = get<shared_ptr<Texture>>(property);
+			auto& texture = get<shared_ptr<Texture>>(*property);
 
 			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
-								 TextureDirtyMask::Contents)) {
+								  TextureDirtyMask::Contents)) {
 
 				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
 
@@ -869,7 +849,7 @@ static void GetTextureGLTextureHandles(Material& material,
 				}
 
 				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
-												  TextureDirtyMask::Contents));
+												   TextureDirtyMask::Contents));
 			}
 			else {
 				auto textureHandle = glMapping[texture];
@@ -1218,45 +1198,33 @@ static void BufferTexture(const Texture &texture,
 		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
 	}
 }
-	
+
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<MaterialPropertyType, GLuint>& glTextureHandles,
+								 map<Material::PropertyType, GLuint>& glTextureHandles,
 								 const DebugOptions& debugOptions) {
-	
+
 	// sends uniforms for the Material, and MaterialProperties it has
-	
+
 	program.use();
-	
+
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
 
-	Material::Property properties[] = { material.ambient(),
-										material.diffuse(),
-										material.specular(),
-										material.emission() };
+	for (auto& [property, type] : material.properties()) {
 
-	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-									 MaterialPropertyType::Diffuse,
-									 MaterialPropertyType::Specular,
-									 MaterialPropertyType::Emission };
+		if (!holds_alternative<monostate>(*property)) {
 
-	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
-
-		if (!holds_alternative<monostate>(property)) {
-			auto type = types[p];
-
-			SendMaterialPropertyUniforms(property,
+			SendMaterialPropertyUniforms(*property,
 										 type,
 										 glTextureHandles[type],
 										 debugOptions,
 										 program);
 		}
 	}
-	
+
 	//program.unuse();
 }
 
@@ -1527,25 +1495,14 @@ static void SetTextureSamplingOptions(Texture& texture,
 										   SamplerDirtyMask::MaxAnisotropy));
 	}
 }
-	
+
 static void SetMaterialFilteringOptions(const Material& material,
-										map<MaterialPropertyType, GLuint>& glTextureHandles) {
+										map<Material::PropertyType, GLuint>& glTextureHandles) {
 
-	Material::Property properties[] = { material.ambient(),
-										material.diffuse(),
-										material.specular(),
-										material.emission() };
+	for (auto& [property, type] : material.properties()) {
 
-	MaterialPropertyType types[] = { MaterialPropertyType::Ambient,
-									 MaterialPropertyType::Diffuse,
-									 MaterialPropertyType::Specular,
-									 MaterialPropertyType::Emission };
-
-	for (int p = 0; p<4; ++p) {
-		auto property = properties[p];
-		if (holds_alternative<shared_ptr<Texture>>(property)) {
-			auto texture = get<shared_ptr<Texture>>(property);
-			auto type = types[p];
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+			auto& texture = get<shared_ptr<Texture>>(*property);
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
