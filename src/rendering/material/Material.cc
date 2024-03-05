@@ -143,12 +143,8 @@ void Material::emission(MaterialProperty property) {
 	_emission = property;
 }
 
-//a3d::MaterialPropertyList Material::properties() const {
-// WTF? unknown type??
-vector<pair<const MaterialProperty*, MaterialPropertyType>> Material::properties() const {
-
-	//return MaterialPropertyList {
-	vector<pair<const MaterialProperty*, MaterialPropertyType>> {
+MaterialPropertyList Material::properties() const {
+	return MaterialPropertyList {
 			{ &_ambient, MaterialPropertyType::Ambient },
 			{ &_diffuse, MaterialPropertyType::Diffuse },
 			{ &_specular, MaterialPropertyType::Specular },

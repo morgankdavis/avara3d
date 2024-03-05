@@ -74,7 +74,7 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 
 			auto startTime = Scene::Time();
 
-			auto aeScene = make_shared<a3d::Scene>();
+			auto a3dScene = make_shared<a3d::Scene>();
 
 			auto& scenes = _asset.scenes;
 			if (!scenes.empty()) {
@@ -89,14 +89,14 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 				if (!nodeIndicies.empty()) {
 
 					for (auto n: nodeIndicies) {
-						visitGlTFNode(_asset, _asset.nodes[n], aeScene->rootNode());
+						visitGlTFNode(_asset, _asset.nodes[n], a3dScene->rootNode());
 					}
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
 					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
 
-					_scene = aeScene;
+					_scene = a3dScene;
 				}
 				else {
 					A3D_LOG_E("No nodes in scene: {}", scene.name);
@@ -187,7 +187,7 @@ bool GlTFImporter::parse() {
 
 			if (auto& info = asset.assetInfo) {
 				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						 info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
+						  info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
 			}
 			else {
 				A3D_LOG_D("Done parsing glTF.  Time: {}", Scene::Time() - startTime);
@@ -211,31 +211,31 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-	auto aeNode = Node::NamedNode(string(node.name));
+	auto a3dNode = Node::NamedNode(string(node.name));
 
-	aeNode->transform(TransformFromGlFTNode(node));
+	a3dNode->transform(TransformFromGlFTNode(node));
 
 	if ((_options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
-		aeNode->mesh(meshFromGlFTNode(asset, node));
+		a3dNode->mesh(meshFromGlFTNode(asset, node));
 	}
 
 	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
-		aeNode->light(lightFromGlTFNode(asset, node));
+		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
 	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
-		aeNode->camera(cameraFromGlTFNode(asset, node));
+		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
-	parent->addChild(aeNode);
+	parent->addChild(a3dNode);
 
 	for (auto c: node.children) {
-		visitGlTFNode(asset, asset.nodes[c], aeNode);
+		visitGlTFNode(asset, asset.nodes[c], a3dNode);
 	}
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTNode(fastgltf::Asset& asset,
-													fastgltf::Node& node) {
+													 fastgltf::Node& node) {
 	if (auto meshIndex = node.meshIndex) {
 		return meshFromGlFTMeshIndex(asset, *meshIndex);
 	}
@@ -243,7 +243,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTNode(fastgltf::Asset& asset,
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset,
-														 std::size_t meshIndex) {
+														  std::size_t meshIndex) {
 
 	if (_meshes.find(meshIndex) == _meshes.end()) {
 
@@ -264,10 +264,10 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset
 			if (material) materials.push_back(material);
 		}
 
-		auto aeMesh = make_shared<a3d::Mesh>(elements, materials);
-		aeMesh->name(string(mesh.name));
-		_meshes[meshIndex] = aeMesh;
-		return aeMesh;
+		auto a3dMesh = make_shared<a3d::Mesh>(elements, materials);
+		a3dMesh->name(string(mesh.name));
+		_meshes[meshIndex] = a3dMesh;
+		return a3dMesh;
 	}
 	else {
 		return _meshes[meshIndex];
@@ -277,7 +277,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset
 }
 
 shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf::Asset& asset,
-																	   fastgltf::Primitive& primitive) {
+																		fastgltf::Primitive& primitive) {
 
 	// TODO: make this suck less
 
@@ -351,12 +351,12 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf
 					}
 					else {
 						A3D_LOG_W("Unsupported position accessor component type: {}",
-								 magic_enum::enum_name(componentType));
+								  magic_enum::enum_name(componentType));
 					}
 				}
 				else {
 					A3D_LOG_W("Unsupported position accessor type: {}",
-							 magic_enum::enum_name(type));
+							  magic_enum::enum_name(type));
 				}
 			}
 
@@ -402,12 +402,12 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf
 					}
 					else {
 						A3D_LOG_W("Unsupported normals accessor component type: {}",
-								 magic_enum::enum_name(componentType));
+								  magic_enum::enum_name(componentType));
 					}
 				}
 				else {
 					A3D_LOG_W("Unsupported normals accessor type: {}",
-							 magic_enum::enum_name(type));
+							  magic_enum::enum_name(type));
 				}
 			}
 
@@ -453,12 +453,12 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf
 					}
 					else {
 						A3D_LOG_W("Unsupported texcoords accessor component type: {}",
-								 magic_enum::enum_name(componentType));
+								  magic_enum::enum_name(componentType));
 					}
 				}
 				else {
 					A3D_LOG_W("Unsupported texcoords accessor type: {}",
-							 magic_enum::enum_name(type));
+							  magic_enum::enum_name(type));
 				}
 			}
 
@@ -470,14 +470,14 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf
 	}
 	else {
 		A3D_LOG_W("Unsupported primitive type: {}",
-				 magic_enum::enum_name(primitive.type));
+				  magic_enum::enum_name(primitive.type));
 	}
 
 	return nullptr;
 }
 
 shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset& asset,
-																 fastgltf::Primitive& primitive) {
+																  fastgltf::Primitive& primitive) {
 
 	if (auto materialIndex = primitive.materialIndex) {
 
@@ -485,28 +485,28 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 
 			auto& material = asset.materials[*materialIndex];
 
-			shared_ptr<a3d::Material> aeMaterial = nullptr;
+			shared_ptr<a3d::Material> a3dMaterial = nullptr;
 
 			// ambient, diffuse
 
 			if (auto& pbrData = material.pbrData ; pbrData.baseColorTexture) {
 
 				auto baseColorTextureIndex = (*pbrData.baseColorTexture).textureIndex;
-				if (auto aeTexture = textureFromGlTFTextureIndex(asset, baseColorTextureIndex)
-						; aeTexture) {
-					aeMaterial = make_shared<a3d::Material>(monostate{}, aeTexture, monostate{});
+				if (auto a3dTexture = textureFromGlTFTextureIndex(asset, baseColorTextureIndex)
+						; a3dTexture) {
+					a3dMaterial = make_shared<a3d::Material>(monostate{}, a3dTexture, monostate{});
 				}
 				else {
-					aeMaterial = a3d::Material::MissingTextureMaterial();
+					a3dMaterial = a3d::Material::MissingTextureMaterial();
 				}
 			}
 			else {
 
 				auto baseColorFactor = pbrData.baseColorFactor;
 
-				auto aeColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto aeProperty = Material::Property(aeColor);
-				aeMaterial = make_shared<a3d::Material>(monostate{}, aeProperty, monostate{});
+				auto a3dColor = ColorFromGlTFColorArray(baseColorFactor);
+				auto a3dProperty = MaterialProperty(a3dColor);
+				a3dMaterial = make_shared<a3d::Material>(monostate{}, a3dProperty, monostate{});
 			}
 
 			// specular
@@ -529,40 +529,40 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
 
-				a3d::Material::Property aeProperty = monostate{};
+				MaterialProperty a3dProperty = monostate{};
 
 				if (textureInfo) {
 
 					auto specularTextureIndex = (*textureInfo).textureIndex;
-					if (auto aeTexture = textureFromGlTFTextureIndex(asset, specularTextureIndex)
-							; aeTexture) {
-						aeProperty = aeTexture;
+					if (auto a3dTexture = textureFromGlTFTextureIndex(asset, specularTextureIndex)
+							; a3dTexture) {
+						a3dProperty = a3dTexture;
 					}
 					else {
-						aeProperty = a3d::Material::MissingTextureProperty();
+						a3dProperty = a3d::Material::MissingTextureProperty();
 					}
 				}
 
-				if (holds_alternative<monostate>(aeProperty) && (factor > 0)) {
+				if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
 					auto factorColor = make_shared<Color>(factor);
-					aeProperty = a3d::Material::Property(factorColor);
+					a3dProperty = MaterialProperty(factorColor);
 				}
 
-				if (!holds_alternative<monostate>(aeProperty)) {
-					if (!aeMaterial) {
-						aeMaterial = make_shared<a3d::Material>(monostate{}, monostate{}, aeProperty);
+				if (!holds_alternative<monostate>(a3dProperty)) {
+					if (!a3dMaterial) {
+						a3dMaterial = make_shared<a3d::Material>(monostate{}, monostate{}, a3dProperty);
 					}
 					else {
-						aeMaterial->specular(aeProperty);
+						a3dMaterial->specular(a3dProperty);
 					}
 				}
 			}
 
-			if (aeMaterial) {
+			if (a3dMaterial) {
 
-				aeMaterial->locksAmbientWithDiffuse(true);
+				a3dMaterial->locksAmbientWithDiffuse(true);
 
-				aeMaterial->doubleSided(material.doubleSided);
+				a3dMaterial->doubleSided(material.doubleSided);
 
 				if (auto& anisotropy = material.anisotropy; anisotropy) {
 
@@ -570,17 +570,11 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
 					A3D_LOG_E("anisotropyStrength: {}", strength);
-//					aeMaterial->maxAnisotropy(strength);
+//					a3dMaterial->maxAnisotropy(strength);
 
-					// heh
-					Material::Property properties[] = { aeMaterial->ambient(),
-														aeMaterial->diffuse(),
-														aeMaterial->specular(),
-														aeMaterial->emission() };
-					for (int p=0; p<4; ++p) {
-						auto property = properties[p];
-						if (holds_alternative<shared_ptr<Texture>>(property)) {
-							auto texture = get<shared_ptr<Texture>>(property);
+					for (auto [property, type] : a3dMaterial->properties()) {
+						if (holds_alternative<shared_ptr<Texture>>(*property)) {
+							auto texture = get<shared_ptr<Texture>>(*property);
 							texture->sampler()->maxAnisotropy(strength);
 						}
 					}
@@ -592,8 +586,8 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 
 				// emissiveFactor/emissiveTexture?
 
-				_materials[*materialIndex] = aeMaterial;
-				return aeMaterial;
+				_materials[*materialIndex] = a3dMaterial;
+				return a3dMaterial;
 			}
 		}
 		else {
@@ -608,19 +602,19 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 }
 
 shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Asset& asset,
-																  std::size_t textureIndex) {
+																   std::size_t textureIndex) {
 
 	if (_textures.find(textureIndex) == _textures.end()) {
 
 		auto& texture = asset.textures[textureIndex];
 
-		if (auto aeImage = imageFromGlTFTexture(asset, texture) ; aeImage) {
+		if (auto a3dImage = imageFromGlTFTexture(asset, texture) ; a3dImage) {
 
-			auto aeSampler = samplerFromGlTFTexture(asset, texture);
+			auto a3dSampler = samplerFromGlTFTexture(asset, texture);
 
-			auto aeTexture = make_shared<a3d::Texture>(aeImage, make_shared<a3d::Sampler>());
-			_textures[textureIndex] = aeTexture;
-			return aeTexture;
+			auto a3dTexture = make_shared<a3d::Texture>(a3dImage, make_shared<a3d::Sampler>());
+			_textures[textureIndex] = a3dTexture;
+			return a3dTexture;
 		}
 	}
 	else {
@@ -631,7 +625,7 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
 }
 
 shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& asset,
-															 fastgltf::Texture& texture) {
+															  fastgltf::Texture& texture) {
 
 	if (auto samplerIndex = texture.samplerIndex) {
 
@@ -639,18 +633,18 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 
 			auto& sampler = asset.samplers[*samplerIndex];
 
-			auto aeSampler = make_shared<a3d::Sampler>();
+			auto a3dSampler = make_shared<a3d::Sampler>();
 
 			if (sampler.minFilter) {
-				aeSampler->minificationFilter(FilterMode(*sampler.minFilter));
+				a3dSampler->minificationFilter(FilterMode(*sampler.minFilter));
 			}
 			if (sampler.magFilter) {
-				aeSampler->magnificationFilter(FilterMode(*sampler.magFilter));
+				a3dSampler->magnificationFilter(FilterMode(*sampler.magFilter));
 			}
-			aeSampler->wrapS(WrapMode(sampler.wrapS));
-			aeSampler->wrapT(WrapMode(sampler.wrapT));
+			a3dSampler->wrapS(WrapMode(sampler.wrapS));
+			a3dSampler->wrapT(WrapMode(sampler.wrapT));
 
-			return aeSampler;
+			return a3dSampler;
 		}
 		else {
 			return _samplers[*samplerIndex];
@@ -661,7 +655,7 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 }
 
 shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset,
-														 fastgltf::Texture& texture) {
+														  fastgltf::Texture& texture) {
 
 	if (auto imageIndex = texture.imageIndex) {
 
@@ -669,14 +663,14 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 
 			auto& image = asset.images[*imageIndex];
 
-			shared_ptr<Image> aeImage = nullptr;
+			shared_ptr<Image> a3dImage = nullptr;
 
 			if (auto &dataSource = image.data; holds_alternative<sources::Vector>(dataSource)) { // .gltf
 				A3D_LOG_D("Creating texture image...");
 
 				auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-				auto aeBuffer = make_shared<a3d::Buffer>(uint8Vec.data(), uint8Vec.size());
-				aeImage = make_shared<a3d::Image>(aeBuffer, false);
+				auto a3dBuffer = make_shared<a3d::Buffer>(uint8Vec.data(), uint8Vec.size());
+				a3dImage = make_shared<a3d::Image>(a3dBuffer, false);
 			}
 			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
@@ -686,7 +680,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 				if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
 
 					A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-					aeImage = nullptr;
+					a3dImage = nullptr;
 				}
 				else {
 					A3D_LOG_D("Creating texture image...");
@@ -698,22 +692,22 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 					if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
 
 						auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-						auto aeBuffer = make_shared<a3d::Buffer>(&uint8Vec[byteOffset], byteLength);
-						aeImage = make_shared<a3d::Image>(aeBuffer, false);
+						auto a3dBuffer = make_shared<a3d::Buffer>(&uint8Vec[byteOffset], byteLength);
+						a3dImage = make_shared<a3d::Image>(a3dBuffer, false);
 					}
 					else {
 						A3D_LOG_W("Unexpected texture data.");
-						aeImage = nullptr;
+						a3dImage = nullptr;
 					}
 				}
 			}
 			else {
 				A3D_LOG_W("Unexpected texture data.");
-				aeImage = nullptr;
+				a3dImage = nullptr;
 			}
 
-			if (aeImage) _images[*imageIndex] = aeImage;
-			return aeImage;
+			if (a3dImage) _images[*imageIndex] = a3dImage;
+			return a3dImage;
 		}
 		else {
 			return _images[*imageIndex];
@@ -724,7 +718,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 }
 
 shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
-													  fastgltf::Node& node) {
+													   fastgltf::Node& node) {
 
 	if (auto lightIndex = node.lightIndex) {
 
@@ -735,20 +729,20 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 			if (type == fastgltf::LightType::Point) {
 
-				auto aeLight = make_shared<Light>(LightType::Point);
+				auto a3dLight = make_shared<Light>(LightType::Point);
 
-				aeLight->name(string(light.name));
-				aeLight->attenuationFactor(0); // temporary
-				aeLight->color(ColorFromGlTFColorArray(light.color));
+				a3dLight->name(string(light.name));
+				a3dLight->attenuationFactor(0); // temporary
+				a3dLight->color(ColorFromGlTFColorArray(light.color));
 				// TODO: range, intensity
 
-				_lights[*lightIndex] = aeLight;
-				return aeLight;
+				_lights[*lightIndex] = a3dLight;
+				return a3dLight;
 			}
 			else {
 
 				A3D_LOG_W("Unsupported light type: {}",
-						 magic_enum::enum_name(type));
+						  magic_enum::enum_name(type));
 			}
 		}
 		else {
@@ -760,7 +754,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 }
 
 shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
-														fastgltf::Node& node) {
+														 fastgltf::Node& node) {
 
 	if (auto cameraIndex = node.cameraIndex) {
 
@@ -773,19 +767,19 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 				auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
 
-				auto aeCamera = make_shared<PerspectiveCamera>(string(camera.name),
-															   perspective.znear,
-															   (perspective.zfar
-																? *perspective.zfar
-																: 1000000), // cheating
-															   perspective.yfov);
+				auto a3dCamera = make_shared<PerspectiveCamera>(string(camera.name),
+																perspective.znear,
+																(perspective.zfar
+																 ? *perspective.zfar
+																 : 1000000), // cheating
+																perspective.yfov);
 
 				if (auto ratio = perspective.aspectRatio) {
-					aeCamera->aspectRatio(*ratio);
+					a3dCamera->aspectRatio(*ratio);
 				}
 
-				_cameras[*cameraIndex] = aeCamera;
-				return aeCamera;
+				_cameras[*cameraIndex] = a3dCamera;
+				return a3dCamera;
 			}
 			else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
 

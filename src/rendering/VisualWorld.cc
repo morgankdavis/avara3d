@@ -33,7 +33,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Mesh> MakeSkyboxMesh(Material::Property property);
+static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -68,11 +68,11 @@ VisualWorld::~VisualWorld() {
 	Public
  *********************************************************************************************/
 
-Material::Property VisualWorld::background() const {
+MaterialProperty VisualWorld::background() const {
 	return _background;
 }
 
-void VisualWorld::background(Material::Property background) {
+void VisualWorld::background(MaterialProperty background) {
 
 	if (shared_ptr<Texture>* texture = get_if<shared_ptr<Texture>>(&background)) {
 
@@ -371,7 +371,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Mesh> MakeSkyboxMesh(Material::Property property) {
+static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
 
 	auto mesh = make_shared<Box>(1, 1, 1, 1, 1, 1);
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);

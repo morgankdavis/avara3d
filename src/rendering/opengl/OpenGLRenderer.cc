@@ -113,7 +113,7 @@ static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
 										map<MaterialPropertyType, GLuint>& glTextureHandles,
 										const DebugOptions& debugOptions);
-static void 		SendMaterialPropertyUniforms(Material::Property& property,
+static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
 												const DebugOptions& debugOptions,
@@ -824,7 +824,7 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 static void GetTextureGLTextureHandles(Material& material,
 									   OpenGLRenderer::TextureGLMapping& glMapping,
 									   unordered_set<shared_ptr<Texture>>& activeTextures,
-									   map<Material::PropertyType, GLuint>& glTextureHandles) {
+									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
@@ -1201,7 +1201,7 @@ static void BufferTexture(const Texture &texture,
 
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<Material::PropertyType, GLuint>& glTextureHandles,
+								 map<MaterialPropertyType, GLuint>& glTextureHandles,
 								 const DebugOptions& debugOptions) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
@@ -1228,7 +1228,7 @@ static void SendMaterialUniforms(const Material& material,
 	//program.unuse();
 }
 
-static void SendMaterialPropertyUniforms(Material::Property& property,
+static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
 										 const DebugOptions& debugOptions,
@@ -1497,7 +1497,7 @@ static void SetTextureSamplingOptions(Texture& texture,
 }
 
 static void SetMaterialFilteringOptions(const Material& material,
-										map<Material::PropertyType, GLuint>& glTextureHandles) {
+										map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	for (auto& [property, type] : material.properties()) {
 

@@ -148,7 +148,7 @@ int main(int argc, const char* argv[]) {
 //			for (int e=0; e<elements.size(); ++e) {
 //
 //				auto material = make_shared<Material>();
-//				Material::Property property = make_shared<Texture>(textures[texIndex++]);
+//				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
 //				material->diffuse(property);
 //				material->doubleSided(true);
 //				geometry->addMaterial(material);

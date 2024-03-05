@@ -49,8 +49,8 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		Material::Property						background() const;
-		void 									background(Material::Property background);
+		MaterialProperty						background() const;
+		void 									background(MaterialProperty background);
 
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
@@ -105,7 +105,7 @@ namespace a3d {
 
 	private:
 
-		Material::Property						_background;
+		MaterialProperty						_background;
 		std::shared_ptr<Mesh>					_skyboxMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
