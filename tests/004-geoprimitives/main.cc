@@ -46,9 +46,10 @@ int main(int argc, const char* argv[]) {
 	LOG_I(logger, "");
 
 	auto window = make_shared<Window>(RenderingApi::OpenGL,
-									  FULLSCREEN,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);

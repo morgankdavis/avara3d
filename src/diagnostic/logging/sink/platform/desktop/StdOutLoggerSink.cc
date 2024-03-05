@@ -51,8 +51,9 @@ void StdOutLoggerSink::write(const char* message, LogLevel level) {
 	}
 
 #ifdef WINDOWS
-	auto newLined = (char*)malloc(strlen(message) + 2);
-	//sprintf(newLined, "%s\n", message);
+	const size_t bufSize = strlen(message) + 2;
+	auto newLined = (char*)malloc(bufSize);
+	//snprintf(newLined, bufSize, "%s\n", message);
 	strcpy(newLined, message);
 	strcat(newLined, "\n");
 	OutputDebugStringA((const char*)newLined); // this broke with C++20.  trying to include windows.h ^^

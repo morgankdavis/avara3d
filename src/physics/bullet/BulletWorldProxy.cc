@@ -29,7 +29,7 @@ constexpr unsigned MAX_SUBSTEPS = 0; // move
 	Static Prototypes
  *********************************************************************************************/
 
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DebugOptions& options);
+static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
 /*********************************************************************************************
 	Lifecycle
@@ -193,7 +193,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const DebugOptions &debugOptions) {
 
 #ifdef OPENGL_DESKTOP
-	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);
 	_btDebugDrawer->clear();
@@ -220,7 +220,7 @@ BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 	Static
  *********************************************************************************************/
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DebugOptions& options) {
+btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
 	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
