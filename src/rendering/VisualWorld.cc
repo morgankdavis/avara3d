@@ -375,7 +375,8 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
 
-	auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
+	//auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
+	auto mesh = Box::Mesh(1, 1, 1);
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
 	mesh->addMaterial(material);

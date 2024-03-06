@@ -9,19 +9,35 @@
 #ifndef Box_h
 #define Box_h
 
+#include <memory>
+
 
 #include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
+
+	class Mesh;
+	class Material;
+
+
 	class Box: public MeshElement {
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float length,
+										  float width,
+										  float height,
+										  int lengthSegments = 1,
+										  int widthSegments = 1,
+										  int heightSegments = 1,
+										  const std::shared_ptr<Material> material
+										          = std::make_shared<Material>());
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		// z, x, y?
 		Box(float length,

@@ -10,8 +10,9 @@
 
 #include "generator/generator.hpp"
 
+#include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-
+#include "a3d/rendering/material/Material.h"
 
 
 using namespace a3d;
@@ -19,6 +20,15 @@ using namespace generator;
 using namespace glm;
 using namespace std;
 
+
+shared_ptr<Mesh> Sphere::Mesh(float radius,
+							  int segments,
+							  const shared_ptr<Material> material) {
+
+	return make_shared<a3d::Mesh>(make_shared<Sphere>(radius,
+													  segments),
+								  material);
+}
 
 /*********************************************************************************************
 	Lifecycle

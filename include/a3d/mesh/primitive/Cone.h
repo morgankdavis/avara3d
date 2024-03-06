@@ -10,18 +10,32 @@
 #define Cone_h
 
 
+#include <memory>
+
 #include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
+
+	class Mesh;
+	class Material;
+
+
 	class Cone: public MeshElement {
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float radius,
+										  float height,
+										  int slices,
+										  int segments,
+										  const std::shared_ptr<Material> material
+										  = std::make_shared<Material>());
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		Cone(float radius,
 			 float height,

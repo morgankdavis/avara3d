@@ -10,18 +10,30 @@
 #define Sphere_h
 
 
+#include <memory>
+
 #include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
+
+	class Mesh;
+	class Material;
+
+
 	class Sphere: public MeshElement {
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float radius,
+										  int segments,
+										  const std::shared_ptr<Material> material
+										  = std::make_shared<Material>());
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		Sphere(float radius,
 			   int segments);

@@ -127,7 +127,8 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 20.0;
 	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
+	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(gridImage);
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -174,7 +175,8 @@ int main(int argc, const char* argv[]) {
 			pointLightNode->position({5, 5, 0});
 			scene->rootNode()->addChild(pointLightNode);
 
-			auto sphere = Mesh::Sphere(0.1f, 12);
+			//auto sphere = Mesh::Sphere(0.1f, 12);
+			auto sphere = Sphere::Mesh(0.1f, 12);
 			auto material = make_shared<Material>(monostate{},
 												  monostate{},
 												  monostate{},

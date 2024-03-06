@@ -9,19 +9,34 @@
 #ifndef Capsule_h
 #define Capsule_h
 
+#include <memory>
+
 
 #include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
+
+	class Mesh;
+	class Material;
+
+
 	class Capsule: public MeshElement {
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float radius,
+										  float height,
+										  int slices,
+										  int segments,
+										  int rings,
+										  const std::shared_ptr<Material> material
+										  = std::make_shared<Material>());
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		Capsule(float radius,
 				float height,
