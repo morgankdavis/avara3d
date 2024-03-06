@@ -9,13 +9,13 @@
 #include <memory>
 
 #include "a3d/Types.h"
-#include "a3d/rendering/material/Sampler.h"
 
 
 namespace a3d {
 
 
 	class Sampleable;
+	class Sampler;
 
 
 	class Texture {

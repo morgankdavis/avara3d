@@ -6,7 +6,9 @@
 #define AVARA3D_STDOUTLOGGERSINK_H
 
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include <cstdio>
+
+#include "a3d/Types.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
 
 

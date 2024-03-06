@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "a3d/physics/bullet/MotionState.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
 
@@ -16,6 +15,10 @@ class btRigidBody;
 
 
 namespace a3d {
+
+
+	class MotionState;
+
 
 	class BulletBodyProxy : public PhysicsBodyProxy {
 
@@ -32,7 +35,7 @@ namespace a3d {
 	PhysicsBodyModelProxy
  *********************************************************************************************/
 
-		PhysicsBodyType		type() const override;
+		PhysicsBodyType			type() const override;
 		void					type(PhysicsBodyType type) override;
 
 		PhysicsShapeProxy*		shapeProxy() const override;
@@ -121,7 +124,7 @@ namespace a3d {
 
 	private:
 
-		void				calculateMomentOfIntertia();
+		void					calculateMomentOfIntertia();
 
 		std::shared_ptr<btRigidBody>			_btBody;
 		//std::shared_ptr<btDefaultMotionState>	_btMotionState;

@@ -20,13 +20,13 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
 
 	class Material;
+	class MeshElement;
 	class Node;
 	class Renderer;
 

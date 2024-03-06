@@ -7,6 +7,9 @@
 
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
 
 #include "a3d/Utilities.h"
 

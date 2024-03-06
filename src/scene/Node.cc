@@ -21,6 +21,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
+#include "a3d/scene/Scene.h"
 #include "a3d/rendering/Light.h"
 #include "a3d/rendering/camera/Camera.h"
 

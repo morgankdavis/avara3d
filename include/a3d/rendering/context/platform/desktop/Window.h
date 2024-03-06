@@ -16,8 +16,8 @@
 #include <optional>
 #include <string>
 
-#include "a3d/rendering/context/RenderContext.h"
 #include "a3d/Types.h"
+#include "a3d/rendering/context/RenderContext.h"
 
 
 struct GLFWwindow;

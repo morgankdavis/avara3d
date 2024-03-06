@@ -6,8 +6,6 @@
 #define OrthographicCamera_h
 
 
-//#include <glm/vec4.hpp>
-
 #include "a3d/Types.h"
 #include "a3d/rendering/camera/Camera.h"
 
