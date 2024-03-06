@@ -44,7 +44,7 @@ namespace a3d {
 
 	public:
 
-		RenderContext(RenderingApi renderAPI);
+		RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
@@ -52,8 +52,6 @@ namespace a3d {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		RenderingApi 							renderAPI() const;
 
 		unsigned 							width() const;
 		unsigned 							height() const;
@@ -78,11 +76,11 @@ namespace a3d {
 
 		VisualWorld*						visualWorld() const;
 
+		std::shared_ptr<Renderer> 			renderer() const;
+
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-
-		std::shared_ptr<Renderer> 			renderer() const;
 
 		virtual void 						swapBuffers() = 0;
 
@@ -104,9 +102,6 @@ namespace a3d {
 
 	protected:
 
-		RenderingApi 							_renderAPI;
-		std::shared_ptr<Renderer>			_renderer;
-
 		unsigned							_width;
 		unsigned							_height;
 		unsigned							_framebufferWidth;
@@ -123,6 +118,8 @@ namespace a3d {
 		unsigned							_gifRecordedFrames;
 
 		VisualWorld*						_visualWorld;
+
+		std::shared_ptr<Renderer>			_renderer;
 	};
 }
 

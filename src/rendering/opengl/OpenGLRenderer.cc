@@ -260,8 +260,12 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-	Internal
+	Renderer
  *********************************************************************************************/
+
+RenderingApi OpenGLRenderer::renderingApi() const {
+	return RenderingApi::OpenGL;
+}
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
