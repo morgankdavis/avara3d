@@ -27,7 +27,11 @@ Torus::Torus(float minorRadius,
 			 float majorRadius,
 			 int slices,
 			 int segments):
-		MeshElement() {
+		MeshElement(),
+		_minorRadius{minorRadius},
+		_majorRadius{majorRadius},
+		_slices{slices},
+		_segments{segments} {
 
 	/// @param minor Radius of the minor (inner) ring
 	/// @param major Radius of the major (outer) ring
@@ -51,4 +55,24 @@ Torus::Torus(float minorRadius,
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
 	}
+}
+
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
+
+float Torus::minorRadius() const {
+	return _minorRadius;
+}
+
+float Torus::majorRadius() const {
+	return _majorRadius;
+}
+
+int Torus::slices() const {
+	return _slices;
+}
+
+int Torus::segments() const {
+	return _segments;
 }

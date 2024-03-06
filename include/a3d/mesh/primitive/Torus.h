@@ -27,6 +27,26 @@ namespace a3d {
 			  float majorRadius,
 			  int slices,
 			  int segments);
+
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
+
+		float 	minorRadius() const;
+		float 	majorRadius() const;
+		int 	slices() const;
+		int 	segments() const;
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+	private:
+
+		float	_minorRadius;
+		float	_majorRadius;
+		int 	_slices;
+		int		_segments;
 	};
 }
 

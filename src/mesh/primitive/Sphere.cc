@@ -27,7 +27,8 @@ using namespace std;
 Sphere::Sphere(float radius,
 			   int segments):
 		MeshElement(),
-		_radius{radius} {
+		_radius{radius},
+		_segments{segments} {
 
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
@@ -53,4 +54,8 @@ Sphere::Sphere(float radius,
 
 float Sphere::radius() const {
 	return _radius;
+}
+
+int Sphere::segments() const {
+
 }

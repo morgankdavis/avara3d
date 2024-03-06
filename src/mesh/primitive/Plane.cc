@@ -29,7 +29,9 @@ Plane::Plane(float width,
 			 int heightSegments):
 		MeshElement(),
 		_width{width},
-		_height{height} {
+		_height{height},
+		_widthSegements{widthSegements},
+		_heightSegments{heightSegments} {
 
 	/// @param size Half of the side length in x (0) and y (1) direction.
 	/// @param segments Number of subdivisions in the x (0) and y (1) direction.
@@ -60,4 +62,12 @@ float Plane::width() const {
 
 float Plane::height() const {
 	return _height;
+}
+
+int Plane::widthSegements() const {
+	return _widthSegements;
+}
+
+int Plane::heightSegments() const {
+	return _heightSegments;
 }

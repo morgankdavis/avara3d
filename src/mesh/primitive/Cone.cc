@@ -30,7 +30,9 @@ Cone::Cone(float radius,
 		   int segments):
 		MeshElement(),
 		_radius{radius},
-		_height{height} {
+		_height{height},
+		_slices{slices},
+		_segments{segments} {
 
 	/// @param radius Radius of the negative z end on the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -68,4 +70,12 @@ float Cone::radius() const {
 
 float Cone::height() const {
 	return _height;
+}
+
+int Cone::slices() const {
+	return _slices;
+}
+
+int Cone::segments() const {
+	return _segments;
 }

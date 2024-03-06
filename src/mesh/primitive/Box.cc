@@ -32,7 +32,10 @@ Box::Box(float length,
 		MeshElement(),
 		_length{length},
 		_width{width},
-		_height{height} {
+		_height{height},
+		_lengthSegments{lengthSegments},
+		_widthSegments{widthSegments},
+		_heightSegments{heightSegments} {
 
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 	/// @param segments The number of segments in x (0), y (1) and z (2)
@@ -68,4 +71,16 @@ float Box::width() const {
 
 float Box::height() const {
 	return _height;
+}
+
+int Box::lengthSegments() const {
+	return _lengthSegments;
+}
+
+int Box::widthSegments() const {
+	return _widthSegments;
+}
+
+int Box::heightSegments() const {
+	return _heightSegments;
 }

@@ -31,7 +31,10 @@ Capsule::Capsule(float radius,
 				 int rings):
 		MeshElement(),
 		_radius{radius},
-		_height{height} {
+		_height{height},
+		_slices{slices},
+		_segments{segments},
+		_rings{rings} {
 
 	/// @param radius Radius of the capsule on the xy-plane.
 	/// @param size Half of the length between centers of the caps along the z-axis.
@@ -69,4 +72,16 @@ float Capsule::radius() const {
 
 float Capsule::height() const {
 	return _height;
+}
+
+int Capsule::slices() const {
+	return _slices;
+}
+
+int Capsule::segments() const {
+	return _segments;
+}
+
+int Capsule::rings() const {
+	return _rings;
 }

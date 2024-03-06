@@ -30,7 +30,9 @@ Cylinder::Cylinder(float radius,
 				   int segments):
 		MeshElement(),
 		_radius{radius},
-		_height{height} {
+		_height{height},
+		_slices{slices},
+		_segments{segments} {
 
 	/// @param radius Radius of the cylinder along the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -68,4 +70,12 @@ float Cylinder::radius() const {
 
 float Cylinder::height() const {
 	return _height;
+}
+
+int Cylinder::slices() const {
+	return _slices;
+}
+
+int Cylinder::segments() const {
+	return _segments;
 }

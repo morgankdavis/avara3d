@@ -23,7 +23,33 @@ namespace a3d {
 
 	public:
 
-		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);
+		Tube(float innerRadius,
+			 float outerRadius,
+			 float height,
+			 int slices,
+			 int segments);
+
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
+
+		float 	innerRadius() const;
+		float 	outerRadius() const;
+		float 	height() const;
+		int 	slices() const;
+		int 	segments() const;
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+	private:
+
+		float	_innerRadius;
+		float	_outerRadius;
+		float	_height;
+		int 	_slices;
+		int		_segments;
 	};
 }
 

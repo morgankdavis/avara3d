@@ -30,7 +30,8 @@ namespace a3d {
  	Public
  *********************************************************************************************/
 
-		float radius() const;
+		float 	radius() const;
+		int 	segments() const;
 
 /*********************************************************************************************
 	Private
@@ -38,7 +39,8 @@ namespace a3d {
 
 	private:
 
-		float		_radius;
+		float	_radius;
+		int		_segments;
 	};
 }
 

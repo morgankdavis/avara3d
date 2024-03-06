@@ -28,7 +28,12 @@ Tube::Tube(float innerRadius,
 		   float height,
 		   int slices,
 		   int segments):
-		MeshElement() {
+		MeshElement(),
+		_innerRadius{innerRadius},
+		_outerRadius{outerRadius},
+		_height{height},
+		_slices{slices},
+		_segments{segments} {
 
 	/// @param radius The outer radius of the cylinder on the xy-plane.
 	/// @param innerRadius The inner radius of the cylinder on the xy-plane.
@@ -52,4 +57,28 @@ Tube::Tube(float innerRadius,
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
 	}
+}
+
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
+
+float Tube::innerRadius() const {
+	return _innerRadius;
+}
+
+float Tube::outerRadius() const {
+	return _outerRadius;
+}
+
+float Tube::height() const {
+	return _height;
+}
+
+int Tube::slices() const {
+	return _slices;
+}
+
+int Tube::segments() const {
+	return _segments;
 }

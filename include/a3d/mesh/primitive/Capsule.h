@@ -35,6 +35,9 @@ namespace a3d {
 		
 		float 	radius() const;
 		float 	height() const;
+		int 	slices() const;
+		int 	segments() const;
+		int 	rings() const;
 		
 /*********************************************************************************************
 	Private
@@ -44,6 +47,9 @@ namespace a3d {
 
 		float	_radius;
 		float	_height;
+		int 	_slices;
+		int 	_segments;
+		int 	_rings;
 	};
 }
 

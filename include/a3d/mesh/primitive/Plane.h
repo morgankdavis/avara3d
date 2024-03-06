@@ -34,6 +34,8 @@ namespace a3d {
 		
 		float 		width() const;
 		float 		height() const;
+		int			widthSegements() const;
+		int			heightSegments() const;
 		
 /*********************************************************************************************
  	Private
@@ -43,6 +45,8 @@ namespace a3d {
 
 		float		_width;
 		float		_height;
+		int			_widthSegements;
+		int			_heightSegments;
 	};
 }
 
