@@ -26,9 +26,9 @@ using namespace std;
 Box::Box(float length,
 		 float width,
 		 float height,
-		 unsigned lengthSegments,
-		 unsigned widthSegments,
-		 unsigned heightSegments):
+		 int lengthSegments,
+		 int widthSegments,
+		 int heightSegments):
 		MeshElement(),
 		_length{length},
 		_width{width},

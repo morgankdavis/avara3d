@@ -25,8 +25,8 @@ using namespace std;
 
 Plane::Plane(float width,
 			 float height,
-			 unsigned widthSegements,
-			 unsigned heightSegments):
+			 int widthSegements,
+			 int heightSegments):
 		MeshElement(),
 		_width{width},
 		_height{height} {

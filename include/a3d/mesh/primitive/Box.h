@@ -27,9 +27,9 @@ namespace a3d {
 		Box(float length,
 			float width,
 			float height,
-			unsigned lengthSegments = 1,
-			unsigned widthSegments = 1,
-			unsigned heightSegments = 1);
+			int lengthSegments = 1,
+			int widthSegments = 1,
+			int heightSegments = 1);
 		
 /*********************************************************************************************
 	Public

@@ -49,9 +49,9 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 shared_ptr<Mesh> Mesh::Box(float length,
 						   float width,
 						   float height,
-						   unsigned lengthSegments,
-						   unsigned widthSegments,
-						   unsigned heightSegments) {
+						   int lengthSegments,
+						   int widthSegments,
+						   int heightSegments) {
 
 	return make_shared<Mesh>(make_shared<a3d::Box>(length,
 												   width,
@@ -103,14 +103,14 @@ shared_ptr<Mesh> Mesh::Cylinder(float radius,
 // Disk
 shared_ptr<Mesh> Mesh::Plane(float width,
 							 float height,
-							 unsigned widthSegements,
-							 unsigned heightSegments) {
+							 int widthSegements,
+							 int heightSegments) {
 
 	return make_shared<Mesh>(make_shared<a3d::Plane>(width,
 													 height,
 													 widthSegements,
 													 heightSegments),
-							 nullptr/*Material::DefaultMaterial()*/);
+							 Material::DefaultMaterial());
 }
 
 // RoundedBox

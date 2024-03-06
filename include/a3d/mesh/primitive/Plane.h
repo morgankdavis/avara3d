@@ -25,8 +25,8 @@ namespace a3d {
 
 		Plane(float width,
 			  float height,
-			  unsigned widthSegements = 1,
-			  unsigned heightSegments = 1);
+			  int widthSegements = 1,
+			  int heightSegments = 1);
 		
 /*********************************************************************************************
  	Public
