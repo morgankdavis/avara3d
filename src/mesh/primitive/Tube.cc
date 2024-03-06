@@ -30,14 +30,6 @@ using namespace std;
 Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int segments):
 		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
 
-//		double radius = 1.0,
-//		double innerRadius = 0.75,
-//		double size = 1.0,
-//		int slices = 32,
-//		int segments = 8,
-//		double start = 0.0,
-//		double sweep = gml::radians(360.0)
-		
 		/// @param radius The outer radius of the cylinder on the xy-plane.
 		/// @param innerRadius The inner radius of the cylinder on the xy-plane.
 		/// @param size Half of the length of the cylinder along the z-axis.
@@ -67,6 +59,4 @@ Tube::Tube(float innerRadius, float outerRadius, float height, int slices, int s
 		
 		auto element = make_shared<MeshElement>(verts, faces);
 		_elements.push_back(element);
-		
-		//loadVertexData();
 }

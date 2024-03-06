@@ -14,7 +14,6 @@
 
 
 namespace a3d {
-
 	
 	class Tube: public Mesh {
 

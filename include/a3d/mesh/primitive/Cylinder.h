@@ -14,7 +14,6 @@
 
 
 namespace a3d {
-
 	
 	class Cylinder: public Mesh {
 

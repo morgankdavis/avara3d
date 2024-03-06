@@ -14,7 +14,6 @@
 
 
 namespace a3d {
-
 	
 	class Plane: public Mesh {
 
