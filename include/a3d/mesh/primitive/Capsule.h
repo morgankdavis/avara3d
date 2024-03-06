@@ -31,7 +31,7 @@ namespace a3d {
 										  int slices,
 										  int segments,
 										  int rings,
-										  const std::shared_ptr<Material> material
+										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
 /*********************************************************************************************

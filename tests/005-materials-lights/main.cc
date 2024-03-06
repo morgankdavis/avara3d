@@ -100,8 +100,9 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto geometry = make_shared<Sphere>(1.5, 16);
-	geometry->addMaterial(material);
+	auto geometry = Sphere::Mesh(1.5, 4);
+	//geometry->addMaterial(material);
+	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(geometry);
 
 	if (ORTHO_CAMERA) {

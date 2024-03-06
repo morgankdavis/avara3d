@@ -15,14 +15,14 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/exception/UnsupportedFormat.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/mesh/primitive/Box.h"
-#include "a3d/mesh/primitive/Capsule.h"
-#include "a3d/mesh/primitive/Cone.h"
-#include "a3d/mesh/primitive/Cylinder.h"
-#include "a3d/mesh/primitive/Plane.h"
-#include "a3d/mesh/primitive/Sphere.h"
-#include "a3d/mesh/primitive/Torus.h"
-#include "a3d/mesh/primitive/Tube.h"
+//#include "a3d/mesh/primitive/Box.h"
+//#include "a3d/mesh/primitive/Capsule.h"
+//#include "a3d/mesh/primitive/Cone.h"
+//#include "a3d/mesh/primitive/Cylinder.h"
+//#include "a3d/mesh/primitive/Plane.h"
+//#include "a3d/mesh/primitive/Sphere.h"
+//#include "a3d/mesh/primitive/Torus.h"
+//#include "a3d/mesh/primitive/Tube.h"
 #include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/scene/Node.h"
@@ -277,7 +277,8 @@ void Mesh::draw(Renderer& renderer,
 			material = _materials[e];
 		}
 		else {
-			material = Material::DefaultMaterial();
+			material = make_shared<Material>();
+//			material = Material::DefaultMaterial();
 		}
 		
 		element->draw(renderer,

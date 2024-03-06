@@ -30,7 +30,7 @@ namespace a3d {
 										  float height,
 										  int slices,
 										  int segments,
-										  const std::shared_ptr<Material> material
+										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
 /*********************************************************************************************

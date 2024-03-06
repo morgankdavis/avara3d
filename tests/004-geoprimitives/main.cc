@@ -67,7 +67,7 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto planeMesh = Mesh::Plane(5.0f, 2.5f);
+	auto planeMesh = Plane::Mesh(5.0f, 2.5f);
 	auto planeNode = make_shared<Node>();
 	planeMesh->name("plane");
 	planeNode->mesh(planeMesh);
@@ -75,7 +75,7 @@ int main(int argc, const char* argv[]) {
 	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
 	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
 
-	auto boxMesh = Mesh::Box(3.0f, 2.0f, 1.0f);
+	auto boxMesh = Box::Mesh(3.0f, 2.0f, 1.0f);
 	auto boxNode = make_shared<Node>();
 	boxMesh->name("box");
 	boxNode->mesh(boxMesh);
@@ -83,14 +83,14 @@ int main(int argc, const char* argv[]) {
 	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
 	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
 
-	auto sphereMesh = Mesh::Sphere(0.5, 24);
+	auto sphereMesh = Sphere::Mesh(0.5, 24);
 	auto sphereNode = make_shared<Node>();
 	sphereMesh->name("sphere");
 	sphereNode->mesh(sphereMesh);
 	scene->rootNode()->addChild(sphereNode);
 	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
 
-	auto torusMesh = Mesh::Torus(0.75f, 1.0f, 64, 128);
+	auto torusMesh = Torus::Mesh(0.75f, 1.0f, 64, 128);
 	auto torusNode = make_shared<Node>();
 	torusMesh->name("torus");
 	torusNode->mesh(torusMesh);
@@ -98,7 +98,7 @@ int main(int argc, const char* argv[]) {
 	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
 
-	auto tubeMesh = Mesh::Tube(0.5f, 0.75f, 2.0f, 128, 64);
+	auto tubeMesh = Tube::Mesh(0.5f, 0.75f, 2.0f, 128, 64);
 	auto tubeNode = make_shared<Node>();
 	tubeMesh->name("tube");
 	tubeNode->mesh(tubeMesh);
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[]) {
 	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
 	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
 
-	auto capsuleMesh = Mesh::Capsule(0.5f, 1.0f, 128, 32, 64);
+	auto capsuleMesh = Capsule::Mesh(0.5f, 1.0f, 128, 32, 64);
 	auto capsuleNode = make_shared<Node>();
 	capsuleMesh->name("capsule");
 	capsuleNode->mesh(capsuleMesh);
@@ -114,7 +114,7 @@ int main(int argc, const char* argv[]) {
 	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
 
-	auto cylinderMesh = Mesh::Cylinder(0.5f, 2.0f, 128, 64);
+	auto cylinderMesh = Cylinder::Mesh(0.5f, 2.0f, 128, 64);
 	auto cylinderNode = make_shared<Node>();
 	cylinderMesh->name("cylinder");
 	cylinderNode->mesh(cylinderMesh);
@@ -122,7 +122,7 @@ int main(int argc, const char* argv[]) {
 	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
 
-	auto coneMesh = Mesh::Cone(1.0, 2.0f, 128, 64);
+	auto coneMesh = Cone::Mesh(1.0, 2.0f, 128, 64);
 	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
 	coneMesh->name("cone");

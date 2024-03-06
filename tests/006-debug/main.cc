@@ -93,8 +93,9 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
+	auto geometry = Sphere::Mesh(3.5, 4);
+//	geometry->addMaterial(material);
+	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(geometry);
 
 	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
@@ -108,7 +109,7 @@ int main(int argc, const char* argv[]) {
 
 	scene->rootNode()->addChild(dragonNode);
 
-	auto boxNode = Node::MeshNode(make_shared<Box>(1.0, 1.0, 1.0));
+	auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
 
 	window->open();

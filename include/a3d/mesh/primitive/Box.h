@@ -32,8 +32,8 @@ namespace a3d {
 										  int lengthSegments = 1,
 										  int widthSegments = 1,
 										  int heightSegments = 1,
-										  const std::shared_ptr<Material> material
-										          = std::make_shared<Material>());
+										  std::shared_ptr<Material> material
+										  = std::make_shared<Material>());
 
 /*********************************************************************************************
 	Lifecycle

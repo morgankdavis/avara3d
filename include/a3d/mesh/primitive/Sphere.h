@@ -28,7 +28,7 @@ namespace a3d {
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
 										  int segments,
-										  const std::shared_ptr<Material> material
+										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
 /*********************************************************************************************

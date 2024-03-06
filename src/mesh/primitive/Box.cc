@@ -27,7 +27,7 @@ shared_ptr<Mesh> Box::Mesh(float length,
 						   int lengthSegments,
 						   int widthSegments,
 						   int heightSegments,
-						   const shared_ptr<Material> material) {
+						   shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>(make_shared<Box>(length,
 												   width,

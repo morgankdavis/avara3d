@@ -26,7 +26,7 @@ shared_ptr<Mesh> Capsule::Mesh(float radius,
 							   int slices,
 							   int segments,
 							   int rings,
-							   const shared_ptr<Material> material) {
+							   shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>(make_shared<Capsule>(radius,
 													   height,

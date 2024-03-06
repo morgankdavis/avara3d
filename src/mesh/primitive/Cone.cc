@@ -25,7 +25,7 @@ shared_ptr<Mesh> Cone::Mesh(float radius,
 							float height,
 							int slices,
 							int segments,
-							const shared_ptr<Material> material) {
+							shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>(make_shared<Cone>(radius,
 													height,
