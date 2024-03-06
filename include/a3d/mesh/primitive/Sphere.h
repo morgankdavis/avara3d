@@ -10,17 +10,12 @@
 #define Sphere_h
 
 
-#include <vector>
-
-#include "glm/glm.hpp"
-
-#include "a3d/mesh/Mesh.h"
-#include "a3d/Types.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	class Sphere: public Mesh {
+	class Sphere: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -28,7 +23,8 @@ namespace a3d {
 
 	public:
 
-		Sphere(float radius, int segments);
+		Sphere(float radius,
+			   int segments);
 		
 /*********************************************************************************************
  	Public
@@ -43,10 +39,7 @@ namespace a3d {
 	private:
 
 		float		_radius;
-
-//		void generateIcosahedron(std::vector<Vertex>& verticies, int subdivision);
-//		void subdivideIcosahedron(std::vector<Vertex>& verticies, glm::vec3 const& A0, glm::vec3 const& B0, glm::vec3 const& C0, int subdivide);
-	};	
+	};
 }
 
 

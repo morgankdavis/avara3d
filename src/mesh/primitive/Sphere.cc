@@ -8,11 +8,8 @@
 
 #include "a3d/mesh/primitive/Sphere.h"
 
-#include <memory>
-
 #include "generator/generator.hpp"
 
-#include "a3d/Types.h"
 #include "a3d/mesh/MeshElement.h"
 
 
@@ -27,36 +24,27 @@ using namespace std;
 	Lifecycle
 *********************************************************************************************/
 
-Sphere::Sphere(float radius, int segments):
-		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
+Sphere::Sphere(float radius,
+			   int segments):
+		MeshElement(),
+		_radius{radius} {
 
-		_radius = radius;
-		
-		/// @param radius The radius of the containing sphere.
-		/// @param segments The number of segments per icosahedron edge. Must be >= 1.
-		
-		IcoSphereMesh icoSphere{radius, segments};
+	/// @param radius The radius of the containing sphere.
+	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
 
-		auto verts = vector<Vertex>();
-		for (const MeshVertex& v : icoSphere.vertices()) {
-			Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
+	auto icoSphere = IcoSphereMesh{ radius, segments };
+
+	for (const MeshVertex& v : icoSphere.vertices()) {
+		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
 							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-							  vec2(v.texCoord[0], v.texCoord[1]) };
-			verts.push_back(vertex);
-		}
-		
-		auto faces = vector<Face>();
-		for (const Triangle& t : icoSphere.triangles()) {
-			Face face = { unsigned(t.vertices[0]),
-						  unsigned(t.vertices[1]),
-						  unsigned(t.vertices[2]) };
-			faces.push_back(face);
-		}
+							  vec2(v.texCoord[0], v.texCoord[1]) });
+	}
 
-		auto element = make_shared<MeshElement>(verts, faces);
-		_elements.push_back(element);
-		
-		//loadVertexData();
+	for (const Triangle& t : icoSphere.triangles()) {
+		_faces.push_back({ unsigned(t.vertices[0]),
+						   unsigned(t.vertices[1]),
+						   unsigned(t.vertices[2]) });
+	}
 }
 
 /*********************************************************************************************

@@ -10,12 +10,12 @@
 #define Capsule_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	class Capsule: public Mesh {
+	class Capsule: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,7 +23,11 @@ namespace a3d {
 
 	public:
 
-		Capsule(float radius, float height, int slices, int segments, int rings);
+		Capsule(float radius,
+				float height,
+				int slices,
+				int segments,
+				int rings);
 		
 /*********************************************************************************************
 	Public

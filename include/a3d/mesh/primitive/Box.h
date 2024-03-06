@@ -10,12 +10,12 @@
 #define Box_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	class Box: public Mesh {
+	class Box: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -24,8 +24,12 @@ namespace a3d {
 	public:
 
 		// z, x, y?
-		Box(float length, float width, float height,
-			unsigned lengthSegments = 1, unsigned widthSegments = 1, unsigned heightSegments = 1);
+		Box(float length,
+			float width,
+			float height,
+			unsigned lengthSegments = 1,
+			unsigned widthSegments = 1,
+			unsigned heightSegments = 1);
 		
 /*********************************************************************************************
 	Public

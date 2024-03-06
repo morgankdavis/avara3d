@@ -6,8 +6,8 @@
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#ifndef GeometryElement_h
-#define GeometryElement_h
+#ifndef MeshElement_h
+#define MeshElement_h
 
 
 #include <memory>
@@ -69,6 +69,8 @@ namespace a3d {
 
 	protected:
 
+		MeshElement();
+
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
 
@@ -77,4 +79,4 @@ namespace a3d {
 }
 
 
-#endif /* GeometryElement_h */
+#endif /* MeshElement_h */

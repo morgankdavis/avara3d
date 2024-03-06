@@ -10,12 +10,12 @@
 #define Cone_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	class Cone: public Mesh {
+	class Cone: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,7 +23,10 @@ namespace a3d {
 
 	public:
 
-		Cone(float radius, float height, int slices, int segments);
+		Cone(float radius,
+			 float height,
+			 int slices,
+			 int segments);
 		
 /*********************************************************************************************
 	Public

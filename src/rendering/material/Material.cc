@@ -29,6 +29,7 @@ shared_ptr<Material> Material::DefaultMaterial() {
 		auto diffuse = make_shared<Color>(0.75f);
 		auto specular = make_shared<Color>(0.85f);
 		material = make_shared<Material>(ambient, diffuse, specular);
+		material->name("Default material");
 		material->doubleSided(true);
 		material->specularExponent(75);
 	}
@@ -39,6 +40,7 @@ shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
 	if (!material) {
 		material = Material::EmissionMaterial(Color::Magenta());
+		material->name("Missing texture material");
 		material->doubleSided(true);
 	}
 	return material;

@@ -10,12 +10,12 @@
 #define Torus_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	class Torus: public Mesh {
+	class Torus: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,7 +23,10 @@ namespace a3d {
 
 	public:
 
-		Torus(float minorRadius, float majorRadius, int slices, int segments);
+		Torus(float minorRadius,
+			  float majorRadius,
+			  int slices,
+			  int segments);
 	};
 }
 

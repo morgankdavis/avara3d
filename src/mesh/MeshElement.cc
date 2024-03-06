@@ -27,10 +27,10 @@ using namespace glm;
 
 MeshElement::MeshElement(const vector<Vertex>& verticies,
 						 const vector<Face>& faces):
-		_vertices(verticies),
-		_faces(faces),
-		_dirtyMask(MeshElementDirtyMask::All) {
-		
+		MeshElement() {
+
+	_vertices = verticies;
+	_faces = faces;
 }
 
 MeshElement::~MeshElement() {
@@ -124,3 +124,10 @@ MeshElementDirtyMask MeshElement::dirtyMask() const {
 void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 	_dirtyMask = mask;
 }
+
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
+
+MeshElement::MeshElement():
+		_dirtyMask(MeshElementDirtyMask::All) { }

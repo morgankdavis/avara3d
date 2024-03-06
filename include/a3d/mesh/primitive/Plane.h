@@ -10,12 +10,12 @@
 #define Plane_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 	
-	class Plane: public Mesh {
+	class Plane: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,8 +23,10 @@ namespace a3d {
 
 	public:
 
-		Plane(float width, float height,
-			  unsigned widthSegements = 1, unsigned heightSegments = 1);
+		Plane(float width,
+			  float height,
+			  unsigned widthSegements = 1,
+			  unsigned heightSegments = 1);
 		
 /*********************************************************************************************
  	Public
@@ -42,7 +44,6 @@ namespace a3d {
 		float		_width;
 		float		_height;
 	};
-	
 }
 
 

@@ -10,12 +10,12 @@
 #define Tube_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 	
-	class Tube: public Mesh {
+	class Tube: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle

@@ -42,12 +42,12 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>		logger;
+std::shared_ptr<a3d::Logger>	logger;
 
 
 shared_ptr<Node>				geometryNode;
-shared_ptr<Mesh> 			geometry;
-vector<shared_ptr<Mesh>> 	geometries;
+shared_ptr<Mesh> 				geometry;
+vector<shared_ptr<Mesh>> 		geometries;
 
 
 int main(int argc, const char* argv[]) {
@@ -127,7 +127,7 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 20.0;
 	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->mesh(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(gridImage);
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -150,16 +150,15 @@ int main(int argc, const char* argv[]) {
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
-	planeNode->mesh()->addMaterial(planeMaterial);
+//	planeNode->mesh()->addMaterial(planeMaterial);
+	planeNode->mesh()->replaceMaterial(0, planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
-	auto planePhysicsBody = PhysicsBody::StaticBody();
-//	A3D_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
-//	A3D_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
-	planeNode->physicsBody(planePhysicsBody);
-	planePhysicsBody->friction(1);
-	planePhysicsBody->restitution(0.25);
+//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	planeNode->physicsBody(planePhysicsBody);
+//	planePhysicsBody->friction(1);
+//	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
 
@@ -175,7 +174,7 @@ int main(int argc, const char* argv[]) {
 			pointLightNode->position({5, 5, 0});
 			scene->rootNode()->addChild(pointLightNode);
 
-			auto sphere = make_shared<Sphere>(0.1f, 12);
+			auto sphere = Mesh::Sphere(0.1f, 12);
 			auto material = make_shared<Material>(monostate{},
 												  monostate{},
 												  monostate{},

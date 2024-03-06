@@ -39,7 +39,6 @@
 #include "a3d/mesh/primitive/Cone.h"
 #include "a3d/mesh/primitive/Cylinder.h"
 #include "a3d/mesh/primitive/Plane.h"
-#include "a3d/mesh/primitive/Pyramid.h"
 #include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/mesh/primitive/Torus.h"
 #include "a3d/mesh/primitive/Tube.h"

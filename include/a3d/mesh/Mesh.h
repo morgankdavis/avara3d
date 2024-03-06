@@ -21,12 +21,12 @@
 
 #include "a3d/Types.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/material/Material.h"
 
 
 namespace a3d {
 
 
+	class Material;
 	class Node;
 	class Renderer;
 
@@ -42,6 +42,46 @@ namespace a3d {
 		static std::shared_ptr<Mesh> 		FromFile(const std::filesystem::path& path,
 													 MeshImportOptions options =
 													 MeshImportOptions::ImportMaterials);
+
+		// TODO: add default params
+		static std::shared_ptr<Mesh>		Box(float length,
+												float width,
+												float height,
+												unsigned lengthSegments = 1,
+												unsigned widthSegments = 1,
+												unsigned heightSegments = 1);
+		static std::shared_ptr<Mesh>		Capsule(float radius,
+													float height,
+													int slices,
+													int segments,
+													int rings);
+		static std::shared_ptr<Mesh>		Cone(float radius,
+												 float height,
+												 int slices,
+												 int segments);
+		static std::shared_ptr<Mesh>		Cylinder(float radius,
+													 float height,
+													 int slices,
+													 int segments);
+											// Disk
+		static std::shared_ptr<Mesh>		Plane(float width,
+												  float height,
+												  unsigned widthSegements = 1,
+												  unsigned heightSegments = 1);
+											// RoundedBox
+		static std::shared_ptr<Mesh>		Sphere(float radius,
+												   int segments);
+											// Spring
+		static std::shared_ptr<Mesh>		Torus(float minorRadius,
+												  float majorRadius,
+												  int slices,
+												  int segments);
+											// TorusKnot
+		static std::shared_ptr<Mesh>		Tube(float innerRadius,
+												 float outerRadius,
+												 float height,
+												 int slices,
+												 int segments);
 
 /*********************************************************************************************
 	Lifecycle
@@ -87,8 +127,8 @@ namespace a3d {
 														 const DebugOptions& debugOptions,
 														 Stats& stats);
 
-		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		AABB								aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 							extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
 //		void 										attachedToNode(std::shared_ptr<Node> node);
 

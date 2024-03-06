@@ -8,9 +8,6 @@
 
 #include "a3d/mesh/primitive/Cylinder.h"
 
-#include <memory>
-#include <vector>
-
 #include "generator/generator.hpp"
 
 #include "a3d/Types.h"
@@ -27,11 +24,13 @@ using namespace std;
 	Lifecycle
 *********************************************************************************************/
 
-Cylinder::Cylinder(float radius, float height, int slices, int segments):
-		Mesh(vector<shared_ptr<MeshElement>>(), vector<shared_ptr<Material>>()) {
-
-	_radius = radius;
-	_height = height;
+Cylinder::Cylinder(float radius,
+				   float height,
+				   int slices,
+				   int segments):
+		MeshElement(),
+		_radius{radius},
+		_height{height} {
 
 	/// @param radius Radius of the cylinder along the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -40,26 +39,19 @@ Cylinder::Cylinder(float radius, float height, int slices, int segments):
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	CappedCylinderMesh cylinder{radius, height/2.0, slices, segments};
+	auto cylinder = CappedCylinderMesh{ radius, height/2.0, slices, segments };
 
-	auto verts = vector<Vertex>();
 	for (const MeshVertex& v : cylinder.vertices()) {
-		Vertex vertex = { vec3(v.position[0], v.position[1], v.position[2]),
-						  vec3(v.normal[0], v.normal[1], v.normal[2]),
-						  vec2(v.texCoord[0], v.texCoord[1]) };
-		verts.push_back(vertex);
+		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+							  vec3(v.normal[0], v.normal[1], v.normal[2]),
+							  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
-	auto faces = vector<Face>();
 	for (const Triangle& t : cylinder.triangles()) {
-		Face face = { unsigned(t.vertices[0]),
-					  unsigned(t.vertices[1]),
-					  unsigned(t.vertices[2]) };
-		faces.push_back(face);
+		_faces.push_back({ unsigned(t.vertices[0]),
+						   unsigned(t.vertices[1]),
+						   unsigned(t.vertices[2]) });
 	}
-
-	auto element = make_shared<MeshElement>(verts, faces);
-	_elements.push_back(element);
 
 	// this orientation is what bullet expects
 	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));

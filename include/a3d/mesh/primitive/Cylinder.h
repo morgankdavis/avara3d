@@ -10,12 +10,12 @@
 #define Cylinder_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 	
-	class Cylinder: public Mesh {
+	class Cylinder: public MeshElement {
 
 /*********************************************************************************************
 	Lifecycle
@@ -23,7 +23,10 @@ namespace a3d {
 
 	public:
 
-		Cylinder(float radius, float height, int slices, int segments);
+		Cylinder(float radius,
+				 float height,
+				 int slices,
+				 int segments);
 		
 /*********************************************************************************************
 	Public
