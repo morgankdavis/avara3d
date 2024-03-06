@@ -18,7 +18,6 @@
 
 #include "a3d/Types.h"
 #include "a3d/rendering/Renderer.h"
-#include "a3d/rendering/material/Material.h"
 
 
 namespace a3d {
@@ -80,6 +79,8 @@ namespace a3d {
 /*********************************************************************************************
 	Renderer
  *********************************************************************************************/
+
+		RenderingApi 				renderingApi() const override;
 
 		bool 						initialize(const RenderContext& context) override;
 

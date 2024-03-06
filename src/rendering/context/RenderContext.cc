@@ -32,9 +32,7 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-RenderContext::RenderContext(RenderingApi renderAPI):
-		_renderAPI(renderAPI),
-		_renderer(nullptr),
+RenderContext::RenderContext(RenderingApi renderingApi):
 		_width(0),
 		_height(0),
 		_framebufferWidth(0),
@@ -48,9 +46,10 @@ RenderContext::RenderContext(RenderingApi renderAPI):
 		_gifRecordingHeight(0),
 		_gifRecordingMaxFramerate(0),
 		_gifRecordedFrames(0),
-		_visualWorld(nullptr) {
+		_visualWorld(nullptr),
+		_renderer(nullptr) {
 
-	switch (_renderAPI) {
+	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
 			auto renderer = make_shared<OpenGLRenderer>();
 			_renderer = static_pointer_cast<Renderer>(renderer);
@@ -75,10 +74,6 @@ RenderContext::~RenderContext() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-
-RenderingApi RenderContext::renderAPI() const {
-	return _renderAPI;
-}
 
 unsigned RenderContext::width() const {
 	return _width;
@@ -177,13 +172,13 @@ VisualWorld* RenderContext::visualWorld() const {
 	return _visualWorld;
 }
 
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
 shared_ptr<Renderer> RenderContext::renderer() const {
 	return _renderer;
 }
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
 
 void RenderContext::width(unsigned width) {
 	_width = width;
