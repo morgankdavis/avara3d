@@ -68,13 +68,13 @@ int main(int argc, const char* argv[]) {
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	{
-		auto mesh = Box::Mesh(3.0f, 2.0f, 1.0f);
+		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
 		auto node = make_shared<Node>();
 		node->name("box");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
-		node->position(vec3(2.0f, 0.0f, -2.0f));
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
+		node->position(vec3(1.67f, -2.5f, 0.0f));
 	}
 
 	{
@@ -83,7 +83,7 @@ int main(int argc, const char* argv[]) {
 		node->name("capsule");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(-3.5f, 0.0f, -1.0f));
+		node->position(vec3(-5.0f, -2.5f, 0.0f));
 	}
 
 	{
@@ -92,7 +92,7 @@ int main(int argc, const char* argv[]) {
 		mesh->name("cone");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(-1.5f, 2.5f, -1.0f));
+		node->position(vec3(-5.0f, 0.0f, 0.0f));
 	}
 
 	{
@@ -101,54 +101,55 @@ int main(int argc, const char* argv[]) {
 		mesh->name("cylinder");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(3.5f, 0.0f, -1.0f));
+		node->position(vec3(5.0f, -2.5f, 0.0f));
 	}
 
 	{
-		auto mesh = Disk::Mesh(1.0f, 3.25f);
+		auto mesh = Disk::Mesh(1.0f, 5.0f);
 		auto node = make_shared<Node>();
 		node->name("disk");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(0.0f, 6.0f, 0.0f));
+		node->position(vec3(0.0f, 5.0f, 0.0f));
 	}
 
 	{
-		auto mesh = Plane::Mesh(7.5f, 7.5f);
+		auto mesh = Plane::Mesh(10.0f, 10.0f);
 		auto node = make_shared<Node>();
 		mesh->name("plane");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
 		node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-		node->position(vec3(0.0f, -2.0f, 0.0f));
+		node->position(vec3(0.0f, -5.0f, 0.0f));
 	}
 
 	{
-		auto mesh = RoundedBox::Mesh(0.5f, 1, 1, 1);
+		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
 		auto node = make_shared<Node>();
 		mesh->name("rounded box");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(-3.0f, 4.0f, -1.0f));
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
+		node->position(vec3(-5.0f, 2.5f, 0.0f));
 	}
 
 	{
-		auto mesh = Sphere::Mesh(0.5f);
+		auto mesh = Sphere::Mesh(1.0f);
 		auto node = make_shared<Node>();
 		mesh->name("sphere");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(0.0f, 2.0f, 0.0f));
+		node->position(vec3(5.0f, 2.5f, 0.0f));
 	}
 
 	{
-		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.0f);
+		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
 		auto node = make_shared<Node>();
 		mesh->name("spring");
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
-		node->position(vec3(0.0f, 4.0f, 0.0f));
-		node->rotation({1.0f, 0.0f, 0.0f}, radians(-90.0f));
+		node->position(vec3(0.0f, 2.5f, 0.0f));
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
 	}
 
 	{
@@ -158,7 +159,7 @@ int main(int argc, const char* argv[]) {
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
 		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-		node->position(vec3(-2.0f, 0.0f, -2.0f));
+		node->position(vec3(5.0f, 0.0f, 0.0f));
 	}
 
 	{
@@ -168,7 +169,7 @@ int main(int argc, const char* argv[]) {
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
 		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-		node->position(vec3(2.0f, 4.0f, -2.0f));
+		node->position(vec3(0.0f, 0.0f, 0.0f));
 	}
 
 	{
@@ -178,7 +179,7 @@ int main(int argc, const char* argv[]) {
 		node->mesh(mesh);
 		scene->rootNode()->addChild(node);
 		node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-		node->position(vec3(0.0f, 0.0f, -2.0f));
+		node->position(vec3(-1.67f, -2.5f, 0.0f));
 	}
 
 //	int texIndex = 0;
