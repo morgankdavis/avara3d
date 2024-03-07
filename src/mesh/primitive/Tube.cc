@@ -9,6 +9,7 @@
 #include "a3d/mesh/primitive/Tube.h"
 
 #include "generator/generator.hpp"
+#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -26,13 +27,15 @@ shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 							float height,
 							int slices,
 							int segments,
+							int rings,
 							shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>(make_shared<Tube>(innerRadius,
 													outerRadius,
 													height,
 													slices,
-													segments),
+													segments,
+													rings),
 								  material);
 }
 
@@ -44,13 +47,15 @@ Tube::Tube(float innerRadius,
 		   float outerRadius,
 		   float height,
 		   int slices,
-		   int segments):
+		   int segments,
+		   int rings):
 		MeshElement(),
 		_innerRadius{innerRadius},
 		_outerRadius{outerRadius},
 		_height{height},
 		_slices{slices},
-		_segments{segments} {
+		_segments{segments},
+		_rings{rings} {
 
 	/// @param radius The outer radius of the cylinder on the xy-plane.
 	/// @param innerRadius The inner radius of the cylinder on the xy-plane.
@@ -61,7 +66,7 @@ Tube::Tube(float innerRadius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto tube = CappedTubeMesh{ outerRadius, innerRadius, height/2.0, slices, segments };
+	auto tube = CappedTubeMesh{outerRadius, innerRadius, height/2.0, slices, segments, rings};
 
 	for (const MeshVertex& v : tube.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -98,4 +103,8 @@ int Tube::slices() const {
 
 int Tube::segments() const {
 	return _segments;
+}
+
+int Tube::rings() const {
+	return _rings;
 }

@@ -1,12 +1,8 @@
 //
-//  Sphere.cc
-//	avara3d
-//
-//  Created by Morgan Davis on 11/6/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+// Created by mkd on 3/6/24.
 //
 
-#include "a3d/mesh/primitive/Sphere.h"
+#include "a3d/mesh/primitive/TorusKnot.h"
 
 #include "generator/generator.hpp"
 #include "glm/glm.hpp"
@@ -22,12 +18,16 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> Sphere::Mesh(float radius,
-							  int segments,
-							  shared_ptr<Material> material) {
+shared_ptr<Mesh> TorusKnot::Mesh(int p,
+								 int q,
+								 int slices,
+								 int segments,
+								 shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Sphere>(radius,
-													  segments),
+	return make_shared<a3d::Mesh>(make_shared<TorusKnot>(p,
+														 q,
+														 slices,
+														 segments),
 								  material);
 }
 
@@ -35,24 +35,30 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 	Lifecycle
 *********************************************************************************************/
 
-Sphere::Sphere(float radius,
-			   int segments):
+TorusKnot::TorusKnot(int p,
+					 int q,
+					 int slices,
+					 int segments):
 		MeshElement(),
-		_radius{radius},
+		_p{p},
+		_q{q},
+		_slices{slices},
 		_segments{segments} {
 
-	/// @param radius The radius of the containing sphere.
-	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
+	// p & q are mysteries!
 
-	auto icoSphere = IcoSphereMesh{radius, segments};
+	/// @param slices Number subdivisions around the circle.
+	/// @param segments Number of subdivisions around the path.
 
-	for (const MeshVertex& v : icoSphere.vertices()) {
+	auto torusKnot = TorusKnotMesh{p, q, slices, segments};
+
+	for (const MeshVertex& v : torusKnot.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
 							  vec3(v.normal[0], v.normal[1], v.normal[2]),
 							  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
-	for (const Triangle& t : icoSphere.triangles()) {
+	for (const Triangle& t : torusKnot.triangles()) {
 		_faces.push_back({ unsigned(t.vertices[0]),
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
@@ -63,10 +69,18 @@ Sphere::Sphere(float radius,
  	Public
  *********************************************************************************************/
 
-float Sphere::radius() const {
-	return _radius;
+int TorusKnot::p() const {
+	return _p;
 }
 
-int Sphere::segments() const {
+int TorusKnot::q() const {
+	return _q;
+}
+
+int TorusKnot::slices() const {
+	return _slices;
+}
+
+int TorusKnot::segments() const {
 	return _segments;
 }

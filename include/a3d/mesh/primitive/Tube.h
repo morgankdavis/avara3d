@@ -24,13 +24,20 @@ namespace a3d {
 
 	class Tube: public MeshElement {
 
+	private:
+
+		static constexpr int DEFAULT_SLICES = 32;
+		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr int DEFAULT_RINGS = 1;
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float innerRadius,
 										  float outerRadius,
 										  float height,
-										  int slices,
-										  int segments,
+										  int slices = DEFAULT_SLICES,
+										  int segments = DEFAULT_SEGMENTS,
+										  int rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
@@ -41,8 +48,9 @@ namespace a3d {
 		Tube(float innerRadius,
 			 float outerRadius,
 			 float height,
-			 int slices,
-			 int segments);
+			 int slices = DEFAULT_SLICES,
+			 int segments = DEFAULT_SEGMENTS,
+			 int rings = DEFAULT_RINGS);
 
 /*********************************************************************************************
  	Public
@@ -53,6 +61,7 @@ namespace a3d {
 		float 	height() const;
 		int 	slices() const;
 		int 	segments() const;
+		int 	rings() const;
 
 /*********************************************************************************************
 	Private
@@ -65,6 +74,7 @@ namespace a3d {
 		float	_height;
 		int 	_slices;
 		int		_segments;
+		int		_rings;
 	};
 }
 

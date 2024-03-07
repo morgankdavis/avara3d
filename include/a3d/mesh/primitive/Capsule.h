@@ -24,13 +24,19 @@ namespace a3d {
 
 	class Capsule: public MeshElement {
 
+	private:
+
+		static constexpr int DEFAULT_SLICES = 32;
+		static constexpr int DEFAULT_SEGMENTS = 4;
+		static constexpr int DEFAULT_RINGS = 8;
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
 										  float height,
-										  int slices,
-										  int segments,
-										  int rings,
+										  int slices = DEFAULT_SLICES,
+										  int segments = DEFAULT_SEGMENTS,
+										  int rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
@@ -40,9 +46,9 @@ namespace a3d {
 
 		Capsule(float radius,
 				float height,
-				int slices,
-				int segments,
-				int rings);
+				int slices = DEFAULT_SLICES,
+				int segments = DEFAULT_SEGMENTS,
+				int rings = DEFAULT_RINGS);
 		
 /*********************************************************************************************
 	Public

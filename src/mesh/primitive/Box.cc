@@ -60,7 +60,7 @@ Box::Box(float length,
 	/// @param segments The number of segments in x (0), y (1) and z (2)
 
 	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
-						{ lengthSegments, widthSegments, heightSegments } };
+						{ widthSegments, lengthSegments, heightSegments } };
 
 	for (const MeshVertex& v : box.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),

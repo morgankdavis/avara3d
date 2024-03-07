@@ -24,12 +24,16 @@ namespace a3d {
 	
 	class Plane: public MeshElement {
 
+	private:
+
+		static constexpr int DEFAULT_SEGMENTS = 8;
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float width,
 										  float height,
-										  int widthSegements = 1,
-										  int heightSegments = 1,
+										  int widthSegements = DEFAULT_SEGMENTS,
+										  int heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
@@ -39,8 +43,8 @@ namespace a3d {
 
 		Plane(float width,
 			  float height,
-			  int widthSegements = 1,
-			  int heightSegments = 1);
+			  int widthSegements = DEFAULT_SEGMENTS,
+			  int heightSegments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
  	Public

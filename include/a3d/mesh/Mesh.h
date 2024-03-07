@@ -43,46 +43,6 @@ namespace a3d {
 													 MeshImportOptions options =
 													 MeshImportOptions::ImportMaterials);
 
-//		// TODO: add default params
-//		static std::shared_ptr<Mesh>		Box(float length,
-//												float width,
-//												float height,
-//												int lengthSegments = 1,
-//												int widthSegments = 1,
-//												int heightSegments = 1);
-//		static std::shared_ptr<Mesh>		Capsule(float radius,
-//													float height,
-//													int slices,
-//													int segments,
-//													int rings);
-//		static std::shared_ptr<Mesh>		Cone(float radius,
-//												 float height,
-//												 int slices,
-//												 int segments);
-//		static std::shared_ptr<Mesh>		Cylinder(float radius,
-//													 float height,
-//													 int slices,
-//													 int segments);
-//											// Disk
-//		static std::shared_ptr<Mesh>		Plane(float width,
-//												  float height,
-//												  int widthSegements = 1,
-//												  int heightSegments = 1);
-//											// RoundedBox
-//		static std::shared_ptr<Mesh>		Sphere(float radius,
-//												   int segments);
-//											// Spring
-//		static std::shared_ptr<Mesh>		Torus(float minorRadius,
-//												  float majorRadius,
-//												  int slices,
-//												  int segments);
-//											// TorusKnot
-//		static std::shared_ptr<Mesh>		Tube(float innerRadius,
-//												 float outerRadius,
-//												 float height,
-//												 int slices,
-//												 int segments);
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/

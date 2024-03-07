@@ -9,6 +9,7 @@
 #include "a3d/mesh/primitive/Cylinder.h"
 
 #include "generator/generator.hpp"
+#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -25,12 +26,14 @@ shared_ptr<Mesh> Cylinder::Mesh(float radius,
 								float height,
 								int slices,
 								int segments,
+								int rings,
 								shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>(make_shared<Cylinder>(radius,
 														height,
 														slices,
-														segments),
+														segments,
+														rings),
 								  material);
 }
 
@@ -41,12 +44,14 @@ shared_ptr<Mesh> Cylinder::Mesh(float radius,
 Cylinder::Cylinder(float radius,
 				   float height,
 				   int slices,
-				   int segments):
+				   int segments,
+				   int rings):
 		MeshElement(),
 		_radius{radius},
 		_height{height},
 		_slices{slices},
-		_segments{segments} {
+		_segments{segments},
+		_rings{rings} {
 
 	/// @param radius Radius of the cylinder along the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -55,7 +60,7 @@ Cylinder::Cylinder(float radius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto cylinder = CappedCylinderMesh{ radius, height/2.0, slices, segments };
+	auto cylinder = CappedCylinderMesh{radius, height/2.0, slices, segments, rings};
 
 	for (const MeshVertex& v : cylinder.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -92,4 +97,8 @@ int Cylinder::slices() const {
 
 int Cylinder::segments() const {
 	return _segments;
+}
+
+int Cylinder::rings() const {
+	return _rings;
 }

@@ -15,14 +15,6 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/exception/UnsupportedFormat.h"
 #include "a3d/mesh/MeshElement.h"
-//#include "a3d/mesh/primitive/Box.h"
-//#include "a3d/mesh/primitive/Capsule.h"
-//#include "a3d/mesh/primitive/Cone.h"
-//#include "a3d/mesh/primitive/Cylinder.h"
-//#include "a3d/mesh/primitive/Plane.h"
-//#include "a3d/mesh/primitive/Sphere.h"
-//#include "a3d/mesh/primitive/Torus.h"
-//#include "a3d/mesh/primitive/Tube.h"
 #include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/scene/Node.h"
@@ -45,110 +37,6 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 	auto sceneOpts = SceneImportOptions(optsUnderlying) | SceneImportOptions::ImportMeshes;
 	return GlTFImporter(path, sceneOpts).firstMesh();
 }
-
-//shared_ptr<Mesh> Mesh::Box(float length,
-//						   float width,
-//						   float height,
-//						   int lengthSegments,
-//						   int widthSegments,
-//						   int heightSegments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Box>(length,
-//												   width,
-//												   height,
-//												   lengthSegments,
-//												   widthSegments,
-//												   heightSegments),
-//							 Material::DefaultMaterial());
-//}
-//
-//shared_ptr<Mesh> Mesh::Capsule(float radius,
-//							   float height,
-//							   int slices,
-//							   int segments,
-//							   int rings) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Capsule>(radius,
-//													   height,
-//													   slices,
-//													   segments,
-//													   rings),
-//							 Material::DefaultMaterial());
-//}
-//
-//shared_ptr<Mesh> Mesh::Cone(float radius,
-//							float height,
-//							int slices,
-//							int segments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Cone>(radius,
-//													height,
-//													slices,
-//													segments),
-//							 Material::DefaultMaterial());
-//}
-//
-//shared_ptr<Mesh> Mesh::Cylinder(float radius,
-//								float height,
-//								int slices,
-//								int segments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Cylinder>(radius,
-//														height,
-//														slices,
-//														segments),
-//							 Material::DefaultMaterial());
-//}
-//
-//// Disk
-//shared_ptr<Mesh> Mesh::Plane(float width,
-//							 float height,
-//							 int widthSegements,
-//							 int heightSegments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Plane>(width,
-//													 height,
-//													 widthSegements,
-//													 heightSegments),
-//							 Material::DefaultMaterial());
-//}
-//
-//// RoundedBox
-//shared_ptr<Mesh> Mesh::Sphere(float radius,
-//							  int segments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Sphere>(radius,
-//													  segments),
-//							 Material::DefaultMaterial());
-//}
-//
-//// Spring
-//shared_ptr<Mesh> Mesh::Torus(float minorRadius,
-//							 float majorRadius,
-//							 int slices,
-//							 int segments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Torus>(minorRadius,
-//													 majorRadius,
-//													 slices,
-//													 segments),
-//							 Material::DefaultMaterial());
-//}
-//
-//// TorusKnot
-//shared_ptr<Mesh> Mesh::Tube(float innerRadius,
-//							float outerRadius,
-//							float height,
-//							int slices,
-//							int segments) {
-//
-//	return make_shared<Mesh>(make_shared<a3d::Tube>(innerRadius,
-//													outerRadius,
-//													height,
-//													slices,
-//													segments),
-//							 Material::DefaultMaterial());
-//}
 
 /*********************************************************************************************
 	Lifecycle

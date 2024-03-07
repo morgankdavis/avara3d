@@ -24,10 +24,14 @@ namespace a3d {
 
 	class Sphere: public MeshElement {
 
+	private:
+
+		static constexpr int DEFAULT_SEGMENTS = 4;
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
-										  int segments,
+										  int segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material
 										  = std::make_shared<Material>());
 
@@ -36,7 +40,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		Sphere(float radius,
-			   int segments);
+			   int segments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
  	Public
