@@ -12,14 +12,13 @@
 #ifdef DESKTOP
 
 
-#include "a3d/input/InputManager.h"
-
 #include <memory>
 #include <set>
 
 #include "glm/vec2.hpp"
 
 #include "a3d/Types.h"
+#include "a3d/input/InputManager.h"
 
 
 struct GLFWwindow;

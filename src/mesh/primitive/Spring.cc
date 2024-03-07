@@ -1,12 +1,8 @@
 //
-//  Torus.cc
-//	avara3d
-//
-//  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+// Created by mkd on 3/6/24.
 //
 
-#include "a3d/mesh/primitive/Torus.h"
+#include "a3d/mesh/primitive/Spring.h"
 
 #include "generator/generator.hpp"
 #include "glm/glm.hpp"
@@ -22,16 +18,18 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> Torus::Mesh(float minorRadius,
-							 float majorRadius,
-							 int slices,
-							 int segments,
-							 shared_ptr<Material> material) {
+shared_ptr<Mesh> Spring::Mesh(float minorRadius,
+							  float majorRadius,
+							  float length,
+							  int slices,
+							  int segments,
+							  shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Torus>(minorRadius,
-													 majorRadius,
-													 slices,
-													 segments),
+	return make_shared<a3d::Mesh>(make_shared<Spring>(minorRadius,
+													  majorRadius,
+													  length,
+													  slices,
+													  segments),
 								  material);
 }
 
@@ -39,34 +37,35 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 	Lifecycle
 *********************************************************************************************/
 
-Torus::Torus(float minorRadius,
-			 float majorRadius,
-			 int slices,
-			 int segments):
+Spring::Spring(float minorRadius,
+			   float majorRadius,
+			   float length,
+			   int slices,
+			   int segments):
 		MeshElement(),
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
+		_length{length},
 		_slices{slices},
 		_segments{segments} {
 
-	/// @param minor Radius of the minor (inner) ring
-	/// @param major Radius of the major (outer) ring
-	/// @param slices Subdivisions around the minor ring
-	/// @param segments Subdivisions around the major ring
-	/// @param minorStart Counterclockwise angle relative to the xy-plane.
-	/// @param minorSweep Counterclockwise angle around the circle.
+	/// @param minor Radius of the spring it self.
+	/// @param major Radius from the z-axis
+	/// @param size Half of the length along the z-axis.
+	/// @param slices Subdivisions around the spring.
+	/// @param segments Subdivisions along the path.
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
-	/// @param majorSweep Counterclockwise angle around the z-axis.
+	/// @param majorSweep Counterclockwise angle arounf the z-axis.
 
-	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, slices, segments};
+	auto spring = SpringMesh{minorRadius, majorRadius, length/2.0, slices, segments};
 
-	for (const MeshVertex& v : torus.vertices()) {
+	for (const MeshVertex& v : spring.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
 							  vec3(v.normal[0], v.normal[1], v.normal[2]),
 							  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
-	for (const Triangle& t : torus.triangles()) {
+	for (const Triangle& t : spring.triangles()) {
 		_faces.push_back({ unsigned(t.vertices[0]),
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
@@ -74,21 +73,25 @@ Torus::Torus(float minorRadius,
 }
 
 /*********************************************************************************************
- 	Public
+	Public
  *********************************************************************************************/
 
-float Torus::minorRadius() const {
+float Spring::minorRadius() const {
 	return _minorRadius;
 }
 
-float Torus::majorRadius() const {
+float Spring::majorRadius() const {
 	return _majorRadius;
 }
 
-int Torus::slices() const {
+float Spring::length() const {
+	return _length;
+}
+
+int Spring::slices() const {
 	return _slices;
 }
 
-int Torus::segments() const {
+int Spring::segments() const {
 	return _segments;
 }

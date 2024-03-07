@@ -100,8 +100,9 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto geometry = make_shared<Sphere>(1.5, 16);
-	geometry->addMaterial(material);
+	auto geometry = Sphere::Mesh(1.5, 4, material);
+	//geometry->addMaterial(material);
+//	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(geometry);
 
 	if (ORTHO_CAMERA) {
@@ -110,6 +111,9 @@ int main(int argc, const char* argv[]) {
 																	   {100, 100, 100}}));
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
+
+//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
+//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
 
 	// random lights
 

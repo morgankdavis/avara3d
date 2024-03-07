@@ -10,21 +10,70 @@
 #define Tube_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include <memory>
+
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	
-	class Tube: public Mesh {
+
+	class Mesh;
+	class Material;
+
+
+	class Tube: public MeshElement {
+
+	private:
+
+		static constexpr int DEFAULT_SLICES = 32;
+		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr int DEFAULT_RINGS = 1;
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float innerRadius,
+										  float outerRadius,
+										  float height,
+										  int slices = DEFAULT_SLICES,
+										  int segments = DEFAULT_SEGMENTS,
+										  int rings = DEFAULT_RINGS,
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-	public:
+		Tube(float innerRadius,
+			 float outerRadius,
+			 float height,
+			 int slices = DEFAULT_SLICES,
+			 int segments = DEFAULT_SEGMENTS,
+			 int rings = DEFAULT_RINGS);
 
-		Tube(float innerRadius, float outerRadius, float height, int slices, int segments);
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
+
+		float 	innerRadius() const;
+		float 	outerRadius() const;
+		float 	height() const;
+		int 	slices() const;
+		int 	segments() const;
+		int 	rings() const;
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
+
+	private:
+
+		float	_innerRadius;
+		float	_outerRadius;
+		float	_height;
+		int 	_slices;
+		int		_segments;
+		int		_rings;
 	};
 }
 

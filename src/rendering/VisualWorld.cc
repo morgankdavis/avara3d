@@ -17,6 +17,8 @@
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/rendering/Light.h"
 #include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -373,7 +375,8 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
 
-	auto mesh = make_shared<Box>(1, 1, 1, 1, 1, 1);
+	//auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
+	auto mesh = Box::Mesh(1, 1, 1);
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
 	mesh->addMaterial(material);

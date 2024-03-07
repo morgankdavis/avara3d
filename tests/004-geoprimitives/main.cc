@@ -67,70 +67,120 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
-	auto planeNode = make_shared<Node>();
-	planeGeo->name("plane");
-	planeNode->mesh(planeGeo);
-	scene->rootNode()->addChild(planeNode);
-	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
+	{
+		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
+		auto node = make_shared<Node>();
+		node->name("box");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
+		node->position(vec3(1.67f, -2.5f, 0.0f));
+	}
 
-	auto boxGeo = make_shared<Box>(3.0f, 2.0f, 1.0f);
-	auto boxNode = make_shared<Node>();
-	boxGeo->name("box");
-	boxNode->mesh(boxGeo);
-	scene->rootNode()->addChild(boxNode);
-	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
-	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
+	{
+		auto mesh = Capsule::Mesh(0.5f, 1.0f);
+		auto node = make_shared<Node>();
+		node->name("capsule");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(-5.0f, -2.5f, 0.0f));
+	}
 
-	auto sphereGeo = make_shared<Sphere>(0.5, 24);
-	auto sphereNode = make_shared<Node>();
-	sphereGeo->name("sphere");
-	sphereNode->mesh(sphereGeo);
-	scene->rootNode()->addChild(sphereNode);
-	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
+	{
+		auto mesh = Cone::Mesh(1.0f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("cone");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(-5.0f, 0.0f, 0.0f));
+	}
 
-	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
-	auto torusNode = make_shared<Node>();
-	torusGeo->name("torus");
-	torusNode->mesh(torusGeo);
-	scene->rootNode()->addChild(torusNode);
-	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
+	{
+		auto mesh = Cylinder::Mesh(0.5f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("cylinder");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(5.0f, -2.5f, 0.0f));
+	}
 
-	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 2.0f, 128, 64);
-	auto tubeNode = make_shared<Node>();
-	tubeGeo->name("tube");
-	tubeNode->mesh(tubeGeo);
-	scene->rootNode()->addChild(tubeNode);
-	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
+	{
+		auto mesh = Disk::Mesh(1.0f, 5.0f);
+		auto node = make_shared<Node>();
+		node->name("disk");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(0.0f, 5.0f, 0.0f));
+	}
 
-	auto capsuleGeo = make_shared<Capsule>(0.5f, 1.0f, 128, 32, 64);
-	auto capsuleNode = make_shared<Node>();
-	capsuleGeo->name("capsule");
-	capsuleNode->mesh(capsuleGeo);
-	scene->rootNode()->addChild(capsuleNode);
-	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
+	{
+		auto mesh = Plane::Mesh(10.0f, 10.0f);
+		auto node = make_shared<Node>();
+		mesh->name("plane");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+		node->position(vec3(0.0f, -5.0f, 0.0f));
+	}
 
-	auto cylinderGeo = make_shared<Cylinder>(0.5f, 2.0f, 128, 64);
-	auto cylinderNode = make_shared<Node>();
-	cylinderGeo->name("cylinder");
-	cylinderNode->mesh(cylinderGeo);
-	scene->rootNode()->addChild(cylinderNode);
-	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
+	{
+		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
+		auto node = make_shared<Node>();
+		mesh->name("rounded box");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
+		node->position(vec3(-5.0f, 2.5f, 0.0f));
+	}
 
-	auto coneGeo = make_shared<Cone>(1.0, 2.0f, 128, 64);
-	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
-	auto coneNode = make_shared<Node>();
-	coneGeo->name("cone");
-	coneNode->mesh(coneGeo);
-	scene->rootNode()->addChild(coneNode);
-	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
+	{
+		auto mesh = Sphere::Mesh(1.0f);
+		auto node = make_shared<Node>();
+		mesh->name("sphere");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(5.0f, 2.5f, 0.0f));
+	}
 
+	{
+		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
+		auto node = make_shared<Node>();
+		mesh->name("spring");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(0.0f, 2.5f, 0.0f));
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
+	}
+
+	{
+		auto mesh = Torus::Mesh(0.75f, 1.0f);
+		auto node = make_shared<Node>();
+		mesh->name("torus");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+		node->position(vec3(5.0f, 0.0f, 0.0f));
+	}
+
+	{
+		auto mesh = TorusKnot::Mesh(2, 3);
+		auto node = make_shared<Node>();
+		mesh->name("torus knot");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+		node->position(vec3(0.0f, 0.0f, 0.0f));
+	}
+
+	{
+		auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("tube");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
+		node->position(vec3(-1.67f, -2.5f, 0.0f));
+	}
 
 //	int texIndex = 0;
 //	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
@@ -140,19 +190,22 @@ int main(int argc, const char* argv[]) {
 //										   utils::ImageNamed("test_textures/orange", "png"),
 //										   utils::ImageNamed("test_textures/purple", "png"),
 //										   utils::ImageNamed("test_textures/red", "png"),
-//										   utils::ImageNamed("test_textures/yellow", "png") };
+//										   utils::ImageNamed("test_textures/yellow", "png"),
+//										   utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png") };
 //
 //	for (auto& node : scene->rootNode()->children(true)) {
-//		if (auto geometry = node->geometry(); geometry) {
+//		if (auto mesh = node->mesh(); mesh) {
 //
-//			auto elements = geometry->elements();
+//			auto elements = mesh->elements();
 //			for (int e=0; e<elements.size(); ++e) {
 //
 //				auto material = make_shared<Material>();
 //				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
 //				material->diffuse(property);
 //				material->doubleSided(true);
-//				geometry->addMaterial(material);
+//				//mesh->addMaterial(material);
+//				mesh->replaceMaterial(0, material);
 //				if (texIndex >= textures.size()) {
 //					texIndex = 0;
 //				}

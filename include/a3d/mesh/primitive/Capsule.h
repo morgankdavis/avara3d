@@ -9,22 +9,45 @@
 #ifndef Capsule_h
 #define Capsule_h
 
+#include <memory>
 
-#include "a3d/mesh/Mesh.h"
+
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	
-	class Capsule: public Mesh {
+
+	class Mesh;
+	class Material;
+
+
+	class Capsule: public MeshElement {
+
+	private:
+
+		static constexpr int DEFAULT_SLICES = 32;
+		static constexpr int DEFAULT_SEGMENTS = 4;
+		static constexpr int DEFAULT_RINGS = 8;
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float radius,
+										  float height,
+										  int slices = DEFAULT_SLICES,
+										  int segments = DEFAULT_SEGMENTS,
+										  int rings = DEFAULT_RINGS,
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-	public:
-
-		Capsule(float radius, float height, int slices, int segments, int rings);
+		Capsule(float radius,
+				float height,
+				int slices = DEFAULT_SLICES,
+				int segments = DEFAULT_SEGMENTS,
+				int rings = DEFAULT_RINGS);
 		
 /*********************************************************************************************
 	Public
@@ -32,6 +55,9 @@ namespace a3d {
 		
 		float 	radius() const;
 		float 	height() const;
+		int 	slices() const;
+		int 	segments() const;
+		int 	rings() const;
 		
 /*********************************************************************************************
 	Private
@@ -41,6 +67,9 @@ namespace a3d {
 
 		float	_radius;
 		float	_height;
+		int 	_slices;
+		int 	_segments;
+		int 	_rings;
 	};
 }
 

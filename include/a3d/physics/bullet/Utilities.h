@@ -7,9 +7,12 @@
 
 
 #include "glm/glm.hpp"
-#include "LinearMath/btQuaternion.h"
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btVector3.h"
+
+
+class btQuaternion;
+class btTransform;
+class btVector3;
+class btVector4;
 
 
 namespace a3d {

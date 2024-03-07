@@ -56,8 +56,8 @@ static void 	GLFWErrorCallback(int error,
 
 Window::Window(RenderingApi renderAPI,
 			   string title,
-			   size_t width,
-			   size_t height,
+			   int width,
+			   int height,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):

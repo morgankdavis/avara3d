@@ -16,8 +16,8 @@
 #include <optional>
 #include <string>
 
-#include "a3d/rendering/context/RenderContext.h"
 #include "a3d/Types.h"
+#include "a3d/rendering/context/RenderContext.h"
 
 
 struct GLFWwindow;
@@ -55,8 +55,8 @@ namespace a3d {
 
 		Window(RenderingApi renderAPI,
 			   std::string title,
-			   size_t width,
-			   size_t height,
+			   int width,
+			   int height,
 			   bool fullScreen,
 			   bool useHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);

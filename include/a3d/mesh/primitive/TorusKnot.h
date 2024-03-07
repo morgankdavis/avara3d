@@ -1,13 +1,9 @@
 //
-//  Torus.h
-//	avara3d
-//
-//  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+// Created by mkd on 3/6/24.
 //
 
-#ifndef Torus_h
-#define Torus_h
+#ifndef AVARA3D_TORUSKNOT_H
+#define AVARA3D_TORUSKNOT_H
 
 
 #include <memory>
@@ -22,17 +18,17 @@ namespace a3d {
 	class Material;
 
 
-	class Torus: public MeshElement {
+	class TorusKnot: public MeshElement {
 
 	private:
 
-		static constexpr int DEFAULT_SLICES = 16;
-		static constexpr int DEFAULT_SEGMENTS = 32;
+		static constexpr int DEFAULT_SLICES = 8;
+		static constexpr int DEFAULT_SEGMENTS = 96;
 
 	public:
 
-		static std::shared_ptr<Mesh> Mesh(float minorRadius,
-										  float majorRadius,
+		static std::shared_ptr<Mesh> Mesh(int p,
+										  int q,
 										  int slices = DEFAULT_SLICES,
 										  int segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
@@ -41,17 +37,17 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		Torus(float minorRadius,
-			  float majorRadius,
-			  int slices = DEFAULT_SLICES,
-			  int segments = DEFAULT_SEGMENTS);
+		TorusKnot(int p,
+				  int q,
+				  int slices = DEFAULT_SLICES,
+				  int segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
  	Public
  *********************************************************************************************/
 
-		float 	minorRadius() const;
-		float 	majorRadius() const;
+		int 	p() const;
+		int 	q() const;
 		int 	slices() const;
 		int 	segments() const;
 
@@ -61,12 +57,12 @@ namespace a3d {
 
 	private:
 
-		float	_minorRadius;
-		float	_majorRadius;
+		int		_p;
+		int		_q;
 		int 	_slices;
 		int		_segments;
 	};
 }
 
 
-#endif /* Torus_h */
+#endif //AVARA3D_TORUSKNOT_H

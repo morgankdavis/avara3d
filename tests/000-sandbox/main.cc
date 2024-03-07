@@ -42,12 +42,12 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>		logger;
+std::shared_ptr<a3d::Logger>	logger;
 
 
-shared_ptr<Node>				geometryNode;
-shared_ptr<Mesh> 			geometry;
-vector<shared_ptr<Mesh>> 	geometries;
+shared_ptr<Node>				meshNode;
+shared_ptr<Mesh> 				geometry;
+vector<shared_ptr<Mesh>> 		meshes;
 
 
 int main(int argc, const char* argv[]) {
@@ -127,7 +127,8 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 20.0;
 	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->mesh(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(gridImage);
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -151,15 +152,14 @@ int main(int argc, const char* argv[]) {
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
 	planeNode->mesh()->addMaterial(planeMaterial);
+//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
-	auto planePhysicsBody = PhysicsBody::StaticBody();
-//	A3D_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
-//	A3D_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
-	planeNode->physicsBody(planePhysicsBody);
-	planePhysicsBody->friction(1);
-	planePhysicsBody->restitution(0.25);
+//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	planeNode->physicsBody(planePhysicsBody);
+//	planePhysicsBody->friction(1);
+//	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
 
@@ -175,44 +175,47 @@ int main(int argc, const char* argv[]) {
 			pointLightNode->position({5, 5, 0});
 			scene->rootNode()->addChild(pointLightNode);
 
-			auto sphere = make_shared<Sphere>(0.1f, 12);
 			auto material = make_shared<Material>(monostate{},
 												  monostate{},
 												  monostate{},
 												  pointLight->color());
-			sphere->addMaterial(material);
+			//auto sphere = Mesh::Sphere(0.1f, 12);
+			auto sphere = Sphere::Mesh(0.1f, 12, material);
+
+			//sphere->addMaterial(material);
+//			sphere->replaceMaterial(0, material);
 			pointLightNode->mesh(sphere);
 		}
 //
-//		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
-//		auto testGeometry = GeometryNamed("slurm/slurm");
-//		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
-//		auto testGeometry = GeometryNamed("palm/palm");
-//		auto testGeometry = GeometryNamed("palms/palms");
-//		auto testGeometry = GeometryNamed("island/island");
-//		auto testGeometry = GeometryNamed("teapot");
-//		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
-//		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-//		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
+//		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
+//		auto testMesh = MeshNamed("slurm/slurm");
+//		auto testMesh = MeshNamed("cardboard_box/cardboard_box");
+//		auto testMesh = MeshNamed("palm/palm");
+//		auto testMesh = MeshNamed("palms/palms");
+//		auto testMesh = MeshNamed("island/island");
+//		auto testMesh = MeshNamed("teapot");
+//		auto testMesh = MeshNamed("apple_lod/apple_lod");
+//		auto testMesh = MeshNamed("banana_lod/banana_lod");
+//		auto testMesh = MeshNamed("cherries_lod/cherries_lod");
 // 		REVISIT ME
 //			- no normals
 //			- normals
 //			- no groupings (1 element?)
 //			- groupings (multiple elements?)
 //			- textures
-//		auto testGeometry = GeometryNamed("convalia_bouquet");
-//		auto testGeometry = GeometryNamed("dragon");
-//		auto testGeometry = GeometryNamed("orange_lod/orange_lod");
-//		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-//		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-//		auto testGeometry = GeometryNamed("pallet/pallet");
-//		auto testGeometry = GeometryNamed("siamese/siamese");
-//		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-//		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-//		auto testGeometry = GeometryNamed("crocus/crocus");
+//		auto testMesh = MeshNamed("convalia_bouquet");
+//		auto testMesh = MeshNamed("dragon");
+//		auto testMesh = MeshNamed("orange_lod/orange_lod");
+//		auto testMesh = MeshNamed("pear_lod/pear_lod");
+//		auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
+//		auto testMesh = MeshNamed("pallet/pallet");
+//		auto testMesh = MeshNamed("siamese/siamese");
+//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
+//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
+//		auto testMesh = MeshNamed("crocus/crocus");
 
 
-	geometries = vector<shared_ptr<Mesh>>{
+	meshes = vector<shared_ptr<Mesh>>{
 			MeshNamed("apple_lod/apple_lod"),
 			MeshNamed("banana_lod/banana_lod"),
 			MeshNamed("cardboard_box/cardboard_box"),
@@ -234,38 +237,38 @@ int main(int argc, const char* argv[]) {
 			MeshNamed("tuna/tuna")
 		};
 
-//	auto testGeometry = GeometryNamed("apple_lod/apple_lod");
-//	auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-//	auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
-//	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-//	auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
-//	auto testGeometry = GeometryNamed("crocus/crocus");
-//	auto testGeometry = GeometryNamed("dragon/dragon");
-//	auto testGeometry = GeometryNamed("island/island");
-//	auto testGeometry = GeometryNamed("orange_lod/orange_lod");
-//	auto testGeometry = GeometryNamed("pallet/pallet");
-//	auto testGeometry = GeometryNamed("palm/palm");
-//	auto testGeometry = GeometryNamed("palms/palms");
-//	auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-//	auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-//	auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
-//	auto testGeometry = GeometryNamed("siamese/siamese");
-//	auto testGeometry = GeometryNamed("slurm/slurm");
-//	auto testGeometry = GeometryNamed("teapot/teapot");
-//	auto testGeometry = GeometryNamed("tuna/tuna");
+//	auto testMesh = MeshNamed("apple_lod/apple_lod");
+//	auto testMesh = MeshNamed("banana_lod/banana_lod");
+//	auto testMesh = MeshNamed("cardboard_box/cardboard_box");
+//	auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
+//	auto testMesh = MeshNamed("cherries_lod/cherries_lod");
+//	auto testMesh = MeshNamed("crocus/crocus");
+//	auto testMesh = MeshNamed("dragon/dragon");
+//	auto testMesh = MeshNamed("island/island");
+//	auto testMesh = MeshNamed("orange_lod/orange_lod");
+//	auto testMesh = MeshNamed("pallet/pallet");
+//	auto testMesh = MeshNamed("palm/palm");
+//	auto testMesh = MeshNamed("palms/palms");
+//	auto testMesh = MeshNamed("pear_lod/pear_lod");
+//	auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
+//	auto testMesh = MeshNamed("rubber_duck/rubber_duck");
+//	auto testMesh = MeshNamed("siamese/siamese");
+//	auto testMesh = MeshNamed("slurm/slurm");
+//	auto testMesh = MeshNamed("teapot/teapot");
+//	auto testMesh = MeshNamed("tuna/tuna");
 	// -> 19
 
 
-	auto geometry = geometries[0];
-	geometryNode = Node::MeshNode(geometry);
-	geometryNode->position({0, 5, 0});
-	scene->rootNode()->addChild(geometryNode);
+	auto mesh = meshes[0];
+	meshNode = Node::MeshNode(mesh);
+	meshNode->position({0, 5, 0});
+	scene->rootNode()->addChild(meshNode);
 
 
-//		for (auto &m: testGeometry->materials()) {
+//		for (auto &m: testMesh->materials()) {
 //			m->doubleSided(true);
 //		}
-//		auto testNode = Node::GeometryNode(testGeometry);
+//		auto testNode = Node::meshNode(testMesh);
 ////		testNode->position({0, 5, 0});
 //		scene->rootNode()->addChild(testNode);
 ////	}
@@ -275,9 +278,9 @@ int main(int argc, const char* argv[]) {
 ////	{
 //		auto testScene = SceneNamed("import_test/import_test");
 ////		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
-////									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+////									SCENE_IMPORT_OPTIONS::IMPORT_MESHES
 ////									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-////									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
+////									| SCENE_IMPORT_OPTIONS::FIRST_MESH_ONLY);
 ////		auto testScene = SceneNamed("import_test", "glb");
 ////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
 ////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
@@ -312,7 +315,7 @@ int main(int argc, const char* argv[]) {
 //					auto property = make_shared<MaterialProperty>(light->color());
 //					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 //					sphere->addMaterial(material);
-//					node->geometry(sphere);
+//					node->mesh(sphere);
 //				}
 //			}
 //		}
@@ -417,18 +420,18 @@ void UpdateCallback(Scene& scene, float time) {
 //	int x = std::distance(geometries, it);
 	static int index = 0;
 	if (keysPressed.count(Key::LeftBracket)) {
-		geometry = geometries[--index];
+		geometry = meshes[--index];
 		auto name = geometry->name();
 		if (name) A3D_LOG_D("name: {}", *name);
-		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->mesh(geometry);
+		//meshNode = Node::meshNode(geometry);
+		meshNode->mesh(geometry);
 	}
 	if (keysPressed.count(Key::RightBracket)) {
-		geometry = geometries[++index];
+		geometry = meshes[++index];
 		auto name = geometry->name();
 		if (name) A3D_LOG_D("name: {}", *name);
-		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->mesh(geometry);
+		//meshNode = Node::meshNode(geometry);
+		meshNode->mesh(geometry);
 	}
 
 
@@ -437,71 +440,71 @@ void UpdateCallback(Scene& scene, float time) {
 	if (keysPressed.count(Key::F)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowWireframes));
+											   DebugOptions::ShowWireframes));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowWireframes));
+											DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowBoundingBoxes));
+											   DebugOptions::ShowBoundingBoxes));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowBoundingBoxes));
+											DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowStatsOverlay));
+											   DebugOptions::ShowStatsOverlay));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowStatsOverlay));
+											DebugOptions::ShowStatsOverlay));
 		}
 	}
 	if (keysPressed.count(Key::P)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowPhysicsBoundingBoxes));
+											   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowPhysicsBoundingBoxes));
+											DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::G)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowPhysicsWireframes));
+											   DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowPhysicsWireframes));
+											DebugOptions::ShowPhysicsWireframes));
 		}
 	}
 	if (keysPressed.count(Key::C)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowPhysicsContactPoints));
+											   DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowPhysicsContactPoints));
+											DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
 	if (keysPressed.count(Key::N)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-											  DebugOptions::ShowPhysicsNormals));
+											   DebugOptions::ShowPhysicsNormals));
 		}
 		else {
 			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
-										   DebugOptions::ShowPhysicsNormals));
+											DebugOptions::ShowPhysicsNormals));
 		}
 	}
 

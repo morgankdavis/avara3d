@@ -6,7 +6,8 @@
 #define AVARA3D_ANDROIDLOGGERSINK_H
 
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include <cstdio>
+
 #include "a3d/diagnostic/logging/sinks/LoggerSink.h"
 
 

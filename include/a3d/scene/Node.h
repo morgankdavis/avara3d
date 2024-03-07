@@ -22,7 +22,6 @@
 #include "glm/gtc/quaternion.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/scene/Scene.h"
 
 
 namespace a3d {
@@ -31,7 +30,11 @@ namespace a3d {
 	class Camera;
 	class Light;
 	class Mesh;
+	class Renderer;
+	class Scene;
+	class PhysicalWorld;
 	class PhysicsBody;
+	class VisualWorld;
 
 	
 	class Node : public std::enable_shared_from_this<Node> {

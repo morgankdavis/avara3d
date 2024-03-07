@@ -17,7 +17,6 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/rendering/material/Material.h"
 
 
 namespace a3d {

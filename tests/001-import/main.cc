@@ -37,7 +37,7 @@ constexpr bool					CAPTURE_CURSOR =		false;
 
 
 std::shared_ptr<a3d::Node> 		importLightsCamerasRoot;
-std::shared_ptr<a3d::Node> 		importGeometryRoot;
+std::shared_ptr<a3d::Node> 		importMeshRoot;
 
 
 int main(int argc, const char* argv[]) {
@@ -83,7 +83,7 @@ int main(int argc, const char* argv[]) {
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-	importGeometryRoot = make_shared<Node>("importGeometryRoot");
+	importMeshRoot = make_shared<Node>("importMeshRoot");
 
 	for (auto& node : testSceneNodes) {
 
@@ -91,15 +91,15 @@ int main(int argc, const char* argv[]) {
 			importLightsCamerasRoot->addChild(node);
 		}
 		else {
-			importGeometryRoot->addChild(node);
+			importMeshRoot->addChild(node);
 		}
 	}
 
 
-//	importGeometryRoot = testScene->rootNode();
+//	importMeshRoot = testScene->rootNode();
 
 	scene->rootNode()->addChild(importLightsCamerasRoot);
-	scene->rootNode()->addChild(importGeometryRoot);
+	scene->rootNode()->addChild(importMeshRoot);
 
 	window->open();
 	scene->run();
@@ -119,9 +119,9 @@ void UpdateCallback(Scene& scene, float time) {
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	importGeometryRoot->transform(rotate(importGeometryRoot->transform(),
-										 radians(rotationDeg),
-										 {0.0f, 1.0f, 0.0f}));
+	importMeshRoot->transform(rotate(importMeshRoot->transform(),
+									 radians(rotationDeg),
+									 {0.0f, 1.0f, 0.0f}));
 
 	static float timeAccum = 0;
 	static unsigned frames = 0;

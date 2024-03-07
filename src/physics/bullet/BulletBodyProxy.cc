@@ -15,6 +15,7 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletShapeProxy.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/bullet/MotionState.h"
 #include "a3d/physics/bullet/Utilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"

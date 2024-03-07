@@ -10,22 +10,40 @@
 #define Plane_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include <memory>
+
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
+
+	class Mesh;
+	class Material;
+
 	
-	class Plane: public Mesh {
+	class Plane: public MeshElement {
+
+	private:
+
+		static constexpr int DEFAULT_SEGMENTS = 8;
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float width,
+										  float height,
+										  int widthSegements = DEFAULT_SEGMENTS,
+										  int heightSegments = DEFAULT_SEGMENTS,
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-	public:
-
-		Plane(float width, float height,
-			  unsigned widthSegements = 1, unsigned heightSegments = 1);
+		Plane(float width,
+			  float height,
+			  int widthSegements = DEFAULT_SEGMENTS,
+			  int heightSegments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
  	Public
@@ -33,6 +51,8 @@ namespace a3d {
 		
 		float 		width() const;
 		float 		height() const;
+		int			widthSegements() const;
+		int			heightSegments() const;
 		
 /*********************************************************************************************
  	Private
@@ -42,8 +62,9 @@ namespace a3d {
 
 		float		_width;
 		float		_height;
+		int			_widthSegements;
+		int			_heightSegments;
 	};
-	
 }
 
 

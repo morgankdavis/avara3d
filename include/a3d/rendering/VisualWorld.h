@@ -10,13 +10,13 @@
 #include <memory>
 
 #include "a3d/Types.h"
-#include "a3d/rendering/material/Material.h"
 
 
 namespace a3d {
 
 
 	class Color;
+	class Material;
 	class Mesh;
 	class Node;
 	class PhysicalWorld;

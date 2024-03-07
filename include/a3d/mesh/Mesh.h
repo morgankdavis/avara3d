@@ -20,13 +20,13 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/material/Material.h"
 
 
 namespace a3d {
 
 
+	class Material;
+	class MeshElement;
 	class Node;
 	class Renderer;
 
@@ -58,44 +58,40 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 					name() const;
-		void 										name(const std::string& name);
+		std::optional<std::string> 				name() const;
+		void 									name(const std::string& name);
 
-		const std::vector<std::shared_ptr<MeshElement>>& 	elements();
+		const std::vector<std::shared_ptr<MeshElement>>&	elements();
 		const std::vector<std::shared_ptr<Material>>& 		materials();
 
-		std::shared_ptr<Material> 					firstMaterial() const;
-		std::shared_ptr<Material> 					materialNamed(const std::string& name) const;
-		void 										addMaterial(const std::shared_ptr<Material> material);
-		void 										insertMaterial(const std::shared_ptr<Material> material,
-																   int index);
-		void 										removeMaterial(int index);
-		void 										replaceMaterial(int index,
-																	const std::shared_ptr<Material> replacement);
+		std::shared_ptr<Material> 				firstMaterial() const;
+		std::shared_ptr<Material> 				materialNamed(const std::string& name) const;
+		void 									addMaterial(const std::shared_ptr<Material> material);
+		void 									insertMaterial(const std::shared_ptr<Material> material,
+															   int index);
+		void 									removeMaterial(int index);
+		void 									replaceMaterial(int index,
+																const std::shared_ptr<Material> replacement);
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 										burnTransform(const glm::mat4& transform,
+		void 									burnTransform(const glm::mat4& transform,
 																  bool normals);
 
-		void 										draw(Renderer& renderer,
+		void 									draw(Renderer& renderer,
 														 const glm::mat4& modelMat,
 														 const glm::mat4& viewMat,
 														 const glm::mat4& projectionMat,
 														 const DebugOptions& debugOptions,
 														 Stats& stats);
 
-		AABB										aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 									extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		AABB						aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		glm::vec3 					extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
 
-//		void 										attachedToNode(std::shared_ptr<Node> node);
-
-//		std::weak_ptr<Node> 						node() const;
-
-		MeshDirtyMask 								dirtyMask() const;
-		void 										dirtyMask(MeshDirtyMask mask);
+		MeshDirtyMask 							dirtyMask() const;
+		void 									dirtyMask(MeshDirtyMask mask);
 
 /*********************************************************************************************
 	Protected
@@ -112,10 +108,9 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string>					_name;
-//		std::weak_ptr<Node>							_node;
+		std::optional<std::string>				_name;
 
-		MeshDirtyMask								_dirtyMask;
+		MeshDirtyMask							_dirtyMask;
 	};
 }
 

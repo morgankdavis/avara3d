@@ -261,6 +261,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset
 			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
 							? materialFromGlFTPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
+//							: make_shared<Material>();
 			if (material) materials.push_back(material);
 		}
 
@@ -598,6 +599,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asse
 		A3D_LOG_W("Missing material.");
 	}
 
+//	return make_shared<Material>();
 	return a3d::Material::DefaultMaterial();
 }
 

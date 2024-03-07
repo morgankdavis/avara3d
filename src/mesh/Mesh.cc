@@ -46,7 +46,6 @@ Mesh::Mesh():
 		_name(nullopt),
 		_elements(vector<shared_ptr<MeshElement>>()),
 		_materials(vector<shared_ptr<Material>>()),
-//	_node({}),
 		_dirtyMask(MeshDirtyMask::All) {
 
 }
@@ -55,8 +54,8 @@ Mesh::Mesh(const shared_ptr<MeshElement> element,
 		   const shared_ptr<Material> material):
 		Mesh() {
 
-	_elements.emplace_back(element);
-	_materials.emplace_back(material);
+	if (element) _elements.emplace_back(element);
+	if (material) _materials.emplace_back(material);
 }
 
 Mesh::Mesh(const vector<shared_ptr<MeshElement>> elements,
@@ -119,9 +118,9 @@ void Mesh::insertMaterial(const shared_ptr<Material> material, int index) {
 }
 
 void Mesh::removeMaterial(int index) {
-	if (_materials.size() >= index-1) {
+//	if (_materials.size() >= index-1) { // fails when index==0
 		_materials.erase(_materials.begin()+index);
-	}
+//	}
 }
 
 void Mesh::replaceMaterial(int index, const shared_ptr<Material> replacement) {
@@ -165,6 +164,7 @@ void Mesh::draw(Renderer& renderer,
 			material = _materials[e];
 		}
 		else {
+//			material = make_shared<Material>();
 			material = Material::DefaultMaterial();
 		}
 		
@@ -207,14 +207,6 @@ vec3 Mesh::extent(const shared_ptr<Node> convertToNode) const {
 			aabb.max.y - aabb.min.y,
 			aabb.max.z - aabb.min.z};
 }
-
-//void Mesh::attachedToNode(shared_ptr<Node> node) {
-//	_node = node;
-//}
-//
-//weak_ptr<Node> Mesh::node() const {
-//	return _node;
-//}
 
 MeshDirtyMask Mesh::dirtyMask() const {
 	return _dirtyMask;

@@ -10,21 +10,44 @@
 #define Cone_h
 
 
-#include "a3d/mesh/Mesh.h"
+#include <memory>
+
+#include "a3d/mesh/MeshElement.h"
 
 
 namespace a3d {
 
-	
-	class Cone: public Mesh {
+
+	class Mesh;
+	class Material;
+
+
+	class Cone: public MeshElement {
+
+	private:
+
+		static constexpr int DEFAULT_SLICES = 32;
+		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr int DEFAULT_RINGS = 4;
+
+	public:
+
+		static std::shared_ptr<Mesh> Mesh(float radius,
+										  float height,
+										  int slices = DEFAULT_SLICES,
+										  int segments = DEFAULT_SEGMENTS,
+										  int rings = DEFAULT_RINGS,
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-	public:
-
-		Cone(float radius, float height, int slices, int segments);
+		Cone(float radius,
+			 float height,
+			 int slices = DEFAULT_SLICES,
+			 int segments = DEFAULT_SEGMENTS,
+			 int rings = DEFAULT_RINGS);
 		
 /*********************************************************************************************
 	Public
@@ -32,7 +55,10 @@ namespace a3d {
 		
 		float 	radius() const;
 		float 	height() const;
-		
+		int		slices() const;
+		int		segments() const;
+		int		rings() const;
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -41,6 +67,9 @@ namespace a3d {
 
 		float 	_radius;
 		float 	_height;
+		int		_slices;
+		int		_segments;
+		int		_rings;
 	};
 }
 
