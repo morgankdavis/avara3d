@@ -218,7 +218,7 @@ BTShapeFromSourceMesh(Mesh* mesh,
 		btIndexVertexArrays.push_back(indexVertexArray);
 	}
 	else if (mesh->elements().size() > 1) {
-		// make compound shape, loop BTShapeFromGeometryElement()
+		// make compound shape, loop BTShapeFromMeshElement()
 
 		newShape = BTShapeFromMesh(mesh,
 								   shapeType,
@@ -248,7 +248,7 @@ BTShapeFromSourceNode(Node* node,
 
 	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
 
-	// add the root geometry
+	// add the root mesh
 	auto mesh = node->mesh().get();
 	if (mesh) {
 
@@ -417,7 +417,7 @@ BTShapeFromMesh(Mesh* mesh,
 												 btShapes,
 												 indexVertexArray);
 
-		// the Geometry's transform is added to the btRigidBody's localInertia
+		// the Mesh's transform is added to the btRigidBody's localInertia
 		newShape->addChildShape(btTransform::getIdentity(),
 								childShape.get());
 

@@ -123,7 +123,7 @@ int main(int argc, const char* argv[]) {
 	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
 
 	auto coneMesh = Cone::Mesh(1.0, 2.0f, 128, 64);
-	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
+	//auto coneMesh = make_shared<Cone>(1.0, 1.0f, 4, 4);
 	auto coneNode = make_shared<Node>();
 	coneMesh->name("cone");
 	coneNode->mesh(coneMesh);
@@ -143,16 +143,16 @@ int main(int argc, const char* argv[]) {
 //										   utils::ImageNamed("test_textures/yellow", "png") };
 //
 //	for (auto& node : scene->rootNode()->children(true)) {
-//		if (auto geometry = node->geometry(); geometry) {
+//		if (auto mesh = node->mesh(); mesh) {
 //
-//			auto elements = geometry->elements();
+//			auto elements = mesh->elements();
 //			for (int e=0; e<elements.size(); ++e) {
 //
 //				auto material = make_shared<Material>();
 //				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
 //				material->diffuse(property);
 //				material->doubleSided(true);
-//				geometry->addMaterial(material);
+//				mesh->addMaterial(material);
 //				if (texIndex >= textures.size()) {
 //					texIndex = 0;
 //				}

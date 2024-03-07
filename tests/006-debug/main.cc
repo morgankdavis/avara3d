@@ -93,10 +93,10 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto geometry = Sphere::Mesh(3.5, 4);
-//	geometry->addMaterial(material);
-	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
-	pointLightNode->mesh(geometry);
+	auto mesh = Sphere::Mesh(3.5, 4);
+//	mesh->addMaterial(material);
+	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
+	pointLightNode->mesh(mesh);
 
 	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));

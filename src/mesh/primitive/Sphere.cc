@@ -67,5 +67,5 @@ float Sphere::radius() const {
 }
 
 int Sphere::segments() const {
-
+	return _segments;
 }
