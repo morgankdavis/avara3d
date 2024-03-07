@@ -330,7 +330,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 												 (btScalar)extent.y/2.0f,
 												 (btScalar)extent.z/2.0f));
 	}
-	else if (auto box = dynamic_cast<Box*>(mesh)) {
+	else if (auto box = dynamic_cast<Box*>(element.get())) {
 		A3D_LOG_I("Creating box physics shape for MeshElement {:p}... "
 				 "(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
@@ -339,7 +339,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 												 (btScalar)box->width()/2.0f,
 												 (btScalar)box->height()/2.0f));
 	}
-	else if (auto capsule = dynamic_cast<Capsule*>(mesh)) {
+	else if (auto capsule = dynamic_cast<Capsule*>(element.get())) {
 		A3D_LOG_I("Creating capsule physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
@@ -347,7 +347,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 		return make_shared<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
-	else if (auto cone  = dynamic_cast<Cone*>(mesh)) {
+	else if (auto cone  = dynamic_cast<Cone*>(element.get())) {
 		A3D_LOG_I("Creating cone physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
@@ -355,7 +355,7 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 		return make_shared<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
-	else if (auto cylinder = dynamic_cast<Cylinder*>(mesh)) {
+	else if (auto cylinder = dynamic_cast<Cylinder*>(element.get())) {
 		A3D_LOG_I("Creating cylinder physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
@@ -364,13 +364,13 @@ BTShapeFromMeshElement(shared_ptr<MeshElement> element,
 													  (btScalar)cylinder->height()/2.0,
 													  (btScalar)cylinder->radius()));
 	}
-	else if (auto plane = dynamic_cast<Plane*>(mesh)) {
+	else if (auto plane = dynamic_cast<Plane*>(element.get())) {
 		// a3d::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
 		return make_shared<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
 												 (btScalar)plane->height()/2.0f,
 												 (btScalar)0));
 	}
-	else if (auto sphere = dynamic_cast<Sphere*>(mesh)) {
+	else if (auto sphere = dynamic_cast<Sphere*>(element.get())) {
 		A3D_LOG_I("Creating sphere physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
 				 static_cast<void*>(element.get()), magic_enum::enum_name(shapeType));
