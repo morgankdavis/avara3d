@@ -32,8 +32,7 @@ namespace a3d {
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
 										  int segments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material
-										  = std::make_shared<Material>());
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle

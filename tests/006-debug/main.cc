@@ -93,9 +93,9 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto mesh = Sphere::Mesh(3.5, 4);
+	auto mesh = Sphere::Mesh(3.5, 4, material);
 //	mesh->addMaterial(material);
-	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
+//	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(mesh);
 
 	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));

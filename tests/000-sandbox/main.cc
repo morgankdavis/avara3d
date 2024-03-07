@@ -151,8 +151,8 @@ int main(int argc, const char* argv[]) {
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
-//	planeNode->mesh()->addMaterial(planeMaterial);
-	planeNode->mesh()->replaceMaterial(0, planeMaterial);
+	planeNode->mesh()->addMaterial(planeMaterial);
+//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
@@ -175,13 +175,15 @@ int main(int argc, const char* argv[]) {
 			pointLightNode->position({5, 5, 0});
 			scene->rootNode()->addChild(pointLightNode);
 
-			//auto sphere = Mesh::Sphere(0.1f, 12);
-			auto sphere = Sphere::Mesh(0.1f, 12);
 			auto material = make_shared<Material>(monostate{},
 												  monostate{},
 												  monostate{},
 												  pointLight->color());
-			sphere->addMaterial(material);
+			//auto sphere = Mesh::Sphere(0.1f, 12);
+			auto sphere = Sphere::Mesh(0.1f, 12, material);
+
+			//sphere->addMaterial(material);
+//			sphere->replaceMaterial(0, material);
 			pointLightNode->mesh(sphere);
 		}
 //

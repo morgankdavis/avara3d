@@ -31,8 +31,7 @@ namespace a3d {
 										  float innerRadius,
 										  int slices = DEFAULT_SLICES,
 										  int rings = DEFAULT_RINGS,
-										  std::shared_ptr<Material> material
-										  = std::make_shared<Material>());
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle

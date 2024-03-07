@@ -37,8 +37,7 @@ namespace a3d {
 										  int slices = DEFAULT_SLICES,
 										  int segments = DEFAULT_SEGMENTS,
 										  int rings = DEFAULT_RINGS,
-										  std::shared_ptr<Material> material
-										  = std::make_shared<Material>());
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle

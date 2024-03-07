@@ -22,19 +22,19 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-//shared_ptr<Material> Material::DefaultMaterial() {
-//	static shared_ptr<Material> material = nullptr;
-//	if (!material) {
-//		auto ambient = make_shared<Color>(0.75f);
-//		auto diffuse = make_shared<Color>(0.75f);
-//		auto specular = make_shared<Color>(0.85f);
-//		material = make_shared<Material>(ambient, diffuse, specular);
-//		material->name("Default material");
-//		material->doubleSided(true);
-//		material->specularExponent(75);
-//	}
-//	return material;
-//}
+shared_ptr<Material> Material::DefaultMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		auto ambient = make_shared<Color>(0.75f);
+		auto diffuse = make_shared<Color>(0.75f);
+		auto specular = make_shared<Color>(0.85f);
+		material = make_shared<Material>(ambient, diffuse, specular);
+		material->name("Default material");
+		material->doubleSided(true);
+		material->specularExponent(75);
+	}
+	return material;
+}
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
@@ -61,12 +61,14 @@ MaterialProperty Material::MissingTextureProperty() {
 Material::Material():
 		_name(nullopt),
 		_ambient(monostate{}),
-		_diffuse(make_shared<Color>(0.75f)),
-		_specular(make_shared<Color>(0.75f)),
+//		_diffuse(make_shared<Color>(0.75f)),
+//		_specular(make_shared<Color>(0.75f)),
+		_diffuse{monostate{}},
+		_specular{monostate{}},
 		_emission(monostate{}),
 		_specularExponent(75),
 		_locksAmbientWithDiffuse(true),
-		_doubleSided(true),
+		_doubleSided(false),
 		_fillMode(FillMode::Fill),
 		_uvScale(1.0f),
 		_blendFunction(BlendFunction::Disabled),

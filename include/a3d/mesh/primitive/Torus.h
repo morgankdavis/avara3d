@@ -35,8 +35,7 @@ namespace a3d {
 										  float majorRadius,
 										  int slices = DEFAULT_SLICES,
 										  int segments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material
-										  = std::make_shared<Material>());
+										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
