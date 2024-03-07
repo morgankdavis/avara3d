@@ -343,7 +343,7 @@ std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 #ifndef ANDROID
 
 vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
-	// build a list of common directories where "shader", "scene", "images", "fonts" etc
+	// build a list of common directories where "shader", "scene", "images", "fonts", etc
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
 	// clients should first check "local" locations first, then "engine" locations.
@@ -700,9 +700,9 @@ void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 
 			string properties = "";
 			if (!holds_alternative<monostate>(material->ambient())) properties += "a";
-			if (holds_alternative<monostate>(material->diffuse())) properties += "d";
-			if (holds_alternative<monostate>(material->specular())) properties += "s";
-			if (holds_alternative<monostate>(material->emission())) properties += "e";
+			if (!holds_alternative<monostate>(material->diffuse())) properties += "d";
+			if (!holds_alternative<monostate>(material->specular())) properties += "s";
+			if (!holds_alternative<monostate>(material->emission())) properties += "e";
 
 			string materialName = (material->name() ? "\"" + *(material->name()) + "\"" : "null");
 			ss << padding << "\t\t[MATERIAL] (" << static_cast<const void*>(material.get())

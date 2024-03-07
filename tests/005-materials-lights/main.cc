@@ -112,6 +112,9 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
+//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
+//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
+
 	// random lights
 
 //	{
