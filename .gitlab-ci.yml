@@ -17,10 +17,6 @@ build-linux:
     expire_in: 5 minutes
   script:
     - echo "Starting Linux build..."
-    # the VM creates an X authority at /home/gitlab/.Xauthority at login.
-    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
-    # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
-    #- export DISPLAY=:0
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake
@@ -32,8 +28,6 @@ build-linux:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
-    #- /usr/bin/cmake --build . -j4
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux build complete."
 
@@ -41,6 +35,10 @@ build-macos:
   stage: build
   tags:
     - macos-12.6
+  artifacts:
+    paths:
+      - gitlab-build/packaged
+    expire_in: 5 minutes
   script:
     - echo "Starting macOS build..."
     - mkdir gitlab-build
@@ -52,7 +50,6 @@ build-macos:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
     - /opt/local/bin/cmake --build . -j4
     - echo "macOS build complete."
 
@@ -60,6 +57,10 @@ build-windows:
   stage: build
   tags:
     - windows-10
+  artifacts:
+    paths:
+      - gitlab-build/packaged
+    expire_in: 5 minutes
   script:
     - echo "Starting Windows build..."
     - tar --version
@@ -72,8 +73,6 @@ build-windows:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
-    #-DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
     - cmake --build . -j8
     - echo "Windows build complete."
 
@@ -99,54 +98,58 @@ build-windows:
 #     - echo "Starting Windows test..."
 
 .archive-debug-linux:
-  # TODO: 1. 'testing' only
-  # TODO: 2. get build type? debug? release?
   stage: archive
+  environment: production
   dependencies:
     - build-linux
-  #only:
-  #  - testing (#1)
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+  only:
+   - testing
   tags:
     - ubuntu-23
-  environment: production
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  #     when: manual
   script:
     - echo "Starting Linux debug archive..."
   artifacts:
     name: "$CI_JOB_NAME"
-    #path: /tmp/artifacts # output?
     paths:
       - gitlab-build/packaged/avara3d
-    expose_as: 'the goods'
-    expire_in: 1 week
+    expose_as: 'avara3d-linux'
+    expire_in: 1 month
 
 archive-debug-macos:
   stage: archive
+  environment: production
+  dependencies:
+    - build-macos
   only:
     - testing
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-  environment: production
   tags:
     - macos-12.6
   script:
     - echo "Starting macOS debug archive..."
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - gitlab-build/packaged/avara3d
+    expose_as: 'avara3d-macos'
+    expire_in: 1 month
 
 archive-debug-windows:
   stage: archive
-  only: 
-    - testing
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
+  dependencies:
+    - build-macos
+  only:
+    - testing
   tags:
     - windows-10
   script:
     - echo "Starting Windows debug archive..."
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - gitlab-build/packaged/avara3d
+    expose_as: 'avara3d-windows'
+    expire_in: 1 month
 
 archive-release-linux:
   stage: archive
