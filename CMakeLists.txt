@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif()
-message("BUILD TYPE: " ${CMAKE_BUILD_TYPE})
+message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
 
 
 ### create BuildInfo.cmake.h ###

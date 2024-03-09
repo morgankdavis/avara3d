@@ -39,7 +39,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/add_source_directory.cmake)
         # Look for the SIMDJSON_VERSION define in the header to check the version.
         file(STRINGS ${SIMDJSON_HEADER_FILE} SIMDJSON_HEADER_VERSION_LINE REGEX "^#define SIMDJSON_VERSION ")
         string(REGEX MATCHALL "[0-9.]+" SIMDJSON_HEADER_VERSION "${SIMDJSON_HEADER_VERSION_LINE}")
-        message(STATUS "fastgltf: Found simdjson (Version ${SIMDJSON_HEADER_VERSION})")
+        #message(STATUS "fastgltf: Found simdjson (Version ${SIMDJSON_HEADER_VERSION})")
         if (SIMDJSON_HEADER_VERSION VERSION_LESS SIMDJSON_TARGET_VERSION)
             message(STATUS "fastgltf: simdjson outdated.")
 #            download_simdjson()
