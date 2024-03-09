@@ -45,7 +45,7 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
 std::shared_ptr<a3d::Logger>	logger;
-std::shared_ptr<a3d::Node>		pointLightNode;
+a3d::Node*						g_pointLightNode;
 
 
 int main(int argc, const char* argv[]) {
@@ -94,7 +94,8 @@ int main(int argc, const char* argv[]) {
 	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-	pointLightNode = Node::LightNode(pointLight);
+	auto pointLightNode = Node::LightNode(pointLight);
+	g_pointLightNode = pointLightNode.get();
 	scene->rootNode()->addChild(pointLightNode);
 	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
@@ -186,9 +187,9 @@ void UpdateCallback(Scene& scene, float time) {
 	if 		(keysPressed.count(Key::LeftBracket))	SetAllMaxAnisotropy(1, scene);
 	else if (keysPressed.count(Key::RightBracket))	SetAllMaxAnisotropy(16, scene);
 
-	if 		(keysPressed.count(Key::F1)) 	pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysPressed.count(Key::F2)) 	pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysPressed.count(Key::F3)) 	pointLightNode->light()->attenuationFactor(0.00005);
+	if 		(keysPressed.count(Key::F1)) 	g_pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysPressed.count(Key::F2)) 	g_pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysPressed.count(Key::F3)) 	g_pointLightNode->light()->attenuationFactor(0.00005);
 
 	if (keysPressed.count(Key::F)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
@@ -320,7 +321,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	// move the light
 
-	if (pointLightNode) {
+	if (g_pointLightNode) {
 
 		auto center = vec3(0, 30, 0);
 
@@ -336,7 +337,7 @@ void UpdateCallback(Scene& scene, float time) {
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
 
-		pointLightNode->position(center + vec3(x, y, -x));
+		g_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
 

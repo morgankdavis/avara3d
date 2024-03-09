@@ -36,8 +36,8 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-std::shared_ptr<a3d::Node> 		importLightsCamerasRoot;
-std::shared_ptr<a3d::Node> 		importMeshRoot;
+a3d::Node* 		g_importLightsCamerasRoot;
+a3d::Node* 		g_importMeshRoot;
 
 
 int main(int argc, const char* argv[]) {
@@ -82,8 +82,10 @@ int main(int argc, const char* argv[]) {
 	auto testScene = SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
-	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-	importMeshRoot = make_shared<Node>("importMeshRoot");
+	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
+	g_importLightsCamerasRoot = importLightsCamerasRoot.get();
+	auto importMeshRoot = make_shared<Node>("importMeshRoot");
+	g_importMeshRoot = importMeshRoot.get();
 
 	for (auto& node : testSceneNodes) {
 
@@ -119,7 +121,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	importMeshRoot->transform(rotate(importMeshRoot->transform(),
+	g_importMeshRoot->transform(rotate(g_importMeshRoot->transform(),
 									 radians(rotationDeg),
 									 {0.0f, 1.0f, 0.0f}));
 
