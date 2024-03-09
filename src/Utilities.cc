@@ -162,21 +162,23 @@ string a3d::utils::StringFromTree(Node& root) {
 
 string a3d::utils::DateTimeString() {
 	constexpr size_t BUF_SIZE = 128;
-	char buffer[BUF_SIZE];
+	char buf[BUF_SIZE];
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%I.%M.%S", timeinfo);
+	strftime(buf, sizeof(buf), "%Y.%m.%d_%I.%M.%S", timeinfo);
+	return string(buf);
 #else
 	timeval curTime;
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
-	strftime(buffer, sizeof(buffer), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
-	snprintf(buffer, BUF_SIZE, "%s.%03d", buffer, milli);
+	strftime(buf, sizeof(buf), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
+	char msBuf[strlen(buf) + 5];
+	snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
+	return string(msBuf);
 #endif
-	return string(buffer);
 }
 
 #ifdef POSIX
