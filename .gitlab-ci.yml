@@ -74,6 +74,7 @@ build-windows:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
+    # https://stackoverflow.com/questions/19024259/how-to-change-the-build-type-to-release-mode-in-cmake
     - cmake --build . --config Release --target install -j8
     - echo "Windows build complete."
   artifacts:
@@ -186,7 +187,7 @@ archive-windows:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - cmake --build . --target install -j8
+    - cmake --build . --config Release --target install -j8
     - echo "Windows archive complete."
   artifacts:
     name: "avara3d-windows-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
