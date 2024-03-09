@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -11,12 +11,12 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -31,23 +31,24 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-std::shared_ptr<ae::Node> 		importLightsCamerasRoot;
-std::shared_ptr<ae::Node> 		importGeometryRoot;
+a3d::Node* 		g_importLightsCamerasRoot;
+a3d::Node* 		g_importMeshRoot;
 
 
 int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -55,8 +56,8 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
-	auto background = make_shared<MaterialProperty>(backgroundColor);
-	visualWorld->background(background);
+	auto background = MaterialProperty(backgroundColor);
+	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -64,40 +65,43 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(visualWorld);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto options = SCENE_IMPORT_OPTIONS::IMPORT_ALL;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
-//	auto options = SCENE_IMPORT_OPTIONS::IMPORT_LIGHTS
-//				   | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS;
+//	auto options = SceneImportOptions::ImportAll;
+//	auto options = SceneImportOptions::ImportMeshes;
+	auto options = SceneImportOptions::ImportMeshes
+				   | SceneImportOptions::ImportMaterials;
+//	auto options = SceneImportOptions::ImportMeshes
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights;
+//	auto options = SceneImportOptions::ImportMeshes
+//				   | SceneImportOptions::ImportMaterials
+//				   | SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
+//	auto options = SceneImportOptions::ImportLights
+//				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = SceneNamed("import_test/import_test",
-								options);
+	auto testScene = SceneNamed("import_test/import_test", options);
+
 	auto testSceneNodes = testScene->rootNode()->children();
-	importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-	importGeometryRoot = make_shared<Node>("importGeometryRoot");
+	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
+	g_importLightsCamerasRoot = importLightsCamerasRoot.get();
+	auto importMeshRoot = make_shared<Node>("importMeshRoot");
+	g_importMeshRoot = importMeshRoot.get();
 
-	for (auto node : testSceneNodes) {
+	for (auto& node : testSceneNodes) {
 
 		if (node->light() || node->camera()) {
 			importLightsCamerasRoot->addChild(node);
 		}
 		else {
-			importGeometryRoot->addChild(node);
+			importMeshRoot->addChild(node);
 		}
 	}
 
-//	importGeometryRoot = testScene->rootNode();
+
+//	importMeshRoot = testScene->rootNode();
 
 	scene->rootNode()->addChild(importLightsCamerasRoot);
-	scene->rootNode()->addChild(importGeometryRoot);
+	scene->rootNode()->addChild(importMeshRoot);
 
 	window->open();
 	scene->run();
@@ -117,9 +121,9 @@ void UpdateCallback(Scene& scene, float time) {
 
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
-	importGeometryRoot->transform(rotate(importGeometryRoot->transform(),
-										 radians(rotationDeg),
-										 {0.0f, 1.0f, 0.0f}));
+	g_importMeshRoot->transform(rotate(g_importMeshRoot->transform(),
+									 radians(rotationDeg),
+									 {0.0f, 1.0f, 0.0f}));
 
 	static float timeAccum = 0;
 	static unsigned frames = 0;

@@ -2,10 +2,10 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "ae/physics/proxy/PhysicsShapeProxy.h"
+#include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************

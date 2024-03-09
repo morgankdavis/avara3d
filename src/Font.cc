@@ -1,18 +1,18 @@
 //
 //  Font.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/Font.h"
+#include "a3d/Font.h"
 
-#include "ae/Buffer.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Buffer.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -22,17 +22,17 @@ using namespace std;
 
 Font::Font(filesystem::path& path):
 	_name(nullopt),
-	_type(FONT_TYPE::UNKNOWN),
+	_type(FontType::Unknown),
 	_buffer(nullptr) {
 	
 		_name = path.stem().string();
 
 		auto extension = path.extension().string();
 		if (extension == "otf") {
-			_type = FONT_TYPE::OTF;
+			_type = FontType::OTF;
 		}
 		else if (extension == "otf") {
-			_type = FONT_TYPE::TTF;
+			_type = FontType::TTF;
 		}
 		
 		_buffer = make_shared<Buffer>(path);
@@ -40,13 +40,13 @@ Font::Font(filesystem::path& path):
 
 Font::Font(shared_ptr<Buffer> buffer):
 	_name(nullopt),
-	_type(FONT_TYPE::UNKNOWN),
+	_type(FontType::Unknown),
 	_buffer(buffer) {
 	
 }
 
 Font::~Font() {
-	AE_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -57,7 +57,7 @@ optional<string> Font::name() const {
 	return _name;
 }
 
-FONT_TYPE Font::type() const {
+FontType Font::type() const {
 	return _type;
 }
 

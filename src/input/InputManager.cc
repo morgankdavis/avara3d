@@ -1,17 +1,17 @@
 //
 //  InputManager.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/9/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/input/InputManager.h"
+#include "a3d/input/InputManager.h"
 
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
@@ -21,33 +21,33 @@ using namespace glm;
  *********************************************************************************************/
 
 InputManager::InputManager():
-		_keysDown(set<KEY>()),
-		_mouseButtonsDown(set<MOUSE_BUTTON>()),
-		_keysPressed(set<KEY>()),
-		_keysPressedCleared(set<KEY>()),
-		_mouseButtonsPressed(set<MOUSE_BUTTON>()),
-		_mouseButtonsPressedCleared(set<MOUSE_BUTTON>()),
+		_keysDown(set<Key>()),
+		_mouseButtonsDown(set<MouseButton>()),
+		_keysPressed(set<Key>()),
+		_keysPressedCleared(set<Key>()),
+		_mouseButtonsPressed(set<MouseButton>()),
+		_mouseButtonsPressedCleared(set<MouseButton>()),
 		_mousePositionDelta(vec2(0.0f, 0.0f)),
 		_mouseScrollWheelDelta(vec2(0.0f, 0.0f)),
 		_scene(nullptr) { }
 
 InputManager::~InputManager() {
-	AE_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-bool InputManager::keyDown(KEY key) {
+bool InputManager::keyDown(Key key) {
 	return _keysDown.count(key);
 }
 
-bool InputManager::mouseButtonDown(MOUSE_BUTTON button) {
+bool InputManager::mouseButtonDown(MouseButton button) {
 	return _mouseButtonsDown.count(button);
 }
 
-bool InputManager::keyPressed(KEY key) {
+bool InputManager::keyPressed(Key key) {
 	bool pressed = _keysPressed.count(key);
 	if (pressed) {
 		_keysPressed.erase(key);
@@ -56,7 +56,7 @@ bool InputManager::keyPressed(KEY key) {
 	return pressed;
 }
 
-bool InputManager::mouseButtonPressed(MOUSE_BUTTON button) {
+bool InputManager::mouseButtonPressed(MouseButton button) {
 	bool pressed = _mouseButtonsPressed.count(button);
 	if (pressed) {
 		_mouseButtonsPressed.erase(button);
@@ -65,23 +65,23 @@ bool InputManager::mouseButtonPressed(MOUSE_BUTTON button) {
 	return pressed;
 }
 
-set<KEY> InputManager::keysDown() {
+set<Key> InputManager::keysDown() {
 	auto keysDownCopy = _keysDown;
 	return keysDownCopy;
 }
 
-set<MOUSE_BUTTON> InputManager::mouseButtonsDown() {
+set<MouseButton> InputManager::mouseButtonsDown() {
 	auto mouseButtonsDownCopy = _mouseButtonsDown;
 	return mouseButtonsDownCopy;
 }
 
-set<KEY> InputManager::keysPressed() {
+set<Key> InputManager::keysPressed() {
 	auto keysPressedCopy = _keysPressed;
 	_keysPressed.clear();
 	return keysPressedCopy;
 }
 
-set<MOUSE_BUTTON> InputManager::mouseButtonsPressed() {
+set<MouseButton> InputManager::mouseButtonsPressed() {
 	auto mouseButtonsPressedCopy = _mouseButtonsPressed;
 	_mouseButtonsPressed.clear();
 	return mouseButtonsPressedCopy;
@@ -108,13 +108,13 @@ Scene* InputManager::scene() const {
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = scene;
 }
 
 void InputManager::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = nullptr;
 }

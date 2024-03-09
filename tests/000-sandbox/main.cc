@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 12/02/23.
 //  Copyright © 2023 Morgan K Davis. All rights reserved.
@@ -12,13 +12,13 @@
 
 #include "glm/glm.hpp"
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
-#include "ae/physics/bullet/BulletBodyProxy.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
+#include "a3d/physics/bullet/BulletBodyProxy.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -34,7 +34,7 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		MSAA_MODE =				ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
@@ -42,15 +42,24 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<ae::Logger>		logger;
+std::shared_ptr<a3d::Logger>	logger;
 
 
-shared_ptr<Node>				geometryNode;
-shared_ptr<Geometry> 			geometry;
-vector<shared_ptr<Geometry>> 	geometries;
+// https://stackoverflow.com/questions/66068134/segmentation-fault-when-using-a-shared-ptr-for-private-key
+shared_ptr<Node>*			g_meshNode;
+vector<shared_ptr<Mesh>>*	g_meshes;
+shared_ptr<Mesh>*			g_mesh;
+
+//Node*			g_meshNode;
+//vector<Mesh*>	g_meshes;
+//Mesh*			g_mesh;
+
 
 
 int main(int argc, const char* argv[]) {
+
+	auto dt = utils::DateTimeString();
+	A3D_LOG_I("dt: {}", dt);
 
 	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 
@@ -65,10 +74,11 @@ int main(int argc, const char* argv[]) {
 		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
 	auto time = buildInfo.time();
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  MSAA_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -79,10 +89,13 @@ int main(int argc, const char* argv[]) {
 //	visualWorld->fogEndDistance(400.0);
 //	visualWorld->fogDensityExponent(1.0);
 //	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	auto background = DARK
-					  ? make_shared<MaterialProperty>(Color::Black())
-					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
-					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
+//	auto background = DARK
+//					  ? make_shared<MaterialProperty>(Color::Black())
+//					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
+//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
+	MaterialProperty background = monostate{};
+	if (DARK) background = Color::Black();
+	else background = make_shared<Texture>(CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
@@ -94,14 +107,14 @@ int main(int argc, const char* argv[]) {
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 //	auto ambientColor = DARK
 //						? Color::LightGray()
 //						: make_shared<Color>(.85f);
 	auto ambientColor = Color::DarkGray();
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, ambientColor);
+	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
@@ -123,39 +136,39 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_LENGTH = 20.0;
 	const float PLANE_WIDTH = 20.0;
 	auto planeNode = make_shared<Node>("Ground plane node");
-	planeNode->geometry(make_shared<Box>(PLANE_LENGTH, PLANE_WIDTH, 0));
+	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
+	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeMaterialProperty = make_shared<MaterialProperty>(gridImage);
-	planeMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-	planeMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-	planeMaterialProperty->maxAnisotropy(16);
-	planeMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-	planeMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	auto planeTexture = make_shared<Texture>(gridImage);
+	planeTexture->sampler()->wrapS(WrapMode::Repeat);
+	planeTexture->sampler()->wrapT(WrapMode::Repeat);
+	planeTexture->sampler()->maxAnisotropy(16);
+	planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+	planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
 	shared_ptr<Material> planeMaterial = nullptr;
 	if (DARK) {
-		planeMaterial = make_shared<Material>(nullptr,
-											  nullptr,
-											  make_shared<MaterialProperty>(Color::White()),
-											  planeMaterialProperty);
+		planeMaterial = make_shared<Material>(monostate{},
+											  monostate{},
+											  Color::White(),
+											  planeTexture);
 	}
 	else {
-		planeMaterial = make_shared<Material>(nullptr,
-											  planeMaterialProperty,
-											  nullptr);//make_shared<MaterialProperty>(make_shared<Color>(.1f)));
+		planeMaterial = make_shared<Material>(monostate{},
+											  planeTexture,
+											  monostate{});
 	}
 
 	planeMaterial->uvScale(PLANE_LENGTH/10.0);
 	planeMaterial->doubleSided(false);
-	planeNode->geometry()->addMaterial(planeMaterial);
+	planeNode->mesh()->addMaterial(planeMaterial);
+//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
 	planeNode->rotation({1, 0, 0}, radians(3*90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
-	auto planePhysicsBody = PhysicsBody::StaticBody();
-//	AE_LOG_I("planeNode t: {}", StringFromGLMMat4(planeNode->transform()));
-//	AE_LOG_I("planeNode wt: {}", StringFromGLMMat4(planeNode->worldTransform()));
-	planeNode->physicsBody(planePhysicsBody);
-	planePhysicsBody->friction(1);
-	planePhysicsBody->restitution(0.25);
+//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//	planeNode->physicsBody(planePhysicsBody);
+//	planePhysicsBody->friction(1);
+//	planePhysicsBody->restitution(0.25);
 
 	scene->rootNode()->addChild(planeNode);
 
@@ -165,101 +178,114 @@ int main(int argc, const char* argv[]) {
 
 //	{
 		{
-			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
+			auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
 			pointLight->attenuationFactor(0);
 			auto pointLightNode = Node::LightNode(pointLight);
 			pointLightNode->position({5, 5, 0});
 			scene->rootNode()->addChild(pointLightNode);
 
-			auto sphere = make_shared<Sphere>(0.1f, 12);
-			auto property = make_shared<MaterialProperty>(pointLight->color());
-			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-			sphere->addMaterial(material);
-			pointLightNode->geometry(sphere);
+			auto material = make_shared<Material>(monostate{},
+												  monostate{},
+												  monostate{},
+												  pointLight->color());
+			//auto sphere = Mesh::Sphere(0.1f, 12);
+			auto sphere = Sphere::Mesh(0.1f, 12, material);
+
+			//sphere->addMaterial(material);
+//			sphere->replaceMaterial(0, material);
+			pointLightNode->mesh(sphere);
 		}
 //
-//		auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
-//		auto testGeometry = GeometryNamed("slurm/slurm");
-//		auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
-//		auto testGeometry = GeometryNamed("palm/palm");
-//		auto testGeometry = GeometryNamed("palms/palms");
-//		auto testGeometry = GeometryNamed("island/island");
-//		auto testGeometry = GeometryNamed("teapot");
-//		auto testGeometry = GeometryNamed("apple_lod/apple_lod");
-//		auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-//		auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
+//		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
+//		auto testMesh = MeshNamed("slurm/slurm");
+//		auto testMesh = MeshNamed("cardboard_box/cardboard_box");
+//		auto testMesh = MeshNamed("palm/palm");
+//		auto testMesh = MeshNamed("palms/palms");
+//		auto testMesh = MeshNamed("island/island");
+//		auto testMesh = MeshNamed("teapot");
+//		auto testMesh = MeshNamed("apple_lod/apple_lod");
+//		auto testMesh = MeshNamed("banana_lod/banana_lod");
+//		auto testMesh = MeshNamed("cherries_lod/cherries_lod");
 // 		REVISIT ME
 //			- no normals
 //			- normals
 //			- no groupings (1 element?)
 //			- groupings (multiple elements?)
 //			- textures
-//		auto testGeometry = GeometryNamed("convalia_bouquet");
-//		auto testGeometry = GeometryNamed("dragon");
-//		auto testGeometry = GeometryNamed("orange_lod/orange_lod");
-//		auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-//		auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-//		auto testGeometry = GeometryNamed("pallet/pallet");
-//		auto testGeometry = GeometryNamed("siamese/siamese");
-//		auto testGeometry = GeometryNamed("tuna_rot/tuna_rot");
-//		auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-//		auto testGeometry = GeometryNamed("crocus/crocus");
+//		auto testMesh = MeshNamed("convalia_bouquet");
+//		auto testMesh = MeshNamed("dragon");
+//		auto testMesh = MeshNamed("orange_lod/orange_lod");
+//		auto testMesh = MeshNamed("pear_lod/pear_lod");
+//		auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
+//		auto testMesh = MeshNamed("pallet/pallet");
+//		auto testMesh = MeshNamed("siamese/siamese");
+//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
+//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
+//		auto testMesh = MeshNamed("crocus/crocus");
 
 
-	geometries = vector<shared_ptr<Geometry>>{
-			GeometryNamed("apple_lod/apple_lod"),
-			GeometryNamed("banana_lod/banana_lod"),
-			GeometryNamed("cardboard_box/cardboard_box"),
-			GeometryNamed("cartoon_palm_tree/cartoon_palm_tree"),
-			GeometryNamed("cherries_lod/cherries_lod"),
-			GeometryNamed("crocus/crocus"),
-			GeometryNamed("dragon/dragon"),
-			GeometryNamed("island/island"),
-			GeometryNamed("orange_lod/orange_lod"),
-			GeometryNamed("pallet/pallet"),
-			GeometryNamed("palm/palm"),
-			GeometryNamed("palms/palms"),
-			GeometryNamed("pear_lod/pear_lod"),
-			GeometryNamed("pineapple_lod/pineapple_lod"),
-			GeometryNamed("rubber_duck/rubber_duck"),
-			GeometryNamed("siamese/siamese"),
-			GeometryNamed("slurm/slurm"),
-			GeometryNamed("teapot/teapot"),
-			GeometryNamed("tuna/tuna")
+	auto meshes = vector<shared_ptr<Mesh>>{
+			MeshNamed("apple_lod/apple_lod"),
+			MeshNamed("banana_lod/banana_lod"),
+			MeshNamed("cardboard_box/cardboard_box"),
+			MeshNamed("cartoon_palm_tree/cartoon_palm_tree"),
+			MeshNamed("cherries_lod/cherries_lod"),
+			MeshNamed("crocus/crocus"),
+			MeshNamed("dragon/dragon"),
+			MeshNamed("island/island"),
+			MeshNamed("orange_lod/orange_lod"),
+			MeshNamed("pallet/pallet"),
+			MeshNamed("palm/palm"),
+			MeshNamed("palms/palms"),
+			MeshNamed("pear_lod/pear_lod"),
+			MeshNamed("pineapple_lod/pineapple_lod"),
+			MeshNamed("rubber_duck/rubber_duck"),
+			MeshNamed("siamese/siamese"),
+			MeshNamed("slurm/slurm"),
+			MeshNamed("teapot/teapot"),
+			MeshNamed("tuna/tuna")
 		};
+	g_meshes = &meshes;
+//	g_meshes = vector<Mesh*>();
+//	g_meshes.reserve(meshes.size());
+//	for (auto& m : meshes) {
+//		g_meshes.push_back(m.get());
+//	}
 
-//	auto testGeometry = GeometryNamed("apple_lod/apple_lod");
-//	auto testGeometry = GeometryNamed("banana_lod/banana_lod");
-//	auto testGeometry = GeometryNamed("cardboard_box/cardboard_box");
-//	auto testGeometry = GeometryNamed("cartoon_palm_tree/cartoon_palm_tree");
-//	auto testGeometry = GeometryNamed("cherries_lod/cherries_lod");
-//	auto testGeometry = GeometryNamed("crocus/crocus");
-//	auto testGeometry = GeometryNamed("dragon/dragon");
-//	auto testGeometry = GeometryNamed("island/island");
-//	auto testGeometry = GeometryNamed("orange_lod/orange_lod");
-//	auto testGeometry = GeometryNamed("pallet/pallet");
-//	auto testGeometry = GeometryNamed("palm/palm");
-//	auto testGeometry = GeometryNamed("palms/palms");
-//	auto testGeometry = GeometryNamed("pear_lod/pear_lod");
-//	auto testGeometry = GeometryNamed("pineapple_lod/pineapple_lod");
-//	auto testGeometry = GeometryNamed("rubber_duck/rubber_duck");
-//	auto testGeometry = GeometryNamed("siamese/siamese");
-//	auto testGeometry = GeometryNamed("slurm/slurm");
-//	auto testGeometry = GeometryNamed("teapot/teapot");
-//	auto testGeometry = GeometryNamed("tuna/tuna");
+//	auto testMesh = MeshNamed("apple_lod/apple_lod");
+//	auto testMesh = MeshNamed("banana_lod/banana_lod");
+//	auto testMesh = MeshNamed("cardboard_box/cardboard_box");
+//	auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
+//	auto testMesh = MeshNamed("cherries_lod/cherries_lod");
+//	auto testMesh = MeshNamed("crocus/crocus");
+//	auto testMesh = MeshNamed("dragon/dragon");
+//	auto testMesh = MeshNamed("island/island");
+//	auto testMesh = MeshNamed("orange_lod/orange_lod");
+//	auto testMesh = MeshNamed("pallet/pallet");
+//	auto testMesh = MeshNamed("palm/palm");
+//	auto testMesh = MeshNamed("palms/palms");
+//	auto testMesh = MeshNamed("pear_lod/pear_lod");
+//	auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
+//	auto testMesh = MeshNamed("rubber_duck/rubber_duck");
+//	auto testMesh = MeshNamed("siamese/siamese");
+//	auto testMesh = MeshNamed("slurm/slurm");
+//	auto testMesh = MeshNamed("teapot/teapot");
+//	auto testMesh = MeshNamed("tuna/tuna");
 	// -> 19
 
 
-	auto geometry = geometries[0];
-	geometryNode = Node::GeometryNode(geometry);
-	geometryNode->position({0, 5, 0});
-	scene->rootNode()->addChild(geometryNode);
+	auto mesh = meshes[0];
+	auto meshNode = Node::MeshNode(mesh);
+	meshNode->position({0, 5, 0});
+	scene->rootNode()->addChild(meshNode);
+	g_meshNode = &meshNode;
+//	g_meshNode = meshNode.get();
 
 
-//		for (auto &m: testGeometry->materials()) {
+//		for (auto &m: testMesh->materials()) {
 //			m->doubleSided(true);
 //		}
-//		auto testNode = Node::GeometryNode(testGeometry);
+//		auto testNode = Node::meshNode(testMesh);
 ////		testNode->position({0, 5, 0});
 //		scene->rootNode()->addChild(testNode);
 ////	}
@@ -269,9 +295,9 @@ int main(int argc, const char* argv[]) {
 ////	{
 //		auto testScene = SceneNamed("import_test/import_test");
 ////		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
-////									SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
+////									SCENE_IMPORT_OPTIONS::IMPORT_MESHES
 ////									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-////									| SCENE_IMPORT_OPTIONS::FIRST_GEOMETRY_ONLY);
+////									| SCENE_IMPORT_OPTIONS::FIRST_MESH_ONLY);
 ////		auto testScene = SceneNamed("import_test", "glb");
 ////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
 ////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
@@ -295,7 +321,7 @@ int main(int argc, const char* argv[]) {
 ////			auto property = make_shared<MaterialProperty>(pointLight->color());
 ////			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 ////			sphere->addMaterial(material);
-////			pointLightNode->geometry(sphere);
+////			pointLightNode->mesh(sphere);
 ////		}
 //
 //		for (auto& node : scene->rootNode()->children(true)) {
@@ -306,7 +332,7 @@ int main(int argc, const char* argv[]) {
 //					auto property = make_shared<MaterialProperty>(light->color());
 //					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
 //					sphere->addMaterial(material);
-//					node->geometry(sphere);
+//					node->mesh(sphere);
 //				}
 //			}
 //		}
@@ -354,19 +380,19 @@ void UpdateCallback(Scene& scene, float time) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+	if (keysPressed.count(Key::ForwardDelete)) {
 		scene.paused(!scene.paused());
 	}
 
-	if (keysPressed.count(KEY::T)) {
+	if (keysPressed.count(Key::T)) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
-	if (keysPressed.count(KEY::ONE)) {
+	if (keysPressed.count(Key::One)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -378,7 +404,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[0]);
 	}
-	if (keysPressed.count(KEY::TWO)) {
+	if (keysPressed.count(Key::Two)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -390,7 +416,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[1]);
 	}
-	if (keysPressed.count(KEY::THREE)) {
+	if (keysPressed.count(Key::Three)) {
 
 		auto cameraNodes = vector<shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
@@ -407,111 +433,123 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 
-//	auto it = find(geometries.begin(), geometries.end(), geometry);
-//	int x = std::distance(geometries, it);
 	static int index = 0;
-	if (keysPressed.count(KEY::LEFT_BRACKET)) {
-		geometry = geometries[--index];
-		auto name = geometry->name();
-		if (name) AE_LOG_D("name: {}", *name);
-		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->geometry(geometry);
+	if (keysPressed.count(Key::LeftBracket)) {
+		g_mesh = &((*g_meshes)[--index]);
+		auto name = (*g_mesh)->name();
+		if (name) A3D_LOG_D("name: {}", *name);
+		(*g_meshNode)->mesh(*g_mesh);
 	}
-	if (keysPressed.count(KEY::RIGHT_BRACKET)) {
-		geometry = geometries[++index];
-		auto name = geometry->name();
-		if (name) AE_LOG_D("name: {}", *name);
-		//geometryNode = Node::GeometryNode(geometry);
-		geometryNode->geometry(geometry);
+	if (keysPressed.count(Key::RightBracket)) {
+		g_mesh = &((*g_meshes)[++index]);
+		auto name = (*g_mesh)->name();
+		if (name) A3D_LOG_D("name: {}", *name);
+		//meshNode = Node::meshNode(mesh);
+		(*g_meshNode)->mesh(*g_mesh);
 	}
+//	static int index = 0;
+//	if (keysPressed.count(Key::LeftBracket)) {
+//		g_mesh = g_meshes[--index];
+//		auto name = g_mesh->name();
+//		if (name) A3D_LOG_D("name: {}", *name);
+//		g_meshNode->mesh(g_mesh);
+//	}
+//	if (keysPressed.count(Key::RightBracket)) {
+//		g_mesh = g_meshes[--index];
+//		auto name = g_mesh->name();
+//		if (name) A3D_LOG_D("name: {}", *name);
+//		//meshNode = Node::meshNode(mesh);
+//		(*g_meshNode)->mesh(*g_mesh);
+//	}
 
 
 
 
-	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_WIREFRAMES));
+
+	if (keysPressed.count(Key::F)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+	if (keysPressed.count(Key::B)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+	if (keysPressed.count(Key::I)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowStatsOverlay));
 		}
 	}
-	if (keysPressed.count(KEY::P)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+	if (keysPressed.count(Key::P)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::G)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+	if (keysPressed.count(Key::G)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::C)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+	if (keysPressed.count(Key::C)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
-	if (keysPressed.count(KEY::N)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+	if (keysPressed.count(Key::N)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											   DebugOptions::ShowPhysicsNormals));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsNormals));
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -550,31 +588,31 @@ void UpdateCallback(Scene& scene, float time) {
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
-			if (keysDown.count(KEY::LEFT_CONTROL)) {
+			if (keysDown.count(Key::LeftControl)) {
 				moveMultiplier = 2.0;
 			}
 
-			if (keysDown.count(KEY::W) || mouseButtonsDown.count(MOUSE_BUTTON::FOUR)) {
+			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if (keysDown.count(KEY::S)) {
+			else if (keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::A)) {
+			if (keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if (keysDown.count(KEY::D)) {
+			else if (keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				float direction = 1;
-				if (keysDown.count(KEY::LEFT_SHIFT)) {
+				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;

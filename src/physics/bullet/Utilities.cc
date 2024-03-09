@@ -2,49 +2,52 @@
 // Created by mkd on 12/15/23.
 //
 
-#include "ae/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/Utilities.h"
 
 
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
 
-#include "ae/Utilities.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 
 
-vec3 ae::GLMVec3FromBTVector3(const btVector3& from) {
+vec3 a3d::GLMVec3FromBTVector3(const btVector3& from) {
 	return vec3(from.x(), from.y(), from.z());
 }
 
-vec4 ae::GLMVec4FromBTVector4(const btVector4& from) {
+vec4 a3d::GLMVec4FromBTVector4(const btVector4& from) {
 	return vec4(from.x(), from.y(), from.z(), from.w());
 }
 
-mat4 ae::GLMMat4FromBTTransform(const btTransform& from) {
+mat4 a3d::GLMMat4FromBTTransform(const btTransform& from) {
 	mat4 glmMat;
 	from.getOpenGLMatrix(value_ptr(glmMat));
 	return glmMat;
 }
 
-btVector3 ae::BTVector3FromGLMVec3(const vec3& from) {
+btVector3 a3d::BTVector3FromGLMVec3(const vec3& from) {
 	return btVector3(from.x, from.y, from.z);
 }
 
-btVector4 ae::BTVector4FromGLMVec4(const vec4& from) {
+btVector4 a3d::BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-btQuaternion ae::BTQuaternionFromGLMQuat(const quat& from) {
+btQuaternion a3d::BTQuaternionFromGLMQuat(const quat& from) {
 
 	return btQuaternion(from.x, from.y, from.z, from.w);
 
 }
 
-btTransform ae::BTTransformFromGLMMat4(const mat4& from) {
+btTransform a3d::BTTransformFromGLMMat4(const mat4& from) {
 
 	// this version (probably) does not strip scale & sheer
 
@@ -78,7 +81,7 @@ btTransform ae::BTTransformFromGLMMat4(const mat4& from) {
 //	return bulletTransform;
 }
 
-mat4 ae::TransformByRemovingScale(const mat4& m, bool& scaled) {
+mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	// TODO: optimize
 
 	vec3 scale;
@@ -99,7 +102,7 @@ mat4 ae::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	else return m;
 }
 
-//btTransform& ae::BTIdentityTransform() {
+//btTransform& a3d::BTIdentityTransform() {
 //	static auto identityTransform = btTransform();
 //	identityTransform.setIdentity();
 //	return identityTransform;

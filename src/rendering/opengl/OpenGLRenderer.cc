@@ -1,12 +1,12 @@
 //
 //  OpenGLRenderer.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -26,33 +26,36 @@
 #include "imgui_impl_opengl3.h"
 //#endif
 
-#include "ae/Buffer.h"
-#include "ae/Color.h"
-#include "ae/Configuration.h"
-#include "ae/CubeImage.h"
-#include "ae/Font.h"
-#include "ae/Image.h"
-#include "ae/Utilities.h"
-#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/GeometryElement.h"
-#include "ae/geometry/Line.h"
-#include "ae/geometry/Point.h"
-#include "ae/rendering/Light.h"
-#include "ae/rendering/VisualWorld.h"
-#include "ae/rendering/camera/Camera.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/context/platform/desktop/Window.h"
-#include "ae/rendering/materials/Material.h"
-#include "ae/rendering/materials/MaterialProperty.h"
-#include "ae/rendering/opengl/Program.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "magic_enum.hpp"
+
+#include "a3d/Buffer.h"
+#include "a3d/Color.h"
+#include "a3d/Configuration.h"
+#include "a3d/CubeImage.h"
+#include "a3d/Font.h"
+#include "a3d/Image.h"
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/Line.h"
+#include "a3d/mesh/Point.h"
+#include "a3d/rendering/Light.h"
+#include "a3d/rendering/VisualWorld.h"
+#include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/material/Sampler.h"
+#include "a3d/rendering/material/Texture.h"
+#include "a3d/rendering/opengl/Program.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 
@@ -64,23 +67,23 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static void 		RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
+static void 		RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 								Node& pointOfView,
-								const DEBUG_OPTIONS& debugOptions,
+								const DebugOptions& debugOptions,
 								Stats& stats,
-								OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
-								OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-								unordered_set<shared_ptr<MaterialProperty>>& activeProperties);
-static void 		GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
-														 OpenGLRenderer::GeometryElementGLMapping& glMapping,
-														 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
-												OpenGLRenderer::GeometryElementGLMapping& glMapping,
+								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
+								OpenGLRenderer::TextureGLMapping& textureGLMapping,
+								unordered_set<shared_ptr<Texture>>& activeTextures);
+static void 		GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+													 OpenGLRenderer::MeshElementGLMapping& glMapping,
+													 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-														   OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-														   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-														   GLuint& glVBO, GLuint& glVAO);
+static void 		GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+													   OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
+													   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+													   GLuint& glVBO, GLuint& glVAO);
 static void 		GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
 											   Program& program,
 											   OpenGLRenderer::LineSetGLMapping& glMapping,
@@ -89,14 +92,14 @@ static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 												Program& program,
 												OpenGLRenderer::PointSetGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO);
-static void 		GetMaterialGLTextureHandles(Material& material,
-											   OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-											   unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
-static void 		BufferGeometryElementVertexData(const GeometryElement& element,
-												   Program& program,
-												   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		BufferSkyboxVertexData(Geometry& skyboxGeometry,
+static void 		GetTextureGLTextureHandles(Material& material,
+											  OpenGLRenderer::TextureGLMapping& glMapping,
+											  unordered_set<shared_ptr<Texture>>& activeTextures,
+											  map<MaterialPropertyType, GLuint>& glTextureHandles);
+static void 		BufferMeshElementVertexData(const MeshElement& element,
+											   Program& program,
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void 		BufferLineSetVertexData(LineSet& lineSet,
@@ -105,33 +108,33 @@ static void 		BufferLineSetVertexData(LineSet& lineSet,
 static void 		BufferPointSetVertexData(PointSet& pointSet,
 											Program& program,
 											GLuint& glVBO, GLuint& glVAO);
-static void 		BufferMaterialPropertyTexture(const MaterialProperty& property,
-												 MATERIAL_PROPERTY_TYPE type,
-												 GLuint& glTextureHandle);
+static void 		BufferTexture(const Texture &texture,
+								 MaterialPropertyType type,
+								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
-										const DEBUG_OPTIONS& debugOptions);
-static void 		SendMaterialPropertyUniforms(MaterialProperty& property,
-												MATERIAL_PROPERTY_TYPE type,
+										map<MaterialPropertyType, GLuint>& glTextureHandles,
+										const DebugOptions& debugOptions);
+static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
+												MaterialPropertyType type,
 												GLuint glTextureHandle,
-												const DEBUG_OPTIONS& debugOptions,
+												const DebugOptions& debugOptions,
 												Program& program);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
-static void 		SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-													   GLuint glTextureHandle);
+static void 		SetTextureSamplingOptions(Texture& texture,
+											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
-											   map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles);
+											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		SetMaterialOpenGLState(const Material& material,
-										  const DEBUG_OPTIONS& debugOptions);
+										  const DebugOptions& debugOptions);
 static void	 		SetSkyboxOpenGLState();
 static void 		SetLineSetGLState();
 static void 		SetPointSetGLState();
-static void 		DrawGeometryElement(GeometryElement& element,
-									   Program& program,
-									   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
-									   GLuint vao, GLuint ibo);
-static void 		DrawSkyboxElement(GeometryElement& element,
+static void 		DrawMeshElement(MeshElement& element,
+								   Program& program,
+								   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+								   GLuint vao, GLuint ibo);
+static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
 									 GLuint vao, GLuint ibo);
@@ -147,34 +150,34 @@ static void 		DrawPointSet(PointSet& pointSet,
 								mat4 viewMat,
 								mat4 projectionMat,
 								GLuint glVBO, GLuint glVAO);
-static void 		CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
-												   OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
-													OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+											   OpenGLRenderer::MeshElementGLMapping& glMapping);
+static void 		CleanupTextureResources(unordered_set<shared_ptr<Texture>>& active,
+										   OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 										   OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
 											OpenGLRenderer::PointSetGLMapping& glMapping);
-static void 		DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
-													OpenGLRenderer::GeometryElementGLMapping& glMapping);
-static void 		DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
-													 OpenGLRenderer::MaterialPropertyGLMapping& glMapping);
+static void 		DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+												OpenGLRenderer::MeshElementGLMapping& glMapping);
+static void 		DeleteTextureGLResources(shared_ptr<Texture> texture,
+											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 											OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
 static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
-static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
-static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode);
+static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
+static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
-static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
-static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode);
-static void 		SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode);
-static GLenum 		GLFilterModeForFilterMode(FILTER_MODE mode);
-static FILTER_MODE 	FilterModeForGLFilterMode(GLenum mode);
-static GLenum 		GLWrapModeForWrapMode(WRAP_MODE mode);
-static WRAP_MODE 	WrapModeForGLWrapMode(GLenum mode);
+static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode);
+static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
+static void 		SetTextureWrapR(GLuint glTextureHandle, WrapMode mode);
+static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
+static FilterMode 	FilterModeForGLFilterMode(GLenum mode);
+static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
+static WrapMode 	WrapModeForGLWrapMode(GLenum mode);
 static void 		CheckGLError();
 
 /*********************************************************************************************
@@ -223,29 +226,29 @@ typedef struct {
 
 OpenGLRenderer::OpenGLRenderer():
 		Renderer(),
-		_geometryElementGLMapping(GeometryElementGLMapping()),
-		_materialPropertyGLMapping(MaterialPropertyGLMapping()),
+		_meshElementGLMapping(MeshElementGLMapping()),
+		_textureGLMapping(TextureGLMapping()),
 		_lineSetGLMapping(LineSetGLMapping()),
 		_pointSetGLMapping(PointSetGLMapping()),
-		_activeGeometryElements(unordered_set<shared_ptr<GeometryElement>>()),
-		_activeMaterialProperties(unordered_set<shared_ptr<MaterialProperty>>()),
+		_activeMeshElements(unordered_set<shared_ptr<MeshElement>>()),
+		_activeTextures(unordered_set<shared_ptr<Texture>>()),
 		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
 		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
 		_glEnvironmentUBO(0),
 		_overlayFont(nullptr) { }
 
 OpenGLRenderer::~OpenGLRenderer() {
-	AE_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
-	_activeGeometryElements.clear();
-	_activeMaterialProperties.clear();
+	_activeMeshElements.clear();
+	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
-	
-	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
-	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+
+	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
+	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 	
@@ -257,12 +260,16 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-	Internal
+	Renderer
  *********************************************************************************************/
+
+RenderingApi OpenGLRenderer::renderingApi() const {
+	return RenderingApi::OpenGL;
+}
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	AE_LOG_T("");
+	A3D_LOG_T("");
 	
 	// create environment UBO
 	
@@ -315,31 +322,38 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
-								const DEBUG_OPTIONS& debugOptions,
+								const DebugOptions& debugOptions,
 								Stats& stats) {
 	Renderer::beginFrame(scene, context, debugOptions, stats);
 
-	_activeGeometryElements.clear();
-	_activeMaterialProperties.clear();
+	_activeMeshElements.clear();
+	_activeTextures.clear();
 	_activeLineSets.clear();
 	_activePointSets.clear();
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
-							  const DEBUG_OPTIONS& debugOptions,
+							  const DebugOptions& debugOptions,
 							  Stats& stats) {
 	Renderer::endFrame(scene, context, debugOptions, stats);
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		auto scene = context.visualWorld()->scene();
 		DrawStatsOverlay(stats,
 						 Scene::Time(),
 						 *scene);
 	}
-	
-	CleanupGeometryElementResources(_activeGeometryElements, _geometryElementGLMapping);
-	CleanupMaterialPropertyResources(_activeMaterialProperties, _materialPropertyGLMapping);
+
+//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
+//		auto scene = context.visualWorld()->scene();
+//		DrawStatsOverlay(stats,
+//						 Scene::Time(),
+//						 *scene);
+//	}
+
+	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
+	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLineSetResources(_activeLineSets, _lineSetGLMapping);
 	CleanupPointSetResources(_activePointSets, _pointSetGLMapping);
 
@@ -347,82 +361,92 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 }
 
 void OpenGLRenderer::render(const Scene& scene,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
 	auto renderContext = scene.visualWorld()->renderContext();
-	
+
 	float framebufferWidth = renderContext->framebufferWidth();
 	float framebufferHeight = renderContext->framebufferHeight();
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, framebufferWidth, framebufferHeight);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	if (scene.visualWorld()->background()) {
-		if (dynamic_pointer_cast<CubeImage>(scene.visualWorld()->background()->contents())) {
-			auto skyboxGeometry = scene.visualWorld()->skyboxGeometry();
+
+	auto background = scene.visualWorld()->background();
+
+	if (holds_alternative<shared_ptr<Texture>>(background)) {
+
+		auto texture = get<shared_ptr<Texture>>(background);
+
+		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+
+			auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 			auto pointOfView = scene.visualWorld()->pointOfView();
 
-			RenderSkybox(skyboxGeometry,
+			RenderSkybox(skyboxMesh,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
-						 _geometryElementGLMapping,
-						 _materialPropertyGLMapping,
-						 _activeMaterialProperties);
+						 _meshElementGLMapping,
+						 _textureGLMapping,
+						 _activeTextures);
 
 			// save reference for housekeeping
-			_activeGeometryElements.emplace(skyboxGeometry->elements().front());
+			_activeMeshElements.emplace(skyboxMesh->elements().front());
+
 		}
-		else if (dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents())) {
-			auto color = dynamic_pointer_cast<Color>(scene.visualWorld()->background()->contents());
-			glClearColor(color->r, color->g, color->b, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
+
+
 	}
-	
+	else if (holds_alternative<shared_ptr<Color>>(background)) {
+
+		auto color = get<shared_ptr<Color>>(background);
+
+		glClearColor(color->r, color->g, color->b, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 	
 	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
-void OpenGLRenderer::render(shared_ptr<Geometry> geometry,
+void OpenGLRenderer::render(shared_ptr<Mesh> mesh,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
 		// will check dirty bit, and create an AABB lineset if necessary,
-		// and insert into _geometryAABBLineSetMapping
+		// and insert into _meshAABBLineSetMapping
 		
 		GLuint vbo, vao;
-		GetGeometryAABBLineSetVertexDataHandles(geometry,
-												_geometryAABBLineSetMapping,
-												_lineSetGLMapping,
-												vbo, vao);
+		GetMeshAABBLineSetVertexDataHandles(mesh,
+											_meshAABBLineSetMapping,
+											_lineSetGLMapping,
+											vbo, vao);
 
-		render(_geometryAABBLineSetMapping[geometry],
+		render(_meshAABBLineSetMapping[mesh],
 			   modelMat, viewMat, projectionMat);
-		
 	}
 	else {
 		// if there was an AABB lineset, just remove it
-		_geometryAABBLineSetMapping.erase(geometry);
+		_meshAABBLineSetMapping.erase(mesh);
 	}
 }
 
-void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
+void OpenGLRenderer::render(shared_ptr<MeshElement> element,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							const DEBUG_OPTIONS& debugOptions,
+							const DebugOptions& debugOptions,
 							Stats& stats) {
 
 	shared_ptr<Program> program = nullptr;
@@ -430,11 +454,12 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	// check and load vertex data if necessary
 
 	GLuint vbo, vao, ibo;
-	GetGeometryElementGLVertexDataHandles(element,
-										  _geometryElementGLMapping,
-										  vbo, vao, ibo);
+	GetMeshElementGLVertexDataHandles(element,
+									  _meshElementGLMapping,
+									  vbo, vao, ibo);
 
-	auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES);
+	//auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
 	if (wireframe) {
 		program = Program::Wireframe();
@@ -445,11 +470,11 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 	
 	// and load material contents if necessary
 
-	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
-	GetMaterialGLTextureHandles(material,
-								_materialPropertyGLMapping,
-								_activeMaterialProperties,
-								glTextureHandles);
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
+	GetTextureGLTextureHandles(material,
+							   _textureGLMapping,
+							   _activeTextures,
+							   glTextureHandles);
 
 	if (!wireframe) {
 		// send material and material property uniforms
@@ -464,11 +489,11 @@ void OpenGLRenderer::render(shared_ptr<GeometryElement> element,
 
 	// update
 
-	DrawGeometryElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
-	_activeGeometryElements.emplace(element);
+	_activeMeshElements.emplace(element);
 }
 	
 void OpenGLRenderer::render(shared_ptr<LineSet> lines,
@@ -523,47 +548,50 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	Static
  *********************************************************************************************/
 
-static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
+static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 						 Node& pointOfView,
-						 const DEBUG_OPTIONS& debugOptions,
+						 const DebugOptions& debugOptions,
 						 Stats& stats,
-						 OpenGLRenderer::GeometryElementGLMapping& elementGLMapping,
-						 OpenGLRenderer::MaterialPropertyGLMapping& materialGLMapping,
-						 unordered_set<shared_ptr<MaterialProperty>>& activeProperties) {
+						 OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
+						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
+						 unordered_set<shared_ptr<Texture>>& activeTextures) {
 	
 	auto program = Program::Skybox();
 	
-	auto element = skyboxGeometry->elements().front();
-	auto material = skyboxGeometry->materials().front();
-	auto emissiveProperty = material->emissive();
+	auto element = skyboxMesh->elements().front();
+	auto material = skyboxMesh->materials().front();
+	auto emissiveProperty = material->emission();
 	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao, ibo;
-	GetSkyboxGLVertexDataHandles(skyboxGeometry,
+	GetSkyboxGLVertexDataHandles(skyboxMesh,
 								 elementGLMapping,
 								 vbo, vao, ibo);
 	
 	// and load material contents if necessary
 	
-	auto glTextureHandles = map<MATERIAL_PROPERTY_TYPE, GLuint>();
-	GetMaterialGLTextureHandles(*material,
-								materialGLMapping,
-								activeProperties,
-								glTextureHandles);
-	auto emissiveGLTextureHandle = glTextureHandles[MATERIAL_PROPERTY_TYPE::EMISSIVE];
+	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
+	GetTextureGLTextureHandles(*material,
+							   textureGLMapping,
+							   activeTextures,
+							   glTextureHandles);
+	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
 	
 	// send material property uniforms
-	
-	SendMaterialPropertyUniforms(*emissiveProperty,
-								 MATERIAL_PROPERTY_TYPE::EMISSIVE,
+
+	SendMaterialPropertyUniforms(emissiveProperty,
+								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
 								 debugOptions,
 								 *program);
 	
 	// update material property filtering options
-	
-	SetMaterialPropertyFilteringOptions(*emissiveProperty, emissiveGLTextureHandle);
+
+	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
+		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
+		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
+	}
 	
 	// configure OpenGL state
 	
@@ -572,29 +600,30 @@ static void RenderSkybox(shared_ptr<Geometry> skyboxGeometry,
 	// update
 	
 	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
-	
-	stats.geometries++;
-	stats.polygons += element->faces().size();
-	stats.meshes++;
+
+	// don't count these?
+//	stats.meshes++;
+//	stats.polygons += element->faces().size();
+//	stats.elements++;
 }
 	
-static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> element,
-												  OpenGLRenderer::GeometryElementGLMapping& glMapping,
-												  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+											  OpenGLRenderer::MeshElementGLMapping& glMapping,
+											  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 
-	if (GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(element->dirtyMask(),
-											 GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA)) {
-		
-		DeleteGeometryElementGLResources(element, glMapping);
-		
-		BufferGeometryElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
+	if (A3D_MASK_CONTAINS(element->dirtyMask(),
+						 MeshElementDirtyMask::VertexData)) {
+
+		DeleteMeshElementGLResources(element, glMapping);
+
+		BufferMeshElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
-		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -604,29 +633,29 @@ static void GetGeometryElementGLVertexDataHandles(shared_ptr<GeometryElement> el
 	}
 }
 	
-static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
-										 OpenGLRenderer::GeometryElementGLMapping& glMapping,
+static void GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+										 OpenGLRenderer::MeshElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 	//
-	// NOTE: this is essentially exactly the same as GetGeometryElementGLVertexDataHandles()
-	// except if the data needs to be loaded, it uses BufferGeometryElementVertexData() as the
+	// NOTE: this is essentially exactly the same as GetMeshElementGLVertexDataHandles()
+	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
-	auto element = skyboxGeometry->elements().front();
-	
-	if (GEOMETRY_ELEMENT_DIRTY_MASK_CONTAINS(element->dirtyMask(),
-											 GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA)) {
+	auto element = skyboxMesh->elements().front();
+
+	if (A3D_MASK_CONTAINS(element->dirtyMask(),
+						 MeshElementDirtyMask::VertexData)) {
+
+		DeleteMeshElementGLResources(element, glMapping);
 		
-		DeleteGeometryElementGLResources(element, glMapping);
-		
-		BufferSkyboxVertexData(*skyboxGeometry, *Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(*skyboxMesh, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
 
-		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element];
@@ -645,14 +674,14 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //
 //	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 //
-//	if (GEOMETRY_DIRTY_MASK_CONTAINS(geometry->dirtyMask(),
+//	if (A3D_MASK_CONTAINS(geometry->dirtyMask(),
 //									 GEOMETRY_DIRTY_MASK::EXTENT)) {
 //
 //		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
 //
 //		// construct a new lineset matching the geometry's extent
 //
-//		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
+//		A3D_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
 //
 //		map<string, vec3> bp = *(geometry->aabb(false));
 //
@@ -690,7 +719,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //
 //		aabbLineSetMapping[geometry] = aabbLineSet;
 //
-//		geometry->dirtyMask(GEOMETRY_DIRTY_MASK_REMOVE(geometry->dirtyMask(),
+//		geometry->dirtyMask(A3D_MASK_REMOVE(geometry->dirtyMask(),
 //													   GEOMETRY_DIRTY_MASK::EXTENT));
 //	}
 //
@@ -700,25 +729,25 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Geometry> skyboxGeometry,
 //								glVBO, glVAO);
 //}
 
-static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-													GLuint& glVBO, GLuint& glVAO) {
+static void GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+												OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
+												OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
+												GLuint& glVBO, GLuint& glVAO) {
 
 	auto program = Program::Lines();
 
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 
-	if (GEOMETRY_DIRTY_MASK_CONTAINS(geometry->dirtyMask(),
-									 GEOMETRY_DIRTY_MASK::EXTENT)) {
+	if (A3D_MASK_CONTAINS(mesh->dirtyMask(),
+						 MeshDirtyMask::Extent)) {
 
-		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
+		DeleteLineSetGLResources(aabbLineSetMapping[mesh], lineSetGLMapping);
 
-		// construct a new lineset matching the geometry's extent
+		// construct a new lineset matching the mesh's extent
 
-		AE_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
+		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(mesh.get()));
 
-		auto aabb = geometry->aabb();
+		auto aabb = mesh->aabb();
 
 		float xMin = aabb.min.x;
 		float xMax = aabb.max.x;
@@ -752,13 +781,13 @@ static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometr
 		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
 		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
 
-		aabbLineSetMapping[geometry] = aabbLineSet;
+		aabbLineSetMapping[mesh] = aabbLineSet;
 
-		geometry->dirtyMask(GEOMETRY_DIRTY_MASK_REMOVE(geometry->dirtyMask(),
-													   GEOMETRY_DIRTY_MASK::EXTENT));
+		mesh->dirtyMask(A3D_MASK_REMOVE(mesh->dirtyMask(),
+									   MeshDirtyMask::Extent));
 	}
 
-	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
+	GetLineSetVertexDataHandles(aabbLineSetMapping[mesh],
 								*program,
 								lineSetGLMapping,
 								glVBO, glVAO);
@@ -797,59 +826,53 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 		glVAO = get<1>(mapping);
 	}
 }
-	
-static void GetMaterialGLTextureHandles(Material& material,
-										OpenGLRenderer::MaterialPropertyGLMapping& glMapping,
-										unordered_set<shared_ptr<MaterialProperty>>& activeProperties,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
-	
+
+static void GetTextureGLTextureHandles(Material& material,
+									   OpenGLRenderer::TextureGLMapping& glMapping,
+									   unordered_set<shared_ptr<Texture>>& activeTextures,
+									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
+
 	// looks up and populates glTextureHandle, loading the texture data if needed
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emissive()};
-	
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
-	
-	for (unsigned p = 0; p<4; ++p) {
-		auto property = properties[p];
-		
-		if (property) {
-			auto type = types[p];
-			
-			if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property->dirtyMask(),
-													  MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS)) {
-				
-				AE_LOG_D("MaterialProperty {:p} CONTENTS dirty.", static_cast<void*>(property.get()));
-				
-				DeleteMaterialPropertyGLResources(property, glMapping);
-				
+
+	for (auto& [property, type] : material.properties()) {
+
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+
+			auto& texture = get<shared_ptr<Texture>>(*property);
+
+			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
+								  TextureDirtyMask::Contents)) {
+
+				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
+
+				DeleteTextureGLResources(texture, glMapping);
+
 				GLuint textureID = 0;
-				BufferMaterialPropertyTexture(*property, type, textureID);
+				BufferTexture(*texture, type, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					glMapping[property] = textureID;
+					glMapping[texture] = textureID;
 				}
 
-				property->dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property->dirtyMask(),
-																		MATERIAL_PROPERTY_DIRTY_MASK::CONTENTS));
+				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
+												   TextureDirtyMask::Contents));
 			}
 			else {
-				auto textureHandle = glMapping[property];
+				auto textureHandle = glMapping[texture];
 				glTextureHandles[type] = textureHandle;
 			}
-			
+
 			// save reference for housekeeping
-			activeProperties.emplace(property);
+			activeTextures.emplace(texture);
 		}
 	}
 }
 	
-static void BufferGeometryElementVertexData(const GeometryElement& element,
-										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void BufferMeshElementVertexData(const MeshElement& element,
+										Program& program,
+										GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering vertex data for geometry element {:p}...", static_cast<const void*>(&element));
+	A3D_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -903,15 +926,15 @@ static void BufferGeometryElementVertexData(const GeometryElement& element,
 	//program.unuse();
 }
 
-static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
-								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+static void BufferSkyboxVertexData(Mesh& skyboxMesh,
+								   Program& program,
+								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
-	AE_LOG_D("Buffering skybox vertex data...");
+	A3D_LOG_D("Buffering skybox vertex data...");
 	
 	program.use();
 	
-	auto element = skyboxGeometry.elements().front();
+	auto element = skyboxMesh.elements().front();
 	auto verts = element->vertices();
 	auto faces = element->faces();
 	
@@ -941,13 +964,13 @@ static void BufferSkyboxVertexData(Geometry& skyboxGeometry,
 	//program.unuse();
 }
 
-static void BufferAABBVertexData(Geometry& geometry,
-							   const Program& program,
-							   GLuint& glVBO, GLuint& glVAO) {
-	
-	AE_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&geometry));
+static void BufferAABBVertexData(Mesh& mesh,
+								 const Program& program,
+								 GLuint& glVBO, GLuint& glVAO) {
 
-	auto aabb = geometry.aabb();
+	A3D_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&mesh));
+
+	auto aabb = mesh.aabb();
 
 	float xMin = aabb.min.x;
 	float xMax = aabb.max.x;
@@ -1048,14 +1071,16 @@ static void BufferPointSetVertexData(PointSet& pointSet,
 	
 }
 	
-static void BufferMaterialPropertyTexture(const MaterialProperty& property,
-										  MATERIAL_PROPERTY_TYPE type,
-										  GLuint& glTextureHandle) {
-	
-	if (dynamic_pointer_cast<CubeImage>(property.contents())) {
-		AE_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&property));
+static void BufferTexture(const Texture &texture,
+						  MaterialPropertyType type,
+						  GLuint& glTextureHandle) {
+
+	auto contents = texture.contents();
+
+	if (dynamic_pointer_cast<CubeImage>(contents)) {
+		A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
 		
-		auto cubeImage = dynamic_pointer_cast<CubeImage>(property.contents());
+		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
 		
 		shared_ptr<Image> images[] = {
 			cubeImage->posX(),
@@ -1095,17 +1120,17 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 						 GL_UNSIGNED_BYTE,
 						 image->buffer()->data());
 		}
-		
-		SetTextureMinificationFilter(glTextureHandle, true, property.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, true, property.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, true, property.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, true, property.wrapS());
-		SetTextureWrapT(glTextureHandle, true, property.wrapT());
-		SetTextureWrapR(glTextureHandle, property.wrapR());
+
+		auto sampler = texture.sampler();
+		SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
+		SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
+		SetTextureWrapR(glTextureHandle, sampler->wrapR());
 	}
-	else if (dynamic_pointer_cast<Image>(property.contents())) {
-		
-		
+	else if (dynamic_pointer_cast<Image>(contents)) {
+
 //		switch (type) {
 //			case MATERIAL_PROPERTY_TYPE::AMBIENT:
 //				glActiveTexture(GL_TEXTURE0);
@@ -1123,16 +1148,13 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
 //				return;
 //		}
+
+		A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
 		
-		
-		
-		
-		AE_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&property));
-		
-		auto image = dynamic_pointer_cast<Image>(property.contents());
+		auto image = dynamic_pointer_cast<Image>(contents);
 		
 		glGenTextures(1, &glTextureHandle);
-		AE_LOG_D("Binding new texture handle: {}", glTextureHandle);
+		A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 		unsigned bytesPerPixel = image->bytesPerPixel();
@@ -1140,17 +1162,13 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
-		AE_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
 				 image->width() * image->height() * image->bytesPerPixel());
 		
-	
-		
-		
-		
 //		// DEBUG: write texture data to file
 //		
-//		AE_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
+//		A3D_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
 //	
 //		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
 //		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
@@ -1158,14 +1176,14 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 //		static unsigned index = 0;
 //		string filePath = "./" + to_string(index) + ".buf			";
 //		unsigned written = BinaryFile(filesystem::path(filePath), imageBuf);
-//		AE_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
+//		A3D_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
 //		++index;
 		
 		
 //		unsigned char* thing = (unsigned char*)malloc(1024 * sizeof(unsigned char));
-//		AE_LOG_D("THING SIZE: {}", sizeof(thing));
+//		A3D_LOG_D("THING SIZE: {}", sizeof(thing));
 //		
-//		AE_LOG_D("DATA SIZE: {}", sizeof(image->data()));
+//		A3D_LOG_D("DATA SIZE: {}", sizeof(image->data()));
 		
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D,
@@ -1177,40 +1195,33 @@ static void BufferMaterialPropertyTexture(const MaterialProperty& property,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
 					 image->buffer()->data());
-		
-		SetTextureMinificationFilter(glTextureHandle, false, property.minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, false, property.magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, false, property.maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, false, property.wrapS());
-		SetTextureWrapT(glTextureHandle, false, property.wrapT());
+
+		auto sampler = texture.sampler();
+		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
+		SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
+		SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
+		SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
+		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
 	}
 }
-	
+
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles,
-								 const DEBUG_OPTIONS& debugOptions) {
-	
-	// sends uniforms for the Material, and and MaterialProperties it has
-	
+								 map<MaterialPropertyType, GLuint>& glTextureHandles,
+								 const DebugOptions& debugOptions) {
+
+	// sends uniforms for the Material, and MaterialProperties it has
+
 	program.use();
-	
+
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissiveMode", 0); // 0 = MaterialMode_None -- why is this here?
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emissive()};
+	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
 
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
+	for (auto& [property, type] : material.properties()) {
 
-	for (unsigned p = 0; p<4; ++p) {
-		auto property = properties[p];
-
-		if (property) {
-			auto type = types[p];
+		if (!holds_alternative<monostate>(*property)) {
 
 			SendMaterialPropertyUniforms(*property,
 										 type,
@@ -1219,86 +1230,98 @@ static void SendMaterialUniforms(const Material& material,
 										 program);
 		}
 	}
-	
+
 	//program.unuse();
 }
-	
-static void SendMaterialPropertyUniforms(MaterialProperty& property,
-										 MATERIAL_PROPERTY_TYPE type,
+
+static void SendMaterialPropertyUniforms(const MaterialProperty& property,
+										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
-										 const DEBUG_OPTIONS& debugOptions,
+										 const DebugOptions& debugOptions,
 										 Program& program) {
-	
+
 	program.use();
-	
-	if (dynamic_pointer_cast<CubeImage>(property.contents())) { // cubemap
-		program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-	}
-	else if (dynamic_pointer_cast<Image>(property.contents())) { // 2d texture
-		string modeUniformName = "";
-		string samplerUniformName = "";
-		GLenum slot;
-		GLint index;
 
-		switch (type) {
-			case MATERIAL_PROPERTY_TYPE::AMBIENT:
-				modeUniformName = "ambientMode";
-				samplerUniformName = "samplers.ambient";
-				slot = GL_TEXTURE0; index = 0;
-				break;
-			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
-				modeUniformName = "diffuseMode";
-				samplerUniformName = "samplers.diffuse";
-				slot = GL_TEXTURE1; index = 1;
-				break;
-			case MATERIAL_PROPERTY_TYPE::SPECULAR:
-				modeUniformName = "specularMode";
-				samplerUniformName = "samplers.specular";
-				slot = GL_TEXTURE2; index = 2;
-				break;
-			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
-				modeUniformName = "emissiveMode";
-				samplerUniformName = "samplers.emissive";
-				slot = GL_TEXTURE3; index = 3;
-				break;
-			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
-				return;
+	if (holds_alternative<shared_ptr<Texture>>(property)) {
+
+		auto texture = get<shared_ptr<Texture>>(property);
+
+		if (dynamic_pointer_cast<Image>(texture->contents())) {
+
+			string modeUniformName = "";
+			string samplerUniformName = "";
+			GLenum slot;
+			GLint index;
+
+			switch (type) {
+				case MaterialPropertyType::Ambient:
+					modeUniformName = "ambientMode";
+					samplerUniformName = "samplers.ambient";
+					slot = GL_TEXTURE0;
+					index = 0;
+					break;
+				case MaterialPropertyType::Diffuse:
+					modeUniformName = "diffuseMode";
+					samplerUniformName = "samplers.diffuse";
+					slot = GL_TEXTURE1;
+					index = 1;
+					break;
+				case MaterialPropertyType::Specular:
+					modeUniformName = "specularMode";
+					samplerUniformName = "samplers.specular";
+					slot = GL_TEXTURE2;
+					index = 2;
+					break;
+				case MaterialPropertyType::Emission:
+					modeUniformName = "emissionMode";
+					samplerUniformName = "samplers.emission";
+					slot = GL_TEXTURE3;
+					index = 3;
+					break;
+				default:
+					cout << "Invalid MaterialPropertyType: "
+						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+					return;
+			}
+
+			program.setUniform(modeUniformName.c_str(),
+							   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
+			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
-		
+		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+
+				program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
+		}
+
 //		glActiveTexture(slot);
-
-		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
-		program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 	}
-	else if (dynamic_pointer_cast<Color>(property.contents()) ){ // color
-		auto color = dynamic_pointer_cast<Color>(property.contents());
+	else if (holds_alternative<shared_ptr<Color>>(property)) {
 
-		string modeUniformName = "";
-		string colorUniformName = "";
+		auto color = get<shared_ptr<Color>>(property);
+
+		string modeUniformName;
+		string colorUniformName;
 
 		switch (type) {
-			case MATERIAL_PROPERTY_TYPE::AMBIENT:
+			case MaterialPropertyType::Ambient:
 				modeUniformName = "ambientMode";
 				colorUniformName = "colors.ambient";
 				break;
-			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
+			case MaterialPropertyType::Diffuse:
 				modeUniformName = "diffuseMode";
 				colorUniformName = "colors.diffuse";
 				break;
-			case MATERIAL_PROPERTY_TYPE::SPECULAR:
+			case MaterialPropertyType::Specular:
 				modeUniformName = "specularMode";
 				colorUniformName = "colors.specular";
 				break;
-			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
-				modeUniformName = "emissiveMode";
-				colorUniformName = "colors.emissive";
+			case MaterialPropertyType::Emission:
+				modeUniformName = "emissionMode";
+				colorUniformName = "colors.emission";
 				break;
 			default:
-				cout << "Invalid MATERIAL_PROPERTY_TYPE: "
-				<< static_cast<underlying_type<MATERIAL_PROPERTY_TYPE>::type>(type) << endl;
+				cout << "Invalid MaterialPropertyType: "
+					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
 				return;
 		}
 
@@ -1307,7 +1330,7 @@ static void SendMaterialPropertyUniforms(MaterialProperty& property,
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
-		AE_LOG_W("NULL material property contents.");
+		A3D_LOG_W("NULL material property contents.");
 	}
 	
 	//program.unuse();
@@ -1326,10 +1349,10 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	for (auto node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
 			if (auto light = node->light()) {
-				if (light->type() == LIGHT_TYPE::POINT) {
+				if (light->type() == LightType::Point) {
 					lights.push_back(node);
 				}
-				else if (light->type() == LIGHT_TYPE::AMBIENT) {
+				else if (light->type() == LightType::Ambient) {
 					ambientLightNode = node;
 				}
 			}
@@ -1427,77 +1450,72 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
 }
-	
-static void SetMaterialPropertyFilteringOptions(MaterialProperty& property,
-												GLuint glTextureHandle) {
 
-	bool cube = dynamic_pointer_cast<CubeImage>(property.contents()) != nullptr;
-	
-	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MINIFICATION_FILTER)) {
-		SetTextureMinificationFilter(glTextureHandle, cube, property.minificationFilter());
-		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MINIFICATION_FILTER));
+static void SetTextureSamplingOptions(Texture& texture,
+									  GLuint glTextureHandle) {
+
+	auto sampler = texture.sampler();
+	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
+
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MinificationFilter)) {
+		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MinificationFilter));
 	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MAGNIFICATION_FILTER)) {
-		SetTextureMagnificationFilter(glTextureHandle, cube, property.magnificationFilter());
-		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MAGNIFICATION_FILTER));
+
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MagnificationFilter)) {
+		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MagnificationFilter));
 	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_S)) {
-		SetTextureWrapS(glTextureHandle, cube, property.wrapS());
-		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_S));
+
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapS)) {
+		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapS));
 	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_T)) {
-		SetTextureWrapT(glTextureHandle, cube, property.wrapT());
-		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_T));
+
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::WrapT)) {
+		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::WrapT));
 	}
-	
-	if (cube) {
-		if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-												  MATERIAL_PROPERTY_DIRTY_MASK::WRAP_R)) {
-			SetTextureWrapR(glTextureHandle, property.wrapR());
-			property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-																   MATERIAL_PROPERTY_DIRTY_MASK::WRAP_R));
+
+	if (isCubemap) {
+		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+							  SamplerDirtyMask::WrapR)) {
+			SetTextureWrapR(glTextureHandle, sampler->wrapR());
+			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+											   SamplerDirtyMask::WrapR));
 		}
 	}
-	
-	if (MATERIAL_PROPERTY_DIRTY_MASK_CONTAINS(property.dirtyMask(),
-											  MATERIAL_PROPERTY_DIRTY_MASK::MAX_ANISTROPY)) {
-		SetTextureMaxAnisotropy(glTextureHandle, cube, property.maxAnisotropy());
-		property.dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property.dirtyMask(),
-															   MATERIAL_PROPERTY_DIRTY_MASK::MAX_ANISTROPY));
+
+	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+						  SamplerDirtyMask::MaxAnisotropy)) {
+		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
+		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+										   SamplerDirtyMask::MaxAnisotropy));
 	}
 }
-	
+
 static void SetMaterialFilteringOptions(const Material& material,
-										map<MATERIAL_PROPERTY_TYPE, GLuint>& glTextureHandles) {
-	
-	shared_ptr<MaterialProperty> properties[] = {material.ambient(),
-		material.diffuse(), material.specular(), material.emissive()};
-	
-	MATERIAL_PROPERTY_TYPE types[] = {MATERIAL_PROPERTY_TYPE::AMBIENT, MATERIAL_PROPERTY_TYPE::DIFFUSE,
-		MATERIAL_PROPERTY_TYPE::SPECULAR, MATERIAL_PROPERTY_TYPE::EMISSIVE};
-	
-	for (unsigned p = 0; p<4; ++p) {
-		auto property = properties[p];
-		if (property) {
-			auto type = types[p];
-			SetMaterialPropertyFilteringOptions(*property, glTextureHandles[type]);
+										map<MaterialPropertyType, GLuint>& glTextureHandles) {
+
+	for (auto& [property, type] : material.properties()) {
+
+		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+			auto& texture = get<shared_ptr<Texture>>(*property);
+			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
 }
 	
 static void SetMaterialOpenGLState(const Material& material, 
-								   const DEBUG_OPTIONS& debugOptions) {
+								   const DebugOptions& debugOptions) {
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -1513,7 +1531,7 @@ static void SetMaterialOpenGLState(const Material& material,
 //		glDisable(GL_BLEND);
 //	}
 
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowPhysicsWireframes)) {
 		// can create zbuffer problems
 		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
 		//glDepthRange(0.1, 1.0);
@@ -1521,7 +1539,7 @@ static void SetMaterialOpenGLState(const Material& material,
 		//		glPolygonOffset(20.0, 0.0);
 	}
 	
-	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
 		//_program = Program::Wireframe();
 		
 #ifdef OPENGL_DESKTOP
@@ -1531,10 +1549,10 @@ static void SetMaterialOpenGLState(const Material& material,
 	}
 	else {
 #ifdef OPENGL_DESKTOP
-		if (material.fillMode() == FILL_MODE::LINES) {
+		if (material.fillMode() == FillMode::Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
-		else if (material.fillMode() == FILL_MODE::POINTS) {
+		else if (material.fillMode() == FillMode::Points) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		}
 		else {
@@ -1589,10 +1607,10 @@ static void SetPointSetGLState() {
 	
 }
 
-static void DrawGeometryElement(GeometryElement& element,
-								Program& program,
-								mat4 modelMat, mat4 viewMat, mat4 projectionMat,
-								GLuint vao, GLuint ibo) {
+static void DrawMeshElement(MeshElement& element,
+							Program& program,
+							mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+							GLuint vao, GLuint ibo) {
 	
 	program.use();
 	
@@ -1610,7 +1628,7 @@ static void DrawGeometryElement(GeometryElement& element,
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 
-static void DrawSkyboxElement(GeometryElement& element,
+static void DrawSkyboxElement(MeshElement& element,
 							  Program& program,
 							  Node& pointOfView,
 							  GLuint vao, GLuint ibo) {
@@ -1636,7 +1654,7 @@ static void DrawSkyboxElement(GeometryElement& element,
 	glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
 	
-static void DrawAABB(Geometry& geometry,
+static void DrawAABB(Mesh& mesh,
 					 Program& program,
 					 mat4 modelMat,
 					 mat4 viewMat,
@@ -1688,18 +1706,18 @@ static void DrawPointSet(PointSet& pointSet,
 	
 }
 
-static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryElement>>& active,
-											OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+static void CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+										OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of elements used this frame
-	auto activeElementsSorted = vector<shared_ptr<GeometryElement>>();
+	auto activeElementsSorted = vector<shared_ptr<MeshElement>>();
 	activeElementsSorted.reserve(active.size());
 	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
 	sort(activeElementsSorted.begin(), activeElementsSorted.end());
 	
 	// gather sorted vector of elements in the mapping
-	auto storedElementsSorted = vector<shared_ptr<GeometryElement>>();
+	auto storedElementsSorted = vector<shared_ptr<MeshElement>>();
 	storedElementsSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 		storedElementsSorted.emplace_back(it->first);
@@ -1707,8 +1725,8 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 	sort(storedElementsSorted.begin(), storedElementsSorted.end());
 	
 	// find unused elements
-	auto unused = vector<shared_ptr<GeometryElement>>(storedElementsSorted.size());
-	vector<shared_ptr<GeometryElement>>::iterator it;
+	auto unused = vector<shared_ptr<MeshElement>>(storedElementsSorted.size());
+	vector<shared_ptr<MeshElement>>::iterator it;
 	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
 						activeElementsSorted.begin(), activeElementsSorted.end(),
 						unused.begin());
@@ -1716,50 +1734,50 @@ static void CleanupGeometryElementResources(unordered_set<shared_ptr<GeometryEle
 	
 	// deallocate unused elements
 	if (unused.size()) {
-		//AE_LOG_D("Deleting GL resources for {} geometry elements...", unused.size());
+		//A3D_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<GeometryElement> element = *it;
-			DeleteGeometryElementGLResources(element, glMapping);
+			shared_ptr<MeshElement> element = *it;
+			DeleteMeshElementGLResources(element, glMapping);
 		}
 	}
 	
 #endif
 }
 	
-static void CleanupMaterialPropertyResources(unordered_set<shared_ptr<MaterialProperty>>& active,
-											 OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+static void CleanupTextureResources(unordered_set<shared_ptr<Texture>> &active,
+									OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of properties used this frame
-	auto activePropertiesSorted = vector<shared_ptr<MaterialProperty>>();
-	activePropertiesSorted.reserve(glMapping.size());
-	copy(active.begin(), active.end(), back_inserter(activePropertiesSorted));
-	sort(activePropertiesSorted.begin(), activePropertiesSorted.end());
+	auto activeTexturesSorted = vector<shared_ptr<Texture>>();
+	activeTexturesSorted.reserve(glMapping.size());
+	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
+	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
 	
 	// gather sorted vector of properties in the mapping
-	auto storedPropertiesSorted = vector<shared_ptr<MaterialProperty>>();
-	storedPropertiesSorted.reserve(glMapping.size());
+	auto storedTexturesSorted = vector<shared_ptr<Texture>>();
+	storedTexturesSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedPropertiesSorted.emplace_back(it->first);
+		storedTexturesSorted.emplace_back(it->first);
 	}
-	sort(storedPropertiesSorted.begin(), storedPropertiesSorted.end());
+	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
 	
 	// find unused properties
-	auto unused = vector<shared_ptr<MaterialProperty>>(storedPropertiesSorted.size());
-	vector<shared_ptr<MaterialProperty>>::iterator it;
-	it = set_difference(storedPropertiesSorted.begin(), storedPropertiesSorted.end(),
-						activePropertiesSorted.begin(), activePropertiesSorted.end(),
+	auto unused = vector<shared_ptr<Texture>>(storedTexturesSorted.size());
+	vector<shared_ptr<Texture>>::iterator it;
+	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
+						activeTexturesSorted.begin(), activeTexturesSorted.end(),
 						unused.begin());
 	unused.resize(it - unused.begin());
 	
 	// deallocate unused properties
 	if (unused.size()) {
-		//AE_LOG_D("Deleting GL resources for {} textures...", unused.size());
+		//A3D_LOG_D("Deleting GL resources for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<MaterialProperty> property = *it;
-			DeleteMaterialPropertyGLResources(property, glMapping);
+			shared_ptr<Texture> texture = *it;
+			DeleteTextureGLResources(texture, glMapping);
 		}
 	}
 	
@@ -1794,7 +1812,7 @@ static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 	
 	// deallocate unused LineSets
 	if (unused.size()) {
-		//AE_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
 			shared_ptr<LineSet> lineSet = *it;
@@ -1812,13 +1830,13 @@ static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active
 #endif
 }
 
-static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element,
-											 OpenGLRenderer::GeometryElementGLMapping& glMapping) {
+static void DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+										 OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
 		
-		AE_LOG_D("Deleting GL resources for GeometryElement {:p}...", static_cast<void*>(element.get()));
+		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element.get()));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1832,31 +1850,31 @@ static void DeleteGeometryElementGLResources(shared_ptr<GeometryElement> element
 		
 		glMapping.erase(element);
 
-		element->dirtyMask(GEOMETRY_ELEMENT_DIRTY_MASK_REMOVE(element->dirtyMask(),
-															  GEOMETRY_ELEMENT_DIRTY_MASK::VERTEX_DATA));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
+										  MeshElementDirtyMask::VertexData));
 	}
 	
 #endif
 }
 
-static void DeleteMaterialPropertyGLResources(shared_ptr<MaterialProperty> property,
-											  OpenGLRenderer::MaterialPropertyGLMapping& glMapping) {
+static void DeleteTextureGLResources(shared_ptr<Texture> texture,
+									 OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-	if (glMapping.count(property)) {
+	if (glMapping.count(texture)) {
 		
-		AE_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(property.get()));
+		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture.get()));
 
-		auto handle = glMapping[property];
+		auto handle = glMapping[texture];
 		
 		glDeleteTextures(1, &handle);
-		
-		glMapping.erase(property);
 
-		property->dirtyMask(MATERIAL_PROPERTY_DIRTY_MASK_REMOVE(property->dirtyMask(),
-																MATERIAL_PROPERTY_DIRTY_MASK::ALL));
+		glMapping.erase(texture);
+
+		texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
+										  TextureDirtyMask::All));
 	}
-	
+
 #endif
 }
 
@@ -1866,7 +1884,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 	
 	if (glMapping.count(lineSet)) {
 		
-		AE_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
+		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
 		
 		auto glHandles = glMapping[lineSet];
 
@@ -1946,11 +1964,11 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 
 	if (renderContext->recordingGIF()) {
 		auto numFrames = renderContext->recordedGIFFrames();
-		Text("%-14s %.0f fps %s\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -1971,15 +1989,15 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s %d %s\n",
 
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
-			 "geometries", stats.geometries,
 			 "meshes", stats.meshes,
+			 "elements", stats.elements,
 			 "polygons", stats.polygons,
 			 "lights", stats.lights,
 
@@ -1990,17 +2008,17 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
-			 " concave polyhedron", stats.concavePolyhedronShapes,
+			 " concave polyh", stats.concavePolyhedronShapes,
 
 			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		Text("%-14s %.0f fps %s\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
-					"%-14s %.1f ms\n" \
+		Text("%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.2f ms\n" \
+					"%-14s %.0f fps %s\n" \
 					"\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
@@ -2019,15 +2037,15 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
 
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 			 "frametime", stats.averageFrametime,
-			 " user", stats.averageUsertime,
-			 " physics", stats.averagePhysicstime,
 			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
+			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
-			 "geometries", stats.geometries,
 			 "meshes", stats.meshes,
+			 "elements", stats.elements,
 			 "polygons", stats.polygons,
 			 "lights", stats.lights,
 
@@ -2038,7 +2056,7 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
-			 " concave polyhedron", stats.concavePolyhedronShapes,
+			 " concave polyh", stats.concavePolyhedronShapes,
 
 			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
 	}
@@ -2050,37 +2068,37 @@ void DrawStatsOverlay(Stats& stats, float time, Scene& scene) {
 //#endif // OPENGL_DESKTOP
 }
 
-static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
+static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
-		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:
-		case FILTER_MODE::NEAREST_MIPMAP_LINEAR:
-		case FILTER_MODE::LINEAR_MIPMAP_NEAREST:
-		case FILTER_MODE::LINEAR_MIPMAP_LINEAR:
-		glGenerateMipmap(texType);
-		break;
+		case FilterMode::NearestMipmapNearest:
+		case FilterMode::NearestMipmapLinear:
+		case FilterMode::LinearMipmapNearest:
+		case FilterMode::LinearMipmapLinear:
+			glGenerateMipmap(texType);
+			break;
 		default:
-		break;
+			break;
 	}
-	
+
 	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
 }
 
-static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FILTER_MODE mode) {
+static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
+
 	switch (mode) {
-		case FILTER_MODE::NEAREST:
-		case FILTER_MODE::LINEAR:
-		glBindTexture(texType, glTextureHandle);
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
-		break;
+		case FilterMode::Nearest:
+		case FilterMode::Linear:
+			glBindTexture(texType, glTextureHandle);
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
+			break;
 		default:
-		AE_LOG_W("Unsupported magnification filter mode: {}", (unsigned)mode);
+			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
 		break;
 	}
 }
@@ -2099,7 +2117,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 #endif
 }
 
-static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
+static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -2107,7 +2125,7 @@ static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
 }
 
-static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
+static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -2115,55 +2133,55 @@ static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WRAP_MODE mode) {
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
 }
 
-static void SetTextureWrapR(GLuint glTextureHandle, WRAP_MODE mode) {
+static void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GLWrapModeForWrapMode(mode));
 }
 
-static GLenum GLFilterModeForFilterMode(FILTER_MODE mode) {
+static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
-		case FILTER_MODE::NEAREST: 					return GL_NEAREST;
-		case FILTER_MODE::LINEAR: 					return GL_LINEAR;
-		case FILTER_MODE::NEAREST_MIPMAP_NEAREST:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FILTER_MODE::LINEAR_MIPMAP_NEAREST: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FILTER_MODE::NEAREST_MIPMAP_LINEAR: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FILTER_MODE::LINEAR_MIPMAP_LINEAR: 	return GL_LINEAR_MIPMAP_LINEAR; }
+		case FilterMode::Nearest: 				return GL_NEAREST;
+		case FilterMode::Linear: 				return GL_LINEAR;
+		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-static FILTER_MODE FilterModeForGLFilterMode(GLenum mode) {
+static FilterMode FilterModeForGLFilterMode(GLenum mode) {
 	switch (mode) {
-		case GL_LINEAR: 							return FILTER_MODE::LINEAR;
-		case GL_NEAREST_MIPMAP_NEAREST:				return FILTER_MODE::NEAREST_MIPMAP_NEAREST;
-		case GL_LINEAR_MIPMAP_NEAREST: 				return FILTER_MODE::LINEAR_MIPMAP_NEAREST;
-		case GL_NEAREST_MIPMAP_LINEAR: 				return FILTER_MODE::NEAREST_MIPMAP_LINEAR;
-		case GL_LINEAR_MIPMAP_LINEAR: 				return FILTER_MODE::LINEAR_MIPMAP_LINEAR;
-		default: /* GL_NEAREST */					return FILTER_MODE::NEAREST; }
+		case GL_LINEAR: 						return FilterMode::Linear;
+		case GL_NEAREST_MIPMAP_NEAREST:			return FilterMode::NearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: 			return FilterMode::LinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: 			return FilterMode::NearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: 			return FilterMode::LinearMipmapLinear;
+		default: /* GL_NEAREST */				return FilterMode::Nearest; }
 }
 
-static GLenum GLWrapModeForWrapMode(WRAP_MODE mode) {
+static GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
-		case WRAP_MODE::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
+		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef OPENGL_DESKTOP
-//		case WRAP_MODE::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
+//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
-		case WRAP_MODE::REPEAT:						return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */   			return GL_MIRRORED_REPEAT; }
+		case WrapMode::Repeat:					return GL_REPEAT;
+        default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
-static WRAP_MODE WrapModeForGLWrapMode(GLenum mode) {
+static WrapMode WrapModeForGLWrapMode(GLenum mode) {
 	switch (mode) {
 //#ifdef OPENGL_DESKTOP
-//		case GL_CLAMP_TO_BORDER:					return WRAP_MODE::CLAMP_TO_BORDER;
+//		case GL_CLAMP_TO_BORDER:				return WRAP_MODE::CLAMP_TO_BORDER;
 //#endif
-		case GL_REPEAT:								return WRAP_MODE::REPEAT;
-		case GL_MIRRORED_REPEAT: 					return WRAP_MODE::MIRRORED_REPEAT;
-		default: /* GL_CLAMP_TO_EDGE */				return WRAP_MODE::CLAMP_TO_EDGE; }
+		case GL_REPEAT:							return WrapMode::Repeat;
+		case GL_MIRRORED_REPEAT: 				return WrapMode::MirroredRepeat;
+		default: /* GL_CLAMP_TO_EDGE */			return WrapMode::ClampToEdge; }
 }
 
 static void CheckGLError() {
 	auto err = glGetError();
 	if (err != GL_NO_ERROR) {
-		AE_LOG_E("*** GL error: 0x{:X} ***", err);
+		A3D_LOG_E("*** GL error: 0x{:X} ***", err);
 	}
 }

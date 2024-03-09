@@ -1,29 +1,29 @@
 //
 //  RenderContext.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/context/RenderContext.h"
+#include "a3d/rendering/context/RenderContext.h"
 
 #include "gif.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
 
-#include "ae/Buffer.h"
-#include "ae/Image.h"
-#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/rendering/opengl/OpenGLRenderer.h"
-#include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/Buffer.h"
+#include "a3d/Image.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/rendering/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -32,40 +32,39 @@ using namespace std;
 	Lifescycle
  *********************************************************************************************/
 
-RenderContext::RenderContext(RENDER_API renderAPI):
-		_renderAPI(renderAPI),
-		_renderer(nullptr),
+RenderContext::RenderContext(RenderingApi renderingApi):
 		_width(0),
 		_height(0),
 		_framebufferWidth(0),
 		_framebufferHeight(0),
 		_framebufferScale{1.0, 1.0},
 		_vSyncEnabled(false),
-		_antialiasingMode(ANTIALIASING_MODE::NONE),
+		_antialiasingMode(AntialiasingMode::None),
 		_gifWriter(nullptr),
 		_recordingGIF(false),
 		_gifRecordingWidth(0),
 		_gifRecordingHeight(0),
 		_gifRecordingMaxFramerate(0),
 		_gifRecordedFrames(0),
-		_visualWorld(nullptr) {
+		_visualWorld(nullptr),
+		_renderer(nullptr) {
 
-	switch (_renderAPI) {
-		case RENDER_API::OPENGL: {
+	switch (renderingApi) {
+		case RenderingApi::OpenGL: {
 			auto renderer = make_shared<OpenGLRenderer>();
 			_renderer = static_pointer_cast<Renderer>(renderer);
 			break; }
-		case RENDER_API::OPENGL_ES: {
-			throw Exception("Unsupported render API: OPENGL_ES");
+		case RenderingApi::OpenGLES: {
+			throw Exception("Unsupported rendering API: OpenGLES");
 			break; }
-		case RENDER_API::VULKAN: {
-			throw Exception("Unsupported render API: VULKAN");
+		case RenderingApi::Vulkan: {
+			throw Exception("Unsupported rendering API: Vulkan");
 			break; }
 	}
 }
 
 RenderContext::~RenderContext() {
-	AE_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
 	
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -75,10 +74,6 @@ RenderContext::~RenderContext() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-
-RENDER_API RenderContext::renderAPI() const {
-	return _renderAPI;
-}
 
 unsigned RenderContext::width() const {
 	return _width;
@@ -108,7 +103,7 @@ void RenderContext::vSyncEnabled(bool enabled) {
 	_vSyncEnabled = enabled;
 }
 
-ANTIALIASING_MODE RenderContext::antialiasingMode() const {
+AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
 }
 
@@ -127,7 +122,7 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
-		AE_LOG_I("Starting GIF recording...");
+		A3D_LOG_I("Starting GIF recording...");
 		
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordedFrames = 0;
@@ -169,7 +164,7 @@ void RenderContext::stopGIFRecording() {
 		//free(_gifWriter.get());
 		_gifWriter = nullptr;
 		
-		AE_LOG_I("Stopped GIF recording.");
+		A3D_LOG_I("Stopped GIF recording.");
 	}
 }
 
@@ -177,13 +172,13 @@ VisualWorld* RenderContext::visualWorld() const {
 	return _visualWorld;
 }
 
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
 shared_ptr<Renderer> RenderContext::renderer() const {
 	return _renderer;
 }
+
+/*********************************************************************************************
+	Internal
+ *********************************************************************************************/
 
 void RenderContext::width(unsigned width) {
 	_width = width;
@@ -240,13 +235,13 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = world;
 }
 
 void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = nullptr;
 }

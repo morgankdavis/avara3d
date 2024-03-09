@@ -1,12 +1,12 @@
 //
 //  Logger.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/5/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 #include <cstdarg>
 #include <ctime>
@@ -20,17 +20,19 @@
 #include <NDKHelper.h>
 #endif
 
-#include "ae/Utilities.h"
-#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/sinks/LoggerSink.h"
-#include "ae/diagnostic/logging/sinks/FileLoggerSink.h"
+#include "magic_enum.hpp"
+
+#include "a3d/Utilities.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 #ifdef DESKTOP
-#include "ae/diagnostic/logging/sinks/platform/desktop/StdOutLoggerSink.h"
+#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
 #endif
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace std;
 
 
@@ -55,7 +57,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
 #else
-		string executableName = utils::ExecutableName()->string();
+		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_shared<StdOutLoggerSink>();
 		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
 													/ (executableName + string(".log")));
@@ -65,7 +67,7 @@ shared_ptr<Logger> Logger::MainLogger() {
 		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
 		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
 
-		logger = make_shared<Logger>("ae", sinks);
+		logger = make_shared<Logger>("a3d", sinks);
 	}
 	return logger;
 }
@@ -75,17 +77,16 @@ shared_ptr<Logger> Logger::MainLogger() {
  *********************************************************************************************/
 
 string DateString();
-string HeaderString(const string& logName, LOG_LEVEL level);
-string HeaderString(const string& logName, LOG_LEVEL level,
+string HeaderString(const string& logName, LogLevel level);
+string HeaderString(const string& logName, LogLevel level,
 					const char* filename, int line, const char* function);
-string StringFromLogLevel(LOG_LEVEL level);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 Logger::Logger(string name, shared_ptr<LoggerSink> sink,
-			   LOG_LEVEL level, LOG_LEVEL flushLevel):
+			   LogLevel level, LogLevel flushLevel):
 	_name(name),
 	_sinks(unordered_set<shared_ptr<LoggerSink>>()),
 	_level(level),
@@ -95,7 +96,7 @@ Logger::Logger(string name, shared_ptr<LoggerSink> sink,
 }
 
 Logger::Logger(string name, unordered_set<shared_ptr<LoggerSink>> sinks,
-			   LOG_LEVEL level, LOG_LEVEL flushLevel):
+			   LogLevel level, LogLevel flushLevel):
 	_name(name),
 	_sinks(sinks),
 	_level(level),
@@ -119,11 +120,11 @@ unordered_set<shared_ptr<LoggerSink>> Logger::sinks() const {
 	return _sinks;
 }
 
-LOG_LEVEL Logger::level() const {
+LogLevel Logger::level() const {
 	return _level;
 }
 
-void Logger::level(LOG_LEVEL level) {
+void Logger::level(LogLevel level) {
 	_level = level;
 }
 
@@ -131,7 +132,7 @@ void Logger::trace(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE, format, args);
+	log(LogLevel::Trace, format, args);
 	va_end(args);
 }
 
@@ -139,7 +140,7 @@ void Logger::debug(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG, format, args);
+	log(LogLevel::Debug, format, args);
 	va_end(args);
 }
 
@@ -147,7 +148,7 @@ void Logger::info(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO, format, args);
+	log(LogLevel::Info, format, args);
 	va_end(args);
 }
 
@@ -155,7 +156,7 @@ void Logger::warn(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN, format, args);
+	log(LogLevel::Warn, format, args);
 	va_end(args);
 }
 
@@ -163,7 +164,7 @@ void Logger::error(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR, format, args);
+	log(LogLevel::Error, format, args);
 	va_end(args);
 }
 
@@ -171,7 +172,7 @@ void Logger::critical(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL, format, args);
+	log(LogLevel::Critical, format, args);
 	va_end(args);
 }
 
@@ -186,7 +187,7 @@ void Logger::trace(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::TRACE, useHeader, filename, line, function, format, args);
+	log(LogLevel::Trace, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -196,7 +197,7 @@ void Logger::debug(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::DEBUG, useHeader, filename, line, function, format, args);
+	log(LogLevel::Debug, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -206,7 +207,7 @@ void Logger::info(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::INFO, useHeader, filename, line, function, format, args);
+	log(LogLevel::Info, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -216,7 +217,7 @@ void Logger::warn(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::WARN, useHeader, filename, line, function, format, args);
+	log(LogLevel::Warn, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -226,7 +227,7 @@ void Logger::error(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::ERROR, useHeader, filename, line, function, format, args);
+	log(LogLevel::Error, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -236,7 +237,7 @@ void Logger::critical(bool useHeader,
 
 	va_list args;
 	va_start(args, format);
-	log(LOG_LEVEL::CRITICAL, useHeader, filename, line, function, format, args);
+	log(LogLevel::Critical, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 
@@ -286,7 +287,7 @@ void Logger::critical(bool useHeader,
 //}
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level,
+void Logger::log(LogLevel level,
 				 const char* format, va_list args) {
 
 	char body[MAX_LOG_BODY_SIZE];
@@ -298,7 +299,7 @@ void Logger::log(LOG_LEVEL level,
 }
 
 // constructs body with variable args list
-void Logger::log(LOG_LEVEL level,
+void Logger::log(LogLevel level,
 				 bool useHeader,
 				 const char* filename, int line, const char* function,
 				 const char* format, va_list args) {
@@ -318,14 +319,14 @@ void Logger::log(LOG_LEVEL level,
 
 void Logger::log_crumb(const char* filename, int line, const char* function) {
 
-	dispatch(LOG_LEVEL::TRACE,
-			 HeaderString(_name, LOG_LEVEL::TRACE, filename, line, function).c_str());
+	dispatch(LogLevel::Trace,
+			 HeaderString(_name, LogLevel::Trace, filename, line, function).c_str());
 }
 
-void Logger::construct(LOG_LEVEL level, const char* body) {
+void Logger::construct(LogLevel level, const char* body) {
 
-	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(_level)) {
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
 		char lineStr[MAX_LOG_LINE_SIZE];
 		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
@@ -336,12 +337,12 @@ void Logger::construct(LOG_LEVEL level, const char* body) {
 	}
 }
 
-void Logger::construct(LOG_LEVEL level,
+void Logger::construct(LogLevel level,
 					   const char* filename, int line, const char* function,
 					   const char* body) {
 
-	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(_level)) {
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
 		char lineStr[MAX_LOG_LINE_SIZE];
 		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
@@ -352,7 +353,7 @@ void Logger::construct(LOG_LEVEL level,
 	}
 }
 
-void Logger::dispatch(LOG_LEVEL level, const char* line) {
+void Logger::dispatch(LogLevel level, const char* line) {
 
 	for (auto sink : _sinks) {
 
@@ -370,8 +371,8 @@ void Logger::dispatch(LOG_LEVEL level, const char* line) {
 		}
 	}
 
-	if (static_cast<underlying_type<LOG_LEVEL>::type>(level)
-		>= static_cast<underlying_type<LOG_LEVEL>::type>(_flushLevel)) {
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(_flushLevel)) {
 		flush();
 	}
 }
@@ -389,61 +390,51 @@ void Logger::flush() {
  *********************************************************************************************/
 
 string DateString() {
-	
-	char buffer[256];
+
+	constexpr size_t BUF_SIZE = 256;
+	char buf[BUF_SIZE];
 #ifdef WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M:%S", timeinfo);
+	strftime(buf, sizeof(buf), "%Y-%m-%d %I:%M:%S", timeinfo);
+	return string(buf);
 #else
 	timeval curTime;
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
-	strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-	sprintf(buffer, "%s.%03d", buffer, milli);
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
+	char msBuf[strlen(buf) + 5];
+	snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
+	return string(msBuf);
 #endif
-	return string(buffer);
 }
 
-string HeaderString(const string& logName, LOG_LEVEL level) {
+string HeaderString(const string& logName, LogLevel level) {
 
 	char headerStr[MAX_HEADER_STR_SIZE];
 	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s]",
 			 DateString().c_str(),
 			 logName.c_str(),
-			 StringFromLogLevel(level).c_str());
+			 string(magic_enum::enum_name(level)).c_str());
 
 	//return string((const char*)headerStr);
 	return {(const char*)headerStr};
 }
 
-string HeaderString(const string& logName, LOG_LEVEL level,
+string HeaderString(const string& logName, LogLevel level,
 					const char* filename, int line, const char* function) {
 
 	char headerStr[MAX_HEADER_STR_SIZE];
 	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s] [%s:%d] [%s()]",
 			 DateString().c_str(),
 			 logName.c_str(),
-			 StringFromLogLevel(level).c_str(),
+			 string(magic_enum::enum_name(level)).c_str(),
 			 filename,
 			 line,
 			 function);
 
 	//return string((const char*)headerStr);
 	return {(const char*)headerStr};
-}
-
-string StringFromLogLevel(LOG_LEVEL level) {
-	
-	switch (level) {
-		case LOG_LEVEL::TRACE: 	return "trace";
-		case LOG_LEVEL::DEBUG: 	return "debug";
-		case LOG_LEVEL::INFO: 		return "info";
-		case LOG_LEVEL::WARN: 		return "WARN";
-		case LOG_LEVEL::ERROR: 	return "ERROR";
-		case LOG_LEVEL::CRITICAL: 	return "CRITICAL";
-		case LOG_LEVEL::OFF: 		return "off";
-	}
 }

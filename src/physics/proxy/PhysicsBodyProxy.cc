@@ -2,12 +2,12 @@
 // Created by mkd on 11/13/23.
 //
 
-#include "ae/physics/proxy/PhysicsBodyProxy.h"
+#include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 /*********************************************************************************************
@@ -37,13 +37,13 @@ void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
 }
 
 void PhysicsBodyProxy::attachedToBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_body = body;
 }
 
 void PhysicsBodyProxy::detachedFromBody(PhysicsBody* body) {
-	AE_LOG_T("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
 
 	_body = nullptr;
 }

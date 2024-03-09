@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -11,12 +11,12 @@
 
 #include <glm/glm.hpp>
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -31,7 +31,7 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			800;
 constexpr unsigned				WINDOW_HEIGHT =			600;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::NONE;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::None;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
@@ -47,10 +47,11 @@ int main(int argc, const char* argv[]) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -61,51 +62,54 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("sky1", "png")));
+	visualWorld->background(make_shared<Texture>(CubeImageNamed("sky1", "png")));
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-	DEBUG_OPTIONS debugOptions = DEBUG_OPTIONS::NONE;
-	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
-	debugOptions = DEBUG_OPTIONS_ADD(debugOptions, DEBUG_OPTIONS::SHOW_BOUNDING_BOXES);
+//	DebugOptions debugOptions = DebugOptions::None;
+//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
+//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
+	DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
+								| DebugOptions::ShowBoundingBoxes;
 	scene->debugOptions(debugOptions);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>("Ambient light");
 	ambientLightNode->light(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 	pointLight->attenuationFactor(0.0000015);
 	auto pointLightNode = make_shared<Node>();
 	pointLightNode->light(pointLight);
 	scene->rootNode()->addChild(pointLightNode);
 	pointLightNode->position({100.0, 20.0, 20.0});
 
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(3.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+	material->emission(materialProperty);
+	auto mesh = Sphere::Mesh(3.5, 4, material);
+//	mesh->addMaterial(material);
+//	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
+	pointLightNode->mesh(mesh);
 
-	auto teapotNode = Node::GeometryNode(GeometryNamed("teapot"));
+	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
 	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::GeometryNode(GeometryNamed("dragon"));
+	auto dragonNode = Node::MeshNode(MeshNamed("dragon/dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 
 	scene->rootNode()->addChild(dragonNode);
 
-	auto boxNode = Node::GeometryNode(make_shared<Box>(1.0, 1.0, 1.0));
+	auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
 
 	window->open();
@@ -130,54 +134,54 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysPressed = scene.inputManager()->keysPressed();
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_WIREFRAMES));
+	if (keysPressed.count(Key::F)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+	if (keysPressed.count(Key::B)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowBoundingBoxes));
 		}
 	}
-	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(),
-													DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+	if (keysPressed.count(Key::I)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+											  DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(),
-												 DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+										   DebugOptions::ShowStatsOverlay));
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -216,23 +220,23 @@ void UpdateCallback(Scene& scene, float time) {
 
 			auto keysDown = scene.inputManager()->keysDown();
 
-			if (keysDown.count(KEY::W)) {
+			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
-			} else if (keysDown.count(KEY::S)) {
+			} else if (keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::A)) {
+			if (keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
-			} else if (keysDown.count(KEY::D)) {
+			} else if (keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}

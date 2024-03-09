@@ -1,24 +1,24 @@
 //
 //  Image.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/Image.h"
+#include "a3d/Image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#include "ae/Buffer.h"
-#include "ae/diagnostic/exceptions/Exception.h"
-#include "ae/diagnostic/logging/Logger.h"
+#include "a3d/Buffer.h"
+#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -71,7 +71,7 @@ Image::Image(shared_ptr<Buffer> rawBuffer,
 }
 
 Image::~Image() {
-	AE_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
 	
 //	if (_data) {
 //		stbi_image_free(&_data);
@@ -168,7 +168,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	
 	stbi_image_free(imgData);
 	
-	AE_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
+	A3D_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
 	
 	_width = width;

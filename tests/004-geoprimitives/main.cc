@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -8,16 +8,15 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "glm/glm.hpp"
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -32,13 +31,13 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		true;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<ae::Logger>		logger;
+std::shared_ptr<a3d::Logger>		logger;
 
 
 int main(int argc, const char* argv[]) {
@@ -46,10 +45,11 @@ int main(int argc, const char* argv[]) {
 	logger = make_shared<Logger>("test-004", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -57,80 +57,162 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	auto background = make_shared<MaterialProperty>(backgroundColor);
-	visualWorld->background(background);
+	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
 	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto planeGeo = make_shared<Plane>(5.0f, 2.5f);
-	auto planeNode = make_shared<Node>();
-	planeGeo->name("plane");
-	planeNode->geometry(planeGeo);
-	scene->rootNode()->addChild(planeNode);
-	planeNode->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-	planeNode->position(vec3(0.0f, -2.0f, 0.0f));
+	{
+		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
+		auto node = make_shared<Node>();
+		node->name("box");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
+		node->position(vec3(1.67f, -2.5f, 0.0f));
+	}
 
-	auto boxGeo = make_shared<Box>(3.0f, 2.0f, 1.0f);
-	auto boxNode = make_shared<Node>();
-	boxGeo->name("box");
-	boxNode->geometry(boxGeo);
-	scene->rootNode()->addChild(boxNode);
-	boxNode->rotation({0.0f, 1.0f, 0.0f}, radians(-70.0f));
-	boxNode->position(vec3(2.0f, 0.0f, -2.0f));
+	{
+		auto mesh = Capsule::Mesh(0.5f, 1.0f);
+		auto node = make_shared<Node>();
+		node->name("capsule");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(-5.0f, -2.5f, 0.0f));
+	}
 
-	auto sphereGeo = make_shared<Sphere>(0.5, 24);
-	auto sphereNode = make_shared<Node>();
-	sphereGeo->name("sphere");
-	sphereNode->geometry(sphereGeo);
-	scene->rootNode()->addChild(sphereNode);
-	sphereNode->position(vec3(0.0f, 2.0f, 0.0f));
+	{
+		auto mesh = Cone::Mesh(1.0f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("cone");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(-5.0f, 0.0f, 0.0f));
+	}
 
-	auto torusGeo = make_shared<Torus>(0.75f, 1.0f, 64, 128);
-	auto torusNode = make_shared<Node>();
-	torusGeo->name("torus");
-	torusNode->geometry(torusGeo);
-	scene->rootNode()->addChild(torusNode);
-	torusNode->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-	torusNode->position(vec3(-2.0f, 0.0f, -2.0f));
+	{
+		auto mesh = Cylinder::Mesh(0.5f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("cylinder");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(5.0f, -2.5f, 0.0f));
+	}
 
-	auto tubeGeo = make_shared<Tube>(0.5f, 0.75f, 2.0f, 128, 64);
-	auto tubeNode = make_shared<Node>();
-	tubeGeo->name("tube");
-	tubeNode->geometry(tubeGeo);
-	scene->rootNode()->addChild(tubeNode);
-	tubeNode->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-	tubeNode->position(vec3(0.0f, -1.0f, -2.0f));
+	{
+		auto mesh = Disk::Mesh(1.0f, 5.0f);
+		auto node = make_shared<Node>();
+		node->name("disk");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(0.0f, 5.0f, 0.0f));
+	}
 
-	auto capsuleGeo = make_shared<Capsule>(0.5f, 1.0f, 128, 32, 64);
-	auto capsuleNode = make_shared<Node>();
-	capsuleGeo->name("capsule");
-	capsuleNode->geometry(capsuleGeo);
-	scene->rootNode()->addChild(capsuleNode);
-	//capsuleNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	capsuleNode->position(vec3(-3.5f, 2.5f, -1.0f));
+	{
+		auto mesh = Plane::Mesh(10.0f, 10.0f);
+		auto node = make_shared<Node>();
+		mesh->name("plane");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+		node->position(vec3(0.0f, -5.0f, 0.0f));
+	}
 
-	auto cylinderGeo = make_shared<Cylinder>(0.5f, 2.0f, 128, 64);
-	auto cylinderNode = make_shared<Node>();
-	cylinderGeo->name("cylinder");
-	cylinderNode->geometry(cylinderGeo);
-	scene->rootNode()->addChild(cylinderNode);
-	//cylinderNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	cylinderNode->position(vec3(3.5f, 2.5f, -1.0f));
+	{
+		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
+		auto node = make_shared<Node>();
+		mesh->name("rounded box");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
+		node->position(vec3(-5.0f, 2.5f, 0.0f));
+	}
 
-	auto coneGeo = make_shared<Cone>(1.0, 2.0f, 128, 64);
-	//auto coneGeo = make_shared<Cone>(1.0, 1.0f, 4, 4);
-	auto coneNode = make_shared<Node>();
-	coneGeo->name("cone");
-	coneNode->geometry(coneGeo);
-	scene->rootNode()->addChild(coneNode);
-	//coneNode->rotation(vec4(1.0f, 0.0f, 0.0f, radians(-90.0f)));
-	coneNode->position(vec3(-1.5f, 2.5f, -1.0f));
+	{
+		auto mesh = Sphere::Mesh(1.0f);
+		auto node = make_shared<Node>();
+		mesh->name("sphere");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(5.0f, 2.5f, 0.0f));
+	}
+
+	{
+		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
+		auto node = make_shared<Node>();
+		mesh->name("spring");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->position(vec3(0.0f, 2.5f, 0.0f));
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
+	}
+
+	{
+		auto mesh = Torus::Mesh(0.75f, 1.0f);
+		auto node = make_shared<Node>();
+		mesh->name("torus");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+		node->position(vec3(5.0f, 0.0f, 0.0f));
+	}
+
+	{
+		auto mesh = TorusKnot::Mesh(2, 3);
+		auto node = make_shared<Node>();
+		mesh->name("torus knot");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+		node->position(vec3(0.0f, 0.0f, 0.0f));
+	}
+
+	{
+		auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
+		auto node = make_shared<Node>();
+		mesh->name("tube");
+		node->mesh(mesh);
+		scene->rootNode()->addChild(node);
+		node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
+		node->position(vec3(-1.67f, -2.5f, 0.0f));
+	}
+
+//	int texIndex = 0;
+//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png"),
+//										   utils::ImageNamed("test_textures/green", "png"),
+//										   utils::ImageNamed("test_textures/magenta", "png"),
+//										   utils::ImageNamed("test_textures/orange", "png"),
+//										   utils::ImageNamed("test_textures/purple", "png"),
+//										   utils::ImageNamed("test_textures/red", "png"),
+//										   utils::ImageNamed("test_textures/yellow", "png"),
+//										   utils::ImageNamed("test_textures/blue", "png"),
+//										   utils::ImageNamed("test_textures/cyan", "png") };
+//
+//	for (auto& node : scene->rootNode()->children(true)) {
+//		if (auto mesh = node->mesh(); mesh) {
+//
+//			auto elements = mesh->elements();
+//			for (int e=0; e<elements.size(); ++e) {
+//
+//				auto material = make_shared<Material>();
+//				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
+//				material->diffuse(property);
+//				material->doubleSided(true);
+//				//mesh->addMaterial(material);
+//				mesh->replaceMaterial(0, material);
+//				if (texIndex >= textures.size()) {
+//					texIndex = 0;
+//				}
+//			}
+//		}
+//	}
+
 
 	window->open();
 	scene->run();
@@ -153,7 +235,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto keysDown = scene.inputManager()->keysDown();
 
-	if (keysDown.count(KEY::ESCAPE)) {
+	if (keysDown.count(Key::Escape)) {
 		exit(0);
 	}
 
@@ -173,20 +255,20 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 	auto keysPressed = scene.inputManager()->keysPressed();
-	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+	if (keysPressed.count(Key::F)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
-	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+	if (keysPressed.count(Key::B)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 
@@ -223,25 +305,25 @@ void UpdateCallback(Scene& scene, float time) {
 
 		static float MOVE_SPEED = Max(scene.rootNode()->extent());
 
-		if(keysDown.count(KEY::W)) {
+		if(keysDown.count(Key::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(KEY::S)) {
+		else if(keysDown.count(Key::S)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(KEY::A)) {
+		if(keysDown.count(Key::A)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(KEY::D)) {
+		else if(keysDown.count(Key::D)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(KEY::SPACE)) {
+		if(keysDown.count(Key::Space)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}

@@ -1,22 +1,22 @@
 //
 //  Renderer.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 4/22/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/Renderer.h"
+#include "a3d/rendering/Renderer.h"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/GeometryElement.h"
-#include "ae/rendering/VisualWorld.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/materials/Material.h"
-#include "ae/scene/Scene.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/rendering/VisualWorld.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -27,7 +27,7 @@ using namespace std;
 Renderer::Renderer() { }
 
 Renderer::~Renderer() {
-	AE_LOG_D("Destroying Renderer {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying Renderer {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -40,42 +40,42 @@ bool Renderer::initialize(const RenderContext& context) {
 
 void Renderer::beginFrame(const Scene& scene,
 						  const RenderContext& context,
-						  const DEBUG_OPTIONS& debugOptions,
+						  const DebugOptions& debugOptions,
 						  Stats& stats) {
 }
 
 void Renderer::endFrame(const Scene& scene,
 						const RenderContext& context,
-						const DEBUG_OPTIONS& debugOptions,
+						const DebugOptions& debugOptions,
 						Stats& stats) {
 }
 
 void Renderer::render(const Scene& scene,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
-	AE_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
+	A3D_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<Geometry> geometry,
+void Renderer::render(shared_ptr<Mesh> mesh,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
-	AE_LOG_C("Renderer::render(<Geometry>) should be overidden in derived class.");
+	A3D_LOG_C("Renderer::render(<Mesh>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<GeometryElement> element,
+void Renderer::render(shared_ptr<MeshElement> element,
 					  Material& material,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
-					  const DEBUG_OPTIONS& debugOptions,
+					  const DebugOptions& debugOptions,
 					  Stats& stats) {
 	
-	AE_LOG_C("Renderer::render(<GeometryElement>) should be overidden in derived class.");
+	A3D_LOG_C("Renderer::render(<MeshElement>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<LineSet> lines,
@@ -83,7 +83,7 @@ void Renderer::render(shared_ptr<LineSet> lines,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
 	
-	AE_LOG_C("Renderer::render(<LineSet>) should be overidden in derived class.");
+	A3D_LOG_C("Renderer::render(<LineSet>) should be overidden in derived class.");
 }
 
 void Renderer::render(shared_ptr<PointSet> points,
@@ -91,11 +91,11 @@ void Renderer::render(shared_ptr<PointSet> points,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
 	
-	AE_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
+	A3D_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
 }
 
 shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
-	AE_LOG_C("Renderer::snapshot() should be overidden in derived class.");
+	A3D_LOG_C("Renderer::snapshot() should be overidden in derived class.");
 	return nullptr;
 }

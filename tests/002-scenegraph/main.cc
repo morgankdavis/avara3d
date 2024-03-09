@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -13,12 +13,12 @@
 #include <math.h>
 #include <memory>
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -43,7 +43,7 @@ constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
@@ -52,10 +52,11 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test002::main()\n" << endl;
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -63,7 +64,7 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_shared<VisualWorld>(window);
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	visualWorld->background(make_shared<MaterialProperty>(backgroundColor));
+	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -137,7 +138,7 @@ int main(int argc, const char* argv[]) {
 		a->_debugPrint();
 
 		for (auto& c : a->children(true)) {
-			AE_LOG_I("c: {}", *c->name());
+			A3D_LOG_I("c: {}", *c->name());
 		}
 
 //		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] c

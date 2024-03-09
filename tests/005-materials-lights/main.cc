@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
 //  Copyright © 2017 Morgan K Davis. All rights reserved.
@@ -12,12 +12,12 @@
 
 #include "glm/glm.hpp"
 
-#include "ae/ae.h"
-#include "ae/Utilities.h"
+#include "a3d/a3d.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
-using namespace ae::utils;
+using namespace a3d;
+using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -28,37 +28,38 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
-void SetAllFilterModes(FILTER_MODE mode, Scene& scene);
+void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
-void ProcessEdit(Node& node, set<KEY>& keysDown, set<KEY>& keysPressed);
+void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
-constexpr ANTIALIASING_MODE		ANTIALIAS_MODE =		ANTIALIASING_MODE::MSAA_4X;
+constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr bool 					ORTHO_CAMERA =			false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<ae::Logger>		logger;
-std::shared_ptr<ae::Node>		pointLightNode;
+std::shared_ptr<a3d::Logger>	logger;
+a3d::Node*						g_pointLightNode;
 
 
 int main(int argc, const char* argv[]) {
 
 	logger = make_shared<Logger>("test-005", Logger::MainLogger()->sinks());
-	logger->level(LOG_LEVEL::DEBUG);
-	Logger::MainLogger()->level(LOG_LEVEL::DEBUG);
+	logger->level(LogLevel::Debug);
+	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RENDER_API::OPENGL,
-									  FULLSCREEN,
+	auto window = make_shared<Window>(RenderingApi::OpenGL,
+									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
+									  FULLSCREEN,
 									  USE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
@@ -71,36 +72,39 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
-	visualWorld->background(make_shared<MaterialProperty>(CubeImageNamed("nebula1_blue", "png")));
+	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
 
 	auto inputManager = make_shared<WindowInputManager>(window);
 
-	auto scene = SceneNamed("cat_island/cat_island", SCENE_IMPORT_OPTIONS::IMPORT_GEOMETRIES
-													 | SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-													 | SCENE_IMPORT_OPTIONS::IMPORT_CAMERAS);
+	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+													 | SceneImportOptions::ImportMaterials
+													 | SceneImportOptions::ImportCameras);
+
 	scene->visualWorld(visualWorld);
 	scene->inputManager(inputManager);
-	scene->debugOptions(DEBUG_OPTIONS::SHOW_STATS_OVERLAY);
+	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	ambientLightNode = ambientLightNode;
 	scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-	pointLightNode = Node::LightNode(pointLight);
+	auto pointLightNode = Node::LightNode(pointLight);
+	g_pointLightNode = pointLightNode.get();
 	scene->rootNode()->addChild(pointLightNode);
-	auto materialProperty = make_shared<MaterialProperty>(pointLight->color());
+	auto materialProperty = pointLight->color();
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
-	material->emissive(materialProperty);
-	auto geometry = make_shared<Sphere>(1.5, 16);
-	geometry->addMaterial(material);
-	pointLightNode->geometry(geometry);
+	material->emission(materialProperty);
+	auto geometry = Sphere::Mesh(1.5, 4, material);
+	//geometry->addMaterial(material);
+//	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
+	pointLightNode->mesh(geometry);
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -108,6 +112,9 @@ int main(int argc, const char* argv[]) {
 																	   {100, 100, 100}}));
 		scene->rootNode()->addChild(orthoCameraNode);
 	}
+
+//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
+//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
 
 	// random lights
 
@@ -162,64 +169,64 @@ void UpdateCallback(Scene& scene, float time) {
 	auto keysPressed = scene.inputManager()->keysPressed();
 	auto keysDown = scene.inputManager()->keysDown();
 
-	if (keysPressed.count(KEY::ESCAPE)) {
+	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
-	if (keysPressed.count(KEY::T)) {
+	if (keysPressed.count(Key::T)) {
 		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
 	}
 
-	if 		(keysPressed.count(KEY::ONE))	SetAllFilterModes(FILTER_MODE::NEAREST, scene);
-	else if (keysPressed.count(KEY::TWO))	SetAllFilterModes(FILTER_MODE::LINEAR, scene);
-	else if (keysPressed.count(KEY::THREE))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::FOUR))	SetAllFilterModes(FILTER_MODE::NEAREST_MIPMAP_LINEAR, scene);
-	else if (keysPressed.count(KEY::FIVE))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_NEAREST, scene);
-	else if (keysPressed.count(KEY::SIX))	SetAllFilterModes(FILTER_MODE::LINEAR_MIPMAP_LINEAR, scene);
+	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
+	else if (keysPressed.count(Key::Two))	SetAllFilterModes(FilterMode::Linear, scene);
+	else if (keysPressed.count(Key::Three))	SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
+	else if (keysPressed.count(Key::Four))	SetAllFilterModes(FilterMode::NearestMipmapLinear, scene);
+	else if (keysPressed.count(Key::Five))	SetAllFilterModes(FilterMode::LinearMipmapNearest, scene);
+	else if (keysPressed.count(Key::Six))	SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
 
-	if 		(keysPressed.count(KEY::LEFT_BRACKET))	SetAllMaxAnisotropy(1, scene);
-	else if (keysPressed.count(KEY::RIGHT_BRACKET))	SetAllMaxAnisotropy(16, scene);
+	if 		(keysPressed.count(Key::LeftBracket))	SetAllMaxAnisotropy(1, scene);
+	else if (keysPressed.count(Key::RightBracket))	SetAllMaxAnisotropy(16, scene);
 
-	if 		(keysPressed.count(KEY::F1)) 	pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysPressed.count(KEY::F2)) 	pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysPressed.count(KEY::F3)) 	pointLightNode->light()->attenuationFactor(0.00005);
+	if 		(keysPressed.count(Key::F1)) 	g_pointLightNode->light()->attenuationFactor(0.0005);
+	else if (keysPressed.count(Key::F2)) 	g_pointLightNode->light()->attenuationFactor(0.00015);
+	else if (keysPressed.count(Key::F3)) 	g_pointLightNode->light()->attenuationFactor(0.00005);
 
-	if (keysPressed.count(KEY::F)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+	if (keysPressed.count(Key::F)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_WIREFRAMES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 
-	if (keysPressed.count(KEY::B)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+	if (keysPressed.count(Key::B)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_BOUNDING_BOXES));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 
-	if (keysPressed.count(KEY::I)) {
-		if (DEBUG_OPTIONS_CONTAINS(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY)) {
-			scene.debugOptions(DEBUG_OPTIONS_REMOVE(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+	if (keysPressed.count(Key::I)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(DEBUG_OPTIONS_ADD(scene.debugOptions(), DEBUG_OPTIONS::SHOW_STATS_OVERLAY));
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 	}
 
-	if (keysPressed.count(KEY::V)) {
+	if (keysPressed.count(Key::V)) {
 		window->vSyncEnabled(!(window->vSyncEnabled()));
 	}
 
-	if (keysPressed.count(KEY::BACKSLASH)) {
+	if (keysPressed.count(Key::Backslash)) {
 		SaveSnapshot(*window);
 	}
 
-	if (keysPressed.count(KEY::R)) {
+	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			StartGIFRecording(*window, 320, 8);
 		}
@@ -228,11 +235,11 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 	}
 
-	if (keysPressed.count(KEY::SLASH)) {
+	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(KEY::FORWARD_DELETE)) {
+	if (keysPressed.count(Key::ForwardDelete)) {
 		scene.paused(!scene.paused());
 	}
 
@@ -279,31 +286,31 @@ void UpdateCallback(Scene& scene, float time) {
 			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
-			if (keysDown.count(KEY::LEFT_CONTROL)) {
+			if (keysDown.count(Key::LeftControl)) {
 				moveMultiplier = 2.0;
 			}
 
-			if(keysDown.count(KEY::W)) {
+			if(keysDown.count(Key::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if(keysDown.count(KEY::S)) {
+			else if(keysDown.count(Key::S)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if(keysDown.count(KEY::A)) {
+			if(keysDown.count(Key::A)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
-			else if(keysDown.count(KEY::D)) {
+			else if(keysDown.count(Key::D)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
-			if (keysDown.count(KEY::SPACE)) {
+			if (keysDown.count(Key::Space)) {
 				float direction = 1;
-				if (keysDown.count(KEY::LEFT_SHIFT)) {
+				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
@@ -314,7 +321,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	// move the light
 
-	if (pointLightNode) {
+	if (g_pointLightNode) {
 
 		auto center = vec3(0, 30, 0);
 
@@ -330,7 +337,7 @@ void UpdateCallback(Scene& scene, float time) {
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
 
-		pointLightNode->position(center + vec3(x, y, -x));
+		g_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
 
@@ -350,23 +357,25 @@ void DidRenderCallback(VisualWorld& world, float time) {
 	Static
  ***************************************************************************************/
 
-void SetAllFilterModes(FILTER_MODE mode, Scene& scene) {
+void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
 
 	for (auto node : scene.rootNode()->children(true)) {
 
-		auto geometry = node->geometry();
+		auto geometry = node->mesh();
 		if (geometry) {
 
-			for (auto material : geometry->materials()) {
-				if (material->diffuse()) {
-					material->diffuse()->minificationFilter(mode);
-					material->diffuse()->magnificationFilter(mode);
-				}
-				if (material->specular()) {
-					material->specular()->minificationFilter(mode);
-					material->specular()->magnificationFilter(mode);
+			for (auto& material : geometry->materials()) {
+
+				for (auto& [property, type] : material->properties()) {
+
+					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+						auto texture = get<shared_ptr<Texture>>(*property);
+						auto sampler = texture->sampler();
+						sampler->minificationFilter(mode);
+						sampler->magnificationFilter(mode);
+					}
 				}
 			}
 		}
@@ -379,12 +388,19 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 	for (auto node : scene.rootNode()->children(true)) {
 
-		auto geometry = node->geometry();
+		auto geometry = node->mesh();
 		if (geometry) {
 
-			for (auto material : geometry->materials()) {
-				if (material->diffuse()) material->diffuse()->maxAnisotropy(anisotropy);
-				if (material->specular()) material->specular()->maxAnisotropy(anisotropy);
+			for (auto& material : geometry->materials()) {
+
+				for (auto& [property, type] : material->properties()) {
+
+					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+						auto texture = get<shared_ptr<Texture>>(*property);
+						auto sampler = texture->sampler();
+						sampler->maxAnisotropy(anisotropy);
+					}
+				}
 			}
 		}
 	}

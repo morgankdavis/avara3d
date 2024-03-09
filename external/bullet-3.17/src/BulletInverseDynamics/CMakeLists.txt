@@ -28,7 +28,7 @@ SET(BulletInverseDynamics_HDRS
 	${BulletInverseDynamicsDetails_HDRS}
 )
 
-#ADD_LIBRARY(BulletInverseDynamics $<${AE_BULLET_STATIC_LINK}:STATIC> ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
+#ADD_LIBRARY(BulletInverseDynamics $<${A3D_BULLET_STATIC_LINK}:STATIC> ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
 #ADD_LIBRARY(BulletInverseDynamics STATIC ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
 ADD_LIBRARY(BulletInverseDynamics STATIC ${BulletInverseDynamics_SRCS} ${BulletInverseDynamics_HDRS})
 

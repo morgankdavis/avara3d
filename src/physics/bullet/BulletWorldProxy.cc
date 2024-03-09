@@ -2,7 +2,7 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "ae/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -11,14 +11,14 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/bullet/BulletBodyProxy.h"
-#include "ae/physics/bullet/BulletDebugDrawer.h"
-#include "ae/scene/Node.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/bullet/BulletDebugDrawer.h"
+#include "a3d/scene/Node.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -29,7 +29,7 @@ constexpr unsigned MAX_SUBSTEPS = 0; // move
 	Static Prototypes
  *********************************************************************************************/
 
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options);
+static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
 /*********************************************************************************************
 	Lifecycle
@@ -47,7 +47,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld* world):
 												  _btConstraintSolver.get(),
 												  _btCollisionConfiguration.get());
 
-	AE_LOG_I("Bullet Physics version: {}",  btGetVersion());
+	A3D_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
 #ifdef OPENGL_DESKTOP
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
@@ -60,7 +60,7 @@ BulletWorldProxy::~BulletWorldProxy()/*:
 
 	//PhysicalWorldModelProxy::PhysicalWorldModelProxyProxy();
 
-	AE_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
@@ -68,7 +68,7 @@ BulletWorldProxy::~BulletWorldProxy()/*:
  *********************************************************************************************/
 
 void BulletWorldProxy::add(PhysicsBody& body) {
-	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
+	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
@@ -77,7 +77,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 }
 
 void BulletWorldProxy::remove(PhysicsBody& body) {
-	AE_LOG_D("body: {:p}", static_cast<void*>(&body));
+	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	_btWorld->removeRigidBody(bodyProxy->btBody().get());
@@ -154,7 +154,7 @@ void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 										   timestep);
 
 	if (result == MAX_SUBSTEPS) {
-		AE_LOG_W("Max physics simulation substeps reached: {}", result);
+		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 	}
 }
 
@@ -190,10 +190,10 @@ void BulletWorldProxy::updateCollisionPairs() {
 void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const glm::mat4 &viewMat,
 								 const glm::mat4 &projectionMat,
-								 const DEBUG_OPTIONS &debugOptions) {
+								 const DebugOptions &debugOptions) {
 
 #ifdef OPENGL_DESKTOP
-	auto btDebugModes = BTDebugDrawModesForAEDebugOptions(debugOptions);
+	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);
 	_btDebugDrawer->clear();
@@ -220,25 +220,25 @@ BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 	Static
  *********************************************************************************************/
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIONS& options) {
+btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_BOUNDING_BOXES)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_WIREFRAMES)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsWireframes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONTACT_POINTS)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsContactPoints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_NORMALS)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsNormals)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINTS)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
 	}
-	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_PHYSICS_CONSTRAINT_LIMITS)) {
+	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraintLimits)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
 	}
 
@@ -258,7 +258,7 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForAEDebugOptions(const DEBUG_OPTIO
 
 	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
 	if (btModes != previousModes) {
-		AE_LOG_D("Bullet debug modes: {}", magic_enum::enum_name(btModes));
+		A3D_LOG_D("Bullet debug modes: {}", magic_enum::enum_name(btModes));
 	}
 	previousModes = btModes;
 

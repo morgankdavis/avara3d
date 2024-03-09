@@ -1,24 +1,25 @@
 //
 //  PhysicsBody.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsBody.h"
 
 #include "magic_enum.hpp"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/physics/PhysicsShape.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletBodyProxy.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/scene/Node.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -28,22 +29,22 @@ using namespace std;
  *********************************************************************************************/
 
 shared_ptr<PhysicsBody> PhysicsBody::StaticBody() {
-	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::STATIC);
+	return make_shared<PhysicsBody>(PhysicsBodyType::Static);
 }
 
 shared_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
-	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::DYNAMIC);
+	return make_shared<PhysicsBody>(PhysicsBodyType::Dynamic);
 }
 
 shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
-	return make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC);
+	return make_shared<PhysicsBody>(PhysicsBodyType::Kinematic);
 }
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
+PhysicsBody::PhysicsBody(PhysicsBodyType type):
 		_type(type),
 		_shape(nullptr),
 		_node(nullptr),
@@ -53,14 +54,14 @@ PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type):
 	_proxy = make_unique<BulletBodyProxy>(this);
 }
 
-PhysicsBody::PhysicsBody(PHYSICS_BODY_TYPE type, shared_ptr<PhysicsShape> shape):
+PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
 		PhysicsBody(type) {
 
 	this->shape(shape);
 }
 
 PhysicsBody::~PhysicsBody() {
-	AE_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
 
 	if (_shape) _shape->detachedFromBody(this);
 	if (_proxy) _proxy->detachedFromBody(this);
@@ -70,12 +71,12 @@ PhysicsBody::~PhysicsBody() {
 	Public
  *********************************************************************************************/
 
-PHYSICS_BODY_TYPE PhysicsBody::type() const {
+PhysicsBodyType PhysicsBody::type() const {
 	return _type;
 }
 
-void PhysicsBody::type(PHYSICS_BODY_TYPE type) {
-	AE_LOG_T("type: {}", magic_enum::enum_name(type));
+void PhysicsBody::type(PhysicsBodyType type) {
+	A3D_LOG_T("type: {}", magic_enum::enum_name(type));
 
 	if (type != _type) {
 		_type = type;
@@ -87,7 +88,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 }
 
 void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
-	AE_LOG_T("shape: {:p}", static_cast<void*>(shape.get()));
+	A3D_LOG_T("shape: {:p}", static_cast<void*>(shape.get()));
 
 	if (shape != _shape) {
 
@@ -298,7 +299,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
  *********************************************************************************************/
 
 void PhysicsBody::attachedToNode(Node* node) {
-	AE_LOG_T("node: {:p}", static_cast<void*>(node));
+	A3D_LOG_T("node: {:p}", static_cast<void*>(node));
 
 	_node = node;
 
@@ -308,25 +309,25 @@ void PhysicsBody::attachedToNode(Node* node) {
 }
 
 void PhysicsBody::detachedFromNode(Node* node) {
-	AE_LOG_T("node: {:p}", static_cast<void*>(node));
+	A3D_LOG_T("node: {:p}", static_cast<void*>(node));
 
 	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
 
 	_node = nullptr; // ^^ physicalWorld() relies on old _node
 }
 
-void PhysicsBody::geometryAttachedToNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshAttachedToNode(Mesh* mesh) {
+	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
 
-	checkAutocreateShape(geometry);
+	checkAutocreateShape(mesh);
 }
 
-void PhysicsBody::geometryDetachedFromNode(Geometry* geometry) {
-	AE_LOG_T("geometry: {:p}", static_cast<void*>(geometry));
+void PhysicsBody::meshDetachedFromNode(Mesh* mesh) {
+	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
 }
 
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	if (_shape) {
 		_shape->physicalWorldReachable(world);
@@ -336,7 +337,7 @@ void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
 }
 
 void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
-	AE_LOG_T("world: {:p}", static_cast<void*>(world));
+	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
 
 	if (_shape) {
 		_shape->physicalWorldUnreachable(world);
@@ -349,7 +350,7 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 }
 
 void PhysicsBody::addedToWorld(PhysicalWorld* world) {
-	AE_LOG_D("world: {}", static_cast<void*>(world));
+	A3D_LOG_D("world: {}", static_cast<void*>(world));
 
 	_world = world;
 
@@ -358,7 +359,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld* world) {
 }
 
 void PhysicsBody::removedFromWorld(PhysicalWorld* world) {
-	AE_LOG_D("world: {}", static_cast<void*>(world));
+	A3D_LOG_D("world: {}", static_cast<void*>(world));
 
 	_world = nullptr;
 }
@@ -370,11 +371,11 @@ void PhysicsBody::shapeUpdated() {
 				_proxy->shapeProxy(_shape->proxy());
 		}
 		else {
-			AE_LOG_E("No shape.");
+			A3D_LOG_E("No shape.");
 		}
 	}
 	else {
-		AE_LOG_E("No body model proxy.");
+		A3D_LOG_E("No body model proxy.");
 	}
 }
 
@@ -405,21 +406,21 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 void PhysicsBody::checkAutocreateShape(Node* node) {
 
 	if (!_shape) {
-		if (auto geometry = node->geometry()) {
-			// make a shape based on the geometry
-			checkAutocreateShape(geometry.get());
+		if (auto mesh = node->mesh()) {
+			// make a shape based on the mesh
+			checkAutocreateShape(mesh.get());
 		}
 		else {
 			// make a shape based on the node
-			auto shapeType = PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON;
-			if (type() == PHYSICS_BODY_TYPE::STATIC) {
-				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+			auto shapeType = PhysicsShapeType::ConcavePolyhedron;
+			if (type() == PhysicsBodyType::Static) {
+				A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
 						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
 				shape(make_shared<PhysicsShape>(shapeType, node));
 			}
 			else {
-				auto shapeType = PHYSICS_SHAPE_TYPE::CONVEX_HULL;
-				AE_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+				auto shapeType = PhysicsShapeType::ConvexHull;
+				A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
 						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
 				shape(make_shared<PhysicsShape>(shapeType, node));
 			}
@@ -427,24 +428,24 @@ void PhysicsBody::checkAutocreateShape(Node* node) {
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(Geometry* geometry) {
+void PhysicsBody::checkAutocreateShape(Mesh* mesh) {
 
 	if (!_shape) {
-		if (type() == PHYSICS_BODY_TYPE::STATIC) {
-			auto shapeType = PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON;
-			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
-			shape(make_shared<PhysicsShape>(shapeType, geometry));
+		if (type() == PhysicsBodyType::Static) {
+			auto shapeType = PhysicsShapeType::ConcavePolyhedron;
+			A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
+			shape(make_shared<PhysicsShape>(shapeType, mesh));
 		}
 		else {
-			auto shapeType = PHYSICS_SHAPE_TYPE::CONVEX_HULL;
-			AE_LOG_D("Autocreating {} PhysicsShape for Geometry {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(geometry));
-			shape(make_shared<PhysicsShape>(shapeType, geometry));
+			auto shapeType = PhysicsShapeType::ConvexHull;
+			A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
+			shape(make_shared<PhysicsShape>(shapeType, mesh));
 		}
 	}
 	else {
-		AE_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node geometry addition.");
+		A3D_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
 	}
 }
 

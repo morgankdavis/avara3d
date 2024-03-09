@@ -1,17 +1,17 @@
 //
 //  Light.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2016 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/rendering/Light.h"
+#include "a3d/rendering/Light.h"
 
-#include "ae/Color.h"
+#include "a3d/Color.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 
 
@@ -22,7 +22,7 @@ using namespace std;
 shared_ptr<Light> Light::DefaultAmbient() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LIGHT_TYPE::AMBIENT, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+		light = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 		//light = make_shared<Light>(LIGHT_TYPE::AMBIENT, Color::White());
 	}
 	return light;
@@ -31,7 +31,7 @@ shared_ptr<Light> Light::DefaultAmbient() {
 shared_ptr<Light> Light::DefaultPoint() {
 	static shared_ptr<Light> light = nullptr;
 	if (!light) {
-		light = make_shared<Light>(LIGHT_TYPE::POINT, Color::White());
+		light = make_shared<Light>(LightType::Point, Color::White());
 		light->attenuationFactor(0.0);
 	}
 	return light;
@@ -41,12 +41,12 @@ shared_ptr<Light> Light::DefaultPoint() {
 	Lifecycle
  *********************************************************************************************/
 
-Light::Light(LIGHT_TYPE type):
+Light::Light(LightType type):
 	Light(type, Color::White()) {
 	
 }
 
-Light::Light(LIGHT_TYPE type, shared_ptr<Color> color):
+Light::Light(LightType type, shared_ptr<Color> color):
 	_name(nullopt),
 	_type(type),
 	_color(color),
@@ -67,11 +67,11 @@ void Light::name(const string& name) {
 	_name = name;
 }
 
-LIGHT_TYPE Light::type() const {
+LightType Light::type() const {
 	return _type;
 }
 
-void Light::type(LIGHT_TYPE type) {
+void Light::type(LightType type) {
 	_type = type;
 }
 

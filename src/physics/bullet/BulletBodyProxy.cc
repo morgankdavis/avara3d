@@ -2,27 +2,28 @@
 // Created by mkd on 10/29/23.
 //
 
-#include "ae/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/bullet/BulletBodyProxy.h"
 
 #include "btBulletDynamicsCommon.h"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/physics/ConvexDecomposer.h"
-#include "ae/physics/PhysicsBody.h"
-#include "ae/physics/PhysicsShape.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletShapeProxy.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/physics/bullet/Utilities.h"
-#include "ae/physics/proxy/PhysicsBodyProxy.h"
-#include "ae/physics/proxy/PhysicsShapeProxy.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/physics/ConvexDecomposer.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletShapeProxy.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/bullet/MotionState.h"
+#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/proxy/PhysicsBodyProxy.h"
+#include "a3d/physics/proxy/PhysicsShapeProxy.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -37,7 +38,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 		/*_btMotionState(nullptr)*/
 		_motionState(nullptr) {
 
-	AE_LOG_D("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_D("body: {:p}", static_cast<void*>(body));
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
@@ -49,7 +50,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body->type() == PHYSICS_BODY_TYPE::STATIC
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body->type() == PhysicsBodyType::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -67,15 +68,15 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	int activationState = _btBody->getActivationState();
 
 	switch (body->type()) {
-		case PHYSICS_BODY_TYPE::STATIC:
+		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
-		case PHYSICS_BODY_TYPE::DYNAMIC:
+		case PhysicsBodyType::Dynamic:
 			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
-		case PHYSICS_BODY_TYPE::KINEMATIC:
+		case PhysicsBodyType::Kinematic:
 			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
 			activationState = activationState | DISABLE_DEACTIVATION;
 			break;
@@ -88,42 +89,42 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 }
 
 BulletBodyProxy::~BulletBodyProxy() {
-	AE_LOG_D("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
 }
 
 /*********************************************************************************************
 	PhysicsBodyModelProxy
  *********************************************************************************************/
 
-PHYSICS_BODY_TYPE BulletBodyProxy::type() const {
+PhysicsBodyType BulletBodyProxy::type() const {
 
 	auto flags = _btBody->getCollisionFlags();
 
-	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PHYSICS_BODY_TYPE::STATIC;
-	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PHYSICS_BODY_TYPE::DYNAMIC;
-	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PHYSICS_BODY_TYPE::KINEMATIC;
+	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PhysicsBodyType::Static;
+	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
+	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBodyType::Kinematic;
 
-	return PHYSICS_BODY_TYPE::STATIC;
+	return PhysicsBodyType::Static;
 }
 
-void BulletBodyProxy::type(PHYSICS_BODY_TYPE type) {
+void BulletBodyProxy::type(PhysicsBodyType type) {
 
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
 
 	switch (type) {
-		case PHYSICS_BODY_TYPE::STATIC:
+		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
-		case PHYSICS_BODY_TYPE::DYNAMIC:
+		case PhysicsBodyType::Dynamic:
 			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
 			if (_autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
 			}
 			activationState = activationState & ~DISABLE_DEACTIVATION;
 			break;
-		case PHYSICS_BODY_TYPE::KINEMATIC:
+		case PhysicsBodyType::Kinematic:
 			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
 			auto as = _btBody->getActivationState();
 			activationState = activationState | DISABLE_DEACTIVATION;
@@ -139,7 +140,7 @@ PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
 }
 
 void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
-	AE_LOG_T("proxy: {:p}", static_cast<void*>(proxy));
+	A3D_LOG_T("proxy: {:p}", static_cast<void*>(proxy));
 
 	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
@@ -149,11 +150,11 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
-				case PHYSICS_BODY_TYPE::STATIC:
-				case PHYSICS_BODY_TYPE::KINEMATIC:
+				case PhysicsBodyType::Static:
+				case PhysicsBodyType::Kinematic:
 					mass = 0;
 					break;
-				case PHYSICS_BODY_TYPE::DYNAMIC:
+				case PhysicsBodyType::Dynamic:
 					break;
 			}
 
@@ -164,7 +165,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 			}
 		}
 		else {
-			AE_LOG_E("Could not get shape resources.");
+			A3D_LOG_E("Could not get shape resources.");
 			_shapeModel = nullptr;
 		}
 	}
@@ -204,7 +205,7 @@ void BulletBodyProxy::momentOfInertia(const glm::vec3& moment) {
 		_btBody->updateInertiaTensor();
 	}
 	else {
-		AE_LOG_W("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
+		A3D_LOG_W("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
 	}
 }
 
@@ -366,9 +367,9 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
 
 	// *** test this ***
 	if (allowsResting
-		&& type() == PHYSICS_BODY_TYPE::KINEMATIC) {
+		&& type() == PhysicsBodyType::Kinematic) {
 
-		AE_LOG_E("Cannot enable resting for kinematic bodies.");
+		A3D_LOG_E("Cannot enable resting for kinematic bodies.");
 	}
 	else {
 
@@ -413,7 +414,7 @@ void BulletBodyProxy::resting(bool resting) {
 //
 //	if (wasScaled) {
 //		// TODO: do something about this
-//		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//		A3D_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 //				 (void *)_body->node(), (void *)_body);
 //	}
 //
@@ -432,7 +433,7 @@ void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
 //
 //	if (wasScaled) {
 //		// TODO: do something about this
-//		AE_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//		A3D_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 //				 (void *)_body->node(), (void *)_body);
 //	}
 //
@@ -484,10 +485,10 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 			_btBody->updateInertiaTensor();
 		}
 		else {
-			AE_LOG_W("Missing btCollisionShape.");
+			A3D_LOG_W("Missing btCollisionShape.");
 		}
 	}
 	else {
-		AE_LOG_W("Missing PhysicsShapeModelProxy.");
+		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
 	}
 }

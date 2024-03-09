@@ -2,28 +2,31 @@
 // Created by mkd on 11/25/23.
 //
 
-#include "ae/rendering/VisualWorld.h"
+#include "a3d/rendering/VisualWorld.h"
 
+#include <variant>
 
 #include "glm/glm.hpp"
 
-#include "ae/Color.h"
-#include "ae/CubeImage.h"
-#include "ae/diagnostic/logging/Logger.h"
-#include "ae/geometry/Geometry.h"
-#include "ae/geometry/primitives/Box.h"
-#include "ae/physics/PhysicalWorld.h"
-#include "ae/physics/bullet/BulletWorldProxy.h"
-#include "ae/rendering/Light.h"
-#include "ae/rendering/Renderer.h"
-#include "ae/rendering/camera/PerspectiveCamera.h"
-#include "ae/rendering/context/RenderContext.h"
-#include "ae/rendering/materials/MaterialProperty.h"
-#include "ae/scene/Node.h"
-#include "ae/scene/Scene.h"
+#include "a3d/Color.h"
+#include "a3d/CubeImage.h"
+#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/rendering/Light.h"
+#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/material/Sampler.h"
+#include "a3d/rendering/material/Texture.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
@@ -32,7 +35,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty);
+static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -40,8 +43,8 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
-		_background(nullptr),
-		_skyboxGeometry(nullptr),
+		_background(monostate{}),
+		_skyboxMesh(nullptr),
 		_fogStartDistance(0.0),
 		_fogEndDistance(0.0),
 		_fogDensityExponent(0.0),
@@ -57,7 +60,7 @@ VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
 }
 
 VisualWorld::~VisualWorld() {
-	AE_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+	A3D_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
 	//renderContext(nullptr);
@@ -67,31 +70,35 @@ VisualWorld::~VisualWorld() {
 	Public
  *********************************************************************************************/
 
-shared_ptr<MaterialProperty> VisualWorld::background() const {
+MaterialProperty VisualWorld::background() const {
 	return _background;
 }
 
-void VisualWorld::background(shared_ptr<MaterialProperty> backgroundProperty) {
+void VisualWorld::background(MaterialProperty background) {
 
-	if (dynamic_pointer_cast<CubeImage>(backgroundProperty->contents())) {
-		auto material = make_shared<Material>(nullptr, nullptr, nullptr, backgroundProperty);
+	if (shared_ptr<Texture>* texture = get_if<shared_ptr<Texture>>(&background)) {
 
-		material->emissive()->wrapS(WRAP_MODE::CLAMP_TO_EDGE);
-		material->emissive()->wrapT(WRAP_MODE::CLAMP_TO_EDGE);
-		material->emissive()->wrapR(WRAP_MODE::CLAMP_TO_EDGE);
+		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
+			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
 
-		// generate the skybox geometry if it hasn't already been
-		if (!_skyboxGeometry) {
-			// MKD: u_s_ptr_aliases
-			_skyboxGeometry = MakeSkyboxGeometry(backgroundProperty);
-		}
-		else {
-			// we already have the geometry, just update its material
-			_skyboxGeometry->replaceMaterial(0, material);
+			auto sampler = (*texture)->sampler();
+			sampler->wrapS(WrapMode::ClampToEdge);
+			sampler->wrapT(WrapMode::ClampToEdge);
+			sampler->wrapR(WrapMode::ClampToEdge);
+
+			// generate the skybox mesh if it hasn't already been
+			if (!_skyboxMesh) {
+				// MKD: u_s_ptr_aliases
+				_skyboxMesh = MakeSkyboxMesh(background);
+			}
+			else {
+				// we already have the mesh, just update its material
+				_skyboxMesh->replaceMaterial(0, material);
+			}
 		}
 	}
 
-	_background = backgroundProperty;
+	_background = background;
 }
 
 float VisualWorld::fogStartDistance() const {
@@ -189,13 +196,13 @@ void VisualWorld::didRender(DidRenderCallback function) {
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = scene;
 }
 
 void VisualWorld::detachedFromScene(Scene* scene) {
-	AE_LOG_T("scene: {:p}", static_cast<void*>(scene));
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
 
 	_scene = nullptr;
 }
@@ -216,7 +223,7 @@ void VisualWorld::checkAddDefaultLighting() {
 		}
 
 		if (!hasLights) {
-			AE_LOG_I("Adding default lighting.");
+			A3D_LOG_I("Adding default lighting.");
 
 			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
 			_scene->rootNode()->addChild(ambientNode);
@@ -236,7 +243,7 @@ void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
 					   double deltaRunT,
-					   DEBUG_OPTIONS debugOptions,
+					   DebugOptions debugOptions,
 					   Stats& stats) {
 
 	if (_renderContext) {
@@ -267,6 +274,7 @@ void VisualWorld::draw(const Scene& scene,
 								   projectionMat,
 								   debugOptions,
 								   stats);
+			stats.nodes--; // don't count the root node
 
 			if (physicalWorld) {
 
@@ -293,16 +301,16 @@ void VisualWorld::draw(const Scene& scene,
 			}
 		}
 		else {
-			AE_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
+			A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
 		}
 	}
 	else {
-		AE_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
+		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
 	}
 }
 
-shared_ptr<Geometry> VisualWorld::skyboxGeometry() const {
-	return _skyboxGeometry;
+shared_ptr<Mesh> VisualWorld::skyboxMesh() const {
+	return _skyboxMesh;
 }
 
 shared_ptr<Node> VisualWorld::defaultPointOfView() {
@@ -355,7 +363,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 		return cameraNode;
 	}
 	else {
-		AE_LOG_W("Can't create default camera: scene is null.");
+		A3D_LOG_W("Can't create default camera: scene is null.");
 	}
 
 	return nullptr;
@@ -365,14 +373,15 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Geometry> MakeSkyboxGeometry(shared_ptr<MaterialProperty> materialProperty) {
+static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
 
-	auto geometry = make_shared<Box>(1, 1, 1, 1, 1, 1);
-	auto material = make_shared<Material>(nullptr, nullptr, nullptr, materialProperty);
+	//auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
+	auto mesh = Box::Mesh(1, 1, 1);
+	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
-	geometry->addMaterial(material);
+	mesh->addMaterial(material);
 
-	return geometry;
+	return mesh;
 }
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

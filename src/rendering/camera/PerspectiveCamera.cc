@@ -2,14 +2,14 @@
 // Created by mkd on 10/22/23.
 //
 
-#include "ae/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/camera/PerspectiveCamera.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "ae/Utilities.h"
+#include "a3d/Utilities.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace std;
 using namespace glm;
 
@@ -18,7 +18,8 @@ PerspectiveCamera::PerspectiveCamera():
 		Camera(),
 		_zNear(0.1),
 		_zFar(1000.0),
-		_yFov(radians(45.0)) {}
+		_yFov(radians(45.0)),
+		_aspectRatio(0) {}
 
 PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
 		Camera(),

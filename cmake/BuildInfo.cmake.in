@@ -1,7 +1,7 @@
-#define AE_BUILD_NUMBER     @AE_BUILD_NUMBER@
-#define AE_VERSION_MAJOR    @avara-engine_VERSION_MAJOR@
-#define AE_VERSION_MINOR    @avara-engine_VERSION_MINOR@
-#define AE_VERSION_PATCH    @avara-engine_VERSION_PATCH@
-#define AE_BUILD_TYPE       "@AE_BUILD_TYPE@"
-#define AE_BUILD_ORIGIN     "@AE_BUILD_ORIGIN@"
-#define AE_BUILD_TIME       "@AE_BUILD_TIME@"
+#define A3D_BUILD_NUMBER     @A3D_BUILD_NUMBER@
+#define A3D_VERSION_MAJOR    @avara3d_VERSION_MAJOR@
+#define A3D_VERSION_MINOR    @avara3d_VERSION_MINOR@
+#define A3D_VERSION_PATCH    @avara3d_VERSION_PATCH@
+#define A3D_BUILD_TYPE       "@A3D_BUILD_TYPE@"
+#define A3D_BUILD_ORIGIN     "@A3D_BUILD_ORIGIN@"
+#define A3D_BUILD_TIME       "@A3D_BUILD_TIME@"

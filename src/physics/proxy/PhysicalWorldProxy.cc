@@ -2,10 +2,10 @@
 // Created by mkd on 12/8/23.
 //
 
-#include "ae/physics/proxy/PhysicalWorldProxy.h"
+#include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
 
-using namespace ae;
+using namespace a3d;
 
 
 PhysicalWorldProxy::PhysicalWorldProxy(PhysicalWorld* world) { }

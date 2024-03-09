@@ -1,15 +1,15 @@
 //
 //  PhysicsContact.cc
-//	avara-engine
+//	avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
 //  Copyright © 2018 Morgan K Davis. All rights reserved.
 //
 
-#include "ae/physics/PhysicsContact.h"
+#include "a3d/physics/PhysicsContact.h"
 
 
-using namespace ae;
+using namespace a3d;
 using namespace glm;
 using namespace std;
 
