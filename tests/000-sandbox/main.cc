@@ -45,9 +45,15 @@ constexpr bool					DARK =					true;
 std::shared_ptr<a3d::Logger>	logger;
 
 
-shared_ptr<Node>				meshNode;
-shared_ptr<Mesh> 				geometry;
-vector<shared_ptr<Mesh>> 		meshes;
+// https://stackoverflow.com/questions/66068134/segmentation-fault-when-using-a-shared-ptr-for-private-key
+shared_ptr<Node>*			g_meshNode;
+vector<shared_ptr<Mesh>>*	g_meshes;
+shared_ptr<Mesh>*			g_mesh;
+
+//Node*			g_meshNode;
+//vector<Mesh*>	g_meshes;
+//Mesh*			g_mesh;
+
 
 
 int main(int argc, const char* argv[]) {
@@ -215,7 +221,7 @@ int main(int argc, const char* argv[]) {
 //		auto testMesh = MeshNamed("crocus/crocus");
 
 
-	meshes = vector<shared_ptr<Mesh>>{
+	auto meshes = vector<shared_ptr<Mesh>>{
 			MeshNamed("apple_lod/apple_lod"),
 			MeshNamed("banana_lod/banana_lod"),
 			MeshNamed("cardboard_box/cardboard_box"),
@@ -236,6 +242,12 @@ int main(int argc, const char* argv[]) {
 			MeshNamed("teapot/teapot"),
 			MeshNamed("tuna/tuna")
 		};
+	g_meshes = &meshes;
+//	g_meshes = vector<Mesh*>();
+//	g_meshes.reserve(meshes.size());
+//	for (auto& m : meshes) {
+//		g_meshes.push_back(m.get());
+//	}
 
 //	auto testMesh = MeshNamed("apple_lod/apple_lod");
 //	auto testMesh = MeshNamed("banana_lod/banana_lod");
@@ -260,9 +272,11 @@ int main(int argc, const char* argv[]) {
 
 
 	auto mesh = meshes[0];
-	meshNode = Node::MeshNode(mesh);
+	auto meshNode = Node::MeshNode(mesh);
 	meshNode->position({0, 5, 0});
 	scene->rootNode()->addChild(meshNode);
+	g_meshNode = &meshNode;
+//	g_meshNode = meshNode.get();
 
 
 //		for (auto &m: testMesh->materials()) {
@@ -416,23 +430,35 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 
-//	auto it = find(geometries.begin(), geometries.end(), geometry);
-//	int x = std::distance(geometries, it);
 	static int index = 0;
 	if (keysPressed.count(Key::LeftBracket)) {
-		geometry = meshes[--index];
-		auto name = geometry->name();
+		g_mesh = &((*g_meshes)[--index]);
+		auto name = (*g_mesh)->name();
 		if (name) A3D_LOG_D("name: {}", *name);
-		//meshNode = Node::meshNode(geometry);
-		meshNode->mesh(geometry);
+		(*g_meshNode)->mesh(*g_mesh);
 	}
 	if (keysPressed.count(Key::RightBracket)) {
-		geometry = meshes[++index];
-		auto name = geometry->name();
+		g_mesh = &((*g_meshes)[++index]);
+		auto name = (*g_mesh)->name();
 		if (name) A3D_LOG_D("name: {}", *name);
-		//meshNode = Node::meshNode(geometry);
-		meshNode->mesh(geometry);
+		//meshNode = Node::meshNode(mesh);
+		(*g_meshNode)->mesh(*g_mesh);
 	}
+//	static int index = 0;
+//	if (keysPressed.count(Key::LeftBracket)) {
+//		g_mesh = g_meshes[--index];
+//		auto name = g_mesh->name();
+//		if (name) A3D_LOG_D("name: {}", *name);
+//		g_meshNode->mesh(g_mesh);
+//	}
+//	if (keysPressed.count(Key::RightBracket)) {
+//		g_mesh = g_meshes[--index];
+//		auto name = g_mesh->name();
+//		if (name) A3D_LOG_D("name: {}", *name);
+//		//meshNode = Node::meshNode(mesh);
+//		(*g_meshNode)->mesh(*g_mesh);
+//	}
+
 
 
 

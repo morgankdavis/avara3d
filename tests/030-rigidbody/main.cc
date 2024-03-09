@@ -33,7 +33,7 @@ void DidRenderCallback(VisualWorld& world, float time);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
 
-shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode);
+shared_ptr<Node> SpawnDuckFruit(Scene& scene, Node* duckNode);
 shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
 shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction);
 shared_ptr<Node> AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
@@ -63,13 +63,13 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/320.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>		logger;
-std::shared_ptr<a3d::Node>		palmNode;
-std::shared_ptr<a3d::Node>		duckSpinnerNode;
-std::shared_ptr<a3d::Node>		duckNode;
-std::shared_ptr<a3d::Node>		paddleNode;
-std::shared_ptr<a3d::Node>		fruit1Node;
-std::shared_ptr<a3d::Node> 		testNode;
+std::shared_ptr<a3d::Logger>	logger;
+a3d::Node*						g_palmNode;
+a3d::Node*						g_duckSpinnerNode;
+a3d::Node*						g_duckNode;
+//std::shared_ptr<a3d::Node*		paddleNode;
+//std::shared_ptr<a3d::Node>		fruit1Node;
+//std::shared_ptr<a3d::Node> 		testNode;
 
 
 int main(int argc, const char* argv[]) {
@@ -203,7 +203,8 @@ int main(int argc, const char* argv[]) {
 
 	// add the palm tree
 
-	palmNode = Node::MeshNode(MeshNamed("palm/palm"));
+	auto palmNode = Node::MeshNode(MeshNamed("palm/palm"));
+	g_palmNode = palmNode.get();
 	auto palmPhysicsBody = PhysicsBody::StaticBody();
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
@@ -215,7 +216,8 @@ int main(int argc, const char* argv[]) {
 
 	// add the duck
 
-	duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
+	auto duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
+	g_duckNode = duckNode.get();
 	A3D_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
 	duckNode->position({/*4.5*/0, 25, 0});
 
@@ -243,7 +245,8 @@ int main(int argc, const char* argv[]) {
 ////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->mesh().get());
 ////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 
-	duckSpinnerNode = make_shared<Node>("duck spinner");
+	auto duckSpinnerNode = make_shared<Node>("duck spinner");
+	g_duckSpinnerNode = duckSpinnerNode.get();
 	duckSpinnerNode->addChild(duckNode);
 	scene->rootNode()->addChild(duckSpinnerNode);
 
@@ -320,11 +323,11 @@ void UpdateCallback(Scene& scene, float time) {
 	// rotate the duck
 	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
 
-	if (duckSpinnerNode) {
+	if (g_duckSpinnerNode) {
 		//auto duckRotation = _duckSpinnerNode->rotation();
 		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
-		auto duckSpinnerEuler = duckSpinnerNode->eulerAngles();
-		duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
+		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
 
 //	for (auto& c : scene.rootNode()->children(true)) {
@@ -366,40 +369,40 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 	if (keysPressed.count(Key::One)) {
-		duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
 	}
 
 	if (keysPressed.count(Key::Two)) {
-		duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
 	}
 
 	if (keysPressed.count(Key::Three)) {
-		duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
 	}
 
 
 
 	if (keysPressed.count(Key::Five)) {
-		testNode->physicsBody()->mass(0);
+		g_duckNode->physicsBody()->mass(0);
 	}
 
 	if (keysPressed.count(Key::Six)) {
-		testNode->physicsBody()->mass(10);
+		g_duckNode->physicsBody()->mass(10);
 	}
 
 	if (keysPressed.count(Key::Seven)) {
-		testNode->physicsBody()->mass(100);
+		g_duckNode->physicsBody()->mass(100);
 	}
 
 
 
-	if (keysPressed.count(Key::Nine)) {
-		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
-	}
-
-	if (keysPressed.count(Key::Zero)) {
-		testNode->physicsBody()->allowsResting(!testNode->physicsBody()->allowsResting());
-	}
+//	if (keysPressed.count(Key::Nine)) {
+//		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
+//	}
+//
+//	if (keysPressed.count(Key::Zero)) {
+//		testNode->physicsBody()->allowsResting(!testNode->physicsBody()->allowsResting());
+//	}
 
 
 
@@ -416,10 +419,10 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 
 		if (keysDown.count(Key::Tab)) {
-			auto fruitNode = SpawnDuckFruit(scene, duckNode);
-			if (!fruit1Node) {
-				fruit1Node = fruitNode;
-			}
+			auto fruitNode = SpawnDuckFruit(scene, g_duckNode);
+//			if (!fruit1Node) {
+//				fruit1Node = fruitNode;
+//			}
 		}
 
 		if (keysPressed.count(Key::L)) {
@@ -454,11 +457,11 @@ void UpdateCallback(Scene& scene, float time) {
 //			scene.physicalWorld()->speed(2.0);
 //		}
 
-		if (keysPressed.count(Key::J)) {
-			if (fruit1Node) {
-				fruit1Node->physicsBody()->affectedByGravity(!(fruit1Node->physicsBody()->affectedByGravity()));
-			}
-		}
+//		if (keysPressed.count(Key::J)) {
+//			if (fruit1Node) {
+//				fruit1Node->physicsBody()->affectedByGravity(!(fruit1Node->physicsBody()->affectedByGravity()));
+//			}
+//		}
 
 		if (keysPressed.count(Key::H)) {
 			SpawnHACDTeapot(scene);
@@ -466,19 +469,19 @@ void UpdateCallback(Scene& scene, float time) {
 
 		// move paddle
 
-		static const float PADDLE_SPEED = 5.0; // m/s
-		if (keysDown.count(Key::Equal)) {
-			if (paddleNode) {
-				auto p = paddleNode->position();
-				paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
-			}
-		}
-		if (keysDown.count(Key::Minus)) {
-			if (paddleNode) {
-				auto p = paddleNode->position();
-				paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
-			}
-		}
+//		static const float PADDLE_SPEED = 5.0; // m/s
+//		if (keysDown.count(Key::Equal)) {
+//			if (paddleNode) {
+//				auto p = paddleNode->position();
+//				paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
+//			}
+//		}
+//		if (keysDown.count(Key::Minus)) {
+//			if (paddleNode) {
+//				auto p = paddleNode->position();
+//				paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
+//			}
+//		}
 
 		if (scene.visualWorld() && cursorCaptured) {
 			if (mouseButtonsPressed.count(MouseButton::One)) {
@@ -691,7 +694,7 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 	Static
  ***************************************************************************************/
 
-shared_ptr<Node> SpawnDuckFruit(Scene& scene, shared_ptr<Node> duckNode) {
+shared_ptr<Node> SpawnDuckFruit(Scene& scene, Node* duckNode) {
 
 	constexpr float SPAWN_RATE = 7.5; // pieces/sec
 
@@ -1485,7 +1488,7 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 
 		scene.rootNode()->addChild(node);
 
-		testNode = node;
+//		testNode = node;
 	}
 }
 
