@@ -10,7 +10,7 @@ if(MSVC)
 	add_definitions(/W3)
 else()
 	# mkd: SHUT UP
-	add_definitions(-std=c++14)
+	add_definitions(-std=c++17)
 	#add_definitions(-std=c++11 -pedantic -Wall -Wextra)
 endif()
 
@@ -27,7 +27,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 	include_directories(${CMAKE_SOURCE_DIR}/avara3d/external/glm-0.9.9)
 	message(STATUS ${CMAKE_SOURCE_DIR})
 	
-	message(STATUS "Using GLM instead of GML for math (note the similar names).  Support for this is experimental!")
+	#message(STATUS "Using GLM instead of GML for math (note the similar names).  Support for this is experimental!")
 	#add_definitions(-DGENERATOR_USE_GLM -D GLM_ENABLE_EXPERIMENTAL)
 	add_definitions(-DGENERATOR_USE_GLM) # mkd: disabled -DGLM_ENABLE_EXPERIMENTAL
 #endif()
