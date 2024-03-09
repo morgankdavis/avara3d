@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
-endif()
+endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
 
 
@@ -25,11 +25,11 @@ if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID)
 	set(A3D_BUILD_NUMBER 0)
 	set(A3D_BUILD_TIME "0000-00-00T00:00:00Z")
 	set(A3D_BUILD_ORIGIN "ADHOC")
-else()
+else ()
 	set(A3D_BUILD_NUMBER ${GITLAB_CI_PIPELINE_IID})
 	set(A3D_BUILD_TIME ${GITLAB_CI_PIPELINE_CREATED_AT})
 	set(A3D_BUILD_ORIGIN "CI")
-endif()
+endif ()
 
 configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
@@ -85,11 +85,11 @@ add_library(avara3d STATIC
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(avara3d PUBLIC "A3D_DEBUG")
-endif()
+endif ()
 if (DESKTOP)
 	target_compile_definitions(avara3d PUBLIC "DESKTOP")
 	target_compile_definitions(avara3d PUBLIC "OPENGL_DESKTOP")
-endif()
+endif ()
 if (LINUX)
 	target_compile_definitions(avara3d PUBLIC "LINUX")
 	target_compile_definitions(avara3d PUBLIC "POSIX")
@@ -107,7 +107,7 @@ elseif (ANDROID)
 	target_compile_definitions(avara3d PUBLIC "ANDROID")
 	target_compile_definitions(avara3d PUBLIC "POSIX")
 	target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
-endif()
+endif ()
 
 
 ### add library headers ###
@@ -169,12 +169,12 @@ if (LINUX)
 				${EGL_LIBRARY}
 				${OPENGLES3_LIBRARY})
 
-	else()
+	else ()
 
 		target_link_libraries(avara3d PUBLIC
 				GL)
 
-	endif()
+	endif ()
 
 elseif (MACOS)
 
@@ -196,13 +196,25 @@ elseif (MACOS)
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-endif()
+endif ()
 
 
 ### set root install dir before adding tests ###
 
+if (ANDROID)
+	set(PLATFORM_STRING "android")
+elseif (RPI)
+	set(PLATFORM_STRING "raspberry-pi")
+elseif (LINUX)
+	set(PLATFORM_STRING "linux")
+elseif (MACOS)
+	set(PLATFORM_STRING "macos")
+elseif (WINDOW)
+	set(PLATFORM_STRING "windows")
+endif ()
+
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
-set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/linux/${LOWER_RELEASE_TYPE}")
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/${LOWER_RELEASE_TYPE}")
 
 
 ### add tests ###
