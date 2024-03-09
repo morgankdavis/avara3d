@@ -209,7 +209,7 @@ elseif (LINUX)
 	set(PLATFORM_STRING "linux")
 elseif (MACOS)
 	set(PLATFORM_STRING "macos")
-elseif (WINDOW)
+elseif (WINDOWS)
 	set(PLATFORM_STRING "windows")
 endif ()
 

@@ -69,7 +69,7 @@ build-windows:
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
-      -DCMAKE_BUILD_TYPE="Debug"
+      -DCMAKE_BUILD_TYPE="Release"
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
