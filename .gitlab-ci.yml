@@ -3,7 +3,7 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
 
-.build-linux:
+build-linux:
   stage: build
   tags:
     - ubuntu-23
@@ -25,13 +25,13 @@ stages:
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux build complete."
   artifacts:
-    name: "avara3d-linux-${CI_COMMIT_BRANCH}"
+    name: "avara3d-linux-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-linux'
     paths:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
 
-.build-macos:
+build-macos:
   stage: build
   tags:
     - macos-12.6
@@ -51,13 +51,13 @@ stages:
     - /opt/local/bin/cmake --build . --target install -j4
     - echo "macOS build complete."
   artifacts:
-    name: "avara3d-macos-${CI_COMMIT_BRANCH}"
+    name: "avara3d-macos-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-macos'
     paths:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
 
-.build-windows:
+build-windows:
   stage: build
   tags:
     - windows-10
@@ -77,7 +77,7 @@ stages:
     - cmake --build . --target install -j8
     - echo "Windows build complete."
   artifacts:
-    name: "avara3d-windows-${CI_COMMIT_BRANCH}"
+    name: "avara3d-windows-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-windows'
     paths:
       - gitlab-build/packaged/avara3d
@@ -88,9 +88,9 @@ archive-linux:
   tags:
     - ubuntu-23
   environment: production
-#  only:
-#   - testing
-#   - stable
+  only:
+   - testing
+   - stable
   #dependencies:
   #  - build-linux
   script:
@@ -117,7 +117,7 @@ archive-linux:
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux archive complete."
   artifacts:
-    name: "avara3d-linux-${CI_COMMIT_BRANCH}"
+    name: "avara3d-linux-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-linux'
     paths:
       - gitlab-build/packaged/avara3d
@@ -128,9 +128,9 @@ archive-macos:
   tags:
     - macos-12.6
   environment: production
-#  only:
-#   - testing
-#   - stable
+  only:
+   - testing
+   - stable
   #dependencies:
   #  - build-macos
   script:
@@ -153,7 +153,7 @@ archive-macos:
     - /opt/local/bin/cmake --build . --target install -j4
     - echo "macOS archive complete."
   artifacts:
-    name: "avara3d-macos-${CI_COMMIT_BRANCH}"
+    name: "avara3d-macos-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-macos'
     paths:
       - gitlab-build/packaged/avara3d
@@ -164,9 +164,9 @@ archive-windows:
   tags:
     - windows-10
   environment: production
-#  only:
-#   - testing
-#   - stable
+  only:
+   - testing
+   - stable
   #dependencies:
   #  - build-windows
   script:
@@ -189,7 +189,7 @@ archive-windows:
     - cmake --build . --target install -j8
     - echo "Windows archive complete."
   artifacts:
-    name: "avara3d-windows-${CI_COMMIT_BRANCH}"
+    name: "avara3d-windows-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: 'archive-windows'
     paths:
       - gitlab-build/packaged/avara3d
