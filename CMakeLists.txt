@@ -5,9 +5,6 @@ project(avara3d
 		VERSION 0.0.1
 		HOMEPAGE_URL https://avara3d.net/)
 
-option(A3D_BUILD_BULLET "Build Bullet from source" ON)
-option(A3D_BUILD_GLFW "Build GLFW from source" ON)
-
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
@@ -39,59 +36,37 @@ configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 ### add external libraries ###
 
-if (A3D_BUILD_BULLET)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
+set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/bullet-3.17)
+include_directories(external/bullet-3.17/src)
+target_compile_options(Bullet3Collision PUBLIC
+		"-Wno-deprecated-volatile")
+set(BULLET_LIBRARIES
+		LinearMath
+		Bullet3Common
+		BulletInverseDynamics
+		BulletCollision
+		BulletDynamics)
 
-	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-	set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
-	set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-	set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-	set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-	set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
-
-	add_subdirectory(external/bullet-3.17)
-	include_directories(external/bullet-3.17/src)
-
-	target_compile_options(Bullet3Collision PUBLIC
-			"-Wno-deprecated-volatile")
-
-	set(BULLET_LIBRARIES
-			LinearMath
-			Bullet3Common
-			BulletInverseDynamics
-			BulletCollision
-			BulletDynamics)
-
-else()
-
-	find_package(Bullet REQUIRED)
-	include_directories(${BULLET_INCLUDE_DIRS})
-
-endif()
-
-#set(FASTGLTF_DOWNLOAD_SIMDJSON OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/fastgltf-0.6.1)
 
 add_subdirectory(external/generator)
 
 add_subdirectory(external/glew-2.1.0)
 
-if (A3D_BUILD_GLFW)
-
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-
-	add_subdirectory(external/glfw-3.4.0)
-
-else()
-
-	find_package(glfw3 REQUIRED)
-
-endif()
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/glfw-3.4.0)
 
 add_subdirectory(external/imgui-1.90)
 
