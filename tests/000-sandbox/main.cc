@@ -58,6 +58,9 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
+	auto dt = utils::DateTimeString();
+	A3D_LOG_I("dt: {}", dt);
+
 	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
 
 	auto buildInfo = BuildInfo::Info();
