@@ -70,6 +70,8 @@ add_subdirectory(external/glfw-3.4.0)
 
 add_subdirectory(external/imgui-1.90)
 
+add_subdirectory(external/manymouse)
+
 
 ### add a3d ###
 
@@ -121,6 +123,7 @@ target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
 target_include_directories(avara3d PRIVATE external/imgui-1.90)
 target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
+target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 
@@ -145,7 +148,8 @@ if (DESKTOP)
 
 	target_link_libraries(avara3d PUBLIC
 			glew_s
-			glfw)
+			glfw
+			manymouse)
 
 endif()
 
