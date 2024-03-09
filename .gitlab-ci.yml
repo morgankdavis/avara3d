@@ -50,7 +50,7 @@ build-macos:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /opt/local/bin/cmake --build . -j4
+    - /opt/local/bin/cmake --build . --target install -j4
     - echo "macOS build complete."
 
 build-windows:
@@ -73,7 +73,7 @@ build-windows:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - cmake --build . -j8
+    - cmake --build . --target install -j8
     - echo "Windows build complete."
 
 # test-linux:
