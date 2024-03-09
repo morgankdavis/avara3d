@@ -3,7 +3,7 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
 
-build-linux:
+.build-linux:
   stage: build
   tags:
     - ubuntu-23
@@ -31,7 +31,7 @@ build-linux:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
 
-build-macos:
+.build-macos:
   stage: build
   tags:
     - macos-12.6
@@ -57,7 +57,7 @@ build-macos:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
 
-build-windows:
+.build-windows:
   stage: build
   tags:
     - windows-10
@@ -88,9 +88,9 @@ archive-linux:
   tags:
     - ubuntu-23
   environment: production
-  only:
-   - testing
-   - stable
+#  only:
+#   - testing
+#   - stable
   #dependencies:
   #  - build-linux
   script:
@@ -128,9 +128,9 @@ archive-macos:
   tags:
     - macos-12.6
   environment: production
-  only:
-   - testing
-   - stable
+#  only:
+#   - testing
+#   - stable
   #dependencies:
   #  - build-macos
   script:
@@ -164,9 +164,9 @@ archive-windows:
   tags:
     - windows-10
   environment: production
-  only:
-   - testing
-   - stable
+#  only:
+#   - testing
+#   - stable
   #dependencies:
   #  - build-windows
   script:
