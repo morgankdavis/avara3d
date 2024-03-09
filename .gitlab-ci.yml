@@ -4,9 +4,6 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   - archive
 
-variables:
-  dummy_var: "$CI_PROJECT_DIR/dummy" 
-
 build-linux:
   stage: build
   tags:
@@ -29,7 +26,8 @@ build-linux:
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux build complete."
   artifacts:
-    expose_as: avara3d-linux
+    name: "avara3d-linux-$CI_COMMIT_BRANCH"
+    expose_as: 'archive-linux'
     paths:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
@@ -54,7 +52,8 @@ build-macos:
     - /opt/local/bin/cmake --build . --target install -j4
     - echo "macOS build complete."
   artifacts:
-    expose_as: avara3d-macos
+    name: "avara3d-macos-$CI_COMMIT_BRANCH"
+    expose_as: 'archive-macos'
     paths:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
@@ -79,7 +78,8 @@ build-windows:
     - cmake --build . --target install -j8
     - echo "Windows build complete."
   artifacts:
-    expose_as: avara3d-windows
+    name: "avara3d-windows-$CI_COMMIT_BRANCH"
+    expose_as: 'archive-windows'
     paths:
       - gitlab-build/packaged/avara3d
     expire_in: 1 week
@@ -113,8 +113,8 @@ build-windows:
   only:
    - testing
    - stable
-  dependencies:
-    - build-linux
+  #dependencies:
+  #  - build-linux
   script:
     - echo "Starting Linux archive..."
     - mkdir gitlab-build
@@ -139,10 +139,10 @@ build-windows:
     - /usr/bin/cmake --build . --target install -j4
     - echo "Linux archive complete."
   artifacts:
-    name: "$CI_JOB_NAME"
+    name: "avara3d-linux-testing"
+    expose_as: 'archive-linux'
     paths:
-      - gitlab-build-debug/packaged/avara3d
-    expose_as: 'avara3d-linux'
+      - gitlab-build/packaged/avara3d
     expire_in: 1 month
 
 archive-macos:
@@ -153,8 +153,8 @@ archive-macos:
   only:
    - testing
    - stable
-  dependencies:
-    - build-macos
+  #dependencies:
+  #  - build-macos
   script:
     - echo "Starting macOS archive..."
     - mkdir gitlab-build
@@ -175,10 +175,10 @@ archive-macos:
     - /opt/local/bin/cmake --build . --target install -j4
     - echo "macOS archive complete."
   artifacts:
-    name: "$CI_JOB_NAME"
+    name: "avara3d-macos-testing"
+    expose_as: 'archive-macos'
     paths:
-      - gitlab-build-debug/packaged/avara3d
-    expose_as: 'avara3d-macos'
+      - gitlab-build/packaged/avara3d
     expire_in: 1 month
 
 archive-windows:
@@ -211,8 +211,8 @@ archive-windows:
     - cmake --build . --target install -j8
     - echo "Windows archive complete."
   artifacts:
-    name: "$CI_JOB_NAME"
+    name: "avara3d-windows-testing"
+    expose_as: 'archive-windows'
     paths:
-      - gitlab-build-debug/packaged/avara3d
-    expose_as: 'avara3d-windows'
+      - gitlab-build/packaged/avara3d
     expire_in: 1 month
