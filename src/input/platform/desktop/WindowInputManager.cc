@@ -209,7 +209,7 @@ void WindowInputManager::initMouseInput() {
 		_usingManyMouse = false;
 	}
 	else {
-		A3D_LOG_W("GLFW raw mouse input unavailable.  Using Manymouse.");
+		A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
 		initManyMouse();
 		_usingManyMouse = true;
 	}
