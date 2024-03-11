@@ -54,6 +54,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
+		// TODO: make pure virtual
+
 		virtual bool 						initialize(const RenderContext& context);
 		
 		virtual void 						beginFrame(const Scene& scene,
@@ -68,24 +70,24 @@ namespace a3d {
 		virtual void 						render(const Scene& scene,
 												   const DebugOptions& debugOptions,
 												   Stats& stats);
-		virtual void 						render(std::shared_ptr<Mesh> geometry,
+		virtual void 						render(Mesh& mesh,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DebugOptions& debugOptions,
 												   Stats& stats);
-		virtual void 						render(std::shared_ptr<MeshElement> element,
+		virtual void 						render(MeshElement& element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DebugOptions& debugOptions,
 												   Stats& stats);
-		virtual void 						render(std::shared_ptr<LineSet> lines,
+		virtual void 						render(LineSet& lines,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);
-		virtual void 						render(std::shared_ptr<PointSet> points,
+		virtual void 						render(PointSet& points,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);

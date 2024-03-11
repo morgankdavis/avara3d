@@ -1028,7 +1028,7 @@ void Node::childrenRec(shared_ptr<Node> node,
 //	auto vec = vector<shared_ptr<Node>>();
 //	vec.reserve(stack.size());
 //	while (!stack.empty()) {
-//		vec.emplace_back(stack.top());
+//		vec.push_back(stack.top());
 //		stack.pop();
 //	}
 //	return vec;

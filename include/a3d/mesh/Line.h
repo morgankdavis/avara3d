@@ -36,6 +36,11 @@ namespace a3d {
 			 std::shared_ptr<Color> color);
 		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
 			 std::shared_ptr<Color> fromColor, std::shared_ptr<Color> toColor);
+
+		Line(const Line& other);
+		Line(Line&& other);
+		Line& operator=(const Line& other);
+		Line& operator=(Line&& other) noexcept;
 		
 /*********************************************************************************************
 	Public

@@ -40,6 +40,22 @@ Line::Line(vec3 fromLocation, vec3 toLocation,
 	
 }
 
+Line::Line(const Line& other) {
+
+}
+
+Line::Line(Line&& other) {
+
+}
+
+Line& Line::operator=(const Line& other) {
+
+}
+
+Line& Line::operator=(Line&& other) noexcept {
+
+}
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/

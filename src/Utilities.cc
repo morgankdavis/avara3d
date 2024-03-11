@@ -357,32 +357,32 @@ vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 		// [local] archived
 		// [local] cmake installed ("packaged")
 		auto path = (*execDir) / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [local] xcode debug
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [local] unix/msys debug
 		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] archived
 		path = (*execDir).parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] cmake installed ("packaged")
 		// [engine] xcode debug
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] unix/msys debug
 		path = (*execDir).parent_path().parent_path().parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// fallback
 		path = (*execDir);
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 	}
 	
 	return basePaths;
@@ -391,7 +391,7 @@ vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ShaderSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "shaders");
+		searchPaths.push_back(path / "shaders");
 	}
 	return searchPaths;
 }
@@ -399,7 +399,7 @@ vector<std::filesystem::path> a3d::utils::ShaderSearchPaths() {
 vector<std::filesystem::path> a3d::utils::SceneSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "scenes");
+		searchPaths.push_back(path / "scenes");
 	}
 	return searchPaths;
 }
@@ -407,7 +407,7 @@ vector<std::filesystem::path> a3d::utils::SceneSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ModelSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "models");
+		searchPaths.push_back(path / "models");
 	}
 	return searchPaths;
 }
@@ -415,7 +415,7 @@ vector<std::filesystem::path> a3d::utils::ModelSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ImageSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "images");
+		searchPaths.push_back(path / "images");
 	}
 	return searchPaths;
 }
@@ -423,7 +423,7 @@ vector<std::filesystem::path> a3d::utils::ImageSearchPaths() {
 vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "fonts");
+		searchPaths.push_back(path / "fonts");
 	}
 	return searchPaths;
 }

@@ -169,7 +169,7 @@ namespace a3d {
 
 	private:
 
-		std::shared_ptr<LineSet>	_lineSet;
+		std::unique_ptr<LineSet>	_lineSet;
 	};
 }
 

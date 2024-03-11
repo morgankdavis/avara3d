@@ -67,34 +67,34 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static void 		RenderSkybox(shared_ptr<Mesh> skyboxMesh,
+static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
 								const DebugOptions& debugOptions,
 								Stats& stats,
 								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
-								unordered_set<shared_ptr<Texture>>& activeTextures);
-static void 		GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+								unordered_set<Texture*>& activeTextures);
+static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
 													 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+static void 		GetMeshAABBLineSetVertexDataHandles(Mesh& mesh,
 													   OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
 													   OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
 													   GLuint& glVBO, GLuint& glVAO);
-static void 		GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
+static void 		GetLineSetVertexDataHandles(LineSet& lineSet,
 											   Program& program,
 											   OpenGLRenderer::LineSetGLMapping& glMapping,
 											   GLuint& glVBO, GLuint& glVAO);
-static void 		GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
+static void 		GetPointSetVertexDataHandles(PointSet& pointSet,
 												Program& program,
 												OpenGLRenderer::PointSetGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
-											  unordered_set<shared_ptr<Texture>>& activeTextures,
+											  unordered_set<Texture*>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
@@ -150,21 +150,21 @@ static void 		DrawPointSet(PointSet& pointSet,
 								mat4 viewMat,
 								mat4 projectionMat,
 								GLuint glVBO, GLuint glVAO);
-static void 		CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 											   OpenGLRenderer::MeshElementGLMapping& glMapping);
-static void 		CleanupTextureResources(unordered_set<shared_ptr<Texture>>& active,
+static void 		CleanupTextureResources(unordered_set<Texture*>& active,
 										   OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
+static void 		CleanupLineSetResources(unordered_set<LineSet*>& active,
 										   OpenGLRenderer::LineSetGLMapping& glMapping);
-static void 		CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
+static void 		CleanupPointSetResources(unordered_set<PointSet*>& active,
 											OpenGLRenderer::PointSetGLMapping& glMapping);
-static void 		DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+static void 		DeleteMeshElementGLResources(MeshElement* element,
 												OpenGLRenderer::MeshElementGLMapping& glMapping);
-static void 		DeleteTextureGLResources(shared_ptr<Texture> texture,
+static void 		DeleteTextureGLResources(Texture* texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
+static void 		DeleteLineSetGLResources(LineSet* lineSet,
 											OpenGLRenderer::LineSetGLMapping& glMapping);
-static void 		DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
+static void 		DeletePointSetGLResources(PointSet* pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
 static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
 static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
@@ -230,10 +230,10 @@ OpenGLRenderer::OpenGLRenderer():
 		_textureGLMapping(TextureGLMapping()),
 		_lineSetGLMapping(LineSetGLMapping()),
 		_pointSetGLMapping(PointSetGLMapping()),
-		_activeMeshElements(unordered_set<shared_ptr<MeshElement>>()),
-		_activeTextures(unordered_set<shared_ptr<Texture>>()),
-		_activeLineSets(unordered_set<shared_ptr<LineSet>>()),
-		_activePointSets(unordered_set<shared_ptr<PointSet>>()),
+		_activeMeshElements(unordered_set<MeshElement*>()),
+		_activeTextures(unordered_set<Texture*>()),
+		_activeLineSets(unordered_set<LineSet*>()),
+		_activePointSets(unordered_set<PointSet*>()),
 		_glEnvironmentUBO(0),
 		_overlayFont(nullptr) { }
 
@@ -386,7 +386,7 @@ void OpenGLRenderer::render(const Scene& scene,
 			auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 			auto pointOfView = scene.visualWorld()->pointOfView();
 
-			RenderSkybox(skyboxMesh,
+			RenderSkybox(*(skyboxMesh.get()),
 						 *pointOfView,
 						 debugOptions,
 						 stats,
@@ -395,7 +395,7 @@ void OpenGLRenderer::render(const Scene& scene,
 						 _activeTextures);
 
 			// save reference for housekeeping
-			_activeMeshElements.emplace(skyboxMesh->elements().front());
+			_activeMeshElements.emplace(skyboxMesh->elements().front().get());
 
 		}
 
@@ -414,7 +414,7 @@ void OpenGLRenderer::render(const Scene& scene,
 	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
-void OpenGLRenderer::render(shared_ptr<Mesh> mesh,
+void OpenGLRenderer::render(Mesh& mesh,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
@@ -432,16 +432,16 @@ void OpenGLRenderer::render(shared_ptr<Mesh> mesh,
 											_lineSetGLMapping,
 											vbo, vao);
 
-		render(_meshAABBLineSetMapping[mesh],
+		render(_meshAABBLineSetMapping[&mesh],
 			   modelMat, viewMat, projectionMat);
 	}
 	else {
 		// if there was an AABB lineset, just remove it
-		_meshAABBLineSetMapping.erase(mesh);
+		_meshAABBLineSetMapping.erase(&mesh);
 	}
 }
 
-void OpenGLRenderer::render(shared_ptr<MeshElement> element,
+void OpenGLRenderer::render(MeshElement& element,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -489,14 +489,14 @@ void OpenGLRenderer::render(shared_ptr<MeshElement> element,
 
 	// update
 
-	DrawMeshElement(*element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
 	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
-	_activeMeshElements.emplace(element);
+	_activeMeshElements.emplace(&element);
 }
 	
-void OpenGLRenderer::render(shared_ptr<LineSet> lines,
+void OpenGLRenderer::render(LineSet& lines,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -517,17 +517,17 @@ void OpenGLRenderer::render(shared_ptr<LineSet> lines,
 	
 	// update
 		
-	DrawLineSet(*lines,
+	DrawLineSet(lines,
 				*program,
 				modelMat, viewMat, projectionMat,
 				vbo, vao);
 	//stats.polygons += element->faces().size();
 	
 	// save reference for housekeeping
-	_activeLineSets.emplace(lines);
+	_activeLineSets.emplace(&lines);
 }
 
-void OpenGLRenderer::render(shared_ptr<PointSet> points,
+void OpenGLRenderer::render(PointSet& points,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -548,18 +548,18 @@ shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	Static
  *********************************************************************************************/
 
-static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
+static void RenderSkybox(Mesh& skyboxMesh,
 						 Node& pointOfView,
 						 const DebugOptions& debugOptions,
 						 Stats& stats,
 						 OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
-						 unordered_set<shared_ptr<Texture>>& activeTextures) {
+						 unordered_set<Texture*>& activeTextures) {
 	
 	auto program = Program::Skybox();
 	
-	auto element = skyboxMesh->elements().front();
-	auto material = skyboxMesh->materials().front();
+	auto element = skyboxMesh.elements().front();
+	auto material = skyboxMesh.materials().front();
 	auto emissiveProperty = material->emission();
 	
 	// check and load vertex data if necessary
@@ -607,33 +607,31 @@ static void RenderSkybox(shared_ptr<Mesh> skyboxMesh,
 //	stats.elements++;
 }
 	
-static void GetMeshElementGLVertexDataHandles(shared_ptr<MeshElement> element,
+static void GetMeshElementGLVertexDataHandles(MeshElement& element,
 											  OpenGLRenderer::MeshElementGLMapping& glMapping,
 											  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
 	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
 
-	if (A3D_MASK_CONTAINS(element->dirtyMask(),
-						 MeshElementDirtyMask::VertexData)) {
+	if (A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData)) {
 
-		DeleteMeshElementGLResources(element, glMapping);
+		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(*element, *Program::Default(), glVBO, glVAO, glIBO);
+		BufferMeshElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
 		
-		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[&element] = make_tuple(glVBO, glVAO, glIBO);
 
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
-										  MeshElementDirtyMask::VertexData));
+		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
 	else {
-		auto mapping = glMapping[element];
+		auto mapping = glMapping[&element];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 		glIBO = get<2>(mapping);
 	}
 }
 	
-static void GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
+static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 										 OpenGLRenderer::MeshElementGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
 	
@@ -643,22 +641,20 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
 	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
-	auto element = skyboxMesh->elements().front();
+	auto element = skyboxMesh.elements().front();
 
-	if (A3D_MASK_CONTAINS(element->dirtyMask(),
-						 MeshElementDirtyMask::VertexData)) {
+	if (A3D_MASK_CONTAINS(element->dirtyMask(), MeshElementDirtyMask::VertexData)) {
 
-		DeleteMeshElementGLResources(element, glMapping);
+		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(*skyboxMesh, *Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(skyboxMesh, *Program::Skybox(), glVBO, glVAO, glIBO);
 		
-		glMapping[element] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[element.get()] = make_tuple(glVBO, glVAO, glIBO);
 
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
-										  MeshElementDirtyMask::VertexData));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
 	else {
-		auto mapping = glMapping[element];
+		auto mapping = glMapping[element.get()];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 		glIBO = get<2>(mapping);
@@ -729,7 +725,7 @@ static void GetSkyboxGLVertexDataHandles(shared_ptr<Mesh> skyboxMesh,
 //								glVBO, glVAO);
 //}
 
-static void GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
+static void GetMeshAABBLineSetVertexDataHandles(Mesh& mesh,
 												OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
 												OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
 												GLuint& glVBO, GLuint& glVAO) {
@@ -738,16 +734,15 @@ static void GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
 
 	// looks up and populates glVBO and glVAO, loading the vertex data if needed
 
-	if (A3D_MASK_CONTAINS(mesh->dirtyMask(),
-						 MeshDirtyMask::Extent)) {
+	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::Extent)) {
 
-		DeleteLineSetGLResources(aabbLineSetMapping[mesh], lineSetGLMapping);
+		DeleteLineSetGLResources(&aabbLineSetMapping[&mesh], lineSetGLMapping);
 
 		// construct a new lineset matching the mesh's extent
 
-		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(mesh.get()));
+		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
 
-		auto aabb = mesh->aabb();
+		auto aabb = mesh.aabb();
 
 		float xMin = aabb.min.x;
 		float xMax = aabb.max.x;
@@ -756,67 +751,72 @@ static void GetMeshAABBLineSetVertexDataHandles(shared_ptr<Mesh> mesh,
 		float zMin = aabb.min.z;
 		float zMax = aabb.max.z;
 
-		vec3 one =      vec3(xMin, yMax, zMin);
-		vec3 two =      vec3(xMin, yMax, zMax);
-		vec3 three =    vec3(xMax, yMax, zMax);
-		vec3 four =     vec3(xMax, yMax, zMin);
-		vec3 five =     vec3(xMin, yMin, zMin);
-		vec3 six =      vec3(xMin, yMin, zMax);
-		vec3 seven =    vec3(xMax, yMin, zMax);
-		vec3 eight =    vec3(xMax, yMin, zMin);
+		vec3 one = 		{xMin, yMax, zMin};
+		vec3 two =      {xMin, yMax, zMax};
+		vec3 three =    {xMax, yMax, zMax};
+		vec3 four =     {xMax, yMax, zMin};
+		vec3 five =     {xMin, yMin, zMin};
+		vec3 six =      {xMin, yMin, zMax};
+		vec3 seven =    {xMax, yMin, zMax};
+		vec3 eight =    {xMax, yMin, zMin};
 
-		auto aabbLineSet = make_shared<LineSet>();
 		auto red = Color::Red();
+		auto aabbLineSet = LineSet(); // TODO: use initializer_list
 
-		aabbLineSet->emplace(make_shared<Line>(one, two, red));
-		aabbLineSet->emplace(make_shared<Line>(two, three, red));
-		aabbLineSet->emplace(make_shared<Line>(three, four, red));
-		aabbLineSet->emplace(make_shared<Line>(four, one, red));
-		aabbLineSet->emplace(make_shared<Line>(five, six, red));
-		aabbLineSet->emplace(make_shared<Line>(six, seven, red));
-		aabbLineSet->emplace(make_shared<Line>(seven, eight, red));
-		aabbLineSet->emplace(make_shared<Line>(eight, five, red));
-		aabbLineSet->emplace(make_shared<Line>(one, five, red));
-		aabbLineSet->emplace(make_shared<Line>(two, six, red));
-		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
-		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
 
-		aabbLineSetMapping[mesh] = aabbLineSet;
+		// *** NEED MOVE CONSTRUCTOR?? ***
+		auto line = Line(one, two, red);
+		aabbLineSet.emplace(std::move(line));
+//		aabbLineSet.insert(std::move(line));
 
-		mesh->dirtyMask(A3D_MASK_REMOVE(mesh->dirtyMask(),
-									   MeshDirtyMask::Extent));
+//		aabbLineSet.emplace(std::move(Line{one, two, red}));
+//		aabbLineSet.emplace({two, three, red});
+		aabbLineSet.emplace(std::move(Line(three, four, red)));
+		aabbLineSet.emplace(Line(four, one, red));
+		aabbLineSet.emplace(Line(five, six, red));
+		aabbLineSet.emplace(Line(six, seven, red));
+		aabbLineSet.emplace(Line(seven, eight, red));
+		aabbLineSet.emplace(Line(eight, five, red));
+		aabbLineSet.emplace(Line(one, five, red));
+		aabbLineSet.emplace(Line(two, six, red));
+		aabbLineSet.emplace(Line(three, seven, red));
+		aabbLineSet.emplace(Line(four, eight, red));
+
+		aabbLineSetMapping[&mesh] = aabbLineSet;
+
+		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
 	}
 
-	GetLineSetVertexDataHandles(aabbLineSetMapping[mesh],
+	GetLineSetVertexDataHandles(aabbLineSetMapping[&mesh],
 								*program,
 								lineSetGLMapping,
 								glVBO, glVAO);
 }
 
-static void GetLineSetVertexDataHandles(shared_ptr<LineSet> lineSet,
+static void GetLineSetVertexDataHandles(LineSet& lineSet,
 										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
 	
-	if (!glMapping.count(lineSet)) {
-		BufferLineSetVertexData(*lineSet, program, glVBO, glVAO);
+	if (!glMapping.count(&lineSet)) {
+		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
 		
 		glMapping[lineSet] = make_pair(glVBO, glVAO);
 	}
 	else {
-		auto mapping = glMapping[lineSet];
+		auto mapping = glMapping[&lineSet];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 	}
 }
 
-static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
+static void GetPointSetVertexDataHandles(PointSet& pointSet,
 										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO) {
 	
-	if (!glMapping.count(pointSet)) {
-		BufferPointSetVertexData(*pointSet, program, glVBO, glVAO);
+	if (!glMapping.count(&pointSet)) {
+		BufferPointSetVertexData(pointSet, program, glVBO, glVAO);
 		
 		glMapping[pointSet] = make_pair(glVBO, glVAO);
 	}
@@ -829,7 +829,7 @@ static void GetPointSetVertexDataHandles(shared_ptr<PointSet> pointSet,
 
 static void GetTextureGLTextureHandles(Material& material,
 									   OpenGLRenderer::TextureGLMapping& glMapping,
-									   unordered_set<shared_ptr<Texture>>& activeTextures,
+									   unordered_set<Texture*>& activeTextures,
 									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -840,12 +840,11 @@ static void GetTextureGLTextureHandles(Material& material,
 
 			auto& texture = get<shared_ptr<Texture>>(*property);
 
-			if (A3D_MASK_CONTAINS(texture->dirtyMask(),
-								  TextureDirtyMask::Contents)) {
+			if (A3D_MASK_CONTAINS(texture->dirtyMask(), TextureDirtyMask::Contents)) {
 
 				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
 
-				DeleteTextureGLResources(texture, glMapping);
+				DeleteTextureGLResources(texture.get(), glMapping);
 
 				GLuint textureID = 0;
 				BufferTexture(*texture, type, textureID);
@@ -854,16 +853,15 @@ static void GetTextureGLTextureHandles(Material& material,
 					glMapping[texture] = textureID;
 				}
 
-				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
-												   TextureDirtyMask::Contents));
+				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
 			}
 			else {
-				auto textureHandle = glMapping[texture];
+				auto textureHandle = glMapping[texture.get()];
 				glTextureHandles[type] = textureHandle;
 			}
 
 			// save reference for housekeeping
-			activeTextures.emplace(texture);
+			activeTextures.emplace(texture.get());
 		}
 	}
 }
@@ -1028,15 +1026,15 @@ static void BufferLineSetVertexData(LineSet& lineSet,
 	auto massagedBuffer = vector<vec3>();
 	massagedBuffer.reserve(lineSet.size()*4);
 
-	for (auto l : lineSet) {
-		auto fromLocation = l->fromLocation();
-		auto fromColor = l->fromColor();
-		auto toLocation = l->toLocation();
-		auto toColor = l->toColor();
-		massagedBuffer.emplace_back(fromLocation);
-		massagedBuffer.emplace_back(vec3(fromColor->r, fromColor->g, fromColor->b));
-		massagedBuffer.emplace_back(toLocation);
-		massagedBuffer.emplace_back(vec3(toColor->r, toColor->g, toColor->b));
+	for (auto& line : lineSet) {
+		auto fromLocation = line.fromLocation();
+		auto fromColor = line.fromColor();
+		auto toLocation = line.toLocation();
+		auto toColor = line.toColor();
+		massagedBuffer.push_back(fromLocation);
+		massagedBuffer.push_back(vec3(fromColor->r, fromColor->g, fromColor->b));
+		massagedBuffer.push_back(toLocation);
+		massagedBuffer.push_back(vec3(toColor->r, toColor->g, toColor->b));
 	}
 	
 	glGenBuffers(1, &glVBO);
@@ -1393,7 +1391,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 //		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
 //			sceneExtent.y + sceneExtent.y/4.0,
 //			sceneExtent.z + sceneExtent.z/4.0});
-//		lights.emplace_back(detaultPointNode);
+//		lights.push_back(detaultPointNode);
 //	}
 //	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
 
@@ -1408,6 +1406,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		auto node = lights[l];
 		auto light = node->light();
 
+		// TODO: static_cast
 		lightStruct[l].type = (unsigned)(light->type());
 		lightStruct[l].position_world = node->worldPosition();
 		lightStruct[l].attenuationFactor = light->attenuationFactor();
@@ -1706,27 +1705,27 @@ static void DrawPointSet(PointSet& pointSet,
 	
 }
 
-static void CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& active,
+static void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 										OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of elements used this frame
-	auto activeElementsSorted = vector<shared_ptr<MeshElement>>();
+	auto activeElementsSorted = vector<MeshElement*>();
 	activeElementsSorted.reserve(active.size());
 	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
 	sort(activeElementsSorted.begin(), activeElementsSorted.end());
 	
 	// gather sorted vector of elements in the mapping
-	auto storedElementsSorted = vector<shared_ptr<MeshElement>>();
+	auto storedElementsSorted = vector<MeshElement*>();
 	storedElementsSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedElementsSorted.emplace_back(it->first);
+		storedElementsSorted.push_back(it->first);
 	}
 	sort(storedElementsSorted.begin(), storedElementsSorted.end());
 	
 	// find unused elements
-	auto unused = vector<shared_ptr<MeshElement>>(storedElementsSorted.size());
-	vector<shared_ptr<MeshElement>>::iterator it;
+	auto unused = vector<MeshElement*>(storedElementsSorted.size());
+	vector<MeshElement*>::iterator it;
 	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
 						activeElementsSorted.begin(), activeElementsSorted.end(),
 						unused.begin());
@@ -1737,7 +1736,7 @@ static void CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& 
 		//A3D_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<MeshElement> element = *it;
+			MeshElement* element = *it;
 			DeleteMeshElementGLResources(element, glMapping);
 		}
 	}
@@ -1745,27 +1744,27 @@ static void CleanupMeshElementResources(unordered_set<shared_ptr<MeshElement>>& 
 #endif
 }
 	
-static void CleanupTextureResources(unordered_set<shared_ptr<Texture>> &active,
+static void CleanupTextureResources(unordered_set<Texture*> &active,
 									OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of properties used this frame
-	auto activeTexturesSorted = vector<shared_ptr<Texture>>();
+	auto activeTexturesSorted = vector<Texture*>();
 	activeTexturesSorted.reserve(glMapping.size());
 	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
 	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
 	
 	// gather sorted vector of properties in the mapping
-	auto storedTexturesSorted = vector<shared_ptr<Texture>>();
+	auto storedTexturesSorted = vector<Texture*>();
 	storedTexturesSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedTexturesSorted.emplace_back(it->first);
+		storedTexturesSorted.push_back(it->first);
 	}
 	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
 	
 	// find unused properties
-	auto unused = vector<shared_ptr<Texture>>(storedTexturesSorted.size());
-	vector<shared_ptr<Texture>>::iterator it;
+	auto unused = vector<Texture*>(storedTexturesSorted.size());
+	vector<Texture*>::iterator it;
 	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
 						activeTexturesSorted.begin(), activeTexturesSorted.end(),
 						unused.begin());
@@ -1776,7 +1775,7 @@ static void CleanupTextureResources(unordered_set<shared_ptr<Texture>> &active,
 		//A3D_LOG_D("Deleting GL resources for {} textures...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<Texture> texture = *it;
+			Texture* texture = *it;
 			DeleteTextureGLResources(texture, glMapping);
 		}
 	}
@@ -1784,27 +1783,27 @@ static void CleanupTextureResources(unordered_set<shared_ptr<Texture>> &active,
 #endif
 }
 	
-static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
+static void CleanupLineSetResources(unordered_set<LineSet*>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	// gather sorted vector of LineSets used this frame
-	auto activeLineSetsSorted = vector<shared_ptr<LineSet>>();
+	auto activeLineSetsSorted = vector<LineSet*>();
 	activeLineSetsSorted.reserve(glMapping.size());
 	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
 	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
 	
 	// gather sorted vector of LineSets in the mapping
-	auto storedLineSetsSorted = vector<shared_ptr<LineSet>>();
+	auto storedLineSetsSorted = vector<LineSet*>();
 	storedLineSetsSorted.reserve(glMapping.size());
 	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedLineSetsSorted.emplace_back(it->first);
+		storedLineSetsSorted.push_back(it->first);
 	}
 	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
 	
 	// find unused LineSets
-	auto unused = vector<shared_ptr<LineSet>>(storedLineSetsSorted.size());
-	vector<shared_ptr<LineSet>>::iterator it;
+	auto unused = vector<LineSet*>(storedLineSetsSorted.size());
+	vector<LineSet*>::iterator it;
 	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
 						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
 						unused.begin());
@@ -1815,7 +1814,7 @@ static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
 		
 		for (it=unused.begin(); it!=unused.end(); ++it) {
-			shared_ptr<LineSet> lineSet = *it;
+			LineSet* lineSet = *it;
 			DeleteLineSetGLResources(lineSet, glMapping);
 		}
 	}
@@ -1823,20 +1822,20 @@ static void CleanupLineSetResources(unordered_set<shared_ptr<LineSet>>& active,
 #endif
 }
 
-static void CleanupPointSetResources(unordered_set<shared_ptr<PointSet>>& active,
+static void CleanupPointSetResources(unordered_set<PointSet*>& active,
 									 OpenGLRenderer::PointSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 #endif
 }
 
-static void DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
+static void DeleteMeshElementGLResources(MeshElement* element,
 										 OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
 		
-		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element.get()));
+		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1857,13 +1856,13 @@ static void DeleteMeshElementGLResources(shared_ptr<MeshElement> element,
 #endif
 }
 
-static void DeleteTextureGLResources(shared_ptr<Texture> texture,
+static void DeleteTextureGLResources(Texture* texture,
 									 OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(texture)) {
 		
-		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture.get()));
+		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture));
 
 		auto handle = glMapping[texture];
 		
@@ -1878,13 +1877,13 @@ static void DeleteTextureGLResources(shared_ptr<Texture> texture,
 #endif
 }
 
-static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
+static void DeleteLineSetGLResources(LineSet* lineSet,
 									 OpenGLRenderer::LineSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(lineSet)) {
 		
-		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet.get()));
+		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet));
 		
 		auto glHandles = glMapping[lineSet];
 
@@ -1900,7 +1899,7 @@ static void DeleteLineSetGLResources(shared_ptr<LineSet> lineSet,
 #endif
 }
 
-static void DeletePointSetGLResources(shared_ptr<PointSet> pointSet,
+static void DeletePointSetGLResources(PointSet* pointSet,
 									  OpenGLRenderer::PointSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
@@ -1924,7 +1923,7 @@ static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights
 	
 	auto sortedVector = vector<shared_ptr<Node>>();
 	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
-		sortedVector.emplace_back(element.first);
+		sortedVector.push_back(element.first);
 	}
 	
 	return sortedVector;

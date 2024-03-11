@@ -57,7 +57,7 @@ void Renderer::render(const Scene& scene,
 	A3D_LOG_C("Renderer::render(<Scene>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<Mesh> mesh,
+void Renderer::render(Mesh& mesh,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat,
@@ -67,7 +67,7 @@ void Renderer::render(shared_ptr<Mesh> mesh,
 	A3D_LOG_C("Renderer::render(<Mesh>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<MeshElement> element,
+void Renderer::render(MeshElement& element,
 					  Material& material,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
@@ -78,7 +78,7 @@ void Renderer::render(shared_ptr<MeshElement> element,
 	A3D_LOG_C("Renderer::render(<MeshElement>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<LineSet> lines,
+void Renderer::render(LineSet& lines,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {
@@ -86,7 +86,7 @@ void Renderer::render(shared_ptr<LineSet> lines,
 	A3D_LOG_C("Renderer::render(<LineSet>) should be overidden in derived class.");
 }
 
-void Renderer::render(shared_ptr<PointSet> points,
+void Renderer::render(PointSet& points,
 					  const glm::mat4& modelMat,
 					  const glm::mat4& viewMat,
 					  const glm::mat4& projectionMat) {

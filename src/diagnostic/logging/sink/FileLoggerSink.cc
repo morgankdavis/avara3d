@@ -115,7 +115,7 @@ void FileLoggerSink::rotate() {
 
 	auto existing = vector<filesystem::path>();
 
-	existing.emplace_back(_filepath);
+	existing.push_back(_filepath);
 
 	unsigned i = 0;
 	while (true) {
@@ -123,7 +123,7 @@ void FileLoggerSink::rotate() {
 		auto path = _filepath.parent_path() / filesystem::path(stem.string() + to_string(i) + extension.string());
 
 		if (filesystem::exists(path)) {
-			existing.emplace_back(path);
+			existing.push_back(path);
 			++i;
 		}
 		else {

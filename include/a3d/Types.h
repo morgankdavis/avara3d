@@ -403,8 +403,8 @@ namespace a3d {
 
 	class Line;
 	class Point;
-	using LineSet = std::set<std::shared_ptr<Line>>;
-	using PointSet = std::set<std::shared_ptr<Point>>;
+	using LineSet = std::set<a3d::Line>;
+	using PointSet = std::set<a3d::Point>;
 
 	enum class ShaderType {
 		Vertex,

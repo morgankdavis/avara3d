@@ -54,8 +54,8 @@ Mesh::Mesh(const shared_ptr<MeshElement> element,
 		   const shared_ptr<Material> material):
 		Mesh() {
 
-	if (element) _elements.emplace_back(element);
-	if (material) _materials.emplace_back(material);
+	if (element) _elements.push_back(element);
+	if (material) _materials.push_back(material);
 }
 
 Mesh::Mesh(const vector<shared_ptr<MeshElement>> elements,
@@ -110,7 +110,7 @@ shared_ptr<Material> Mesh::materialNamed(const string& name) const {
 }
 
 void Mesh::addMaterial(const shared_ptr<Material> material) {
-	_materials.emplace_back(material);
+	_materials.push_back(material);
 }
 
 void Mesh::insertMaterial(const shared_ptr<Material> material, int index) {
@@ -152,7 +152,7 @@ void Mesh::draw(Renderer& renderer,
 		_dirtyMask = A3D_MASK_ADD(_dirtyMask, MeshDirtyMask::Extent);
 	}
 	
-	renderer.render(shared_from_this(),
+	renderer.render(*this,
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
 	

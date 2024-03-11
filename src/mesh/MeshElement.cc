@@ -49,7 +49,7 @@ void MeshElement::draw(Renderer& renderer,
 					   const DebugOptions& debugOptions,
 					   Stats& stats) {
 	
-	renderer.render(shared_from_this(),
+	renderer.render(*this,
 					material,
 					modelMat,
 					viewMat,
