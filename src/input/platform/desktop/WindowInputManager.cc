@@ -46,7 +46,7 @@ WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	_usingManyMouse(false),
 	_window(window) {
 
-		registerGLFWCallbacks(window->glfwWindow());
+	registerGLFWCallbacks(window->glfwWindow());
 	initMouseInput();
 }
 
