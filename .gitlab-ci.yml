@@ -11,7 +11,7 @@ build-linux-debug:
 #    - testing
 #    - stable
   script:
-    - echo "Starting Linux build..."
+    - echo "Starting Linux debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake
@@ -23,7 +23,7 @@ build-linux-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
-    - echo "Linux build complete."
+    - echo "Linux debug build complete."
   artifacts:
     name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-debug"
@@ -39,7 +39,7 @@ build-macos-debug:
 #    - testing
 #    - stable
   script:
-    - echo "Starting macOS build..."
+    - echo "Starting macOS debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - /opt/local/bin/cmake
@@ -49,7 +49,7 @@ build-macos-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
-    - echo "macOS build complete."
+    - echo "macOS debug build complete."
   artifacts:
     name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-debug"
@@ -65,7 +65,7 @@ build-windows-debug:
 #    - testing
 #    - stable
   script:
-    - echo "Starting Windows build..."
+    - echo "Starting Windows debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
@@ -75,8 +75,9 @@ build-windows-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     # https://stackoverflow.com/questions/19024259/how-to-change-the-build-type-to-release-mode-in-cmake
-    - cmake --build . --config Release --target install -j8
-    - echo "Windows build complete."
+#    - cmake --build . --config Release --target install -j8
+    - cmake --build . --config Debug --target install -j8
+    - echo "Windows debug build complete."
   artifacts:
     name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-debug"
@@ -95,7 +96,7 @@ build-linux-release:
   #dependencies:
   #  - build-linux
   script:
-    - echo "Starting Linux archive..."
+    - echo "Starting Linux release build..."
     - mkdir gitlab-build
     - cd gitlab-build
 #    - /usr/bin/cmake
@@ -116,7 +117,7 @@ build-linux-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
-    - echo "Linux archive complete."
+    - echo "Linux release build complete."
   artifacts:
     name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
@@ -135,7 +136,7 @@ build-macos-release:
   #dependencies:
   #  - build-macos
   script:
-    - echo "Starting macOS archive..."
+    - echo "Starting macOS release build..."
     - mkdir gitlab-build
     - cd gitlab-build
 #    - /opt/local/bin/cmake
@@ -152,7 +153,7 @@ build-macos-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
-    - echo "macOS archive complete."
+    - echo "macOS release build complete."
   artifacts:
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-release"
@@ -171,7 +172,7 @@ build-windows-release:
   #dependencies:
   #  - build-windows
   script:
-    - echo "Starting Windows archive..."
+    - echo "Starting Windows release build..."
     - mkdir gitlab-build
     - cd gitlab-build
 #    - cmake
@@ -188,7 +189,7 @@ build-windows-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Release --target install -j8
-    - echo "Windows archive complete."
+    - echo "Windows release build complete."
   artifacts:
     name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-release"
