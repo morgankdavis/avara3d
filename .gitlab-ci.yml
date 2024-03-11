@@ -71,7 +71,7 @@ windows-debug:
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
-      -DCMAKE_BUILD_TYPE="Release"
+      -DCMAKE_BUILD_TYPE="Debug"
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
@@ -186,7 +186,7 @@ windows-release:
 #      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
 #      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
 #      ..
-#    - cmake --build . --target install -j8
+#    - cmake --build . --config Debug --target install -j8
     - cmake
       -DCMAKE_BUILD_TYPE="Release"
       -T"ClangCL"
