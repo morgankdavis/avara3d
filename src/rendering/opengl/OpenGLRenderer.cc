@@ -730,67 +730,67 @@ static void GetMeshAABBLineSetVertexDataHandles(Mesh& mesh,
 												OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
 												GLuint& glVBO, GLuint& glVAO) {
 
-	auto program = Program::Lines();
-
-	// looks up and populates glVBO and glVAO, loading the vertex data if needed
-
-	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::Extent)) {
-
-		DeleteLineSetGLResources(&aabbLineSetMapping[&mesh], lineSetGLMapping);
-
-		// construct a new lineset matching the mesh's extent
-
-		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
-
-		auto aabb = mesh.aabb();
-
-		float xMin = aabb.min.x;
-		float xMax = aabb.max.x;
-		float yMin = aabb.min.y;
-		float yMax = aabb.max.y;
-		float zMin = aabb.min.z;
-		float zMax = aabb.max.z;
-
-		vec3 one = 		{xMin, yMax, zMin};
-		vec3 two =      {xMin, yMax, zMax};
-		vec3 three =    {xMax, yMax, zMax};
-		vec3 four =     {xMax, yMax, zMin};
-		vec3 five =     {xMin, yMin, zMin};
-		vec3 six =      {xMin, yMin, zMax};
-		vec3 seven =    {xMax, yMin, zMax};
-		vec3 eight =    {xMax, yMin, zMin};
-
-		auto red = Color::Red();
-		auto aabbLineSet = LineSet(); // TODO: use initializer_list
-
-
-		// *** NEED MOVE CONSTRUCTOR?? ***
-		auto line = Line(one, two, red);
-		aabbLineSet.emplace(std::move(line));
-//		aabbLineSet.insert(std::move(line));
-
-//		aabbLineSet.emplace(std::move(Line{one, two, red}));
-//		aabbLineSet.emplace({two, three, red});
-		aabbLineSet.emplace(std::move(Line(three, four, red)));
-		aabbLineSet.emplace(Line(four, one, red));
-		aabbLineSet.emplace(Line(five, six, red));
-		aabbLineSet.emplace(Line(six, seven, red));
-		aabbLineSet.emplace(Line(seven, eight, red));
-		aabbLineSet.emplace(Line(eight, five, red));
-		aabbLineSet.emplace(Line(one, five, red));
-		aabbLineSet.emplace(Line(two, six, red));
-		aabbLineSet.emplace(Line(three, seven, red));
-		aabbLineSet.emplace(Line(four, eight, red));
-
-		aabbLineSetMapping[&mesh] = aabbLineSet;
-
-		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
-	}
-
-	GetLineSetVertexDataHandles(aabbLineSetMapping[&mesh],
-								*program,
-								lineSetGLMapping,
-								glVBO, glVAO);
+//	auto program = Program::Lines();
+//
+//	// looks up and populates glVBO and glVAO, loading the vertex data if needed
+//
+//	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::Extent)) {
+//
+//		DeleteLineSetGLResources(&aabbLineSetMapping[&mesh], lineSetGLMapping);
+//
+//		// construct a new lineset matching the mesh's extent
+//
+//		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
+//
+//		auto aabb = mesh.aabb();
+//
+//		float xMin = aabb.min.x;
+//		float xMax = aabb.max.x;
+//		float yMin = aabb.min.y;
+//		float yMax = aabb.max.y;
+//		float zMin = aabb.min.z;
+//		float zMax = aabb.max.z;
+//
+//		vec3 one = 		{xMin, yMax, zMin};
+//		vec3 two =      {xMin, yMax, zMax};
+//		vec3 three =    {xMax, yMax, zMax};
+//		vec3 four =     {xMax, yMax, zMin};
+//		vec3 five =     {xMin, yMin, zMin};
+//		vec3 six =      {xMin, yMin, zMax};
+//		vec3 seven =    {xMax, yMin, zMax};
+//		vec3 eight =    {xMax, yMin, zMin};
+//
+//		auto red = Color::Red();
+//		auto aabbLineSet = LineSet(); // TODO: use initializer_list
+//
+//
+//		// *** NEED MOVE CONSTRUCTOR?? ***
+//		auto line = Line(one, two, red);
+//		aabbLineSet.emplace(std::move(line));
+////		aabbLineSet.insert(std::move(line));
+//
+////		aabbLineSet.emplace(std::move(Line{one, two, red}));
+////		aabbLineSet.emplace({two, three, red});
+//		aabbLineSet.emplace(std::move(Line(three, four, red)));
+//		aabbLineSet.emplace(Line(four, one, red));
+//		aabbLineSet.emplace(Line(five, six, red));
+//		aabbLineSet.emplace(Line(six, seven, red));
+//		aabbLineSet.emplace(Line(seven, eight, red));
+//		aabbLineSet.emplace(Line(eight, five, red));
+//		aabbLineSet.emplace(Line(one, five, red));
+//		aabbLineSet.emplace(Line(two, six, red));
+//		aabbLineSet.emplace(Line(three, seven, red));
+//		aabbLineSet.emplace(Line(four, eight, red));
+//
+//		aabbLineSetMapping[&mesh] = aabbLineSet;
+//
+//		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
+//	}
+//
+//	GetLineSetVertexDataHandles(aabbLineSetMapping[&mesh],
+//								*program,
+//								lineSetGLMapping,
+//								glVBO, glVAO);
 }
 
 static void GetLineSetVertexDataHandles(LineSet& lineSet,
@@ -798,33 +798,33 @@ static void GetLineSetVertexDataHandles(LineSet& lineSet,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
 	
-	if (!glMapping.count(&lineSet)) {
-		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
-		
-		glMapping[lineSet] = make_pair(glVBO, glVAO);
-	}
-	else {
-		auto mapping = glMapping[&lineSet];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-	}
+//	if (!glMapping.count(&lineSet)) {
+//		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
+//
+//		glMapping[lineSet] = make_pair(glVBO, glVAO);
+//	}
+//	else {
+//		auto mapping = glMapping[&lineSet];
+//		glVBO = get<0>(mapping);
+//		glVAO = get<1>(mapping);
+//	}
 }
 
 static void GetPointSetVertexDataHandles(PointSet& pointSet,
 										 Program& program,
 										 OpenGLRenderer::PointSetGLMapping& glMapping,
 										 GLuint& glVBO, GLuint& glVAO) {
-	
-	if (!glMapping.count(&pointSet)) {
-		BufferPointSetVertexData(pointSet, program, glVBO, glVAO);
-		
-		glMapping[pointSet] = make_pair(glVBO, glVAO);
-	}
-	else {
-		auto mapping = glMapping[pointSet];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-	}
+
+//	if (!glMapping.count(&pointSet)) {
+//		BufferPointSetVertexData(pointSet, program, glVBO, glVAO);
+//
+//		glMapping[pointSet] = make_pair(glVBO, glVAO);
+//	}
+//	else {
+//		auto mapping = glMapping[pointSet];
+//		glVBO = get<0>(mapping);
+//		glVAO = get<1>(mapping);
+//	}
 }
 
 static void GetTextureGLTextureHandles(Material& material,
@@ -850,7 +850,7 @@ static void GetTextureGLTextureHandles(Material& material,
 				BufferTexture(*texture, type, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					glMapping[texture] = textureID;
+					glMapping[texture.get()] = textureID;
 				}
 
 				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
@@ -1787,37 +1787,37 @@ static void CleanupLineSetResources(unordered_set<LineSet*>& active,
 									OpenGLRenderer::LineSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-	// gather sorted vector of LineSets used this frame
-	auto activeLineSetsSorted = vector<LineSet*>();
-	activeLineSetsSorted.reserve(glMapping.size());
-	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
-	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
-	
-	// gather sorted vector of LineSets in the mapping
-	auto storedLineSetsSorted = vector<LineSet*>();
-	storedLineSetsSorted.reserve(glMapping.size());
-	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedLineSetsSorted.push_back(it->first);
-	}
-	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
-	
-	// find unused LineSets
-	auto unused = vector<LineSet*>(storedLineSetsSorted.size());
-	vector<LineSet*>::iterator it;
-	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
-						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
-						unused.begin());
-	unused.resize(it - unused.begin());
-	
-	// deallocate unused LineSets
-	if (unused.size()) {
-		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-		
-		for (it=unused.begin(); it!=unused.end(); ++it) {
-			LineSet* lineSet = *it;
-			DeleteLineSetGLResources(lineSet, glMapping);
-		}
-	}
+//	// gather sorted vector of LineSets used this frame
+//	auto activeLineSetsSorted = vector<LineSet*>();
+//	activeLineSetsSorted.reserve(glMapping.size());
+//	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
+//	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
+//
+//	// gather sorted vector of LineSets in the mapping
+//	auto storedLineSetsSorted = vector<LineSet*>();
+//	storedLineSetsSorted.reserve(glMapping.size());
+//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
+//		storedLineSetsSorted.push_back(it->first);
+//	}
+//	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
+//
+//	// find unused LineSets
+//	auto unused = vector<LineSet*>(storedLineSetsSorted.size());
+//	vector<LineSet*>::iterator it;
+//	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
+//						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
+//						unused.begin());
+//	unused.resize(it - unused.begin());
+//
+//	// deallocate unused LineSets
+//	if (unused.size()) {
+//		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+//
+//		for (it=unused.begin(); it!=unused.end(); ++it) {
+//			LineSet* lineSet = *it;
+//			DeleteLineSetGLResources(lineSet, glMapping);
+//		}
+//	}
 	
 #endif
 }
@@ -1881,20 +1881,20 @@ static void DeleteLineSetGLResources(LineSet* lineSet,
 									 OpenGLRenderer::LineSetGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-	if (glMapping.count(lineSet)) {
-		
-		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet));
-		
-		auto glHandles = glMapping[lineSet];
-
-		auto vbo = get<0>(glHandles);
-		auto vao = get<1>(glHandles);
-		
-		glDeleteBuffers(1, &vbo);
-		glDeleteVertexArrays(1, &vao);
-		
-		glMapping.erase(lineSet);
-	}
+//	if (glMapping.count(lineSet)) {
+//
+//		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet));
+//
+//		auto glHandles = glMapping[lineSet];
+//
+//		auto vbo = get<0>(glHandles);
+//		auto vao = get<1>(glHandles);
+//
+//		glDeleteBuffers(1, &vbo);
+//		glDeleteVertexArrays(1, &vao);
+//
+//		glMapping.erase(lineSet);
+//	}
 	
 #endif
 }

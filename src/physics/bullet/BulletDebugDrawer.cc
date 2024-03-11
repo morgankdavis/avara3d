@@ -84,12 +84,12 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								 const btVector3& toColor) {
 	//A3D_LOG_D("drawLine() - 2 colors");
 
-	auto line = Line(GLMVec3FromBTVector3(from),
-					 GLMVec3FromBTVector3(to),
-					 make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
-					 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0));
-
-	_lineSet->emplace(line);
+//	auto line = Line(GLMVec3FromBTVector3(from),
+//					 GLMVec3FromBTVector3(to),
+//					 make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
+//					 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0));
+//
+//	_lineSet->emplace(line);
 }
 
 /*
