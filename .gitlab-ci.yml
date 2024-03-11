@@ -50,12 +50,13 @@ macos-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "macOS debug build complete."
   artifacts:
     name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-debug"
     paths:
-      - gitlab-build/packaged/avara3d
+      - avara3d
     expire_in: 1 week
 
 windows-debug:
@@ -78,12 +79,13 @@ windows-debug:
     # https://stackoverflow.com/questions/19024259/how-to-change-the-build-type-to-release-mode-in-cmake
 #    - cmake --build . --config Release --target install -j8
     - cmake --build . --config Debug --target install -j8
+    - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:
     name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-debug"
     paths:
-      - gitlab-build/packaged/avara3d
+      - avara3d
     expire_in: 1 week
 
 linux-release:
@@ -118,12 +120,13 @@ linux-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "Linux release build complete."
   artifacts:
     name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
-      - gitlab-build/packaged/avara3d
+      - avara3d
     expire_in: 1 month
 
 macos-release:
@@ -154,12 +157,13 @@ macos-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-release"
     paths:
-      - gitlab-build/packaged/avara3d
+      - avara3d
     expire_in: 1 month
 
 windows-release:
@@ -190,10 +194,11 @@ windows-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Release --target install -j8
+    - mv packaged/avara3d ../
     - echo "Windows release build complete."
   artifacts:
     name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-release"
     paths:
-      - gitlab-build/packaged/avara3d
+      - avara3d
     expire_in: 1 month
