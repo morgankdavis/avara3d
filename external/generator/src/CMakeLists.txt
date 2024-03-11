@@ -1,3 +1,4 @@
+
 include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
 set(GENERATOR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../include/generator")
@@ -140,14 +141,12 @@ set(GENERATOR_SOURCES
 	TubeMesh.cpp
 )
 
-# mkd ?
-#add_library(generator${SUFFIX} ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
 add_library(generator${SUFFIX} STATIC ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
 #add_library(generator${SUFFIX} SHARED ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
 
 # mkd: added when switching to shared libraries
-target_compile_options(generator${SUFFIX} PUBLIC
-		"-fPIC")
+#target_compile_options(generator${SUFFIX} PUBLIC
+#		"-fPIC")
 
 if (WINDOWS)
 
@@ -157,4 +156,3 @@ if (WINDOWS)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 endif()
-

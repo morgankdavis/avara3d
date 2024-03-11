@@ -12,8 +12,9 @@
 #include "a3d/input/platform/desktop/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
+#include "manymouse.h"
 
-//#include "a3d/diagnostic/exceptions/Exception.h"
+#include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/platform/desktop/Window.h"
@@ -42,11 +43,11 @@ static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow
 
 WindowInputManager::WindowInputManager(shared_ptr<Window> window):
 	InputManager(),
-//	_usingManyMouse(false),
+	_usingManyMouse(false),
 	_window(window) {
 
-		registerGLFWCallbacks(window->glfwWindow());
-		initMouseMotionInput();
+	registerGLFWCallbacks(window->glfwWindow());
+	initMouseInput();
 }
 
 WindowInputManager::~WindowInputManager() {
@@ -64,45 +65,46 @@ WindowInputManager::~WindowInputManager() {
 
 void WindowInputManager::update() {
 
-//	if (_usingManyMouse) {
-//		static ManyMouseEvent event;
-//
-//		while (ManyMouse_PollEvent(&event)) {
-//			switch (event.type) {
-//
-//				case MANYMOUSE_EVENT_RELMOTION:
-//
-//					if (event.item == 0) {
-//						_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
-//					}
-//					else {
-//						_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
-//					}
-//					break;
-//
-//				case MANYMOUSE_EVENT_SCROLL:
-//					if (event.item == 0) {
-//						_mouseScrollWheelDelta.y += event.value;
-//					}
-//					else {
-//						_mouseScrollWheelDelta.x += event.value;
-//					}
-//					break;
-//
-//				case MANYMOUSE_EVENT_DISCONNECT:
-//					A3D_LOG_W("Mouse {} disconnected.", event.device);
-//					break;
-//
-//				case MANYMOUSE_EVENT_ABSMOTION:
-//				case MANYMOUSE_EVENT_BUTTON:
-//				case MANYMOUSE_EVENT_MAX:
-//					break;
-//			}
-//		}
-//	}
-//	else {
-		_window.lock()->pollInput();
-//	}
+	if (_usingManyMouse) {
+		static ManyMouseEvent event;
+
+		while (ManyMouse_PollEvent(&event)) {
+			switch (event.type) {
+
+				case MANYMOUSE_EVENT_RELMOTION:
+
+					if (event.item == 0) {
+						_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+					}
+					else {
+						_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+					}
+					break;
+
+				case MANYMOUSE_EVENT_SCROLL:
+					if (event.item == 0) {
+						_mouseScrollWheelDelta.y += event.value;
+					}
+					else {
+						_mouseScrollWheelDelta.x += event.value;
+					}
+					break;
+
+				case MANYMOUSE_EVENT_DISCONNECT:
+					A3D_LOG_W("Mouse {} disconnected.", event.device);
+					break;
+
+				case MANYMOUSE_EVENT_ABSMOTION:
+				case MANYMOUSE_EVENT_BUTTON:
+				case MANYMOUSE_EVENT_MAX:
+					break;
+			}
+		}
+	}
+
+    // needed for non-mouse events (keyboard, not joystrick, OTHER NON-INPUT??)
+    // https://www.glfw.org/docs/latest/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
+    _window.lock()->pollInput();
 }
 
 /*********************************************************************************************
@@ -198,44 +200,45 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	Private
  *********************************************************************************************/
 
-void WindowInputManager::initMouseMotionInput() {
+void WindowInputManager::initMouseInput() {
 
 	if (glfwRawMouseMotionSupported()) {
 		A3D_LOG_I("Using GLFW raw mouse input.");
 		glfwSetInputMode(_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		glfwSetCursorPosCallback(_window.lock()->glfwWindow(),
 								 WindowInputManager::GLFWCursorPositionCallback);
-//		_usingManyMouse = false;
+		_usingManyMouse = false;
 	}
 	else {
-		A3D_LOG_E("GLFW raw mouse input unavailable!");
-//		initManyMouse();
-//		_usingManyMouse = true;
+		A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
+		initManyMouse();
+		_usingManyMouse = true;
 	}
 }
 
-//void WindowInputManager::initManyMouse() {
-//
-//	// TODO: must be changed to support multiple windows
-//	int availableMice = ManyMouse_Init();
-//
-//	if (availableMice < 0) {
-//		throw Exception("ManyMouse failed to initialize.");
-//	}
-//	else if (availableMice == 0) {
-//		A3D_LOG_W("ManyMouse failed to initialize.");
-//	}
-//	else {
-//		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-//		for (int m = 0; m<availableMice; ++m) {
-//			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
-//		}
-//	}
-//}
+void WindowInputManager::initManyMouse() {
+	A3D_LOG_T("");
 
-//void WindowInputManager::quitManyMouse() {
-//	ManyMouse_Quit();
-//}
+	// TODO: must be changed to support multiple windows
+	auto availableMice = ManyMouse_Init();
+
+	if (availableMice < 0) {
+		throw Exception("Failed to initialize ManyMouse.");
+	}
+	else if (availableMice == 0) {
+		A3D_LOG_W("No available mice.");
+	}
+	else {
+		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
+		for (int m = 0; m<availableMice; ++m) {
+			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+		}
+	}
+}
+
+void WindowInputManager::quitManyMouse() {
+	ManyMouse_Quit();
+}
 
 void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 
@@ -261,7 +264,7 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 
 shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
 }
 

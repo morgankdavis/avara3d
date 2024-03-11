@@ -41,7 +41,7 @@ using namespace std;
 
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
-static mat4 TransformFromGlFTNode(fastgltf::Node& node);
+static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
@@ -125,7 +125,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
 
-			mesh = meshFromGlFTMeshIndex(_asset, 0);
+			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
 				A3D_LOG_I("Done loading mesh.  Time: {}", Scene::Time() - startTime);
@@ -213,10 +213,10 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	auto a3dNode = Node::NamedNode(string(node.name));
 
-	a3dNode->transform(TransformFromGlFTNode(node));
+	a3dNode->transform(TransformFromGlTFNode(node));
 
 	if ((_options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
-		a3dNode->mesh(meshFromGlFTNode(asset, node));
+		a3dNode->mesh(meshFromGlTFNode(asset, node));
 	}
 
 	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
@@ -234,15 +234,15 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 	}
 }
 
-shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTNode(fastgltf::Asset& asset,
+shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFNode(fastgltf::Asset& asset,
 													 fastgltf::Node& node) {
 	if (auto meshIndex = node.meshIndex) {
-		return meshFromGlFTMeshIndex(asset, *meshIndex);
+		return meshFromGlTFMeshIndex(asset, *meshIndex);
 	}
 	return nullptr;
 }
 
-shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset,
+shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset,
 														  std::size_t meshIndex) {
 
 	if (_meshes.find(meshIndex) == _meshes.end()) {
@@ -254,12 +254,12 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset
 
 		for (auto& primitive: mesh.primitives) {
 
-			auto element = meshElementFromGlFTPrimitive(asset, primitive);
+			auto element = meshElementFromGlTFPrimitive(asset, primitive);
 			if (element) elements.push_back(element);
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
-							? materialFromGlFTPrimitive(asset, primitive)
+							? materialFromGlTFPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
 //							: make_shared<Material>();
 			if (material) materials.push_back(material);
@@ -277,7 +277,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlFTMeshIndex(fastgltf::Asset& asset
 	return nullptr;
 }
 
-shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf::Asset& asset,
+shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
 																		fastgltf::Primitive& primitive) {
 
 	// TODO: make this suck less
@@ -477,7 +477,7 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlFTPrimitive(fastgltf
 	return nullptr;
 }
 
-shared_ptr<a3d::Material> GlTFImporter::materialFromGlFTPrimitive(fastgltf::Asset& asset,
+shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asset& asset,
 																  fastgltf::Primitive& primitive) {
 
 	if (auto materialIndex = primitive.materialIndex) {
@@ -825,7 +825,7 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 	return gltfOptions;
 }
 
-mat4 TransformFromGlFTNode(fastgltf::Node& node) {
+mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 	auto transform = node.transform;
 	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
