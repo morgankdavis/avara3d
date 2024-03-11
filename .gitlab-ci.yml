@@ -1,185 +1,204 @@
 stages:
   - build
-  #- test
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
-  - archive
+  #- archive
 
-variables:
-  dummy_var: "$CI_PROJECT_DIR/dummy" 
-
-build-linux:
+linux-debug:
   stage: build
   tags:
     - ubuntu-23
-  artifacts:
-    paths:
-      - gitlab-build/packaged
-    expire_in: 5 minutes
+#  except:
+#    - testing
+#    - stable
   script:
-    - echo "Starting Linux build..."
-    # the VM creates an X authority at /home/gitlab/.Xauthority at login.
-    # the VM machine needs to copy this file to /home/gitlab-runner/.Xauthority at boot (lightdm start)
-    # to allow us to get an X connection (used by GLFW) otherwise: "/usr/bin/ld: cannot find -lXxf86vm"
-    #- export DISPLAY=:0
+    - echo "Starting Linux debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - /usr/bin/cmake
+      -DCMAKE_BUILD_TYPE="Debug"
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DA3D_BUILD_BULLET=ON
-      -DA3D_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
-    #- /usr/bin/cmake --build . -j4
     - /usr/bin/cmake --build . --target install -j4
-    - echo "Linux build complete."
+    - mv packaged/avara3d ../
+    - echo "Linux debug build complete."
+  artifacts:
+    name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "linux-debug"
+    paths:
+      - avara3d
+    expire_in: 1 week
 
-build-macos:
+macos-debug:
   stage: build
   tags:
     - macos-12.6
+#  except:
+#    - testing
+#    - stable
   script:
-    - echo "Starting macOS build..."
+    - echo "Starting macOS debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - /opt/local/bin/cmake
+      -DCMAKE_BUILD_TYPE="Debug"
       -G"Ninja"
-      -DA3D_BUILD_BULLET=ON
-      -DA3D_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
-    - /opt/local/bin/cmake --build . -j4
-    - echo "macOS build complete."
+    - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
+    - echo "macOS debug build complete."
+  artifacts:
+    name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "macos-debug"
+    paths:
+      - avara3d
+    expire_in: 1 week
 
-build-windows:
+windows-debug:
   stage: build
   tags:
     - windows-10
+#  except:
+#    - testing
+#    - stable
   script:
-    - echo "Starting Windows build..."
-    - tar --version
+    - echo "Starting Windows debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
+      -DCMAKE_BUILD_TYPE="Release"
       -T"ClangCL"
-      -DA3D_BUILD_BULLET=ON
-      -DA3D_BUILD_GLFW=ON
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    #-DA3D_BUILD_ASSIMP=ON
-    #-DCMAKE_TOOLCHAIN_FILE="C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
-    - cmake --build . -j8
-    - echo "Windows build complete."
+    # https://stackoverflow.com/questions/19024259/how-to-change-the-build-type-to-release-mode-in-cmake
+#    - cmake --build . --config Release --target install -j8
+    - cmake --build . --config Debug --target install -j8
+    - mv packaged/avara3d ../
+    - echo "Windows debug build complete."
+  artifacts:
+    name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "windows-debug"
+    paths:
+      - avara3d
+    expire_in: 1 week
 
-# test-linux:
-#   stage: test
-#   tags:
-#       - debian-11
-#   script:
-#     - echo "Starting Linux test..."
-
-# test-macos:
-#   stage: test
-#   tags:
-#       - macos-12.6
-#   script:
-#     - echo "Starting macOS test..."
-
-# test-windows:
-#   stage: test
-#   tags:
-#       - windows-10
-#   script:
-#     - echo "Starting Windows test..."
-
-.archive-debug-linux:
-  # TODO: 1. 'testing' only
-  # TODO: 2. get build type? debug? release?
-  stage: archive
-  dependencies:
-    - build-linux
-  #only:
-  #  - testing (#1)
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
+linux-release:
+  stage: build
   tags:
     - ubuntu-23
   environment: production
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  #     when: manual
+  only:
+   - testing
+   - stable
+  #dependencies:
+  #  - build-linux
   script:
-    - echo "Starting Linux debug archive..."
+    - echo "Starting Linux release build..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+#    - /usr/bin/cmake
+#      -DCMAKE_BUILD_TYPE="Debug"
+#      -G"Ninja"
+#      -DCMAKE_C_COMPILER=/usr/bin/clang
+#      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - /usr/bin/cmake --build . --target install -j4
+    - /usr/bin/cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -G"Ninja"
+      -DCMAKE_C_COMPILER=/usr/bin/clang
+      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
+    - echo "Linux release build complete."
   artifacts:
-    name: "$CI_JOB_NAME"
-    #path: /tmp/artifacts # output?
+    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "linux-release"
     paths:
-      - gitlab-build/packaged/avara3d
-    expose_as: 'the goods'
-    expire_in: 1 week
+      - avara3d
+    expire_in: 1 month
 
-archive-debug-macos:
-  stage: archive
-  only:
-    - testing
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
-  environment: production
+macos-release:
+  stage: build
   tags:
     - macos-12.6
-  script:
-    - echo "Starting macOS debug archive..."
-
-archive-debug-windows:
-  stage: archive
-  only: 
-    - testing
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "testing"'
   environment: production
+  only:
+   - testing
+   - stable
+  #dependencies:
+  #  - build-macos
+  script:
+    - echo "Starting macOS release build..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+#    - /opt/local/bin/cmake
+#      -DCMAKE_BUILD_TYPE="Debug"
+#      -G"Ninja"
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - /opt/local/bin/cmake --build . --target install -j4
+    - /opt/local/bin/cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -G"Ninja"
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
+    - echo "macOS release build complete."
+  artifacts:
+    name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "macos-release"
+    paths:
+      - avara3d
+    expire_in: 1 month
+
+windows-release:
+  stage: build
   tags:
     - windows-10
-  script:
-    - echo "Starting Windows debug archive..."
-
-archive-release-linux:
-  stage: archive
-  only:
-    - master
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   environment: production
-  tags:
-    - debian-11
-  script:
-    - echo "Starting Linux release archive..."
-
-archive-release-macos:
-  stage: archive
   only:
-    - master
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-  environment: production
-  tags:
-    - macos-12.6
+   - testing
+   - stable
+  #dependencies:
+  #  - build-windows
   script:
-    - echo "Starting macOS release archive..."
-
-archive-release-windows:
-  stage: archive
-  only:
-    - master
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-  environment: production
-  tags:
-    - windows-10
-  script:
-    - echo "Starting Windows release archive..."
+    - echo "Starting Windows release build..."
+    - mkdir gitlab-build
+    - cd gitlab-build
+#    - cmake
+#      -DCMAKE_BUILD_TYPE="Debug"
+#      -T"ClangCL"
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - cmake --build . --target install -j8
+    - cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -T"ClangCL"
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    - cmake --build . --config Release --target install -j8
+    - mv packaged/avara3d ../
+    - echo "Windows release build complete."
+  artifacts:
+    name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "windows-release"
+    paths:
+      - avara3d
+    expire_in: 1 month

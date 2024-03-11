@@ -77,13 +77,13 @@ namespace a3d {
 
 	private:
 
-		void 							initMouseMotionInput();
-//		void 							initManyMouse();
-//		void 							quitManyMouse();
+		void 							initMouseInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-//		bool							_usingManyMouse;
+		bool							_usingManyMouse;
 		std::weak_ptr<Window>			_window;
 	};
 }
