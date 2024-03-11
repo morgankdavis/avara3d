@@ -101,9 +101,10 @@ void WindowInputManager::update() {
 			}
 		}
 	}
-	else {
-		_window.lock()->pollInput();
-	}
+
+    // needed for non-mouse events (keyboard, not joystrick, OTHER NON-INPUT??)
+    // https://www.glfw.org/docs/latest/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
+    _window.lock()->pollInput();
 }
 
 /*********************************************************************************************
