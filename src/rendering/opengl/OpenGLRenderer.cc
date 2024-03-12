@@ -429,7 +429,7 @@ void OpenGLRenderer::render(Mesh& mesh,
 		GLuint vbo, vao;
 		GetMeshAABBLineSetVertexDataHandles(mesh,
 											_meshAABBLineSetMapping,
-											_lineSetGLMapping,
+											_lineSetGLMapping, // TODO: macOS has a problem with this.
 											vbo, vao);
 
 		render(_meshAABBLineSetMapping[&mesh],
