@@ -761,26 +761,53 @@ static void GetMeshAABBLineSetVertexDataHandles(Mesh& mesh,
 //		vec3 eight =    {xMax, yMin, zMin};
 //
 //		auto red = Color::Red();
-//		auto aabbLineSet = LineSet(); // TODO: use initializer_list
+//		auto aabbLineSet = LineSet{
+//			std::move(Line(one, two, red)),
+//			std::move(Line(two, three, red)),
+//			std::move(Line(three, four, red)),
+//			std::move(Line(four, one, red)),
+//			std::move(Line(five, six, red)),
+//			std::move(Line(six, seven, red)),
+//			std::move(Line(seven, eight, red)),
+//			std::move(Line(eight, five, red)),
+//			std::move(Line(one, five, red)),
+//			std::move(Line(two, six, red)),
+//			std::move(Line(three, seven, red)),
+//			std::move(Line(four, eight, red))
+//		};
+////		auto aabbLineSet = LineSet{
+////				{one, two, red},
+////				{two, three, red},
+////				{three, four, red},
+////				{four, one, red},
+////				{five, six, red},
+////				{six, seven, red},
+////				{seven, eight, red},
+////				{eight, five, red},
+////				{one, five, red},
+////				{two, six, red},
+////				{three, seven, red},
+////				{four, eight, red}
+////		};
 //
 //
-//		// *** NEED MOVE CONSTRUCTOR?? ***
-//		auto line = Line(one, two, red);
-//		aabbLineSet.emplace(std::move(line));
-////		aabbLineSet.insert(std::move(line));
-//
-////		aabbLineSet.emplace(std::move(Line{one, two, red}));
-////		aabbLineSet.emplace({two, three, red});
-//		aabbLineSet.emplace(std::move(Line(three, four, red)));
-//		aabbLineSet.emplace(Line(four, one, red));
-//		aabbLineSet.emplace(Line(five, six, red));
-//		aabbLineSet.emplace(Line(six, seven, red));
-//		aabbLineSet.emplace(Line(seven, eight, red));
-//		aabbLineSet.emplace(Line(eight, five, red));
-//		aabbLineSet.emplace(Line(one, five, red));
-//		aabbLineSet.emplace(Line(two, six, red));
-//		aabbLineSet.emplace(Line(three, seven, red));
-//		aabbLineSet.emplace(Line(four, eight, red));
+////		// *** NEED MOVE CONSTRUCTOR?? ***
+////		auto line = Line(one, two, red);
+////		aabbLineSet.push_back(std::move(line));
+//////		aabbLineSet.insert(std::move(line));
+////
+//////		aabbLineSet.emplace(std::move(Line{one, two, red}));
+//////		aabbLineSet.emplace({two, three, red});
+////		aabbLineSet.push_back(std::move(Line(three, four, red)));
+////		aabbLineSet.push_back(Line(four, one, red));
+////		aabbLineSet.push_back(Line(five, six, red));
+////		aabbLineSet.push_back(Line(six, seven, red));
+////		aabbLineSet.push_back(Line(seven, eight, red));
+////		aabbLineSet.push_back(Line(eight, five, red));
+////		aabbLineSet.push_back(Line(one, five, red));
+////		aabbLineSet.push_back(Line(two, six, red));
+////		aabbLineSet.push_back(Line(three, seven, red));
+////		aabbLineSet.push_back(Line(four, eight, red));
 //
 //		aabbLineSetMapping[&mesh] = aabbLineSet;
 //
@@ -798,6 +825,17 @@ static void GetLineSetVertexDataHandles(LineSet& lineSet,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
 	
+//	if (!glMapping.count(&lineSet)) {
+//		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
+//
+//		glMapping[lineSet] = make_pair(glVBO, glVAO);
+//	}
+//	else {
+//		auto mapping = glMapping[&lineSet];
+//		glVBO = get<0>(mapping);
+//		glVAO = get<1>(mapping);
+//	}
+
 //	if (!glMapping.count(&lineSet)) {
 //		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
 //

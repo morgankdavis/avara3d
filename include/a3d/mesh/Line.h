@@ -40,7 +40,8 @@ namespace a3d {
 		Line(const Line& other);
 		Line(Line&& other);
 		Line& operator=(const Line& other);
-		Line& operator=(Line&& other) noexcept;
+//		Line& operator=(const Line& other) = default;
+//		Line& operator=(Line&& other) noexcept;
 		
 /*********************************************************************************************
 	Public

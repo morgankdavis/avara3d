@@ -403,7 +403,7 @@ namespace a3d {
 
 	class Line;
 	class Point;
-	using LineSet = std::set<a3d::Line>;
+	using LineSet = std::vector<a3d::Line>;
 	using PointSet = std::set<a3d::Point>;
 
 	enum class ShaderType {
