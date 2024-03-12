@@ -411,7 +411,7 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 	
-	Program::Default()->bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
 void OpenGLRenderer::render(Mesh& mesh,
@@ -449,7 +449,7 @@ void OpenGLRenderer::render(MeshElement& element,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	shared_ptr<Program> program = nullptr;
+//	shared_ptr<Program> program = nullptr;
 
 	// check and load vertex data if necessary
 
@@ -461,12 +461,15 @@ void OpenGLRenderer::render(MeshElement& element,
 	//auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
-	if (wireframe) {
-		program = Program::Wireframe();
-	}
-	else {
-		program = Program::Default();
-	}
+//	if (wireframe) {
+//		program = Program::Wireframe();
+//	}
+//	else {
+//		program = Program::Default();
+//	}
+	auto program = wireframe
+			? Program::Wireframe()
+			: Program::Default();
 	
 	// and load material contents if necessary
 
@@ -478,7 +481,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	if (!wireframe) {
 		// send material and material property uniforms
-		SendMaterialUniforms(material, *program, glTextureHandles, debugOptions);
+		SendMaterialUniforms(material, program, glTextureHandles, debugOptions);
 		
 		// update material property filtering options
 		SetMaterialFilteringOptions(material, glTextureHandles);
@@ -489,7 +492,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// update
 
-	DrawMeshElement(element, *program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ibo);
 	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
@@ -501,13 +504,13 @@ void OpenGLRenderer::render(LineSet& lines,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
 	
-	shared_ptr<Program> program = Program::Lines();
+	auto program = Program::Lines();
 	
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao;
 	GetLineSetVertexDataHandles(lines,
-								*program,
+								program,
 								_lineSetGLMapping,
 								vbo, vao);
 
@@ -518,7 +521,7 @@ void OpenGLRenderer::render(LineSet& lines,
 	// update
 		
 	DrawLineSet(lines,
-				*program,
+				program,
 				modelMat, viewMat, projectionMat,
 				vbo, vao);
 	//stats.polygons += element->faces().size();
@@ -584,7 +587,7 @@ static void RenderSkybox(Mesh& skyboxMesh,
 								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
 								 debugOptions,
-								 *program);
+								 program);
 	
 	// update material property filtering options
 
@@ -599,7 +602,7 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	// update
 	
-	DrawSkyboxElement(*element, *program, pointOfView, vao, ibo);
+	DrawSkyboxElement(*element, program, pointOfView, vao, ibo);
 
 	// don't count these?
 //	stats.meshes++;
@@ -617,7 +620,7 @@ static void GetMeshElementGLVertexDataHandles(MeshElement& element,
 
 		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(element, *Program::Default(), glVBO, glVAO, glIBO);
+		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glIBO);
 		
 		glMapping[&element] = make_tuple(glVBO, glVAO, glIBO);
 
@@ -647,7 +650,7 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(skyboxMesh, *Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glIBO);
 		
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glIBO);
 

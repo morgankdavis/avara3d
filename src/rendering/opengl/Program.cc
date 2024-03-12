@@ -33,43 +33,68 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Program> Program::Default() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("default");
-	}
+//shared_ptr<Program> Program::Default() {
+//	static shared_ptr<Program> program = nullptr;
+//	if (!program) {
+//		program = make_shared<Program>("default");
+//	}
+//	return program;
+//}
+//
+//shared_ptr<Program> Program::Skybox() {
+//	static shared_ptr<Program> program = nullptr;
+//	if (!program) {
+//		program = make_shared<Program>("skybox");
+//	}
+//	return program;
+//}
+//
+//shared_ptr<Program> Program::Wireframe() {
+//	static shared_ptr<Program> program = nullptr;
+//	if (!program) {
+//		program = make_shared<Program>("wireframe");
+//	}
+//	return program;
+//}
+//
+//shared_ptr<Program> Program::Lines() {
+//	static shared_ptr<Program> program = nullptr;
+//	if (!program) {
+//		program = make_shared<Program>("lines");
+//	}
+//	return program;
+//}
+//
+//shared_ptr<Program> Program::Points() {
+//	static shared_ptr<Program> program = nullptr;
+//	if (!program) {
+//		program = make_shared<Program>("points");
+//	}
+//	return program;
+//}
+
+Program& Program::Default() {
+	static auto program = Program("default");
 	return program;
 }
 
-shared_ptr<Program> Program::Skybox() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("skybox");
-	}
+Program& Program::Skybox() {
+	static auto program = Program("skybox");
 	return program;
 }
 
-shared_ptr<Program> Program::Wireframe() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("wireframe");
-	}
+Program& Program::Wireframe() {
+	static auto program = Program("wireframe");
 	return program;
 }
 
-shared_ptr<Program> Program::Lines() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("lines");
-	}
+Program& Program::Lines() {
+	static auto program = Program("lines");
 	return program;
 }
 
-shared_ptr<Program> Program::Points() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("points");
-	}
+Program& Program::Points() {
+	static auto program = Program("points");
 	return program;
 }
 
