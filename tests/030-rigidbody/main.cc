@@ -88,7 +88,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window.get());
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	visualWorld->fogStartDistance(50.0);
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);
@@ -103,13 +103,15 @@ int main(int argc, const char* argv[]) {
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto physicalWorld = make_shared<PhysicalWorld>();
+	auto physicalWorld = make_unique<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window.get());
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	auto scene = make_unique<Scene>(std::move(visualWorld),
+									std::move(physicalWorld),
+									std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 

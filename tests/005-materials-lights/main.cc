@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window.get());
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	visualWorld->fogStartDistance(500.0);
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
@@ -74,14 +74,14 @@ int main(int argc, const char* argv[]) {
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
 
-	auto inputManager = make_shared<WindowInputManager>(window.get());
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
 	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
 													 | SceneImportOptions::ImportCameras);
 
-	scene->visualWorld(visualWorld);
-	scene->inputManager(inputManager);
+	scene->visualWorld(std::move(visualWorld));
+	scene->inputManager(std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 

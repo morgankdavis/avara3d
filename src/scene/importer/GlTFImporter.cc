@@ -207,7 +207,7 @@ bool GlTFImporter::parse() {
 
 void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 								 fastgltf::Node& node,
-								 shared_ptr<a3d::Node> parent) {
+								 a3d::Node* parent) {
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
@@ -230,7 +230,7 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 	parent->addChild(a3dNode);
 
 	for (auto c: node.children) {
-		visitGlTFNode(asset, asset.nodes[c], a3dNode);
+		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
 	}
 }
 

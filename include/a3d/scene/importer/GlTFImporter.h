@@ -53,7 +53,7 @@ namespace a3d {
 		bool								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node,
-														  std::shared_ptr<Node> parent);
+														  Node* parent);
 		std::shared_ptr<Mesh> 				meshFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 		std::shared_ptr<Mesh> 				meshFromGlTFMeshIndex(fastgltf::Asset& asset,

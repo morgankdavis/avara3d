@@ -823,9 +823,9 @@ void Node::physicalWorldDetachedFromScene(PhysicalWorld* world, Scene* scene) {
 
 VisualWorld* Node::visualWorld() const {
 
-	if (auto scene = Node::scene()) {
-		if (auto visualWorld = scene->visualWorld()) {
-			return visualWorld.get();
+	if (auto scene = Node::scene(); scene) {
+		if (auto visualWorld = scene->visualWorld(); visualWorld) {
+			return visualWorld;
 		}
 	}
 	return nullptr;
@@ -833,9 +833,9 @@ VisualWorld* Node::visualWorld() const {
 
 PhysicalWorld* Node::physicalWorld() const {
 
-	if (auto scene = Node::scene()) {
-		if (auto physicalWorld = scene->physicalWorld()) {
-			return physicalWorld.get();
+	if (auto scene = Node::scene(); scene) {
+		if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
+			return physicalWorld;
 		}
 	}
 	return nullptr;

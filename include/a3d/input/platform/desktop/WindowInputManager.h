@@ -32,7 +32,7 @@ namespace a3d {
 	
 	class WindowInputManager : public InputManager {
 
-		static std::shared_ptr<WindowInputManager>	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+//		static std::shared_ptr<WindowInputManager>	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
 	Lifecycle

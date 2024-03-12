@@ -56,42 +56,42 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Scene();
-		Scene(std::shared_ptr<VisualWorld> visualWorld,
-			  std::shared_ptr<PhysicalWorld> physicsWorld,
-			  std::shared_ptr<InputManager> inputManager);
+		Scene(std::unique_ptr<VisualWorld> visualWorld,
+			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::shared_ptr<Node> 					rootNode() const;
-		void 									rootNode(std::shared_ptr<Node> node);
+		Node* 								rootNode() const;
+		void 								rootNode(std::unique_ptr<Node> node);
 
-		std::shared_ptr<VisualWorld> 			visualWorld() const;
-		void 									visualWorld(std::shared_ptr<VisualWorld> world);
+		VisualWorld* 						visualWorld() const;
+		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
-		std::shared_ptr<PhysicalWorld> 			physicalWorld() const;
-		void 									physicalWorld(std::shared_ptr<PhysicalWorld> world);
+		PhysicalWorld* 						physicalWorld() const;
+		void 								physicalWorld(std::unique_ptr<PhysicalWorld> world);
 
-		std::shared_ptr<InputManager> 			inputManager() const;
-		void 									inputManager(std::shared_ptr<InputManager> inputManager);
+		InputManager* 						inputManager() const;
+		void 								inputManager(std::unique_ptr<InputManager> manager);
 
-		DebugOptions 							debugOptions() const;
-		void 									debugOptions(DebugOptions options);
+		DebugOptions 						debugOptions() const;
+		void 								debugOptions(DebugOptions options);
 
-		void									run();
-		void									stop();
+		void								run();
+		void								stop();
 
-		bool									running() const;
+		bool								running() const;
 
-		bool									paused() const;
-		void									paused(bool flag);
+		bool								paused() const;
+		void								paused(bool flag);
 
-		const Stats&							stats() const;
+		const Stats&						stats() const;
 
-		UpdateCallback 							update() const;
-		void 									update(UpdateCallback function);
+		UpdateCallback 						update() const;
+		void 								update(UpdateCallback function);
 
 /*********************************************************************************************
 	Internal
@@ -105,15 +105,15 @@ namespace a3d {
 
 	private:
 
-		std::shared_ptr<Node>					_rootNode;
-		std::shared_ptr<VisualWorld> 			_visualWorld;
-		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
-		std::shared_ptr<InputManager>			_inputManager;
-		DebugOptions							_debugOptions;
-		bool									_running;
-		bool									_paused;
-		Stats									_stats;
-		UpdateCallback							_update;
+		std::unique_ptr<Node>				_rootNode;
+		std::unique_ptr<VisualWorld> 		_visualWorld;
+		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
+		std::unique_ptr<InputManager>		_inputManager;
+		DebugOptions						_debugOptions;
+		bool								_running;
+		bool								_paused;
+		Stats								_stats;
+		UpdateCallback						_update;
 	};
 }
 

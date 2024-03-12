@@ -398,9 +398,9 @@ Node* PhysicsBody::node() const {
 PhysicalWorld* PhysicsBody::physicalWorld() const {
 
 	if (_node) {
-		if (auto scene = _node->scene()) {
-			if (auto physicalWorld = scene->physicalWorld()) {
-				return physicalWorld.get();
+		if (auto scene = _node->scene(); scene) {
+			if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
+				return physicalWorld;
 			}
 		}
 	}

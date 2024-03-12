@@ -35,7 +35,7 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 	Static Prototypes
  *********************************************************************************************/
 
-static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
 	Lifecycle
@@ -261,10 +261,10 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	Static
  *********************************************************************************************/
 
-shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
+	return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
 
 
