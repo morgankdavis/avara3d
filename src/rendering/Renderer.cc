@@ -94,7 +94,7 @@ void Renderer::render(PointSet& points,
 	A3D_LOG_C("Renderer::render(<PointSet>) should be overidden in derived class.");
 }
 
-shared_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
+unique_ptr<Image> Renderer::snapshot(const RenderContext& context) const {
 	
 	A3D_LOG_C("Renderer::snapshot() should be overidden in derived class.");
 	return nullptr;

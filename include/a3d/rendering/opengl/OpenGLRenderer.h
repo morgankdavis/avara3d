@@ -109,7 +109,7 @@ namespace a3d {
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat) override;
 
-		std::shared_ptr<Image> 		snapshot(const RenderContext& context) const override;
+		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 
 /*********************************************************************************************
 	Private

@@ -92,7 +92,7 @@ namespace a3d {
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat);
 
-		virtual std::shared_ptr<Image>		snapshot(const RenderContext& context) const;
+		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const;
 	};
 }
 

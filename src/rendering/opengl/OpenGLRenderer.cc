@@ -379,7 +379,7 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	if (holds_alternative<shared_ptr<Texture>>(background)) {
 
-		auto texture = get<shared_ptr<Texture>>(background);
+		auto texture = get<shared_ptr<Texture>>(background).get();
 
 		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
@@ -403,7 +403,7 @@ void OpenGLRenderer::render(const Scene& scene,
 	}
 	else if (holds_alternative<shared_ptr<Color>>(background)) {
 
-		auto color = get<shared_ptr<Color>>(background);
+		auto color = get<shared_ptr<Color>>(background).get();
 
 		glClearColor(color->r, color->g, color->b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -537,14 +537,14 @@ void OpenGLRenderer::render(PointSet& points,
 	
 }
 
-shared_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
+unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
 	unsigned framebufferWidth = context.framebufferWidth();
 	unsigned framebufferHeight = context.framebufferHeight();
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
 	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_shared<Buffer>((const unsigned char*)pixelBuf, framebufferWidth * framebufferHeight * 4);
-	return make_shared<Image>(buffer, framebufferWidth, framebufferHeight, 4);
+	return make_unique<Image>(buffer, framebufferWidth, framebufferHeight, 4);
 }
 	
 /*********************************************************************************************
@@ -592,7 +592,7 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	// update material property filtering options
 
 	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
-		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
+		auto texture = get<shared_ptr<Texture>>(emissiveProperty).get();
 		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
 	}
 	
@@ -879,30 +879,30 @@ static void GetTextureGLTextureHandles(Material& material,
 
 		if (holds_alternative<shared_ptr<Texture>>(*property)) {
 
-			auto& texture = get<shared_ptr<Texture>>(*property);
+			auto texture = get<shared_ptr<Texture>>(*property).get();
 
 			if (A3D_MASK_CONTAINS(texture->dirtyMask(), TextureDirtyMask::Contents)) {
 
-				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture.get()));
+				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture));
 
-				DeleteTextureGLResources(texture.get(), glMapping);
+				DeleteTextureGLResources(texture, glMapping);
 
 				GLuint textureID = 0;
 				BufferTexture(*texture, type, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					glMapping[texture.get()] = textureID;
+					glMapping[texture] = textureID;
 				}
 
 				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
 			}
 			else {
-				auto textureHandle = glMapping[texture.get()];
+				auto textureHandle = glMapping[texture];
 				glTextureHandles[type] = textureHandle;
 			}
 
 			// save reference for housekeeping
-			activeTextures.emplace(texture.get());
+			activeTextures.emplace(texture);
 		}
 	}
 }
@@ -1121,13 +1121,13 @@ static void BufferTexture(const Texture &texture,
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
 		
-		shared_ptr<Image> images[] = {
-			cubeImage->posX(),
-			cubeImage->negX(),
-			cubeImage->posY(),
-			cubeImage->negY(),
-			cubeImage->posZ(),
-			cubeImage->negZ() };
+		Image* images[] = {
+			cubeImage->posX().get(),
+			cubeImage->negX().get(),
+			cubeImage->posY().get(),
+			cubeImage->negY().get(),
+			cubeImage->posZ().get(),
+			cubeImage->negZ().get() };
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -1283,7 +1283,7 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 	if (holds_alternative<shared_ptr<Texture>>(property)) {
 
-		auto texture = get<shared_ptr<Texture>>(property);
+		auto texture = get<shared_ptr<Texture>>(property).get();
 
 		if (dynamic_pointer_cast<Image>(texture->contents())) {
 
@@ -1336,7 +1336,7 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	}
 	else if (holds_alternative<shared_ptr<Color>>(property)) {
 
-		auto color = get<shared_ptr<Color>>(property);
+		auto color = get<shared_ptr<Color>>(property).get();
 
 		string modeUniformName;
 		string colorUniformName;
@@ -1550,7 +1550,7 @@ static void SetMaterialFilteringOptions(const Material& material,
 	for (auto& [property, type] : material.properties()) {
 
 		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-			auto& texture = get<shared_ptr<Texture>>(*property);
+			auto texture = get<shared_ptr<Texture>>(*property).get();
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
