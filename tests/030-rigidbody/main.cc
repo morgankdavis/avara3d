@@ -192,9 +192,9 @@ int main(int argc, const char* argv[]) {
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 	auto planePhysicsBody = PhysicsBody::StaticBody();
-	planeNode->physicsBody(planePhysicsBody);
 	planePhysicsBody->friction(1);
 	planePhysicsBody->restitution(0.25);
+	planeNode->physicsBody(std::move(planePhysicsBody));
 
 	scene->rootNode()->addChild(planeNode);
 
@@ -209,7 +209,7 @@ int main(int argc, const char* argv[]) {
 	palmPhysicsBody->mass(0);
 	palmPhysicsBody->friction(1);
 	palmPhysicsBody->restitution(0.25);
-	palmNode->physicsBody(palmPhysicsBody);
+	palmNode->physicsBody(std::move(palmPhysicsBody));
 
 	scene->rootNode()->addChild(palmNode);
 
@@ -239,7 +239,7 @@ int main(int argc, const char* argv[]) {
 //
 	// #3
 	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, duckNode.get());
-	duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+	duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 //	// #4
 ////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->mesh().get());
@@ -816,7 +816,7 @@ shared_ptr<Node> SpawnDuckFruit(Scene& scene, Node* duckNode) {
 
 		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
 
-		node->physicsBody(physicsBody);
+		node->physicsBody(std::move(physicsBody));
 		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 		scene.rootNode()->addChild(node);
@@ -856,7 +856,7 @@ shared_ptr<Node> AddSlurm(Scene& scene, const vec3& location, const vec3& axis, 
 	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, node.get());
 	physicsBody->shape(physicsShape);
 //	physicsBody->friction(5);
-	node->physicsBody(physicsBody);
+	node->physicsBody(std::move(physicsBody));
 	scene.rootNode()->addChild(node);
 
 	return node;
@@ -938,7 +938,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //															 mesh);
 		static auto extent = node->extent();
 		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
-		auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
 //		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F
 //	physicsBody->friction(5);
@@ -977,7 +977,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 
 		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
 
-		node->physicsBody(physicsBody);
+//		node->physicsBody(std::move(physicsBody));
 		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
 
 		scene.rootNode()->addChild(node);
@@ -1003,7 +1003,7 @@ shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direc
 //										  Uniform(-angularVelocityVariation, angularVelocityVariation),
 //										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
 
-		node->physicsBody(physicsBody);
+		node->physicsBody(std::move(physicsBody));
 
 //		scene.rootNode()->addChild(node);
 
@@ -1104,7 +1104,7 @@ shared_ptr<Node> AddBox(Scene& scene, const vec3& location, unique_ptr<Color> co
 														 node->mesh().get());
 	physicsBody->shape(physicsShape);
 
-	node->physicsBody(physicsBody);
+	node->physicsBody(std::move(physicsBody));
 
 	scene.rootNode()->addChild(node);
 
@@ -1127,7 +1127,7 @@ shared_ptr<Node> AddCardboardBox(Scene& scene, const vec3& location, const vec3&
 	physicsBody->mass(0.1);
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.5);
-	node->physicsBody(physicsBody);
+	node->physicsBody(std::move(physicsBody));
 
 	scene.rootNode()->addChild(node);
 
@@ -1244,12 +1244,12 @@ void AddRing(Scene& scene) {
 	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron,
 														 mesh.get());
 	//auto physicsBody = PhysicsBody::DynamicBody();
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
 	node->mesh(shared_ptr<Mesh>(std::move(mesh)));
 	static auto materialProperty = shared_ptr(std::move(Color::Yellow()));
 	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
 	node->mesh()->addMaterial(material);
-	node->physicsBody(physicsBody);
+	node->physicsBody(std::move(physicsBody));
 	node->position({0, 15, 0});
 	scene.rootNode()->addChild(node);
 }
@@ -1339,8 +1339,8 @@ void SpawnRecursiveTestTree(Scene& scene) {
 	j->position({0, 0, -5});
 
 	auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, a.get());
-	auto physicsBody = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-	a->physicsBody(physicsBody);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+	a->physicsBody(std::move(physicsBody));
 
 	scene.rootNode()->addChild(a);
 }
@@ -1351,8 +1351,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Box::Mesh(1, 1, 1);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({5, 0, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1363,8 +1363,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Capsule::Mesh(.5, 2, 8, 8, 8);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({0, 5, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1375,8 +1375,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Cone::Mesh(1, 1, 8, 8);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({0, 0, -5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1387,8 +1387,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Cylinder::Mesh(.5, 1, 8, 8);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({-5, 0, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1399,8 +1399,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Plane::Mesh(1, 1);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({0, -5, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1411,8 +1411,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 		auto mesh = Sphere::Mesh(1, 8);
 		auto node = Node::MeshNode(shared_ptr(std::move(mesh)));
 		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh.get());
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({0, 0, 5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1481,8 +1481,8 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 	{ // sphere
 		auto node = Node::NamedNode("Sphere physics shape node");
 		auto shape = make_shared<SpherePhysicsShape>(1);
-		auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
-		node->physicsBody(body);
+		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		node->physicsBody(std::move(body));
 		node->position({0, 0, 5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
 
@@ -1608,9 +1608,9 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
 	torusMesh->addMaterial(colorMaterial);
 
-	auto body = make_shared<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+	auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
 	//body->affectedByGravity(false);
-	ringVisualNode->physicsBody(body);
+	ringVisualNode->physicsBody(std::move(body));
 
 	ringVisualNode->position({0, 1, 0});
 

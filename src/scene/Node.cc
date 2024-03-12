@@ -618,20 +618,20 @@ Node* Node::childNamed(const std::string &name, bool resursive) {
 	return nullptr;
 }
 
-shared_ptr<PhysicsBody> Node::physicsBody() const {
-	return _physicsBody;
+PhysicsBody* Node::physicsBody() const {
+	return _physicsBody.get();
 }
 
-void Node::physicsBody(shared_ptr<PhysicsBody> body) {
+void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
 		_physicsBody->detachedFromNode(this);
 	}
 
-	_physicsBody = body;
+	_physicsBody = std::move(body);
 
-	if (body) {
-		body->attachedToNode(this);
+	if (_physicsBody) {
+		_physicsBody->attachedToNode(this);
 	}
 }
 

@@ -120,8 +120,8 @@ namespace a3d {
 		std::vector<Node*>						children(bool resursive = false);
 		Node* 									childNamed(const std::string& name, bool resursive = false);
 
-		std::shared_ptr<PhysicsBody> 			physicsBody() const;
-		void 									physicsBody(std::shared_ptr<PhysicsBody> body);
+		PhysicsBody* 							physicsBody() const;
+		void 									physicsBody(std::unique_ptr<PhysicsBody> body);
 
 		Scene*									scene() const;
 
@@ -209,7 +209,7 @@ namespace a3d {
 		glm::quat								_orientation;
 		glm::vec3								_scale;
 		
-		std::shared_ptr<PhysicsBody>			_physicsBody; // TODO: make unique
+		std::unique_ptr<PhysicsBody>			_physicsBody; // TODO: make unique
 
 		NodeDirtyMask							_dirtyMask;
 
