@@ -166,7 +166,7 @@ static void 		DeleteLineSetGLResources(LineSet* lineSet,
 											OpenGLRenderer::LineSetGLMapping& glMapping);
 static void 		DeletePointSetGLResources(PointSet* pointSet,
 											 OpenGLRenderer::PointSetGLMapping& glMapping);
-static vector<shared_ptr<Node>> 	SortedLights(map<shared_ptr<Node>, float> lights);
+static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void 		DrawStatsOverlay(Stats& stats, float time, Scene& scene);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
@@ -1376,23 +1376,25 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 }
 	
 static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
+
+	// TODO: this is super greedy.  instead, accumulate a list of lights as we visit each node?
 	
 	// program "Default" must be active
 	
 	// lights
 	
-	auto lights = vector<shared_ptr<Node>>();
-	shared_ptr<Node> ambientLightNode = nullptr;
+	auto lights = vector<Node*>();
+	Node* ambientLightNode = nullptr;
 	
 	// find all lights in the scene
-	for (auto node : scene.rootNode()->children(true)) {
+	for (auto& node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
-			if (auto light = node->light()) {
+			if (auto light = node->light().get()) {
 				if (light->type() == LightType::Point) {
-					lights.push_back(node);
+					lights.push_back(node.get());
 				}
 				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node;
+					ambientLightNode = node.get();
 				}
 			}
 		}
@@ -1402,7 +1404,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 
 		// find all light distances from the camera
 
-		auto lightsUnsorted = map<shared_ptr<Node>, float>();
+		auto lightsUnsorted = map<Node*, float>();
 		vec3 cameraPos_world = scene.visualWorld()->pointOfView()->worldPosition();
 		for (auto lightNode : lights) {
 			auto lightPos_world = lightNode->worldPosition();
@@ -1416,7 +1418,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
 		auto first = lights.begin() + 0;
 		auto last = lights.begin() + endIndex;
-		auto lightsSlice = vector<shared_ptr<Node>>(first, last);
+		auto lightsSlice = vector<Node*>(first, last);
 
 		lights = lightsSlice;
 	}
@@ -1947,23 +1949,23 @@ static void DeletePointSetGLResources(PointSet* pointSet,
 #endif
 }
 	
-static vector<shared_ptr<Node>> SortedLights(map<shared_ptr<Node>, float> lights) {
+static vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>
 	
 	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
 	
-	typedef function<bool(pair<shared_ptr<Node>, float>, pair<shared_ptr<Node>, float>)> Comparator;
+	typedef function<bool(pair<Node*, float>, pair<Node*, float>)> Comparator;
 	
-	Comparator compFunctor = [](pair<shared_ptr<Node>, float> elem1, pair<shared_ptr<Node>, float> elem2) {
+	Comparator compFunctor = [](pair<Node*, float> elem1, pair<Node*, float> elem2) {
 		return elem1.second < elem2.second;
 	};
+
+	set<pair<Node*, float>, Comparator> lightsSorted(lights.begin(),
+													 lights.end(),
+													 compFunctor);
 	
-	set<pair<shared_ptr<Node>, float>, Comparator> lightsSorted(lights.begin(),
-																lights.end(),
-																compFunctor);
-	
-	auto sortedVector = vector<shared_ptr<Node>>();
-	for (pair<shared_ptr<Node>, float> element : lightsSorted) {
+	auto sortedVector = vector<Node*>();
+	for (pair<Node*, float> element : lightsSorted) {
 		sortedVector.push_back(element.first);
 	}
 	
