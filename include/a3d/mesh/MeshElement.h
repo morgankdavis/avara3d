@@ -59,8 +59,8 @@ namespace a3d {
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
 
-		AABB							aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 						extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		AABB							aabb(const Node* convertToNode = nullptr) const;
+		glm::vec3 						extent(const Node* convertToNode = nullptr) const;
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);

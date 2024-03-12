@@ -180,7 +180,7 @@ void Mesh::draw(Renderer& renderer,
 	stats.meshes++;
 }
 
-AABB Mesh::aabb(const shared_ptr<Node> convertToNode) const {
+AABB Mesh::aabb(const Node* convertToNode) const {
 
 	static const float maxFloat = numeric_limits<float>::max();
 	static const float minFloat = numeric_limits<float>::min();
@@ -201,7 +201,7 @@ AABB Mesh::aabb(const shared_ptr<Node> convertToNode) const {
 	return aabb;
 }
 
-vec3 Mesh::extent(const shared_ptr<Node> convertToNode) const {
+vec3 Mesh::extent(const Node* convertToNode) const {
 	auto aabb = Mesh::aabb(convertToNode);
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,

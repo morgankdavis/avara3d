@@ -133,7 +133,7 @@ void VisualWorld::fogColor(shared_ptr<Color> color) {
 	_fogColor = color;
 }
 
-shared_ptr<Node> VisualWorld::pointOfView() {
+Node* VisualWorld::pointOfView() {
 
 	if (_pointOfView) {
 		return _pointOfView;
@@ -155,7 +155,7 @@ shared_ptr<Node> VisualWorld::pointOfView() {
 	return _pointOfView;
 }
 
-void VisualWorld::pointOfView(const shared_ptr<Node> cameraNode) {
+void VisualWorld::pointOfView(Node* cameraNode) {
 	_pointOfView = cameraNode;
 }
 
@@ -313,7 +313,7 @@ shared_ptr<Mesh> VisualWorld::skyboxMesh() const {
 	return _skyboxMesh;
 }
 
-shared_ptr<Node> VisualWorld::defaultPointOfView() {
+Node* VisualWorld::defaultPointOfView() {
 
 	if (_scene) {
 
@@ -360,7 +360,7 @@ shared_ptr<Node> VisualWorld::defaultPointOfView() {
 
 		_scene->rootNode()->addChild(cameraNode);
 
-		return cameraNode;
+		return cameraNode.get();
 	}
 	else {
 		A3D_LOG_W("Can't create default camera: scene is null.");

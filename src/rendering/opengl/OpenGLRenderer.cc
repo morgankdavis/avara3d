@@ -1391,10 +1391,10 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		if (!node->hidden()) {
 			if (auto light = node->light().get()) {
 				if (light->type() == LightType::Point) {
-					lights.push_back(node.get());
+					lights.push_back(node);
 				}
 				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node.get();
+					ambientLightNode = node;
 				}
 			}
 		}

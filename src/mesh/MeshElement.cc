@@ -82,7 +82,7 @@ const vector<Face>& MeshElement::faces() const {
 	return _faces;
 }
 
-AABB MeshElement::aabb(const std::shared_ptr<Node> convertToNode) const {
+AABB MeshElement::aabb(const Node* convertToNode) const {
 
 	static const float maxFloat = numeric_limits<float>::max();
 	static const float minFloat = numeric_limits<float>::min();
@@ -110,7 +110,7 @@ AABB MeshElement::aabb(const std::shared_ptr<Node> convertToNode) const {
 	return aabb;
 }
 
-glm::vec3 MeshElement::extent(const std::shared_ptr<Node> convertToNode) const {
+glm::vec3 MeshElement::extent(const Node* convertToNode) const {
 	auto aabb = MeshElement::aabb(convertToNode);
 	return {aabb.max.x - aabb.min.x,
 			aabb.max.y - aabb.min.y,

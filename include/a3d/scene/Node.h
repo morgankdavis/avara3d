@@ -37,7 +37,7 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class Node : public std::enable_shared_from_this<Node> {
+	class Node {// : public std::enable_shared_from_this<Node> {
 		
 /*********************************************************************************************
 	Public Static
@@ -116,8 +116,8 @@ namespace a3d {
 		void 									addChild(std::shared_ptr<Node> node);
 		void 									removeFromParent();
 
-		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
-		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
+		std::vector<Node*>						children(bool resursive = false);
+		Node* 									childNamed(const std::string& name, bool resursive = false);
 
 		std::shared_ptr<PhysicsBody> 			physicsBody() const;
 		void 									physicsBody(std::shared_ptr<PhysicsBody> body);
@@ -162,7 +162,7 @@ namespace a3d {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-		bool 									containsChild(std::shared_ptr<Node> node);
+		bool 									containsChild(Node* node);
 
 		AABB									aabb();
 		glm::vec3								extent();
@@ -187,17 +187,17 @@ namespace a3d {
 
 		void									getAABBRec(AABB& aabb);
 
-		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
-		void 									childrenRec(std::shared_ptr<Node> node,
-															std::list<std::shared_ptr<Node>>& list);
+		std::vector<Node*>						children(Node* root);
+		void 									childrenRec(Node* node,
+															std::list<Node*>& list);
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);
 
 		std::optional<std::string>				_name;
 		
-		std::shared_ptr<Light>					_light;
-		std::shared_ptr<Camera>					_camera;
+		std::shared_ptr<Light>					_light; // TODO: make unique
+		std::shared_ptr<Camera>					_camera; // TODO: make unique
 		std::shared_ptr<Mesh>					_mesh;
 		
 		bool									_hidden;
@@ -208,7 +208,7 @@ namespace a3d {
 		glm::quat								_orientation;
 		glm::vec3								_scale;
 		
-		std::shared_ptr<PhysicsBody>			_physicsBody;
+		std::shared_ptr<PhysicsBody>			_physicsBody; // TODO: make unique
 
 		NodeDirtyMask							_dirtyMask;
 

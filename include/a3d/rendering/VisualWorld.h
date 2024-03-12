@@ -64,8 +64,8 @@ namespace a3d {
 		std::shared_ptr<Color> 					fogColor() const;
 		void 									fogColor(std::shared_ptr<Color> color);
 
-		std::shared_ptr<Node>					pointOfView();
-		void 									pointOfView(const std::shared_ptr<Node> cameraNode);
+		Node*									pointOfView();
+		void 									pointOfView(Node* cameraNode);
 
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);
@@ -96,8 +96,8 @@ namespace a3d {
 													 DebugOptions debugOptions,
 													 Stats& stats);
 
-		std::shared_ptr<Mesh>					skyboxMesh() const;
-		std::shared_ptr<Node> 					defaultPointOfView();
+		std::shared_ptr<Mesh>					skyboxMesh() const; // TODO: make unique
+		Node*									defaultPointOfView();
 
 /*********************************************************************************************
 	Private
@@ -112,7 +112,7 @@ namespace a3d {
 		float									_fogDensityExponent;
 		std::shared_ptr<Color>					_fogColor;
 		bool									_automaticallyAddDefaultLighting;
-		std::shared_ptr<Node>					_pointOfView;
+		Node*									_pointOfView;
 		std::shared_ptr<RenderContext>			_renderContext;
 		Scene*									_scene;
 		WillRenderCallback 						_willRender;

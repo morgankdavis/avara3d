@@ -548,7 +548,7 @@ void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 
 void Node::addChild(shared_ptr<Node> node) {
 
-	if (containsChild(node)) {
+	if (containsChild(node.get())) {
 		throw Exception(fmt::format("Node already exists in tree: {:p}, (\"{}\")",
 									static_cast<void*>(node.get()),
 									(node->name() ? *node->name() : "(unnamed)")));
@@ -564,30 +564,48 @@ void Node::removeFromParent() {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-		auto vec = _parent->_children;
-		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
-// TODO: can we avoid the copy?
-		_parent->_children = vec;
+
+		auto existingChildren = _parent->_children;
+		auto newChildren = vector<shared_ptr<Node>>();
+		newChildren.reserve(existingChildren.size());
+		for (auto& child : existingChildren) {
+			if (child.get() != this) {
+				newChildren.push_back(child);
+			}
+		}
+		_parent->_children = newChildren;
+
+//		auto vec = _parent->_children;
+//		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
+//// TODO: can we avoid the copy?
+//		_parent->_children = vec;
 
 		detachedFromParent(_parent);
 		_parent = nullptr;
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) {
+vector<Node*> Node::children(bool resursive) {
 	// if !resursive, returns immediate children in no particular order
 	// if resursive, returns all descendants in topological order
 
 	if (resursive) {
-		return children(shared_from_this());
+		return children(this);
 	}
 	else {
-		return _children;
+
+		auto children = vector<Node*>();
+		children.reserve(_children.size());
+		for (auto& child : _children) {
+			children.push_back(child.get());
+		}
+		return children;
+//		return _children;
 	}
 }
 
-shared_ptr<Node> Node::childNamed(const std::string &name, bool resursive) {
-	for (auto& child : children(resursive)) {
+Node* Node::childNamed(const std::string &name, bool resursive) {
+	for (auto child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
 		}
@@ -838,12 +856,17 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 	}
 }
 
-bool Node::containsChild(shared_ptr<Node> node) {
+bool Node::containsChild(Node* node) {
 
-	auto nodes = children(true);
-	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
-		return true;
+	for (auto& child : _children) {
+		if (child.get() == node) {
+			return true;
+		}
 	}
+//	auto nodes = children(true);
+//	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
+//		return true;
+//	}
 	return false;
 }
 
@@ -974,7 +997,7 @@ void Node::applyPhysicsTransform(mat4 transform) {
 void Node::getAABBRec(AABB& aabb) {
 
 	if (_mesh) {
-		auto geoAABB = _mesh->aabb(shared_from_this());
+		auto geoAABB = _mesh->aabb(this);
 		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
 		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
 		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
@@ -988,26 +1011,26 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
+vector<Node*> Node::children(Node* root) {
 
-	auto l = list<shared_ptr<Node>>();
+	auto l = list<Node*>();
 
 	for (auto& child : root->_children) {
-		childrenRec(child, l);
+		childrenRec(child.get(), l);
 	}
 
 	return { make_move_iterator(std::begin(l)),
 			 make_move_iterator(std::end(l)) };
 }
 
-void Node::childrenRec(shared_ptr<Node> node,
-					   list<shared_ptr<Node>>& list) {
+void Node::childrenRec(Node* node,
+					   list<Node*>& list) {
 
 	list.push_back(node);
 	//list.push_front(node);
 
 	for (auto& child : node->_children) {
-			childrenRec(child, list);
+			childrenRec(child.get(), list);
 	}
 
 	//list.push_front(node);

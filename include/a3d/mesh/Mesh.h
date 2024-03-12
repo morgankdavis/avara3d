@@ -87,8 +87,8 @@ namespace a3d {
 														 const DebugOptions& debugOptions,
 														 Stats& stats);
 
-		AABB						aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 					extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		AABB						aabb(const Node* convertToNode = nullptr) const;
+		glm::vec3 					extent(const Node* convertToNode = nullptr) const;
 
 		MeshDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(MeshDirtyMask mask);

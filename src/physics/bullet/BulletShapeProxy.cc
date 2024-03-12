@@ -78,7 +78,7 @@ BTShapeFromMesh(Mesh* mesh,
 				vector<shared_ptr<btCollisionShape>>& btShapes,
 				vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static void
-AddBTShapeFromNodeRec(shared_ptr<Node> node,
+AddBTShapeFromNodeRec(Node* node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  shared_ptr<btCompoundShape> compoundShape,
@@ -428,7 +428,7 @@ BTShapeFromMesh(Mesh* mesh,
 	return newShape;
 }
 
-void AddBTShapeFromNodeRec(shared_ptr<Node> node,
+void AddBTShapeFromNodeRec(Node* node,
 						   PhysicsShapeType shapeType,
 						   PhysicsBodyType bodyType,
 						   shared_ptr<btCompoundShape> btParentShape,
