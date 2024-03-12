@@ -37,8 +37,8 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class Node {// : public std::enable_shared_from_this<Node> {
-		
+	class Node {
+
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
@@ -117,7 +117,7 @@ namespace a3d {
 		void 									addChild(std::shared_ptr<Node> node);
 		void 									removeFromParent();
 
-		std::vector<Node*>						children(bool resursive = false);
+		std::vector<Node*>						children(bool resursive = false); // TODO: should these be shared or weak?
 		Node* 									childNamed(const std::string& name, bool resursive = false);
 
 		PhysicsBody* 							physicsBody() const;
