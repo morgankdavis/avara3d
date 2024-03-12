@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
 	Logger::MainLogger()->level(LogLevel::Debug);
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_shared<VisualWorld>(window.get());
 	visualWorld->fogStartDistance(500.0);
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
@@ -74,7 +74,7 @@ int main(int argc, const char* argv[]) {
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_shared<WindowInputManager>(window.get());
 
 	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
@@ -102,9 +102,10 @@ int main(int argc, const char* argv[]) {
 	material->name("LIGHT material");
 	material->emission(materialProperty);
 	auto geometry = Sphere::Mesh(1.5, 4, material);
+	//auto geometry = shared_ptr(std::move(Sphere::Mesh(1.5, 4, material)));
 	//geometry->addMaterial(material);
 //	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
-	pointLightNode->mesh(geometry);
+	pointLightNode->mesh(std::move(geometry));
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -162,7 +163,7 @@ void UpdateCallback(Scene& scene, float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 

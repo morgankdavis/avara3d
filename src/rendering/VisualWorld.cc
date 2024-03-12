@@ -35,14 +35,14 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property);
+static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(shared_ptr<RenderContext> context):
+VisualWorld::VisualWorld(RenderContext* context):
 		_background(monostate{}),
 		_skyboxMesh(nullptr),
 		_fogStartDistance(0.0),
@@ -125,12 +125,12 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-shared_ptr<Color> VisualWorld::fogColor() const {
-	return _fogColor;
+Color* VisualWorld::fogColor() const {
+	return _fogColor.get();
 }
 
-void VisualWorld::fogColor(shared_ptr<Color> color) {
-	_fogColor = color;
+void VisualWorld::fogColor(unique_ptr<Color> color) {
+	_fogColor = std::move(color);
 }
 
 Node* VisualWorld::pointOfView() {
@@ -167,7 +167,7 @@ void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
 	_automaticallyAddDefaultLighting = enabled;
 }
 
-shared_ptr<RenderContext> VisualWorld::renderContext() const {
+RenderContext* VisualWorld::renderContext() const {
 	return _renderContext;
 }
 
@@ -301,7 +301,7 @@ void VisualWorld::draw(const Scene& scene,
 			}
 		}
 		else {
-			A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext.get()));
+			A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
 		}
 	}
 	else {
@@ -309,8 +309,8 @@ void VisualWorld::draw(const Scene& scene,
 	}
 }
 
-shared_ptr<Mesh> VisualWorld::skyboxMesh() const {
-	return _skyboxMesh;
+Mesh* VisualWorld::skyboxMesh() const {
+	return _skyboxMesh.get();
 }
 
 Node* VisualWorld::defaultPointOfView() {
@@ -373,7 +373,7 @@ Node* VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
+static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
 
 	//auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
 	auto mesh = Box::Mesh(1, 1, 1);

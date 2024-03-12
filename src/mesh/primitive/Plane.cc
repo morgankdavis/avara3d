@@ -22,13 +22,13 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> Plane::Mesh(float width,
+unique_ptr<Mesh> Plane::Mesh(float width,
 							 float height,
 							 int widthSegements,
 							 int heightSegments,
 							 shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Plane>(width,
+	return make_unique<a3d::Mesh>(make_shared<Plane>(width,
 													 height,
 													 widthSegements,
 													 heightSegments),

@@ -20,84 +20,84 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-std::shared_ptr<Color> Color::Black() {
-	return make_shared<Color>(0.0f, 0.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Black() {
+	return make_unique<Color>(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::DarkGray() {
-	return make_shared<Color>(0.25f, 0.25f, 0.25f, 1.0f);
+std::unique_ptr<Color> Color::DarkGray() {
+	return make_unique<Color>(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Gray() {
-	return make_shared<Color>(0.5f, 0.5, 0.5f, 1.0f);
+std::unique_ptr<Color> Color::Gray() {
+	return make_unique<Color>(0.5f, 0.5, 0.5f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::LightGray() {
-	return make_shared<Color>(0.75f, 0.75f, 0.75f, 1.0f);
+std::unique_ptr<Color> Color::LightGray() {
+	return make_unique<Color>(0.75f, 0.75f, 0.75f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::White() {
-	return make_shared<Color>(1.0f, 1.0f, 1.0f, 1.0f);
+std::unique_ptr<Color> Color::White() {
+	return make_unique<Color>(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Maroon() {
-	return make_shared<Color>(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Maroon() {
+	return make_unique<Color>(128.0f/255.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Red() {
-	return make_shared<Color>(1.0f, 0.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Red() {
+	return make_unique<Color>(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Orange() {
-	return make_shared<Color>(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Orange() {
+	return make_unique<Color>(1.0f, 165.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Yellow() {
-	return make_shared<Color>(1.0f, 1.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Yellow() {
+	return make_unique<Color>(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Olive() {
-	return make_shared<Color>(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Olive() {
+	return make_unique<Color>(128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Lime() {
-	return make_shared<Color>(0.0f, 1.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Lime() {
+	return make_unique<Color>(0.0f, 1.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Green() {
-	return make_shared<Color>(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
+std::unique_ptr<Color> Color::Green() {
+	return make_unique<Color>(0.0f, 128.0f/255.0f, 0.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Cyan() {
-	return make_shared<Color>(0.0f, 1.0f, 1.0f, 1.0f);
+std::unique_ptr<Color> Color::Cyan() {
+	return make_unique<Color>(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Blue() {
-	return make_shared<Color>(0.0f, 0.0f, 1.0f, 1.0f);
+std::unique_ptr<Color> Color::Blue() {
+	return make_unique<Color>(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Navy() {
-	return make_shared<Color>(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
+std::unique_ptr<Color> Color::Navy() {
+	return make_unique<Color>(0.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Teal() {
-	return make_shared<Color>(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
+std::unique_ptr<Color> Color::Teal() {
+	return make_unique<Color>(0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Magenta() {
-	return make_shared<Color>(1.0f, 0.0f, 1.0f, 1.0f);
+std::unique_ptr<Color> Color::Magenta() {
+	return make_unique<Color>(1.0f, 0.0f, 1.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Purple() {
-	return make_shared<Color>(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
+std::unique_ptr<Color> Color::Purple() {
+	return make_unique<Color>(128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f);
 }
 
-std::shared_ptr<Color> Color::Brown() {
-	return make_shared<Color>(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
+std::unique_ptr<Color> Color::Brown() {
+	return make_unique<Color>(153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f);
 }
 
-shared_ptr<Color> Color::Random() {
-	return make_shared<Color>(Uniform(0, 255), Uniform(0, 255), Uniform(0, 255));
+unique_ptr<Color> Color::Random() {
+	return make_unique<Color>(Uniform(0, 255), Uniform(0, 255), Uniform(0, 255));
 }
 
 /*********************************************************************************************

@@ -18,7 +18,7 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> RoundedBox::Mesh(float radius,
+unique_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  float length,
 								  float width,
 								  float height,
@@ -28,7 +28,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  int heightSegments,
 								  shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<RoundedBox>(radius,
+	return make_unique<a3d::Mesh>(make_shared<RoundedBox>(radius,
 														  length,
 														  width,
 														  height,

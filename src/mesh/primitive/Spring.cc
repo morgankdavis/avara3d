@@ -18,14 +18,14 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> Spring::Mesh(float minorRadius,
+unique_ptr<Mesh> Spring::Mesh(float minorRadius,
 							  float majorRadius,
 							  float length,
 							  int slices,
 							  int segments,
 							  shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Spring>(minorRadius,
+	return make_unique<a3d::Mesh>(make_shared<Spring>(minorRadius,
 													  majorRadius,
 													  length,
 													  slices,

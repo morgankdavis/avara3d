@@ -32,7 +32,7 @@ namespace a3d {
 
 	public:
 
-		static std::shared_ptr<Mesh> Mesh(float innerRadius,
+		static std::unique_ptr<Mesh> Mesh(float innerRadius,
 										  float outerRadius,
 										  float height,
 										  int slices = DEFAULT_SLICES,

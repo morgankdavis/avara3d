@@ -40,7 +40,7 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		VisualWorld(std::shared_ptr<RenderContext> context);
+		VisualWorld(RenderContext* context);
 		VisualWorld(const VisualWorld& other) = delete; // copy constructor
 		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
 		virtual ~VisualWorld();
@@ -61,8 +61,8 @@ namespace a3d {
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
-		std::shared_ptr<Color> 					fogColor() const;
-		void 									fogColor(std::shared_ptr<Color> color);
+		Color* 									fogColor() const;
+		void 									fogColor(std::unique_ptr<Color> color);
 
 		Node*									pointOfView();
 		void 									pointOfView(Node* cameraNode);
@@ -70,7 +70,7 @@ namespace a3d {
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);
 
-		std::shared_ptr<RenderContext> 			renderContext() const;
+		RenderContext* 							renderContext() const;
 
 		Scene*									scene() const;
 
@@ -96,7 +96,7 @@ namespace a3d {
 													 DebugOptions debugOptions,
 													 Stats& stats);
 
-		std::shared_ptr<Mesh>					skyboxMesh() const; // TODO: make unique
+		Mesh*									skyboxMesh() const;
 		Node*									defaultPointOfView();
 
 /*********************************************************************************************
@@ -106,14 +106,14 @@ namespace a3d {
 	private:
 
 		MaterialProperty						_background;
-		std::shared_ptr<Mesh>					_skyboxMesh;
+		std::unique_ptr<Mesh>					_skyboxMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
-		std::shared_ptr<Color>					_fogColor;
+		std::unique_ptr<Color>					_fogColor;
 		bool									_automaticallyAddDefaultLighting;
 		Node*									_pointOfView;
-		std::shared_ptr<RenderContext>			_renderContext;
+		RenderContext*							_renderContext;
 		Scene*									_scene;
 		WillRenderCallback 						_willRender;
 		DidRenderCallback 						_didRender;

@@ -22,14 +22,14 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> Cylinder::Mesh(float radius,
+unique_ptr<Mesh> Cylinder::Mesh(float radius,
 								float height,
 								int slices,
 								int segments,
 								int rings,
 								shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Cylinder>(radius,
+	return make_unique<a3d::Mesh>(make_shared<Cylinder>(radius,
 														height,
 														slices,
 														segments,

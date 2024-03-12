@@ -121,7 +121,7 @@ shared_ptr<Light> Node::light() const {
 	return _light;
 }
 
-void Node::light(const shared_ptr<Light> light) {
+void Node::light(shared_ptr<Light> light) {
 	_light = light;
 }
 
@@ -129,7 +129,7 @@ shared_ptr<Camera> Node::camera() const {
 	return _camera;
 }
 
-void Node::camera(const shared_ptr<Camera> camera) {
+void Node::camera(shared_ptr<Camera> camera) {
 	_camera = camera;
 }
 
@@ -137,7 +137,7 @@ shared_ptr<Mesh> Node::mesh() const {
 	return _mesh;
 }
 
-void Node::mesh(const std::shared_ptr<Mesh> mesh) {
+void Node::mesh(shared_ptr<Mesh> mesh) {
 
 	if (_physicsBody && _mesh) {
 		_physicsBody->meshDetachedFromNode(mesh.get());
@@ -150,11 +150,16 @@ void Node::mesh(const std::shared_ptr<Mesh> mesh) {
 	}
 }
 
+void Node::mesh(unique_ptr<Mesh> mesh) {
+
+	this->mesh(shared_ptr(std::move(mesh)));
+}
+
 bool Node::hidden() const {
 	return _hidden;
 }
 
-void Node::hidden(const bool hidden) {
+void Node::hidden(bool hidden) {
 	_hidden = hidden;
 }
 

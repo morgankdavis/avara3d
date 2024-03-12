@@ -386,7 +386,7 @@ void OpenGLRenderer::render(const Scene& scene,
 			auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 			auto pointOfView = scene.visualWorld()->pointOfView();
 
-			RenderSkybox(*(skyboxMesh.get()),
+			RenderSkybox(*skyboxMesh,
 						 *pointOfView,
 						 debugOptions,
 						 stats,
