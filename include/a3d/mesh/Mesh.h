@@ -31,7 +31,7 @@ namespace a3d {
 	class Renderer;
 
 
-	class Mesh : public std::enable_shared_from_this<Mesh> {
+	class Mesh {
 
 	public:
 

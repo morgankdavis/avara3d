@@ -36,7 +36,7 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class RenderContext : public std::enable_shared_from_this<RenderContext> {
+	class RenderContext {
 
 /*********************************************************************************************
 	Lifecycle

@@ -53,7 +53,7 @@ WindowInputManager::WindowInputManager(Window* window):
 WindowInputManager::~WindowInputManager() {
 	A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
-//	quitManyMouse();
+	quitManyMouse();
 	if (_window) {
 		unregisterGLFWCallbacks(_window->glfwWindow());
 	}

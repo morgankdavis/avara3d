@@ -27,7 +27,7 @@ namespace a3d {
 	class Renderer;
 
 
-	class MeshElement : public std::enable_shared_from_this<MeshElement> {
+	class MeshElement {
 		
 /*********************************************************************************************
 	Lifecycle
