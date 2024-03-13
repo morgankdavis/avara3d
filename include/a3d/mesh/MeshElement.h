@@ -37,8 +37,6 @@ namespace a3d {
 
 		MeshElement(const std::vector<Vertex>& verticies,
 					const std::vector<Face>& faces);
-		// https://stackoverflow.com/questions/8469900/cant-downcast-because-class-is-not-polymorphic
-		// virtual for dynamic_cast against MeshElement "primitives" in BulletShapeProxy::BTShapeFromMeshElement()
 		virtual ~MeshElement();
 
 /*********************************************************************************************
@@ -59,8 +57,8 @@ namespace a3d {
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
 
-		AABB							aabb(const Node* convertToNode = nullptr) const;
-		glm::vec3 						extent(const Node* convertToNode = nullptr) const;
+		AABB							aabb(const Node* convertTo = nullptr) const;
+		glm::vec3 						extent(const Node* convertTo = nullptr) const;
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);

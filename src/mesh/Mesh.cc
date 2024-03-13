@@ -50,20 +50,22 @@ Mesh::Mesh():
 
 }
 
-Mesh::Mesh(const shared_ptr<MeshElement> element,
-		   const shared_ptr<Material> material):
+Mesh::Mesh(const shared_ptr<MeshElement>& element,
+		   const shared_ptr<Material>& material):
 		Mesh() {
 
 	if (element) _elements.push_back(element);
 	if (material) _materials.push_back(material);
 }
 
-Mesh::Mesh(const vector<shared_ptr<MeshElement>> elements,
-		   const vector<shared_ptr<Material>> materials):
+Mesh::Mesh(const vector<shared_ptr<MeshElement>>& elements,
+		   const vector<shared_ptr<Material>>& materials):
 		Mesh() {
 
-	_elements.insert(_elements.begin(), elements.begin(), elements.end());
-	_materials.insert(_materials.begin(), materials.begin(), materials.end());
+	_elements = elements;
+	_materials = materials;
+	//_elements.insert(_elements.begin(), elements.begin(), elements.end());
+	//_materials.insert(_materials.begin(), materials.begin(), materials.end());
 }
 
 Mesh::~Mesh() {
@@ -109,11 +111,11 @@ shared_ptr<Material> Mesh::materialNamed(const string& name) const {
 	return nullptr;
 }
 
-void Mesh::addMaterial(const shared_ptr<Material> material) {
+void Mesh::addMaterial(shared_ptr<Material> material) {
 	_materials.push_back(material);
 }
 
-void Mesh::insertMaterial(const shared_ptr<Material> material, int index) {
+void Mesh::insertMaterial(shared_ptr<Material> material, int index) {
 	_materials.insert(_materials.begin()+index, material);
 }
 
@@ -123,7 +125,7 @@ void Mesh::removeMaterial(int index) {
 //	}
 }
 
-void Mesh::replaceMaterial(int index, const shared_ptr<Material> replacement) {
+void Mesh::replaceMaterial(int index, shared_ptr<Material> replacement) {
 	removeMaterial(index);
 	insertMaterial(replacement, index);
 }
@@ -180,7 +182,7 @@ void Mesh::draw(Renderer& renderer,
 	stats.meshes++;
 }
 
-AABB Mesh::aabb(const Node* convertToNode) const {
+AABB Mesh::aabb(const Node* convertTo) const {
 
 	static const float maxFloat = numeric_limits<float>::max();
 	static const float minFloat = numeric_limits<float>::min();
@@ -189,23 +191,23 @@ AABB Mesh::aabb(const Node* convertToNode) const {
 				  {minFloat, minFloat, minFloat} };
 
 	for (const auto& element : _elements) {
-		auto elementAABB = element->aabb(convertToNode);
-			aabb.min.x = std::min(aabb.min.x, elementAABB.min.x);
-			aabb.max.x = std::max(aabb.max.x, elementAABB.max.x);
-			aabb.min.y = std::min(aabb.min.y, elementAABB.min.y);
-			aabb.max.y = std::max(aabb.max.y, elementAABB.max.y);
-			aabb.min.z = std::min(aabb.min.z, elementAABB.min.z);
-			aabb.max.z = std::max(aabb.max.z, elementAABB.max.z);
+		auto elementAABB = element->aabb(convertTo);
+		aabb.min.x = std::min(aabb.min.x, elementAABB.min.x);
+		aabb.max.x = std::max(aabb.max.x, elementAABB.max.x);
+		aabb.min.y = std::min(aabb.min.y, elementAABB.min.y);
+		aabb.max.y = std::max(aabb.max.y, elementAABB.max.y);
+		aabb.min.z = std::min(aabb.min.z, elementAABB.min.z);
+		aabb.max.z = std::max(aabb.max.z, elementAABB.max.z);
 	}
 
 	return aabb;
 }
 
-vec3 Mesh::extent(const Node* convertToNode) const {
-	auto aabb = Mesh::aabb(convertToNode);
-	return {aabb.max.x - aabb.min.x,
-			aabb.max.y - aabb.min.y,
-			aabb.max.z - aabb.min.z};
+vec3 Mesh::extent(const Node* convertTo) const {
+	auto aabb = Mesh::aabb(convertTo);
+	return { aabb.max.x - aabb.min.x,
+			 aabb.max.y - aabb.min.y,
+			 aabb.max.z - aabb.min.z };
 }
 
 MeshDirtyMask Mesh::dirtyMask() const {

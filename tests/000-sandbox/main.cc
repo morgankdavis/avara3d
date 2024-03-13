@@ -74,7 +74,7 @@ int main(int argc, const char* argv[]) {
 		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
 	auto time = buildInfo.time();
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 //	visualWorld->fogStartDistance(50.0);
 //	visualWorld->fogEndDistance(400.0);
 //	visualWorld->fogDensityExponent(1.0);
@@ -100,20 +100,20 @@ int main(int argc, const char* argv[]) {
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto physicalWorld = make_shared<PhysicalWorld>();
+	auto physicalWorld = make_unique<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 //	auto ambientColor = DARK
 //						? Color::LightGray()
 //						: make_shared<Color>(.85f);
-	auto ambientColor = Color::DarkGray();
+	auto ambientColor = shared_ptr(std::move(Color::DarkGray()));
 	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
 	auto ambientLightNode = Node::LightNode(ambientLight);
 	scene->rootNode()->addChild(ambientLightNode);
@@ -189,7 +189,7 @@ int main(int argc, const char* argv[]) {
 												  monostate{},
 												  pointLight->color());
 			//auto sphere = Mesh::Sphere(0.1f, 12);
-			auto sphere = Sphere::Mesh(0.1f, 12, material);
+			auto sphere = shared_ptr(std::move(Sphere::Mesh(0.1f, 12, material)));
 
 			//sphere->addMaterial(material);
 //			sphere->replaceMaterial(0, material);
@@ -361,9 +361,9 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto inputManager = scene.inputManager();
 
-	shared_ptr<Window> window = nullptr;
+	Window* window = nullptr;
 	if (scene.visualWorld()) {
-		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
 
@@ -394,7 +394,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(Key::One)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+		auto cameraNodes = vector<Node*>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -406,7 +406,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Two)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+		auto cameraNodes = vector<Node*>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -418,7 +418,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Three)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+		auto cameraNodes = vector<Node*>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {

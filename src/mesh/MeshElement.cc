@@ -82,7 +82,7 @@ const vector<Face>& MeshElement::faces() const {
 	return _faces;
 }
 
-AABB MeshElement::aabb(const Node* convertToNode) const {
+AABB MeshElement::aabb(const Node* convertTo) const {
 
 	static const float maxFloat = numeric_limits<float>::max();
 	static const float minFloat = numeric_limits<float>::min();
@@ -90,31 +90,30 @@ AABB MeshElement::aabb(const Node* convertToNode) const {
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };
 
-	const auto nodeWorldTransform = (convertToNode
-									 ? convertToNode->worldTransform()
+	const auto nodeWorldTransform = (convertTo
+									 ? convertTo->worldTransform()
 									 : mat4(1.0));
 
-		for (const auto& v : vertices()) {
-			vec3 p = (convertToNode
-					  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
-					  : v.position);
-
-			aabb.min.x = std::min(aabb.min.x, p.x);
-			aabb.max.x = std::max(aabb.max.x, p.x);
-			aabb.min.y = std::min(aabb.min.y, p.y);
-			aabb.max.y = std::max(aabb.max.y, p.y);
-			aabb.min.z = std::min(aabb.min.z, p.z);
-			aabb.max.z = std::max(aabb.max.z, p.z);
-		}
+	for (const auto& v : vertices()) {
+		vec3 p = (convertTo
+				  ? vec3(nodeWorldTransform * vec4(v.position, 1.0f))
+				  : v.position);
+		aabb.min.x = std::min(aabb.min.x, p.x);
+		aabb.max.x = std::max(aabb.max.x, p.x);
+		aabb.min.y = std::min(aabb.min.y, p.y);
+		aabb.max.y = std::max(aabb.max.y, p.y);
+		aabb.min.z = std::min(aabb.min.z, p.z);
+		aabb.max.z = std::max(aabb.max.z, p.z);
+	}
 
 	return aabb;
 }
 
-glm::vec3 MeshElement::extent(const Node* convertToNode) const {
-	auto aabb = MeshElement::aabb(convertToNode);
-	return {aabb.max.x - aabb.min.x,
-			aabb.max.y - aabb.min.y,
-			aabb.max.z - aabb.min.z};
+glm::vec3 MeshElement::extent(const Node* convertTo) const {
+	auto aabb = MeshElement::aabb(convertTo);
+	return { aabb.max.x - aabb.min.x,
+			 aabb.max.y - aabb.min.y,
+			 aabb.max.z - aabb.min.z };
 }
 
 MeshElementDirtyMask MeshElement::dirtyMask() const {

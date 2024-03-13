@@ -45,7 +45,7 @@ int main(int argc, const char* argv[]) {
 	logger = make_shared<Logger>("test-004", Logger::MainLogger()->sinks());
 	LOG_I(logger, "");
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -55,20 +55,20 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
+	auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	{
-		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
+		auto mesh = shared_ptr(std::move(Box::Mesh(1.5f, 1.0f, 1.5f)));
 		auto node = make_shared<Node>();
 		node->name("box");
 		node->mesh(mesh);
@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Capsule::Mesh(0.5f, 1.0f);
+		auto mesh = shared_ptr(std::move(Capsule::Mesh(0.5f, 1.0f)));
 		auto node = make_shared<Node>();
 		node->name("capsule");
 		node->mesh(mesh);
@@ -87,7 +87,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Cone::Mesh(1.0f, 2.0f);
+		auto mesh = shared_ptr(std::move(Cone::Mesh(1.0f, 2.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("cone");
 		node->mesh(mesh);
@@ -96,7 +96,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Cylinder::Mesh(0.5f, 2.0f);
+		auto mesh = shared_ptr(std::move(Cylinder::Mesh(0.5f, 2.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("cylinder");
 		node->mesh(mesh);
@@ -105,7 +105,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Disk::Mesh(1.0f, 5.0f);
+		auto mesh = shared_ptr(std::move(Disk::Mesh(1.0f, 5.0f)));
 		auto node = make_shared<Node>();
 		node->name("disk");
 		node->mesh(mesh);
@@ -114,7 +114,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Plane::Mesh(10.0f, 10.0f);
+		auto mesh = shared_ptr(std::move(Plane::Mesh(10.0f, 10.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("plane");
 		node->mesh(mesh);
@@ -124,7 +124,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
+		auto mesh = shared_ptr(std::move(RoundedBox::Mesh(0.25f, 1, 1, 1)));
 		auto node = make_shared<Node>();
 		mesh->name("rounded box");
 		node->mesh(mesh);
@@ -134,7 +134,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Sphere::Mesh(1.0f);
+		auto mesh = shared_ptr(std::move(Sphere::Mesh(1.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("sphere");
 		node->mesh(mesh);
@@ -143,7 +143,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
+		auto mesh = shared_ptr(std::move(Spring::Mesh(0.2f, 0.5f, 2.5f)));
 		auto node = make_shared<Node>();
 		mesh->name("spring");
 		node->mesh(mesh);
@@ -153,7 +153,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Torus::Mesh(0.75f, 1.0f);
+		auto mesh = shared_ptr(std::move(Torus::Mesh(0.75f, 1.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("torus");
 		node->mesh(mesh);
@@ -163,7 +163,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = TorusKnot::Mesh(2, 3);
+		auto mesh = shared_ptr(std::move(TorusKnot::Mesh(2, 3)));
 		auto node = make_shared<Node>();
 		mesh->name("torus knot");
 		node->mesh(mesh);
@@ -173,7 +173,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
+		auto mesh = shared_ptr(std::move(Tube::Mesh(0.5f, 0.75f, 2.0f)));
 		auto node = make_shared<Node>();
 		mesh->name("tube");
 		node->mesh(mesh);
@@ -233,9 +233,9 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto inputManager = scene.inputManager();
 
-	shared_ptr<Window> window = nullptr;
+	Window* window = nullptr;
 	if (scene.visualWorld()) {
-		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
 	auto keysPressed = scene.inputManager()->keysPressed();

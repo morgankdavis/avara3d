@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 		LOG_I(rotatingLogger, "line {}", l);
 	}
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	visualWorld->fogStartDistance(500.0);
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
@@ -66,9 +66,9 @@ int main(int argc, const char* argv[]) {
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_shared<Scene>(visualWorld, nullptr, inputManager);
+	auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 //	DebugOptions debugOptions = DebugOptions::None;
 //	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
 //	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
@@ -93,7 +93,7 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto mesh = Sphere::Mesh(3.5, 4, material);
+	auto mesh = shared_ptr(std::move(Sphere::Mesh(3.5, 4, material)));
 //	mesh->addMaterial(material);
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(mesh);
@@ -128,7 +128,7 @@ void UpdateCallback(Scene& scene, float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
