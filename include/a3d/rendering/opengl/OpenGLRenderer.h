@@ -44,19 +44,20 @@ namespace a3d {
 				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>;
 
 		/* <a3d::Texture : <gl_textureHandle> */
-		using TextureGLMapping = std::map<Texture*, unsigned>;
+		using TextureGLMapping =
+				std::map<Texture*, unsigned>;
 
 		/* <set<a3d::Line> : <gl_vboHandle, gl_vaoHandle>> */
 		using LineSetGLMapping =
-				std::map<LineSet, std::pair<unsigned, unsigned>>;
+				std::map<LineSet*, std::pair<unsigned, unsigned>>;
 
 		/* <set<a3d::Point> : <gl_vboHandle, gl_vaoHandle>> */
 		using PointSetGLMapping =
-				std::map<PointSet, std::pair<unsigned, unsigned>>;
+				std::map<PointSet*, std::pair<unsigned, unsigned>>;
 
 		/* <a3d::Mesh : set<a3d::Line>> */
 		using MeshAABBLineSetMapping =
-				std::map<Mesh*, LineSet>;
+				std::map<Mesh*, LineSet*>;
 
 /*********************************************************************************************
 	Lifecycle
