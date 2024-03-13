@@ -733,111 +733,117 @@ static void GetMeshAABBLineSetVertexDataHandles(Mesh& mesh,
 												OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
 												GLuint& glVBO, GLuint& glVAO) {
 
-//	auto program = Program::Lines();
-//
-//	// looks up and populates glVBO and glVAO, loading the vertex data if needed
-//
-//	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::Extent)) {
-//
-//		DeleteLineSetGLResources(&aabbLineSetMapping[&mesh], lineSetGLMapping);
-//
-//		// construct a new lineset matching the mesh's extent
-//
-//		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
-//
-//		auto aabb = mesh.aabb();
-//
-//		float xMin = aabb.min.x;
-//		float xMax = aabb.max.x;
-//		float yMin = aabb.min.y;
-//		float yMax = aabb.max.y;
-//		float zMin = aabb.min.z;
-//		float zMax = aabb.max.z;
-//
-//		vec3 one = 		{xMin, yMax, zMin};
-//		vec3 two =      {xMin, yMax, zMax};
-//		vec3 three =    {xMax, yMax, zMax};
-//		vec3 four =     {xMax, yMax, zMin};
-//		vec3 five =     {xMin, yMin, zMin};
-//		vec3 six =      {xMin, yMin, zMax};
-//		vec3 seven =    {xMax, yMin, zMax};
-//		vec3 eight =    {xMax, yMin, zMin};
-//
-//		auto red = Color::Red();
+	auto program = Program::Lines();
+
+	// looks up and populates glVBO and glVAO, loading the vertex data if needed
+
+	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::Extent)) {
+
+		DeleteLineSetGLResources(&aabbLineSetMapping[&mesh], lineSetGLMapping);
+
+		// construct a new lineset matching the mesh's extent
+
+		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
+
+		auto aabb = mesh.aabb();
+
+		float xMin = aabb.min.x;
+		float xMax = aabb.max.x;
+		float yMin = aabb.min.y;
+		float yMax = aabb.max.y;
+		float zMin = aabb.min.z;
+		float zMax = aabb.max.z;
+
+		vec3 one = 		{xMin, yMax, zMin};
+		vec3 two =      {xMin, yMax, zMax};
+		vec3 three =    {xMax, yMax, zMax};
+		vec3 four =     {xMax, yMax, zMin};
+		vec3 five =     {xMin, yMin, zMin};
+		vec3 six =      {xMin, yMin, zMax};
+		vec3 seven =    {xMax, yMin, zMax};
+		vec3 eight =    {xMax, yMin, zMin};
+
+		auto red = shared_ptr(std::move(Color::Red()));
+
+//		auto line1 = ;
+//		auto line2 = ;
+
 //		auto aabbLineSet = LineSet{
-//			std::move(Line(one, two, red)),
-//			std::move(Line(two, three, red)),
-//			std::move(Line(three, four, red)),
-//			std::move(Line(four, one, red)),
-//			std::move(Line(five, six, red)),
-//			std::move(Line(six, seven, red)),
-//			std::move(Line(seven, eight, red)),
-//			std::move(Line(eight, five, red)),
-//			std::move(Line(one, five, red)),
-//			std::move(Line(two, six, red)),
-//			std::move(Line(three, seven, red)),
-//			std::move(Line(four, eight, red))
+//				std::move(Line(one, two, red)),
+//				std::move(Line(two, three, red)),
+//				std::move(Line(three, four, red)),
+//				std::move(Line(four, one, red)),
+//				std::move(Line(five, six, red)),
+//				std::move(Line(six, seven, red)),
+//				std::move(Line(seven, eight, red)),
+//				std::move(Line(eight, five, red)),
+//				std::move(Line(one, five, red)),
+//				std::move(Line(two, six, red)),
+//				std::move(Line(three, seven, red)),
+//				std::move(Line(four, eight, red))
 //		};
-////		auto aabbLineSet = LineSet{
-////				{one, two, red},
-////				{two, three, red},
-////				{three, four, red},
-////				{four, one, red},
-////				{five, six, red},
-////				{six, seven, red},
-////				{seven, eight, red},
-////				{eight, five, red},
-////				{one, five, red},
-////				{two, six, red},
-////				{three, seven, red},
-////				{four, eight, red}
-////		};
-//
-//
-////		// *** NEED MOVE CONSTRUCTOR?? ***
-////		auto line = Line(one, two, red);
-////		aabbLineSet.push_back(std::move(line));
-//////		aabbLineSet.insert(std::move(line));
-////
-//////		aabbLineSet.emplace(std::move(Line{one, two, red}));
-//////		aabbLineSet.emplace({two, three, red});
-////		aabbLineSet.push_back(std::move(Line(three, four, red)));
-////		aabbLineSet.push_back(Line(four, one, red));
-////		aabbLineSet.push_back(Line(five, six, red));
-////		aabbLineSet.push_back(Line(six, seven, red));
-////		aabbLineSet.push_back(Line(seven, eight, red));
-////		aabbLineSet.push_back(Line(eight, five, red));
-////		aabbLineSet.push_back(Line(one, five, red));
-////		aabbLineSet.push_back(Line(two, six, red));
-////		aabbLineSet.push_back(Line(three, seven, red));
-////		aabbLineSet.push_back(Line(four, eight, red));
-//
-//		aabbLineSetMapping[&mesh] = aabbLineSet;
-//
-//		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
-//	}
-//
-//	GetLineSetVertexDataHandles(aabbLineSetMapping[&mesh],
-//								*program,
-//								lineSetGLMapping,
-//								glVBO, glVAO);
+
+//		auto aabbLineSet = LineSet{
+//				Line(one, two, red),
+//				Line(two, three, red),
+//				Line(three, four, red),
+//				Line(four, one, red),
+//				Line(five, six, red),
+//				Line(six, seven, red),
+//				Line(seven, eight, red),
+//				Line(eight, five, red),
+//				Line(one, five, red),
+//				Line(two, six, red),
+//				Line(three, seven, red),
+//				Line(four, eight, red)
+//		};
+
+		auto aabbLineSet = LineSet{
+				{one, two, red},
+				{two, three, red},
+				{three, four, red},
+				{four, one, red},
+				{five, six, red},
+				{six, seven, red},
+				{seven, eight, red},
+				{eight, five, red},
+				{one, five, red},
+				{two, six, red},
+				{three, seven, red},
+				{four, eight, red}
+		};
+
+		aabbLineSetMapping[&mesh] = aabbLineSet;
+
+		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
+	}
+
+	GetLineSetVertexDataHandles(aabbLineSetMapping[&mesh],
+								program,
+								lineSetGLMapping,
+								glVBO, glVAO);
 }
 
 static void GetLineSetVertexDataHandles(LineSet& lineSet,
 										Program& program,
 										OpenGLRenderer::LineSetGLMapping& glMapping,
 										GLuint& glVBO, GLuint& glVAO) {
+
+//	using LineSetGLMapping =
+//			std::map<LineSet, std::pair<unsigned, unsigned>>;
 	
-//	if (!glMapping.count(&lineSet)) {
-//		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
-//
-//		glMapping[lineSet] = make_pair(glVBO, glVAO);
-//	}
-//	else {
-//		auto mapping = glMapping[&lineSet];
-//		glVBO = get<0>(mapping);
-//		glVAO = get<1>(mapping);
-//	}
+	if (!glMapping.count(lineSet)) {
+//	if (!glMapping.contains(lineSet)) {
+	//if (glMapping.find(lineSet) == glMapping.end()) {
+		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);
+
+		glMapping[lineSet] = make_pair(glVBO, glVAO);
+	}
+	else {
+		auto mapping = glMapping[lineSet];
+		glVBO = get<0>(mapping);
+		glVAO = get<1>(mapping);
+	}
 
 //	if (!glMapping.count(&lineSet)) {
 //		BufferLineSetVertexData(lineSet, program, glVBO, glVAO);

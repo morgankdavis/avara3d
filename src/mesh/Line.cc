@@ -40,42 +40,45 @@ Line::Line(vec3 fromLocation, vec3 toLocation,
 	
 }
 
-Line::Line(const Line& other):
-		_fromLocation{other._fromLocation},
-		_toLocation{other._toLocation},
-		_fromColor{other._fromColor},
-		_toColor{other._toColor} {
-
-//	_fromLocation = other._fromLocation;
-//	_toLocation = other._toLocation;
-//	_fromColor = other._fromColor;
-//	_toColor = other._toColor;
-}
-
-Line::Line(Line&& other):
-		_fromLocation{other._fromLocation},
-		_toLocation{other._toLocation},
-		_fromColor{other._fromColor},
-		_toColor{other._toColor} {
-
-	other._fromLocation = {0, 0, 0};
-	other._toLocation = {0, 0, 0};
-	other._fromColor = nullptr;
-	other._toColor = nullptr;
-};
-
-Line& Line::operator=(const Line& other) {
-
-	if (this != &other) {
-		_fromLocation = other._fromLocation;
-		_toLocation = other._toLocation;
-		_fromColor = other._fromColor;
-		_toColor = other._toColor;
-	}
-}
-
+//Line::Line(const Line& other):
+//		_fromLocation{other._fromLocation},
+//		_toLocation{other._toLocation},
+//		_fromColor{other._fromColor},
+//		_toColor{other._toColor} { }
+//
+//Line::Line(Line&& other) noexcept:
+//		_fromLocation{other._fromLocation},
+//		_toLocation{other._toLocation},
+//		_fromColor{other._fromColor},
+//		_toColor{other._toColor} {
+//
+//	other._fromLocation = {0, 0, 0};
+//	other._toLocation = {0, 0, 0};
+//	other._fromColor = nullptr;
+//	other._toColor = nullptr;
+//};
+//
+//Line& Line::operator=(const Line& other) {
+//
+//	if (this != &other) {
+//		_fromLocation = other._fromLocation;
+//		_toLocation = other._toLocation;
+//		_fromColor = other._fromColor;
+//		_toColor = other._toColor;
+//	}
+//}
+//
 //Line& Line::operator=(Line&& other) noexcept {
 //
+//	other._fromLocation = this->_fromLocation;
+//	other._toLocation = this->_toLocation;
+//	other._fromColor = this->_fromColor;
+//	other._toColor = this->_toColor;
+//
+//	other._fromLocation = {0, 0, 0};
+//	other._toLocation = {0, 0, 0};
+//	other._fromColor = nullptr;
+//	other._toColor = nullptr;
 //}
 
 /*********************************************************************************************

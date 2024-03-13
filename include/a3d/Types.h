@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <set>
+#include <unordered_set> // temporary?
 #include <typeinfo>
 #include <utility>
 #include <variant>
@@ -404,6 +405,8 @@ namespace a3d {
 	class Line;
 	class Point;
 	using LineSet = std::vector<a3d::Line>;
+//	using LineSet = std::unordered_set<a3d::Line>;
+//	using LineSet = std::set<a3d::Line>;
 	using PointSet = std::set<a3d::Point>;
 
 	enum class ShaderType {
