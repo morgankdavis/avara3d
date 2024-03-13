@@ -3,7 +3,7 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   #- archive
 
-build-linux-debug:
+linux-debug:
   stage: build
   tags:
     - ubuntu-23
@@ -23,15 +23,16 @@ build-linux-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "Linux debug build complete."
   artifacts:
     name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-debug"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 week
+      - avara3d
+    expire_in: 2 days
 
-build-macos-debug:
+macos-debug:
   stage: build
   tags:
     - macos-12.6
@@ -49,15 +50,16 @@ build-macos-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "macOS debug build complete."
   artifacts:
     name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-debug"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 week
+      - avara3d
+    expire_in: 2 days
 
-build-windows-debug:
+windows-debug:
   stage: build
   tags:
     - windows-10
@@ -69,7 +71,7 @@ build-windows-debug:
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
-      -DCMAKE_BUILD_TYPE="Release"
+      -DCMAKE_BUILD_TYPE="Debug"
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
@@ -77,15 +79,16 @@ build-windows-debug:
     # https://stackoverflow.com/questions/19024259/how-to-change-the-build-type-to-release-mode-in-cmake
 #    - cmake --build . --config Release --target install -j8
     - cmake --build . --config Debug --target install -j8
+    - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:
     name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-debug"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 week
+      - avara3d
+    expire_in: 2 days
 
-build-linux-release:
+linux-release:
   stage: build
   tags:
     - ubuntu-23
@@ -117,15 +120,16 @@ build-linux-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "Linux release build complete."
   artifacts:
     name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 month
+      - avara3d
+    expire_in: 1 week
 
-build-macos-release:
+macos-release:
   stage: build
   tags:
     - macos-12.6
@@ -153,15 +157,16 @@ build-macos-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /opt/local/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-release"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 month
+      - avara3d
+    expire_in: 1 week
 
-build-windows-release:
+windows-release:
   stage: build
   tags:
     - windows-10
@@ -181,7 +186,7 @@ build-windows-release:
 #      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
 #      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
 #      ..
-#    - cmake --build . --target install -j8
+#    - cmake --build . --config Debug --target install -j8
     - cmake
       -DCMAKE_BUILD_TYPE="Release"
       -T"ClangCL"
@@ -189,10 +194,11 @@ build-windows-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Release --target install -j8
+    - mv packaged/avara3d ../
     - echo "Windows release build complete."
   artifacts:
     name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-release"
     paths:
-      - gitlab-build/packaged/avara3d
-    expire_in: 1 month
+      - avara3d
+    expire_in: 1 week
