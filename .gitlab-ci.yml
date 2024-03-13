@@ -30,7 +30,7 @@ linux-debug:
     expose_as: "linux-debug"
     paths:
       - avara3d
-    expire_in: 1 week
+    expire_in: 2 days
 
 macos-debug:
   stage: build
@@ -57,7 +57,7 @@ macos-debug:
     expose_as: "macos-debug"
     paths:
       - avara3d
-    expire_in: 1 week
+    expire_in: 2 days
 
 windows-debug:
   stage: build
@@ -86,7 +86,7 @@ windows-debug:
     expose_as: "windows-debug"
     paths:
       - avara3d
-    expire_in: 1 week
+    expire_in: 2 days
 
 linux-release:
   stage: build
@@ -127,7 +127,7 @@ linux-release:
     expose_as: "linux-release"
     paths:
       - avara3d
-    expire_in: 1 month
+    expire_in: 1 week
 
 macos-release:
   stage: build
@@ -164,7 +164,7 @@ macos-release:
     expose_as: "macos-release"
     paths:
       - avara3d
-    expire_in: 1 month
+    expire_in: 1 week
 
 windows-release:
   stage: build
@@ -201,4 +201,4 @@ windows-release:
     expose_as: "windows-release"
     paths:
       - avara3d
-    expire_in: 1 month
+    expire_in: 1 week
