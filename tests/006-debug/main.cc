@@ -196,7 +196,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 
-		auto pov = scene.visualWorld()->pointOfView();
+		auto pov = scene.visualWorld()->pointOfView().lock();
 		if (pov) {
 
 			// look

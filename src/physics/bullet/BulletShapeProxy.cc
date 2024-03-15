@@ -264,7 +264,7 @@ BTShapeFromSourceNode(Node* node,
 
 	// add child geometries recursively
 	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode,
+		AddBTShapeFromNodeRec(childNode.get(),
 							  shapeType,
 							  bodyType,
 							  rootShape,
@@ -459,7 +459,7 @@ void AddBTShapeFromNodeRec(Node* node,
 
 	// add child geometries recursively
 	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode,
+		AddBTShapeFromNodeRec(childNode.get(),
 							  shapeType,
 							  bodyType,
 							  newShape,

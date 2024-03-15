@@ -553,7 +553,7 @@ void Node::addChildren(vector<shared_ptr<Node>> nodes) {
 
 void Node::addChild(shared_ptr<Node> node) {
 
-	if (containsChild(node.get())) {
+	if (containsChild(node)) {
 		throw Exception(fmt::format("Node already exists in tree: {:p}, (\"{}\")",
 									static_cast<void*>(node.get()),
 									(node->name() ? *node->name() : "(unnamed)")));
@@ -590,7 +590,7 @@ void Node::removeFromParent() {
 	}
 }
 
-vector<Node*> Node::children(bool resursive) {
+vector<shared_ptr<Node>> Node::children(bool resursive) {
 	// if !resursive, returns immediate children in no particular order
 	// if resursive, returns all descendants in topological order
 
@@ -598,25 +598,75 @@ vector<Node*> Node::children(bool resursive) {
 		return children(this);
 	}
 	else {
-
-		auto children = vector<Node*>();
-		children.reserve(_children.size());
-		for (auto& child : _children) {
-			children.push_back(child.get());
-		}
-		return children;
-//		return _children;
+		return _children;
 	}
 }
 
-Node* Node::childNamed(const std::string &name, bool resursive) {
-	for (auto child : children(resursive)) {
+shared_ptr<Node> Node::childNamed(const string &name, bool resursive) {
+	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
 		}
 	}
 	return nullptr;
 }
+
+//vector<Node*> Node::children(bool resursive) {
+//	// if !resursive, returns immediate children in no particular order
+//	// if resursive, returns all descendants in topological order
+//
+//	if (resursive) {
+//		return children(this);
+//	}
+//	else {
+//
+//		auto children = vector<Node*>();
+//		children.reserve(_children.size());
+//		for (auto& child : _children) {
+//			children.push_back(child.get());
+//		}
+//		return children;
+////		return _children;
+//	}
+//}
+//
+//Node* Node::childNamed(const std::string &name, bool resursive) {
+//	for (auto child : children(resursive)) {
+//		if (child->name() != nullopt && *child->name() == name) {
+//			return child;
+//		}
+//	}
+//	return nullptr;
+//}
+
+//vector<weak_ptr<Node>> Node::children(bool resursive) {
+//
+//	// if !resursive, returns immediate children in no particular order
+//	// if resursive, returns all descendants in topological order
+//
+//	if (resursive) {
+//		return children(this);
+//	}
+//	else {
+//
+//		auto children = vector<weak_ptr<Node>>();
+//		children.reserve(_children.size());
+//		for (auto& child : _children) {
+//			children.push_back(child);
+//		}
+//		return children;
+//	}
+//}
+//
+//weak_ptr<Node> Node::childNamed(const std::string& name, bool resursive) {
+//
+//	for (auto child : children(resursive)) {
+//		if (child->name() != nullopt && *child->name() == name) {
+//			return child;
+//		}
+//	}
+//	return nullptr;
+//}
 
 PhysicsBody* Node::physicsBody() const {
 	return _physicsBody.get();
@@ -861,19 +911,28 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 	}
 }
 
-bool Node::containsChild(Node* node) {
+bool Node::containsChild(shared_ptr<Node> node) {
 
-	for (auto& child : _children) {
-		if (child.get() == node) {
-			return true;
-		}
+	auto nodes = children(true);
+	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
+		return true;
 	}
-//	auto nodes = children(true);
-//	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
-//		return true;
-//	}
 	return false;
 }
+
+//bool Node::containsChild(Node* node) {
+//
+//	for (auto& child : _children) {
+//		if (child.get() == node) {
+//			return true;
+//		}
+//	}
+////	auto nodes = children(true);
+////	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
+////		return true;
+////	}
+//	return false;
+//}
 
 AABB Node::aabb() {
 
@@ -1016,30 +1075,100 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-vector<Node*> Node::children(Node* root) {
+//vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
+//
+//	auto l = list<shared_ptr<Node>>();
+//
+//	for (auto& child : root->_children) {
+//		childrenRec(child, l);
+//	}
+//
+//	return { make_move_iterator(std::begin(l)),
+//			 make_move_iterator(std::end(l)) };
+//}
+//
+//void Node::childrenRec(shared_ptr<Node> node,
+//					   list<shared_ptr<Node>>& list) {
+//
+//	list.push_back(node);
+//	//list.push_front(node);
+//
+//	for (auto& child : node->_children) {
+//		childrenRec(child, list);
+//	}
+//
+//	//list.push_front(node);
+//}
 
-	auto l = list<Node*>();
+vector<shared_ptr<Node>> Node::children(Node* root) {
+
+	auto l = list<shared_ptr<Node>>();
 
 	for (auto& child : root->_children) {
-		childrenRec(child.get(), l);
+		childrenRec(child, l);
 	}
 
 	return { make_move_iterator(std::begin(l)),
 			 make_move_iterator(std::end(l)) };
 }
 
-void Node::childrenRec(Node* node,
-					   list<Node*>& list) {
+void Node::childrenRec(shared_ptr<Node> node,
+					   list<shared_ptr<Node>>& list) {
 
 	list.push_back(node);
-	//list.push_front(node);
 
 	for (auto& child : node->_children) {
-			childrenRec(child.get(), list);
+		childrenRec(child, list);
 	}
-
-	//list.push_front(node);
 }
+
+//vector<Node*> Node::children(Node* root) {
+//
+//	auto l = list<Node*>();
+//
+//	for (auto& child : root->_children) {
+//		childrenRec(child.get(), l);
+//	}
+//
+//	return { make_move_iterator(std::begin(l)),
+//			 make_move_iterator(std::end(l)) };
+//}
+//
+//void Node::childrenRec(Node* node,
+//					   list<Node*>& list) {
+//
+//	list.push_back(node);
+//	//list.push_front(node);
+//
+//	for (auto& child : node->_children) {
+//			childrenRec(child.get(), list);
+//	}
+//
+//	//list.push_front(node);
+//}
+//
+//vector<weak_ptr<Node>> Node::children(Node* root) {
+//
+//	auto l = list<weak_ptr<Node>>();
+//
+//	for (auto& child : root->_children) {
+//		childrenRec(child, l);
+//	}
+//
+//	return { make_move_iterator(std::begin(l)),
+//			 make_move_iterator(std::end(l)) };
+//}
+//
+//void Node::childrenRec(shared_ptr<Node> node,
+//					   list<weak_ptr<Node>>& list) {
+//
+//	list.push_back(node);
+//	//list.push_front(node);
+//
+//	for (auto& child : node->_children) {
+//		childrenRec(child, list);
+//	}
+//}
 
 //vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
 //

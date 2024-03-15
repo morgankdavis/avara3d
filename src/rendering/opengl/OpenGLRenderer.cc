@@ -387,7 +387,7 @@ void OpenGLRenderer::render(const Scene& scene,
 			auto pointOfView = scene.visualWorld()->pointOfView();
 
 			RenderSkybox(*skyboxMesh,
-						 *pointOfView,
+						 *pointOfView.lock(), // can crash !
 						 debugOptions,
 						 stats,
 						 _meshElementGLMapping,
@@ -1393,10 +1393,10 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		if (!node->hidden()) {
 			if (auto light = node->light().get()) {
 				if (light->type() == LightType::Point) {
-					lights.push_back(node);
+					lights.push_back(node.get());
 				}
 				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node;
+					ambientLightNode = node.get();
 				}
 			}
 		}
@@ -1407,7 +1407,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		// find all light distances from the camera
 
 		auto lightsUnsorted = map<Node*, float>();
-		vec3 cameraPos_world = scene.visualWorld()->pointOfView()->worldPosition();
+		vec3 cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
 		for (auto lightNode : lights) {
 			auto lightPos_world = lightNode->worldPosition();
 			auto lightToCamera = lightPos_world - cameraPos_world;

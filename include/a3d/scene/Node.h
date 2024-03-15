@@ -117,8 +117,14 @@ namespace a3d {
 		void 									addChild(std::shared_ptr<Node> node);
 		void 									removeFromParent();
 
-		std::vector<Node*>						children(bool resursive = false); // TODO: should these be shared or weak?
-		Node* 									childNamed(const std::string& name, bool resursive = false);
+		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
+		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
+
+//		std::vector<Node*>						children(bool resursive = false); // TODO: should these be shared or weak?
+//		Node* 									childNamed(const std::string& name, bool resursive = false);
+
+//		std::vector<std::weak_ptr<Node>>		children(bool resursive = false);
+//		std::weak_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
 
 		PhysicsBody* 							physicsBody() const;
 		void 									physicsBody(std::unique_ptr<PhysicsBody> body);
@@ -163,7 +169,8 @@ namespace a3d {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-		bool 									containsChild(Node* node);
+		bool 									containsChild(std::shared_ptr<Node> node);
+//		bool 									containsChild(Node* node);
 
 		AABB									aabb();
 		glm::vec3								extent();
@@ -188,9 +195,21 @@ namespace a3d {
 
 		void									getAABBRec(AABB& aabb);
 
-		std::vector<Node*>						children(Node* root);
-		void 									childrenRec(Node* node,
-															std::list<Node*>& list);
+//		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
+//		void 									childrenRec(std::shared_ptr<Node> node,
+//															std::list<std::shared_ptr<Node>>& list);
+
+		std::vector<std::shared_ptr<Node>>		children(Node* root);
+		void 									childrenRec(std::shared_ptr<Node> node,
+															std::list<std::shared_ptr<Node>>& list);
+
+//		std::vector<Node*>						children(Node* root);
+//		void 									childrenRec(Node* node,
+//															std::list<Node*>& list);
+
+//		std::vector<std::weak_ptr<Node>>		children(Node* root);
+//		void 									childrenRec(std::shared_ptr<Node> node,
+//															std::list<std::weak_ptr<Node>>& list);
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);

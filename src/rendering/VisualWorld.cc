@@ -49,7 +49,7 @@ VisualWorld::VisualWorld(RenderContext* context):
 		_fogEndDistance(0.0),
 		_fogDensityExponent(0.0),
 		_fogColor(nullptr),
-		_pointOfView(nullptr),
+		_pointOfView({}),
 		_automaticallyAddDefaultLighting(true),
 		_renderContext(context),
 		_scene(nullptr),
@@ -133,21 +133,21 @@ void VisualWorld::fogColor(unique_ptr<Color> color) {
 	_fogColor = std::move(color);
 }
 
-Node* VisualWorld::pointOfView() {
+weak_ptr<Node> VisualWorld::pointOfView() {
 
-	if (_pointOfView) {
+	if (_pointOfView.lock()) {
 		return _pointOfView;
 	}
 	else {
 		// try to assign one from the scene
-		for (auto node: _scene->rootNode()->children(true)) {
+		for (auto node : _scene->rootNode()->children(true)) {
 			if (node->camera()) {
 				_pointOfView = node;
 				break;
 			}
 		}
 	}
-	if (!_pointOfView) {
+	if (!_pointOfView.lock()) {
 		// still no POV. add a default one.
 		_pointOfView  = defaultPointOfView();
 	}
@@ -155,7 +155,7 @@ Node* VisualWorld::pointOfView() {
 	return _pointOfView;
 }
 
-void VisualWorld::pointOfView(Node* cameraNode) {
+void VisualWorld::pointOfView(shared_ptr<Node> cameraNode) {
 	_pointOfView = cameraNode;
 }
 
@@ -258,32 +258,36 @@ void VisualWorld::draw(const Scene& scene,
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
-			auto pov = pointOfView();
-			stats.cameraPosition = pov->position();
+			if (auto pov = pointOfView().lock()) {
+				stats.cameraPosition = pov->position();
 
-			auto aspectRatio = (float)_renderContext->framebufferWidth()
-							   / (float)_renderContext->framebufferHeight();
-			static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+				auto aspectRatio = (float) _renderContext->framebufferWidth()
+								   / (float) _renderContext->framebufferHeight();
+				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
-			renderer->render(scene, debugOptions, stats);
+				renderer->render(scene, debugOptions, stats);
 
-			auto viewMat = pov->worldTransform();
-			auto projectionMat = pov->camera()->projection();
-			scene.rootNode()->draw(*renderer,
-								   viewMat,
-								   projectionMat,
-								   debugOptions,
-								   stats);
-			stats.nodes--; // don't count the root node
+				auto viewMat = pov->worldTransform();
+				auto projectionMat = pov->camera()->projection();
+				scene.rootNode()->draw(*renderer,
+									   viewMat,
+									   projectionMat,
+									   debugOptions,
+									   stats);
+				stats.nodes--; // don't count the root node
 
-			if (physicalWorld) {
+				if (physicalWorld) {
 
-				if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
-					bulletWorldProxy->drawDebug(*renderer,
-												viewMat,
-												projectionMat,
-												debugOptions);
+					if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
+						bulletWorldProxy->drawDebug(*renderer,
+													viewMat,
+													projectionMat,
+													debugOptions);
+					}
 				}
+			}
+			else {
+				A3D_LOG_W("No point of view!");
 			}
 
 			UpdateTimeStats(stats, startTime, Scene::Time());
@@ -313,7 +317,7 @@ Mesh* VisualWorld::skyboxMesh() const {
 	return _skyboxMesh.get();
 }
 
-Node* VisualWorld::defaultPointOfView() {
+weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 	if (_scene) {
 
@@ -360,13 +364,13 @@ Node* VisualWorld::defaultPointOfView() {
 
 		_scene->rootNode()->addChild(cameraNode);
 
-		return cameraNode.get();
+		return cameraNode;
 	}
 	else {
 		A3D_LOG_W("Can't create default camera: scene is null.");
 	}
 
-	return nullptr;
+	return {};
 }
 
 /*********************************************************************************************
