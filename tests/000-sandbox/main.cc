@@ -394,7 +394,8 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(Key::One)) {
 
-		auto cameraNodes = vector<Node*>();
+		//auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -406,7 +407,8 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Two)) {
 
-		auto cameraNodes = vector<Node*>();
+//		auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -418,7 +420,8 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Three)) {
 
-		auto cameraNodes = vector<Node*>();
+//		auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -564,8 +567,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		vec2 mousePositionDelta = inputManager->mousePositionDelta();
 
-		auto pov = scene.visualWorld()->pointOfView();
-		if (pov) {
+		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 			// look
 

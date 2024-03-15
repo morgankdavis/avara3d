@@ -117,8 +117,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	// move camera
 
-	auto pov = scene.visualWorld()->pointOfView();
-	if (pov) {
+	if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 		// look
 

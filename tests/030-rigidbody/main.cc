@@ -486,18 +486,21 @@ void UpdateCallback(Scene& scene, float time) {
 //		}
 
 		if (scene.visualWorld() && cursorCaptured) {
+
 			if (mouseButtonsPressed.count(MouseButton::One)) {
-				auto pov = scene.visualWorld()->pointOfView();
-				ShootBall(scene,
-						  pov->worldPosition(),
-						  pov->worldForward());
+				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+					ShootBall(scene,
+							  pov->worldPosition(),
+							  pov->worldForward());
+				}
 			}
 
 			if (mouseButtonsDown.count(MouseButton::Two)) {
-				auto pov = scene.visualWorld()->pointOfView();
-				ShootBall(scene,
-						  pov->worldPosition(),
-						  pov->worldForward());
+				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+					ShootBall(scene,
+							  pov->worldPosition(),
+							  pov->worldForward());
+				}
 			}
 		}
 
@@ -614,8 +617,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 			vec2 mousePositionDelta = inputManager->mousePositionDelta();
 
-			auto pov = scene.visualWorld()->pointOfView();
-			if (pov) {
+			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 				// look
 
