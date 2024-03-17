@@ -132,29 +132,29 @@ namespace a3d {
 
 		// *** fonts ***
 
-		std::shared_ptr<a3d::Font> 		FontNamed(const std::string& name,
+		std::unique_ptr<a3d::Font> 		FontNamed(const std::string& name,
 													const std::string& type);
 
 		// ***  images ***
 
-		std::shared_ptr<a3d::Image> 	ImageNamed(const std::string& name,
+		std::unique_ptr<a3d::Image> 	ImageNamed(const std::string& name,
 												  bool flipHorizontal=true,
 												  bool flipVertical=false);
-		std::shared_ptr<a3d::Image> 	ImageNamed(const std::string& name,
+		std::unique_ptr<a3d::Image> 	ImageNamed(const std::string& name,
 												  const std::string& type,
 												  bool flipHorizontal=true,
 												  bool flipVertical=false);
-		std::shared_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
-		std::shared_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name,
+		std::unique_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
+		std::unique_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name,
 														  const std::string& type);
 
 		// *** scenes ***
 
 #ifndef ANDROID
-		std::shared_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
+		std::unique_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
 												  SceneImportOptions options =
 												  SceneImportOptions::ImportAll);
-		std::shared_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
+		std::unique_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
 												  const std::string& type,
 												  SceneImportOptions options =
 												  SceneImportOptions::ImportAll);

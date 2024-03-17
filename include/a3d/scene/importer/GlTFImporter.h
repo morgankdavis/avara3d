@@ -17,6 +17,7 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
+#include "a3d/scene/Scene.h"
 
 
 namespace a3d {
@@ -31,7 +32,6 @@ namespace a3d {
 	class MeshElement;
 	class Node;
 	class Sampler;
-	class Scene;
 	class Texture;
 
 
@@ -42,7 +42,7 @@ namespace a3d {
 		GlTFImporter(const std::filesystem::path& path,
 					 SceneImportOptions options = SceneImportOptions::ImportAll);
 
-		std::shared_ptr<Scene> 				scene();
+		std::unique_ptr<Scene> 				scene();
 		std::shared_ptr<Mesh> 				firstMesh();
 
 		const std::filesystem::path&		path() const;
@@ -76,7 +76,7 @@ namespace a3d {
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;
-		std::shared_ptr<Scene> 										_scene;
+		std::unique_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
 		SceneImportOptions											_options;
 		// TODO: switch these to vectors resized from asset?

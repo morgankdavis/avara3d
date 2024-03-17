@@ -67,14 +67,14 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 	}
 }
 
-shared_ptr<a3d::Scene> GlTFImporter::scene() {
+unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 	if (!_scene) {
 		if (parse()) {
 
 			auto startTime = Scene::Time();
 
-			auto a3dScene = make_shared<a3d::Scene>();
+			auto a3dScene = make_unique<a3d::Scene>();
 
 			auto& scenes = _asset.scenes;
 			if (!scenes.empty()) {
@@ -96,7 +96,7 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
 
-					_scene = a3dScene;
+					_scene = std::move(a3dScene);
 				}
 				else {
 					A3D_LOG_E("No nodes in scene: {}", scene.name);
@@ -108,7 +108,7 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 		}
 	}
 
-	return _scene;
+	return std::move(_scene);
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {

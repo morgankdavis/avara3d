@@ -47,7 +47,7 @@ namespace a3d {
 	Public Static
  *********************************************************************************************/
 
-		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
+		static std::unique_ptr<Scene> 			FromFile(const std::filesystem::path& path,
 														  SceneImportOptions options = SceneImportOptions::ImportAll);
 		static double 							Time();
 
