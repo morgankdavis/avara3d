@@ -42,7 +42,7 @@ namespace a3d {
 		
 		std::optional<std::string>		name() const;
 		FontType 						type() const;
-		Buffer* 						buffer() const;
+		const Buffer* 					buffer() const;
 		
 /*********************************************************************************************
 	Private

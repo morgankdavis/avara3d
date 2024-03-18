@@ -40,11 +40,11 @@ namespace a3d {
 			  bool flipHorizontal = false);
 #endif
 		// with header
-		Image(std::shared_ptr<Buffer> headerBuffer,
+		Image(std::unique_ptr<Buffer> headerBuffer,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
 		// raw
-		Image(std::shared_ptr<Buffer> rawBuffer,
+		Image(std::unique_ptr<Buffer> rawBuffer,
 			  unsigned width,
 			  unsigned height,
 			  unsigned bytesPerPixel,
@@ -56,17 +56,17 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 		
-		unsigned 						width() const;
-		unsigned 						height() const;
-		unsigned 						bytesPerPixel() const;
-		std::shared_ptr<Image> 			inverted() const;
-		bool 							writePNG(std::filesystem::path path) const;
+		int 						width() const;
+		int 						height() const;
+		int 						bytesPerPixel() const;
+		std::unique_ptr<Image> 		inverted() const;
+		bool 						writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 		
-		std::shared_ptr<Buffer> 		buffer() const;
+		const Buffer* 				buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -74,17 +74,17 @@ namespace a3d {
 
 	private:
 
-		//void 							loadFile(const std::filesystem::path& path, bool flipHorizontal);
-		void 							loadBuffer(Buffer& buffer,
-													bool flipVertical,
-													bool flipHorizontal);
-		void 							flipVertical(); // "flip"
-		void 							flipHorizontal(); // "mirror"
-		
-		unsigned						_width;
-		unsigned						_height;
-		unsigned						_bytesPerPixel;
-		std::shared_ptr<Buffer>			_buffer;
+		//void 						loadFile(const std::filesystem::path& path, bool flipHorizontal);
+		void 						loadBuffer(Buffer& buffer,
+											   bool flipVertical,
+											   bool flipHorizontal);
+		void 						flipVertical(); // "flip"
+		void 						flipHorizontal(); // "mirror"
+
+		int							_width;
+		int							_height;
+		int							_bytesPerPixel;
+		std::unique_ptr<Buffer>		_buffer;
 	};
 }
 

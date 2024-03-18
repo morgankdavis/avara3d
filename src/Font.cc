@@ -61,6 +61,6 @@ FontType Font::type() const {
 	return _type;
 }
 
-Buffer* Font::buffer() const {
+const Buffer* Font::buffer() const {
 	return _buffer.get();
 }

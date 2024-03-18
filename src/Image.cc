@@ -40,7 +40,7 @@ Image::Image(const filesystem::path& path,
 }
 #endif
 
-Image::Image(shared_ptr<Buffer> buffer,
+Image::Image(unique_ptr<Buffer> buffer,
 			 bool flipVertical,
 			 bool flipHorizontal):
 		_buffer(nullptr),
@@ -51,13 +51,13 @@ Image::Image(shared_ptr<Buffer> buffer,
 	loadBuffer(*buffer, flipVertical, flipHorizontal);
 }
 
-Image::Image(shared_ptr<Buffer> rawBuffer,
+Image::Image(unique_ptr<Buffer> rawBuffer,
 			 unsigned width,
 			 unsigned height,
 			 unsigned bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer(rawBuffer),
+		_buffer(std::move(rawBuffer)),
 		_width(width),
 		_height(height),
 		_bytesPerPixel(bytesPerPixel) {
@@ -82,19 +82,19 @@ Image::~Image() {
 	Public
  *********************************************************************************************/
 
-unsigned Image::width() const {
+int Image::width() const {
 	return _width;
 }
 
-unsigned Image::height() const {
+int Image::height() const {
 	return _height;
 }
 
-unsigned Image::bytesPerPixel() const {
+int Image::bytesPerPixel() const {
 	return _bytesPerPixel;
 }
 
-shared_ptr<Image> Image::inverted() const {
+unique_ptr<Image> Image::inverted() const {
 
 	int widthInBytes = _width * _bytesPerPixel;
 	int size = widthInBytes * _height;
@@ -108,11 +108,11 @@ shared_ptr<Image> Image::inverted() const {
 		}
 	}
 
-	auto inverted = make_shared<Image>(make_shared<Buffer>((unsigned char*)buf, size),
-							  _width,
-							  _height,
-							  _bytesPerPixel,
-							  false);
+	auto inverted = make_unique<Image>(make_unique<Buffer>((unsigned char*)buf, size),
+									   _width,
+									   _height,
+									   _bytesPerPixel,
+									   false);
 	free(buf);
 
 	return inverted;
@@ -132,8 +132,8 @@ bool Image::writePNG(filesystem::path path) const {
 	Internal
  *********************************************************************************************/
 
-shared_ptr<Buffer> Image::buffer() const {
-	return _buffer;
+const Buffer* Image::buffer() const {
+	return _buffer.get();
 }
 
 /*********************************************************************************************
@@ -163,9 +163,9 @@ void Image::loadBuffer(Buffer& inBuf,
 		throw Exception("Failed to load image data.");
 	}
 
-	_buffer = make_shared<Buffer>(static_cast<const unsigned char*>(imgData),
-								static_cast<size_t>(width * height * bytesPerPixel));
-	
+	_buffer = make_unique<Buffer>(static_cast<const unsigned char*>(imgData),
+								  static_cast<size_t>(width * height * bytesPerPixel));
+
 	stbi_image_free(imgData);
 	
 	A3D_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
@@ -185,20 +185,20 @@ void Image::loadBuffer(Buffer& inBuf,
 
 void Image::flipVertical() { // "flip"
 
-	unsigned widthInBytes = _width * _bytesPerPixel;
+	int widthInBytes = _width * _bytesPerPixel;
 	unsigned char* top = nullptr;
 	unsigned char* bottom = nullptr;
 	unsigned char temp = 0;
-	unsigned halfHeight = _height / 2;
+	int halfHeight = _height / 2;
 
 	unsigned char* dPtr = _buffer->data();
 
-	for (unsigned r=0; r<halfHeight; ++r) {
+	for (int r=0; r<halfHeight; ++r) {
 
 		top = dPtr + r * widthInBytes;
 		bottom = dPtr + (_height - r - 1) * widthInBytes;
 
-		for (unsigned c=0; c<widthInBytes; ++c) {
+		for (int c=0; c<widthInBytes; ++c) {
 
 			temp = *top;
 			*top = *bottom;
@@ -212,20 +212,20 @@ void Image::flipVertical() { // "flip"
 // only works for 4-bytes-per-pixel images
 void Image::flipHorizontal() { // "mirror"
 
-	unsigned widthInBytes = _width * _bytesPerPixel;
+	int widthInBytes = _width * _bytesPerPixel;
 	uint32_t* row = nullptr;
 	uint32_t* left = nullptr;
 	uint32_t* right = nullptr;
 	uint32_t temp = 0;
-	unsigned halfWidth = _width / 2;
+	int halfWidth = _width / 2;
 
 	auto dPtr = reinterpret_cast<uint32_t*>(_buffer->data());
 
-	for (unsigned r=0; r<_height; ++r) {
+	for (int r=0; r<_height; ++r) {
 
 		row = dPtr + (_width * r);
 
-		for (unsigned c=0; c<halfWidth; ++c) {
+		for (int c=0; c<halfWidth; ++c) {
 
 			left = row + c;
 			right = row + _width - c - 1;
