@@ -225,7 +225,7 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	auto stepTime = endTime - startTime;
 	stats.currentPhysicstime = stepTime * 1000.0f;
 
-	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;

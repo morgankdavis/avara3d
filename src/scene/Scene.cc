@@ -37,7 +37,7 @@ using namespace std;
 using namespace std::filesystem;
 
 
-constexpr float FRAMETIME_AVERAGING_INTERVAL = .25;
+constexpr double FRAMETIME_AVERAGING_INTERVAL = .5;
 
 
 /*********************************************************************************************
@@ -349,7 +349,7 @@ void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
 	auto updateTime = endTime - startTime;
 	stats.currentUsertime = updateTime * 1000.0f;
 
-	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;
