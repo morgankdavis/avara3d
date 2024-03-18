@@ -1391,7 +1391,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	// find all lights in the scene
 	for (auto& node : scene.rootNode()->children(true)) {
 		if (!node->hidden()) {
-			if (auto light = node->light().get()) {
+			if (auto light = node->light()) {
 				if (light->type() == LightType::Point) {
 					lights.push_back(node.get());
 				}

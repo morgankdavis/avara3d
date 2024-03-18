@@ -51,8 +51,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			auto renderer = make_shared<OpenGLRenderer>();
-			_renderer = static_pointer_cast<Renderer>(renderer);
+			_renderer = make_unique<OpenGLRenderer>();
 			break; }
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
@@ -75,19 +74,19 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-unsigned RenderContext::width() const {
+int RenderContext::width() const {
 	return _width;
 }
 
-unsigned RenderContext::height() const {
+int RenderContext::height() const {
 	return _height;
 }
 
-unsigned RenderContext::framebufferWidth() const {
+int RenderContext::framebufferWidth() const {
 	return _framebufferWidth;
 }
 
-unsigned RenderContext::framebufferHeight() const {
+int RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
@@ -107,7 +106,7 @@ AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
 }
 
-shared_ptr<Image> RenderContext::snapshot() const {
+unique_ptr<Image> RenderContext::snapshot() const {
 	if (_renderer) {
 		return _renderer->snapshot(*this);
 	}
@@ -119,7 +118,7 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  unsigned maxHeight, unsigned maxFramerate) {
+									  int maxHeight, int maxFramerate) {
 	
 	if (!_recordingGIF) {
 		A3D_LOG_I("Starting GIF recording...");
@@ -134,13 +133,13 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 			_gifRecordingHeight = _framebufferHeight * scale;
 			_gifRecordingWidth = _framebufferWidth * scale;
 		}
-		
-		unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+
+		int frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
-		unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
+		int frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 		
 		//_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
-		_gifWriter = make_shared<GifWriter>();
+		_gifWriter = make_unique<GifWriter>();
 		// gif-h frame time is in 100ths of a second
 		GifBegin(_gifWriter.get(), path.string().c_str(),
 				 _gifRecordingWidth, _gifRecordingHeight,
@@ -172,33 +171,33 @@ VisualWorld* RenderContext::visualWorld() const {
 	return _visualWorld;
 }
 
-shared_ptr<Renderer> RenderContext::renderer() const {
-	return _renderer;
+Renderer* RenderContext::renderer() const {
+	return _renderer.get();
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-void RenderContext::width(unsigned width) {
+void RenderContext::width(int width) {
 	_width = width;
 	framebufferWidth(_width * _framebufferScale.x);
 }
 
-void RenderContext::height(unsigned height) {
+void RenderContext::height(int height) {
 	_height = height;
 	framebufferHeight(_height * _framebufferScale.y);
 }
 
-void RenderContext::framebufferWidth(unsigned width) {
+void RenderContext::framebufferWidth(int width) {
 	_framebufferWidth = width;
 }
 
-void RenderContext::framebufferHeight(unsigned height) {
+void RenderContext::framebufferHeight(int height) {
 	_framebufferHeight = height;
 }
 
-void RenderContext::framebufferScale(vec2 scale) {
+void RenderContext::framebufferScale(vec2& scale) {
 	_framebufferScale = scale;
 }
 

@@ -85,33 +85,33 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	auto ambientLight = make_unique<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	ambientLightNode = ambientLightNode;
-	scene->rootNode()->addChild(ambientLightNode);
+	auto ambientLightNode = Node::LightNode(std::move(ambientLight));
+	scene->rootNode()->addChild(std::move(ambientLightNode));
 
-	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
+	auto pointLight = make_unique<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
-	g_pointLightNode = pointLightNode.get();
-	scene->rootNode()->addChild(pointLightNode);
-	auto materialProperty = pointLight->color();
+
+	auto pointLightNode = Node::LightNode(std::move(pointLight));
+	g_pointLightNode = pointLightNode.get(); // <- this
+
+
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
-	material->emission(materialProperty);
+	material->emission(shared_ptr(Color::White()));
+
 	auto geometry = Sphere::Mesh(1.5, 4, material);
-	//auto geometry = shared_ptr(std::move(Sphere::Mesh(1.5, 4, material)));
-	//geometry->addMaterial(material);
-//	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(std::move(geometry));
+
+	scene->rootNode()->addChild(std::move(pointLightNode));
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
-				make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
+				make_unique<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
 																	   {100, 100, 100}}));
-		scene->rootNode()->addChild(orthoCameraNode);
+		scene->rootNode()->addChild(std::move(orthoCameraNode));
 	}
 
 //	auto siameseNode = scene->rootNode()->childNamed("Siamese");
@@ -257,7 +257,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
 
-				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(pov->camera());
+				auto camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
 				auto fov = camera->yFov();
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
 				camera->yFov(fov);

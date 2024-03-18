@@ -70,7 +70,7 @@ VisualWorld::~VisualWorld() {
 	Public
  *********************************************************************************************/
 
-MaterialProperty VisualWorld::background() const {
+MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
@@ -226,7 +226,7 @@ void VisualWorld::checkAddDefaultLighting() {
 			A3D_LOG_I("Adding default lighting.");
 
 			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
-			_scene->rootNode()->addChild(ambientNode);
+			_scene->rootNode()->addChild(std::move(ambientNode));
 
 			auto pointNode = Node::LightNode(Light::DefaultPoint());
 			// set position based on scene extent...
@@ -234,7 +234,7 @@ void VisualWorld::checkAddDefaultLighting() {
 			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
 								 sceneExtent.y + sceneExtent.y/4.0,
 								 sceneExtent.z + sceneExtent.z/4.0});
-			_scene->rootNode()->addChild(pointNode);
+			_scene->rootNode()->addChild(std::move(pointNode));
 		}
 	}
 }
@@ -263,7 +263,7 @@ void VisualWorld::draw(const Scene& scene,
 
 				auto aspectRatio = (float) _renderContext->framebufferWidth()
 								   / (float) _renderContext->framebufferHeight();
-				static_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+				dynamic_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
 				renderer->render(scene, debugOptions, stats);
 
@@ -324,11 +324,10 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		auto cameraNode = make_shared<Node>();
 		auto camera = make_shared<PerspectiveCamera>();
 		camera->name("default camera");
-		cameraNode->camera(camera);
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		float fovH = static_pointer_cast<PerspectiveCamera>(camera)->yFov();
+		float fovH = camera->yFov();//dynamic_cast<PerspectiveCamera*>(camera)->yFov();
 		float w = _renderContext->width();
 		float h = _renderContext->height();
 		float aspectRatio = w / h;
@@ -363,6 +362,8 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		cameraNode->transform(viewMat);
 
 		_scene->rootNode()->addChild(cameraNode);
+
+		cameraNode->camera(camera);
 
 		return cameraNode;
 	}

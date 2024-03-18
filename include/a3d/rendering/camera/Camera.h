@@ -32,22 +32,23 @@ namespace a3d {
 	public:
 
 		Camera();
-		Camera(std::string name);
+		Camera(const std::string& name);
+		virtual ~Camera();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 		name() const;
-		void 							name(std::string name);
+		const std::optional<std::string>&	name() const;
+		void 								name(const std::string& name);
 
-		glm::mat4 						projection() const;
+		glm::mat4 							projection() const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::weak_ptr<Node> 			node() const;
+//		std::weak_ptr<Node> 			node() const;
 //		void 							attachedToNode(std::shared_ptr<Node> node);
 
 	protected:

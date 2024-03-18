@@ -59,7 +59,11 @@ namespace a3d {
 		Color(float white);
 		Color(uint32_t color);
 		Color(const std::string& hexString);
-		//Color(const Color& color); // copy
+		Color(Color* other);
+//		Color(const Color& color); // copy
+//		Color& operator=(const Color& other); // copy assignment
+//		Color(Color&& other) noexcept; // move
+//		Color& operator=(Color&& other) noexcept; // move assignment
 		
 /*********************************************************************************************
 	Public

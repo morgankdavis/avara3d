@@ -45,40 +45,47 @@ namespace a3d {
 
 	public:
 
-		static std::shared_ptr<Node> 			NamedNode(std::string name);
-		static std::shared_ptr<Node> 			MeshNode(std::shared_ptr<Mesh> geometry);
-		static std::shared_ptr<Node> 			LightNode(std::shared_ptr<Light> light);
-		static std::shared_ptr<Node> 			CameraNode(std::shared_ptr<Camera> camera);
+		static std::unique_ptr<Node> 			NamedNode(std::string name);
+		static std::unique_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
+		static std::unique_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
+		static std::unique_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Node();
-		Node(const std::string& name);
-		Node(std::shared_ptr<Mesh> mesh);
-		Node(std::shared_ptr<Light> light);
-		Node(std::shared_ptr<Camera> camera);
-		/*testing*/ Node(const Node& other) = delete; // copy constructor
+		explicit Node(const std::string& name);
+		explicit Node(std::unique_ptr<Mesh> mesh);
+		explicit Node(const std::shared_ptr<Mesh>& mesh);
+		explicit Node(std::unique_ptr<Light> light);
+		explicit Node(const std::shared_ptr<Light>& light);
+		explicit Node(std::unique_ptr<Camera> camera);
+		explicit Node(const std::shared_ptr<Camera>& camera);
+		/*testing*/ Node(const Node& other) = delete; // copy
 		/*testing*/ Node& operator=(const Node& other) = delete; // copy assignment
+		/*testing*/ Node(Node&& other) noexcept = delete; // move
+		/*testing*/ Node& operator=(Node&& other) noexcept = delete; // move assignment
 		~Node();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 				name() const;
+		const std::optional<std::string>&		name() const;
 		void 									name(const std::string& name);
 
-		std::shared_ptr<Light> 					light() const;
-		void 									light(std::shared_ptr<Light> light);
+		const std::shared_ptr<Light>& 			light() const;
+		void 									light(std::unique_ptr<Light> light);
+		void 									light(const std::shared_ptr<Light>& light);
 
-		std::shared_ptr<Camera> 				camera() const;
-		void 									camera(std::shared_ptr<Camera> camera);
+		const std::shared_ptr<Camera>& 			camera() const;
+		void 									camera(std::unique_ptr<Camera> camera);
+		void 									camera(const std::shared_ptr<Camera>& camera);
 
-		std::shared_ptr<Mesh> 					mesh() const;
-		void 									mesh(std::shared_ptr<Mesh> mesh);
+		const std::shared_ptr<Mesh>& 			mesh() const;
 		void 									mesh(std::unique_ptr<Mesh> mesh);
+		void 									mesh(const std::shared_ptr<Mesh>& mesh);
 
 		bool 									hidden() const;
 		void 									hidden(bool hidden);
@@ -113,8 +120,10 @@ namespace a3d {
 
 		glm::mat4 								worldTransform() const;
 
-		void 									addChildren(std::vector<std::shared_ptr<Node>> nodes);
-		void 									addChild(std::shared_ptr<Node> node);
+		void 									addChild(std::unique_ptr<Node> node);
+		void 									addChild(const std::shared_ptr<Node>& node);
+		void 									addChildren(std::vector<std::unique_ptr<Node>> nodes);
+		void 									addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 		void 									removeFromParent();
 
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
@@ -169,6 +178,8 @@ namespace a3d {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
+//		bool 									containsChild(Node* node);
+//		bool 									containsChild(std::unique_ptr<Node> node);
 		bool 									containsChild(std::shared_ptr<Node> node);
 //		bool 									containsChild(Node* node);
 
@@ -199,9 +210,9 @@ namespace a3d {
 //		void 									childrenRec(std::shared_ptr<Node> node,
 //															std::list<std::shared_ptr<Node>>& list);
 
-		std::vector<std::shared_ptr<Node>>		children(Node* root);
-		void 									childrenRec(std::shared_ptr<Node> node,
-															std::list<std::shared_ptr<Node>>& list);
+		std::vector<std::shared_ptr<Node>>		children(const Node* root);
+		void 									childrenRec(const std::shared_ptr<Node>& node,
+															std::vector<std::shared_ptr<Node>>& children);
 
 //		std::vector<Node*>						children(Node* root);
 //		void 									childrenRec(Node* node,
@@ -215,11 +226,11 @@ namespace a3d {
 		void 									dirtyMask(NodeDirtyMask mask);
 
 		std::optional<std::string>				_name;
-		
-		std::shared_ptr<Light>					_light; // TODO: make unique
-		std::shared_ptr<Camera>					_camera; // TODO: make unique
+
+		std::shared_ptr<Light>					_light;
+		std::shared_ptr<Camera>					_camera;
 		std::shared_ptr<Mesh>					_mesh;
-		
+
 		bool									_hidden;
 
 		std::vector<std::shared_ptr<Node>>		_children;
@@ -228,7 +239,7 @@ namespace a3d {
 		glm::quat								_orientation;
 		glm::vec3								_scale;
 		
-		std::unique_ptr<PhysicsBody>			_physicsBody; // TODO: make unique
+		std::unique_ptr<PhysicsBody>			_physicsBody;
 
 		NodeDirtyMask							_dirtyMask;
 

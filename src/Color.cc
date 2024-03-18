@@ -138,9 +138,14 @@ Color::Color(uint32_t color):
 		a((float)((color & 0x000000FF) >> 0)/255.0f) { }
 
 Color::Color(const string& hexString) {
-
-
+	// TODO
 }
+
+Color::Color(Color* other):
+	r{other->r},
+	g{other->g},
+	b{other->b},
+	a{other->a} {}
 
 //Color::Color(const Color& color) {
 //	r = color.r;

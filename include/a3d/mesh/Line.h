@@ -41,10 +41,10 @@ namespace a3d {
 			 std::shared_ptr<Color>fromColor,
 			 std::shared_ptr<Color> toColor);
 
-//		Line(const Line& other);
-//		Line& operator=(const Line& other);
-//		Line(Line&& other) noexcept;
-//		Line& operator=(Line&& other) noexcept;
+//		Line(const Line& other); // copy
+//		Line& operator=(const Line& other); // copy assignment
+//		Line(Line&& other) noexcept; // move
+//		Line& operator=(Line&& other) noexcept; // move assignment
 		
 /*********************************************************************************************
 	Public

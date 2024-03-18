@@ -37,20 +37,20 @@ using namespace std;
 	Pulic Static
  *********************************************************************************************/
 
-shared_ptr<Node> Node::NamedNode(std::string name) {
-	return make_shared<Node>(name);
+unique_ptr<Node> Node::NamedNode(std::string name) {
+	return make_unique<Node>(name);
 }
 
-shared_ptr<Node> Node::MeshNode(std::shared_ptr<Mesh> mesh) {
-	return make_shared<Node>(mesh);
+unique_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
+	return make_unique<Node>(mesh);
 }
 
-shared_ptr<Node> Node::LightNode(shared_ptr<Light> light) {
-	return make_shared<Node>(light);
+unique_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
+	return make_unique<Node>(light);
 }
 
-shared_ptr<Node> Node::CameraNode(shared_ptr<Camera> camera) {
-	return make_shared<Node>(camera);
+unique_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
+	return make_unique<Node>(camera);
 }
 
 /*********************************************************************************************
@@ -76,17 +76,32 @@ Node::Node(const string& name):
 		_name = name;
 }
 
-Node::Node(shared_ptr<Mesh> mesh):
+Node::Node(unique_ptr<Mesh> mesh):
+		Node() {
+	_mesh = shared_ptr(std::move(mesh));
+}
+
+Node::Node(const shared_ptr<Mesh>& mesh):
 		Node() {
 	_mesh = mesh;
 }
 
-Node::Node(shared_ptr<Light> light):
+Node::Node(unique_ptr<Light> light):
+		Node() {
+	_light = shared_ptr(std::move(light));
+}
+
+Node::Node(const shared_ptr<Light>& light):
 		Node() {
 	_light = light;
 }
 
-Node::Node(shared_ptr<Camera> camera):
+Node::Node(unique_ptr<Camera> camera):
+		Node() {
+	_camera = shared_ptr(std::move(camera));
+}
+
+Node::Node(const shared_ptr<Camera>& camera):
 		Node() {
 	_camera = camera;
 }
@@ -109,7 +124,7 @@ Node::~Node() {
 	Public
  *********************************************************************************************/
 
-optional<std::string> Node::name() const {
+const optional<std::string>& Node::name() const {
 	return _name;
 }
 
@@ -117,27 +132,39 @@ void Node::name(const string& name) {
 	_name = name;
 }
 
-shared_ptr<Light> Node::light() const {
+const shared_ptr<Light>& Node::light() const {
 	return _light;
 }
 
-void Node::light(shared_ptr<Light> light) {
+void Node::light(unique_ptr<Light> light) {
+	Node::light(shared_ptr(std::move(light)));
+}
+
+void Node::light(const shared_ptr<Light>& light) {
 	_light = light;
 }
 
-shared_ptr<Camera> Node::camera() const {
+const shared_ptr<Camera>& Node::camera() const {
 	return _camera;
 }
 
-void Node::camera(shared_ptr<Camera> camera) {
+void Node::camera(unique_ptr<Camera> camera) {
+	Node::camera(shared_ptr(std::move(camera)));
+}
+
+void Node::camera(const shared_ptr<Camera>& camera) {
 	_camera = camera;
 }
 
-shared_ptr<Mesh> Node::mesh() const {
+const shared_ptr<Mesh>& Node::mesh() const {
 	return _mesh;
 }
 
-void Node::mesh(shared_ptr<Mesh> mesh) {
+void Node::mesh(unique_ptr<Mesh> mesh) {
+	Node::mesh(shared_ptr(std::move(mesh)));
+}
+
+void Node::mesh(const shared_ptr<Mesh>& mesh) {
 
 	if (_physicsBody && _mesh) {
 		_physicsBody->meshDetachedFromNode(mesh.get());
@@ -148,11 +175,6 @@ void Node::mesh(shared_ptr<Mesh> mesh) {
 	if (_physicsBody && _mesh) {
 		_physicsBody->meshAttachedToNode(mesh.get());
 	}
-}
-
-void Node::mesh(unique_ptr<Mesh> mesh) {
-
-	this->mesh(shared_ptr(std::move(mesh)));
 }
 
 bool Node::hidden() const {
@@ -545,13 +567,12 @@ mat4 Node::worldTransform() const {
 	}
 }
 
-void Node::addChildren(vector<shared_ptr<Node>> nodes) {
-	for (auto& node : nodes) {
-		addChild(node);
-	}
+void Node::addChild(unique_ptr<Node> node) {
+
+	addChild(shared_ptr(std::move(node)));
 }
 
-void Node::addChild(shared_ptr<Node> node) {
+void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {
 		throw Exception(fmt::format("Node already exists in tree: {:p}, (\"{}\")",
@@ -561,6 +582,18 @@ void Node::addChild(shared_ptr<Node> node) {
 
 	_children.push_back(node);
 	node->attachedToParent(this);
+}
+
+void Node::addChildren(vector<unique_ptr<Node>> nodes) {
+	for (auto& node : nodes) {
+		addChild(shared_ptr(std::move(node)));
+	}
+}
+
+void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
+	for (auto& node : nodes) {
+		addChild(node);
+	}
 }
 
 void Node::removeFromParent() {
@@ -1100,25 +1133,27 @@ void Node::getAABBRec(AABB& aabb) {
 //	//list.push_front(node);
 //}
 
-vector<shared_ptr<Node>> Node::children(Node* root) {
+vector<shared_ptr<Node>> Node::children(const Node* root) {
 
-	auto l = list<shared_ptr<Node>>();
+	auto children = vector<shared_ptr<Node>>();
 
 	for (auto& child : root->_children) {
-		childrenRec(child, l);
+		childrenRec(child, children);
 	}
 
-	return { make_move_iterator(std::begin(l)),
-			 make_move_iterator(std::end(l)) };
+	return children;
+
+//	return { make_move_iterator(std::begin(l)),
+//			 make_move_iterator(std::end(l)) };
 }
 
-void Node::childrenRec(shared_ptr<Node> node,
-					   list<shared_ptr<Node>>& list) {
+void Node::childrenRec(const shared_ptr<Node>& node,
+					   vector<shared_ptr<Node>>& children) {
 
-	list.push_back(node);
+	children.push_back(node);
 
 	for (auto& child : node->_children) {
-		childrenRec(child, list);
+		childrenRec(child, children);
 	}
 }
 

@@ -69,9 +69,9 @@ namespace a3d {
 																   fastgltf::Texture& texture);
 		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+		std::unique_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
 																fastgltf::Node& node);
-		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
+		std::unique_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 
 		bool														_parsed;
@@ -80,10 +80,10 @@ namespace a3d {
 		std::filesystem::path										_path;
 		SceneImportOptions											_options;
 		// TODO: switch these to vectors resized from asset?
-		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
+//		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Mesh>> 				_meshes;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
-		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
+//		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
 		std::map<std::size_t, std::shared_ptr<Texture>> 			_textures;
 		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;
