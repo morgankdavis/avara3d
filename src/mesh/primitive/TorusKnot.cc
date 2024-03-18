@@ -24,7 +24,7 @@ unique_ptr<Mesh> TorusKnot::Mesh(int p,
 								 int segments,
 								 shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<TorusKnot>(p,
+	return make_unique<a3d::Mesh>(make_unique<TorusKnot>(p,
 														 q,
 														 slices,
 														 segments),

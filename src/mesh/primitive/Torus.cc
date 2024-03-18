@@ -28,7 +28,7 @@ unique_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 int segments,
 							 shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Torus>(minorRadius,
+	return make_unique<a3d::Mesh>(make_unique<Torus>(minorRadius,
 													 majorRadius,
 													 slices,
 													 segments),

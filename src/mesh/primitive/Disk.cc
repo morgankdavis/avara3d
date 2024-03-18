@@ -24,7 +24,7 @@ unique_ptr<Mesh> Disk::Mesh(float radius,
 							int rings,
 							shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Disk>(radius,
+	return make_unique<a3d::Mesh>(make_unique<Disk>(radius,
 													height,
 													slices,
 													rings),

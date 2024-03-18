@@ -29,7 +29,7 @@ unique_ptr<Mesh> Box::Mesh(float length,
 						   int heightSegments,
 						   shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Box>(length,
+	return make_unique<a3d::Mesh>(make_unique<Box>(length,
 												   width,
 												   height,
 												   lengthSegments,

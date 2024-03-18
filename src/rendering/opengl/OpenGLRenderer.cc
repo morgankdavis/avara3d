@@ -561,7 +561,7 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	auto program = Program::Skybox();
 	
-	auto element = skyboxMesh.elements().front();
+	auto& element = skyboxMesh.elements().front();
 	auto material = skyboxMesh.materials().front();
 	auto emissiveProperty = material->emission();
 	
@@ -644,7 +644,7 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
 	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
 	
-	auto element = skyboxMesh.elements().front();
+	auto& element = skyboxMesh.elements().front();
 
 	if (A3D_MASK_CONTAINS(element->dirtyMask(), MeshElementDirtyMask::VertexData)) {
 
@@ -975,7 +975,7 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	
 	program.use();
 	
-	auto element = skyboxMesh.elements().front();
+	auto& element = skyboxMesh.elements().front();
 	auto verts = element->vertices();
 	auto faces = element->faces();
 	

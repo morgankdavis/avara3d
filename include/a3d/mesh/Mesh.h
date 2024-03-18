@@ -48,9 +48,9 @@ namespace a3d {
  *********************************************************************************************/
 
 		Mesh();
-		Mesh(const std::shared_ptr<MeshElement>& element,
+		Mesh(std::unique_ptr<MeshElement> element,
 			 const std::shared_ptr<Material>& material);
-		Mesh(const std::vector<std::shared_ptr<MeshElement>>& elements,
+		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
 		
@@ -61,7 +61,7 @@ namespace a3d {
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
 
-		const std::vector<std::shared_ptr<MeshElement>>&	elements();
+		const std::vector<std::unique_ptr<MeshElement>>&	elements();
 		const std::vector<std::shared_ptr<Material>>& 		materials();
 
 		std::shared_ptr<Material> 				firstMaterial() const;
@@ -99,7 +99,7 @@ namespace a3d {
 
 	protected:
 
-		std::vector<std::shared_ptr<MeshElement>>	_elements;
+		std::vector<std::unique_ptr<MeshElement>>	_elements;
 		std::vector<std::shared_ptr<Material>>		_materials;
 
 /*********************************************************************************************

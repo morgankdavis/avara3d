@@ -44,25 +44,29 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 
 Mesh::Mesh():
 		_name(nullopt),
-		_elements(vector<shared_ptr<MeshElement>>()),
+		_elements(vector<unique_ptr<MeshElement>>()),
 		_materials(vector<shared_ptr<Material>>()),
 		_dirtyMask(MeshDirtyMask::All) {
 
 }
 
-Mesh::Mesh(const shared_ptr<MeshElement>& element,
+Mesh::Mesh(unique_ptr<MeshElement> element,
 		   const shared_ptr<Material>& material):
 		Mesh() {
 
-	if (element) _elements.push_back(element);
+	if (element) _elements.push_back(std::move(element));
 	if (material) _materials.push_back(material);
 }
 
-Mesh::Mesh(const vector<shared_ptr<MeshElement>>& elements,
+Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
 		   const vector<shared_ptr<Material>>& materials):
 		Mesh() {
 
-	_elements = elements;
+	_elements = vector<unique_ptr<MeshElement>>();
+	_elements.reserve(elements.size());
+	_elements.insert(_elements.end(),
+					 std::make_move_iterator(elements.begin()),
+					 std::make_move_iterator(elements.end()));
 	_materials = materials;
 	//_elements.insert(_elements.begin(), elements.begin(), elements.end());
 	//_materials.insert(_materials.begin(), materials.begin(), materials.end());
@@ -84,7 +88,7 @@ void Mesh::name(const string& name) {
 	_name = name;
 }
 
-const vector<shared_ptr<MeshElement>>& Mesh::elements() {
+const vector<unique_ptr<MeshElement>>& Mesh::elements() {
 	return _elements;
 }
 
@@ -135,7 +139,7 @@ void Mesh::replaceMaterial(int index, shared_ptr<Material> replacement) {
  *********************************************************************************************/
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
-	for (auto element : elements()) {
+	for (auto& element : elements()) {
 		element->burnTransform(transform, normals);
 	}
 	//node()->lock()->transform(mat4(1.0));
@@ -159,8 +163,8 @@ void Mesh::draw(Renderer& renderer,
 					debugOptions, stats);
 	
 	for (unsigned e=0; e<_elements.size(); ++e) {
-		
-		shared_ptr<MeshElement> element = _elements[e];
+
+		auto& element = _elements[e];
 		shared_ptr<Material> material = nullptr;
 		if (_materials.size() > e) {
 			material = _materials[e];
@@ -169,7 +173,7 @@ void Mesh::draw(Renderer& renderer,
 //			material = make_shared<Material>();
 			material = Material::DefaultMaterial();
 		}
-		
+
 		element->draw(renderer,
 					  *material,
 					  modelMat,

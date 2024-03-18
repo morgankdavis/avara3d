@@ -58,7 +58,7 @@ namespace a3d {
 															  fastgltf::Node& node);
 		std::shared_ptr<Mesh> 				meshFromGlTFMeshIndex(fastgltf::Asset& asset,
 																   std::size_t meshIndex);
-		std::shared_ptr<MeshElement> 		meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+		std::unique_ptr<MeshElement> 		meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
 																		 fastgltf::Primitive& primitive);
 		std::shared_ptr<Material> 			materialFromGlTFPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);

@@ -29,7 +29,7 @@ unique_ptr<Mesh> Cone::Mesh(float radius,
 							int rings,
 							shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Cone>(radius,
+	return make_unique<a3d::Mesh>(make_unique<Cone>(radius,
 													height,
 													slices,
 													segments,

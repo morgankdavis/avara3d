@@ -29,7 +29,7 @@ unique_ptr<Mesh> Cylinder::Mesh(float radius,
 								int rings,
 								shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Cylinder>(radius,
+	return make_unique<a3d::Mesh>(make_unique<Cylinder>(radius,
 														height,
 														slices,
 														segments,

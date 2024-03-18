@@ -26,7 +26,7 @@ unique_ptr<Mesh> Sphere::Mesh(float radius,
 							  int segments,
 							  shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Sphere>(radius,
+	return make_unique<a3d::Mesh>(make_unique<Sphere>(radius,
 													  segments),
 								  material);
 }

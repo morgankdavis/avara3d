@@ -1134,14 +1134,19 @@ void SpawnHACDTeapot(Scene& scene) {
 	options.maxRecursionDepth = options.maxRecursionDepth / 2;
 	options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
 
-	auto decomposedElements = vector<shared_ptr<MeshElement>>();
+	auto decomposedElements = vector<unique_ptr<MeshElement>>();
 
 	for (auto& element : teapotNode->mesh()->elements()) {
-		auto decomposer = ConvexDecomposer(element, options);
+		auto decomposer = ConvexDecomposer(element.get(), options);
 		auto elements = decomposer.decompose();
-		decomposedElements.insert(decomposedElements.begin(),
-								  elements.begin(),
-								  elements.end());
+
+//		decomposedElements.insert(decomposedElements.begin(),
+//								  elements.begin(),
+//								  elements.end());
+
+		decomposedElements.insert(decomposedElements.end(),
+						 std::make_move_iterator(elements.begin()),
+						 std::make_move_iterator(elements.end()));
 	}
 
 	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();

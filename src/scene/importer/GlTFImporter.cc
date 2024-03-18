@@ -252,13 +252,13 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 
 		auto& mesh = asset.meshes[meshIndex];
 
-		auto elements = vector<shared_ptr<MeshElement>>();
+		auto elements = vector<unique_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
 
 		for (auto& primitive: mesh.primitives) {
 
 			auto element = meshElementFromGlTFPrimitive(asset, primitive);
-			if (element) elements.push_back(element);
+			if (element) elements.push_back(std::move(element));
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
@@ -280,7 +280,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 	return nullptr;
 }
 
-shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
 																		fastgltf::Primitive& primitive) {
 
 	// TODO: make this suck less
@@ -466,7 +466,7 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
 				}
 			}
 
-			return make_shared<MeshElement>(verts, faces);
+			return make_unique<MeshElement>(verts, faces);
 		}
 		else {
 			A3D_LOG_E("Missing vertex indicies.");

@@ -28,7 +28,7 @@ unique_ptr<Mesh> Plane::Mesh(float width,
 							 int heightSegments,
 							 shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<Plane>(width,
+	return make_unique<a3d::Mesh>(make_unique<Plane>(width,
 													 height,
 													 widthSegements,
 													 heightSegments),

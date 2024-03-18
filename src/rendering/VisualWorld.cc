@@ -76,7 +76,7 @@ MaterialProperty& VisualWorld::background() {
 
 void VisualWorld::background(MaterialProperty background) {
 
-	if (shared_ptr<Texture>* texture = get_if<shared_ptr<Texture>>(&background)) {
+	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 
 		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
 			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
@@ -140,7 +140,7 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 	}
 	else {
 		// try to assign one from the scene
-		for (auto node : _scene->rootNode()->children(true)) {
+		for (auto& node : _scene->rootNode()->children(true)) {
 			if (node->camera()) {
 				_pointOfView = node;
 				break;
@@ -155,7 +155,7 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 	return _pointOfView;
 }
 
-void VisualWorld::pointOfView(shared_ptr<Node> cameraNode) {
+void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
 	_pointOfView = cameraNode;
 }
 
@@ -327,35 +327,35 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		float fovH = camera->yFov();//dynamic_cast<PerspectiveCamera*>(camera)->yFov();
-		float w = _renderContext->width();
-		float h = _renderContext->height();
-		float aspectRatio = w / h;
-		float inverseAspectRatio = 1.0f / aspectRatio;
-		float fovV = fovH * inverseAspectRatio;
+		auto fovH = camera->yFov();//dynamic_cast<PerspectiveCamera*>(camera)->yFov();
+		auto w = _renderContext->width();
+		auto h = _renderContext->height();
+		auto aspectRatio = (float)w / (float)h;
+		auto inverseAspectRatio = 1.0f / aspectRatio;
+		auto fovV = fovH * inverseAspectRatio;
 
 		// tan(angle) = x/z
 		// ztan(angle) = x
 		// z = x/tan(angle)
 
-		float maxZ = abs(aabb.max.z);
+		auto maxZ = abs(aabb.max.z);
 
-		float xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
-		float angleH = fovH / 2.0;
-		float zH = xH / tan(angleH);
+		auto xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
+		auto angleH = fovH / 2.0;
+		auto zH = xH / tan(angleH);
 
-		float xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
-		float angleV = fovV / 2.0;
-		float zV = xV / tan(angleV);
+		auto xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
+		auto angleV = fovV / 2.0;
+		auto zV = xV / tan(angleV);
 
 		zH += maxZ;
 		zV += maxZ;
 
-		float z = fmax(zH, zV);
-		float midX = (aabb.min.x + aabb.max.x) / 2.0f;
-		float midY = (aabb.min.y + aabb.max.y) / 2.0f;
+		auto z = fmax(zH, zV);
+		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
+		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
 
-		vec3 eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
+		auto eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
 		//vec3 eye = vec3(midX, midY, z);
 
 		mat4 viewMat = translate(mat4(1.0f), eye);

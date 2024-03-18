@@ -28,7 +28,7 @@ unique_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  int heightSegments,
 								  shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_shared<RoundedBox>(radius,
+	return make_unique<a3d::Mesh>(make_unique<RoundedBox>(radius,
 														  length,
 														  width,
 														  height,

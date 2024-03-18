@@ -69,14 +69,14 @@ namespace a3d {
 //						 bool async);
 //		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
 //						 Options& options);
-		ConvexDecomposer(std::shared_ptr<MeshElement> element,
+		ConvexDecomposer(MeshElement* element,
 						 Options& options);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<MeshElement>>	decompose();
+		std::vector<std::unique_ptr<MeshElement>>	decompose();
 
 //		void 									run();
 //		bool  									running() const;
@@ -85,8 +85,8 @@ namespace a3d {
 //		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
 //		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements() const;
 
-		std::shared_ptr<MeshElement>				sourceElement() const;
-		std::vector<std::shared_ptr<MeshElement>>	decomposedElements() const;
+//		MeshElement*								sourceElement() const;
+//		std::vector<std::unique_ptr<MeshElement>>&	decomposedElements();
 //
 //		ProgressFunction 						progressCallback() const;
 //		void 									progressCallback(ProgressFunction function);
@@ -120,22 +120,26 @@ namespace a3d {
 	private:
 
 		// TODO: make this unique_ptr
-//		std::unique_ptr<IVHACD>								_vhacd;
-//		IVHACD*												_vhacd;
+//		std::unique_ptr<IVHACD>							_vhacd;
+//		IVHACD*											_vhacd;
 
-		Options 											_options;
+		Options 										_options;
 
-//		std::vector<std::shared_ptr<GeometryElement>>		_sourceElements;
-//		std::vector<std::shared_ptr<GeometryElement>>		_decomposedElements;
-		std::shared_ptr<MeshElement>					_sourceElement;
-		std::vector<std::shared_ptr<MeshElement>>		_decomposedElements;
+//		std::vector<std::shared_ptr<GeometryElement>>	_sourceElements;
+//		std::vector<std::shared_ptr<GeometryElement>>	_decomposedElements;
 
-//		bool												_running;
-//		bool												_isAsync;
 
-//		ProgressFunction									_progressFunction;
-//		FinishedFunction									_finishedFunction;
-//		CanceledFunction 									_canceledFunction;
+		MeshElement*									_sourceElement;
+//		std::vector<std::unique_ptr<MeshElement>>		_decomposedElements;
+
+
+
+//		bool											_running;
+//		bool											_isAsync;
+
+//		ProgressFunction								_progressFunction;
+//		FinishedFunction								_finishedFunction;
+//		CanceledFunction 								_canceledFunction;
 	};
 }
 

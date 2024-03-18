@@ -65,7 +65,7 @@ namespace a3d {
 		void 									fogColor(std::unique_ptr<Color> color);
 
 		std::weak_ptr<Node>						pointOfView();
-		void 									pointOfView(std::shared_ptr<Node> cameraNode);
+		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
 
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);
