@@ -93,18 +93,13 @@ int main(int argc, const char* argv[]) {
 	auto pointLight = make_unique<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-
 	auto pointLightNode = Node::LightNode(std::move(pointLight));
-	g_pointLightNode = pointLightNode.get(); // <- this
-
-
+	g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
-	material->emission(shared_ptr(Color::White()));
-
+	material->emission(std::move(Color::White()));
 	auto geometry = Sphere::Mesh(1.5, 4, material);
 	pointLightNode->mesh(std::move(geometry));
-
 	scene->rootNode()->addChild(std::move(pointLightNode));
 
 	if (ORTHO_CAMERA) {

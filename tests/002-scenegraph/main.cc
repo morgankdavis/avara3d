@@ -75,29 +75,29 @@ int main(int argc, const char* argv[]) {
 
 	if (USING_TEST == TEST::TRAVERSAL) {
 
-		auto a = Node::NamedNode("a");
-		auto b = Node::NamedNode("b");
-		auto c = Node::NamedNode("c");
-		auto d = Node::NamedNode("d");
-		auto e = Node::NamedNode("e");
-		auto f = Node::NamedNode("f");
-		auto g = Node::NamedNode("g");
-		auto h = Node::NamedNode("h");
-		auto i = Node::NamedNode("i");
-		auto j = Node::NamedNode("j");
-		auto k = Node::NamedNode("k");
-		auto l = Node::NamedNode("l");
-		auto m = Node::NamedNode("m");
-		auto n = Node::NamedNode("n");
-		auto o = Node::NamedNode("o");
-		auto p = Node::NamedNode("p");
-		auto q = Node::NamedNode("q");
-		auto r = Node::NamedNode("r");
-		auto s = Node::NamedNode("s");
-		auto t = Node::NamedNode("t");
-		auto u = Node::NamedNode("u");
-		auto v = Node::NamedNode("v");
-		auto w = Node::NamedNode("w");
+		auto a = shared_ptr(Node::NamedNode("a"));
+		auto b = shared_ptr(Node::NamedNode("b"));
+		auto c = shared_ptr(Node::NamedNode("c"));
+		auto d = shared_ptr(Node::NamedNode("d"));
+		auto e = shared_ptr(Node::NamedNode("e"));
+		auto f = shared_ptr(Node::NamedNode("f"));
+		auto g = shared_ptr(Node::NamedNode("g"));
+		auto h = shared_ptr(Node::NamedNode("h"));
+		auto i = shared_ptr(Node::NamedNode("i"));
+		auto j = shared_ptr(Node::NamedNode("j"));
+		auto k = shared_ptr(Node::NamedNode("k"));
+		auto l = shared_ptr(Node::NamedNode("l"));
+		auto m = shared_ptr(Node::NamedNode("m"));
+		auto n = shared_ptr(Node::NamedNode("n"));
+		auto o = shared_ptr(Node::NamedNode("o"));
+		auto p = shared_ptr(Node::NamedNode("p"));
+		auto q = shared_ptr(Node::NamedNode("q"));
+		auto r = shared_ptr(Node::NamedNode("r"));
+		auto s = shared_ptr(Node::NamedNode("s"));
+		auto t = shared_ptr(Node::NamedNode("t"));
+		auto u = shared_ptr(Node::NamedNode("u"));
+		auto v = shared_ptr(Node::NamedNode("v"));
+		auto w = shared_ptr(Node::NamedNode("w"));
 
 		u->addChild(v);
 		u->addChild(w);
