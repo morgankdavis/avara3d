@@ -49,18 +49,15 @@ Buffer::Buffer(const vector<unsigned char>& buf):
 		Buffer(&buf[0], buf.size()) {
 }
 
-Buffer::Buffer(const Buffer& other) { // copy constructor
-	// allotate our new memory and copy 'other' data into ours
+Buffer::Buffer(const Buffer& other) {
 
 	size_t bufSize = other._size;
-	// TODO: free old pointer?
 	_data = (unsigned char*)malloc(bufSize);
 	memcpy(_data, other._data, bufSize);
 	_size = bufSize;
 }
 
-Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
-	// make a copy of 'other's data, delete ours, and move their data into ours
+Buffer& Buffer::operator=(const Buffer& other) {
 
 	size_t bufSize = other._size;
 	auto tempPointer = (unsigned char*)malloc(bufSize);
@@ -72,6 +69,24 @@ Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
 	_size = bufSize;
 
 	return *this;
+}
+
+Buffer::Buffer(Buffer&& other) noexcept {
+
+	if (this != &other) {
+		_size = other._size;
+		_data = other._data;
+		other._size = 0;
+		other._data = nullptr;
+	}
+}
+
+Buffer& Buffer::operator=(Buffer&& other) noexcept {
+
+	_size = other._size;
+	_data = other._data;
+	other._size = 0;
+	other._data = nullptr;
 }
 
 Buffer::~Buffer() {

@@ -29,8 +29,10 @@ namespace a3d {
 		Buffer(const unsigned char* buf, std::size_t size);
 		Buffer(const std::vector<unsigned char>& buf);
 		
-		Buffer(const Buffer& other); // copy constructor
+		Buffer(const Buffer& other); // copy
 		Buffer& operator=(const Buffer& other); // copy assignment
+		Buffer(Buffer&& other) noexcept; // move
+		Buffer& operator=(Buffer&& other) noexcept; // move assignment
 		
 		~Buffer();
 		
@@ -55,7 +57,7 @@ namespace a3d {
 
 	private:
 
-		unsigned char* 			_data;
+		unsigned char* 			_data; // TODO: make unique
 		unsigned 				_size;
 	};
 }

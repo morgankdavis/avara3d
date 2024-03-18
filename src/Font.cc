@@ -35,13 +35,13 @@ Font::Font(filesystem::path& path):
 			_type = FontType::TTF;
 		}
 		
-		_buffer = make_shared<Buffer>(path);
+		_buffer = make_unique<Buffer>(path);
 }
 
-Font::Font(shared_ptr<Buffer> buffer):
+Font::Font(unique_ptr<Buffer>& buffer):
 	_name(nullopt),
 	_type(FontType::Unknown),
-	_buffer(buffer) {
+	_buffer(std::move(buffer)) {
 	
 }
 
@@ -61,6 +61,6 @@ FontType Font::type() const {
 	return _type;
 }
 
-shared_ptr<Buffer> Font::buffer() const {
-	return _buffer;
+Buffer* Font::buffer() const {
+	return _buffer.get();
 }

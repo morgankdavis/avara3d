@@ -32,7 +32,7 @@ namespace a3d {
 	public:
 
 		Font(std::filesystem::path& path);
-		Font(std::shared_ptr<Buffer> buffer);
+		Font(std::unique_ptr<Buffer>& buffer);
 		
 		~Font();
 		
@@ -42,7 +42,7 @@ namespace a3d {
 		
 		std::optional<std::string>		name() const;
 		FontType 						type() const;
-		std::shared_ptr<Buffer> 		buffer() const;
+		Buffer* 						buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -52,7 +52,7 @@ namespace a3d {
 
 		std::optional<std::string>		_name;
 		FontType						_type;
-		std::shared_ptr<Buffer>			_buffer;
+		std::unique_ptr<Buffer>			_buffer;
 	};
 }
 
