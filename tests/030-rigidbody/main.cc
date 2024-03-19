@@ -168,7 +168,7 @@ int main(int argc, const char* argv[]) {
 	auto planeNode = Node::NamedNode("Ground plane node");
 	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeTexture = make_shared<Texture>(gridImage);
+	auto planeTexture = make_shared<Texture>(std::move(gridImage));
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
 	planeTexture->sampler()->wrapT(WrapMode::Repeat);
 	planeTexture->sampler()->maxAnisotropy(16);
