@@ -217,7 +217,8 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 		auto frame = snapshot();
 
 		auto resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
-		stbir_resize_uint8_linear(frame->buffer()->data(), frame->width(), frame->height(), 0,
+		stbir_resize_uint8_linear(reinterpret_cast<const unsigned char*>(frame->buffer()->data()),
+								  frame->width(), frame->height(), 0,
 								  resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0,
 								  STBIR_RGBA);
 

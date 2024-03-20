@@ -674,7 +674,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 				A3D_LOG_D("Creating texture image...");
 
 				auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-				auto a3dBuffer = make_unique<a3d::Buffer>(uint8Vec.data(), uint8Vec.size());
+				auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
 				a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
 			}
 			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
@@ -697,7 +697,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 					if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
 
 						auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-						auto a3dBuffer = make_unique<a3d::Buffer>(&uint8Vec[byteOffset], byteLength);
+						auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
 						a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
 					}
 					else {

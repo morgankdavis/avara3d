@@ -30,29 +30,29 @@ Buffer::Buffer(const std::filesystem::path& path):
 	// TODO: check path or exception
 	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
 	ifstream::pos_type pos = inStream.tellg();
-	_data = (unsigned char*)malloc(pos);
+	_data = (byte*)malloc(pos);
 	inStream.seekg(0, ios::beg);
 	inStream.read((char*)_data, pos);
 	_size = pos;
 }
 
-Buffer::Buffer(const unsigned char* buf, std::size_t size):
+Buffer::Buffer(const byte* buf, std::size_t size):
 		_data(nullptr),
 		_size(0) {
 
-	_data = (unsigned char*)malloc(size);
+	_data = (byte*)malloc(size);
 	memcpy(_data, buf, size);
 	_size = size;
 }
 
-Buffer::Buffer(const vector<unsigned char>& buf):
+Buffer::Buffer(const vector<byte>& buf):
 		Buffer(&buf[0], buf.size()) {
 }
 
 Buffer::Buffer(const Buffer& other) {
 
 	size_t bufSize = other._size;
-	_data = (unsigned char*)malloc(bufSize);
+	_data = (byte*)malloc(bufSize);
 	memcpy(_data, other._data, bufSize);
 	_size = bufSize;
 }
@@ -60,7 +60,7 @@ Buffer::Buffer(const Buffer& other) {
 Buffer& Buffer::operator=(const Buffer& other) {
 
 	size_t bufSize = other._size;
-	auto tempPointer = (unsigned char*)malloc(bufSize);
+	auto tempPointer = (byte*)malloc(bufSize);
 	memcpy(tempPointer, other._data, bufSize);
 	if (_data) {
 		free(_data);
@@ -101,11 +101,11 @@ Buffer::~Buffer() {
 	Public
  *********************************************************************************************/
 
-unsigned char* Buffer::data() const {
+byte* Buffer::data() const {
 	return _data;
 }
 
-unsigned Buffer::size() const {
+size_t Buffer::size() const {
 	return _size;
 }
 
@@ -113,10 +113,10 @@ unsigned Buffer::size() const {
 	Operator Overloads
  *********************************************************************************************/
 
-unsigned char* Buffer::operator*() const {
+byte* Buffer::operator*() const {
 	return _data;
 }
 
-unsigned char Buffer::operator[](std::size_t idx) const {
+byte Buffer::operator[](std::size_t idx) const {
 	return _data[idx];
 }

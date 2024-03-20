@@ -543,7 +543,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	unsigned framebufferHeight = context.framebufferHeight();
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
 	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
-	auto buffer = make_unique<Buffer>((const unsigned char*)pixelBuf, framebufferWidth * framebufferHeight * 4);
+	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 	

@@ -26,8 +26,8 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Buffer(const std::filesystem::path& path);
-		Buffer(const unsigned char* buf, std::size_t size);
-		Buffer(const std::vector<unsigned char>& buf);
+		Buffer(const std::byte* buf, std::size_t size);
+		Buffer(const std::vector<std::byte>& buf);
 		
 		Buffer(const Buffer& other); // copy
 		Buffer& operator=(const Buffer& other); // copy assignment
@@ -41,15 +41,15 @@ namespace a3d {
  *********************************************************************************************/
 
 		// TODO: switch to unique_ptr
-		unsigned char* 			data() const;
-		unsigned 				size() const;
+		std::byte* 			data() const;
+		std::size_t 				size() const;
 
 /*********************************************************************************************
 	Operator Overloads
  *********************************************************************************************/
 
-		unsigned char*			operator*() const;
-		unsigned char			operator[](std::size_t idx) const;
+		std::byte*			operator*() const;
+		std::byte			operator[](std::size_t idx) const;
 
 /*********************************************************************************************
 	Private
@@ -57,8 +57,8 @@ namespace a3d {
 
 	private:
 
-		unsigned char* 			_data; // TODO: make unique
-		unsigned 				_size;
+		std::byte* 			_data; // TODO: make unique
+		std::size_t 				_size;
 	};
 }
 

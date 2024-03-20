@@ -104,11 +104,11 @@ unique_ptr<Image> Image::inverted() const {
 	auto existing = _buffer->data();
 	for (int r=0; r<_height; ++r) {
 		for (int c=0; c<widthInBytes; ++c) {
-			buf[widthInBytes*r + c] = 255 - existing[widthInBytes*r + c];
+			buf[widthInBytes*r + c] = 255 - (int)existing[widthInBytes*r + c];
 		}
 	}
 
-	auto inverted = make_unique<Image>(make_unique<Buffer>((unsigned char*)buf, size),
+	auto inverted = make_unique<Image>(make_unique<Buffer>((byte*)buf, size),
 									   _width,
 									   _height,
 									   _bytesPerPixel,
@@ -148,7 +148,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	int height;
 	int bytesPerPixel;
 	
-	stbi_uc* imgData = stbi_load_from_memory(*inBuf,//inBuf.data(),
+	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)*inBuf,//inBuf.data(),
 											 inBuf.size(),
 											 &width,
 											 &height,
@@ -163,7 +163,7 @@ void Image::loadBuffer(Buffer& inBuf,
 		throw Exception("Failed to load image data.");
 	}
 
-	_buffer = make_unique<Buffer>(static_cast<const unsigned char*>(imgData),
+	_buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),//static_cast<const unsigned char*>(imgData),
 								  static_cast<size_t>(width * height * bytesPerPixel));
 
 	stbi_image_free(imgData);
@@ -191,7 +191,7 @@ void Image::flipVertical() { // "flip"
 	unsigned char temp = 0;
 	int halfHeight = _height / 2;
 
-	unsigned char* dPtr = _buffer->data();
+	unsigned char* dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
 
 	for (int r=0; r<halfHeight; ++r) {
 
