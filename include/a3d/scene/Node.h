@@ -37,7 +37,7 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class Node {
+	class Node : public std::enable_shared_from_this<Node> { // ew
 
 /*********************************************************************************************
 	Public Static
@@ -47,6 +47,7 @@ namespace a3d {
 
 		static std::unique_ptr<Node> 			NamedNode(std::string name);
 		static std::unique_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
+//		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
 		static std::unique_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
 		static std::unique_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
 

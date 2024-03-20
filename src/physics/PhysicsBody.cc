@@ -59,14 +59,14 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
 		_type(type),
 		_shape(nullptr),
-		_node(nullptr),
+		_node{},
 		_world(nullptr) {
 
 	// _node has to be initialized to nullptr before calling this
 	_proxy = make_unique<BulletBodyProxy>(this);
 }
 
-PhysicsBody::PhysicsBody(PhysicsBodyType type, shared_ptr<PhysicsShape> shape):
+PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& shape):
 		PhysicsBody(type) {
 
 	this->shape(shape);
@@ -99,7 +99,7 @@ shared_ptr<PhysicsShape> PhysicsBody::shape() const {
 	return _shape;
 }
 
-void PhysicsBody::shape(shared_ptr<PhysicsShape> shape) {
+void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 	A3D_LOG_T("shape: {:p}", static_cast<void*>(shape.get()));
 
 	if (shape != _shape) {
@@ -132,7 +132,7 @@ vec3 PhysicsBody::momentOfInertia() const {
 	return _proxy->momentOfInertia();
 }
 
-void PhysicsBody::momentOfInertia(vec3 moment) {
+void PhysicsBody::momentOfInertia(const vec3& moment) {
 	_proxy->momentOfInertia(moment);
 }
 
@@ -140,7 +140,7 @@ vec3 PhysicsBody::centerOfMass() const {
 	return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const glm::vec3 offset) {
+void PhysicsBody::centerOfMass(const glm::vec3& offset) {
 	_proxy->centerOfMass(offset);
 }
 
@@ -172,7 +172,7 @@ vec3 PhysicsBody::linearVelocity() const {
 	return _proxy->linearVelocity();
 }
 
-void PhysicsBody::linearVelocity(vec3 velocity) {
+void PhysicsBody::linearVelocity(const vec3 velocity) {
 	_proxy->linearVelocity(velocity);
 }
 
@@ -180,7 +180,7 @@ vec3 PhysicsBody::angularVelocity() const {
 	return _proxy->angularVelocity();
 }
 
-void PhysicsBody::angularVelocity(vec3 velocity) {
+void PhysicsBody::angularVelocity(const vec3& velocity) {
 	_proxy->angularVelocity(velocity);
 }
 
@@ -188,7 +188,7 @@ vec3 PhysicsBody::linearFactor() const {
 	return _proxy->linearFactor();
 }
 
-void PhysicsBody::linearFactor(vec3 factor) {
+void PhysicsBody::linearFactor(const vec3& factor) {
 	_proxy->linearFactor(factor);
 }
 
@@ -196,7 +196,7 @@ vec3 PhysicsBody::angularFactor() const {
 	return _proxy->angularFactor();
 }
 
-void PhysicsBody::angularFactor(vec3 factor) {
+void PhysicsBody::angularFactor(const vec3& factor) {
 	_proxy->angularFactor(factor);
 }
 
@@ -256,7 +256,7 @@ void PhysicsBody::resting(bool resting) {
 	_proxy->resting(resting);
 }
 
-void PhysicsBody::applyForce(vec3 force, bool impulse) {
+void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
 	if (impulse) {
 		_proxy->applyCentralImpulse(force);
@@ -266,7 +266,7 @@ void PhysicsBody::applyForce(vec3 force, bool impulse) {
 	}
 }
 
-void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
+void PhysicsBody::applyForce(const vec3& force, const vec3& location, bool impulse) {
 
 	if (impulse) {
 		_proxy->applyImpulse(force, location);
@@ -276,7 +276,7 @@ void PhysicsBody::applyForce(vec3 force, vec3 location, bool impulse) {
 	}
 }
 
-void PhysicsBody::applyTorque(vec3 torque, bool impulse) {
+void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
 
 	if (impulse) {
 		_proxy->applyTorqueImpulse(torque);
@@ -310,8 +310,8 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
 	Internal
  *********************************************************************************************/
 
-void PhysicsBody::attachedToNode(Node* node) {
-	A3D_LOG_T("node: {:p}", static_cast<void*>(node));
+void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
+	A3D_LOG_T("node: {:p}", static_cast<void*>(node.get()));
 
 	_node = node;
 
@@ -320,22 +320,22 @@ void PhysicsBody::attachedToNode(Node* node) {
 	checkAddToWorld();
 }
 
-void PhysicsBody::detachedFromNode(Node* node) {
-	A3D_LOG_T("node: {:p}", static_cast<void*>(node));
+void PhysicsBody::detachedFromNode(const shared_ptr<Node>& node) {
+	A3D_LOG_T("node: {:p}", static_cast<void*>(node.get()));
 
 	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
 
-	_node = nullptr; // ^^ physicalWorld() relies on old _node
+	_node = {}; // ^^ physicalWorld() relies on old _node
 }
 
-void PhysicsBody::meshAttachedToNode(Mesh* mesh) {
-	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
+void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
+	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh.get()));
 
 	checkAutocreateShape(mesh);
 }
 
-void PhysicsBody::meshDetachedFromNode(Mesh* mesh) {
-	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh));
+void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
+	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh.get()));
 }
 
 void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
@@ -366,8 +366,13 @@ void PhysicsBody::addedToWorld(PhysicalWorld* world) {
 
 	_world = world;
 
-	// set initial transform
-	_proxy->worldTransform(node()->worldTransform());
+	if (auto node = _node.lock()) {
+		// set initial transform
+		_proxy->worldTransform(node->worldTransform());
+	}
+	else {
+		A3D_LOG_E("_node is null.");
+	}
 }
 
 void PhysicsBody::removedFromWorld(PhysicalWorld* world) {
@@ -391,18 +396,21 @@ void PhysicsBody::shapeUpdated() {
 	}
 }
 
-Node* PhysicsBody::node() const {
+weak_ptr<Node> PhysicsBody::node() const {
 	return _node;
 }
 
 PhysicalWorld* PhysicsBody::physicalWorld() const {
 
-	if (_node) {
-		if (auto scene = _node->scene(); scene) {
+	if (auto node = _node.lock()) {
+		if (auto scene = node->scene(); scene) {
 			if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
 				return physicalWorld;
 			}
 		}
+	}
+	else {
+		A3D_LOG_E("_node is null.");
 	}
 	return nullptr;
 }
@@ -415,46 +423,56 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 	Private
  *********************************************************************************************/
 
-void PhysicsBody::checkAutocreateShape(Node* node) {
+void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
 	if (!_shape) {
-		if (auto mesh = node->mesh()) {
-			// make a shape based on the mesh
-			checkAutocreateShape(mesh.get());
-		}
-		else {
-			// make a shape based on the node
-			auto shapeType = PhysicsShapeType::ConcavePolyhedron;
-			if (type() == PhysicsBodyType::Static) {
-				A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
-				shape(make_shared<PhysicsShape>(shapeType, node));
+//		if (auto sNode = node.lock()) {
+			if (auto mesh = node->mesh()) {
+				// make a shape based on the mesh
+				checkAutocreateShape(mesh);
 			}
 			else {
-				auto shapeType = PhysicsShapeType::ConvexHull;
-				A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
-						 magic_enum::enum_name(shapeType), static_cast<void*>(node));
-				shape(make_shared<PhysicsShape>(shapeType, node));
+				// make a shape based on the node
+				auto shapeType = PhysicsShapeType::ConcavePolyhedron;
+				if (type() == PhysicsBodyType::Static) {
+					A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+							  magic_enum::enum_name(shapeType), static_cast<void *>(node.get()));
+					shape(make_shared<PhysicsShape>(shapeType, node));
+				}
+				else {
+					auto shapeType = PhysicsShapeType::ConvexHull;
+					A3D_LOG_D("Autocreating {} PhysicsShape for Node {:p}...",
+							  magic_enum::enum_name(shapeType), static_cast<void *>(node.get()));
+					shape(make_shared<PhysicsShape>(shapeType, node));
+				}
 			}
-		}
+//		}
+//		else {
+//			throw std::bad_weak_ptr();
+//		}
 	}
 }
 
-void PhysicsBody::checkAutocreateShape(Mesh* mesh) {
+void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
 
 	if (!_shape) {
-		if (type() == PhysicsBodyType::Static) {
-			auto shapeType = PhysicsShapeType::ConcavePolyhedron;
-			A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
-			shape(make_shared<PhysicsShape>(shapeType, mesh));
-		}
-		else {
-			auto shapeType = PhysicsShapeType::ConvexHull;
-			A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
-					 magic_enum::enum_name(shapeType), static_cast<void*>(mesh));
-			shape(make_shared<PhysicsShape>(shapeType, mesh));
-		}
+//		if (auto sMesh = mesh.lock()) {
+			if (type() == PhysicsBodyType::Static) {
+				auto shapeType = PhysicsShapeType::ConcavePolyhedron;
+				A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+						  magic_enum::enum_name(shapeType), static_cast<void *>(mesh.get()));
+				shape(make_shared<PhysicsShape>(shapeType, mesh));
+			}
+			else {
+				auto shapeType = PhysicsShapeType::ConvexHull;
+				A3D_LOG_D("Autocreating {} PhysicsShape for Mesh {:p}...",
+						  magic_enum::enum_name(shapeType), static_cast<void *>(mesh.get()));
+				shape(make_shared<PhysicsShape>(shapeType, mesh));
+			}
+//		}
+//		else {
+//			throw std::bad_weak_ptr();
+//		}
 	}
 	else {
 		A3D_LOG_I("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");

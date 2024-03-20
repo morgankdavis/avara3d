@@ -37,13 +37,13 @@ namespace a3d {
 
 	public:
 
-		using SourceObject = std::variant<
+		using Source = std::variant<
 				std::monostate,
-				Mesh*,
-				Node*>;
+				std::weak_ptr<Mesh>,
+				std::weak_ptr<Node>>;
 
-		PhysicsShape(PhysicsShapeType type, Mesh* mesh);
-		PhysicsShape(PhysicsShapeType type, Node* node);
+		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
+		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
 
 	protected:
@@ -59,7 +59,7 @@ namespace a3d {
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
 
-		SourceObject 						sourceObject() const;
+		Source 								source() const;
 
 /*********************************************************************************************
 	Internal
@@ -89,7 +89,7 @@ namespace a3d {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void 								sourceObject(SourceObject sourceObject);
+		void 								source(const Source& sourceObject);
 
 		void								checkCreateProxy();
 
@@ -108,7 +108,7 @@ namespace a3d {
 
 	private:
 
-		SourceObject 						_sourceObject;
+		Source 								_source;
 		std::unordered_set<PhysicsBody*>	_bodies;
 //		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 	};

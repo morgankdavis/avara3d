@@ -51,8 +51,8 @@ namespace a3d {
 		//PhysicsBody();
 		// "If you pass nil for the shape parameter, SceneKit automatically creates a physics
 		// shape for the body when you attach it to a node, based on that node’s geometry property."
-		PhysicsBody(PhysicsBodyType type);
-		PhysicsBody(PhysicsBodyType type, std::shared_ptr<PhysicsShape> shape);
+		explicit PhysicsBody(PhysicsBodyType type);
+		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
 		
 /*********************************************************************************************
@@ -63,16 +63,16 @@ namespace a3d {
 		void 								type(PhysicsBodyType type);
 
 		std::shared_ptr<PhysicsShape> 		shape() const;
-		void 								shape(std::shared_ptr<PhysicsShape> shape);
+		void 								shape(const std::shared_ptr<PhysicsShape>& shape);
 
 		float 								mass() const;
 		void 								mass(float mass);
 		
 		glm::vec3 							momentOfInertia() const;
-		void 								momentOfInertia(glm::vec3 moment);
+		void 								momentOfInertia(const glm::vec3& moment);
 
 		glm::vec3							centerOfMass() const;
-		void								centerOfMass(const glm::vec3 offset);
+		void								centerOfMass(const glm::vec3& offset);
 
 		float 								friction() const;
 		void 								friction(float friction);
@@ -87,13 +87,13 @@ namespace a3d {
 		void 								linearVelocity(glm::vec3 velocity);
 
 		glm::vec3 							angularVelocity() const;
-		void 								angularVelocity(glm::vec3 velocity);
+		void 								angularVelocity(const glm::vec3& velocity);
 
 		glm::vec3 							linearFactor() const;
-		void 								linearFactor(glm::vec3 factor);
+		void 								linearFactor(const glm::vec3& factor);
 
 		glm::vec3 							angularFactor() const;
-		void 								angularFactor(glm::vec3 factor);
+		void 								angularFactor(const glm::vec3& factor);
 
 		float								linearDamping() const;
 		void 								linearDamping(float damping);
@@ -111,12 +111,12 @@ namespace a3d {
 		// contactTestBitmask
 		// collisionBitmask
 
-		void 								applyForce(glm::vec3 force,
+		void 								applyForce(const glm::vec3& force,
 													   bool impulse);
-		void 								applyForce(glm::vec3 force,
-													   glm::vec3 location,
+		void 								applyForce(const glm::vec3& force,
+													   const glm::vec3& location,
 													   bool impulse);
-		void 								applyTorque(glm::vec3 torque,
+		void 								applyTorque(const glm::vec3& torque,
 														bool impulse);
 
 		glm::vec3 							totalForce() const;
@@ -142,8 +142,8 @@ namespace a3d {
 		
 //		void 								resting(bool resting);
 		
-		void 								attachedToNode(Node* node);
-		void 								detachedFromNode(Node* node);
+		void 								attachedToNode(const std::shared_ptr<Node>& node);
+		void 								detachedFromNode(const std::shared_ptr<Node>& node);
 
 //		void 								nodeAttachedToParent(Node* parent); // owning node's parent
 //		void 								nodeDetachedFromParent(Node* parent);
@@ -151,8 +151,8 @@ namespace a3d {
 //		void 								nodeAttachedToScene(Scene* scene); // owning node
 //		void 								nodeDetachedFromScene(Scene* scene);
 
-		void 								meshAttachedToNode(Mesh* geometry); // owning node's geometry
-		void 								meshDetachedFromNode(Mesh* geometry);
+		void 								meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
+		void 								meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
 		void								physicalWorldReachable(PhysicalWorld* world);
 		void								physicalWorldUnreachable(PhysicalWorld* world);
@@ -177,12 +177,12 @@ namespace a3d {
 
 		void 								shapeUpdated();
 
-		Node*								node() const;
+		std::weak_ptr<Node>					node() const;
 
 		// the scene's world, if it exists.  not the same as _world.
 		PhysicalWorld*						physicalWorld() const;
 
-		PhysicsBodyProxy*				proxy() const;
+		PhysicsBodyProxy*					proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -190,15 +190,15 @@ namespace a3d {
 
 	private:
 
-		void 									checkAutocreateShape(Node* node);
-		void 									checkAutocreateShape(Mesh* mesh);
+		void 									checkAutocreateShape(const std::shared_ptr<Node>& node);
+		void 									checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
 		void 									checkAddToWorld();
 
 		PhysicsBodyType 						_type;
 		std::shared_ptr<PhysicsShape>			_shape;
-		std::unique_ptr<PhysicsBodyProxy>	_proxy;
-		Node*									_node;
+		std::unique_ptr<PhysicsBodyProxy>		_proxy;
+		std::weak_ptr<Node>						_node;
 		// either a pointer to the world we are currently in or null.
 		PhysicalWorld*							_world;
 	};

@@ -121,28 +121,36 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 	auto btShapes = vector<shared_ptr<btCollisionShape>>();
 	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
 
-	auto sourceObject = shape->sourceObject();
+	auto sourceObject = shape->source();
 
 	// souce MESH
-	if (holds_alternative<Mesh*>(sourceObject)) {
-		auto sourceMesh = get<Mesh*>(sourceObject);
-
-		newShape = BTShapeFromSourceMesh(sourceMesh,
-										 shape->type(),
-										 bodyType,
-										 btShapes,
-										 btIndexVertexArrays);
+	if (holds_alternative<weak_ptr<Mesh>>(sourceObject)) {
+		auto sourceMesh = get<weak_ptr<Mesh>>(sourceObject);
+		if (auto sSourceMesh = sourceMesh.lock()) {
+			newShape = BTShapeFromSourceMesh(sSourceMesh.get(),
+											 shape->type(),
+											 bodyType,
+											 btShapes,
+											 btIndexVertexArrays);
+		}
+		else {
+			A3D_LOG_W("sourceMesh is null.");
+		}
 	}
 
 	// source NODE
-	else if (holds_alternative<Node*>(sourceObject)) {
-		auto sourceNode = get<Node*>(sourceObject);
-
-		newShape = BTShapeFromSourceNode(sourceNode,
-										 shape->type(),
-										 bodyType,
-										 btShapes,
-										 btIndexVertexArrays);
+	else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
+		auto sourceNode = get<weak_ptr<Node>>(sourceObject);
+		if (auto sSourceNode = sourceNode.lock()) {
+			newShape = BTShapeFromSourceNode(sSourceNode.get(),
+											 shape->type(),
+											 bodyType,
+											 btShapes,
+											 btIndexVertexArrays);
+		}
+		else {
+			A3D_LOG_W("sourceNode is null.");
+		}
 	}
 
 	// primitive subclass

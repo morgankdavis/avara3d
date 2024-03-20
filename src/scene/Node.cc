@@ -45,6 +45,10 @@ unique_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
 	return make_unique<Node>(mesh);
 }
 
+//shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
+//	return std::move(make_shared<Node>(mesh));
+//}
+
 unique_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
 	return make_unique<Node>(light);
 }
@@ -116,7 +120,7 @@ Node::~Node() {
 	}
 
 	for (auto& child : _children) child->detachedFromParent(this);
-	if (_physicsBody) _physicsBody->detachedFromNode(this);
+	//if (_physicsBody) _physicsBody->detachedFromNode(shared_from_this()); // <- crash
 //	physicsBody(nullptr);
 }
 
@@ -167,13 +171,13 @@ void Node::mesh(unique_ptr<Mesh> mesh) {
 void Node::mesh(const shared_ptr<Mesh>& mesh) {
 
 	if (_physicsBody && _mesh) {
-		_physicsBody->meshDetachedFromNode(mesh.get());
+		_physicsBody->meshDetachedFromNode(mesh);
 	}
 
 	_mesh = mesh;
 
 	if (_physicsBody && _mesh) {
-		_physicsBody->meshAttachedToNode(mesh.get());
+		_physicsBody->meshAttachedToNode(mesh);
 	}
 }
 
@@ -455,12 +459,12 @@ vec3 Node::worldPosition() const {
 }
 
 vec4 Node::worldRotation() const {
-	throw Exception("worldRotation() not implemented.");
+	throw Exception("worldRotation() not implemented."); // TODO: custom exception
 	return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 vec3 Node::worldEulerAngles() const {
-	throw Exception("worldEulerAngles() not implemented.");
+	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
 	return vec3(0.0, 0.0, 0.0);
 }
 
@@ -708,13 +712,13 @@ PhysicsBody* Node::physicsBody() const {
 void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
-		_physicsBody->detachedFromNode(this);
+		_physicsBody->detachedFromNode(shared_from_this());
 	}
 
 	_physicsBody = std::move(body);
 
 	if (_physicsBody) {
-		_physicsBody->attachedToNode(this);
+		_physicsBody->attachedToNode(shared_from_this());
 	}
 }
 
