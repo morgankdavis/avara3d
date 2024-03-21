@@ -28,73 +28,29 @@ Buffer::Buffer(const std::filesystem::path& path):
 		_size(0) {
 
 	// TODO: check path or exception
-	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
+	ifstream inStream(path.string(), ios::binary | ios::ate);
 	ifstream::pos_type pos = inStream.tellg();
-	_data = (byte*)malloc(pos);
+	_data = make_unique<byte*>(new byte[pos]);
 	inStream.seekg(0, ios::beg);
-	inStream.read((char*)_data, pos);
+	inStream.read((char*)&((*_data)[0]), pos);
 	_size = pos;
-}
-
-Buffer::Buffer(const byte* buf, std::size_t size):
-		_data(nullptr),
-		_size(0) {
-
-	_data = (byte*)malloc(size);
-	memcpy(_data, buf, size);
-	_size = size;
 }
 
 Buffer::Buffer(const vector<byte>& buf):
 		Buffer(&buf[0], buf.size()) {
 }
 
-Buffer::Buffer(const Buffer& other) {
+Buffer::Buffer(const byte* buf, std::size_t size):
+		_data(nullptr),
+		_size(0) {
 
-	size_t bufSize = other._size;
-	_data = (byte*)malloc(bufSize);
-	memcpy(_data, other._data, bufSize);
-	_size = bufSize;
-}
-
-Buffer& Buffer::operator=(const Buffer& other) {
-
-	size_t bufSize = other._size;
-	auto tempPointer = (byte*)malloc(bufSize);
-	memcpy(tempPointer, other._data, bufSize);
-	if (_data) {
-		free(_data);
-	}
-	_data = tempPointer;
-	_size = bufSize;
-
-	return *this;
-}
-
-Buffer::Buffer(Buffer&& other) noexcept {
-
-	if (this != &other) {
-		_size = other._size;
-		_data = other._data;
-		other._size = 0;
-		other._data = nullptr;
-	}
-}
-
-Buffer& Buffer::operator=(Buffer&& other) noexcept {
-
-	_size = other._size;
-	_data = other._data;
-	other._size = 0;
-	other._data = nullptr;
+	_data = make_unique<byte*>(new byte[size]);
+	memcpy(&((*_data)[0]), buf, size);
+	_size = size;
 }
 
 Buffer::~Buffer() {
 	A3D_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
-
-	if (_data) {
-		free(_data);
-	}
 }
 
 /*********************************************************************************************
@@ -102,7 +58,7 @@ Buffer::~Buffer() {
  *********************************************************************************************/
 
 byte* Buffer::data() const {
-	return _data;
+	return &((*_data)[0]);
 }
 
 size_t Buffer::size() const {
@@ -114,9 +70,9 @@ size_t Buffer::size() const {
  *********************************************************************************************/
 
 byte* Buffer::operator*() const {
-	return _data;
+	return &((*_data)[0]);
 }
 
-byte Buffer::operator[](std::size_t idx) const {
-	return _data[idx];
+byte Buffer::operator[](size_t idx) const {
+	return (*_data)[idx];
 }

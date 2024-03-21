@@ -119,7 +119,7 @@ MaterialProperty Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const MaterialProperty property) {
+void Material::ambient(const MaterialProperty& property) {
 	_ambient = property;
 }
 

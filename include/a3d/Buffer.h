@@ -25,31 +25,25 @@ namespace a3d {
 	 Lifecycle
  *********************************************************************************************/
 		
-		Buffer(const std::filesystem::path& path);
+		explicit Buffer(const std::filesystem::path& path);
+		explicit Buffer(const std::vector<std::byte>& buf);
 		Buffer(const std::byte* buf, std::size_t size);
-		Buffer(const std::vector<std::byte>& buf);
-		
-		Buffer(const Buffer& other); // copy
-		Buffer& operator=(const Buffer& other); // copy assignment
-		Buffer(Buffer&& other) noexcept; // move
-		Buffer& operator=(Buffer&& other) noexcept; // move assignment
-		
 		~Buffer();
-		
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
 		// TODO: switch to unique_ptr
-		std::byte* 			data() const;
+		std::byte* 					data() const; // should be 'const byte'
 		std::size_t 				size() const;
 
 /*********************************************************************************************
 	Operator Overloads
  *********************************************************************************************/
 
-		std::byte*			operator*() const;
-		std::byte			operator[](std::size_t idx) const;
+		std::byte*					operator*() const; // should be 'const byte'
+		std::byte					operator[](std::size_t idx) const;
 
 /*********************************************************************************************
 	Private
@@ -57,7 +51,7 @@ namespace a3d {
 
 	private:
 
-		std::byte* 			_data; // TODO: make unique
+		std::unique_ptr<std::byte*> _data;
 		std::size_t 				_size;
 	};
 }

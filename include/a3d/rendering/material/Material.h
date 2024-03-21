@@ -63,7 +63,7 @@ namespace a3d {
 		void 								name(const std::string& name);
 
 		MaterialProperty 					ambient() const;
-		void								ambient(MaterialProperty ambient);
+		void								ambient(const MaterialProperty& ambient);
 
 		MaterialProperty 					diffuse() const;
 		void 								diffuse(MaterialProperty diffuse);

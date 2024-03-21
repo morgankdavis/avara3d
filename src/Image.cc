@@ -191,7 +191,7 @@ void Image::flipVertical() { // "flip"
 	unsigned char temp = 0;
 	int halfHeight = _height / 2;
 
-	unsigned char* dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
+	auto dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
 
 	for (int r=0; r<halfHeight; ++r) {
 
