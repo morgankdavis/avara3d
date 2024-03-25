@@ -33,15 +33,18 @@ namespace a3d {
 
 	public:
 
-		static std::unique_ptr<Light> 		DefaultAmbient();
-		static std::unique_ptr<Light> 		DefaultPoint();
-		
+//		static std::unique_ptr<Light> 		DefaultAmbient();
+//		static std::unique_ptr<Light> 		DefaultPoint();
+
+		static std::shared_ptr<Light> 		DefaultAmbient();
+		static std::shared_ptr<Light> 		DefaultPoint();
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 		
 		Light(LightType type);
-		Light(LightType type, std::unique_ptr<Color> color);
+		Light(LightType type, const std::shared_ptr<Color>& color);
 		
 /*********************************************************************************************
 	Public
@@ -53,8 +56,8 @@ namespace a3d {
 		LightType 							type() const;
 		void 								type(LightType type);
 		
-		Color* 								color() const;
-		void 								color(std::unique_ptr<Color> color);
+		std::shared_ptr<Color>				color() const;
+		void 								color(const std::shared_ptr<Color>& color);
 
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);
@@ -78,7 +81,7 @@ namespace a3d {
 		std::optional<std::string>			_name;
 		
 		LightType							_type;
-		std::unique_ptr<Color>				_color;
+		std::shared_ptr<Color>				_color;
 
 		float								_attenuationFactor; // att = 1/(1-k(d^2))
 		

@@ -22,11 +22,11 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> Sphere::Mesh(float radius,
+shared_ptr<Mesh> Sphere::Mesh(float radius,
 							  int segments,
 							  shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<Sphere>(radius,
+	return make_shared<a3d::Mesh>(make_unique<Sphere>(radius,
 													  segments),
 								  material);
 }

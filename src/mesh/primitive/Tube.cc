@@ -22,7 +22,7 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> Tube::Mesh(float innerRadius,
+shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 							float outerRadius,
 							float height,
 							int slices,
@@ -30,7 +30,7 @@ unique_ptr<Mesh> Tube::Mesh(float innerRadius,
 							int rings,
 							shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<Tube>(innerRadius,
+	return make_shared<a3d::Mesh>(make_unique<Tube>(innerRadius,
 													outerRadius,
 													height,
 													slices,

@@ -28,7 +28,7 @@ namespace a3d {
 
 	public:
 
-		static std::unique_ptr<Mesh> Mesh(float radius,
+		static std::shared_ptr<Mesh> Mesh(float radius,
 										  float length,
 										  float width,
 										  float height,

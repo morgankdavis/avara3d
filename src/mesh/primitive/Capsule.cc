@@ -22,14 +22,14 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> Capsule::Mesh(float radius,
+shared_ptr<Mesh> Capsule::Mesh(float radius,
 							   float height,
 							   int slices,
 							   int segments,
 							   int rings,
 							   shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<Capsule>(radius,
+	return make_shared<a3d::Mesh>(make_unique<Capsule>(radius,
 													   height,
 													   slices,
 													   segments,

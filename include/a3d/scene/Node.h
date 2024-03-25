@@ -81,15 +81,15 @@ namespace a3d {
 		void 									name(const std::string& name);
 
 		const std::shared_ptr<Light>& 			light() const;
-		void 									light(std::unique_ptr<Light>& light);
+//		void 									light(std::unique_ptr<Light>& light);
 		void 									light(const std::shared_ptr<Light>& light);
 
 		const std::shared_ptr<Camera>& 			camera() const;
-		void 									camera(std::unique_ptr<Camera>& camera);
+//		void 									camera(std::unique_ptr<Camera>& camera);
 		void 									camera(const std::shared_ptr<Camera>& camera);
 
 		const std::shared_ptr<Mesh>& 			mesh() const;
-		void 									mesh(std::unique_ptr<Mesh>& mesh);
+//		void 									mesh(std::unique_ptr<Mesh>& mesh);
 		void 									mesh(const std::shared_ptr<Mesh>& mesh);
 
 		bool 									hidden() const;

@@ -153,9 +153,9 @@ const shared_ptr<Light>& Node::light() const {
 	return _light;
 }
 
-void Node::light(unique_ptr<Light>& light) {
-	Node::light(shared_ptr(std::move(light)));
-}
+//void Node::light(unique_ptr<Light>& light) {
+//	Node::light(shared_ptr(std::move(light)));
+//}
 
 void Node::light(const shared_ptr<Light>& light) {
 	_light = light;
@@ -165,9 +165,9 @@ const shared_ptr<Camera>& Node::camera() const {
 	return _camera;
 }
 
-void Node::camera(unique_ptr<Camera>& camera) {
-	Node::camera(shared_ptr(std::move(camera)));
-}
+//void Node::camera(unique_ptr<Camera>& camera) {
+//	Node::camera(shared_ptr(std::move(camera)));
+//}
 
 void Node::camera(const shared_ptr<Camera>& camera) {
 	_camera = camera;
@@ -177,9 +177,9 @@ const shared_ptr<Mesh>& Node::mesh() const {
 	return _mesh;
 }
 
-void Node::mesh(unique_ptr<Mesh>& mesh) {
-	Node::mesh(shared_ptr(std::move(mesh)));
-}
+//void Node::mesh(unique_ptr<Mesh>& mesh) {
+//	Node::mesh(shared_ptr(std::move(mesh)));
+//}
 
 void Node::mesh(const shared_ptr<Mesh>& mesh) {
 

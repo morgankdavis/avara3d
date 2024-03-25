@@ -22,13 +22,13 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> Torus::Mesh(float minorRadius,
+shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
 							 int slices,
 							 int segments,
 							 shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<Torus>(minorRadius,
+	return make_shared<a3d::Mesh>(make_unique<Torus>(minorRadius,
 													 majorRadius,
 													 slices,
 													 segments),

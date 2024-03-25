@@ -27,7 +27,7 @@ namespace a3d {
 
 	public:
 
-		static std::unique_ptr<Mesh> Mesh(int p,
+		static std::shared_ptr<Mesh> Mesh(int p,
 										  int q,
 										  int slices = DEFAULT_SLICES,
 										  int segments = DEFAULT_SEGMENTS,

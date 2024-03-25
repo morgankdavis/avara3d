@@ -35,7 +35,7 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property);
+static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -74,7 +74,7 @@ MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(MaterialProperty background) {
+void VisualWorld::background(MaterialProperty& background) {
 
 	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 
@@ -125,12 +125,17 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-Color* VisualWorld::fogColor() const {
-	return _fogColor.get();
+//Color* VisualWorld::fogColor() const {
+//	return _fogColor.get();
+//}
+
+shared_ptr<Color> VisualWorld::fogColor() const {
+	return _fogColor;
 }
 
-void VisualWorld::fogColor(unique_ptr<Color> color) {
-	_fogColor = std::move(color);
+void VisualWorld::fogColor(const shared_ptr<Color>& color) {
+	//_fogColor = std::move(color);
+	_fogColor = color;
 }
 
 weak_ptr<Node> VisualWorld::pointOfView() {
@@ -378,10 +383,11 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	Static
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty property) {
+static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
 
-	//auto mesh = Mesh::Box(1, 1, 1, 1, 1, 1);
-	auto mesh = Box::Mesh(1, 1, 1);
+//	auto mesh = Box::Mesh(1, 1, 1);
+	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
+
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 	material->doubleSided(false);
 	mesh->addMaterial(material);

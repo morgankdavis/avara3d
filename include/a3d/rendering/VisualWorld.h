@@ -51,7 +51,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		MaterialProperty&						background();
-		void 									background(MaterialProperty background);
+		void 									background(MaterialProperty& background);
 
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
@@ -62,8 +62,10 @@ namespace a3d {
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
-		Color* 									fogColor() const;
-		void 									fogColor(std::unique_ptr<Color> color);
+//		Color* 									fogColor() const;
+//		void 									fogColor(std::unique_ptr<Color> color);
+		std::shared_ptr<Color> 					fogColor() const;
+		void 									fogColor(const std::shared_ptr<Color> & color);
 
 		std::weak_ptr<Node>						pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
@@ -111,7 +113,8 @@ namespace a3d {
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
-		std::unique_ptr<Color>					_fogColor;
+		//std::unique_ptr<Color>					_fogColor;
+		std::shared_ptr<Color>					_fogColor;
 		bool									_automaticallyAddDefaultLighting;
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;

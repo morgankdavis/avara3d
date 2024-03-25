@@ -19,12 +19,22 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-unique_ptr<Light> Light::DefaultAmbient() {
-	return make_unique<Light>(LightType::Ambient, make_unique<Color>(0.25f, 0.25, 0.25, 1.0));
+//unique_ptr<Light> Light::DefaultAmbient() {
+//	return make_unique<Light>(LightType::Ambient, Color{0.25f, 0.25, 0.25, 1.0});
+//}
+//
+//unique_ptr<Light> Light::DefaultPoint() {
+//	auto light = make_unique<Light>(LightType::Point, *Color::White());
+//	light->attenuationFactor(0.0);
+//	return light;
+//}
+
+shared_ptr<Light> Light::DefaultAmbient() {
+	return make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 }
 
-unique_ptr<Light> Light::DefaultPoint() {
-	auto light = make_unique<Light>(LightType::Point, Color::White());
+shared_ptr<Light> Light::DefaultPoint() {
+	auto light = make_shared<Light>(LightType::Point, Color::White());
 	light->attenuationFactor(0.0);
 	return light;
 }
@@ -34,14 +44,14 @@ unique_ptr<Light> Light::DefaultPoint() {
  *********************************************************************************************/
 
 Light::Light(LightType type):
-	Light(type, Color::White()) {
+	Light(type, make_shared<Color>(1.0f, 1.0f, 1.0f)) {
 	
 }
 
-Light::Light(LightType type, unique_ptr<Color> color):
+Light::Light(LightType type, const shared_ptr<Color>& color):
 	_name(nullopt),
 	_type(type),
-	_color(std::move(color)),
+	_color(color),
 	_attenuationFactor(1.0f) {
 //	_node({}) {
 	
@@ -67,12 +77,12 @@ void Light::type(LightType type) {
 	_type = type;
 }
 
-Color* Light::color() const {
-	return _color.get();
+shared_ptr<Color> Light::color() const {
+	return _color;
 }
 
-void Light::color(unique_ptr<Color> color) {
-	_color = std::move(color);
+void Light::color(const shared_ptr<Color>& color) {
+	_color = color;
 }
 
 float Light::attenuationFactor() const {

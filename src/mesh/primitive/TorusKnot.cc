@@ -18,13 +18,13 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> TorusKnot::Mesh(int p,
+shared_ptr<Mesh> TorusKnot::Mesh(int p,
 								 int q,
 								 int slices,
 								 int segments,
 								 shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<TorusKnot>(p,
+	return make_shared<a3d::Mesh>(make_unique<TorusKnot>(p,
 														 q,
 														 slices,
 														 segments),

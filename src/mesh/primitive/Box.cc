@@ -21,7 +21,7 @@ using namespace glm;
 using namespace std;
 
 
-unique_ptr<Mesh> Box::Mesh(float length,
+shared_ptr<Mesh> Box::Mesh(float length,
 						   float width,
 						   float height,
 						   int lengthSegments,
@@ -29,7 +29,7 @@ unique_ptr<Mesh> Box::Mesh(float length,
 						   int heightSegments,
 						   shared_ptr<Material> material) {
 
-	return make_unique<a3d::Mesh>(make_unique<Box>(length,
+	return make_shared<a3d::Mesh>(make_unique<Box>(length,
 												   width,
 												   height,
 												   lengthSegments,

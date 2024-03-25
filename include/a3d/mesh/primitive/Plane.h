@@ -30,7 +30,7 @@ namespace a3d {
 
 	public:
 
-		static std::unique_ptr<Mesh> Mesh(float width,
+		static std::shared_ptr<Mesh> Mesh(float width,
 										  float height,
 										  int widthSegements = DEFAULT_SEGMENTS,
 										  int heightSegments = DEFAULT_SEGMENTS,
