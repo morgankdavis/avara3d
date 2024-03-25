@@ -119,8 +119,8 @@ Node::~Node() {
 		A3D_LOG_D("Destroying Node {:p}", static_cast<void*>(this));
 	}
 
-//	for (auto& child : _children) child->detachedFromParent(shared_from_this()); // <- bad_weak_ptr
-//	if (_physicsBody) _physicsBody->detachedFromNode(shared_from_this()); // <- bad_weak_ptr
+	for (auto& child : _children) child->detachedFromParent(*this);
+	if (_physicsBody) _physicsBody->detachedFromNode(shared_from_this()); // <- bad_weak_ptr
 
 //	physicsBody(nullptr);
 }
@@ -1051,7 +1051,7 @@ void Node::checkNotifyPhysicsBodyOfReachablePhysicalWorld() const {
 
 	if (_physicsBody) {
 		if (auto physicalWorld = Node::physicalWorld()) {
-			_physicsBody->physicalWorldReachable(physicalWorld);
+			_physicsBody->physicalWorldReachable(*physicalWorld);
 		}
 	}
 }
@@ -1062,7 +1062,7 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const {
 
 	if (_physicsBody) {
 		if (auto physicalWorld = Node::physicalWorld()) {
-			_physicsBody->physicalWorldUnreachable(physicalWorld);
+			_physicsBody->physicalWorldUnreachable(*physicalWorld);
 		}
 	}
 }

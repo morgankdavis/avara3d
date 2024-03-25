@@ -14,7 +14,7 @@ using namespace a3d;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody* body):
+PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body):
 		_body(nullptr),
 		_shapeModel(nullptr),
 		_autocalculatesMomentOfInertia(true) {
@@ -36,14 +36,14 @@ void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
 	_autocalculatesMomentOfInertia = autocalculate;
 }
 
-void PhysicsBodyProxy::attachedToBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsBodyProxy::attachedToBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
-	_body = body;
+	_body = &body;
 }
 
-void PhysicsBodyProxy::detachedFromBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsBodyProxy::detachedFromBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
 	_body = nullptr;
 }

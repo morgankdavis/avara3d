@@ -65,11 +65,11 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void 								attachedToBody(PhysicsBody* body);
-		void 								detachedFromBody(PhysicsBody* body);
+		void 								attachedToBody(PhysicsBody& body);
+		void 								detachedFromBody(PhysicsBody& body);
 
-		void								physicalWorldReachable(PhysicalWorld* world);
-		void								physicalWorldUnreachable(PhysicalWorld* world);
+		void								physicalWorldReachable(PhysicalWorld& world);
+		void								physicalWorldUnreachable(PhysicalWorld& world);
 
 //		void 								bodyAttachedToNode(Node* node); // body's owning node
 //		void 								bodyDetachedFromNode(Node* node);

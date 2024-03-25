@@ -120,30 +120,30 @@ void PhysicsShape::type(PhysicsShapeType type) {
 	Internal
  *********************************************************************************************/
 
-void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsShape::attachedToBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
-	if (!_bodies.count(body)) {
-		_bodies.insert(body);
+	if (!_bodies.count(&body)) {
+		_bodies.insert(&body);
 
 		checkCreateProxy();
 	}
 }
 
-void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsShape::detachedFromBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
-	_bodies.erase(body);
+	_bodies.erase(&body);
 }
 
-void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsShape::physicalWorldReachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 
 	checkCreateProxy();
 }
 
-void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsShape::physicalWorldUnreachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 }
 
 void PhysicsShape::source(const Source& sourceObject) {

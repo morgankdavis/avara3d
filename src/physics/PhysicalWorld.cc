@@ -170,7 +170,7 @@ void PhysicalWorld::add(PhysicsBody& body) {
 	if (_proxy) {
 //		body.addedToWorld(this);
 		_proxy->add(body);
-		body.addedToWorld(this);
+		body.addedToWorld(*this);
 	}
 	else {
 		A3D_LOG_W("_model is null.");
@@ -182,7 +182,7 @@ void PhysicalWorld::remove(PhysicsBody& body) {
 
 	if (_proxy) {
 		_proxy->remove(body);
-		body.removedFromWorld(this);
+		body.removedFromWorld(*this);
 	}
 	else {
 		A3D_LOG_W("_model is null.");

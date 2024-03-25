@@ -32,25 +32,25 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
+BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 		PhysicsBodyProxy(body),
 		_btBody(nullptr),
 		/*_btMotionState(nullptr)*/
 		_motionState(nullptr) {
 
-	A3D_LOG_D("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_shared<MotionState>(body);
+	_motionState = make_shared<MotionState>(&body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body->type() == PhysicsBodyType::Static
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body.type() == PhysicsBodyType::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -67,7 +67,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
 
-	switch (body->type()) {
+	switch (body.type()) {
 		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
@@ -85,7 +85,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	_btBody->setCollisionFlags(flags);
 	_btBody->setActivationState(activationState);
 
-	_btBody->setUserPointer(static_cast<void*>(body));
+	_btBody->setUserPointer(static_cast<void*>(&body));
 }
 
 BulletBodyProxy::~BulletBodyProxy() {

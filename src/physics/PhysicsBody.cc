@@ -63,7 +63,7 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type):
 		_world(nullptr) {
 
 	// _node has to be initialized to nullptr before calling this
-	_proxy = make_unique<BulletBodyProxy>(this);
+	_proxy = make_unique<BulletBodyProxy>(*this);
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& shape):
@@ -75,8 +75,8 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& s
 PhysicsBody::~PhysicsBody() {
 	A3D_LOG_D("Destroying PhysicsBody {:p}", static_cast<void*>(this));
 
-	if (_shape) _shape->detachedFromBody(this);
-	if (_proxy) _proxy->detachedFromBody(this);
+	if (_shape) _shape->detachedFromBody(*this);
+	if (_proxy) _proxy->detachedFromBody(*this);
 }
 
 /*********************************************************************************************
@@ -105,13 +105,13 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 	if (shape != _shape) {
 
 		if (_shape) {
-			_shape->detachedFromBody(this);
+			_shape->detachedFromBody(*this);
 		}
 
 		_shape = shape;
 
 		if (shape) {
-			shape->attachedToBody(this);
+			shape->attachedToBody(*this);
 			_proxy->shapeProxy(shape->proxy());
 		}
 		else {
@@ -338,8 +338,8 @@ void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
 	A3D_LOG_T("mesh: {:p}", static_cast<void*>(mesh.get()));
 }
 
-void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsBody::physicalWorldReachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
 		_shape->physicalWorldReachable(world);
@@ -348,8 +348,8 @@ void PhysicsBody::physicalWorldReachable(PhysicalWorld* world) {
 	checkAddToWorld();
 }
 
-void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsBody::physicalWorldUnreachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
 		_shape->physicalWorldUnreachable(world);
@@ -361,10 +361,10 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld* world) {
 	}
 }
 
-void PhysicsBody::addedToWorld(PhysicalWorld* world) {
-	A3D_LOG_D("world: {}", static_cast<void*>(world));
+void PhysicsBody::addedToWorld(PhysicalWorld& world) {
+	A3D_LOG_D("world: {}", static_cast<void*>(&world));
 
-	_world = world;
+	_world = &world;
 
 	if (auto node = _node.lock()) {
 		// set initial transform
@@ -375,8 +375,8 @@ void PhysicsBody::addedToWorld(PhysicalWorld* world) {
 	}
 }
 
-void PhysicsBody::removedFromWorld(PhysicalWorld* world) {
-	A3D_LOG_D("world: {}", static_cast<void*>(world));
+void PhysicsBody::removedFromWorld(PhysicalWorld& world) {
+	A3D_LOG_D("world: {}", static_cast<void*>(&world));
 
 	_world = nullptr;
 }

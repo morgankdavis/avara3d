@@ -154,8 +154,8 @@ namespace a3d {
 		void 								meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
 		void 								meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
-		void								physicalWorldReachable(PhysicalWorld* world);
-		void								physicalWorldUnreachable(PhysicalWorld* world);
+		void								physicalWorldReachable(PhysicalWorld& world);
+		void								physicalWorldUnreachable(PhysicalWorld& world);
 
 //		void 								ancestorAttachedToParent(Node* ancestor,
 //																	 Node* parent);
@@ -172,8 +172,8 @@ namespace a3d {
 //		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
 //																		   Scene* scene);
 
-		void 								addedToWorld(PhysicalWorld* world);
-		void 								removedFromWorld(PhysicalWorld* world);
+		void 								addedToWorld(PhysicalWorld& world);
+		void 								removedFromWorld(PhysicalWorld& world);
 
 		void 								shapeUpdated();
 
