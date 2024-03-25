@@ -93,8 +93,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void								attachedToScene(Scene* scene);
-		void								detachedFromScene(Scene* scene);
+		void								attachedToScene(Scene& scene);
+		void								detachedFromScene(Scene& scene);
 
 		void 								add(PhysicsBody& body);
 		void 								remove(PhysicsBody& body);
@@ -104,7 +104,7 @@ namespace a3d {
 												 double deltaRunT,
 												 Stats& stats);
 
-		PhysicalWorldProxy*			proxy() const;
+		PhysicalWorldProxy*					proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -115,7 +115,7 @@ namespace a3d {
 		glm::vec3 									_gravity;
 		float 										_speed;
 		float 										_timestep;
-		std::unique_ptr<PhysicalWorldProxy>	_proxy;
+		std::unique_ptr<PhysicalWorldProxy>			_proxy;
 		Scene*										_scene;
 		DidSimulateCallback							_didSimulate;
 		BeginContactCallback						_beginContact;

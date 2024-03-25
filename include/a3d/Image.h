@@ -45,9 +45,9 @@ namespace a3d {
 			  bool flipHorizontal = false);
 		// raw
 		Image(std::unique_ptr<Buffer> rawBuffer,
-			  unsigned width,
-			  unsigned height,
-			  unsigned bytesPerPixel,
+			  int width,
+			  int height,
+			  int bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
 		~Image();

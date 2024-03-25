@@ -89,7 +89,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 				if (!nodeIndicies.empty()) {
 
 					for (auto n: nodeIndicies) {
-						visitGlTFNode(_asset, _asset.nodes[n], a3dScene->rootNode());
+						visitGlTFNode(_asset, _asset.nodes[n], a3dScene->rootNode().get());
 					}
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?

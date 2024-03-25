@@ -403,7 +403,7 @@ weak_ptr<Node> PhysicsBody::node() const {
 PhysicalWorld* PhysicsBody::physicalWorld() const {
 
 	if (auto node = _node.lock()) {
-		if (auto scene = node->scene(); scene) {
+		if (auto scene = node->scene()) {
 			if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
 				return physicalWorld;
 			}

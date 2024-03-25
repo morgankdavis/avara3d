@@ -52,9 +52,9 @@ Image::Image(unique_ptr<Buffer> buffer,
 }
 
 Image::Image(unique_ptr<Buffer> rawBuffer,
-			 unsigned width,
-			 unsigned height,
-			 unsigned bytesPerPixel,
+			 int width,
+			 int height,
+			 int bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
 		_buffer(std::move(rawBuffer)),

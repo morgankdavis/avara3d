@@ -65,8 +65,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void						attachedToScene(Scene* scene);
-		void						detachedFromScene(Scene* scene);
+		void						attachedToScene(Scene& scene);
+		void						detachedFromScene(Scene& scene);
 
 		virtual void				update() = 0;
 

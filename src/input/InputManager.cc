@@ -107,14 +107,14 @@ Scene* InputManager::scene() const {
 	Internal
  *********************************************************************************************/
 
-void InputManager::attachedToScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void InputManager::attachedToScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
-	_scene = scene;
+	_scene = &scene;
 }
 
-void InputManager::detachedFromScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void InputManager::detachedFromScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = nullptr;
 }

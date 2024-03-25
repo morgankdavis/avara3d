@@ -247,7 +247,7 @@ int main(int argc, const char* argv[]) {
 ////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->mesh().get());
 ////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
 
-	auto duckSpinnerNode = make_unique<Node>("duck spinner");
+	auto duckSpinnerNode = make_shared<Node>("duck spinner");
 	g_duckSpinnerNode = duckSpinnerNode.get();
 	duckSpinnerNode->addChild(duckNode);
 	scene->rootNode()->addChild(std::move(duckSpinnerNode));

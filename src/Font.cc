@@ -20,7 +20,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Font::Font(filesystem::path& path):
+Font::Font(const filesystem::path& path):
 	_name(nullopt),
 	_type(FontType::Unknown),
 	_buffer(nullptr) {

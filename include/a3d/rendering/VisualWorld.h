@@ -40,9 +40,10 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		VisualWorld(RenderContext* context);
-		VisualWorld(const VisualWorld& other) = delete; // copy constructor
-		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
+		VisualWorld() = delete;
+		explicit VisualWorld(RenderContext* context);
+//		VisualWorld(const VisualWorld& other) = delete; // copy constructor
+//		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
@@ -70,7 +71,7 @@ namespace a3d {
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);
 
-		RenderContext* 							renderContext() const;
+		RenderContext* 							renderContext() const; // TODO: make reference?
 
 		Scene*									scene() const;
 
@@ -84,8 +85,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void									attachedToScene(Scene* scene);
-		void									detachedFromScene(Scene* scene);
+		void									attachedToScene(Scene& scene);
+		void									detachedFromScene(Scene& scene);
 
 		void									checkAddDefaultLighting();
 

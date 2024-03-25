@@ -150,14 +150,14 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 	Internal
  *********************************************************************************************/
 
-void PhysicalWorld::attachedToScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void PhysicalWorld::attachedToScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
-	_scene = scene;
+	_scene = &scene;
 }
 
-void PhysicalWorld::detachedFromScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void PhysicalWorld::detachedFromScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
 	// removing bodies handled in PhysicalBody::physicalWorldUnreachable()
 

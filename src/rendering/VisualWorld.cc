@@ -195,14 +195,14 @@ void VisualWorld::didRender(DidRenderCallback function) {
 	Internal
  *********************************************************************************************/
 
-void VisualWorld::attachedToScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void VisualWorld::attachedToScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
-	_scene = scene;
+	_scene = &scene;
 }
 
-void VisualWorld::detachedFromScene(Scene* scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(scene));
+void VisualWorld::detachedFromScene(Scene& scene) {
+	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = nullptr;
 }

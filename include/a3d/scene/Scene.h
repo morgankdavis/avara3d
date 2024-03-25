@@ -65,17 +65,20 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 		
-		Node* 								rootNode() const;
-		void 								rootNode(std::unique_ptr<Node> node);
+		std::shared_ptr<Node> 				rootNode() const;
+		void 								rootNode(const std::shared_ptr<Node>& node);
+
+//		Node* 								rootNode() const;
+//		void 								rootNode(std::unique_ptr<Node>& node);
 
 		VisualWorld* 						visualWorld() const;
-		void 								visualWorld(std::unique_ptr<VisualWorld> world);
+		void 								visualWorld(std::unique_ptr<VisualWorld>& world);
 		
 		PhysicalWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicalWorld> world);
+		void 								physicalWorld(std::unique_ptr<PhysicalWorld>& world);
 
 		InputManager* 						inputManager() const;
-		void 								inputManager(std::unique_ptr<InputManager> manager);
+		void 								inputManager(std::unique_ptr<InputManager>& manager);
 
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
@@ -105,7 +108,8 @@ namespace a3d {
 
 	private:
 
-		std::unique_ptr<Node>				_rootNode;
+		std::shared_ptr<Node>				_rootNode;
+//		std::unique_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
 		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
 		std::unique_ptr<InputManager>		_inputManager;
