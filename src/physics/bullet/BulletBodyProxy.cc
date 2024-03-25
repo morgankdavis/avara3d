@@ -136,7 +136,7 @@ void BulletBodyProxy::type(PhysicsBodyType type) {
 }
 
 PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
-	return _shapeModel;
+	return _shapeProxy;
 }
 
 void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
@@ -158,7 +158,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 					break;
 			}
 
-			_shapeModel = proxy;
+			_shapeProxy = proxy;
 
 			if (_autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
@@ -166,11 +166,11 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 		}
 		else {
 			A3D_LOG_E("Could not get shape resources.");
-			_shapeModel = nullptr;
+			_shapeProxy = nullptr;
 		}
 	}
 	else {
-		_shapeModel = nullptr;
+		_shapeProxy = nullptr;
 	}
 }
 
@@ -213,7 +213,7 @@ glm::vec3 BulletBodyProxy::centerOfMass() const {
 	return GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
-void BulletBodyProxy::centerOfMass(const glm::vec3 offset) {
+void BulletBodyProxy::centerOfMass(const glm::vec3& offset) {
 	_btBody->setCenterOfMassTransform(
 			BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
 }
@@ -476,7 +476,7 @@ shared_ptr<MotionState> BulletBodyProxy::motionState() {
 
 void BulletBodyProxy::calculateMomentOfIntertia() {
 
-	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeModel)) {
+	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeProxy)) {
 		if (auto btShape = btShapeModel->btShapes().front()) {
 			btVector3 localInertia;
 			auto mass = _body->mass();

@@ -37,24 +37,36 @@ using namespace std;
 	Pulic Static
  *********************************************************************************************/
 
-unique_ptr<Node> Node::NamedNode(std::string name) {
-	return make_unique<Node>(name);
-}
-
-unique_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-	return make_unique<Node>(mesh);
-}
-
-//shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-//	return std::move(make_shared<Node>(mesh));
+//unique_ptr<Node> Node::NamedNode(std::string name) {
+//	return make_unique<Node>(name);
+//}
+//
+//unique_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
+//	return make_unique<Node>(mesh);
+//}
+//
+//unique_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
+//	return make_unique<Node>(light);
+//}
+//
+//unique_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
+//	return make_unique<Node>(camera);
 //}
 
-unique_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
-	return make_unique<Node>(light);
+shared_ptr<Node> Node::NamedNode(std::string name) {
+	return make_shared<Node>(name);
 }
 
-unique_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
-	return make_unique<Node>(camera);
+shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
+	return make_shared<Node>(mesh);
+}
+
+shared_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
+	return make_shared<Node>(light);
+}
+
+shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
+	return make_shared<Node>(camera);
 }
 
 /*********************************************************************************************
@@ -120,7 +132,7 @@ Node::~Node() {
 	}
 
 	for (auto& child : _children) child->detachedFromParent(*this);
-	if (_physicsBody) _physicsBody->detachedFromNode(shared_from_this()); // <- bad_weak_ptr
+	if (_physicsBody) _physicsBody->detachedFromNode(*this);
 
 //	physicsBody(nullptr);
 }
@@ -720,7 +732,7 @@ PhysicsBody* Node::physicsBody() const {
 void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
-		_physicsBody->detachedFromNode(shared_from_this());
+		_physicsBody->detachedFromNode(*this);
 	}
 
 	_physicsBody = std::move(body);

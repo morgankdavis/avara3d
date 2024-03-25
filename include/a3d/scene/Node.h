@@ -37,7 +37,7 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class Node : public std::enable_shared_from_this<Node> { // ew
+	class Node : public std::enable_shared_from_this<Node> {
 
 /*********************************************************************************************
 	Public Static
@@ -45,11 +45,15 @@ namespace a3d {
 
 	public:
 
-		static std::unique_ptr<Node> 			NamedNode(std::string name);
-		static std::unique_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
-//		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
-		static std::unique_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
-		static std::unique_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
+//		static std::unique_ptr<Node> 			NamedNode(std::string name);
+//		static std::unique_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
+//		static std::unique_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
+//		static std::unique_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
+
+		static std::shared_ptr<Node> 			NamedNode(std::string name);
+		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
+		static std::shared_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
+		static std::shared_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
 
 /*********************************************************************************************
 	Lifecycle

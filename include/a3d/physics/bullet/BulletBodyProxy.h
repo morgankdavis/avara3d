@@ -48,7 +48,7 @@ namespace a3d {
 		void					momentOfInertia(const glm::vec3& moment) override;
 
 		glm::vec3				centerOfMass() const override;
-		void					centerOfMass(const glm::vec3 offset) override;
+		void					centerOfMass(const glm::vec3& offset) override;
 
 		float					friction() const override;
 		void					friction(float friction) override;

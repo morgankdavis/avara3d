@@ -107,28 +107,28 @@ HACDMeshElementsFromMeshElement(MeshElement* element);
 	Lifecycle
  *********************************************************************************************/
 
-BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
+BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		PhysicsShapeProxy(shape),
 		_btShapes(vector<shared_ptr<btCollisionShape>>()),
 		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
 
-	A3D_LOG_D("shape: {:p}", static_cast<void*>(shape));
+	A3D_LOG_D("shape: {:p}", static_cast<void*>(&shape));
 
-	auto bodyType = (*shape->bodies().begin())->type();
+	auto bodyType = (*shape.bodies().begin())->type();
 
 	shared_ptr<btCollisionShape> newShape = nullptr;
 
 	auto btShapes = vector<shared_ptr<btCollisionShape>>();
 	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
 
-	auto sourceObject = shape->source();
+	auto sourceObject = shape.source();
 
 	// souce MESH
 	if (holds_alternative<weak_ptr<Mesh>>(sourceObject)) {
 		auto sourceMesh = get<weak_ptr<Mesh>>(sourceObject);
 		if (auto sSourceMesh = sourceMesh.lock()) {
 			newShape = BTShapeFromSourceMesh(sSourceMesh.get(),
-											 shape->type(),
+											 shape.type(),
 											 bodyType,
 											 btShapes,
 											 btIndexVertexArrays);
@@ -143,7 +143,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 		auto sourceNode = get<weak_ptr<Node>>(sourceObject);
 		if (auto sSourceNode = sourceNode.lock()) {
 			newShape = BTShapeFromSourceNode(sSourceNode.get(),
-											 shape->type(),
+											 shape.type(),
 											 bodyType,
 											 btShapes,
 											 btIndexVertexArrays);
@@ -156,12 +156,12 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape* shape):
 	// primitive subclass
 	else if (holds_alternative<monostate>(sourceObject)) {
 
-		newShape = BTShapeFromPrimitiveShape(*shape, bodyType);
+		newShape = BTShapeFromPrimitiveShape(shape, bodyType);
 	}
 
 	if (newShape) {
 
-		newShape->setUserPointer(static_cast<void*>(shape));
+		newShape->setUserPointer(static_cast<void*>(&shape));
 		btShapes.insert(btShapes.begin(), newShape);
 
 		_btShapes = btShapes;

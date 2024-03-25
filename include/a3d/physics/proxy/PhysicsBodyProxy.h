@@ -49,7 +49,7 @@ namespace a3d {
 		virtual void					momentOfInertia(const glm::vec3& moment) = 0;
 
 		virtual glm::vec3				centerOfMass() const = 0;
-		virtual void					centerOfMass(const glm::vec3 offset) = 0;
+		virtual void					centerOfMass(const glm::vec3& offset) = 0;
 
 		virtual float					friction() const = 0;
 		virtual void					friction(float friction) = 0;
@@ -121,7 +121,7 @@ namespace a3d {
 	protected:
 
 		PhysicsBody*					_body;
-		PhysicsShapeProxy*				_shapeModel; // TODO: rename
+		PhysicsShapeProxy*				_shapeProxy;
 		bool							_autocalculatesMomentOfInertia;
 	};
 }

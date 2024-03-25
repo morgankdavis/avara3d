@@ -156,7 +156,7 @@ void PhysicsShape::checkCreateProxy() {
 	A3D_LOG_T("");
 
 	if (!_proxy) {
-		_proxy = make_unique<BulletShapeProxy>(this);
+		_proxy = make_unique<BulletShapeProxy>(*this);
 
 		for (auto body : _bodies) {
 			body->shapeUpdated();

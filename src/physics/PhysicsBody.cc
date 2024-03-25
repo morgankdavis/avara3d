@@ -320,8 +320,8 @@ void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
 	checkAddToWorld();
 }
 
-void PhysicsBody::detachedFromNode(const shared_ptr<Node>& node) {
-	A3D_LOG_T("node: {:p}", static_cast<void*>(node.get()));
+void PhysicsBody::detachedFromNode(Node& node) {
+	A3D_LOG_T("node: {:p}", static_cast<void*>(&node));
 
 	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
 
