@@ -154,7 +154,7 @@ VisualWorld* Scene::visualWorld() const {
 	return _visualWorld.get();
 }
 
-void Scene::visualWorld(unique_ptr<VisualWorld>& world) {
+void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 
 //	if (world != _visualWorld) {
 
@@ -184,7 +184,7 @@ PhysicalWorld* Scene::physicalWorld() const {
 	return _physicalWorld.get();
 }
 
-void Scene::physicalWorld(unique_ptr<PhysicalWorld>& world) {
+void Scene::physicalWorld(unique_ptr<PhysicalWorld> world) {
 
 	if (_physicalWorld) {
 
@@ -211,7 +211,7 @@ InputManager* Scene::inputManager() const {
 	return _inputManager.get();
 }
 
-void Scene::inputManager(unique_ptr<InputManager>& inputManager) {
+void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 
 	if (_inputManager) {
 		_inputManager->detachedFromScene(*this);

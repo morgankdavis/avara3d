@@ -51,7 +51,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		MaterialProperty&						background();
-		void 									background(MaterialProperty& background);
+		void 									background(MaterialProperty background);
 
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);

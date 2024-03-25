@@ -72,13 +72,13 @@ namespace a3d {
 //		void 								rootNode(std::unique_ptr<Node>& node);
 
 		VisualWorld* 						visualWorld() const;
-		void 								visualWorld(std::unique_ptr<VisualWorld>& world);
+		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
 		PhysicalWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicalWorld>& world);
+		void 								physicalWorld(std::unique_ptr<PhysicalWorld> world);
 
 		InputManager* 						inputManager() const;
-		void 								inputManager(std::unique_ptr<InputManager>& manager);
+		void 								inputManager(std::unique_ptr<InputManager> manager);
 
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);

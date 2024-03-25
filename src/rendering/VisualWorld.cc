@@ -74,7 +74,7 @@ MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(MaterialProperty& background) {
+void VisualWorld::background(MaterialProperty background) {
 
 	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 

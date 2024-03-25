@@ -72,7 +72,7 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
-	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
+	visualWorld->background(make_shared<Texture>(shared_ptr(std::move(CubeImageNamed("nebula1_blue", "png")))));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
@@ -104,9 +104,9 @@ int main(int argc, const char* argv[]) {
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
-				make_unique<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
+				make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
 																	   {100, 100, 100}}));
-		scene->rootNode()->addChild(std::move(orthoCameraNode));
+		scene->rootNode()->addChild(orthoCameraNode);
 	}
 
 //	auto siameseNode = scene->rootNode()->childNamed("Siamese");
