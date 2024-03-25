@@ -40,7 +40,7 @@ PhysicalWorld::PhysicalWorld():
 		_continueContact(nullptr),
 		_endContact(nullptr) {
 
-	_proxy = make_unique<BulletWorldProxy>(this);
+	_proxy = make_unique<BulletWorldProxy>(*this);
 }
 
 PhysicalWorld::~PhysicalWorld() {

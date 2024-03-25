@@ -8,5 +8,5 @@
 using namespace a3d;
 
 
-PhysicalWorldProxy::PhysicalWorldProxy(PhysicalWorld* world) { }
+PhysicalWorldProxy::PhysicalWorldProxy(PhysicalWorld& world) { }
 PhysicalWorldProxy::~PhysicalWorldProxy() { }

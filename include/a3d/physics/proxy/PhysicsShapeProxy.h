@@ -23,7 +23,7 @@ namespace a3d {
 
 	public:
 
-		PhysicsShapeProxy(PhysicsShape& shape);
+		explicit PhysicsShapeProxy(PhysicsShape& shape);
 		virtual ~PhysicsShapeProxy() = 0;
 
 /*********************************************************************************************

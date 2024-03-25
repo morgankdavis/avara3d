@@ -35,7 +35,7 @@ namespace a3d {
 				  std::shared_ptr<Image> negY,
 				  std::shared_ptr<Image> posZ,
 				  std::shared_ptr<Image> negZ);
-		CubeImage(std::shared_ptr<Image> one);
+		explicit  CubeImage(std::shared_ptr<Image> one);
 
 /*********************************************************************************************
 	Public

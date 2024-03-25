@@ -19,9 +19,9 @@ using namespace a3d;
 	Lifecycle
  *********************************************************************************************/
 
-MotionState::MotionState(PhysicsBody* body):
+MotionState::MotionState(PhysicsBody& body):
 		btMotionState(),
-		_body(body) { }
+		_body(&body) { }
 
 /*********************************************************************************************
 	btMotionState

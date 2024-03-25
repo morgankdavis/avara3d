@@ -66,12 +66,12 @@ namespace a3d {
 
 		std::shared_ptr<Material> 				firstMaterial() const;
 		std::shared_ptr<Material> 				materialNamed(const std::string& name) const;
-		void 									addMaterial(std::shared_ptr<Material> material);
-		void 									insertMaterial(std::shared_ptr<Material> material,
+		void 									addMaterial(const std::shared_ptr<Material>& material);
+		void 									insertMaterial(const std::shared_ptr<Material>& material,
 															   int index);
 		void 									removeMaterial(int index);
 		void 									replaceMaterial(int index,
-																std::shared_ptr<Material> replacement);
+																const std::shared_ptr<Material>& replacement);
 
 /*********************************************************************************************
 	Internal

@@ -28,7 +28,7 @@ namespace a3d {
 
 	public:
 
-		PhysicalWorldProxy(PhysicalWorld* world);
+		explicit PhysicalWorldProxy(PhysicalWorld& world);
 		virtual ~PhysicalWorldProxy();
 
 /*********************************************************************************************

@@ -44,7 +44,7 @@ namespace a3d {
 
 	public:
 
-		RenderContext(RenderingApi renderingApi);
+		explicit RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();

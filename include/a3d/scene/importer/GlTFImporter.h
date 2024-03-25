@@ -39,7 +39,7 @@ namespace a3d {
 
 	public:
 
-		GlTFImporter(const std::filesystem::path& path,
+		explicit GlTFImporter(const std::filesystem::path& path,
 					 SceneImportOptions options = SceneImportOptions::ImportAll);
 
 		std::unique_ptr<Scene> 				scene();

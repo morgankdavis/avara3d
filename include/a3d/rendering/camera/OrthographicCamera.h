@@ -21,7 +21,7 @@ namespace a3d {
 	public:
 
 		OrthographicCamera();
-		OrthographicCamera(AABB extent);
+		explicit OrthographicCamera(AABB extent);
 		OrthographicCamera(std::string name, AABB extent);
 
 /*********************************************************************************************

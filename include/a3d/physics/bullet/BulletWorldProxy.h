@@ -37,7 +37,7 @@ namespace a3d {
 
 	public:
 
-		BulletWorldProxy(PhysicalWorld* world);
+		explicit BulletWorldProxy(PhysicalWorld& world);
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************

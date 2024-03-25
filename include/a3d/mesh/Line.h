@@ -35,11 +35,11 @@ namespace a3d {
 			 glm::vec3 toLocation);
 		Line(glm::vec3 fromLocation,
 			 glm::vec3 toLocation,
-			 std::shared_ptr<Color> color);
+			 const std::shared_ptr<Color>& color);
 		Line(glm::vec3 fromLocation,
 			 glm::vec3 toLocation,
-			 std::shared_ptr<Color>fromColor,
-			 std::shared_ptr<Color> toColor);
+			 const std::shared_ptr<Color>& fromColor,
+			 const std::shared_ptr<Color>& toColor);
 
 //		Line(const Line& other); // copy
 //		Line& operator=(const Line& other); // copy assignment
@@ -51,13 +51,13 @@ namespace a3d {
  *********************************************************************************************/
 		
 		glm::vec3 							fromLocation() const;
-		void 								fromLocation(glm::vec3 location);
+		void 								fromLocation(const glm::vec3& location);
 		glm::vec3 							toLocation() const;
-		void 								toLocation(glm::vec3 location);
+		void 								toLocation(const glm::vec3& location);
 		std::shared_ptr<Color> 				fromColor() const;
-		void 								fromColor(std::shared_ptr<Color> color);
+		void 								fromColor(const std::shared_ptr<Color>& color);
 		std::shared_ptr<Color> 				toColor() const;
-		void 								toColor(std::shared_ptr<Color> color);
+		void 								toColor(const std::shared_ptr<Color>& color);
 		
 /*********************************************************************************************
 	Private

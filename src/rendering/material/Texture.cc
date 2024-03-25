@@ -15,8 +15,8 @@ Texture::Texture():
 		_mappingChannel{0},
 		_dirtyMask{TextureDirtyMask::All} {}
 
-Texture::Texture(shared_ptr<Sampleable> contents,
-				 shared_ptr<Sampler> sampler,
+Texture::Texture(const shared_ptr<Sampleable>& contents,
+				 const shared_ptr<Sampler>& sampler,
 				 unsigned mappingChannel):
 		_sampler{sampler},
 		_contents{contents},
@@ -29,7 +29,7 @@ shared_ptr<Sampler> Texture::sampler() const {
 	return _sampler;
 }
 
-void Texture::sampler(shared_ptr<Sampler> sampler) {
+void Texture::sampler(const shared_ptr<Sampler>& sampler) {
 	_sampler = sampler;
 }
 
@@ -37,7 +37,7 @@ shared_ptr<Sampleable> Texture::contents() const {
 	return _contents;
 }
 
-void Texture::contents(shared_ptr<Sampleable> contents) {
+void Texture::contents(const shared_ptr<Sampleable>& contents) {
 	_contents = contents;
 }
 

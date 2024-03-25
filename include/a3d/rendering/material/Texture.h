@@ -23,16 +23,16 @@ namespace a3d {
 	public:
 
 		Texture();
-		Texture(std::shared_ptr<Sampleable> contents,
-				std::shared_ptr<Sampler> sampler = std::make_shared<Sampler>(),
+		explicit Texture(const std::shared_ptr<Sampleable>& contents,
+				const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
 				unsigned mappingChannel = 0);
 		~Texture();
 
 		std::shared_ptr<Sampler>		sampler() const;
-		void							sampler(std::shared_ptr<Sampler> sampler);
+		void							sampler(const std::shared_ptr<Sampler>& sampler);
 
 		std::shared_ptr<Sampleable>		contents() const;
-		void							contents(std::shared_ptr<Sampleable> contents);
+		void							contents(const std::shared_ptr<Sampleable>& contents);
 
 		unsigned						mappingChannel() const;
 		void							mappingChannel(unsigned channel);

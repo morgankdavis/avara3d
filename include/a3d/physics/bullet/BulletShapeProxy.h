@@ -28,7 +28,7 @@ namespace a3d {
 
 	public:
 
-		BulletShapeProxy(PhysicsShape& shape);
+		explicit BulletShapeProxy(PhysicsShape& shape);
 		~BulletShapeProxy() override;
 
 /*********************************************************************************************

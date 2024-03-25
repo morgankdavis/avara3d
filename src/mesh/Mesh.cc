@@ -115,11 +115,11 @@ shared_ptr<Material> Mesh::materialNamed(const string& name) const {
 	return nullptr;
 }
 
-void Mesh::addMaterial(shared_ptr<Material> material) {
+void Mesh::addMaterial(const shared_ptr<Material>& material) {
 	_materials.push_back(material);
 }
 
-void Mesh::insertMaterial(shared_ptr<Material> material, int index) {
+void Mesh::insertMaterial(const shared_ptr<Material>& material, int index) {
 	_materials.insert(_materials.begin()+index, material);
 }
 
@@ -129,7 +129,7 @@ void Mesh::removeMaterial(int index) {
 //	}
 }
 
-void Mesh::replaceMaterial(int index, shared_ptr<Material> replacement) {
+void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 	removeMaterial(index);
 	insertMaterial(replacement, index);
 }

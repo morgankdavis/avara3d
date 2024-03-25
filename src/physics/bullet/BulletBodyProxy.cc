@@ -45,7 +45,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_shared<MotionState>(&body);
+	_motionState = make_shared<MotionState>(body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something

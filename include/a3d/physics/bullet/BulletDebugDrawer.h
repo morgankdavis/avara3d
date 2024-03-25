@@ -37,7 +37,7 @@ namespace a3d {
 	public:
 
 		BulletDebugDrawer();
-		~BulletDebugDrawer();
+		~BulletDebugDrawer() override;
 		
 /*********************************************************************************************
 	Internal
