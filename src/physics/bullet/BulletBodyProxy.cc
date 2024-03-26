@@ -45,7 +45,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_shared<MotionState>(body);
+	_motionState = make_unique<MotionState>(body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
@@ -62,7 +62,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 	rigidBodyInfo.m_linearSleepingThreshold = 1.0;
 	rigidBodyInfo.m_angularSleepingThreshold = 1.0;
 
-	_btBody = make_shared<btRigidBody>(rigidBodyInfo);
+	_btBody = make_unique<btRigidBody>(rigidBodyInfo);
 
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
@@ -458,16 +458,16 @@ void BulletBodyProxy::clearForces() {
 	Internal
  *********************************************************************************************/
 
-shared_ptr<btRigidBody> BulletBodyProxy::btBody() {
-	return _btBody;
+btRigidBody* BulletBodyProxy::btBody() {
+	return _btBody.get();
 }
 
 //shared_ptr<btDefaultMotionState> BulletBodyProxy::btMotionState() {
 //	return _btMotionState;
 //}
 
-shared_ptr<MotionState> BulletBodyProxy::motionState() {
-	return _motionState;
+MotionState* BulletBodyProxy::motionState() {
+	return _motionState.get();
 }
 
 /*********************************************************************************************
