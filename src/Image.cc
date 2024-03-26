@@ -132,8 +132,8 @@ bool Image::writePNG(filesystem::path path) const {
 	Internal
  *********************************************************************************************/
 
-const Buffer* Image::buffer() const {
-	return _buffer.get();
+const Buffer& Image::buffer() const {
+	return *_buffer;
 }
 
 /*********************************************************************************************

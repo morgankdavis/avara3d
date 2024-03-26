@@ -214,7 +214,7 @@ string Window::title() const {
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
-void Window::title(string title) {
+void Window::title(const string& title) {
 
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }

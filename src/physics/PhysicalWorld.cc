@@ -9,7 +9,9 @@
 #include "a3d/physics/PhysicalWorld.h"
 
 #include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -51,11 +53,11 @@ PhysicalWorld::~PhysicalWorld() {
 	Public
  *********************************************************************************************/
 
-vec3 PhysicalWorld::gravity() const {
+const vec3& PhysicalWorld::gravity() const {
 	return _gravity;
 }
 
-void PhysicalWorld::gravity(vec3 gravity) {
+void PhysicalWorld::gravity(const vec3& gravity) {
 	_gravity = gravity;
 }
 
@@ -75,35 +77,35 @@ void PhysicalWorld::timestep(float timestep) {
 	_timestep = timestep;
 }
 
-shared_ptr<PhysicsContact> PhysicalWorld::contactTest(shared_ptr<PhysicsBody> bodyA,
-													  shared_ptr<PhysicsBody> bodyB) {
-	
+optional<PhysicsContact> PhysicalWorld::contactTest(const PhysicsBody& bodyA,
+													const PhysicsBody& bodyB) {
+
 	// contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
 	
-	return nullptr;
+	return {};
 }
 
-shared_ptr<PhysicsContact> PhysicalWorld::contactTest(shared_ptr<PhysicsBody> body) {
+optional<PhysicsContact> PhysicalWorld::contactTest(const PhysicsBody& body) {
 	
 	// contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
 	
-	return nullptr;
+	return {};
 }
 
-shared_ptr<HitTestResult> PhysicalWorld::rayTest(vec3 fromVec, vec3 toVec) {
-	
+optional<HitTestResult> PhysicalWorld::rayTest(const vec3& fromVec, const vec3& toVec) {
+
 	//rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
-	
-	return nullptr;
+
+	return {};
 }
 
-shared_ptr<PhysicsContact> PhysicalWorld::convexSweepTest(shared_ptr<PhysicsContact> contact,
-														  const mat4& fromMat,
-														  const mat4& toMat) {
-	
+optional<PhysicsContact> PhysicalWorld::convexSweepTest(const PhysicsContact& contact,
+														const mat4& fromMat,
+														const mat4& toMat) {
+
 	// convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const 
 
-	return nullptr;
+	return {};
 }
 
 void PhysicalWorld::updateCollisionPairs() {

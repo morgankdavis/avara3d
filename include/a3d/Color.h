@@ -59,7 +59,6 @@ namespace a3d {
 		Color(float white);
 		Color(uint32_t color);
 		Color(const std::string& hexString);
-		Color(Color* other);
 //		Color(const Color& color); // copy
 //		Color& operator=(const Color& other); // copy assignment
 //		Color(Color&& other) noexcept; // move
@@ -73,6 +72,8 @@ namespace a3d {
 		float g;
 		float b;
 		float a;
+
+		// TODO: operator*, operator[], rgb(), rgba()
 	};
 }
 

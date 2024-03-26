@@ -40,9 +40,9 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string>		name() const;
-		FontType 						type() const;
-		const Buffer* 					buffer() const;
+		const std::optional<std::string>&	name() const;
+		FontType 							type() const;
+		const Buffer* 						buffer() const;
 		
 /*********************************************************************************************
 	Private
@@ -50,9 +50,9 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string>		_name;
-		FontType						_type;
-		std::unique_ptr<Buffer>			_buffer;
+		std::optional<std::string>			_name;
+		FontType							_type;
+		std::unique_ptr<Buffer>				_buffer;
 	};
 }
 

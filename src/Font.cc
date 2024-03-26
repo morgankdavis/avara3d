@@ -53,7 +53,7 @@ Font::~Font() {
 	Public
  *********************************************************************************************/
 
-optional<string> Font::name() const {
+const optional<string>& Font::name() const {
 	return _name;
 }
 

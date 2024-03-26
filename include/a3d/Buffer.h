@@ -34,15 +34,14 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		// TODO: switch to unique_ptr
-		std::byte* 					data() const; // should be 'const byte'
+		std::byte* 					data() const; // should be 'const byte' ?
 		std::size_t 				size() const;
 
 /*********************************************************************************************
 	Operator Overloads
  *********************************************************************************************/
 
-		std::byte*					operator*() const; // should be 'const byte'
+		std::byte*					operator*() const; // should be 'const byte' ?
 		std::byte					operator[](std::size_t idx) const;
 
 /*********************************************************************************************

@@ -30,7 +30,7 @@ PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
 	constructProjectionMatrix();
 }
 
-PerspectiveCamera::PerspectiveCamera(string name, float zNear, float zFar, float yFov):
+PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar, float yFov):
 		Camera(name),
 		_zNear(zNear),
 		_zFar(zFar),

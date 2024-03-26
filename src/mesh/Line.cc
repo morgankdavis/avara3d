@@ -20,25 +20,19 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Line::Line(vec3 fromLocation, vec3 toLocation):
-	Line(fromLocation, toLocation, Color::White()) {
-	
-}
+Line::Line(const vec3& fromLocation, const vec3& toLocation):
+		Line(fromLocation, toLocation, Color::White()) { }
 
-Line::Line(vec3 fromLocation, vec3 toLocation,
+Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const shared_ptr<Color>& color):
-	Line(fromLocation, toLocation, color, color) {
-	
-}
+		Line(fromLocation, toLocation, color, color) { }
 
-Line::Line(vec3 fromLocation, vec3 toLocation,
-	const shared_ptr<Color>& fromColor, const shared_ptr<Color>& toColor):
-	_fromLocation(fromLocation),
-	_toLocation(toLocation),
-	_fromColor(fromColor),
-	_toColor(toColor) {
-	
-}
+Line::Line(const vec3& fromLocation, const vec3& toLocation,
+		   const shared_ptr<Color>& fromColor, const shared_ptr<Color>& toColor):
+		_fromLocation(fromLocation),
+		_toLocation(toLocation),
+		_fromColor(fromColor),
+		_toColor(toColor) { }
 
 //Line::Line(const Line& other):
 //		_fromLocation{other._fromLocation},
@@ -85,7 +79,7 @@ Line::Line(vec3 fromLocation, vec3 toLocation,
 	Public
  *********************************************************************************************/
 
-vec3 Line::fromLocation() const {
+const vec3& Line::fromLocation() const {
 	return _fromLocation;
 }
 
@@ -93,7 +87,7 @@ void Line::fromLocation(const vec3& point) {
 	_fromLocation = point;
 }
 
-vec3 Line::toLocation() const {
+const vec3& Line::toLocation() const {
 	return _toLocation;
 }
 
@@ -101,7 +95,7 @@ void Line::toLocation(const vec3& point) {
 	_toLocation = point;
 }
 
-shared_ptr<Color> Line::fromColor() const {
+const shared_ptr<Color>& Line::fromColor() const {
 	return _fromColor;
 }
 
@@ -109,7 +103,7 @@ void Line::fromColor(const shared_ptr<Color>& color) {
 	_fromColor = color;
 }
 
-shared_ptr<Color> Line::toColor() const {
+const shared_ptr<Color>& Line::toColor() const {
 	return _toColor;
 }
 

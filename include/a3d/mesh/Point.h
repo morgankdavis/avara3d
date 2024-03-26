@@ -29,17 +29,17 @@ namespace a3d {
 
 	public:
 
-		Point(glm::vec3 location);
-		Point(glm::vec3 location, std::shared_ptr<Color> color);
+		Point(const glm::vec3& location);
+		Point(const glm::vec3& location, const std::shared_ptr<Color>& color);
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		glm::vec3 						location() const;
-		void 							location(glm::vec3 point);
-		std::shared_ptr<Color>			color() const;
-		void 							color(std::shared_ptr<Color> color);
+		const glm::vec3& 				location() const;
+		void 							location(const glm::vec3& point);
+		const std::shared_ptr<Color>&	color() const;
+		void 							color(const std::shared_ptr<Color>& color);
 		
 /*********************************************************************************************
 	Private

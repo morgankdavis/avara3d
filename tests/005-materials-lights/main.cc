@@ -50,9 +50,9 @@ a3d::Node*						g_pointLightNode;
 
 int main(int argc, const char* argv[]) {
 
-	logger = make_shared<Logger>("test-005", Logger::MainLogger()->sinks());
+	logger = make_shared<Logger>("test-005", Logger::MainLogger().sinks());
 	logger->level(LogLevel::Debug);
-	Logger::MainLogger()->level(LogLevel::Debug);
+	Logger::MainLogger().level(LogLevel::Debug);
 	LOG_I(logger, "");
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,

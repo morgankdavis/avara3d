@@ -105,7 +105,7 @@ Material::~Material() {
 	Public
  *********************************************************************************************/
 
-optional<string> Material::name() const {
+const optional<string>& Material::name() const {
 	return _name;
 }
 

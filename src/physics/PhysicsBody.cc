@@ -95,7 +95,7 @@ void PhysicsBody::type(PhysicsBodyType type) {
 	}
 }
 
-shared_ptr<PhysicsShape> PhysicsBody::shape() const {
+const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
 	return _shape;
 }
 

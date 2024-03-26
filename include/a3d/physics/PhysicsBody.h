@@ -62,8 +62,8 @@ namespace a3d {
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
 
-		std::shared_ptr<PhysicsShape> 		shape() const;
-		void 								shape(const std::shared_ptr<PhysicsShape>& shape);
+		const std::shared_ptr<PhysicsShape>&	shape() const;
+		void 									shape(const std::shared_ptr<PhysicsShape>& shape);
 
 		float 								mass() const;
 		void 								mass(float mass);
@@ -89,10 +89,10 @@ namespace a3d {
 		glm::vec3 							angularVelocity() const;
 		void 								angularVelocity(const glm::vec3& velocity);
 
-		glm::vec3 							linearFactor() const;
+		glm::vec3							linearFactor() const;
 		void 								linearFactor(const glm::vec3& factor);
 
-		glm::vec3 							angularFactor() const;
+		glm::vec3							angularFactor() const;
 		void 								angularFactor(const glm::vec3& factor);
 
 		float								linearDamping() const;
@@ -119,7 +119,7 @@ namespace a3d {
 		void 								applyTorque(const glm::vec3& torque,
 														bool impulse);
 
-		glm::vec3 							totalForce() const;
+		glm::vec3							totalForce() const;
 		glm::vec3 							totalTorque() const;
 
 		bool 								affectedByGravity() const;
@@ -190,17 +190,17 @@ namespace a3d {
 
 	private:
 
-		void 									checkAutocreateShape(const std::shared_ptr<Node>& node);
-		void 									checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
+		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
+		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
-		void 									checkAddToWorld();
+		void 								checkAddToWorld();
 
-		PhysicsBodyType 						_type;
-		std::shared_ptr<PhysicsShape>			_shape;
-		std::unique_ptr<PhysicsBodyProxy>		_proxy;
-		std::weak_ptr<Node>						_node;
+		PhysicsBodyType 					_type;
+		std::shared_ptr<PhysicsShape>		_shape;
+		std::unique_ptr<PhysicsBodyProxy>	_proxy;
+		std::weak_ptr<Node>					_node;
 		// either a pointer to the world we are currently in or null.
-		PhysicalWorld*							_world;
+		PhysicalWorld*						_world;
 	};
 }
 

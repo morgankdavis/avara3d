@@ -33,7 +33,7 @@ namespace a3d {
 
 		Camera();
 		explicit Camera(const std::string& name);
-		virtual ~Camera();
+		virtual ~Camera() = 0;
 		
 /*********************************************************************************************
 	Public

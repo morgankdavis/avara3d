@@ -65,7 +65,7 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 		
-		std::shared_ptr<Node> 				rootNode() const;
+		const std::shared_ptr<Node>&		rootNode() const;
 		void 								rootNode(const std::shared_ptr<Node>& node);
 
 //		Node* 								rootNode() const;

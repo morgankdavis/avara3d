@@ -14,14 +14,13 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Color.h"
 #include "a3d/Types.h"
 
 
 namespace a3d {
 
 
-//	class Color;
+	class Color;
 	class Node;
 	
 	
@@ -50,13 +49,13 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 			name() const;
+		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 		
 		LightType 							type() const;
 		void 								type(LightType type);
 		
-		std::shared_ptr<Color>				color() const;
+		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
 
 		float 								attenuationFactor() const;

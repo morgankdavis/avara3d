@@ -34,7 +34,7 @@ namespace a3d {
 
 		// desktop log paths are relative to the executable
 		// android log paths are relative to the app's internal storage directory
-		FileLoggerSink(std::filesystem::path relPath,
+		explicit FileLoggerSink(const std::filesystem::path& relPath,
 					   unsigned maxFiles = DEFAULT_MAX_FILES,
 					   unsigned maxFilesize = DEFAULT_MAX_FILESIZE);
 		~FileLoggerSink();
@@ -43,10 +43,10 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		std::filesystem::path 				filepath() const;
+		const std::filesystem::path&		filepath() const;
 
-		unsigned 							maxFiles() const;
-		unsigned 							maxFilesize() const;
+		int 								maxFiles() const;
+		int 								maxFilesize() const;
 
 		void 								flush() override;
 
@@ -67,8 +67,8 @@ namespace a3d {
 		void 								rotate();
 
 		std::filesystem::path				_filepath;
-		unsigned							_maxFiles;
-		unsigned							_maxFilesize;
+		int									_maxFiles;
+		int									_maxFilesize;
 		std::shared_ptr<std::ofstream>		_fileStream;
 	};
 }

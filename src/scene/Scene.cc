@@ -112,7 +112,7 @@ Scene::~Scene() {
 	Public
  *********************************************************************************************/
 
-shared_ptr<Node> Scene::rootNode() const {
+const shared_ptr<Node>& Scene::rootNode() const {
 	return _rootNode;
 }
 

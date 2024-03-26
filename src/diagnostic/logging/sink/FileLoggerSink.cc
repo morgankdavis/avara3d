@@ -17,7 +17,7 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-FileLoggerSink::FileLoggerSink(filesystem::path relPath,
+FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 							   unsigned maxFiles,
 							   unsigned maxFilesize):
 		_filepath(relPath),
@@ -53,15 +53,15 @@ FileLoggerSink::~FileLoggerSink() {
 	Public
  *********************************************************************************************/
 
-filesystem::path FileLoggerSink::filepath() const {
+const filesystem::path& FileLoggerSink::filepath() const {
 	return _filepath;
 }
 
-unsigned FileLoggerSink::maxFiles() const {
+int FileLoggerSink::maxFiles() const {
 	return _maxFiles;
 }
 
-unsigned FileLoggerSink::maxFilesize() const {
+int FileLoggerSink::maxFilesize() const {
 	return _maxFilesize;
 }
 

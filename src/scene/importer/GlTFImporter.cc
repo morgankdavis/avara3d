@@ -42,8 +42,8 @@ using namespace std;
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
-static unique_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
-static unique_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
+static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
+static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
@@ -53,10 +53,10 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 		_scene{nullptr},
 		_path{path},
 		_options{options},
-//		_cameras{},
+		_cameras{},
 		_meshes{},
 		_images{},
-//		_lights{},
+		_lights{},
 		_materials{},
 		_textures{},
 		_samplers{} {
@@ -220,11 +220,11 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 	}
 
 	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
-		a3dNode->light(std::move(lightFromGlTFNode(asset, node)));
+		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
 	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
-		a3dNode->camera(std::move(cameraFromGlTFNode(asset, node)));
+		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
 //	auto nodePtr = a3dNode.get();
@@ -234,7 +234,7 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
 	}
 
-	parent->addChild(std::move(a3dNode));
+	parent->addChild(a3dNode);
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFNode(fastgltf::Asset& asset,
@@ -509,7 +509,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				auto baseColorFactor = pbrData.baseColorFactor;
 
 				auto a3dColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto a3dProperty = MaterialProperty(shared_ptr(std::move(a3dColor)));
+				auto a3dProperty = MaterialProperty(a3dColor);
 				a3dMaterial = make_shared<a3d::Material>(monostate{}, a3dProperty, monostate{});
 			}
 
@@ -722,26 +722,26 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 	return nullptr;
 }
 
-unique_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
+shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 													   fastgltf::Node& node) {
 
 	if (auto lightIndex = node.lightIndex) {
-//
-//		if (_lights.find(*lightIndex) == _lights.end()) {
+
+		if (_lights.find(*lightIndex) == _lights.end()) {
 
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
 
 			if (type == fastgltf::LightType::Point) {
 
-				auto a3dLight = make_unique<Light>(LightType::Point);
+				auto a3dLight = make_shared<Light>(LightType::Point);
 
 				a3dLight->name(string(light.name));
 				a3dLight->attenuationFactor(0); // temporary
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
 				// TODO: range, intensity
 
-//				_lights[*lightIndex] = a3dLight;
+				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
 			else {
@@ -749,21 +749,21 @@ unique_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 				A3D_LOG_W("Unsupported light type: {}",
 						  magic_enum::enum_name(type));
 			}
-//		}
-//		else {
-//			return _lights[*lightIndex];
-//		}
+		}
+		else {
+			return _lights[*lightIndex];
+		}
 	}
 
 	return nullptr;
 }
 
-unique_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
+shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 														 fastgltf::Node& node) {
 
 	if (auto cameraIndex = node.cameraIndex) {
 
-//		if (_cameras.find(*cameraIndex) == _cameras.end()) {
+		if (_cameras.find(*cameraIndex) == _cameras.end()) {
 
 			auto& camera = asset.cameras[*cameraIndex];
 
@@ -772,7 +772,7 @@ unique_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 				auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
 
-				auto a3dCamera = make_unique<PerspectiveCamera>(string(camera.name),
+				auto a3dCamera = make_shared<PerspectiveCamera>(string(camera.name),
 																perspective.znear,
 																(perspective.zfar
 																 ? *perspective.zfar
@@ -783,17 +783,17 @@ unique_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 					a3dCamera->aspectRatio(*ratio);
 				}
 
-//				_cameras[*cameraIndex] = a3dCamera;
+				_cameras[*cameraIndex] = a3dCamera;
 				return a3dCamera;
 			}
 			else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
 
 				A3D_LOG_W("Orthographic cameras are not supported.");
 			}
-//		}
-//		else {
-//			return _cameras[*cameraIndex];
-//		}
+		}
+		else {
+			return _cameras[*cameraIndex];
+		}
 	}
 
 	return nullptr;
@@ -864,12 +864,12 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 	return mat4(1.0);
 }
 
-unique_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
 
 	return make_unique<Color>(arr[0], arr[1], arr[2]);
 }
 
-unique_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
 
 	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
 	return ColorFromGlTFColorArray(rgbArray);

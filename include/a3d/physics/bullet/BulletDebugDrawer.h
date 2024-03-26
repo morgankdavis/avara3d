@@ -42,25 +42,25 @@ namespace a3d {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-		
-		void 						clear();
-		void 						draw(Renderer& renderer,
-										 const glm::mat4& viewMat,
-										 const glm::mat4& projectionMat);
+
+		void 				clear();
+		void 				draw(Renderer& renderer,
+								 const glm::mat4& viewMat,
+								 const glm::mat4& projectionMat);
 
 /*********************************************************************************************
 	btIDebugDraw
  *********************************************************************************************/
 
-		virtual void 				drawLine(const btVector3& from,
-											 const btVector3& to,
-											 const btVector3& color) override;
+		void 				drawLine(const btVector3& from,
+									 const btVector3& to,
+									 const btVector3& color) override;
 
-		virtual void 				drawLine(const btVector3& from,
-											 const btVector3& to,
-											 const btVector3& fromColor,
-											 const btVector3& toColor) override;
-		
+		void 				drawLine(const btVector3& from,
+									 const btVector3& to,
+									 const btVector3& fromColor,
+									 const btVector3& toColor) override;
+
 		/*
 		virtual void drawSphere(btScalar radius,
 								const btTransform& transform,
@@ -77,16 +77,16 @@ namespace a3d {
 								  btScalar alpha) override;
 		*/
 
-		virtual void 				drawContactPoint(const btVector3& PointOnB,
-													 const btVector3& normalOnB,
-													 btScalar distance,
-													 int lifeTime,
-													 const btVector3& color) override;
+		void 				drawContactPoint(const btVector3& PointOnB,
+											 const btVector3& normalOnB,
+											 btScalar distance,
+											 int lifeTime,
+											 const btVector3& color) override;
 
-		virtual void 				reportErrorWarning(const char* warningString) override;
+		void 				reportErrorWarning(const char* warningString) override;
 
-		virtual void 				draw3dText(const btVector3& location,
-											   const char* textString) override;
+		void 				draw3dText(const btVector3& location,
+									   const char* textString) override;
 		
 		/*
 		virtual void drawAabb(const btVector3& from,
@@ -152,8 +152,8 @@ namespace a3d {
 							   const btVector3& color) override;
 		 */
 
-		virtual void 				setDebugMode(int debugMode) override;
-		virtual int 				getDebugMode() const override;
+		void 				setDebugMode(int debugMode) override;
+		int 				getDebugMode() const override;
 		
 /*********************************************************************************************
 	Protected

@@ -102,20 +102,20 @@ namespace a3d {
 
 	protected:
 
-		unsigned							_width;
-		unsigned							_height;
-		unsigned							_framebufferWidth;
-		unsigned							_framebufferHeight;
+		int									_width;
+		int									_height;
+		int									_framebufferWidth;
+		int									_framebufferHeight;
 		glm::vec2							_framebufferScale;
 		bool								_vSyncEnabled;
 		AntialiasingMode					_antialiasingMode;
 		
 		std::unique_ptr<GifWriter>			_gifWriter;
 		bool								_recordingGIF;
-		unsigned							_gifRecordingWidth;
-		unsigned							_gifRecordingHeight;
-		unsigned							_gifRecordingMaxFramerate;
-		unsigned							_gifRecordedFrames;
+		int									_gifRecordingWidth;
+		int									_gifRecordingHeight;
+		int									_gifRecordingMaxFramerate;
+		int									_gifRecordedFrames;
 
 		VisualWorld*						_visualWorld;
 

@@ -93,7 +93,7 @@ namespace a3d {
 
 		void								checkCreateProxy();
 
-		std::unordered_set<PhysicsBody*>	bodies() const;
+		const std::unordered_set<PhysicsBody*>&	bodies() const;
 
 		PhysicsShapeProxy*					proxy() const;
 

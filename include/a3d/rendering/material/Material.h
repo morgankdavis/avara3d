@@ -59,7 +59,7 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 			name() const;
+		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 
 		MaterialProperty 					ambient() const;

@@ -164,7 +164,7 @@ void PhysicsShape::checkCreateProxy() {
 	}
 }
 
-unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
+const unordered_set<PhysicsBody*>& PhysicsShape::bodies() const {
 	return _bodies;
 }
 

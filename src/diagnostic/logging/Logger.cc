@@ -45,9 +45,9 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Logger> Logger::MainLogger() {
+Logger& Logger::MainLogger() {
 	
-	static shared_ptr<Logger> logger = nullptr;
+	static unique_ptr<Logger> logger = nullptr;
 
 	if (!logger) {
 #ifdef ANDROID
@@ -67,9 +67,10 @@ shared_ptr<Logger> Logger::MainLogger() {
 		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
 		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
 
-		logger = make_shared<Logger>("a3d", sinks);
+		logger = make_unique<Logger>("a3d", sinks);
 	}
-	return logger;
+
+	return *logger;
 }
 
 /*********************************************************************************************
@@ -112,11 +113,11 @@ Logger::~Logger() {
 	Public
  *********************************************************************************************/
 
-string Logger::name() const {
+const string& Logger::name() const {
 	return _name;
 }
 
-unordered_set<shared_ptr<LoggerSink>> Logger::sinks() const {
+const unordered_set<shared_ptr<LoggerSink>>& Logger::sinks() const {
 	return _sinks;
 }
 
@@ -126,6 +127,14 @@ LogLevel Logger::level() const {
 
 void Logger::level(LogLevel level) {
 	_level = level;
+}
+
+LogLevel Logger::flushLevel() const {
+	return _flushLevel;
+}
+
+void Logger::flushLevel(LogLevel level) {
+	_flushLevel = level;
 }
 
 void Logger::trace(const char* format, ...) {

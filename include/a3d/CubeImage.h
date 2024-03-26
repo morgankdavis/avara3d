@@ -35,7 +35,6 @@ namespace a3d {
 				  std::unique_ptr<Image> negY,
 				  std::unique_ptr<Image> posZ,
 				  std::unique_ptr<Image> negZ);
-//		explicit  CubeImage(std::unique_ptr<Image> one);
 
 /*********************************************************************************************
 	Public

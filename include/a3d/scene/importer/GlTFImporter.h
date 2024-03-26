@@ -17,7 +17,8 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/scene/Scene.h"
+#include "a3d/scene/Scene.h" // why can't this be forward-declared?
+// -> https://stackoverflow.com/questions/6012157/is-stdunique-ptrt-required-to-know-the-full-definition-of-t
 
 
 namespace a3d {
@@ -40,7 +41,7 @@ namespace a3d {
 	public:
 
 		explicit GlTFImporter(const std::filesystem::path& path,
-					 SceneImportOptions options = SceneImportOptions::ImportAll);
+							  SceneImportOptions options = SceneImportOptions::ImportAll);
 
 		std::unique_ptr<Scene> 				scene();
 		std::shared_ptr<Mesh> 				firstMesh();
@@ -69,9 +70,9 @@ namespace a3d {
 																   fastgltf::Texture& texture);
 		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-		std::unique_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
 																fastgltf::Node& node);
-		std::unique_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 
 		bool														_parsed;
@@ -80,10 +81,10 @@ namespace a3d {
 		std::filesystem::path										_path;
 		SceneImportOptions											_options;
 		// TODO: switch these to vectors resized from asset?
-//		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
+		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Mesh>> 				_meshes;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
-//		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
+		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
 		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
 		std::map<std::size_t, std::shared_ptr<Texture>> 			_textures;
 		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;

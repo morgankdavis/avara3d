@@ -31,19 +31,7 @@ CubeImage::CubeImage(unique_ptr<Image> posX,
 	_posY(std::move(posY)),
 	_negY(std::move(negY)),
 	_posZ(std::move(posZ)),
-	_negZ(std::move(negZ)) {
-	
-}
-
-//CubeImage::CubeImage(unique_ptr<Image> one):
-//	_posX(one),
-//	_negX(one),
-//	_posY(one),
-//	_negY(one),
-//	_posZ(one),
-//	_negZ(one) {
-//
-//}
+	_negZ(std::move(negZ)) { }
 
 /*********************************************************************************************
 	Public

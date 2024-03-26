@@ -21,7 +21,7 @@ OrthographicCamera::OrthographicCamera(AABB extent):
 		Camera(),
 		_extent(extent) {}
 
-OrthographicCamera::OrthographicCamera(string name, AABB extent):
+OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
 	Camera(name),
 	_extent(extent) {}
 

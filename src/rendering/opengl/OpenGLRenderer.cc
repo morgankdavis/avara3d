@@ -1159,7 +1159,7 @@ static void BufferTexture(const Texture &texture,
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->buffer()->data());
+						 image->buffer().data());
 		}
 
 		auto sampler = texture.sampler();
@@ -1235,7 +1235,7 @@ static void BufferTexture(const Texture &texture,
 					 0,
 					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 					 GL_UNSIGNED_BYTE,
-					 image->buffer()->data());
+					 image->buffer().data());
 
 		auto sampler = texture.sampler();
 		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());

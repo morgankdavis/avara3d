@@ -61,7 +61,7 @@ Light::Light(LightType type, const shared_ptr<Color>& color):
 	Public
  *********************************************************************************************/
 
-optional<string> Light::name() const {
+const optional<string>& Light::name() const {
 	return _name;
 }
 
@@ -77,7 +77,7 @@ void Light::type(LightType type) {
 	_type = type;
 }
 
-shared_ptr<Color> Light::color() const {
+const shared_ptr<Color>& Light::color() const {
 	return _color;
 }
 
