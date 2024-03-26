@@ -29,35 +29,35 @@ namespace a3d {
 
 	public:
 
-		CubeImage(std::shared_ptr<Image> posX,
-				  std::shared_ptr<Image> negX,
-				  std::shared_ptr<Image> posY,
-				  std::shared_ptr<Image> negY,
-				  std::shared_ptr<Image> posZ,
-				  std::shared_ptr<Image> negZ);
-		explicit  CubeImage(std::shared_ptr<Image> one);
+		CubeImage(std::unique_ptr<Image> posX,
+				  std::unique_ptr<Image> negX,
+				  std::unique_ptr<Image> posY,
+				  std::unique_ptr<Image> negY,
+				  std::unique_ptr<Image> posZ,
+				  std::unique_ptr<Image> negZ);
+//		explicit  CubeImage(std::unique_ptr<Image> one);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::shared_ptr<Image>		posX() const;
-		void 						posX(std::shared_ptr<Image> image);
+		Image*		posX() const;
+		void 		posX(std::unique_ptr<Image> image);
 		
-		std::shared_ptr<Image> 		negX() const;
-		void 						negX(std::shared_ptr<Image> image);
+		Image* 		negX() const;
+		void 		negX(std::unique_ptr<Image> image);
 		
-		std::shared_ptr<Image> 		posY() const;
-		void 						posY(std::shared_ptr<Image> image);
+		Image* 		posY() const;
+		void 		posY(std::unique_ptr<Image> image);
 		
-		std::shared_ptr<Image> 		negY() const;
-		void 						negY(std::shared_ptr<Image> image);
+		Image* 		negY() const;
+		void 		negY(std::unique_ptr<Image> image);
 		
-		std::shared_ptr<Image> 		posZ() const;
-		void 						posZ(std::shared_ptr<Image> image);
+		Image* 		posZ() const;
+		void 		posZ(std::unique_ptr<Image> image);
 		
-		std::shared_ptr<Image> 		negZ() const;
-		void 						negZ(std::shared_ptr<Image> image);
+		Image* 		negZ() const;
+		void 		negZ(std::unique_ptr<Image> image);
 		
 /*********************************************************************************************
 	Private
@@ -65,12 +65,12 @@ namespace a3d {
 
 	private:
 
-		std::shared_ptr<Image>		_posX;
-		std::shared_ptr<Image>		_negX;
-		std::shared_ptr<Image>		_posY;
-		std::shared_ptr<Image>		_negY;
-		std::shared_ptr<Image>		_posZ;
-		std::shared_ptr<Image>		_negZ;
+		std::unique_ptr<Image>		_posX;
+		std::unique_ptr<Image>		_negX;
+		std::unique_ptr<Image>		_posY;
+		std::unique_ptr<Image>		_negY;
+		std::unique_ptr<Image>		_posZ;
+		std::unique_ptr<Image>		_negZ;
 	};
 }
 

@@ -9,6 +9,9 @@
 #include "a3d/CubeImage.h"
 
 
+#include "a3d/Image.h"
+
+
 using namespace a3d;
 using namespace std;
 
@@ -17,79 +20,79 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-CubeImage::CubeImage(shared_ptr<Image> posX,
-					 shared_ptr<Image> negX,
-					 shared_ptr<Image> posY,
-					 shared_ptr<Image> negY,
-					 shared_ptr<Image> posZ,
-					 shared_ptr<Image> negZ):
-	_posX(posX),
-	_negX(negX),
-	_posY(posY),
-	_negY(negY),
-	_posZ(posZ),
-	_negZ(negZ) {
+CubeImage::CubeImage(unique_ptr<Image> posX,
+					 unique_ptr<Image> negX,
+					 unique_ptr<Image> posY,
+					 unique_ptr<Image> negY,
+					 unique_ptr<Image> posZ,
+					 unique_ptr<Image> negZ):
+	_posX(std::move(posX)),
+	_negX(std::move(negX)),
+	_posY(std::move(posY)),
+	_negY(std::move(negY)),
+	_posZ(std::move(posZ)),
+	_negZ(std::move(negZ)) {
 	
 }
 
-CubeImage::CubeImage(shared_ptr<Image> one):
-	_posX(one),
-	_negX(one),
-	_posY(one),
-	_negY(one),
-	_posZ(one),
-	_negZ(one) {
-
-}
+//CubeImage::CubeImage(unique_ptr<Image> one):
+//	_posX(one),
+//	_negX(one),
+//	_posY(one),
+//	_negY(one),
+//	_posZ(one),
+//	_negZ(one) {
+//
+//}
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-shared_ptr<Image> CubeImage::posX() const {
-	return _posX;
+Image* CubeImage::posX() const {
+	return _posX.get();
 }
 
-void CubeImage::posX(shared_ptr<Image> image) {
-	_posX = image;
+void CubeImage::posX(unique_ptr<Image> image) {
+	_posX = std::move(image);
 }
 
-shared_ptr<Image> CubeImage::negX() const {
-	return _negX;
+Image* CubeImage::negX() const {
+	return _negX.get();
 }
 
-void CubeImage::negX(shared_ptr<Image> image) {
-	_negX = image;
+void CubeImage::negX(unique_ptr<Image> image) {
+	_negX = std::move(image);
 }
 
-shared_ptr<Image> CubeImage::posY() const {
-	return _posY;
+Image* CubeImage::posY() const {
+	return _posY.get();
 }
 
-void CubeImage::posY(shared_ptr<Image> image) {
-	_posY = image;
+void CubeImage::posY(unique_ptr<Image> image) {
+	_posY = std::move(image);
 }
 
-shared_ptr<Image> CubeImage::negY() const {
-	return _negY;
+Image* CubeImage::negY() const {
+	return _negY.get();
 }
 
-void CubeImage::negY(shared_ptr<Image> image) {
-	_negY = image;
+void CubeImage::negY(unique_ptr<Image> image) {
+	_negY = std::move(image);
 }
 
-shared_ptr<Image> CubeImage::posZ() const {
-	return _posZ;
+Image* CubeImage::posZ() const {
+	return _posZ.get();
 }
 
-void CubeImage::posZ(shared_ptr<Image> image) {
-	_posZ = image;
+void CubeImage::posZ(unique_ptr<Image> image) {
+	_posZ = std::move(image);
 }
 
-shared_ptr<Image> CubeImage::negZ() const {
-	return _negZ;
+Image* CubeImage::negZ() const {
+	return _negZ.get();
 }
 
-void CubeImage::negZ(shared_ptr<Image> image) {
-	_negZ = image;
+void CubeImage::negZ(unique_ptr<Image> image) {
+	_negZ = std::move(image);
 }

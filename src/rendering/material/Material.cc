@@ -51,7 +51,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 }
 
 MaterialProperty Material::MissingTextureProperty() {
-	return MaterialProperty(Color::Magenta());
+	return {Color::Magenta()};
 }
 
 /*********************************************************************************************
@@ -61,8 +61,6 @@ MaterialProperty Material::MissingTextureProperty() {
 Material::Material():
 		_name(nullopt),
 		_ambient(monostate{}),
-//		_diffuse(make_shared<Color>(0.75f)),
-//		_specular(make_shared<Color>(0.75f)),
 		_diffuse{monostate{}},
 		_specular{monostate{}},
 		_emission(monostate{}),
@@ -82,9 +80,9 @@ Material::Material(MaterialProperty ambient,
 				   MaterialProperty specular):
 		Material() {
 
-	_ambient = ambient;
-	_diffuse = diffuse;
-	_specular = specular;
+	_ambient = std::move(ambient);
+	_diffuse = std::move(diffuse);
+	_specular = std::move(specular);
 }
 
 Material::Material(MaterialProperty ambient,
@@ -93,10 +91,10 @@ Material::Material(MaterialProperty ambient,
 				   MaterialProperty emission):
 		Material() {
 
-	_ambient = ambient;
-	_diffuse = diffuse;
-	_specular = specular;
-	_emission = emission;
+	_ambient = std::move(ambient);
+	_diffuse = std::move(diffuse);
+	_specular = std::move(specular);
+	_emission = std::move(emission);
 }
 
 Material::~Material() {
@@ -119,7 +117,7 @@ MaterialProperty Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const MaterialProperty& property) {
+void Material::ambient(MaterialProperty property) {
 	_ambient = property;
 }
 

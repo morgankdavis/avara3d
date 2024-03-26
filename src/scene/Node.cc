@@ -621,7 +621,6 @@ void Node::removeFromParent() {
 		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
 		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
 		// http://en.cppreference.com/w/cpp/algorithm/remove
-
 		// new: https://stackoverflow.com/questions/875103/how-do-i-erase-an-element-from-stdvector-by-index
 
 		auto existingChildren = parent->_children;
@@ -643,7 +642,7 @@ void Node::removeFromParent() {
 		_parent = {};
 	}
 	else {
-		// TODO: throw
+		A3D_LOG_W("Parent is gone!");
 	}
 }
 

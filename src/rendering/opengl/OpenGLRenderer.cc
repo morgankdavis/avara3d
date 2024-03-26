@@ -1124,12 +1124,12 @@ static void BufferTexture(const Texture &texture,
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
 		
 		Image* images[] = {
-			cubeImage->posX().get(),
-			cubeImage->negX().get(),
-			cubeImage->posY().get(),
-			cubeImage->negY().get(),
-			cubeImage->posZ().get(),
-			cubeImage->negZ().get() };
+			cubeImage->posX(),
+			cubeImage->negX(),
+			cubeImage->posY(),
+			cubeImage->negY(),
+			cubeImage->posZ(),
+			cubeImage->negZ() };
 		
 		GLenum sides[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
