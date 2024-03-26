@@ -33,6 +33,7 @@ void DidRenderCallback(VisualWorld& world, float time);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
 
+void InitLog();
 void SpawnDuckFruit(Scene& scene, Node& duckNode);
 void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void ShootBall(Scene& scene, const vec3& location, const vec3& direction);
@@ -51,6 +52,7 @@ shared_ptr<Node> ChainmailLink(float radius, float height);
 void SpawnChainMail(Scene& scene);
 
 
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -63,7 +65,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/320.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>	logger;
+std::unique_ptr<a3d::Logger>	logger;
 a3d::Node*						g_palmNode;
 a3d::Node*						g_duckSpinnerNode;
 a3d::Node*						g_duckNode;
@@ -74,9 +76,7 @@ a3d::Node*						g_duckNode;
 
 int main(int argc, const char* argv[]) {
 
-	Logger::MainLogger().level(LogLevel::Trace);
-	logger = make_shared<Logger>("test-030", Logger::MainLogger().sinks());
-	LOG_I(logger, "");
+	InitLog();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -694,6 +694,24 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 /***************************************************************************************
 	Static
  ***************************************************************************************/
+
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
+
+	LOG_I(logger, "");
+}
 
 void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 

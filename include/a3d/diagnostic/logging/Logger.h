@@ -101,10 +101,14 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		Logger(std::string name, std::shared_ptr<LoggerSink> sink,
-			   LogLevel level = DEFAULT_LEVEL, LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
-		Logger(std::string name, std::unordered_set<std::shared_ptr<LoggerSink>> sinks,
-			   LogLevel level = DEFAULT_LEVEL, LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Logger(const std::string& name,
+			   std::unique_ptr<LoggerSink> sink,
+			   LogLevel level = DEFAULT_LEVEL,
+			   LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Logger(const std::string& name,
+			   std::unordered_set<std::unique_ptr<LoggerSink>> sinks,
+			   LogLevel level = DEFAULT_LEVEL,
+			   LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
 
 /*********************************************************************************************
@@ -113,7 +117,7 @@ namespace a3d {
 
 		const std::string& 		name() const;
 
-		const std::unordered_set<std::shared_ptr<LoggerSink>>&	sinks() const;
+		const std::unordered_set<std::unique_ptr<LoggerSink>>&	sinks() const;
 
 		LogLevel 				level() const;
 		void					level(LogLevel level);
@@ -172,7 +176,7 @@ namespace a3d {
 	private:
 
 		std::string										_name;
-		std::unordered_set<std::shared_ptr<LoggerSink>>	_sinks;
+		std::unordered_set<std::unique_ptr<LoggerSink>>	_sinks;
 		LogLevel										_level;
 		LogLevel										_flushLevel;
 	};

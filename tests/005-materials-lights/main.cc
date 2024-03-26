@@ -28,11 +28,13 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
+void InitLog();
 void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -44,16 +46,13 @@ constexpr bool 					ORTHO_CAMERA =			false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<a3d::Logger>	logger;
+std::unique_ptr<a3d::Logger>	logger;
 a3d::Node*						g_pointLightNode;
 
 
 int main(int argc, const char* argv[]) {
 
-	logger = make_shared<Logger>("test-005", Logger::MainLogger().sinks());
-	logger->level(LogLevel::Debug);
-	Logger::MainLogger().level(LogLevel::Debug);
-	LOG_I(logger, "");
+	InitLog();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -352,11 +351,29 @@ void DidRenderCallback(VisualWorld& world, float time) {
 	Static
  ***************************************************************************************/
 
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
+
+	LOG_I(logger, "");
+}
+
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
+	LOG_I(logger, "SetAllFilterModes: {}", (unsigned)mode);
 
-	for (auto node : scene.rootNode()->children(true)) {
+	for (auto& node : scene.rootNode()->children(true)) {
 
 		auto geometry = node->mesh();
 		if (geometry) {
@@ -379,9 +396,9 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
+	LOG_I(logger, "SetAllMaxAnisotropy: {}", anisotropy);
 
-	for (auto node : scene.rootNode()->children(true)) {
+	for (auto& node : scene.rootNode()->children(true)) {
 
 		auto geometry = node->mesh();
 		if (geometry) {
