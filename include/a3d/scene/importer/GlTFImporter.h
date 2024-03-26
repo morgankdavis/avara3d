@@ -70,7 +70,7 @@ namespace a3d {
 																   fastgltf::Texture& texture);
 		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Light>				lightFromGlTFNode(fastgltf::Asset& asset,
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);

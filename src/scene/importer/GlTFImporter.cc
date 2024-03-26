@@ -866,7 +866,7 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
 
-	return make_unique<Color>(arr[0], arr[1], arr[2]);
+	return make_shared<Color>(arr[0], arr[1], arr[2]);
 }
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
