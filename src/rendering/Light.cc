@@ -9,6 +9,7 @@
 #include "a3d/rendering/Light.h"
 
 #include "a3d/Color.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -55,6 +56,16 @@ Light::Light(LightType type, const shared_ptr<Color>& color):
 	_attenuationFactor(1.0f) {
 //	_node({}) {
 	
+}
+
+Light::~Light() {
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
+	}
 }
 
 /*********************************************************************************************

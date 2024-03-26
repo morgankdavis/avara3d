@@ -14,6 +14,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -56,7 +57,12 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Scene();
+		Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
+			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<InputManager> inputManager);
+		Scene(const std::string& name,
+			  std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicalWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
@@ -64,7 +70,10 @@ namespace a3d {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
+
+		const std::optional<std::string>&	name() const;
+		void 								name(const std::string& name);
+
 		const std::shared_ptr<Node>&		rootNode() const;
 		void 								rootNode(const std::shared_ptr<Node>& node);
 
@@ -97,17 +106,12 @@ namespace a3d {
 		void 								update(UpdateCallback function);
 
 /*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-
-
-/*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
+		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
 //		std::unique_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;

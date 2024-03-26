@@ -44,6 +44,7 @@ namespace a3d {
 
 		explicit Light(LightType type);
 		Light(LightType type, const std::shared_ptr<Color>& color);
+		virtual ~Light();
 		
 /*********************************************************************************************
 	Public

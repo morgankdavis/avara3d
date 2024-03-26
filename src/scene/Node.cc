@@ -88,8 +88,8 @@ Node::Node():
 		_dirtyMask(NodeDirtyMask::None) { }
 
 Node::Node(const string& name):
-	Node() {
-		_name = name;
+		Node() {
+	_name = name;
 }
 
 Node::Node(unique_ptr<Mesh>& mesh):
@@ -125,7 +125,7 @@ Node::Node(const shared_ptr<Camera>& camera):
 Node::~Node() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Node '{}'", *_name);
+		A3D_LOG_D("Destroying Node '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
 		A3D_LOG_D("Destroying Node {:p}", static_cast<void*>(this));

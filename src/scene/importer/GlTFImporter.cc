@@ -85,6 +85,8 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
 
+				a3dScene->name(string(scene.name));
+
 				auto nodeIndicies = scene.nodeIndices;
 				if (!nodeIndicies.empty()) {
 

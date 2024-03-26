@@ -71,6 +71,7 @@ double Scene::Time() {
  *********************************************************************************************/
 
 Scene::Scene():
+		_name({}),
 		_rootNode(make_shared<Node>("root node")),
 //		_rootNode(make_unique<Node>("root node")),
 		_visualWorld(nullptr),
@@ -83,6 +84,12 @@ Scene::Scene():
 		_update(nullptr) {
 
 	_rootNode->attachedToScene(*this);
+}
+
+Scene::Scene(const string& name):
+	Scene() {
+
+	_name = name;
 }
 
 Scene::Scene(unique_ptr<VisualWorld> visualWorld,
@@ -99,8 +106,23 @@ Scene::Scene(unique_ptr<VisualWorld> visualWorld,
 	if (_inputManager) _inputManager->attachedToScene(*this);
 }
 
+Scene::Scene(const string& name,
+			 unique_ptr<VisualWorld> visualWorld,
+			 unique_ptr<PhysicalWorld> physicsWorld,
+			 unique_ptr<InputManager> inputManager):
+		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputManager)) {
+
+	_name = name;
+}
+
 Scene::~Scene() {
-	A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+	}
 
 	if (_rootNode) _rootNode->detachedFromScene(*this);
 	if (_visualWorld) _visualWorld->detachedFromScene(*this);
@@ -111,6 +133,14 @@ Scene::~Scene() {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+const optional<std::string>& Scene::name() const {
+	return _name;
+}
+
+void Scene::name(const string& name) {
+	_name = name;
+}
 
 const shared_ptr<Node>& Scene::rootNode() const {
 	return _rootNode;
