@@ -75,26 +75,33 @@ Material::Material():
 	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular):
+Material::Material(const MaterialProperty& ambient,
+				   const MaterialProperty& diffuse,
+				   const MaterialProperty& specular):
 		Material() {
 
-	_ambient = std::move(ambient);
-	_diffuse = std::move(diffuse);
-	_specular = std::move(specular);
+//	_ambient = std::move(ambient);
+//	_diffuse = std::move(diffuse);
+//	_specular = std::move(specular);
+	_ambient = ambient;
+	_diffuse = diffuse;
+	_specular = specular;
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular,
-				   MaterialProperty emission):
+Material::Material(const MaterialProperty& ambient,
+				   const MaterialProperty& diffuse,
+				   const MaterialProperty& specular,
+				   const MaterialProperty& emission):
 		Material() {
 
-	_ambient = std::move(ambient);
-	_diffuse = std::move(diffuse);
-	_specular = std::move(specular);
-	_emission = std::move(emission);
+//	_ambient = std::move(ambient);
+//	_diffuse = std::move(diffuse);
+//	_specular = std::move(specular);
+//	_emission = std::move(emission);
+	_ambient = ambient;
+	_diffuse = diffuse;
+	_specular = specular;
+	_emission = emission;
 }
 
 Material::~Material() {
@@ -113,35 +120,35 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-MaterialProperty Material::ambient() const {
+const MaterialProperty& Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(MaterialProperty property) {
+void Material::ambient(const MaterialProperty& property) {
 	_ambient = property;
 }
 
-MaterialProperty Material::diffuse() const {
+const MaterialProperty& Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(MaterialProperty property) {
+void Material::diffuse(const MaterialProperty& property) {
 	_diffuse = property;
 }
 
-MaterialProperty Material::specular() const {
+const MaterialProperty& Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(MaterialProperty property) {
+void Material::specular(const MaterialProperty& property) {
 	_specular = property;
 }
 
-MaterialProperty Material::emission() const {
+const MaterialProperty& Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(MaterialProperty property) {
+void Material::emission(const MaterialProperty& property) {
 	_emission = property;
 }
 
