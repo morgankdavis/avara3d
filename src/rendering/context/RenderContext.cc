@@ -90,7 +90,7 @@ int RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
-vec2 RenderContext::framebufferScale() const {
+const vec2& RenderContext::framebufferScale() const {
 	return _framebufferScale;
 }
 
@@ -130,13 +130,13 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		_gifRecordingWidth = _framebufferWidth;
 		if (_gifRecordingHeight > maxHeight) {
 			float scale = (float)maxHeight / (float)_framebufferHeight;
-			_gifRecordingHeight = _framebufferHeight * scale;
-			_gifRecordingWidth = _framebufferWidth * scale;
+			_gifRecordingHeight = (int)round(_framebufferHeight * scale);
+			_gifRecordingWidth = (int)round(_framebufferWidth * scale);
 		}
 
-		int frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+		int frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
-		int frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
+		int frameTimeHS = (int)round((float)frameTimeMS / 10.0); // 100th sec/frame
 		
 		//_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		_gifWriter = make_unique<GifWriter>();
@@ -181,12 +181,12 @@ Renderer* RenderContext::renderer() const {
 
 void RenderContext::width(int width) {
 	_width = width;
-	framebufferWidth(_width * _framebufferScale.x);
+	framebufferWidth((int)round(_width * _framebufferScale.x));
 }
 
 void RenderContext::height(int height) {
 	_height = height;
-	framebufferHeight(_height * _framebufferScale.y);
+	framebufferHeight((int)round(_height * _framebufferScale.y));
 }
 
 void RenderContext::framebufferWidth(int width) {
@@ -197,7 +197,7 @@ void RenderContext::framebufferHeight(int height) {
 	_framebufferHeight = height;
 }
 
-void RenderContext::framebufferScale(vec2& scale) {
+void RenderContext::framebufferScale(const vec2& scale) {
 	_framebufferScale = scale;
 }
 

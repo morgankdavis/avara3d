@@ -58,7 +58,7 @@ namespace a3d {
 
 		int 								framebufferWidth() const;
 		int 								framebufferHeight() const;
-		glm::vec2 							framebufferScale() const;
+		const glm::vec2&					framebufferScale() const;
 		
 		virtual bool 						vSyncEnabled() const;
 		virtual void 						vSyncEnabled(bool enabled);
@@ -89,7 +89,7 @@ namespace a3d {
 
 		void 								framebufferWidth(int width);
 		void 								framebufferHeight(int height);
-		void 								framebufferScale(glm::vec2& scale);
+		void 								framebufferScale(const glm::vec2& scale);
 
 		virtual void 						saveGIFFrame(float deltaRunT);
 
