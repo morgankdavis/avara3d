@@ -156,9 +156,7 @@ static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode);
 static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
 static void 		SetTextureWrapR(GLuint glTextureHandle, WrapMode mode);
 static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
-static FilterMode 	FilterModeForGLFilterMode(GLenum mode);
 static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
-static WrapMode 	WrapModeForGLWrapMode(GLenum mode);
 static void 		CheckGLError();
 
 /*********************************************************************************************
@@ -319,13 +317,6 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 						 *scene);
 	}
 
-//	if (DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-//		auto scene = context.visualWorld()->scene();
-//		DrawStatsOverlay(stats,
-//						 Scene::Time(),
-//						 *scene);
-//	}
-
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
@@ -396,25 +387,17 @@ void OpenGLRenderer::render(Mesh& mesh,
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
-		// will check dirty bit, and create an AABB lineset if necessary,
-		// and insert into _meshAABBLineSetMapping
+		// will check dirty bit, and create an AABB lines if necessary,
 		
 		GLuint vbo, vao;
 		GetMeshAABBLinesVertexDataHandles(mesh,
-//											_meshAABBLineSetMapping,
-										  _linesGLMapping, // TODO: macOS has a problem with this.
+										  _linesGLMapping,
 										  vbo, vao);
 
-//		render(*_meshAABBLineSetMapping[&mesh],
-//			   modelMat, viewMat, projectionMat);
-
+		// TODO: MAKE BETTER
 		bool dummy;
 		render(mesh.aabbLines(dummy),
 			   modelMat, viewMat, projectionMat);
-	}
-	else {
-		// if there was an AABB lineset, just remove it
-		//_meshAABBLineSetMapping.erase(&mesh);
 	}
 }
 
@@ -426,8 +409,6 @@ void OpenGLRenderer::render(MeshElement& element,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-//	shared_ptr<Program> program = nullptr;
-
 	// check and load vertex data if necessary
 
 	GLuint vbo, vao, ibo;
@@ -435,15 +416,8 @@ void OpenGLRenderer::render(MeshElement& element,
 									  _meshElementGLMapping,
 									  vbo, vao, ibo);
 
-	//auto wireframe = DEBUG_OPTIONS_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
-//	if (wireframe) {
-//		program = Program::Wireframe();
-//	}
-//	else {
-//		program = Program::Default();
-//	}
 	auto program = wireframe
 			? Program::Wireframe()
 			: Program::Default();
@@ -457,6 +431,7 @@ void OpenGLRenderer::render(MeshElement& element,
 							   glTextureHandles);
 
 	if (!wireframe) {
+
 		// send material and material property uniforms
 		SendMaterialUniforms(material, program, glTextureHandles, debugOptions);
 		
@@ -465,14 +440,15 @@ void OpenGLRenderer::render(MeshElement& element,
 	}
 	
 	// configure OpenGL state
+
 	SetMaterialOpenGLState(material, debugOptions);
 
 	// update
 
 	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ibo);
-	//stats.polygons += element->faces().size();
 
 	// save reference for housekeeping
+
 	_activeMeshElements.emplace(&element);
 }
 	
@@ -503,6 +479,7 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 			  vbo, vao);
 	
 	// save reference for housekeeping
+
 	// TODO: this is slow
 	for (auto line : lines) {
 		_activeLines.insert(&line);
@@ -575,11 +552,6 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	// update
 	
 	DrawSkyboxElement(*element, program, pointOfView, vao, ibo);
-
-	// don't count these?
-//	stats.meshes++;
-//	stats.polygons += element->faces().size();
-//	stats.elements++;
 }
 	
 static void GetMeshElementGLVertexDataHandles(MeshElement& element,
@@ -635,73 +607,9 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		glIBO = get<2>(mapping);
 	}
 }
-	
-//static void GetGeometryAABBLineSetVertexDataHandles(shared_ptr<Geometry> geometry,
-//													OpenGLRenderer::GeometryAABBLineSetMapping& aabbLineSetMapping,
-//													OpenGLRenderer::LineSetGLMapping lineSetGLMapping,
-//													GLuint& glVBO, GLuint& glVAO) {
-//
-//	auto program = Program::Lines();
-//
-//	// looks up and populates glVBO and glVAO, loading the vertex data if needed
-//
-//	if (A3D_MASK_CONTAINS(geometry->dirtyMask(),
-//									 GEOMETRY_DIRTY_MASK::EXTENT)) {
-//
-//		DeleteLineSetGLResources(aabbLineSetMapping[geometry], lineSetGLMapping);
-//
-//		// construct a new lineset matching the geometry's extent
-//
-//		A3D_LOG_T("Creating AABB LineSet for Geometry {:p}...", static_cast<void*>(geometry.get()));
-//
-//		map<string, vec3> bp = *(geometry->aabb(false));
-//
-//		float xMin = bp["xMin"].x;
-//		float xMax = bp["xMax"].x;
-//		float yMin = bp["yMin"].y;
-//		float yMax = bp["yMax"].y;
-//		float zMin = bp["zMin"].z;
-//		float zMax = bp["zMax"].z;
-//
-//		vec3 one =      vec3(xMin, yMax, zMin);
-//		vec3 two =      vec3(xMin, yMax, zMax);
-//		vec3 three =    vec3(xMax, yMax, zMax);
-//		vec3 four =     vec3(xMax, yMax, zMin);
-//		vec3 five =     vec3(xMin, yMin, zMin);
-//		vec3 six =      vec3(xMin, yMin, zMax);
-//		vec3 seven =    vec3(xMax, yMin, zMax);
-//		vec3 eight =    vec3(xMax, yMin, zMin);
-//
-//		auto aabbLineSet = make_shared<LineSet>();
-//		auto red = Color::Red();
-//
-//		aabbLineSet->emplace(make_shared<Line>(one, two, red));
-//		aabbLineSet->emplace(make_shared<Line>(two, three, red));
-//		aabbLineSet->emplace(make_shared<Line>(three, four, red));
-//		aabbLineSet->emplace(make_shared<Line>(four, one, red));
-//		aabbLineSet->emplace(make_shared<Line>(five, six, red));
-//		aabbLineSet->emplace(make_shared<Line>(six, seven, red));
-//		aabbLineSet->emplace(make_shared<Line>(seven, eight, red));
-//		aabbLineSet->emplace(make_shared<Line>(eight, five, red));
-//		aabbLineSet->emplace(make_shared<Line>(one, five, red));
-//		aabbLineSet->emplace(make_shared<Line>(two, six, red));
-//		aabbLineSet->emplace(make_shared<Line>(three, seven, red));
-//		aabbLineSet->emplace(make_shared<Line>(four, eight, red));
-//
-//		aabbLineSetMapping[geometry] = aabbLineSet;
-//
-//		geometry->dirtyMask(A3D_MASK_REMOVE(geometry->dirtyMask(),
-//													   GEOMETRY_DIRTY_MASK::EXTENT));
-//	}
-//
-//	GetLineSetVertexDataHandles(aabbLineSetMapping[geometry],
-//								*program,
-//								lineSetGLMapping,
-//								glVBO, glVAO);
-//}
 
 static void GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-											  OpenGLRenderer::LinesGLMapping& linesGLMapping, // TODO: should be reference??
+											  OpenGLRenderer::LinesGLMapping& linesGLMapping,
 											  GLuint& glVBO, GLuint& glVAO) {
 
 	auto program = Program::Lines();
@@ -790,7 +698,7 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	glBufferData(GL_ARRAY_BUFFER,
-				 verticies.size() * sizeof(Vertex),
+				 (GLsizeiptr)(verticies.size()*sizeof(Vertex)),
 				 &(verticies[0]),
 				 GL_STATIC_DRAW);
 	
@@ -876,7 +784,7 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 								  Program& program,
 								  GLuint& glVBO, GLuint& glVAO) {
 
-	A3D_LOG_I("BufferLinesVertexData");
+	A3D_LOG_T("");
 
 	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
 
@@ -897,7 +805,7 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, /*(GLsizeiptr)*/massagedBuffer.size()*sizeof(vec3), massagedBuffer.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)), massagedBuffer.data(), GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -928,6 +836,7 @@ static void BufferTexture(const Texture &texture,
 	auto contents = texture.contents();
 
 	if (dynamic_pointer_cast<CubeImage>(contents)) {
+
 		A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
 		
 		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
@@ -981,24 +890,6 @@ static void BufferTexture(const Texture &texture,
 	}
 	else if (dynamic_pointer_cast<Image>(contents)) {
 
-//		switch (type) {
-//			case MATERIAL_PROPERTY_TYPE::AMBIENT:
-//				glActiveTexture(GL_TEXTURE0);
-//				break;
-//			case MATERIAL_PROPERTY_TYPE::DIFFUSE:
-//				glActiveTexture(GL_TEXTURE1);
-//				break;
-//			case MATERIAL_PROPERTY_TYPE::SPECULAR:
-//				glActiveTexture(GL_TEXTURE2);
-//				break;
-//			case MATERIAL_PROPERTY_TYPE::EMISSIVE:
-//				glActiveTexture(GL_TEXTURE3);
-//				break;
-//			default:
-//				cout << "Invalid MATERIAL_PROPERTY_TYPE: " << static_cast<int>(type) << endl;
-//				return;
-//		}
-
 		A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
 		
 		auto image = dynamic_pointer_cast<Image>(contents);
@@ -1015,27 +906,7 @@ static void BufferTexture(const Texture &texture,
 		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
 				 image->width() * image->height() * image->bytesPerPixel());
-		
-//		// DEBUG: write texture data to file
-//		
-//		A3D_LOG_D("Saving property {:p}...", static_cast<const void*>(&property));
-//	
-//		unsigned imageDataSize = image->width() * image->height() * image->bytesPerPixel();
-//		vector<unsigned char> imageBuf = Buffer(image->data(), imageDataSize);
-//		
-//		static unsigned index = 0;
-//		string filePath = "./" + to_string(index) + ".buf			";
-//		unsigned written = BinaryFile(filesystem::path(filePath), imageBuf);
-//		A3D_LOG_D("### WROTE {} BYTES OF TEXTURE IMAGE TO: {}", written, filePath);
-//		++index;
-		
-		
-//		unsigned char* thing = (unsigned char*)malloc(1024 * sizeof(unsigned char));
-//		A3D_LOG_D("THING SIZE: {}", sizeof(thing));
-//		
-//		A3D_LOG_D("DATA SIZE: {}", sizeof(image->data()));
-		
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
 					 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
@@ -1418,15 +1289,6 @@ static void SetSkyboxOpenGLState() {
 //	glDisable(GL_BLEND);
 }
 
-static void SetAABBOpenGLState() {
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-#ifdef OPENGL_DESKTOP
-	glEnable(GL_LINE_SMOOTH);
-#endif
-}
-
 static void SetLinesGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -1680,7 +1542,7 @@ static void DeleteLinesGLResources(const vector<Line>& lines,
 	
 	if (glMapping.count(&lines)) {
 
-		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<const void*>(&lines));
+		A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
 
 		auto glHandles = glMapping[&lines];
 
@@ -1873,7 +1735,7 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, Filt
 	}
 
 	glBindTexture(texType, glTextureHandle);
-	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GLFilterModeForFilterMode(mode));
+	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 }
 
 static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
@@ -1884,7 +1746,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, Fil
 		case FilterMode::Nearest:
 		case FilterMode::Linear:
 			glBindTexture(texType, glTextureHandle);
-			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GLFilterModeForFilterMode(mode));
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 			break;
 		default:
 			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
@@ -1893,8 +1755,8 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, Fil
 }
 
 static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
-
 #ifdef OPENGL_DESKTOP
+
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	float anisotropy = max;
@@ -1903,6 +1765,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+
 #endif
 }
 
@@ -1911,7 +1774,7 @@ static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
-	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GLWrapModeForWrapMode(mode));
+	glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
@@ -1919,13 +1782,13 @@ static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
-	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GLWrapModeForWrapMode(mode));
+	glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 static void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GLWrapModeForWrapMode(mode));
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 static GLenum GLFilterModeForFilterMode(FilterMode mode) {
@@ -1938,16 +1801,6 @@ static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-static FilterMode FilterModeForGLFilterMode(GLenum mode) {
-	switch (mode) {
-		case GL_LINEAR: 						return FilterMode::Linear;
-		case GL_NEAREST_MIPMAP_NEAREST:			return FilterMode::NearestMipmapNearest;
-		case GL_LINEAR_MIPMAP_NEAREST: 			return FilterMode::LinearMipmapNearest;
-		case GL_NEAREST_MIPMAP_LINEAR: 			return FilterMode::NearestMipmapLinear;
-		case GL_LINEAR_MIPMAP_LINEAR: 			return FilterMode::LinearMipmapLinear;
-		default: /* GL_NEAREST */				return FilterMode::Nearest; }
-}
-
 static GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
@@ -1956,16 +1809,6 @@ static GLenum GLWrapModeForWrapMode(WrapMode mode) {
 //#endif
 		case WrapMode::Repeat:					return GL_REPEAT;
         default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
-}
-
-static WrapMode WrapModeForGLWrapMode(GLenum mode) {
-	switch (mode) {
-//#ifdef OPENGL_DESKTOP
-//		case GL_CLAMP_TO_BORDER:				return WRAP_MODE::CLAMP_TO_BORDER;
-//#endif
-		case GL_REPEAT:							return WrapMode::Repeat;
-		case GL_MIRRORED_REPEAT: 				return WrapMode::MirroredRepeat;
-		default: /* GL_CLAMP_TO_EDGE */			return WrapMode::ClampToEdge; }
 }
 
 static void CheckGLError() {
