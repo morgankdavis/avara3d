@@ -47,22 +47,9 @@ namespace a3d {
 		using TextureGLMapping =
 				std::map<Texture*, unsigned>;
 
-//		/* <set<a3d::Line> : <gl_vboHandle, gl_vaoHandle>> */
-//		using LineSetGLMapping =
-//				std::map<LineSet*, std::pair<unsigned, unsigned>>;
-
 		/* <vector<a3d::Line>> : <gl_vboHandle, gl_vaoHandle>> */
 		using LinesGLMapping =
-				std::map<std::vector<Line>*, std::pair<unsigned, unsigned>>;
-
-		/* <set<a3d::Point> : <gl_vboHandle, gl_vaoHandle>> */
-//		using PointSetGLMapping =
-//				std::map<PointSet*, std::pair<unsigned, unsigned>>;
-
-		// *** TO BE REMOVED ***
-		/* <a3d::Mesh : set<a3d::Line>> */
-//		using MeshAABBLineSetMapping =
-//				std::map<Mesh*, LineSet*>;
+				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 /*********************************************************************************************
 	Lifecycle
@@ -125,19 +112,11 @@ namespace a3d {
 
 		MeshElementGLMapping 					_meshElementGLMapping;
 		TextureGLMapping						_textureGLMapping;
-//		LineSetGLMapping						_lineSetGLMapping;
 		LinesGLMapping							_linesGLMapping;
-//		PointSetGLMapping						_pointSetGLMapping;
-//
-//		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
 
 		std::unordered_set<MeshElement*>		_activeMeshElements;
 		std::unordered_set<Texture*>			_activeTextures;
-
 		std::unordered_set<Line*>				_activeLines;
-
-//		std::unordered_set<LineSet*>			_activeLineSets;
-//		std::unordered_set<PointSet*>			_activePointSets;
 
 		unsigned								_glEnvironmentUBO;
 		

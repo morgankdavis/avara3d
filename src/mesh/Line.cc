@@ -20,60 +20,22 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Line::Line(const vec3& fromLocation, const vec3& toLocation):
+Line::Line(const vec3& fromLocation,
+		   const vec3& toLocation):
 		Line{fromLocation, toLocation, Color::White()} { }
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const shared_ptr<Color>& color):
-		Line{fromLocation, toLocation, color, color} { }
+		Line{fromLocation, color, toLocation, color} { }
 
-Line::Line(const vec3& fromLocation, const vec3& toLocation,
-		   const shared_ptr<Color>& fromColor, const shared_ptr<Color>& toColor):
+Line::Line(const vec3& fromLocation,
+		   const shared_ptr<Color>& fromColor,
+		   const vec3& toLocation,
+		   const shared_ptr<Color>& toColor):
 		_fromLocation{fromLocation},
 		_toLocation{toLocation},
 		_fromColor{fromColor},
 		_toColor{toColor} { }
-
-//Line::Line(const Line& other):
-//		_fromLocation{other._fromLocation},
-//		_toLocation{other._toLocation},
-//		_fromColor{other._fromColor},
-//		_toColor{other._toColor} { }
-//
-//Line::Line(Line&& other) noexcept:
-//		_fromLocation{other._fromLocation},
-//		_toLocation{other._toLocation},
-//		_fromColor{other._fromColor},
-//		_toColor{other._toColor} {
-//
-//	other._fromLocation = {0, 0, 0};
-//	other._toLocation = {0, 0, 0};
-//	other._fromColor = nullptr;
-//	other._toColor = nullptr;
-//};
-//
-//Line& Line::operator=(const Line& other) {
-//
-//	if (this != &other) {
-//		_fromLocation = other._fromLocation;
-//		_toLocation = other._toLocation;
-//		_fromColor = other._fromColor;
-//		_toColor = other._toColor;
-//	}
-//}
-//
-//Line& Line::operator=(Line&& other) noexcept {
-//
-//	other._fromLocation = this->_fromLocation;
-//	other._toLocation = this->_toLocation;
-//	other._fromColor = this->_fromColor;
-//	other._toColor = this->_toColor;
-//
-//	other._fromLocation = {0, 0, 0};
-//	other._toLocation = {0, 0, 0};
-//	other._fromColor = nullptr;
-//	other._toColor = nullptr;
-//}
 
 /*********************************************************************************************
 	Public
@@ -87,20 +49,20 @@ void Line::fromLocation(const vec3& point) {
 	_fromLocation = point;
 }
 
-const vec3& Line::toLocation() const {
-	return _toLocation;
-}
-
-void Line::toLocation(const vec3& point) {
-	_toLocation = point;
-}
-
 const shared_ptr<Color>& Line::fromColor() const {
 	return _fromColor;
 }
 
 void Line::fromColor(const shared_ptr<Color>& color) {
 	_fromColor = color;
+}
+
+const vec3& Line::toLocation() const {
+	return _toLocation;
+}
+
+void Line::toLocation(const vec3& point) {
+	_toLocation = point;
 }
 
 const shared_ptr<Color>& Line::toColor() const {

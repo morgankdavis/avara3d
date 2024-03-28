@@ -81,13 +81,12 @@ static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
 static void 		GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-													//OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
-													 OpenGLRenderer::LinesGLMapping linesGLMapping,
+													 OpenGLRenderer::LinesGLMapping& linesGLMapping,
 													 GLuint& glVBO, GLuint& glVAO);
-static void 		GetLineSetVertexDataHandles(const vector<Line>& lines,
-											   Program& program,
-											   OpenGLRenderer::LinesGLMapping& glMapping,
-											   GLuint& glVBO, GLuint& glVAO);
+static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
+											 Program& program,
+											 OpenGLRenderer::LinesGLMapping& glMapping,
+											 GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<Texture*>& activeTextures,
@@ -146,7 +145,7 @@ static void 		DeleteMeshElementGLResources(MeshElement* element,
 												OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		DeleteTextureGLResources(Texture* texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		DeleteLinesGLResources(Line* lines,
+static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void 		DrawStatsOverlay(Stats& stats, double time, Scene& scene);
@@ -210,12 +209,10 @@ OpenGLRenderer::OpenGLRenderer():
 		Renderer{},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
-//		_lineSetGLMapping{},
 		_linesGLMapping{},
 		_activeMeshElements{},
 		_activeTextures{},
 		_activeLines{},
-//		_activeLineSets{},
 		_glEnvironmentUBO{0},
 		_overlayFont{} { }
 
@@ -225,14 +222,12 @@ OpenGLRenderer::~OpenGLRenderer() {
 	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLines.clear();
-//	_activeLineSets.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
-//	CleanupLineSetResources(_activeLineSets, _linesGLMapping);
 	
 //#ifdef OPENGL_DESKTOP
 	ImGui_ImplOpenGL3_Shutdown();
@@ -306,19 +301,16 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
 								Stats& stats) {
-	//Renderer::beginFrame(scene, context, debugOptions, stats);
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLines.clear();
-//	_activeLineSets.clear();
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
 							  Stats& stats) {
-	//Renderer::endFrame(scene, context, debugOptions, stats);
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		auto scene = context.visualWorld()->scene();
@@ -337,7 +329,6 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
-//	CleanupLineSetResources(_activeLineSets, _linesGLMapping);
 
 	CheckGLError();
 }
@@ -495,10 +486,10 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 	// check and load vertex data if necessary
 	
 	GLuint vbo, vao;
-	GetLineSetVertexDataHandles(lines,
-								program,
-								_linesGLMapping,
-								vbo, vao);
+	GetLinesVertexDataHandles(lines,
+							  program,
+							  _linesGLMapping,
+							  vbo, vao);
 
 	// configure OpenGL state
 
@@ -510,12 +501,8 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 			  program,
 			  modelMat, viewMat, projectionMat,
 			  vbo, vao);
-	//stats.polygons += element->faces().size();
 	
 	// save reference for housekeeping
-//	_activeLines.emplace(&lines);
-	//_activeLines.insert(_activeLines.end(), lines.begin(), lines.end());
-
 	// TODO: this is slow
 	for (auto line : lines) {
 		_activeLines.insert(&line);
@@ -714,73 +701,40 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 //}
 
 static void GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-												//OpenGLRenderer::MeshAABBLineSetMapping& aabbLineSetMapping,
-												OpenGLRenderer::LinesGLMapping linesGLMapping, // TODO: should be reference??
-												GLuint& glVBO, GLuint& glVAO) {
+											  OpenGLRenderer::LinesGLMapping& linesGLMapping, // TODO: should be reference??
+											  GLuint& glVBO, GLuint& glVAO) {
 
 	auto program = Program::Lines();
 
-	// looks up and populates glVBO and glVAO, loading the vertex data if needed
+	bool dirty = false;
+	auto lines = mesh.aabbLines(dirty);
 
+	if (dirty) {
+		DeleteLinesGLResources(lines, linesGLMapping);
+	}
 
-//	if (A3D_MASK_CONTAINS(mesh.dirtyMask(), MeshDirtyMask::AABBLines)) {
-
-
-
-		bool dirty = false;
-		auto lines = mesh.aabbLines(dirty);
-
-		if (dirty) {
-			//DeleteLinesGLResources(lines, linesGLMapping);
-		}
-
-//		aabbLineSetMapping[&mesh] = &lines;
-
-//		// construct a new lineset matching the mesh's extent
-//
-//		A3D_LOG_T("Creating AABB LineSet for Mesh {:p}...", static_cast<void*>(&mesh));
-//
-//			...
-//
-//		aabbLineSetMapping[&mesh] = aabbLineSet;
-
-//		mesh.dirtyMask(A3D_MASK_REMOVE(mesh.dirtyMask(), MeshDirtyMask::Extent));
-
-	GetLineSetVertexDataHandles(lines,//(vector<a3d::Line> &) lines,
-								program,
-								linesGLMapping,
-								glVBO, glVAO);
+	GetLinesVertexDataHandles(lines,
+							  program,
+							  linesGLMapping,
+							  glVBO, glVAO);
 }
 
-static void GetLineSetVertexDataHandles(const vector<Line>& lines,
-										Program& program,
-										OpenGLRenderer::LinesGLMapping& glMapping,
-										GLuint& glVBO, GLuint& glVAO) {
+static void GetLinesVertexDataHandles(const vector<Line>& lines,
+									  Program& program,
+									  OpenGLRenderer::LinesGLMapping& glMapping,
+									  GLuint& glVBO, GLuint& glVAO) {
 
-	auto linesNonConst = const_cast<vector<Line>*>(&lines); // TODO: FIX THIS!
+	if (!glMapping.count(&lines)) {
 
-	if (!glMapping.count(linesNonConst)) {
-	//if (glMapping.find(lineSet) == glMapping.end()) {
 		BufferLinesVertexData(lines, program, glVBO, glVAO);
 
-		glMapping[linesNonConst] = make_pair(glVBO, glVAO);
+		glMapping[&lines] = make_pair(glVBO, glVAO);
 	}
 	else {
-		auto mapping = glMapping[linesNonConst];
+		auto mapping = glMapping[&lines];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
 	}
-
-//	if (!glMapping.count(&lineSet)) {
-//		BufferLinesVertexData(lineSet, program, glVBO, glVAO);
-//
-//		glMapping[lineSet] = make_pair(glVBO, glVAO);
-//	}
-//	else {
-//		auto mapping = glMapping[&lineSet];
-//		glVBO = get<0>(mapping);
-//		glVAO = get<1>(mapping);
-//	}
 }
 
 static void GetTextureGLTextureHandles(Material& material,
@@ -918,86 +872,33 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	//program.unuse();
 }
 
-static void BufferAABBVertexData(Mesh& mesh,
-								 const Program& program,
-								 GLuint& glVBO, GLuint& glVAO) {
-
-	A3D_LOG_I("Buffering vertex data for AABB {:p}...", static_cast<const void*>(&mesh));
-
-	auto aabb = mesh.aabb();
-
-	float xMin = aabb.min.x;
-	float xMax = aabb.max.x;
-	float yMin = aabb.min.y;
-	float yMax = aabb.max.y;
-	float zMin = aabb.min.z;
-	float zMax = aabb.max.z;
-
-	vec3 one =      {xMin, yMax, zMin};
-	vec3 two =      {xMin, yMax, zMax};
-	vec3 three =    {xMax, yMax, zMax};
-	vec3 four =    	{xMax, yMax, zMin};
-	vec3 five =     {xMin, yMin, zMin};
-	vec3 six =      {xMin, yMin, zMax};
-	vec3 seven =    {xMax, yMin, zMax};
-	vec3 eight =    {xMax, yMin, zMin};
-
-	vec3 verts[] = {
-		one, 	two,
-		two, 	three,
-		three,	four,
-		four, 	one,
-		five, 	six,
-		six, 	seven,
-		seven, 	eight,
-		eight, 	five,
-		one, 	five,
-		two, 	six,
-		three, 	seven,
-		four, 	eight};
-
-	glGenBuffers(1, &glVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(vec3), &(verts[0]), GL_STATIC_DRAW);
-
-	glGenVertexArrays(1, &glVAO);
-	glBindVertexArray(glVAO);
-
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
-	glVertexAttribPointer(positionIndex, 	// attrib index
-						  3, 				// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 		// component type
-						  GL_FALSE, 		// normalize
-						  sizeof(vec3), 	// stride
-						  0); 				// start offset
-	glEnableVertexAttribArray(positionIndex);
-}
-	
 static void BufferLinesVertexData(const vector<Line>& lines,
 								  Program& program,
 								  GLuint& glVBO, GLuint& glVAO) {
-	
-	// back each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
-	
+
+	A3D_LOG_I("BufferLinesVertexData");
+
+	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
+
 	auto massagedBuffer = vector<vec3>();
 	massagedBuffer.reserve(lines.size()*4);
 
-	// TODO: this looks STUPID
+	// TODO: how can we optimize this?
 	for (auto& line : lines) {
 		auto fromLocation = line.fromLocation();
-		auto fromColor = line.fromColor();
+		const auto& fromColor = line.fromColor();
 		auto toLocation = line.toLocation();
-		auto toColor = line.toColor();
+		const auto& toColor = line.toColor();
 		massagedBuffer.push_back(fromLocation);
 		massagedBuffer.push_back({fromColor->r, fromColor->g, fromColor->b});
 		massagedBuffer.push_back(toLocation);
 		massagedBuffer.push_back({toColor->r, toColor->g, toColor->b});
 	}
-	
+
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, /*(GLsizeiptr)*/massagedBuffer.size()*sizeof(vec3), &(massagedBuffer[0]), GL_STATIC_DRAW);
-	
+	glBufferData(GL_ARRAY_BUFFER, /*(GLsizeiptr)*/massagedBuffer.size()*sizeof(vec3), massagedBuffer.data(), GL_STATIC_DRAW);
+
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
@@ -1333,21 +1234,6 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 		lights = lightsSlice;
 	}
 
-	// check for default lighting
-	// * moved to VisualWorld::checkAddDefaultLighting() *
-
-//	if (lights.size() == 0) {
-////		auto detaultPoint = Light::PointNode();
-//		auto detaultPointNode = Node::LightNode(Light::DefaultPoint());
-//		// set position based on scene extent...
-//		static vec3 sceneExtent = scene.rootNode()->extent(); // only doing this once or it runs reallll slow
-//		detaultPointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-//			sceneExtent.y + sceneExtent.y/4.0,
-//			sceneExtent.z + sceneExtent.z/4.0});
-//		lights.push_back(detaultPointNode);
-//	}
-//	if (!ambientLightNode) ambientLightNode = Node::LightNode(Light::DefaultAmbient());
-
 	if (ambientLightNode) lights.push_back(ambientLightNode);
 
 	auto numLights = lights.size();
@@ -1601,28 +1487,6 @@ static void DrawSkyboxElement(MeshElement& element,
 	auto numFaces = faces.size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
-	
-//static void DrawAABB(const Mesh& mesh,
-//					 Program& program,
-//					 mat4 modelMat,
-//					 mat4 viewMat,
-//					 mat4 projectionMat,
-//					 GLuint glVBO, GLuint glVAO) {
-//
-//	//auto program = Program::AABB();
-//	program.use();
-//
-//	// uniforms
-//
-//	program.setUniform("model", modelMat);
-//	program.setUniform("view", inverse(viewMat));
-//	program.setUniform("projection", projectionMat);
-//
-//	// update
-//
-//	glBindVertexArray(glVAO);
-//	glDrawArrays(GL_LINES, 0, 24);
-//}
 
 static void DrawLines(const vector<Line>& lines,
 					  Program& program,
@@ -1727,14 +1591,14 @@ static void CleanupLinesResources(unordered_set<Line*>& active,
 								  OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-//	// gather sorted vector of LineSets used this frame
-//	auto activeLineSetsSorted = vector<LineSet*>();
+//	// gather sorted vector of Lines used this frame
+//	auto activeLineSetsSorted = vector<Line*>();
 //	activeLineSetsSorted.reserve(glMapping.size());
 //	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
 //	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
 //
-//	// gather sorted vector of LineSets in the mapping
-//	auto storedLineSetsSorted = vector<LineSet*>();
+//	// gather sorted vector of Lines in the mapping
+//	auto storedLineSetsSorted = vector<Line*>();
 //	storedLineSetsSorted.reserve(glMapping.size());
 //	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
 //		storedLineSetsSorted.push_back(it->first);
@@ -1742,8 +1606,8 @@ static void CleanupLinesResources(unordered_set<Line*>& active,
 //	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
 //
 //	// find unused LineSets
-//	auto unused = vector<LineSet*>(storedLineSetsSorted.size());
-//	vector<LineSet*>::iterator it;
+//	auto unused = vector<Line*>(storedLineSetsSorted.size());
+//	vector<Line*>::iterator it;
 //	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
 //						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
 //						unused.begin());
@@ -1754,8 +1618,8 @@ static void CleanupLinesResources(unordered_set<Line*>& active,
 //		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
 //
 //		for (it=unused.begin(); it!=unused.end(); ++it) {
-//			LineSet* lineSet = *it;
-//			DeleteLineSetGLResources(lineSet, glMapping);
+//			Line* lines = *it;
+//			DeleteLinesGLResources(lines, glMapping);
 //		}
 //	}
 	
@@ -1810,24 +1674,24 @@ static void DeleteTextureGLResources(Texture* texture,
 #endif
 }
 
-static void DeleteLineSetGLResources(vector<Line>& lines,
+static void DeleteLinesGLResources(const vector<Line>& lines,
 									 OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-//	if (glMapping.count(lineSet)) {
-//
-//		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<void*>(lineSet));
-//
-//		auto glHandles = glMapping[lineSet];
-//
-//		auto vbo = get<0>(glHandles);
-//		auto vao = get<1>(glHandles);
-//
-//		glDeleteBuffers(1, &vbo);
-//		glDeleteVertexArrays(1, &vao);
-//
-//		glMapping.erase(lineSet);
-//	}
+	if (glMapping.count(&lines)) {
+
+		A3D_LOG_T("Deleting GL resources for LineSet {:p}..", static_cast<const void*>(&lines));
+
+		auto glHandles = glMapping[&lines];
+
+		auto vbo = get<0>(glHandles);
+		auto vao = get<1>(glHandles);
+
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+
+		glMapping.erase(&lines);
+	}
 	
 #endif
 }
@@ -1876,11 +1740,11 @@ void DrawStatsOverlay(Stats& stats, double time, Scene& scene) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	SetNextWindowBgAlpha(.15);
+	SetNextWindowBgAlpha(.25);
 	Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
-	style.WindowRounding = 6;
+//	style.WindowRounding = 6;
 
 //	ImGui::ShowDemoWindow(nullptr);
 //	ImGui::GetIO();
