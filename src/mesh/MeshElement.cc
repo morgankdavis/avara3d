@@ -27,7 +27,7 @@ using namespace glm;
 
 MeshElement::MeshElement(const vector<Vertex>& verticies,
 						 const vector<Face>& faces):
-		MeshElement() {
+		MeshElement{} {
 
 	_vertices = verticies;
 	_faces = faces;
@@ -129,4 +129,4 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
  *********************************************************************************************/
 
 MeshElement::MeshElement():
-		_dirtyMask(MeshElementDirtyMask::All) { }
+		_dirtyMask{MeshElementDirtyMask::All} { }

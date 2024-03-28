@@ -24,8 +24,8 @@ using namespace std;
  *********************************************************************************************/
 
 Buffer::Buffer(const std::filesystem::path& path):
-		_data(nullptr),
-		_size(0) {
+		_data{},
+		_size{0} {
 
 	// TODO: check path or exception
 	ifstream inStream(path.string(), ios::binary | ios::ate);

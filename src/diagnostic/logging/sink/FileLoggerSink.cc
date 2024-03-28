@@ -18,11 +18,11 @@ using namespace std;
  *********************************************************************************************/
 
 FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
-							   unsigned maxFiles,
-							   unsigned maxFilesize):
-		_filepath(relPath),
-		_maxFiles(maxFiles),
-		_maxFilesize(maxFilesize) {
+							   int maxFiles,
+							   int maxFilesize):
+		_filepath{relPath},
+		_maxFiles{maxFiles},
+		_maxFilesize{maxFilesize} {
 
 #if defined(ANDROID)
 	_filepath = (*(utils::InternalFilesDirectory())) / relPath;

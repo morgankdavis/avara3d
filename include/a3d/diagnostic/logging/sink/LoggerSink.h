@@ -16,7 +16,7 @@ namespace a3d {
 
 	public:
 
-		virtual ~LoggerSink();
+		virtual ~LoggerSink() = 0;
 
 /*********************************************************************************************
 	Public

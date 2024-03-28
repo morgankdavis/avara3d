@@ -42,7 +42,7 @@ Spring::Spring(float minorRadius,
 			   float length,
 			   int slices,
 			   int segments):
-		MeshElement(),
+		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
 		_length{length},

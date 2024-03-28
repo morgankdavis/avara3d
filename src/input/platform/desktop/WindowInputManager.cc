@@ -42,9 +42,9 @@ static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(Window* window):
-	InputManager(),
-	_usingManyMouse(false),
-	_window(window) {
+	InputManager{},
+	_usingManyMouse{false},
+	_window{window} {
 
 		registerGLFWCallbacks(window->glfwWindow());
 	initMouseInput();

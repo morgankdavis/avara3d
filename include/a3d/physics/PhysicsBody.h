@@ -143,7 +143,7 @@ namespace a3d {
 //		void 								resting(bool resting);
 		
 		void 								attachedToNode(const std::shared_ptr<Node>& node);
-		void 								detachedFromNode(Node& node);
+		void 								detachedFromNode(const std::shared_ptr<Node>& node);
 
 //		void 								nodeAttachedToParent(Node* parent); // owning node's parent
 //		void 								nodeDetachedFromParent(Node* parent);

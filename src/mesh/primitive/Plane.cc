@@ -43,7 +43,7 @@ Plane::Plane(float width,
 			 float height,
 			 int widthSegements,
 			 int heightSegments):
-		MeshElement(),
+		MeshElement{},
 		_width{width},
 		_height{height},
 		_widthSegements{widthSegements},

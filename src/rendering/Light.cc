@@ -45,15 +45,15 @@ shared_ptr<Light> Light::DefaultPoint() {
  *********************************************************************************************/
 
 Light::Light(LightType type):
-	Light(type, make_shared<Color>(1.0f, 1.0f, 1.0f)) {
+	Light{type, make_shared<Color>(1.0f, 1.0f, 1.0f)} {
 	
 }
 
 Light::Light(LightType type, const shared_ptr<Color>& color):
-	_name(nullopt),
-	_type(type),
-	_color(color),
-	_attenuationFactor(1.0f) {
+	_name{},
+	_type{type},
+	_color{color},
+	_attenuationFactor{1.0f} {
 //	_node({}) {
 	
 }

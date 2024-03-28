@@ -21,9 +21,9 @@ using namespace std;
  *********************************************************************************************/
 
 Font::Font(const filesystem::path& path):
-	_name(nullopt),
-	_type(FontType::Unknown),
-	_buffer(nullptr) {
+	_name{},
+	_type{FontType::Unknown},
+	_buffer{} {
 	
 		_name = path.stem().string();
 
@@ -39,9 +39,9 @@ Font::Font(const filesystem::path& path):
 }
 
 Font::Font(unique_ptr<Buffer>& buffer):
-	_name(nullopt),
-	_type(FontType::Unknown),
-	_buffer(std::move(buffer)) {
+	_name{},
+	_type{FontType::Unknown},
+	_buffer{std::move(buffer)} {
 	
 }
 

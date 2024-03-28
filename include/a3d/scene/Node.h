@@ -45,11 +45,6 @@ namespace a3d {
 
 	public:
 
-//		static std::unique_ptr<Node> 			NamedNode(std::string name);
-//		static std::unique_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
-//		static std::unique_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
-//		static std::unique_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
-
 		static std::shared_ptr<Node> 			NamedNode(std::string name);
 		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
 		static std::shared_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
@@ -61,11 +56,8 @@ namespace a3d {
 		
 		Node();
 		explicit Node(const std::string& name);
-		explicit Node(std::unique_ptr<Mesh>& mesh);
 		explicit Node(const std::shared_ptr<Mesh>& mesh);
-		explicit Node(std::unique_ptr<Light>& light);
 		explicit Node(const std::shared_ptr<Light>& light);
-		explicit Node(std::unique_ptr<Camera>& camera);
 		explicit Node(const std::shared_ptr<Camera>& camera);
 //		/*testing*/ Node(const Node& other) = delete; // copy
 //		/*testing*/ Node& operator=(const Node& other) = delete; // copy assignment
@@ -81,15 +73,12 @@ namespace a3d {
 		void 									name(const std::string& name);
 
 		const std::shared_ptr<Light>& 			light() const;
-//		void 									light(std::unique_ptr<Light>& light);
 		void 									light(const std::shared_ptr<Light>& light);
 
 		const std::shared_ptr<Camera>& 			camera() const;
-//		void 									camera(std::unique_ptr<Camera>& camera);
 		void 									camera(const std::shared_ptr<Camera>& camera);
 
 		const std::shared_ptr<Mesh>& 			mesh() const;
-//		void 									mesh(std::unique_ptr<Mesh>& mesh);
 		void 									mesh(const std::shared_ptr<Mesh>& mesh);
 
 		bool 									hidden() const;
@@ -125,9 +114,7 @@ namespace a3d {
 
 		glm::mat4 								worldTransform() const;
 
-//		void 									addChild(std::unique_ptr<Node>& node);
 		void 									addChild(const std::shared_ptr<Node>& node);
-//		void 									addChildren(std::vector<std::unique_ptr<Node>>& nodes);
 		void 									addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 		void 									removeFromParent();
 

@@ -33,10 +33,10 @@ using namespace std;
  *********************************************************************************************/
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
-		PhysicsBodyProxy(body),
-		_btBody(nullptr),
+		PhysicsBodyProxy{body},
+		_btBody{},
 		/*_btMotionState(nullptr)*/
-		_motionState(nullptr) {
+		_motionState{} {
 
 	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 

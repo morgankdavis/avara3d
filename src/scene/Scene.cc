@@ -71,17 +71,17 @@ double Scene::Time() {
  *********************************************************************************************/
 
 Scene::Scene():
-		_name({}),
-		_rootNode(make_shared<Node>("root node")),
+		_name{},
+		_rootNode{make_shared<Node>("root node")},
 //		_rootNode(make_unique<Node>("root node")),
-		_visualWorld(nullptr),
-		_physicalWorld(nullptr),
-		_inputManager(nullptr),
-		_debugOptions(DebugOptions::None),
-		_stats({}),
-		_running(false),
-		_paused(false),
-		_update(nullptr) {
+		_visualWorld{},
+		_physicalWorld{},
+		_inputManager{},
+		_debugOptions{DebugOptions::None},
+		_stats{},
+		_running{false},
+		_paused{false},
+		_update{} {
 
 	_rootNode->attachedToScene(*this);
 }

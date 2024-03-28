@@ -10,4 +10,4 @@ using namespace std;
 
 
 UnsupportedFormat::UnsupportedFormat(const string& what):
-		Exception(what) {}
+		Exception{what} {}

@@ -225,17 +225,17 @@ typedef struct {
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
-		Renderer(),
-		_meshElementGLMapping(MeshElementGLMapping()),
-		_textureGLMapping(TextureGLMapping()),
-		_lineSetGLMapping(LineSetGLMapping()),
-		_pointSetGLMapping(PointSetGLMapping()),
-		_activeMeshElements(unordered_set<MeshElement*>()),
-		_activeTextures(unordered_set<Texture*>()),
-		_activeLineSets(unordered_set<LineSet*>()),
-		_activePointSets(unordered_set<PointSet*>()),
-		_glEnvironmentUBO(0),
-		_overlayFont(nullptr) { }
+		Renderer{},
+		_meshElementGLMapping{},
+		_textureGLMapping{},
+		_lineSetGLMapping{},
+		_pointSetGLMapping{},
+		_activeMeshElements{},
+		_activeTextures{},
+		_activeLineSets{},
+		_activePointSets{},
+		_glEnvironmentUBO{0},
+		_overlayFont{} { }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));

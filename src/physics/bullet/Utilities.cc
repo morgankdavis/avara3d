@@ -20,11 +20,11 @@ using namespace glm;
 
 
 vec3 a3d::GLMVec3FromBTVector3(const btVector3& from) {
-	return vec3(from.x(), from.y(), from.z());
+	return {from.x(), from.y(), from.z()};
 }
 
 vec4 a3d::GLMVec4FromBTVector4(const btVector4& from) {
-	return vec4(from.x(), from.y(), from.z(), from.w());
+	return vec4{from.x(), from.y(), from.z(), from.w()};
 }
 
 mat4 a3d::GLMMat4FromBTTransform(const btTransform& from) {
@@ -34,16 +34,16 @@ mat4 a3d::GLMMat4FromBTTransform(const btTransform& from) {
 }
 
 btVector3 a3d::BTVector3FromGLMVec3(const vec3& from) {
-	return btVector3(from.x, from.y, from.z);
+	return {from.x, from.y, from.z};
 }
 
 btVector4 a3d::BTVector4FromGLMVec4(const vec4& from) {
-	return btVector4(from.x, from.y, from.z, from.w);
+	return {from.x, from.y, from.z, from.w};
 }
 
 btQuaternion a3d::BTQuaternionFromGLMQuat(const quat& from) {
 
-	return btQuaternion(from.x, from.y, from.z, from.w);
+	return {from.x, from.y, from.z, from.w};
 
 }
 

@@ -30,10 +30,10 @@ using namespace std;
 Image::Image(const filesystem::path& path,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer(nullptr),
-		_width(0),
-		_height(0),
-		_bytesPerPixel(0) {
+		_buffer{},
+		_width{0},
+		_height{0},
+		_bytesPerPixel{0} {
 
 	auto buffer = Buffer(path);
 	loadBuffer(buffer, flipVertical, flipHorizontal);
@@ -43,10 +43,10 @@ Image::Image(const filesystem::path& path,
 Image::Image(unique_ptr<Buffer> buffer,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer(nullptr),
-		_width(0),
-		_height(0),
-		_bytesPerPixel(0) {
+		_buffer{},
+		_width{0},
+		_height{0},
+		_bytesPerPixel{0} {
 
 	loadBuffer(*buffer, flipVertical, flipHorizontal);
 }
@@ -57,10 +57,10 @@ Image::Image(unique_ptr<Buffer> rawBuffer,
 			 int bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer(std::move(rawBuffer)),
-		_width(width),
-		_height(height),
-		_bytesPerPixel(bytesPerPixel) {
+		_buffer{std::move(rawBuffer)},
+		_width{width},
+		_height{height},
+		_bytesPerPixel{bytesPerPixel} {
 
 	if (flipVertical) {
 		Image::flipVertical();

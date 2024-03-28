@@ -37,22 +37,6 @@ using namespace std;
 	Pulic Static
  *********************************************************************************************/
 
-//unique_ptr<Node> Node::NamedNode(std::string name) {
-//	return make_unique<Node>(name);
-//}
-//
-//unique_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-//	return make_unique<Node>(mesh);
-//}
-//
-//unique_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
-//	return make_unique<Node>(light);
-//}
-//
-//unique_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
-//	return make_unique<Node>(camera);
-//}
-
 shared_ptr<Node> Node::NamedNode(std::string name) {
 	return make_shared<Node>(name);
 }
@@ -74,27 +58,22 @@ shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
  *********************************************************************************************/
 
 Node::Node():
-		_name(std::nullopt),
-		_hidden(false),
-		_camera(nullptr),
-		_light(nullptr),
-		_mesh(nullptr),
-		_position({0.0f, 0.0f, 0.0f}),
-		_orientation(quat()),
-		_scale({1.0f, 1.0f, 1.0f}),
-		_physicsBody(nullptr),
-		_scene(nullptr),
+		_name{},
+		_hidden{false},
+		_camera{},
+		_light{},
+		_mesh{},
+		_position{0.0f, 0.0f, 0.0f},
+		_orientation{},
+		_scale{1.0f, 1.0f, 1.0f},
+		_physicsBody{},
+		_scene{},
 		_parent{},
-		_dirtyMask(NodeDirtyMask::None) { }
+		_dirtyMask{NodeDirtyMask::None} { }
 
 Node::Node(const string& name):
 		Node() {
 	_name = name;
-}
-
-Node::Node(unique_ptr<Mesh>& mesh):
-		Node() {
-	_mesh = shared_ptr(std::move(mesh));
 }
 
 Node::Node(const shared_ptr<Mesh>& mesh):
@@ -102,19 +81,9 @@ Node::Node(const shared_ptr<Mesh>& mesh):
 	_mesh = mesh;
 }
 
-Node::Node(unique_ptr<Light>& light):
-		Node() {
-	_light = shared_ptr(std::move(light));
-}
-
 Node::Node(const shared_ptr<Light>& light):
 		Node() {
 	_light = light;
-}
-
-Node::Node(unique_ptr<Camera>& camera):
-		Node() {
-	_camera = shared_ptr(std::move(camera));
 }
 
 Node::Node(const shared_ptr<Camera>& camera):
@@ -132,7 +101,10 @@ Node::~Node() {
 	}
 
 	for (auto& child : _children) child->detachedFromParent(*this);
-	if (_physicsBody) _physicsBody->detachedFromNode(*this);
+
+	// since PhysicsBody's 'node' is a weak_ptr, all that detachedFromNode did was
+	// set 'node' to an empty weak_ptr -- uncesessary.
+	//if (_physicsBody) _physicsBody->detachedFromNode(*this);
 
 //	physicsBody(nullptr);
 }
@@ -639,7 +611,6 @@ void Node::removeFromParent() {
 //		_parent->_children = vec;
 
 		detachedFromParent(*parent);
-		_parent = {};
 	}
 	else {
 		A3D_LOG_W("Parent is gone!");
@@ -731,7 +702,7 @@ PhysicsBody* Node::physicsBody() const {
 void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
-		_physicsBody->detachedFromNode(*this);
+		_physicsBody->detachedFromNode(shared_from_this());
 	}
 
 	_physicsBody = std::move(body);
@@ -827,7 +798,7 @@ void Node::detachedFromParent(Node& parent) {
 		child->ancestorDetachedFromParent(*this, parent);
 	}
 
-	//_parent = {}; // done in Node::removeFromParent()
+	_parent = {};
 }
 
 void Node::attachedToScene(Scene& scene) {

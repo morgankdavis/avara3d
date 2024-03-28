@@ -39,7 +39,7 @@ TorusKnot::TorusKnot(int p,
 					 int q,
 					 int slices,
 					 int segments):
-		MeshElement(),
+		MeshElement{},
 		_p{p},
 		_q{q},
 		_slices{slices},

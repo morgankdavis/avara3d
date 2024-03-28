@@ -15,26 +15,26 @@ using namespace glm;
 
 
 PerspectiveCamera::PerspectiveCamera():
-		Camera(),
-		_zNear(0.1),
-		_zFar(1000.0),
-		_yFov(radians(45.0)),
-		_aspectRatio(0) {}
+		Camera{},
+		_zNear{0.1},
+		_zFar{1000.0},
+		_yFov{radians(45.0)},
+		_aspectRatio{0} {}
 
 PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
-		Camera(),
-		_zNear(zNear),
-		_zFar(zFar),
-		_yFov(yFov) {
+		Camera{},
+		_zNear{zNear},
+		_zFar{zFar},
+		_yFov{yFov} {
 
 	constructProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar, float yFov):
-		Camera(name),
-		_zNear(zNear),
-		_zFar(zFar),
-		_yFov(yFov) {
+		Camera{name},
+		_zNear{zNear},
+		_zFar{zFar},
+		_yFov{yFov} {
 
 	constructProjectionMatrix();
 }

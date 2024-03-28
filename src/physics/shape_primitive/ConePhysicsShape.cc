@@ -15,8 +15,8 @@ using namespace a3d;
  *********************************************************************************************/
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
-		_radius(radius),
-		_height(height) {}
+		_radius{radius},
+		_height{height} {}
 
 ConePhysicsShape::~ConePhysicsShape() {}
 

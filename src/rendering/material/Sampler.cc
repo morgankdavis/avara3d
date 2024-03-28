@@ -11,13 +11,13 @@ using namespace std;
 
 Sampler::Sampler():
 // TODO: are these sensible?
-		_minificationFilter(FilterMode::LinearMipmapLinear),
-		_magnificationFilter(FilterMode::Linear),
-		_maxAnisotropy(16),
-		_wrapS(WrapMode::Repeat),
-		_wrapT(WrapMode::Repeat),
-		_wrapR(WrapMode::Repeat),
-		_dirtyMask(SamplerDirtyMask::All) {}
+		_minificationFilter{FilterMode::LinearMipmapLinear},
+		_magnificationFilter{FilterMode::Linear},
+		_maxAnisotropy{16},
+		_wrapS{WrapMode::Repeat},
+		_wrapT{WrapMode::Repeat},
+		_wrapR{WrapMode::Repeat},
+		_dirtyMask{SamplerDirtyMask::All} {}
 
 Sampler::~Sampler() {}
 

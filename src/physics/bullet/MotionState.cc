@@ -20,8 +20,8 @@ using namespace a3d;
  *********************************************************************************************/
 
 MotionState::MotionState(PhysicsBody& body):
-		btMotionState(),
-		_body(&body) { }
+		btMotionState{},
+		_body{&body} { }
 
 /*********************************************************************************************
 	btMotionState

@@ -24,10 +24,10 @@ using namespace glm;
  *********************************************************************************************/
 
 Camera::Camera():
-		_name(nullopt) {}
+		_name{} {}
 
 Camera::Camera(const string& name):
-		_name(name) {}
+		_name{name} {}
 
 Camera::~Camera() {
 	A3D_LOG_D("Destroying Camera {:p}", static_cast<void*>(this));

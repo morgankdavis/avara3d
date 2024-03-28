@@ -21,18 +21,18 @@ using namespace std;
  *********************************************************************************************/
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation):
-		Line(fromLocation, toLocation, Color::White()) { }
+		Line{fromLocation, toLocation, Color::White()} { }
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const shared_ptr<Color>& color):
-		Line(fromLocation, toLocation, color, color) { }
+		Line{fromLocation, toLocation, color, color} { }
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const shared_ptr<Color>& fromColor, const shared_ptr<Color>& toColor):
-		_fromLocation(fromLocation),
-		_toLocation(toLocation),
-		_fromColor(fromColor),
-		_toColor(toColor) { }
+		_fromLocation{fromLocation},
+		_toLocation{toLocation},
+		_fromColor{fromColor},
+		_toColor{toColor} { }
 
 //Line::Line(const Line& other):
 //		_fromLocation{other._fromLocation},

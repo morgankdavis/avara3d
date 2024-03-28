@@ -95,10 +95,10 @@ Logger::Logger(const string& name,
 			   unique_ptr<LoggerSink> sink,
 			   LogLevel level,
 			   LogLevel flushLevel):
-		_name(name),
-		_sinks(unordered_set<unique_ptr<LoggerSink>>()),
-		_level(level),
-		_flushLevel(flushLevel) {
+		_name{name},
+		_sinks{unordered_set<unique_ptr<LoggerSink>>()},
+		_level{level},
+		_flushLevel{flushLevel} {
 
 	_sinks.insert(std::move(sink));
 }

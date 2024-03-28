@@ -16,9 +16,9 @@ using namespace a3d;
  *********************************************************************************************/
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
-		PhysicsShape(),
-		_radius(radius),
-		_height(height) {
+		PhysicsShape{},
+		_radius{radius},
+		_height{height} {
 
 	//checkCreateProxy();
 }

@@ -51,7 +51,7 @@ RoundedBox::RoundedBox(float radius,
 					   int lengthSegments,
 					   int widthSegments,
 					   int heightSegments):
-		MeshElement(),
+		MeshElement{},
 		_length{length},
 		_width{width},
 		_height{height},

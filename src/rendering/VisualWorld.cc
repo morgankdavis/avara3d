@@ -43,18 +43,18 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(RenderContext* context):
-		_background(monostate{}),
-		_skyboxMesh(nullptr),
-		_fogStartDistance(0.0),
-		_fogEndDistance(0.0),
-		_fogDensityExponent(0.0),
-		_fogColor(nullptr),
-		_pointOfView({}),
-		_automaticallyAddDefaultLighting(true),
-		_renderContext(context),
-		_scene(nullptr),
-		_willRender(nullptr),
-		_didRender(nullptr) {
+		_background{},
+		_skyboxMesh{},
+		_fogStartDistance{0.0},
+		_fogEndDistance{0.0},
+		_fogDensityExponent{0.0},
+		_fogColor{},
+		_pointOfView{},
+		_automaticallyAddDefaultLighting{true},
+		_renderContext{context},
+		_scene{},
+		_willRender{},
+		_didRender{} {
 
 	_renderContext->attachedToVisualWorld(this);
 }

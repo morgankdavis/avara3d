@@ -37,8 +37,8 @@ static btVector4 	BTVector4FromGLMVec4(const vec4& from);
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
-	_debugMode(btIDebugDraw::DBG_NoDebug),
-	_lineSet(make_unique<LineSet>()) {
+	_debugMode{btIDebugDraw::DBG_NoDebug},
+	_lineSet{make_unique<LineSet>()} {
 
 }
 

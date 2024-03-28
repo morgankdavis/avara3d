@@ -57,10 +57,10 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
-		_type(type),
-		_shape(nullptr),
+		_type{type},
+		_shape{},
 		_node{},
-		_world(nullptr) {
+		_world{} {
 
 	// _node has to be initialized to nullptr before calling this
 	_proxy = make_unique<BulletBodyProxy>(*this);
@@ -320,8 +320,8 @@ void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
 	checkAddToWorld();
 }
 
-void PhysicsBody::detachedFromNode(Node& node) {
-	A3D_LOG_T("node: {:p}", static_cast<void*>(&node));
+void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
+	A3D_LOG_T("node: {:p}", static_cast<void*>(node.get()));
 
 	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
 

@@ -43,7 +43,7 @@ Torus::Torus(float minorRadius,
 			 float majorRadius,
 			 int slices,
 			 int segments):
-		MeshElement(),
+		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
 		_slices{slices},

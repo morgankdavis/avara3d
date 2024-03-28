@@ -43,16 +43,16 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
  *********************************************************************************************/
 
 Mesh::Mesh():
-		_name(nullopt),
-		_elements(vector<unique_ptr<MeshElement>>()),
-		_materials(vector<shared_ptr<Material>>()),
-		_dirtyMask(MeshDirtyMask::All) {
+		_name{},
+		_elements{},
+		_materials{},
+		_dirtyMask{MeshDirtyMask::All} {
 
 }
 
 Mesh::Mesh(unique_ptr<MeshElement> element,
 		   const shared_ptr<Material>& material):
-		Mesh() {
+		Mesh{} {
 
 	if (element) _elements.push_back(std::move(element));
 	if (material) _materials.push_back(material);
@@ -60,7 +60,7 @@ Mesh::Mesh(unique_ptr<MeshElement> element,
 
 Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
 		   const vector<shared_ptr<Material>>& materials):
-		Mesh() {
+		Mesh{} {
 
 	_elements = vector<unique_ptr<MeshElement>>();
 	_elements.reserve(elements.size());

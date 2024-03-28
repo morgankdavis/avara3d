@@ -39,7 +39,7 @@ Disk::Disk(float radius,
 		   float innerRadius,
 		   int slices,
 		   int rings):
-		MeshElement(),
+		MeshElement{},
 		_radius{radius},
 		_innerRadius{innerRadius},
 		_slices{slices},

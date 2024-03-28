@@ -15,9 +15,9 @@ using namespace a3d;
  *********************************************************************************************/
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body):
-		_body(nullptr),
-		_shapeProxy(nullptr),
-		_autocalculatesMomentOfInertia(true) {
+		_body{},
+		_shapeProxy{},
+		_autocalculatesMomentOfInertia{true} {
 
 	attachedToBody(body);
 }

@@ -50,7 +50,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
 		_parsed{false},
 		_asset{},
-		_scene{nullptr},
+		_scene{},
 		_path{path},
 		_options{options},
 		_cameras{},

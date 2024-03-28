@@ -49,7 +49,7 @@ Tube::Tube(float innerRadius,
 		   int slices,
 		   int segments,
 		   int rings):
-		MeshElement(),
+		MeshElement{},
 		_innerRadius{innerRadius},
 		_outerRadius{outerRadius},
 		_height{height},

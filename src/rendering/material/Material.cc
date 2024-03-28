@@ -59,18 +59,18 @@ MaterialProperty Material::MissingTextureProperty() {
  *********************************************************************************************/
 
 Material::Material():
-		_name(nullopt),
-		_ambient(monostate{}),
-		_diffuse{monostate{}},
-		_specular{monostate{}},
-		_emission(monostate{}),
-		_specularExponent(75),
-		_locksAmbientWithDiffuse(true),
-		_doubleSided(false),
-		_fillMode(FillMode::Fill),
-		_uvScale(1.0f),
-		_blendFunction(BlendFunction::Disabled),
-		_dirtyMask(MaterialDirtyMask::All) {
+		_name{},
+		_ambient{},
+		_diffuse{},
+		_specular{},
+		_emission{},
+		_specularExponent{75},
+		_locksAmbientWithDiffuse{true},
+		_doubleSided{false},
+		_fillMode{FillMode::Fill},
+		_uvScale{1.0f},
+		_blendFunction{BlendFunction::Disabled},
+		_dirtyMask{MaterialDirtyMask::All} {
 
 	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }

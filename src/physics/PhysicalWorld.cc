@@ -33,14 +33,14 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
  *********************************************************************************************/
 
 PhysicalWorld::PhysicalWorld():
-		_gravity({0, -9.807, 0}),
-		_speed(1.0),
-		_timestep(1.0/60.0),
-		_scene(nullptr),
-		_didSimulate(nullptr),
-		_beginContact(nullptr),
-		_continueContact(nullptr),
-		_endContact(nullptr) {
+		_gravity{0, -9.807, 0},
+		_speed{1.0},
+		_timestep{1.0/60.0},
+		_scene{},
+		_didSimulate{},
+		_beginContact{},
+		_continueContact{},
+		_endContact{} {
 
 	_proxy = make_unique<BulletWorldProxy>(*this);
 }

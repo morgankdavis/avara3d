@@ -30,10 +30,10 @@ using namespace std;
  *********************************************************************************************/
 
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
-		_source(mesh),
-		_bodies({}),
-		_type(type),
-		_proxy(nullptr)
+		_source{mesh},
+		_bodies{},
+		_type{type},
+		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 //	if (auto sMesh = mesh.lock()) {

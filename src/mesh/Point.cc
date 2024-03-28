@@ -21,13 +21,13 @@ using namespace std;
  *********************************************************************************************/
 
 Point::Point(const vec3& location):
-	Point(location, Color::White()) {
+	Point{location, Color::White()} {
 	
 }
 
 Point::Point(const vec3& location, const shared_ptr<Color>& color):
-	_location(location),
-	_color(color) {
+	_location{location},
+	_color{color} {
 	
 }
 

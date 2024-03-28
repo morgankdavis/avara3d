@@ -26,12 +26,12 @@ CubeImage::CubeImage(unique_ptr<Image> posX,
 					 unique_ptr<Image> negY,
 					 unique_ptr<Image> posZ,
 					 unique_ptr<Image> negZ):
-	_posX(std::move(posX)),
-	_negX(std::move(negX)),
-	_posY(std::move(posY)),
-	_negY(std::move(negY)),
-	_posZ(std::move(posZ)),
-	_negZ(std::move(negZ)) { }
+	_posX{std::move(posX)},
+	_negX{std::move(negX)},
+	_posY{std::move(posY)},
+	_negY{std::move(negY)},
+	_posZ{std::move(posZ)},
+	_negZ{std::move(negZ)} { }
 
 /*********************************************************************************************
 	Public

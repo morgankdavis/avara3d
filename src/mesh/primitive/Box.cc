@@ -48,7 +48,7 @@ Box::Box(float length,
 		 int lengthSegments,
 		 int widthSegments,
 		 int heightSegments):
-		MeshElement(),
+		MeshElement{},
 		_length{length},
 		_width{width},
 		_height{height},

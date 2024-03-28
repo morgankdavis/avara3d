@@ -108,9 +108,9 @@ HACDMeshElementsFromMeshElement(MeshElement* element);
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
-		PhysicsShapeProxy(shape),
-		_btShapes(vector<shared_ptr<btCollisionShape>>()),
-		_btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>>()) {
+		PhysicsShapeProxy{shape},
+		_btShapes{},
+		_btIndexVertexArrays{} {
 
 	A3D_LOG_D("shape: {:p}", static_cast<void*>(&shape));
 

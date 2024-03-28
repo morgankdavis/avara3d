@@ -37,7 +37,7 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 
 Sphere::Sphere(float radius,
 			   int segments):
-		MeshElement(),
+		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
 

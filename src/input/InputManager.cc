@@ -21,15 +21,15 @@ using namespace glm;
  *********************************************************************************************/
 
 InputManager::InputManager():
-		_keysDown(set<Key>()),
-		_mouseButtonsDown(set<MouseButton>()),
-		_keysPressed(set<Key>()),
-		_keysPressedCleared(set<Key>()),
-		_mouseButtonsPressed(set<MouseButton>()),
-		_mouseButtonsPressedCleared(set<MouseButton>()),
-		_mousePositionDelta(vec2(0.0f, 0.0f)),
-		_mouseScrollWheelDelta(vec2(0.0f, 0.0f)),
-		_scene(nullptr) { }
+		_keysDown{},
+		_mouseButtonsDown{},
+		_keysPressed{},
+		_keysPressedCleared{},
+		_mouseButtonsPressed{},
+		_mouseButtonsPressedCleared{},
+		_mousePositionDelta{0.0f, 0.0f},
+		_mouseScrollWheelDelta{0.0f, 0.0f},
+		_scene{} { }
 
 InputManager::~InputManager() {
 	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));

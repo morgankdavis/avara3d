@@ -46,7 +46,7 @@ Cylinder::Cylinder(float radius,
 				   int slices,
 				   int segments,
 				   int rings):
-		MeshElement(),
+		MeshElement{},
 		_radius{radius},
 		_height{height},
 		_slices{slices},

@@ -31,11 +31,6 @@ namespace a3d {
 
 	public:
 
-//		static std::shared_ptr<Program> 	Default();
-//		static std::shared_ptr<Program> 	Skybox();
-//		static std::shared_ptr<Program> 	Wireframe();
-//		static std::shared_ptr<Program> 	Lines();
-//		static std::shared_ptr<Program> 	Points();
 		static Program& 	Default();
 		static Program& 	Skybox();
 		static Program& 	Wireframe();
@@ -85,12 +80,12 @@ namespace a3d {
 //		void 								printActiveUniforms() const;
 //		void 								printActiveAttribs() const;
 		
-		std::string 						name() const;
+		const std::string&					name() const;
 		unsigned 							glID();
 		bool	 							isLinked() const;
-		std::optional<std::string> 			vertexShaderSource() const;
+		const std::optional<std::string>&	vertexShaderSource() const;
 		void 								vertexShaderSource(std::string source);
-		std::optional<std::string> 			fragmentShaderSource() const;
+		const std::optional<std::string>&	fragmentShaderSource() const;
 		void 								fragmentShaderSource(std::string source);
 
 /*********************************************************************************************
@@ -99,10 +94,10 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string> 			shaderSource(const std::string &name,
-														   const std::string &type);
+		std::optional<std::string>			shaderSource(const std::string& name,
+														   const std::string& type);
 		void 								prepare();
-		bool 								compile(const std::string &source,
+		bool 								compile(const std::string& source,
 													ShaderType type);
 		unsigned 							getUniformLocation(const char* name);
 		void 								glID(unsigned glID);

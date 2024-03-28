@@ -14,16 +14,16 @@ using namespace std;
 using namespace glm;
 
 OrthographicCamera::OrthographicCamera():
-	Camera(),
-	_extent(AABB{vec3{-1, -1, -1}, vec3{1, 1, 1}}) {}
+	Camera{},
+	_extent{{-1, -1, -1}, {1, 1, 1}} {}
 
 OrthographicCamera::OrthographicCamera(AABB extent):
-		Camera(),
-		_extent(extent) {}
+		Camera{},
+		_extent{extent} {}
 
 OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
-	Camera(name),
-	_extent(extent) {}
+	Camera{name},
+	_extent{extent} {}
 
 AABB OrthographicCamera::extent() const {
 	return _extent;
