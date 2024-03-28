@@ -56,43 +56,43 @@ namespace a3d {
 
 		// TODO: make pure virtual
 
-		virtual bool 						initialize(const RenderContext& context);
+		virtual bool 						initialize(const RenderContext& context) = 0;
 		
 		virtual void 						beginFrame(const Scene& scene,
 													   const RenderContext& context,
 													   const DebugOptions& debugOptions,
-													   Stats& stats);
+													   Stats& stats) = 0;
 		virtual void 						endFrame(const Scene& scene,
 													 const RenderContext& context,
 													 const DebugOptions& debugOptions,
-													 Stats& stats);
+													 Stats& stats) = 0;
 
 		virtual void 						render(const Scene& scene,
 												   const DebugOptions& debugOptions,
-												   Stats& stats);
+												   Stats& stats) = 0;
 		virtual void 						render(Mesh& mesh,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DebugOptions& debugOptions,
-												   Stats& stats);
+												   Stats& stats) = 0;
 		virtual void 						render(MeshElement& element,
 												   Material& material,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat,
 												   const DebugOptions& debugOptions,
-												   Stats& stats);
-		virtual void 						render(LineSet& lines,
+												   Stats& stats) = 0;
+		virtual void 						render(const std::vector<Line>& lines,
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
-												   const glm::mat4& projectionMat);
-		virtual void 						render(PointSet& points,
-												   const glm::mat4& modelMat,
-												   const glm::mat4& viewMat,
-												   const glm::mat4& projectionMat);
+												   const glm::mat4& projectionMat) = 0;
+//		virtual void 						render(PointSet& points,
+//												   const glm::mat4& modelMat,
+//												   const glm::mat4& viewMat,
+//												   const glm::mat4& projectionMat);
 
-		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const;
+		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const = 0;
 	};
 }
 

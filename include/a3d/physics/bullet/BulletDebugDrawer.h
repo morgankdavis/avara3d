@@ -25,6 +25,7 @@
 namespace a3d {
 	
 
+	class Line;
 	class Renderer;
 	
 	
@@ -169,7 +170,8 @@ namespace a3d {
 
 	private:
 
-		std::unique_ptr<LineSet>	_lineSet;
+		//std::unique_ptr<LineSet>	_lineSet;
+		std::vector<Line>			_lines;
 	};
 }
 

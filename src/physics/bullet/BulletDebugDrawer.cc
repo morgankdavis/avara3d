@@ -38,7 +38,8 @@ static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 BulletDebugDrawer::BulletDebugDrawer():
 	_debugMode{btIDebugDraw::DBG_NoDebug},
-	_lineSet{make_unique<LineSet>()} {
+	//_lineSet{make_unique<LineSet>()} {
+	_lines{} {
 
 }
 
@@ -52,7 +53,8 @@ BulletDebugDrawer::~BulletDebugDrawer() {
 
 void BulletDebugDrawer::clear() {
 	// have to replace shared_ptr for Renderer to reload the data
-	_lineSet = make_unique<LineSet>();
+	//_lineSet = make_unique<LineSet>();
+	_lines.clear();
 }
 
 void BulletDebugDrawer::draw(Renderer& renderer,
@@ -62,7 +64,8 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		A3D_LOG_T("BulletDebugDrawer::update()");
 
-		renderer.render(*_lineSet, mat4(1.0), viewMat, projectionMat);
+		//renderer.render(*_lineSet, mat4(1.0), viewMat, projectionMat);
+		renderer.render(_lines, mat4(1.0), viewMat, projectionMat);
 	}
 }
 

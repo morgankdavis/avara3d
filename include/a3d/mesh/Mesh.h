@@ -25,6 +25,7 @@
 namespace a3d {
 
 
+	class Line;
 	class Material;
 	class MeshElement;
 	class Node;
@@ -47,7 +48,7 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		Mesh();
+		Mesh(); // TODO: make private?
 		Mesh(std::unique_ptr<MeshElement> element,
 			 const std::shared_ptr<Material>& material);
 		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
@@ -90,6 +91,8 @@ namespace a3d {
 		AABB									aabb(const Node* convertTo = nullptr) const;
 		glm::vec3 								extent(const Node* convertTo = nullptr) const;
 
+		const std::vector<Line>&				aabbLines(bool& dirty);
+
 		MeshDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(MeshDirtyMask mask);
 
@@ -109,6 +112,8 @@ namespace a3d {
 	private:
 
 		std::optional<std::string>				_name;
+
+		std::vector<Line>						_aabbLines;
 
 		MeshDirtyMask							_dirtyMask;
 	};

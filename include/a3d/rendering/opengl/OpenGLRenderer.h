@@ -47,17 +47,22 @@ namespace a3d {
 		using TextureGLMapping =
 				std::map<Texture*, unsigned>;
 
-		/* <set<a3d::Line> : <gl_vboHandle, gl_vaoHandle>> */
-		using LineSetGLMapping =
-				std::map<LineSet*, std::pair<unsigned, unsigned>>;
+//		/* <set<a3d::Line> : <gl_vboHandle, gl_vaoHandle>> */
+//		using LineSetGLMapping =
+//				std::map<LineSet*, std::pair<unsigned, unsigned>>;
+
+		/* <vector<a3d::Line>> : <gl_vboHandle, gl_vaoHandle>> */
+		using LinesGLMapping =
+				std::map<std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 		/* <set<a3d::Point> : <gl_vboHandle, gl_vaoHandle>> */
-		using PointSetGLMapping =
-				std::map<PointSet*, std::pair<unsigned, unsigned>>;
+//		using PointSetGLMapping =
+//				std::map<PointSet*, std::pair<unsigned, unsigned>>;
 
+		// *** TO BE REMOVED ***
 		/* <a3d::Mesh : set<a3d::Line>> */
-		using MeshAABBLineSetMapping =
-				std::map<Mesh*, LineSet*>;
+//		using MeshAABBLineSetMapping =
+//				std::map<Mesh*, LineSet*>;
 
 /*********************************************************************************************
 	Lifecycle
@@ -101,14 +106,14 @@ namespace a3d {
 										   const glm::mat4& projectionMat,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(LineSet& lines,
+		void 						render(const std::vector<Line>& lines,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat) override;
-		void 						render(PointSet& points,
-										   const glm::mat4& modelMat,
-										   const glm::mat4& viewMat,
-										   const glm::mat4& projectionMat) override;
+//		void 						render(PointSet& points,
+//										   const glm::mat4& modelMat,
+//										   const glm::mat4& viewMat,
+//										   const glm::mat4& projectionMat) override;
 
 		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 
@@ -120,15 +125,19 @@ namespace a3d {
 
 		MeshElementGLMapping 					_meshElementGLMapping;
 		TextureGLMapping						_textureGLMapping;
-		LineSetGLMapping						_lineSetGLMapping;
-		PointSetGLMapping						_pointSetGLMapping;
-
-		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
+//		LineSetGLMapping						_lineSetGLMapping;
+		LinesGLMapping							_linesGLMapping;
+//		PointSetGLMapping						_pointSetGLMapping;
+//
+//		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
 
 		std::unordered_set<MeshElement*>		_activeMeshElements;
 		std::unordered_set<Texture*>			_activeTextures;
-		std::unordered_set<LineSet*>			_activeLineSets;
-		std::unordered_set<PointSet*>			_activePointSets;
+
+		std::unordered_set<Line*>				_activeLines;
+
+//		std::unordered_set<LineSet*>			_activeLineSets;
+//		std::unordered_set<PointSet*>			_activePointSets;
 
 		unsigned								_glEnvironmentUBO;
 		

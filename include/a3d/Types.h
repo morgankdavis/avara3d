@@ -402,12 +402,12 @@ namespace a3d {
 	Internal
  **************************************************************************************/
 
-	class Line;
-	class Point;
-//	using LineSet = std::vector<a3d::Line>;
-//	using LineSet = std::unordered_set<a3d::Line>;
-	using LineSet = std::set<a3d::Line>;
-	using PointSet = std::set<a3d::Point>;
+//	class Line;
+//	class Point;
+////	using LineSet = std::vector<a3d::Line>;
+////	using LineSet = std::unordered_set<a3d::Line>;
+//	using LineSet = std::set<a3d::Line>;
+//	using PointSet = std::set<a3d::Point>;
 
 	enum class ShaderType {
 		Vertex,
@@ -430,6 +430,7 @@ namespace a3d {
 	enum class MeshDirtyMask : unsigned {
 		None =					0,
 		Extent =				1 << 0,
+		AABBLines	=			1 << 1,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
