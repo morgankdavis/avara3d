@@ -45,9 +45,9 @@ namespace a3d {
 //		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
 //		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
 
-	#define A3D_MASK_CONTAINS(mask, bit) (static_cast<unsigned>(mask & bit) != 0)
-	#define A3D_MASK_ADD(mask, bit) (mask | bit)
-	#define A3D_MASK_REMOVE(mask, bit) (mask & ~bit)
+	#define A3D_MASK_CONTAINS(mask, bits) (static_cast<unsigned>(mask & bits) != 0)
+	#define A3D_MASK_ADD(mask, bits) (mask | bits)
+	#define A3D_MASK_REMOVE(mask, bits) (mask & ~bits)
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553

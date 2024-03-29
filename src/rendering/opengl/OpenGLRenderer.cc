@@ -134,7 +134,7 @@ static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 											   OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		CleanupTextureResources(unordered_set<Texture*>& active,
 										   OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		CleanupLinesResources(unordered_set<Line*>& active,
+static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 										 OpenGLRenderer::LinesGLMapping& glMapping);
 static void 		DeleteMeshElementGLResources(MeshElement* element,
 												OpenGLRenderer::MeshElementGLMapping& glMapping);
@@ -476,9 +476,9 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 	// save reference for housekeeping
 
 	// TODO: this is slow
-	for (auto line : lines) {
-		_activeLines.insert(&line);
-	}
+//	for (auto line : lines) {
+		_activeLines.insert(&lines);
+//	}
 }
 
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
@@ -775,6 +775,7 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 static void BufferLinesVertexData(const vector<Line>& lines,
 								  Program& program,
 								  GLuint& glVBO, GLuint& glVAO) {
+	A3D_LOG_D("Buffering vertex data for {} lines...", lines.size());
 
 	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
 
@@ -1435,7 +1436,7 @@ static void CleanupTextureResources(unordered_set<Texture*> &active,
 #endif
 }
 	
-static void CleanupLinesResources(unordered_set<Line*>& active,
+static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 								  OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	

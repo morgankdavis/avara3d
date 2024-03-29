@@ -112,7 +112,8 @@ namespace a3d {
 
 		std::unordered_set<MeshElement*>		_activeMeshElements;
 		std::unordered_set<Texture*>			_activeTextures;
-		std::unordered_set<Line*>				_activeLines;
+//		std::unordered_set<Line*>				_activeLines;
+		std::unordered_set<const std::vector<Line>*>	_activeLines;
 
 		unsigned								_glEnvironmentUBO;
 		
