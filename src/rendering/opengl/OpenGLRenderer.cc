@@ -69,8 +69,6 @@ using namespace std;
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
-								const DebugOptions& debugOptions,
-								Stats& stats,
 								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
 								unordered_set<Texture*>& activeTextures);
@@ -101,16 +99,13 @@ static void 		BufferLinesVertexData(const vector<Line>& lines,
 										 Program& program,
 										 GLuint& glVBO, GLuint& glVAO);
 static void 		BufferTexture(const Texture &texture,
-								 MaterialPropertyType type,
 								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MaterialPropertyType, GLuint>& glTextureHandles,
-										const DebugOptions& debugOptions);
+										map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
-												const DebugOptions& debugOptions,
 												Program& program);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
 static void 		SetTextureSamplingOptions(Texture& texture,
@@ -134,7 +129,7 @@ static void 		DrawLines(const vector<Line>& lines,
 							 mat4 modelMat,
 							 mat4 viewMat,
 							 mat4 projectionMat,
-							 GLuint glVBO, GLuint glVAO);
+							 GLuint glVAO);
 static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 											   OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		CleanupTextureResources(unordered_set<Texture*>& active,
@@ -148,7 +143,7 @@ static void 		DeleteTextureGLResources(Texture* texture,
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
-static void 		DrawStatsOverlay(Stats& stats, double time, Scene& scene);
+static void 		DrawStatsOverlay(Stats& stats, const Scene& scene);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -311,10 +306,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		auto scene = context.visualWorld()->scene();
-		DrawStatsOverlay(stats,
-						 Scene::Time(),
-						 *scene);
+		DrawStatsOverlay(stats, scene);
 	}
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
@@ -347,19 +339,22 @@ void OpenGLRenderer::render(const Scene& scene,
 
 		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
-			auto skyboxMesh = scene.visualWorld()->skyboxMesh();
-			auto pointOfView = scene.visualWorld()->pointOfView();
+			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-			RenderSkybox(*skyboxMesh,
-						 *pointOfView.lock(), // can crash !
-						 debugOptions,
-						 stats,
-						 _meshElementGLMapping,
-						 _textureGLMapping,
-						 _activeTextures);
+				auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 
-			// save reference for housekeeping
-			_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+				RenderSkybox(*skyboxMesh,
+							 *pov,
+							 _meshElementGLMapping,
+							 _textureGLMapping,
+							 _activeTextures);
+
+				// save reference for housekeeping
+				_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+			}
+			else {
+				A3D_LOG_W("PointOfView has gone missing.");
+			}
 		}
 	}
 	else if (holds_alternative<shared_ptr<Color>>(background)) {
@@ -433,7 +428,7 @@ void OpenGLRenderer::render(MeshElement& element,
 	if (!wireframe) {
 
 		// send material and material property uniforms
-		SendMaterialUniforms(material, program, glTextureHandles, debugOptions);
+		SendMaterialUniforms(material, program, glTextureHandles);
 		
 		// update material property filtering options
 		SetMaterialFilteringOptions(material, glTextureHandles);
@@ -476,7 +471,7 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 	DrawLines(lines,
 			  program,
 			  modelMat, viewMat, projectionMat,
-			  vbo, vao);
+			  vao);
 	
 	// save reference for housekeeping
 
@@ -502,8 +497,6 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 static void RenderSkybox(Mesh& skyboxMesh,
 						 Node& pointOfView,
-						 const DebugOptions& debugOptions,
-						 Stats& stats,
 						 OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
 						 unordered_set<Texture*>& activeTextures) {
@@ -535,7 +528,6 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	SendMaterialPropertyUniforms(emissiveProperty,
 								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
-								 debugOptions,
 								 program);
 	
 	// update material property filtering options
@@ -665,7 +657,7 @@ static void GetTextureGLTextureHandles(Material& material,
 				DeleteTextureGLResources(texture, glMapping);
 
 				GLuint textureID = 0;
-				BufferTexture(*texture, type, textureID);
+				BufferTexture(*texture, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
 					glMapping[texture] = textureID;
@@ -711,7 +703,7 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 						  GL_FLOAT, 				// component type
 						  GL_FALSE, 				// normalize
 						  sizeof(Vertex), 			// stride
-						  0); 						// start offset
+						  nullptr); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
 	auto normalIndex = program.getAttributeLocation("vertex_normal");
@@ -735,7 +727,7 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 	glGenBuffers(1, &glIBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 faces.size() * sizeof(Face),
+				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
 				 GL_STATIC_DRAW);
 	
@@ -756,7 +748,7 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), &(verts[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)), &(verts[0]), GL_STATIC_DRAW);
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -767,13 +759,13 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 						  GL_FLOAT, // component type
 						  GL_FALSE, // normalize
 						  sizeof(Vertex), // stride
-						  0); // start offset
+						  nullptr); // start offset
 	glEnableVertexAttribArray(positionIndex);
 	
 	glGenBuffers(1, &glIBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 faces.size() * sizeof(Face),
+				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
 				 GL_STATIC_DRAW);
 	
@@ -814,7 +806,7 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
 						  sizeof(vec3)*2, 		// stride
-						  0); 					// start offset
+						  nullptr); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
 
 	auto colorIndex = program.getAttributeLocation("vertex_color");
@@ -828,7 +820,6 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 }
 
 static void BufferTexture(const Texture &texture,
-						  MaterialPropertyType type,
 						  GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
@@ -896,10 +887,10 @@ static void BufferTexture(const Texture &texture,
 		A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
 		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
-		unsigned bytesPerPixel = image->bytesPerPixel();
-		GLint glInternalFormat = GL_RGBA;
-		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+//		unsigned bytesPerPixel = image->bytesPerPixel();
+//		GLint glInternalFormat;
+//		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+//		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
 		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
@@ -926,8 +917,7 @@ static void BufferTexture(const Texture &texture,
 
 static void SendMaterialUniforms(const Material& material,
 								 Program& program,
-								 map<MaterialPropertyType, GLuint>& glTextureHandles,
-								 const DebugOptions& debugOptions) {
+								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
 
@@ -945,7 +935,6 @@ static void SendMaterialUniforms(const Material& material,
 			SendMaterialPropertyUniforms(*property,
 										 type,
 										 glTextureHandles[type],
-										 debugOptions,
 										 program);
 		}
 	}
@@ -956,7 +945,6 @@ static void SendMaterialUniforms(const Material& material,
 static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 										 MaterialPropertyType type,
 										 GLuint glTextureHandle,
-										 const DebugOptions& debugOptions,
 										 Program& program) {
 
 	program.use();
@@ -967,8 +955,8 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		if (dynamic_pointer_cast<Image>(texture->contents())) {
 
-			string modeUniformName = "";
-			string samplerUniformName = "";
+			string modeUniformName;
+			string samplerUniformName;
 			GLenum slot;
 			GLint index;
 
@@ -1340,7 +1328,7 @@ static void DrawSkyboxElement(MeshElement& element,
 	
 	// update
 
-	auto faces = element.faces();
+	auto& faces = element.faces();
 	
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -1353,7 +1341,7 @@ static void DrawLines(const vector<Line>& lines,
 					  mat4 modelMat,
 					  mat4 viewMat,
 					  mat4 projectionMat,
-					  GLuint glVBO, GLuint glVAO) {
+					  GLuint glVAO) {
 	
 	program.use();
 	
@@ -1579,7 +1567,7 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 	return sortedVector;
 }
 	
-void DrawStatsOverlay(Stats& stats, double time, Scene& scene) {
+void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 
 	using namespace ImGui;
 
