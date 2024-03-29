@@ -73,7 +73,6 @@ double Scene::Time() {
 Scene::Scene():
 		_name{},
 		_rootNode{make_shared<Node>("root node")},
-//		_rootNode(make_unique<Node>("root node")),
 		_visualWorld{},
 		_physicalWorld{},
 		_inputManager{},

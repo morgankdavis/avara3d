@@ -97,10 +97,6 @@ namespace a3d {
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat) override;
-//		void 						render(PointSet& points,
-//										   const glm::mat4& modelMat,
-//										   const glm::mat4& viewMat,
-//										   const glm::mat4& projectionMat) override;
 
 		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 

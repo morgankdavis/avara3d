@@ -54,8 +54,6 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		// TODO: make pure virtual
-
 		virtual bool 						initialize(const RenderContext& context) = 0;
 		
 		virtual void 						beginFrame(const Scene& scene,
@@ -87,10 +85,6 @@ namespace a3d {
 												   const glm::mat4& modelMat,
 												   const glm::mat4& viewMat,
 												   const glm::mat4& projectionMat) = 0;
-//		virtual void 						render(PointSet& points,
-//												   const glm::mat4& modelMat,
-//												   const glm::mat4& viewMat,
-//												   const glm::mat4& projectionMat);
 
 		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const = 0;
 	};

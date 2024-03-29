@@ -91,7 +91,8 @@ namespace a3d {
 		AABB									aabb(const Node* convertTo = nullptr) const;
 		glm::vec3 								extent(const Node* convertTo = nullptr) const;
 
-		const std::vector<Line>&				aabbLines(bool& dirty);
+		//const std::vector<Line>&				aabbLines(bool& dirty);
+		const std::vector<Line>&				aabbLines();
 
 		MeshDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(MeshDirtyMask mask);

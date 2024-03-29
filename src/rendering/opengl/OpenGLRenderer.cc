@@ -80,9 +80,9 @@ static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-static void 		GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-													 OpenGLRenderer::LinesGLMapping& linesGLMapping,
-													 GLuint& glVBO, GLuint& glVAO);
+//static void 		GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
+//													 OpenGLRenderer::LinesGLMapping& linesGLMapping,
+//													 GLuint& glVBO, GLuint& glVAO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
 											 Program& program,
 											 OpenGLRenderer::LinesGLMapping& glMapping,
@@ -343,7 +343,7 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	if (holds_alternative<shared_ptr<Texture>>(background)) {
 
-		auto texture = get<shared_ptr<Texture>>(background).get();
+		auto texture = get<shared_ptr<Texture>>(background);
 
 		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
 
@@ -360,14 +360,11 @@ void OpenGLRenderer::render(const Scene& scene,
 
 			// save reference for housekeeping
 			_activeMeshElements.emplace(skyboxMesh->elements().front().get());
-
 		}
-
-
 	}
 	else if (holds_alternative<shared_ptr<Color>>(background)) {
 
-		auto color = get<shared_ptr<Color>>(background).get();
+		auto color = get<shared_ptr<Color>>(background);
 
 		glClearColor(color->r, color->g, color->b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -387,17 +384,20 @@ void OpenGLRenderer::render(Mesh& mesh,
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
-		// will check dirty bit, and create an AABB lines if necessary,
+		// will check dirty bit, and create an AABB lines if necessary
 		
-		GLuint vbo, vao;
-		GetMeshAABBLinesVertexDataHandles(mesh,
-										  _linesGLMapping,
-										  vbo, vao);
+//		GLuint vbo, vao;
+//		GetMeshAABBLinesVertexDataHandles(mesh,
+//										  _linesGLMapping,
+//										  vbo, vao);
 
-		// TODO: MAKE BETTER
-		bool dummy;
-		render(mesh.aabbLines(dummy),
-			   modelMat, viewMat, projectionMat);
+//		bool dirty = false;
+//		auto& lines = mesh.aabbLines(dirty);
+//		if (dirty) {
+//			A3D_LOG_I("Mesh lines were dirty.");
+//		}
+
+		render(mesh.aabbLines(), modelMat, viewMat, projectionMat);
 	}
 }
 
@@ -541,7 +541,7 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	// update material property filtering options
 
 	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
-		auto texture = get<shared_ptr<Texture>>(emissiveProperty).get();
+		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
 		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
 	}
 	
@@ -608,24 +608,24 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 	}
 }
 
-static void GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-											  OpenGLRenderer::LinesGLMapping& linesGLMapping,
-											  GLuint& glVBO, GLuint& glVAO) {
-
-	auto program = Program::Lines();
-
-	bool dirty = false;
-	auto lines = mesh.aabbLines(dirty);
-
-	if (dirty) {
-		DeleteLinesGLResources(lines, linesGLMapping);
-	}
-
-	GetLinesVertexDataHandles(lines,
-							  program,
-							  linesGLMapping,
-							  glVBO, glVAO);
-}
+//static void GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
+//											  OpenGLRenderer::LinesGLMapping& linesGLMapping,
+//											  GLuint& glVBO, GLuint& glVAO) {
+//
+//	auto program = Program::Lines();
+//
+//	bool dirty = false;
+//	auto lines = mesh.aabbLines(dirty);
+//
+//	if (dirty) {
+//		DeleteLinesGLResources(lines, linesGLMapping);
+//	}
+//
+//	GetLinesVertexDataHandles(lines,
+//							  program,
+//							  linesGLMapping,
+//							  glVBO, glVAO);
+//}
 
 static void GetLinesVertexDataHandles(const vector<Line>& lines,
 									  Program& program,
@@ -783,8 +783,6 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 static void BufferLinesVertexData(const vector<Line>& lines,
 								  Program& program,
 								  GLuint& glVBO, GLuint& glVAO) {
-
-	A3D_LOG_T("");
 
 	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
 
@@ -965,7 +963,7 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 	if (holds_alternative<shared_ptr<Texture>>(property)) {
 
-		auto texture = get<shared_ptr<Texture>>(property).get();
+		auto texture = get<shared_ptr<Texture>>(property);
 
 		if (dynamic_pointer_cast<Image>(texture->contents())) {
 
@@ -1018,7 +1016,7 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	}
 	else if (holds_alternative<shared_ptr<Color>>(property)) {
 
-		auto color = get<shared_ptr<Color>>(property).get();
+		auto color = get<shared_ptr<Color>>(property);
 
 		string modeUniformName;
 		string colorUniformName;
@@ -1217,7 +1215,7 @@ static void SetMaterialFilteringOptions(const Material& material,
 	for (auto& [property, type] : material.properties()) {
 
 		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-			auto texture = get<shared_ptr<Texture>>(*property).get();
+			auto texture = get<shared_ptr<Texture>>(*property);
 			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
 		}
 	}
