@@ -23,9 +23,10 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 							  float length,
 							  int slices,
 							  int segments,
-							  shared_ptr<Material> material) {
+							  const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_unique<Spring>(minorRadius,
+	return make_shared<a3d::Mesh>("Spring",
+								  make_unique<Spring>(minorRadius,
 													  majorRadius,
 													  length,
 													  slices,

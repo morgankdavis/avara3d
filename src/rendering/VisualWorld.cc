@@ -212,6 +212,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
+// TODO: instead, make everything emissive
 void VisualWorld::checkAddDefaultLighting() {
 
 	if (_automaticallyAddDefaultLighting && _scene) {

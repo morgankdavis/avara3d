@@ -77,9 +77,6 @@ namespace a3d {
 		const std::shared_ptr<Node>&		rootNode() const;
 		void 								rootNode(const std::shared_ptr<Node>& node);
 
-//		Node* 								rootNode() const;
-//		void 								rootNode(std::unique_ptr<Node>& node);
-
 		VisualWorld* 						visualWorld() const;
 		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
@@ -113,7 +110,6 @@ namespace a3d {
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
-//		std::unique_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
 		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
 		std::unique_ptr<InputManager>		_inputManager;

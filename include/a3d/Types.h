@@ -105,7 +105,7 @@ namespace a3d {
 
 	enum class SceneImportOptions : unsigned {
 		None = 					0,
-		ImportMeshes =		1 << 0,
+		ImportMeshes =			1 << 0,
 		ImportMaterials =		1 << 1,
 		ImportLights =			1 << 2,
 		ImportCameras = 		1 << 3,
@@ -460,7 +460,6 @@ namespace a3d {
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
-
 }
 
 

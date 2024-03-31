@@ -38,7 +38,7 @@ Font::Font(const filesystem::path& path):
 		_buffer = make_unique<Buffer>(path);
 }
 
-Font::Font(unique_ptr<Buffer>& buffer):
+Font::Font(unique_ptr<Buffer> buffer):
 	_name{},
 	_type{FontType::Unknown},
 	_buffer{std::move(buffer)} {

@@ -32,7 +32,7 @@ namespace a3d {
 	public:
 
 		explicit Font(const std::filesystem::path& path);
-		explicit Font(std::unique_ptr<Buffer>& buffer);
+		explicit Font(std::unique_ptr<Buffer> buffer);
 		
 		~Font();
 		

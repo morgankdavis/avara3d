@@ -26,9 +26,10 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  int lengthSegments,
 								  int widthSegments,
 								  int heightSegments,
-								  shared_ptr<Material> material) {
+								  const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_unique<RoundedBox>(radius,
+	return make_shared<a3d::Mesh>("RoundedBox",
+								  make_unique<RoundedBox>(radius,
 														  length,
 														  width,
 														  height,
@@ -52,6 +53,7 @@ RoundedBox::RoundedBox(float radius,
 					   int widthSegments,
 					   int heightSegments):
 		MeshElement{},
+		_radius{radius},
 		_length{length},
 		_width{width},
 		_height{height},

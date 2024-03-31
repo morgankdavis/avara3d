@@ -62,8 +62,7 @@ namespace a3d {
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
-//		Color* 									fogColor() const;
-//		void 									fogColor(std::unique_ptr<Color> color);
+
 		std::shared_ptr<Color> 					fogColor() const;
 		void 									fogColor(const std::shared_ptr<Color> & color);
 

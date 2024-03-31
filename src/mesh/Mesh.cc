@@ -49,8 +49,14 @@ Mesh::Mesh():
 		_elements{},
 		_materials{},
 		_aabbLines{},
-		_dirtyMask{MeshDirtyMask::All} {
+		_dirtyMask{MeshDirtyMask::All} { }
 
+Mesh::Mesh(const std::string& name,
+		   std::unique_ptr<MeshElement> element,
+		   const std::shared_ptr<Material>& material):
+		Mesh{std::move(element), material} {
+
+	_name = name;
 }
 
 Mesh::Mesh(unique_ptr<MeshElement> element,
@@ -59,6 +65,14 @@ Mesh::Mesh(unique_ptr<MeshElement> element,
 
 	if (element) _elements.push_back(std::move(element));
 	if (material) _materials.push_back(material);
+}
+
+Mesh::Mesh(const std::string& name,
+		   vector<unique_ptr<MeshElement>>& elements,
+		   const vector<shared_ptr<Material>>& materials)
+		: Mesh{elements, materials} {
+
+	_name = name;
 }
 
 Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
@@ -71,8 +85,6 @@ Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
 					 std::make_move_iterator(elements.begin()),
 					 std::make_move_iterator(elements.end()));
 	_materials = materials;
-	//_elements.insert(_elements.begin(), elements.begin(), elements.end());
-	//_materials.insert(_materials.begin(), materials.begin(), materials.end());
 }
 
 Mesh::~Mesh() {

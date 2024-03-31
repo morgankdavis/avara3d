@@ -22,12 +22,12 @@ shared_ptr<Mesh> TorusKnot::Mesh(int p,
 								 int q,
 								 int slices,
 								 int segments,
-								 shared_ptr<Material> material) {
+								 const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_unique<TorusKnot>(p,
-														 q,
-														 slices,
-														 segments),
+	return make_shared<a3d::Mesh>("TorusKnot", make_unique<TorusKnot>(p,
+																	  q,
+																	  slices,
+																	  segments),
 								  material);
 }
 

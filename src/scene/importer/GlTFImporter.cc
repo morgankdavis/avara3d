@@ -270,8 +270,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 			if (material) materials.push_back(material);
 		}
 
-		auto a3dMesh = make_shared<a3d::Mesh>(elements, materials);
-		a3dMesh->name(string(mesh.name));
+		auto a3dMesh = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
 		_meshes[meshIndex] = a3dMesh;
 		return a3dMesh;
 	}

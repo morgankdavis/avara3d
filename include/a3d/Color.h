@@ -56,9 +56,9 @@ namespace a3d {
 		Color(float r, float g, float b, float a);
 		Color(int r, int g, int b);
 		Color(int r, int g, int b, int a);
-		Color(float white);
-		Color(uint32_t color);
-		Color(const std::string& hexString);
+		explicit Color(float white);
+		explicit Color(uint32_t color);
+		explicit Color(const std::string& hexString);
 
 /*********************************************************************************************
 	Public

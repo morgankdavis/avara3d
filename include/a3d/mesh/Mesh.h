@@ -48,9 +48,14 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		Mesh(); // TODO: make private?
+		Mesh(const std::string& name,
+			 std::unique_ptr<MeshElement> element,
+			 const std::shared_ptr<Material>& material);
 		Mesh(std::unique_ptr<MeshElement> element,
 			 const std::shared_ptr<Material>& material);
+		Mesh(const std::string& name,
+			 std::vector<std::unique_ptr<MeshElement>>& elements,
+			 const std::vector<std::shared_ptr<Material>>& materials);
 		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
@@ -111,6 +116,8 @@ namespace a3d {
  *********************************************************************************************/
 
 	private:
+
+		Mesh();
 
 		std::optional<std::string>				_name;
 

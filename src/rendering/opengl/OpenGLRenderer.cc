@@ -782,7 +782,7 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 	auto massagedBuffer = vector<vec3>();
 	massagedBuffer.reserve(lines.size()*4);
 
-	// TODO: how can we optimize this?
+	// TODO: stupid. change this.
 	for (auto& line : lines) {
 		auto fromLocation = line.fromLocation();
 		const auto& fromColor = line.fromColor();
@@ -1461,6 +1461,32 @@ static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 //						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
 //						unused.begin());
 //	unused.resize(it - unused.begin());
+//
+//	// deallocate unused LineSets
+//	if (unused.size()) {
+//		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+//
+//		for (it=unused.begin(); it!=unused.end(); ++it) {
+//			Line* lines = *it;
+//			DeleteLinesGLResources(lines, glMapping);
+//		}
+//	}
+
+
+
+//	auto all = vector<const vector<Line>*>();
+//	all.reserve(glMapping.size());
+//	for (auto [lines, glRes] : glMapping) {
+//		all.push_back(lines);
+//	}
+//
+//	// find unused LineSets
+//	auto unused = vector<vector<Line>*>();
+//	vector<vector<Line>*>::iterator it;
+//	it = set_difference(all.begin(), all.end(),
+//						active.begin(), active.end(),
+//						unused.begin());
+//
 //
 //	// deallocate unused LineSets
 //	if (unused.size()) {

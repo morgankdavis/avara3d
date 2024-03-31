@@ -26,9 +26,10 @@ shared_ptr<Mesh> Plane::Mesh(float width,
 							 float height,
 							 int widthSegements,
 							 int heightSegments,
-							 shared_ptr<Material> material) {
+							 const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_unique<Plane>(width,
+	return make_shared<a3d::Mesh>("Plane",
+								  make_unique<Plane>(width,
 													 height,
 													 widthSegements,
 													 heightSegments),
