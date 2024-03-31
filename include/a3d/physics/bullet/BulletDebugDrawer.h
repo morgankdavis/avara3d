@@ -170,8 +170,7 @@ namespace a3d {
 
 	private:
 
-		//std::unique_ptr<LineSet>	_lineSet;
-		std::vector<Line>			_lines;
+		std::unique_ptr<std::vector<Line>>		_lines;
 	};
 }
 

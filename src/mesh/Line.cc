@@ -26,11 +26,11 @@ Line::Line(const vec3& fromLocation,
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const shared_ptr<Color>& color):
-		Line{fromLocation, color, toLocation, color} { }
+		Line{fromLocation, toLocation, color, color} { }
 
 Line::Line(const vec3& fromLocation,
-		   const shared_ptr<Color>& fromColor,
 		   const vec3& toLocation,
+		   const shared_ptr<Color>& fromColor,
 		   const shared_ptr<Color>& toColor):
 		_fromLocation{fromLocation},
 		_toLocation{toLocation},
@@ -49,20 +49,20 @@ void Line::fromLocation(const vec3& point) {
 	_fromLocation = point;
 }
 
-const shared_ptr<Color>& Line::fromColor() const {
-	return _fromColor;
-}
-
-void Line::fromColor(const shared_ptr<Color>& color) {
-	_fromColor = color;
-}
-
 const vec3& Line::toLocation() const {
 	return _toLocation;
 }
 
 void Line::toLocation(const vec3& point) {
 	_toLocation = point;
+}
+
+const shared_ptr<Color>& Line::fromColor() const {
+	return _fromColor;
+}
+
+void Line::fromColor(const shared_ptr<Color>& color) {
+	_fromColor = color;
 }
 
 const shared_ptr<Color>& Line::toColor() const {

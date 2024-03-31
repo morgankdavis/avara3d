@@ -38,23 +38,19 @@ static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 BulletDebugDrawer::BulletDebugDrawer():
 	_debugMode{btIDebugDraw::DBG_NoDebug},
-	//_lineSet{make_unique<LineSet>()} {
-	_lines{} {
+	_lines{make_unique<std::vector<Line>>()} { }
 
-}
-
-BulletDebugDrawer::~BulletDebugDrawer() {
-
-}
+BulletDebugDrawer::~BulletDebugDrawer() { }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
 void BulletDebugDrawer::clear() {
-	// have to replace shared_ptr for Renderer to reload the data
+	// must use new shared_ptr for Renderer to reload the data
 	//_lineSet = make_unique<LineSet>();
-	_lines.clear();
+	//_lines.clear();
+	_lines = make_unique<std::vector<Line>>();
 }
 
 void BulletDebugDrawer::draw(Renderer& renderer,
@@ -64,8 +60,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		A3D_LOG_T("BulletDebugDrawer::update()");
 
-		//renderer.render(*_lineSet, mat4(1.0), viewMat, projectionMat);
-		renderer.render(_lines, mat4(1.0), viewMat, projectionMat);
+		renderer.render(*_lines, mat4(1.0), viewMat, projectionMat);
 	}
 }
 
@@ -93,6 +88,11 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 //					 make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0));
 //
 //	_lineSet->emplace(line);
+
+	_lines->push_back(Line(GLMVec3FromBTVector3(from),
+						   GLMVec3FromBTVector3(to),
+						   make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
+						   make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
 }
 
 /*
