@@ -27,6 +27,10 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
+void InitLog();
+
+
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			800;
 constexpr unsigned				WINDOW_HEIGHT =			600;
@@ -37,15 +41,12 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
+std::unique_ptr<a3d::Logger>	logger;
+
+
 int main(int argc, const char* argv[]) {
 
-	auto logger = make_shared<Logger>("test-006", Logger::MainLogger()->sinks());
-	LOG_I(logger, "");
-	auto fileSink = make_shared<FileLoggerSink>("log/rotating.log", 20, 1024 * 512);
-	auto rotatingLogger = make_shared<Logger>("rotating", static_pointer_cast<LoggerSink>(fileSink));
-	for (unsigned l=0; l < 50000; ++l) {
-		LOG_I(rotatingLogger, "line {}", l);
-	}
+	InitLog();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -254,4 +255,28 @@ void WillRenderCallback(VisualWorld& world, float time) {
 
 void DidRenderCallback(VisualWorld& world, float time) {
 
+}
+
+/***************************************************************************************
+	Static
+ ***************************************************************************************/
+
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
+
+	for (unsigned l=0; l < 50000; ++l) {
+		LOG_I(logger, "line {}", l);
+	}
 }

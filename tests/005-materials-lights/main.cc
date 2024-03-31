@@ -365,8 +365,6 @@ void InitLog() {
 	logger->level(LOG_LEVEL);
 
 	Logger::MainLogger().level(LOG_LEVEL);
-
-	LOG_I(logger, "");
 }
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {

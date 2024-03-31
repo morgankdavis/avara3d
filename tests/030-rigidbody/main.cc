@@ -709,8 +709,6 @@ void InitLog() {
 	logger->level(LOG_LEVEL);
 
 	Logger::MainLogger().level(LOG_LEVEL);
-
-	LOG_I(logger, "");
 }
 
 void SpawnDuckFruit(Scene& scene, Node& duckNode) {

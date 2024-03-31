@@ -30,6 +30,10 @@ void DidRenderCallback(VisualWorld& world, float time);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
 
+void InitLog();
+
+
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -58,10 +62,7 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
-	auto dt = utils::DateTimeString();
-	A3D_LOG_I("dt: {}", dt);
-
-	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
+	InitLog();
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
@@ -138,7 +139,7 @@ int main(int argc, const char* argv[]) {
 	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
 	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeTexture = make_shared<Texture>(gridImage);
+	auto planeTexture = make_shared<Texture>(std::move(gridImage));
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
 	planeTexture->sampler()->wrapT(WrapMode::Repeat);
 	planeTexture->sampler()->maxAnisotropy(16);
@@ -643,4 +644,24 @@ void DidRenderCallback(VisualWorld& world, float time) {
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	Static
+ ***************************************************************************************/
+
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
 }

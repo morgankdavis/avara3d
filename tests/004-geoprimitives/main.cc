@@ -27,6 +27,10 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
+void InitLog();
+
+
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -42,8 +46,7 @@ std::shared_ptr<a3d::Logger>		logger;
 
 int main(int argc, const char* argv[]) {
 
-	logger = make_shared<Logger>("test-004", Logger::MainLogger()->sinks());
-	LOG_I(logger, "");
+	InitLog();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -357,4 +360,24 @@ void WillRenderCallback(VisualWorld& world, float time) {
 
 void DidRenderCallback(VisualWorld& world, float time) {
 	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	Static
+ ***************************************************************************************/
+
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
 }
