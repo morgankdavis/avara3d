@@ -8,6 +8,8 @@
 
 #include "a3d/mesh/Mesh.h"
 
+#include <utility>
+
 #include "glm/gtx/transform.hpp"
 #include "magic_enum.hpp"
 

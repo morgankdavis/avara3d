@@ -9,6 +9,7 @@
 #include "a3d/scene/Node.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "fmt/format.h"
 #include "glm/gtx/matrix_decompose.hpp"

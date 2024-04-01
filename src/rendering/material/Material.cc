@@ -8,6 +8,8 @@
 
 #include "a3d/rendering/material/Material.h"
 
+#include <utility>
+
 #include "a3d/Color.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"

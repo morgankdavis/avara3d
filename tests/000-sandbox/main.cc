@@ -6,8 +6,8 @@
 //  Copyright © 2023 Morgan K Davis. All rights reserved.
 //
 
-#include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "glm/glm.hpp"

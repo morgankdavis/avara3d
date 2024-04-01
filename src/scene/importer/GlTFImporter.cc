@@ -6,6 +6,7 @@
 
 
 #include <filesystem>
+#include <utility>
 #include <variant>
 
 #include "fastgltf/parser.hpp"

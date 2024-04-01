@@ -4,6 +4,7 @@
 
 #include "a3d/rendering/VisualWorld.h"
 
+#include <utility>
 #include <variant>
 
 #include "glm/glm.hpp"

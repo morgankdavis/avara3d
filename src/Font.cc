@@ -8,6 +8,8 @@
 
 #include "a3d/Font.h"
 
+#include <utility>
+
 #include "a3d/Buffer.h"
 #include "a3d/diagnostic/logging/Logger.h"
 

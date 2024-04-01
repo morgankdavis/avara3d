@@ -12,6 +12,7 @@
 #define _USE_MATH_DEFINES // needed for Windows
 #include <math.h>
 #include <memory>
+#include <utility>
 
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"

@@ -8,6 +8,7 @@
 
 #include "a3d/CubeImage.h"
 
+#include <utility>
 
 #include "a3d/Image.h"
 
