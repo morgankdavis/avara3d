@@ -41,7 +41,7 @@ constexpr bool					CAPTURE_CURSOR =		true;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<a3d::Logger>		logger;
+std::unique_ptr<a3d::Logger>		logger;
 
 
 int main(int argc, const char* argv[]) {

@@ -106,18 +106,17 @@ namespace a3d {
 
 	private:
 
-		MeshElementGLMapping 					_meshElementGLMapping;
-		TextureGLMapping						_textureGLMapping;
-		LinesGLMapping							_linesGLMapping;
+		MeshElementGLMapping 							_meshElementGLMapping;
+		TextureGLMapping								_textureGLMapping;
+		LinesGLMapping									_linesGLMapping;
 
-		std::unordered_set<MeshElement*>		_activeMeshElements;
-		std::unordered_set<Texture*>			_activeTextures;
-//		std::unordered_set<Line*>				_activeLines;
+		std::unordered_set<MeshElement*>				_activeMeshElements;
+		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
 
-		unsigned								_glEnvironmentUBO;
+		unsigned										_glEnvironmentUBO;
 		
-		std::shared_ptr<Font>					_overlayFont;
+		std::unique_ptr<Font>							_overlayFont;
 	};
 }
 

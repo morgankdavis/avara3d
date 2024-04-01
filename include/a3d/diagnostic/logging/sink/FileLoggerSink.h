@@ -21,7 +21,7 @@ namespace a3d {
 	class FileLoggerSink : public LoggerSink {
 
 
-		static constexpr int DEFAULT_MAX_FILES = 3;
+		static constexpr int DEFAULT_MAX_FILES = 5;
 		static constexpr int DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
 

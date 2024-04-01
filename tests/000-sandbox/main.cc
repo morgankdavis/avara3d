@@ -46,7 +46,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>	logger;
+std::unique_ptr<a3d::Logger>	logger;
 
 
 // https://stackoverflow.com/questions/66068134/segmentation-fault-when-using-a-shared-ptr-for-private-key

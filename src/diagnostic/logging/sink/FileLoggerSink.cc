@@ -5,6 +5,9 @@
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 
 
+#include "fmt/format.h"
+
+
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
@@ -34,7 +37,9 @@ FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 	// errc::success or anything evaluating to 0 does not exist, apparently.
 	auto code = errorCode.value();
 	if (code != 0) {
-		throw Exception("Couldn't create intermediate directories for log: " + _filepath.string() + " [code " + to_string(code) + "]");
+		// TODO: esception sublass
+		throw Exception(fmt::format("Error creating intermediate directories for log: '{}', code: {}.",
+									_filepath.string(), to_string(code)));
 	}
 
 	openStream();
@@ -99,7 +104,7 @@ void FileLoggerSink::openStream() {
 void FileLoggerSink::checkRotate() {
 
 	if (filesystem::exists(_filepath)) {
-		if (filesystem::file_size(_filepath) > _maxFilesize) {
+		if (filesystem::file_size(_filepath) >= _maxFilesize) {
 			rotate();
 		}
 	}
@@ -117,7 +122,7 @@ void FileLoggerSink::rotate() {
 
 	existing.push_back(_filepath);
 
-	unsigned i = 0;
+	int i = 0;
 	while (true) {
 
 		auto path = _filepath.parent_path() / filesystem::path(stem.string() + to_string(i) + extension.string());
@@ -133,19 +138,23 @@ void FileLoggerSink::rotate() {
 
 	// go through from the end and move each file down an index
 
-	unsigned index = existing.size();
+	auto index = existing.size();
 
-	for (vector<filesystem::path>::reverse_iterator i = existing.rbegin(); i != existing.rend(); ++i ) {
-		auto path = *i;
+	for (auto e = existing.rbegin(); e != existing.rend(); ++e ) {
+		auto path = *e;
 
-		if (index > _maxFiles) {
+		if (index >= _maxFiles) {
+
+			A3D_LOG_I("Removing log file '{}...'", path.string());
 
 			error_code errorCode;
 			filesystem::remove(path, errorCode);
-			// still bugs me. see note above about std:errc
+
 			auto code = errorCode.value();
 			if (code != 0) {
-				throw Exception("Cannot remove log file: " + path.string() + " [code " + to_string(code) + "]");
+				// TODO: exception subclass
+				throw Exception(fmt::format("Error removing log file: '', code: {}.",
+											path.string(), to_string(code)));
 			}
 		}
 		else {

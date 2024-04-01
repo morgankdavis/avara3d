@@ -173,6 +173,12 @@ void Mesh::draw(Renderer& renderer,
 				const DebugOptions& debugOptions,
 				Stats& stats) {
 
+	// forces Renderer to re-create AABB linesets next time they're turned on.
+	// this seems like hacky way to do it.
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//		_dirtyMask = A3D_MASK_ADD(_dirtyMask, MeshDirtyMask::Extent);
+//	}
+
 	renderer.render(*this,
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);

@@ -1435,7 +1435,8 @@ static void CleanupTextureResources(unordered_set<Texture*> &active,
 	
 #endif
 }
-	
+
+// this has to be the slowest way on earth to do this.
 static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 								  OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
@@ -1472,31 +1473,39 @@ static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 //		}
 //	}
 
+	// gather sorted vector of Lines used this frame
+	auto activeSorted = vector<const vector<Line>*>();
+	activeSorted.reserve(glMapping.size());
+	copy(active.begin(), active.end(), back_inserter(activeSorted));
+	sort(activeSorted.begin(), activeSorted.end());
 
+	// gather sorted vector of Lines in the mapping
+	auto allSorted = vector<const vector<Line>*>();
+	allSorted.reserve(glMapping.size());
+	for (auto [lines, glRes] : glMapping) {
+		allSorted.push_back(lines);
+	}
+	sort(allSorted.begin(), allSorted.end());
 
-//	auto all = vector<const vector<Line>*>();
-//	all.reserve(glMapping.size());
-//	for (auto [lines, glRes] : glMapping) {
-//		all.push_back(lines);
-//	}
-//
-//	// find unused LineSets
-//	auto unused = vector<vector<Line>*>();
-//	vector<vector<Line>*>::iterator it;
-//	it = set_difference(all.begin(), all.end(),
-//						active.begin(), active.end(),
-//						unused.begin());
-//
-//
-//	// deallocate unused LineSets
-//	if (unused.size()) {
-//		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-//
-//		for (it=unused.begin(); it!=unused.end(); ++it) {
-//			Line* lines = *it;
-//			DeleteLinesGLResources(lines, glMapping);
-//		}
-//	}
+	//A3D_LOG_D("allSorted: {}", allSorted.size());
+	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
+
+	auto unused = vector<const vector<Line>*>();
+	vector<const vector<Line>*>::iterator it;
+	it = set_difference(allSorted.begin(), allSorted.end(),
+						activeSorted.begin(), activeSorted.end(),
+						unused.begin());
+	unused.resize(it - unused.begin());
+
+	//A3D_LOG_D("unused: {}", unused.size());
+
+	if (unused.size()) {
+		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+
+		for (auto lines : unused) {
+			DeleteLinesGLResources(*lines, glMapping);
+		}
+	}
 	
 #endif
 }
