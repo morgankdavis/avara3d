@@ -55,10 +55,10 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 
 // construct a compound shape based on meshes under this node
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
-		_source(node),
-		_bodies({}),
-		_type(type),
-		_proxy(nullptr)
+		_source{node},
+		_bodies{},
+		_type{type},
+		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 //	if (auto sNode = node.lock()) {
@@ -78,9 +78,9 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
 }
 
 PhysicsShape::PhysicsShape():
-		_source(monostate{}),
-		_bodies({}),
-		_proxy(nullptr)
+		_source{},
+		_bodies{},
+		_proxy{}
 		// _type ?
 		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
 

@@ -67,7 +67,7 @@ PhysicsBody::PhysicsBody(PhysicsBodyType type):
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& shape):
-		PhysicsBody(type) {
+		PhysicsBody{type} {
 
 	this->shape(shape);
 }
@@ -371,7 +371,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld& world) {
 		_proxy->worldTransform(node->worldTransform());
 	}
 	else {
-		A3D_LOG_E("_node is null.");
+		A3D_LOG_E("_node is gone.");
 	}
 }
 
@@ -410,7 +410,7 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 		}
 	}
 	else {
-		A3D_LOG_E("_node is null.");
+		A3D_LOG_E("_node is gone.");
 	}
 	return nullptr;
 }
