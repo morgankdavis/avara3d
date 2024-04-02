@@ -49,8 +49,8 @@ BulletDebugDrawer::~BulletDebugDrawer() { }
 void BulletDebugDrawer::clear() {
 	// must use new shared_ptr for Renderer to reload the data
 	//_lineSet = make_unique<LineSet>();
-	//_lines.clear();
-	_lines = make_unique<std::vector<Line>>();
+	_lines->clear();
+//	_lines = make_unique<std::vector<Line>>();
 }
 
 void BulletDebugDrawer::draw(Renderer& renderer,
@@ -58,7 +58,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& projectionMat) {
 	
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		A3D_LOG_T("BulletDebugDrawer::update()");
+		A3D_LOG_T("");
 
 		renderer.render(*_lines, mat4(1.0), viewMat, projectionMat);
 	}
@@ -135,51 +135,59 @@ void BulletDebugDrawer::draw3dText(const btVector3& location,
 //}
 
 void BulletDebugDrawer::drawTransform(const btTransform &transform,
-									   btScalar orthoLen) {
+									  btScalar orthoLen) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawArc(const btVector3& center,
-								 const btVector3& normal,
-								 const btVector3& axis,
-								 btScalar radiusA,
-								 btScalar radiusB,
-								 btScalar minAngle,
-								 btScalar maxAngle,
-								 const btVector3& color,
-								 bool drawSect,
-								 btScalar stepDegrees) {
+								const btVector3& normal,
+								const btVector3& axis,
+								btScalar radiusA,
+								btScalar radiusB,
+								btScalar minAngle,
+								btScalar maxAngle,
+								const btVector3& color,
+								bool drawSect,
+								btScalar stepDegrees) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
-										 const btVector3& up,
-										 const btVector3& axis,
-										 btScalar radius,
-										 btScalar minTh,
-										 btScalar maxTh,
-										 btScalar minPs,
-										 btScalar maxPs,
-										 const btVector3& color,
-										 btScalar stepDegrees,
-										 bool drawCenter) {
+										const btVector3& up,
+										const btVector3& axis,
+										btScalar radius,
+										btScalar minTh,
+										btScalar maxTh,
+										btScalar minPs,
+										btScalar maxPs,
+										const btVector3& color,
+										btScalar stepDegrees,
+										bool drawCenter) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
-								 const btVector3& bbMax,
-								 const btVector3& color) {
+								const btVector3& bbMax,
+								const btVector3& color) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
-								 const btVector3& bbMax,
-								 const btTransform& trans,
-								 const btVector3& color) {
+								const btVector3& bbMax,
+								const btTransform& trans,
+								const btVector3& color) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawCapsule(btScalar radius,
+									btScalar halfHeight,
+									int upAxis,
+									const btTransform& transform,
+									const btVector3& color) {
+	A3D_LOG_W("(Not implemented)");
+}
+
+void BulletDebugDrawer::drawCylinder(btScalar radius,
 									 btScalar halfHeight,
 									 int upAxis,
 									 const btTransform& transform,
@@ -187,26 +195,18 @@ void BulletDebugDrawer::drawCapsule(btScalar radius,
 	A3D_LOG_W("(Not implemented)");
 }
 
-void BulletDebugDrawer::drawCylinder(btScalar radius,
-									  btScalar halfHeight,
-									  int upAxis,
-									  const btTransform& transform,
-									  const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
-}
-
 void BulletDebugDrawer::drawCone(btScalar radius,
-								  btScalar height,
-								  int upAxis,
-								  const btTransform& transform,
-								  const btVector3& color) {
+								 btScalar height,
+								 int upAxis,
+								 const btTransform& transform,
+								 const btVector3& color) {
 	A3D_LOG_W("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
-								   btScalar planeConst,
-								   const btTransform& transform,
-								   const btVector3& color) {
+								  btScalar planeConst,
+								  const btTransform& transform,
+								  const btVector3& color) {
 	A3D_LOG_W("(Not implemented)");
 }
 

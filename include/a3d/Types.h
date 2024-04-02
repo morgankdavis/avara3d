@@ -422,8 +422,7 @@ namespace a3d {
 
 	enum class MeshDirtyMask : unsigned {
 		None =					0,
-		Extent =				1 << 0,
-		AABBLines	=			1 << 1,
+		AABBLines	=			1 << 0,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)

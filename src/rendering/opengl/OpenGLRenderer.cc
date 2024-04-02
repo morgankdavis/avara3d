@@ -776,7 +776,7 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 static void BufferLinesVertexData(const vector<Line>& lines,
 								  Program& program,
 								  GLuint& glVBO, GLuint& glVAO) {
-	A3D_LOG_D("Buffering vertex data for {} lines...", lines.size());
+	//A3D_LOG_D("Buffering vertex data for {} lines...", lines.size());
 
 	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
 
@@ -1474,40 +1474,78 @@ static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 //		}
 //	}
 
-	// gather sorted vector of Lines used this frame
-	auto activeSorted = vector<const vector<Line>*>();
-	activeSorted.reserve(glMapping.size());
-	copy(active.begin(), active.end(), back_inserter(activeSorted));
-	sort(activeSorted.begin(), activeSorted.end());
 
-	// gather sorted vector of Lines in the mapping
-	auto allSorted = vector<const vector<Line>*>();
-	allSorted.reserve(glMapping.size());
-	for (auto [lines, glRes] : glMapping) {
-		allSorted.push_back(lines);
+
+//	// gather sorted vector of Lines used this frame
+//	auto activeSorted = vector<const vector<Line>*>();
+//	activeSorted.reserve(glMapping.size());
+//	copy(active.begin(), active.end(), back_inserter(activeSorted));
+//	sort(activeSorted.begin(), activeSorted.end());
+//
+//
+//
+//	bool activeGZero = false;
+//	static bool wasActiveGZero = false;
+//	if (active.size() > 0) {
+//		activeGZero = true;
+//	}
+//	else {
+//		activeGZero = false;
+//	}
+//	if (!activeGZero && wasActiveGZero) {
+//		A3D_LOG_I("Newly inactive.");
+//	}
+//	else if (activeGZero && !wasActiveGZero) {
+//		A3D_LOG_I("Newly active.");
+//	}
+//	wasActiveGZero = activeGZero;
+//
+//
+//
+//	// gather sorted vector of Lines in the mapping
+//	auto allSorted = vector<const vector<Line>*>();
+//	allSorted.reserve(glMapping.size());
+//	for (auto [lines, glRes] : glMapping) {
+//		allSorted.push_back(lines);
+//	}
+//	sort(allSorted.begin(), allSorted.end());
+//
+//	//A3D_LOG_D("allSorted: {}", allSorted.size());
+//	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
+//
+//	auto unused = vector<const vector<Line>*>();
+//	vector<const vector<Line>*>::iterator it;
+//
+//	auto allB = allSorted.begin();
+//	auto allE = allSorted.end();
+//	auto activeB = activeSorted.begin();
+//	auto activeE = activeSorted.end();
+//	auto unusedB = unused.begin();
+//
+////	it = set_difference(allSorted.begin(), allSorted.end(),
+////						activeSorted.begin(), activeSorted.end(),
+////						unused.begin());
+////	//unused.resize(it - unused.begin());
+////
+////	//A3D_LOG_D("unused: {}", unused.size());
+////
+////	if (unused.size()) {
+////		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+////
+////		for (auto lines : unused) {
+////			DeleteLinesGLResources(*lines, glMapping);
+////		}
+////	}
+//
+
+
+
+	for (auto lines : active) {
+		DeleteLinesGLResources(*lines, glMapping);
 	}
-	sort(allSorted.begin(), allSorted.end());
 
-	//A3D_LOG_D("allSorted: {}", allSorted.size());
-	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
+	active.clear();
 
-	auto unused = vector<const vector<Line>*>();
-	vector<const vector<Line>*>::iterator it;
-	it = set_difference(allSorted.begin(), allSorted.end(),
-						activeSorted.begin(), activeSorted.end(),
-						unused.begin());
-	unused.resize(it - unused.begin());
-
-	//A3D_LOG_D("unused: {}", unused.size());
-
-	if (unused.size()) {
-		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-
-		for (auto lines : unused) {
-			DeleteLinesGLResources(*lines, glMapping);
-		}
-	}
-	
 #endif
 }
 
@@ -1563,9 +1601,9 @@ static void DeleteLinesGLResources(const vector<Line>& lines,
 									 OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
-	if (glMapping.count(&lines)) {
+//	if (glMapping.count(&lines)) {
 
-		A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
+		//A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
 
 		auto glHandles = glMapping[&lines];
 
@@ -1576,7 +1614,7 @@ static void DeleteLinesGLResources(const vector<Line>& lines,
 		glDeleteVertexArrays(1, &vao);
 
 		glMapping.erase(&lines);
-	}
+//	}
 	
 #endif
 }
