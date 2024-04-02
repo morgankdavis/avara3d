@@ -60,12 +60,10 @@ BTShapeFromSourceNode(Node* node,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static shared_ptr<btCollisionShape>
-BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PhysicsBodyType bodyType);
+BTShapeFromPrimitiveShape(PhysicsShape& shape);
 
 static shared_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement* element,
-					   Mesh* mesh,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -156,7 +154,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 	// primitive subclass
 	else if (holds_alternative<monostate>(sourceObject)) {
 
-		newShape = BTShapeFromPrimitiveShape(shape, bodyType);
+		newShape = BTShapeFromPrimitiveShape(shape);
 	}
 
 	if (newShape) {
@@ -217,7 +215,6 @@ BTShapeFromSourceMesh(Mesh* mesh,
 
 		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
 		newShape = BTShapeFromMeshElement(mesh->elements().front().get(),
-										  mesh,
 										  shapeType,
 										  bodyType,
 										  btShapes,
@@ -284,8 +281,7 @@ BTShapeFromSourceNode(Node* node,
 }
 
 static shared_ptr<btCollisionShape>
-BTShapeFromPrimitiveShape(PhysicsShape& shape,
-						  PhysicsBodyType bodyType) {
+BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 
 	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
 		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
@@ -302,7 +298,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 	}
 	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
-													  (btScalar)cylinderShape->height()/2.0,
+													  (btScalar)round(cylinderShape->height()/2.0),
 													  (btScalar)cylinderShape->radius()));
 	}
 	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
@@ -323,7 +319,6 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape,
 
 shared_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement* element,
-					   Mesh* mesh,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -369,7 +364,7 @@ BTShapeFromMeshElement(MeshElement* element,
 				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
 
 		return make_shared<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)cylinder->height()/2.0,
+													  (btScalar)round(cylinder->height()/2.0),
 													  (btScalar)cylinder->radius()));
 	}
 	else if (auto plane = dynamic_cast<Plane*>(element)) {
@@ -419,7 +414,6 @@ BTShapeFromMesh(Mesh* mesh,
 
 		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
 		auto childShape = BTShapeFromMeshElement(element.get(),
-												 mesh,
 												 shapeType,
 												 bodyType,
 												 btShapes,

@@ -82,6 +82,8 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 
 	_lines->push_back(Line(GLMVec3FromBTVector3(from),
 						   GLMVec3FromBTVector3(to),
+//							Color{1.0, 0.0, 0.0, 1.0f},
+//							Color{1.0, 0.0, 0.0, 1.0f}));
 						   make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
 						   make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
 }
