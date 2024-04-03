@@ -29,9 +29,9 @@ using namespace VHACD;
 //
 //}
 
-ConvexDecomposer::ConvexDecomposer(MeshElement* element,
+ConvexDecomposer::ConvexDecomposer(MeshElement& element,
 								   Options& options):
-		_sourceElement{element},
+		_sourceElement{&element},
 		_options{options} {
 		//_vhacd(CreateVHACD()) {
 }

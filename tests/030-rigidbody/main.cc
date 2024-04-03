@@ -1154,7 +1154,7 @@ void SpawnHACDTeapot(Scene& scene) {
 	auto decomposedElements = vector<unique_ptr<MeshElement>>();
 
 	for (auto& element : teapotNode->mesh()->elements()) {
-		auto decomposer = ConvexDecomposer(element.get(), options);
+		auto decomposer = ConvexDecomposer(*element, options);
 		auto elements = decomposer.decompose();
 
 //		decomposedElements.insert(decomposedElements.begin(),

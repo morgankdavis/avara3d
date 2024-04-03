@@ -47,14 +47,14 @@ using namespace std;
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceMesh(Mesh* mesh,
+BTShapeFromSourceMesh(Mesh& mesh,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(Node* node,
+BTShapeFromSourceNode(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -64,43 +64,43 @@ static shared_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape);
 
 static unique_ptr<btCollisionShape>
-BTShapeFromMeshElement(MeshElement* element,
+BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
 					   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
 
 static shared_ptr<btCompoundShape>
-BTShapeFromMesh(Mesh* mesh,
+BTShapeFromMesh(Mesh& mesh,
 				PhysicsShapeType shapeType,
 				PhysicsBodyType bodyType,
 				vector<shared_ptr<btCollisionShape>>& btShapes,
 				vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static void
-AddBTShapeFromNodeRec(Node* node,
+AddBTShapeFromNodeRec(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  shared_ptr<btCompoundShape> compoundShape,
+					  btCompoundShape& compoundShape,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static unique_ptr<btConvexHullShape>
-BTConvexHullShapeFromMeshElement(MeshElement* element);
+BTConvexHullShapeFromMeshElement(MeshElement& element);
 
 static unique_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromMeshElement(MeshElement* element,
+BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
 static unique_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
+BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
 static unique_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement* element,
+BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
 											 vector<shared_ptr<btCollisionShape>>& btShapes);
 
 static vector<unique_ptr<MeshElement>>
-HACDMeshElementsFromMeshElement(MeshElement* element);
+HACDMeshElementsFromMeshElement(MeshElement& element);
 
 /*********************************************************************************************
 	Lifecycle
@@ -126,7 +126,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 	if (holds_alternative<weak_ptr<Mesh>>(sourceObject)) {
 		auto sourceMesh = get<weak_ptr<Mesh>>(sourceObject);
 		if (auto sSourceMesh = sourceMesh.lock()) {
-			newShape = BTShapeFromSourceMesh(sSourceMesh.get(),
+			newShape = BTShapeFromSourceMesh(*sSourceMesh,
 											 shape.type(),
 											 bodyType,
 											 btShapes,
@@ -141,7 +141,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 	else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
 		auto sourceNode = get<weak_ptr<Node>>(sourceObject);
 		if (auto sSourceNode = sourceNode.lock()) {
-			newShape = BTShapeFromSourceNode(sSourceNode.get(),
+			newShape = BTShapeFromSourceNode(*sSourceNode,
 											 shape.type(),
 											 bodyType,
 											 btShapes,
@@ -186,24 +186,12 @@ vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	return _btShapes;
 }
 
-//void BulletShapeProxy::btShapes(vector<shared_ptr<btCollisionShape>> shapes) {
-//	_btShapes = shapes;
-//}
-//
-//vector <shared_ptr<btTriangleIndexVertexArray>>& BulletShapeProxy::btIndexVertexArrays() {
-//	return _btIndexVertexArrays;
-//}
-//
-//void BulletShapeProxy::btIndexVertexArrays(vector<shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays) {
-//	_btIndexVertexArrays = indexVertexArrays;
-//}
-
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceMesh(Mesh* mesh,
+BTShapeFromSourceMesh(Mesh& mesh,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -211,11 +199,11 @@ BTShapeFromSourceMesh(Mesh* mesh,
 
 	shared_ptr<btCollisionShape> newShape = nullptr;
 
-	if (mesh->elements().size() == 1) {
+	if (mesh.elements().size() == 1) {
 		// make a single shape
 
 		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		newShape = BTShapeFromMeshElement(mesh->elements().front().get(),
+		newShape = BTShapeFromMeshElement(*(mesh.elements().front()),
 										  shapeType,
 										  bodyType,
 										  btShapes,
@@ -223,7 +211,7 @@ BTShapeFromSourceMesh(Mesh* mesh,
 		btShapes.push_back(newShape);
 		btIndexVertexArrays.push_back(indexVertexArray);
 	}
-	else if (mesh->elements().size() > 1) {
+	else if (mesh.elements().size() > 1) {
 		// make compound shape, loop BTShapeFromMeshElement()
 
 		newShape = BTShapeFromMesh(mesh,
@@ -234,14 +222,14 @@ BTShapeFromSourceMesh(Mesh* mesh,
 	}
 	else {
 		A3D_LOG_E("Can't create physic shape for Mesh {:p}: has no elements.",
-				 static_cast<void*>(mesh));
+				 static_cast<void*>(&mesh));
 	}
 
 	return newShape;
 }
 
 static shared_ptr<btCollisionShape>
-BTShapeFromSourceNode(Node* node,
+BTShapeFromSourceNode(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -255,10 +243,10 @@ BTShapeFromSourceNode(Node* node,
 	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
 
 	// add the root mesh
-	auto mesh = node->mesh().get();
+	auto mesh = node.mesh();
 	if (mesh) {
 
-		auto nodeGeoShape = BTShapeFromMesh(mesh,
+		auto nodeGeoShape = BTShapeFromMesh(*mesh,
 											shapeType,
 											bodyType,
 											btShapes,
@@ -269,11 +257,11 @@ BTShapeFromSourceNode(Node* node,
 	}
 
 	// add child geometries recursively
-	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode.get(),
+	for (auto& childNode : node.children(false)) {
+		AddBTShapeFromNodeRec(*childNode,
 							  shapeType,
 							  bodyType,
-							  rootShape,
+							  *rootShape,
 							  btShapes,
 							  btIndexVertexArrays);
 	}
@@ -319,7 +307,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 }
 
 unique_ptr<btCollisionShape>
-BTShapeFromMeshElement(MeshElement* element,
+BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -327,57 +315,57 @@ BTShapeFromMeshElement(MeshElement* element,
 
 	if (shapeType == PhysicsShapeType::BoundingBox) {
 		A3D_LOG_I("Creating box physics shape for MeshElement {:p}...",
-				 static_cast<void*>(element));
+				 static_cast<void*>(&element));
 
-		auto extent = element->extent();
+		auto extent = element.extent();
 		return make_unique<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
 												 (btScalar)extent.y/2.0f,
 												 (btScalar)extent.z/2.0f));
 	}
-	else if (auto box = dynamic_cast<Box*>(element)) {
+	else if (auto box = dynamic_cast<Box*>(&element)) {
 		A3D_LOG_I("Creating box physics shape for MeshElement {:p}... "
 				 "(ignoring physics shape type '{}')",
-				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
 												 (btScalar)box->width()/2.0f,
 												 (btScalar)box->height()/2.0f));
 	}
-	else if (auto capsule = dynamic_cast<Capsule*>(element)) {
+	else if (auto capsule = dynamic_cast<Capsule*>(&element)) {
 		A3D_LOG_I("Creating capsule physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btCapsuleShape>((btScalar)capsule->radius(),
 										   (btScalar)capsule->height());
 	}
-	else if (auto cone  = dynamic_cast<Cone*>(element)) {
+	else if (auto cone  = dynamic_cast<Cone*>(&element)) {
 		A3D_LOG_I("Creating cone physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btConeShape>((btScalar)cone->radius(),
 										(btScalar)cone->height());
 	}
-	else if (auto cylinder = dynamic_cast<Cylinder*>(element)) {
+	else if (auto cylinder = dynamic_cast<Cylinder*>(&element)) {
 		A3D_LOG_I("Creating cylinder physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
 													  (btScalar)round(cylinder->height()/2.0),
 													  (btScalar)cylinder->radius()));
 	}
-	else if (auto plane = dynamic_cast<Plane*>(element)) {
+	else if (auto plane = dynamic_cast<Plane*>(&element)) {
 		// a3d::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
 		return make_unique<btBoxShape>(btVector3((btScalar)plane->width()/2.0f,
 												 (btScalar)plane->height()/2.0f,
 												 (btScalar)0));
 	}
-	else if (auto sphere = dynamic_cast<Sphere*>(element)) {
+	else if (auto sphere = dynamic_cast<Sphere*>(&element)) {
 		A3D_LOG_I("Creating sphere physics shape for MeshElement {:p}... " \
 		"(ignoring physics shape type '{}')",
-				 static_cast<void*>(element), magic_enum::enum_name(shapeType));
+				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btSphereShape>((btScalar)sphere->radius());
 	}
@@ -403,7 +391,7 @@ BTShapeFromMeshElement(MeshElement* element,
 }
 
 shared_ptr<btCompoundShape>
-BTShapeFromMesh(Mesh* mesh,
+BTShapeFromMesh(Mesh& mesh,
 				PhysicsShapeType shapeType,
 				PhysicsBodyType bodyType,
 				vector<shared_ptr<btCollisionShape>>& btShapes,
@@ -411,10 +399,10 @@ BTShapeFromMesh(Mesh* mesh,
 
 	auto newShape = make_shared<btCompoundShape>(true); // added to btShapes bt caller
 
-	for (auto& element : mesh->elements()) {
+	for (auto& element : mesh.elements()) {
 
 		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		auto childShape = shared_ptr(std::move(BTShapeFromMeshElement(element.get(),
+		auto childShape = shared_ptr(std::move(BTShapeFromMeshElement(*element,
 																	  shapeType,
 																	  bodyType,
 																	  btShapes,
@@ -431,22 +419,22 @@ BTShapeFromMesh(Mesh* mesh,
 	return newShape;
 }
 
-void AddBTShapeFromNodeRec(Node* node,
+void AddBTShapeFromNodeRec(Node& node,
 						   PhysicsShapeType shapeType,
 						   PhysicsBodyType bodyType,
-						   shared_ptr<btCompoundShape> btParentShape,
+						   btCompoundShape& btParentShape,
 						   vector<shared_ptr<btCollisionShape>>& btShapes,
 						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
 	auto newShape = make_shared<btCompoundShape>(true);
 
-	if (node->name() != nullopt) {
-		A3D_LOG_I("name: {}", *node->name());
+	if (node.name() != nullopt) {
+		A3D_LOG_I("name: {}", *node.name());
 	}
 
-	auto mesh = node->mesh().get();
+	auto mesh = node.mesh();
 	if (mesh) {
-		auto nodeGeoShape = BTShapeFromMesh(mesh,
+		auto nodeGeoShape = BTShapeFromMesh(*mesh,
 											shapeType,
 											bodyType,
 											btShapes,
@@ -456,30 +444,30 @@ void AddBTShapeFromNodeRec(Node* node,
 		btShapes.push_back(nodeGeoShape);
 	}
 
-	btParentShape->addChildShape(BTTransformFromGLMMat4(node->transform()),
+	btParentShape.addChildShape(BTTransformFromGLMMat4(node.transform()),
 								 newShape.get());
 	btShapes.push_back(newShape);
 
 	// add child geometries recursively
-	for (auto& childNode : node->children(false)) {
-		AddBTShapeFromNodeRec(childNode.get(),
+	for (auto& childNode : node.children(false)) {
+		AddBTShapeFromNodeRec(*childNode,
 							  shapeType,
 							  bodyType,
-							  newShape,
+							  *newShape,
 							  btShapes,
 							  btIndexVertexArrays);
 	}
 }
 
 unique_ptr<btConvexHullShape>
-BTConvexHullShapeFromMeshElement(MeshElement* element) {
-	A3D_LOG_I("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(element));
+BTConvexHullShapeFromMeshElement(MeshElement& element) {
+	A3D_LOG_I("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	btConvexHullShape originalShape{};
-	for (const auto& vertex : element->vertices()) {
+	for (const auto& vertex : element.vertices()) {
 		originalShape.addPoint(BTVector3FromGLMVec3(vertex.position), false);
 	}
 	originalShape.recalcLocalAabb();
@@ -505,9 +493,9 @@ BTConvexHullShapeFromMeshElement(MeshElement* element) {
 }
 
 unique_ptr<btGImpactMeshShape>
-BTGImpactMeshShapeFromMeshElement(MeshElement* element,
+BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element));
+	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
@@ -519,8 +507,8 @@ BTGImpactMeshShapeFromMeshElement(MeshElement* element,
 	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
 	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
 
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
+	const auto& verts = element.vertices();
+	const auto& faces = element.faces();
 
 	btIndexedMesh indexedMesh{};
 	indexedMesh.m_numTriangles = (int)faces.size();
@@ -540,15 +528,15 @@ BTGImpactMeshShapeFromMeshElement(MeshElement* element,
 }
 
 unique_ptr<btBvhTriangleMeshShape>
-BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
+BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
-	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element));
+	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 
-	const auto& verts = element->vertices();
-	const auto& faces = element->faces();
+	const auto& verts = element.vertices();
+	const auto& faces = element.faces();
 
 	// ^^ asked about on Bullet forum:
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
@@ -567,16 +555,16 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
 }
 
 unique_ptr<btCompoundShape>
-BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement* element,
+BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
 											 vector<shared_ptr<btCollisionShape>>& btShapes) {
 	A3D_LOG_I("Creating convex hull compound physics shape for HACD MeshElement {:p}...",
-			 static_cast<void*>(element));
+			 static_cast<void*>(&element));
 
 	auto compoundShape = make_unique<btCompoundShape>(true);
 
 	auto hacdElements = HACDMeshElementsFromMeshElement(element);
 	for (auto& hacdElement : hacdElements) {
-		auto convextHullShape = BTConvexHullShapeFromMeshElement(hacdElement.get());
+		auto convextHullShape = BTConvexHullShapeFromMeshElement(*hacdElement);
 		compoundShape->addChildShape(btTransform::getIdentity(), convextHullShape.get());
 		btShapes.push_back(shared_ptr(std::move(convextHullShape))); // TODO: here
 	}
@@ -585,8 +573,8 @@ BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement* element,
 }
 
 vector<unique_ptr<MeshElement>>
-HACDMeshElementsFromMeshElement(MeshElement* element) {
-	A3D_LOG_I("Creating HACD MeshElement for MeshElement {:p}...", static_cast<void*>(element));
+HACDMeshElementsFromMeshElement(MeshElement& element) {
+	A3D_LOG_I("Creating HACD MeshElement for MeshElement {:p}...", static_cast<void*>(&element));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 8;

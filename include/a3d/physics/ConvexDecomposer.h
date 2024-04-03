@@ -69,7 +69,7 @@ namespace a3d {
 //						 bool async);
 //		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
 //						 Options& options);
-		ConvexDecomposer(MeshElement* element,
+		ConvexDecomposer(MeshElement& element,
 						 Options& options);
 
 /*********************************************************************************************
