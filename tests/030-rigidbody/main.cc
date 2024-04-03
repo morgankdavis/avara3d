@@ -62,7 +62,7 @@ constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/320.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/512.0;
 constexpr bool					DARK =					true;
 
 

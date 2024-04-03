@@ -4,6 +4,7 @@
 
 #include "a3d/physics/bullet/BulletShapeProxy.h"
 
+#include <utility>
 #include <variant>
 
 #include "btBulletCollisionCommon.h"
@@ -83,14 +84,14 @@ AddBTShapeFromNodeRec(Node* node,
 					  vector<shared_ptr<btCollisionShape>>& btShapes,
 					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
-static shared_ptr<btConvexHullShape>
+static unique_ptr<btConvexHullShape>
 BTConvexHullShapeFromMeshElement(MeshElement* element);
 
-static shared_ptr<btGImpactMeshShape>
+static unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement* element,
 								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
-static shared_ptr<btBvhTriangleMeshShape>
+static unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
 
@@ -470,26 +471,26 @@ void AddBTShapeFromNodeRec(Node* node,
 	}
 }
 
-shared_ptr<btConvexHullShape>
+unique_ptr<btConvexHullShape>
 BTConvexHullShapeFromMeshElement(MeshElement* element) {
 	A3D_LOG_I("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(element));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
-	auto originalShape = make_shared<btConvexHullShape>();
+	btConvexHullShape originalShape{};
 	for (const auto& vertex : element->vertices()) {
-		originalShape->addPoint(BTVector3FromGLMVec3(vertex.position), false);
+		originalShape.addPoint(BTVector3FromGLMVec3(vertex.position), false);
 	}
-	originalShape->recalcLocalAabb();
+	originalShape.recalcLocalAabb();
 
 	// reduce number of verticies
 	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-	auto hull = btShapeHull(originalShape.get());
-	btScalar margin = originalShape->getMargin();
+	auto hull = btShapeHull(&originalShape);
+	btScalar margin = originalShape.getMargin();
 	hull.buildHull((btScalar)margin);
 
-	auto reducedShape = make_shared<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
+	auto reducedShape = make_unique<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
 													   hull.numVertices(),
 													   sizeof(btVector3));
 
@@ -503,7 +504,7 @@ BTConvexHullShapeFromMeshElement(MeshElement* element) {
 	return reducedShape;
 }
 
-shared_ptr<btGImpactMeshShape>
+unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement* element,
 								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element));
@@ -521,26 +522,24 @@ BTGImpactMeshShapeFromMeshElement(MeshElement* element,
 	const auto& verts = element->vertices();
 	const auto& faces = element->faces();
 
-	auto indexedMesh = make_shared<btIndexedMesh>();
+	btIndexedMesh indexedMesh{};
+	indexedMesh.m_numTriangles = (int)faces.size();
+	indexedMesh.m_triangleIndexBase = (const unsigned char *)faces.data();
+	indexedMesh.m_triangleIndexStride = sizeof(Face);
+	indexedMesh.m_numVertices = (int)verts.size();
+	indexedMesh.m_vertexBase = (const unsigned char *)verts.data();
+	indexedMesh.m_vertexStride = sizeof(Vertex);
+	indexedMesh.m_vertexType = PHY_FLOAT;
+	indexVertexArray->addIndexedMesh(indexedMesh, PHY_INTEGER);
 
-	indexedMesh->m_numTriangles = (int)faces.size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
-	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)verts.size();
-	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
-	indexedMesh->m_vertexStride = sizeof(Vertex);
-	indexedMesh->m_vertexType = PHY_FLOAT;
-
-	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
-
-	auto gImpactMeshShape = make_shared<btGImpactMeshShape>(indexVertexArray.get());
+	auto gImpactMeshShape = make_unique<btGImpactMeshShape>(indexVertexArray.get());
 	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
 	gImpactMeshShape->updateBound();
 
 	return gImpactMeshShape;
 }
 
-shared_ptr<btBvhTriangleMeshShape>
+unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
 									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
 	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(element));
@@ -554,19 +553,17 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement* element,
 	// ^^ asked about on Bullet forum:
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
 
-	auto indexedMesh = make_shared<btIndexedMesh>();
+	btIndexedMesh indexedMesh{};
+	indexedMesh.m_numTriangles = (int)faces.size();
+	indexedMesh.m_triangleIndexBase = (const unsigned char *)faces.data();
+	indexedMesh.m_triangleIndexStride = sizeof(Face);
+	indexedMesh.m_numVertices = (int)verts.size();
+	indexedMesh.m_vertexBase = (const unsigned char *)verts.data();
+	indexedMesh.m_vertexStride = sizeof(Vertex);
+	indexedMesh.m_vertexType = PHY_FLOAT;
+	indexVertexArray->addIndexedMesh(indexedMesh, PHY_INTEGER);
 
-	indexedMesh->m_numTriangles = (int)faces.size();
-	indexedMesh->m_triangleIndexBase = (const unsigned char *)faces.data();
-	indexedMesh->m_triangleIndexStride = sizeof(Face);
-	indexedMesh->m_numVertices = (int)verts.size();
-	indexedMesh->m_vertexBase = (const unsigned char *)verts.data();
-	indexedMesh->m_vertexStride = sizeof(Vertex);
-	indexedMesh->m_vertexType = PHY_FLOAT;
-
-	indexVertexArray->addIndexedMesh(*indexedMesh, PHY_INTEGER);
-
-	return make_shared<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+	return make_unique<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
 }
 
 shared_ptr<btCompoundShape>
@@ -581,7 +578,7 @@ BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement* element,
 	for (auto& hacdElement : hacdElements) {
 		auto convextHullShape = BTConvexHullShapeFromMeshElement(hacdElement.get());
 		compoundShape->addChildShape(btTransform::getIdentity(), convextHullShape.get());
-		btShapes.push_back(convextHullShape);
+		btShapes.push_back(shared_ptr(std::move(convextHullShape))); // TODO: here
 	}
 
 	return compoundShape;

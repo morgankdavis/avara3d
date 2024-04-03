@@ -88,7 +88,7 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 						   make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
 }
 
-
+/*
 void BulletDebugDrawer::drawSphere(btScalar radius,
 								   const btTransform& transform,
 								   const btVector3& color) {
@@ -109,6 +109,10 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 	A3D_LOG_W("(Not implemented)");
 }
 
+*/
+
+// these three are pure virtual and must be implemented
+
 void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 										 const btVector3& normalOnB,
 										 btScalar distance,
@@ -128,6 +132,8 @@ void BulletDebugDrawer::draw3dText(const btVector3& location,
 								   const char* textString) {
 	A3D_LOG_W("(Not implemented)");
 }
+
+/*
 
 // if implemented, called instead of drawLine()
 //void BulletDebugDrawer::drawAabb(const btVector3 &from,
@@ -211,6 +217,7 @@ void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 								  const btVector3& color) {
 	A3D_LOG_W("(Not implemented)");
 }
+*/
 
 void BulletDebugDrawer::setDebugMode(int debugMode) {
 	_debugMode = debugMode;

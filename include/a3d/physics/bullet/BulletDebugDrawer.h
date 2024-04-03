@@ -62,6 +62,7 @@ namespace a3d {
 						 const btVector3& fromColor,
 						 const btVector3& toColor) override;
 
+		/*
 		void 	drawSphere(btScalar radius,
 						   const btTransform& transform,
 						   const btVector3& color) override;
@@ -76,6 +77,10 @@ namespace a3d {
 						  const btVector3& color,
 						  btScalar alpha) override;
 
+		 */
+
+		// these three are pure virtual and must be implemented
+
 		void drawContactPoint(const btVector3& PointOnB,
 							  const btVector3& normalOnB,
 							  btScalar distance,
@@ -87,9 +92,10 @@ namespace a3d {
 		void	draw3dText(const btVector3& location,
 						   const char* textString) override;
 
-//		void 	drawAabb(const btVector3& from,
-//						 const btVector3& to,
-//						 const btVector3& color) override;
+		/*
+		void 	drawAabb(const btVector3& from,
+						 const btVector3& to,
+						 const btVector3& color) override;
 
 		void	drawTransform(const btTransform& transform,
 							  btScalar orthoLen) override;
@@ -148,6 +154,7 @@ namespace a3d {
 						  btScalar planeConst,
 						  const btTransform& transform,
 						  const btVector3& color) override;
+		*/
 
 		void 	setDebugMode(int debugMode) override;
 		int 	getDebugMode() const override;
