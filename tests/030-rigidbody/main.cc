@@ -55,8 +55,8 @@ void SpawnChainMail(Scene& scene);
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					USE_HIGH_DPI =			false;
-constexpr unsigned				WINDOW_WIDTH =			1280;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr int					WINDOW_WIDTH =			1280;
+constexpr int					WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
@@ -725,7 +725,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 //		return nullptr;
 
 
-		unsigned fruitNum = Uniform(0, 5);
+		int fruitNum = Uniform(0, 5);
 		static shared_ptr<Node> node = nullptr;
 		//shared_ptr<PhysicsShape> physicsShape = nullptr;
 		float mass = 1;
@@ -1187,15 +1187,15 @@ void SpawnHACDTeapot(Scene& scene) {
 void AddBoxes(Scene& scene) {
 
 	// 16 items
-	constexpr unsigned OBJECT_ARRAY_SIZE_X = 2;
-	constexpr unsigned OBJECT_ARRAY_SIZE_Y = 4;
-	constexpr unsigned OBJECT_ARRAY_SIZE_Z = 2;
+	constexpr int OBJECT_ARRAY_SIZE_X = 2;
+	constexpr int OBJECT_ARRAY_SIZE_Y = 4;
+	constexpr int OBJECT_ARRAY_SIZE_Z = 2;
 	constexpr float X_OFFSET = -10.0;
 	constexpr float Z_OFFSET = 10.0;
 
-	unsigned SPACING = 1.0;
-	unsigned DROP_HEIGHT = 40.0;
-	unsigned colorIndex = 0;
+	int SPACING = 1.0;
+	int DROP_HEIGHT = 40.0;
+	int colorIndex = 0;
 	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
@@ -1210,7 +1210,7 @@ void AddBoxes(Scene& scene) {
 
 void AddCardboardBoxes(Scene& scene) {
 
-	constexpr unsigned HEIGHT = 7;
+	constexpr int HEIGHT = 7;
 
 	static const vec3 AXIS = {0, 1, 0};
 	static const float ANGLE = radians(25.0);
@@ -1223,12 +1223,12 @@ void AddCardboardBoxes(Scene& scene) {
 	constexpr float Y_OFFSET = 1.5;
 	constexpr float Z_OFFSET = -0.36;
 
-	for (unsigned r=0; r<HEIGHT; ++r) {
+	for (int r=0; r<HEIGHT; ++r) {
 		float x = X_BASE + (X_OFFSET * r);
 		float y = Y_BASE + (Y_OFFSET * r);
 		float z = Z_BASE + (Z_OFFSET * r);
 
-		for (unsigned i=0; i<HEIGHT-r; ++i) {
+		for (int i=0; i<HEIGHT-r; ++i) {
 			AddCardboardBox(scene, {x, y, z}, AXIS, ANGLE);
 			x += 1.5; z -= 0.75;
 		}
@@ -1241,7 +1241,7 @@ void AddSlurms(Scene& scene) {
 	float y = 5.5;
 	float z = -9;
 
-	for (unsigned i=0; i<19; ++i) {
+	for (int i=0; i<19; ++i) {
 		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)Uniform(0, 359)));
 		z += 1;
 	}

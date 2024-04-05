@@ -68,7 +68,7 @@ BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
-					   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray);
+					   btTriangleIndexVertexArray& btIndexVertexArray);
 
 static shared_ptr<btCompoundShape>
 BTShapeFromMesh(Mesh& mesh,
@@ -89,11 +89,11 @@ BTConvexHullShapeFromMeshElement(MeshElement& element);
 
 static unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement& element,
-								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+								  btTriangleIndexVertexArray& indexVertexArray);
 
 static unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
-									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray);
+									  btTriangleIndexVertexArray& indexVertexArray);
 
 static unique_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
@@ -207,7 +207,7 @@ BTShapeFromSourceMesh(Mesh& mesh,
 										  shapeType,
 										  bodyType,
 										  btShapes,
-										  indexVertexArray);
+										  *indexVertexArray);
 		btShapes.push_back(newShape);
 		btIndexVertexArrays.push_back(indexVertexArray);
 	}
@@ -243,7 +243,7 @@ BTShapeFromSourceNode(Node& node,
 	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
 
 	// add the root mesh
-	auto mesh = node.mesh();
+	auto& mesh = node.mesh();
 	if (mesh) {
 
 		auto nodeGeoShape = BTShapeFromMesh(*mesh,
@@ -311,7 +311,7 @@ BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
 					   vector<shared_ptr<btCollisionShape>>& btShapes,
-					   shared_ptr<btTriangleIndexVertexArray>& btIndexVertexArray) {
+					   btTriangleIndexVertexArray& btIndexVertexArray) {
 
 	if (shapeType == PhysicsShapeType::BoundingBox) {
 		A3D_LOG_I("Creating box physics shape for MeshElement {:p}...",
@@ -406,7 +406,7 @@ BTShapeFromMesh(Mesh& mesh,
 																	  shapeType,
 																	  bodyType,
 																	  btShapes,
-																	  indexVertexArray)));
+																	  *indexVertexArray)));
 
 		// the Mesh's transform is added to the btRigidBody's localInertia
 		newShape->addChildShape(btTransform::getIdentity(),
@@ -432,7 +432,7 @@ void AddBTShapeFromNodeRec(Node& node,
 		A3D_LOG_I("name: {}", *node.name());
 	}
 
-	auto mesh = node.mesh();
+	auto& mesh = node.mesh();
 	if (mesh) {
 		auto nodeGeoShape = BTShapeFromMesh(*mesh,
 											shapeType,
@@ -494,7 +494,7 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 
 unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement& element,
-								  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+								  btTriangleIndexVertexArray& indexVertexArray) {
 	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -511,16 +511,16 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 	const auto& faces = element.faces();
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles = (int)faces.size();
-	indexedMesh.m_triangleIndexBase = (const unsigned char *)faces.data();
+	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
+	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char *>(faces.data());
 	indexedMesh.m_triangleIndexStride = sizeof(Face);
-	indexedMesh.m_numVertices = (int)verts.size();
-	indexedMesh.m_vertexBase = (const unsigned char *)verts.data();
+	indexedMesh.m_numVertices = static_cast<int>(verts.size());
+	indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char *>(verts.data());
 	indexedMesh.m_vertexStride = sizeof(Vertex);
 	indexedMesh.m_vertexType = PHY_FLOAT;
-	indexVertexArray->addIndexedMesh(indexedMesh, PHY_INTEGER);
+	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
 
-	auto gImpactMeshShape = make_unique<btGImpactMeshShape>(indexVertexArray.get());
+	auto gImpactMeshShape = make_unique<btGImpactMeshShape>(&indexVertexArray);
 	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
 	gImpactMeshShape->updateBound();
 
@@ -529,7 +529,7 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 
 unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
-									  shared_ptr<btTriangleIndexVertexArray>& indexVertexArray) {
+									  btTriangleIndexVertexArray& indexVertexArray) {
 	A3D_LOG_I("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
@@ -542,16 +542,16 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=44462#p44462
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles = (int)faces.size();
-	indexedMesh.m_triangleIndexBase = (const unsigned char *)faces.data();
+	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
+	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char *>(faces.data());
 	indexedMesh.m_triangleIndexStride = sizeof(Face);
-	indexedMesh.m_numVertices = (int)verts.size();
-	indexedMesh.m_vertexBase = (const unsigned char *)verts.data();
+	indexedMesh.m_numVertices = static_cast<int>(verts.size());
+	indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char *>(verts.data());
 	indexedMesh.m_vertexStride = sizeof(Vertex);
 	indexedMesh.m_vertexType = PHY_FLOAT;
-	indexVertexArray->addIndexedMesh(indexedMesh, PHY_INTEGER);
+	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
 
-	return make_unique<btBvhTriangleMeshShape>(indexVertexArray.get(), true);
+	return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 }
 
 unique_ptr<btCompoundShape>
