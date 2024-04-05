@@ -51,9 +51,15 @@ namespace a3d {
 //		std::weak_ptr<Node> 			node() const;
 //		void 							attachedToNode(std::shared_ptr<Node> node);
 
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
+
 	protected:
 
 		virtual void 					constructProjectionMatrix() = 0;
+
+		std::optional<std::string>		_name;
 		glm::mat4						_projection;
 		
 /*********************************************************************************************
@@ -62,7 +68,6 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string>		_name;
 //		std::weak_ptr<Node>				_node;
 	};
 }

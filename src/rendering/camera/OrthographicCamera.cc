@@ -7,6 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -24,6 +25,16 @@ OrthographicCamera::OrthographicCamera(AABB extent):
 OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
 	Camera{name},
 	_extent{extent} {}
+
+OrthographicCamera::~OrthographicCamera() {
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying OrthographicCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying OrthographicCamera {:p}", static_cast<void*>(this));
+	}
+}
 
 AABB OrthographicCamera::extent() const {
 	return _extent;

@@ -58,6 +58,8 @@ namespace a3d {
 		OpenGLRenderer();
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
 		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
+		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
+		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
 		~OpenGLRenderer() override;
 
 /*********************************************************************************************

@@ -7,6 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -25,7 +26,8 @@ PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
 		Camera{},
 		_zNear{zNear},
 		_zFar{zFar},
-		_yFov{yFov} {
+		_yFov{yFov},
+		_aspectRatio{0} {
 
 	constructProjectionMatrix();
 }
@@ -34,9 +36,20 @@ PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar
 		Camera{name},
 		_zNear{zNear},
 		_zFar{zFar},
-		_yFov{yFov} {
+		_yFov{yFov},
+		_aspectRatio{0} {
 
 	constructProjectionMatrix();
+}
+
+PerspectiveCamera::~PerspectiveCamera() {
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying PerspectiveCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying PerspectiveCamera {:p}", static_cast<void*>(this));
+	}
 }
 
 float PerspectiveCamera::zNear() const {

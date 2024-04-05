@@ -62,12 +62,12 @@ void MeshElement::draw(Renderer& renderer,
 }
 
 void MeshElement::burnTransform(const mat4& transform, bool normals) {
-	for (int v=0; v<_vertices.size(); ++v) {
-		Vertex* vertex = &_vertices[v];
-		vertex->position = vec3(transform * vec4(vertex->position, 1.0f));
+
+	for (auto& vert : _vertices) {
+		vert.position = {transform * vec4(vert.position, 1.0f)};
 
 		if (normals) {
-			vertex->normal = normalize(vec3(transform * vec4(vertex->normal, 0.0f)));
+			vert.normal = normalize(vec3(transform * vec4(vert.normal, 0.0f)));
 		}
 	}
 	
