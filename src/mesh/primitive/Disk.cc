@@ -22,9 +22,10 @@ shared_ptr<Mesh> Disk::Mesh(float radius,
 							float height,
 							int slices,
 							int rings,
-							shared_ptr<Material> material) {
+							const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Disk>(radius,
+	return make_shared<a3d::Mesh>("Disk",
+								  make_unique<Disk>(radius,
 													height,
 													slices,
 													rings),
@@ -39,7 +40,7 @@ Disk::Disk(float radius,
 		   float innerRadius,
 		   int slices,
 		   int rings):
-		MeshElement(),
+		MeshElement{},
 		_radius{radius},
 		_innerRadius{innerRadius},
 		_slices{slices},

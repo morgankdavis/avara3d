@@ -32,27 +32,34 @@ namespace a3d {
 	public:
 
 		Camera();
-		Camera(std::string name);
+		explicit Camera(const std::string& name);
+		virtual ~Camera() = 0;
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 		name() const;
-		void 							name(std::string name);
+		const std::optional<std::string>&	name() const;
+		void 								name(const std::string& name);
 
-		glm::mat4 						projection() const;
+		glm::mat4 							projection() const;
 		
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::weak_ptr<Node> 			node() const;
+//		std::weak_ptr<Node> 			node() const;
 //		void 							attachedToNode(std::shared_ptr<Node> node);
+
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
 
 	protected:
 
 		virtual void 					constructProjectionMatrix() = 0;
+
+		std::optional<std::string>		_name;
 		glm::mat4						_projection;
 		
 /*********************************************************************************************
@@ -61,7 +68,6 @@ namespace a3d {
 
 	private:
 
-		std::optional<std::string>		_name;
 //		std::weak_ptr<Node>				_node;
 	};
 }

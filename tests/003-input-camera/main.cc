@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -43,7 +44,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test003::main()\n" << endl;
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
@@ -53,17 +54,17 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
 	auto scene = SceneNamed("import_test/import_test");
-	scene->visualWorld(visualWorld);
-	scene->inputManager(inputManager);
+	scene->visualWorld(std::move(visualWorld));
+	scene->inputManager(std::move(inputManager));
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	window->open();
@@ -82,7 +83,7 @@ void UpdateCallback(Scene& scene, float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
@@ -117,8 +118,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	// move camera
 
-	auto pov = scene.visualWorld()->pointOfView();
-	if (pov) {
+	if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 		// look
 

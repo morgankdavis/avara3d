@@ -32,28 +32,32 @@ namespace a3d {
 
 	public:
 
+//		static std::unique_ptr<Light> 		DefaultAmbient();
+//		static std::unique_ptr<Light> 		DefaultPoint();
+
 		static std::shared_ptr<Light> 		DefaultAmbient();
 		static std::shared_ptr<Light> 		DefaultPoint();
-		
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		Light(LightType type);
-		Light(LightType type, std::shared_ptr<Color> color);
+
+		explicit Light(LightType type);
+		Light(LightType type, const std::shared_ptr<Color>& color);
+		virtual ~Light();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 			name() const;
+		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 		
 		LightType 							type() const;
 		void 								type(LightType type);
 		
-		std::shared_ptr<Color> 				color() const;
-		void 								color(std::shared_ptr<Color> color);
+		const std::shared_ptr<Color>&		color() const;
+		void 								color(const std::shared_ptr<Color>& color);
 
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);

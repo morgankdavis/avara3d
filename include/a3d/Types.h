@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <set>
+#include <unordered_set> // temporary?
 #include <typeinfo>
 #include <utility>
 #include <variant>
@@ -44,9 +45,9 @@ namespace a3d {
 //		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
 //		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
 
-	#define A3D_MASK_CONTAINS(mask, bit) (static_cast<unsigned>(mask & bit) != 0)
-	#define A3D_MASK_ADD(mask, bit) (mask | bit)
-	#define A3D_MASK_REMOVE(mask, bit) (mask & ~bit)
+	#define A3D_MASK_CONTAINS(mask, bits) (static_cast<unsigned>(mask & bits) != 0)
+	#define A3D_MASK_ADD(mask, bits) (mask | bits)
+	#define A3D_MASK_REMOVE(mask, bits) (mask & ~bits)
 
 	// example from fastgltf
 	// a similar approach: https://stackoverflow.com/a/12080553
@@ -104,7 +105,7 @@ namespace a3d {
 
 	enum class SceneImportOptions : unsigned {
 		None = 					0,
-		ImportMeshes =		1 << 0,
+		ImportMeshes =			1 << 0,
 		ImportMaterials =		1 << 1,
 		ImportLights =			1 << 2,
 		ImportCameras = 		1 << 3,
@@ -401,11 +402,6 @@ namespace a3d {
 	Internal
  **************************************************************************************/
 
-	class Line;
-	class Point;
-	using LineSet = std::set<std::shared_ptr<Line>>;
-	using PointSet = std::set<std::shared_ptr<Point>>;
-
 	enum class ShaderType {
 		Vertex,
 		Fragment
@@ -426,7 +422,7 @@ namespace a3d {
 
 	enum class MeshDirtyMask : unsigned {
 		None =					0,
-		Extent =				1 << 0,
+		AABBLines	=			1 << 0,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
@@ -463,7 +459,6 @@ namespace a3d {
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
-
 }
 
 

@@ -29,10 +29,10 @@ using namespace VHACD;
 //
 //}
 
-ConvexDecomposer::ConvexDecomposer(shared_ptr<MeshElement> element,
+ConvexDecomposer::ConvexDecomposer(MeshElement& element,
 								   Options& options):
-		_sourceElement(element),
-		_options(options) {
+		_sourceElement{&element},
+		_options{options} {
 		//_vhacd(CreateVHACD()) {
 }
 
@@ -50,7 +50,7 @@ ConvexDecomposer::ConvexDecomposer(shared_ptr<MeshElement> element,
 //	}
 //}
 
-vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
+vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	VHACD::IVHACD* vhacd = CreateVHACD();
 
@@ -75,13 +75,13 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	// can probably be optimized...
 
-	auto element = sourceElement();
+	//auto element = sourceElement();
 
 	unsigned numVerts = 0;
 	unsigned numFaces = 0;
 //	for (auto& element : _sourceElements) {
-		numVerts += element->vertices().size();
-		numFaces += element->faces().size();
+		numVerts += _sourceElement->vertices().size();
+		numFaces += _sourceElement->faces().size();
 //	}
 
 	auto verts = vector<float>();
@@ -90,12 +90,12 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 	faces.reserve((sizeof(uint32_t)*3) * numFaces);
 
 //	for (auto& element : _sourceElements) {
-		for (const auto& vert : element->vertices()) {
+		for (const auto& vert : _sourceElement->vertices()) {
 			verts.push_back(vert.position.x);
 			verts.push_back(vert.position.y);
 			verts.push_back(vert.position.z);
 		}
-		for (const auto& face : element->faces()) {
+		for (const auto& face : _sourceElement->faces()) {
 			faces.push_back((uint32_t)face.a);
 			faces.push_back((uint32_t)face.b);
 			faces.push_back((uint32_t)face.c);
@@ -112,7 +112,7 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	auto numHulls = vhacd->GetNConvexHulls();
 
-	auto decomposedElements = vector<shared_ptr<MeshElement>>();
+	auto decomposedElements = vector<unique_ptr<MeshElement>>();
 	decomposedElements.reserve(numHulls);
 
 	for (int h=0; h<numHulls; ++h) {
@@ -134,13 +134,13 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 			decomposedFaces.push_back({(unsigned)f.mI0, (unsigned)f.mI1, (unsigned)f.mI2});
 		}
 
-		auto decomposedElement = make_shared<MeshElement>(decomposedVerts, decomposedFaces);
-		decomposedElements.push_back(decomposedElement);
+		auto decomposedElement = make_unique<MeshElement>(decomposedVerts, decomposedFaces);
+		decomposedElements.push_back(std::move(decomposedElement));
 	}
 
 	A3D_LOG_I("numHulls: {}", numHulls);
 
-	_decomposedElements = decomposedElements;
+//	_decomposedElements = decomposedElements;
 
 	return decomposedElements;
 }
@@ -236,13 +236,18 @@ vector<shared_ptr<MeshElement>> ConvexDecomposer::decompose() {
 //	return decomposedElement;
 //}
 
-shared_ptr<MeshElement> ConvexDecomposer::sourceElement() const {
-	return _sourceElement;
-}
 
-vector<shared_ptr<MeshElement>> ConvexDecomposer::decomposedElements() const {
-	return _decomposedElements;
-}
+
+//MeshElement* ConvexDecomposer::sourceElement() const {
+//	return _sourceElement;
+//}
+//
+//vector<unique_ptr<MeshElement>>& ConvexDecomposer::decomposedElements() {
+//	return _decomposedElements;
+//}
+
+
+
 
 //bool ConvexDecomposer::running() const {
 //

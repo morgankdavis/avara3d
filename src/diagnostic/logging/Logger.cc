@@ -10,6 +10,7 @@
 
 #include <cstdarg>
 #include <ctime>
+#include <utility>
 
 #ifdef POSIX
 #include <sys/time.h>
@@ -45,9 +46,9 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Logger> Logger::MainLogger() {
+Logger& Logger::MainLogger() {
 	
-	static shared_ptr<Logger> logger = nullptr;
+	static unique_ptr<Logger> logger = nullptr;
 
 	if (!logger) {
 #ifdef ANDROID
@@ -57,19 +58,25 @@ shared_ptr<Logger> Logger::MainLogger() {
 //													/ (executableName + string(".log")));
 		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
 #else
+//		string executableName = *utils::ExecutableName();
+//		auto nativeSink = make_unique<StdOutLoggerSink>();
+//		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+//													/ (executableName + string(".log")));
 		string executableName = *utils::ExecutableName();
-		auto nativeSink = make_shared<StdOutLoggerSink>();
-		auto fileSink = make_shared<FileLoggerSink>(*(utils::ExecutableDirectory())
-													/ (executableName + string(".log")));
+		auto nativeSink = make_unique<StdOutLoggerSink>();
+		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory()) / "a3d.log");
 #endif
 
-		auto sinks = unordered_set<shared_ptr<LoggerSink>>();
-		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
-		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
+		auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+//		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
+//		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
+		sinks.insert(std::move(nativeSink));
+		sinks.insert(std::move(fileSink));
 
-		logger = make_shared<Logger>("a3d", sinks);
+		logger = make_unique<Logger>("a3d", std::move(sinks));
 	}
-	return logger;
+
+	return *logger;
 }
 
 /*********************************************************************************************
@@ -85,38 +92,38 @@ string HeaderString(const string& logName, LogLevel level,
 	Lifecycle
  *********************************************************************************************/
 
-Logger::Logger(string name, shared_ptr<LoggerSink> sink,
-			   LogLevel level, LogLevel flushLevel):
-	_name(name),
-	_sinks(unordered_set<shared_ptr<LoggerSink>>()),
-	_level(level),
-	_flushLevel(flushLevel) {
-	
-		_sinks.insert(sink);
+Logger::Logger(const string& name,
+			   unique_ptr<LoggerSink> sink,
+			   LogLevel level,
+			   LogLevel flushLevel):
+		_name{name},
+		_sinks{},
+		_level{level},
+		_flushLevel{flushLevel} {
+
+	_sinks.insert(std::move(sink));
 }
 
-Logger::Logger(string name, unordered_set<shared_ptr<LoggerSink>> sinks,
-			   LogLevel level, LogLevel flushLevel):
-	_name(name),
-	_sinks(sinks),
-	_level(level),
-	_flushLevel(flushLevel) {
-	
-}
+Logger::Logger(const string& name,
+			   unordered_set<unique_ptr<LoggerSink>> sinks,
+			   LogLevel level,
+			   LogLevel flushLevel):
+		_name(name),
+		_sinks(std::move(sinks)),
+		_level(level),
+		_flushLevel(flushLevel) { }
 
-Logger::~Logger() {
-	
-}
+Logger::~Logger() { }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-string Logger::name() const {
+const string& Logger::name() const {
 	return _name;
 }
 
-unordered_set<shared_ptr<LoggerSink>> Logger::sinks() const {
+const unordered_set<unique_ptr<LoggerSink>>& Logger::sinks() const {
 	return _sinks;
 }
 
@@ -126,6 +133,14 @@ LogLevel Logger::level() const {
 
 void Logger::level(LogLevel level) {
 	_level = level;
+}
+
+LogLevel Logger::flushLevel() const {
+	return _flushLevel;
+}
+
+void Logger::flushLevel(LogLevel level) {
+	_flushLevel = level;
 }
 
 void Logger::trace(const char* format, ...) {
@@ -241,51 +256,6 @@ void Logger::critical(bool useHeader,
 	va_end(args);
 }
 
-
-//template <typename... Args>
-//void Logger::f1(const char* format, Args&&... args) {
-//
-//	auto together = fmt::vformat(format,
-//								 fmt::make_format_args(std::forward<Args>(args))...);
-//
-//}
-
-
-//template <typename... Args>
-//void Logger::f2(const char* format, Args&&...args) {
-//
-//
-//}
-
-
-//void Logger::f2(bool useHeader,
-//				const char* filename, int line, const char* function,
-//				const char* fthing) {
-//
-//}
-
-
-
-
-//template <typename... Args>
-//void Logger::f3(std::string_view fmt, Args&&... args) {
-//	return fmt::vformat(fmt, fmt::make_format_args(std::forward<Args>(args)...));
-//}
-//
-//
-//template <typename F, typename... Args>
-//void Logger::f4(F, Args&&... args) {
-//	return fmt::format(F::string, std::forward<Args>(args)...);
-//}
-
-
-
-//void vlog(const char* file, int line, fmt::string_view format,
-//		  fmt::format_args args) {
-//	fmt::print("{}: {}: ", file, line);
-//	fmt::vprint(format, args);
-//}
-
 // constructs body with variable args list
 void Logger::log(LogLevel level,
 				 const char* format, va_list args) {
@@ -355,19 +325,19 @@ void Logger::construct(LogLevel level,
 
 void Logger::dispatch(LogLevel level, const char* line) {
 
-	for (auto sink : _sinks) {
+	for (auto& sink : _sinks) {
 
 #if defined(DESKTOP)
-		if (dynamic_pointer_cast<StdOutLoggerSink>(sink)) {
-			dynamic_pointer_cast<StdOutLoggerSink>(sink)->write(line, level);
+		if (auto stdOutSink = dynamic_cast<StdOutLoggerSink*>(sink.get())) {
+			stdOutSink->write(line, level);
 		}
 #elif defined(ANDROID)
 		if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {
 			dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, _name.c_str(), level);
 		}
 #endif
-		if (dynamic_pointer_cast<FileLoggerSink>(sink)) {
-			dynamic_pointer_cast<FileLoggerSink>(sink)->write(line);
+		if (auto fileLoggerSink = dynamic_cast<FileLoggerSink*>(sink.get())) {
+			fileLoggerSink->write(line);
 		}
 	}
 

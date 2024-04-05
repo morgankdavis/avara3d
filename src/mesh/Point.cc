@@ -20,14 +20,14 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Point::Point(vec3 location):
-	Point(location, Color::White()) {
+Point::Point(const vec3& location):
+	Point{location, Color::White()} {
 	
 }
 
-Point::Point(vec3 location, shared_ptr<Color> color):
-	_location(location),
-	_color(color) {
+Point::Point(const vec3& location, const shared_ptr<Color>& color):
+	_location{location},
+	_color{color} {
 	
 }
 
@@ -35,18 +35,18 @@ Point::Point(vec3 location, shared_ptr<Color> color):
 	Public
  *********************************************************************************************/
 
-vec3 Point::location() const {
+const vec3& Point::location() const {
 	return _location;
 }
 
-void Point::location(vec3 point) {
+void Point::location(const vec3& point) {
 	_location = point;
 }
 
-shared_ptr<Color> Point::color() const {
+const shared_ptr<Color>& Point::color() const {
 	return _color;
 }
 
-void Point::color(shared_ptr<Color> color) {
+void Point::color(const shared_ptr<Color>& color) {
 	_color = color;
 }

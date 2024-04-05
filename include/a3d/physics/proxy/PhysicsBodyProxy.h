@@ -26,17 +26,17 @@ namespace a3d {
 
 	public:
 
-		PhysicsBodyProxy(PhysicsBody* body);
+		explicit PhysicsBodyProxy(PhysicsBody& body);
 		virtual ~PhysicsBodyProxy();
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		virtual PhysicsBodyType		type() const = 0;
+		virtual PhysicsBodyType			type() const = 0;
 		virtual void					type(PhysicsBodyType type) = 0;
 
-		virtual PhysicsShapeProxy*	shapeProxy() const = 0;
+		virtual PhysicsShapeProxy*		shapeProxy() const = 0;
 		virtual void					shapeProxy(PhysicsShapeProxy* proxy) = 0;
 
 //		virtual glm::mat4				worldTransform() const = 0;
@@ -49,7 +49,7 @@ namespace a3d {
 		virtual void					momentOfInertia(const glm::vec3& moment) = 0;
 
 		virtual glm::vec3				centerOfMass() const = 0;
-		virtual void					centerOfMass(const glm::vec3 offset) = 0;
+		virtual void					centerOfMass(const glm::vec3& offset) = 0;
 
 		virtual float					friction() const = 0;
 		virtual void					friction(float friction) = 0;
@@ -111,8 +111,8 @@ namespace a3d {
 		virtual bool					autocalculatesMomentOfInertia() const;
 		virtual void					autocalculatesMomentOfInertia(bool autocalculate);
 
-		void							attachedToBody(PhysicsBody* body);
-		void							detachedFromBody(PhysicsBody* body);
+		void							attachedToBody(PhysicsBody& body);
+		void							detachedFromBody(PhysicsBody& body);
 
 /*********************************************************************************************
 	Protected
@@ -121,7 +121,7 @@ namespace a3d {
 	protected:
 
 		PhysicsBody*					_body;
-		PhysicsShapeProxy*			_shapeModel;
+		PhysicsShapeProxy*				_shapeProxy;
 		bool							_autocalculatesMomentOfInertia;
 	};
 }

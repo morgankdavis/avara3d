@@ -32,25 +32,25 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
-		PhysicsBodyProxy(body),
-		_btBody(nullptr),
+BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
+		PhysicsBodyProxy{body},
+		_btBody{},
 		/*_btMotionState(nullptr)*/
-		_motionState(nullptr) {
+		_motionState{} {
 
-	A3D_LOG_D("body: {:p}", static_cast<void*>(body));
+	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_shared<MotionState>(body);
+	_motionState = make_unique<MotionState>(body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body->type() == PhysicsBodyType::Static
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body.type() == PhysicsBodyType::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -62,12 +62,12 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	rigidBodyInfo.m_linearSleepingThreshold = 1.0;
 	rigidBodyInfo.m_angularSleepingThreshold = 1.0;
 
-	_btBody = make_shared<btRigidBody>(rigidBodyInfo);
+	_btBody = make_unique<btRigidBody>(rigidBodyInfo);
 
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
 
-	switch (body->type()) {
+	switch (body.type()) {
 		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
@@ -85,7 +85,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody* body):
 	_btBody->setCollisionFlags(flags);
 	_btBody->setActivationState(activationState);
 
-	_btBody->setUserPointer(static_cast<void*>(body));
+	_btBody->setUserPointer(static_cast<void*>(&body));
 }
 
 BulletBodyProxy::~BulletBodyProxy() {
@@ -136,7 +136,7 @@ void BulletBodyProxy::type(PhysicsBodyType type) {
 }
 
 PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
-	return _shapeModel;
+	return _shapeProxy;
 }
 
 void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
@@ -144,9 +144,10 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-		if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front()) {
 
-			_btBody->setCollisionShape(btShape.get());
+		if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front().get()) {
+
+			_btBody->setCollisionShape(btShape);
 
 			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
@@ -158,7 +159,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 					break;
 			}
 
-			_shapeModel = proxy;
+			_shapeProxy = proxy;
 
 			if (_autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
@@ -166,11 +167,11 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 		}
 		else {
 			A3D_LOG_E("Could not get shape resources.");
-			_shapeModel = nullptr;
+			_shapeProxy = nullptr;
 		}
 	}
 	else {
-		_shapeModel = nullptr;
+		_shapeProxy = nullptr;
 	}
 }
 
@@ -213,7 +214,7 @@ glm::vec3 BulletBodyProxy::centerOfMass() const {
 	return GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
-void BulletBodyProxy::centerOfMass(const glm::vec3 offset) {
+void BulletBodyProxy::centerOfMass(const glm::vec3& offset) {
 	_btBody->setCenterOfMassTransform(
 			BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
 }
@@ -458,16 +459,16 @@ void BulletBodyProxy::clearForces() {
 	Internal
  *********************************************************************************************/
 
-shared_ptr<btRigidBody> BulletBodyProxy::btBody() {
-	return _btBody;
+btRigidBody* BulletBodyProxy::btBody() {
+	return _btBody.get();
 }
 
 //shared_ptr<btDefaultMotionState> BulletBodyProxy::btMotionState() {
 //	return _btMotionState;
 //}
 
-shared_ptr<MotionState> BulletBodyProxy::motionState() {
-	return _motionState;
+MotionState* BulletBodyProxy::motionState() {
+	return _motionState.get();
 }
 
 /*********************************************************************************************
@@ -476,8 +477,8 @@ shared_ptr<MotionState> BulletBodyProxy::motionState() {
 
 void BulletBodyProxy::calculateMomentOfIntertia() {
 
-	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeModel)) {
-		if (auto btShape = btShapeModel->btShapes().front()) {
+	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeProxy)) {
+		if (auto btShape = btShapeModel->btShapes().front().get()) {
 			btVector3 localInertia;
 			auto mass = _body->mass();
 			btShape->calculateLocalInertia(mass, localInertia);

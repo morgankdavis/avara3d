@@ -46,33 +46,33 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Material();
-		Material(MaterialProperty ambient,
-				 MaterialProperty diffuse,
-				 MaterialProperty specular);
-		Material(MaterialProperty ambient,
-				 MaterialProperty diffuse,
-				 MaterialProperty specular,
-				 MaterialProperty emission);
+		Material(const MaterialProperty& ambient,
+				 const MaterialProperty& diffuse,
+				 const MaterialProperty& specular);
+		Material(const MaterialProperty& ambient,
+				 const MaterialProperty& diffuse,
+				 const MaterialProperty& specular,
+				 const MaterialProperty& emission);
 		~Material();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		std::optional<std::string> 			name() const;
+		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 
-		MaterialProperty 					ambient() const;
-		void								ambient(MaterialProperty ambient);
+		const MaterialProperty& 			ambient() const;
+		void								ambient(const MaterialProperty& ambient);
 
-		MaterialProperty 					diffuse() const;
-		void 								diffuse(MaterialProperty diffuse);
+		const MaterialProperty& 			diffuse() const;
+		void 								diffuse(const MaterialProperty& diffuse);
 
-		MaterialProperty					specular() const;
-		void 								specular(MaterialProperty specular);
+		const MaterialProperty&				specular() const;
+		void 								specular(const MaterialProperty& specular);
 
-		MaterialProperty					emission() const;
-		void 								emission(MaterialProperty emission);
+		const MaterialProperty&				emission() const;
+		void 								emission(const MaterialProperty& emission);
 
 		MaterialPropertyList				properties() const;
 		

@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -23,24 +24,30 @@ using namespace glm;
  *********************************************************************************************/
 
 Camera::Camera():
-		_name(nullopt) {
+		_name{} {}
 
-}
+Camera::Camera(const string& name):
+		_name{name} {}
 
-Camera::Camera(string name):
-		_name(name) {
+Camera::~Camera() {
 
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying Camera '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying Camera {:p}", static_cast<void*>(this));
+	}
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-optional<string> Camera::name() const {
+const optional<string>& Camera::name() const {
 	return _name;
 }
 
-void Camera::name(string name) {
+void Camera::name(const string& name) {
 	_name = name;
 }
 

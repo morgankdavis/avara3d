@@ -14,6 +14,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -47,7 +48,7 @@ namespace a3d {
 	Public Static
  *********************************************************************************************/
 
-		static std::shared_ptr<Scene> 			FromFile(const std::filesystem::path& path,
+		static std::unique_ptr<Scene> 			FromFile(const std::filesystem::path& path,
 														  SceneImportOptions options = SceneImportOptions::ImportAll);
 		static double 							Time();
 
@@ -56,48 +57,50 @@ namespace a3d {
  *********************************************************************************************/
 		
 		Scene();
-		Scene(std::shared_ptr<VisualWorld> visualWorld,
-			  std::shared_ptr<PhysicalWorld> physicsWorld,
-			  std::shared_ptr<InputManager> inputManager);
+		Scene(const std::string& name);
+		Scene(std::unique_ptr<VisualWorld> visualWorld,
+			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<InputManager> inputManager);
+		Scene(const std::string& name,
+			  std::unique_ptr<VisualWorld> visualWorld,
+			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		const std::optional<std::string>&	name() const;
+		void 								name(const std::string& name);
+
+		const std::shared_ptr<Node>&		rootNode() const;
+		void 								rootNode(const std::shared_ptr<Node>& node);
+
+		VisualWorld* 						visualWorld() const;
+		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
-		std::shared_ptr<Node> 					rootNode() const;
-		void 									rootNode(std::shared_ptr<Node> node);
+		PhysicalWorld* 						physicalWorld() const;
+		void 								physicalWorld(std::unique_ptr<PhysicalWorld> world);
 
-		std::shared_ptr<VisualWorld> 			visualWorld() const;
-		void 									visualWorld(std::shared_ptr<VisualWorld> world);
-		
-		std::shared_ptr<PhysicalWorld> 			physicalWorld() const;
-		void 									physicalWorld(std::shared_ptr<PhysicalWorld> world);
+		InputManager* 						inputManager() const;
+		void 								inputManager(std::unique_ptr<InputManager> manager);
 
-		std::shared_ptr<InputManager> 			inputManager() const;
-		void 									inputManager(std::shared_ptr<InputManager> inputManager);
+		DebugOptions 						debugOptions() const;
+		void 								debugOptions(DebugOptions options);
 
-		DebugOptions 							debugOptions() const;
-		void 									debugOptions(DebugOptions options);
+		void								run();
+		void								stop();
 
-		void									run();
-		void									stop();
+		bool								running() const;
 
-		bool									running() const;
+		bool								paused() const;
+		void								paused(bool flag);
 
-		bool									paused() const;
-		void									paused(bool flag);
+		const Stats&						stats() const;
 
-		const Stats&							stats() const;
-
-		UpdateCallback 							update() const;
-		void 									update(UpdateCallback function);
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-
+		UpdateCallback 						update() const;
+		void 								update(UpdateCallback function);
 
 /*********************************************************************************************
 	Private
@@ -105,15 +108,16 @@ namespace a3d {
 
 	private:
 
-		std::shared_ptr<Node>					_rootNode;
-		std::shared_ptr<VisualWorld> 			_visualWorld;
-		std::shared_ptr<PhysicalWorld> 			_physicalWorld;
-		std::shared_ptr<InputManager>			_inputManager;
-		DebugOptions							_debugOptions;
-		bool									_running;
-		bool									_paused;
-		Stats									_stats;
-		UpdateCallback							_update;
+		std::optional<std::string>			_name;
+		std::shared_ptr<Node>				_rootNode;
+		std::unique_ptr<VisualWorld> 		_visualWorld;
+		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
+		std::unique_ptr<InputManager>		_inputManager;
+		DebugOptions						_debugOptions;
+		bool								_running;
+		bool								_paused;
+		Stats								_stats;
+		UpdateCallback						_update;
 	};
 }
 

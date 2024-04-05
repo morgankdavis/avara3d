@@ -35,8 +35,8 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Deb
 	Lifecycle
  *********************************************************************************************/
 
-BulletWorldProxy::BulletWorldProxy(PhysicalWorld* world):
-		PhysicalWorldProxy(world) {
+BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
+		PhysicalWorldProxy{world} {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -72,7 +72,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
-	auto b = bodyProxy->btBody().get();
+	auto b = bodyProxy->btBody();
 	_btWorld->addRigidBody(b);
 }
 
@@ -80,7 +80,7 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
-	_btWorld->removeRigidBody(bodyProxy->btBody().get());
+	_btWorld->removeRigidBody(bodyProxy->btBody());
 }
 
 //unique_ptr<vector<PhysicsBody*>> BulletWorldProxy::bodies() const {

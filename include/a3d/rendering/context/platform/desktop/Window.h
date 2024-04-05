@@ -64,7 +64,7 @@ namespace a3d {
 		Window(const Window& other) = delete; // copy constructor
 		Window& operator=(const Window& other) = delete; // copy assignment
 		
-		~Window();
+		~Window() override;
 		
 /*********************************************************************************************
 	Public
@@ -74,7 +74,7 @@ namespace a3d {
 		void							close();
 
 		std::string						title() const;
-		void							title(std::string title);
+		void							title(const std::string& title);
 
 		bool 							cursorCaptured() const;
 		void 							cursorCaptured(bool captured);

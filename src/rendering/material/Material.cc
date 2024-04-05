@@ -8,6 +8,8 @@
 
 #include "a3d/rendering/material/Material.h"
 
+#include <utility>
+
 #include "a3d/Color.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -51,7 +53,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 }
 
 MaterialProperty Material::MissingTextureProperty() {
-	return MaterialProperty(Color::Magenta());
+	return {Color::Magenta()};
 }
 
 /*********************************************************************************************
@@ -59,40 +61,45 @@ MaterialProperty Material::MissingTextureProperty() {
  *********************************************************************************************/
 
 Material::Material():
-		_name(nullopt),
-		_ambient(monostate{}),
-//		_diffuse(make_shared<Color>(0.75f)),
-//		_specular(make_shared<Color>(0.75f)),
-		_diffuse{monostate{}},
-		_specular{monostate{}},
-		_emission(monostate{}),
-		_specularExponent(75),
-		_locksAmbientWithDiffuse(true),
-		_doubleSided(false),
-		_fillMode(FillMode::Fill),
-		_uvScale(1.0f),
-		_blendFunction(BlendFunction::Disabled),
-		_dirtyMask(MaterialDirtyMask::All) {
+		_name{},
+		_ambient{},
+		_diffuse{},
+		_specular{},
+		_emission{},
+		_specularExponent{75},
+		_locksAmbientWithDiffuse{true},
+		_doubleSided{false},
+		_fillMode{FillMode::Fill},
+		_uvScale{1.0f},
+		_blendFunction{BlendFunction::Disabled},
+		_dirtyMask{MaterialDirtyMask::All} {
 
 	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular):
+Material::Material(const MaterialProperty& ambient,
+				   const MaterialProperty& diffuse,
+				   const MaterialProperty& specular):
 		Material() {
 
+//	_ambient = std::move(ambient);
+//	_diffuse = std::move(diffuse);
+//	_specular = std::move(specular);
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
 }
 
-Material::Material(MaterialProperty ambient,
-				   MaterialProperty diffuse,
-				   MaterialProperty specular,
-				   MaterialProperty emission):
+Material::Material(const MaterialProperty& ambient,
+				   const MaterialProperty& diffuse,
+				   const MaterialProperty& specular,
+				   const MaterialProperty& emission):
 		Material() {
 
+//	_ambient = std::move(ambient);
+//	_diffuse = std::move(diffuse);
+//	_specular = std::move(specular);
+//	_emission = std::move(emission);
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
@@ -107,7 +114,7 @@ Material::~Material() {
 	Public
  *********************************************************************************************/
 
-optional<string> Material::name() const {
+const optional<string>& Material::name() const {
 	return _name;
 }
 
@@ -115,35 +122,35 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-MaterialProperty Material::ambient() const {
+const MaterialProperty& Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const MaterialProperty property) {
+void Material::ambient(const MaterialProperty& property) {
 	_ambient = property;
 }
 
-MaterialProperty Material::diffuse() const {
+const MaterialProperty& Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(MaterialProperty property) {
+void Material::diffuse(const MaterialProperty& property) {
 	_diffuse = property;
 }
 
-MaterialProperty Material::specular() const {
+const MaterialProperty& Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(MaterialProperty property) {
+void Material::specular(const MaterialProperty& property) {
 	_specular = property;
 }
 
-MaterialProperty Material::emission() const {
+const MaterialProperty& Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(MaterialProperty property) {
+void Material::emission(const MaterialProperty& property) {
 	_emission = property;
 }
 

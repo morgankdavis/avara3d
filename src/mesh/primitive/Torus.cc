@@ -26,9 +26,10 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
 							 int slices,
 							 int segments,
-							 shared_ptr<Material> material) {
+							 const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Torus>(minorRadius,
+	return make_shared<a3d::Mesh>("Torus",
+								  make_unique<Torus>(minorRadius,
 													 majorRadius,
 													 slices,
 													 segments),
@@ -43,7 +44,7 @@ Torus::Torus(float minorRadius,
 			 float majorRadius,
 			 int slices,
 			 int segments):
-		MeshElement(),
+		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
 		_slices{slices},

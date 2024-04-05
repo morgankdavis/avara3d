@@ -33,43 +33,28 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Program> Program::Default() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("default");
-	}
+Program& Program::Default() {
+	static auto program = Program("default");
 	return program;
 }
 
-shared_ptr<Program> Program::Skybox() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("skybox");
-	}
+Program& Program::Skybox() {
+	static auto program = Program("skybox");
 	return program;
 }
 
-shared_ptr<Program> Program::Wireframe() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("wireframe");
-	}
+Program& Program::Wireframe() {
+	static auto program = Program("wireframe");
 	return program;
 }
 
-shared_ptr<Program> Program::Lines() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("lines");
-	}
+Program& Program::Lines() {
+	static auto program = Program("lines");
 	return program;
 }
 
-shared_ptr<Program> Program::Points() {
-	static shared_ptr<Program> program = nullptr;
-	if (!program) {
-		program = make_shared<Program>("points");
-	}
+Program& Program::Points() {
+	static auto program = Program("points");
 	return program;
 }
 
@@ -78,13 +63,13 @@ shared_ptr<Program> Program::Points() {
  *********************************************************************************************/
 
 Program::Program(const string& name):
-		_name(name),
-		_glID(0),
-		_isLinked(false),
-		_logString(optional<string>(nullopt)),
-		_vertexShaderSource(optional<string>(nullopt)),
-		_fragmentShaderSource(optional<string>(nullopt)),
-		_uniformLocationCache(map<string, int>()) {
+		_name{name},
+		_glID{0},
+		_isLinked{false},
+		_logString{},
+		_vertexShaderSource{},
+		_fragmentShaderSource{},
+		_uniformLocationCache{} {
 
 		_glID = glCreateProgram();
 
@@ -415,7 +400,7 @@ unsigned Program::getAttributeLocation(const char* name) const {
 //	free(name);
 //}
 
-string Program::name() const {
+const string& Program::name() const {
 	return _name;
 }
 
@@ -427,7 +412,7 @@ bool Program::isLinked() const {
 	return _isLinked;
 }
 
-optional<string> Program::vertexShaderSource() const {
+const optional<string>& Program::vertexShaderSource() const {
 	return _vertexShaderSource;
 }
 
@@ -435,7 +420,7 @@ void Program::vertexShaderSource(string source) {
 	_vertexShaderSource = source;
 }
 
-optional<string> Program::fragmentShaderSource() const {
+const optional<string>& Program::fragmentShaderSource() const {
 	return _fragmentShaderSource;
 }
 
@@ -465,7 +450,7 @@ void Program::fragmentShaderSource(string source) {
 //	return nullopt;
 //}
 
-optional<string> Program::shaderSource(const string &name, const string &type) {
+optional<string> Program::shaderSource(const string& name, const string& type) {
 
 	auto source = utils::ShaderSource(name, type);
 
@@ -563,7 +548,7 @@ void Program::prepare() {
 //	}
 //}
 
-bool Program::compile(const string &source, ShaderType type) {
+bool Program::compile(const string& source, ShaderType type) {
 
 	A3D_LOG_I("Compiling {} shader for program '{}'...",
 			 magic_enum::enum_name(type), name());

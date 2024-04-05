@@ -19,7 +19,7 @@ namespace a3d {
 
 	public:
 
-		SpherePhysicsShape(float radius);
+		explicit SpherePhysicsShape(float radius);
 		~SpherePhysicsShape();
 
 /*********************************************************************************************

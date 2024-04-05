@@ -61,9 +61,9 @@ Window::Window(RenderingApi renderAPI,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
-		RenderContext(renderAPI),
-		_glfwWindow(nullptr),
-		_cursorCaptured(false) {
+		RenderContext{renderAPI},
+		_glfwWindow{},
+		_cursorCaptured{false} {
 
 	if (InitGLFW()) {
 #ifdef OPENGL_DESKTOP
@@ -214,7 +214,7 @@ string Window::title() const {
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
-void Window::title(string title) {
+void Window::title(const string& title) {
 
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }

@@ -28,7 +28,7 @@ namespace a3d {
 
 	public:
 
-		BulletBodyProxy(PhysicsBody* body);
+		explicit BulletBodyProxy(PhysicsBody& body);
 		~BulletBodyProxy() override;
 
 /*********************************************************************************************
@@ -48,7 +48,7 @@ namespace a3d {
 		void					momentOfInertia(const glm::vec3& moment) override;
 
 		glm::vec3				centerOfMass() const override;
-		void					centerOfMass(const glm::vec3 offset) override;
+		void					centerOfMass(const glm::vec3& offset) override;
 
 		float					friction() const override;
 		void					friction(float friction) override;
@@ -114,9 +114,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		std::shared_ptr<btRigidBody>			btBody();
-		//std::shared_ptr<btDefaultMotionState>	btMotionState();
-		std::shared_ptr<MotionState>			motionState();
+		btRigidBody*			btBody();
+		MotionState*			motionState();
 
 /*********************************************************************************************
 	 Private
@@ -126,9 +125,8 @@ namespace a3d {
 
 		void					calculateMomentOfIntertia();
 
-		std::shared_ptr<btRigidBody>			_btBody;
-		//std::shared_ptr<btDefaultMotionState>	_btMotionState;
-		std::shared_ptr<MotionState>			_motionState;
+		std::unique_ptr<btRigidBody>	_btBody;
+		std::unique_ptr<MotionState>	_motionState;
 	};
 }
 

@@ -12,7 +12,7 @@ using namespace a3d;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape* shape) { }
+PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape& shape) { }
 PhysicsShapeProxy::~PhysicsShapeProxy() { }
 
 /*********************************************************************************************

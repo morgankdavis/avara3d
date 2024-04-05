@@ -15,9 +15,9 @@ using namespace a3d;
  *********************************************************************************************/
 
 BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
-	_width(width),
-	_height(height),
-	_length(length) {}
+	_width{width},
+	_height{height},
+	_length{length} {}
 
 BoxPhysicsShape::~BoxPhysicsShape() {}
 

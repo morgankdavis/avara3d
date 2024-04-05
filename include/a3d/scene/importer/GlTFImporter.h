@@ -17,6 +17,8 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
+#include "a3d/scene/Scene.h" // why can't this be forward-declared?
+// -> https://stackoverflow.com/questions/6012157/is-stdunique-ptrt-required-to-know-the-full-definition-of-t
 
 
 namespace a3d {
@@ -31,7 +33,6 @@ namespace a3d {
 	class MeshElement;
 	class Node;
 	class Sampler;
-	class Scene;
 	class Texture;
 
 
@@ -39,10 +40,10 @@ namespace a3d {
 
 	public:
 
-		GlTFImporter(const std::filesystem::path& path,
-					 SceneImportOptions options = SceneImportOptions::ImportAll);
+		explicit GlTFImporter(const std::filesystem::path& path,
+							  SceneImportOptions options = SceneImportOptions::ImportAll);
 
-		std::shared_ptr<Scene> 				scene();
+		std::unique_ptr<Scene> 				scene();
 		std::shared_ptr<Mesh> 				firstMesh();
 
 		const std::filesystem::path&		path() const;
@@ -53,12 +54,12 @@ namespace a3d {
 		bool								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node,
-														  std::shared_ptr<Node> parent);
+														  Node* parent);
 		std::shared_ptr<Mesh> 				meshFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 		std::shared_ptr<Mesh> 				meshFromGlTFMeshIndex(fastgltf::Asset& asset,
 																   std::size_t meshIndex);
-		std::shared_ptr<MeshElement> 		meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+		std::unique_ptr<MeshElement> 		meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
 																		 fastgltf::Primitive& primitive);
 		std::shared_ptr<Material> 			materialFromGlTFPrimitive(fastgltf::Asset& asset,
 																	   fastgltf::Primitive& primitive);
@@ -69,14 +70,14 @@ namespace a3d {
 																   fastgltf::Texture& texture);
 		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
 																   fastgltf::Texture& texture);
-		std::shared_ptr<Light> 				lightFromGlTFNode(fastgltf::Asset& asset,
+		std::shared_ptr<Light>				lightFromGlTFNode(fastgltf::Asset& asset,
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;
-		std::shared_ptr<Scene> 										_scene;
+		std::unique_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
 		SceneImportOptions											_options;
 		// TODO: switch these to vectors resized from asset?

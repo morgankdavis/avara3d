@@ -357,32 +357,32 @@ vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 		// [local] archived
 		// [local] cmake installed ("packaged")
 		auto path = (*execDir) / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [local] xcode debug
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [local] unix/msys debug
 		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] archived
 		path = (*execDir).parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] cmake installed ("packaged")
 		// [engine] xcode debug
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// [engine] unix/msys debug
 		path = (*execDir).parent_path().parent_path().parent_path() / "data";
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 		
 		// fallback
 		path = (*execDir);
-		basePaths.emplace_back(path);
+		basePaths.push_back(path);
 	}
 	
 	return basePaths;
@@ -391,7 +391,7 @@ vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ShaderSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "shaders");
+		searchPaths.push_back(path / "shaders");
 	}
 	return searchPaths;
 }
@@ -399,7 +399,7 @@ vector<std::filesystem::path> a3d::utils::ShaderSearchPaths() {
 vector<std::filesystem::path> a3d::utils::SceneSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "scenes");
+		searchPaths.push_back(path / "scenes");
 	}
 	return searchPaths;
 }
@@ -407,7 +407,7 @@ vector<std::filesystem::path> a3d::utils::SceneSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ModelSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "models");
+		searchPaths.push_back(path / "models");
 	}
 	return searchPaths;
 }
@@ -415,7 +415,7 @@ vector<std::filesystem::path> a3d::utils::ModelSearchPaths() {
 vector<std::filesystem::path> a3d::utils::ImageSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "images");
+		searchPaths.push_back(path / "images");
 	}
 	return searchPaths;
 }
@@ -423,7 +423,7 @@ vector<std::filesystem::path> a3d::utils::ImageSearchPaths() {
 vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.emplace_back(path / "fonts");
+		searchPaths.push_back(path / "fonts");
 	}
 	return searchPaths;
 }
@@ -517,7 +517,7 @@ std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 
 // *** fonts ***
 
-shared_ptr<Font> a3d::utils::FontNamed(const string& name,
+unique_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
 #ifdef ANDROID
 	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
@@ -525,7 +525,7 @@ shared_ptr<Font> a3d::utils::FontNamed(const string& name,
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
 		A3D_LOG_T("Found font at path: {}", (*path).string());
-		return make_shared<Font>(*path);
+		return make_unique<Font>(*path);
 	}
 #endif
 	return nullptr;
@@ -534,14 +534,14 @@ shared_ptr<Font> a3d::utils::FontNamed(const string& name,
 
 // ***  images ***
 
-shared_ptr<Image> a3d::utils::ImageNamed(const string& name,
+unique_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										bool flipHorizontal,
 										bool flipVertical) {
 
 	return ImageNamed(name, "png", flipHorizontal, flipVertical);
 }
 
-shared_ptr<Image> a3d::utils::ImageNamed(const string& name,
+unique_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										const string& type,
 										bool flipHorizontal,
 										bool flipVertical) {
@@ -553,23 +553,23 @@ shared_ptr<Image> a3d::utils::ImageNamed(const string& name,
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
 		A3D_LOG_D("Found image at path: {}", (*path).string());
-		return make_shared<Image>(*path, flipHorizontal, flipVertical);
+		return make_unique<Image>(*path, flipHorizontal, flipVertical);
 	}
 #endif
 	return nullptr;
 }
 
-shared_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name) {
+unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name) {
 	
 	return CubeImageNamed(name, "png");
 }
 
-shared_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
+unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
 												const string& type) {
 	
 	// panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
 
-	return make_shared<CubeImage>(ImageNamed(name + "_posx", type, false, true),
+	return make_unique<CubeImage>(ImageNamed(name + "_posx", type, false, true),
 								  ImageNamed(name + "_negx", type, false, true),
 								  ImageNamed(name + "_posy", type, true, false),
 								  ImageNamed(name + "_negy", type, true, false),
@@ -580,13 +580,13 @@ shared_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
 // *** scenes ***
 
 #ifndef ANDROID
-shared_ptr<Scene> a3d::utils::SceneNamed(const string& name,
+unique_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										SceneImportOptions options) {
 
 	return SceneNamed(name, "gltf", options);
 }
 
-shared_ptr<Scene> a3d::utils::SceneNamed(const string& name,
+unique_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										const string& type,
 										SceneImportOptions options) {
 	

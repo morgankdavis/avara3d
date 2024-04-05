@@ -28,14 +28,14 @@ shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 							int slices,
 							int segments,
 							int rings,
-							shared_ptr<Material> material) {
+							const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Tube>(innerRadius,
-													outerRadius,
-													height,
-													slices,
-													segments,
-													rings),
+	return make_shared<a3d::Mesh>("Tube", make_unique<Tube>(innerRadius,
+															outerRadius,
+															height,
+															slices,
+															segments,
+															rings),
 								  material);
 }
 
@@ -49,7 +49,7 @@ Tube::Tube(float innerRadius,
 		   int slices,
 		   int segments,
 		   int rings):
-		MeshElement(),
+		MeshElement{},
 		_innerRadius{innerRadius},
 		_outerRadius{outerRadius},
 		_height{height},

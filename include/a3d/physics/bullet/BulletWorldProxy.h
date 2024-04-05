@@ -15,7 +15,6 @@
 
 class btCollisionDispatcher;
 struct btDbvtBroadphase;
-
 class btDiscreteDynamicsWorld;
 class btSequentialImpulseConstraintSolver;
 class btDefaultCollisionConfiguration;
@@ -37,7 +36,7 @@ namespace a3d {
 
 	public:
 
-		BulletWorldProxy(PhysicalWorld* world);
+		explicit BulletWorldProxy(PhysicalWorld& world);
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************

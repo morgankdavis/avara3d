@@ -36,7 +36,7 @@ namespace a3d {
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
-		~InputManager();
+		virtual ~InputManager();
 
 /*********************************************************************************************
 	Public
@@ -65,8 +65,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void						attachedToScene(Scene* scene);
-		void						detachedFromScene(Scene* scene);
+		void						attachedToScene(Scene& scene);
+		void						detachedFromScene(Scene& scene);
 
 		virtual void				update() = 0;
 
