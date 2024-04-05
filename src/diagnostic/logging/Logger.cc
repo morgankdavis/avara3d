@@ -97,7 +97,7 @@ Logger::Logger(const string& name,
 			   LogLevel level,
 			   LogLevel flushLevel):
 		_name{name},
-		_sinks{unordered_set<unique_ptr<LoggerSink>>()},
+		_sinks{},
 		_level{level},
 		_flushLevel{flushLevel} {
 

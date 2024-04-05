@@ -277,7 +277,8 @@ void InitLog() {
 
 	Logger::MainLogger().level(LOG_LEVEL);
 
-	for (unsigned l=0; l < 50000; ++l) {
-		LOG_I(logger, "line {}", l);
-	}
+//	for (unsigned l=0; l < 50000; ++l) {
+//		A3D_LOG_I("line {}", l);
+//		LOG_I(logger, "line {}", l);
+//	}
 }
