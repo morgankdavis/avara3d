@@ -10,8 +10,6 @@
 
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 
-#include <set>
-
 #include "a3d/Color.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -77,13 +75,8 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 
 	_lines.push_back(Line(GLMVec3FromBTVector3(from),
 						  GLMVec3FromBTVector3(to),
-						  make_shared<Color>(fromColor.x(), fromColor.y(), fromColor.z(), 1.0),
-						  make_shared<Color>(toColor.x(), toColor.y(), toColor.z(), 1.0)));
-
-//	_lines.push_back(Line(GLMVec3FromBTVector3(from),
-//						  GLMVec3FromBTVector3(to),
-//							Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
-//							Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
+						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
+						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
 }
 
 /*

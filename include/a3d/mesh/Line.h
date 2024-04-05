@@ -14,15 +14,11 @@
 
 #include "glm/glm.hpp"
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/Color.h"
 
 
 namespace a3d {
-	
-	
-	class Color;
 
-	
 	class Line {
 
 /*********************************************************************************************
@@ -35,27 +31,27 @@ namespace a3d {
 			 const glm::vec3& toLocation);
 		Line(const glm::vec3& fromLocation,
 			 const glm::vec3& toLocation,
-			 const std::shared_ptr<Color>& color);
+			 const Color& color);
 		Line(const glm::vec3& fromLocation,
 			 const glm::vec3& toLocation,
-			 const std::shared_ptr<Color>& fromColor,
-			 const std::shared_ptr<Color>& toColor);
+			 const Color& fromColor,
+			 const Color& toColor);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		const glm::vec3& 					fromLocation() const;
-		void 								fromLocation(const glm::vec3& location);
+		const glm::vec3& 		fromLocation() const;
+		void 					fromLocation(const glm::vec3& location);
 
-		const glm::vec3& 					toLocation() const;
-		void 								toLocation(const glm::vec3& location);
+		const glm::vec3& 		toLocation() const;
+		void 					toLocation(const glm::vec3& location);
 
-		const std::shared_ptr<Color>& 		fromColor() const;
-		void 								fromColor(const std::shared_ptr<Color>& color);
+		const Color& 			fromColor() const;
+		void 					fromColor(const Color& color);
 
-		const std::shared_ptr<Color>& 		toColor() const;
-		void 								toColor(const std::shared_ptr<Color>& color);
+		const Color& 			toColor() const;
+		void 					toColor(const Color& color);
 		
 /*********************************************************************************************
 	Private
@@ -63,10 +59,10 @@ namespace a3d {
 
 	private:
 
-		glm::vec3 							_fromLocation;
-		glm::vec3 							_toLocation;
-		std::shared_ptr<Color> 				_fromColor;
-		std::shared_ptr<Color> 				_toColor;
+		glm::vec3 				_fromLocation;
+		glm::vec3 				_toLocation;
+		Color 					_fromColor;
+		Color 					_toColor;
 	};
 }
 

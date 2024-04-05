@@ -790,9 +790,9 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 		auto toLocation = line.toLocation();
 		const auto& toColor = line.toColor();
 		massagedBuffer.push_back(fromLocation);
-		massagedBuffer.push_back({fromColor->r, fromColor->g, fromColor->b});
+		massagedBuffer.push_back({fromColor.r, fromColor.g, fromColor.b});
 		massagedBuffer.push_back(toLocation);
-		massagedBuffer.push_back({toColor->r, toColor->g, toColor->b});
+		massagedBuffer.push_back({toColor.r, toColor.g, toColor.b});
 	}
 
 	glGenBuffers(1, &glVBO);
