@@ -46,43 +46,43 @@ using namespace std;
 	Static Prototypes
  *********************************************************************************************/
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+					  vector<unique_ptr<btCollisionShape>>& btShapes,
+					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+					  vector<unique_ptr<btCollisionShape>>& btShapes,
+					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape);
 
 static unique_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
-					   vector<shared_ptr<btCollisionShape>>& btShapes,
+					   vector<unique_ptr<btCollisionShape>>& btShapes,
 					   btTriangleIndexVertexArray& btIndexVertexArray);
 
-static shared_ptr<btCompoundShape>
+static unique_ptr<btCompoundShape>
 BTShapeFromMesh(Mesh& mesh,
 				PhysicsShapeType shapeType,
 				PhysicsBodyType bodyType,
-				vector<shared_ptr<btCollisionShape>>& btShapes,
-				vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+				vector<unique_ptr<btCollisionShape>>& btShapes,
+				vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static void
 AddBTShapeFromNodeRec(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
 					  btCompoundShape& compoundShape,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
+					  vector<unique_ptr<btCollisionShape>>& btShapes,
+					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
 static unique_ptr<btConvexHullShape>
 BTConvexHullShapeFromMeshElement(MeshElement& element);
@@ -97,7 +97,7 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 
 static unique_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
-											 vector<shared_ptr<btCollisionShape>>& btShapes);
+											 vector<unique_ptr<btCollisionShape>>& btShapes);
 
 static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
@@ -115,10 +115,10 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
 	auto bodyType = (*shape.bodies().begin())->type();
 
-	shared_ptr<btCollisionShape> newShape = nullptr;
+	unique_ptr<btCollisionShape> newShape = nullptr;
 
-	auto btShapes = vector<shared_ptr<btCollisionShape>>();
-	auto btIndexVertexArrays = vector<shared_ptr<btTriangleIndexVertexArray>>();
+	auto btShapes = vector<unique_ptr<btCollisionShape>>();
+	auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
 
 	auto sourceObject = shape.source();
 
@@ -161,10 +161,15 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 	if (newShape) {
 
 		newShape->setUserPointer(static_cast<void*>(&shape));
-		btShapes.insert(btShapes.begin(), newShape);
+		btShapes.insert(btShapes.begin(), std::move(newShape));
 
-		_btShapes = btShapes;
-		_btIndexVertexArrays = btIndexVertexArrays;
+		_btShapes.insert(_btShapes.begin(),
+						 std::make_move_iterator(btShapes.begin()),
+						 std::make_move_iterator(btShapes.end()));
+
+		_btIndexVertexArrays.insert(_btIndexVertexArrays.begin(),
+									std::make_move_iterator(btIndexVertexArrays.begin()),
+									std::make_move_iterator(btIndexVertexArrays.end()));
 
 //		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
 //														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
@@ -182,7 +187,7 @@ BulletShapeProxy::~BulletShapeProxy() {
 	Public
  *********************************************************************************************/
 
-vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
+const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	return _btShapes;
 }
 
@@ -190,26 +195,27 @@ vector <shared_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	Static
  *********************************************************************************************/
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+					  vector<unique_ptr<btCollisionShape>>& btShapes,
+					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
-	shared_ptr<btCollisionShape> newShape = nullptr;
+	unique_ptr<btCollisionShape> newShape = nullptr;
 
 	if (mesh.elements().size() == 1) {
 		// make a single shape
 
-		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
+		auto indexVertexArray = make_unique<btTriangleIndexVertexArray>();
 		newShape = BTShapeFromMeshElement(*(mesh.elements().front()),
 										  shapeType,
 										  bodyType,
 										  btShapes,
 										  *indexVertexArray);
-		btShapes.push_back(newShape);
-		btIndexVertexArrays.push_back(indexVertexArray);
+
+		//btShapes.push_back(newShape); // handled in caller
+		btIndexVertexArrays.push_back(std::move(indexVertexArray));
 	}
 	else if (mesh.elements().size() > 1) {
 		// make compound shape, loop BTShapeFromMeshElement()
@@ -228,19 +234,19 @@ BTShapeFromSourceMesh(Mesh& mesh,
 	return newShape;
 }
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  vector<shared_ptr<btCollisionShape>>& btShapes,
-					  vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+					  vector<unique_ptr<btCollisionShape>>& btShapes,
+					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
 	// *** won't work for most static, kinematic? ***
 	// "adding the following shapes to a btCompoundShape is not supported: btTriangleShape,
 	// btBvhTriangleMeshShape, btGImpact*Shape, btStaticPlaneShape and a bunch more."
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=17718#p17718
 
-	auto rootShape = make_shared<btCompoundShape>(true); // added to btShapes by caller
+	auto rootShape = make_unique<btCompoundShape>(true); // added to btShapes by caller
 
 	// add the root mesh
 	auto& mesh = node.mesh();
@@ -253,7 +259,7 @@ BTShapeFromSourceNode(Node& node,
 											btIndexVertexArrays);
 		rootShape->addChildShape(btTransform::getIdentity(),
 								 nodeGeoShape.get());
-		btShapes.push_back(nodeGeoShape);
+		btShapes.push_back(std::move(nodeGeoShape));
 	}
 
 	// add child geometries recursively
@@ -269,34 +275,34 @@ BTShapeFromSourceNode(Node& node,
 	return rootShape;
 }
 
-static shared_ptr<btCollisionShape>
+static unique_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 
 	if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
-		return make_shared<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
+		return make_unique<btBoxShape>(btVector3((btScalar)boxShape->width()/2.0f,
 												 (btScalar)boxShape->height()/2.0f,
 												 (btScalar)boxShape->length()/2.0f));
 	}
 	else if (auto capsuleShape = dynamic_cast<CapsulePhysicsShape*>(&shape)) {
-		return make_shared<btCapsuleShape>((btScalar)capsuleShape->radius(),
+		return make_unique<btCapsuleShape>((btScalar)capsuleShape->radius(),
 										   (btScalar)capsuleShape->height());
 	}
 	else if (auto coneShape = dynamic_cast<ConePhysicsShape*>(&shape)) {
-		return make_shared<btConeShape>((btScalar)coneShape->radius(),
+		return make_unique<btConeShape>((btScalar)coneShape->radius(),
 										(btScalar)coneShape->height());
 	}
 	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
-		return make_shared<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
+		return make_unique<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
 													  (btScalar)round(cylinderShape->height()/2.0),
 													  (btScalar)cylinderShape->radius()));
 	}
 	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
-		return make_shared<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
+		return make_unique<btBoxShape>(btVector3((btScalar)planeShape->width()/2.0f,
 												 (btScalar)planeShape->height()/2.0f,
 												 (btScalar)0));
 	}
 	else if (auto sphereShape = dynamic_cast<SpherePhysicsShape*>(&shape)) {
-		return make_shared<btSphereShape>((btScalar)sphereShape->radius());
+		return make_unique<btSphereShape>((btScalar)sphereShape->radius());
 	}
 	else {
 		A3D_LOG_E("PhysicsShape {:p} is not a valid subclass.",
@@ -310,7 +316,7 @@ unique_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement& element,
 					   PhysicsShapeType shapeType,
 					   PhysicsBodyType bodyType,
-					   vector<shared_ptr<btCollisionShape>>& btShapes,
+					   vector<unique_ptr<btCollisionShape>>& btShapes,
 					   btTriangleIndexVertexArray& btIndexVertexArray) {
 
 	if (shapeType == PhysicsShapeType::BoundingBox) {
@@ -390,30 +396,30 @@ BTShapeFromMeshElement(MeshElement& element,
 	return nullptr;
 }
 
-shared_ptr<btCompoundShape>
+unique_ptr<btCompoundShape>
 BTShapeFromMesh(Mesh& mesh,
 				PhysicsShapeType shapeType,
 				PhysicsBodyType bodyType,
-				vector<shared_ptr<btCollisionShape>>& btShapes,
-				vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+				vector<unique_ptr<btCollisionShape>>& btShapes,
+				vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
-	auto newShape = make_shared<btCompoundShape>(true); // added to btShapes bt caller
+	auto newShape = make_unique<btCompoundShape>(true); // added to btShapes bt caller
 
 	for (auto& element : mesh.elements()) {
 
-		auto indexVertexArray = make_shared<btTriangleIndexVertexArray>();
-		auto childShape = shared_ptr(std::move(BTShapeFromMeshElement(*element,
-																	  shapeType,
-																	  bodyType,
-																	  btShapes,
-																	  *indexVertexArray)));
+		auto indexVertexArray = make_unique<btTriangleIndexVertexArray>();
+		auto childShape = BTShapeFromMeshElement(*element,
+												 shapeType,
+												 bodyType,
+												 btShapes,
+												 *indexVertexArray);
 
 		// the Mesh's transform is added to the btRigidBody's localInertia
 		newShape->addChildShape(btTransform::getIdentity(),
 								childShape.get());
 
-		btShapes.push_back(childShape);
-		btIndexVertexArrays.push_back(indexVertexArray);
+		btShapes.push_back(std::move(childShape));
+		btIndexVertexArrays.push_back(std::move(indexVertexArray));
 	}
 
 	return newShape;
@@ -423,10 +429,10 @@ void AddBTShapeFromNodeRec(Node& node,
 						   PhysicsShapeType shapeType,
 						   PhysicsBodyType bodyType,
 						   btCompoundShape& btParentShape,
-						   vector<shared_ptr<btCollisionShape>>& btShapes,
-						   vector<shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
+						   vector<unique_ptr<btCollisionShape>>& btShapes,
+						   vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
-	auto newShape = make_shared<btCompoundShape>(true);
+	auto newShape = make_unique<btCompoundShape>(true);
 
 	if (node.name() != nullopt) {
 		A3D_LOG_I("name: {}", *node.name());
@@ -441,12 +447,8 @@ void AddBTShapeFromNodeRec(Node& node,
 											btIndexVertexArrays);
 		newShape->addChildShape(btTransform::getIdentity(),
 								nodeGeoShape.get());
-		btShapes.push_back(nodeGeoShape);
+		btShapes.push_back(std::move(nodeGeoShape));
 	}
-
-	btParentShape.addChildShape(BTTransformFromGLMMat4(node.transform()),
-								 newShape.get());
-	btShapes.push_back(newShape);
 
 	// add child geometries recursively
 	for (auto& childNode : node.children(false)) {
@@ -457,6 +459,10 @@ void AddBTShapeFromNodeRec(Node& node,
 							  btShapes,
 							  btIndexVertexArrays);
 	}
+
+	btParentShape.addChildShape(BTTransformFromGLMMat4(node.transform()),
+								newShape.get());
+	btShapes.push_back(std::move(newShape));
 }
 
 unique_ptr<btConvexHullShape>
@@ -556,7 +562,7 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 
 unique_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
-											 vector<shared_ptr<btCollisionShape>>& btShapes) {
+											 vector<unique_ptr<btCollisionShape>>& btShapes) {
 	A3D_LOG_I("Creating convex hull compound physics shape for HACD MeshElement {:p}...",
 			 static_cast<void*>(&element));
 
@@ -566,7 +572,7 @@ BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
 	for (auto& hacdElement : hacdElements) {
 		auto convextHullShape = BTConvexHullShapeFromMeshElement(*hacdElement);
 		compoundShape->addChildShape(btTransform::getIdentity(), convextHullShape.get());
-		btShapes.push_back(shared_ptr(std::move(convextHullShape))); // TODO: here
+		btShapes.push_back(std::move(convextHullShape));
 	}
 
 	return compoundShape;

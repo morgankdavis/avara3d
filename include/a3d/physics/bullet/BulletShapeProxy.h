@@ -35,7 +35,7 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<btCollisionShape>>& btShapes(); // TODO: make unique_ptr
+		const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
 /*********************************************************************************************
 	 Private
@@ -43,8 +43,8 @@ namespace a3d {
 
 	private:
 
-		std::vector<std::shared_ptr<btCollisionShape>>				_btShapes; // TODO: make unique_ptr
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays; // TODO: make unique_ptr
+		std::vector<std::unique_ptr<btCollisionShape>>				_btShapes;
+		std::vector<std::unique_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
 	};
 }
 

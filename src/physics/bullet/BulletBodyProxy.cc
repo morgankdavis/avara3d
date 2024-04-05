@@ -144,9 +144,10 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
-		if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front()) {
 
-			_btBody->setCollisionShape(btShape.get());
+		if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front().get()) {
+
+			_btBody->setCollisionShape(btShape);
 
 			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
@@ -477,7 +478,7 @@ MotionState* BulletBodyProxy::motionState() {
 void BulletBodyProxy::calculateMomentOfIntertia() {
 
 	if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeProxy)) {
-		if (auto btShape = btShapeModel->btShapes().front()) {
+		if (auto btShape = btShapeModel->btShapes().front().get()) {
 			btVector3 localInertia;
 			auto mass = _body->mass();
 			btShape->calculateLocalInertia(mass, localInertia);
