@@ -125,8 +125,8 @@ namespace a3d {
 
 		void					calculateMomentOfIntertia();
 
-		std::unique_ptr<btRigidBody>			_btBody;
-		std::unique_ptr<MotionState>			_motionState;
+		std::unique_ptr<btRigidBody>	_btBody;
+		std::unique_ptr<MotionState>	_motionState;
 	};
 }
 

@@ -15,7 +15,6 @@
 
 class btCollisionDispatcher;
 struct btDbvtBroadphase;
-
 class btDiscreteDynamicsWorld;
 class btSequentialImpulseConstraintSolver;
 class btDefaultCollisionConfiguration;
