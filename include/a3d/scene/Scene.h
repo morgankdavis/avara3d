@@ -42,15 +42,16 @@ namespace a3d {
 
 	public:
 
-		using UpdateCallback =					std::function<void(Scene& scene, float time)>;
+		using UpdateCallback =				std::function<void(Scene& scene, float time)>;
 
 /*********************************************************************************************
 	Public Static
  *********************************************************************************************/
 
-		static std::unique_ptr<Scene> 			FromFile(const std::filesystem::path& path,
-														  SceneImportOptions options = SceneImportOptions::ImportAll);
-		static double 							Time();
+		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
+													  SceneImportOptions options =
+															  SceneImportOptions::ImportAll);
+		static double 						Time();
 
 /*********************************************************************************************
 	Lifecycle

@@ -39,15 +39,15 @@ namespace a3d {
 
 	public:
 
-		/* <a3d::MeshElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ibo>> */
 		using MeshElementGLMapping =
 				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>;
 
-		/* <a3d::Texture : <gl_textureHandle> */
+		/* <a3d::Texture* : <gl_textureHandle> */
 		using TextureGLMapping =
 				std::map<Texture*, unsigned>;
 
-		/* <vector<a3d::Line>> : <gl_vboHandle, gl_vaoHandle>> */
+		/* <vector<a3d::Line>>* : <gl_vbo, gl_vao>> */
 		using LinesGLMapping =
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
@@ -111,13 +111,10 @@ namespace a3d {
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;
 		LinesGLMapping									_linesGLMapping;
-
 		std::unordered_set<MeshElement*>				_activeMeshElements;
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
-
 		unsigned										_glEnvironmentUBO;
-		
 		std::unique_ptr<Font>							_overlayFont;
 	};
 }

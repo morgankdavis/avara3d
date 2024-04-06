@@ -38,9 +38,6 @@ namespace a3d {
 		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
 		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
 
-//		static std::unique_ptr<Material> DiffuseMaterial(Material::Property property);
-//		static std::unique_ptr<Material> EmissionMaterial(Material::Property property);
-		
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
@@ -108,19 +105,16 @@ namespace a3d {
 	private:
 
 		std::optional<std::string>			_name;
-
 		MaterialProperty					_ambient;
 		MaterialProperty					_diffuse;
 		MaterialProperty					_specular;
 		MaterialProperty					_emission;
-
 		float 								_specularExponent;
 		bool 								_locksAmbientWithDiffuse;
 		bool 								_doubleSided;
 		FillMode 							_fillMode;
 		float 								_uvScale;
 		BlendFunction						_blendFunction;
-
 		MaterialDirtyMask					_dirtyMask;
 	};
 }

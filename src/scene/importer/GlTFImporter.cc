@@ -230,9 +230,6 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
-//	auto nodePtr = a3dNode.get();
-//	parent->addChild(std::move(a3dNode));
-
 	for (auto c: node.children) {
 		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
 	}
@@ -575,8 +572,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 					// log error to draw attention -- at time of initial glTF integration
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
-					A3D_LOG_E("anisotropyStrength: {}", strength);
-//					a3dMaterial->maxAnisotropy(strength);
+					A3D_LOG_I("anisotropyStrength: {}", strength);
 
 					for (auto [property, type] : a3dMaterial->properties()) {
 						if (holds_alternative<shared_ptr<Texture>>(*property)) {
@@ -604,7 +600,6 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 		A3D_LOG_W("Missing material.");
 	}
 
-//	return make_shared<Material>();
 	return a3d::Material::DefaultMaterial();
 }
 

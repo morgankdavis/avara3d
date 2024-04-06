@@ -102,7 +102,6 @@ namespace a3d {
 		unsigned 							getUniformLocation(const char* name);
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
-		void 								logString(std::optional<std::string> logString);
 
 		std::string  						_name;
 		unsigned  							_glID;

@@ -110,7 +110,6 @@ namespace a3d {
 
 		Source 								_source;
 		std::unordered_set<PhysicsBody*>	_bodies;
-//		std::unique_ptr<PhysicsShapeModelProxy>	_proxy;
 	};
 }
 
