@@ -51,9 +51,10 @@ void BulletDebugDrawer::clear() {
 void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& viewMat,
 							 const mat4& projectionMat) {
-	
+
+	constexpr auto M4_I = mat4(1.0);
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		renderer.render(_lines, mat4(1.0), viewMat, projectionMat);
+		renderer.render(_lines, M4_I, viewMat, projectionMat);
 	}
 }
 

@@ -55,10 +55,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 #endif
 }
 
-BulletWorldProxy::~BulletWorldProxy()/*:
-		PhysicalWorldModelProxy::PhysicalWorldModelProxyProxy()*/ {
-
-	//PhysicalWorldModelProxy::PhysicalWorldModelProxyProxy();
+BulletWorldProxy::~BulletWorldProxy() {
 
 	A3D_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
@@ -83,24 +80,6 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 	_btWorld->removeRigidBody(bodyProxy->btBody());
 }
 
-//unique_ptr<vector<PhysicsBody*>> BulletWorldProxy::bodies() const {
-//
-//	auto collisionObjects = _btWorld->getCollisionObjectArray();
-//	auto numCollisionObjects = _btWorld->getNumCollisionObjects();
-//	auto bodies = make_unique<vector<PhysicsBody*>>();
-//	bodies->reserve(numCollisionObjects);
-//	for (int o=0; o<numCollisionObjects; ++o) {
-//		auto object = collisionObjects[o];
-//
-//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-//			bodies->push_back(body);
-//		}
-//	}
-//
-//	return bodies;
-//}
-
 float BulletWorldProxy::gravity() const {
 	return _btWorld->getGravity().y();
 }
@@ -108,44 +87,6 @@ float BulletWorldProxy::gravity() const {
 void BulletWorldProxy::gravity(float gravity) {
 	_btWorld->setGravity({0, gravity, 0});
 }
-
-//void BulletWorldProxy::update(Stats& stats) {
-//
-//	auto collisionObjects = _btWorld->getCollisionObjectArray();
-//	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
-//		auto object = collisionObjects[o];
-//
-//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-//
-//			switch (body->type()) {
-//
-//				case PHYSICS_BODY_TYPE::DYNAMIC:
-//					++stats.dynamicBodies;
-//					break;
-//
-//				case PHYSICS_BODY_TYPE::KINEMATIC: {
-//					++stats.kinematicBodies;
-//
-//					auto worldTransform = body->node()->worldTransform();
-//					auto toTransform = BTTransformFromGLMMat4(worldTransform);
-//
-//					btBody->setWorldTransform(toTransform);
-//
-//					// works
-////					auto motionState = btBody->getMotionState();
-////					motionState->setWorldTransform(toTransform); // and this kinematic...
-////					btBody->setMotionState(motionState);
-////					btBody->setActivationState(ACTIVE_TAG);
-//					break; }
-//
-//				case PHYSICS_BODY_TYPE::STATIC:
-//					++stats.staticBodies;
-//					break;
-//			}
-//		}
-//	}
-//}
 
 void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 
@@ -157,31 +98,6 @@ void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 	}
 }
-
-//void BulletWorldProxy::sync() {
-//
-//	auto collisionObjects = _btWorld->getCollisionObjectArray();
-//	for (int o=0; o<_btWorld->getNumCollisionObjects(); ++o) {
-//		auto object = collisionObjects[o];
-//
-//		if (auto btBody = dynamic_cast<btRigidBody*>(object)) {
-//			auto body = static_cast<PhysicsBody*>(btBody->getUserPointer());
-//
-//			switch (body->type()) {
-//
-//				case PHYSICS_BODY_TYPE::DYNAMIC:
-//					static btTransform btWorldTransform;
-//					btBody->getMotionState()->getWorldTransform(btWorldTransform);
-//					body->node()->applyPhysicsTransform(GLMMat4FromBTTransform(btWorldTransform));
-//					break;
-//
-//				case PHYSICS_BODY_TYPE::KINEMATIC:
-//				case PHYSICS_BODY_TYPE::STATIC:
-//					break;
-//			}
-//		}
-//	}
-//}
 
 void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();

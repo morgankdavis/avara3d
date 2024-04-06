@@ -87,16 +87,15 @@ namespace a3d {
 															  bool normals);
 
 		void 									draw(Renderer& renderer,
-														 const glm::mat4& modelMat,
-														 const glm::mat4& viewMat,
-														 const glm::mat4& projectionMat,
-														 const DebugOptions& debugOptions,
-														 Stats& stats);
+													 const glm::mat4& modelMat,
+													 const glm::mat4& viewMat,
+													 const glm::mat4& projectionMat,
+													 const DebugOptions& debugOptions,
+													 Stats& stats);
 
 		AABB									aabb(const Node* convertTo = nullptr) const;
 		glm::vec3 								extent(const Node* convertTo = nullptr) const;
 
-		//const std::vector<Line>&				aabbLines(bool& dirty);
 		const std::vector<Line>&				aabbLines();
 
 		MeshDirtyMask 							dirtyMask() const;
@@ -120,9 +119,7 @@ namespace a3d {
 		Mesh();
 
 		std::optional<std::string>				_name;
-
 		std::vector<Line>						_aabbLines;
-
 		MeshDirtyMask							_dirtyMask;
 	};
 }

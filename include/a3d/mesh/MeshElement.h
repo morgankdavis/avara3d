@@ -73,7 +73,6 @@ namespace a3d {
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
-
 		MeshElementDirtyMask			_dirtyMask;
 	};
 }

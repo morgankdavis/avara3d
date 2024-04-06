@@ -79,9 +79,6 @@ static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
-//static void 		GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-//													 OpenGLRenderer::LinesGLMapping& linesGLMapping,
-//													 GLuint& glVBO, GLuint& glVAO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
 											 Program& program,
 											 OpenGLRenderer::LinesGLMapping& glMapping,
@@ -119,7 +116,9 @@ static void	 		SetSkyboxOpenGLState();
 static void 		SetLinesGLState();
 static void 		DrawMeshElement(MeshElement& element,
 								   Program& program,
-								   mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+								   const mat4& modelMat,
+								   const mat4& viewMat,
+								   const mat4& projectionMat,
 								   GLuint vao, GLuint ibo);
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
@@ -127,9 +126,9 @@ static void 		DrawSkyboxElement(MeshElement& element,
 									 GLuint vao, GLuint ibo);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
-							 mat4 modelMat,
-							 mat4 viewMat,
-							 mat4 projectionMat,
+							 const mat4& modelMat,
+							 const mat4& viewMat,
+							 const mat4& projectionMat,
 							 GLuint glVAO);
 static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 											   OpenGLRenderer::MeshElementGLMapping& glMapping);
@@ -380,19 +379,6 @@ void OpenGLRenderer::render(Mesh& mesh,
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
-		// will check dirty bit, and create an AABB lines if necessary
-		
-//		GLuint vbo, vao;
-//		GetMeshAABBLinesVertexDataHandles(mesh,
-//										  _linesGLMapping,
-//										  vbo, vao);
-
-//		bool dirty = false;
-//		auto& lines = mesh.aabbLines(dirty);
-//		if (dirty) {
-//			A3D_LOG_I("Mesh lines were dirty.");
-//		}
-
 		render(mesh.aabbLines(), modelMat, viewMat, projectionMat);
 	}
 }
@@ -600,25 +586,6 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		glIBO = get<2>(mapping);
 	}
 }
-
-//static void GetMeshAABBLinesVertexDataHandles(Mesh& mesh,
-//											  OpenGLRenderer::LinesGLMapping& linesGLMapping,
-//											  GLuint& glVBO, GLuint& glVAO) {
-//
-//	auto program = Program::Lines();
-//
-//	bool dirty = false;
-//	auto lines = mesh.aabbLines(dirty);
-//
-//	if (dirty) {
-//		DeleteLinesGLResources(lines, linesGLMapping);
-//	}
-//
-//	GetLinesVertexDataHandles(lines,
-//							  program,
-//							  linesGLMapping,
-//							  glVBO, glVAO);
-//}
 
 static void GetLinesVertexDataHandles(const vector<Line>& lines,
 									  Program& program,
@@ -1293,7 +1260,9 @@ static void SetLinesGLState() {
 
 static void DrawMeshElement(MeshElement& element,
 							Program& program,
-							mat4 modelMat, mat4 viewMat, mat4 projectionMat,
+							const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat,
 							GLuint vao, GLuint ibo) {
 	
 	program.use();
@@ -1340,9 +1309,9 @@ static void DrawSkyboxElement(MeshElement& element,
 
 static void DrawLines(const vector<Line>& lines,
 					  Program& program,
-					  mat4 modelMat,
-					  mat4 viewMat,
-					  mat4 projectionMat,
+					  const mat4& modelMat,
+					  const mat4& viewMat,
+					  const mat4& projectionMat,
 					  GLuint glVAO) {
 	
 	program.use();
