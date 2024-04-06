@@ -62,9 +62,9 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		btDiscreteDynamicsWorld*				btWorld() const;
+		btDiscreteDynamicsWorld*		btWorld() const;
 #ifdef DESKTOP
-		BulletDebugDrawer*						btDebugDrawer() const;
+		BulletDebugDrawer*				btDebugDrawer() const;
 #endif
 
 /*********************************************************************************************

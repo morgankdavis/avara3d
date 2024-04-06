@@ -22,16 +22,16 @@ using namespace std;
 
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation):
-		Line{fromLocation, toLocation, Color::White()} { }
+		Line{fromLocation, toLocation, Color{1.0f}} { }
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
-		   const shared_ptr<Color>& color):
+		   const Color& color):
 		Line{fromLocation, toLocation, color, color} { }
 
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation,
-		   const shared_ptr<Color>& fromColor,
-		   const shared_ptr<Color>& toColor):
+		   const Color& fromColor,
+		   const Color& toColor):
 		_fromLocation{fromLocation},
 		_toLocation{toLocation},
 		_fromColor{fromColor},
@@ -57,18 +57,18 @@ void Line::toLocation(const vec3& point) {
 	_toLocation = point;
 }
 
-const shared_ptr<Color>& Line::fromColor() const {
+const Color& Line::fromColor() const {
 	return _fromColor;
 }
 
-void Line::fromColor(const shared_ptr<Color>& color) {
+void Line::fromColor(const Color& color) {
 	_fromColor = color;
 }
 
-const shared_ptr<Color>& Line::toColor() const {
+const Color& Line::toColor() const {
 	return _toColor;
 }
 
-void Line::toColor(const shared_ptr<Color>& color) {
+void Line::toColor(const Color& color) {
 	_toColor = color;
 }
