@@ -34,7 +34,7 @@ namespace a3d {
 		float 					zFar() const;
 		void				 	zFar(float zFar);
 
-		float 					yFov() const; // radians
+		float 					yFov() const;
 		void	 				yFov(float fov);
 
 		float 					aspectRatio() const;

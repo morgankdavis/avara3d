@@ -72,7 +72,7 @@ namespace a3d {
 		bool									automaticallyAddDefaultLighting() const;
 		void									automaticallyAddDefaultLighting(bool enabled);
 
-		RenderContext* 							renderContext() const; // TODO: make reference?
+		RenderContext* 							renderContext() const;
 
 		Scene*									scene() const;
 
@@ -112,7 +112,6 @@ namespace a3d {
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
-		//std::unique_ptr<Color>					_fogColor;
 		std::shared_ptr<Color>					_fogColor;
 		bool									_automaticallyAddDefaultLighting;
 		std::weak_ptr<Node>						_pointOfView;

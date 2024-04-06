@@ -37,9 +37,6 @@ namespace a3d {
 
 	public:
 
-//		static std::shared_ptr<PhysicsBody> 	StaticBody();
-//		static std::shared_ptr<PhysicsBody> 	DynamicBody();
-//		static std::shared_ptr<PhysicsBody> 	KinematicBody();
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();

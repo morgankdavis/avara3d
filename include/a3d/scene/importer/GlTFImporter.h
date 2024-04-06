@@ -17,8 +17,7 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/scene/Scene.h" // why can't this be forward-declared?
-// -> https://stackoverflow.com/questions/6012157/is-stdunique-ptrt-required-to-know-the-full-definition-of-t
+#include "a3d/scene/Scene.h"
 
 
 namespace a3d {
@@ -80,7 +79,6 @@ namespace a3d {
 		std::unique_ptr<Scene> 										_scene;
 		std::filesystem::path										_path;
 		SceneImportOptions											_options;
-		// TODO: switch these to vectors resized from asset?
 		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
 		std::map<std::size_t, std::shared_ptr<Mesh>> 				_meshes;
 		std::map<std::size_t, std::shared_ptr<Image>> 				_images;

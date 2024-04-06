@@ -21,6 +21,7 @@
 namespace a3d {
 
 
+	class Line;
 	class Material;
 	class Node;
 	class Program;
@@ -60,6 +61,8 @@ namespace a3d {
 		AABB							aabb(const Node* convertTo = nullptr) const;
 		glm::vec3 						extent(const Node* convertTo = nullptr) const;
 
+		const std::vector<Line>&				aabbLines();
+
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);
 
@@ -73,6 +76,7 @@ namespace a3d {
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
+		std::vector<Line>				_aabbLines;
 		MeshElementDirtyMask			_dirtyMask;
 	};
 }

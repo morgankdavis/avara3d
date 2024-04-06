@@ -109,16 +109,13 @@ namespace a3d {
 		glm::vec2							_framebufferScale;
 		bool								_vSyncEnabled;
 		AntialiasingMode					_antialiasingMode;
-		
 		std::unique_ptr<GifWriter>			_gifWriter;
 		bool								_recordingGIF;
 		int									_gifRecordingWidth;
 		int									_gifRecordingHeight;
 		int									_gifRecordingMaxFramerate;
 		int									_gifRecordedFrames;
-
 		VisualWorld*						_visualWorld;
-
 		std::unique_ptr<Renderer>			_renderer;
 	};
 }

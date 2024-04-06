@@ -8,8 +8,6 @@
 
 #include "a3d/rendering/material/Material.h"
 
-#include <utility>
-
 #include "a3d/Color.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -82,9 +80,6 @@ Material::Material(const MaterialProperty& ambient,
 				   const MaterialProperty& specular):
 		Material() {
 
-//	_ambient = std::move(ambient);
-//	_diffuse = std::move(diffuse);
-//	_specular = std::move(specular);
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;
@@ -96,10 +91,6 @@ Material::Material(const MaterialProperty& ambient,
 				   const MaterialProperty& emission):
 		Material() {
 
-//	_ambient = std::move(ambient);
-//	_diffuse = std::move(diffuse);
-//	_specular = std::move(specular);
-//	_emission = std::move(emission);
 	_ambient = ambient;
 	_diffuse = diffuse;
 	_specular = specular;

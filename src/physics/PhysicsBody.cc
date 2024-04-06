@@ -28,18 +28,6 @@ using namespace std;
 	Public Static
  *********************************************************************************************/
 
-//shared_ptr<PhysicsBody> PhysicsBody::StaticBody() {
-//	return make_shared<PhysicsBody>(PhysicsBodyType::Static);
-//}
-//
-//shared_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
-//	return make_shared<PhysicsBody>(PhysicsBodyType::Dynamic);
-//}
-//
-//shared_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
-//	return make_shared<PhysicsBody>(PhysicsBodyType::Kinematic);
-//}
-
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
 	return make_unique<PhysicsBody>(PhysicsBodyType::Static);
 }

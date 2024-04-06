@@ -126,10 +126,6 @@ const shared_ptr<Light>& Node::light() const {
 	return _light;
 }
 
-//void Node::light(unique_ptr<Light>& light) {
-//	Node::light(shared_ptr(std::move(light)));
-//}
-
 void Node::light(const shared_ptr<Light>& light) {
 	_light = light;
 }
@@ -138,10 +134,6 @@ const shared_ptr<Camera>& Node::camera() const {
 	return _camera;
 }
 
-//void Node::camera(unique_ptr<Camera>& camera) {
-//	Node::camera(shared_ptr(std::move(camera)));
-//}
-
 void Node::camera(const shared_ptr<Camera>& camera) {
 	_camera = camera;
 }
@@ -149,10 +141,6 @@ void Node::camera(const shared_ptr<Camera>& camera) {
 const shared_ptr<Mesh>& Node::mesh() const {
 	return _mesh;
 }
-
-//void Node::mesh(unique_ptr<Mesh>& mesh) {
-//	Node::mesh(shared_ptr(std::move(mesh)));
-//}
 
 void Node::mesh(const shared_ptr<Mesh>& mesh) {
 
@@ -181,8 +169,6 @@ vec3 Node::position() const {
 
 void Node::position(const vec3& position) {
 	_position = position;
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 }
 
 vec4 Node::rotation() const {
@@ -422,36 +408,23 @@ void Node::transform(const mat4& transform) {
 	//To fix this add this to your code:
 	//
 	//rotation=glm::conjugate(rotation);"
+
 	_orientation = orientation;
 }
 
 vec3 Node::worldPosition() const {
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	return translation;
 
-	return vec3(worldTransform()[3]);
+	return worldTransform()[3];
 }
 
 vec4 Node::worldRotation() const {
 	throw Exception("worldRotation() not implemented."); // TODO: custom exception
-	return vec4(0.0, 0.0, 0.0, 0.0);
+	return {0.0, 0.0, 0.0, 0.0};
 }
 
 vec3 Node::worldEulerAngles() const {
 	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
-	return vec3(0.0, 0.0, 0.0);
+	return {0.0, 0.0, 0.0};
 }
 
 quat Node::worldOrientation() const {
@@ -557,11 +530,6 @@ mat4 Node::worldTransform() const {
 	}
 }
 
-//void Node::addChild(unique_ptr<Node>& node) {
-//
-//	addChild(shared_ptr(std::move(node)));
-//}
-
 void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {
@@ -575,12 +543,6 @@ void Node::addChild(const shared_ptr<Node>& node) {
 	node->_parent = shared_from_this();
 	node->attachedToParent(*this);
 }
-
-//void Node::addChildren(vector<unique_ptr<Node>>& nodes) {
-//	for (auto& node : nodes) {
-//		addChild(shared_ptr(std::move(node)));
-//	}
-//}
 
 void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
 	for (auto& node : nodes) {
@@ -639,63 +601,6 @@ shared_ptr<Node> Node::childNamed(const string &name, bool resursive) {
 	return nullptr;
 }
 
-//vector<Node*> Node::children(bool resursive) {
-//	// if !resursive, returns immediate children in no particular order
-//	// if resursive, returns all descendants in topological order
-//
-//	if (resursive) {
-//		return children(this);
-//	}
-//	else {
-//
-//		auto children = vector<Node*>();
-//		children.reserve(_children.size());
-//		for (auto& child : _children) {
-//			children.push_back(child.get());
-//		}
-//		return children;
-////		return _children;
-//	}
-//}
-//
-//Node* Node::childNamed(const std::string &name, bool resursive) {
-//	for (auto child : children(resursive)) {
-//		if (child->name() != nullopt && *child->name() == name) {
-//			return child;
-//		}
-//	}
-//	return nullptr;
-//}
-
-//vector<weak_ptr<Node>> Node::children(bool resursive) {
-//
-//	// if !resursive, returns immediate children in no particular order
-//	// if resursive, returns all descendants in topological order
-//
-//	if (resursive) {
-//		return children(this);
-//	}
-//	else {
-//
-//		auto children = vector<weak_ptr<Node>>();
-//		children.reserve(_children.size());
-//		for (auto& child : _children) {
-//			children.push_back(child);
-//		}
-//		return children;
-//	}
-//}
-//
-//weak_ptr<Node> Node::childNamed(const std::string& name, bool resursive) {
-//
-//	for (auto child : children(resursive)) {
-//		if (child->name() != nullopt && *child->name() == name) {
-//			return child;
-//		}
-//	}
-//	return nullptr;
-//}
-
 PhysicsBody* Node::physicsBody() const {
 	return _physicsBody.get();
 }
@@ -731,41 +636,6 @@ weak_ptr<Node> Node::parent() const {
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
-
-//void Node::attachedToParent(const shared_ptr<Node>& parent) {
-//	A3D_LOG_T("parent: {:p}", static_cast<void*>(parent.get()));
-//
-//	_parent = parent;
-//
-//	// the only Node with a direct pointer to the Scene is the root node,
-//	// and attachedToParent() is never called on the root node.
-//	// if this is another Scene's root node being attached to this scene
-//	// (such as a scene loaded from a file), we don't want a stale pointer
-//	// to the old scene.
-//	_scene = nullptr;
-//
-//	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
-//
-//	for (auto& child : _children) {
-//		child->ancestorAttachedToParent(shared_from_this(), parent);
-//	}
-//}
-//
-//void Node::detachedFromParent(const shared_ptr<Node>& parent) {
-//	A3D_LOG_T("parent: {:p}", static_cast<void*>(parent.get()));
-//
-//	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
-//
-////	if (_physicsBody) {
-////		_physicsBody->nodeDetachedFromParent(parent);
-////	}
-//
-//	for (auto& child : _children) {
-//		child->ancestorDetachedFromParent(shared_from_this(), parent);
-//	}
-//
-//	_parent = {};
-//}
 
 void Node::attachedToParent(Node& parent) {
 	A3D_LOG_T("parent: {:p}", static_cast<void*>(&parent));
@@ -833,74 +703,6 @@ void Node::detachedFromScene(Scene& scene) {
 
 	_scene = nullptr;
 }
-
-//void Node::ancestorAttachedToParent(const shared_ptr<Node>& ancestor,
-//									const shared_ptr<Node>& parent) {
-//	A3D_LOG_T("ancestor: {:p}, parent: {:p}",
-//			  static_cast<void*>(ancestor.get()),
-//			  static_cast<void*>(parent.get()));
-//
-////	if (_physicsBody) {
-////		_physicsBody->ancestorAttachedToParent(ancestor, parent);
-////	}
-//
-//	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
-//
-//	for (auto& child : _children) {
-//		child->ancestorAttachedToParent(ancestor, parent);
-//	}
-//}
-//
-//void Node::ancestorDetachedFromParent(const shared_ptr<Node>& ancestor,
-//									  const shared_ptr<Node>& parent) {
-//	A3D_LOG_T("ancestor: {:p}, parent: {:p}",
-//			  static_cast<void*>(ancestor.get()),
-//			  static_cast<void*>(parent.get()));
-//
-////	if (_physicsBody) {
-////		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
-////	}
-//
-//	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
-//
-//	for (auto& child : _children) {
-//		child->ancestorDetachedFromParent(ancestor, parent);
-//	}
-//}
-//
-//void Node::ancestorAttachedToScene(const shared_ptr<Node>& ancestor,
-//								   Scene* scene) {
-//	A3D_LOG_T("ancestor: {:p}, scene: {:p}",
-//			  static_cast<void*>(ancestor.get()),
-//			  static_cast<void*>(scene));
-//
-////	if (_physicsBody) {
-////		_physicsBody->ancestorAttachedToScene(ancestor, scene);
-////	}
-//
-//	checkNotifyPhysicsBodyOfReachablePhysicalWorld();
-//
-//	for (auto& child : _children) {
-//		child->ancestorAttachedToScene(ancestor, scene);
-//	}
-//}
-//
-//void Node::ancestorDetachedFromScene(const shared_ptr<Node>& ancestor,
-//									 Scene* scene) {
-//	A3D_LOG_T("ancestor: {:p}, scene: {:p}",
-//			  static_cast<void*>(ancestor.get()),
-//			  static_cast<void*>(scene));
-//
-////	if (_physicsBody) {
-////		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
-////	}
-//
-//	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
-//
-//	for (auto& child : _children) {
-//		child->ancestorDetachedFromScene(ancestor, scene);
-//	}
-//}
 
 void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
 	A3D_LOG_T("ancestor: {:p}, parent: {:p}",
@@ -1059,20 +861,6 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 	return false;
 }
 
-//bool Node::containsChild(Node* node) {
-//
-//	for (auto& child : _children) {
-//		if (child.get() == node) {
-//			return true;
-//		}
-//	}
-////	auto nodes = children(true);
-////	if (find(nodes.begin(), nodes.end(), node) != nodes.end()) {
-////		return true;
-////	}
-//	return false;
-//}
-
 AABB Node::aabb() {
 
 	static const float maxFloat = numeric_limits<float>::max();
@@ -1157,42 +945,6 @@ void Node::applyPhysicsTransform(mat4 transform) {
 	}
 }
 
-//void Node::removePhysicsBodyFromWorld(PhysicalWorld& world) {
-//
-//	if (_physicsBody) {
-//		_physicsBody->removeFromWorld()
-//	}
-//}
-
-//void Node::_debugPrint() {
-//
-//	int level = 0;
-//	auto visited = map<shared_ptr<Node>, bool>();
-//
-//	// don't include the root
-//	//visited[shared_from_this()] = true;
-//	for (auto child : children(false)) {
-//		_debugPrintRec(child, level, visited);
-//	}
-//}
-//
-//void Node::_debugPrintRec(shared_ptr<Node> node,
-//							 int level,
-//							 map<shared_ptr<Node>, bool>& visited) {
-//
-//	if (!visited[node]) {
-//		visited[node] = true;
-//
-//		A3D_LOG_I("[{}] {}", level, *node->name());
-//
-//
-//
-//		for (auto child : node->_children) {
-//			_debugPrintRec(child, level+1, visited);
-//		}
-//	}
-//}
-
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -1214,31 +966,6 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-//vector<shared_ptr<Node>> Node::children(shared_ptr<Node> root) {
-//
-//	auto l = list<shared_ptr<Node>>();
-//
-//	for (auto& child : root->_children) {
-//		childrenRec(child, l);
-//	}
-//
-//	return { make_move_iterator(std::begin(l)),
-//			 make_move_iterator(std::end(l)) };
-//}
-//
-//void Node::childrenRec(shared_ptr<Node> node,
-//					   list<shared_ptr<Node>>& list) {
-//
-//	list.push_back(node);
-//	//list.push_front(node);
-//
-//	for (auto& child : node->_children) {
-//		childrenRec(child, list);
-//	}
-//
-//	//list.push_front(node);
-//}
-
 vector<shared_ptr<Node>> Node::children(const Node* root) {
 
 	auto children = vector<shared_ptr<Node>>();
@@ -1248,9 +975,6 @@ vector<shared_ptr<Node>> Node::children(const Node* root) {
 	}
 
 	return children;
-
-//	return { make_move_iterator(std::begin(l)),
-//			 make_move_iterator(std::end(l)) };
 }
 
 void Node::childrenRec(const shared_ptr<Node>& node,
@@ -1262,90 +986,6 @@ void Node::childrenRec(const shared_ptr<Node>& node,
 		childrenRec(child, children);
 	}
 }
-
-//vector<Node*> Node::children(Node* root) {
-//
-//	auto l = list<Node*>();
-//
-//	for (auto& child : root->_children) {
-//		childrenRec(child.get(), l);
-//	}
-//
-//	return { make_move_iterator(std::begin(l)),
-//			 make_move_iterator(std::end(l)) };
-//}
-//
-//void Node::childrenRec(Node* node,
-//					   list<Node*>& list) {
-//
-//	list.push_back(node);
-//	//list.push_front(node);
-//
-//	for (auto& child : node->_children) {
-//			childrenRec(child.get(), list);
-//	}
-//
-//	//list.push_front(node);
-//}
-//
-//vector<weak_ptr<Node>> Node::children(Node* root) {
-//
-//	auto l = list<weak_ptr<Node>>();
-//
-//	for (auto& child : root->_children) {
-//		childrenRec(child, l);
-//	}
-//
-//	return { make_move_iterator(std::begin(l)),
-//			 make_move_iterator(std::end(l)) };
-//}
-//
-//void Node::childrenRec(shared_ptr<Node> node,
-//					   list<weak_ptr<Node>>& list) {
-//
-//	list.push_back(node);
-//	//list.push_front(node);
-//
-//	for (auto& child : node->_children) {
-//		childrenRec(child, list);
-//	}
-//}
-
-//vector<shared_ptr<Node>> Node::preorderChildren(shared_ptr<Node> root) {
-//
-//	auto visited = map<shared_ptr<Node>, bool>();
-//	auto stack = std::stack<shared_ptr<Node>>();
-//
-//	// don't include the root
-//	//preorderChildrenRec(root, visited, stack);
-//	for (auto child : root->children(false)) {
-//		preorderChildrenRec(child, visited, stack);
-//	}
-//
-//	// probably a better way to do this
-//	auto vec = vector<shared_ptr<Node>>();
-//	vec.reserve(stack.size());
-//	while (!stack.empty()) {
-//		vec.push_back(stack.top());
-//		stack.pop();
-//	}
-//	return vec;
-//}
-//
-//void Node::preorderChildrenRec(shared_ptr<Node> node,
-//							   map<shared_ptr<Node>, bool>& visited,
-//							   stack<shared_ptr<Node>>& stack) {
-//
-//	visited[node] = true;
-//
-//	for (auto child : node->_children) {
-//		if (!visited[child]) {
-//			preorderChildrenRec(child, visited, stack);
-//		}
-//	}
-//
-//	stack.push(node);
-//}
 
 NodeDirtyMask Node::dirtyMask() const {
 	return _dirtyMask;

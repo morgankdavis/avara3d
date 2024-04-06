@@ -80,16 +80,10 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
 PhysicsShape::PhysicsShape():
 		_source{},
 		_bodies{},
-		_proxy{}
-		// _type ?
-		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
+		_proxy{} { }
 
 PhysicsShape::~PhysicsShape() {
 	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
-
-//	for (auto& body : _bodies) {
-//
-//	}
 }
 
 /*********************************************************************************************
@@ -111,10 +105,6 @@ void PhysicsShape::type(PhysicsShapeType type) {
 	_proxy = nullptr;
 
 	checkCreateProxy();
-
-//	for (auto body : _bodies) {
-//		body->shapeUpdated();
-//	}
 }
 
 /*********************************************************************************************
@@ -149,7 +139,6 @@ void PhysicsShape::physicalWorldUnreachable(PhysicalWorld& world) {
 
 void PhysicsShape::source(const Source& sourceObject) {
 
-	//_sourceObject = std::move(sourceObject);
 	_source = sourceObject;
 }
 

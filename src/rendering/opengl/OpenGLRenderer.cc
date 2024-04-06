@@ -378,7 +378,6 @@ void OpenGLRenderer::render(Mesh& mesh,
 							Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-
 		render(mesh.aabbLines(), modelMat, viewMat, projectionMat);
 	}
 }
@@ -432,6 +431,12 @@ void OpenGLRenderer::render(MeshElement& element,
 	// save reference for housekeeping
 
 	_activeMeshElements.emplace(&element);
+
+	// draw AABB lines
+
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+		render(element.aabbLines(), modelMat, viewMat, projectionMat);
+	}
 }
 	
 void OpenGLRenderer::render(const std::vector<Line>& lines,

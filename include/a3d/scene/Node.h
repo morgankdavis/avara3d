@@ -121,12 +121,6 @@ namespace a3d {
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
 		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
 
-//		std::vector<Node*>						children(bool resursive = false); // TODO: should these be shared or weak?
-//		Node* 									childNamed(const std::string& name, bool resursive = false);
-
-//		std::vector<std::weak_ptr<Node>>		children(bool resursive = false);
-//		std::weak_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
-
 		PhysicsBody* 							physicsBody() const;
 		void 									physicsBody(std::unique_ptr<PhysicsBody> body);
 
@@ -143,31 +137,17 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-//		void 									attachedToParent(const std::shared_ptr<Node>& parent);
-//		void 									detachedFromParent(const std::shared_ptr<Node>& parent);
 		void 									attachedToParent(Node& parent);
 		void 									detachedFromParent(Node& parent);
 
 		void									attachedToScene(Scene& scene);
 		void									detachedFromScene(Scene& scene);
 
-//		void 									ancestorAttachedToParent(const std::shared_ptr<Node>& ancestor,
-//																		 const std::shared_ptr<Node>& parent);
-//		void 									ancestorDetachedFromParent(const std::shared_ptr<Node>& ancestor,
-//																		   const std::shared_ptr<Node>& parent);
-//
-//		void									ancestorAttachedToScene(const std::shared_ptr<Node>& ancestor,
-//																		Scene* scene);
-//		void									ancestorDetachedFromScene(const std::shared_ptr<Node>& ancestor,
-//																		  Scene* scene);
 		void 									ancestorAttachedToParent(Node& ancestor, Node& parent);
 		void 									ancestorDetachedFromParent(Node& ancestor, Node& parent);
 
 		void									ancestorAttachedToScene(Node& ancestor, Scene& scene);
 		void									ancestorDetachedFromScene(Node& ancestor, Scene& scene);
-
-//		void									meshAttachedToNode(Mesh* mesh, Node* node);
-//		void 									meshDetachedFromNode(MEsh* mesh, Node* node);
 
 		void									visualWorldAttachedToScene(VisualWorld& world, Scene& scene);
 		void									visualWorldDetachedFromScene(VisualWorld& world, Scene& scene);
@@ -181,10 +161,7 @@ namespace a3d {
 		void									checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
 		void									checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
 
-//		bool 									containsChild(Node* node);
-//		bool 									containsChild(std::unique_ptr<Node> node);
 		bool 									containsChild(const std::shared_ptr<Node>& node);
-//		bool 									containsChild(Node* node);
 
 		AABB									aabb();
 		glm::vec3								extent();
@@ -209,46 +186,26 @@ namespace a3d {
 
 		void									getAABBRec(AABB& aabb);
 
-//		std::vector<std::shared_ptr<Node>>		children(std::shared_ptr<Node> root);
-//		void 									childrenRec(std::shared_ptr<Node> node,
-//															std::list<std::shared_ptr<Node>>& list);
-
 		std::vector<std::shared_ptr<Node>>		children(const Node* root);
 		void 									childrenRec(const std::shared_ptr<Node>& node,
 															std::vector<std::shared_ptr<Node>>& children);
-
-//		std::vector<Node*>						children(Node* root);
-//		void 									childrenRec(Node* node,
-//															std::list<Node*>& list);
-
-//		std::vector<std::weak_ptr<Node>>		children(Node* root);
-//		void 									childrenRec(std::shared_ptr<Node> node,
-//															std::list<std::weak_ptr<Node>>& list);
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);
 
 		std::optional<std::string>				_name;
-
 		std::shared_ptr<Light>					_light;
 		std::shared_ptr<Camera>					_camera;
 		std::shared_ptr<Mesh>					_mesh;
-
 		bool									_hidden;
-
 		std::vector<std::shared_ptr<Node>>		_children;
-
 		glm::vec3								_position;
 		glm::quat								_orientation;
 		glm::vec3								_scale;
-		
 		std::unique_ptr<PhysicsBody>			_physicsBody;
-
-		NodeDirtyMask							_dirtyMask;
-
 		Scene*									_scene;
-
 		std::weak_ptr<Node>						_parent;
+		NodeDirtyMask							_dirtyMask;
 	};
 }
 

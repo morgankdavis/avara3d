@@ -25,7 +25,7 @@ namespace a3d {
 		Texture();
 		explicit Texture(const std::shared_ptr<Sampleable>& contents,
 				const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
-				unsigned mappingChannel = 0);
+				int mappingChannel = 0);
 		~Texture();
 
 		std::shared_ptr<Sampler>		sampler() const;
@@ -34,8 +34,8 @@ namespace a3d {
 		std::shared_ptr<Sampleable>		contents() const;
 		void							contents(const std::shared_ptr<Sampleable>& contents);
 
-		unsigned						mappingChannel() const;
-		void							mappingChannel(unsigned channel);
+		int								mappingChannel() const;
+		void							mappingChannel(int channel);
 
 		TextureDirtyMask 				dirtyMask() const;
 		void 							dirtyMask(TextureDirtyMask mask);
@@ -44,8 +44,7 @@ namespace a3d {
 
 		std::shared_ptr<Sampler>		_sampler;
 		std::shared_ptr<Sampleable>		_contents;
-		unsigned						_mappingChannel;
-
+		int								_mappingChannel;
 		TextureDirtyMask				_dirtyMask;
 	};
 }
