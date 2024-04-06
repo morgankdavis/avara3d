@@ -434,9 +434,9 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// draw AABB lines
 
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		render(element.aabbLines(), modelMat, viewMat, projectionMat);
-	}
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//		render(element.aabbLines(), modelMat, viewMat, projectionMat);
+//	}
 }
 	
 void OpenGLRenderer::render(const std::vector<Line>& lines,
